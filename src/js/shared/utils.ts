@@ -1,5 +1,7 @@
 export class MultiDict {
 
+    private data:{[key:string]:any};
+
     constructor(data) {
         if (!data) {
             this.data = {};
@@ -38,6 +40,6 @@ export class MultiDict {
     }
 
     toURIString() {
-        Object.keys(this.data).map()
+        Object.keys(this.data).map(k => `${encodeURIComponent(k)}=${encodeURIComponent(this.data[k])}`);
     }
 }
