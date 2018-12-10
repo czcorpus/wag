@@ -29,7 +29,7 @@
     "webpack-merge": "^4.1.3"
   },
   "dependencies": {
-    "kombo": "^0.9.0",
+    "kombo": "^0.14.1",
     "britecharts": "^2.9.7",
     "d3": "^5.7.0",
     "@reactivex/rxjs": "^5.5.6",

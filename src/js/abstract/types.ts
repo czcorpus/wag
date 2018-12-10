@@ -4,7 +4,7 @@ import * as Rx from '@reactivex/rxjs';
 export interface ITileProvider {
 
     init():void;
-    getView():React.Component|React.SFC<{}>;
+    getView():React.ComponentClass|React.SFC<{}>;
 
 }
 

@@ -6,7 +6,7 @@ export interface Window1Conf {
 }
 
 export interface TTDistribModelState {
-
+    isBusy:boolean;
 }
 
 export class TTDistribModel extends StatelessModel<TTDistribModelState> {
@@ -19,14 +19,14 @@ export class TTDistribModel extends StatelessModel<TTDistribModelState> {
         super(
             dispatcher,
             {
-
+                isBusy:false
             }
         );
         this.api = api;
         this.conf = conf;
     }
 
-    reduce(action:Action, state:TTDistribModelState):TTDistribModelState {
+    reduce(state:TTDistribModelState, action:Action):TTDistribModelState {
         return state;
     }
 
