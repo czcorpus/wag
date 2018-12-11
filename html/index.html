@@ -1,34 +1,19 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="./index.css" rel="stylesheet" type="text/css">
+    </head>
     <body>
-        <head>
-            <meta charset="utf-8" />
-            <meta name="viewport" content="width=device-width, initial-scale=1">
-            <link href="./index.css" rel="stylesheet" type="text/css">
-        </head>
-        <h1>Korpus.cz - Word in a Glance (template)</h1>
-        <form class="search-form">
-            <select id="query-language">
-                <option value="cs">Czech</option>
-                <option value="en">English</option>
-            </select>
-            <input type="text" id="search-query" />
-            <button id="query-submit" type="button">Search</button>
-        </form>
-        <section class="visualizations">
-            <section class="app-output" id="window1-mount">
-            </section>
-            <section class="app-output" id="window2-mount">
-            </section>
-            <section class="app-output" id="window3-mount">
-            </section>
-            <section class="app-output" id="window4-mount">
-            </section>
-        </section>
+        <section class="wdglance-mount"></section>
         <script type="text/javascript" src="./common.js"></script>
         <script type="text/javascript" src="./index.js"></script>
         <script type="text/javascript">
-        indexPage.init();
+        indexPage.init({
+            mountElement: document.querySelector('.wdglance-mount'),
+            conf: {}
+        });
         </script>
     </body>
 </html>

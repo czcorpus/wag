@@ -1,36 +1,25 @@
 const path = require('path');
-const webpack = require('webpack');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
-module.exports = {
+module.exports = (env) => ({
+    mode: 'development',
     entry: {
         index: path.resolve(__dirname, 'src/js/index')
     },
     output: {
-        filename: 'index.js',
-        chunkFilename: 'common.js',
+        filename: '[name].js',
         path: path.resolve(__dirname, 'dist'),
         libraryTarget: 'var',
-        library: 'indexPage'
-
+        library: '[name]Page'
+    },
+    resolve: {
+        alias: {}, // filled in dynamically
+        modules: [
+            'node_modules'
+        ],
+        extensions: ['.webpack.js', '.web.js', '.ts', '.tsx', '.jsx', '.js', '.json', '.css', '.less']
     },
     module: {
         rules: [
-            {
-                test: /\.js$/,
-                exclude: /node_modules/,
-                loader: 'babel-loader',
-                query: {
-                    presets: ['env']
-                }
-            },
-            {
-                test: /\.css$/,
-                use: ExtractTextPlugin.extract({
-                    use: ['css-loader']
-                })
-            },
             {
                 test: /\.(png|jpg|gif|svg)$/,
                 use: [
@@ -38,7 +27,40 @@ module.exports = {
                         loader: 'file-loader',
                         options: {
                             emitFile: false,
-                            name: '../img/[name].[ext]'
+                            name: '[name].[ext]',
+                            publicPath: path.resolve(__dirname, 'src/img'),
+                        }
+                    }
+                ]
+            },
+            {
+                test: /\.tsx?$/,
+                use: [
+                    {
+                        loader: 'ts-loader',
+                        options: {
+                            transpileOnly: env ? !!env.TS_TRANSPILE_ONLY : false
+                        }
+                    }
+                ]
+            },
+            {
+                test: /\.css$/,
+                use: [
+                    { loader: 'style-loader'},
+                    { loader: 'css-loader' }
+                ]
+            },
+            {
+                test: /\.less$/,
+                use: [
+                    { loader: 'style-loader'},
+                    { loader: 'css-loader' },
+                    {
+                        loader: 'less-loader',
+                        options: {
+                            strictMath: true,
+                            noIeCompat: true
                         }
                     }
                 ]
@@ -54,27 +76,28 @@ module.exports = {
             name: 'common'
         }
     },
-    devtool: 'source-map',
-    plugins: [
-        new ExtractTextPlugin({
-            filename: '[name].css'
-        }),
-        new CopyWebpackPlugin([
-            {
-                from: path.resolve(__dirname, './src/img'),
-                to: path.resolve(__dirname, './dist/img')
-            },
-            {
-                from: path.resolve(__dirname, './html'),
-                to: path.resolve(__dirname, './dist')
-            }
-        ])
-    ],
+    devtool: 'inline-source-map',
+    optimization: {
+        splitChunks: {
+            chunks: 'all',
+            name: 'common'
+        }
+    },
     devServer: {
-        contentBase: path.resolve(__dirname, 'dist'),
+        contentBase: path.resolve(__dirname, 'html'),
         compress: true,
         port: 9000,
         host: 'localhost',
-        inline: false
+        inline: true,
+        before: function(app) {
+            // In the devel-server mode, all the css is delivered via Webpack
+            // but at the same time our hardcoded <link rel="stylesheet" ... />
+            // elements cause browser to load non-available styles.
+            // So we always return an empty stuff with proper content type.
+            app.get('/*.css', function(req, res) {
+                res.set('Content-Type', 'text/css');
+                res.send('');
+            });
+          }
     },
- };
+ });
