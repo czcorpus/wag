@@ -29,11 +29,11 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>, model:Concor
 
         render() {
             if (this.props.isBusy) {
-                return <img src={ut.createStaticUrl('img/ajax-loader.gif')} />;
+                return <div className="service-tile"><img src={ut.createStaticUrl('img/ajax-loader.gif')} /></div>;
 
             } else {
                 return (
-                    <div className="ConcordanceTileView">
+                    <div className="service-tile ConcordanceTileView">
                         <table className="conc-lines">
                             <tbody>
                                 {this.props.lines.map(line => {

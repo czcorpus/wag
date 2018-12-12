@@ -16,8 +16,20 @@
  * limitations under the License.
  */
 
+import { Action } from "kombo";
+import { ConcResponse } from "./service";
+
+
 export enum ActionNames {
-
     DataLoadDone = 'CONCORDANCE_LOAD_DATA_DONE'
+}
 
+
+export namespace Actions {
+
+    export interface DataLoadDone extends Action<{
+        data:ConcResponse;
+    }> {
+        name:ActionNames.DataLoadDone;
+    }
 }

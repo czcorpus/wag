@@ -20,7 +20,7 @@ import {ActionDispatcher, Bound, ViewUtils} from 'kombo';
 import * as React from 'react';
 import * as Immutable from 'immutable';
 import * as Rx from '@reactivex/rxjs';
-import {WdglanceMainState, WdglanceMainFormModel} from '../models/main';
+import {WdglanceMainState, WdglanceMainFormModel, QueryType} from '../models/main';
 import {ActionNames, Actions} from '../models/actions';
 import {KeyCodes} from '../shared/util';
 
@@ -32,16 +32,12 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>, model:Wdglan
     const QueryLangSelector:React.SFC<{
         value:string;
         availLanguages:Immutable.List<[string, string]>;
+        onChange:(v:string)=>void;
 
     }> = (props) => {
 
         const changeHandler = (evt:React.ChangeEvent<HTMLSelectElement>) => {
-            dispatcher.dispatch<Actions.ChangeTargetLanguage>({
-                type: ActionNames.ChangeTargetLanguage,
-                payload: {
-                    value: evt.target.value
-                }
-            });
+            props.onChange(evt.target.value);
         }
 
         return (
@@ -59,6 +55,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>, model:Wdglan
     class QueryInput extends React.PureComponent<
         {
             initialValue:string,
+            onContentChange:(s:string)=>void;
             onEnter:()=>void;
         },
         {value: string}> {
@@ -73,16 +70,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>, model:Wdglan
             this.handleInput = this.handleInput.bind(this);
             this.handleKeyDown = this.handleKeyDown.bind(this);
             this.queryWritingIn = new Rx.Subject<string>();
-            this.queryWritingIn.debounceTime(300).subscribe(
-                (v) => {
-                    dispatcher.dispatch<Actions.ChangeQueryInput>({
-                        type: ActionNames.ChangeQueryInput,
-                        payload: {
-                            value: v
-                        }
-                    });
-                }
-            );
+            this.queryWritingIn.debounceTime(300).subscribe(this.props.onContentChange);
         }
 
         private handleInput(evt:React.ChangeEvent<HTMLInputElement>) {
@@ -126,6 +114,28 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>, model:Wdglan
         </button>;
     };
 
+    // ------------------ <QueryTypeSelector /> ------------------------------
+
+    const QueryTypeSelector:React.SFC<{
+        avail:Immutable.List<[QueryType, string]>;
+        value:QueryType;
+
+    }> = (props) => {
+
+        const handleChange = (evt:React.ChangeEvent<HTMLSelectElement>) => {
+            dispatcher.dispatch<Actions.ChangeQueryType>({
+                name: ActionNames.ChangeQueryType,
+                payload: {
+                    value: evt.target.value as QueryType
+                }
+            });
+        }
+
+        return <select onChange={handleChange}>
+            {props.avail.map(v => <option key={v[0]} value={v[0]}>{v[1]}</option>)}
+        </select>
+    };
+
     // ------------------ <WdglanceControls /> ------------------------------
 
     class WdglanceControls extends React.PureComponent<WdglanceMainState> {
@@ -133,20 +143,77 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>, model:Wdglan
         constructor(props) {
             super(props);
             this.handleSubmit = this.handleSubmit.bind(this);
+            this.handleQueryInput1 = this.handleQueryInput1.bind(this);
+            this.handleQueryInput2 = this.handleQueryInput2.bind(this);
+            this.handleTargetLanguageChange = this.handleTargetLanguageChange.bind(this);
+            this.handleTargetLanguageChange2 = this.handleTargetLanguageChange2.bind(this);
         }
 
         private handleSubmit() {
             dispatcher.dispatch({
-                type: ActionNames.RequestQueryResponse
+                name: ActionNames.RequestQueryResponse
+            });
+        }
+
+        private handleQueryInput1(s:string):void {
+            dispatcher.dispatch<Actions.ChangeQueryInput>({
+                name: ActionNames.ChangeQueryInput,
+                payload: {
+                    value: s
+                }
+            });
+        }
+
+        private handleQueryInput2(s:string):void {
+            dispatcher.dispatch<Actions.ChangeQueryInput2>({
+                name: ActionNames.ChangeQueryInput2,
+                payload: {
+                    value: s
+                }
+            });
+        }
+
+        private handleTargetLanguageChange(lang:string) {
+            dispatcher.dispatch<Actions.ChangeTargetLanguage>({
+                name: ActionNames.ChangeTargetLanguage,
+                payload: {
+                    value: lang
+                }
+            });
+        }
+
+        private handleTargetLanguageChange2(lang:string) {
+            dispatcher.dispatch<Actions.ChangeTargetLanguage2>({
+                name: ActionNames.ChangeTargetLanguage2,
+                payload: {
+                    value: lang
+                }
             });
         }
 
         render() {
             return (
                 <div>
-                    <form className='search-form'>
-                        <QueryLangSelector value={this.props.targetLanguage} availLanguages={this.props.availLanguages} />
-                        <QueryInput initialValue={this.props.query} onEnter={this.handleSubmit} />
+                    <form className="WdglanceControls">
+                        <div>
+                            <QueryTypeSelector avail={this.props.availQueryTypes} value={this.props.queryType} />
+                        </div>
+                        <div className="query1">
+                            <QueryLangSelector value={this.props.targetLanguage} availLanguages={this.props.availLanguages}
+                                    onChange={this.handleTargetLanguageChange} />
+                            <QueryInput initialValue={this.props.query} onEnter={this.handleSubmit}
+                                    onContentChange={this.handleQueryInput1} />
+                        </div>
+                            {
+                                this.props.queryType === QueryType.DOUBLE_QUERY ?
+                                <div className="query2">
+                                    <QueryLangSelector value={this.props.targetLanguage2} availLanguages={this.props.availLanguages}
+                                        onChange={this.handleTargetLanguageChange2} />
+                                    <QueryInput initialValue={this.props.query2} onEnter={this.handleSubmit}
+                                        onContentChange={this.handleQueryInput2} />
+                                </div> :
+                                null
+                            }
                         <SubmitButton onClick={this.handleSubmit} />
                     </form>
                 </div>
@@ -159,29 +226,79 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>, model:Wdglan
     // ------------------ <WdglanceMain /> ------------------------------
 
     class WdglanceMain extends React.PureComponent<{
-        windowA:React.ComponentClass;
-        windowB:React.ComponentClass;
-        windowC:React.ComponentClass;
-        windowD:React.ComponentClass;
+        window0:React.ComponentClass<{parentRef:React.RefObject<HTMLElement>}>;
+        window0Label:string;
+        window1:React.ComponentClass<{parentRef:React.RefObject<HTMLElement>}>;
+        window1Label:string;
+        window2:React.ComponentClass<{parentRef:React.RefObject<HTMLElement>}>;
+        window2Label:string;
+        window3:React.ComponentClass<{parentRef:React.RefObject<HTMLElement>}>;
+        window3Label:string;
     }> {
+
+        private frame0Ref:React.RefObject<HTMLElement>;
+
+        private frame1Ref:React.RefObject<HTMLElement>;
+
+        private frame2Ref:React.RefObject<HTMLElement>;
+
+        private frame3Ref:React.RefObject<HTMLElement>;
+
+        constructor(props) {
+            super(props);
+            this.frame0Ref = React.createRef();
+            this.frame1Ref = React.createRef();
+            this.frame2Ref = React.createRef();
+            this.frame3Ref = React.createRef();
+
+            window.onresize = () => {
+                this.dispatchSizes();
+            };
+        }
+
+        private getElmSize(elm:HTMLElement):[number, number] {
+            return [~~Math.round(elm.clientWidth), ~~Math.round(elm.clientHeight)];
+        }
+
+        private dispatchSizes():void {
+            dispatcher.dispatch<Actions.AcknowledgeSizes>({
+                name: ActionNames.AcknowledgeSizes,
+                payload: {
+                    values: [
+                        this.getElmSize(this.frame0Ref.current),
+                        this.getElmSize(this.frame1Ref.current),
+                        this.getElmSize(this.frame2Ref.current),
+                        this.getElmSize(this.frame3Ref.current),
+                    ]
+                }
+            });
+        }
+
+        componentDidMount() {
+            this.dispatchSizes();
+        }
 
         render() {
             return (
                 <div>
                     <h1>Korpus.cz - Word in a Glance (template)</h1>
                     <WdglanceControlsBound />
-                    <section className="visualizations">
-                        <section className="app-output" id="window1-mount">
-                            {this.props.windowA ? <this.props.windowA /> : null}
+                    <section className="tiles">
+                        <section className="app-output window1-mount" ref={this.frame0Ref}>
+                            <h2>{this.props.window0Label}</h2>
+                            {this.props.window0 ? <this.props.window0 parentRef={this.frame0Ref} /> : null}
                         </section>
-                        <section className="app-output" id="window2-mount">
-                            {this.props.windowB ? <this.props.windowB /> : null}
+                        <section className="app-output window2-mount" ref={this.frame1Ref}>
+                            <h2>{this.props.window1Label}</h2>
+                            {this.props.window1 ? <this.props.window1 parentRef={this.frame1Ref} /> : null}
                         </section>
-                        <section className="app-output" id="window3-mount">
-                            {this.props.windowC ? <this.props.windowC /> : null}
+                        <section className="app-output window3-mount" ref={this.frame2Ref}>
+                            <h2>{this.props.window2Label}</h2>
+                            {this.props.window2 ? <this.props.window2 parentRef={this.frame2Ref} /> : null}
                         </section>
-                        <section className="app-output" id="window4-mount">
-                            {this.props.windowD ? <this.props.windowD /> : null}
+                        <section className="app-output window4-mount" ref={this.frame3Ref}>
+                            <h2>{this.props.window3Label}</h2>
+                            {this.props.window3 ? <this.props.window3 parentRef={this.frame0Ref} /> : null}
                         </section>
                     </section>
                 </div>

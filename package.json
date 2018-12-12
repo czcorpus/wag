@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
-  "license": "Apache 2",
+  "license": "Apache-2.0",
   "devDependencies": {
     "clean-webpack-plugin": "^0.1.19",
     "css-loader": "^1.0.0",
@@ -29,9 +29,10 @@
     "webpack-merge": "^4.1.3"
   },
   "dependencies": {
-    "kombo": "^0.14.1",
-    "britecharts": "^2.9.7",
+    "kombo": "^0.16.1",
+    "britecharts": "^2.9.8",
     "d3": "^5.7.0",
+    "@types/d3": "^5.0.1",
     "@reactivex/rxjs": "^5.5.6",
     "@types/react": "^16.4.6",
     "@types/react-dom": "^16.0.6",
