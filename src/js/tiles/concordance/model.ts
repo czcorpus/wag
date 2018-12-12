@@ -15,10 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+import * as Immutable from 'immutable';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
-import {ActionNames as GlobalActionNames} from '../../models/actions';
-import {ActionNames} from './actions';
+import {ActionNames as GlobalActionNames, Actions as GlobalActions} from '../../models/actions';
+import {ActionNames, Actions} from './actions';
 import {RequestBuilder, ConcResponse, Line} from './service';
 import { WdglanceMainFormModel } from '../../models/main';
 //import {}
@@ -27,7 +27,7 @@ import { WdglanceMainFormModel } from '../../models/main';
 
 export interface ConcordanceTileState {
     isBusy:boolean;
-    lines:Array<Line>;
+    lines:Immutable.List<Line>;
 }
 
 export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
@@ -41,7 +41,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             dispatcher,
             {
                 isBusy: false,
-                lines: []
+                lines: Immutable.List<Line>()
             }
         );
         this.service = service;
@@ -50,7 +50,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
     reduce(state:ConcordanceTileState, action:Action):ConcordanceTileState {
         let newState:ConcordanceTileState;
-        switch (action.type) {
+        switch (action.name) {
             case GlobalActionNames.RequestQueryResponse:
                 newState = this.copyState(state);
                 newState.isBusy = true;
@@ -59,7 +59,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 newState = this.copyState(state);
                 newState.isBusy = false;
                 const data = action.payload['data'] as ConcResponse;
-                newState.lines = data.Lines;
+                newState.lines = Immutable.List<Line>(data.Lines);
             break;
             default:
                 newState = state;
@@ -69,20 +69,20 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
     }
 
     sideEffects(state:ConcordanceTileState, action:Action, dispatch:SEDispatcher):void {
-        switch(action.type) {
+        switch(action.name) {
             case GlobalActionNames.RequestQueryResponse:
                 this.service.call({query: this.mainForm.getState().query}).subscribe(
                     (data) => {
-                        dispatch({
-                            type: ActionNames.DataLoadDone,
+                        dispatch<Actions.DataLoadDone>({
+                            name: ActionNames.DataLoadDone,
                             payload: {
                                 data: data
                             }
                         });
                     },
                     (err) => {
-                        dispatch({
-                            type: ActionNames.DataLoadDone,
+                        dispatch<Actions.DataLoadDone>({
+                            name: ActionNames.DataLoadDone,
                             error: err
                         });
                     }

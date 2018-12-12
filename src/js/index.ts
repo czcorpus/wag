@@ -23,6 +23,7 @@ import {init as viewInit} from './views/main';
 import { WdglanceMainFormModel } from './models/main';
 import {init as concInit} from './tiles/concordance/index';
 import {init as freqInit} from './tiles/ttDistrib/index';
+import { GlobalComponents, init as globalCompInit } from './views/global';
 
 declare var require:(src:string)=>void;
 require('../css/index.css'); // webpack
@@ -35,10 +36,13 @@ export interface WdglanceConf {
 
 export const init = ({mountElement, uiLang}:WdglanceConf) => {
     const dispatcher = new ActionDispatcher();
-    const viewUtils = new ViewUtils<{}>({
+    const viewUtils = new ViewUtils<GlobalComponents>({
         uiLang: uiLang || 'en_US',
-        translations: this.translations
+        translations: this.translations,
+
     });
+    const globalComponents = globalCompInit(dispatcher, viewUtils);
+    viewUtils.attachComponents(globalComponents);
     const model = new WdglanceMainFormModel(
         dispatcher,
         [
@@ -52,17 +56,21 @@ export const init = ({mountElement, uiLang}:WdglanceConf) => {
     const concTile = concInit(dispatcher, viewUtils, model);
 
     // window freq.
-    const freqTile = freqInit(dispatcher, viewUtils, model);
+    const freqTile = freqInit(0, dispatcher, viewUtils, model);
 
 
     ReactDOM.render(
         React.createElement(
             component.WdglanceMain,
             {
-                windowA: null,
-                windowB: null,
-                windowC: freqTile.getView(),
-                windowD: concTile.getView()
+                window0: freqTile.getView(),
+                window0Label: 'Text types',
+                window1: null,
+                window1Label: 'Collocations',
+                window2: null,
+                window2Label: 'Treq',
+                window3: concTile.getView(),
+                window3Label: 'Concordance',
             }
         ),
         mountElement

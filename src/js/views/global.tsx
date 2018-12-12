@@ -16,38 +16,21 @@
  * limitations under the License.
  */
 
-import * as Rx from '@reactivex/rxjs';
-import { DataApi } from '../../abstract/types';
+import {ActionDispatcher, ViewUtils} from 'kombo';
+import * as React from 'react';
 
 
-export interface DataRow {
-    name:string;
-    value:number;
+export interface GlobalComponents {
+    AjaxLoader:React.SFC<{}>;
 }
 
+export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalComponents {
 
-export type APIResponse = Array<DataRow>;
-
-
-export interface QueryArgs {
-
-}
-
-export class DummyAPI implements DataApi<QueryArgs, APIResponse> {
-
-    constructor() {
-
+    const AjaxLoader:React.SFC<{}> = (props) => {
+        return <img src={ut.createStaticUrl('img/ajax-loader.gif')} alt="ajax-loader" />;
     }
 
-
-    call(args:QueryArgs):Rx.Observable<APIResponse> {
-        return Rx.Observable.of([
-            {name: 'ADM', value: 3419},
-            {name: 'LEI', value: 2811},
-            {name: 'MEM', value: 831},
-            {name: 'NEW', value: 17942},
-            {name: 'NOW', value: 809},
-            {name: 'POP', value: 11789}
-        ]).delay(1500);
-    }
+    return {
+        AjaxLoader: AjaxLoader
+    };
 }

@@ -22,23 +22,24 @@ import { ActionDispatcher, ViewUtils } from "kombo";
 import { WdglanceMainFormModel } from "../../models/main";
 import { TTDistribModel } from "./model";
 import { DummyAPI } from "./api";
+import { GlobalComponents } from "../../views/global";
 
 
 export class TTDistTile implements ITileProvider {
 
     private readonly dispatcher:ActionDispatcher;
 
-    private readonly ut:ViewUtils<{}>;
+    private readonly ut:ViewUtils<GlobalComponents>;
 
     private readonly mainForm:WdglanceMainFormModel;
 
     private readonly model:TTDistribModel;
 
-    constructor(dispatcher:ActionDispatcher, ut:ViewUtils<{}>, mainForm:WdglanceMainFormModel) {
+    constructor(frameId:number, dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, mainForm:WdglanceMainFormModel) {
         this.dispatcher = dispatcher;
         this.ut = ut;
         this.mainForm = mainForm;
-        this.model = new TTDistribModel(this.dispatcher, new DummyAPI(), {});
+        this.model = new TTDistribModel(this.dispatcher, frameId, new DummyAPI(), mainForm, {});
     }
 
     init():void {
@@ -53,6 +54,6 @@ export class TTDistTile implements ITileProvider {
 }
 
 
-export const init = (dispatcher:ActionDispatcher, ut:ViewUtils<{}>, mainForm:WdglanceMainFormModel) => {
-    return new TTDistTile(dispatcher, ut, mainForm);
+export const init = (frameId:number, dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, mainForm:WdglanceMainFormModel) => {
+    return new TTDistTile(frameId, dispatcher, ut, mainForm);
 }

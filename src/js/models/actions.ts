@@ -17,25 +17,59 @@
  */
 
 import {Action} from 'kombo';
+import { QueryType } from './main';
 
 export enum ActionNames {
     ChangeQueryInput = 'MAIN_CHANGE_QUERY_INPUT',
+    ChangeQueryInput2 = 'MAIN_CHANGE_QUERY_INPUT2',
     RequestQueryResponse = 'MAIN_REQUEST_QUERY_RESPONSE',
-    ChangeTargetLanguage = 'MAIN_CHANGE_TARGET_LANGUAGE'
+    ChangeTargetLanguage = 'MAIN_CHANGE_TARGET_LANGUAGE',
+    ChangeTargetLanguage2 = 'MAIN_CHANGE_TARGET_LANGUAGE2',
+    ChangeQueryType = 'MAIN_CHANGE_QUERY_TYPE',
+    AcknowledgeSizes = 'MAIN_ACKNOWLEDGE_SIZES',
+
 }
 
 export namespace Actions {
 
-    export interface RequestQueryResponse extends Action<ActionNames.RequestQueryResponse, {
+    export interface RequestQueryResponse extends Action<{
+    }> {
+        name:ActionNames.ChangeQueryInput;
+    }
 
-    }> {}
-
-    export interface ChangeQueryInput extends Action<ActionNames.ChangeQueryInput, {
+    export interface ChangeQueryInput extends Action<{
         value:string;
-    }> {}
+    }> {
+        name:ActionNames.ChangeQueryInput;
+    }
 
-    export interface ChangeTargetLanguage extends Action<ActionNames.ChangeTargetLanguage, {
+    export interface ChangeQueryInput2 extends Action<{
         value:string;
-    }> {}
+    }> {
+        name:ActionNames.ChangeQueryInput2;
+    }
 
+    export interface ChangeTargetLanguage extends Action<{
+        value:string;
+    }> {
+        name:ActionNames.ChangeTargetLanguage;
+    }
+
+    export interface ChangeTargetLanguage2 extends Action<{
+        value:string;
+    }> {
+        name:ActionNames.ChangeTargetLanguage2;
+    }
+
+    export interface ChangeQueryType extends Action<{
+        value:QueryType;
+    }> {
+        name:ActionNames.ChangeQueryType;
+    }
+
+    export interface AcknowledgeSizes extends Action<{
+        values:Array<[number, number]>;
+    }> {
+        name:ActionNames.AcknowledgeSizes;
+    }
 }
