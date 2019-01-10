@@ -110,7 +110,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>, model:Wdglan
     }> = (props) => {
 
         return <button className="query-submit" type="button" onClick={props.onClick}>
-            Search
+            {ut.translate('global__search')}
         </button>;
     };
 

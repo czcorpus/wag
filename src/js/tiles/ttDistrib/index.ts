@@ -51,6 +51,10 @@ export class TTDistTile implements ITileProvider {
         return c.View;
     }
 
+    getLabel():string {
+        return this.ut.translate('ttDistrib__main_label');
+    }
+
 }
 
 
