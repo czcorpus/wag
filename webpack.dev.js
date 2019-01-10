@@ -1,4 +1,16 @@
 const path = require('path');
+const build = require('./build');
+
+
+// helper functions
+
+const mkpath = (p) => path.resolve(__dirname, '.', p);
+
+
+const SRC_PATH = mkpath('src');
+const DIST_PATH = mkpath('dist');
+const CONF = build.loadConf(mkpath('conf.json'));
+
 
 module.exports = (env) => ({
     mode: 'development',
@@ -14,7 +26,8 @@ module.exports = (env) => ({
     resolve: {
         alias: {}, // filled in dynamically
         modules: [
-            'node_modules'
+            'node_modules',
+            mkpath('dist/.compiled')
         ],
         extensions: ['.webpack.js', '.web.js', '.ts', '.tsx', '.jsx', '.js', '.json', '.css', '.less']
     },
@@ -100,4 +113,7 @@ module.exports = (env) => ({
             });
           }
     },
+    plugins: [
+        new build.ProcTranslationsPlugin(SRC_PATH, DIST_PATH, CONF)
+    ]
  });

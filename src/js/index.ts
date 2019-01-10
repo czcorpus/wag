@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+/// <reference path="./translations.d.ts" />
 import { ActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
@@ -24,6 +24,7 @@ import { WdglanceMainFormModel } from './models/main';
 import {init as concInit} from './tiles/concordance/index';
 import {init as freqInit} from './tiles/ttDistrib/index';
 import { GlobalComponents, init as globalCompInit } from './views/global';
+import * as translations from 'translations';
 
 declare var require:(src:string)=>void;
 require('../css/index.css'); // webpack
@@ -38,9 +39,10 @@ export const init = ({mountElement, uiLang}:WdglanceConf) => {
     const dispatcher = new ActionDispatcher();
     const viewUtils = new ViewUtils<GlobalComponents>({
         uiLang: uiLang || 'en_US',
-        translations: this.translations,
+        translations: translations,
 
     });
+
     const globalComponents = globalCompInit(dispatcher, viewUtils);
     viewUtils.attachComponents(globalComponents);
     const model = new WdglanceMainFormModel(
@@ -64,13 +66,13 @@ export const init = ({mountElement, uiLang}:WdglanceConf) => {
             component.WdglanceMain,
             {
                 window0: freqTile.getView(),
-                window0Label: 'Text types',
+                window0Label: freqTile.getLabel(),
                 window1: null,
                 window1Label: 'Collocations',
                 window2: null,
                 window2Label: 'Treq',
                 window3: concTile.getView(),
-                window3Label: 'Concordance',
+                window3Label: concTile.getLabel(),
             }
         ),
         mountElement

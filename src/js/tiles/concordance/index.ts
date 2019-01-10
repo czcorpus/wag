@@ -48,6 +48,10 @@ export class ConcordanceBox implements ITileProvider {
         const c = viewInit(this.dispatcher, this.ut, this.model);
         return c.ConcordanceTileView;
     }
+
+    getLabel():string {
+        return this.ut.translate('concordance__main_label');
+    }
 }
 
 
