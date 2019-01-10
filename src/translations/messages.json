@@ -1,8 +1,12 @@
 {
     "en-US": {
-        "global__search": "Search"
+        "global__search": "Search",
+        "global__single_word_sel": "Single word",
+        "global__two_words_compare": "Compare two words"
     },
     "cs-CZ": {
-        "global__search": "Hledat"
+        "global__search": "Hledat",
+        "global__single_word_sel": "Jedno slovo",
+        "global__two_words_compare": "Porovnat dvě slova"
     }
 }

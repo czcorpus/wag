@@ -34,3 +34,23 @@ export namespace KeyCodes {
                 code === LEFT_ARROW || code === RIGHT_ARROW;
     }
 }
+
+
+
+export const puid = ():string => {
+    const ab = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const len = ab.length;
+    const ans = [];
+
+    let x = new Date().getTime();
+    while (x > 0) {
+        ans.push(ab[x % len]);
+        x = Math.floor(x / len);
+    }
+    x = Math.random() * 1e14;
+    while (x > 0) {
+        ans.push(ab[x % len]);
+        x = Math.floor(x / len);
+    }
+    return ans.join('').substr(0, 14);
+};

@@ -10,7 +10,7 @@ const mkpath = (p) => path.resolve(__dirname, '.', p);
 const SRC_PATH = mkpath('src');
 const DIST_PATH = mkpath('dist');
 const CONF = build.loadConf(mkpath('conf.json'));
-
+console.log('public path: ', (CONF.develServer || {}).urlRootPath);
 
 module.exports = (env) => ({
     mode: 'development',
@@ -41,7 +41,7 @@ module.exports = (env) => ({
                         options: {
                             emitFile: false,
                             name: '[name].[ext]',
-                            publicPath: path.resolve(__dirname, 'src/img'),
+                            publicPath: CONF.staticFilesUrl,
                         }
                     }
                 ]
@@ -97,9 +97,12 @@ module.exports = (env) => ({
         }
     },
     devServer: {
+        // disableHostCheck: true,
+        public: 'kontext.korpus.test',
+        publicPath: (CONF.develServer || {}).urlRootPath + 'dist/',
         contentBase: path.resolve(__dirname, 'html'),
         compress: true,
-        port: 9000,
+        port: (CONF.develServer || {}).port || 9000,
         host: 'localhost',
         inline: true,
         before: function(app) {

@@ -20,12 +20,34 @@ import {ActionDispatcher, Bound, ViewUtils} from 'kombo';
 import * as React from 'react';
 import * as Immutable from 'immutable';
 import * as Rx from '@reactivex/rxjs';
-import {WdglanceMainState, WdglanceMainFormModel, QueryType} from '../models/main';
-import {ActionNames, Actions} from '../models/actions';
+import {WdglanceMainState, WdglanceMainFormModel} from '../models/main';
+import {ActionNames, Actions, QueryType} from '../models/actions';
 import {KeyCodes} from '../shared/util';
+import { SystemMessage, SystemMessageType } from '../notifications';
+import { GlobalComponents } from './global';
 
 
-export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>, model:WdglanceMainFormModel) {
+export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:WdglanceMainFormModel) {
+
+    const globalComponents = ut.getComponents();
+
+    // ------------------ <SystemMessage /> ------------------------------
+
+    const SystemMessage:React.SFC<{
+        type:SystemMessageType;
+        text:string;
+    }> = (props) => {
+        return (
+            <li className="SystemMessage">
+                <div className="wrapper">
+                    <div className="flex">
+                        <globalComponents.MessageStatusIcon statusType={props.type} isInline={true} />
+                        <p>{props.text}</p>
+                    </div>
+                </div>
+            </li>
+        );
+    };
 
     // ------------------ <QueryLangSelector /> ------------------------------
 
@@ -122,7 +144,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>, model:Wdglan
 
     }> = (props) => {
 
-        const handleChange = (evt:React.ChangeEvent<HTMLSelectElement>) => {
+        const handleChange = (evt:React.ChangeEvent<HTMLInputElement>) => {
             dispatcher.dispatch<Actions.ChangeQueryType>({
                 name: ActionNames.ChangeQueryType,
                 payload: {
@@ -131,9 +153,14 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>, model:Wdglan
             });
         }
 
-        return <select onChange={handleChange}>
-            {props.avail.map(v => <option key={v[0]} value={v[0]}>{v[1]}</option>)}
-        </select>
+        return <div>
+            {props.avail.map(v =>
+                <label key={v[0]}>
+                    <input type="radio" value={v[0]} onChange={handleChange} checked={v[0] === props.value} />
+                    {v[1]}
+                </label>
+            )}
+        </div>
     };
 
     // ------------------ <WdglanceControls /> ------------------------------
@@ -195,33 +222,50 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>, model:Wdglan
             return (
                 <div>
                     <form className="WdglanceControls">
+                        <div className="main">
+                            <div className="queries">
+                                <div className="query1">
+                                    <QueryLangSelector value={this.props.targetLanguage} availLanguages={this.props.availLanguages}
+                                            onChange={this.handleTargetLanguageChange} />
+                                    <QueryInput initialValue={this.props.query} onEnter={this.handleSubmit}
+                                            onContentChange={this.handleQueryInput1} />
+                                </div>
+                                {
+                                    this.props.queryType === QueryType.DOUBLE_QUERY ?
+                                    <div className="query2">
+                                        <QueryLangSelector value={this.props.targetLanguage2} availLanguages={this.props.availLanguages}
+                                            onChange={this.handleTargetLanguageChange2} />
+                                        <QueryInput initialValue={this.props.query2} onEnter={this.handleSubmit}
+                                            onContentChange={this.handleQueryInput2} />
+                                    </div> :
+                                    null
+                                }
+                            </div>
+                            <div>
+                                <SubmitButton onClick={this.handleSubmit} />
+                            </div>
+                        </div>
                         <div>
                             <QueryTypeSelector avail={this.props.availQueryTypes} value={this.props.queryType} />
                         </div>
-                        <div className="query1">
-                            <QueryLangSelector value={this.props.targetLanguage} availLanguages={this.props.availLanguages}
-                                    onChange={this.handleTargetLanguageChange} />
-                            <QueryInput initialValue={this.props.query} onEnter={this.handleSubmit}
-                                    onContentChange={this.handleQueryInput1} />
-                        </div>
-                            {
-                                this.props.queryType === QueryType.DOUBLE_QUERY ?
-                                <div className="query2">
-                                    <QueryLangSelector value={this.props.targetLanguage2} availLanguages={this.props.availLanguages}
-                                        onChange={this.handleTargetLanguageChange2} />
-                                    <QueryInput initialValue={this.props.query2} onEnter={this.handleSubmit}
-                                        onContentChange={this.handleQueryInput2} />
-                                </div> :
-                                null
-                            }
-                        <SubmitButton onClick={this.handleSubmit} />
                     </form>
+                    {this.props.systemMessages.size > 0 ? <Messages messages={this.props.systemMessages} /> : null}
                 </div>
             );
         }
     }
 
     const WdglanceControlsBound = Bound<WdglanceMainState>(WdglanceControls, model);
+
+
+    // -------
+
+    const Messages:React.SFC<{
+        messages:Immutable.List<SystemMessage>;
+    }> = (props) => {
+        return <ul className="Messages">{props.messages.map(
+            msg => <SystemMessage key={msg.ident} type={msg.type} text={msg.text} />)}</ul>
+    };
 
     // ------------------ <WdglanceMain /> ------------------------------
 
@@ -280,8 +324,10 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>, model:Wdglan
 
         render() {
             return (
-                <div>
-                    <h1>Korpus.cz - Word in a Glance (template)</h1>
+                <div className="WdglanceMain">
+                    <div className="logo">
+                        <h1>Word in a Glance</h1>
+                    </div>
                     <WdglanceControlsBound />
                     <section className="tiles">
                         <section className="app-output window1-mount" ref={this.frame0Ref}>

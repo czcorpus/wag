@@ -22,6 +22,8 @@ import { ConcordanceTileModel } from './model';
 import { ActionDispatcher, ViewUtils } from 'kombo';
 import { RequestBuilder } from './service';
 import { WdglanceMainFormModel } from '../../models/main';
+import { AppServices } from '../../appServices';
+import { GlobalComponents } from '../../views/global';
 
 declare var require:any;
 require('./style.less');
@@ -33,11 +35,11 @@ export class ConcordanceBox implements ITileProvider {
 
     private model:ConcordanceTileModel;
 
-    private ut:ViewUtils<{}>;
+    private ut:ViewUtils<GlobalComponents>;
 
-    constructor(dispatcher:ActionDispatcher, ut:ViewUtils<{}>, mainForm:WdglanceMainFormModel) {
+    constructor(dispatcher:ActionDispatcher, appServices:AppServices, ut:ViewUtils<GlobalComponents>, mainForm:WdglanceMainFormModel) {
         this.dispatcher = dispatcher;
-        this.model = new ConcordanceTileModel(dispatcher, new RequestBuilder(), mainForm);
+        this.model = new ConcordanceTileModel(dispatcher, appServices, new RequestBuilder(), mainForm);
         this.ut = ut;
     }
 
@@ -55,6 +57,6 @@ export class ConcordanceBox implements ITileProvider {
 }
 
 
-export const init = (dispatcher:ActionDispatcher, ut:ViewUtils<{}>, mainForm:WdglanceMainFormModel) => {
-    return new ConcordanceBox(dispatcher, ut, mainForm);
+export const init = (dispatcher:ActionDispatcher, appServices:AppServices, ut:ViewUtils<GlobalComponents>, mainForm:WdglanceMainFormModel) => {
+    return new ConcordanceBox(dispatcher, appServices, ut, mainForm);
 }

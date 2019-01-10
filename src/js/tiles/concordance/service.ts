@@ -31,7 +31,8 @@ export interface Line {
     toknum:number;
 }
 
-export interface ConcResponse {drawChart
+export interface ConcResponse {
+    messages:Array<[string, string]>;
     Lines:Array<Line>;
     [key:string]:any;
 }

@@ -20,16 +20,22 @@ import {ActionDispatcher, Bound, ViewUtils} from 'kombo';
 import * as React from 'react';
 import {ConcordanceTileModel, ConcordanceTileState} from './model';
 import {ActionNames, Actions} from '../../models/actions';
+import { GlobalComponents } from '../../views/global';
 
 
-export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>, model:ConcordanceTileModel) {
+export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:ConcordanceTileModel) {
+
+    const globalCompontents = ut.getComponents();
 
 
     class ConcordanceTileView extends React.PureComponent<ConcordanceTileState> {
 
         render() {
             if (this.props.isBusy) {
-                return <div className="service-tile"><img src={ut.createStaticUrl('img/ajax-loader.gif')} /></div>;
+                return <div className="service-tile"><img src={ut.createStaticUrl('ajax-loader.gif')} /></div>;
+
+            } else if (this.props.lines.size === 0) {
+                return <div className="service-tile"><globalCompontents.EmptySet fontSize="5em" /></div>;
 
             } else {
                 return (

@@ -1,0 +1,103 @@
+@import '../shared.less';
+
+.Messages {
+
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+
+    .SystemMessage {
+
+        margin: 0;
+        padding: 0;
+
+        .wrapper {
+
+            display: inline-block;
+            margin-top: 0.2em;
+            margin-bottom: 0.2em;
+
+            .flex {
+                display: flex;
+                align-items: center;
+                background-color: #ffffff;
+                border-radius: @default-border-radius;
+                border-color: @color-light-grey;
+                border-width: 0.05em;
+                border-style: solid;
+
+                > * {
+                    padding: 0.4em;
+                }
+
+                .info-icon {
+                    width: 1.2em;
+                }
+
+                p {
+                    margin: 0;
+                }
+            }
+        }
+    }
+
+}
+
+.WdglanceMain {
+    .logo h1 {
+        color: @color-logo-pink;
+        padding: 0.7em;
+        margin-bottom: 0;
+        letter-spacing: 0.14em;
+        text-align: center;
+    }
+}
+
+.WdglanceControls {
+    text-align: center;
+    padding: 1em;
+
+    .main {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .queries {
+            padding: 0.4em;
+
+            .query1 {
+                padding: 0.3em;
+
+                .QueryLangSelector {
+                    margin-right: 0.3em;
+                }
+            }
+
+            .query2 {
+                padding: 0.3em;
+
+                .QueryLangSelector {
+                    margin-right: 0.3em;
+                }
+            }
+        }
+    }
+
+    input,
+    select,
+    button {
+        font-size: 1.3em;
+    }
+
+}
+
+.app-output {
+    border-color: @color-logo-blue;
+    border-radius: @default-border-radius;
+    overflow: hidden;
+
+    h2 {
+        background-color: @color-logo-blue;
+        color: #ffffff;
+    }
+}
