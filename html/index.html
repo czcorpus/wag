@@ -44,8 +44,13 @@
         <script type="text/javascript">
         indexPage.init({
             mountElement: document.querySelector('.wdglance-mount'),
-            conf: {},
-            rootUrl: 'http://kontext.korpus.test/wdglance/'
+            uiLang: 'cs-CZ',
+            rootUrl: 'http://kontext.korpus.test/wdglance/',
+            tilesConf: {
+                concordance: {
+                    apiURL: 'http://kontext.korpus.test/kontext/first'
+                }
+            }
         });
         </script>
     </body>
