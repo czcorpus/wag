@@ -40,13 +40,16 @@ export interface ConcResponse {
 
 export class RequestBuilder implements DataApi<RequestArgs, ConcResponse> {
 
+    private readonly apiURL;
 
-
+    constructor(apiURL:string) {
+        this.apiURL = apiURL;
+    }
 
     call(args:RequestArgs):Rx.Observable<ConcResponse> {
         return ajax$(
             'GET',
-            'http://kontext.korpus.test/kontext/first',
+            this.apiURL,
             {
                 corpname: 'susanne',
                 queryselector: 'iqueryrow',

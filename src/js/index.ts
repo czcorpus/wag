@@ -21,7 +21,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {init as viewInit} from './views/main';
 import { WdglanceMainFormModel } from './models/main';
-import {init as concInit} from './tiles/concordance/index';
+import {init as concInit, ConcordanceBoxInitArgs, ConcordanceBoxConf} from './tiles/concordance/index';
 import {init as freqInit} from './tiles/ttDistrib/index';
 import { GlobalComponents, init as globalCompInit } from './views/global';
 import * as translations from 'translations';
@@ -39,9 +39,10 @@ export interface WdglanceConf {
     mountElement:HTMLElement;
     uiLang:string;
     rootUrl:string;
+    tilesConf:{[ident:string]:any};
 }
 
-export const init = ({mountElement, uiLang, rootUrl}:WdglanceConf) => {
+export const init = ({mountElement, uiLang, rootUrl, tilesConf}:WdglanceConf) => {
     const dispatcher = new ActionDispatcher();
     const viewUtils = new ViewUtils<GlobalComponents>({
         uiLang: uiLang || 'en_US',
@@ -70,7 +71,13 @@ export const init = ({mountElement, uiLang, rootUrl}:WdglanceConf) => {
     const component = viewInit(dispatcher, viewUtils, model);
 
     // window conc.
-    const concTile = concInit(dispatcher, appServices, viewUtils, model);
+    const concTile = concInit({
+        dispatcher: dispatcher,
+        appServices: appServices,
+        ut: viewUtils,
+        mainForm: model,
+        conf: tilesConf['concordance'] as ConcordanceBoxConf
+    });
 
     // window freq.
     const freqTile = freqInit(0, dispatcher, viewUtils, model);

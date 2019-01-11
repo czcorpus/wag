@@ -1,9 +1,11 @@
 {
+    "staticFilesUrl": "/wdglance/assets/",
     "languages": {
         "en-US": "Angličtina",
         "cs-CZ": "Čeština"
     },
     "develServer": {
-        "port": 9001
+        "port": 9001,
+        "urlRootPath": "/wdglance/"
     }
 }

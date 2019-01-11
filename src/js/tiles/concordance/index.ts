@@ -29,6 +29,20 @@ declare var require:any;
 require('./style.less');
 
 
+export interface ConcordanceBoxConf {
+    apiURL:string;
+}
+
+
+export interface ConcordanceBoxInitArgs {
+    dispatcher:ActionDispatcher;
+    appServices:AppServices;
+    ut:ViewUtils<GlobalComponents>;
+    mainForm:WdglanceMainFormModel;
+    conf:ConcordanceBoxConf;
+}
+
+
 export class ConcordanceBox implements ITileProvider {
 
     private dispatcher:ActionDispatcher;
@@ -37,9 +51,14 @@ export class ConcordanceBox implements ITileProvider {
 
     private ut:ViewUtils<GlobalComponents>;
 
-    constructor(dispatcher:ActionDispatcher, appServices:AppServices, ut:ViewUtils<GlobalComponents>, mainForm:WdglanceMainFormModel) {
+    constructor({dispatcher, appServices, ut, mainForm, conf}:ConcordanceBoxInitArgs) {
         this.dispatcher = dispatcher;
-        this.model = new ConcordanceTileModel(dispatcher, appServices, new RequestBuilder(), mainForm);
+        this.model = new ConcordanceTileModel(
+            dispatcher,
+            appServices,
+            new RequestBuilder(conf.apiURL),
+            mainForm
+        );
         this.ut = ut;
     }
 
@@ -64,7 +83,6 @@ export class ConcordanceBox implements ITileProvider {
     }
 }
 
-
-export const init = (dispatcher:ActionDispatcher, appServices:AppServices, ut:ViewUtils<GlobalComponents>, mainForm:WdglanceMainFormModel) => {
-    return new ConcordanceBox(dispatcher, appServices, ut, mainForm);
+export const init = ({dispatcher, appServices, ut, mainForm, conf}:ConcordanceBoxInitArgs) => {
+    return new ConcordanceBox({dispatcher, appServices, ut, mainForm, conf});
 }
