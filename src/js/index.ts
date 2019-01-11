@@ -27,6 +27,7 @@ import { GlobalComponents, init as globalCompInit } from './views/global';
 import * as translations from 'translations';
 import { AppServices } from './appServices';
 import { SystemNotifications } from './notifications';
+import { ActionNames } from './models/actions';
 
 declare var require:(src:string)=>void;  // webpack
 require('../css/index.less');
@@ -61,6 +62,11 @@ export const init = ({mountElement, uiLang, rootUrl}:WdglanceConf) => {
             ['en_US', 'English']
         ]
     );
+    dispatcher.captureAction(
+        ActionNames.RequestQueryResponse,
+        (action) => model.getState().isValid
+    );
+
     const component = viewInit(dispatcher, viewUtils, model);
 
     // window conc.

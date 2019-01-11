@@ -53,7 +53,7 @@ export class SystemNotifications {
 
     constructor(dispatcher:ActionDispatcher) {
         this.messageEvents = new Rx.Subject<SystemMessage>();
-        this.messageEvents.subscribe(
+        this.messageEvents.observeOn(Rx.Scheduler.async).subscribe(
             (data) => {
                 dispatcher.dispatch({
                     name: ActionNames.AddSystemMessage,
