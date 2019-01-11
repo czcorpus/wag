@@ -3,17 +3,49 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link href="./index.css" rel="stylesheet" type="text/css">
+        <link href="./dist/index.css" rel="stylesheet" type="text/css">
         <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Droid+Sans+Mono%7CRoboto:100,400,400italic,700,700italic%7CRoboto+Condensed:400,700&amp;subset=latin,latin-ext" media="all">
+        <link rel="stylesheet" type="text/css" href="https://www.korpus.cz/vendor/webmodel/ui/style.css?v=1509638045" />
+        <link rel="stylesheet" type="text/css" href="//utils.korpus.cz/cdn/czcorpus/styles/1.0.0/main.css" />
+        <link rel="stylesheet" type="text/css" href="https://www.korpus.cz/css/toolbar.css?v=1509638060" />
     </head>
     <body>
+        <div id="cnc-toolbar" data-cnc-toolbar-current="kontext" data-cnc-user-id="">
+                <div id="cnc-toolbar-logo">
+                    <a href="https://www.korpus.cz" title="Český národní korpus"><img src="https://www.korpus.cz/img/cnk-logo-notext.svg?v=1509638072" alt="Český národní korpus"></a>
+                </div>
+                <div id="cnc-toolbar-links">
+                    <a id="cnc-toolbar-apps-button" href=""><img src="https://www.korpus.cz/img/apps.svg?v=1509638072" alt="Aplikace"></a>
+                    <div id="cnc-toolbar-apps" class="cnc-toolbar-hidden">
+                        <ul>
+                            <li><a class="cnc-toolbar-current" href="https://kontext.korpus.cz">KonText</a></li>
+                            <li><a href="http://syd.korpus.cz">SyD</a></li>
+                            <li><a href="http://morfio.korpus.cz/">Morfio</a></li>
+                            <li><a href="http://kwords.korpus.cz/">KWords</a></li>
+                            <li><a href="http://treq.korpus.cz/">Treq</a></li>
+                            <li><span class="cnc-toolbar-delimiter"></span></li>
+                        </ul>
+                        <a id="cnc-toolbar-apps-more-button" href=""><img src="https://www.korpus.cz/img/apps.svg?v=1509638072" alt="Více"></a>
+                        <div id="cnc-toolbar-apps-more" class="cnc-toolbar-hidden">
+                            <ul>
+                                <li><a href="http://wiki.korpus.cz/">Wiki</a></li>
+                                <li><a href="https://podpora.korpus.cz/projects/poradna/boards">Podpora</a></li>
+                                <li><a href="http://www.korpus.cz/biblio">Biblio</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div id="cnc-toolbar-user">
+                </div>
+            </div>
         <section class="wdglance-mount"></section>
-        <script type="text/javascript" src="./common.js"></script>
-        <script type="text/javascript" src="./index.js"></script>
+        <script type="text/javascript" src="./dist/common.js"></script>
+        <script type="text/javascript" src="./dist/index.js"></script>
         <script type="text/javascript">
         indexPage.init({
             mountElement: document.querySelector('.wdglance-mount'),
-            conf: {}
+            conf: {},
+            rootUrl: 'http://kontext.korpus.test/wdglance/'
         });
         </script>
     </body>

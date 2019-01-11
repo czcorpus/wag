@@ -16,14 +16,10 @@
  * limitations under the License.
  */
 import {StatelessModel, Action, ActionDispatcher, SEDispatcher, IReducer} from 'kombo';
-import { ActionNames, Actions } from './actions';
+import { ActionNames, Actions, QueryType } from './actions';
 import * as Immutable from 'immutable';
-
-
-export enum QueryType {
-    SINGLE_QUERY = 'single',
-    DOUBLE_QUERY = 'double'
-}
+import { AppServices } from '../appServices';
+import { SystemMessage } from '../notifications';
 
 
 export interface WdglanceMainState {
@@ -35,15 +31,17 @@ export interface WdglanceMainState {
     availLanguages:Immutable.List<[string, string]>;
     availQueryTypes:Immutable.List<[QueryType, string]>;
     framesSizes:Immutable.List<[number, number]>;
+    systemMessages:Immutable.List<SystemMessage>;
 }
 
 
 export class WdglanceMainFormModel extends StatelessModel<WdglanceMainState> {
 
-
     private actionMatch:{[actionName:string]:IReducer<WdglanceMainState, Action>};
 
-    constructor(dispatcher:ActionDispatcher, availLanguages:Array<[string, string]>) {
+    private readonly appServices:AppServices;
+
+    constructor(dispatcher:ActionDispatcher, appServices:AppServices, availLanguages:Array<[string, string]>) {
         super(
             dispatcher,
             {
@@ -51,15 +49,18 @@ export class WdglanceMainFormModel extends StatelessModel<WdglanceMainState> {
                 query2: '',
                 queryType: QueryType.SINGLE_QUERY,
                 availQueryTypes: Immutable.List<[QueryType, string]>([
-                    [QueryType.SINGLE_QUERY, 'Single word'],
-                    [QueryType.DOUBLE_QUERY, 'Two words / two languages']
+                    [QueryType.SINGLE_QUERY, appServices.translate('global__single_word_sel')],
+                    [QueryType.DOUBLE_QUERY, appServices.translate('global__two_words_compare')]
                 ]),
                 targetLanguage: availLanguages[0][0],
                 targetLanguage2: '',
                 availLanguages:Immutable.List<[string, string]>(availLanguages),
-                framesSizes:Immutable.List<[number, number]>()
+                framesSizes:Immutable.List<[number, number]>(),
+                systemMessages: Immutable.List<SystemMessage>()
             }
         );
+
+        this.appServices = appServices;
 
         this.actionMatch = {
             [ActionNames.ChangeQueryInput]: (state, action:Actions.ChangeQueryInput) => {
@@ -90,6 +91,24 @@ export class WdglanceMainFormModel extends StatelessModel<WdglanceMainState> {
             [ActionNames.AcknowledgeSizes]: (state, action:Actions.AcknowledgeSizes) => {
                 const newState = this.copyState(state);
                 newState.framesSizes = Immutable.List<[number, number]>(action.payload.values);
+                return newState;
+            },
+            [ActionNames.AddSystemMessage]: (state, action:Actions.AddSystemMessage) => {
+                const newState = this.copyState(state);
+                newState.systemMessages = newState.systemMessages.push({
+                    type: action.payload.type,
+                    text: action.payload.text,
+                    ttl: action.payload.ttl,
+                    ident: action.payload.ident
+                });
+                return newState;
+            },
+            [ActionNames.RemoveSystemMessage]: (state, action:Actions.RemoveSystemMessage) => {
+                const newState = this.copyState(state);
+                const srchIdx = newState.systemMessages.findIndex(v => v.ident === action.payload['ident']);
+                if (srchIdx > -1) {
+                    newState.systemMessages = newState.systemMessages.remove(srchIdx);
+                }
                 return newState;
             }
         }

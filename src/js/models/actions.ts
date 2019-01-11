@@ -17,7 +17,7 @@
  */
 
 import {Action} from 'kombo';
-import { QueryType } from './main';
+import { SystemMessageType } from '../notifications';
 
 export enum ActionNames {
     ChangeQueryInput = 'MAIN_CHANGE_QUERY_INPUT',
@@ -27,7 +27,13 @@ export enum ActionNames {
     ChangeTargetLanguage2 = 'MAIN_CHANGE_TARGET_LANGUAGE2',
     ChangeQueryType = 'MAIN_CHANGE_QUERY_TYPE',
     AcknowledgeSizes = 'MAIN_ACKNOWLEDGE_SIZES',
+    AddSystemMessage = 'MAIN_ADD_SYSTEM_MESSAGE',
+    RemoveSystemMessage = 'MAIN_REMOVE_SYSTEM_MESSAGE',
+}
 
+export enum QueryType {
+    SINGLE_QUERY = 'single',
+    DOUBLE_QUERY = 'double'
 }
 
 export namespace Actions {
@@ -71,5 +77,20 @@ export namespace Actions {
         values:Array<[number, number]>;
     }> {
         name:ActionNames.AcknowledgeSizes;
+    }
+
+    export interface AddSystemMessage extends Action<{
+        ident:string;
+        type:SystemMessageType;
+        text:string;
+        ttl:number;
+    }> {
+        name:ActionNames.AddSystemMessage;
+    }
+
+    export interface RemoveSystemMessage extends Action<{
+        ident:string;
+    }> {
+        name:ActionNames.RemoveSystemMessage;
     }
 }

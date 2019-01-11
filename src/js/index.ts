@@ -25,37 +25,46 @@ import {init as concInit} from './tiles/concordance/index';
 import {init as freqInit} from './tiles/ttDistrib/index';
 import { GlobalComponents, init as globalCompInit } from './views/global';
 import * as translations from 'translations';
+import { AppServices } from './appServices';
+import { SystemNotifications } from './notifications';
 
-declare var require:(src:string)=>void;
-require('../css/index.css'); // webpack
+declare var require:(src:string)=>void;  // webpack
+require('../css/index.less');
+require('../css/components/global.less');
+require('../css/components/main.less');
 
 
 export interface WdglanceConf {
     mountElement:HTMLElement;
     uiLang:string;
+    rootUrl:string;
 }
 
-export const init = ({mountElement, uiLang}:WdglanceConf) => {
+export const init = ({mountElement, uiLang, rootUrl}:WdglanceConf) => {
     const dispatcher = new ActionDispatcher();
     const viewUtils = new ViewUtils<GlobalComponents>({
         uiLang: uiLang || 'en_US',
         translations: translations,
-
+        staticUrlCreator: (path) => rootUrl + 'assets/' + path
     });
+
+    const notifications = new SystemNotifications(dispatcher);
+    const appServices = new AppServices(notifications, viewUtils);
 
     const globalComponents = globalCompInit(dispatcher, viewUtils);
     viewUtils.attachComponents(globalComponents);
     const model = new WdglanceMainFormModel(
         dispatcher,
+        appServices,
         [
-            ['cs_CZ', 'česky'],
+            ['cs_CZ', 'čeština'],
             ['en_US', 'English']
         ]
     );
     const component = viewInit(dispatcher, viewUtils, model);
 
     // window conc.
-    const concTile = concInit(dispatcher, viewUtils, model);
+    const concTile = concInit(dispatcher, appServices, viewUtils, model);
 
     // window freq.
     const freqTile = freqInit(0, dispatcher, viewUtils, model);

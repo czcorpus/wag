@@ -75,7 +75,6 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         render() {
             return (
                 <div>
-                    HIT
                     <div ref={this.chartContainer} />
                 </div>
             );
@@ -88,6 +87,9 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         render() {
             if (this.props.isBusy) {
                 return <div><globComponents.AjaxLoader /></div>
+
+            } else if (this.props.data.size === 0) {
+                return <div><globComponents.EmptySet fontSize="5em" /></div>
 
             } else {
                 return (

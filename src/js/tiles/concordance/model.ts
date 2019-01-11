@@ -21,8 +21,8 @@ import {ActionNames as GlobalActionNames, Actions as GlobalActions} from '../../
 import {ActionNames, Actions} from './actions';
 import {RequestBuilder, ConcResponse, Line} from './service';
 import { WdglanceMainFormModel } from '../../models/main';
-//import {}
-
+import { AppServices } from '../../appServices';
+import { SystemMessageType, importMessageType } from '../../notifications';
 
 
 export interface ConcordanceTileState {
@@ -36,7 +36,9 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
     private readonly mainForm:WdglanceMainFormModel;
 
-    constructor(dispatcher:ActionDispatcher, service:RequestBuilder, mainForm:WdglanceMainFormModel) {
+    private readonly appServices:AppServices;
+
+    constructor(dispatcher:ActionDispatcher, appServices:AppServices, service:RequestBuilder, mainForm:WdglanceMainFormModel) {
         super(
             dispatcher,
             {
@@ -46,6 +48,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
         );
         this.service = service;
         this.mainForm = mainForm;
+        this.appServices = appServices;
     }
 
     reduce(state:ConcordanceTileState, action:Action):ConcordanceTileState {
@@ -56,10 +59,16 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 newState.isBusy = true;
             break;
             case ActionNames.DataLoadDone:
-                newState = this.copyState(state);
-                newState.isBusy = false;
-                const data = action.payload['data'] as ConcResponse;
-                newState.lines = Immutable.List<Line>(data.Lines);
+                if (action.error) {
+                    this.appServices.showMessage(SystemMessageType.ERROR, action.error);
+
+                } else {
+                    newState = this.copyState(state);
+                    newState.isBusy = false;
+                    const data = action.payload['data'] as ConcResponse;
+                    data.messages.forEach(msg => this.appServices.showMessage(importMessageType(msg[0]), msg[1]));
+                    newState.lines = Immutable.List<Line>(data.Lines);
+                }
             break;
             default:
                 newState = state;
