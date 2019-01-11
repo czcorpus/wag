@@ -25,6 +25,7 @@ import {ActionNames, Actions, QueryType} from '../models/actions';
 import {KeyCodes} from '../shared/util';
 import { SystemMessage, SystemMessageType } from '../notifications';
 import { GlobalComponents } from './global';
+import { Forms } from '../shared/data';
 
 
 export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:WdglanceMainFormModel) {
@@ -76,7 +77,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     class QueryInput extends React.PureComponent<
         {
-            initialValue:string,
+            initialValue:Forms.Input;
             onContentChange:(s:string)=>void;
             onEnter:()=>void;
         },
@@ -88,7 +89,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
         constructor(props) {
             super(props);
-            this.state = {value: this.props.initialValue};
+            this.state = {value: this.props.initialValue.value};
             this.handleInput = this.handleInput.bind(this);
             this.handleKeyDown = this.handleKeyDown.bind(this);
             this.queryWritingIn = new Rx.Subject<string>();
@@ -118,7 +119,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         }
 
         render() {
-            return <input type="text" className="QueryInput"
+            return <input type="text" className={`QueryInput${this.props.initialValue.isValid ? '' : ' invalid'}`}
                     onChange={this.handleInput} value={this.state.value}
                     onKeyDown={this.handleKeyDown} />;
         }
@@ -177,9 +178,14 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         }
 
         private handleSubmit() {
-            dispatcher.dispatch({
-                name: ActionNames.RequestQueryResponse
-            });
+            dispatcher.dispatch(Rx.Observable.from([
+                {
+                    name: ActionNames.SubmitQuery
+                },
+                {
+                    name: ActionNames.RequestQueryResponse
+                }
+            ]));
         }
 
         private handleQueryInput1(s:string):void {
@@ -330,19 +336,19 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                     </div>
                     <WdglanceControlsBound />
                     <section className="tiles">
-                        <section className="app-output window1-mount" ref={this.frame0Ref}>
+                        <section className="app-output" ref={this.frame0Ref}>
                             <h2>{this.props.window0Label}</h2>
                             {this.props.window0 ? <this.props.window0 parentRef={this.frame0Ref} /> : null}
                         </section>
-                        <section className="app-output window2-mount" ref={this.frame1Ref}>
+                        <section className="app-output" ref={this.frame1Ref}>
                             <h2>{this.props.window1Label}</h2>
                             {this.props.window1 ? <this.props.window1 parentRef={this.frame1Ref} /> : null}
                         </section>
-                        <section className="app-output window3-mount" ref={this.frame2Ref}>
+                        <section className="app-output" ref={this.frame2Ref}>
                             <h2>{this.props.window2Label}</h2>
                             {this.props.window2 ? <this.props.window2 parentRef={this.frame2Ref} /> : null}
                         </section>
-                        <section className="app-output window4-mount" ref={this.frame3Ref}>
+                        <section className="app-output" ref={this.frame3Ref}>
                             <h2>{this.props.window3Label}</h2>
                             {this.props.window3 ? <this.props.window3 parentRef={this.frame0Ref} /> : null}
                         </section>

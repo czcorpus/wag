@@ -80,7 +80,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
     sideEffects(state:ConcordanceTileState, action:Action, dispatch:SEDispatcher):void {
         switch(action.name) {
             case GlobalActionNames.RequestQueryResponse:
-                this.service.call({query: this.mainForm.getState().query}).subscribe(
+                this.service.call({query: this.mainForm.getState().query.value}).subscribe(
                     (data) => {
                         dispatch<Actions.DataLoadDone>({
                             name: ActionNames.DataLoadDone,

@@ -131,3 +131,33 @@ export class MultiDict {
         return this._data.hasOwnProperty(key);
     }
 }
+
+
+export namespace Forms {
+
+    export interface Input {
+        value:string;
+        isValid:boolean;
+        isRequired:boolean;
+        errorDesc?:string;
+    }
+
+    export const updateFormInput = (formValue:Input, data:{[P in keyof Input]?: Input[P]}) => {
+        return {
+            value: data.value !== undefined ? data.value : formValue.value,
+            isValid: data.isValid !== undefined ? data.isValid : formValue.isValid,
+            isRequired: data.isRequired !== undefined ? data.isRequired : formValue.isRequired,
+            errorDesc: data.errorDesc !== undefined ? data.errorDesc : formValue.errorDesc
+        };
+    };
+
+    export var newFormValue = (v:string, isRequired:boolean):Input => {
+        return {value: v, isValid: true, isRequired: isRequired, errorDesc: undefined};
+    }
+
+    export var resetFormValue = (formValue:Input, val:string='') => {
+        return {value: val, isValid: true, isRequired: formValue.isRequired, errorDesc: undefined};
+    };
+
+}
+

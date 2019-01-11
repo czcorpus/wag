@@ -54,6 +54,14 @@ export class ConcordanceBox implements ITileProvider {
     getLabel():string {
         return this.ut.translate('concordance__main_label');
     }
+
+    supportsSingleWordQuery(language:string):boolean {
+        return true; // TODO
+    }
+
+    supportsTwoWordQuery(language1:string, language2:string):boolean {
+        return true; // TODO
+    }
 }
 
 

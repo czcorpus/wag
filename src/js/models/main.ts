@@ -19,12 +19,13 @@ import {StatelessModel, Action, ActionDispatcher, SEDispatcher, IReducer} from '
 import { ActionNames, Actions, QueryType } from './actions';
 import * as Immutable from 'immutable';
 import { AppServices } from '../appServices';
-import { SystemMessage } from '../notifications';
+import { SystemMessage, SystemMessageType } from '../notifications';
+import {Forms} from '../shared/data';
 
 
 export interface WdglanceMainState {
-    query:string;
-    query2:string;
+    query:Forms.Input;
+    query2:Forms.Input;
     queryType:QueryType;
     targetLanguage:string;
     targetLanguage2:string;
@@ -32,6 +33,7 @@ export interface WdglanceMainState {
     availQueryTypes:Immutable.List<[QueryType, string]>;
     framesSizes:Immutable.List<[number, number]>;
     systemMessages:Immutable.List<SystemMessage>;
+    isValid:boolean;
 }
 
 
@@ -45,8 +47,8 @@ export class WdglanceMainFormModel extends StatelessModel<WdglanceMainState> {
         super(
             dispatcher,
             {
-                query: '', // TODO
-                query2: '',
+                query: Forms.newFormValue('', true),
+                query2: Forms.newFormValue('', false),
                 queryType: QueryType.SINGLE_QUERY,
                 availQueryTypes: Immutable.List<[QueryType, string]>([
                     [QueryType.SINGLE_QUERY, appServices.translate('global__single_word_sel')],
@@ -56,7 +58,8 @@ export class WdglanceMainFormModel extends StatelessModel<WdglanceMainState> {
                 targetLanguage2: '',
                 availLanguages:Immutable.List<[string, string]>(availLanguages),
                 framesSizes:Immutable.List<[number, number]>(),
-                systemMessages: Immutable.List<SystemMessage>()
+                systemMessages: Immutable.List<SystemMessage>(),
+                isValid: true
             }
         );
 
@@ -65,12 +68,12 @@ export class WdglanceMainFormModel extends StatelessModel<WdglanceMainState> {
         this.actionMatch = {
             [ActionNames.ChangeQueryInput]: (state, action:Actions.ChangeQueryInput) => {
                 const newState = this.copyState(state);
-                newState.query = action.payload.value;
+                newState.query = Forms.updateFormInput(newState.query, {value: action.payload.value});
                 return newState;
             },
             [ActionNames.ChangeQueryInput2]: (state, action:Actions.ChangeQueryInput2) => {
                 const newState = this.copyState(state);
-                newState.query2 = action.payload.value;
+                newState.query2 = Forms.updateFormInput(newState.query2, {value: action.payload.value});
                 return newState;
             },
             [ActionNames.ChangeTargetLanguage]: (state, action:Actions.ChangeTargetLanguage) => {
@@ -86,6 +89,12 @@ export class WdglanceMainFormModel extends StatelessModel<WdglanceMainState> {
             [ActionNames.ChangeQueryType]: (state, action:Actions.ChangeQueryType) => {
                 const newState = this.copyState(state);
                 newState.queryType = action.payload.value;
+                if (newState.queryType === QueryType.SINGLE_QUERY) {
+                    newState.query2 = Forms.updateFormInput(newState.query2, {isRequired: false});
+
+                } else {
+                    newState.query2 = Forms.updateFormInput(newState.query2, {isRequired: true});
+                }
                 return newState;
             },
             [ActionNames.AcknowledgeSizes]: (state, action:Actions.AcknowledgeSizes) => {
@@ -110,6 +119,11 @@ export class WdglanceMainFormModel extends StatelessModel<WdglanceMainState> {
                     newState.systemMessages = newState.systemMessages.remove(srchIdx);
                 }
                 return newState;
+            },
+            [ActionNames.SubmitQuery]: (state, action:Actions.SubmitQuery) => {
+                const newState = this.copyState(state);
+                newState.isValid = this.queryIsValid(newState);
+                return newState;
             }
         }
     }
@@ -123,7 +137,34 @@ export class WdglanceMainFormModel extends StatelessModel<WdglanceMainState> {
             case ActionNames.ChangeQueryInput:
                 //this.queryWritingIn.next(state.query);
             break;
+            case ActionNames.SubmitQuery:
+                if (!state.isValid) {
+                    this.appServices.showMessage(
+                        SystemMessageType.ERROR,
+                        this.appServices.translate('global__form_contains_errors')
+                    );
+                }
+            break;
         }
+    }
+
+    queryIsValid(state:WdglanceMainState):boolean {
+        let ans = true;
+        if (state.query.value === '') {
+            state.query = Forms.updateFormInput(state.query, {isValid: false});
+            ans = false;
+
+        } else {
+            state.query = Forms.updateFormInput(state.query, {isValid: true});
+        }
+        if (state.queryType === QueryType.DOUBLE_QUERY && state.query2.value === '') {
+            state.query2 = Forms.updateFormInput(state.query2, {isValid: false});
+            ans = false;
+
+        } else {
+            state.query2 = Forms.updateFormInput(state.query2, {isValid: true});
+        }
+        return ans;
     }
 
 }

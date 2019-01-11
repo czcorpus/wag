@@ -29,6 +29,7 @@ export enum ActionNames {
     AcknowledgeSizes = 'MAIN_ACKNOWLEDGE_SIZES',
     AddSystemMessage = 'MAIN_ADD_SYSTEM_MESSAGE',
     RemoveSystemMessage = 'MAIN_REMOVE_SYSTEM_MESSAGE',
+    SubmitQuery = 'MAIN_SUBMIT_QUERY',
 }
 
 export enum QueryType {
@@ -92,5 +93,9 @@ export namespace Actions {
         ident:string;
     }> {
         name:ActionNames.RemoveSystemMessage;
+    }
+
+    export interface SubmitQuery extends Action<{}> {
+        name:ActionNames.SubmitQuery;
     }
 }
