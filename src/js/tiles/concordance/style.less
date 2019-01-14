@@ -1,7 +1,49 @@
-.kwic {
-    color: red;
-}
+@import '../../../css/shared.less';
 
-.ConcordanceTileView table.conc-lines tr {
-    white-space: nowrap;
+
+.ConcordanceTileView {
+
+    .summary {
+        margin-bottom: 1em;
+
+        th {
+            text-align: left;
+        }
+    }
+
+    table.conc-lines {
+
+        border-spacing: 0;
+
+        tr {
+            white-space: nowrap;
+
+            td {
+                padding-top: 0.1em;
+                padding-bottom: 0.1em;
+            }
+
+            td.left {
+                text-align: right;
+            }
+
+            td.right {
+                text-align: left;
+            }
+
+            td.kwic {
+                padding-left: 0.7em;
+                padding-right: 0.7em;
+                text-align: center;
+                color: @color-logo-pink;
+            }
+        }
+
+        tr:not(:last-child) > td {
+            border-width: 0 0 1px 0;
+            border-style: solid;
+            border-color: @color-light-grey;
+        }
+    }
+
 }
