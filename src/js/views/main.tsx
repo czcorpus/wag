@@ -26,9 +26,11 @@ import {KeyCodes} from '../shared/util';
 import { SystemMessage, SystemMessageType } from '../notifications';
 import { GlobalComponents } from './global';
 import { Forms } from '../shared/data';
+import { TileFrameProps } from '../abstract/types';
+import { WdglanceTilesModel, WdglanceTilesState } from '../models/tiles';
 
 
-export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:WdglanceMainFormModel) {
+export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, formModel:WdglanceMainFormModel, tilesModel:WdglanceTilesModel) {
 
     const globalComponents = ut.getComponents();
 
@@ -261,7 +263,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         }
     }
 
-    const WdglanceControlsBound = Bound<WdglanceMainState>(WdglanceControls, model);
+    const WdglanceControlsBound = Bound<WdglanceMainState>(WdglanceControls, formModel);
 
 
     // -------
@@ -273,18 +275,48 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             msg => <SystemMessage key={msg.ident} type={msg.type} text={msg.text} />)}</ul>
     };
 
-    // ------------------ <WdglanceMain /> ------------------------------
+    // ------------- <ExtendButton /> --------------------------------------
 
-    class WdglanceMain extends React.PureComponent<{
-        window0:React.ComponentClass<{parentRef:React.RefObject<HTMLElement>}>;
-        window0Label:string;
-        window1:React.ComponentClass<{parentRef:React.RefObject<HTMLElement>}>;
-        window1Label:string;
-        window2:React.ComponentClass<{parentRef:React.RefObject<HTMLElement>}>;
-        window2Label:string;
-        window3:React.ComponentClass<{parentRef:React.RefObject<HTMLElement>}>;
-        window3Label:string;
-    }> {
+    const ExtendButton:React.SFC<{
+        tileIdent:number;
+        extended:boolean;
+
+    }> = (props) => {
+
+        const handleClick = () => {
+            if (props.extended) {
+                dispatcher.dispatch({
+                    name: ActionNames.ResetExpandTile,
+                    payload: {
+                        ident: props.tileIdent
+                    }
+                });
+
+            } else {
+                dispatcher.dispatch({
+                    name: ActionNames.ExpandTile,
+                    payload: {
+                        ident: props.tileIdent
+                    }
+                });
+            }
+        };
+
+        return <span className="ExtendButton">
+            <button type="button" onClick={handleClick} title={props.extended ? ut.translate('global__reset_size') : ut.translate('global__extend')}>
+                {props.extended ? '\uD83D\uDDD5' : '\uD83D\uDDD6'}
+            </button>
+        </span>
+    };
+
+    // -------------------- <TileSections /> -----------------------------
+
+    class TileSections extends React.Component<{
+        tiles:Immutable.List<TileFrameProps>;
+    },
+        WdglanceTilesState> {
+
+        private modelSubscription:Rx.Subscription;
 
         private frame0Ref:React.RefObject<HTMLElement>;
 
@@ -296,14 +328,19 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
         constructor(props) {
             super(props);
+            this.state = tilesModel.getState();
             this.frame0Ref = React.createRef();
             this.frame1Ref = React.createRef();
             this.frame2Ref = React.createRef();
             this.frame3Ref = React.createRef();
-
             window.onresize = () => {
                 this.dispatchSizes();
             };
+            this.handleModelChange = this.handleModelChange.bind(this);
+        }
+
+        private handleModelChange(state) {
+            this.setState(state);
         }
 
         private getElmSize(elm:HTMLElement):[number, number] {
@@ -325,37 +362,56 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         }
 
         componentDidMount() {
+            this.modelSubscription = tilesModel.addListener(this.handleModelChange);
             this.dispatchSizes();
         }
 
-        render() {
-            return (
-                <div className="WdglanceMain">
-                    <div className="logo">
-                        <h1>Word in a Glance</h1>
-                    </div>
-                    <WdglanceControlsBound />
-                    <section className="tiles">
-                        <section className="app-output" ref={this.frame0Ref}>
-                            <h2>{this.props.window0Label}</h2>
-                            {this.props.window0 ? <this.props.window0 parentRef={this.frame0Ref} /> : null}
-                        </section>
-                        <section className="app-output" ref={this.frame1Ref}>
-                            <h2>{this.props.window1Label}</h2>
-                            {this.props.window1 ? <this.props.window1 parentRef={this.frame1Ref} /> : null}
-                        </section>
-                        <section className="app-output" ref={this.frame2Ref}>
-                            <h2>{this.props.window2Label}</h2>
-                            {this.props.window2 ? <this.props.window2 parentRef={this.frame2Ref} /> : null}
-                        </section>
-                        <section className="app-output" ref={this.frame3Ref}>
-                            <h2>{this.props.window3Label}</h2>
-                            {this.props.window3 ? <this.props.window3 parentRef={this.frame0Ref} /> : null}
-                        </section>
-                    </section>
-                </div>
-            );
+        componentWillUnmount() {
+            this.modelSubscription.unsubscribe();
         }
+
+        render() {
+            const availRefs = [this.frame0Ref, this.frame1Ref, this.frame2Ref, this.frame3Ref];
+            return (
+                <section className={`tiles${this.state.expandedTile > -1 ? ' exclusive' : ''}`}>
+                    {this.props.tiles.map((tile) => {
+                         if (this.state.expandedTile > -1 && this.state.expandedTile !== tile.tileId) {
+                            return null;
+
+                        } else {
+                            return (
+                                <section key={`tile-ident-${tile.tileId}`} className={`app-output${this.state.expandedTile === tile.tileId ? ' expanded' : ''}`} ref={availRefs[tile.tileId]}>
+                                    <div className="panel">
+                                        <h2>{tile.label}</h2>
+                                        {tile.supportsExtendedView ? <ExtendButton tileIdent={tile.tileId} extended={this.state.expandedTile === tile.tileId} /> : null}
+                                    </div>
+                                    <div className="provider">
+                                        {tile.Component ? <tile.Component /> : null}
+                                    </div>
+                                </section>
+                            );
+                        }
+                    })}
+                </section>
+            );
+            }
+    }
+
+    // ------------------ <WdglanceMain /> ------------------------------
+
+    const WdglanceMain:React.SFC<{
+        tiles:Immutable.List<TileFrameProps>;
+    }> = (props) => {
+
+        return (
+            <div className="WdglanceMain">
+                <div className="logo">
+                    <h1>Word in a Glance</h1>
+                </div>
+                <WdglanceControlsBound />
+                <TileSections tiles={props.tiles} />
+            </div>
+        );
 
     }
 

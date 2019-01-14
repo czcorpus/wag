@@ -16,45 +16,42 @@
  * limitations under the License.
  */
 
-import { ITileProvider } from '../../abstract/types';
+import { ITileProvider, TileFactory } from '../../abstract/types';
 import {init as viewInit} from './views';
 import { ConcordanceTileModel } from './model';
 import { ActionDispatcher, ViewUtils } from 'kombo';
 import { RequestBuilder } from './service';
-import { WdglanceMainFormModel } from '../../models/main';
-import { AppServices } from '../../appServices';
 import { GlobalComponents } from '../../views/global';
 
 declare var require:any;
 require('./style.less');
 
 
-export interface ConcordanceBoxConf {
+export interface ConcordanceTileConf {
     apiURL:string;
 }
 
-
-export interface ConcordanceBoxInitArgs {
-    dispatcher:ActionDispatcher;
-    appServices:AppServices;
-    ut:ViewUtils<GlobalComponents>;
-    mainForm:WdglanceMainFormModel;
-    conf:ConcordanceBoxConf;
-}
-
-
+/**
+ *
+ */
 export class ConcordanceBox implements ITileProvider {
 
-    private dispatcher:ActionDispatcher;
+    private readonly tileId:number;
 
-    private model:ConcordanceTileModel;
+    private readonly dispatcher:ActionDispatcher;
 
-    private ut:ViewUtils<GlobalComponents>;
+    private readonly model:ConcordanceTileModel;
 
-    constructor({dispatcher, appServices, ut, mainForm, conf}:ConcordanceBoxInitArgs) {
+    private readonly ut:ViewUtils<GlobalComponents>;
+
+    private view:React.ComponentClass<{}>;
+
+    constructor({tileId, dispatcher, appServices, ut, mainForm, conf}:TileFactory.Args<ConcordanceTileConf>) {
+        this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.model = new ConcordanceTileModel(
             dispatcher,
+            tileId,
             appServices,
             new RequestBuilder(conf.apiURL),
             mainForm
@@ -63,11 +60,19 @@ export class ConcordanceBox implements ITileProvider {
     }
 
     init():void {
+        this.view = viewInit(this.dispatcher, this.ut, this.model);
+    }
+
+    getIdent():number {
+        return this.tileId;
     }
 
     getView():React.ComponentClass {
-        const c = viewInit(this.dispatcher, this.ut, this.model);
-        return c.ConcordanceTileView;
+        return this.view;
+    }
+
+    supportsExtendedView():boolean {
+        return true;
     }
 
     getLabel():string {
@@ -83,6 +88,6 @@ export class ConcordanceBox implements ITileProvider {
     }
 }
 
-export const init = ({dispatcher, appServices, ut, mainForm, conf}:ConcordanceBoxInitArgs) => {
-    return new ConcordanceBox({dispatcher, appServices, ut, mainForm, conf});
+export const init:TileFactory.TileFactory<ConcordanceTileConf> = ({tileId, dispatcher, appServices, ut, mainForm, tilesModel, conf}) => {
+    return new ConcordanceBox({tileId, dispatcher, appServices, ut, mainForm, tilesModel, conf});
 }

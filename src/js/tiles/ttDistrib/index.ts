@@ -16,13 +16,18 @@
  * limitations under the License.
  */
 
-import { ITileProvider } from "../../abstract/types";
+import { ITileProvider, TileFactory } from "../../abstract/types";
 import {init as viewInit} from './views/main';
 import { ActionDispatcher, ViewUtils } from "kombo";
-import { WdglanceMainFormModel } from "../../models/main";
 import { TTDistribModel } from "./model";
 import { DummyAPI } from "./api";
 import { GlobalComponents } from "../../views/global";
+import { WdglanceTilesModel } from "../../models/tiles";
+
+
+export interface TTDistTileConf {
+
+}
 
 
 export class TTDistTile implements ITileProvider {
@@ -31,24 +36,36 @@ export class TTDistTile implements ITileProvider {
 
     private readonly ut:ViewUtils<GlobalComponents>;
 
-    private readonly mainForm:WdglanceMainFormModel;
+    private readonly tilesModel:WdglanceTilesModel;
 
     private readonly model:TTDistribModel;
 
-    constructor(frameId:number, dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, mainForm:WdglanceMainFormModel) {
+    private readonly tileId:number;
+
+    private view:React.ComponentClass<{}>;
+
+    constructor(dispatcher:ActionDispatcher, tileId:number, ut:ViewUtils<GlobalComponents>, tilesModel:WdglanceTilesModel) {
         this.dispatcher = dispatcher;
+        this.tileId = tileId;
         this.ut = ut;
-        this.mainForm = mainForm;
-        this.model = new TTDistribModel(this.dispatcher, frameId, new DummyAPI(), mainForm, {});
+        this.tilesModel = tilesModel;
+        this.model = new TTDistribModel(this.dispatcher, tileId, new DummyAPI(), tilesModel, {});
     }
 
     init():void {
+        this.view = viewInit(this.dispatcher, this.ut, this.model);
+    }
 
+    getIdent():number {
+        return this.tileId;
     }
 
     getView():React.ComponentClass {
-        const c = viewInit(this.dispatcher, this.ut, this.model);
-        return c.View;
+        return this.view;
+    }
+
+    supportsExtendedView():boolean {
+        return false;
     }
 
     getLabel():string {
@@ -66,6 +83,6 @@ export class TTDistTile implements ITileProvider {
 }
 
 
-export const init = (frameId:number, dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, mainForm:WdglanceMainFormModel) => {
-    return new TTDistTile(frameId, dispatcher, ut, mainForm);
+export const init:TileFactory.TileFactory<TTDistTileConf>  = ({tileId, dispatcher, ut, appServices, mainForm, tilesModel}) => {
+    return new TTDistTile(dispatcher, tileId, ut, tilesModel);
 }

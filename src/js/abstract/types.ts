@@ -17,16 +17,48 @@
  */
 
 import * as Rx from '@reactivex/rxjs';
+import { ActionDispatcher, ViewUtils } from 'kombo';
+import { GlobalComponents } from '../views/global';
+import { WdglanceMainFormModel } from '../models/main';
+import { AppServices } from '../appServices';
+import { WdglanceTilesModel } from '../models/tiles';
 
 
 export interface ITileProvider {
 
     init():void;
     getLabel():string;
+    getIdent():number;
     getView():React.ComponentClass|React.SFC<{}>;
+    supportsExtendedView():boolean;
     supportsSingleWordQuery(language:string):boolean;
     supportsTwoWordQuery(language1:string, language2:string):boolean;
+}
 
+
+export namespace TileFactory {
+
+    export interface Args<T> {
+        tileId:number;
+        dispatcher:ActionDispatcher;
+        ut:ViewUtils<GlobalComponents>;
+        appServices:AppServices;
+        mainForm:WdglanceMainFormModel;
+        tilesModel:WdglanceTilesModel;
+        conf:T;
+    }
+
+    export interface TileFactory<T> {
+        ({tileId, dispatcher, ut, appServices, mainForm, conf}:Args<T>):ITileProvider;
+    }
+}
+
+
+export interface TileFrameProps {
+    tileId:number;
+    Component:React.ComponentClass<{}>|React.SFC;
+    label:string;
+    supportsExtendedView:boolean;
 }
 
 export interface DataApi<T, U> {

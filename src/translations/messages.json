@@ -3,12 +3,16 @@
         "global__search": "Search",
         "global__single_word_sel": "Single word",
         "global__two_words_compare": "Compare two words",
-        "global__form_contains_errors": "Form contains errors"
+        "global__form_contains_errors": "Form contains errors",
+        "global__extend": "Extend",
+        "global__reset_size": "Reset size"
     },
     "cs-CZ": {
         "global__search": "Hledat",
         "global__single_word_sel": "Jedno slovo",
         "global__two_words_compare": "Porovnat dvě slova",
-        "global__form_contains_errors": "Formulář obsahuje chyby"
+        "global__form_contains_errors": "Formulář obsahuje chyby",
+        "global__maximize": "Zvětšit",
+        "global__reset_size": "Obnovit velikost"
     }
 }
