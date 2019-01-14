@@ -30,6 +30,8 @@ export enum ActionNames {
     AddSystemMessage = 'MAIN_ADD_SYSTEM_MESSAGE',
     RemoveSystemMessage = 'MAIN_REMOVE_SYSTEM_MESSAGE',
     SubmitQuery = 'MAIN_SUBMIT_QUERY',
+    ExpandTile = 'MAIN_EXPAND_TILE',
+    ResetExpandTile = 'MAIN_RESET_EXPAND_TILE',
 }
 
 export enum QueryType {
@@ -97,5 +99,17 @@ export namespace Actions {
 
     export interface SubmitQuery extends Action<{}> {
         name:ActionNames.SubmitQuery;
+    }
+
+    export interface ExpandTile extends Action<{
+        ident:number;
+    }> {
+        name:ActionNames.ExpandTile;
+    }
+
+    export interface ResetExpandTile extends Action<{
+        ident:number;
+    }> {
+        name:ActionNames.ResetExpandTile;
     }
 }

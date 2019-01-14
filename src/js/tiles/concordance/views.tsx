@@ -19,11 +19,10 @@
 import {ActionDispatcher, Bound, ViewUtils} from 'kombo';
 import * as React from 'react';
 import {ConcordanceTileModel, ConcordanceTileState} from './model';
-import {ActionNames, Actions} from '../../models/actions';
 import { GlobalComponents } from '../../views/global';
 
 
-export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:ConcordanceTileModel) {
+export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:ConcordanceTileModel):React.ComponentClass {
 
     const globalCompontents = ut.getComponents();
 
@@ -53,13 +52,12 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                                 })}
                             </tbody>
                         </table>
+                        {this.props.isExpanded ? <div>expanded</div> : null}
                     </div>
                 )
             }
         }
     }
 
-    return {
-        ConcordanceTileView: Bound<ConcordanceTileState>(ConcordanceTileView, model)
-    }
+    return Bound<ConcordanceTileState>(ConcordanceTileView, model);
 }

@@ -31,7 +31,6 @@ export interface WdglanceMainState {
     targetLanguage2:string;
     availLanguages:Immutable.List<[string, string]>;
     availQueryTypes:Immutable.List<[QueryType, string]>;
-    framesSizes:Immutable.List<[number, number]>;
     systemMessages:Immutable.List<SystemMessage>;
     isValid:boolean;
 }
@@ -57,9 +56,8 @@ export class WdglanceMainFormModel extends StatelessModel<WdglanceMainState> {
                 targetLanguage: availLanguages[0][0],
                 targetLanguage2: '',
                 availLanguages:Immutable.List<[string, string]>(availLanguages),
-                framesSizes:Immutable.List<[number, number]>(),
                 systemMessages: Immutable.List<SystemMessage>(),
-                isValid: true
+                isValid: true,
             }
         );
 
@@ -95,11 +93,6 @@ export class WdglanceMainFormModel extends StatelessModel<WdglanceMainState> {
                 } else {
                     newState.query2 = Forms.updateFormInput(newState.query2, {isRequired: true});
                 }
-                return newState;
-            },
-            [ActionNames.AcknowledgeSizes]: (state, action:Actions.AcknowledgeSizes) => {
-                const newState = this.copyState(state);
-                newState.framesSizes = Immutable.List<[number, number]>(action.payload.values);
                 return newState;
             },
             [ActionNames.AddSystemMessage]: (state, action:Actions.AddSystemMessage) => {

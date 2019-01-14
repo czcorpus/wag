@@ -16,18 +16,23 @@
  * limitations under the License.
  */
 /// <reference path="./translations.d.ts" />
+import * as Immutable from 'immutable';
 import { ActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {init as viewInit} from './views/main';
 import { WdglanceMainFormModel } from './models/main';
-import {init as concInit, ConcordanceBoxInitArgs, ConcordanceBoxConf} from './tiles/concordance/index';
-import {init as freqInit} from './tiles/ttDistrib/index';
+import {init as concInit, ConcordanceTileConf} from './tiles/concordance/index';
+import {init as freqInit, TTDistTileConf} from './tiles/ttDistrib/index';
+import {init as collocInit, CollocationsTileConf} from './tiles/collocations/index';
+import {init as treqInit, TreqTileConf} from './tiles/treq/index';
 import { GlobalComponents, init as globalCompInit } from './views/global';
 import * as translations from 'translations';
 import { AppServices } from './appServices';
 import { SystemNotifications } from './notifications';
 import { ActionNames } from './models/actions';
+import { TileFrameProps, ITileProvider } from './abstract/types';
+import { WdglanceTilesModel } from './models/tiles';
 
 declare var require:(src:string)=>void;  // webpack
 require('../css/index.less');
@@ -42,6 +47,17 @@ export interface WdglanceConf {
     tilesConf:{[ident:string]:any};
 }
 
+const attachTile = (data:Array<TileFrameProps>, tile:ITileProvider):void => {
+    tile.init();
+    data.push({
+        tileId: tile.getIdent(),
+        Component: tile.getView(),
+        label: tile.getLabel(),
+        supportsExtendedView: tile.supportsExtendedView()
+    });
+};
+
+
 export const init = ({mountElement, uiLang, rootUrl, tilesConf}:WdglanceConf) => {
     const dispatcher = new ActionDispatcher();
     const viewUtils = new ViewUtils<GlobalComponents>({
@@ -55,7 +71,7 @@ export const init = ({mountElement, uiLang, rootUrl, tilesConf}:WdglanceConf) =>
 
     const globalComponents = globalCompInit(dispatcher, viewUtils);
     viewUtils.attachComponents(globalComponents);
-    const model = new WdglanceMainFormModel(
+    const formModel = new WdglanceMainFormModel(
         dispatcher,
         appServices,
         [
@@ -63,38 +79,75 @@ export const init = ({mountElement, uiLang, rootUrl, tilesConf}:WdglanceConf) =>
             ['en_US', 'English']
         ]
     );
+    const tilesModel = new WdglanceTilesModel(
+        dispatcher,
+        appServices
+    );
     dispatcher.captureAction(
         ActionNames.RequestQueryResponse,
-        (action) => model.getState().isValid
+        (action) => formModel.getState().isValid
     );
 
-    const component = viewInit(dispatcher, viewUtils, model);
+    const component = viewInit(dispatcher, viewUtils, formModel, tilesModel);
 
-    // window conc.
+    const tiles:Array<TileFrameProps> = [];
+
+    // window conc. -------------------------------------------------
     const concTile = concInit({
+        tileId: 0,
         dispatcher: dispatcher,
-        appServices: appServices,
         ut: viewUtils,
-        mainForm: model,
-        conf: tilesConf['concordance'] as ConcordanceBoxConf
+        mainForm: formModel,
+        tilesModel: tilesModel,
+        appServices: appServices,
+        conf: tilesConf['ConcordanceTileConf'] as ConcordanceTileConf
     });
+    attachTile(tiles, concTile);
 
-    // window freq.
-    const freqTile = freqInit(0, dispatcher, viewUtils, model);
+    // window freq. --------------------------------------------------
+    const freqTile = freqInit({
+        tileId: 1,
+        dispatcher: dispatcher,
+        ut: viewUtils,
+        mainForm: formModel,
+        tilesModel: tilesModel,
+        appServices: appServices,
+        conf: tilesConf['TTDistTileConf'] as TTDistTileConf
+    });
+    attachTile(tiles, freqTile);
+
+    // window colloc. --------------------------------------------------
+
+    const collocTile = collocInit({
+        tileId: 2,
+        dispatcher: dispatcher,
+        ut: viewUtils,
+        mainForm: formModel,
+        tilesModel: tilesModel,
+        appServices: appServices,
+        conf: tilesConf['CollocationsTileConf'] as CollocationsTileConf
+    });
+    attachTile(tiles, collocTile);
+
+    // window treq. --------------------------------------------------
+
+    const treqTile = treqInit({
+        tileId: 3,
+        dispatcher: dispatcher,
+        ut: viewUtils,
+        mainForm: formModel,
+        tilesModel: tilesModel,
+        appServices: appServices,
+        conf: tilesConf['TreqTileConf'] as TreqTileConf
+    });
+    attachTile(tiles, treqTile);
 
 
     ReactDOM.render(
         React.createElement(
             component.WdglanceMain,
             {
-                window0: freqTile.getView(),
-                window0Label: freqTile.getLabel(),
-                window1: null,
-                window1Label: 'Collocations',
-                window2: null,
-                window2Label: 'Treq',
-                window3: concTile.getView(),
-                window3Label: concTile.getLabel(),
+                tiles: Immutable.List<TileFrameProps>(tiles)
             }
         ),
         mountElement

@@ -48,7 +48,7 @@ export const drawChart = (container:HTMLElement, size:[number, number], data) =>
 };
 
 
-export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:TTDistribModel) {
+export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:TTDistribModel):React.ComponentClass {
 
     const globComponents = ut.getComponents();
 
@@ -101,7 +101,5 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         }
     }
 
-    return {
-        View: Bound<TTDistribModelState>(View, model)
-    };
+    return Bound<TTDistribModelState>(View, model);
 }

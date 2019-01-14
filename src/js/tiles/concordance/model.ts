@@ -17,7 +17,7 @@
  */
 import * as Immutable from 'immutable';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
-import {ActionNames as GlobalActionNames, Actions as GlobalActions} from '../../models/actions';
+import {ActionNames as GlobalActionNames} from '../../models/actions';
 import {ActionNames, Actions} from './actions';
 import {RequestBuilder, ConcResponse, Line} from './service';
 import { WdglanceMainFormModel } from '../../models/main';
@@ -27,6 +27,7 @@ import { SystemMessageType, importMessageType } from '../../notifications';
 
 export interface ConcordanceTileState {
     isBusy:boolean;
+    isExpanded:boolean;
     lines:Immutable.List<Line>;
 }
 
@@ -38,17 +39,21 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
     private readonly appServices:AppServices;
 
-    constructor(dispatcher:ActionDispatcher, appServices:AppServices, service:RequestBuilder, mainForm:WdglanceMainFormModel) {
+    private readonly tileId:number;
+
+    constructor(dispatcher:ActionDispatcher, tileId:number, appServices:AppServices, service:RequestBuilder, mainForm:WdglanceMainFormModel) {
         super(
             dispatcher,
             {
                 isBusy: false,
+                isExpanded: false,
                 lines: Immutable.List<Line>()
             }
         );
         this.service = service;
         this.mainForm = mainForm;
         this.appServices = appServices;
+        this.tileId = tileId;
     }
 
     reduce(state:ConcordanceTileState, action:Action):ConcordanceTileState {
@@ -57,6 +62,19 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             case GlobalActionNames.RequestQueryResponse:
                 newState = this.copyState(state);
                 newState.isBusy = true;
+            break;
+            case GlobalActionNames.ExpandTile:
+                if (action.payload['ident'] === this.tileId) {
+                    newState = this.copyState(state);
+                    newState.isExpanded = true;
+
+                } else {
+                    newState = state;
+                }
+            break;
+            case GlobalActionNames.ResetExpandTile:
+                newState = this.copyState(state);
+                newState.isExpanded = false;
             break;
             case ActionNames.DataLoadDone:
                 if (action.error) {

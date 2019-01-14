@@ -21,14 +21,13 @@ import {DummyAPI, DataRow} from './api';
 import {StatelessModel, ActionDispatcher, Action, IReducer, SEDispatcher} from 'kombo';
 import {ActionNames as GlobalActionNames, Actions as GlobalActions} from '../../models/actions';
 import {ActionNames, Actions} from './actions';
-import { WdglanceMainFormModel } from '../../models/main';
+import { WdglanceTilesModel } from '../../models/tiles';
 
 
 export interface Window1Conf {
 }
 
 export interface TTDistribModelState {
-    frameId:number;
     isBusy:boolean;
     data:Immutable.List<DataRow>;
     renderFrameSize:[number, number];
@@ -42,20 +41,22 @@ export class TTDistribModel extends StatelessModel<TTDistribModelState> {
 
     private actionMatch:{[actionName:string]:IReducer<TTDistribModelState, Action>};
 
-    private mainForm:WdglanceMainFormModel;
+    private tilesModel:WdglanceTilesModel;
 
-    constructor(dispatcher:ActionDispatcher, frameId:number, api:DummyAPI, mainForm:WdglanceMainFormModel, conf:Window1Conf) {
+    private readonly tileId:number;
+
+    constructor(dispatcher:ActionDispatcher, tileId:number, api:DummyAPI, tilesModel:WdglanceTilesModel, conf:Window1Conf) {
         super(
             dispatcher,
             {
-                frameId: frameId,
                 isBusy: false,
                 data: Immutable.List<DataRow>(),
                 renderFrameSize:[0, 0]
             }
         );
+        this.tileId = tileId;
         this.api = api;
-        this.mainForm = mainForm;
+        this.tilesModel = tilesModel;
         this.conf = conf;
         this.actionMatch = {
             [GlobalActionNames.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
@@ -86,7 +87,7 @@ export class TTDistribModel extends StatelessModel<TTDistribModelState> {
                             name: ActionNames.LoadDataDone,
                             payload: {
                                 data: data,
-                                frameSize: this.mainForm.getState().framesSizes.get(state.frameId)
+                                frameSize: this.tilesModel.getFrameSize(this.tileId)
                             }
                         });
                     },
@@ -96,7 +97,7 @@ export class TTDistribModel extends StatelessModel<TTDistribModelState> {
                             name: ActionNames.LoadDataDone,
                             payload: {
                                 data: null,
-                                frameSize: this.mainForm.getState().framesSizes.get(state.frameId)
+                                frameSize: this.tilesModel.getFrameSize(this.tileId)
                             },
                             error: error
                         });
