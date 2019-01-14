@@ -104,6 +104,7 @@ module.exports = (env) => ({
         compress: true,
         port: (CONF.develServer || {}).port || 9000,
         host: 'localhost',
+        disableHostCheck: true, // TODO
         inline: true,
         before: function(app) {
             // In the devel-server mode, all the css is delivered via Webpack

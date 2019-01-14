@@ -21,7 +21,7 @@ import { ActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {init as viewInit} from './views/main';
-import { WdglanceMainFormModel } from './models/main';
+import { WdglanceMainFormModel } from './models/query';
 import {init as concInit, ConcordanceTileConf} from './tiles/concordance/index';
 import {init as freqInit, TTDistTileConf} from './tiles/ttDistrib/index';
 import {init as collocInit, CollocationsTileConf} from './tiles/collocations/index';

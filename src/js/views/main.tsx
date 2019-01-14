@@ -20,7 +20,7 @@ import {ActionDispatcher, Bound, ViewUtils} from 'kombo';
 import * as React from 'react';
 import * as Immutable from 'immutable';
 import * as Rx from '@reactivex/rxjs';
-import {WdglanceMainState, WdglanceMainFormModel} from '../models/main';
+import {WdglanceMainState, WdglanceMainFormModel} from '../models/query';
 import {ActionNames, Actions, QueryType} from '../models/actions';
 import {KeyCodes} from '../shared/util';
 import { SystemMessage, SystemMessageType } from '../notifications';
