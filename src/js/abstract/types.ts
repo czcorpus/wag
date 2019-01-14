@@ -19,7 +19,7 @@
 import * as Rx from '@reactivex/rxjs';
 import { ActionDispatcher, ViewUtils } from 'kombo';
 import { GlobalComponents } from '../views/global';
-import { WdglanceMainFormModel } from '../models/main';
+import { WdglanceMainFormModel } from '../models/query';
 import { AppServices } from '../appServices';
 import { WdglanceTilesModel } from '../models/tiles';
 

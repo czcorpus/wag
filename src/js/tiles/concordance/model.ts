@@ -20,7 +20,7 @@ import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
 import {ActionNames as GlobalActionNames} from '../../models/actions';
 import {ActionNames, Actions} from './actions';
 import {RequestBuilder, ConcResponse, Line} from './service';
-import { WdglanceMainFormModel } from '../../models/main';
+import { WdglanceMainFormModel } from '../../models/query';
 import { AppServices } from '../../appServices';
 import { SystemMessageType, importMessageType } from '../../notifications';
 
