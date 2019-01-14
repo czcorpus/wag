@@ -257,7 +257,6 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                             <QueryTypeSelector avail={this.props.availQueryTypes} value={this.props.queryType} />
                         </div>
                     </form>
-                    {this.props.systemMessages.size > 0 ? <Messages messages={this.props.systemMessages} /> : null}
                 </div>
             );
         }
@@ -373,7 +372,10 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         render() {
             const availRefs = [this.frame0Ref, this.frame1Ref, this.frame2Ref, this.frame3Ref];
             return (
-                <section className={`tiles${this.state.expandedTile > -1 ? ' exclusive' : ''}`}>
+                <div>
+                    {this.state.systemMessages.size > 0 ? <Messages messages={this.state.systemMessages} /> : null}
+
+                    <section className={`tiles${this.state.expandedTile > -1 ? ' exclusive' : ''}`}>
                     {this.props.tiles.map((tile) => {
                          if (this.state.expandedTile > -1 && this.state.expandedTile !== tile.tileId) {
                             return null;
@@ -392,9 +394,10 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                             );
                         }
                     })}
-                </section>
+                    </section>
+                </div>
             );
-            }
+        }
     }
 
     // ------------------ <WdglanceMain /> ------------------------------

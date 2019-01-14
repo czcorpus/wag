@@ -39,8 +39,6 @@ export class TTDistribModel extends StatelessModel<TTDistribModelState> {
 
     private conf:Window1Conf;
 
-    private actionMatch:{[actionName:string]:IReducer<TTDistribModelState, Action>};
-
     private tilesModel:WdglanceTilesModel;
 
     private readonly tileId:number;

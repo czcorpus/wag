@@ -47,7 +47,7 @@ export class TreqTile implements ITileProvider {
     }
 
     getLabel():string {
-        return this.appServices.translate('collocations__main_label');
+        return this.appServices.translate('treq__main_label');
     }
 
     getView():React.ComponentClass|React.SFC<{}> {
