@@ -20,9 +20,9 @@ export class MultiDict {
 
     private _data:any;
 
-    constructor(data?:Array<[string, string]>) {
+    constructor(data?:Array<[string, string|number]>|{[key:string]:string|number|Array<string|number>}) {
         this._data = {};
-        if (data !== undefined) {
+        if (Array.isArray(data)) {
             for (let i = 0; i < data.length; i += 1) {
                 let k = data[i][0];
                 let v = data[i][1];
@@ -32,6 +32,16 @@ export class MultiDict {
                 this._data[k].push(v);
                 this[k] = v;
             }
+
+        } else if (data !== null && data !== undefined) {
+            Object.keys(data).forEach(k => {
+                if (Array.isArray(data[k])) {
+                    this._data[k] = data[k];
+
+                } else {
+                    this._data[k] = [data[k]];
+                }
+            });
         }
     }
 

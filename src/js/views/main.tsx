@@ -382,7 +382,9 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
                         } else {
                             return (
-                                <section key={`tile-ident-${tile.tileId}`} className={`app-output${this.state.expandedTile === tile.tileId ? ' expanded' : ''}`} ref={availRefs[tile.tileId]}>
+                                <section key={`tile-ident-${tile.tileId}`}
+                                        className={`app-output${this.state.expandedTile === tile.tileId ? ' expanded' : ''}`}
+                                        ref={availRefs[tile.tileId]}>
                                     <div className="panel">
                                         <h2>{tile.label}</h2>
                                         {tile.supportsExtendedView ? <ExtendButton tileIdent={tile.tileId} extended={this.state.expandedTile === tile.tileId} /> : null}

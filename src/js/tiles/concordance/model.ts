@@ -19,7 +19,7 @@ import * as Immutable from 'immutable';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
 import {ActionNames as GlobalActionNames} from '../../models/actions';
 import {ActionNames, Actions} from './actions';
-import {RequestBuilder, ConcResponse, Line} from './service';
+import {RequestBuilder, ConcResponse, Line, QuerySelectors} from './service';
 import { WdglanceMainFormModel } from '../../models/query';
 import { AppServices } from '../../appServices';
 import { SystemMessageType, importMessageType } from '../../notifications';
@@ -29,6 +29,11 @@ export interface ConcordanceTileState {
     isBusy:boolean;
     isExpanded:boolean;
     lines:Immutable.List<Line>;
+    corpname:string;
+    fullsize:number;
+    concsize:number;
+    resultARF:number;
+    resultIPM:number;
 }
 
 export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
@@ -47,7 +52,12 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             {
                 isBusy: false,
                 isExpanded: false,
-                lines: Immutable.List<Line>()
+                lines: Immutable.List<Line>(),
+                corpname: 'susanne', // TODO
+                fullsize: -1,
+                concsize: -1,
+                resultARF: -1,
+                resultIPM: -1
             }
         );
         this.service = service;
@@ -86,6 +96,9 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                     const data = action.payload['data'] as ConcResponse;
                     data.messages.forEach(msg => this.appServices.showMessage(importMessageType(msg[0]), msg[1]));
                     newState.lines = Immutable.List<Line>(data.Lines);
+                    newState.concsize = data.concsize; // TODO fullsize?
+                    newState.resultARF = data.result_arf;
+                    newState.resultIPM = data.result_relative_freq;
                 }
             break;
             default:
@@ -98,7 +111,13 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
     sideEffects(state:ConcordanceTileState, action:Action, dispatch:SEDispatcher):void {
         switch(action.name) {
             case GlobalActionNames.RequestQueryResponse:
-                this.service.call({query: this.mainForm.getState().query.value}).subscribe(
+                this.service.call(
+                    {
+                        corpname: state.corpname,
+                        queryselector: QuerySelectors.BASIC,
+                        query: this.mainForm.getState().query.value
+                    }
+                ).subscribe(
                     (data) => {
                         dispatch<Actions.DataLoadDone>({
                             name: ActionNames.DataLoadDone,

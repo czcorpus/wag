@@ -18,6 +18,14 @@
 
 import { TileFactory, ITileProvider } from "../../abstract/types";
 import { AppServices } from "../../appServices";
+import { CollocModel } from "./model";
+import { KontextCollAPI } from "./service";
+import {init as viewInit} from './views';
+import { ActionDispatcher, ViewUtils } from "kombo";
+import { GlobalComponents } from "../../views/global";
+
+declare var require:(src:string)=>void;  // webpack
+require('./style.less');
 
 
 export interface CollocationsTileConf {
@@ -31,15 +39,36 @@ export class CollocationsTile implements ITileProvider {
 
     private readonly tileId:number;
 
+    private readonly dispatcher:ActionDispatcher;
+
+    private readonly ut:ViewUtils<GlobalComponents>;
+
     private readonly appServices:AppServices;
 
-    constructor({tileId, dispatcher, appServices, ut, mainForm, conf}:TileFactory.Args<CollocationsTileConf>) {
+    private readonly model:CollocModel;
+
+    private view:React.ComponentClass;
+
+    constructor({tileId, dispatcher, appServices, ut, tilesModel, conf}:TileFactory.Args<CollocationsTileConf>) {
         this.tileId = tileId;
+        this.dispatcher = dispatcher;
+        this.ut = ut;
         this.appServices = appServices;
+        this.model = new CollocModel(
+            dispatcher,
+            tileId,
+            appServices,
+            new KontextCollAPI(conf.apiURL),
+            tilesModel
+        );
     }
 
     init():void {
-
+        this.view = viewInit(
+            this.dispatcher,
+            this.ut,
+            this.model
+        );
     }
 
     getIdent():number {
@@ -51,11 +80,11 @@ export class CollocationsTile implements ITileProvider {
     }
 
     getView():React.ComponentClass|React.SFC<{}> {
-        return null; // TODO
+        return this.view;
     }
 
     supportsExtendedView():boolean {
-        return false;
+        return true;
     }
 
     supportsSingleWordQuery(language:string):boolean {

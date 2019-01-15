@@ -34,7 +34,7 @@ export interface ConcordanceTileConf {
 /**
  *
  */
-export class ConcordanceBox implements ITileProvider {
+export class ConcordanceTile implements ITileProvider {
 
     private readonly tileId:number;
 
@@ -89,5 +89,5 @@ export class ConcordanceBox implements ITileProvider {
 }
 
 export const init:TileFactory.TileFactory<ConcordanceTileConf> = ({tileId, dispatcher, appServices, ut, mainForm, tilesModel, conf}) => {
-    return new ConcordanceBox({tileId, dispatcher, appServices, ut, mainForm, tilesModel, conf});
+    return new ConcordanceTile({tileId, dispatcher, appServices, ut, mainForm, tilesModel, conf});
 }

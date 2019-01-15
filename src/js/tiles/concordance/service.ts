@@ -20,8 +20,15 @@ import * as Rx from '@reactivex/rxjs';
 import {ajax$} from '../../shared/ajax';
 import { DataApi } from '../../abstract/types';
 
+export enum QuerySelectors {
+    BASIC = 'iqueryrow',
+    CQL = 'cqlrow',
+}
+
 export interface RequestArgs {
+    corpname:string;
     query:string;
+    queryselector:QuerySelectors;
 }
 
 export interface Line {
@@ -32,9 +39,14 @@ export interface Line {
 }
 
 export interface ConcResponse {
+    conc_persistence_op_id:string;
     messages:Array<[string, string]>;
     Lines:Array<Line>;
-    [key:string]:any;
+    fullsize:number;
+    concsize:number;
+    result_arf:number;
+    result_relative_freq:number;
+    //[key:string]:any;
 }
 
 
@@ -51,8 +63,8 @@ export class RequestBuilder implements DataApi<RequestArgs, ConcResponse> {
             'GET',
             this.apiURL,
             {
-                corpname: 'susanne',
-                queryselector: 'iqueryrow',
+                corpname: args.corpname,
+                queryselector: args.queryselector,
                 iquery: args.query,
                 async: 0,
                 pagesize: 10,

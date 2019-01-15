@@ -20,6 +20,7 @@ import {ActionDispatcher, Bound, ViewUtils} from 'kombo';
 import * as React from 'react';
 import {ConcordanceTileModel, ConcordanceTileState} from './model';
 import { GlobalComponents } from '../../views/global';
+import { Line } from './service';
 
 
 export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:ConcordanceTileModel):React.ComponentClass {
@@ -27,11 +28,25 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
     const globalCompontents = ut.getComponents();
 
 
+    const Row:React.SFC<{
+        data:Line;
+
+    }> = (props) => {
+        return (
+            <tr className="Row">
+                <td className="left">{props.data.Left.map((s, i) => <span key={`${props.data.toknum}-L${i}`}>{s.str}</span>)}</td>
+                <td className="kwic">{props.data.Kwic.map((s, i) => <span key={`${props.data.toknum}-K${i}`} className="kwic">{s.str}</span>)}</td>
+                <td className="right">{props.data.Right.map((s, i) => <span key={`${props.data.toknum}-R${i}`}>{s.str}</span>)}</td>
+            </tr>
+        );
+    }
+
+
     class ConcordanceTileView extends React.PureComponent<ConcordanceTileState> {
 
         render() {
             if (this.props.isBusy) {
-                return <div className="service-tile"><img src={ut.createStaticUrl('ajax-loader.gif')} /></div>;
+                return <globalCompontents.AjaxLoader />;
 
             } else if (this.props.lines.size === 0) {
                 return <div className="service-tile"><globalCompontents.EmptySet fontSize="5em" /></div>;
@@ -39,17 +54,29 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             } else {
                 return (
                     <div className="service-tile ConcordanceTileView">
+                        <table className="summary">
+                            <tbody>
+                                <tr>
+                                    <th>
+                                        {ut.translate('concordance__num_matching_items')}:
+                                    </th>
+                                    <td>
+                                        {ut.formatNumber(this.props.concsize, 0)}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>
+                                        {ut.translate('concordance__ipm')}:
+                                    </th>
+                                    <td>
+                                        {ut.formatNumber(this.props.resultIPM, 2)}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                         <table className="conc-lines">
                             <tbody>
-                                {this.props.lines.map(line => {
-                                    return (
-                                        <tr key={`${line.toknum}`}>
-                                            <td>{line.Left.map((s, i) => <span key={`${line.toknum}-L${i}`}>{s.str}</span>)}</td>
-                                            <td>{line.Kwic.map((s, i) => <span key={`${line.toknum}-K${i}`} className="kwic">{s.str}</span>)}</td>
-                                            <td>{line.Right.map((s, i) => <span key={`${line.toknum}-R${i}`}>{s.str}</span>)}</td>
-                                        </tr>
-                                    );
-                                })}
+                                {this.props.lines.map(line => <Row key={`${line.toknum}`} data={line} />)}
                             </tbody>
                         </table>
                         {this.props.isExpanded ? <div>expanded</div> : null}
