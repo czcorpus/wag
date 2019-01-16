@@ -19,10 +19,11 @@ import * as Immutable from 'immutable';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
 import {ActionNames as GlobalActionNames} from '../../models/actions';
 import {ActionNames, Actions} from './actions';
-import {RequestBuilder, ConcResponse, Line, QuerySelectors} from './service';
+import {RequestBuilder, Line, QuerySelectors} from './service';
 import { WdglanceMainFormModel } from '../../models/query';
 import { AppServices } from '../../appServices';
-import { SystemMessageType, importMessageType } from '../../notifications';
+import { importMessageType } from '../../notifications';
+import { SystemMessageType } from '../../abstract/types';
 
 
 export interface ConcordanceTileState {
@@ -36,6 +37,22 @@ export interface ConcordanceTileState {
     resultIPM:number;
 }
 
+
+export interface ConcordanceTileModelConf {
+    corpname:string;
+}
+
+
+export interface ConcordanceTileModelArgs {
+    dispatcher:ActionDispatcher;
+    tileId:number;
+    appServices:AppServices;
+    service:RequestBuilder;
+    mainForm:WdglanceMainFormModel;
+    conf:ConcordanceTileModelConf;
+}
+
+
 export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
     private readonly service:RequestBuilder;
@@ -46,14 +63,14 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
     private readonly tileId:number;
 
-    constructor(dispatcher:ActionDispatcher, tileId:number, appServices:AppServices, service:RequestBuilder, mainForm:WdglanceMainFormModel) {
+    constructor({dispatcher, tileId, appServices, service, mainForm, conf}:ConcordanceTileModelArgs) {
         super(
             dispatcher,
             {
                 isBusy: false,
                 isExpanded: false,
                 lines: Immutable.List<Line>(),
-                corpname: 'susanne', // TODO
+                corpname: conf.corpname,
                 fullsize: -1,
                 concsize: -1,
                 resultARF: -1,
@@ -64,48 +81,44 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
         this.mainForm = mainForm;
         this.appServices = appServices;
         this.tileId = tileId;
-    }
 
-    reduce(state:ConcordanceTileState, action:Action):ConcordanceTileState {
-        let newState:ConcordanceTileState;
-        switch (action.name) {
-            case GlobalActionNames.RequestQueryResponse:
-                newState = this.copyState(state);
+        this.actionMatch = {
+
+            [GlobalActionNames.RequestQueryResponse]: (state, action) => {
+                const newState = this.copyState(state);
                 newState.isBusy = true;
-            break;
-            case GlobalActionNames.ExpandTile:
+                return newState;
+            },
+            [GlobalActionNames.ExpandTile]: (state, action) => {
                 if (action.payload['ident'] === this.tileId) {
-                    newState = this.copyState(state);
+                    const newState = this.copyState(state);
                     newState.isExpanded = true;
-
-                } else {
-                    newState = state;
+                    return newState;
                 }
-            break;
-            case GlobalActionNames.ResetExpandTile:
-                newState = this.copyState(state);
+                return state;
+            },
+            [GlobalActionNames.ResetExpandTile]: (state, action) => {
+                const newState = this.copyState(state);
                 newState.isExpanded = false;
-            break;
-            case ActionNames.DataLoadDone:
+                return newState;
+            },
+            [ActionNames.DataLoadDone]: (state, action:Actions.DataLoadDone) => {
+                const newState = this.copyState(state);
                 if (action.error) {
+                    newState.isBusy = false;
                     this.appServices.showMessage(SystemMessageType.ERROR, action.error);
 
                 } else {
-                    newState = this.copyState(state);
                     newState.isBusy = false;
-                    const data = action.payload['data'] as ConcResponse;
-                    data.messages.forEach(msg => this.appServices.showMessage(importMessageType(msg[0]), msg[1]));
-                    newState.lines = Immutable.List<Line>(data.Lines);
-                    newState.concsize = data.concsize; // TODO fullsize?
-                    newState.resultARF = data.result_arf;
-                    newState.resultIPM = data.result_relative_freq;
+                    action.payload.data.messages.forEach(msg => this.appServices.showMessage(importMessageType(msg[0]), msg[1]));
+                    newState.lines = Immutable.List<Line>(action.payload.data.Lines);
+                    newState.concsize = action.payload.data.concsize; // TODO fullsize?
+                    newState.resultARF = action.payload.data.result_arf;
+                    newState.resultIPM = action.payload.data.result_relative_freq;
                 }
-            break;
-            default:
-                newState = state;
-            break;
-        }
-        return newState;
+                return newState;
+            }
+        };
     }
 
     sideEffects(state:ConcordanceTileState, action:Action, dispatch:SEDispatcher):void {

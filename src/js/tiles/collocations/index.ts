@@ -30,6 +30,7 @@ require('./style.less');
 
 export interface CollocationsTileConf {
     apiURL:string;
+    corpname:string;
 }
 
 /**
@@ -54,13 +55,16 @@ export class CollocationsTile implements ITileProvider {
         this.dispatcher = dispatcher;
         this.ut = ut;
         this.appServices = appServices;
-        this.model = new CollocModel(
-            dispatcher,
-            tileId,
-            appServices,
-            new KontextCollAPI(conf.apiURL),
-            tilesModel
-        );
+        this.model = new CollocModel({
+            dispatcher: dispatcher,
+            tileId: tileId,
+            appServices: appServices,
+            service: new KontextCollAPI(conf.apiURL),
+            tilesModel: tilesModel,
+            conf: {
+                corpname: conf.corpname
+            }
+        });
     }
 
     init():void {

@@ -29,6 +29,7 @@ require('./style.less');
 
 export interface ConcordanceTileConf {
     apiURL:string;
+    corpname:string;
 }
 
 /**
@@ -49,13 +50,16 @@ export class ConcordanceTile implements ITileProvider {
     constructor({tileId, dispatcher, appServices, ut, mainForm, conf}:TileFactory.Args<ConcordanceTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
-        this.model = new ConcordanceTileModel(
-            dispatcher,
-            tileId,
-            appServices,
-            new RequestBuilder(conf.apiURL),
-            mainForm
-        );
+        this.model = new ConcordanceTileModel({
+            dispatcher: dispatcher,
+            tileId: tileId,
+            appServices: appServices,
+            service: new RequestBuilder(conf.apiURL),
+            mainForm: mainForm,
+            conf: {
+                corpname: conf.corpname
+            }
+        });
         this.ut = ut;
     }
 

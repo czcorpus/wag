@@ -23,10 +23,10 @@ import * as Rx from '@reactivex/rxjs';
 import {WdglanceMainState, WdglanceMainFormModel} from '../models/query';
 import {ActionNames, Actions, QueryType} from '../models/actions';
 import {KeyCodes} from '../shared/util';
-import { SystemMessage, SystemMessageType } from '../notifications';
+import { SystemMessage } from '../notifications';
 import { GlobalComponents } from './global';
 import { Forms } from '../shared/data';
-import { TileFrameProps } from '../abstract/types';
+import { TileFrameProps, SystemMessageType } from '../abstract/types';
 import { WdglanceTilesModel, WdglanceTilesState } from '../models/tiles';
 
 
@@ -134,7 +134,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     }> = (props) => {
 
-        return <button className="query-submit" type="button" onClick={props.onClick}>
+        return <button className="cnc-button query-submit" type="button" onClick={props.onClick}>
             {ut.translate('global__search')}
         </button>;
     };
@@ -383,9 +383,9 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         } else {
                             return (
                                 <section key={`tile-ident-${tile.tileId}`}
-                                        className={`app-output${this.state.expandedTile === tile.tileId ? ' expanded' : ''}`}
+                                        className={`cnc-tile app-output${this.state.expandedTile === tile.tileId ? ' expanded' : ''}`}
                                         ref={availRefs[tile.tileId]}>
-                                    <div className="panel">
+                                    <div className="cnc-tile-header panel">
                                         <h2>{tile.label}</h2>
                                         {tile.supportsExtendedView ? <ExtendButton tileIdent={tile.tileId} extended={this.state.expandedTile === tile.tileId} /> : null}
                                     </div>

@@ -23,6 +23,16 @@ import { WdglanceMainFormModel } from '../models/query';
 import { AppServices } from '../appServices';
 import { WdglanceTilesModel } from '../models/tiles';
 
+export enum SystemMessageType {
+    INFO = 'info',
+    WARNING = 'warning',
+    ERROR = 'error'
+}
+
+export enum CorePosAttribute {
+    WORD = 'word',
+    LEMMA = 'lemma'
+}
 
 export interface ITileProvider {
 

@@ -20,13 +20,8 @@ import * as Rx from '@reactivex/rxjs';
 import { ActionDispatcher } from 'kombo';
 import {ActionNames} from './models/actions';
 import {puid} from './shared/util';
+import { SystemMessageType } from './abstract/types';
 
-
-export enum SystemMessageType {
-    INFO = 'info',
-    WARNING = 'warning',
-    ERROR = 'error'
-}
 
 export interface SystemMessage {
     ident:string;
