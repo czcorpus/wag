@@ -100,6 +100,7 @@ export namespace Actions {
     export interface DataLoadDone extends Action<{
         data:Array<DataRow>;
         heading:DataHeading;
+        q:string;
         frameSize:[number, number];
     }> {
         name:ActionNames.DataLoadDone;

@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-import { Action } from "kombo";
-import { APIResponse } from "./api";
+import { Action } from 'kombo';
+import { DataRow } from './api';
 
 
 export enum ActionNames {
@@ -27,7 +27,8 @@ export enum ActionNames {
 export namespace Actions {
 
     export interface LoadDataDone extends Action<{
-        data:APIResponse,
+        data:Array<DataRow>;
+        q:string;
         frameSize:[number, number];
     }> {
         name: ActionNames.LoadDataDone

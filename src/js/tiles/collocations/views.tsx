@@ -141,10 +141,10 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
         render() {
             return (
-                <globalCompontents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}>
+                <globalCompontents.TileWrapper isBusy={this.props.isBusy} error={this.props.error} htmlClass="CollocTile">
                     <div ref={this.chartContainer} style={{minHeight: '10em'}} />
                     {this.props.isExpanded ?
-                        <table className="cnc-table">
+                        <table className="cnc-table data">
                             <tbody>
                                 <tr>
                                     {this.props.heading.map((h, i) => <th key={`${i}:${h.s}`}>{h.s}</th>)}

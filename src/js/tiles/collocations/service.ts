@@ -23,6 +23,7 @@ import { CollApiArgs, DataRow, DataHeading } from './common';
 
 
 export interface CollApiResponse {
+    conc_persistence_op_id:string;
     Head:DataHeading;
     Items:Array<DataRow>;
 }

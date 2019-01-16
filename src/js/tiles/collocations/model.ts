@@ -109,8 +109,8 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             },
             [ActionNames.DataLoadDone]: (state, action:Actions.DataLoadDone) => {
                 const newState = this.copyState(state);
+                newState.q = action.payload.q;
                 newState.isBusy = false;
-
                 if (action.error) {
                     newState.error = action.error.message;
 
@@ -157,6 +157,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                                         payload: {
                                             heading: data.Head,
                                             data: data.Items,
+                                            q: '~' + data.conc_persistence_op_id,
                                             frameSize: this.tilesModel.getFrameSize(this.tileId)
                                         }
                                     });

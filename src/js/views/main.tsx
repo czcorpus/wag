@@ -343,7 +343,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         }
 
         private getElmSize(elm:HTMLElement):[number, number] {
-            return [~~Math.round(elm.clientWidth), ~~Math.round(elm.clientHeight)];
+            return elm ? [~~Math.round(elm.clientWidth), ~~Math.round(elm.clientHeight)] : [0, 0];
         }
 
         private dispatchSizes():void {
@@ -411,7 +411,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         return (
             <div className="WdglanceMain">
                 <div className="logo">
-                    <h1>Word in a Glance</h1>
+                    <h1>Word at a Glance</h1>
                 </div>
                 <WdglanceControlsBound />
                 <TileSections tiles={props.tiles} />

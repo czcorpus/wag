@@ -37,6 +37,7 @@ export interface GlobalComponents {
     }>;
     TileWrapper:React.SFC<{
         isBusy:boolean;
+        htmlClass?:string;
         error?:string;
     }>;
 }
@@ -104,13 +105,13 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
 
     const TileWrapper:GlobalComponents['TileWrapper'] = (props) => {
         if (props.isBusy) {
-            return <AjaxLoader />;
+            return <div className="service-tile"><AjaxLoader /></div>;
 
         } else if (props.error) {
-            return <div><MessageStatusIcon statusType={SystemMessageType.ERROR} />{props.error}</div>;
+            return <div className="service-tile"><MessageStatusIcon statusType={SystemMessageType.ERROR} />{props.error}</div>;
 
         } else {
-            return <div className="service-tile CollocTile">{props.children}</div>;
+            return <div className={`service-tile${props.htmlClass ? ' ' + props.htmlClass : ''}`}>{props.children}</div>;
         }
     };
 

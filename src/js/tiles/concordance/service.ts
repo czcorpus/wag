@@ -46,7 +46,6 @@ export interface ConcResponse {
     concsize:number;
     result_arf:number;
     result_relative_freq:number;
-    //[key:string]:any;
 }
 
 
@@ -67,16 +66,10 @@ export class RequestBuilder implements DataApi<RequestArgs, ConcResponse> {
                 queryselector: args.queryselector,
                 iquery: args.query,
                 async: 0,
-                pagesize: 10,
+                pagesize: 20,
                 format: 'json'
             },
             {}
-        )
-
-       /*
-       return Rx.Observable.of({
-           lines: ['one', 'two', 'three', 'four']
-       }).delay(3000);
-       */
+        );
     }
 }

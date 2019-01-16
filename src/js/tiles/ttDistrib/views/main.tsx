@@ -17,89 +17,53 @@
  */
 import * as Immutable from 'immutable';
 import * as React from 'react';
-import * as d3 from 'd3';
 import {ActionDispatcher, ViewUtils, Bound} from 'kombo';
 import { TTDistribModel, TTDistribModelState } from '../model';
-import * as britecharts from 'britecharts';
+import {BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, Legend} from 'recharts';
 import { DataRow } from '../api';
 import { GlobalComponents } from '../../../views/global';
-
-
-export const drawChart = (container:HTMLElement, size:[number, number], data) => {
-    const containerSel = d3.select(container);
-    const barChart = britecharts.bar();
-    barChart
-        .margin({
-            left: 0,
-            right: 0,
-            top: 0,
-            bottom: 20
-        })
-        .percentageAxisToMaxRatio(1.3)
-        .isHorizontal(true)
-        .isAnimated(true)
-        .yAxisPaddingBetweenChart(2)
-        .enableLabels(true)
-        .labelsNumberFormat('.0f')
-        .colorSchema(britecharts.colors.colorSchemas.britecharts)
-        .height(size[1] * 0.9)
-        .width(size[0] * 0.95);
-    containerSel.datum(data).call(barChart);
-};
 
 
 export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:TTDistribModel):React.ComponentClass {
 
     const globComponents = ut.getComponents();
 
-    class ChartWrapper extends React.Component<{
+    // -------------------------- <Chart /> --------------------------------------
+
+    const Chart:React.SFC<{
         data:Immutable.List<DataRow>;
         size:[number, number];
-    }> {
+    }> = (props) => {
 
-        private chartContainer:React.RefObject<HTMLDivElement>;
-
-        constructor(props) {
-            super(props);
-            this.chartContainer = React.createRef();
-        }
-
-        componentDidMount() {
-            drawChart(this.chartContainer.current, this.props.size, this.props.data.toArray());
-        }
-
-        componentDidUpdate() {
-            drawChart(this.chartContainer.current, this.props.size, this.props.data.toArray());
-        }
-
-        render() {
-            return (
-                <div>
-                    <div ref={this.chartContainer} />
-                </div>
-            );
-        }
+        return (
+            <div className="Chart">
+                <BarChart width={props.size[0] - 30} height={props.size[1]} data={props.data.toArray()} layout="vertical">
+                    <CartesianGrid />
+                    <Bar dataKey="ipm" fill={'rgb(69, 104, 165)'} />
+                    <XAxis type="number" />
+                    <YAxis type="category" dataKey="name" width={150} />
+                    <Legend />
+                    <Tooltip cursor={false} isAnimationActive={false} />
+                </BarChart>
+            </div>
+        );
     };
 
+    // -------------------------- <TTDistribTile /> --------------------------------------
 
-    class View extends React.PureComponent<TTDistribModelState> {
+    class TTDistribTile extends React.PureComponent<TTDistribModelState> {
 
         render() {
-            if (this.props.isBusy) {
-                return <div><globComponents.AjaxLoader /></div>
-
-            } else if (this.props.data.size === 0) {
-                return <div><globComponents.EmptySet fontSize="5em" /></div>
-
-            } else {
-                return (
-                    <div>
-                        <ChartWrapper data={this.props.data} size={this.props.renderFrameSize} />
-                    </div>
-                );
-            }
+            return <globComponents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}>
+                <div className="TTDistribTile">
+                    {this.props.data.size === 0 ?
+                        <div><globComponents.EmptySet fontSize="5em" /></div> :
+                        <Chart data={this.props.data} size={this.props.renderFrameSize} />
+                    }
+                </div>
+            </globComponents.TileWrapper>;
         }
     }
 
-    return Bound<TTDistribModelState>(View, model);
+    return Bound<TTDistribModelState>(TTDistribTile, model);
 }
