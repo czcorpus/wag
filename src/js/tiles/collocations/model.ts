@@ -116,6 +116,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
 
                 } else {
                     newState.data = Immutable.List<DataRow>(action.payload.data);
+                    newState.renderFrameSize = [action.payload.frameSize[0], action.payload.frameSize[1]];
                     newState.heading = action.payload.heading.map((v, i) => {
                         if (i === 0) {
                             return {n: 'Abs.', s: ''};
@@ -127,7 +128,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             },
             [ActionNames.SizeUpdated]: (state, action:Actions.SizeUpdated) => {
                 const newState = this.copyState(state);
-                newState.renderFrameSize = action.payload.frameSize;
+                newState.renderFrameSize = [action.payload.frameSize[0], newState.renderFrameSize[1]];
                 return newState;
             }
         }
@@ -158,7 +159,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                                             heading: data.Head,
                                             data: data.Items,
                                             q: '~' + data.conc_persistence_op_id,
-                                            frameSize: this.tilesModel.getFrameSize(this.tileId)
+                                            frameSize: [this.tilesModel.getFrameSize(this.tileId)[0], data.Items.length * 40]
                                         }
                                     });
                                 },
