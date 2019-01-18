@@ -38,18 +38,13 @@ export interface ConcordanceTileState {
 }
 
 
-export interface ConcordanceTileModelConf {
-    corpname:string;
-}
-
-
 export interface ConcordanceTileModelArgs {
     dispatcher:ActionDispatcher;
     tileId:number;
     appServices:AppServices;
     service:RequestBuilder;
     mainForm:WdglanceMainFormModel;
-    conf:ConcordanceTileModelConf;
+    initState:ConcordanceTileState;
 }
 
 
@@ -63,20 +58,8 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
     private readonly tileId:number;
 
-    constructor({dispatcher, tileId, appServices, service, mainForm, conf}:ConcordanceTileModelArgs) {
-        super(
-            dispatcher,
-            {
-                isBusy: false,
-                isExpanded: false,
-                lines: Immutable.List<Line>(),
-                corpname: conf.corpname,
-                fullsize: -1,
-                concsize: -1,
-                resultARF: -1,
-                resultIPM: -1
-            }
-        );
+    constructor({dispatcher, tileId, appServices, service, mainForm, initState}:ConcordanceTileModelArgs) {
+        super(dispatcher, initState);
         this.service = service;
         this.mainForm = mainForm;
         this.appServices = appServices;
