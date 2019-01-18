@@ -332,9 +332,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             this.frame1Ref = React.createRef();
             this.frame2Ref = React.createRef();
             this.frame3Ref = React.createRef();
-            window.onresize = () => {
-                this.dispatchSizes();
-            };
+            window.onresize = () => this.dispatchSizes();
             this.handleModelChange = this.handleModelChange.bind(this);
         }
 
