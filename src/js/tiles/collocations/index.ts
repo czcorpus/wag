@@ -16,13 +16,15 @@
  * limitations under the License.
  */
 
-import { TileFactory, ITileProvider } from "../../abstract/types";
+import * as Immutable from 'immutable';
+import { TileFactory, ITileProvider, CorePosAttribute } from "../../abstract/types";
 import { AppServices } from "../../appServices";
 import { CollocModel } from "./model";
 import { KontextCollAPI } from "./service";
 import {init as viewInit} from './views';
 import { ActionDispatcher, ViewUtils } from "kombo";
 import { GlobalComponents } from "../../views/global";
+import { CollocMetric, DataRow } from "./common";
 
 declare var require:(src:string)=>void;  // webpack
 require('./style.less');
@@ -61,8 +63,23 @@ export class CollocationsTile implements ITileProvider {
             appServices: appServices,
             service: new KontextCollAPI(conf.apiURL),
             tilesModel: tilesModel,
-            conf: {
-                corpname: conf.corpname
+            initState: {
+                isBusy: false,
+                isExpanded: false,
+                error: null,
+                corpname: conf.corpname,
+                q: '',
+                cattr: CorePosAttribute.LEMMA,
+                cfromw: -5,
+                ctow: 5,
+                cminfreq: 1,
+                cminbgr: 3,
+                cbgrfns: [CollocMetric.MI, CollocMetric.T_SCORE, CollocMetric.LOG_DICE],
+                csortfn: CollocMetric.MI,
+                data: Immutable.List<DataRow>(),
+                heading: [],
+                citemsperpage: 10,
+                renderFrameSize: [10, 10]
             }
         });
     }
