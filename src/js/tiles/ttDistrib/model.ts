@@ -17,45 +17,59 @@
  */
 
 import * as Immutable from 'immutable';
-import {DummyAPI, DataRow} from './api';
-import {StatelessModel, ActionDispatcher, Action, IReducer, SEDispatcher} from 'kombo';
+import * as Rx from '@reactivex/rxjs';
+import {QueryArgs, TTDistribAPI, DataRow} from './api';
+import {StatelessModel, ActionDispatcher, Action, SEDispatcher} from 'kombo';
 import {ActionNames as GlobalActionNames, Actions as GlobalActions} from '../../models/actions';
+import {ActionNames as ConcActionNames, Actions as ConcActions} from '../concordance/actions';
 import {ActionNames, Actions} from './actions';
 import { WdglanceTilesModel } from '../../models/tiles';
 
 
-export interface Window1Conf {
+
+export interface TTDistribModel {
 }
 
 export interface TTDistribModelState {
     isBusy:boolean;
+    error:string;
     data:Immutable.List<DataRow>;
     renderFrameSize:[number, number];
+    corpname:string;
+    q:string;
+    fcrit:string;
+    flimit:number;
+    freqSort:string;
+    fpage:number;
+    fttIncludeEmpty:boolean;
 }
+
+
+const stateToAPIArgs = (state:TTDistribModelState, queryId:string):QueryArgs => ({
+    corpname: state.corpname,
+    q: queryId ? queryId : state.q,
+    fcrit: state.fcrit,
+    flimit: state.flimit.toString(),
+    freq_sort: state.freqSort,
+    fpage: state.fpage.toString(),
+    ftt_include_empty: state.fttIncludeEmpty ? '1' : '0',
+    format: 'json'
+});
+
 
 export class TTDistribModel extends StatelessModel<TTDistribModelState> {
 
-    private api:DummyAPI;
-
-    private conf:Window1Conf;
+    private api:TTDistribAPI;
 
     private tilesModel:WdglanceTilesModel;
 
     private readonly tileId:number;
 
-    constructor(dispatcher:ActionDispatcher, tileId:number, api:DummyAPI, tilesModel:WdglanceTilesModel, conf:Window1Conf) {
-        super(
-            dispatcher,
-            {
-                isBusy: false,
-                data: Immutable.List<DataRow>(),
-                renderFrameSize:[0, 0]
-            }
-        );
+    constructor(dispatcher:ActionDispatcher, tileId:number, api:TTDistribAPI, tilesModel:WdglanceTilesModel, initState:TTDistribModelState) {
+        super(dispatcher, initState);
         this.tileId = tileId;
         this.api = api;
         this.tilesModel = tilesModel;
-        this.conf = conf;
         this.actionMatch = {
             [GlobalActionNames.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
                 const newState = this.copyState(state);
@@ -64,9 +78,15 @@ export class TTDistribModel extends StatelessModel<TTDistribModelState> {
             },
             [ActionNames.LoadDataDone]: (state, action:Actions.LoadDataDone) => {
                 const newState = this.copyState(state);
-                newState.data = Immutable.List<DataRow>(action.payload.data);
-                newState.renderFrameSize = action.payload.frameSize;
                 newState.isBusy = false;
+                if (action.error) {
+                    newState.data = Immutable.List<DataRow>();
+                    newState.error = action.error.message;
+
+                } else {
+                    newState.data = Immutable.List<DataRow>(action.payload.data);
+                    newState.renderFrameSize = action.payload.frameSize;
+                }
                 return newState;
             }
         }
@@ -79,28 +99,46 @@ export class TTDistribModel extends StatelessModel<TTDistribModelState> {
     sideEffects(state:TTDistribModelState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionNames.RequestQueryResponse:
-                this.api.call({}).subscribe(
-                    data => {
-                        dispatch<Actions.LoadDataDone>({
-                            name: ActionNames.LoadDataDone,
-                            payload: {
-                                data: data,
-                                frameSize: this.tilesModel.getFrameSize(this.tileId)
+                this.suspend((action:Action) => {
+                    if (action.name === ConcActionNames.DataLoadDone) {
+                        const payload = (action as ConcActions.DataLoadDone).payload;
+                        new Rx.Observable((observer:Rx.Observer<{}>) => {
+                            if (action.error) {
+                                observer.error(action.error);
+
+                            } else {
+                                observer.next({});
+                                observer.complete();
                             }
-                        });
-                    },
-                    error => {
-                        console.log('error: ', error);
-                        dispatch<Actions.LoadDataDone>({
-                            name: ActionNames.LoadDataDone,
-                            payload: {
-                                data: null,
-                                frameSize: this.tilesModel.getFrameSize(this.tileId)
+                        }).concatMap(args => this.api.call(stateToAPIArgs(state, '~' + payload.data.conc_persistence_op_id)))
+                        .subscribe(
+                            resp => {
+                                const currFrameSize = this.tilesModel.getFrameSize(this.tileId);
+                                dispatch<Actions.LoadDataDone>({
+                                    name: ActionNames.LoadDataDone,
+                                    payload: {
+                                        data: resp.data,
+                                        q: resp.q,
+                                        frameSize: [currFrameSize[0], resp.data.length * 50]
+                                    }
+                                });
                             },
-                            error: error
-                        });
+                            error => {
+                                dispatch<Actions.LoadDataDone>({
+                                    name: ActionNames.LoadDataDone,
+                                    payload: {
+                                        data: null,
+                                        q: null,
+                                        frameSize: this.tilesModel.getFrameSize(this.tileId)
+                                    },
+                                    error: error
+                                });
+                            }
+                        );
+                        return true;
                     }
-                );
+                    return false;
+                });
             break;
         }
     }

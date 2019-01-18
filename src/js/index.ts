@@ -38,6 +38,7 @@ declare var require:(src:string)=>void;  // webpack
 require('../css/index.less');
 require('../css/components/global.less');
 require('../css/components/main.less');
+require('../css/mobile.less');
 
 
 export interface WdglanceConf {

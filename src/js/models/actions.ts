@@ -17,7 +17,7 @@
  */
 
 import {Action} from 'kombo';
-import { SystemMessageType } from '../notifications';
+import { SystemMessageType } from '../abstract/types';
 
 export enum ActionNames {
     ChangeQueryInput = 'MAIN_CHANGE_QUERY_INPUT',

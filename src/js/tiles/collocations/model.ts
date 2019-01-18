@@ -16,15 +16,31 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from "kombo";
+import * as Rx from '@reactivex/rxjs';
+import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
 import {ActionNames as GlobalActionNames, Actions as GlobalActions} from '../../models/actions';
 import {ActionNames as ConcActionNames, Actions as ConcActions} from '../concordance/actions';
-import {ActionNames, stateToArgs, DataRow, Actions} from './common';
+import {ActionNames, stateToArgs, DataRow, Actions, CollocMetric, CollApiArgs} from './common';
 import { KontextCollAPI } from './service';
 import { CollocModelState } from "./common";
 import { AppServices } from '../../appServices';
-import { SystemMessageType } from '../../notifications';
 import { WdglanceTilesModel } from '../../models/tiles';
+import { SystemMessageType, CorePosAttribute } from '../../abstract/types';
+
+
+export interface CollocModelConf {
+    corpname:string;
+}
+
+
+export interface CollocModelArgs {
+    dispatcher:ActionDispatcher;
+    tileId:number;
+    appServices:AppServices;
+    service:KontextCollAPI;
+    tilesModel:WdglanceTilesModel;
+    conf:CollocModelConf;
+}
 
 
 export class CollocModel extends StatelessModel<CollocModelState> {
@@ -37,21 +53,22 @@ export class CollocModel extends StatelessModel<CollocModelState> {
 
     private readonly tileId:number;
 
-    constructor(dispatcher:ActionDispatcher, tileId:number, appServices:AppServices, service:KontextCollAPI, tilesModel:WdglanceTilesModel) {
+    constructor({dispatcher, tileId, appServices, service, tilesModel, conf}:CollocModelArgs) {
         super(
             dispatcher,
             {
                 isBusy: false,
-                isExpanded:false,
-                corpname: 'susanne', // TODO
+                isExpanded: false,
+                error: null,
+                corpname: conf.corpname,
                 q: '',
-                cattr: 'word',
+                cattr: CorePosAttribute.LEMMA,
                 cfromw: -5,
                 ctow: 5,
                 cminfreq: 1,
                 cminbgr: 3,
-                cbgrfns: ['m', 't', 'd'],
-                csortfn: 'm',
+                cbgrfns: [CollocMetric.MI, CollocMetric.T_SCORE, CollocMetric.LOG_DICE],
+                csortfn: CollocMetric.MI,
                 data: Immutable.List<DataRow>(),
                 heading: [],
                 citemsperpage: 10,
@@ -92,9 +109,20 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             },
             [ActionNames.DataLoadDone]: (state, action:Actions.DataLoadDone) => {
                 const newState = this.copyState(state);
+                newState.q = action.payload.q;
                 newState.isBusy = false;
-                newState.data = Immutable.List<DataRow>(action.payload.data);
-                newState.heading = action.payload.heading;
+                if (action.error) {
+                    newState.error = action.error.message;
+
+                } else {
+                    newState.data = Immutable.List<DataRow>(action.payload.data);
+                    newState.heading = action.payload.heading.map((v, i) => {
+                        if (i === 0) {
+                            return {n: 'Abs.', s: ''};
+                        }
+                        return v;
+                    });
+                }
                 return newState;
             },
             [ActionNames.SizeUpdated]: (state, action:Actions.SizeUpdated) => {
@@ -112,13 +140,24 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                     (action:Action) => {
                         if (action.name === ConcActionNames.DataLoadDone) {
                             const payload = (action as ConcActions.DataLoadDone).payload;
-                            this.service.call(stateToArgs(state, '~' + payload.data.conc_persistence_op_id)).subscribe(
+                            new Rx.Observable((observer:Rx.Observer<CollApiArgs>) => {
+                                if (action.error) {
+                                    observer.error(action.error);
+
+                                } else {
+                                    observer.next(stateToArgs(state, '~' + payload.data.conc_persistence_op_id));
+                                    observer.complete();
+                                }
+                            })
+                            .concatMap(args => this.service.call(args))
+                            .subscribe(
                                 (data) => {
                                     seDispatch({
                                         name: ActionNames.DataLoadDone,
                                         payload: {
                                             heading: data.Head,
                                             data: data.Items,
+                                            q: '~' + data.conc_persistence_op_id,
                                             frameSize: this.tilesModel.getFrameSize(this.tileId)
                                         }
                                     });

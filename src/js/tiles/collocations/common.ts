@@ -29,9 +29,20 @@ export interface DataRow {
 
 export type DataHeading = Array<{n:string; s:string}>;
 
+export enum CollocMetric {
+    T_SCORE = 't',
+    MI = 'm',
+    MI3 = '3',
+    LOG_LIKELYHOOD = 'l',
+    MIN_SENSITIVITY = 's',
+    LOG_DICE = 'd',
+    MI_LOG_F = 'p',
+}
+
 export interface CollocModelState {
     isBusy:boolean;
     isExpanded:boolean;
+    error:string|null;
     corpname:string;
     q:string;
     cattr:string;
@@ -89,6 +100,7 @@ export namespace Actions {
     export interface DataLoadDone extends Action<{
         data:Array<DataRow>;
         heading:DataHeading;
+        q:string;
         frameSize:[number, number];
     }> {
         name:ActionNames.DataLoadDone;

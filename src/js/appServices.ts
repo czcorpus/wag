@@ -16,8 +16,9 @@
  * limitations under the License.
  */
 
-import { SystemNotifications, SystemMessageType } from "./notifications";
+import { SystemNotifications } from "./notifications";
 import {ITranslator} from 'kombo';
+import { SystemMessageType } from "./abstract/types";
 
 
 export class AppServices {

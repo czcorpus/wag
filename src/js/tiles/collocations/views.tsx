@@ -18,39 +18,83 @@
 
 import * as d3 from 'd3';
 import * as d3Scale from 'd3-scale';
-//import * as d3ScaleChrom from 'd3-scale-chromatic';
 import * as cloud from 'd3-cloud';
 import * as React from 'react';
 import * as Immutable from 'immutable';
+import * as Rx from '@reactivex/rxjs';
 import {ActionDispatcher, Bound, ViewUtils} from 'kombo';
 import {CollocModel} from './model';
 import { GlobalComponents } from '../../views/global';
 import { CollocModelState, DataRow } from './common';
 
 
-export const drawChart = (container:HTMLElement, size:[number, number], data:Immutable.List<DataRow>) => {
+export const drawChart = (container:HTMLElement, size:[number, number], data:Immutable.List<DataRow>, measures:Array<string>) => {
     container.innerHTML = '';
     const dataImp:Array<DataRow> = data.toArray();
     const c20 = d3Scale.scaleOrdinal(d3.schemeCategory10).domain(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']);
+    const valMapping = Immutable.Map<string, DataRow>(data.map(v => [v.str, v]));
+
     const draw = (words:Array<{size:number, rotate:number, text:string, x:number, y:number}>) => {
-        d3.select(container).append('svg')
+        const itemGroup = d3.select(container).append('svg')
             .attr('width', layout.size()[0])
             .attr('height', layout.size()[1])
-          .append('g')
+            .append('g')
             .attr('transform', `translate(${layout.size()[0] / 2},${layout.size()[1] / 2})`)
-          .selectAll('text')
+            .selectAll('g')
             .data(words)
-          .enter().append('text')
-            .style('font-size', d => d.size + "px")
+            .enter()
+            .append('g')
+            .attr('transform', d => `translate(${d.x}, ${d.y}) rotate(${d.rotate})`);
+
+        const tooltip = d3.select(container)
+            .append('div')
+            .style('background-color', '#e2f4fb')
+            .style('color', '#333333')
+            .style('padding', '0.3em 0.7em')
+            .style('border-radius', '4px')
+            .style('opacity', 0)
+            .style('position', 'absolute')
+            .text('');
+
+        const text = itemGroup
+            .append('text')
+            .style('font-size', d => `${d.size}px`)
             .style('font-family', 'Impact')
             .style('fill', (d, i) => c20(`${i}`))
+            .style('pointer-events', 'none')
             .attr('text-anchor', 'middle')
-            .attr('transform', d => `translate(${d.x}, ${d.y}) rotate(${d.rotate})`)
-            .text(d => d.text)
-            .on('mouseover', (evt) => {
-                console.log('evt: ', evt);
+            .text(d => d.text);
+
+        const rect = itemGroup.append('rect')
+            .attr('x',function (d) { return (this.parentNode as SVGAElement).getBBox().x})
+            .attr('y',function (d) { return (this.parentNode as SVGAElement).getBBox().y})
+            .attr('width', function (d) { return (this.parentNode as SVGAElement).getBBox().width})
+            .attr('height', function (d) { return (this.parentNode as SVGAElement).getBBox().height})
+            .attr('opacity', 0)
+            .style('pointer-events', 'fill');
+
+        rect.on('mouseover', (datum, i, values) => {
+                tooltip
+                    .style('left', `${Math.max(0, d3.select(values[i]).node().getBoundingClientRect().left)}px`)
+                    .style('top', `${Math.max(0, d3.select(values[i]).node().getBoundingClientRect().top - 15)}px`)
+                    .transition()
+                    .duration(200)
+                    .style('opacity', '0.8')
+                    .style('pointer-events', 'none')
+                    .text(valMapping.get(datum.text).Stats.map((v, i) => `${measures[i]}: ${v.s}`).join(', '))
+
+            })
+            .on('mouseout', (datum, i, values) => {
+                Rx.Observable.of(null).timeout(1000).subscribe(
+                    () => {
+                        tooltip
+                            .transition()
+                            .duration(100)
+                            .style('opacity', '0');
+                    }
+                );
             });
-      }
+    }
 
     const totalFreq = dataImp.reduce((acc, curr) => parseFloat(curr.Stats[0].s) + acc, 0);
     const layout = cloud()
@@ -85,42 +129,38 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
         componentDidMount() {
             if (this.chartContainer.current) {
-                drawChart(this.chartContainer.current, this.props.renderFrameSize, this.props.data);
+                drawChart(this.chartContainer.current, this.props.renderFrameSize, this.props.data, this.props.heading.map(v => v.n));
             }
         }
 
         componentDidUpdate() {
             if (this.chartContainer.current) {
-                drawChart(this.chartContainer.current, this.props.renderFrameSize, this.props.data);
+                drawChart(this.chartContainer.current, this.props.renderFrameSize, this.props.data, this.props.heading.map(v => v.n));
             }
         }
 
         render() {
-            if (this.props.isBusy) {
-                return <globalCompontents.AjaxLoader />;
-
-            } else {
-                return (
-                    <div className="service-tile CollocTile">
-                        <div ref={this.chartContainer} style={{minHeight: '10em'}} />
-                        {this.props.isExpanded ?
-                            <table>
-                                <tbody>
-                                    <tr>
-                                        {this.props.heading.map((h, i) => <th key={`${i}:${h.s}`}>{h.s}</th>)}
+            return (
+                <globalCompontents.TileWrapper isBusy={this.props.isBusy} error={this.props.error} htmlClass="CollocTile">
+                    <div ref={this.chartContainer} style={{minHeight: '10em'}} />
+                    {this.props.isExpanded ?
+                        <table className="cnc-table data">
+                            <tbody>
+                                <tr>
+                                    {this.props.heading.map((h, i) => <th key={`${i}:${h.s}`}>{h.s}</th>)}
+                                </tr>
+                                {this.props.data.map((row, i) => (
+                                    <tr key={`${i}:${row.str}`}>
+                                        <td>{row.str}</td>
+                                        {row.Stats.map((stat, i) => <td key={`stat-${i}`}>{stat.s}</td>)}
+                                        <td>{row.Stats[1].s}</td>
                                     </tr>
-                                    {this.props.data.map((row, i) => (
-                                        <tr key={`${i}:${row.str}`}>
-                                            <td>{row.str}</td>
-                                            {row.Stats.map((stat, i) => <td key={`stat-${i}`}>{stat.s}</td>)}
-                                            <td>{row.Stats[1].s}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table> : null}
-                    </div>
-                );
-            }
+                                ))}
+                            </tbody>
+                        </table> : null
+                    }
+                </globalCompontents.TileWrapper>
+            );
         }
     }
 

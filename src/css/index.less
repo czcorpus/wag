@@ -13,7 +13,7 @@ body {
 section.tiles {
     display: grid;
     grid-gap: 1em;
-    grid-template-columns: repeat(auto-fill, minmax(30em, 1fr));
+    grid-template-columns: 1fr 1fr;
     color: #444;
 }
 
@@ -26,11 +26,8 @@ section.tiles.exclusive {
 .app-output {
 
     .panel {
-        padding-left: 1em;
-        padding-right: 1em;
         display: flex;
         flex-direction: row;
-        background-color: @color-logo-blue;
         justify-content: space-between;
         align-items: center;
 
@@ -41,9 +38,7 @@ section.tiles.exclusive {
         h2 {
             margin: 0;
             padding: 0;
-            font-size: 1.1em;
-            padding-bottom: 0.3em;
-            padding-top: 0.3em;
+            font-size: 1.3em;
             font-weight: normal;
         }
     }
@@ -51,11 +46,6 @@ section.tiles.exclusive {
     .provider {
         margin: 0.7em;
     }
-}
-
-.app-output {
-    border: 1px solid black;
-    background-color: #ffffff;
 }
 
 .tiles {
@@ -69,4 +59,17 @@ section.tiles.exclusive {
 
 input.invalid, textarea.invalid {
     border: 1px solid red;
+}
+
+table.data {
+
+    tr:nth-child(2n+3) {
+        background-color: @color-whitelike-blue;
+    }
+
+    tr:first-child {
+        border-style: solid;
+        border-width: 0 0 1px 0;
+        border-color: @color-logo-blue;
+    }
 }

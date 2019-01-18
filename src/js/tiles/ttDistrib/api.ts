@@ -17,37 +17,76 @@
  */
 
 import * as Rx from '@reactivex/rxjs';
+import {ajax$} from '../../shared/ajax';
 import { DataApi } from '../../abstract/types';
+
+
+interface HTTPResponse {
+    conc_persistence_op_id:string;
+    Blocks:Array<{
+        Head:Array<{s:string; n:string}>;
+        Items:Array<{
+            Word:Array<{n:string}>;
+            fbar:number;
+            freq:number;
+            freqbar:number;
+            nbar:number;
+            nfilter:Array<[string, string]>;
+            pfilter:Array<[string, string]>;
+            rel:number;
+            relbar:number;
+        }>;
+        Total:number;
+        TotalPages:number;
+    }>;
+}
 
 
 export interface DataRow {
     name:string;
-    value:number;
+    freq:number;
+    ipm:number;
 }
 
-
-export type APIResponse = Array<DataRow>;
-
+export interface APIResponse {
+    q:string;
+    data:Array<DataRow>;
+}
 
 export interface QueryArgs {
-
+    corpname:string;
+    q:string;
+    fcrit:string;
+    flimit:string;
+    freq_sort:string;
+    fpage:string;
+    ftt_include_empty:string;
+    format:'json';
 }
 
-export class DummyAPI implements DataApi<QueryArgs, APIResponse> {
+export class TTDistribAPI implements DataApi<QueryArgs, APIResponse> {
 
-    constructor() {
+    private readonly apiURL:string;
 
+    constructor(apiURL:string) {
+        this.apiURL = apiURL;
     }
 
-
     call(args:QueryArgs):Rx.Observable<APIResponse> {
-        return Rx.Observable.of([
-            {name: 'ADM', value: 3419},
-            {name: 'LEI', value: 2811},
-            {name: 'MEM', value: 831},
-            {name: 'NEW', value: 17942},
-            {name: 'NOW', value: 809},
-            {name: 'POP', value: 11789}
-        ]).delay(1500);
+        return ajax$<HTTPResponse>(
+            'GET',
+            this.apiURL,
+            args
+
+        ).concatMap<HTTPResponse, APIResponse>(
+            resp => Rx.Observable.of({
+                data: resp.Blocks[0].Items.map(v => ({
+                        name: v.Word.map(v => v.n).join(' '),
+                        freq: v.freq,
+                        ipm: v.rel
+                })),
+                q: '~' + resp.conc_persistence_op_id
+            })
+        );
     }
 }

@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "kombo": "^0.21.2",
-    "britecharts": "^2.9.8",
+    "recharts": "^1.4.2",
     "d3": "^5.7.0",
     "d3-cloud": "^1.2.5",
     "@types/d3": "^5.0.1",

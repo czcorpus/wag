@@ -19,7 +19,7 @@
 import {ActionDispatcher, ViewUtils} from 'kombo';
 import * as React from 'react';
 import { KeyCodes } from '../shared/util';
-import { SystemMessageType } from '../notifications';
+import { SystemMessageType } from '../abstract/types';
 
 
 export interface GlobalComponents {
@@ -34,6 +34,11 @@ export interface GlobalComponents {
     }>;
     EmptySet:React.SFC<{
         fontSize:string;
+    }>;
+    TileWrapper:React.SFC<{
+        isBusy:boolean;
+        htmlClass?:string;
+        error?:string;
     }>;
 }
 
@@ -65,9 +70,9 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
 
     const MessageStatusIcon:GlobalComponents['MessageStatusIcon'] = (props) => {
         const m = {
-            info: 'info-icon.svg',
-            warning: 'warning-icon.svg',
-            error: 'error-icon.svg'
+            [SystemMessageType.INFO]: 'info-icon.svg',
+            [SystemMessageType.WARNING]: 'warning-icon.svg',
+            [SystemMessageType.ERROR]: 'error-icon.svg'
         };
 
         const renderImg = () => {
@@ -98,10 +103,23 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
         return <span className="EmptySet" style={{fontSize: props.fontSize}}>{'\u2205'}</span>;
     };
 
+    const TileWrapper:GlobalComponents['TileWrapper'] = (props) => {
+        if (props.isBusy) {
+            return <div className="service-tile"><AjaxLoader /></div>;
+
+        } else if (props.error) {
+            return <div className="service-tile"><MessageStatusIcon statusType={SystemMessageType.ERROR} />{props.error}</div>;
+
+        } else {
+            return <div className={`service-tile${props.htmlClass ? ' ' + props.htmlClass : ''}`}>{props.children}</div>;
+        }
+    };
+
     return {
         AjaxLoader: AjaxLoader,
         ModalOverlay: ModalOverlay,
         MessageStatusIcon: MessageStatusIcon,
-        EmptySet: EmptySet
+        EmptySet: EmptySet,
+        TileWrapper: TileWrapper
     };
 }

@@ -5,9 +5,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link href="./dist/index.css" rel="stylesheet" type="text/css">
         <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Droid+Sans+Mono%7CRoboto:100,400,400italic,700,700italic%7CRoboto+Condensed:400,700&amp;subset=latin,latin-ext" media="all">
+        <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Special+Elite" rel="stylesheet"  media="all"/>
         <link rel="stylesheet" type="text/css" href="https://www.korpus.cz/vendor/webmodel/ui/style.css?v=1509638045" />
         <link rel="stylesheet" type="text/css" href="//utils.korpus.cz/cdn/czcorpus/styles/1.0.0/main.css" />
         <link rel="stylesheet" type="text/css" href="https://www.korpus.cz/css/toolbar.css?v=1509638060" />
+        <link rel="stylesheet" type="text/css" href="https://utils.korpus.cz/cdn/czcorpus/styles/1.0.0/main.css" />
     </head>
     <body>
         <div id="cnc-toolbar" data-cnc-toolbar-current="kontext" data-cnc-user-id="">
@@ -48,13 +50,21 @@
             rootUrl: 'http://kontext.korpus.test/wdglance/',
             tilesConf: {
                 ConcordanceTileConf: {
-                    apiURL: 'http://kontext.korpus.test/kontext/first'
+                    apiURL: 'http://kontext.korpus.test/kontext/first',
+                    corpname: 'syn2015'
                 },
                 TTDistTileConf: {
-
+                    apiURL: 'http://kontext.korpus.test/kontext/freqs',
+                    corpname: 'syn2015',
+                    fcrit: 'doc.txtype 0',
+                    flimit: 1,
+                    freqSort: 'rel',
+                    fpage: 1,
+                    fttIncludeEmpty: false
                 },
                 CollocationsTileConf: {
-                    apiURL: 'http://kontext.korpus.test/kontext/collx'
+                    apiURL: 'http://kontext.korpus.test/kontext/collx',
+                    corpname: 'syn2015'
                 },
                 TreqTileConf: {
 
