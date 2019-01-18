@@ -16,11 +16,12 @@
  * limitations under the License.
  */
 
+import * as Immutable from 'immutable';
 import { ITileProvider, TileFactory } from '../../abstract/types';
 import {init as viewInit} from './views';
 import { ConcordanceTileModel } from './model';
 import { ActionDispatcher, ViewUtils } from 'kombo';
-import { RequestBuilder } from './service';
+import { RequestBuilder, Line } from './service';
 import { GlobalComponents } from '../../views/global';
 
 declare var require:any;
@@ -56,8 +57,15 @@ export class ConcordanceTile implements ITileProvider {
             appServices: appServices,
             service: new RequestBuilder(conf.apiURL),
             mainForm: mainForm,
-            conf: {
-                corpname: conf.corpname
+            initState: {
+                isBusy: false,
+                isExpanded: false,
+                lines: Immutable.List<Line>(),
+                corpname: conf.corpname,
+                fullsize: -1,
+                concsize: -1,
+                resultARF: -1,
+                resultIPM: -1
             }
         });
         this.ut = ut;

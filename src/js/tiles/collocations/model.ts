@@ -20,17 +20,11 @@ import * as Rx from '@reactivex/rxjs';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
 import {ActionNames as GlobalActionNames, Actions as GlobalActions} from '../../models/actions';
 import {ActionNames as ConcActionNames, Actions as ConcActions} from '../concordance/actions';
-import {ActionNames, stateToArgs, DataRow, Actions, CollocMetric, CollApiArgs} from './common';
+import {ActionNames, DataRow, Actions, CollApiArgs, DataHeading} from './common';
 import { KontextCollAPI } from './service';
-import { CollocModelState } from "./common";
 import { AppServices } from '../../appServices';
 import { WdglanceTilesModel } from '../../models/tiles';
-import { SystemMessageType, CorePosAttribute } from '../../abstract/types';
-
-
-export interface CollocModelConf {
-    corpname:string;
-}
+import { SystemMessageType } from '../../abstract/types';
 
 
 export interface CollocModelArgs {
@@ -39,7 +33,44 @@ export interface CollocModelArgs {
     appServices:AppServices;
     service:KontextCollAPI;
     tilesModel:WdglanceTilesModel;
-    conf:CollocModelConf;
+    initState:CollocModelState;
+}
+
+
+export interface CollocModelState {
+    isBusy:boolean;
+    isExpanded:boolean;
+    error:string|null;
+    corpname:string;
+    q:string;
+    cattr:string;
+    cfromw:number;
+    ctow:number;
+    cminfreq:number;
+    cminbgr:number;
+    cbgrfns:Array<string>;
+    csortfn:string;
+    data:Immutable.List<DataRow>;
+    heading:DataHeading;
+    citemsperpage:number;
+    renderFrameSize:[number, number];
+}
+
+
+export const stateToArgs = (state:CollocModelState, q:string):CollApiArgs => {
+    return {
+        corpname: state.corpname,
+        q: q ? q : state.q,
+        cattr: state.cattr,
+        cfromw: state.cfromw,
+        ctow: state.ctow,
+        cminfreq: state.cminfreq,
+        cminbgr: state.cminbgr,
+        cbgrfns: state.cbgrfns,
+        csortfn: state.csortfn,
+        citemsperpage: state.citemsperpage,
+        format: 'json'
+    };
 }
 
 
@@ -53,28 +84,8 @@ export class CollocModel extends StatelessModel<CollocModelState> {
 
     private readonly tileId:number;
 
-    constructor({dispatcher, tileId, appServices, service, tilesModel, conf}:CollocModelArgs) {
-        super(
-            dispatcher,
-            {
-                isBusy: false,
-                isExpanded: false,
-                error: null,
-                corpname: conf.corpname,
-                q: '',
-                cattr: CorePosAttribute.LEMMA,
-                cfromw: -5,
-                ctow: 5,
-                cminfreq: 1,
-                cminbgr: 3,
-                cbgrfns: [CollocMetric.MI, CollocMetric.T_SCORE, CollocMetric.LOG_DICE],
-                csortfn: CollocMetric.MI,
-                data: Immutable.List<DataRow>(),
-                heading: [],
-                citemsperpage: 10,
-                renderFrameSize: [10, 10]
-            }
-        );
+    constructor({dispatcher, tileId, appServices, service, tilesModel, initState}:CollocModelArgs) {
+        super(dispatcher, initState);
         this.tileId = tileId;
         this.appServices = appServices;
         this.service = service;

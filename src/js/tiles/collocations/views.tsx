@@ -23,9 +23,9 @@ import * as React from 'react';
 import * as Immutable from 'immutable';
 import * as Rx from '@reactivex/rxjs';
 import {ActionDispatcher, Bound, ViewUtils} from 'kombo';
-import {CollocModel} from './model';
+import {CollocModel, CollocModelState} from './model';
 import { GlobalComponents } from '../../views/global';
-import { CollocModelState, DataRow } from './common';
+import { DataRow } from './common';
 
 
 export const drawChart = (container:HTMLElement, size:[number, number], data:Immutable.List<DataRow>, measures:Array<string>) => {

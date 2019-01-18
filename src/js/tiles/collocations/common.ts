@@ -39,25 +39,6 @@ export enum CollocMetric {
     MI_LOG_F = 'p',
 }
 
-export interface CollocModelState {
-    isBusy:boolean;
-    isExpanded:boolean;
-    error:string|null;
-    corpname:string;
-    q:string;
-    cattr:string;
-    cfromw:number;
-    ctow:number;
-    cminfreq:number;
-    cminbgr:number;
-    cbgrfns:Array<string>;
-    csortfn:string;
-    data:Immutable.List<DataRow>;
-    heading:DataHeading;
-    citemsperpage:number;
-    renderFrameSize:[number, number];
-}
-
 export interface CollApiArgs {
     corpname:string;
     q:string;
@@ -70,22 +51,6 @@ export interface CollApiArgs {
     csortfn:string;
     citemsperpage:number;
     format:'json';
-}
-
-export const stateToArgs = (state:CollocModelState, q:string):CollApiArgs => {
-    return {
-        corpname: state.corpname,
-        q: q ? q : state.q,
-        cattr: state.cattr,
-        cfromw: state.cfromw,
-        ctow: state.ctow,
-        cminfreq: state.cminfreq,
-        cminbgr: state.cminbgr,
-        cbgrfns: state.cbgrfns,
-        csortfn: state.csortfn,
-        citemsperpage: state.citemsperpage,
-        format: 'json'
-    };
 }
 
 
