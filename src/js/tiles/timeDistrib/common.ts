@@ -17,7 +17,6 @@
  */
 
 import { Action } from 'kombo';
-import { DataItem } from './api';
 
 
 export enum ActionNames {
@@ -27,10 +26,16 @@ export enum ActionNames {
 export namespace Actions {
 
     export interface LoadDataDone extends Action<{
-        data:Array<DataItem>;
+        data:Array<DataItemWithWCI>;
         q:string;
         frameSize:[number, number];
     }> {
         name: ActionNames.LoadDataDone
     }
+}
+
+export interface DataItemWithWCI {
+    datetime:string;
+    ipm:number;
+    interval:[number, number];
 }

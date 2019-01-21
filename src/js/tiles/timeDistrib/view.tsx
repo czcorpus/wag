@@ -16,12 +16,12 @@
  * limitations under the License.
  */
 import * as React from 'react';
-import {LineChart, CartesianGrid, XAxis, YAxis, Tooltip, Line} from 'recharts';
+import {LineChart, CartesianGrid, XAxis, YAxis, Tooltip, Line, AreaChart, Area} from 'recharts';
 import {ActionDispatcher, ViewUtils, Bound} from 'kombo';
 import { GlobalComponents } from '../../views/global';
 import { TimeDistribModel, TimeDistribModelState } from './model';
-import { DataItem } from './api';
 import {SystemColors} from '../../shared/colors';
+import { DataItemWithWCI } from './common';
 
 
 export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:TimeDistribModel):React.ComponentClass {
@@ -31,18 +31,24 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
     // -------------- <Chart /> ------------------------------------------------------
 
     const Chart:React.SFC<{
-        data:Array<DataItem>;
+        data:Array<DataItemWithWCI>;
         size:[number, number];
     }> = (props) => {
+
         return (
-            <LineChart width={props.size[0]} height={props.size[1]} data={props.data}
+            <AreaChart width={props.size[0] - 30} height={props.size[1]} data={props.data}
                     margin={{top: 10, right: 30, left: 0, bottom: 0}}>
                 <CartesianGrid strokeDasharray="3 3"/>
                 <XAxis dataKey="datetime"/>
                 <YAxis/>
-                <Tooltip/>
-                <Line type="monotone" dataKey="ipm" stroke={SystemColors.COLOR_LOGO_GREEN} fill={SystemColors.COLOR_LOGO_GREEN} strokeWidth={3} />
-            </LineChart>
+                <Tooltip isAnimationActive={false} />
+                <Area type="linear"
+                        dataKey="interval"
+                        name={ut.translate('timeDistrib__estimated_interval')}
+                        stroke={SystemColors.COLOR_LOGO_GREEN}
+                        fill={SystemColors.COLOR_LOGO_GREEN}
+                        strokeWidth={1} />
+            </AreaChart>
         );
     }
 

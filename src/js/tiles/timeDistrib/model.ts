@@ -21,10 +21,9 @@ import { StatelessModel, Action, SEDispatcher } from 'kombo';
 import { TimeDistribAPI, DataItem, QueryArgs } from './api';
 import {ActionNames as GlobalActionNames, Actions as GlobalActions} from '../../models/actions';
 import {ActionNames as ConcActionNames, Actions as ConcActions} from '../concordance/actions';
-import {ActionNames, Actions} from './actions';
+import {ActionNames, Actions, DataItemWithWCI} from './common';
 import { WdglanceTilesModel } from '../../models/tiles';
-import { StandardPropertiesHyphen } from 'csstype';
-
+import {wilsonConfInterval, AlphaLevel} from './stat';
 
 
 export const enum FreqFilterQuantities {
@@ -59,7 +58,8 @@ export interface TimeDistribModelState {
     ctxIndex1:number;
     alignType2:AlignTypes;
     ctxIndex2:number;
-    data:Immutable.List<DataItem>;
+    alphaLevel:AlphaLevel;
+    data:Immutable.List<DataItemWithWCI>;
 }
 
 const getAttrCtx = (state:TimeDistribModelState, dim:Dimensions):string => {
@@ -94,6 +94,13 @@ const stateToAPIArgs = (state:TimeDistribModelState, queryId:string):QueryArgs =
 };
 
 
+const roundFloat = (v:number):number => Math.round(v * 100) / 100;
+
+const calcIPM = (v:DataItem) => Math.round(v.abs / v.domainSize * 1e6 * 100) / 100;
+
+/**
+ *
+ */
 export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private readonly api:TimeDistribAPI;
@@ -117,11 +124,11 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 const newState = this.copyState(state);
                 newState.isBusy = false;
                 if (action.error) {
-                    newState.data = Immutable.List<DataItem>();
+                    newState.data = Immutable.List<DataItemWithWCI>();
                     newState.error = action.error.message;
 
                 } else {
-                    newState.data = Immutable.List<DataItem>(action.payload.data);
+                    newState.data = Immutable.List<DataItemWithWCI>(action.payload.data);
                     newState.renderFrameSize = action.payload.frameSize;
                 }
                 return newState;
@@ -148,12 +155,23 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         .subscribe(
                             resp => {
                                 const currFrameSize = this.tilesModel.getFrameSize(this.tileId);
+                                const dataFull = resp.data.map<DataItemWithWCI>(v => {
+                                    const confInt = wilsonConfInterval(v.abs, v.domainSize, state.alphaLevel);
+
+                                    return {
+                                        datetime: v.datetime,
+                                        abs: v.abs,
+                                        ipm: calcIPM(v),
+                                        interval: [roundFloat(confInt[0] * 1e6), roundFloat(confInt[1] * 1e6)]
+                                    };
+                                });
+
                                 dispatch<Actions.LoadDataDone>({
                                     name: ActionNames.LoadDataDone,
                                     payload: {
-                                        data: resp.data,
+                                        data: dataFull,
                                         q: resp.q,
-                                        frameSize: [currFrameSize[0], resp.data.length * 15]
+                                        frameSize: [currFrameSize[0], dataFull.length * 15]
                                     }
                                 });
                             },

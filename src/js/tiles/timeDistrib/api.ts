@@ -39,8 +39,8 @@ export interface QueryArgs {
 
 export interface DataItem {
     datetime:string;
+    domainSize:number;
     abs:number;
-    ipm:number;
 }
 
 
@@ -57,12 +57,6 @@ interface HTTPResponse {
         full_size:number;
     };
 }
-
-
-const roundFloat = (v:number):number => Math.round(v * 100) / 100;
-
-
-const calcIPM = (v:RawDataItem) => Math.round(v[2] / v[3] * 1e6 * 100) / 100;
 
 
 /**
@@ -89,7 +83,7 @@ export class TimeDistribAPI implements DataApi<QueryArgs, APIResponse> {
                     data: resp.data.data.map(row => ({
                         datetime: row[0],
                         abs: row[2],
-                        ipm: calcIPM(row)
+                        domainSize: row[3]
                     })).sort((a, b) => parseInt(a.datetime) - parseInt(b.datetime))
                 });
             }
