@@ -6,7 +6,7 @@
     },
     "cs-CZ": {
         "timeDistrib__main_label_{property}{metric}": "Frekvence výskytu slova v čase ({property}, {metric})",
-        "timeDistrib__ipm_human": "výskytů na milon tokenů",
+        "timeDistrib__ipm_human": "výskyty na milon tokenů",
         "timeDistrib__estimated_interval": "Odhadnutý interval"
     }
 }

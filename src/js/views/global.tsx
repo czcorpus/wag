@@ -85,14 +85,14 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
 
         if (props.isInline) {
             return (
-                <span className={props.htmlClass ? props.htmlClass : null}>
+                <span className={`MessageStatusIcon${props.htmlClass ? ' ' + props.htmlClass : ''}`}>
                     {renderImg()}
                 </span>
             );
 
         } else {
             return (
-                <div className={props.htmlClass ? props.htmlClass : 'icon-box'}>
+                <div className={`MessageStatusIcon${props.htmlClass ? ' ' + props.htmlClass : ' icon-box'}`}>
                     {renderImg()}
                 </div>
             );
@@ -108,7 +108,17 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
             return <div className="service-tile"><AjaxLoader /></div>;
 
         } else if (props.error) {
-            return <div className="service-tile"><MessageStatusIcon statusType={SystemMessageType.ERROR} />{props.error}</div>;
+            return (
+                <div className="service-tile">
+                    <p>
+                        <MessageStatusIcon statusType={SystemMessageType.ERROR} isInline={true} />
+                        {props.error}
+                    </p>
+                    <div style={{textAlign: 'center'}}>
+                        <EmptySet fontSize="10em" />
+                    </div>
+                </div>
+            );
 
         } else {
             return <div className={`service-tile${props.htmlClass ? ' ' + props.htmlClass : ''}`}>{props.children}</div>;
