@@ -21,9 +21,11 @@ import { ITileProvider, TileFactory } from '../../abstract/types';
 import { ActionDispatcher, ViewUtils } from 'kombo';
 import { GlobalComponents } from '../../views/global';
 import { TimeDistribModel, FreqFilterQuantities, AlignTypes } from './model';
-import { TimeDistribAPI, DataItem } from './api';
+import { TimeDistribAPI } from './api';
 import {init as viewInit} from './view';
 import { WdglanceTilesModel } from '../../models/tiles';
+import { AlphaLevel } from './stat';
+import { DataItemWithWCI } from './common';
 
 declare var require:(src:string)=>void;  // webpack
 require('./style.less');
@@ -83,7 +85,8 @@ export class TimeDistTile implements ITileProvider {
                 ctxIndex1: 6, // TODO conf/explain
                 alignType2: AlignTypes.LEFT,
                 ctxIndex2: 6, // TODO conf/explain
-                data: Immutable.List<DataItem>()
+                alphaLevel: AlphaLevel.LEVEL_0_1, // TODO conf/explain
+                data: Immutable.List<DataItemWithWCI>()
             },
             tileId,
             new TimeDistribAPI(conf.apiURL),
@@ -109,7 +112,12 @@ export class TimeDistTile implements ITileProvider {
     }
 
     getLabel():string {
-        return this.ut.translate('timeDistrib__main_label_{property}', {property: this.distProperty});
+        return this.ut.translate('timeDistrib__main_label_{property}{metric}',
+            {
+                property: this.distProperty,
+                metric: this.ut.translate('timeDistrib__ipm_human')
+            }
+        );
     }
 
     supportsSingleWordQuery(language:string):boolean {

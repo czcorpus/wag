@@ -17,8 +17,8 @@
  */
 
 import * as Immutable from 'immutable';
-import { ITileProvider, TileFactory } from "../../abstract/types";
-import {init as viewInit} from './views/main';
+import { ITileProvider, TileFactory } from '../../abstract/types';
+import {init as viewInit} from './view';
 import { ActionDispatcher, ViewUtils } from "kombo";
 import { TTDistribModel } from "./model";
 import { TTDistribAPI, DataRow } from "./api";

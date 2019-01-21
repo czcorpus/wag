@@ -10,7 +10,6 @@ const mkpath = (p) => path.resolve(__dirname, '.', p);
 const SRC_PATH = mkpath('src');
 const DIST_PATH = mkpath('dist');
 const CONF = build.loadConf(mkpath('conf.json'));
-console.log('public path: ', (CONF.develServer || {}).urlRootPath);
 
 module.exports = (env) => ({
     mode: 'development',

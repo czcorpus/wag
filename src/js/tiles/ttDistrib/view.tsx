@@ -18,10 +18,11 @@
 import * as Immutable from 'immutable';
 import * as React from 'react';
 import {ActionDispatcher, ViewUtils, Bound} from 'kombo';
-import { TTDistribModel, TTDistribModelState } from '../model';
+import { TTDistribModel, TTDistribModelState } from './model';
 import {BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, Legend} from 'recharts';
-import { DataRow } from '../api';
-import { GlobalComponents } from '../../../views/global';
+import { DataRow } from './api';
+import { GlobalComponents } from '../../views/global';
+import { SystemColors } from '../../shared/colors';
 
 
 export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:TTDistribModel):React.ComponentClass {
@@ -39,9 +40,9 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             <div className="Chart">
                 <BarChart width={props.size[0] - 30} height={props.size[1]} data={props.data.toArray()} layout="vertical">
                     <CartesianGrid />
-                    <Bar dataKey="ipm" fill={'rgb(69, 104, 165)'} />
+                    <Bar dataKey="ipm" fill={SystemColors.COLOR_LOGO_BLUE} />
                     <XAxis type="number" />
-                    <YAxis type="category" dataKey="name" width={150} />
+                    <YAxis type="category" dataKey="name" width={100} />
                     <Legend />
                     <Tooltip cursor={false} isAnimationActive={false} />
                 </BarChart>
