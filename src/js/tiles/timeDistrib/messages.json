@@ -1,0 +1,8 @@
+{
+    "en-US": {
+        "timeDistrib__main_label_{property}": "Time based distribution of {property}"
+    },
+    "cs-CZ": {
+        "timeDistrib__main_label_{property}": "Časový vývoj - {property}"
+    }
+}

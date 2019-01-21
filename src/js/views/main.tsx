@@ -376,7 +376,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                     <section className={`tiles${this.state.expandedTile > -1 ? ' exclusive' : ''}`}>
                     {this.props.tiles.map((tile) => {
                          if (this.state.expandedTile > -1 && this.state.expandedTile !== tile.tileId) {
-                            return <section className="cnc-tile app-output expanded">
+                            return <section key={`tile-ident-${tile.tileId}`} className="cnc-tile app-output expanded">
                                 <div className="cnc-tile-header panel">
                                     <h2>{tile.label}</h2>
                                 </div>

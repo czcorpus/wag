@@ -24,6 +24,7 @@ import {init as viewInit} from './views/main';
 import { WdglanceMainFormModel } from './models/query';
 import {init as concInit, ConcordanceTileConf} from './tiles/concordance/index';
 import {init as freqInit, TTDistTileConf} from './tiles/ttDistrib/index';
+import {init as timeDistInit, TimeDistTileConf} from './tiles/timeDistrib/index';
 import {init as collocInit, CollocationsTileConf} from './tiles/collocations/index';
 import {init as treqInit, TreqTileConf} from './tiles/treq/index';
 import { GlobalComponents, init as globalCompInit } from './views/global';
@@ -130,10 +131,22 @@ export const init = ({mountElement, uiLang, rootUrl, tilesConf}:WdglanceConf) =>
     });
     attachTile(tiles, collocTile);
 
+    // window time distrib. -------------------------------------------------
+
+    attachTile(tiles, timeDistInit({
+        tileId: 3,
+        dispatcher: dispatcher,
+        ut: viewUtils,
+        mainForm: formModel,
+        tilesModel: tilesModel,
+        appServices: appServices,
+        conf: tilesConf['TimeDistTileConf'] as TimeDistTileConf
+    }));
+
     // window treq. --------------------------------------------------
 
     const treqTile = treqInit({
-        tileId: 3,
+        tileId: 4,
         dispatcher: dispatcher,
         ut: viewUtils,
         mainForm: formModel,

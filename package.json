@@ -29,7 +29,7 @@
     "webpack-merge": "^4.1.3"
   },
   "dependencies": {
-    "kombo": "^0.21.2",
+    "kombo": "^0.21.3",
     "recharts": "^1.4.2",
     "d3": "^5.7.0",
     "d3-cloud": "^1.2.5",
