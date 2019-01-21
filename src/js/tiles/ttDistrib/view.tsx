@@ -18,11 +18,11 @@
 import * as Immutable from 'immutable';
 import * as React from 'react';
 import {ActionDispatcher, ViewUtils, Bound} from 'kombo';
-import { TTDistribModel, TTDistribModelState } from '../model';
+import { TTDistribModel, TTDistribModelState } from './model';
 import {BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, Legend} from 'recharts';
-import { DataRow } from '../api';
-import { GlobalComponents } from '../../../views/global';
-import { SystemColors } from '../../../shared/colors';
+import { DataRow } from './api';
+import { GlobalComponents } from '../../views/global';
+import { SystemColors } from '../../shared/colors';
 
 
 export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:TTDistribModel):React.ComponentClass {

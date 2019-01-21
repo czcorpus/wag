@@ -1,11 +1,11 @@
 {
     "en-US": {
-        "timeDistrib__main_label_{property}{metric}": "Occurrence during time ({property}, {metric})",
+        "timeDistrib__main_label_{property}{metric}": "Frequency of the word during time ({property}, {metric})",
         "timeDistrib__ipm_human": "occurrences per million tokens",
         "timeDistrib__estimated_interval": "Estimated interval"
     },
     "cs-CZ": {
-        "timeDistrib__main_label_{property}{metric}": "Výskyt v čase ({property}, {metric})",
+        "timeDistrib__main_label_{property}{metric}": "Frekvence výskytu slova v čase ({property}, {metric})",
         "timeDistrib__ipm_human": "výskytů na milon tokenů",
         "timeDistrib__estimated_interval": "Odhadnutý interval"
     }
