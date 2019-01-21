@@ -20,6 +20,8 @@ import {LineChart, CartesianGrid, XAxis, YAxis, Tooltip, Line} from 'recharts';
 import {ActionDispatcher, ViewUtils, Bound} from 'kombo';
 import { GlobalComponents } from '../../views/global';
 import { TimeDistribModel, TimeDistribModelState } from './model';
+import { DataItem } from './api';
+import {SystemColors} from '../../shared/colors';
 
 
 export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:TimeDistribModel):React.ComponentClass {
@@ -29,7 +31,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
     // -------------- <Chart /> ------------------------------------------------------
 
     const Chart:React.SFC<{
-        data:Array<{datetime:string, value:number}>;
+        data:Array<DataItem>;
         size:[number, number];
     }> = (props) => {
         return (
@@ -39,7 +41,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                 <XAxis dataKey="datetime"/>
                 <YAxis/>
                 <Tooltip/>
-                <Line type='monotone' dataKey='value' stroke='#8884d8' fill='#8884d8' />
+                <Line type="monotone" dataKey="ipm" stroke={SystemColors.COLOR_LOGO_GREEN} fill={SystemColors.COLOR_LOGO_GREEN} strokeWidth={3} />
             </LineChart>
         );
     }

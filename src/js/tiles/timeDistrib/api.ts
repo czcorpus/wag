@@ -17,27 +17,57 @@
  */
 import * as Rx from '@reactivex/rxjs';
 import { DataApi } from '../../abstract/types';
+import {ajax$} from '../../shared/ajax';
+
+
+// X-label, Y-label, abs, domain size
+export type RawDataItem = [string, string, number, number];
+
 
 export interface QueryArgs {
     corpname:string;
     q:string;
+    ctfcrit1:string;
+    ctfcrit2:string;
+    ctattr1:string;
+    ctattr2:string;
+    ctminfreq:string;
+    ctminfreq_type:string;
     format:'json';
 }
 
+
 export interface DataItem {
     datetime:string;
-    value:number;
+    abs:number;
+    ipm:number;
 }
+
 
 export interface APIResponse {
     q:string;
     data:Array<DataItem>;
 }
 
-interface HTTPResponse {
 
+interface HTTPResponse {
+    messages:Array<string>;
+    data:{
+        data:Array<RawDataItem>;
+        full_size:number;
+    };
 }
 
+
+const roundFloat = (v:number):number => Math.round(v * 100) / 100;
+
+
+const calcIPM = (v:RawDataItem) => Math.round(v[2] / v[3] * 1e6 * 100) / 100;
+
+
+/**
+ *
+ */
 export class TimeDistribAPI implements DataApi<QueryArgs, APIResponse> {
 
     private readonly apiURL:string;
@@ -47,18 +77,23 @@ export class TimeDistribAPI implements DataApi<QueryArgs, APIResponse> {
     }
 
     call(queryArgs:QueryArgs):Rx.Observable<APIResponse> {
-        return Rx.Observable.of({
-            q: 'xxx?',
-            data: [
-                {datetime: '2000', value: 1000},
-                {datetime: '2001', value: 1200},
-                {datetime: '2002', value: 1500},
-                {datetime: '2003', value: 1800},
-                {datetime: '2004', value: 1731},
-                {datetime: '2005', value: 2458},
-                {datetime: '2006', value: 1107}
-            ]
-        }).timeout(2000);
+        return ajax$<HTTPResponse>(
+            'GET',
+            this.apiURL,
+            queryArgs
+
+        ).concatMap<HTTPResponse, APIResponse>(
+            (resp) => {
+                return Rx.Observable.of({
+                    q:null, // TODO
+                    data: resp.data.data.map(row => ({
+                        datetime: row[0],
+                        abs: row[2],
+                        ipm: calcIPM(row)
+                    })).sort((a, b) => parseInt(a.datetime) - parseInt(b.datetime))
+                });
+            }
+        );
     }
 
 }
