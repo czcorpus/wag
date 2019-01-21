@@ -20,7 +20,7 @@ import * as Immutable from 'immutable';
 import { ITileProvider, TileFactory } from '../../abstract/types';
 import { ActionDispatcher, ViewUtils } from 'kombo';
 import { GlobalComponents } from '../../views/global';
-import { TimeDistribModel } from './model';
+import { TimeDistribModel, FreqFilterQuantities, AlignTypes } from './model';
 import { TimeDistribAPI, DataItem } from './api';
 import {init as viewInit} from './view';
 import { WdglanceTilesModel } from '../../models/tiles';
@@ -75,6 +75,14 @@ export class TimeDistTile implements ITileProvider {
                 corpname: conf.corpname,
                 q: null,
                 renderFrameSize: [0, 0],
+                attrTime: conf.timeProperty,
+                attrValue: conf.distProperty,
+                minFreq: '10', // TODO (conf)
+                minFreqType: FreqFilterQuantities.IPM,
+                alignType1: AlignTypes.LEFT,
+                ctxIndex1: 6, // TODO conf/explain
+                alignType2: AlignTypes.LEFT,
+                ctxIndex2: 6, // TODO conf/explain
                 data: Immutable.List<DataItem>()
             },
             tileId,

@@ -23,6 +23,26 @@ import {ActionNames as GlobalActionNames, Actions as GlobalActions} from '../../
 import {ActionNames as ConcActionNames, Actions as ConcActions} from '../concordance/actions';
 import {ActionNames, Actions} from './actions';
 import { WdglanceTilesModel } from '../../models/tiles';
+import { StandardPropertiesHyphen } from 'csstype';
+
+
+
+export const enum FreqFilterQuantities {
+    ABS = 'abs',
+    ABS_PERCENTILE = 'pabs',
+    IPM = 'ipm',
+    IPM_PERCENTILE = "pipm"
+}
+
+export const enum AlignTypes {
+    RIGHT = 'right',
+    LEFT = 'left'
+}
+
+export const enum Dimensions {
+    FIRST = 1,
+    SECOND = 2
+}
 
 
 export interface TimeDistribModelState {
@@ -31,16 +51,47 @@ export interface TimeDistribModelState {
     corpname:string;
     q:string;
     renderFrameSize:[number, number];
+    attrTime:string;
+    attrValue:string;
+    minFreq:string;
+    minFreqType:FreqFilterQuantities;
+    alignType1:AlignTypes;
+    ctxIndex1:number;
+    alignType2:AlignTypes;
+    ctxIndex2:number;
     data:Immutable.List<DataItem>;
 }
 
+const getAttrCtx = (state:TimeDistribModelState, dim:Dimensions):string => {
+
+    const POSITION_LA = ['-6<0', '-5<0', '-4<0', '-3<0', '-2<0', '-1<0', '0<0', '1<0', '2<0', '3<0', '4<0', '5<0', '6<0'];
+
+    const POSITION_RA = ['-6>0', '-5>0', '-4>0', '-3>0', '-2>0', '-1>0', '0>0', '1>0', '2>0', '3>0', '4>0', '5>0', '6>0'];
+
+    if (dim === Dimensions.FIRST) {
+        return state.alignType1 === AlignTypes.LEFT ? POSITION_LA[state.ctxIndex1] : POSITION_RA[state.ctxIndex1];
+
+    } else if (dim === Dimensions.SECOND) {
+        return state.alignType2 === AlignTypes.LEFT ? POSITION_LA[state.ctxIndex2] : POSITION_RA[state.ctxIndex2];
+    }
+    throw new Error('Unknown dimension ' + dim);
+}
 
 
-const stateToAPIArgs = (state:TimeDistribModelState, queryId:string):QueryArgs => ({
-    corpname: state.corpname,
-    q: queryId ? queryId : state.q,
-    format: 'json'
-});
+const stateToAPIArgs = (state:TimeDistribModelState, queryId:string):QueryArgs => {
+
+    return {
+        corpname: state.corpname,
+        q: queryId ? queryId : state.q,
+        ctfcrit1: '0', // = structural attr
+        ctfcrit2: getAttrCtx(state, Dimensions.SECOND),
+        ctattr1: state.attrTime,
+        ctattr2: state.attrValue,
+        ctminfreq: state.minFreq,
+        ctminfreq_type: state.minFreqType,
+        format: 'json'
+    };
+};
 
 
 export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
@@ -102,7 +153,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                     payload: {
                                         data: resp.data,
                                         q: resp.q,
-                                        frameSize: [currFrameSize[0], resp.data.length * 50]
+                                        frameSize: [currFrameSize[0], resp.data.length * 15]
                                     }
                                 });
                             },
