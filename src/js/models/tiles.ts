@@ -81,10 +81,6 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
         };
     }
 
-    reduce(state:WdglanceTilesState, action:Action):WdglanceTilesState {
-        return action.name in this.actionMatch ? this.actionMatch[action.name](state, action) : state;
-    }
-
     getFrameSize(idx:number):[number, number] {
         return this.getState().framesSizes.get(idx);
     }

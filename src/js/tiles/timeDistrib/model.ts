@@ -1,6 +1,6 @@
 /*
- * Copyright 2018 Tomas Machalek <tomas.machalek@gmail.com>
- * Copyright 2018 Institute of the Czech National Corpus,
+ * Copyright 2019 Tomas Machalek <tomas.machalek@gmail.com>
+ * Copyright 2019 Institute of the Czech National Corpus,
  *                Faculty of Arts, Charles University
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,57 +15,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import * as Immutable from 'immutable';
 import * as Rx from '@reactivex/rxjs';
-import {QueryArgs, TTDistribAPI, DataRow} from './api';
-import {StatelessModel, ActionDispatcher, Action, SEDispatcher} from 'kombo';
+import { StatelessModel, Action, SEDispatcher } from 'kombo';
+import { TimeDistribAPI, DataItem, QueryArgs } from './api';
 import {ActionNames as GlobalActionNames, Actions as GlobalActions} from '../../models/actions';
 import {ActionNames as ConcActionNames, Actions as ConcActions} from '../concordance/actions';
 import {ActionNames, Actions} from './actions';
 import { WdglanceTilesModel } from '../../models/tiles';
 
 
-
-export interface TTDistribModel {
-}
-
-export interface TTDistribModelState {
+export interface TimeDistribModelState {
     isBusy:boolean;
     error:string;
-    data:Immutable.List<DataRow>;
-    renderFrameSize:[number, number];
     corpname:string;
     q:string;
-    fcrit:string;
-    flimit:number;
-    freqSort:string;
-    fpage:number;
-    fttIncludeEmpty:boolean;
+    renderFrameSize:[number, number];
+    data:Immutable.List<DataItem>;
 }
 
 
-const stateToAPIArgs = (state:TTDistribModelState, queryId:string):QueryArgs => ({
+
+const stateToAPIArgs = (state:TimeDistribModelState, queryId:string):QueryArgs => ({
     corpname: state.corpname,
     q: queryId ? queryId : state.q,
-    fcrit: state.fcrit,
-    flimit: state.flimit.toString(),
-    freq_sort: state.freqSort,
-    fpage: state.fpage.toString(),
-    ftt_include_empty: state.fttIncludeEmpty ? '1' : '0',
     format: 'json'
 });
 
 
-export class TTDistribModel extends StatelessModel<TTDistribModelState> {
+export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
-    private api:TTDistribAPI;
+    private readonly api:TimeDistribAPI;
 
-    private tilesModel:WdglanceTilesModel;
+    private readonly tilesModel:WdglanceTilesModel;
 
     private readonly tileId:number;
 
-    constructor(dispatcher:ActionDispatcher, tileId:number, api:TTDistribAPI, tilesModel:WdglanceTilesModel, initState:TTDistribModelState) {
+    constructor(dispatcher, initState:TimeDistribModelState, tileId:number, api:TimeDistribAPI, tilesModel:WdglanceTilesModel) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.api = api;
@@ -80,19 +66,20 @@ export class TTDistribModel extends StatelessModel<TTDistribModelState> {
                 const newState = this.copyState(state);
                 newState.isBusy = false;
                 if (action.error) {
-                    newState.data = Immutable.List<DataRow>();
+                    newState.data = Immutable.List<DataItem>();
                     newState.error = action.error.message;
 
                 } else {
-                    newState.data = Immutable.List<DataRow>(action.payload.data);
+                    newState.data = Immutable.List<DataItem>(action.payload.data);
                     newState.renderFrameSize = action.payload.frameSize;
                 }
                 return newState;
             }
-        }
+        };
     }
 
-    sideEffects(state:TTDistribModelState, action:Action, dispatch:SEDispatcher):void {
+
+    sideEffects(state:TimeDistribModelState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionNames.RequestQueryResponse:
                 this.suspend((action:Action) => {
