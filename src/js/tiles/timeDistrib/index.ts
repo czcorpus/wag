@@ -26,6 +26,7 @@ import {init as viewInit} from './view';
 import { WdglanceTilesModel } from '../../models/tiles';
 import { AlphaLevel } from './stat';
 import { DataItemWithWCI } from './common';
+import { AppServices } from '../../appServices';
 
 declare var require:(src:string)=>void;  // webpack
 require('./style.less');
@@ -64,7 +65,8 @@ export class TimeDistTile implements ITileProvider {
 
     private view:React.ComponentClass;
 
-    constructor(dispatcher:ActionDispatcher, tileId:number, ut:ViewUtils<GlobalComponents>, tilesModel:WdglanceTilesModel, conf:TimeDistTileConf) {
+    constructor(dispatcher:ActionDispatcher, tileId:number, ut:ViewUtils<GlobalComponents>, tilesModel:WdglanceTilesModel,
+                appServices:AppServices, conf:TimeDistTileConf) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.ut = ut;
@@ -90,7 +92,8 @@ export class TimeDistTile implements ITileProvider {
             },
             tileId,
             new TimeDistribAPI(conf.apiURL),
-            tilesModel
+            tilesModel,
+            appServices
         );
     }
 
@@ -133,5 +136,5 @@ export class TimeDistTile implements ITileProvider {
 
 
 export const init:TileFactory.TileFactory<TimeDistTileConf>  = ({tileId, dispatcher, ut, appServices, mainForm, conf, tilesModel}) => {
-    return new TimeDistTile(dispatcher, tileId, ut, tilesModel, conf);
+    return new TimeDistTile(dispatcher, tileId, ut, tilesModel, appServices, conf);
 }

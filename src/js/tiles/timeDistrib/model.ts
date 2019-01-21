@@ -24,6 +24,7 @@ import {ActionNames as ConcActionNames, Actions as ConcActions} from '../concord
 import {ActionNames, Actions, DataItemWithWCI} from './common';
 import { WdglanceTilesModel } from '../../models/tiles';
 import {wilsonConfInterval, AlphaLevel} from './stat';
+import { AppServices } from '../../appServices';
 
 
 export const enum FreqFilterQuantities {
@@ -103,17 +104,23 @@ const calcIPM = (v:DataItem) => Math.round(v.abs / v.domainSize * 1e6 * 100) / 1
  */
 export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
+    private static readonly MIN_DATA_ITEMS_TO_SHOW = 2;
+
     private readonly api:TimeDistribAPI;
 
     private readonly tilesModel:WdglanceTilesModel;
 
+    private readonly appServices:AppServices;
+
     private readonly tileId:number;
 
-    constructor(dispatcher, initState:TimeDistribModelState, tileId:number, api:TimeDistribAPI, tilesModel:WdglanceTilesModel) {
+    constructor(dispatcher, initState:TimeDistribModelState, tileId:number, api:TimeDistribAPI, tilesModel:WdglanceTilesModel,
+            appServices:AppServices) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.api = api;
         this.tilesModel = tilesModel;
+        this.appServices = appServices;
         this.actionMatch = {
             [GlobalActionNames.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
                 const newState = this.copyState(state);
@@ -127,7 +134,12 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     newState.data = Immutable.List<DataItemWithWCI>();
                     newState.error = action.error.message;
 
+                } else if (action.payload.data.length < TimeDistribModel.MIN_DATA_ITEMS_TO_SHOW) {
+                    newState.data = Immutable.List<DataItemWithWCI>();
+                    newState.error = this.appServices.translate('global__not_enough_data_to_show_result');
+
                 } else {
+                    console.log(action.payload.data);
                     newState.data = Immutable.List<DataItemWithWCI>(action.payload.data);
                     newState.renderFrameSize = action.payload.frameSize;
                 }
@@ -171,7 +183,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                     payload: {
                                         data: dataFull,
                                         q: resp.q,
-                                        frameSize: [currFrameSize[0], dataFull.length * 15]
+                                        frameSize: [currFrameSize[0], ~~Math.max(50, dataFull.length * 15)]
                                     }
                                 });
                             },
