@@ -97,7 +97,7 @@ module.exports = (env) => ({
     },
     devServer: {
         // disableHostCheck: true,
-        public: 'kontext.korpus.test',
+        public: 'portal.korpus.test',
         publicPath: (CONF.develServer || {}).urlRootPath + 'dist/',
         contentBase: path.resolve(__dirname, 'html'),
         compress: true,

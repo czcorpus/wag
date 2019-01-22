@@ -125,6 +125,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             [GlobalActionNames.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
                 const newState = this.copyState(state);
                 newState.isBusy = true;
+                newState.error = null;
                 return newState;
             },
             [ActionNames.LoadDataDone]: (state, action:Actions.LoadDataDone) => {
