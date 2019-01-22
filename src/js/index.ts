@@ -94,67 +94,72 @@ export const init = ({mountElement, uiLang, rootUrl, tilesConf}:WdglanceConf) =>
 
     const tiles:Array<TileFrameProps> = [];
 
+    const initialLang = 'cs'; // TODO use HTTP info or some cookie stuff
+
     // window conc. -------------------------------------------------
-    const concTile = concInit({
-        tileId: 0,
-        dispatcher: dispatcher,
-        ut: viewUtils,
-        mainForm: formModel,
-        tilesModel: tilesModel,
-        appServices: appServices,
-        conf: tilesConf['ConcordanceTileConf'] as ConcordanceTileConf
-    });
-    attachTile(tiles, concTile);
+    if (tilesConf['ConcordanceTileConf']) {
+        attachTile(tiles, concInit({
+            tileId: 0,
+            dispatcher: dispatcher,
+            ut: viewUtils,
+            mainForm: formModel,
+            tilesModel: tilesModel,
+            appServices: appServices,
+            conf: tilesConf['ConcordanceTileConf'] as ConcordanceTileConf
+        }));
+    }
 
     // window freq. --------------------------------------------------
-    const freqTile = freqInit({
-        tileId: 1,
-        dispatcher: dispatcher,
-        ut: viewUtils,
-        mainForm: formModel,
-        tilesModel: tilesModel,
-        appServices: appServices,
-        conf: tilesConf['TTDistTileConf'] as TTDistTileConf
-    });
-    attachTile(tiles, freqTile);
+    if (tilesConf['TTDistTileConf']) {
+        attachTile(tiles, freqInit({
+            tileId: 1,
+            dispatcher: dispatcher,
+            ut: viewUtils,
+            mainForm: formModel,
+            tilesModel: tilesModel,
+            appServices: appServices,
+            conf: tilesConf['TTDistTileConf'] as TTDistTileConf
+        }));
+    }
 
     // window colloc. --------------------------------------------------
-
-    const collocTile = collocInit({
-        tileId: 2,
-        dispatcher: dispatcher,
-        ut: viewUtils,
-        mainForm: formModel,
-        tilesModel: tilesModel,
-        appServices: appServices,
-        conf: tilesConf['CollocationsTileConf'] as CollocationsTileConf
-    });
-    attachTile(tiles, collocTile);
+    if (tilesConf['CollocationsTileConf']) {
+        attachTile(tiles, collocInit({
+            tileId: 2,
+            dispatcher: dispatcher,
+            ut: viewUtils,
+            mainForm: formModel,
+            tilesModel: tilesModel,
+            appServices: appServices,
+            conf: tilesConf['CollocationsTileConf'] as CollocationsTileConf
+        }));
+    }
 
     // window time distrib. -------------------------------------------------
-
-    attachTile(tiles, timeDistInit({
-        tileId: 3,
-        dispatcher: dispatcher,
-        ut: viewUtils,
-        mainForm: formModel,
-        tilesModel: tilesModel,
-        appServices: appServices,
-        conf: tilesConf['TimeDistTileConf'] as TimeDistTileConf
-    }));
+    if (tilesConf['TimeDistTileConf']) {
+        attachTile(tiles, timeDistInit({
+            tileId: 3,
+            dispatcher: dispatcher,
+            ut: viewUtils,
+            mainForm: formModel,
+            tilesModel: tilesModel,
+            appServices: appServices,
+            conf: tilesConf['TimeDistTileConf'] as TimeDistTileConf
+        }));
+    }
 
     // window treq. --------------------------------------------------
-
-    const treqTile = treqInit({
-        tileId: 4,
-        dispatcher: dispatcher,
-        ut: viewUtils,
-        mainForm: formModel,
-        tilesModel: tilesModel,
-        appServices: appServices,
-        conf: tilesConf['TreqTileConf'] as TreqTileConf
-    });
-    attachTile(tiles, treqTile);
+    if (tilesConf['TreqTileConf']) {
+        attachTile(tiles, treqInit({
+            tileId: 4,
+            dispatcher: dispatcher,
+            ut: viewUtils,
+            mainForm: formModel,
+            tilesModel: tilesModel,
+            appServices: appServices,
+            conf: tilesConf['TreqTileConf'] as TreqTileConf
+        }));
+    }
 
 
     ReactDOM.render(
