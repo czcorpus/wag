@@ -19,7 +19,7 @@ import * as Immutable from 'immutable';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
 import {ActionNames as GlobalActionNames} from '../../models/actions';
 import {ActionNames, Actions} from './actions';
-import {RequestBuilder, Line, QuerySelectors} from './service';
+import {RequestBuilder, Line, QuerySelectors} from './api';
 import { WdglanceMainFormModel } from '../../models/query';
 import { AppServices } from '../../appServices';
 import { importMessageType } from '../../notifications';

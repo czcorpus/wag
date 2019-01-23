@@ -20,7 +20,7 @@ import {ActionDispatcher, Bound, ViewUtils} from 'kombo';
 import * as React from 'react';
 import {ConcordanceTileModel, ConcordanceTileState} from './model';
 import { GlobalComponents } from '../../views/global';
-import { Line } from './service';
+import { Line } from './api';
 
 
 export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:ConcordanceTileModel):React.ComponentClass {
