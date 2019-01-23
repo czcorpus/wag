@@ -17,7 +17,7 @@
  */
 /// <reference path="./translations.d.ts" />
 import * as Immutable from 'immutable';
-import { ActionDispatcher, ViewUtils } from 'kombo';
+import { ActionDispatcher, ViewUtils, StatefulModel, Action } from 'kombo';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {init as viewInit} from './views/main';
@@ -31,9 +31,11 @@ import { GlobalComponents, init as globalCompInit } from './views/global';
 import * as translations from 'translations';
 import { AppServices } from './appServices';
 import { SystemNotifications } from './notifications';
-import { ActionNames } from './models/actions';
+import { ActionNames, QueryType } from './models/actions';
 import { TileFrameProps, ITileProvider } from './abstract/types';
 import { WdglanceTilesModel } from './models/tiles';
+import {encodeArgs} from './shared/ajax';
+import { Forms } from './shared/data';
 
 declare var require:(src:string)=>void;  // webpack
 require('../css/index.less');
@@ -43,9 +45,11 @@ require('../css/mobile.less');
 
 
 export interface WdglanceConf {
-    mountElement:HTMLElement;
     uiLang:string;
+    query1Lang:string;
+    query2Lang:string;
     rootUrl:string;
+    hostUrl:string;
     tilesConf:{[ident:string]:any};
 }
 
@@ -60,26 +64,66 @@ const attachTile = (data:Array<TileFrameProps>, tile:ITileProvider):void => {
 };
 
 
-export const init = ({mountElement, uiLang, rootUrl, tilesConf}:WdglanceConf) => {
+class QueryLangChangeHandler extends StatefulModel<{}> {
+
+    private readonly appServices:AppServices;
+
+    constructor(dispatcher:ActionDispatcher, appServices:AppServices) {
+        super(dispatcher, {});
+        this.appServices = appServices;
+    }
+
+    onAction(action:Action): void {
+        switch (action.name) {
+            case ActionNames.ChangeTargetLanguage:
+                console.log('target lang ', action.payload);
+                window.location.href = this.appServices.createActionUrl('', {lang1: action.payload['value']});
+            break;
+            case ActionNames.ChangeTargetLanguage2:
+                console.log('target lang 2 ', action.payload);
+                window.location.href = this.appServices.createActionUrl('', {lang2: action.payload['value']});
+            break;
+        }
+    }
+
+}
+
+
+export const init = (mountElement:HTMLElement, {uiLang, rootUrl, hostUrl, query1Lang, query2Lang, tilesConf}:WdglanceConf) => {
     const dispatcher = new ActionDispatcher();
     const viewUtils = new ViewUtils<GlobalComponents>({
         uiLang: uiLang || 'en_US',
         translations: translations,
-        staticUrlCreator: (path) => rootUrl + 'assets/' + path
+        staticUrlCreator: (path) => rootUrl + 'assets/' + path,
+        actionUrlCreator: (path, args) => hostUrl + path + '?' + encodeArgs(args)
     });
 
     const notifications = new SystemNotifications(dispatcher);
-    const appServices = new AppServices(notifications, viewUtils);
+    const appServices = new AppServices(notifications, viewUtils, viewUtils.createStaticUrl, viewUtils.createActionUrl);
 
     const globalComponents = globalCompInit(dispatcher, viewUtils);
     viewUtils.attachComponents(globalComponents);
     const formModel = new WdglanceMainFormModel(
         dispatcher,
         appServices,
-        [
-            ['cs_CZ', 'čeština'],
-            ['en_US', 'English']
-        ]
+        {
+            query: Forms.newFormValue('', true),
+            query2: Forms.newFormValue('', false),
+            queryType: QueryType.SINGLE_QUERY,
+            availQueryTypes: Immutable.List<[QueryType, string]>([
+                [QueryType.SINGLE_QUERY, appServices.translate('global__single_word_sel')],
+                [QueryType.DOUBLE_QUERY, appServices.translate('global__two_words_compare')]
+            ]),
+            targetLanguage: query1Lang,
+            targetLanguage2: query2Lang,
+            availLanguages: Immutable.List<[string, string]>([
+                ['cs', 'čeština'],
+                ['en', 'English'],
+                ['de', 'Deutsch']
+            ]),
+            isValid: true,
+        }
+
     );
     const tilesModel = new WdglanceTilesModel(
         dispatcher,
@@ -91,6 +135,8 @@ export const init = ({mountElement, uiLang, rootUrl, tilesConf}:WdglanceConf) =>
     );
 
     const component = viewInit(dispatcher, viewUtils, formModel, tilesModel);
+
+    const queryLangSwitchModel = new QueryLangChangeHandler(dispatcher, appServices);
 
     const tiles:Array<TileFrameProps> = [];
 

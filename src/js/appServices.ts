@@ -27,9 +27,16 @@ export class AppServices {
 
     private readonly translator:ITranslator;
 
-    constructor(notifications:SystemNotifications, translator:ITranslator) {
+    private readonly staticUrlCreator:(path:string) => string;
+
+    private readonly actionUrlCreator:(path: string, args?:{[k:string]:string}|Array<[string, string]>) => string;
+
+    constructor(notifications:SystemNotifications, translator:ITranslator, staticUrlCreator:(path:string) => string,
+                actionUrlCreator:(path: string, args?:{[k:string]:string}|Array<[string, string]>) => string) {
         this.notifications = notifications;
         this.translator = translator;
+        this.staticUrlCreator = staticUrlCreator;
+        this.actionUrlCreator = actionUrlCreator;
     }
 
     showMessage(type:SystemMessageType, text:string|Error):void {
@@ -41,5 +48,13 @@ export class AppServices {
     }
     formatDate(d: Date, timeFormat?: number): string {
         return this.translator.formatDate(d, timeFormat);
+    }
+
+    createStaticUrl(path:string):string {
+        return this.staticUrlCreator(path);
+    }
+
+    createActionUrl(path:string, args?:{[k:string]:string}|Array<[string, string]>):string {
+        return this.actionUrlCreator(path, args);
     }
 }

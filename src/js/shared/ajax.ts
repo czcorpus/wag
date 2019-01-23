@@ -36,6 +36,29 @@ interface AjaxRequestProps {
 
 export type AjaxArgs = MultiDict|{[key:string]:any}|string;
 
+
+const exportValue = (v) => v === null || v === undefined ? '' : encodeURIComponent(v);
+
+
+export const encodeArgs = (obj):string => {
+    const ans = [];
+    let p; // ES5 issue
+    for (p in obj) {
+        if (obj.hasOwnProperty(p)) {
+            const val = obj[p] !== null && obj[p] !== undefined ? obj[p] : '';
+            if (Object.prototype.toString.apply(val) === '[object Array]') {
+                val.forEach(item => {
+                    ans.push(encodeURIComponent(p) + '=' + exportValue(item));
+                });
+
+            } else {
+                ans.push(encodeURIComponent(p) + '=' + exportValue(val));
+            }
+        }
+    }
+    return ans.join('&');
+};
+
 const prepareAjax = (method:string, url:string, args:AjaxArgs, options?:AjaxOptions):AjaxRequestProps => {
     if (options === undefined) {
         options = {};
@@ -48,29 +71,6 @@ const prepareAjax = (method:string, url:string, args:AjaxArgs, options?:AjaxOpti
     }
     if (!options.responseType) {
         options.responseType = 'json';
-    }
-
-    function exportValue(v) {
-        return v === null || v === undefined ? '' : encodeURIComponent(v);
-    }
-
-    function encodeArgs(obj) {
-        const ans = [];
-        let p; // ES5 issue
-        for (p in obj) {
-            if (obj.hasOwnProperty(p)) {
-                const val = obj[p] !== null && obj[p] !== undefined ? obj[p] : '';
-                if (Object.prototype.toString.apply(val) === '[object Array]') {
-                    val.forEach(item => {
-                        ans.push(encodeURIComponent(p) + '=' + exportValue(item));
-                    });
-
-                } else {
-                    ans.push(encodeURIComponent(p) + '=' + exportValue(val));
-                }
-            }
-        }
-        return ans.join('&');
     }
 
     let body;
