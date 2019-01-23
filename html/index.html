@@ -16,39 +16,44 @@
         <script type="text/javascript" src="./dist/common.js"></script>
         <script type="text/javascript" src="./dist/index.js"></script>
         <script type="text/javascript">
-        indexPage.init({
-            mountElement: document.querySelector('.wdglance-mount'),
-            uiLang: 'cs-CZ',
-            rootUrl: 'http://portal.korpus.test/wdg/',
-            tilesConf: {
-                ConcordanceTileConf: {
-                    apiURL: 'http://kontext.korpus.test/kontext/first',
-                    corpname: 'syn2015'
-                },
-                TTDistTileConf: {
-                    apiURL: 'http://kontext.korpus.test/kontext/freqs',
-                    corpname: 'syn2015',
-                    fcrit: 'doc.txtype 0',
-                    flimit: 1,
-                    freqSort: 'rel',
-                    fpage: 1,
-                    fttIncludeEmpty: false
-                },
-                TimeDistTileConf: {
-                    apiURL: 'http://kontext.korpus.test/kontext/freqct',
-                    corpname: 'syn2015',
-                    distProperty: 'lemma',
-                    timeProperty: 'doc.pubyear'
-                },
-                CollocationsTileConf: {
-                    apiURL: 'http://kontext.korpus.test/kontext/collx',
-                    corpname: 'syn2015'
-                },
-                TreqTileConf: {
+        indexPage.init(
+            document.querySelector('.wdglance-mount'),
+            {
+                uiLang: 'cs-CZ',
+                query1Lang: 'cs',
+                query2Lang: null,
+                rootUrl: 'http://portal.korpus.test/wdg/',
+                hostUrl: 'http://portal.korpus.test/wdg/',
+                tilesConf: {
+                    ConcordanceTileConf: {
+                        apiURL: 'http://kontext.korpus.test/kontext/first',
+                        corpname: 'syn2015'
+                    },
+                    TTDistTileConf: {
+                        apiURL: 'http://kontext.korpus.test/kontext/freqs',
+                        corpname: 'syn2015',
+                        fcrit: 'doc.txtype 0',
+                        flimit: 1,
+                        freqSort: 'rel',
+                        fpage: 1,
+                        fttIncludeEmpty: false
+                    },
+                    TimeDistTileConf: {
+                        apiURL: 'http://kontext.korpus.test/kontext/freqct',
+                        corpname: 'syn2015',
+                        distProperty: 'lemma',
+                        timeProperty: 'doc.pubyear'
+                    },
+                    CollocationsTileConf: {
+                        apiURL: 'http://kontext.korpus.test/kontext/collx',
+                        corpname: 'syn2015'
+                    },
+                    TreqTileConf: {
 
+                    }
                 }
             }
-        });
+        );
         </script>
     </body>
 </html>

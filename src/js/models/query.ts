@@ -39,24 +39,8 @@ export class WdglanceMainFormModel extends StatelessModel<WdglanceMainState> {
 
     private readonly appServices:AppServices;
 
-    constructor(dispatcher:ActionDispatcher, appServices:AppServices, availLanguages:Array<[string, string]>) {
-        super(
-            dispatcher,
-            {
-                query: Forms.newFormValue('', true),
-                query2: Forms.newFormValue('', false),
-                queryType: QueryType.SINGLE_QUERY,
-                availQueryTypes: Immutable.List<[QueryType, string]>([
-                    [QueryType.SINGLE_QUERY, appServices.translate('global__single_word_sel')],
-                    [QueryType.DOUBLE_QUERY, appServices.translate('global__two_words_compare')]
-                ]),
-                targetLanguage: availLanguages[0][0],
-                targetLanguage2: '',
-                availLanguages:Immutable.List<[string, string]>(availLanguages),
-                isValid: true,
-            }
-        );
-
+    constructor(dispatcher:ActionDispatcher, appServices:AppServices, initialState:WdglanceMainState) {
+        super(dispatcher, initialState);
         this.appServices = appServices;
 
         this.actionMatch = {
