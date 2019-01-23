@@ -2,11 +2,13 @@
     "en-US": {
         "concordance__main_label": "Concordance",
         "concordance__num_matching_items": "Number of matching items",
-        "concordance__ipm": "Instances per million tokens"
+        "concordance__ipm": "Instances per million tokens",
+        "concordance__view_options": "View options"
     },
     "cs-CZ": {
         "concordance__main_label": "Konkordance",
         "concordance__num_matching_items": "Počet vyhovujících výsledků",
-        "concordance__ipm": "Výskytů na milion tokenů"
+        "concordance__ipm": "Výskytů na milion tokenů",
+        "concordance__view_options": "Možnosti zobrazení"
     }
 }

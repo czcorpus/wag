@@ -21,7 +21,7 @@ import { ITileProvider, TileFactory } from '../../abstract/types';
 import {init as viewInit} from './views';
 import { ConcordanceTileModel } from './model';
 import { ActionDispatcher, ViewUtils } from 'kombo';
-import { RequestBuilder, Line } from './service';
+import { RequestBuilder, Line } from './api';
 import { GlobalComponents } from '../../views/global';
 
 declare var require:any;
@@ -65,7 +65,10 @@ export class ConcordanceTile implements ITileProvider {
                 fullsize: -1,
                 concsize: -1,
                 resultARF: -1,
-                resultIPM: -1
+                resultIPM: -1,
+                pageSize: 20,
+                kwicLeftCtx: -3,
+                kwicRightCtx: 3
             }
         });
         this.ut = ut;

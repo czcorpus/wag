@@ -17,7 +17,7 @@
  */
 
 import { Action } from "kombo";
-import { ConcResponse } from "./service";
+import { ConcResponse } from "./api";
 
 
 export enum ActionNames {
