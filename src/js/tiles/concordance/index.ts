@@ -65,7 +65,10 @@ export class ConcordanceTile implements ITileProvider {
                 fullsize: -1,
                 concsize: -1,
                 resultARF: -1,
-                resultIPM: -1
+                resultIPM: -1,
+                pageSize: 20,
+                kwicLeftCtx: -3,
+                kwicRightCtx: 3
             }
         });
         this.ut = ut;

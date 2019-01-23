@@ -28,6 +28,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
     const globalCompontents = ut.getComponents();
 
 
+    // ------------------ <Row /> --------------------------------------------
+
     const Row:React.SFC<{
         data:Line;
 
@@ -41,6 +43,38 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         );
     }
 
+    // ------------------ <Paginator /> --------------------------------------------
+
+    const Paginator:React.SFC<{
+        page:number;
+
+    }> = (props) => {
+        return (
+            <span className="Paginator">
+                <a><img className="arrow" src={ut.createStaticUrl('prev-page.svg')} /></a>
+                <input className="page" type="text" readOnly={true} value="1" />
+                <a><img className="arrow" src={ut.createStaticUrl('next-page.svg')} /></a>
+            </span>
+        );
+    };
+
+    // ------------------ <Controls /> --------------------------------------------
+
+    const Controls:React.SFC<{
+
+    }> = (props) => {
+        return (
+            <form>
+                <fieldset>
+                    <legend>{ut.translate('concordance__view_options')}</legend>
+                    <Paginator page={1} />
+                </fieldset>
+            </form>
+        )
+    };
+
+
+    // ------------------ <ConcordanceTileView /> --------------------------------------------
 
     class ConcordanceTileView extends React.PureComponent<ConcordanceTileState> {
 
@@ -54,6 +88,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             } else {
                 return (
                     <div className="service-tile ConcordanceTileView">
+                        {this.props.isExpanded ? <div><Controls /></div> : null}
                         <table className="summary">
                             <tbody>
                                 <tr>
@@ -79,7 +114,6 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                                 {this.props.lines.map(line => <Row key={`${line.toknum}`} data={line} />)}
                             </tbody>
                         </table>
-                        {this.props.isExpanded ? <div>expanded</div> : null}
                     </div>
                 )
             }

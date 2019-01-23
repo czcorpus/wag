@@ -27,8 +27,13 @@ export enum QuerySelectors {
 
 export interface RequestArgs {
     corpname:string;
-    query:string;
+    iquery:string;
     queryselector:QuerySelectors;
+    kwicleftctx:string;
+    kwicrightctx:string;
+    async:string;
+    pagesize:string;
+    format:'json';
 }
 
 export interface Line {
@@ -58,18 +63,10 @@ export class RequestBuilder implements DataApi<RequestArgs, ConcResponse> {
     }
 
     call(args:RequestArgs):Rx.Observable<ConcResponse> {
-        return ajax$(
+        return ajax$<ConcResponse>(
             'GET',
             this.apiURL,
-            {
-                corpname: args.corpname,
-                queryselector: args.queryselector,
-                iquery: args.query,
-                async: 0,
-                pagesize: 20,
-                format: 'json'
-            },
-            {}
+            args
         );
     }
 }

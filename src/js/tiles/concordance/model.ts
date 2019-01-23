@@ -19,7 +19,7 @@ import * as Immutable from 'immutable';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
 import {ActionNames as GlobalActionNames} from '../../models/actions';
 import {ActionNames, Actions} from './actions';
-import {RequestBuilder, Line, QuerySelectors} from './api';
+import {RequestBuilder, Line, QuerySelectors, RequestArgs} from './api';
 import { WdglanceMainFormModel } from '../../models/query';
 import { AppServices } from '../../appServices';
 import { importMessageType } from '../../notifications';
@@ -35,6 +35,9 @@ export interface ConcordanceTileState {
     concsize:number;
     resultARF:number;
     resultIPM:number;
+    kwicLeftCtx:number;
+    kwicRightCtx:number;
+    pageSize:number;
 }
 
 
@@ -48,6 +51,20 @@ export interface ConcordanceTileModelArgs {
 }
 
 
+export const stateToArgs = (state:ConcordanceTileState, query:string, querySelector:QuerySelectors):RequestArgs => {
+    return {
+        corpname: state.corpname,
+        iquery: query,
+        queryselector: querySelector,
+        kwicleftctx: state.kwicLeftCtx.toString(),
+        kwicrightctx: state.kwicRightCtx.toString(),
+        async: '0',
+        pagesize: state.pageSize.toString(),
+        format:'json'
+    };
+}
+
+
 export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
     private readonly service:RequestBuilder;
@@ -57,6 +74,10 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
     private readonly appServices:AppServices;
 
     private readonly tileId:number;
+
+    private static readonly BASIC_KWIC_CTX = 5;
+
+    private static readonly EXPANDED_KWIC_CTX = 10;
 
     constructor({dispatcher, tileId, appServices, service, mainForm, initState}:ConcordanceTileModelArgs) {
         super(dispatcher, initState);
@@ -76,6 +97,8 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 if (action.payload['ident'] === this.tileId) {
                     const newState = this.copyState(state);
                     newState.isExpanded = true;
+                    newState.kwicLeftCtx = -1 * ConcordanceTileModel.EXPANDED_KWIC_CTX;
+                    newState.kwicRightCtx = ConcordanceTileModel.EXPANDED_KWIC_CTX;
                     return newState;
                 }
                 return state;
@@ -83,6 +106,8 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             [GlobalActionNames.ResetExpandTile]: (state, action) => {
                 const newState = this.copyState(state);
                 newState.isExpanded = false;
+                newState.kwicLeftCtx = -1 * ConcordanceTileModel.BASIC_KWIC_CTX;
+                newState.kwicRightCtx = ConcordanceTileModel.BASIC_KWIC_CTX;
                 return newState;
             },
             [ActionNames.DataLoadDone]: (state, action:Actions.DataLoadDone) => {
@@ -107,13 +132,10 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
     sideEffects(state:ConcordanceTileState, action:Action, dispatch:SEDispatcher):void {
         switch(action.name) {
             case GlobalActionNames.RequestQueryResponse:
-                this.service.call(
-                    {
-                        corpname: state.corpname,
-                        queryselector: QuerySelectors.BASIC,
-                        query: this.mainForm.getState().query.value
-                    }
-                ).subscribe(
+            case GlobalActionNames.ExpandTile:
+            case GlobalActionNames.ResetExpandTile:
+                this.service.call(stateToArgs(state, this.mainForm.getState().query.value, QuerySelectors.BASIC))
+                .subscribe(
                     (data) => {
                         dispatch<Actions.DataLoadDone>({
                             name: ActionNames.DataLoadDone,
