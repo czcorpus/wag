@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { TileFactory, ITileProvider } from "../../abstract/types";
+import { TileFactory, ITileProvider, QueryType } from "../../abstract/types";
 import { AppServices } from "../../appServices";
 
 
@@ -58,12 +58,8 @@ export class TreqTile implements ITileProvider {
         return false;
     }
 
-    supportsSingleWordQuery(language:string):boolean {
-        return true;
-    }
-
-    supportsTwoWordQuery(language1:string, language2:string):boolean {
-        return false;
+    supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {
+        return qt === QueryType.TRANSLAT_QUERY;
     }
 }
 

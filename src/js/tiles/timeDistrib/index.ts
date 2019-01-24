@@ -17,7 +17,7 @@
  */
 import * as React from 'react';
 import * as Immutable from 'immutable';
-import { ITileProvider, TileFactory } from '../../abstract/types';
+import { ITileProvider, TileFactory, QueryType } from '../../abstract/types';
 import { ActionDispatcher, ViewUtils } from 'kombo';
 import { GlobalComponents } from '../../views/global';
 import { TimeDistribModel, FreqFilterQuantity, AlignType } from './model';
@@ -123,12 +123,8 @@ export class TimeDistTile implements ITileProvider {
         );
     }
 
-    supportsSingleWordQuery(language:string):boolean {
-        return true; // TODO
-    }
-
-    supportsTwoWordQuery(language1:string, language2:string):boolean {
-        return true; // TODO
+    supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {
+        return qt === QueryType.SINGLE_QUERY || qt === QueryType.TRANSLAT_QUERY;
     }
 
 }

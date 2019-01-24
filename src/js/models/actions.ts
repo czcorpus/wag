@@ -17,14 +17,13 @@
  */
 
 import {Action} from 'kombo';
-import { SystemMessageType } from '../abstract/types';
+import { SystemMessageType, QueryType } from '../abstract/types';
 
 export enum ActionName {
     ChangeQueryInput = 'MAIN_CHANGE_QUERY_INPUT',
     ChangeQueryInput2 = 'MAIN_CHANGE_QUERY_INPUT2',
     RequestQueryResponse = 'MAIN_REQUEST_QUERY_RESPONSE',
     ChangeTargetLanguage = 'MAIN_CHANGE_TARGET_LANGUAGE',
-    ChangeTargetLanguage2 = 'MAIN_CHANGE_TARGET_LANGUAGE2',
     ChangeQueryType = 'MAIN_CHANGE_QUERY_TYPE',
     AcknowledgeSizes = 'MAIN_ACKNOWLEDGE_SIZES',
     AddSystemMessage = 'MAIN_ADD_SYSTEM_MESSAGE',
@@ -32,12 +31,6 @@ export enum ActionName {
     SubmitQuery = 'MAIN_SUBMIT_QUERY',
     ExpandTile = 'MAIN_EXPAND_TILE',
     ResetExpandTile = 'MAIN_RESET_EXPAND_TILE',
-}
-
-export enum QueryType {
-    SINGLE_QUERY = 'single',
-    CMP_QUERY = 'double',
-    TRANSLAT_QUERY = 'translat'
 }
 
 export namespace Actions {
@@ -59,20 +52,26 @@ export namespace Actions {
         name:ActionName.ChangeQueryInput2;
     }
 
+    // this action currently reload the page so we need
+    // more arguments than in SPA-mode
     export interface ChangeTargetLanguage extends Action<{
-        value:string;
+        lang1:string;
+        lang2:string;
+        queryType:QueryType;
+        q1:string;
+        q2:string;
     }> {
         name:ActionName.ChangeTargetLanguage;
     }
 
-    export interface ChangeTargetLanguage2 extends Action<{
-        value:string;
-    }> {
-        name:ActionName.ChangeTargetLanguage2;
-    }
-
+    // this action currently reload the page so we need
+    // more arguments than in SPA-mode
     export interface ChangeQueryType extends Action<{
-        value:QueryType;
+        queryType:QueryType;
+        lang1:string;
+        lang2:string;
+        q1:string;
+        q2:string;
     }> {
         name:ActionName.ChangeQueryType;
     }
