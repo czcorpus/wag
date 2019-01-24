@@ -23,18 +23,25 @@ import { SystemMessageType } from '../abstract/types';
 
 
 export interface GlobalComponents {
-    AjaxLoader:React.SFC<{}>;
+
+    AjaxLoader:React.SFC<{
+        htmlClass?:string;
+    }>;
+
     ModalOverlay:React.SFC<{
         onCloseKey?:()=>void;
     }>;
+
     MessageStatusIcon:React.SFC<{
         statusType:SystemMessageType;
         isInline?:boolean;
         htmlClass?:string;
     }>;
+
     EmptySet:React.SFC<{
         fontSize:string;
     }>;
+
     TileWrapper:React.SFC<{
         isBusy:boolean;
         htmlClass?:string;
@@ -44,9 +51,16 @@ export interface GlobalComponents {
 
 export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalComponents {
 
-    const AjaxLoader:React.SFC<{}> = (props) => {
-        return <img src={ut.createStaticUrl('ajax-loader.gif')} alt="ajax-loader" />;
+    // --------------- <AjaxLoader /> -------------------------------------------
+
+    const AjaxLoader:GlobalComponents['AjaxLoader'] = (props) => {
+        return <img src={ut.createStaticUrl('ajax-loader.gif')}
+                    alt={ut.translate('global__alt_loading')}
+                    className={props.htmlClass ? `AjaxLoader ${props.htmlClass}` : 'AjaxLoader'} />;
     }
+
+
+    // --------------- <ModalOverlay /> -------------------------------------------
 
     const ModalOverlay:GlobalComponents['ModalOverlay'] = (props) => {
 
@@ -67,6 +81,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
         );
     };
 
+    // --------------- <MessageStatusIcon /> -------------------------------------------
 
     const MessageStatusIcon:GlobalComponents['MessageStatusIcon'] = (props) => {
         const m = {
@@ -99,13 +114,17 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
         }
     };
 
+    // --------------- <EmptySet /> -------------------------------------------
+
     const EmptySet:GlobalComponents['EmptySet'] = (props) => {
         return <span className="EmptySet" style={{fontSize: props.fontSize}}>{'\u2205'}</span>;
     };
 
+    // --------------- <TileWrapper /> -------------------------------------------
+
     const TileWrapper:GlobalComponents['TileWrapper'] = (props) => {
         if (props.isBusy) {
-            return <div className="service-tile"><AjaxLoader /></div>;
+            return <div className="service-tile"><AjaxLoader htmlClass="centered" /></div>;
 
         } else if (props.error) {
             return (

@@ -28,6 +28,7 @@ import { SystemMessageType } from '../../abstract/types';
 
 export interface ConcordanceTileState {
     isBusy:boolean;
+    error:string|null;
     isExpanded:boolean;
     lines:Immutable.List<Line>;
     corpname:string;
@@ -38,6 +39,9 @@ export interface ConcordanceTileState {
     kwicLeftCtx:number;
     kwicRightCtx:number;
     pageSize:number;
+    currPage:number; // from 1
+    attr_vmode:'mouseover';
+    attrs:Immutable.List<string>;
 }
 
 
@@ -60,6 +64,9 @@ export const stateToArgs = (state:ConcordanceTileState, query:string, querySelec
         kwicrightctx: state.kwicRightCtx.toString(),
         async: '0',
         pagesize: state.pageSize.toString(),
+        fromp: state.currPage.toFixed(0),
+        attr_vmode: state.attr_vmode,
+        attrs: state.attrs.join(','),
         format:'json'
     };
 }
@@ -125,6 +132,24 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                     newState.resultIPM = action.payload.data.result_relative_freq;
                 }
                 return newState;
+            },
+            [ActionNames.LoadNextPage]: (state, action:Actions.LoadNextPage) => {
+                const newState = this.copyState(state);
+                newState.isBusy = true;
+                newState.currPage += 1;
+                return newState;
+            },
+            [ActionNames.LoadPrevPage]: (state, action:Actions.LoadNextPage) => {
+                if (state.currPage - 1 > 0) {
+                    const newState = this.copyState(state);
+                    newState.isBusy = true;
+                    newState.currPage -= 1;
+                    return newState;
+
+                } else {
+                    this.appServices.showMessage(SystemMessageType.ERROR, 'Cannot load page < 1');
+                }
+
             }
         };
     }
@@ -134,6 +159,8 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             case GlobalActionNames.RequestQueryResponse:
             case GlobalActionNames.ExpandTile:
             case GlobalActionNames.ResetExpandTile:
+            case ActionNames.LoadNextPage:
+            case ActionNames.LoadPrevPage:
                 this.service.call(stateToArgs(state, this.mainForm.getState().query.value, QuerySelectors.BASIC))
                 .subscribe(
                     (data) => {

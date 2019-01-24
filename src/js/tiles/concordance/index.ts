@@ -31,6 +31,7 @@ require('./style.less');
 export interface ConcordanceTileConf {
     apiURL:string;
     corpname:string;
+    posAttrs:Array<string>;
 }
 
 /**
@@ -59,6 +60,7 @@ export class ConcordanceTile implements ITileProvider {
             mainForm: mainForm,
             initState: {
                 isBusy: false,
+                error: null,
                 isExpanded: false,
                 lines: Immutable.List<Line>(),
                 corpname: conf.corpname,
@@ -67,8 +69,11 @@ export class ConcordanceTile implements ITileProvider {
                 resultARF: -1,
                 resultIPM: -1,
                 pageSize: 20,
+                currPage: 1,
                 kwicLeftCtx: -3,
-                kwicRightCtx: 3
+                kwicRightCtx: 3,
+                attr_vmode: 'mouseover',
+                attrs: Immutable.List<string>(conf.posAttrs)
             }
         });
         this.ut = ut;

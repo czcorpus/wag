@@ -33,13 +33,22 @@ export interface RequestArgs {
     kwicrightctx:string;
     async:string;
     pagesize:string;
+    fromp:string;
+    attr_vmode:string;
+    attrs:string;
     format:'json';
 }
 
+export interface LineElement {
+    'class':string;
+    str:string;
+    mouseover?:Array<string>;
+}
+
 export interface Line {
-    Left:Array<{'class':string, str:string}>;
-    Kwic:Array<{'class':string, str:string}>;
-    Right:Array<{'class':string, str:string}>;
+    Left:Array<LineElement>;
+    Kwic:Array<LineElement>;
+    Right:Array<LineElement>;
     toknum:number;
 }
 

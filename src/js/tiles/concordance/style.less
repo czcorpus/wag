@@ -3,11 +3,27 @@
 
 .ConcordanceTileView {
 
-    .summary {
-        margin-bottom: 1em;
+    dl.summary {
+        margin-top: 0.7em;
+        margin-bottom: 0.7em;
 
-        th {
-            text-align: left;
+        dt, dd {
+            display: inline-block;
+            margin: 0;
+        }
+
+        dd {
+            font-weight: bold;
+            margin-left: 0.3em;
+        }
+
+        dd:not(:last-child)::after {
+            content: ", ";
+            font-weight: normal;
+        }
+
+        dt:not(:first-child) {
+            margin-left: 0.3em;
         }
     }
 
@@ -46,19 +62,37 @@
         }
     }
 
-    .Paginator {
+    .Controls {
 
-        .arrow {
-            width: 1em;
-            display: inline-block;
-            vertical-align: middle;
+        margin-bottom: 0.7em;
+
+        fieldset {
+            border: none;
         }
 
-        input.page {
-            width: 2em;
-            margin-left: 0.7em;
+        label {
             margin-right: 0.7em;
+            display: inline-block;
         }
-    }
 
+        .Paginator {
+
+            a {
+                cursor: pointer;
+            }
+
+            .arrow {
+                width: 1em;
+                display: inline-block;
+                vertical-align: middle;
+            }
+
+            input.page {
+                width: 2em;
+                margin-left: 0.3em;
+                margin-right: 0.3em;
+            }
+        }
+
+    }
 }
