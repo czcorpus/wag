@@ -70,6 +70,7 @@ export class ConcordanceTile implements ITileProvider {
                 resultIPM: -1,
                 pageSize: 20,
                 currPage: 1,
+                loadPage: 1,
                 kwicLeftCtx: -3,
                 kwicRightCtx: 3,
                 attr_vmode: 'mouseover',
