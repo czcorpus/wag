@@ -40,6 +40,7 @@ export interface ConcordanceTileState {
     kwicRightCtx:number;
     pageSize:number;
     currPage:number; // from 1
+    loadPage:number; // the one we are going to load
     attr_vmode:'mouseover';
     attrs:Immutable.List<string>;
 }
@@ -64,7 +65,7 @@ export const stateToArgs = (state:ConcordanceTileState, query:string, querySelec
         kwicrightctx: state.kwicRightCtx.toString(),
         async: '0',
         pagesize: state.pageSize.toString(),
-        fromp: state.currPage.toFixed(0),
+        fromp: state.loadPage.toFixed(0),
         attr_vmode: state.attr_vmode,
         attrs: state.attrs.join(','),
         format:'json'
@@ -130,20 +131,21 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                     newState.concsize = action.payload.data.concsize; // TODO fullsize?
                     newState.resultARF = action.payload.data.result_arf;
                     newState.resultIPM = action.payload.data.result_relative_freq;
+                    newState.currPage = newState.loadPage;
                 }
                 return newState;
             },
             [ActionName.LoadNextPage]: (state, action:Actions.LoadNextPage) => {
                 const newState = this.copyState(state);
                 newState.isBusy = true;
-                newState.currPage += 1;
+                newState.loadPage = newState.currPage + 1;
                 return newState;
             },
             [ActionName.LoadPrevPage]: (state, action:Actions.LoadNextPage) => {
                 if (state.currPage - 1 > 0) {
                     const newState = this.copyState(state);
                     newState.isBusy = true;
-                    newState.currPage -= 1;
+                    newState.loadPage = newState.currPage - 1;
                     return newState;
 
                 } else {

@@ -81,3 +81,33 @@ span.MessageStatusIcon {
     display: block;
     margin: 2em auto 2em auto;
 }
+
+
+@keyframes slidein {
+    0% {
+        transform: translate(0);
+    }
+    100% {
+        transform: translate(220%);
+    }
+  }
+
+.service-tile {
+
+    .loader-wrapper {
+        height: 0.2em;
+
+        .TitleLoaderBar {
+
+            animation: slidein 3s linear 0s infinite running;
+
+            .grad {
+                position: relative;
+                margin-left: -110%;
+                width: 100%;
+                height: 0.2em;
+                background: linear-gradient(0.25turn, #ffffff, @color-logo-pink, #ffffff);
+            }
+        }
+    }
+}

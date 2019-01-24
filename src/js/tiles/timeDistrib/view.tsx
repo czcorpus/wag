@@ -40,7 +40,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                     margin={{top: 10, right: 30, left: 0, bottom: 0}}>
                 <CartesianGrid strokeDasharray="3 3"/>
                 <XAxis dataKey="datetime"/>
-                <YAxis/>
+                <YAxis />
                 <Tooltip isAnimationActive={false} />
                 <Area type="linear"
                         dataKey="interval"
@@ -57,7 +57,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
     class TimeDistribTile extends React.PureComponent<TimeDistribModelState> {
 
         render() {
-            return <globComponents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}>
+            return <globComponents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
+                            hasData={this.props.data.size > 0}>
                     <div className="TimeDistribTile">
                         <Chart data={this.props.data.toArray()} size={this.props.renderFrameSize} />
                     </div>

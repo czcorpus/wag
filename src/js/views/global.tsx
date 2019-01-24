@@ -44,6 +44,7 @@ export interface GlobalComponents {
 
     TileWrapper:React.SFC<{
         isBusy:boolean;
+        hasData:boolean;
         htmlClass?:string;
         error?:string;
     }>;
@@ -59,6 +60,16 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
                     className={props.htmlClass ? `AjaxLoader ${props.htmlClass}` : 'AjaxLoader'} />;
     }
 
+    // --------------- <TitleLoaderBar /> -------------------------------------------
+
+    const TitleLoaderBar:React.SFC<{
+    }> = (props) => {
+        return (
+            <div className="TitleLoaderBar" title={ut.translate('global__alt_loading')}>
+                <div className="grad"></div>
+            </div>
+        );
+    }
 
     // --------------- <ModalOverlay /> -------------------------------------------
 
@@ -123,7 +134,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
     // --------------- <TileWrapper /> -------------------------------------------
 
     const TileWrapper:GlobalComponents['TileWrapper'] = (props) => {
-        if (props.isBusy) {
+        if (props.isBusy && !props.hasData) {
             return <div className="service-tile"><AjaxLoader htmlClass="centered" /></div>;
 
         } else if (props.error) {
@@ -140,7 +151,12 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
             );
 
         } else {
-            return <div className={`service-tile${props.htmlClass ? ' ' + props.htmlClass : ''}`}>{props.children}</div>;
+            return (
+                <div className={`service-tile${props.htmlClass ? ' ' + props.htmlClass : ''}`}>
+                    <div className="loader-wrapper">{props.hasData && props.isBusy ? <TitleLoaderBar  /> : null}</div>
+                    {props.children}
+                </div>
+            );
         }
     };
 

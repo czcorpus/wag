@@ -55,14 +55,14 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
     class TTDistribTile extends React.PureComponent<TTDistribModelState> {
 
         render() {
-            return <globComponents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}>
-                <div className="TTDistribTile">
-                    {this.props.data.size === 0 ?
-                        <div><globComponents.EmptySet fontSize="5em" /></div> :
+            return (
+                <globComponents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
+                        hasData={this.props.data.size > 0}>
+                    <div className="TTDistribTile">
                         <Chart data={this.props.data} size={this.props.renderFrameSize} />
-                    }
-                </div>
-            </globComponents.TileWrapper>;
+                    </div>
+                </globComponents.TileWrapper>
+            );
         }
     }
 
