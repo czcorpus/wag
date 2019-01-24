@@ -40,7 +40,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                     margin={{top: 10, right: 30, left: 0, bottom: 0}}>
                 <CartesianGrid strokeDasharray="3 3"/>
                 <XAxis dataKey="datetime"/>
-                <YAxis/>
+                <YAxis />
                 <Tooltip isAnimationActive={false} />
                 <Area type="linear"
                         dataKey="interval"

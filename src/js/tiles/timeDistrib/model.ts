@@ -184,7 +184,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                     payload: {
                                         data: dataFull,
                                         q: resp.q,
-                                        frameSize: [currFrameSize[0], ~~Math.max(50, dataFull.length * 15)]
+                                        frameSize: [currFrameSize[0], ~~Math.max(150, dataFull.length * 15)]
                                     }
                                 });
                             },
