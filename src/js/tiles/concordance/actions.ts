@@ -21,7 +21,11 @@ import { ConcResponse } from "./api";
 
 
 export enum ActionNames {
-    DataLoadDone = 'CONCORDANCE_LOAD_DATA_DONE'
+    DataLoadDone = 'CONCORDANCE_LOAD_DATA_DONE',
+    LoadNextPage = 'CONCORDANCE_LOAD_NEXT_PAGE',
+    LoadNextPageDone = 'CONCORDANCE_LOAD_NEXT_PAGE_DONE',
+    LoadPrevPage = 'CONCORDANCE_LOAD_PREV_PAGE',
+    LoadPrevPageDone = 'CONCORDANCE_LOAD_PREV_PAGE_DONE'
 }
 
 
@@ -31,5 +35,15 @@ export namespace Actions {
         data:ConcResponse;
     }> {
         name:ActionNames.DataLoadDone;
+    }
+
+    export interface LoadNextPage extends Action<{
+    }> {
+        name:ActionNames.LoadNextPage;
+    }
+
+    export interface LoadPrevPage extends Action<{
+    }> {
+        name:ActionNames.LoadPrevPage;
     }
 }

@@ -20,13 +20,73 @@ import {ActionDispatcher, Bound, ViewUtils} from 'kombo';
 import * as React from 'react';
 import {ConcordanceTileModel, ConcordanceTileState} from './model';
 import { GlobalComponents } from '../../views/global';
-import { Line } from './api';
+import { Line, LineElement } from './api';
+import { ActionNames } from './actions';
 
 
 export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:ConcordanceTileModel):React.ComponentClass {
 
     const globalCompontents = ut.getComponents();
 
+    // ------------------ <Paginator /> --------------------------------------------
+
+    const Paginator:React.SFC<{
+        page:number;
+
+    }> = (props) => {
+
+        const handlePrevPage = () => {
+            dispatcher.dispatch({
+                name: ActionNames.LoadPrevPage
+            });
+        };
+
+        const handleNextPage = () => {
+            dispatcher.dispatch({
+                name: ActionNames.LoadNextPage
+            });
+        };
+
+        return (
+            <span className="Paginator">
+                <a onClick={handlePrevPage}><img className="arrow" src={ut.createStaticUrl('prev-page.svg')} /></a>
+                <input className="page" type="text" readOnly={true} value={props.page} />
+                <a onClick={handleNextPage}><img className="arrow" src={ut.createStaticUrl('next-page.svg')} /></a>
+            </span>
+        );
+    };
+
+    // ------------------ <Controls /> --------------------------------------------
+
+    const Controls:React.SFC<{
+        currPage:number;
+
+    }> = (props) => {
+        return (
+            <form className="Controls cnc-form">
+                <fieldset>
+                    <div>
+                        <label>{ut.translate('concordance__page')}:</label>
+                        <Paginator page={props.currPage} />
+                    </div>
+                </fieldset>
+            </form>
+        )
+    };
+
+    // ------------------ <RowItem /> --------------------------------------------
+
+    const RowItem:React.SFC<{
+        data:LineElement;
+        isKwic?:boolean;
+
+    }> = (props) => {
+        return (
+            <span className={props.isKwic ? 'kwic' : null} title={props.data.mouseover ? props.data.mouseover.join(', ') : null}>
+                {props.data.str}
+            </span>
+        );
+    };
 
     // ------------------ <Row /> --------------------------------------------
 
@@ -36,42 +96,12 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
     }> = (props) => {
         return (
             <tr className="Row">
-                <td className="left">{props.data.Left.map((s, i) => <span key={`${props.data.toknum}-L${i}`}>{s.str}</span>)}</td>
-                <td className="kwic">{props.data.Kwic.map((s, i) => <span key={`${props.data.toknum}-K${i}`} className="kwic">{s.str}</span>)}</td>
-                <td className="right">{props.data.Right.map((s, i) => <span key={`${props.data.toknum}-R${i}`}>{s.str}</span>)}</td>
+                <td className="left">{props.data.Left.map((s, i) => <RowItem key={`${props.data.toknum}-L${i}`} data={s} />)}</td>
+                <td className="kwic">{props.data.Kwic.map((s, i) => <RowItem key={`${props.data.toknum}-K${i}`} data={s} isKwic={true} />)}</td>
+                <td className="right">{props.data.Right.map((s, i) => <RowItem key={`${props.data.toknum}-R${i}`} data={s} />)}</td>
             </tr>
         );
     }
-
-    // ------------------ <Paginator /> --------------------------------------------
-
-    const Paginator:React.SFC<{
-        page:number;
-
-    }> = (props) => {
-        return (
-            <span className="Paginator">
-                <a><img className="arrow" src={ut.createStaticUrl('prev-page.svg')} /></a>
-                <input className="page" type="text" readOnly={true} value="1" />
-                <a><img className="arrow" src={ut.createStaticUrl('next-page.svg')} /></a>
-            </span>
-        );
-    };
-
-    // ------------------ <Controls /> --------------------------------------------
-
-    const Controls:React.SFC<{
-
-    }> = (props) => {
-        return (
-            <form>
-                <fieldset>
-                    <legend>{ut.translate('concordance__view_options')}</legend>
-                    <Paginator page={1} />
-                </fieldset>
-            </form>
-        )
-    };
 
 
     // ------------------ <ConcordanceTileView /> --------------------------------------------
@@ -79,44 +109,25 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
     class ConcordanceTileView extends React.PureComponent<ConcordanceTileState> {
 
         render() {
-            if (this.props.isBusy) {
-                return <globalCompontents.AjaxLoader />;
-
-            } else if (this.props.lines.size === 0) {
-                return <div className="service-tile"><globalCompontents.EmptySet fontSize="5em" /></div>;
-
-            } else {
-                return (
+            return (
+                <globalCompontents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}>
                     <div className="service-tile ConcordanceTileView">
-                        {this.props.isExpanded ? <div><Controls /></div> : null}
-                        <table className="summary">
-                            <tbody>
-                                <tr>
-                                    <th>
-                                        {ut.translate('concordance__num_matching_items')}:
-                                    </th>
-                                    <td>
-                                        {ut.formatNumber(this.props.concsize, 0)}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>
-                                        {ut.translate('concordance__ipm')}:
-                                    </th>
-                                    <td>
-                                        {ut.formatNumber(this.props.resultIPM, 2)}
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        {this.props.isExpanded ? <div><Controls currPage={this.props.currPage} /><hr /></div> : null}
+                        <dl className="summary">
+                            <dt>{ut.translate('concordance__num_matching_items')}:</dt>
+                            <dd>{ut.formatNumber(this.props.concsize, 0)}</dd>
+                            <dt>{ut.translate('concordance__ipm')}:</dt>
+                            <dd>{ut.formatNumber(this.props.resultIPM, 2)}</dd>
+                        </dl>
+                        <hr />
                         <table className="conc-lines">
                             <tbody>
                                 {this.props.lines.map(line => <Row key={`${line.toknum}`} data={line} />)}
                             </tbody>
                         </table>
                     </div>
-                )
-            }
+                </globalCompontents.TileWrapper>
+            );
         }
     }
 
