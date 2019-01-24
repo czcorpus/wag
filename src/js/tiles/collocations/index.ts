@@ -17,7 +17,7 @@
  */
 
 import * as Immutable from 'immutable';
-import { TileFactory, ITileProvider, CorePosAttribute } from "../../abstract/types";
+import { TileFactory, ITileProvider, CorePosAttribute, QueryType } from "../../abstract/types";
 import { AppServices } from "../../appServices";
 import { CollocModel } from "./model";
 import { KontextCollAPI } from "./service";
@@ -108,12 +108,8 @@ export class CollocationsTile implements ITileProvider {
         return true;
     }
 
-    supportsSingleWordQuery(language:string):boolean {
-        return true;
-    }
-
-    supportsTwoWordQuery(language1:string, language2:string):boolean {
-        return false;
+    supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {
+        return qt === QueryType.SINGLE_QUERY || qt === QueryType.TRANSLAT_QUERY; // TODO respect lang
     }
 }
 

@@ -21,12 +21,12 @@ import * as React from 'react';
 import * as Immutable from 'immutable';
 import * as Rx from '@reactivex/rxjs';
 import {WdglanceMainState, WdglanceMainFormModel} from '../models/query';
-import {ActionName, Actions, QueryType} from '../models/actions';
+import {ActionName, Actions} from '../models/actions';
 import {KeyCodes} from '../shared/util';
 import { SystemMessage } from '../notifications';
 import { GlobalComponents } from './global';
 import { Forms } from '../shared/data';
-import { TileFrameProps, SystemMessageType } from '../abstract/types';
+import { TileFrameProps, SystemMessageType, QueryType } from '../abstract/types';
 import { WdglanceTilesModel, WdglanceTilesState } from '../models/tiles';
 
 
@@ -73,6 +73,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
     const QueryLangSelector:React.SFC<{
         value:string;
         availLanguages:Immutable.List<[string, string]>;
+        htmlClass?:string;
         onChange:(v:string)=>void;
 
     }> = (props) => {
@@ -82,7 +83,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         }
 
         return (
-            <select className='QueryLangSelector' onChange={changeHandler}
+            <select className={`QueryLangSelector${props.htmlClass ? ' ' + props.htmlClass : ''}`} onChange={changeHandler}
                     value={props.value}>
                 {props.availLanguages.map(v =>
                         <option key={v[0]} value={v[0]}>{v[1]}</option>)}
@@ -150,7 +151,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     }> = (props) => {
 
-        return <button className="cnc-button cnc-button-primary query-submit" type="button" onClick={props.onClick}>
+        return <button className="SubmitButton cnc-button cnc-button-primary" type="button" onClick={props.onClick}>
             {ut.translate('global__search')}
         </button>;
     };
@@ -160,29 +161,23 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
     const QueryTypeSelector:React.SFC<{
         avail:Immutable.List<[QueryType, string]>;
         value:QueryType;
+        onChange:(v:QueryType)=>void;
 
     }> = (props) => {
-
-        const handleChange = (evt:React.ChangeEvent<HTMLInputElement>) => {
-            dispatcher.dispatch<Actions.ChangeQueryType>({
-                name: ActionName.ChangeQueryType,
-                payload: {
-                    value: evt.target.value as QueryType
-                }
-            });
-        }
 
         return <div className="QueryTypeSelector">
             {props.avail.map(v =>
                 <label key={v[0]}>
-                    <input type="radio" value={v[0]} onChange={handleChange} checked={v[0] === props.value} />
+                    <input type="radio" value={v[0]}
+                            onChange={(evt:React.ChangeEvent<HTMLInputElement>) => props.onChange(evt.target.value as QueryType)}
+                            checked={v[0] === props.value} />
                     {v[1]}
                 </label>
             )}
         </div>
     };
 
-    // ------------------ <QueryForm /> ------------------------------
+    // ------------------ <QueryFields /> ------------------------------
 
     const QueryFields:React.SFC<{
         query:Forms.Input;
@@ -213,20 +208,15 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             });
         };
 
-        const handleTargetLanguageChange = (lang:string) => {
+        const handleTargetLanguageChange = (primary:boolean) => (lang:string) => {
             dispatcher.dispatch<Actions.ChangeTargetLanguage>({
                 name: ActionName.ChangeTargetLanguage,
                 payload: {
-                    value: lang
-                }
-            });
-        };
-
-        const handleTargetLanguageChange2 = (lang:string) => {
-            dispatcher.dispatch<Actions.ChangeTargetLanguage2>({
-                name: ActionName.ChangeTargetLanguage2,
-                payload: {
-                    value: lang
+                    lang1: primary ? lang : props.targetLanguage,
+                    lang2: primary ? props.targetLanguage2 : lang,
+                    queryType: props.queryType,
+                    q1: props.query.value,
+                    q2: props.query2.value
                 }
             });
         };
@@ -238,7 +228,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                 return (
                     <>
                         <QueryLangSelector value={props.targetLanguage} availLanguages={props.availLanguages}
-                                onChange={handleTargetLanguageChange} />
+                                onChange={handleTargetLanguageChange(true)} />
                         <QueryInput initialValue={props.query} onEnter={props.onEnterKey}
                                 onContentChange={handleQueryInput1} />
                     </>
@@ -247,7 +237,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                 return (
                     <>
                         <QueryLangSelector value={props.targetLanguage} availLanguages={props.availLanguages}
-                                onChange={handleTargetLanguageChange} />
+                                onChange={handleTargetLanguageChange(true)} />
                         <div className="input-group">
                             <QueryInput initialValue={props.query} onEnter={props.onEnterKey}
                                 onContentChange={handleQueryInput1} />
@@ -260,15 +250,14 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             case QueryType.TRANSLAT_QUERY:
                 return (
                     <>
-                        <div className="select-group">
-                            <QueryLangSelector value={props.targetLanguage} availLanguages={props.availLanguages}
-                                    onChange={handleTargetLanguageChange} />
-                            <br />
-                            <QueryLangSelector value={props.targetLanguage2} availLanguages={props.availLanguages}
-                                    onChange={handleTargetLanguageChange2} />
-                        </div>
+                        <QueryLangSelector value={props.targetLanguage} availLanguages={props.availLanguages}
+                                onChange={handleTargetLanguageChange(true)} />
                         <QueryInput initialValue={props.query} onEnter={props.onEnterKey}
                                 onContentChange={handleQueryInput1} />
+                        <span className="arrow">{'\u21E8'}</span>
+                        <QueryLangSelector value={props.targetLanguage2} availLanguages={props.availLanguages}
+                                htmlClass="secondary"
+                                onChange={handleTargetLanguageChange(false)} />
                     </>
                 );
 
@@ -281,6 +270,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
         constructor(props) {
             super(props);
+            this.handleQueryTypeChange = this.handleQueryTypeChange.bind(this);
         }
 
         private handleSubmit() {
@@ -293,6 +283,19 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                 }
             ]));
         }
+
+        handleQueryTypeChange(qt:QueryType):void {
+            dispatcher.dispatch<Actions.ChangeQueryType>({
+                name: ActionName.ChangeQueryType,
+                payload: {
+                    queryType: qt,
+                    lang1: this.props.targetLanguage,
+                    lang2: this.props.targetLanguage2,
+                    q1: this.props.query.value,
+                    q2: this.props.query2.value
+                }
+            });
+        };
 
         render() {
             return (
@@ -309,7 +312,9 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                             <SubmitButton onClick={this.handleSubmit} />
                         </div>
                         <div>
-                            <QueryTypeSelector avail={this.props.availQueryTypes} value={this.props.queryType} />
+                            <QueryTypeSelector avail={this.props.availQueryTypes}
+                                    value={this.props.queryType}
+                                    onChange={this.handleQueryTypeChange} />
                         </div>
                     </form>
                 </div>

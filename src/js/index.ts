@@ -31,8 +31,8 @@ import { GlobalComponents, init as globalCompInit } from './views/global';
 import * as translations from 'translations';
 import { AppServices } from './appServices';
 import { SystemNotifications } from './notifications';
-import { ActionName, QueryType } from './models/actions';
-import { TileFrameProps, ITileProvider } from './abstract/types';
+import { ActionName } from './models/actions';
+import { TileFrameProps, ITileProvider, QueryType } from './abstract/types';
 import { WdglanceTilesModel } from './models/tiles';
 import {encodeArgs} from './shared/ajax';
 import { Forms } from './shared/data';
@@ -48,6 +48,9 @@ export interface WdglanceConf {
     uiLang:string;
     query1Lang:string;
     query2Lang:string;
+    query1:string;
+    query2:string;
+    queryType:QueryType;
     rootUrl:string;
     hostUrl:string;
     tilesConf:{[ident:string]:any};
@@ -76,12 +79,22 @@ class QueryLangChangeHandler extends StatefulModel<{}> {
     onAction(action:Action): void {
         switch (action.name) {
             case ActionName.ChangeTargetLanguage:
-                console.log('target lang ', action.payload);
-                window.location.href = this.appServices.createActionUrl('', {lang1: action.payload['value']});
+                window.location.href = this.appServices.createActionUrl('', {
+                    lang1: action.payload['lang1'],
+                    lang2: action.payload['lang2'],
+                    queryType: action.payload['queryType'],
+                    q1: action.payload['q1'],
+                    q2: action.payload['q2']
+                });
             break;
-            case ActionName.ChangeTargetLanguage2:
-                console.log('target lang 2 ', action.payload);
-                window.location.href = this.appServices.createActionUrl('', {lang2: action.payload['value']});
+            case ActionName.ChangeQueryType:
+                window.location.href = this.appServices.createActionUrl('', {
+                    lang1: action.payload['lang1'],
+                    lang2: action.payload['lang2'],
+                    queryType: action.payload['queryType'],
+                    q1: action.payload['q1'],
+                    q2: action.payload['q2']
+                });
             break;
         }
     }
@@ -89,7 +102,8 @@ class QueryLangChangeHandler extends StatefulModel<{}> {
 }
 
 
-export const init = (mountElement:HTMLElement, {uiLang, rootUrl, hostUrl, query1Lang, query2Lang, tilesConf}:WdglanceConf) => {
+export const init = (mountElement:HTMLElement,
+            {uiLang, rootUrl, hostUrl, query1Lang, query2Lang, queryType, query1, query2, tilesConf}:WdglanceConf) => {
     const dispatcher = new ActionDispatcher();
     const viewUtils = new ViewUtils<GlobalComponents>({
         uiLang: uiLang || 'en_US',
@@ -107,9 +121,9 @@ export const init = (mountElement:HTMLElement, {uiLang, rootUrl, hostUrl, query1
         dispatcher,
         appServices,
         {
-            query: Forms.newFormValue('', true),
-            query2: Forms.newFormValue('', false),
-            queryType: QueryType.SINGLE_QUERY,
+            query: Forms.newFormValue(query1 || '', true),
+            query2: Forms.newFormValue(query2 || '', false),
+            queryType: queryType,
             availQueryTypes: Immutable.List<[QueryType, string]>([
                 [QueryType.SINGLE_QUERY, appServices.translate('global__single_word_sel')],
                 [QueryType.CMP_QUERY, appServices.translate('global__two_words_compare')],

@@ -16,11 +16,11 @@
  * limitations under the License.
  */
 import {StatelessModel, Action, ActionDispatcher, SEDispatcher} from 'kombo';
-import { ActionName, Actions, QueryType } from './actions';
+import { ActionName, Actions } from './actions';
 import * as Immutable from 'immutable';
 import { AppServices } from '../appServices';
 import {Forms} from '../shared/data';
-import { SystemMessageType } from '../abstract/types';
+import { SystemMessageType, QueryType } from '../abstract/types';
 
 
 export interface WdglanceMainState {
@@ -56,17 +56,14 @@ export class WdglanceMainFormModel extends StatelessModel<WdglanceMainState> {
             },
             [ActionName.ChangeTargetLanguage]: (state, action:Actions.ChangeTargetLanguage) => {
                 const newState = this.copyState(state);
-                newState.targetLanguage = action.payload.value;
-                return newState;
-            },
-            [ActionName.ChangeTargetLanguage2]: (state, action:Actions.ChangeTargetLanguage2) => {
-                const newState = this.copyState(state);
-                newState.targetLanguage2 = action.payload.value;
+                newState.targetLanguage = action.payload.lang1;
+                newState.targetLanguage2 = action.payload.lang2;
+                newState.queryType = action.payload.queryType;
                 return newState;
             },
             [ActionName.ChangeQueryType]: (state, action:Actions.ChangeQueryType) => {
                 const newState = this.copyState(state);
-                newState.queryType = action.payload.value;
+                newState.queryType = action.payload.queryType;
                 if (newState.queryType === QueryType.SINGLE_QUERY) {
                     newState.query2 = Forms.updateFormInput(newState.query2, {isRequired: false});
 

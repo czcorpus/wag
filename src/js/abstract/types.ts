@@ -34,6 +34,12 @@ export enum CorePosAttribute {
     LEMMA = 'lemma'
 }
 
+export enum QueryType {
+    SINGLE_QUERY = 'single',
+    CMP_QUERY = 'cmp',
+    TRANSLAT_QUERY = 'translat'
+}
+
 export interface ITileProvider {
 
     init():void;
@@ -41,8 +47,7 @@ export interface ITileProvider {
     getIdent():number;
     getView():React.ComponentClass|React.SFC<{}>;
     supportsExtendedView():boolean;
-    supportsSingleWordQuery(language:string):boolean;
-    supportsTwoWordQuery(language1:string, language2:string):boolean;
+    supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean;
 }
 
 

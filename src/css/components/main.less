@@ -71,26 +71,42 @@
         margin-bottom: 0.3em;
     }
 
-    .select-group select:not(:last-child) {
-        margin-bottom: 0.3em;
-    }
-
-
-    .QueryInput {
-        margin-right: 0.3em;
-        margin-left: 0.3em;
-    }
-
     .QueryTypeSelector {
-        margin-top: 0.7em;
+        margin-top: 1em;
 
         label:not(:first-child) {
             margin-left: 0.7em;
         }
+
+        input[type="radio"] {
+            display: inline-block;
+            vertical-align: middle;
+            margin: 0 0.2em;
+        }
+    }
+
+    .QueryLangSelector {
+        margin-right: 0.7em;
+        margin-left: 0.7em;
+    }
+
+    .QueryLangSelector.secondary {
+        margin-right: 0;
     }
 
     input.invalid {
         border-color: red;
+    }
+
+    .arrow {
+        margin-right: 0;
+        margin-left: 0.4em;
+        font-weight: bold;
+        font-size: 1.5em;
+    }
+
+    .SubmitButton {
+        margin-left: 0.7em;
     }
 }
 

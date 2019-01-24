@@ -17,7 +17,7 @@
  */
 
 import * as Immutable from 'immutable';
-import { ITileProvider, TileFactory } from '../../abstract/types';
+import { ITileProvider, TileFactory, QueryType } from '../../abstract/types';
 import {init as viewInit} from './views';
 import { ConcordanceTileModel } from './model';
 import { ActionDispatcher, ViewUtils } from 'kombo';
@@ -99,12 +99,8 @@ export class ConcordanceTile implements ITileProvider {
         return this.ut.translate('concordance__main_label');
     }
 
-    supportsSingleWordQuery(language:string):boolean {
-        return true; // TODO
-    }
-
-    supportsTwoWordQuery(language1:string, language2:string):boolean {
-        return true; // TODO
+    supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {
+        return qt === QueryType.SINGLE_QUERY || qt === QueryType.TRANSLAT_QUERY;
     }
 }
 
