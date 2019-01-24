@@ -65,33 +65,33 @@
         align-items: center;
         justify-content: center;
 
-        .queries {
-            padding: 0.4em;
+    }
 
-            .query1 {
-                padding: 0.3em;
+    .input-group input:not(:last-child) {
+        margin-bottom: 0.3em;
+    }
 
-                .QueryLangSelector {
-                    margin-right: 0.3em;
-                }
-            }
+    .select-group select:not(:last-child) {
+        margin-bottom: 0.3em;
+    }
 
-            .query2 {
-                padding: 0.3em;
 
-                .QueryLangSelector {
-                    margin-right: 0.3em;
-                }
-            }
+    .QueryInput {
+        margin-right: 0.3em;
+        margin-left: 0.3em;
+    }
+
+    .QueryTypeSelector {
+        margin-top: 0.7em;
+
+        label:not(:first-child) {
+            margin-left: 0.7em;
         }
     }
 
-    input,
-    select,
-    button {
-        font-size: 1.3em;
+    input.invalid {
+        border-color: red;
     }
-
 }
 
 .app-output {

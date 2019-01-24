@@ -108,7 +108,7 @@ export class WdglanceMainFormModel extends StatelessModel<WdglanceMainState> {
         } else {
             state.query = Forms.updateFormInput(state.query, {isValid: true});
         }
-        if (state.queryType === QueryType.DOUBLE_QUERY && state.query2.value === '') {
+        if (state.queryType === QueryType.CMP_QUERY && state.query2.value === '') {
             state.query2 = Forms.updateFormInput(state.query2, {isValid: false});
             ans = false;
 

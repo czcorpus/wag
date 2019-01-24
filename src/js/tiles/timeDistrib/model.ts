@@ -39,7 +39,7 @@ export const enum AlignType {
     LEFT = 'left'
 }
 
-export const enum Dimensions {
+export const enum Dimension {
     FIRST = 1,
     SECOND = 2
 }
@@ -63,16 +63,16 @@ export interface TimeDistribModelState {
     data:Immutable.List<DataItemWithWCI>;
 }
 
-const getAttrCtx = (state:TimeDistribModelState, dim:Dimensions):string => {
+const getAttrCtx = (state:TimeDistribModelState, dim:Dimension):string => {
 
     const POSITION_LA = ['-6<0', '-5<0', '-4<0', '-3<0', '-2<0', '-1<0', '0<0', '1<0', '2<0', '3<0', '4<0', '5<0', '6<0'];
 
     const POSITION_RA = ['-6>0', '-5>0', '-4>0', '-3>0', '-2>0', '-1>0', '0>0', '1>0', '2>0', '3>0', '4>0', '5>0', '6>0'];
 
-    if (dim === Dimensions.FIRST) {
+    if (dim === Dimension.FIRST) {
         return state.alignType1 === AlignType.LEFT ? POSITION_LA[state.ctxIndex1] : POSITION_RA[state.ctxIndex1];
 
-    } else if (dim === Dimensions.SECOND) {
+    } else if (dim === Dimension.SECOND) {
         return state.alignType2 === AlignType.LEFT ? POSITION_LA[state.ctxIndex2] : POSITION_RA[state.ctxIndex2];
     }
     throw new Error('Unknown dimension ' + dim);
@@ -85,7 +85,7 @@ const stateToAPIArgs = (state:TimeDistribModelState, queryId:string):QueryArgs =
         corpname: state.corpname,
         q: queryId ? queryId : state.q,
         ctfcrit1: '0', // = structural attr
-        ctfcrit2: getAttrCtx(state, Dimensions.SECOND),
+        ctfcrit2: getAttrCtx(state, Dimension.SECOND),
         ctattr1: state.attrTime,
         ctattr2: state.attrValue,
         ctminfreq: state.minFreq,

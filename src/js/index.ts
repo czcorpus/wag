@@ -112,10 +112,11 @@ export const init = (mountElement:HTMLElement, {uiLang, rootUrl, hostUrl, query1
             queryType: QueryType.SINGLE_QUERY,
             availQueryTypes: Immutable.List<[QueryType, string]>([
                 [QueryType.SINGLE_QUERY, appServices.translate('global__single_word_sel')],
-                [QueryType.DOUBLE_QUERY, appServices.translate('global__two_words_compare')]
+                [QueryType.CMP_QUERY, appServices.translate('global__two_words_compare')],
+                [QueryType.TRANSLAT_QUERY, appServices.translate('global__word_translate')]
             ]),
-            targetLanguage: query1Lang,
-            targetLanguage2: query2Lang,
+            targetLanguage: query1Lang || '',
+            targetLanguage2: query2Lang || '',
             availLanguages: Immutable.List<[string, string]>([
                 ['cs', 'čeština'],
                 ['en', 'English'],
