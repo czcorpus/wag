@@ -36,7 +36,8 @@ export enum ActionName {
 
 export enum QueryType {
     SINGLE_QUERY = 'single',
-    DOUBLE_QUERY = 'double'
+    CMP_QUERY = 'double',
+    TRANSLAT_QUERY = 'translat'
 }
 
 export namespace Actions {

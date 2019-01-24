@@ -40,9 +40,25 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         type:SystemMessageType;
         text:string;
     }> = (props) => {
+
+        let classType:string;
+
+        switch (props.type) {
+            case SystemMessageType.WARNING:
+                classType = 'cnc-msgbox-warning';
+            break;
+            case SystemMessageType.ERROR:
+                classType = 'cnc-msgbox-critical';
+            break;
+            case SystemMessageType.INFO:
+            default:
+                classType = 'cnc-msgbox-information'
+            break;
+        }
+
         return (
             <li className="SystemMessage">
-                <div className="wrapper">
+                <div className={`wrapper cnc-msgbox ${classType}`}>
                     <div className="flex">
                         <globalComponents.MessageStatusIcon statusType={props.type} isInline={true} />
                         <p>{props.text}</p>
@@ -134,7 +150,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     }> = (props) => {
 
-        return <button className="cnc-button query-submit" type="button" onClick={props.onClick}>
+        return <button className="cnc-button cnc-button-primary query-submit" type="button" onClick={props.onClick}>
             {ut.translate('global__search')}
         </button>;
     };
@@ -156,7 +172,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             });
         }
 
-        return <div>
+        return <div className="QueryTypeSelector">
             {props.avail.map(v =>
                 <label key={v[0]}>
                     <input type="radio" value={v[0]} onChange={handleChange} checked={v[0] === props.value} />
@@ -166,17 +182,105 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         </div>
     };
 
+    // ------------------ <QueryForm /> ------------------------------
+
+    const QueryFields:React.SFC<{
+        query:Forms.Input;
+        query2:Forms.Input;
+        queryType:QueryType;
+        targetLanguage:string;
+        targetLanguage2:string;
+        availLanguages:Immutable.List<[string, string]>;
+        onEnterKey:()=>void;
+
+    }> = (props) => {
+
+        const handleQueryInput1 = (s:string):void => {
+            dispatcher.dispatch<Actions.ChangeQueryInput>({
+                name: ActionName.ChangeQueryInput,
+                payload: {
+                    value: s
+                }
+            });
+        };
+
+        const handleQueryInput2 = (s:string):void => {
+            dispatcher.dispatch<Actions.ChangeQueryInput2>({
+                name: ActionName.ChangeQueryInput2,
+                payload: {
+                    value: s
+                }
+            });
+        };
+
+        const handleTargetLanguageChange = (lang:string) => {
+            dispatcher.dispatch<Actions.ChangeTargetLanguage>({
+                name: ActionName.ChangeTargetLanguage,
+                payload: {
+                    value: lang
+                }
+            });
+        };
+
+        const handleTargetLanguageChange2 = (lang:string) => {
+            dispatcher.dispatch<Actions.ChangeTargetLanguage2>({
+                name: ActionName.ChangeTargetLanguage2,
+                payload: {
+                    value: lang
+                }
+            });
+        };
+
+
+        switch (props.queryType) {
+
+            case QueryType.SINGLE_QUERY:
+                return (
+                    <>
+                        <QueryLangSelector value={props.targetLanguage} availLanguages={props.availLanguages}
+                                onChange={handleTargetLanguageChange} />
+                        <QueryInput initialValue={props.query} onEnter={props.onEnterKey}
+                                onContentChange={handleQueryInput1} />
+                    </>
+                );
+            case QueryType.CMP_QUERY:
+                return (
+                    <>
+                        <QueryLangSelector value={props.targetLanguage} availLanguages={props.availLanguages}
+                                onChange={handleTargetLanguageChange} />
+                        <div className="input-group">
+                            <QueryInput initialValue={props.query} onEnter={props.onEnterKey}
+                                onContentChange={handleQueryInput1} />
+                            <br />
+                            <QueryInput initialValue={props.query2} onEnter={props.onEnterKey}
+                                onContentChange={handleQueryInput2} />
+                        </div>
+                    </>
+                );
+            case QueryType.TRANSLAT_QUERY:
+                return (
+                    <>
+                        <div className="select-group">
+                            <QueryLangSelector value={props.targetLanguage} availLanguages={props.availLanguages}
+                                    onChange={handleTargetLanguageChange} />
+                            <br />
+                            <QueryLangSelector value={props.targetLanguage2} availLanguages={props.availLanguages}
+                                    onChange={handleTargetLanguageChange2} />
+                        </div>
+                        <QueryInput initialValue={props.query} onEnter={props.onEnterKey}
+                                onContentChange={handleQueryInput1} />
+                    </>
+                );
+
+        }
+    };
+
     // ------------------ <WdglanceControls /> ------------------------------
 
     class WdglanceControls extends React.PureComponent<WdglanceMainState> {
 
         constructor(props) {
             super(props);
-            this.handleSubmit = this.handleSubmit.bind(this);
-            this.handleQueryInput1 = this.handleQueryInput1.bind(this);
-            this.handleQueryInput2 = this.handleQueryInput2.bind(this);
-            this.handleTargetLanguageChange = this.handleTargetLanguageChange.bind(this);
-            this.handleTargetLanguageChange2 = this.handleTargetLanguageChange2.bind(this);
         }
 
         private handleSubmit() {
@@ -190,68 +294,19 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             ]));
         }
 
-        private handleQueryInput1(s:string):void {
-            dispatcher.dispatch<Actions.ChangeQueryInput>({
-                name: ActionName.ChangeQueryInput,
-                payload: {
-                    value: s
-                }
-            });
-        }
-
-        private handleQueryInput2(s:string):void {
-            dispatcher.dispatch<Actions.ChangeQueryInput2>({
-                name: ActionName.ChangeQueryInput2,
-                payload: {
-                    value: s
-                }
-            });
-        }
-
-        private handleTargetLanguageChange(lang:string) {
-            dispatcher.dispatch<Actions.ChangeTargetLanguage>({
-                name: ActionName.ChangeTargetLanguage,
-                payload: {
-                    value: lang
-                }
-            });
-        }
-
-        private handleTargetLanguageChange2(lang:string) {
-            dispatcher.dispatch<Actions.ChangeTargetLanguage2>({
-                name: ActionName.ChangeTargetLanguage2,
-                payload: {
-                    value: lang
-                }
-            });
-        }
-
         render() {
             return (
                 <div>
-                    <form className="WdglanceControls">
+                    <form className="WdglanceControls cnc-form">
                         <div className="main">
-                            <div className="queries">
-                                <div className="query1">
-                                    <QueryLangSelector value={this.props.targetLanguage} availLanguages={this.props.availLanguages}
-                                            onChange={this.handleTargetLanguageChange} />
-                                    <QueryInput initialValue={this.props.query} onEnter={this.handleSubmit}
-                                            onContentChange={this.handleQueryInput1} />
-                                </div>
-                                {
-                                    this.props.queryType === QueryType.DOUBLE_QUERY ?
-                                    <div className="query2">
-                                        <QueryLangSelector value={this.props.targetLanguage2} availLanguages={this.props.availLanguages}
-                                            onChange={this.handleTargetLanguageChange2} />
-                                        <QueryInput initialValue={this.props.query2} onEnter={this.handleSubmit}
-                                            onContentChange={this.handleQueryInput2} />
-                                    </div> :
-                                    null
-                                }
-                            </div>
-                            <div>
-                                <SubmitButton onClick={this.handleSubmit} />
-                            </div>
+                            <QueryFields query={this.props.query}
+                                    query2={this.props.query2}
+                                    queryType={this.props.queryType}
+                                    targetLanguage={this.props.targetLanguage}
+                                    targetLanguage2={this.props.targetLanguage2}
+                                    availLanguages={this.props.availLanguages}
+                                    onEnterKey={this.handleSubmit} />
+                            <SubmitButton onClick={this.handleSubmit} />
                         </div>
                         <div>
                             <QueryTypeSelector avail={this.props.availQueryTypes} value={this.props.queryType} />
