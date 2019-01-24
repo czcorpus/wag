@@ -54,7 +54,7 @@ export interface CollApiArgs {
 }
 
 
-export enum ActionNames {
+export enum ActionName {
     SizeUpdated = 'COLLOCATIONS_SIZE_UPDATED',
     DataLoadDone = 'COLLOCATIONS_DATA_LOAD_DONE'
 }
@@ -68,12 +68,12 @@ export namespace Actions {
         q:string;
         frameSize:[number, number];
     }> {
-        name:ActionNames.DataLoadDone;
+        name:ActionName.DataLoadDone;
     }
 
     export interface SizeUpdated extends Action<{
         frameSize:[number, number];
     }> {
-        name:ActionNames.SizeUpdated;
+        name:ActionName.SizeUpdated;
     }
 }

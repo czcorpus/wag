@@ -17,7 +17,7 @@
  */
 
 import {StatelessModel, Action, ActionDispatcher} from 'kombo';
-import { ActionNames, Actions } from './actions';
+import { ActionName, Actions } from './actions';
 import * as Immutable from 'immutable';
 import { AppServices } from '../appServices';
 import { SystemMessage } from '../notifications';
@@ -45,22 +45,22 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
         );
         this.appServices = appServices;
         this.actionMatch = {
-            [ActionNames.AcknowledgeSizes]: (state, action:Actions.AcknowledgeSizes) => {
+            [ActionName.AcknowledgeSizes]: (state, action:Actions.AcknowledgeSizes) => {
                 const newState = this.copyState(state);
                 newState.framesSizes = Immutable.List<[number, number]>(action.payload.values);
                 return newState;
             },
-            [ActionNames.ExpandTile]: (state, action:Actions.ExpandTile) => {
+            [ActionName.ExpandTile]: (state, action:Actions.ExpandTile) => {
                 const newState = this.copyState(state);
                 newState.expandedTile = action.payload.ident;
                 return newState;
             },
-            [ActionNames.ResetExpandTile]: (state, action:Actions.ExpandTile) => {
+            [ActionName.ResetExpandTile]: (state, action:Actions.ExpandTile) => {
                 const newState = this.copyState(state);
                 newState.expandedTile = -1;
                 return newState;
             },
-            [ActionNames.AddSystemMessage]: (state, action:Actions.AddSystemMessage) => {
+            [ActionName.AddSystemMessage]: (state, action:Actions.AddSystemMessage) => {
                 const newState = this.copyState(state);
                 newState.systemMessages = newState.systemMessages.push({
                     type: action.payload.type,
@@ -70,7 +70,7 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                 });
                 return newState;
             },
-            [ActionNames.RemoveSystemMessage]: (state, action:Actions.RemoveSystemMessage) => {
+            [ActionName.RemoveSystemMessage]: (state, action:Actions.RemoveSystemMessage) => {
                 const newState = this.copyState(state);
                 const srchIdx = newState.systemMessages.findIndex(v => v.ident === action.payload['ident']);
                 if (srchIdx > -1) {

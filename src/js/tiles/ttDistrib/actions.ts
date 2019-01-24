@@ -20,7 +20,7 @@ import { Action } from 'kombo';
 import { DataRow } from './api';
 
 
-export enum ActionNames {
+export enum ActionName {
     LoadDataDone = 'TT_DISTRIB_LOAD_DATA_DONE'
 }
 
@@ -31,6 +31,6 @@ export namespace Actions {
         q:string;
         frameSize:[number, number];
     }> {
-        name: ActionNames.LoadDataDone
+        name: ActionName.LoadDataDone
     }
 }

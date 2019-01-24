@@ -22,7 +22,7 @@ import { TTDistribModel, TTDistribModelState } from './model';
 import {BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, Legend} from 'recharts';
 import { DataRow } from './api';
 import { GlobalComponents } from '../../views/global';
-import { SystemColors } from '../../shared/colors';
+import { SystemColor } from '../../shared/colors';
 
 
 export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:TTDistribModel):React.ComponentClass {
@@ -40,7 +40,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             <div className="Chart">
                 <BarChart width={props.size[0] - 30} height={props.size[1]} data={props.data.toArray()} layout="vertical">
                     <CartesianGrid />
-                    <Bar dataKey="ipm" fill={SystemColors.COLOR_LOGO_BLUE} />
+                    <Bar dataKey="ipm" fill={SystemColor.COLOR_LOGO_BLUE} />
                     <XAxis type="number" />
                     <YAxis type="category" dataKey="name" width={100} />
                     <Legend />

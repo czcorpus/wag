@@ -20,9 +20,9 @@ import * as Immutable from 'immutable';
 import * as Rx from '@reactivex/rxjs';
 import {QueryArgs, TTDistribAPI, DataRow} from './api';
 import {StatelessModel, ActionDispatcher, Action, SEDispatcher} from 'kombo';
-import {ActionNames as GlobalActionNames, Actions as GlobalActions} from '../../models/actions';
-import {ActionNames as ConcActionNames, Actions as ConcActions} from '../concordance/actions';
-import {ActionNames, Actions} from './actions';
+import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
+import {ActionName as ConcActionName, Actions as ConcActions} from '../concordance/actions';
+import {ActionName, Actions} from './actions';
 import { WdglanceTilesModel } from '../../models/tiles';
 
 
@@ -71,12 +71,12 @@ export class TTDistribModel extends StatelessModel<TTDistribModelState> {
         this.api = api;
         this.tilesModel = tilesModel;
         this.actionMatch = {
-            [GlobalActionNames.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
+            [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
                 const newState = this.copyState(state);
                 newState.isBusy = true;
                 return newState;
             },
-            [ActionNames.LoadDataDone]: (state, action:Actions.LoadDataDone) => {
+            [ActionName.LoadDataDone]: (state, action:Actions.LoadDataDone) => {
                 const newState = this.copyState(state);
                 newState.isBusy = false;
                 if (action.error) {
@@ -94,9 +94,9 @@ export class TTDistribModel extends StatelessModel<TTDistribModelState> {
 
     sideEffects(state:TTDistribModelState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
-            case GlobalActionNames.RequestQueryResponse:
+            case GlobalActionName.RequestQueryResponse:
                 this.suspend((action:Action) => {
-                    if (action.name === ConcActionNames.DataLoadDone) {
+                    if (action.name === ConcActionName.DataLoadDone) {
                         const payload = (action as ConcActions.DataLoadDone).payload;
                         new Rx.Observable((observer:Rx.Observer<{}>) => {
                             if (action.error) {
@@ -111,7 +111,7 @@ export class TTDistribModel extends StatelessModel<TTDistribModelState> {
                             resp => {
                                 const currFrameSize = this.tilesModel.getFrameSize(this.tileId);
                                 dispatch<Actions.LoadDataDone>({
-                                    name: ActionNames.LoadDataDone,
+                                    name: ActionName.LoadDataDone,
                                     payload: {
                                         data: resp.data,
                                         q: resp.q,
@@ -121,7 +121,7 @@ export class TTDistribModel extends StatelessModel<TTDistribModelState> {
                             },
                             error => {
                                 dispatch<Actions.LoadDataDone>({
-                                    name: ActionNames.LoadDataDone,
+                                    name: ActionName.LoadDataDone,
                                     payload: {
                                         data: null,
                                         q: null,

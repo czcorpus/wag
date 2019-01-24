@@ -19,22 +19,22 @@ import * as Immutable from 'immutable';
 import * as Rx from '@reactivex/rxjs';
 import { StatelessModel, Action, SEDispatcher } from 'kombo';
 import { TimeDistribAPI, DataItem, QueryArgs } from './api';
-import {ActionNames as GlobalActionNames, Actions as GlobalActions} from '../../models/actions';
-import {ActionNames as ConcActionNames, Actions as ConcActions} from '../concordance/actions';
-import {ActionNames, Actions, DataItemWithWCI} from './common';
+import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
+import {ActionName as ConcActionName, Actions as ConcActions} from '../concordance/actions';
+import {ActionName, Actions, DataItemWithWCI} from './common';
 import { WdglanceTilesModel } from '../../models/tiles';
 import {wilsonConfInterval, AlphaLevel} from './stat';
 import { AppServices } from '../../appServices';
 
 
-export const enum FreqFilterQuantities {
+export const enum FreqFilterQuantity {
     ABS = 'abs',
     ABS_PERCENTILE = 'pabs',
     IPM = 'ipm',
     IPM_PERCENTILE = "pipm"
 }
 
-export const enum AlignTypes {
+export const enum AlignType {
     RIGHT = 'right',
     LEFT = 'left'
 }
@@ -54,10 +54,10 @@ export interface TimeDistribModelState {
     attrTime:string;
     attrValue:string;
     minFreq:string;
-    minFreqType:FreqFilterQuantities;
-    alignType1:AlignTypes;
+    minFreqType:FreqFilterQuantity;
+    alignType1:AlignType;
     ctxIndex1:number;
-    alignType2:AlignTypes;
+    alignType2:AlignType;
     ctxIndex2:number;
     alphaLevel:AlphaLevel;
     data:Immutable.List<DataItemWithWCI>;
@@ -70,10 +70,10 @@ const getAttrCtx = (state:TimeDistribModelState, dim:Dimensions):string => {
     const POSITION_RA = ['-6>0', '-5>0', '-4>0', '-3>0', '-2>0', '-1>0', '0>0', '1>0', '2>0', '3>0', '4>0', '5>0', '6>0'];
 
     if (dim === Dimensions.FIRST) {
-        return state.alignType1 === AlignTypes.LEFT ? POSITION_LA[state.ctxIndex1] : POSITION_RA[state.ctxIndex1];
+        return state.alignType1 === AlignType.LEFT ? POSITION_LA[state.ctxIndex1] : POSITION_RA[state.ctxIndex1];
 
     } else if (dim === Dimensions.SECOND) {
-        return state.alignType2 === AlignTypes.LEFT ? POSITION_LA[state.ctxIndex2] : POSITION_RA[state.ctxIndex2];
+        return state.alignType2 === AlignType.LEFT ? POSITION_LA[state.ctxIndex2] : POSITION_RA[state.ctxIndex2];
     }
     throw new Error('Unknown dimension ' + dim);
 }
@@ -122,13 +122,13 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         this.tilesModel = tilesModel;
         this.appServices = appServices;
         this.actionMatch = {
-            [GlobalActionNames.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
+            [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
                 const newState = this.copyState(state);
                 newState.isBusy = true;
                 newState.error = null;
                 return newState;
             },
-            [ActionNames.LoadDataDone]: (state, action:Actions.LoadDataDone) => {
+            [ActionName.LoadDataDone]: (state, action:Actions.LoadDataDone) => {
                 const newState = this.copyState(state);
                 newState.isBusy = false;
                 if (action.error) {
@@ -152,9 +152,9 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     sideEffects(state:TimeDistribModelState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
-            case GlobalActionNames.RequestQueryResponse:
+            case GlobalActionName.RequestQueryResponse:
                 this.suspend((action:Action) => {
-                    if (action.name === ConcActionNames.DataLoadDone) {
+                    if (action.name === ConcActionName.DataLoadDone) {
                         const payload = (action as ConcActions.DataLoadDone).payload;
                         new Rx.Observable((observer:Rx.Observer<{}>) => {
                             if (action.error) {
@@ -180,7 +180,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                 });
 
                                 dispatch<Actions.LoadDataDone>({
-                                    name: ActionNames.LoadDataDone,
+                                    name: ActionName.LoadDataDone,
                                     payload: {
                                         data: dataFull,
                                         q: resp.q,
@@ -190,7 +190,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                             },
                             error => {
                                 dispatch<Actions.LoadDataDone>({
-                                    name: ActionNames.LoadDataDone,
+                                    name: ActionName.LoadDataDone,
                                     payload: {
                                         data: null,
                                         q: null,

@@ -19,7 +19,7 @@
 import { Action } from 'kombo';
 
 
-export enum ActionNames {
+export enum ActionName {
     LoadDataDone = 'TIME_DISTRIB_LOAD_DATA_DONE'
 }
 
@@ -30,7 +30,7 @@ export namespace Actions {
         q:string;
         frameSize:[number, number];
     }> {
-        name: ActionNames.LoadDataDone
+        name: ActionName.LoadDataDone
     }
 }
 

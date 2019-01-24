@@ -18,7 +18,7 @@
 
 import * as Rx from '@reactivex/rxjs';
 import { ActionDispatcher } from 'kombo';
-import {ActionNames} from './models/actions';
+import {ActionName} from './models/actions';
 import {puid} from './shared/util';
 import { SystemMessageType } from './abstract/types';
 
@@ -51,7 +51,7 @@ export class SystemNotifications {
         this.messageEvents.observeOn(Rx.Scheduler.async).subscribe(
             (data) => {
                 dispatcher.dispatch({
-                    name: ActionNames.AddSystemMessage,
+                    name: ActionName.AddSystemMessage,
                     payload: {
                         ident: data.ident,
                         type: data.type,
@@ -60,7 +60,7 @@ export class SystemNotifications {
                     }
                 });
                 Rx.Observable.of({
-                    name: ActionNames.RemoveSystemMessage,
+                    name: ActionName.RemoveSystemMessage,
                     payload: {
                         ident: data.ident
                     }

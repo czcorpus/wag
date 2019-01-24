@@ -20,7 +20,7 @@ import { Action } from "kombo";
 import { ConcResponse } from "./api";
 
 
-export enum ActionNames {
+export enum ActionName {
     DataLoadDone = 'CONCORDANCE_LOAD_DATA_DONE',
     LoadNextPage = 'CONCORDANCE_LOAD_NEXT_PAGE',
     LoadNextPageDone = 'CONCORDANCE_LOAD_NEXT_PAGE_DONE',
@@ -34,16 +34,16 @@ export namespace Actions {
     export interface DataLoadDone extends Action<{
         data:ConcResponse;
     }> {
-        name:ActionNames.DataLoadDone;
+        name:ActionName.DataLoadDone;
     }
 
     export interface LoadNextPage extends Action<{
     }> {
-        name:ActionNames.LoadNextPage;
+        name:ActionName.LoadNextPage;
     }
 
     export interface LoadPrevPage extends Action<{
     }> {
-        name:ActionNames.LoadPrevPage;
+        name:ActionName.LoadPrevPage;
     }
 }

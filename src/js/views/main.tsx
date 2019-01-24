@@ -21,7 +21,7 @@ import * as React from 'react';
 import * as Immutable from 'immutable';
 import * as Rx from '@reactivex/rxjs';
 import {WdglanceMainState, WdglanceMainFormModel} from '../models/query';
-import {ActionNames, Actions, QueryType} from '../models/actions';
+import {ActionName, Actions, QueryType} from '../models/actions';
 import {KeyCodes} from '../shared/util';
 import { SystemMessage } from '../notifications';
 import { GlobalComponents } from './global';
@@ -149,7 +149,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
         const handleChange = (evt:React.ChangeEvent<HTMLInputElement>) => {
             dispatcher.dispatch<Actions.ChangeQueryType>({
-                name: ActionNames.ChangeQueryType,
+                name: ActionName.ChangeQueryType,
                 payload: {
                     value: evt.target.value as QueryType
                 }
@@ -182,17 +182,17 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         private handleSubmit() {
             dispatcher.dispatch(Rx.Observable.from([
                 {
-                    name: ActionNames.SubmitQuery
+                    name: ActionName.SubmitQuery
                 },
                 {
-                    name: ActionNames.RequestQueryResponse
+                    name: ActionName.RequestQueryResponse
                 }
             ]));
         }
 
         private handleQueryInput1(s:string):void {
             dispatcher.dispatch<Actions.ChangeQueryInput>({
-                name: ActionNames.ChangeQueryInput,
+                name: ActionName.ChangeQueryInput,
                 payload: {
                     value: s
                 }
@@ -201,7 +201,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
         private handleQueryInput2(s:string):void {
             dispatcher.dispatch<Actions.ChangeQueryInput2>({
-                name: ActionNames.ChangeQueryInput2,
+                name: ActionName.ChangeQueryInput2,
                 payload: {
                     value: s
                 }
@@ -210,7 +210,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
         private handleTargetLanguageChange(lang:string) {
             dispatcher.dispatch<Actions.ChangeTargetLanguage>({
-                name: ActionNames.ChangeTargetLanguage,
+                name: ActionName.ChangeTargetLanguage,
                 payload: {
                     value: lang
                 }
@@ -219,7 +219,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
         private handleTargetLanguageChange2(lang:string) {
             dispatcher.dispatch<Actions.ChangeTargetLanguage2>({
-                name: ActionNames.ChangeTargetLanguage2,
+                name: ActionName.ChangeTargetLanguage2,
                 payload: {
                     value: lang
                 }
@@ -285,7 +285,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         const handleClick = () => {
             if (props.extended) {
                 dispatcher.dispatch({
-                    name: ActionNames.ResetExpandTile,
+                    name: ActionName.ResetExpandTile,
                     payload: {
                         ident: props.tileIdent
                     }
@@ -293,7 +293,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
             } else {
                 dispatcher.dispatch({
-                    name: ActionNames.ExpandTile,
+                    name: ActionName.ExpandTile,
                     payload: {
                         ident: props.tileIdent
                     }
@@ -346,7 +346,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
         private dispatchSizes():void {
             dispatcher.dispatch<Actions.AcknowledgeSizes>({
-                name: ActionNames.AcknowledgeSizes,
+                name: ActionName.AcknowledgeSizes,
                 payload: {
                     values: [
                         this.getElmSize(this.frame0Ref.current),
