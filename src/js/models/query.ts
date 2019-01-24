@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import {StatelessModel, Action, ActionDispatcher, SEDispatcher} from 'kombo';
-import { ActionNames, Actions, QueryType } from './actions';
+import { ActionName, Actions, QueryType } from './actions';
 import * as Immutable from 'immutable';
 import { AppServices } from '../appServices';
 import {Forms} from '../shared/data';
@@ -44,27 +44,27 @@ export class WdglanceMainFormModel extends StatelessModel<WdglanceMainState> {
         this.appServices = appServices;
 
         this.actionMatch = {
-            [ActionNames.ChangeQueryInput]: (state, action:Actions.ChangeQueryInput) => {
+            [ActionName.ChangeQueryInput]: (state, action:Actions.ChangeQueryInput) => {
                 const newState = this.copyState(state);
                 newState.query = Forms.updateFormInput(newState.query, {value: action.payload.value});
                 return newState;
             },
-            [ActionNames.ChangeQueryInput2]: (state, action:Actions.ChangeQueryInput2) => {
+            [ActionName.ChangeQueryInput2]: (state, action:Actions.ChangeQueryInput2) => {
                 const newState = this.copyState(state);
                 newState.query2 = Forms.updateFormInput(newState.query2, {value: action.payload.value});
                 return newState;
             },
-            [ActionNames.ChangeTargetLanguage]: (state, action:Actions.ChangeTargetLanguage) => {
+            [ActionName.ChangeTargetLanguage]: (state, action:Actions.ChangeTargetLanguage) => {
                 const newState = this.copyState(state);
                 newState.targetLanguage = action.payload.value;
                 return newState;
             },
-            [ActionNames.ChangeTargetLanguage2]: (state, action:Actions.ChangeTargetLanguage2) => {
+            [ActionName.ChangeTargetLanguage2]: (state, action:Actions.ChangeTargetLanguage2) => {
                 const newState = this.copyState(state);
                 newState.targetLanguage2 = action.payload.value;
                 return newState;
             },
-            [ActionNames.ChangeQueryType]: (state, action:Actions.ChangeQueryType) => {
+            [ActionName.ChangeQueryType]: (state, action:Actions.ChangeQueryType) => {
                 const newState = this.copyState(state);
                 newState.queryType = action.payload.value;
                 if (newState.queryType === QueryType.SINGLE_QUERY) {
@@ -75,7 +75,7 @@ export class WdglanceMainFormModel extends StatelessModel<WdglanceMainState> {
                 }
                 return newState;
             },
-            [ActionNames.SubmitQuery]: (state, action:Actions.SubmitQuery) => {
+            [ActionName.SubmitQuery]: (state, action:Actions.SubmitQuery) => {
                 const newState = this.copyState(state);
                 newState.isValid = this.queryIsValid(newState);
                 return newState;
@@ -85,10 +85,10 @@ export class WdglanceMainFormModel extends StatelessModel<WdglanceMainState> {
 
     sideEffects(state:WdglanceMainState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
-            case ActionNames.ChangeQueryInput:
+            case ActionName.ChangeQueryInput:
                 //this.queryWritingIn.next(state.query);
             break;
-            case ActionNames.SubmitQuery:
+            case ActionName.SubmitQuery:
                 if (!state.isValid) {
                     this.appServices.showMessage(
                         SystemMessageType.ERROR,

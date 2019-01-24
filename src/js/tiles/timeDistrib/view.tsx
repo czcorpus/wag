@@ -20,7 +20,7 @@ import {LineChart, CartesianGrid, XAxis, YAxis, Tooltip, Line, AreaChart, Area} 
 import {ActionDispatcher, ViewUtils, Bound} from 'kombo';
 import { GlobalComponents } from '../../views/global';
 import { TimeDistribModel, TimeDistribModelState } from './model';
-import {SystemColors} from '../../shared/colors';
+import {SystemColor} from '../../shared/colors';
 import { DataItemWithWCI } from './common';
 
 
@@ -45,8 +45,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                 <Area type="linear"
                         dataKey="interval"
                         name={ut.translate('timeDistrib__estimated_interval')}
-                        stroke={SystemColors.COLOR_LOGO_GREEN}
-                        fill={SystemColors.COLOR_LOGO_GREEN}
+                        stroke={SystemColor.COLOR_LOGO_GREEN}
+                        fill={SystemColor.COLOR_LOGO_GREEN}
                         strokeWidth={1} />
             </AreaChart>
         );

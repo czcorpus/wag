@@ -21,7 +21,7 @@ import * as React from 'react';
 import {ConcordanceTileModel, ConcordanceTileState} from './model';
 import { GlobalComponents } from '../../views/global';
 import { Line, LineElement } from './api';
-import { ActionNames } from './actions';
+import { ActionName } from './actions';
 
 
 export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:ConcordanceTileModel):React.ComponentClass {
@@ -37,13 +37,13 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
         const handlePrevPage = () => {
             dispatcher.dispatch({
-                name: ActionNames.LoadPrevPage
+                name: ActionName.LoadPrevPage
             });
         };
 
         const handleNextPage = () => {
             dispatcher.dispatch({
-                name: ActionNames.LoadNextPage
+                name: ActionName.LoadNextPage
             });
         };
 

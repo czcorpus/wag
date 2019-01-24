@@ -20,7 +20,7 @@ import * as Rx from '@reactivex/rxjs';
 import {ajax$} from '../../shared/ajax';
 import { DataApi } from '../../abstract/types';
 
-export enum QuerySelectors {
+export enum QuerySelector {
     BASIC = 'iqueryrow',
     CQL = 'cqlrow',
 }
@@ -28,7 +28,7 @@ export enum QuerySelectors {
 export interface RequestArgs {
     corpname:string;
     iquery:string;
-    queryselector:QuerySelectors;
+    queryselector:QuerySelector;
     kwicleftctx:string;
     kwicrightctx:string;
     async:string;

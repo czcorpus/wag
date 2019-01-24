@@ -19,7 +19,7 @@
 import {Action} from 'kombo';
 import { SystemMessageType } from '../abstract/types';
 
-export enum ActionNames {
+export enum ActionName {
     ChangeQueryInput = 'MAIN_CHANGE_QUERY_INPUT',
     ChangeQueryInput2 = 'MAIN_CHANGE_QUERY_INPUT2',
     RequestQueryResponse = 'MAIN_REQUEST_QUERY_RESPONSE',
@@ -43,43 +43,43 @@ export namespace Actions {
 
     export interface RequestQueryResponse extends Action<{
     }> {
-        name:ActionNames.ChangeQueryInput;
+        name:ActionName.ChangeQueryInput;
     }
 
     export interface ChangeQueryInput extends Action<{
         value:string;
     }> {
-        name:ActionNames.ChangeQueryInput;
+        name:ActionName.ChangeQueryInput;
     }
 
     export interface ChangeQueryInput2 extends Action<{
         value:string;
     }> {
-        name:ActionNames.ChangeQueryInput2;
+        name:ActionName.ChangeQueryInput2;
     }
 
     export interface ChangeTargetLanguage extends Action<{
         value:string;
     }> {
-        name:ActionNames.ChangeTargetLanguage;
+        name:ActionName.ChangeTargetLanguage;
     }
 
     export interface ChangeTargetLanguage2 extends Action<{
         value:string;
     }> {
-        name:ActionNames.ChangeTargetLanguage2;
+        name:ActionName.ChangeTargetLanguage2;
     }
 
     export interface ChangeQueryType extends Action<{
         value:QueryType;
     }> {
-        name:ActionNames.ChangeQueryType;
+        name:ActionName.ChangeQueryType;
     }
 
     export interface AcknowledgeSizes extends Action<{
         values:Array<[number, number]>;
     }> {
-        name:ActionNames.AcknowledgeSizes;
+        name:ActionName.AcknowledgeSizes;
     }
 
     export interface AddSystemMessage extends Action<{
@@ -88,28 +88,28 @@ export namespace Actions {
         text:string;
         ttl:number;
     }> {
-        name:ActionNames.AddSystemMessage;
+        name:ActionName.AddSystemMessage;
     }
 
     export interface RemoveSystemMessage extends Action<{
         ident:string;
     }> {
-        name:ActionNames.RemoveSystemMessage;
+        name:ActionName.RemoveSystemMessage;
     }
 
     export interface SubmitQuery extends Action<{}> {
-        name:ActionNames.SubmitQuery;
+        name:ActionName.SubmitQuery;
     }
 
     export interface ExpandTile extends Action<{
         ident:number;
     }> {
-        name:ActionNames.ExpandTile;
+        name:ActionName.ExpandTile;
     }
 
     export interface ResetExpandTile extends Action<{
         ident:number;
     }> {
-        name:ActionNames.ResetExpandTile;
+        name:ActionName.ResetExpandTile;
     }
 }

@@ -31,7 +31,7 @@ import { GlobalComponents, init as globalCompInit } from './views/global';
 import * as translations from 'translations';
 import { AppServices } from './appServices';
 import { SystemNotifications } from './notifications';
-import { ActionNames, QueryType } from './models/actions';
+import { ActionName, QueryType } from './models/actions';
 import { TileFrameProps, ITileProvider } from './abstract/types';
 import { WdglanceTilesModel } from './models/tiles';
 import {encodeArgs} from './shared/ajax';
@@ -75,11 +75,11 @@ class QueryLangChangeHandler extends StatefulModel<{}> {
 
     onAction(action:Action): void {
         switch (action.name) {
-            case ActionNames.ChangeTargetLanguage:
+            case ActionName.ChangeTargetLanguage:
                 console.log('target lang ', action.payload);
                 window.location.href = this.appServices.createActionUrl('', {lang1: action.payload['value']});
             break;
-            case ActionNames.ChangeTargetLanguage2:
+            case ActionName.ChangeTargetLanguage2:
                 console.log('target lang 2 ', action.payload);
                 window.location.href = this.appServices.createActionUrl('', {lang2: action.payload['value']});
             break;
@@ -130,7 +130,7 @@ export const init = (mountElement:HTMLElement, {uiLang, rootUrl, hostUrl, query1
         appServices
     );
     dispatcher.captureAction(
-        ActionNames.RequestQueryResponse,
+        ActionName.RequestQueryResponse,
         (action) => formModel.getState().isValid
     );
 

@@ -18,9 +18,9 @@
 import * as Immutable from 'immutable';
 import * as Rx from '@reactivex/rxjs';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
-import {ActionNames as GlobalActionNames, Actions as GlobalActions} from '../../models/actions';
-import {ActionNames as ConcActionNames, Actions as ConcActions} from '../concordance/actions';
-import {ActionNames, DataRow, Actions, CollApiArgs, DataHeading} from './common';
+import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
+import {ActionName as ConcActionName, Actions as ConcActions} from '../concordance/actions';
+import {ActionName, DataRow, Actions, CollApiArgs, DataHeading} from './common';
 import { KontextCollAPI } from './service';
 import { AppServices } from '../../appServices';
 import { WdglanceTilesModel } from '../../models/tiles';
@@ -91,12 +91,12 @@ export class CollocModel extends StatelessModel<CollocModelState> {
         this.service = service;
         this.tilesModel = tilesModel;
         this.actionMatch = {
-            [GlobalActionNames.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse)  => {
+            [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse)  => {
                 const newState = this.copyState(state);
                 newState.isBusy = true;
                 return newState;
             },
-            [GlobalActionNames.ExpandTile]: (state, action:GlobalActions.ExpandTile) => {
+            [GlobalActionName.ExpandTile]: (state, action:GlobalActions.ExpandTile) => {
                 let newState:CollocModelState;
                 if (action.payload['ident'] === this.tileId) {
                     newState = this.copyState(state);
@@ -107,7 +107,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                 }
                 return newState;
             },
-            [GlobalActionNames.ResetExpandTile]: (state, action:GlobalActions.ResetExpandTile) => {
+            [GlobalActionName.ResetExpandTile]: (state, action:GlobalActions.ResetExpandTile) => {
                 let newState:CollocModelState;
                 if (action.payload['ident'] === this.tileId) {
                     newState = this.copyState(state);
@@ -118,7 +118,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                 }
                 return newState;
             },
-            [ActionNames.DataLoadDone]: (state, action:Actions.DataLoadDone) => {
+            [ActionName.DataLoadDone]: (state, action:Actions.DataLoadDone) => {
                 const newState = this.copyState(state);
                 newState.q = action.payload.q;
                 newState.isBusy = false;
@@ -137,7 +137,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                 }
                 return newState;
             },
-            [ActionNames.SizeUpdated]: (state, action:Actions.SizeUpdated) => {
+            [ActionName.SizeUpdated]: (state, action:Actions.SizeUpdated) => {
                 const newState = this.copyState(state);
                 newState.renderFrameSize = [action.payload.frameSize[0], newState.renderFrameSize[1]];
                 return newState;
@@ -147,10 +147,10 @@ export class CollocModel extends StatelessModel<CollocModelState> {
 
     sideEffects(state:CollocModelState, action:Action, seDispatch:SEDispatcher):void {
         switch (action.name) {
-            case GlobalActionNames.RequestQueryResponse:
+            case GlobalActionName.RequestQueryResponse:
                 this.suspend(
                     (action:Action) => {
-                        if (action.name === ConcActionNames.DataLoadDone) {
+                        if (action.name === ConcActionName.DataLoadDone) {
                             const payload = (action as ConcActions.DataLoadDone).payload;
                             new Rx.Observable((observer:Rx.Observer<CollApiArgs>) => {
                                 if (action.error) {
@@ -165,7 +165,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                             .subscribe(
                                 (data) => {
                                     seDispatch({
-                                        name: ActionNames.DataLoadDone,
+                                        name: ActionName.DataLoadDone,
                                         payload: {
                                             heading: data.Head,
                                             data: data.Items,
@@ -177,7 +177,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                                 (err) => {
                                     this.appServices.showMessage(SystemMessageType.ERROR, err);
                                     seDispatch({
-                                        name: ActionNames.DataLoadDone,
+                                        name: ActionName.DataLoadDone,
                                         payload: {},
                                         error: err
                                     });
@@ -189,9 +189,9 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                     }
                 );
             break;
-            case GlobalActionNames.AcknowledgeSizes:
+            case GlobalActionName.AcknowledgeSizes:
                 seDispatch({
-                    name: ActionNames.SizeUpdated,
+                    name: ActionName.SizeUpdated,
                     payload: {
                         frameSize: this.tilesModel.getFrameSize(this.tileId)
                     }

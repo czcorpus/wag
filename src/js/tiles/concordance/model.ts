@@ -17,9 +17,9 @@
  */
 import * as Immutable from 'immutable';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
-import {ActionNames as GlobalActionNames} from '../../models/actions';
-import {ActionNames, Actions} from './actions';
-import {RequestBuilder, Line, QuerySelectors, RequestArgs} from './api';
+import {ActionName as GlobalActionName} from '../../models/actions';
+import {ActionName, Actions} from './actions';
+import {RequestBuilder, Line, QuerySelector, RequestArgs} from './api';
 import { WdglanceMainFormModel } from '../../models/query';
 import { AppServices } from '../../appServices';
 import { importMessageType } from '../../notifications';
@@ -55,7 +55,7 @@ export interface ConcordanceTileModelArgs {
 }
 
 
-export const stateToArgs = (state:ConcordanceTileState, query:string, querySelector:QuerySelectors):RequestArgs => {
+export const stateToArgs = (state:ConcordanceTileState, query:string, querySelector:QuerySelector):RequestArgs => {
     return {
         corpname: state.corpname,
         iquery: query,
@@ -95,12 +95,12 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
         this.actionMatch = {
 
-            [GlobalActionNames.RequestQueryResponse]: (state, action) => {
+            [GlobalActionName.RequestQueryResponse]: (state, action) => {
                 const newState = this.copyState(state);
                 newState.isBusy = true;
                 return newState;
             },
-            [GlobalActionNames.ExpandTile]: (state, action) => {
+            [GlobalActionName.ExpandTile]: (state, action) => {
                 if (action.payload['ident'] === this.tileId) {
                     const newState = this.copyState(state);
                     newState.isExpanded = true;
@@ -110,14 +110,14 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 }
                 return state;
             },
-            [GlobalActionNames.ResetExpandTile]: (state, action) => {
+            [GlobalActionName.ResetExpandTile]: (state, action) => {
                 const newState = this.copyState(state);
                 newState.isExpanded = false;
                 newState.kwicLeftCtx = -1 * ConcordanceTileModel.BASIC_KWIC_CTX;
                 newState.kwicRightCtx = ConcordanceTileModel.BASIC_KWIC_CTX;
                 return newState;
             },
-            [ActionNames.DataLoadDone]: (state, action:Actions.DataLoadDone) => {
+            [ActionName.DataLoadDone]: (state, action:Actions.DataLoadDone) => {
                 const newState = this.copyState(state);
                 if (action.error) {
                     newState.isBusy = false;
@@ -133,13 +133,13 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 }
                 return newState;
             },
-            [ActionNames.LoadNextPage]: (state, action:Actions.LoadNextPage) => {
+            [ActionName.LoadNextPage]: (state, action:Actions.LoadNextPage) => {
                 const newState = this.copyState(state);
                 newState.isBusy = true;
                 newState.currPage += 1;
                 return newState;
             },
-            [ActionNames.LoadPrevPage]: (state, action:Actions.LoadNextPage) => {
+            [ActionName.LoadPrevPage]: (state, action:Actions.LoadNextPage) => {
                 if (state.currPage - 1 > 0) {
                     const newState = this.copyState(state);
                     newState.isBusy = true;
@@ -156,16 +156,16 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
     sideEffects(state:ConcordanceTileState, action:Action, dispatch:SEDispatcher):void {
         switch(action.name) {
-            case GlobalActionNames.RequestQueryResponse:
-            case GlobalActionNames.ExpandTile:
-            case GlobalActionNames.ResetExpandTile:
-            case ActionNames.LoadNextPage:
-            case ActionNames.LoadPrevPage:
-                this.service.call(stateToArgs(state, this.mainForm.getState().query.value, QuerySelectors.BASIC))
+            case GlobalActionName.RequestQueryResponse:
+            case GlobalActionName.ExpandTile:
+            case GlobalActionName.ResetExpandTile:
+            case ActionName.LoadNextPage:
+            case ActionName.LoadPrevPage:
+                this.service.call(stateToArgs(state, this.mainForm.getState().query.value, QuerySelector.BASIC))
                 .subscribe(
                     (data) => {
                         dispatch<Actions.DataLoadDone>({
-                            name: ActionNames.DataLoadDone,
+                            name: ActionName.DataLoadDone,
                             payload: {
                                 data: data
                             }
@@ -173,7 +173,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                     },
                     (err) => {
                         dispatch<Actions.DataLoadDone>({
-                            name: ActionNames.DataLoadDone,
+                            name: ActionName.DataLoadDone,
                             error: err
                         });
                     }

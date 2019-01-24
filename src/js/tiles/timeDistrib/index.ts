@@ -20,7 +20,7 @@ import * as Immutable from 'immutable';
 import { ITileProvider, TileFactory } from '../../abstract/types';
 import { ActionDispatcher, ViewUtils } from 'kombo';
 import { GlobalComponents } from '../../views/global';
-import { TimeDistribModel, FreqFilterQuantities, AlignTypes } from './model';
+import { TimeDistribModel, FreqFilterQuantity, AlignType } from './model';
 import { TimeDistribAPI } from './api';
 import {init as viewInit} from './view';
 import { WdglanceTilesModel } from '../../models/tiles';
@@ -82,10 +82,10 @@ export class TimeDistTile implements ITileProvider {
                 attrTime: conf.timeProperty,
                 attrValue: conf.distProperty,
                 minFreq: '10', // TODO (conf)
-                minFreqType: FreqFilterQuantities.IPM,
-                alignType1: AlignTypes.LEFT,
+                minFreqType: FreqFilterQuantity.IPM,
+                alignType1: AlignType.LEFT,
                 ctxIndex1: 6, // TODO conf/explain
-                alignType2: AlignTypes.LEFT,
+                alignType2: AlignType.LEFT,
                 ctxIndex2: 6, // TODO conf/explain
                 alphaLevel: AlphaLevel.LEVEL_0_1, // TODO conf/explain
                 data: Immutable.List<DataItemWithWCI>()

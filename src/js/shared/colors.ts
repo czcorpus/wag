@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-export enum SystemColors {
+export enum SystemColor {
     COLOR_LOGO_ORANGE = '#F0680B',
     COLOR_LOGO_GREEN = '#57AB27',
     COLOR_LOGO_PINK = '#E2007A',
