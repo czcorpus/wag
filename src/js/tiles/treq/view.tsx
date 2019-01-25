@@ -21,8 +21,8 @@ import {Bound} from 'kombo';
 import {ActionDispatcher, ViewUtils} from 'kombo';
 import { GlobalComponents } from '../../views/global';
 import { TreqModel, TreqModelState } from './model';
-import { MultiDict } from '../../shared/data';
 import { TreqTranslation } from './api';
+import { MultiDict } from '../../shared/data';
 
 
 export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:TreqModel):React.ComponentClass {
@@ -36,13 +36,15 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         args:Array<[string, string]>;
 
     }> = (props) => {
-        return <form className="view-in-treq" action={props.action} method="post" target="_blank">
+        return <form className="TreqBacklinkForm" action={props.action} method="post" target="_blank">
             {props.args.map(([k, v], i) =>
                 <input key={`arg:${i}:${k}`} type="hidden" name={k} value={v} />
             )}
-            <button type="submit" className="cnc-button">
-                {ut.translate('treq__view_in_treq')}
-            </button>
+            <p className="submit">
+                <button type="submit" className="cnc-button">
+                    {ut.translate('treq__view_in_treq')}
+                </button>
+            </p>
         </form>;
     }
 
@@ -59,15 +61,21 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                 return (
                     <table className="words">
                         <tbody>
+                            <tr>
+                                <th />
+                                <th>{ut.translate('treq__abs_rel')}</th>
+                                <th>{ut.translate('treq__abs_freq')}</th>
+                            </tr>
                             {props.translations.map((translation, i) => (
                                 <tr key={`${translation['righ']}:${i}`}>
                                     <td className="translation">
                                         {translation.right}
                                     </td>
                                     <td className="num">
-                                        <span className="note" title={ut.translate('treq__abs_freq') + ': ' + translation.freq}>
-                                        {ut.formatNumber(translation['perc'], 1)}%
-                                        </span>
+                                        {ut.formatNumber(translation.perc, 1)}%
+                                    </td>
+                                    <td className="num">
+                                        {ut.formatNumber(translation.freq, 0)}
                                     </td>
                                 </tr>
                             ))}
@@ -96,13 +104,12 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     class TreqTileView extends React.PureComponent<TreqModelState> {
 
-
         render() {
             return (
                 <globComponents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
                             hasData={this.props.translations.size > 0}>
                     <TreqTranslations translations={this.props.translations}
-                            treqLink={['string', [['foo_arg', 'foo_val']]]} />
+                            treqLink={[this.props.treqBackLinkRootURL, new MultiDict(this.props.treqBackLinkArgs).items()]} />
                 </globComponents.TileWrapper>
             );
         }

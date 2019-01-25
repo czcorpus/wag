@@ -27,6 +27,13 @@ import {ajax$} from '../../shared/ajax';
         return [('left', lang1), ('right', lang2), ('viceslovne', multiw_flag), ('regularni', '0'),
                 ('lemma', lemma_flag), ('aJeA', '1'), ('hledejKde', groups), ('hledejCo', lemma),
                 ('order', 'percDesc')]
+
+
+    def mk_page_args(lang1, lang2, groups, lemma):
+        multiw_flag = '1' if ' ' in lemma else '0'
+        lemma_flag = '0' if ' ' in lemma else '1'
+        return [('jazyk1', lang1), ('jazyk2', lang2), ('viceslovne', multiw_flag), ('regularni', '0'),
+                ('lemma', lemma_flag), ('caseInsen', '1'), ('hledejCo', lemma)] + [('hledejKde[]', g) for g in groups]
 */
 
 export type SearchPackages = {[lang2:string]:Array<string>};
@@ -43,6 +50,19 @@ export interface RequestArgs {
     order:string;
     api:'true';
 }
+
+
+export interface PageArgs {
+    jazyk1:string;
+    jazyk2:string;
+    viceslovne:string;
+    regularni:string;
+    lemma:string;
+    caseInsen:string;
+    hledejCo:string;
+    'hledejKde[]':Array<string>;
+}
+
 
 export interface TreqTranslation {
     freq:number;

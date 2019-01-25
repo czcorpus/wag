@@ -23,6 +23,14 @@ import { WdglanceMainFormModel } from '../models/query';
 import { AppServices } from '../appServices';
 import { WdglanceTilesModel } from '../models/tiles';
 
+export type AnyInterface<T> = {
+    [P in keyof T]: T[P];
+};
+
+
+export type ListOfPairs = Array<[string, string|number]>;
+
+
 export enum SystemMessageType {
     INFO = 'info',
     WARNING = 'warning',

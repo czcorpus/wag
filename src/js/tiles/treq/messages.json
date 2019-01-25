@@ -2,12 +2,14 @@
     "en-US": {
         "treq__main_label": "Treq",
         "treq__abs_freq": "Abs. frequency",
+        "treq__abs_rel": "Rel. frequency",
         "treq__translation_not_found": "translation not found",
         "treq__view_in_treq": "View in Treq"
     },
     "cs-CZ": {
         "treq__main_label": "Treq",
         "treq__abs_freq": "Abs. frekvence",
+        "treq__abs_rel": "Rel. frekvence",
         "treq__translation_not_found": "překlad nenalezen",
         "treq__view_in_treq": "Zobrazit v Trequ"
     }
