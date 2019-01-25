@@ -16,8 +16,10 @@
  * limitations under the License.
  */
 
-import { TileFactory, ITileProvider, QueryType } from "../../abstract/types";
-import { AppServices } from "../../appServices";
+import { TileFactory, ITileProvider, QueryType } from '../../abstract/types';
+import { AppServices } from '../../appServices';
+import {init as viewInit} from './view';
+import { TreqModel } from './model';
 
 
 export interface TreqTileConf {
@@ -33,13 +35,29 @@ export class TreqTile implements ITileProvider {
 
     private readonly appServices:AppServices;
 
+    private readonly model:TreqModel;
+
+    private view:React.ComponentClass;
+
     constructor({tileId, dispatcher, appServices, ut, mainForm, conf}:TileFactory.Args<TreqTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
+        this.model = new TreqModel(
+            dispatcher,
+            {
+                isBusy: false,
+                error: null,
+                renderFrameSize: [0, 0]
+            }
+        );
+        this.view = viewInit(
+            dispatcher,
+            ut,
+            this.model
+        );
     }
 
     init():void {
-
     }
 
     getIdent():number {
@@ -51,7 +69,7 @@ export class TreqTile implements ITileProvider {
     }
 
     getView():React.ComponentClass|React.SFC<{}> {
-        return null; // TODO
+        return this.view;
     }
 
     supportsExtendedView():boolean {

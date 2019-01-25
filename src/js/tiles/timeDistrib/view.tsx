@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as React from 'react';
-import {LineChart, CartesianGrid, XAxis, YAxis, Tooltip, Line, AreaChart, Area} from 'recharts';
+import {CartesianGrid, XAxis, YAxis, Tooltip, AreaChart, Area} from 'recharts';
 import {ActionDispatcher, ViewUtils, Bound} from 'kombo';
 import { GlobalComponents } from '../../views/global';
 import { TimeDistribModel, TimeDistribModelState } from './model';
