@@ -104,8 +104,19 @@ class QueryLangChangeHandler extends StatefulModel<{}> {
 }
 
 
-export const init = (mountElement:HTMLElement,
-            {uiLang, rootUrl, hostUrl, query1Lang, query2Lang, queryType, query1, query2, tilesConf}:WdglanceConf) => {
+export const init = (
+    mountElement:HTMLElement,
+    {
+        uiLang,
+        rootUrl,
+        hostUrl,
+        query1Lang,
+        query2Lang,
+        queryType,
+        query1,
+        query2,
+        tilesConf}:WdglanceConf) => {
+
     const dispatcher = new ActionDispatcher();
     const viewUtils = new ViewUtils<GlobalComponents>({
         uiLang: uiLang || 'en_US',

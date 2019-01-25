@@ -26,6 +26,7 @@ require('./style.less');
 
 export interface TreqTileConf {
     apiURL:string;
+    backlinkURL:string;
     srchPackages:SearchPackages;
 }
 
@@ -55,7 +56,9 @@ export class TreqTile implements ITileProvider {
                 lang2: lang2,
                 searchPackages: Immutable.List<string>(conf.srchPackages[lang2] || []),
                 translations: Immutable.List<TreqTranslation>(),
-                sum: 0
+                sum: 0,
+                treqBackLinkArgs: null,
+                treqBackLinkRootURL: conf.backlinkURL
             },
             new TreqAPI(conf.apiURL),
             mainForm

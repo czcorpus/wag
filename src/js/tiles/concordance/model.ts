@@ -105,6 +105,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 if (action.payload['ident'] === this.tileId) {
                     const newState = this.copyState(state);
                     newState.isExpanded = true;
+                    newState.isBusy = true;
                     newState.kwicLeftCtx = -1 * ConcordanceTileModel.EXPANDED_KWIC_CTX;
                     newState.kwicRightCtx = ConcordanceTileModel.EXPANDED_KWIC_CTX;
                     return newState;
@@ -114,6 +115,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             [GlobalActionName.ResetExpandTile]: (state, action) => {
                 const newState = this.copyState(state);
                 newState.isExpanded = false;
+                newState.isBusy = true;
                 newState.kwicLeftCtx = -1 * ConcordanceTileModel.BASIC_KWIC_CTX;
                 newState.kwicRightCtx = ConcordanceTileModel.BASIC_KWIC_CTX;
                 return newState;

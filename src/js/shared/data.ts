@@ -16,11 +16,13 @@
  * limitations under the License.
  */
 
-export class MultiDict {
+import { ListOfPairs, AnyInterface } from '../abstract/types';
+
+export class MultiDict<T={}> {
 
     private _data:any;
 
-    constructor(data?:Array<[string, string|number]>|{[key:string]:string|number|Array<string|number>}) {
+    constructor(data?:ListOfPairs|AnyInterface<T>|{[key:string]:string|number|Array<string|number>}) {
         this._data = {};
         if (Array.isArray(data)) {
             for (let i = 0; i < data.length; i += 1) {
