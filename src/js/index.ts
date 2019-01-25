@@ -27,6 +27,7 @@ import {init as freqInit, TTDistTileConf} from './tiles/ttDistrib/index';
 import {init as timeDistInit, TimeDistTileConf} from './tiles/timeDistrib/index';
 import {init as collocInit, CollocationsTileConf} from './tiles/collocations/index';
 import {init as treqInit, TreqTileConf} from './tiles/treq/index';
+import {init as sydInit, SyDTileConf} from './tiles/syd/index';
 import { GlobalComponents, init as globalCompInit } from './views/global';
 import * as translations from 'translations';
 import { AppServices } from './appServices';
@@ -244,6 +245,22 @@ export const init = (
             lang1: query1Lang,
             lang2: query2Lang,
             conf: tilesConf['TreqTileConf'] as TreqTileConf,
+        }));
+    }
+
+
+    // window treq. --------------------------------------------------
+    if (tilesConf['SyDTileConf']) {
+        attachTileCurr(tiles, sydInit({
+            tileId: 5,
+            dispatcher: dispatcher,
+            ut: viewUtils,
+            mainForm: formModel,
+            tilesModel: tilesModel,
+            appServices: appServices,
+            lang1: query1Lang,
+            lang2: query2Lang,
+            conf: tilesConf['SyDTileConf'] as SyDTileConf,
         }));
     }
 
