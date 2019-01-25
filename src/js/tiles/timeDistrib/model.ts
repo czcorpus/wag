@@ -140,7 +140,6 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     newState.error = this.appServices.translate('global__not_enough_data_to_show_result');
 
                 } else {
-                    console.log(action.payload.data);
                     newState.data = Immutable.List<DataItemWithWCI>(action.payload.data);
                     newState.renderFrameSize = action.payload.frameSize;
                 }
@@ -148,7 +147,6 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             }
         };
     }
-
 
     sideEffects(state:TimeDistribModelState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {

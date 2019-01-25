@@ -170,6 +170,8 @@ export const init = (mountElement:HTMLElement,
             mainForm: formModel,
             tilesModel: tilesModel,
             appServices: appServices,
+            lang1: query1Lang,
+            lang2: query2Lang,
             conf: tilesConf['ConcordanceTileConf'] as ConcordanceTileConf
         }));
     }
@@ -183,6 +185,8 @@ export const init = (mountElement:HTMLElement,
             mainForm: formModel,
             tilesModel: tilesModel,
             appServices: appServices,
+            lang1: query1Lang,
+            lang2: query2Lang,
             conf: tilesConf['TTDistTileConf'] as TTDistTileConf
         }));
     }
@@ -196,6 +200,8 @@ export const init = (mountElement:HTMLElement,
             mainForm: formModel,
             tilesModel: tilesModel,
             appServices: appServices,
+            lang1: query1Lang,
+            lang2: query2Lang,
             conf: tilesConf['CollocationsTileConf'] as CollocationsTileConf
         }));
     }
@@ -209,6 +215,8 @@ export const init = (mountElement:HTMLElement,
             mainForm: formModel,
             tilesModel: tilesModel,
             appServices: appServices,
+            lang1: query1Lang,
+            lang2: query2Lang,
             conf: tilesConf['TimeDistTileConf'] as TimeDistTileConf
         }));
     }
@@ -222,7 +230,9 @@ export const init = (mountElement:HTMLElement,
             mainForm: formModel,
             tilesModel: tilesModel,
             appServices: appServices,
-            conf: tilesConf['TreqTileConf'] as TreqTileConf
+            lang1: query1Lang,
+            lang2: query2Lang,
+            conf: tilesConf['TreqTileConf'] as TreqTileConf,
         }));
     }
 

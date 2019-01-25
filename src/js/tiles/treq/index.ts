@@ -15,15 +15,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+import * as Immutable from 'immutable';
 import { TileFactory, ITileProvider, QueryType } from '../../abstract/types';
 import { AppServices } from '../../appServices';
 import {init as viewInit} from './view';
 import { TreqModel } from './model';
-
+import { TreqAPI, TreqTranslation, SearchPackages } from './api';
+declare var require:any;
+require('./style.less');
 
 export interface TreqTileConf {
     apiURL:string;
+    srchPackages:SearchPackages;
 }
 
 /**
@@ -39,7 +42,7 @@ export class TreqTile implements ITileProvider {
 
     private view:React.ComponentClass;
 
-    constructor({tileId, dispatcher, appServices, ut, mainForm, conf}:TileFactory.Args<TreqTileConf>) {
+    constructor(lang1:string, lang2:string, {tileId, dispatcher, appServices, ut, mainForm, conf}:TileFactory.Args<TreqTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
         this.model = new TreqModel(
@@ -47,8 +50,15 @@ export class TreqTile implements ITileProvider {
             {
                 isBusy: false,
                 error: null,
-                renderFrameSize: [0, 0]
-            }
+                renderFrameSize: [0, 0],
+                lang1: lang1,
+                lang2: lang2,
+                searchPackages: Immutable.List<string>(conf.srchPackages[lang2] || []),
+                translations: Immutable.List<TreqTranslation>(),
+                sum: 0
+            },
+            new TreqAPI(conf.apiURL),
+            mainForm
         );
         this.view = viewInit(
             dispatcher,
@@ -85,6 +95,7 @@ export class TreqTile implements ITileProvider {
 }
 
 
-export const init:TileFactory.TileFactory<TreqTileConf> = ({tileId, dispatcher, appServices, ut, mainForm, tilesModel, conf}) => {
-    return new TreqTile({tileId, dispatcher, appServices, ut, mainForm, tilesModel, conf});
+export const init:TileFactory.TileFactory<TreqTileConf> = ({
+    tileId, dispatcher, appServices, ut, mainForm, tilesModel, lang1, lang2, conf}) => {
+    return new TreqTile(lang1, lang2, {tileId, dispatcher, appServices, ut, mainForm, tilesModel, conf});
 }

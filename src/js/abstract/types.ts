@@ -66,11 +66,13 @@ export namespace TileFactory {
         appServices:AppServices;
         mainForm:WdglanceMainFormModel;
         tilesModel:WdglanceTilesModel;
+        lang1?:string;
+        lang2?:string;
         conf:T;
     }
 
     export interface TileFactory<T> {
-        ({tileId, dispatcher, ut, appServices, mainForm, conf}:Args<T>):ITileProvider;
+        (args:Args<T>):ITileProvider;
     }
 }
 
