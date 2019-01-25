@@ -108,8 +108,11 @@ export class CollocationsTile implements ITileProvider {
         return true;
     }
 
-    supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {
-        return qt === QueryType.SINGLE_QUERY || qt === QueryType.TRANSLAT_QUERY; // TODO respect lang
+    getQueryTypeSupport(qt:QueryType, lang1:string, lang2?:string):number {
+        if (qt === QueryType.SINGLE_QUERY || qt === QueryType.TRANSLAT_QUERY) {
+            return 1;
+        }
+        return 0;
     }
 }
 

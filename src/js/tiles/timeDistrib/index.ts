@@ -123,8 +123,11 @@ export class TimeDistTile implements ITileProvider {
         );
     }
 
-    supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {
-        return qt === QueryType.SINGLE_QUERY || qt === QueryType.TRANSLAT_QUERY;
+    getQueryTypeSupport(qt:QueryType, lang1:string, lang2?:string):number {
+        if (qt === QueryType.SINGLE_QUERY || qt === QueryType.TRANSLAT_QUERY) {
+            return 1;
+        }
+        return 0;
     }
 
 }
