@@ -100,8 +100,11 @@ export class ConcordanceTile implements ITileProvider {
         return this.ut.translate('concordance__main_label');
     }
 
-    supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {
-        return qt === QueryType.SINGLE_QUERY || qt === QueryType.TRANSLAT_QUERY;
+    getQueryTypeSupport(qt:QueryType, lang1:string, lang2?:string):number {
+        if (qt === QueryType.SINGLE_QUERY || qt === QueryType.TRANSLAT_QUERY) {
+            return 1;
+        }
+        return 0;
     }
 }
 

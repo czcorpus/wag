@@ -56,13 +56,15 @@ export interface WdglanceConf {
     tilesConf:{[ident:string]:any};
 }
 
-const attachTile = (data:Array<TileFrameProps>, tile:ITileProvider):void => {
+const attachTile = (queryType:QueryType, lang1:string, lang2:string) =>
+    (data:Array<TileFrameProps>, tile:ITileProvider):void => {
     tile.init();
     data.push({
         tileId: tile.getIdent(),
         Component: tile.getView(),
         label: tile.getLabel(),
-        supportsExtendedView: tile.supportsExtendedView()
+        supportsExtendedView: tile.supportsExtendedView(),
+        queryTypeSupport: tile.getQueryTypeSupport(queryType, lang1, lang2)
     });
 };
 
@@ -157,9 +159,11 @@ export const init = (mountElement:HTMLElement,
 
     const initialLang = 'cs'; // TODO use HTTP info or some cookie stuff
 
+    const attachTileCurr = attachTile(queryType, query1Lang, query2Lang);
+
     // window conc. -------------------------------------------------
     if (tilesConf['ConcordanceTileConf']) {
-        attachTile(tiles, concInit({
+        attachTileCurr(tiles, concInit({
             tileId: 0,
             dispatcher: dispatcher,
             ut: viewUtils,
@@ -172,7 +176,7 @@ export const init = (mountElement:HTMLElement,
 
     // window freq. --------------------------------------------------
     if (tilesConf['TTDistTileConf']) {
-        attachTile(tiles, freqInit({
+        attachTileCurr(tiles, freqInit({
             tileId: 1,
             dispatcher: dispatcher,
             ut: viewUtils,
@@ -185,7 +189,7 @@ export const init = (mountElement:HTMLElement,
 
     // window colloc. --------------------------------------------------
     if (tilesConf['CollocationsTileConf']) {
-        attachTile(tiles, collocInit({
+        attachTileCurr(tiles, collocInit({
             tileId: 2,
             dispatcher: dispatcher,
             ut: viewUtils,
@@ -198,7 +202,7 @@ export const init = (mountElement:HTMLElement,
 
     // window time distrib. -------------------------------------------------
     if (tilesConf['TimeDistTileConf']) {
-        attachTile(tiles, timeDistInit({
+        attachTileCurr(tiles, timeDistInit({
             tileId: 3,
             dispatcher: dispatcher,
             ut: viewUtils,
@@ -211,7 +215,7 @@ export const init = (mountElement:HTMLElement,
 
     // window treq. --------------------------------------------------
     if (tilesConf['TreqTileConf']) {
-        attachTile(tiles, treqInit({
+        attachTileCurr(tiles, treqInit({
             tileId: 4,
             dispatcher: dispatcher,
             ut: viewUtils,

@@ -434,7 +434,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                     {this.state.systemMessages.size > 0 ? <Messages messages={this.state.systemMessages} /> : null}
 
                     <section className={`tiles${this.state.expandedTile > -1 ? ' exclusive' : ''}`}>
-                    {this.props.tiles.map((tile) => {
+                    {this.props.tiles.filter(tile => tile.queryTypeSupport > 0).sort((a, b) => b.queryTypeSupport - a.queryTypeSupport).map((tile) => {
                          if (this.state.expandedTile > -1 && this.state.expandedTile !== tile.tileId) {
                             return <section key={`tile-ident-${tile.tileId}`} className="cnc-tile app-output expanded">
                                 <div className="cnc-tile-header panel">

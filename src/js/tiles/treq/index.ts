@@ -76,8 +76,11 @@ export class TreqTile implements ITileProvider {
         return false;
     }
 
-    supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {
-        return qt === QueryType.TRANSLAT_QUERY;
+    getQueryTypeSupport(qt:QueryType, lang1:string, lang2?:string):number {
+        if (qt === QueryType.TRANSLAT_QUERY) {
+            return 1000;
+        }
+        return 0;
     }
 }
 

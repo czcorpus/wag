@@ -47,7 +47,13 @@ export interface ITileProvider {
     getIdent():number;
     getView():React.ComponentClass|React.SFC<{}>;
     supportsExtendedView():boolean;
-    supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean;
+
+    /**
+     *  0: no support
+     *  1..n: support with defined priority (use some high number for top priority
+     *  (e.g. use css z-index analogy))
+     */
+    getQueryTypeSupport(qt:QueryType, lang1:string, lang2?:string):number;
 }
 
 
@@ -74,6 +80,7 @@ export interface TileFrameProps {
     Component:React.ComponentClass<{}>|React.SFC;
     label:string;
     supportsExtendedView:boolean;
+    queryTypeSupport:number;
 }
 
 export interface DataApi<T, U> {
