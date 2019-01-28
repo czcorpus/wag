@@ -32,7 +32,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             return (
                 <globComponents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
                         hasData={false}>
-                    <div>Treq - TODO</div>
+                    <div>SyD - TODO</div>
                 </globComponents.TileWrapper>
             );
         }

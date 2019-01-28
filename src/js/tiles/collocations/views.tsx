@@ -46,15 +46,17 @@ export const drawChart = (container:HTMLElement, size:[number, number], data:Imm
             .append('g')
             .attr('transform', d => `translate(${d.x}, ${d.y}) rotate(${d.rotate})`);
 
-        const tooltip = d3.select(container)
-            .append('div')
-            .style('background-color', '#e2f4fb')
-            .style('color', '#333333')
-            .style('padding', '0.3em 0.7em')
-            .style('border-radius', '4px')
-            .style('opacity', 0)
-            .style('position', 'absolute')
-            .text('');
+        let tooltip;
+        if (!window.document.querySelector('body > .wcloud-tooltip')) {
+            tooltip = d3.select('body')
+                .append('div')
+                .classed('wcloud-tooltip', true)
+                .style('opacity', 0)
+                .text('');
+
+        } else {
+            tooltip = d3.select('body .wcloud-tooltip');
+        }
 
         const text = itemGroup
             .append('text')
@@ -73,15 +75,20 @@ export const drawChart = (container:HTMLElement, size:[number, number], data:Imm
             .attr('opacity', 0)
             .style('pointer-events', 'fill');
 
-        rect.on('mouseover', (datum, i, values) => {
+        rect.on('mousemove', (datum, i, values) => {
                 tooltip
-                    .style('left', `${Math.max(0, d3.select(values[i]).node().getBoundingClientRect().left)}px`)
-                    .style('top', `${Math.max(0, d3.select(values[i]).node().getBoundingClientRect().top - 15)}px`)
+                    .style('left', `${d3.event.pageX}px`)
+                    .style('top', `${d3.event.pageY - 30}px`)
+                    .text(valMapping.get(datum.text).Stats.map((v, i) => `${measures[i]}: ${v.s}`).join(', '))
+
+            })
+            .on('mouseover', (datum, i, values) => {
+                tooltip
                     .transition()
                     .duration(200)
-                    .style('opacity', '0.8')
-                    .style('pointer-events', 'none')
-                    .text(valMapping.get(datum.text).Stats.map((v, i) => `${measures[i]}: ${v.s}`).join(', '))
+                    .style('color', c20(`${i}`))
+                    .style('opacity', '0.9')
+                    .style('pointer-events', 'none');
 
             })
             .on('mouseout', (datum, i, values) => {
@@ -143,7 +150,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             return (
                 <globalCompontents.TileWrapper isBusy={this.props.isBusy} error={this.props.error} htmlClass="CollocTile"
                         hasData={this.props.data.size > 0}>
-                    <div ref={this.chartContainer} style={{minHeight: '10em'}} />
+                    <div ref={this.chartContainer} style={{minHeight: '10em', position: 'relative'}} />
                     {this.props.isExpanded ?
                         <table className="cnc-table data">
                             <tbody>
