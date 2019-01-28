@@ -17,7 +17,7 @@
  */
 
 import * as Rx from '@reactivex/rxjs';
-import {ajax$} from '../../shared/ajax';
+import {ajax$} from '../ajax';
 import { DataApi } from '../../abstract/types';
 
 
@@ -64,7 +64,7 @@ export interface QueryArgs {
     format:'json';
 }
 
-export class TTDistribAPI implements DataApi<QueryArgs, APIResponse> {
+export class FreqDistribAPI implements DataApi<QueryArgs, APIResponse> {
 
     private readonly apiURL:string;
 

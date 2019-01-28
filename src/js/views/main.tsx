@@ -377,21 +377,14 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
         private modelSubscription:Rx.Subscription;
 
-        private frame0Ref:React.RefObject<HTMLElement>;
-
-        private frame1Ref:React.RefObject<HTMLElement>;
-
-        private frame2Ref:React.RefObject<HTMLElement>;
-
-        private frame3Ref:React.RefObject<HTMLElement>;
+        private frameRefs:Immutable.List<React.RefObject<HTMLElement>>;
 
         constructor(props) {
             super(props);
             this.state = tilesModel.getState();
-            this.frame0Ref = React.createRef();
-            this.frame1Ref = React.createRef();
-            this.frame2Ref = React.createRef();
-            this.frame3Ref = React.createRef();
+            this.frameRefs = this.props.tiles.map(v => React.createRef<HTMLElement>()).toList();
+
+
             window.onresize = () => this.dispatchSizes();
             this.handleModelChange = this.handleModelChange.bind(this);
         }
@@ -408,12 +401,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             dispatcher.dispatch<Actions.AcknowledgeSizes>({
                 name: ActionName.AcknowledgeSizes,
                 payload: {
-                    values: [
-                        this.getElmSize(this.frame0Ref.current),
-                        this.getElmSize(this.frame1Ref.current),
-                        this.getElmSize(this.frame2Ref.current),
-                        this.getElmSize(this.frame3Ref.current),
-                    ]
+                    values: this.frameRefs.map(ref => this.getElmSize(ref.current)).toArray()
                 }
             });
         }
@@ -428,7 +416,6 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         }
 
         render() {
-            const availRefs = [this.frame0Ref, this.frame1Ref, this.frame2Ref, this.frame3Ref];
             return (
                 <div>
                     {this.state.systemMessages.size > 0 ? <Messages messages={this.state.systemMessages} /> : null}
@@ -446,7 +433,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                             return (
                                 <section key={`tile-ident-${tile.tileId}`}
                                         className={`cnc-tile app-output${this.state.expandedTile === tile.tileId ? ' expanded' : ''}`}
-                                        ref={availRefs[tile.tileId]}>
+                                        ref={this.frameRefs.get(tile.tileId)}>
                                     <div className="cnc-tile-header panel">
                                         <h2>{tile.label}</h2>
                                         {tile.supportsExtendedView ? <ExtendButton tileIdent={tile.tileId} extended={this.state.expandedTile === tile.tileId} /> : null}

@@ -1,6 +1,6 @@
 /*
- * Copyright 2018 Tomas Machalek <tomas.machalek@gmail.com>
- * Copyright 2018 Institute of the Czech National Corpus,
+ * Copyright 2019 Tomas Machalek <tomas.machalek@gmail.com>
+ * Copyright 2019 Institute of the Czech National Corpus,
  *                Faculty of Arts, Charles University
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,7 +21,7 @@ import { DataRow } from '../../shared/api/kontextFreqs';
 
 
 export enum ActionName {
-    LoadDataDone = 'TT_DISTRIB_LOAD_DATA_DONE'
+    LoadDataDone = 'SOCIO_LOAD_DATA_DONE'
 }
 
 export namespace Actions {

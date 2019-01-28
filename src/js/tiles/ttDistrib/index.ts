@@ -21,7 +21,7 @@ import { ITileProvider, TileFactory, QueryType } from '../../abstract/types';
 import {init as viewInit} from './view';
 import { ActionDispatcher, ViewUtils } from "kombo";
 import { TTDistribModel } from "./model";
-import { TTDistribAPI, DataRow } from "./api";
+import { FreqDistribAPI, DataRow } from "../../shared/api/kontextFreqs";
 import { GlobalComponents } from "../../views/global";
 import { WdglanceTilesModel } from "../../models/tiles";
 
@@ -62,7 +62,7 @@ export class TTDistTile implements ITileProvider {
         this.model = new TTDistribModel(
             this.dispatcher,
             tileId,
-            new TTDistribAPI(conf.apiURL),
+            new FreqDistribAPI(conf.apiURL),
             tilesModel,
             {
                 isBusy: false,
