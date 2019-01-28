@@ -363,7 +363,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
         return <span className="ExtendButton">
             <button type="button" onClick={handleClick} title={props.extended ? ut.translate('global__reset_size') : ut.translate('global__extend')}>
-                {props.extended ? '\uD83D\uDDD5' : '\uD83D\uDDD6'}
+                {props.extended ? <i className="fa fa-compress"></i> : <i className="fa fa-expand"></i>}
             </button>
         </span>
     };
