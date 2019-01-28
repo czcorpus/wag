@@ -1,0 +1,10 @@
+{
+    "en-US": {
+        "socio__main_label": "Sociodemographic data",
+        "socio__indicator_auth_sex": "author sex"
+    },
+    "cs-CZ": {
+        "socio__main_label": "Sociodemografické údaje",
+        "socio__indicator_auth_sex": "pohlaví autora"
+    }
+}

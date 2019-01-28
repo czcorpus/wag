@@ -1,6 +1,6 @@
 /*
- * Copyright 2018 Tomas Machalek <tomas.machalek@gmail.com>
- * Copyright 2018 Institute of the Czech National Corpus,
+ * Copyright 2019 Tomas Machalek <tomas.machalek@gmail.com>
+ * Copyright 2019 Institute of the Czech National Corpus,
  *                Faculty of Arts, Charles University
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,25 +15,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import * as Immutable from 'immutable';
 import * as Rx from '@reactivex/rxjs';
-import {QueryArgs, FreqDistribAPI, DataRow} from '../../shared/api/kontextFreqs';
-import {StatelessModel, ActionDispatcher, Action, SEDispatcher} from 'kombo';
+import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
+import { FreqDistribAPI, QueryArgs } from '../../shared/api/kontextFreqs';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
 import {ActionName as ConcActionName, Actions as ConcActions} from '../concordance/actions';
-import {ActionName, Actions} from './actions';
+import {Actions, ActionName} from './actions';
 import { WdglanceTilesModel } from '../../models/tiles';
 
 
-
-export interface TTDistribModel {
+export interface SocioDataRow {
+    name:string;
+    percent:number;
 }
 
-export interface TTDistribModelState {
+
+export interface SocioModelState {
     isBusy:boolean;
     error:string;
-    data:Immutable.List<DataRow>;
+    data:Immutable.List<SocioDataRow>;
     renderFrameSize:[number, number];
     corpname:string;
     q:string;
@@ -45,7 +46,7 @@ export interface TTDistribModelState {
 }
 
 
-const stateToAPIArgs = (state:TTDistribModelState, queryId:string):QueryArgs => ({
+const stateToAPIArgs = (state:SocioModelState, queryId:string):QueryArgs => ({
     corpname: state.corpname,
     q: queryId ? queryId : state.q,
     fcrit: state.fcrit,
@@ -57,15 +58,15 @@ const stateToAPIArgs = (state:TTDistribModelState, queryId:string):QueryArgs => 
 });
 
 
-export class TTDistribModel extends StatelessModel<TTDistribModelState> {
-
-    private api:FreqDistribAPI;
-
-    private tilesModel:WdglanceTilesModel;
+export class SocioModel extends StatelessModel<SocioModelState> {
 
     private readonly tileId:number;
 
-    constructor(dispatcher:ActionDispatcher, tileId:number, api:FreqDistribAPI, tilesModel:WdglanceTilesModel, initState:TTDistribModelState) {
+    private readonly api:FreqDistribAPI;
+
+    private tilesModel:WdglanceTilesModel;
+
+    constructor(dispatcher:ActionDispatcher, initState:SocioModelState, tileId:number, api:FreqDistribAPI, tilesModel:WdglanceTilesModel) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.api = api;
@@ -80,11 +81,15 @@ export class TTDistribModel extends StatelessModel<TTDistribModelState> {
                 const newState = this.copyState(state);
                 newState.isBusy = false;
                 if (action.error) {
-                    newState.data = Immutable.List<DataRow>();
+                    newState.data = Immutable.List<SocioDataRow>();
                     newState.error = action.error.message;
 
                 } else {
-                    newState.data = Immutable.List<DataRow>(action.payload.data);
+                    const totalFreq = action.payload.data.reduce((acc, curr) => acc + curr.freq, 0);
+                    newState.data = Immutable.List<SocioDataRow>(action.payload.data.map(v => ({
+                        name: v.name,
+                        percent: v.freq / totalFreq * 100
+                    })));
                     newState.renderFrameSize = action.payload.frameSize;
                 }
                 return newState;
@@ -92,7 +97,7 @@ export class TTDistribModel extends StatelessModel<TTDistribModelState> {
         }
     }
 
-    sideEffects(state:TTDistribModelState, action:Action, dispatch:SEDispatcher):void {
+    sideEffects(state:SocioModelState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
                 this.suspend((action:Action) => {
@@ -115,17 +120,18 @@ export class TTDistribModel extends StatelessModel<TTDistribModelState> {
                                     payload: {
                                         data: resp.data,
                                         q: resp.q,
-                                        frameSize: [currFrameSize[0], resp.data.length * 50]
+                                        frameSize: [currFrameSize[0], 300]
                                     }
                                 });
                             },
                             error => {
+                                const currFrameSize = this.tilesModel.getFrameSize(this.tileId);
                                 dispatch<Actions.LoadDataDone>({
                                     name: ActionName.LoadDataDone,
                                     payload: {
                                         data: null,
                                         q: null,
-                                        frameSize: this.tilesModel.getFrameSize(this.tileId)
+                                        frameSize: currFrameSize
                                     },
                                     error: error
                                 });

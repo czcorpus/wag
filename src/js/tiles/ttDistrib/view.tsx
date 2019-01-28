@@ -20,7 +20,7 @@ import * as React from 'react';
 import {ActionDispatcher, ViewUtils, Bound} from 'kombo';
 import { TTDistribModel, TTDistribModelState } from './model';
 import {BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, Legend} from 'recharts';
-import { DataRow } from './api';
+import { DataRow } from '../../shared/api/kontextFreqs';
 import { GlobalComponents } from '../../views/global';
 import { SystemColor } from '../../shared/colors';
 
