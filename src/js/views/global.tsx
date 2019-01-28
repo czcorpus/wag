@@ -48,6 +48,8 @@ export interface GlobalComponents {
         htmlClass?:string;
         error?:string;
     }>;
+
+    ErrorBoundary:React.ComponentClass;
 }
 
 export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalComponents {
@@ -160,11 +162,46 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
         }
     };
 
+    // --------------- <ErrorBoundary /> -------------------------------------------
+
+    class ErrorBoundary extends React.Component<{}, {error: string}> {
+
+        constructor(props) {
+            super(props);
+            this.state = {error: null};
+        }
+
+        componentDidCatch(error, info) {
+            console.error(error);
+            this.setState({error: error});
+        }
+
+        render() {
+            if (this.state.error) {
+                return (
+                    <div>
+                        <p>
+                        <MessageStatusIcon statusType={SystemMessageType.ERROR} isInline={true} />
+                            {ut.translate('global__failed_to_render_component')}
+                        </p>
+                        <p style={{textAlign: 'center'}}>
+                            <EmptySet fontSize="5em" />
+                        </p>
+                    </div>
+                );
+
+            } else {
+                return this.props.children;
+            }
+        }
+    }
+
     return {
         AjaxLoader: AjaxLoader,
         ModalOverlay: ModalOverlay,
         MessageStatusIcon: MessageStatusIcon,
         EmptySet: EmptySet,
-        TileWrapper: TileWrapper
+        TileWrapper: TileWrapper,
+        ErrorBoundary: ErrorBoundary
     };
 }

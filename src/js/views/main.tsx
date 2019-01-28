@@ -452,7 +452,12 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                                         {tile.supportsExtendedView ? <ExtendButton tileIdent={tile.tileId} extended={this.state.expandedTile === tile.tileId} /> : null}
                                     </div>
                                     <div className="provider">
-                                        {tile.Component ? <tile.Component /> : null}
+                                        {tile.Component ?
+                                            <globalComponents.ErrorBoundary>
+                                                <tile.Component />
+                                            </globalComponents.ErrorBoundary> :
+                                            null
+                                        }
                                     </div>
                                 </section>
                             );

@@ -8,7 +8,8 @@
         "global__extend": "Extend",
         "global__reset_size": "Reset size",
         "global__not_enough_data_to_show_result": "Not enough data to show any result",
-        "global__alt_loading": "Loading data"
+        "global__alt_loading": "Loading data",
+        "global__failed_to_render_component": "Error - failed to render the component"
     },
     "cs-CZ": {
         "global__search": "Hledat",
@@ -19,6 +20,7 @@
         "global__extend": "Zvětšit",
         "global__reset_size": "Obnovit velikost",
         "global__not_enough_data_to_show_result": "Příliš málo dat pro zobrazení výsledku",
-        "global__alt_loading": "Nahrávám data"
+        "global__alt_loading": "Nahrávám data",
+        "global__failed_to_render_component": "Chyba - nepodařilo se zobrazit komponentu"
     }
 }
