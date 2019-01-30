@@ -17,15 +17,16 @@
  */
 import * as Immutable from 'immutable';
 import * as React from 'react';
-import {ActionDispatcher, ViewUtils, Bound} from 'kombo';
+import {ActionDispatcher, ViewUtils, BoundWithProps} from 'kombo';
 import { TTDistribModel, TTDistribModelState } from './model';
 import {BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, Legend} from 'recharts';
 import { DataRow } from '../../shared/api/kontextFreqs';
 import { GlobalComponents } from '../../views/global';
 import { SystemColor } from '../../shared/colors';
+import { CoreTileComponentProps, TileComponent } from '../../abstract/types';
 
 
-export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:TTDistribModel):React.ComponentClass {
+export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:TTDistribModel):TileComponent {
 
     const globComponents = ut.getComponents();
 
@@ -42,7 +43,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                     <CartesianGrid />
                     <Bar dataKey="ipm" fill={SystemColor.COLOR_LOGO_BLUE} />
                     <XAxis type="number" />
-                    <YAxis type="category" dataKey="name" width={100} />
+                    <YAxis type="category" dataKey="name" width={120} />
                     <Legend />
                     <Tooltip cursor={false} isAnimationActive={false} />
                 </BarChart>
@@ -52,19 +53,19 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     // -------------------------- <TTDistribTile /> --------------------------------------
 
-    class TTDistribTile extends React.PureComponent<TTDistribModelState> {
+    class TTDistribTile extends React.PureComponent<TTDistribModelState & CoreTileComponentProps> {
 
         render() {
             return (
                 <globComponents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.data.size > 0}>
                     <div className="TTDistribTile">
-                        <Chart data={this.props.data} size={this.props.renderFrameSize} />
+                        <Chart data={this.props.data} size={[this.props.renderSize[0], this.props.data.size * 50]} />
                     </div>
                 </globComponents.TileWrapper>
             );
         }
     }
 
-    return Bound<TTDistribModelState>(TTDistribTile, model);
+    return BoundWithProps<CoreTileComponentProps, TTDistribModelState>(TTDistribTile, model);
 }

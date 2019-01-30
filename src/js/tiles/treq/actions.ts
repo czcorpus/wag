@@ -29,7 +29,6 @@ export namespace Actions {
     export interface LoadDataDone extends Action<{
         query:string;
         data:TreqResponse;
-        frameSize:[number, number];
     }> {
         name: ActionName.LoadDataDone
     }

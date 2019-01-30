@@ -38,6 +38,7 @@ import { TileFrameProps, ITileProvider, QueryType } from './abstract/types';
 import { WdglanceTilesModel } from './models/tiles';
 import {encodeArgs} from './shared/ajax';
 import { Forms } from './shared/data';
+import { MessagesModel } from './models/messages';
 
 declare var require:(src:string)=>void;  // webpack
 require('../css/index.less');
@@ -66,7 +67,8 @@ const attachTile = (queryType:QueryType, lang1:string, lang2:string) =>
         Component: tile.getView(),
         label: tile.getLabel(),
         supportsExtendedView: tile.supportsExtendedView(),
-        queryTypeSupport: tile.getQueryTypeSupport(queryType, lang1, lang2)
+        queryTypeSupport: tile.getQueryTypeSupport(queryType, lang1, lang2),
+        renderSize: [50, 50]
     });
 };
 
@@ -153,18 +155,12 @@ export const init = (
             ]),
             isValid: true,
         }
+    );
 
-    );
-    const tilesModel = new WdglanceTilesModel(
-        dispatcher,
-        appServices
-    );
     dispatcher.captureAction(
         ActionName.RequestQueryResponse,
         (action) => formModel.getState().isValid
     );
-
-    const component = viewInit(dispatcher, viewUtils, formModel, tilesModel);
 
     const queryLangSwitchModel = new QueryLangChangeHandler(dispatcher, appServices);
 
@@ -181,7 +177,6 @@ export const init = (
             dispatcher: dispatcher,
             ut: viewUtils,
             mainForm: formModel,
-            tilesModel: tilesModel,
             appServices: appServices,
             lang1: query1Lang,
             lang2: query2Lang,
@@ -196,7 +191,6 @@ export const init = (
             dispatcher: dispatcher,
             ut: viewUtils,
             mainForm: formModel,
-            tilesModel: tilesModel,
             appServices: appServices,
             lang1: query1Lang,
             lang2: query2Lang,
@@ -211,7 +205,6 @@ export const init = (
             dispatcher: dispatcher,
             ut: viewUtils,
             mainForm: formModel,
-            tilesModel: tilesModel,
             appServices: appServices,
             lang1: query1Lang,
             lang2: query2Lang,
@@ -226,7 +219,6 @@ export const init = (
             dispatcher: dispatcher,
             ut: viewUtils,
             mainForm: formModel,
-            tilesModel: tilesModel,
             appServices: appServices,
             lang1: query1Lang,
             lang2: query2Lang,
@@ -241,7 +233,6 @@ export const init = (
             dispatcher: dispatcher,
             ut: viewUtils,
             mainForm: formModel,
-            tilesModel: tilesModel,
             appServices: appServices,
             lang1: query1Lang,
             lang2: query2Lang,
@@ -257,7 +248,6 @@ export const init = (
             dispatcher: dispatcher,
             ut: viewUtils,
             mainForm: formModel,
-            tilesModel: tilesModel,
             appServices: appServices,
             lang1: query1Lang,
             lang2: query2Lang,
@@ -272,7 +262,6 @@ export const init = (
             dispatcher: dispatcher,
             ut: viewUtils,
             mainForm: formModel,
-            tilesModel: tilesModel,
             appServices: appServices,
             lang1: query1Lang,
             lang2: query2Lang,
@@ -281,14 +270,28 @@ export const init = (
     }
 
 
+    window.onresize = () => {
+        // TODO dispatch to all tiles size change
+    }
+
+
+    const tilesModel = new WdglanceTilesModel(
+        dispatcher,
+        {
+            isAnswerMode: false,
+            expandedTiles: Immutable.Set<number>(),
+            tileProps: Immutable.List<TileFrameProps>(tiles)
+        },
+        appServices
+    );
+
+    const messagesModel = new MessagesModel(dispatcher, appServices);
+
+    const component = viewInit(dispatcher, viewUtils, formModel, tilesModel, messagesModel);
+
 
     ReactDOM.render(
-        React.createElement(
-            component.WdglanceMain,
-            {
-                tiles: Immutable.List<TileFrameProps>(tiles)
-            }
-        ),
+        React.createElement(component.WdglanceMain, {}),
         mountElement
     );
 };

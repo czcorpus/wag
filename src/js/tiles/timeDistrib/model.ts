@@ -22,7 +22,6 @@ import { TimeDistribAPI, DataItem, QueryArgs } from './api';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
 import {ActionName as ConcActionName, Actions as ConcActions} from '../concordance/actions';
 import {ActionName, Actions, DataItemWithWCI} from './common';
-import { WdglanceTilesModel } from '../../models/tiles';
 import {wilsonConfInterval, AlphaLevel} from './stat';
 import { AppServices } from '../../appServices';
 
@@ -50,7 +49,6 @@ export interface TimeDistribModelState {
     error:string;
     corpname:string;
     q:string;
-    renderFrameSize:[number, number];
     attrTime:string;
     attrValue:string;
     minFreq:string;
@@ -108,18 +106,14 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private readonly api:TimeDistribAPI;
 
-    private readonly tilesModel:WdglanceTilesModel;
-
     private readonly appServices:AppServices;
 
     private readonly tileId:number;
 
-    constructor(dispatcher, initState:TimeDistribModelState, tileId:number, api:TimeDistribAPI, tilesModel:WdglanceTilesModel,
-            appServices:AppServices) {
+    constructor(dispatcher, initState:TimeDistribModelState, tileId:number, api:TimeDistribAPI, appServices:AppServices) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.api = api;
-        this.tilesModel = tilesModel;
         this.appServices = appServices;
         this.actionMatch = {
             [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
@@ -141,7 +135,6 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
                 } else {
                     newState.data = Immutable.List<DataItemWithWCI>(action.payload.data);
-                    newState.renderFrameSize = action.payload.frameSize;
                 }
                 return newState;
             }
@@ -165,10 +158,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         }).concatMap(args => this.api.call(stateToAPIArgs(state, '~' + payload.data.conc_persistence_op_id)))
                         .subscribe(
                             resp => {
-                                const currFrameSize = this.tilesModel.getFrameSize(this.tileId);
                                 const dataFull = resp.data.map<DataItemWithWCI>(v => {
                                     const confInt = wilsonConfInterval(v.abs, v.domainSize, state.alphaLevel);
-
                                     return {
                                         datetime: v.datetime,
                                         abs: v.abs,
@@ -181,8 +172,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                     name: ActionName.LoadDataDone,
                                     payload: {
                                         data: dataFull,
-                                        q: resp.q,
-                                        frameSize: [currFrameSize[0], ~~Math.max(150, dataFull.length * 15)]
+                                        q: resp.q
                                     }
                                 });
                             },
@@ -191,8 +181,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                     name: ActionName.LoadDataDone,
                                     payload: {
                                         data: null,
-                                        q: null,
-                                        frameSize: this.tilesModel.getFrameSize(this.tileId)
+                                        q: null
                                     },
                                     error: error
                                 });

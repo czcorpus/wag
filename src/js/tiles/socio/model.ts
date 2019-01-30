@@ -22,7 +22,6 @@ import { FreqDistribAPI, QueryArgs } from '../../shared/api/kontextFreqs';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
 import {ActionName as ConcActionName, Actions as ConcActions} from '../concordance/actions';
 import {Actions, ActionName} from './actions';
-import { WdglanceTilesModel } from '../../models/tiles';
 
 
 export interface SocioDataRow {
@@ -35,7 +34,6 @@ export interface SocioModelState {
     isBusy:boolean;
     error:string;
     data:Immutable.List<SocioDataRow>;
-    renderFrameSize:[number, number];
     corpname:string;
     q:string;
     fcrit:string;
@@ -64,13 +62,10 @@ export class SocioModel extends StatelessModel<SocioModelState> {
 
     private readonly api:FreqDistribAPI;
 
-    private tilesModel:WdglanceTilesModel;
-
-    constructor(dispatcher:ActionDispatcher, initState:SocioModelState, tileId:number, api:FreqDistribAPI, tilesModel:WdglanceTilesModel) {
+    constructor(dispatcher:ActionDispatcher, initState:SocioModelState, tileId:number, api:FreqDistribAPI) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.api = api;
-        this.tilesModel = tilesModel;
         this.actionMatch = {
             [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
                 const newState = this.copyState(state);
@@ -90,7 +85,6 @@ export class SocioModel extends StatelessModel<SocioModelState> {
                         name: v.name,
                         percent: v.freq / totalFreq * 100
                     })));
-                    newState.renderFrameSize = action.payload.frameSize;
                 }
                 return newState;
             }
@@ -114,24 +108,20 @@ export class SocioModel extends StatelessModel<SocioModelState> {
                         }).concatMap(args => this.api.call(stateToAPIArgs(state, '~' + payload.data.conc_persistence_op_id)))
                         .subscribe(
                             resp => {
-                                const currFrameSize = this.tilesModel.getFrameSize(this.tileId);
                                 dispatch<Actions.LoadDataDone>({
                                     name: ActionName.LoadDataDone,
                                     payload: {
                                         data: resp.data,
-                                        q: resp.q,
-                                        frameSize: [currFrameSize[0], 300]
+                                        q: resp.q
                                     }
                                 });
                             },
                             error => {
-                                const currFrameSize = this.tilesModel.getFrameSize(this.tileId);
                                 dispatch<Actions.LoadDataDone>({
                                     name: ActionName.LoadDataDone,
                                     payload: {
                                         data: null,
-                                        q: null,
-                                        frameSize: currFrameSize
+                                        q: null
                                     },
                                     error: error
                                 });

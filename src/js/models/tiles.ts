@@ -16,17 +16,17 @@
  * limitations under the License.
  */
 
-import {StatelessModel, Action, ActionDispatcher} from 'kombo';
+import {StatelessModel, ActionDispatcher} from 'kombo';
 import { ActionName, Actions } from './actions';
 import * as Immutable from 'immutable';
 import { AppServices } from '../appServices';
-import { SystemMessage } from '../notifications';
+import { TileFrameProps } from '../abstract/types';
 
 
 export interface WdglanceTilesState {
-    framesSizes:Immutable.List<[number, number]>;
-    expandedTile:number;
-    systemMessages:Immutable.List<SystemMessage>;
+    isAnswerMode:boolean;
+    expandedTiles:Immutable.Set<number>;
+    tileProps:Immutable.List<TileFrameProps>;
 }
 
 
@@ -34,54 +34,44 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
 
     private readonly appServices:AppServices;
 
-    constructor(dispatcher:ActionDispatcher, appServices:AppServices) {
-        super(
-            dispatcher,
-            {
-                framesSizes:Immutable.List<[number, number]>(),
-                expandedTile: -1,
-                systemMessages: Immutable.List<SystemMessage>()
-            }
-        );
+    constructor(dispatcher:ActionDispatcher, initialState:WdglanceTilesState, appServices:AppServices) {
+        super(dispatcher, initialState);
         this.appServices = appServices;
         this.actionMatch = {
-            [ActionName.AcknowledgeSizes]: (state, action:Actions.AcknowledgeSizes) => {
+            [ActionName.AcknowledgeSize]: (state, action:Actions.AcknowledgeSize) => {
                 const newState = this.copyState(state);
-                newState.framesSizes = Immutable.List<[number, number]>(action.payload.values);
+                newState.tileProps = newState.tileProps.map(tile => {
+                    return {
+                        tileId: tile.tileId,
+                        Component: tile.Component,
+                        label: tile.label,
+                        supportsExtendedView: tile.supportsExtendedView,
+                        queryTypeSupport: tile.queryTypeSupport,
+                        renderSize: action.payload.size
+                    }
+                }).toList();
                 return newState;
             },
             [ActionName.ExpandTile]: (state, action:Actions.ExpandTile) => {
                 const newState = this.copyState(state);
-                newState.expandedTile = action.payload.ident;
+                newState.expandedTiles = newState.expandedTiles.add(action.payload.ident);
                 return newState;
             },
             [ActionName.ResetExpandTile]: (state, action:Actions.ExpandTile) => {
                 const newState = this.copyState(state);
-                newState.expandedTile = -1;
+                newState.expandedTiles = newState.expandedTiles.remove(action.payload.ident);
                 return newState;
             },
-            [ActionName.AddSystemMessage]: (state, action:Actions.AddSystemMessage) => {
+            [ActionName.EnableAnswerMode]: (state, action:Actions.EnableAnswerMode) => {
                 const newState = this.copyState(state);
-                newState.systemMessages = newState.systemMessages.push({
-                    type: action.payload.type,
-                    text: action.payload.text,
-                    ttl: action.payload.ttl,
-                    ident: action.payload.ident
-                });
+                newState.isAnswerMode = true;
                 return newState;
             },
-            [ActionName.RemoveSystemMessage]: (state, action:Actions.RemoveSystemMessage) => {
+            [ActionName.DisableAnswerMode]: (state, action:Actions.DisableAnswerMode) => {
                 const newState = this.copyState(state);
-                const srchIdx = newState.systemMessages.findIndex(v => v.ident === action.payload['ident']);
-                if (srchIdx > -1) {
-                    newState.systemMessages = newState.systemMessages.remove(srchIdx);
-                }
+                newState.isAnswerMode = true;
                 return newState;
-            },
+            }
         };
-    }
-
-    getFrameSize(idx:number):[number, number] {
-        return this.getState().framesSizes.get(idx);
     }
 }

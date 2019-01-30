@@ -16,15 +16,16 @@
  * limitations under the License.
  */
 
-import {ActionDispatcher, Bound, ViewUtils} from 'kombo';
+import {ActionDispatcher, BoundWithProps, ViewUtils} from 'kombo';
 import * as React from 'react';
 import {ConcordanceTileModel, ConcordanceTileState} from './model';
 import { GlobalComponents } from '../../views/global';
 import { Line, LineElement } from './api';
 import { ActionName } from './actions';
+import { TileComponent, CoreTileComponentProps } from '../../abstract/types';
 
 
-export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:ConcordanceTileModel):React.ComponentClass {
+export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:ConcordanceTileModel):TileComponent {
 
     const globalCompontents = ut.getComponents();
 
@@ -106,7 +107,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     // ------------------ <ConcordanceTileView /> --------------------------------------------
 
-    class ConcordanceTileView extends React.PureComponent<ConcordanceTileState> {
+    class ConcordanceTileView extends React.PureComponent<ConcordanceTileState & CoreTileComponentProps> {
 
         render() {
             return (
@@ -132,5 +133,5 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         }
     }
 
-    return Bound<ConcordanceTileState>(ConcordanceTileView, model);
+    return BoundWithProps<CoreTileComponentProps, ConcordanceTileState>(ConcordanceTileView, model);
 }

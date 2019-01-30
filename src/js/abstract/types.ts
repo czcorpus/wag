@@ -21,7 +21,6 @@ import { ActionDispatcher, ViewUtils } from 'kombo';
 import { GlobalComponents } from '../views/global';
 import { WdglanceMainFormModel } from '../models/query';
 import { AppServices } from '../appServices';
-import { WdglanceTilesModel } from '../models/tiles';
 
 export type AnyInterface<T> = {
     [P in keyof T]: T[P];
@@ -48,12 +47,16 @@ export enum QueryType {
     TRANSLAT_QUERY = 'translat'
 }
 
+export type CoreTileComponentProps = {renderSize:[number, number]}
+
+export type TileComponent = React.ComponentClass<CoreTileComponentProps>|React.SFC<CoreTileComponentProps>;
+
 export interface ITileProvider {
 
     init():void;
     getLabel():string;
     getIdent():number;
-    getView():React.ComponentClass|React.SFC<{}>;
+    getView():TileComponent;
     supportsExtendedView():boolean;
 
     /**
@@ -73,7 +76,6 @@ export namespace TileFactory {
         ut:ViewUtils<GlobalComponents>;
         appServices:AppServices;
         mainForm:WdglanceMainFormModel;
-        tilesModel:WdglanceTilesModel;
         lang1?:string;
         lang2?:string;
         conf:T;
@@ -87,10 +89,11 @@ export namespace TileFactory {
 
 export interface TileFrameProps {
     tileId:number;
-    Component:React.ComponentClass<{}>|React.SFC;
+    Component:TileComponent;
     label:string;
     supportsExtendedView:boolean;
     queryTypeSupport:number;
+    renderSize:[number, number];
 }
 
 export interface DataApi<T, U> {

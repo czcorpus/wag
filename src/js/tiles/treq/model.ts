@@ -22,13 +22,11 @@ import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../mo
 import { TreqAPI, TreqTranslation, RequestArgs, PageArgs } from './api';
 import { ActionName, Actions } from './actions';
 import { WdglanceMainFormModel } from '../../models/query';
-import { MultiDict } from '../../shared/data';
 
 
 export interface TreqModelState {
     isBusy:boolean;
     error:string;
-    renderFrameSize:[number, number];
     lang1:string;
     lang2:string;
     searchPackages:Immutable.List<string>;
@@ -71,14 +69,17 @@ const stateToPageArgs = (state:TreqModelState, query:string):PageArgs => {
 
 export class TreqModel extends StatelessModel<TreqModelState> {
 
+    private readonly tileId:number;
+
     private readonly api:TreqAPI;
 
     private readonly mainForm:WdglanceMainFormModel;
 
-    constructor(dispatcher:ActionDispatcher, initialState:TreqModelState, api:TreqAPI, mainForm:WdglanceMainFormModel) {
+    constructor(dispatcher:ActionDispatcher, initialState:TreqModelState, tileId:number, api:TreqAPI, mainForm:WdglanceMainFormModel) {
         super(dispatcher, initialState);
         this.api = api;
         this.mainForm = mainForm;
+        this.tileId = tileId;
         this.actionMatch = {
             [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
                 const newState = this.copyState(state);
@@ -96,7 +97,6 @@ export class TreqModel extends StatelessModel<TreqModelState> {
                 } else {
                     newState.translations = Immutable.List<TreqTranslation>(action.payload.data.lines);
                     newState.sum = action.payload.data.sum;
-                    newState.renderFrameSize = action.payload.frameSize;
                     newState.treqBackLinkArgs = stateToPageArgs(state, action.payload.query);
                 }
                 return newState;
@@ -113,8 +113,7 @@ export class TreqModel extends StatelessModel<TreqModelState> {
                             name: ActionName.LoadDataDone,
                             payload: {
                                 query: this.mainForm.getState().query.value,
-                                data: data,
-                                frameSize: [state.renderFrameSize[0], data.lines.length * 30]
+                                data: data
                             }
                         });
                     },
@@ -123,8 +122,7 @@ export class TreqModel extends StatelessModel<TreqModelState> {
                             name: ActionName.LoadDataDone,
                             payload: {
                                 query: this.mainForm.getState().query.value,
-                                data: {lines: [], sum: -1},
-                                frameSize: state.renderFrameSize
+                                data: {lines: [], sum: -1}
                             },
                             error: error
                         });

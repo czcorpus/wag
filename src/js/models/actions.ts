@@ -22,10 +22,12 @@ import { SystemMessageType, QueryType } from '../abstract/types';
 export enum ActionName {
     ChangeQueryInput = 'MAIN_CHANGE_QUERY_INPUT',
     ChangeQueryInput2 = 'MAIN_CHANGE_QUERY_INPUT2',
+    EnableAnswerMode = 'MAIN_ENABLE_ANSWER_MODE',
+    DisableAnswerMode = 'MAIN_DISABLE_ANSWER_MODE',
     RequestQueryResponse = 'MAIN_REQUEST_QUERY_RESPONSE',
     ChangeTargetLanguage = 'MAIN_CHANGE_TARGET_LANGUAGE',
     ChangeQueryType = 'MAIN_CHANGE_QUERY_TYPE',
-    AcknowledgeSizes = 'MAIN_ACKNOWLEDGE_SIZES',
+    AcknowledgeSize = 'MAIN_ACKNOWLEDGE_SIZE',
     AddSystemMessage = 'MAIN_ADD_SYSTEM_MESSAGE',
     RemoveSystemMessage = 'MAIN_REMOVE_SYSTEM_MESSAGE',
     SubmitQuery = 'MAIN_SUBMIT_QUERY',
@@ -38,6 +40,18 @@ export namespace Actions {
     export interface RequestQueryResponse extends Action<{
     }> {
         name:ActionName.ChangeQueryInput;
+    }
+
+    export interface EnableAnswerMode extends Action<{
+
+    }> {
+        name:ActionName.EnableAnswerMode;
+    }
+
+    export interface DisableAnswerMode extends Action<{
+
+    }> {
+        name:ActionName.DisableAnswerMode;
     }
 
     export interface ChangeQueryInput extends Action<{
@@ -76,10 +90,11 @@ export namespace Actions {
         name:ActionName.ChangeQueryType;
     }
 
-    export interface AcknowledgeSizes extends Action<{
-        values:Array<[number, number]>;
+    export interface AcknowledgeSize extends Action<{
+        size:[number, number];
+        tileId:number;
     }> {
-        name:ActionName.AcknowledgeSizes;
+        name:ActionName.AcknowledgeSize;
     }
 
     export interface AddSystemMessage extends Action<{

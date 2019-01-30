@@ -23,14 +23,15 @@ import * as Rx from '@reactivex/rxjs';
 import {WdglanceMainState, WdglanceMainFormModel} from '../models/query';
 import {ActionName, Actions} from '../models/actions';
 import {KeyCodes} from '../shared/util';
-import { SystemMessage } from '../notifications';
 import { GlobalComponents } from './global';
 import { Forms } from '../shared/data';
 import { TileFrameProps, SystemMessageType, QueryType } from '../abstract/types';
 import { WdglanceTilesModel, WdglanceTilesState } from '../models/tiles';
+import { MessagesState, MessagesModel } from '../models/messages';
 
 
-export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, formModel:WdglanceMainFormModel, tilesModel:WdglanceTilesModel) {
+export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, formModel:WdglanceMainFormModel, tilesModel:WdglanceTilesModel,
+            messagesModel:MessagesModel) {
 
     const globalComponents = ut.getComponents();
 
@@ -94,54 +95,27 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     // ------------------ <QueryInput /> ------------------------------
 
-    class QueryInput extends React.PureComponent<
-        {
-            initialValue:Forms.Input;
-            onContentChange:(s:string)=>void;
-            onEnter:()=>void;
-        },
-        {value: string}> {
+    const QueryInput:React.SFC<{
+        value:Forms.Input;
+        onContentChange:(s:string)=>void;
+        onEnter:()=>void;
+    }> = (props) => {
 
-        private queryWritingIn:Rx.Subject<string>;
+        const handleInput = (evt:React.ChangeEvent<HTMLInputElement>) => {
+            props.onContentChange(evt.target.value);
+        };
 
-        private queryWritingInSubsc:Rx.Subscription;
-
-        constructor(props) {
-            super(props);
-            this.state = {value: this.props.initialValue.value};
-            this.handleInput = this.handleInput.bind(this);
-            this.handleKeyDown = this.handleKeyDown.bind(this);
-            this.queryWritingIn = new Rx.Subject<string>();
-            this.queryWritingIn.debounceTime(300).subscribe(this.props.onContentChange);
-        }
-
-        private handleInput(evt:React.ChangeEvent<HTMLInputElement>) {
-            this.queryWritingIn.next(evt.target.value);
-        }
-
-        private handleKeyDown(evt:React.KeyboardEvent):void {
+        const handleKeyDown = (evt:React.KeyboardEvent):void => {
             if (evt.keyCode === KeyCodes.ENTER) {
-                this.props.onEnter();
+            props.onEnter();
                 evt.stopPropagation();
                 evt.preventDefault();
             }
-        }
+        };
 
-        componentDidMount() {
-            this.queryWritingInSubsc = this.queryWritingIn.subscribe(v => {
-                this.setState({value: v});
-            });
-        }
-
-        componentWillUnmount() {
-            this.queryWritingInSubsc.unsubscribe();
-        }
-
-        render() {
-            return <input type="text" className={`QueryInput${this.props.initialValue.isValid ? '' : ' invalid'}`}
-                    onChange={this.handleInput} value={this.state.value}
-                    onKeyDown={this.handleKeyDown} />;
-        }
+        return <input type="text" className={`QueryInput${props.value.isValid ? '' : ' invalid'}`}
+                onChange={handleInput} value={props.value.value}
+                onKeyDown={handleKeyDown} />;
     }
 
     // ------------------ <SubmitButton /> ------------------------------
@@ -229,7 +203,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                     <>
                         <QueryLangSelector value={props.targetLanguage} availLanguages={props.availLanguages}
                                 onChange={handleTargetLanguageChange(true)} />
-                        <QueryInput initialValue={props.query} onEnter={props.onEnterKey}
+                        <QueryInput value={props.query} onEnter={props.onEnterKey}
                                 onContentChange={handleQueryInput1} />
                     </>
                 );
@@ -239,10 +213,10 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         <QueryLangSelector value={props.targetLanguage} availLanguages={props.availLanguages}
                                 onChange={handleTargetLanguageChange(true)} />
                         <div className="input-group">
-                            <QueryInput initialValue={props.query} onEnter={props.onEnterKey}
+                            <QueryInput value={props.query} onEnter={props.onEnterKey}
                                 onContentChange={handleQueryInput1} />
                             <br />
-                            <QueryInput initialValue={props.query2} onEnter={props.onEnterKey}
+                            <QueryInput value={props.query2} onEnter={props.onEnterKey}
                                 onContentChange={handleQueryInput2} />
                         </div>
                     </>
@@ -252,7 +226,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                     <>
                         <QueryLangSelector value={props.targetLanguage} availLanguages={props.availLanguages}
                                 onChange={handleTargetLanguageChange(true)} />
-                        <QueryInput initialValue={props.query} onEnter={props.onEnterKey}
+                        <QueryInput value={props.query} onEnter={props.onEnterKey}
                                 onContentChange={handleQueryInput1} />
                         <span className="arrow">{'\u21E8'}</span>
                         <QueryLangSelector value={props.targetLanguage2} availLanguages={props.availLanguages}
@@ -274,14 +248,17 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         }
 
         private handleSubmit() {
-            dispatcher.dispatch(Rx.Observable.from([
+            dispatcher.dispatch(Rx.Observable.of(
+                {
+                    name: ActionName.EnableAnswerMode
+                },
                 {
                     name: ActionName.SubmitQuery
                 },
                 {
                     name: ActionName.RequestQueryResponse
                 }
-            ]));
+            ));
         }
 
         handleQueryTypeChange(qt:QueryType):void {
@@ -325,15 +302,6 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
     const WdglanceControlsBound = Bound<WdglanceMainState>(WdglanceControls, formModel);
 
 
-    // -------
-
-    const Messages:React.SFC<{
-        messages:Immutable.List<SystemMessage>;
-    }> = (props) => {
-        return <ul className="Messages">{props.messages.map(
-            msg => <SystemMessage key={msg.ident} type={msg.type} text={msg.text} />)}</ul>
-    };
-
     // ------------- <ExtendButton /> --------------------------------------
 
     const ExtendButton:React.SFC<{
@@ -368,101 +336,126 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         </span>
     };
 
-    // -------------------- <TileSections /> -----------------------------
+    // ------------- <InitialHelp /> --------------------------------------
 
-    class TileSections extends React.Component<{
-        tiles:Immutable.List<TileFrameProps>;
-    },
-        WdglanceTilesState> {
+    const InitialHelp:React.SFC<{
 
-        private modelSubscription:Rx.Subscription;
+    }> = (props) => {
+        return <div className="cnc-tile"><h2>help</h2></div>;
+    }
 
-        private frameRefs:Immutable.List<React.RefObject<HTMLElement>>;
+
+    // ------------- <TileContainer /> --------------------------------------
+
+    class TileContainer extends React.Component<{
+        isExpanded:boolean;
+        tile:TileFrameProps;
+    }, {}> {
+
+        private ref:React.RefObject<HTMLDivElement>;
 
         constructor(props) {
             super(props);
-            this.state = tilesModel.getState();
-            this.frameRefs = this.props.tiles.map(v => React.createRef<HTMLElement>()).toList();
-
-
-            window.onresize = () => this.dispatchSizes();
-            this.handleModelChange = this.handleModelChange.bind(this);
-        }
-
-        private handleModelChange(state) {
-            this.setState(state);
-        }
-
-        private getElmSize(elm:HTMLElement):[number, number] {
-            return elm ? [~~Math.round(elm.clientWidth), ~~Math.round(elm.clientHeight)] : [0, 0];
-        }
-
-        private dispatchSizes():void {
-            dispatcher.dispatch<Actions.AcknowledgeSizes>({
-                name: ActionName.AcknowledgeSizes,
-                payload: {
-                    values: this.frameRefs.map(ref => this.getElmSize(ref.current)).toArray()
-                }
-            });
+            this.ref = React.createRef();
         }
 
         componentDidMount() {
-            this.modelSubscription = tilesModel.addListener(this.handleModelChange);
-            this.dispatchSizes();
-        }
-
-        componentWillUnmount() {
-            this.modelSubscription.unsubscribe();
+            dispatcher.dispatch<Actions.AcknowledgeSize>({
+                name: ActionName.AcknowledgeSize,
+                payload: {
+                    tileId: this.props.tile.tileId,
+                    size: ut.getElementSize(this.ref.current)
+                }
+            })
         }
 
         render() {
             return (
-                <div>
-                    {this.state.systemMessages.size > 0 ? <Messages messages={this.state.systemMessages} /> : null}
+                <section key={`tile-ident-${this.props.tile.tileId}`}
+                        className={`cnc-tile app-output${this.props.isExpanded ? ' expanded' : ''}`}>
+                    <div className="cnc-tile-header panel">
+                        <h2>{this.props.tile.label}</h2>
+                        {this.props.tile.supportsExtendedView ?
+                            <ExtendButton tileIdent={this.props.tile.tileId} extended={this.props.isExpanded} /> :
+                            null
+                        }
+                    </div>
+                    <div className="provider" ref={this.ref}>
+                        {this.props.tile.Component ?
+                            <globalComponents.ErrorBoundary>
+                                <this.props.tile.Component renderSize={this.props.tile.renderSize} />
+                            </globalComponents.ErrorBoundary> :
+                            null
+                        }
+                    </div>
+                </section>
+            );
+        }
+    }
 
+
+    // ------- <MessagesBox /> ---------------------
+
+    class MessagesBox extends React.PureComponent<MessagesState> {
+
+        render() {
+            return (
+                <div>
+                {this.props.systemMessages.size > 0 ?
+                    <ul className="Messages">
+                        {this.props.systemMessages.map(
+                                msg => <SystemMessage key={msg.ident} type={msg.type} text={msg.text} />)
+                        }
+                    </ul> :
+                    null
+                }
+                </div>
+            );
+        }
+    }
+
+    const BoundMessagesBox = Bound(MessagesBox, messagesModel);
+
+    // -------------------- <TilesSections /> -----------------------------
+
+    class TilesSections extends React.PureComponent<WdglanceTilesState> {
+
+        render() {
+            return (
+                <div>
                     <section className="tiles">
-                    {this.props.tiles.filter(tile => tile.queryTypeSupport > 0).sort((a, b) => b.queryTypeSupport - a.queryTypeSupport).map((tile) => {
-                        return (
-                            <section key={`tile-ident-${tile.tileId}`}
-                                    className={`cnc-tile app-output${this.state.expandedTile === tile.tileId ? ' expanded' : ''}`}
-                                    ref={this.frameRefs.get(tile.tileId)}>
-                                <div className="cnc-tile-header panel">
-                                    <h2>{tile.label}</h2>
-                                    {tile.supportsExtendedView ? <ExtendButton tileIdent={tile.tileId} extended={this.state.expandedTile === tile.tileId} /> : null}
-                                </div>
-                                <div className="provider">
-                                    {tile.Component ?
-                                        <globalComponents.ErrorBoundary>
-                                            <tile.Component />
-                                        </globalComponents.ErrorBoundary> :
-                                        null
-                                    }
-                                </div>
-                            </section>
-                        );
-                    })}
+                    {this.props.isAnswerMode ?
+                        (
+                            <>
+                            {this.props.tileProps
+                                .filter(tile => tile.queryTypeSupport > 0)
+                                .sort((a, b) => b.queryTypeSupport - a.queryTypeSupport)
+                                .map((tile) => <TileContainer key={`tile:${tile.tileId}`} tile={tile}
+                                                    isExpanded={this.props.expandedTiles.contains(tile.tileId)} />)
+                            }
+                            </>
+                        ) :
+                        <InitialHelp />
+                    }
                     </section>
                 </div>
             );
         }
     }
 
+    const BoundTilesSections = Bound(TilesSections, tilesModel);
+
     // ------------------ <WdglanceMain /> ------------------------------
 
-    const WdglanceMain:React.SFC<{
-        tiles:Immutable.List<TileFrameProps>;
-    }> = (props) => {
+    const WdglanceMain:React.SFC<{}> = (props) => {
 
         return (
             <div className="WdglanceMain">
-                <div className="logo">
-                    <h1>Word at a Glance</h1>
-                </div>
                 <WdglanceControlsBound />
-                <TileSections tiles={props.tiles} />
+                <BoundMessagesBox />
+                <BoundTilesSections />
             </div>
         );
-
     }
 
     return {

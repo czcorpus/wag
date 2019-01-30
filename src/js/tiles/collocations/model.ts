@@ -23,7 +23,6 @@ import {ActionName as ConcActionName, Actions as ConcActions} from '../concordan
 import {ActionName, DataRow, Actions, CollApiArgs, DataHeading} from './common';
 import { KontextCollAPI } from './service';
 import { AppServices } from '../../appServices';
-import { WdglanceTilesModel } from '../../models/tiles';
 import { SystemMessageType } from '../../abstract/types';
 
 
@@ -32,7 +31,6 @@ export interface CollocModelArgs {
     tileId:number;
     appServices:AppServices;
     service:KontextCollAPI;
-    tilesModel:WdglanceTilesModel;
     initState:CollocModelState;
 }
 
@@ -53,7 +51,6 @@ export interface CollocModelState {
     data:Immutable.List<DataRow>;
     heading:DataHeading;
     citemsperpage:number;
-    renderFrameSize:[number, number];
 }
 
 
@@ -80,17 +77,30 @@ export class CollocModel extends StatelessModel<CollocModelState> {
 
     private readonly appServices:AppServices;
 
-    private readonly tilesModel:WdglanceTilesModel;
-
     private readonly tileId:number;
 
-    constructor({dispatcher, tileId, appServices, service, tilesModel, initState}:CollocModelArgs) {
+    constructor({dispatcher, tileId, appServices, service, initState}:CollocModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.appServices = appServices;
         this.service = service;
-        this.tilesModel = tilesModel;
         this.actionMatch = {
+            [GlobalActionName.ExpandTile]: (state, action:GlobalActions.ExpandTile) => {
+                if (action.payload.ident === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.isExpanded = true;
+                    return newState;
+                }
+                return state;
+            },
+            [GlobalActionName.ResetExpandTile]: (state, action:GlobalActions.ExpandTile) => {
+                if (action.payload.ident === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.isExpanded = false;
+                    return newState;
+                }
+                return state;
+            },
             [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse)  => {
                 const newState = this.copyState(state);
                 newState.isBusy = true;
@@ -127,7 +137,6 @@ export class CollocModel extends StatelessModel<CollocModelState> {
 
                 } else {
                     newState.data = Immutable.List<DataRow>(action.payload.data);
-                    newState.renderFrameSize = [action.payload.frameSize[0], action.payload.frameSize[1]];
                     newState.heading = action.payload.heading.map((v, i) => {
                         if (i === 0) {
                             return {n: 'Abs.', s: ''};
@@ -135,11 +144,6 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                         return v;
                     });
                 }
-                return newState;
-            },
-            [ActionName.SizeUpdated]: (state, action:Actions.SizeUpdated) => {
-                const newState = this.copyState(state);
-                newState.renderFrameSize = [action.payload.frameSize[0], newState.renderFrameSize[1]];
                 return newState;
             }
         }
@@ -170,7 +174,6 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                                             heading: data.Head,
                                             data: data.Items,
                                             q: '~' + data.conc_persistence_op_id,
-                                            frameSize: [this.tilesModel.getFrameSize(this.tileId)[0], data.Items.length * 40]
                                         }
                                     });
                                 },
@@ -188,14 +191,6 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                         return false;
                     }
                 );
-            break;
-            case GlobalActionName.AcknowledgeSizes:
-                seDispatch({
-                    name: ActionName.SizeUpdated,
-                    payload: {
-                        frameSize: this.tilesModel.getFrameSize(this.tileId)
-                    }
-                });
             break;
         }
     }

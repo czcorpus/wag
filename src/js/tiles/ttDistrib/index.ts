@@ -17,13 +17,12 @@
  */
 
 import * as Immutable from 'immutable';
-import { ITileProvider, TileFactory, QueryType } from '../../abstract/types';
+import { ITileProvider, TileFactory, QueryType, TileComponent } from '../../abstract/types';
 import {init as viewInit} from './view';
 import { ActionDispatcher, ViewUtils } from "kombo";
 import { TTDistribModel } from "./model";
 import { FreqDistribAPI, DataRow } from "../../shared/api/kontextFreqs";
 import { GlobalComponents } from "../../views/global";
-import { WdglanceTilesModel } from "../../models/tiles";
 
 declare var require:(src:string)=>void;  // webpack
 require('./style.less');
@@ -46,29 +45,24 @@ export class TTDistTile implements ITileProvider {
 
     private readonly ut:ViewUtils<GlobalComponents>;
 
-    private readonly tilesModel:WdglanceTilesModel;
-
     private readonly model:TTDistribModel;
 
     private readonly tileId:number;
 
-    private view:React.ComponentClass<{}>;
+    private view:TileComponent;
 
-    constructor(dispatcher:ActionDispatcher, tileId:number, ut:ViewUtils<GlobalComponents>, tilesModel:WdglanceTilesModel, conf:TTDistTileConf) {
+    constructor(dispatcher:ActionDispatcher, tileId:number, ut:ViewUtils<GlobalComponents>, conf:TTDistTileConf) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.ut = ut;
-        this.tilesModel = tilesModel;
         this.model = new TTDistribModel(
             this.dispatcher,
             tileId,
             new FreqDistribAPI(conf.apiURL),
-            tilesModel,
             {
                 isBusy: false,
                 error: null,
                 data: Immutable.List<DataRow>(),
-                renderFrameSize: [0, 0],
                 corpname: conf.corpname,
                 q: null,
                 fcrit: conf.fcrit,
@@ -88,7 +82,7 @@ export class TTDistTile implements ITileProvider {
         return this.tileId;
     }
 
-    getView():React.ComponentClass {
+    getView():TileComponent {
         return this.view;
     }
 
@@ -110,6 +104,6 @@ export class TTDistTile implements ITileProvider {
 }
 
 
-export const init:TileFactory.TileFactory<TTDistTileConf>  = ({tileId, dispatcher, ut, appServices, mainForm, conf, tilesModel}) => {
-    return new TTDistTile(dispatcher, tileId, ut, tilesModel, conf);
+export const init:TileFactory.TileFactory<TTDistTileConf>  = ({tileId, dispatcher, ut, appServices, mainForm, conf}) => {
+    return new TTDistTile(dispatcher, tileId, ut, conf);
 }

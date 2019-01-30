@@ -29,7 +29,6 @@ export namespace Actions {
     export interface LoadDataDone extends Action<{
         data:Array<DataRow>;
         q:string;
-        frameSize:[number, number];
     }> {
         name: ActionName.LoadDataDone
     }

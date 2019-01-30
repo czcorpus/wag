@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { ITileProvider, QueryType, TileFactory } from '../../abstract/types';
+import { ITileProvider, QueryType, TileFactory, TileComponent } from '../../abstract/types';
 import { AppServices } from '../../appServices';
 import { SocioModel, SocioDataRow } from './model';
 import {init as viewInit} from './view';
@@ -45,9 +45,9 @@ export class SocioTile implements ITileProvider {
 
     private readonly model:SocioModel;
 
-    private view:React.ComponentClass;
+    private view:TileComponent;
 
-    constructor(lang1:string, lang2:string, {tileId, dispatcher, appServices, ut, mainForm, tilesModel, conf}:TileFactory.Args<SocioTileConf>) {
+    constructor(lang1:string, lang2:string, {tileId, dispatcher, appServices, ut, mainForm, conf}:TileFactory.Args<SocioTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
         this.subTitle = this.appServices.translate(conf.subTitle);
@@ -57,7 +57,6 @@ export class SocioTile implements ITileProvider {
                 isBusy: false,
                 error: null,
                 data: Immutable.List<SocioDataRow>(),
-                renderFrameSize: [0, 0],
                 corpname: conf.corpname,
                 q: null,
                 fcrit: conf.fcrit,
@@ -67,8 +66,7 @@ export class SocioTile implements ITileProvider {
                 fttIncludeEmpty: conf.fttIncludeEmpty
             },
             tileId,
-            new FreqDistribAPI(conf.apiURL),
-            tilesModel
+            new FreqDistribAPI(conf.apiURL)
         );
         this.view = viewInit(
             dispatcher,
@@ -88,7 +86,7 @@ export class SocioTile implements ITileProvider {
         return `${this.appServices.translate('socio__main_label')} - ${this.subTitle}`;
     }
 
-    getView():React.ComponentClass|React.SFC<{}> {
+    getView():TileComponent {
         return this.view;
     }
 
@@ -106,6 +104,6 @@ export class SocioTile implements ITileProvider {
 
 
 export const init:TileFactory.TileFactory<SocioTileConf> = ({
-    tileId, dispatcher, appServices, ut, mainForm, tilesModel, lang1, lang2, conf}) => {
-    return new SocioTile(lang1, lang2, {tileId, dispatcher, appServices, ut, mainForm, tilesModel, conf});
+    tileId, dispatcher, appServices, ut, mainForm, lang1, lang2, conf}) => {
+    return new SocioTile(lang1, lang2, {tileId, dispatcher, appServices, ut, mainForm, conf});
 }

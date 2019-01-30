@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { TileFactory, ITileProvider, QueryType } from '../../abstract/types';
+import { TileFactory, ITileProvider, QueryType, TileComponent } from '../../abstract/types';
 import { AppServices } from '../../appServices';
 import {init as viewInit} from './view';
 import { TreqModel } from './model';
@@ -41,7 +41,7 @@ export class TreqTile implements ITileProvider {
 
     private readonly model:TreqModel;
 
-    private view:React.ComponentClass;
+    private view:TileComponent;
 
     constructor(lang1:string, lang2:string, {tileId, dispatcher, appServices, ut, mainForm, conf}:TileFactory.Args<TreqTileConf>) {
         this.tileId = tileId;
@@ -51,7 +51,6 @@ export class TreqTile implements ITileProvider {
             {
                 isBusy: false,
                 error: null,
-                renderFrameSize: [0, 0],
                 lang1: lang1,
                 lang2: lang2,
                 searchPackages: Immutable.List<string>(conf.srchPackages[lang2] || []),
@@ -60,6 +59,7 @@ export class TreqTile implements ITileProvider {
                 treqBackLinkArgs: null,
                 treqBackLinkRootURL: conf.backlinkURL
             },
+            tileId,
             new TreqAPI(conf.apiURL),
             mainForm
         );
@@ -81,7 +81,7 @@ export class TreqTile implements ITileProvider {
         return this.appServices.translate('treq__main_label');
     }
 
-    getView():React.ComponentClass|React.SFC<{}> {
+    getView():TileComponent {
         return this.view;
     }
 
@@ -99,6 +99,6 @@ export class TreqTile implements ITileProvider {
 
 
 export const init:TileFactory.TileFactory<TreqTileConf> = ({
-    tileId, dispatcher, appServices, ut, mainForm, tilesModel, lang1, lang2, conf}) => {
-    return new TreqTile(lang1, lang2, {tileId, dispatcher, appServices, ut, mainForm, tilesModel, conf});
+    tileId, dispatcher, appServices, ut, mainForm, lang1, lang2, conf}) => {
+    return new TreqTile(lang1, lang2, {tileId, dispatcher, appServices, ut, mainForm, conf});
 }
