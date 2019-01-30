@@ -1,6 +1,7 @@
 const path = require('path');
 const build = require('./build');
-
+const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 // helper functions
 
@@ -59,14 +60,15 @@ module.exports = (env) => ({
             {
                 test: /\.css$/,
                 use: [
-                    { loader: 'style-loader'},
+                    { loader: 'file-loader'},
+                    { loader: 'extract-loader'},
                     { loader: 'css-loader' }
                 ]
             },
             {
                 test: /\.less$/,
                 use: [
-                    { loader: 'style-loader'},
+                    { loader: MiniCssExtractPlugin.loader },
                     { loader: 'css-loader' },
                     {
                         loader: 'less-loader',
@@ -86,10 +88,16 @@ module.exports = (env) => ({
         splitChunks: {
             chunks: 'all',
             name: 'common'
-        }
+        },
+        minimizer: [
+            new OptimizeCSSAssetsPlugin({})
+        ]
     },
     devtool: 'inline-source-map',
     plugins: [
-        new build.ProcTranslationsPlugin(SRC_PATH, DIST_PATH, CONF)
+        new build.ProcTranslationsPlugin(SRC_PATH, DIST_PATH, CONF),
+        new MiniCssExtractPlugin({
+            filename: "common.css"
+          })
     ]
  });
