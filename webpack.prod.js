@@ -2,6 +2,7 @@ const path = require('path');
 const build = require('./build');
 const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 // helper functions
 
@@ -90,7 +91,8 @@ module.exports = (env) => ({
             name: 'common'
         },
         minimizer: [
-            new OptimizeCSSAssetsPlugin({})
+            new OptimizeCSSAssetsPlugin({}),
+            new UglifyJsPlugin()
         ]
     },
     devtool: 'inline-source-map',
