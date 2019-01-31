@@ -33,7 +33,7 @@ import { GlobalComponents, init as globalCompInit } from './views/global';
 import * as translations from 'translations';
 import { AppServices } from './appServices';
 import { SystemNotifications } from './notifications';
-import { ActionName } from './models/actions';
+import { ActionName, Actions } from './models/actions';
 import { TileFrameProps, ITileProvider, QueryType } from './abstract/types';
 import { WdglanceTilesModel } from './models/tiles';
 import {encodeArgs} from './shared/ajax';
@@ -269,12 +269,6 @@ export const init = (
         }));
     }
 
-
-    window.onresize = () => {
-        // TODO dispatch to all tiles size change
-    }
-
-
     const tilesModel = new WdglanceTilesModel(
         dispatcher,
         {
@@ -289,6 +283,13 @@ export const init = (
 
     const component = viewInit(dispatcher, viewUtils, formModel, tilesModel, messagesModel);
 
+    window.onresize = () => {
+        ReactDOM.unmountComponentAtNode(mountElement);
+        ReactDOM.render(
+            React.createElement(component.WdglanceMain, {}),
+            mountElement
+        );
+    };
 
     ReactDOM.render(
         React.createElement(component.WdglanceMain, {}),
