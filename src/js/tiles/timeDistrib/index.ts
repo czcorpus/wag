@@ -15,15 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as React from 'react';
 import * as Immutable from 'immutable';
-import { ITileProvider, TileFactory, QueryType } from '../../abstract/types';
+import { ITileProvider, TileFactory, QueryType, TileComponent } from '../../abstract/types';
 import { ActionDispatcher, ViewUtils } from 'kombo';
 import { GlobalComponents } from '../../views/global';
 import { TimeDistribModel, FreqFilterQuantity, AlignType } from './model';
 import { TimeDistribAPI } from './api';
 import {init as viewInit} from './view';
-import { WdglanceTilesModel } from '../../models/tiles';
 import { AlphaLevel } from './stat';
 import { DataItemWithWCI } from './common';
 import { AppServices } from '../../appServices';
@@ -63,9 +61,9 @@ export class TimeDistTile implements ITileProvider {
     // a (time based) structural attribute property we are looking for in this tile
     private readonly distProperty:string;
 
-    private view:React.ComponentClass;
+    private view:TileComponent;
 
-    constructor(dispatcher:ActionDispatcher, tileId:number, ut:ViewUtils<GlobalComponents>, tilesModel:WdglanceTilesModel,
+    constructor(dispatcher:ActionDispatcher, tileId:number, ut:ViewUtils<GlobalComponents>,
                 appServices:AppServices, conf:TimeDistTileConf) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
@@ -78,7 +76,6 @@ export class TimeDistTile implements ITileProvider {
                 error: null,
                 corpname: conf.corpname,
                 q: null,
-                renderFrameSize: [0, 0],
                 attrTime: conf.timeProperty,
                 attrValue: conf.distProperty,
                 minFreq: '10', // TODO (conf)
@@ -92,7 +89,6 @@ export class TimeDistTile implements ITileProvider {
             },
             tileId,
             new TimeDistribAPI(conf.apiURL),
-            tilesModel,
             appServices
         );
     }
@@ -106,7 +102,7 @@ export class TimeDistTile implements ITileProvider {
         return this.tileId;
     }
 
-    getView():React.ComponentClass {
+    getView():TileComponent {
         return this.view;
     }
 
@@ -134,6 +130,6 @@ export class TimeDistTile implements ITileProvider {
 
 
 
-export const init:TileFactory.TileFactory<TimeDistTileConf>  = ({tileId, dispatcher, ut, appServices, mainForm, conf, tilesModel}) => {
-    return new TimeDistTile(dispatcher, tileId, ut, tilesModel, appServices, conf);
+export const init:TileFactory.TileFactory<TimeDistTileConf>  = ({tileId, dispatcher, ut, appServices, conf}) => {
+    return new TimeDistTile(dispatcher, tileId, ut, appServices, conf);
 }

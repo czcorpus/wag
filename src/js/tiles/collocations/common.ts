@@ -16,8 +16,7 @@
  * limitations under the License.
  */
 
-import { Action } from "kombo";
-import * as Immutable from 'immutable';
+import { Action } from 'kombo';
 
 export interface DataRow {
     Stats:Array<{s:string}>;
@@ -55,7 +54,6 @@ export interface CollApiArgs {
 
 
 export enum ActionName {
-    SizeUpdated = 'COLLOCATIONS_SIZE_UPDATED',
     DataLoadDone = 'COLLOCATIONS_DATA_LOAD_DONE'
 }
 
@@ -66,14 +64,7 @@ export namespace Actions {
         data:Array<DataRow>;
         heading:DataHeading;
         q:string;
-        frameSize:[number, number];
     }> {
         name:ActionName.DataLoadDone;
-    }
-
-    export interface SizeUpdated extends Action<{
-        frameSize:[number, number];
-    }> {
-        name:ActionName.SizeUpdated;
     }
 }

@@ -28,7 +28,6 @@ export namespace Actions {
     export interface LoadDataDone extends Action<{
         data:Array<DataItemWithWCI>;
         q:string;
-        frameSize:[number, number];
     }> {
         name: ActionName.LoadDataDone
     }

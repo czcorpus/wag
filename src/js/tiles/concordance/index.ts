@@ -17,7 +17,7 @@
  */
 
 import * as Immutable from 'immutable';
-import { ITileProvider, TileFactory, QueryType } from '../../abstract/types';
+import { ITileProvider, TileFactory, QueryType, TileComponent } from '../../abstract/types';
 import {init as viewInit} from './views';
 import { ConcordanceTileModel } from './model';
 import { ActionDispatcher, ViewUtils } from 'kombo';
@@ -47,7 +47,7 @@ export class ConcordanceTile implements ITileProvider {
 
     private readonly ut:ViewUtils<GlobalComponents>;
 
-    private view:React.ComponentClass<{}>;
+    private view:TileComponent;
 
     constructor({tileId, dispatcher, appServices, ut, mainForm, conf}:TileFactory.Args<ConcordanceTileConf>) {
         this.tileId = tileId;
@@ -88,7 +88,7 @@ export class ConcordanceTile implements ITileProvider {
         return this.tileId;
     }
 
-    getView():React.ComponentClass {
+    getView():TileComponent {
         return this.view;
     }
 
@@ -108,6 +108,6 @@ export class ConcordanceTile implements ITileProvider {
     }
 }
 
-export const init:TileFactory.TileFactory<ConcordanceTileConf> = ({tileId, dispatcher, appServices, ut, mainForm, tilesModel, conf}) => {
-    return new ConcordanceTile({tileId, dispatcher, appServices, ut, mainForm, tilesModel, conf});
+export const init:TileFactory.TileFactory<ConcordanceTileConf> = ({tileId, dispatcher, appServices, ut, mainForm, conf}) => {
+    return new ConcordanceTile({tileId, dispatcher, appServices, ut, mainForm, conf});
 }

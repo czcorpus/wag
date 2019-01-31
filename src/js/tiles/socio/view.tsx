@@ -20,13 +20,14 @@ import * as Immutable from 'immutable';
 import * as d3 from 'd3';
 import * as d3Scale from 'd3-scale';
 import {PieChart, Pie, Cell, Legend} from 'recharts';
-import {Bound} from 'kombo';
+import {BoundWithProps} from 'kombo';
 import {ActionDispatcher, ViewUtils} from 'kombo';
 import { GlobalComponents } from '../../views/global';
 import { SocioModel, SocioModelState, SocioDataRow } from './model';
+import { CoreTileComponentProps, TileComponent } from '../../abstract/types';
 
 
-export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:SocioModel):React.ComponentClass {
+export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:SocioModel):TileComponent {
 
 
     const c20 = d3Scale.scaleOrdinal(d3.schemeCategory10).domain(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']);
@@ -68,16 +69,16 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     };
 
-    class SocioTileView extends React.PureComponent<SocioModelState> {
+    class SocioTileView extends React.PureComponent<SocioModelState & CoreTileComponentProps> {
 
         render() {
             return (
                 <div>
-                    <Chart data={this.props.data} size={this.props.renderFrameSize} />
+                    <Chart data={this.props.data} size={[this.props.renderSize[0], 300]} />
                 </div>
             );
         }
     }
 
-    return Bound(SocioTileView, model);
+    return BoundWithProps(SocioTileView, model);
 }

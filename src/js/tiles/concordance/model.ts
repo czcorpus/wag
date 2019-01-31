@@ -17,7 +17,7 @@
  */
 import * as Immutable from 'immutable';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
-import {ActionName as GlobalActionName} from '../../models/actions';
+import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
 import {ActionName, Actions} from './actions';
 import {RequestBuilder, Line, QuerySelector, RequestArgs} from './api';
 import { WdglanceMainFormModel } from '../../models/query';
@@ -95,7 +95,22 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
         this.tileId = tileId;
 
         this.actionMatch = {
-
+            [GlobalActionName.ExpandTile]: (state, action:GlobalActions.ExpandTile) => {
+                if (action.payload.ident === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.isExpanded = true;
+                    return newState;
+                }
+                return state;
+            },
+            [GlobalActionName.ResetExpandTile]: (state, action:GlobalActions.ExpandTile) => {
+                if (action.payload.ident === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.isExpanded = false;
+                    return newState;
+                }
+                return state;
+            },
             [GlobalActionName.RequestQueryResponse]: (state, action) => {
                 const newState = this.copyState(state);
                 newState.isBusy = true;

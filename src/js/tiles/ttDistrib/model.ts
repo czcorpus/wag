@@ -23,7 +23,6 @@ import {StatelessModel, ActionDispatcher, Action, SEDispatcher} from 'kombo';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
 import {ActionName as ConcActionName, Actions as ConcActions} from '../concordance/actions';
 import {ActionName, Actions} from './actions';
-import { WdglanceTilesModel } from '../../models/tiles';
 
 
 
@@ -34,7 +33,6 @@ export interface TTDistribModelState {
     isBusy:boolean;
     error:string;
     data:Immutable.List<DataRow>;
-    renderFrameSize:[number, number];
     corpname:string;
     q:string;
     fcrit:string;
@@ -61,15 +59,12 @@ export class TTDistribModel extends StatelessModel<TTDistribModelState> {
 
     private api:FreqDistribAPI;
 
-    private tilesModel:WdglanceTilesModel;
-
     private readonly tileId:number;
 
-    constructor(dispatcher:ActionDispatcher, tileId:number, api:FreqDistribAPI, tilesModel:WdglanceTilesModel, initState:TTDistribModelState) {
+    constructor(dispatcher:ActionDispatcher, tileId:number, api:FreqDistribAPI, initState:TTDistribModelState) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.api = api;
-        this.tilesModel = tilesModel;
         this.actionMatch = {
             [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
                 const newState = this.copyState(state);
@@ -85,7 +80,6 @@ export class TTDistribModel extends StatelessModel<TTDistribModelState> {
 
                 } else {
                     newState.data = Immutable.List<DataRow>(action.payload.data);
-                    newState.renderFrameSize = action.payload.frameSize;
                 }
                 return newState;
             }
@@ -109,13 +103,11 @@ export class TTDistribModel extends StatelessModel<TTDistribModelState> {
                         }).concatMap(args => this.api.call(stateToAPIArgs(state, '~' + payload.data.conc_persistence_op_id)))
                         .subscribe(
                             resp => {
-                                const currFrameSize = this.tilesModel.getFrameSize(this.tileId);
                                 dispatch<Actions.LoadDataDone>({
                                     name: ActionName.LoadDataDone,
                                     payload: {
                                         data: resp.data,
-                                        q: resp.q,
-                                        frameSize: [currFrameSize[0], resp.data.length * 50]
+                                        q: resp.q
                                     }
                                 });
                             },
@@ -124,8 +116,7 @@ export class TTDistribModel extends StatelessModel<TTDistribModelState> {
                                     name: ActionName.LoadDataDone,
                                     payload: {
                                         data: null,
-                                        q: null,
-                                        frameSize: this.tilesModel.getFrameSize(this.tileId)
+                                        q: null
                                     },
                                     error: error
                                 });

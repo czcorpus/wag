@@ -22,14 +22,19 @@ import * as cloud from 'd3-cloud';
 import * as React from 'react';
 import * as Immutable from 'immutable';
 import * as Rx from '@reactivex/rxjs';
-import {ActionDispatcher, Bound, ViewUtils} from 'kombo';
+import {ActionDispatcher, ViewUtils, BoundWithProps} from 'kombo';
 import {CollocModel, CollocModelState} from './model';
 import { GlobalComponents } from '../../views/global';
 import { DataRow } from './common';
+import { TileComponent, CoreTileComponentProps } from '../../abstract/types';
 
 
 export const drawChart = (container:HTMLElement, size:[number, number], data:Immutable.List<DataRow>, measures:Array<string>) => {
     container.innerHTML = '';
+    if (size[0] === 0 || size[1] === 0) {
+        // otherwise the browser may crash
+        return;
+    }
     const dataImp:Array<DataRow> = data.toArray();
     const c20 = d3Scale.scaleOrdinal(d3.schemeCategory10).domain(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']);
     const valMapping = Immutable.Map<string, DataRow>(data.map(v => [v.str, v]));
@@ -120,12 +125,12 @@ export const drawChart = (container:HTMLElement, size:[number, number], data:Imm
 };
 
 
-export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:CollocModel):React.ComponentClass {
+export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:CollocModel):TileComponent {
 
     const globalCompontents = ut.getComponents();
 
 
-    class CollocTile extends React.PureComponent<CollocModelState> {
+    class CollocTile extends React.PureComponent<CollocModelState & CoreTileComponentProps> {
 
         private chartContainer:React.RefObject<HTMLDivElement>;
 
@@ -136,13 +141,23 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
         componentDidMount() {
             if (this.chartContainer.current) {
-                drawChart(this.chartContainer.current, this.props.renderFrameSize, this.props.data, this.props.heading.map(v => v.n));
+                drawChart(
+                    this.chartContainer.current,
+                    [this.props.renderSize[0], this.props.data.size * 30],
+                    this.props.data,
+                    this.props.heading.map(v => v.n)
+                );
             }
         }
 
         componentDidUpdate() {
             if (this.chartContainer.current) {
-                drawChart(this.chartContainer.current, this.props.renderFrameSize, this.props.data, this.props.heading.map(v => v.n));
+                drawChart(
+                    this.chartContainer.current,
+                    [this.props.renderSize[0], this.props.data.size * 30],
+                    this.props.data,
+                    this.props.heading.map(v => v.n)
+                );
             }
         }
 
@@ -172,6 +187,6 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         }
     }
 
-    return Bound<CollocModelState>(CollocTile, model);
+    return BoundWithProps<CoreTileComponentProps, CollocModelState>(CollocTile, model);
 
 }

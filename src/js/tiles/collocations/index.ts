@@ -17,7 +17,7 @@
  */
 
 import * as Immutable from 'immutable';
-import { TileFactory, ITileProvider, CorePosAttribute, QueryType } from "../../abstract/types";
+import { TileFactory, ITileProvider, CorePosAttribute, QueryType, TileComponent } from "../../abstract/types";
 import { AppServices } from "../../appServices";
 import { CollocModel } from "./model";
 import { KontextCollAPI } from "./service";
@@ -50,9 +50,9 @@ export class CollocationsTile implements ITileProvider {
 
     private readonly model:CollocModel;
 
-    private view:React.ComponentClass;
+    private view:TileComponent;
 
-    constructor({tileId, dispatcher, appServices, ut, tilesModel, conf}:TileFactory.Args<CollocationsTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, conf}:TileFactory.Args<CollocationsTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.ut = ut;
@@ -62,7 +62,6 @@ export class CollocationsTile implements ITileProvider {
             tileId: tileId,
             appServices: appServices,
             service: new KontextCollAPI(conf.apiURL),
-            tilesModel: tilesModel,
             initState: {
                 isBusy: false,
                 isExpanded: false,
@@ -78,8 +77,7 @@ export class CollocationsTile implements ITileProvider {
                 csortfn: CollocMetric.MI,
                 data: Immutable.List<DataRow>(),
                 heading: [],
-                citemsperpage: 10,
-                renderFrameSize: [10, 10]
+                citemsperpage: 10
             }
         });
     }
@@ -100,7 +98,7 @@ export class CollocationsTile implements ITileProvider {
         return this.appServices.translate('collocations__main_label');
     }
 
-    getView():React.ComponentClass|React.SFC<{}> {
+    getView():TileComponent {
         return this.view;
     }
 
@@ -117,6 +115,6 @@ export class CollocationsTile implements ITileProvider {
 }
 
 
-export const init:TileFactory.TileFactory<CollocationsTileConf> = ({tileId, dispatcher, appServices, ut, mainForm, tilesModel, conf}) => {
-    return new CollocationsTile({tileId, dispatcher, appServices, ut, mainForm, tilesModel, conf});
+export const init:TileFactory.TileFactory<CollocationsTileConf> = ({tileId, dispatcher, appServices, ut, mainForm, conf}) => {
+    return new CollocationsTile({tileId, dispatcher, appServices, ut, mainForm, conf});
 }

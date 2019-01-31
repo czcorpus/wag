@@ -17,14 +17,15 @@
  */
 import * as React from 'react';
 import {CartesianGrid, XAxis, YAxis, Tooltip, AreaChart, Area} from 'recharts';
-import {ActionDispatcher, ViewUtils, Bound} from 'kombo';
+import {ActionDispatcher, ViewUtils, BoundWithProps} from 'kombo';
 import { GlobalComponents } from '../../views/global';
 import { TimeDistribModel, TimeDistribModelState } from './model';
 import {SystemColor} from '../../shared/colors';
 import { DataItemWithWCI } from './common';
+import { CoreTileComponentProps, TileComponent } from '../../abstract/types';
 
 
-export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:TimeDistribModel):React.ComponentClass {
+export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:TimeDistribModel):TileComponent {
 
     const globComponents = ut.getComponents();
 
@@ -54,19 +55,20 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     // -------------- <TimeDistribTile /> ------------------------------------------------------
 
-    class TimeDistribTile extends React.PureComponent<TimeDistribModelState> {
+    class TimeDistribTile extends React.PureComponent<TimeDistribModelState & CoreTileComponentProps> {
 
         render() {
             return <globComponents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
                             hasData={this.props.data.size > 0}>
                     <div className="TimeDistribTile">
-                        <Chart data={this.props.data.toArray()} size={this.props.renderFrameSize} />
+                        <Chart data={this.props.data.toArray()}
+                                size={[this.props.renderSize[0], ~~Math.max(150, this.props.data.size * 15)]} />
                     </div>
                     </globComponents.TileWrapper>
         }
     }
 
 
-    return Bound(TimeDistribTile, model);
+    return BoundWithProps(TimeDistribTile, model);
 
 }

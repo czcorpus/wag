@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { TileFactory, ITileProvider, QueryType } from '../../abstract/types';
+import { TileFactory, ITileProvider, QueryType, TileComponent } from '../../abstract/types';
 import { ActionDispatcher, ViewUtils } from 'kombo';
 import { GlobalComponents } from '../../views/global';
 import { AppServices } from '../../appServices';
@@ -39,7 +39,7 @@ export class SyDTile implements ITileProvider {
 
     private readonly tileId:number;
 
-    private readonly view:React.ComponentClass;
+    private readonly view:TileComponent;
 
     private readonly model:SydModel;
 
@@ -69,7 +69,7 @@ export class SyDTile implements ITileProvider {
         return this.tileId;
     }
 
-    getView():React.ComponentClass {
+    getView():TileComponent {
         return this.view;
     }
 
@@ -91,6 +91,6 @@ export class SyDTile implements ITileProvider {
 
 
 export const init:TileFactory.TileFactory<SyDTileConf> = ({
-    tileId, dispatcher, appServices, ut, mainForm, tilesModel, lang1, lang2, conf}) => {
+    tileId, dispatcher, appServices, ut, mainForm, lang1, lang2, conf}) => {
     return new SyDTile(dispatcher, tileId, ut, mainForm, appServices, conf);
 }

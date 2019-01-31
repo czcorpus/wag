@@ -17,15 +17,16 @@
  */
 import * as React from 'react';
 import * as Immutable from 'immutable';
-import {Bound} from 'kombo';
+import {BoundWithProps} from 'kombo';
 import {ActionDispatcher, ViewUtils} from 'kombo';
 import { GlobalComponents } from '../../views/global';
 import { TreqModel, TreqModelState } from './model';
 import { TreqTranslation } from './api';
 import { MultiDict } from '../../shared/data';
+import { CoreTileComponentProps, TileComponent } from '../../abstract/types';
 
 
-export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:TreqModel):React.ComponentClass {
+export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:TreqModel):TileComponent {
 
     const globComponents = ut.getComponents();
 
@@ -102,7 +103,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     // --------------- <TreqTileView /> -----------------------------------
 
-    class TreqTileView extends React.PureComponent<TreqModelState> {
+    class TreqTileView extends React.PureComponent<TreqModelState & CoreTileComponentProps> {
 
         render() {
             return (
@@ -115,5 +116,5 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         }
     }
 
-    return Bound(TreqTileView, model);
+    return BoundWithProps(TreqTileView, model);
 }

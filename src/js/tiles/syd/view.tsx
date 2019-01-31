@@ -16,17 +16,18 @@
  * limitations under the License.
  */
 import * as React from 'react';
-import {Bound} from 'kombo';
+import {BoundWithProps} from 'kombo';
 import {ActionDispatcher, ViewUtils} from 'kombo';
 import { GlobalComponents } from '../../views/global';
 import { SydModel, SydModelState } from './model';
+import { CoreTileComponentProps, TileComponent } from '../../abstract/types';
 
 
-export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:SydModel):React.ComponentClass {
+export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:SydModel):TileComponent {
 
     const globComponents = ut.getComponents();
 
-    class SydTileView extends React.PureComponent<SydModelState> {
+    class SydTileView extends React.PureComponent<SydModelState & CoreTileComponentProps> {
 
         render() {
             return (
@@ -38,6 +39,6 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         }
     }
 
-    return Bound(SydTileView, model);
+    return BoundWithProps(SydTileView, model);
 
 }
