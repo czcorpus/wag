@@ -45,6 +45,7 @@ export interface GlobalComponents {
     TileWrapper:React.SFC<{
         isBusy:boolean;
         hasData:boolean;
+        sourceIdent:string;
         htmlClass?:string;
         error?:string;
     }>;
@@ -157,6 +158,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
                 <div className={`service-tile${props.htmlClass ? ' ' + props.htmlClass : ''}`}>
                     <div className="loader-wrapper">{props.hasData && props.isBusy ? <TitleLoaderBar  /> : null}</div>
                     {props.children}
+                    <div className="source">{ut.translate('global__source')}: {props.sourceIdent}</div>
                 </div>
             );
         }

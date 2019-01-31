@@ -75,11 +75,12 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
         render() {
             return <globComponents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
-                            hasData={this.props.data.size > 0}>
+                            hasData={this.props.data.size > 0}
+                            sourceIdent={this.props.corpname}>
                     <div className="TimeDistribTile">
                         <Chart data={this.props.data.toArray()}
                                 distProperty={this.props.attrValue}
-                                size={[this.props.renderSize[0], ~~Math.max(150, this.props.data.size * 15)]} />
+                                size={[this.props.renderSize[0], 300]} />
                     </div>
                     </globComponents.TileWrapper>
         }

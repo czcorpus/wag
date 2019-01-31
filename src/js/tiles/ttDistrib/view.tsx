@@ -59,7 +59,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         render() {
             return (
                 <globComponents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
-                        hasData={this.props.data.size > 0}>
+                        hasData={this.props.data.size > 0}
+                        sourceIdent={this.props.corpname}>
                     <div className="TTDistribTile">
                         <Chart data={this.props.data} size={[this.props.renderSize[0], this.props.data.size * 50]} />
                     </div>

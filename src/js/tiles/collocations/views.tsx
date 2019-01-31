@@ -164,24 +164,27 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         render() {
             return (
                 <globalCompontents.TileWrapper isBusy={this.props.isBusy} error={this.props.error} htmlClass="CollocTile"
-                        hasData={this.props.data.size > 0}>
-                    <div ref={this.chartContainer} style={{minHeight: '10em', position: 'relative'}} />
-                    {this.props.isExpanded ?
-                        <table className="cnc-table data">
-                            <tbody>
-                                <tr>
-                                    {this.props.heading.map((h, i) => <th key={`${i}:${h.s}`}>{h.s}</th>)}
-                                </tr>
-                                {this.props.data.map((row, i) => (
-                                    <tr key={`${i}:${row.str}`}>
-                                        <td>{row.str}</td>
-                                        {row.Stats.map((stat, i) => <td key={`stat-${i}`}>{stat.s}</td>)}
-                                        <td>{row.Stats[1].s}</td>
+                        hasData={this.props.data.size > 0}
+                        sourceIdent={this.props.corpname}>
+                    <div className="boxes">
+                        <div ref={this.chartContainer} style={{minHeight: '10em', position: 'relative'}} />
+                        {this.props.isExpanded ?
+                            <table className="cnc-table data">
+                                <tbody>
+                                    <tr>
+                                        {this.props.heading.map((h, i) => <th key={`${i}:${h.s}`}>{h.s}</th>)}
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table> : null
-                    }
+                                    {this.props.data.map((row, i) => (
+                                        <tr key={`${i}:${row.str}`}>
+                                            <td>{row.str}</td>
+                                            {row.Stats.map((stat, i) => <td key={`stat-${i}`}>{stat.s}</td>)}
+                                            <td>{row.Stats[1].s}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table> : null
+                        }
+                    </div>
                 </globalCompontents.TileWrapper>
             );
         }

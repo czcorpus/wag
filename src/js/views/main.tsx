@@ -409,13 +409,13 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             return (
                 <section key={`tile-ident-${this.props.tile.tileId}`}
                         className={`cnc-tile app-output${this.props.isExpanded ? ' expanded' : ''}`}>
-                    <div className="cnc-tile-header panel">
+                    <header className="cnc-tile-header panel">
                         <h2>{this.props.tile.label}</h2>
                         {this.props.tile.supportsExtendedView ?
                             <ExtendButton tileIdent={this.props.tile.tileId} extended={this.props.isExpanded} /> :
                             null
                         }
-                    </div>
+                    </header>
                     <div className="provider" ref={this.ref}>
                         {this.props.tile.Component ?
                             <globalComponents.ErrorBoundary>

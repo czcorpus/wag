@@ -10,6 +10,7 @@
         "global__not_enough_data_to_show_result": "Not enough data to show any result",
         "global__alt_loading": "Loading data",
         "global__failed_to_render_component": "Error - failed to render the component",
+        "global__source": "Source",
         "help__intro_tile_header": "What CNC search can do?",
         "help__help_tile_header": "Search help",
         "help__tips_tile_header": "Search tips"
@@ -25,6 +26,7 @@
         "global__not_enough_data_to_show_result": "Příliš málo dat pro zobrazení výsledku",
         "global__alt_loading": "Nahrávám data",
         "global__failed_to_render_component": "Chyba - nepodařilo se zobrazit komponentu",
+        "global__source": "Zdroj",
         "help__intro_tile_header": "Co umí vyhledávání v ČNK?",
         "help__help_tile_header": "Nápověda k hledání",
         "help__tips_tile_header": "Uživatelské tipy"
