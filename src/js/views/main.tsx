@@ -465,6 +465,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                             <>
                             {this.props.tileProps
                                 .filter(tile => tile.queryTypeSupport > 0)
+                                .filter(tile => !tile.isHidden)
                                 .sort((a, b) => b.queryTypeSupport - a.queryTypeSupport)
                                 .map((tile) => <TileContainer key={`tile:${tile.tileId}`} tile={tile}
                                                     isExpanded={this.props.expandedTiles.contains(tile.tileId)} />)

@@ -58,6 +58,7 @@ export interface ITileProvider {
     getIdent():number;
     getView():TileComponent;
     supportsExtendedView():boolean;
+    isHidden():boolean;
 
     /**
      *  0: no support
@@ -78,6 +79,8 @@ export namespace TileFactory {
         mainForm:WdglanceMainFormModel;
         lang1?:string;
         lang2?:string;
+        waitForTile?:number;
+        isHidden?:boolean;
         conf:T;
     }
 
@@ -94,6 +97,7 @@ export interface TileFrameProps {
     supportsExtendedView:boolean;
     queryTypeSupport:number;
     renderSize:[number, number];
+    isHidden:boolean;
 }
 
 export interface DataApi<T, U> {

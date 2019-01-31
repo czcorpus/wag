@@ -60,11 +60,14 @@ export class SocioModel extends StatelessModel<SocioModelState> {
 
     private readonly tileId:number;
 
+    private readonly waitForTile:number;
+
     private readonly api:FreqDistribAPI;
 
-    constructor(dispatcher:ActionDispatcher, initState:SocioModelState, tileId:number, api:FreqDistribAPI) {
+    constructor(dispatcher:ActionDispatcher, initState:SocioModelState, tileId:number, waitForTile:number, api:FreqDistribAPI) {
         super(dispatcher, initState);
         this.tileId = tileId;
+        this.waitForTile = waitForTile;
         this.api = api;
         this.actionMatch = {
             [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
@@ -73,20 +76,23 @@ export class SocioModel extends StatelessModel<SocioModelState> {
                 return newState;
             },
             [ActionName.LoadDataDone]: (state, action:Actions.LoadDataDone) => {
-                const newState = this.copyState(state);
-                newState.isBusy = false;
-                if (action.error) {
-                    newState.data = Immutable.List<SocioDataRow>();
-                    newState.error = action.error.message;
+                if (action.payload.tileId === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.isBusy = false;
+                    if (action.error) {
+                        newState.data = Immutable.List<SocioDataRow>();
+                        newState.error = action.error.message;
 
-                } else {
-                    const totalFreq = action.payload.data.reduce((acc, curr) => acc + curr.freq, 0);
-                    newState.data = Immutable.List<SocioDataRow>(action.payload.data.map(v => ({
-                        name: v.name,
-                        percent: v.freq / totalFreq * 100
-                    })));
+                    } else {
+                        const totalFreq = action.payload.data.reduce((acc, curr) => acc + curr.freq, 0);
+                        newState.data = Immutable.List<SocioDataRow>(action.payload.data.map(v => ({
+                            name: v.name,
+                            percent: v.freq / totalFreq * 100
+                        })));
+                    }
+                    return newState;
                 }
-                return newState;
+                return state;
             }
         }
     }
@@ -95,7 +101,7 @@ export class SocioModel extends StatelessModel<SocioModelState> {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
                 this.suspend((action:Action) => {
-                    if (action.name === ConcActionName.DataLoadDone) {
+                    if (action.name === ConcActionName.DataLoadDone && action.payload['tileId'] === this.waitForTile) {
                         const payload = (action as ConcActions.DataLoadDone).payload;
                         new Rx.Observable((observer:Rx.Observer<{}>) => {
                             if (action.error) {
@@ -112,7 +118,8 @@ export class SocioModel extends StatelessModel<SocioModelState> {
                                     name: ActionName.LoadDataDone,
                                     payload: {
                                         data: resp.data,
-                                        q: resp.q
+                                        q: resp.q,
+                                        tileId: this.tileId
                                     }
                                 });
                             },
@@ -121,7 +128,8 @@ export class SocioModel extends StatelessModel<SocioModelState> {
                                     name: ActionName.LoadDataDone,
                                     payload: {
                                         data: null,
-                                        q: null
+                                        q: null,
+                                        tileId: this.tileId
                                     },
                                     error: error
                                 });

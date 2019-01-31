@@ -47,7 +47,7 @@ export class SocioTile implements ITileProvider {
 
     private view:TileComponent;
 
-    constructor(lang1:string, lang2:string, {tileId, dispatcher, appServices, ut, mainForm, conf}:TileFactory.Args<SocioTileConf>) {
+    constructor(lang1:string, lang2:string, {tileId, dispatcher, appServices, ut, mainForm, waitForTile, conf}:TileFactory.Args<SocioTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
         this.subTitle = this.appServices.translate(conf.subTitle);
@@ -66,6 +66,7 @@ export class SocioTile implements ITileProvider {
                 fttIncludeEmpty: conf.fttIncludeEmpty
             },
             tileId,
+            waitForTile,
             new FreqDistribAPI(conf.apiURL)
         );
         this.view = viewInit(
@@ -100,10 +101,14 @@ export class SocioTile implements ITileProvider {
         }
         return 0;
     }
+
+    isHidden():boolean {
+        return false;
+    }
 }
 
 
 export const init:TileFactory.TileFactory<SocioTileConf> = ({
-    tileId, dispatcher, appServices, ut, mainForm, lang1, lang2, conf}) => {
-    return new SocioTile(lang1, lang2, {tileId, dispatcher, appServices, ut, mainForm, conf});
+    tileId, dispatcher, appServices, ut, mainForm, lang1, lang2, waitForTile, conf}) => {
+    return new SocioTile(lang1, lang2, {tileId, dispatcher, appServices, ut, mainForm, waitForTile, conf});
 }

@@ -51,13 +51,14 @@ export class TTDistTile implements ITileProvider {
 
     private view:TileComponent;
 
-    constructor(dispatcher:ActionDispatcher, tileId:number, ut:ViewUtils<GlobalComponents>, conf:TTDistTileConf) {
+    constructor(dispatcher:ActionDispatcher, tileId:number, waitForTile:number, ut:ViewUtils<GlobalComponents>, conf:TTDistTileConf) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.ut = ut;
         this.model = new TTDistribModel(
             this.dispatcher,
             tileId,
+            waitForTile,
             new FreqDistribAPI(conf.apiURL),
             {
                 isBusy: false,
@@ -101,9 +102,13 @@ export class TTDistTile implements ITileProvider {
         return 0;
     }
 
+    isHidden():boolean {
+        return false;
+    }
+
 }
 
 
-export const init:TileFactory.TileFactory<TTDistTileConf>  = ({tileId, dispatcher, ut, appServices, mainForm, conf}) => {
-    return new TTDistTile(dispatcher, tileId, ut, conf);
+export const init:TileFactory.TileFactory<TTDistTileConf>  = ({tileId, waitForTile, dispatcher, ut, appServices, mainForm, conf}) => {
+    return new TTDistTile(dispatcher, tileId, waitForTile, ut, conf);
 }

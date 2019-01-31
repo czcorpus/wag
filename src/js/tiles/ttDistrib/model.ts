@@ -61,9 +61,12 @@ export class TTDistribModel extends StatelessModel<TTDistribModelState> {
 
     private readonly tileId:number;
 
-    constructor(dispatcher:ActionDispatcher, tileId:number, api:FreqDistribAPI, initState:TTDistribModelState) {
+    private readonly waitForTile:number;
+
+    constructor(dispatcher:ActionDispatcher, tileId:number, waitForTile:number, api:FreqDistribAPI, initState:TTDistribModelState) {
         super(dispatcher, initState);
         this.tileId = tileId;
+        this.waitForTile = waitForTile;
         this.api = api;
         this.actionMatch = {
             [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
@@ -72,16 +75,19 @@ export class TTDistribModel extends StatelessModel<TTDistribModelState> {
                 return newState;
             },
             [ActionName.LoadDataDone]: (state, action:Actions.LoadDataDone) => {
-                const newState = this.copyState(state);
-                newState.isBusy = false;
-                if (action.error) {
-                    newState.data = Immutable.List<DataRow>();
-                    newState.error = action.error.message;
+                if (action.payload.tileId === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.isBusy = false;
+                    if (action.error) {
+                        newState.data = Immutable.List<DataRow>();
+                        newState.error = action.error.message;
 
-                } else {
-                    newState.data = Immutable.List<DataRow>(action.payload.data);
+                    } else {
+                        newState.data = Immutable.List<DataRow>(action.payload.data);
+                    }
+                    return newState;
                 }
-                return newState;
+                return state;
             }
         }
     }
@@ -90,7 +96,7 @@ export class TTDistribModel extends StatelessModel<TTDistribModelState> {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
                 this.suspend((action:Action) => {
-                    if (action.name === ConcActionName.DataLoadDone) {
+                    if (action.name === ConcActionName.DataLoadDone && action.payload['tileId'] === this.waitForTile) {
                         const payload = (action as ConcActions.DataLoadDone).payload;
                         new Rx.Observable((observer:Rx.Observer<{}>) => {
                             if (action.error) {
@@ -107,7 +113,8 @@ export class TTDistribModel extends StatelessModel<TTDistribModelState> {
                                     name: ActionName.LoadDataDone,
                                     payload: {
                                         data: resp.data,
-                                        q: resp.q
+                                        q: resp.q,
+                                        tileId: this.tileId
                                     }
                                 });
                             },
@@ -116,7 +123,8 @@ export class TTDistribModel extends StatelessModel<TTDistribModelState> {
                                     name: ActionName.LoadDataDone,
                                     payload: {
                                         data: null,
-                                        q: null
+                                        q: null,
+                                        tileId: this.tileId
                                     },
                                     error: error
                                 });

@@ -29,6 +29,8 @@ export namespace Actions {
     export interface LoadDataDone extends Action<{
         data:Array<DataRow>;
         q:string;
+        tileId:number;
+
     }> {
         name: ActionName.LoadDataDone
     }
