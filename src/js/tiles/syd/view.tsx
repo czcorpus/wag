@@ -32,7 +32,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         render() {
             return (
                 <globComponents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
-                        hasData={false}>
+                        hasData={false} sourceIdent="SyD">
                     <div>SyD - TODO</div>
                 </globComponents.TileWrapper>
             );

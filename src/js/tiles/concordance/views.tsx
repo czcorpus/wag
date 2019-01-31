@@ -112,7 +112,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         render() {
             return (
                 <globalCompontents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
-                        hasData={this.props.lines.size > 0}>
+                        hasData={this.props.lines.size > 0}
+                        sourceIdent={this.props.corpname}>
                     <div className="service-tile ConcordanceTileView">
                         {this.props.isExpanded ? <div><Controls currPage={this.props.currPage} /><hr /></div> : null}
                         <dl className="summary">

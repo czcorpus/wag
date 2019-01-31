@@ -30,6 +30,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     const globComponents = ut.getComponents();
 
+
     // -------------------------- <Chart /> --------------------------------------
 
     const Chart:React.SFC<{
@@ -39,7 +40,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
         return (
             <div className="Chart">
-                <BarChart width={props.size[0] - 30} height={props.size[1]} data={props.data.toArray()} layout="vertical">
+                <BarChart width={props.size[0] - 30} height={props.size[1] + 50} data={props.data.toArray()} layout="vertical">
                     <CartesianGrid />
                     <Bar dataKey="ipm" fill={SystemColor.COLOR_LOGO_BLUE} />
                     <XAxis type="number" />
@@ -58,7 +59,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         render() {
             return (
                 <globComponents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
-                        hasData={this.props.data.size > 0}>
+                        hasData={this.props.data.size > 0}
+                        sourceIdent={this.props.corpname}>
                     <div className="TTDistribTile">
                         <Chart data={this.props.data} size={[this.props.renderSize[0], this.props.data.size * 50]} />
                     </div>
