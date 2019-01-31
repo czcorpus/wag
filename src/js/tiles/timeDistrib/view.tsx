@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as React from 'react';
-import {CartesianGrid, XAxis, YAxis, Tooltip, AreaChart, Area} from 'recharts';
+import {CartesianGrid, XAxis, YAxis, Tooltip, AreaChart, Area, Legend} from 'recharts';
 import {ActionDispatcher, ViewUtils, BoundWithProps} from 'kombo';
 import { GlobalComponents } from '../../views/global';
 import { TimeDistribModel, TimeDistribModelState } from './model';
@@ -29,11 +29,26 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     const globComponents = ut.getComponents();
 
+    // -------------------------- <Chart /> --------------------------------------
+
+    const ChartLegend:React.SFC<{
+        distProperty:string;
+        metric:string;
+
+    }> = (props) => {
+        return (
+            <p style={{textAlign: 'center'}}>{ut.translate('timeDistrib__chart_legend_{property}{metric}', {property: props.distProperty,
+                metric: props.metric})}</p>
+        );
+    }
+
     // -------------- <Chart /> ------------------------------------------------------
 
     const Chart:React.SFC<{
         data:Array<DataItemWithWCI>;
         size:[number, number];
+        distProperty:string;
+
     }> = (props) => {
 
         return (
@@ -49,6 +64,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         stroke={SystemColor.COLOR_LOGO_GREEN}
                         fill={SystemColor.COLOR_LOGO_GREEN}
                         strokeWidth={1} />
+                <Legend content={<ChartLegend metric={ut.translate('timeDistrib__ipm_human')} distProperty={props.distProperty} />} />
             </AreaChart>
         );
     }
@@ -62,6 +78,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                             hasData={this.props.data.size > 0}>
                     <div className="TimeDistribTile">
                         <Chart data={this.props.data.toArray()}
+                                distProperty={this.props.attrValue}
                                 size={[this.props.renderSize[0], ~~Math.max(150, this.props.data.size * 15)]} />
                     </div>
                     </globComponents.TileWrapper>

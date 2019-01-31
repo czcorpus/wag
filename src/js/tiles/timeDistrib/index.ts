@@ -111,12 +111,7 @@ export class TimeDistTile implements ITileProvider {
     }
 
     getLabel():string {
-        return this.ut.translate('timeDistrib__main_label_{property}{metric}',
-            {
-                property: this.distProperty,
-                metric: this.ut.translate('timeDistrib__ipm_human')
-            }
-        );
+        return this.ut.translate('timeDistrib__main_label');
     }
 
     getQueryTypeSupport(qt:QueryType, lang1:string, lang2?:string):number {

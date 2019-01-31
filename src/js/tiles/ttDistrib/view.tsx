@@ -30,6 +30,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     const globComponents = ut.getComponents();
 
+
     // -------------------------- <Chart /> --------------------------------------
 
     const Chart:React.SFC<{
@@ -39,7 +40,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
         return (
             <div className="Chart">
-                <BarChart width={props.size[0] - 30} height={props.size[1]} data={props.data.toArray()} layout="vertical">
+                <BarChart width={props.size[0] - 30} height={props.size[1] + 50} data={props.data.toArray()} layout="vertical">
                     <CartesianGrid />
                     <Bar dataKey="ipm" fill={SystemColor.COLOR_LOGO_BLUE} />
                     <XAxis type="number" />
