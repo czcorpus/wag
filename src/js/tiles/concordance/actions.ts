@@ -17,7 +17,7 @@
  */
 
 import { Action } from "kombo";
-import { ConcResponse } from "./api";
+import { ConcResponse, ViewMode } from "./api";
 
 
 export enum ActionName {
@@ -25,7 +25,8 @@ export enum ActionName {
     LoadNextPage = 'CONCORDANCE_LOAD_NEXT_PAGE',
     LoadNextPageDone = 'CONCORDANCE_LOAD_NEXT_PAGE_DONE',
     LoadPrevPage = 'CONCORDANCE_LOAD_PREV_PAGE',
-    LoadPrevPageDone = 'CONCORDANCE_LOAD_PREV_PAGE_DONE'
+    LoadPrevPageDone = 'CONCORDANCE_LOAD_PREV_PAGE_DONE',
+    SetViewMode = 'CONCORDANCE_SET_VIEW_MODE'
 }
 
 
@@ -39,12 +40,21 @@ export namespace Actions {
     }
 
     export interface LoadNextPage extends Action<{
+        tileId:number;
     }> {
         name:ActionName.LoadNextPage;
     }
 
     export interface LoadPrevPage extends Action<{
+        tileId:number;
     }> {
         name:ActionName.LoadPrevPage;
+    }
+
+    export interface SetViewMode extends Action<{
+        tileId:number;
+        mode:ViewMode;
+    }> {
+        name:ActionName.SetViewMode
     }
 }

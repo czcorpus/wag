@@ -4,13 +4,15 @@
         "concordance__num_matching_items": "Number of matching items",
         "concordance__ipm": "Instances per million tokens",
         "concordance__view_options": "View options",
-        "concordance__page": "Page"
+        "concordance__page": "Page",
+        "concordance__view_mode": "View mode"
     },
     "cs-CZ": {
         "concordance__main_label": "Konkordance",
         "concordance__num_matching_items": "Počet vyhovujících výsledků",
         "concordance__ipm": "Výskytů na milion tokenů",
         "concordance__view_options": "Možnosti zobrazení",
-        "concordance__page": "Strana"
+        "concordance__page": "Strana",
+        "concordance__view_mode": "Režim"
     }
 }

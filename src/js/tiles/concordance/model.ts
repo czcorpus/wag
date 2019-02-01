@@ -19,7 +19,7 @@ import * as Immutable from 'immutable';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
 import {ActionName, Actions} from './actions';
-import {RequestBuilder, Line, QuerySelector, RequestArgs} from './api';
+import {RequestBuilder, Line, QuerySelector, RequestArgs, ViewMode} from './api';
 import { WdglanceMainFormModel } from '../../models/query';
 import { AppServices } from '../../appServices';
 import { importMessageType } from '../../notifications';
@@ -42,6 +42,8 @@ export interface ConcordanceTileState {
     currPage:number; // from 1
     loadPage:number; // the one we are going to load
     attr_vmode:'mouseover';
+    viewMode:ViewMode;
+    tileId:number;
     attrs:Immutable.List<string>;
 }
 
@@ -68,6 +70,7 @@ export const stateToArgs = (state:ConcordanceTileState, query:string, querySelec
         fromp: state.loadPage.toFixed(0),
         attr_vmode: state.attr_vmode,
         attrs: state.attrs.join(','),
+        viewmode: state.viewMode,
         format:'json'
     };
 }
@@ -156,24 +159,64 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 return state;
             },
             [ActionName.LoadNextPage]: (state, action:Actions.LoadNextPage) => {
-                const newState = this.copyState(state);
-                newState.isBusy = true;
-                newState.loadPage = newState.currPage + 1;
-                return newState;
-            },
-            [ActionName.LoadPrevPage]: (state, action:Actions.LoadNextPage) => {
-                if (state.currPage - 1 > 0) {
+                if (action.payload.tileId === this.tileId) {
                     const newState = this.copyState(state);
                     newState.isBusy = true;
-                    newState.loadPage = newState.currPage - 1;
+                    newState.loadPage = newState.currPage + 1;
                     return newState;
-
-                } else {
-                    this.appServices.showMessage(SystemMessageType.ERROR, 'Cannot load page < 1');
                 }
+                return state;
+            },
+            [ActionName.LoadPrevPage]: (state, action:Actions.LoadNextPage) => {
+                if (action.payload.tileId === this.tileId) {
+                    if (state.currPage - 1 > 0) {
+                        const newState = this.copyState(state);
+                        newState.isBusy = true;
+                        newState.loadPage = newState.currPage - 1;
+                        return newState;
 
+                    } else {
+                        this.appServices.showMessage(SystemMessageType.ERROR, 'Cannot load page < 1');
+                    }
+                }
+                return state;
+            },
+            [ActionName.SetViewMode]: (state, action:Actions.SetViewMode) => {
+                if (action.payload.tileId === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.isBusy = true;
+                    newState.viewMode = action.payload.mode;
+                    return newState;
+                }
+                return state;
             }
         };
+    }
+
+    private reloadData(state:ConcordanceTileState, dispatch:SEDispatcher):void {
+        this.service
+            .call(stateToArgs(state, this.mainForm.getState().query.value, QuerySelector.BASIC))
+            .subscribe(
+                (data) => {
+                    dispatch<Actions.DataLoadDone>({
+                        name: ActionName.DataLoadDone,
+                        payload: {
+                            data: data,
+                            tileId: this.tileId
+                        }
+                    });
+                },
+                (err) => {
+                    dispatch<Actions.DataLoadDone>({
+                        name: ActionName.DataLoadDone,
+                        error: err,
+                        payload: {
+                            data: null,
+                            tileId: this.tileId
+                        }
+                    });
+                }
+            );
     }
 
     sideEffects(state:ConcordanceTileState, action:Action, dispatch:SEDispatcher):void {
@@ -181,30 +224,14 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             case GlobalActionName.RequestQueryResponse:
             case GlobalActionName.ExpandTile:
             case GlobalActionName.ResetExpandTile:
+                this.reloadData(state, dispatch);
+            break;
             case ActionName.LoadNextPage:
             case ActionName.LoadPrevPage:
-                this.service.call(stateToArgs(state, this.mainForm.getState().query.value, QuerySelector.BASIC))
-                .subscribe(
-                    (data) => {
-                        dispatch<Actions.DataLoadDone>({
-                            name: ActionName.DataLoadDone,
-                            payload: {
-                                data: data,
-                                tileId: this.tileId
-                            }
-                        });
-                    },
-                    (err) => {
-                        dispatch<Actions.DataLoadDone>({
-                            name: ActionName.DataLoadDone,
-                            error: err,
-                            payload: {
-                                data: null,
-                                tileId: this.tileId
-                            }
-                        });
-                    }
-                )
+            case ActionName.SetViewMode:
+                if (action.payload['tileId'] === this.tileId) {
+                    this.reloadData(state, dispatch);
+                }
             break;
         }
     }

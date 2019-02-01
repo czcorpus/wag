@@ -21,7 +21,7 @@ import { ITileProvider, TileFactory, QueryType, TileComponent, TileConf } from '
 import {init as viewInit} from './views';
 import { ConcordanceTileModel } from './model';
 import { ActionDispatcher, ViewUtils } from 'kombo';
-import { RequestBuilder, Line } from './api';
+import { RequestBuilder, Line, ViewMode } from './api';
 import { GlobalComponents } from '../../views/global';
 
 declare var require:any;
@@ -62,6 +62,7 @@ export class ConcordanceTile implements ITileProvider {
             service: new RequestBuilder(conf.apiURL),
             mainForm: mainForm,
             initState: {
+                tileId: tileId,
                 isBusy: false,
                 error: null,
                 isExpanded: false,
@@ -77,6 +78,7 @@ export class ConcordanceTile implements ITileProvider {
                 kwicLeftCtx: -3,
                 kwicRightCtx: 3,
                 attr_vmode: 'mouseover',
+                viewMode: ViewMode.KWIC,
                 attrs: Immutable.List<string>(conf.posAttrs)
             }
         });

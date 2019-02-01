@@ -28,7 +28,9 @@
         "global__references": "References",
         "global__citation_info": "Citation information",
         "global__corp_info_attrs_remark_label": "Remark",
-        "global__no_citation_info": "-"
+        "global__no_citation_info": "-",
+        "global__view_mode_kwic": "KWIC",
+        "global__view_mode_sent": "sentence"
 
     },
     "cs-CZ": {
@@ -60,6 +62,8 @@
         "global__references": "Literatura",
         "global__citation_info": "Citační informace",
         "global__corp_info_attrs_remark_label": "Poznámka",
-        "global__no_citation_info": "-"
+        "global__no_citation_info": "-",
+        "global__view_mode_kwic": "KWIC",
+        "global__view_mode_sent": "věta"
     }
 }

@@ -25,6 +25,11 @@ export enum QuerySelector {
     CQL = 'cqlrow',
 }
 
+export enum ViewMode {
+    KWIC = 'kwic',
+    SENT = 'sen'
+}
+
 export interface RequestArgs {
     corpname:string;
     iquery:string;
@@ -36,6 +41,7 @@ export interface RequestArgs {
     fromp:string;
     attr_vmode:string;
     attrs:string;
+    viewmode:ViewMode;
     format:'json';
 }
 
