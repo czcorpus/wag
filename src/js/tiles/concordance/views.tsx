@@ -20,8 +20,8 @@ import {ActionDispatcher, BoundWithProps, ViewUtils} from 'kombo';
 import * as React from 'react';
 import {ConcordanceTileModel, ConcordanceTileState} from './model';
 import { GlobalComponents } from '../../views/global';
-import { Line, LineElement } from './api';
-import { ActionName } from './actions';
+import { Line, LineElement, ViewMode } from './api';
+import { ActionName, Actions } from './actions';
 import { TileComponent, CoreTileComponentProps } from '../../abstract/types';
 
 
@@ -33,18 +33,25 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     const Paginator:React.SFC<{
         page:number;
+        tileId:number;
 
     }> = (props) => {
 
         const handlePrevPage = () => {
-            dispatcher.dispatch({
-                name: ActionName.LoadPrevPage
+            dispatcher.dispatch<Actions.LoadPrevPage>({
+                name: ActionName.LoadPrevPage,
+                payload: {
+                    tileId: props.tileId
+                }
             });
         };
 
         const handleNextPage = () => {
-            dispatcher.dispatch({
-                name: ActionName.LoadNextPage
+            dispatcher.dispatch<Actions.LoadNextPage>({
+                name: ActionName.LoadNextPage,
+                payload: {
+                    tileId: props.tileId
+                }
             });
         };
 
@@ -57,19 +64,48 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         );
     };
 
+    // ------------------ <ViewModeSwitch /> --------------------------------------------
+
+    const ViewModeSwitch:React.SFC<{
+        mode:ViewMode;
+        tileId:number;
+    }> = (props) => {
+
+        const handleChange = (evt:React.ChangeEvent<HTMLSelectElement>) => {
+            dispatcher.dispatch<Actions.SetViewMode>({
+                name: ActionName.SetViewMode,
+                payload: {
+                    mode: evt.target.value as ViewMode,
+                    tileId: props.tileId
+                }
+            });
+        };
+
+        return (
+            <select value={props.mode} onChange={handleChange}>
+                <option value={ViewMode.KWIC}>{ut.translate('global__view_mode_kwic')}</option>
+                <option value={ViewMode.SENT}>{ut.translate('global__view_mode_sent')}</option>
+            </select>
+        );
+    };
+
     // ------------------ <Controls /> --------------------------------------------
 
     const Controls:React.SFC<{
         currPage:number;
+        viewMode:ViewMode;
+        tileId:number;
 
     }> = (props) => {
         return (
             <form className="Controls cnc-form">
                 <fieldset>
-                    <div>
-                        <label>{ut.translate('concordance__page')}:</label>
-                        <Paginator page={props.currPage} />
-                    </div>
+                        <label>{ut.translate('concordance__page')}:{'\u00a0'}
+                        <Paginator page={props.currPage} tileId={props.tileId} />
+                        </label>
+                        <label>{ut.translate('concordance__view_mode')}:{'\u00a0'}
+                            <ViewModeSwitch mode={props.viewMode} tileId={props.tileId} />
+                        </label>
                 </fieldset>
             </form>
         )
@@ -115,7 +151,10 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         hasData={this.props.lines.size > 0}
                         sourceIdent={this.props.corpname}>
                     <div className="service-tile ConcordanceTileView">
-                        {this.props.isExpanded ? <div><Controls currPage={this.props.currPage} /><hr /></div> : null}
+                        {this.props.isExpanded ?
+                            <div><Controls currPage={this.props.currPage} viewMode={this.props.viewMode} tileId={this.props.tileId} /><hr /></div> :
+                            null
+                        }
                         <dl className="summary">
                             <dt>{ut.translate('concordance__num_matching_items')}:</dt>
                             <dd>{ut.formatNumber(this.props.concsize, 0)}</dd>
@@ -123,7 +162,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                             <dd>{ut.formatNumber(this.props.resultIPM, 2)}</dd>
                         </dl>
                         <hr />
-                        <table className="conc-lines">
+                        <table className={`conc-lines${this.props.viewMode === ViewMode.SENT ? ' sent' : ''}`}>
                             <tbody>
                                 {this.props.lines.map(line => <Row key={`${line.toknum}`} data={line} />)}
                             </tbody>
