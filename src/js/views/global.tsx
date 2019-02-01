@@ -20,6 +20,7 @@ import {ActionDispatcher, ViewUtils} from 'kombo';
 import * as React from 'react';
 import { KeyCodes } from '../shared/util';
 import { SystemMessageType } from '../abstract/types';
+import { Actions, ActionName } from '../models/actions';
 
 
 export interface GlobalComponents {
@@ -51,6 +52,10 @@ export interface GlobalComponents {
     }>;
 
     ErrorBoundary:React.ComponentClass;
+
+    ModalBox:React.ComponentClass<{
+        onCloseClick:()=>void;
+    }>;
 }
 
 export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalComponents {
@@ -137,6 +142,16 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
     // --------------- <TileWrapper /> -------------------------------------------
 
     const TileWrapper:GlobalComponents['TileWrapper'] = (props) => {
+
+        const handleSourceClick = () => {
+            dispatcher.dispatch<Actions.GetCorpusInfo>({
+                name: ActionName.GetCorpusInfo,
+                payload: {
+                    corpusId: props.sourceIdent
+                }
+            });
+        };
+
         if (props.isBusy && !props.hasData) {
             return <div className="service-tile"><AjaxLoader htmlClass="centered" /></div>;
 
@@ -158,7 +173,11 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
                 <div className={`service-tile${props.htmlClass ? ' ' + props.htmlClass : ''}`}>
                     <div className="loader-wrapper">{props.hasData && props.isBusy ? <TitleLoaderBar  /> : null}</div>
                     {props.children}
-                    <div className="source">{ut.translate('global__source')}: {props.sourceIdent}</div>
+                    <div className="source">
+                        <a onClick={handleSourceClick}>
+                            {ut.translate('global__source')}: {props.sourceIdent}
+                        </a>
+                    </div>
                 </div>
             );
         }
@@ -198,12 +217,56 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
         }
     }
 
+    // --------------- <ModalBox /> -------------------------------------------
+
+    class ModalBox extends React.PureComponent<{onCloseClick:()=>void}> {
+
+        private ref:React.RefObject<HTMLButtonElement>;
+
+        constructor(props) {
+            super(props);
+            this.ref = React.createRef();
+            this.handleKey = this.handleKey.bind(this);
+        }
+
+        componentDidMount() {
+            if (this.ref.current) {
+                this.ref.current.focus();
+            }
+        }
+
+        private handleKey(evt:React.KeyboardEvent) {
+            if (evt.keyCode === KeyCodes.ESC) {
+                this.props.onCloseClick();
+            }
+        }
+
+        render() {
+            return (
+                <div id="modal-overlay">
+                    <div className="content cnc-tile">
+                        <header className="cnc-tile-header">
+                            <button className="close"
+                                    ref={this.ref}
+                                    onClick={this.props.onCloseClick}
+                                    onKeyDown={this.handleKey}>
+                                <img src={ut.createStaticUrl('close-icon.svg')} />
+                            </button>
+                        </header>
+                        {this.props.children}
+                    </div>
+                </div>
+            );
+        }
+    }
+
     return {
         AjaxLoader: AjaxLoader,
         ModalOverlay: ModalOverlay,
         MessageStatusIcon: MessageStatusIcon,
         EmptySet: EmptySet,
         TileWrapper: TileWrapper,
-        ErrorBoundary: ErrorBoundary
+        ErrorBoundary: ErrorBoundary,
+        ModalBox: ModalBox
     };
 }

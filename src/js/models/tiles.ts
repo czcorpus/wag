@@ -16,17 +16,20 @@
  * limitations under the License.
  */
 
-import {StatelessModel, ActionDispatcher} from 'kombo';
+import {StatelessModel, ActionDispatcher, Action, SEDispatcher} from 'kombo';
 import { ActionName, Actions } from './actions';
 import * as Immutable from 'immutable';
 import { AppServices } from '../appServices';
-import { TileFrameProps } from '../abstract/types';
+import { TileFrameProps, SystemMessageType } from '../abstract/types';
+import { CorpusInfoAPI, APIResponse } from '../shared/api/corpusInfo';
 
 
 export interface WdglanceTilesState {
     isAnswerMode:boolean;
+    isBusy:boolean;
     expandedTiles:Immutable.Set<number>;
     tileProps:Immutable.List<TileFrameProps>;
+    corpusInfoData:APIResponse|null;
 }
 
 
@@ -34,9 +37,12 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
 
     private readonly appServices:AppServices;
 
-    constructor(dispatcher:ActionDispatcher, initialState:WdglanceTilesState, appServices:AppServices) {
+    private readonly corpusInfoApi:CorpusInfoAPI;
+
+    constructor(dispatcher:ActionDispatcher, initialState:WdglanceTilesState, appServices:AppServices, corpusInfoApi:CorpusInfoAPI) {
         super(dispatcher, initialState);
         this.appServices = appServices;
+        this.corpusInfoApi = corpusInfoApi;
         this.actionMatch = {
             [ActionName.AcknowledgeSize]: (state, action:Actions.AcknowledgeSize) => {
                 const newState = this.copyState(state);
@@ -72,7 +78,60 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                 const newState = this.copyState(state);
                 newState.isAnswerMode = true;
                 return newState;
-            }
+            },
+            [ActionName.GetCorpusInfo]: (state, action:Actions.GetCorpusInfo) => {
+                const newState = this.copyState(state);
+                newState.corpusInfoData = null;
+                newState.isBusy = true;
+                return newState;
+            },
+            [ActionName.GetCorpusInfoDone]: (state, action:Actions.GetCorpusInfoDone) => {
+                const newState = this.copyState(state);
+                newState.isBusy = true;
+                if (action.error) {
+                    newState.corpusInfoData = null;
+
+                } else {
+                    newState.corpusInfoData = action.payload.data
+                }
+                return newState;
+            },
+            [ActionName.CloseCorpusInfo]: (state, action:Actions.CloseCorpusInfo) => {
+                const newState = this.copyState(state);
+                newState.corpusInfoData = null;
+                return newState;
+            },
         };
+    }
+
+    sideEffects(state:WdglanceTilesState, action:Action, dispatch:SEDispatcher):void {
+        switch (action.name) {
+            case ActionName.GetCorpusInfo:
+                this.corpusInfoApi.call(
+                    {
+                        corpname: action.payload['corpusId'],
+                        format: 'json'
+                    }
+                ).subscribe(
+                    (data) => {
+                        dispatch<Actions.GetCorpusInfoDone>({
+                            name: ActionName.GetCorpusInfoDone,
+                            payload: {
+                                data: data
+                            }
+                        })
+                    },
+                    (error) => {
+                        this.appServices.showMessage(SystemMessageType.ERROR, error);
+                        dispatch<Actions.GetCorpusInfoDone>({
+                            name: ActionName.GetCorpusInfoDone,
+                            error: error,
+                            payload: {
+                                data: null
+                            }
+                        })
+                    }
+                );
+        }
     }
 }

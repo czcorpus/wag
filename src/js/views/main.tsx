@@ -28,12 +28,14 @@ import { Forms } from '../shared/data';
 import { TileFrameProps, SystemMessageType, QueryType } from '../abstract/types';
 import { WdglanceTilesModel, WdglanceTilesState } from '../models/tiles';
 import { MessagesState, MessagesModel } from '../models/messages';
+import {init as corpusInfoViewInit} from './corpusInfo';
 
 
 export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, formModel:WdglanceMainFormModel, tilesModel:WdglanceTilesModel,
             messagesModel:MessagesModel) {
 
     const globalComponents = ut.getComponents();
+    const CorpusInfo = corpusInfoViewInit(dispatcher, ut);
 
     // ------------------ <SystemMessage /> ------------------------------
 
@@ -456,6 +458,17 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     class TilesSections extends React.PureComponent<WdglanceTilesState> {
 
+        constructor(props) {
+            super(props);
+            this.handleCloseCorpusInfo = this.handleCloseCorpusInfo.bind(this);
+        }
+
+        handleCloseCorpusInfo() {
+            dispatcher.dispatch<Actions.CloseCorpusInfo>({
+                name: ActionName.CloseCorpusInfo
+            })
+        }
+
         render() {
             return (
                 <div>
@@ -475,6 +488,10 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         <InitialHelp />
                     }
                     </section>
+                    {this.props.corpusInfoData ?
+                        <globalComponents.ModalBox onCloseClick={this.handleCloseCorpusInfo}>
+                            <CorpusInfo data={this.props.corpusInfoData} />
+                        </globalComponents.ModalBox> : null}
                 </div>
             );
         }

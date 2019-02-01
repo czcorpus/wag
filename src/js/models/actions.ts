@@ -18,6 +18,7 @@
 
 import {Action} from 'kombo';
 import { SystemMessageType, QueryType } from '../abstract/types';
+import {APIResponse} from '../shared/api/corpusInfo';
 
 export enum ActionName {
     ChangeQueryInput = 'MAIN_CHANGE_QUERY_INPUT',
@@ -33,6 +34,9 @@ export enum ActionName {
     SubmitQuery = 'MAIN_SUBMIT_QUERY',
     ExpandTile = 'MAIN_EXPAND_TILE',
     ResetExpandTile = 'MAIN_RESET_EXPAND_TILE',
+    GetCorpusInfo = 'MAIN_GET_CORPUS_INFO',
+    GetCorpusInfoDone = 'MAIN_GET_CORPUS_INFO_DONE',
+    CloseCorpusInfo = 'MAIN_CLOSE_CORPUS_INFO'
 }
 
 export namespace Actions {
@@ -126,5 +130,22 @@ export namespace Actions {
         ident:number;
     }> {
         name:ActionName.ResetExpandTile;
+    }
+
+    export interface GetCorpusInfo extends Action<{
+        corpusId:string;
+    }> {
+        name:ActionName.GetCorpusInfo;
+    }
+
+    export interface CloseCorpusInfo extends Action<{
+    }> {
+        name:ActionName.CloseCorpusInfo;
+    }
+
+    export interface GetCorpusInfoDone extends Action<{
+        data:APIResponse;
+    }> {
+        name:ActionName.GetCorpusInfoDone;
     }
 }
