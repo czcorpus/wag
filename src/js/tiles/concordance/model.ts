@@ -183,11 +183,9 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             case GlobalActionName.ResetExpandTile:
             case ActionName.LoadNextPage:
             case ActionName.LoadPrevPage:
-                console.log('CONC about to call: ', stateToArgs(state, this.mainForm.getState().query.value, QuerySelector.BASIC));
                 this.service.call(stateToArgs(state, this.mainForm.getState().query.value, QuerySelector.BASIC))
                 .subscribe(
                     (data) => {
-                        console.log('data load done XXX: ', this.tileId, data);
                         dispatch<Actions.DataLoadDone>({
                             name: ActionName.DataLoadDone,
                             payload: {

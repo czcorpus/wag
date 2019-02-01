@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { TileFactory, ITileProvider, QueryType, TileComponent } from '../../abstract/types';
+import { TileFactory, ITileProvider, QueryType, TileComponent, TileConf } from '../../abstract/types';
 import { AppServices } from '../../appServices';
 import {init as viewInit} from './view';
 import { TreqModel } from './model';
@@ -24,7 +24,7 @@ import { TreqAPI, TreqTranslation, SearchPackages } from './api';
 declare var require:any;
 require('./style.less');
 
-export interface TreqTileConf {
+export interface TreqTileConf extends TileConf {
     apiURL:string;
     backlinkURL:string;
     srchPackages:SearchPackages;

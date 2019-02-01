@@ -16,16 +16,15 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { ITileProvider, QueryType, TileFactory, TileComponent } from '../../abstract/types';
+import { ITileProvider, QueryType, TileFactory, TileComponent, TileConf } from '../../abstract/types';
 import { AppServices } from '../../appServices';
 import { FreqPieModel, FreqPieDataRow } from './model';
 import {init as viewInit} from './view';
 import { FreqDistribAPI } from '../../shared/api/kontextFreqs';
 
 
-export interface FreqPieTileConf {
+export interface FreqPieTileConf extends TileConf{
     apiURL:string;
-    subTitle:string;
     corpname:string;
     fcrit:string;
     flimit:number;
@@ -39,7 +38,7 @@ export class FreqPieTile implements ITileProvider {
 
     private readonly tileId:number;
 
-    private readonly subTitle:string;
+    private readonly label:string;
 
     private readonly appServices:AppServices;
 
@@ -50,7 +49,7 @@ export class FreqPieTile implements ITileProvider {
     constructor(lang1:string, lang2:string, {tileId, dispatcher, appServices, ut, mainForm, waitForTile, conf}:TileFactory.Args<FreqPieTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
-        this.subTitle = this.appServices.translate(conf.subTitle);
+        this.label = this.appServices.importExternalLabel(conf.label);
         this.model = new FreqPieModel(
             dispatcher,
             {
@@ -67,6 +66,7 @@ export class FreqPieTile implements ITileProvider {
             },
             tileId,
             waitForTile,
+            appServices,
             new FreqDistribAPI(conf.apiURL)
         );
         this.view = viewInit(
@@ -84,7 +84,7 @@ export class FreqPieTile implements ITileProvider {
     }
 
     getLabel():string {
-        return `${this.appServices.translate('freqpie__main_label')} - ${this.subTitle}`;
+        return this.label ? this.label : this.appServices.translate('freqpie__main_label');
     }
 
     getView():TileComponent {

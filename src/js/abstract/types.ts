@@ -47,6 +47,13 @@ export enum QueryType {
     TRANSLAT_QUERY = 'translat'
 }
 
+export interface TileConf {
+    tileType:string;
+    isHidden?:boolean;
+    dependsOn?:string;
+    label?:string;
+}
+
 export type CoreTileComponentProps = {renderSize:[number, number]}
 
 export type TileComponent = React.ComponentClass<CoreTileComponentProps>|React.SFC<CoreTileComponentProps>;

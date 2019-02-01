@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { ITileProvider, TileFactory, QueryType, TileComponent } from '../../abstract/types';
+import { ITileProvider, TileFactory, QueryType, TileComponent, TileConf } from '../../abstract/types';
 import { ActionDispatcher, ViewUtils } from 'kombo';
 import { GlobalComponents } from '../../views/global';
 import { TimeDistribModel, FreqFilterQuantity, AlignType } from './model';
@@ -30,7 +30,7 @@ declare var require:(src:string)=>void;  // webpack
 require('./style.less');
 
 
-export interface TimeDistTileConf {
+export interface TimeDistTileConf extends TileConf {
 
     apiURL:string;
 

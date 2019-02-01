@@ -23,6 +23,7 @@ import {StatelessModel, ActionDispatcher, Action, SEDispatcher} from 'kombo';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
 import {ActionName as ConcActionName, Actions as ConcActions} from '../concordance/actions';
 import {ActionName, Actions} from './actions';
+import { AppServices } from '../../appServices';
 
 
 
@@ -59,14 +60,17 @@ export class TTDistribModel extends StatelessModel<TTDistribModelState> {
 
     private api:FreqDistribAPI;
 
+    private readonly appServices:AppServices;
+
     private readonly tileId:number;
 
     private readonly waitForTile:number;
 
-    constructor(dispatcher:ActionDispatcher, tileId:number, waitForTile:number, api:FreqDistribAPI, initState:TTDistribModelState) {
+    constructor(dispatcher:ActionDispatcher, tileId:number, waitForTile:number, appServices:AppServices, api:FreqDistribAPI, initState:TTDistribModelState) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.waitForTile = waitForTile;
+        this.appServices = appServices;
         this.api = api;
         this.actionMatch = {
             [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
@@ -81,6 +85,10 @@ export class TTDistribModel extends StatelessModel<TTDistribModelState> {
                     if (action.error) {
                         newState.data = Immutable.List<DataRow>();
                         newState.error = action.error.message;
+
+                    } else if (action.payload.data.length === 0) {
+                        newState.data = Immutable.List<DataRow>();
+                        newState.error = this.appServices.translate('global__not_enough_data_to_show_result');
 
                     } else {
                         newState.data = Immutable.List<DataRow>(action.payload.data);

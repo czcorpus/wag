@@ -17,18 +17,19 @@
  */
 
 import * as Immutable from 'immutable';
-import { ITileProvider, TileFactory, QueryType, TileComponent } from '../../abstract/types';
+import { ITileProvider, TileFactory, QueryType, TileComponent, TileConf } from '../../abstract/types';
 import {init as viewInit} from './view';
 import { ActionDispatcher, ViewUtils } from "kombo";
 import { TTDistribModel } from "./model";
 import { FreqDistribAPI, DataRow } from "../../shared/api/kontextFreqs";
 import { GlobalComponents } from "../../views/global";
+import { AppServices } from '../../appServices';
 
 declare var require:(src:string)=>void;  // webpack
 require('./style.less');
 
 
-export interface TTDistTileConf {
+export interface TTDistTileConf extends TileConf {
     apiURL:string;
     corpname:string;
     fcrit:string;
@@ -51,14 +52,18 @@ export class TTDistTile implements ITileProvider {
 
     private view:TileComponent;
 
-    constructor(dispatcher:ActionDispatcher, tileId:number, waitForTile:number, ut:ViewUtils<GlobalComponents>, conf:TTDistTileConf) {
+    private readonly label:string;
+
+    constructor(dispatcher:ActionDispatcher, tileId:number, waitForTile:number, ut:ViewUtils<GlobalComponents>, appServices:AppServices, conf:TTDistTileConf) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.ut = ut;
+        this.label = appServices.importExternalLabel(conf.label);
         this.model = new TTDistribModel(
             this.dispatcher,
             tileId,
             waitForTile,
+            appServices,
             new FreqDistribAPI(conf.apiURL),
             {
                 isBusy: false,
@@ -92,7 +97,7 @@ export class TTDistTile implements ITileProvider {
     }
 
     getLabel():string {
-        return this.ut.translate('ttDistrib__main_label');
+        return this.label ? this.label : this.ut.translate('ttDistrib__main_label');
     }
 
     getQueryTypeSupport(qt:QueryType, lang1:string, lang2?:string):number {
@@ -110,5 +115,5 @@ export class TTDistTile implements ITileProvider {
 
 
 export const init:TileFactory.TileFactory<TTDistTileConf>  = ({tileId, waitForTile, dispatcher, ut, appServices, mainForm, conf}) => {
-    return new TTDistTile(dispatcher, tileId, waitForTile, ut, conf);
+    return new TTDistTile(dispatcher, tileId, waitForTile, ut, appServices, conf);
 }

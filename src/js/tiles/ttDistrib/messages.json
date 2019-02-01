@@ -3,12 +3,12 @@
         "ttDistrib__main_label": "Frequency distribution",
         "ttDistrib__indicator_text_types": "text types",
         "ttDistrib__indicator_medium": "media types",
-        "ttDistrib__speaker_area": "regions by speakers"
+        "ttDistrib__speaker_region": "regions by speakers"
     },
     "cs-CZ": {
         "ttDistrib__main_label": "Frekvenční distribuce",
         "ttDistrib__indicator_text_types": "typy textů",
         "ttDistrib__indicator_medium": "typy médií",
-        "ttDistrib__speaker_area": "oblasti podle mluvčích"
+        "ttDistrib__speaker_region": "oblasti podle mluvčích"
     }
 }

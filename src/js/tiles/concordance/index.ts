@@ -17,7 +17,7 @@
  */
 
 import * as Immutable from 'immutable';
-import { ITileProvider, TileFactory, QueryType, TileComponent } from '../../abstract/types';
+import { ITileProvider, TileFactory, QueryType, TileComponent, TileConf } from '../../abstract/types';
 import {init as viewInit} from './views';
 import { ConcordanceTileModel } from './model';
 import { ActionDispatcher, ViewUtils } from 'kombo';
@@ -28,7 +28,7 @@ declare var require:any;
 require('./style.less');
 
 
-export interface ConcordanceTileConf {
+export interface ConcordanceTileConf extends TileConf {
     apiURL:string;
     corpname:string;
     posAttrs:Array<string>;

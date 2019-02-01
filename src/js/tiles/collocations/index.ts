@@ -17,7 +17,7 @@
  */
 
 import * as Immutable from 'immutable';
-import { TileFactory, ITileProvider, CorePosAttribute, QueryType, TileComponent } from "../../abstract/types";
+import { TileFactory, ITileProvider, CorePosAttribute, QueryType, TileComponent, TileConf } from "../../abstract/types";
 import { AppServices } from "../../appServices";
 import { CollocModel } from "./model";
 import { KontextCollAPI } from "./service";
@@ -30,7 +30,7 @@ declare var require:(src:string)=>void;  // webpack
 require('./style.less');
 
 
-export interface CollocationsTileConf {
+export interface CollocationsTileConf extends TileConf {
     apiURL:string;
     corpname:string;
 }
