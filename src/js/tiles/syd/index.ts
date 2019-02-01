@@ -87,6 +87,10 @@ export class SyDTile implements ITileProvider {
         }
         return 0;
     }
+
+    isHidden():boolean {
+        return false;
+    }
 }
 
 

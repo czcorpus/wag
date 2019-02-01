@@ -18,12 +18,12 @@
 import * as Immutable from 'immutable';
 import { ITileProvider, QueryType, TileFactory, TileComponent } from '../../abstract/types';
 import { AppServices } from '../../appServices';
-import { SocioModel, SocioDataRow } from './model';
+import { FreqPieModel, FreqPieDataRow } from './model';
 import {init as viewInit} from './view';
 import { FreqDistribAPI } from '../../shared/api/kontextFreqs';
 
 
-export interface SocioTileConf {
+export interface FreqPieTileConf {
     apiURL:string;
     subTitle:string;
     corpname:string;
@@ -35,7 +35,7 @@ export interface SocioTileConf {
 }
 
 
-export class SocioTile implements ITileProvider {
+export class FreqPieTile implements ITileProvider {
 
     private readonly tileId:number;
 
@@ -43,20 +43,20 @@ export class SocioTile implements ITileProvider {
 
     private readonly appServices:AppServices;
 
-    private readonly model:SocioModel;
+    private readonly model:FreqPieModel;
 
     private view:TileComponent;
 
-    constructor(lang1:string, lang2:string, {tileId, dispatcher, appServices, ut, mainForm, conf}:TileFactory.Args<SocioTileConf>) {
+    constructor(lang1:string, lang2:string, {tileId, dispatcher, appServices, ut, mainForm, waitForTile, conf}:TileFactory.Args<FreqPieTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
         this.subTitle = this.appServices.translate(conf.subTitle);
-        this.model = new SocioModel(
+        this.model = new FreqPieModel(
             dispatcher,
             {
                 isBusy: false,
                 error: null,
-                data: Immutable.List<SocioDataRow>(),
+                data: Immutable.List<FreqPieDataRow>(),
                 corpname: conf.corpname,
                 q: null,
                 fcrit: conf.fcrit,
@@ -66,6 +66,7 @@ export class SocioTile implements ITileProvider {
                 fttIncludeEmpty: conf.fttIncludeEmpty
             },
             tileId,
+            waitForTile,
             new FreqDistribAPI(conf.apiURL)
         );
         this.view = viewInit(
@@ -83,7 +84,7 @@ export class SocioTile implements ITileProvider {
     }
 
     getLabel():string {
-        return `${this.appServices.translate('socio__main_label')} - ${this.subTitle}`;
+        return `${this.appServices.translate('freqpie__main_label')} - ${this.subTitle}`;
     }
 
     getView():TileComponent {
@@ -100,10 +101,14 @@ export class SocioTile implements ITileProvider {
         }
         return 0;
     }
+
+    isHidden():boolean {
+        return false;
+    }
 }
 
 
-export const init:TileFactory.TileFactory<SocioTileConf> = ({
-    tileId, dispatcher, appServices, ut, mainForm, lang1, lang2, conf}) => {
-    return new SocioTile(lang1, lang2, {tileId, dispatcher, appServices, ut, mainForm, conf});
+export const init:TileFactory.TileFactory<FreqPieTileConf> = ({
+    tileId, dispatcher, appServices, ut, mainForm, lang1, lang2, waitForTile, conf}) => {
+    return new FreqPieTile(lang1, lang2, {tileId, dispatcher, appServices, ut, mainForm, waitForTile, conf});
 }

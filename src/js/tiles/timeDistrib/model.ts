@@ -110,10 +110,13 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private readonly tileId:number;
 
-    constructor(dispatcher, initState:TimeDistribModelState, tileId:number, api:TimeDistribAPI, appServices:AppServices) {
+    private readonly waitForTile:number;
+
+    constructor(dispatcher, initState:TimeDistribModelState, tileId:number, waitForTile:number, api:TimeDistribAPI, appServices:AppServices) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.api = api;
+        this.waitForTile = waitForTile;
         this.appServices = appServices;
         this.actionMatch = {
             [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
@@ -123,20 +126,23 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 return newState;
             },
             [ActionName.LoadDataDone]: (state, action:Actions.LoadDataDone) => {
-                const newState = this.copyState(state);
-                newState.isBusy = false;
-                if (action.error) {
-                    newState.data = Immutable.List<DataItemWithWCI>();
-                    newState.error = action.error.message;
+                if (action.payload.tileId === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.isBusy = false;
+                    if (action.error) {
+                        newState.data = Immutable.List<DataItemWithWCI>();
+                        newState.error = action.error.message;
 
-                } else if (action.payload.data.length < TimeDistribModel.MIN_DATA_ITEMS_TO_SHOW) {
-                    newState.data = Immutable.List<DataItemWithWCI>();
-                    newState.error = this.appServices.translate('global__not_enough_data_to_show_result');
+                    } else if (action.payload.data.length < TimeDistribModel.MIN_DATA_ITEMS_TO_SHOW) {
+                        newState.data = Immutable.List<DataItemWithWCI>();
+                        newState.error = this.appServices.translate('global__not_enough_data_to_show_result');
 
-                } else {
-                    newState.data = Immutable.List<DataItemWithWCI>(action.payload.data);
+                    } else {
+                        newState.data = Immutable.List<DataItemWithWCI>(action.payload.data);
+                    }
+                    return newState;
                 }
-                return newState;
+                return state;
             }
         };
     }
@@ -145,7 +151,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
                 this.suspend((action:Action) => {
-                    if (action.name === ConcActionName.DataLoadDone) {
+                    if (action.name === ConcActionName.DataLoadDone && action.payload['tileId'] === this.waitForTile) {
                         const payload = (action as ConcActions.DataLoadDone).payload;
                         new Rx.Observable((observer:Rx.Observer<{}>) => {
                             if (action.error) {
@@ -172,7 +178,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                     name: ActionName.LoadDataDone,
                                     payload: {
                                         data: dataFull,
-                                        q: resp.q
+                                        q: resp.q,
+                                        tileId: this.tileId
                                     }
                                 });
                             },
@@ -181,7 +188,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                     name: ActionName.LoadDataDone,
                                     payload: {
                                         data: null,
-                                        q: null
+                                        q: null,
+                                        tileId: this.tileId
                                     },
                                     error: error
                                 });

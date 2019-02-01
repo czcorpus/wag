@@ -32,6 +32,7 @@ export interface CollocModelArgs {
     appServices:AppServices;
     service:KontextCollAPI;
     initState:CollocModelState;
+    waitForTile:number;
 }
 
 
@@ -79,9 +80,12 @@ export class CollocModel extends StatelessModel<CollocModelState> {
 
     private readonly tileId:number;
 
-    constructor({dispatcher, tileId, appServices, service, initState}:CollocModelArgs) {
+    private readonly waitForTile:number;
+
+    constructor({dispatcher, tileId, waitForTile, appServices, service, initState}:CollocModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
+        this.waitForTile = waitForTile;
         this.appServices = appServices;
         this.service = service;
         this.actionMatch = {
@@ -154,7 +158,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             case GlobalActionName.RequestQueryResponse:
                 this.suspend(
                     (action:Action) => {
-                        if (action.name === ConcActionName.DataLoadDone) {
+                        if (action.name === ConcActionName.DataLoadDone && action.payload['tileId'] === this.waitForTile) {
                             const payload = (action as ConcActions.DataLoadDone).payload;
                             new Rx.Observable((observer:Rx.Observer<CollApiArgs>) => {
                                 if (action.error) {

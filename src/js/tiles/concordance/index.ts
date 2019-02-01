@@ -49,9 +49,12 @@ export class ConcordanceTile implements ITileProvider {
 
     private view:TileComponent;
 
-    constructor({tileId, dispatcher, appServices, ut, mainForm, conf}:TileFactory.Args<ConcordanceTileConf>) {
+    private readonly _isHidden:boolean;
+
+    constructor({tileId, dispatcher, appServices, ut, mainForm, isHidden, conf}:TileFactory.Args<ConcordanceTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
+        this._isHidden = !!isHidden;
         this.model = new ConcordanceTileModel({
             dispatcher: dispatcher,
             tileId: tileId,
@@ -106,8 +109,12 @@ export class ConcordanceTile implements ITileProvider {
         }
         return 0;
     }
+
+    isHidden():boolean {
+        return this._isHidden;
+    }
 }
 
-export const init:TileFactory.TileFactory<ConcordanceTileConf> = ({tileId, dispatcher, appServices, ut, mainForm, conf}) => {
-    return new ConcordanceTile({tileId, dispatcher, appServices, ut, mainForm, conf});
+export const init:TileFactory.TileFactory<ConcordanceTileConf> = ({tileId, dispatcher, appServices, ut, mainForm, isHidden, conf}) => {
+    return new ConcordanceTile({tileId, dispatcher, appServices, ut, mainForm, isHidden, conf});
 }

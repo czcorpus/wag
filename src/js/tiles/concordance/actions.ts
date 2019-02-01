@@ -33,6 +33,7 @@ export namespace Actions {
 
     export interface DataLoadDone extends Action<{
         data:ConcResponse;
+        tileId:number;
     }> {
         name:ActionName.DataLoadDone;
     }

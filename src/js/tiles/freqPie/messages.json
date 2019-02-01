@@ -1,0 +1,14 @@
+{
+    "en-US": {
+        "freqpie__main_label": "Freq distribution",
+        "freqpie__indicator_auth_sex": "author sex",
+        "freqpie__indicator_speaker_sex": "speaker sex",
+        "freqpie__indicator_speaker_education": "speaker education"
+    },
+    "cs-CZ": {
+        "freqpie__main_label": "Frekvenční distribuce",
+        "freqpie__indicator_auth_sex": "pohlaví autora",
+        "freqpie__indicator_speaker_sex": "pohlaví mluvčího",
+        "freqpie__indicator_speaker_education": "vzdělání mluvčího"
+    }
+}

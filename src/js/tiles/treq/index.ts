@@ -95,6 +95,10 @@ export class TreqTile implements ITileProvider {
         }
         return 0;
     }
+
+    isHidden():boolean {
+        return false;
+    }
 }
 
 

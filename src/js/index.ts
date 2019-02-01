@@ -28,7 +28,7 @@ import {init as timeDistInit, TimeDistTileConf} from './tiles/timeDistrib/index'
 import {init as collocInit, CollocationsTileConf} from './tiles/collocations/index';
 import {init as treqInit, TreqTileConf} from './tiles/treq/index';
 import {init as sydInit, SyDTileConf} from './tiles/syd/index';
-import {init as socioInit, SocioTileConf, SocioTile} from './tiles/socio/index';
+import {init as freqPieInit, FreqPieTileConf, FreqPieTile} from './tiles/freqPie/index';
 import { GlobalComponents, init as globalCompInit } from './views/global';
 import * as translations from 'translations';
 import { AppServices } from './appServices';
@@ -68,7 +68,8 @@ const attachTile = (queryType:QueryType, lang1:string, lang2:string) =>
         label: tile.getLabel(),
         supportsExtendedView: tile.supportsExtendedView(),
         queryTypeSupport: tile.getQueryTypeSupport(queryType, lang1, lang2),
-        renderSize: [50, 50]
+        renderSize: [50, 50],
+        isHidden: tile.isHidden()
     });
 };
 
@@ -194,6 +195,7 @@ export const init = (
             appServices: appServices,
             lang1: query1Lang,
             lang2: query2Lang,
+            waitForTile: 0,
             conf: tilesConf['TTDistTileConf'] as TTDistTileConf
         }));
     }
@@ -208,6 +210,7 @@ export const init = (
             appServices: appServices,
             lang1: query1Lang,
             lang2: query2Lang,
+            waitForTile: 0,
             conf: tilesConf['CollocationsTileConf'] as CollocationsTileConf
         }));
     }
@@ -222,6 +225,7 @@ export const init = (
             appServices: appServices,
             lang1: query1Lang,
             lang2: query2Lang,
+            waitForTile: 0,
             conf: tilesConf['TimeDistTileConf'] as TimeDistTileConf
         }));
     }
@@ -257,7 +261,7 @@ export const init = (
 
     // socio-demographic stuff
     if (tilesConf['SocioTileConf']) {
-        attachTileCurr(tiles, socioInit({
+        attachTileCurr(tiles, freqPieInit({
             tileId: 6,
             dispatcher: dispatcher,
             ut: viewUtils,
@@ -265,7 +269,68 @@ export const init = (
             appServices: appServices,
             lang1: query1Lang,
             lang2: query2Lang,
-            conf: tilesConf['SocioTileConf'] as SocioTileConf,
+            waitForTile: 0,
+            conf: tilesConf['SocioTileConf'] as FreqPieTileConf,
+        }));
+    }
+
+    // spoken - concordance
+    if (tilesConf['SpokenConcordanceTileConf']) {
+        attachTileCurr(tiles, concInit({
+            tileId: 7,
+            dispatcher: dispatcher,
+            ut: viewUtils,
+            mainForm: formModel,
+            appServices: appServices,
+            lang1: query1Lang,
+            lang2: query2Lang,
+            isHidden: true,
+            conf: tilesConf['SpokenConcordanceTileConf'] as ConcordanceTileConf
+        }));
+    }
+
+    // socio-demographic stuff
+    if (tilesConf['SpeakerEducationTileConf']) {
+        attachTileCurr(tiles, freqPieInit({
+            tileId: 8,
+            dispatcher: dispatcher,
+            ut: viewUtils,
+            mainForm: formModel,
+            appServices: appServices,
+            lang1: query1Lang,
+            lang2: query2Lang,
+            waitForTile: 7,
+            conf: tilesConf['SpeakerEducationTileConf'] as FreqPieTileConf,
+        }));
+    }
+
+    // socio-demographic stuff
+    if (tilesConf['SpeakerAreaTileConf']) {
+        attachTileCurr(tiles, freqInit({
+            tileId: 9,
+            dispatcher: dispatcher,
+            ut: viewUtils,
+            mainForm: formModel,
+            appServices: appServices,
+            lang1: query1Lang,
+            lang2: query2Lang,
+            waitForTile: 7,
+            conf: tilesConf['SpeakerAreaTileConf'] as FreqPieTileConf,
+        }));
+    }
+
+    // socio-demographic stuff
+    if (tilesConf['SpeakerSexTileConf']) {
+        attachTileCurr(tiles, freqPieInit({
+            tileId: 10,
+            dispatcher: dispatcher,
+            ut: viewUtils,
+            mainForm: formModel,
+            appServices: appServices,
+            lang1: query1Lang,
+            lang2: query2Lang,
+            waitForTile: 7,
+            conf: tilesConf['SpeakerSexTileConf'] as FreqPieTileConf,
         }));
     }
 

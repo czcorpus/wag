@@ -136,21 +136,24 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 return newState;
             },
             [ActionName.DataLoadDone]: (state, action:Actions.DataLoadDone) => {
-                const newState = this.copyState(state);
-                if (action.error) {
-                    newState.isBusy = false;
-                    this.appServices.showMessage(SystemMessageType.ERROR, action.error);
+                if (action.payload.tileId === this.tileId) {
+                    const newState = this.copyState(state);
+                    if (action.error) {
+                        newState.isBusy = false;
+                        this.appServices.showMessage(SystemMessageType.ERROR, action.error);
 
-                } else {
-                    newState.isBusy = false;
-                    action.payload.data.messages.forEach(msg => this.appServices.showMessage(importMessageType(msg[0]), msg[1]));
-                    newState.lines = Immutable.List<Line>(action.payload.data.Lines);
-                    newState.concsize = action.payload.data.concsize; // TODO fullsize?
-                    newState.resultARF = action.payload.data.result_arf;
-                    newState.resultIPM = action.payload.data.result_relative_freq;
-                    newState.currPage = newState.loadPage;
+                    } else {
+                        newState.isBusy = false;
+                        action.payload.data.messages.forEach(msg => this.appServices.showMessage(importMessageType(msg[0]), msg[1]));
+                        newState.lines = Immutable.List<Line>(action.payload.data.Lines);
+                        newState.concsize = action.payload.data.concsize; // TODO fullsize?
+                        newState.resultARF = action.payload.data.result_arf;
+                        newState.resultIPM = action.payload.data.result_relative_freq;
+                        newState.currPage = newState.loadPage;
+                    }
+                    return newState;
                 }
-                return newState;
+                return state;
             },
             [ActionName.LoadNextPage]: (state, action:Actions.LoadNextPage) => {
                 const newState = this.copyState(state);
@@ -180,20 +183,27 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             case GlobalActionName.ResetExpandTile:
             case ActionName.LoadNextPage:
             case ActionName.LoadPrevPage:
+                console.log('CONC about to call: ', stateToArgs(state, this.mainForm.getState().query.value, QuerySelector.BASIC));
                 this.service.call(stateToArgs(state, this.mainForm.getState().query.value, QuerySelector.BASIC))
                 .subscribe(
                     (data) => {
+                        console.log('data load done XXX: ', this.tileId, data);
                         dispatch<Actions.DataLoadDone>({
                             name: ActionName.DataLoadDone,
                             payload: {
-                                data: data
+                                data: data,
+                                tileId: this.tileId
                             }
                         });
                     },
                     (err) => {
                         dispatch<Actions.DataLoadDone>({
                             name: ActionName.DataLoadDone,
-                            error: err
+                            error: err,
+                            payload: {
+                                data: null,
+                                tileId: this.tileId
+                            }
                         });
                     }
                 )

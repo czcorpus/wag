@@ -21,7 +21,7 @@ import { DataRow } from '../../shared/api/kontextFreqs';
 
 
 export enum ActionName {
-    LoadDataDone = 'SOCIO_LOAD_DATA_DONE'
+    LoadDataDone = 'FREQ_PIE_LOAD_DATA_DONE'
 }
 
 export namespace Actions {
@@ -29,6 +29,7 @@ export namespace Actions {
     export interface LoadDataDone extends Action<{
         data:Array<DataRow>;
         q:string;
+        tileId:number;
     }> {
         name: ActionName.LoadDataDone
     }

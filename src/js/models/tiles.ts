@@ -47,7 +47,8 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                         label: tile.label,
                         supportsExtendedView: tile.supportsExtendedView,
                         queryTypeSupport: tile.queryTypeSupport,
-                        renderSize: action.payload.size
+                        renderSize: action.payload.size,
+                        isHidden: tile.isHidden
                     }
                 }).toList();
                 return newState;
