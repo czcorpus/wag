@@ -17,6 +17,7 @@
  */
 /// <reference path="./translations.d.ts" />
 import * as Immutable from 'immutable';
+import * as Rx from '@reactivex/rxjs';
 import { ActionDispatcher, ViewUtils, StatefulModel, Action } from 'kombo';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
@@ -290,7 +291,7 @@ export const init = (
     const tiles:Array<TileFrameProps> = [];
     const attachTileCurr = attachTile(queryType, query1Lang, query2Lang);
     const tilesMap = attachNumericTileIdents(tilesConf);
-    console.log('tilemap: ', tilesMap);
+    //console.log('tilemap: ', tilesMap);
     const factory = tileFactory(dispatcher, viewUtils, formModel, appServices, query1Lang, query2Lang, tilesMap);
     Object.keys(tilesConf).forEach((ident, i) => {
         attachTileCurr(tiles, factory(ident, tilesConf[ident]));
@@ -310,14 +311,18 @@ export const init = (
 
     const component = viewInit(dispatcher, viewUtils, formModel, tilesModel, messagesModel);
 
-    window.onresize = () => {
-        // TODO throttle
-        ReactDOM.unmountComponentAtNode(mountElement);
-        ReactDOM.render(
-            React.createElement(component.WdglanceMain, {}),
-            mountElement
+    Rx.Observable.fromEvent(window, 'resize')
+        .debounceTime(300)
+        .distinctUntilChanged()
+        .subscribe(
+            () => {
+                ReactDOM.unmountComponentAtNode(mountElement);
+                ReactDOM.render(
+                    React.createElement(component.WdglanceMain, {}),
+                    mountElement
+                );
+            }
         );
-    };
 
     ReactDOM.render(
         React.createElement(component.WdglanceMain, {}),
