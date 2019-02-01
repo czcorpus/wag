@@ -322,11 +322,14 @@ export const init = (
         .distinctUntilChanged()
         .subscribe(
             () => {
-                ReactDOM.unmountComponentAtNode(mountElement);
-                ReactDOM.render(
-                    React.createElement(component.WdglanceMain, {}),
-                    mountElement
-                );
+                const form = document.querySelector('.WdglanceControls');
+                if (!form.contains(document.activeElement)) {
+                    ReactDOM.unmountComponentAtNode(mountElement);
+                    ReactDOM.render(
+                        React.createElement(component.WdglanceMain, {}),
+                        mountElement
+                    );
+                }
             }
         );
 
