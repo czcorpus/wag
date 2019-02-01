@@ -28,7 +28,7 @@ import {init as timeDistInit, TimeDistTileConf} from './tiles/timeDistrib/index'
 import {init as collocInit, CollocationsTileConf} from './tiles/collocations/index';
 import {init as treqInit, TreqTileConf} from './tiles/treq/index';
 import {init as sydInit, SyDTileConf} from './tiles/syd/index';
-import {init as socioInit, SocioTileConf, SocioTile} from './tiles/socio/index';
+import {init as freqPieInit, FreqPieTileConf, FreqPieTile} from './tiles/freqPie/index';
 import { GlobalComponents, init as globalCompInit } from './views/global';
 import * as translations from 'translations';
 import { AppServices } from './appServices';
@@ -261,7 +261,7 @@ export const init = (
 
     // socio-demographic stuff
     if (tilesConf['SocioTileConf']) {
-        attachTileCurr(tiles, socioInit({
+        attachTileCurr(tiles, freqPieInit({
             tileId: 6,
             dispatcher: dispatcher,
             ut: viewUtils,
@@ -270,7 +270,7 @@ export const init = (
             lang1: query1Lang,
             lang2: query2Lang,
             waitForTile: 0,
-            conf: tilesConf['SocioTileConf'] as SocioTileConf,
+            conf: tilesConf['SocioTileConf'] as FreqPieTileConf,
         }));
     }
 
@@ -291,7 +291,7 @@ export const init = (
 
     // socio-demographic stuff
     if (tilesConf['SpeakerEducationTileConf']) {
-        attachTileCurr(tiles, socioInit({
+        attachTileCurr(tiles, freqPieInit({
             tileId: 8,
             dispatcher: dispatcher,
             ut: viewUtils,
@@ -300,7 +300,7 @@ export const init = (
             lang1: query1Lang,
             lang2: query2Lang,
             waitForTile: 7,
-            conf: tilesConf['SpeakerEducationTileConf'] as SocioTileConf,
+            conf: tilesConf['SpeakerEducationTileConf'] as FreqPieTileConf,
         }));
     }
 
@@ -315,13 +315,13 @@ export const init = (
             lang1: query1Lang,
             lang2: query2Lang,
             waitForTile: 7,
-            conf: tilesConf['SpeakerAreaTileConf'] as SocioTileConf,
+            conf: tilesConf['SpeakerAreaTileConf'] as FreqPieTileConf,
         }));
     }
 
     // socio-demographic stuff
     if (tilesConf['SpeakerSexTileConf']) {
-        attachTileCurr(tiles, socioInit({
+        attachTileCurr(tiles, freqPieInit({
             tileId: 10,
             dispatcher: dispatcher,
             ut: viewUtils,
@@ -330,7 +330,7 @@ export const init = (
             lang1: query1Lang,
             lang2: query2Lang,
             waitForTile: 7,
-            conf: tilesConf['SpeakerSexTileConf'] as SocioTileConf,
+            conf: tilesConf['SpeakerSexTileConf'] as FreqPieTileConf,
         }));
     }
 

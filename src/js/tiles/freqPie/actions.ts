@@ -21,7 +21,7 @@ import { DataRow } from '../../shared/api/kontextFreqs';
 
 
 export enum ActionName {
-    LoadDataDone = 'SOCIO_LOAD_DATA_DONE'
+    LoadDataDone = 'FREQ_PIE_LOAD_DATA_DONE'
 }
 
 export namespace Actions {

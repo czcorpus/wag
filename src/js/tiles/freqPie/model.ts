@@ -24,16 +24,16 @@ import {ActionName as ConcActionName, Actions as ConcActions} from '../concordan
 import {Actions, ActionName} from './actions';
 
 
-export interface SocioDataRow {
+export interface FreqPieDataRow {
     name:string;
     percent:number;
 }
 
 
-export interface SocioModelState {
+export interface FreqPieModelState {
     isBusy:boolean;
     error:string;
-    data:Immutable.List<SocioDataRow>;
+    data:Immutable.List<FreqPieDataRow>;
     corpname:string;
     q:string;
     fcrit:string;
@@ -44,7 +44,7 @@ export interface SocioModelState {
 }
 
 
-const stateToAPIArgs = (state:SocioModelState, queryId:string):QueryArgs => ({
+const stateToAPIArgs = (state:FreqPieModelState, queryId:string):QueryArgs => ({
     corpname: state.corpname,
     q: queryId ? queryId : state.q,
     fcrit: state.fcrit,
@@ -56,7 +56,7 @@ const stateToAPIArgs = (state:SocioModelState, queryId:string):QueryArgs => ({
 });
 
 
-export class SocioModel extends StatelessModel<SocioModelState> {
+export class FreqPieModel extends StatelessModel<FreqPieModelState> {
 
     private readonly tileId:number;
 
@@ -64,7 +64,7 @@ export class SocioModel extends StatelessModel<SocioModelState> {
 
     private readonly api:FreqDistribAPI;
 
-    constructor(dispatcher:ActionDispatcher, initState:SocioModelState, tileId:number, waitForTile:number, api:FreqDistribAPI) {
+    constructor(dispatcher:ActionDispatcher, initState:FreqPieModelState, tileId:number, waitForTile:number, api:FreqDistribAPI) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.waitForTile = waitForTile;
@@ -80,12 +80,12 @@ export class SocioModel extends StatelessModel<SocioModelState> {
                     const newState = this.copyState(state);
                     newState.isBusy = false;
                     if (action.error) {
-                        newState.data = Immutable.List<SocioDataRow>();
+                        newState.data = Immutable.List<FreqPieDataRow>();
                         newState.error = action.error.message;
 
                     } else {
                         const totalFreq = action.payload.data.reduce((acc, curr) => acc + curr.freq, 0);
-                        newState.data = Immutable.List<SocioDataRow>(action.payload.data.map(v => ({
+                        newState.data = Immutable.List<FreqPieDataRow>(action.payload.data.map(v => ({
                             name: v.name,
                             percent: v.freq / totalFreq * 100
                         })));
@@ -97,7 +97,7 @@ export class SocioModel extends StatelessModel<SocioModelState> {
         }
     }
 
-    sideEffects(state:SocioModelState, action:Action, dispatch:SEDispatcher):void {
+    sideEffects(state:FreqPieModelState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
                 this.suspend((action:Action) => {

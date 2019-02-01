@@ -23,17 +23,17 @@ import {PieChart, Pie, Cell, Legend} from 'recharts';
 import {BoundWithProps} from 'kombo';
 import {ActionDispatcher, ViewUtils} from 'kombo';
 import { GlobalComponents } from '../../views/global';
-import { SocioModel, SocioModelState, SocioDataRow } from './model';
+import { FreqPieModel, FreqPieModelState, FreqPieDataRow } from './model';
 import { CoreTileComponentProps, TileComponent } from '../../abstract/types';
 
 
-export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:SocioModel):TileComponent {
+export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:FreqPieModel):TileComponent {
 
     const globalComponents = ut.getComponents();
     const c20 = d3Scale.scaleOrdinal(d3.schemeCategory10).domain(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']);
 
     const Chart:React.SFC<{
-        data:Immutable.List<SocioDataRow>;
+        data:Immutable.List<FreqPieDataRow>;
         size:[number, number];
     }> = (props) => {
 
@@ -69,7 +69,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     };
 
-    class SocioTileView extends React.PureComponent<SocioModelState & CoreTileComponentProps> {
+    class FreqPieTileView extends React.PureComponent<FreqPieModelState & CoreTileComponentProps> {
 
         render() {
             return (
@@ -84,5 +84,5 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         }
     }
 
-    return BoundWithProps(SocioTileView, model);
+    return BoundWithProps(FreqPieTileView, model);
 }
