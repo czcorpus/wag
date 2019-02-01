@@ -29,17 +29,18 @@ import {init as timeDistInit, TimeDistTileConf} from './tiles/timeDistrib/index'
 import {init as collocInit, CollocationsTileConf} from './tiles/collocations/index';
 import {init as treqInit, TreqTileConf} from './tiles/treq/index';
 import {init as sydInit, SyDTileConf} from './tiles/syd/index';
-import {init as freqPieInit, FreqPieTileConf, FreqPieTile} from './tiles/freqPie/index';
+import {init as freqPieInit, FreqPieTileConf} from './tiles/freqPie/index';
 import { GlobalComponents, init as globalCompInit } from './views/global';
 import * as translations from 'translations';
 import { AppServices } from './appServices';
 import { SystemNotifications } from './notifications';
-import { ActionName, Actions } from './models/actions';
+import { ActionName } from './models/actions';
 import { TileFrameProps, ITileProvider, QueryType, TileConf } from './abstract/types';
 import { WdglanceTilesModel } from './models/tiles';
 import {encodeArgs} from './shared/ajax';
 import { Forms } from './shared/data';
 import { MessagesModel } from './models/messages';
+import { CorpusInfoAPI } from './shared/api/corpusInfo';
 
 declare var require:(src:string)=>void;  // webpack
 require('../css/index.less');
@@ -57,6 +58,7 @@ export interface WdglanceConf {
     queryType:QueryType;
     rootUrl:string;
     hostUrl:string;
+    corpInfoApiUrl:string;
     tilesConf:{[ident:string]:TileConf};
 }
 
@@ -233,6 +235,7 @@ export const init = (
         uiLang,
         rootUrl,
         hostUrl,
+        corpInfoApiUrl,
         query1Lang,
         query2Lang,
         queryType,
@@ -301,10 +304,13 @@ export const init = (
         dispatcher,
         {
             isAnswerMode: false,
+            isBusy: false,
             expandedTiles: Immutable.Set<number>(),
-            tileProps: Immutable.List<TileFrameProps>(tiles)
+            tileProps: Immutable.List<TileFrameProps>(tiles),
+            corpusInfoData: null
         },
-        appServices
+        appServices,
+        new CorpusInfoAPI(corpInfoApiUrl)
     );
     const messagesModel = new MessagesModel(dispatcher, appServices);
     const queryLangSwitchModel = new QueryLangChangeHandler(dispatcher, appServices);

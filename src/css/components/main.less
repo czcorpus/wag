@@ -107,3 +107,190 @@
     border-radius: @default-border-radius;
     overflow: hidden;
 }
+
+#modal-overlay {
+    position: fixed;
+    z-index: 3;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: hsla(0,0%,8%,.7);
+
+    .box {
+        position: absolute;
+        top: 30%;
+        left: 50%;
+        transform: translate(-50%,-30%);
+    }
+
+    button.close {
+        border: none;
+        padding: 0;
+        background-color: transparent;
+        cursor: pointer;
+    }
+
+    header {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 1.2em;
+    }
+
+    .content {
+        padding: 0.7em;
+    }
+}
+
+
+corpus-details-box,
+.SubcorpusInfo {
+
+    dl {
+        dt {
+            font-weight: normal;
+            color: @color-light-text;
+        }
+
+        dt::first-letter {
+            text-transform: uppercase;
+        }
+
+        dt:not(:first-of-type) {
+            margin-top: 0.9em;
+        }
+
+        dd {
+            margin-top: 0.3em;
+            margin-left: 1em;
+            font-size: 1.2em;
+
+            a {
+                color: @color-default-text;
+            }
+
+            a:hover {
+                color: @color-logo-blue;
+            }
+        }
+    }
+}
+
+.CorpusInfoBox {
+
+    ul {
+        margin: 0;
+    }
+
+    h2 {
+        margin-bottom: 1em;
+        text-align: center;
+    }
+
+    h3 {
+        font-size: 13pt;
+        margin-top: 1em;
+        margin-bottom: 0.3em;
+    }
+
+    h4 {
+        margin-top: 0.5em;
+        margin-bottom: 0;
+    }
+
+    dl {
+        dt {
+            font-weight: bold;
+        }
+
+        dd:not(:last-child) {
+            margin-bottom: 0.7em;
+        }
+    }
+
+    table.attrib-list tr.item *,
+    table.struct-list tr.item * {
+        background-color: transparent;
+    }
+
+    table.attrib-list,
+    table.struct-list {
+        border-collapse: collapse;
+    }
+
+    table.attrib-list tr:nth-child(2) th,
+    table.attrib-list tr:nth-child(2) td,
+    table.struct-list tr:nth-child(2) th,
+    table.struct-list tr:nth-child(2) td {
+        padding-top: 0.7em;
+    }
+
+    table.attrib-list th,
+    table.struct-list th,
+    table.attrib-list td,
+    table.struct-list td {
+        font-size: 0.9em;
+    }
+
+    table.attrib-list th,
+    table.struct-list th {
+        color: @color-logo-pink;
+        padding: 0.2em 1em;
+        text-align: left;
+        font-weight: normal;
+    }
+
+    table.attrib-list th.attrib-heading,
+    table.struct-list th.attrib-heading {
+        background-color: transparent;
+        border-color: @color-light-text;
+        border-style: solid;
+        border-width: 0 0 1px;
+        color: @color-default-text;
+        font-size: 1em;
+        text-align: center;
+        font-weight: normal;
+    }
+
+    table.structs-and-attrs {
+        margin: 0;
+        clear: both;
+        border-collapse: separate;
+        border: none;
+
+        td {
+            vertical-align: top;
+        }
+    }
+
+    .note {
+        margin: 1em 0 0 0;
+        padding: 0 5em 0 0;
+        font-size: 70%;
+        color: @color-default-text;
+    }
+
+    .empty-citation-info {
+        margin-bottom: 0.7em;
+    }
+
+    td.numeric {
+        padding-left: 1em;
+        text-align: right;
+    }
+
+    dd.references {
+
+        h4 {
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-top: 0.7em;
+        }
+
+        .html {
+            font-size: 0.8em;
+        }
+    }
+}
