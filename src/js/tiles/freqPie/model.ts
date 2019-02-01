@@ -22,6 +22,7 @@ import { FreqDistribAPI, QueryArgs } from '../../shared/api/kontextFreqs';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
 import {ActionName as ConcActionName, Actions as ConcActions} from '../concordance/actions';
 import {Actions, ActionName} from './actions';
+import { AppServices } from '../../appServices';
 
 
 export interface FreqPieDataRow {
@@ -64,15 +65,19 @@ export class FreqPieModel extends StatelessModel<FreqPieModelState> {
 
     private readonly api:FreqDistribAPI;
 
-    constructor(dispatcher:ActionDispatcher, initState:FreqPieModelState, tileId:number, waitForTile:number, api:FreqDistribAPI) {
+    private readonly appServices:AppServices;
+
+    constructor(dispatcher:ActionDispatcher, initState:FreqPieModelState, tileId:number, waitForTile:number, appServices:AppServices, api:FreqDistribAPI) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.waitForTile = waitForTile;
+        this.appServices = appServices;
         this.api = api;
         this.actionMatch = {
             [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
                 const newState = this.copyState(state);
                 newState.isBusy = true;
+                newState.error = null;
                 return newState;
             },
             [ActionName.LoadDataDone]: (state, action:Actions.LoadDataDone) => {
@@ -82,6 +87,10 @@ export class FreqPieModel extends StatelessModel<FreqPieModelState> {
                     if (action.error) {
                         newState.data = Immutable.List<FreqPieDataRow>();
                         newState.error = action.error.message;
+
+                    } else if (action.payload.data.length === 0) {
+                        newState.data = Immutable.List<FreqPieDataRow>();
+                        newState.error = this.appServices.translate('global__not_enough_data_to_show_result');
 
                     } else {
                         const totalFreq = action.payload.data.reduce((acc, curr) => acc + curr.freq, 0);

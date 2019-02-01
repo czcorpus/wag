@@ -34,7 +34,7 @@ import * as translations from 'translations';
 import { AppServices } from './appServices';
 import { SystemNotifications } from './notifications';
 import { ActionName, Actions } from './models/actions';
-import { TileFrameProps, ITileProvider, QueryType } from './abstract/types';
+import { TileFrameProps, ITileProvider, QueryType, TileConf } from './abstract/types';
 import { WdglanceTilesModel } from './models/tiles';
 import {encodeArgs} from './shared/ajax';
 import { Forms } from './shared/data';
@@ -56,7 +56,7 @@ export interface WdglanceConf {
     queryType:QueryType;
     rootUrl:string;
     hostUrl:string;
-    tilesConf:{[ident:string]:any};
+    tilesConf:{[ident:string]:TileConf};
 }
 
 const attachTile = (queryType:QueryType, lang1:string, lang2:string) =>
@@ -72,6 +72,123 @@ const attachTile = (queryType:QueryType, lang1:string, lang2:string) =>
         isHidden: tile.isHidden()
     });
 };
+
+
+const attachNumericTileIdents = (config:{[ident:string]:TileConf}):{[ident:string]:number} => {
+    const ans = {};
+    Object.keys(config).forEach((ident, i) => {
+        ans[ident] = i;
+    });
+    return ans;
+};
+
+const tileFactory = (
+        dispatcher:ActionDispatcher,
+        viewUtils:ViewUtils<GlobalComponents>,
+        mainForm:WdglanceMainFormModel,
+        appServices:AppServices,
+        lang1:string,
+        lang2:string,
+        tileIdentMap:{[ident:string]:number}) => (
+                confName:string,
+                conf:TileConf):ITileProvider|null => {
+
+            switch (conf.tileType) {
+                case 'ConcordanceTile':
+                    return concInit({
+                        tileId: tileIdentMap[confName],
+                        dispatcher: dispatcher,
+                        ut: viewUtils,
+                        mainForm: mainForm,
+                        appServices: appServices,
+                        lang1: lang1,
+                        lang2: lang2,
+                        isHidden: conf.isHidden,
+                        waitForTile: tileIdentMap[conf.dependsOn],
+                        conf: conf as ConcordanceTileConf
+                    });
+                case 'TTDistribTile':
+                    return freqInit({
+                        tileId: tileIdentMap[confName],
+                        dispatcher: dispatcher,
+                        ut: viewUtils,
+                        mainForm: mainForm,
+                        appServices: appServices,
+                        lang1: lang1,
+                        lang2: lang2,
+                        isHidden: conf.isHidden,
+                        waitForTile: tileIdentMap[conf.dependsOn],
+                        conf: conf as TTDistTileConf
+                    });
+                case 'TimeDistribTile':
+                    return timeDistInit({
+                        tileId: tileIdentMap[confName],
+                        dispatcher: dispatcher,
+                        ut: viewUtils,
+                        mainForm: mainForm,
+                        appServices: appServices,
+                        lang1: lang1,
+                        lang2: lang2,
+                        isHidden: conf.isHidden,
+                        waitForTile: tileIdentMap[conf.dependsOn],
+                        conf: conf as TimeDistTileConf
+                    });
+                case 'CollocTile':
+                    return collocInit({
+                        tileId: tileIdentMap[confName],
+                        dispatcher: dispatcher,
+                        ut: viewUtils,
+                        mainForm: mainForm,
+                        appServices: appServices,
+                        lang1: lang1,
+                        lang2: lang2,
+                        isHidden: conf.isHidden,
+                        waitForTile: tileIdentMap[conf.dependsOn],
+                        conf: conf as CollocationsTileConf
+                    });
+                case 'TreqTile':
+                    return treqInit({
+                        tileId: tileIdentMap[confName],
+                        dispatcher: dispatcher,
+                        ut: viewUtils,
+                        mainForm: mainForm,
+                        appServices: appServices,
+                        lang1: lang1,
+                        lang2: lang2,
+                        isHidden: conf.isHidden,
+                        waitForTile: tileIdentMap[conf.dependsOn],
+                        conf: conf as TreqTileConf,
+                    });
+                case 'SyDTile':
+                    return sydInit({
+                        tileId: tileIdentMap[confName],
+                        dispatcher: dispatcher,
+                        ut: viewUtils,
+                        mainForm: mainForm,
+                        appServices: appServices,
+                        lang1: lang1,
+                        lang2: lang2,
+                        isHidden: conf.isHidden,
+                        waitForTile: tileIdentMap[conf.dependsOn],
+                        conf: conf as SyDTileConf,
+                    });
+                case 'FreqPieTile':
+                    return freqPieInit({
+                        tileId: tileIdentMap[confName],
+                        dispatcher: dispatcher,
+                        ut: viewUtils,
+                        mainForm: mainForm,
+                        appServices: appServices,
+                        lang1: lang1,
+                        lang2: lang2,
+                        isHidden: conf.isHidden,
+                        waitForTile: tileIdentMap[conf.dependsOn],
+                        conf: conf as FreqPieTileConf,
+                    });
+                default:
+                    return null;
+            }
+}
 
 
 class QueryLangChangeHandler extends StatefulModel<{}> {
@@ -122,16 +239,23 @@ export const init = (
         query2,
         tilesConf}:WdglanceConf) => {
 
+    const uiLangSel = uiLang || 'en-US';
     const dispatcher = new ActionDispatcher();
     const viewUtils = new ViewUtils<GlobalComponents>({
-        uiLang: uiLang || 'en_US',
+        uiLang: uiLangSel,
         translations: translations,
         staticUrlCreator: (path) => rootUrl + 'assets/' + path,
         actionUrlCreator: (path, args) => hostUrl + path + '?' + encodeArgs(args)
     });
 
     const notifications = new SystemNotifications(dispatcher);
-    const appServices = new AppServices(notifications, viewUtils, viewUtils.createStaticUrl, viewUtils.createActionUrl);
+    const appServices = new AppServices(
+        notifications,
+        uiLang,
+        viewUtils,
+        viewUtils.createStaticUrl,
+        viewUtils.createActionUrl
+    );
 
     const globalComponents = globalCompInit(dispatcher, viewUtils);
     viewUtils.attachComponents(globalComponents);
@@ -163,176 +287,14 @@ export const init = (
         (action) => formModel.getState().isValid
     );
 
-    const queryLangSwitchModel = new QueryLangChangeHandler(dispatcher, appServices);
-
     const tiles:Array<TileFrameProps> = [];
-
-    const initialLang = 'cs'; // TODO use HTTP info or some cookie stuff
-
     const attachTileCurr = attachTile(queryType, query1Lang, query2Lang);
-
-    // window conc. -------------------------------------------------
-    if (tilesConf['ConcordanceTileConf']) {
-        attachTileCurr(tiles, concInit({
-            tileId: 0,
-            dispatcher: dispatcher,
-            ut: viewUtils,
-            mainForm: formModel,
-            appServices: appServices,
-            lang1: query1Lang,
-            lang2: query2Lang,
-            conf: tilesConf['ConcordanceTileConf'] as ConcordanceTileConf
-        }));
-    }
-
-    // window freq. --------------------------------------------------
-    if (tilesConf['TTDistTileConf']) {
-        attachTileCurr(tiles, freqInit({
-            tileId: 1,
-            dispatcher: dispatcher,
-            ut: viewUtils,
-            mainForm: formModel,
-            appServices: appServices,
-            lang1: query1Lang,
-            lang2: query2Lang,
-            waitForTile: 0,
-            conf: tilesConf['TTDistTileConf'] as TTDistTileConf
-        }));
-    }
-
-    // window colloc. --------------------------------------------------
-    if (tilesConf['CollocationsTileConf']) {
-        attachTileCurr(tiles, collocInit({
-            tileId: 2,
-            dispatcher: dispatcher,
-            ut: viewUtils,
-            mainForm: formModel,
-            appServices: appServices,
-            lang1: query1Lang,
-            lang2: query2Lang,
-            waitForTile: 0,
-            conf: tilesConf['CollocationsTileConf'] as CollocationsTileConf
-        }));
-    }
-
-    // window time distrib. -------------------------------------------------
-    if (tilesConf['TimeDistTileConf']) {
-        attachTileCurr(tiles, timeDistInit({
-            tileId: 3,
-            dispatcher: dispatcher,
-            ut: viewUtils,
-            mainForm: formModel,
-            appServices: appServices,
-            lang1: query1Lang,
-            lang2: query2Lang,
-            waitForTile: 0,
-            conf: tilesConf['TimeDistTileConf'] as TimeDistTileConf
-        }));
-    }
-
-    // window treq. --------------------------------------------------
-    if (tilesConf['TreqTileConf']) {
-        attachTileCurr(tiles, treqInit({
-            tileId: 4,
-            dispatcher: dispatcher,
-            ut: viewUtils,
-            mainForm: formModel,
-            appServices: appServices,
-            lang1: query1Lang,
-            lang2: query2Lang,
-            conf: tilesConf['TreqTileConf'] as TreqTileConf,
-        }));
-    }
-
-
-    // window 'syd'. --------------------------------------------------
-    if (tilesConf['SyDTileConf']) {
-        attachTileCurr(tiles, sydInit({
-            tileId: 5,
-            dispatcher: dispatcher,
-            ut: viewUtils,
-            mainForm: formModel,
-            appServices: appServices,
-            lang1: query1Lang,
-            lang2: query2Lang,
-            conf: tilesConf['SyDTileConf'] as SyDTileConf,
-        }));
-    }
-
-    // socio-demographic stuff
-    if (tilesConf['SocioTileConf']) {
-        attachTileCurr(tiles, freqPieInit({
-            tileId: 6,
-            dispatcher: dispatcher,
-            ut: viewUtils,
-            mainForm: formModel,
-            appServices: appServices,
-            lang1: query1Lang,
-            lang2: query2Lang,
-            waitForTile: 0,
-            conf: tilesConf['SocioTileConf'] as FreqPieTileConf,
-        }));
-    }
-
-    // spoken - concordance
-    if (tilesConf['SpokenConcordanceTileConf']) {
-        attachTileCurr(tiles, concInit({
-            tileId: 7,
-            dispatcher: dispatcher,
-            ut: viewUtils,
-            mainForm: formModel,
-            appServices: appServices,
-            lang1: query1Lang,
-            lang2: query2Lang,
-            isHidden: true,
-            conf: tilesConf['SpokenConcordanceTileConf'] as ConcordanceTileConf
-        }));
-    }
-
-    // socio-demographic stuff
-    if (tilesConf['SpeakerEducationTileConf']) {
-        attachTileCurr(tiles, freqPieInit({
-            tileId: 8,
-            dispatcher: dispatcher,
-            ut: viewUtils,
-            mainForm: formModel,
-            appServices: appServices,
-            lang1: query1Lang,
-            lang2: query2Lang,
-            waitForTile: 7,
-            conf: tilesConf['SpeakerEducationTileConf'] as FreqPieTileConf,
-        }));
-    }
-
-    // socio-demographic stuff
-    if (tilesConf['SpeakerAreaTileConf']) {
-        attachTileCurr(tiles, freqInit({
-            tileId: 9,
-            dispatcher: dispatcher,
-            ut: viewUtils,
-            mainForm: formModel,
-            appServices: appServices,
-            lang1: query1Lang,
-            lang2: query2Lang,
-            waitForTile: 7,
-            conf: tilesConf['SpeakerAreaTileConf'] as FreqPieTileConf,
-        }));
-    }
-
-    // socio-demographic stuff
-    if (tilesConf['SpeakerSexTileConf']) {
-        attachTileCurr(tiles, freqPieInit({
-            tileId: 10,
-            dispatcher: dispatcher,
-            ut: viewUtils,
-            mainForm: formModel,
-            appServices: appServices,
-            lang1: query1Lang,
-            lang2: query2Lang,
-            waitForTile: 7,
-            conf: tilesConf['SpeakerSexTileConf'] as FreqPieTileConf,
-        }));
-    }
+    const tilesMap = attachNumericTileIdents(tilesConf);
+    console.log('tilemap: ', tilesMap);
+    const factory = tileFactory(dispatcher, viewUtils, formModel, appServices, query1Lang, query2Lang, tilesMap);
+    Object.keys(tilesConf).forEach((ident, i) => {
+        attachTileCurr(tiles, factory(ident, tilesConf[ident]));
+    });
 
     const tilesModel = new WdglanceTilesModel(
         dispatcher,
@@ -343,12 +305,13 @@ export const init = (
         },
         appServices
     );
-
     const messagesModel = new MessagesModel(dispatcher, appServices);
+    const queryLangSwitchModel = new QueryLangChangeHandler(dispatcher, appServices);
 
     const component = viewInit(dispatcher, viewUtils, formModel, tilesModel, messagesModel);
 
     window.onresize = () => {
+        // TODO throttle
         ReactDOM.unmountComponentAtNode(mountElement);
         ReactDOM.render(
             React.createElement(component.WdglanceMain, {}),

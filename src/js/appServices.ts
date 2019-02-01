@@ -27,13 +27,16 @@ export class AppServices {
 
     private readonly translator:ITranslator;
 
+    private readonly uiLang:string;
+
     private readonly staticUrlCreator:(path:string) => string;
 
     private readonly actionUrlCreator:(path: string, args?:{[k:string]:string}|Array<[string, string]>) => string;
 
-    constructor(notifications:SystemNotifications, translator:ITranslator, staticUrlCreator:(path:string) => string,
+    constructor(notifications:SystemNotifications, uiLang:string, translator:ITranslator, staticUrlCreator:(path:string) => string,
                 actionUrlCreator:(path: string, args?:{[k:string]:string}|Array<[string, string]>) => string) {
         this.notifications = notifications;
+        this.uiLang = uiLang;
         this.translator = translator;
         this.staticUrlCreator = staticUrlCreator;
         this.actionUrlCreator = actionUrlCreator;
@@ -46,6 +49,20 @@ export class AppServices {
     translate(key: string, args?: {[key: string]: string;}): string {
         return this.translator.translate(key, args);
     }
+
+    importExternalLabel(label:string|{[lang:string]:string}):string {
+        if (typeof label === 'string') {
+            return this.translate(label);
+        } else {
+            for (let k in label) {
+                if (k.split('-')[0] === this.uiLang) {
+                    return label[k];
+                }
+            }
+        }
+        return '??';
+    }
+
     formatDate(d: Date, timeFormat?: number): string {
         return this.translator.formatDate(d, timeFormat);
     }

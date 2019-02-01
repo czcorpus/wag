@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { TileFactory, ITileProvider, QueryType, TileComponent } from '../../abstract/types';
+import { TileFactory, ITileProvider, QueryType, TileComponent, TileConf } from '../../abstract/types';
 import { ActionDispatcher, ViewUtils } from 'kombo';
 import { GlobalComponents } from '../../views/global';
 import { AppServices } from '../../appServices';
@@ -28,7 +28,7 @@ import { SyDAPI } from './api';
 declare var require:any;
 require('./style.less');
 
-export interface SyDTileConf {
+export interface SyDTileConf extends TileConf {
     apiURL:string;
 }
 
