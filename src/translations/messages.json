@@ -13,7 +13,23 @@
         "global__source": "Source",
         "help__intro_tile_header": "What CNC search can do?",
         "help__help_tile_header": "Search help",
-        "help__tips_tile_header": "Search tips"
+        "help__tips_tile_header": "Search tips",
+        "global__description": "Description",
+        "global__size": "size",
+        "global__positions": "positions",
+        "global__website": "website",
+        "global__corpus_info_metadata_heading": "Available metadata",
+        "global__corp_info_attrs_remark_text": "čísla v tomto přehledu udávají počty různých atributů / struktur (tj. typů) v korpusu.",
+        "global__structures": "Struktury",
+        "global__attributes": "Atributy",
+        "global__how_to_cite_corpus": "How to cite the corpus",
+        "global__corpus_as_resource_{corpus}": "Corpus {corpus} as a language resource",
+        "global__general_references": "General references",
+        "global__references": "References",
+        "global__citation_info": "Citation information",
+        "global__corp_info_attrs_remark_label": "Remark",
+        "global__no_citation_info": "-"
+
     },
     "cs-CZ": {
         "global__search": "Hledat",
@@ -29,6 +45,21 @@
         "global__source": "Zdroj",
         "help__intro_tile_header": "Co umí vyhledávání v ČNK?",
         "help__help_tile_header": "Nápověda k hledání",
-        "help__tips_tile_header": "Uživatelské tipy"
+        "help__tips_tile_header": "Uživatelské tipy",
+        "global__description": "Popis",
+        "global__size": "velikost",
+        "global__positions": "pozic",
+        "global__website": "webová stránka",
+        "global__corpus_info_metadata_heading": "Dostupná metadata",
+        "global__corp_info_attrs_remark_text": "figures listed denote a number of different attributes / structures (i.e. types) in the corpus.",
+        "global__structures": "Structures",
+        "global__attributes": "Attributes",
+        "global__how_to_cite_corpus": "Jak citovat korpus",
+        "global__corpus_as_resource_{corpus}": "Korpus {corpus} jako zdroj dat",
+        "global__general_references": "Obecné odkazy",
+        "global__references": "Literatura",
+        "global__citation_info": "Citační informace",
+        "global__corp_info_attrs_remark_label": "Poznámka",
+        "global__no_citation_info": "-"
     }
 }

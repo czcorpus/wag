@@ -161,7 +161,6 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         };
         return (
             <div className="CorpusInfoBox">
-                <h2 className="corpus-name">{props.data.corpname}</h2>
                 <dl>
                     <dt>{ut.translate('global__description')}:</dt>
                     <dd>{props.data.description}</dd>

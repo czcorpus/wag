@@ -117,7 +117,7 @@
     height: 100%;
     background-color: hsla(0,0%,8%,.7);
 
-    .content {
+    .box {
         position: absolute;
         top: 30%;
         left: 50%;
@@ -128,6 +128,19 @@
         border: none;
         padding: 0;
         background-color: transparent;
+        cursor: pointer;
+    }
+
+    header {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 1.2em;
+    }
+
+    .content {
+        padding: 0.7em;
     }
 }
 
@@ -163,16 +176,6 @@ corpus-details-box,
             }
         }
     }
-
-    h2.subcorpus-name,
-    h2.corpus-name {
-        font-size: 2.3em;
-        font-weight: normal;
-        margin: 0 0 0.1em 0;
-        padding: 0.2em 0.3em;
-        display: inline-block;
-        color: @color-default-text;
-    }
 }
 
 .CorpusInfoBox {
@@ -197,6 +200,16 @@ corpus-details-box,
         margin-bottom: 0;
     }
 
+    dl {
+        dt {
+            font-weight: bold;
+        }
+
+        dd:not(:last-child) {
+            margin-bottom: 0.7em;
+        }
+    }
+
     table.attrib-list tr.item *,
     table.struct-list tr.item * {
         background-color: transparent;
@@ -218,7 +231,7 @@ corpus-details-box,
     table.struct-list th,
     table.attrib-list td,
     table.struct-list td {
-        font-size: 0.8em;
+        font-size: 0.9em;
     }
 
     table.attrib-list th,

@@ -29,10 +29,6 @@ export interface GlobalComponents {
         htmlClass?:string;
     }>;
 
-    ModalOverlay:React.SFC<{
-        onCloseKey?:()=>void;
-    }>;
-
     MessageStatusIcon:React.SFC<{
         statusType:SystemMessageType;
         isInline?:boolean;
@@ -55,6 +51,8 @@ export interface GlobalComponents {
 
     ModalBox:React.ComponentClass<{
         onCloseClick:()=>void;
+        title:string;
+        isScrollable:boolean;
     }>;
 }
 
@@ -78,27 +76,6 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
             </div>
         );
     }
-
-    // --------------- <ModalOverlay /> -------------------------------------------
-
-    const ModalOverlay:GlobalComponents['ModalOverlay'] = (props) => {
-
-        const keyPressHandler = (evt:React.KeyboardEvent) => {
-            if (evt.keyCode === KeyCodes.ESC && typeof props.onCloseKey === 'function') {
-                props.onCloseKey();
-            }
-        };
-
-        const style = {};
-        if (this.props.isScrollable) {
-            style['overflow'] = 'auto';
-        }
-        return (
-            <div id="modal-overlay" style={style} onKeyDown={keyPressHandler}>
-                {this.props.children}
-            </div>
-        );
-    };
 
     // --------------- <MessageStatusIcon /> -------------------------------------------
 
@@ -174,9 +151,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
                     <div className="loader-wrapper">{props.hasData && props.isBusy ? <TitleLoaderBar  /> : null}</div>
                     {props.children}
                     <div className="source">
-                        <a onClick={handleSourceClick}>
-                            {ut.translate('global__source')}: {props.sourceIdent}
-                        </a>
+                        {ut.translate('global__source')}:{'\u00a0'}
+                        <a onClick={handleSourceClick}>{props.sourceIdent}</a>
                     </div>
                 </div>
             );
@@ -219,7 +195,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
 
     // --------------- <ModalBox /> -------------------------------------------
 
-    class ModalBox extends React.PureComponent<{onCloseClick:()=>void}> {
+    class ModalBox extends React.PureComponent<{onCloseClick:()=>void; title:string; isScrollable:boolean}> {
 
         private ref:React.RefObject<HTMLButtonElement>;
 
@@ -242,18 +218,28 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
         }
 
         render() {
+            const style = {};
+            if (this.props.isScrollable) {
+                style['overflow'] = 'auto';
+
+            } else {
+                style['overflow'] = 'hidden';
+            }
             return (
                 <div id="modal-overlay">
-                    <div className="content cnc-tile">
+                    <div className="box cnc-tile" style={style}>
                         <header className="cnc-tile-header">
+                            <span>{this.props.title}</span>
                             <button className="close"
                                     ref={this.ref}
                                     onClick={this.props.onCloseClick}
                                     onKeyDown={this.handleKey}>
-                                <img src={ut.createStaticUrl('close-icon.svg')} />
+                                <i className="fa fa-window-close" aria-hidden="true"></i>
                             </button>
                         </header>
-                        {this.props.children}
+                        <div className="content">
+                            {this.props.children}
+                        </div>
                     </div>
                 </div>
             );
@@ -262,7 +248,6 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
 
     return {
         AjaxLoader: AjaxLoader,
-        ModalOverlay: ModalOverlay,
         MessageStatusIcon: MessageStatusIcon,
         EmptySet: EmptySet,
         TileWrapper: TileWrapper,

@@ -489,7 +489,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                     }
                     </section>
                     {this.props.corpusInfoData ?
-                        <globalComponents.ModalBox onCloseClick={this.handleCloseCorpusInfo}>
+                        <globalComponents.ModalBox onCloseClick={this.handleCloseCorpusInfo}
+                                title={this.props.corpusInfoData.corpname} isScrollable={false}>
                             <CorpusInfo data={this.props.corpusInfoData} />
                         </globalComponents.ModalBox> : null}
                 </div>
