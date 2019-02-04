@@ -35,26 +35,135 @@
  */
 
 import * as Rx from '@reactivex/rxjs';
-import { DataApi } from '../../abstract/types';
+import { DataApi, CorePosAttribute } from '../../abstract/types';
+import {ConcApi, QuerySelector, ViewMode, ConcResponse} from '../../shared/api/concordance';
+import {HTTPResponse as FreqsHTTPResponse} from '../../shared/api/kontextFreqs';
+import { ajax$ } from '../../shared/ajax';
+import { MultiDict } from '../../shared/data';
 
 export interface RequestArgs {
+    corp1:string;
+    corp2:string;
+    word1:string;
+    word2:string;
+    fcrit1:Array<string>;
+    fcrit2:Array<string>;
+    flimit:string;
+    freq_sort:string;
+    fpage:string;
+    ftt_include_empty:string;
+    format:'json';
+}
+
+export interface Response {
+    results:Array<StrippedFreqResponse>;
 }
 
 interface HTTPResponse {
+    conc_persistence_op_id:string;
 }
 
-export interface SyDResponse {
+export interface StrippedFreqResponse {
+    items:Array<{
+        Word:Array<{n:string}>;
+        fbar:number;
+        freq:number;
+        freqbar:number;
+        nbar:number;
+        nfilter:Array<[string, string]>;
+        pfilter:Array<[string, string]>;
+        rel:number;
+        relbar:number;
+    }>;
+    total:number;
 }
 
-export class SyDAPI implements DataApi<RequestArgs, SyDResponse> {
+export class SyDAPI implements DataApi<RequestArgs, Response> {
 
     private readonly apiURL;
 
-    constructor(apiURL:string) {
+    private readonly conc1:ConcApi;
+
+    private readonly conc2:ConcApi;
+
+    constructor(apiURL:string, concApiURL:string) {
         this.apiURL = apiURL;
+        this.conc1 = new ConcApi(concApiURL);
+        this.conc2 = new ConcApi(concApiURL);
     }
 
-    call(args:RequestArgs):Rx.Observable<SyDResponse> {
-        return Rx.Observable.of({}).delay(2000);
+    call(args:RequestArgs):Rx.Observable<Response> {
+
+        const conc1$ = this.conc1.call({
+            corpname: args.corp1,
+            iquery: args.word1,
+            queryselector: QuerySelector.BASIC,
+            kwicleftctx: '-1',
+            kwicrightctx: '1',
+            async: '0',
+            pagesize: '1',
+            fromp: '1',
+            attr_vmode: ViewMode.KWIC,
+            attrs: CorePosAttribute.WORD,
+            viewmode: ViewMode.KWIC,
+            format:'json'
+        }).share();
+
+        const conc2$ = this.conc2.call({
+            corpname: args.corp2,
+            iquery: args.word2,
+            queryselector: QuerySelector.BASIC,
+            kwicleftctx: '-5',
+            kwicrightctx: '5',
+            async: '0',
+            pagesize: '1',
+            fromp: '1',
+            attr_vmode: ViewMode.KWIC,
+            attrs: CorePosAttribute.WORD,
+            viewmode: ViewMode.KWIC,
+            format:'json'
+        }).share();
+
+        const createRequests = (conc$:Rx.Observable<ConcResponse>, corpname:string, frcrits:Array<string>) => {
+            return frcrits.map(fcrit => conc$.concatMap(
+                (data) => {
+                    const args1 = new MultiDict();
+                    args1.set('q', '~' + data.conc_persistence_op_id);
+                    args1.set('corpname', corpname);
+                    args1.set('fcrit', fcrit);
+                    args1.set('flimit', args.flimit);
+                    args1.set('freq_sort', args.freq_sort);
+                    args1.set('fpage', args.fpage);
+                    args1.set('ftt_include_empty', args.ftt_include_empty);
+                    args1.set('format', args.format);
+
+                    return ajax$<FreqsHTTPResponse>(
+                        'GET',
+                        this.apiURL,
+                        args1
+                    );
+                }
+            ).concatMap<FreqsHTTPResponse, StrippedFreqResponse>(
+                (data) => {
+                    return Rx.Observable.of({
+                        items: data.Blocks[0].Items,
+                        total: data.Blocks[0].Total
+                    });
+                }
+            ));
+        };
+
+        const s1$ = createRequests(conc1$, args.corp1, args.fcrit1);
+        const s2$ = createRequests(conc2$, args.corp2, args.fcrit2);
+
+        return Rx.Observable
+            .forkJoin(...s1$, ...s2$)
+            .concatMap(
+                (data) => {
+                    return Rx.Observable.of({
+                        results: data
+                    })
+                }
+            );
     }
 }

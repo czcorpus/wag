@@ -21,7 +21,7 @@ import {ajax$} from '../ajax';
 import { DataApi } from '../../abstract/types';
 
 
-interface HTTPResponse {
+export interface HTTPResponse {
     conc_persistence_op_id:string;
     Blocks:Array<{
         Head:Array<{s:string; n:string}>;

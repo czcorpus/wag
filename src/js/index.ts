@@ -65,15 +65,19 @@ export interface WdglanceConf {
 const attachTile = (queryType:QueryType, lang1:string, lang2:string) =>
     (data:Array<TileFrameProps>, tile:ITileProvider):void => {
     tile.init();
+    const support = tile.getQueryTypeSupport(queryType, lang1, lang2);
     data.push({
         tileId: tile.getIdent(),
         Component: tile.getView(),
         label: tile.getLabel(),
         supportsExtendedView: tile.supportsExtendedView(),
-        queryTypeSupport: tile.getQueryTypeSupport(queryType, lang1, lang2),
+        queryTypeSupport: support,
         renderSize: [50, 50],
         isHidden: tile.isHidden()
     });
+    if (support === 0) {
+        tile.disable();
+    }
 };
 
 

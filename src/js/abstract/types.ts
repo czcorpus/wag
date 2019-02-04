@@ -73,6 +73,8 @@ export interface ITileProvider {
      *  (e.g. use css z-index analogy))
      */
     getQueryTypeSupport(qt:QueryType, lang1:string, lang2?:string):number;
+
+    disable():void;
 }
 
 
