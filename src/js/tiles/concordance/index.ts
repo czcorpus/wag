@@ -21,7 +21,7 @@ import { ITileProvider, TileFactory, QueryType, TileComponent, TileConf } from '
 import {init as viewInit} from './views';
 import { ConcordanceTileModel } from './model';
 import { ActionDispatcher, ViewUtils } from 'kombo';
-import { RequestBuilder, Line, ViewMode } from './api';
+import { ConcApi, Line, ViewMode } from '../../shared/api/concordance';
 import { GlobalComponents } from '../../views/global';
 
 declare var require:any;
@@ -59,7 +59,7 @@ export class ConcordanceTile implements ITileProvider {
             dispatcher: dispatcher,
             tileId: tileId,
             appServices: appServices,
-            service: new RequestBuilder(conf.apiURL),
+            service: new ConcApi(conf.apiURL),
             mainForm: mainForm,
             initState: {
                 tileId: tileId,
@@ -82,6 +82,7 @@ export class ConcordanceTile implements ITileProvider {
                 attrs: Immutable.List<string>(conf.posAttrs)
             }
         });
+        this.model.suspend
         this.ut = ut;
     }
 
@@ -110,6 +111,10 @@ export class ConcordanceTile implements ITileProvider {
             return 1;
         }
         return 0;
+    }
+
+    disable():void {
+        this.model.suspend(()=>undefined);
     }
 
     isHidden():boolean {

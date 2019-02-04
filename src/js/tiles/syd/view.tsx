@@ -33,7 +33,15 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             return (
                 <globComponents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
                         hasData={false} sourceIdent="SyD">
-                    <div>SyD - TODO</div>
+                    <div>
+                        {this.props.result.map((item, i) => {
+                            return (
+                                <pre key={i}>
+                                    total: {item.total}
+                                </pre>
+                            )
+                        })}
+                    </div>
                 </globComponents.TileWrapper>
             );
         }

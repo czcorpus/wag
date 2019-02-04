@@ -59,6 +59,15 @@ export const encodeArgs = (obj):string => {
     return ans.join('&');
 };
 
+const encodeURLParameters = (params:MultiDict):string => {
+    function exportValue(v) {
+        return v === null || v === undefined ? '' : encodeURIComponent(v);
+    }
+    return params.items().map((item) => {
+        return encodeURIComponent(item[0]) + '=' + exportValue(item[1]);
+    }).join('&');
+};
+
 const prepareAjax = (method:string, url:string, args:AjaxArgs, options?:AjaxOptions):AjaxRequestProps => {
     if (options === undefined) {
         options = {};
@@ -76,7 +85,7 @@ const prepareAjax = (method:string, url:string, args:AjaxArgs, options?:AjaxOpti
     let body;
 
     if (args instanceof MultiDict) {
-        body = this.encodeURLParameters(args);
+        body = encodeURLParameters(args);
 
     } else if (typeof args === 'object') {
         if (options.contentType === 'application/json') {

@@ -19,7 +19,7 @@ import * as Immutable from 'immutable';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
 import {ActionName, Actions} from './actions';
-import {RequestBuilder, Line, QuerySelector, RequestArgs, ViewMode} from './api';
+import {ConcApi, Line, QuerySelector, RequestArgs, ViewMode} from '../../shared/api/concordance';
 import { WdglanceMainFormModel } from '../../models/query';
 import { AppServices } from '../../appServices';
 import { importMessageType } from '../../notifications';
@@ -52,7 +52,7 @@ export interface ConcordanceTileModelArgs {
     dispatcher:ActionDispatcher;
     tileId:number;
     appServices:AppServices;
-    service:RequestBuilder;
+    service:ConcApi;
     mainForm:WdglanceMainFormModel;
     initState:ConcordanceTileState;
 }
@@ -78,7 +78,7 @@ export const stateToArgs = (state:ConcordanceTileState, query:string, querySelec
 
 export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
-    private readonly service:RequestBuilder;
+    private readonly service:ConcApi;
 
     private readonly mainForm:WdglanceMainFormModel;
 

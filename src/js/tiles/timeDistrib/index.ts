@@ -122,6 +122,10 @@ export class TimeDistTile implements ITileProvider {
         return 0;
     }
 
+    disable():void {
+        this.model.suspend(()=>undefined);
+    }
+
     isHidden():boolean {
         return false;
     }

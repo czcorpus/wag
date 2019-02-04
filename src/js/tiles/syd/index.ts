@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+import * as Immutable from 'immutable';
 import { TileFactory, ITileProvider, QueryType, TileComponent, TileConf } from '../../abstract/types';
 import { ActionDispatcher, ViewUtils } from 'kombo';
 import { GlobalComponents } from '../../views/global';
@@ -23,13 +23,18 @@ import { AppServices } from '../../appServices';
 import {init as viewInit} from './view';
 import { SydModel } from './model';
 import { WdglanceMainFormModel } from '../../models/query';
-import { SyDAPI } from './api';
+import { SyDAPI, StrippedFreqResponse } from './api';
 
 declare var require:any;
 require('./style.less');
 
 export interface SyDTileConf extends TileConf {
     apiURL:string;
+    concApiURL:string;
+    corp1:string;
+    corp1Fcrit:Array<string>;
+    corp2:string;
+    corp2Fcrit:Array<string>;
 }
 
 /**
@@ -45,7 +50,7 @@ export class SyDTile implements ITileProvider {
 
     private readonly appServices:AppServices;
 
-    constructor(dispatcher:ActionDispatcher, tileId:number, ut:ViewUtils<GlobalComponents>, mainForm:WdglanceMainFormModel,
+    constructor(dispatcher:ActionDispatcher, tileId:number, waitForTile:number, ut:ViewUtils<GlobalComponents>, mainForm:WdglanceMainFormModel,
             appServices:AppServices, conf:SyDTileConf) {
         this.tileId = tileId;
         this.appServices = appServices;
@@ -53,10 +58,22 @@ export class SyDTile implements ITileProvider {
             dispatcher,
             {
                 isBusy: false,
-                error: null
+                error: null,
+                corp1: conf.corp1,
+                corp1Fcrit: Immutable.List<string>(conf.corp1Fcrit),
+                corp2: conf.corp2,
+                corp2Fcrit: Immutable.List<string>(conf.corp2Fcrit),
+                flimit: 1, // TODO
+                freqSort: '', // TODO
+                fpage: 1, // TODO
+                fttIncludeEmpty: false,
+                result: Immutable.List<StrippedFreqResponse>()
             },
+            tileId,
+            waitForTile,
             mainForm,
-            new SyDAPI(conf.apiURL)
+            appServices,
+            new SyDAPI(conf.apiURL, conf.concApiURL)
         );
         this.view = viewInit(dispatcher, ut, this.model);
     }
@@ -88,6 +105,10 @@ export class SyDTile implements ITileProvider {
         return 0;
     }
 
+    disable():void {
+        this.model.suspend(()=>undefined);
+    }
+
     isHidden():boolean {
         return false;
     }
@@ -95,6 +116,6 @@ export class SyDTile implements ITileProvider {
 
 
 export const init:TileFactory.TileFactory<SyDTileConf> = ({
-    tileId, dispatcher, appServices, ut, mainForm, lang1, lang2, conf}) => {
-    return new SyDTile(dispatcher, tileId, ut, mainForm, appServices, conf);
+    tileId, waitForTile, dispatcher, appServices, ut, mainForm, lang1, lang2, conf}) => {
+    return new SyDTile(dispatcher, tileId, waitForTile, ut, mainForm, appServices, conf);
 }

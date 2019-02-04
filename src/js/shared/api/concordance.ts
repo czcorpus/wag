@@ -17,12 +17,13 @@
  */
 
 import * as Rx from '@reactivex/rxjs';
-import {ajax$} from '../../shared/ajax';
+import {ajax$} from '../ajax';
 import { DataApi } from '../../abstract/types';
 
 export enum QuerySelector {
     BASIC = 'iqueryrow',
     CQL = 'cqlrow',
+    LEMMA = 'lemmarow'
 }
 
 export enum ViewMode {
@@ -32,7 +33,9 @@ export enum ViewMode {
 
 export interface RequestArgs {
     corpname:string;
-    iquery:string;
+    iquery?:string;
+    lemma?:string;
+    cql?:string;
     queryselector:QuerySelector;
     kwicleftctx:string;
     kwicrightctx:string;
@@ -69,7 +72,7 @@ export interface ConcResponse {
 }
 
 
-export class RequestBuilder implements DataApi<RequestArgs, ConcResponse> {
+export class ConcApi implements DataApi<RequestArgs, ConcResponse> {
 
     private readonly apiURL;
 
