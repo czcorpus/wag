@@ -110,6 +110,10 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 if (action.payload.ident === this.tileId) {
                     const newState = this.copyState(state);
                     newState.isExpanded = false;
+                    newState.isBusy = true;
+                    newState.error = null;
+                    newState.kwicLeftCtx = -1 * ConcordanceTileModel.BASIC_KWIC_CTX;
+                    newState.kwicRightCtx = ConcordanceTileModel.BASIC_KWIC_CTX;
                     return newState;
                 }
                 return state;
@@ -117,6 +121,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             [GlobalActionName.RequestQueryResponse]: (state, action) => {
                 const newState = this.copyState(state);
                 newState.isBusy = true;
+                newState.error = null;
                 return newState;
             },
             [GlobalActionName.ExpandTile]: (state, action) => {
@@ -124,19 +129,12 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                     const newState = this.copyState(state);
                     newState.isExpanded = true;
                     newState.isBusy = true;
+                    newState.error = null;
                     newState.kwicLeftCtx = -1 * ConcordanceTileModel.EXPANDED_KWIC_CTX;
                     newState.kwicRightCtx = ConcordanceTileModel.EXPANDED_KWIC_CTX;
                     return newState;
                 }
                 return state;
-            },
-            [GlobalActionName.ResetExpandTile]: (state, action) => {
-                const newState = this.copyState(state);
-                newState.isExpanded = false;
-                newState.isBusy = true;
-                newState.kwicLeftCtx = -1 * ConcordanceTileModel.BASIC_KWIC_CTX;
-                newState.kwicRightCtx = ConcordanceTileModel.BASIC_KWIC_CTX;
-                return newState;
             },
             [ActionName.DataLoadDone]: (state, action:Actions.DataLoadDone) => {
                 if (action.payload.tileId === this.tileId) {
@@ -147,7 +145,8 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
                     } else {
                         newState.isBusy = false;
-                        action.payload.data.messages.forEach(msg => this.appServices.showMessage(importMessageType(msg[0]), msg[1]));
+                        // debug:
+                        action.payload.data.messages.forEach(msg => console.log(`${importMessageType(msg[0]).toUpperCase()}: conc - ${msg[1]}`));
                         newState.lines = Immutable.List<Line>(action.payload.data.Lines);
                         newState.concsize = action.payload.data.concsize; // TODO fullsize?
                         newState.resultARF = action.payload.data.result_arf;
@@ -162,6 +161,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 if (action.payload.tileId === this.tileId) {
                     const newState = this.copyState(state);
                     newState.isBusy = true;
+                    newState.error = null;
                     newState.loadPage = newState.currPage + 1;
                     return newState;
                 }
@@ -172,6 +172,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                     if (state.currPage - 1 > 0) {
                         const newState = this.copyState(state);
                         newState.isBusy = true;
+                        newState.error = null;
                         newState.loadPage = newState.currPage - 1;
                         return newState;
 
@@ -185,6 +186,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 if (action.payload.tileId === this.tileId) {
                     const newState = this.copyState(state);
                     newState.isBusy = true;
+                    newState.error = null;
                     newState.viewMode = action.payload.mode;
                     return newState;
                 }
