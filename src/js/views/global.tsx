@@ -237,7 +237,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
                                 <i className="fa fa-window-close" aria-hidden="true"></i>
                             </button>
                         </header>
-                        <div className="content">
+                        <div className="content cnc-tile-body">
                             {this.props.children}
                         </div>
                     </div>

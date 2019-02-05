@@ -76,6 +76,7 @@ export class TTDistribModel extends StatelessModel<TTDistribModelState> {
             [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
                 const newState = this.copyState(state);
                 newState.isBusy = true;
+                newState.error = null;
                 return newState;
             },
             [ActionName.LoadDataDone]: (state, action:Actions.LoadDataDone) => {
