@@ -57,6 +57,7 @@ export interface RequestArgs {
 
 export interface Response {
     results:Array<StrippedFreqResponse>;
+    procTime:number;
 }
 
 interface HTTPResponse {
@@ -76,6 +77,8 @@ export interface StrippedFreqResponse {
         relbar:number;
     }>;
     total:number;
+    corpname:string;
+    fcrit:string;
 }
 
 export class SyDAPI implements DataApi<RequestArgs, Response> {
@@ -93,7 +96,7 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
     }
 
     call(args:RequestArgs):Rx.Observable<Response> {
-
+        const t1 = new Date().getTime();
         const conc1$ = this.conc1.call({
             corpname: args.corp1,
             iquery: args.word1,
@@ -147,7 +150,9 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
                 (data) => {
                     return Rx.Observable.of({
                         items: data.Blocks[0].Items,
-                        total: data.Blocks[0].Total
+                        total: data.Blocks[0].Total,
+                        corpname: corpname,
+                        fcrit: fcrit
                     });
                 }
             ));
@@ -161,7 +166,8 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
             .concatMap(
                 (data) => {
                     return Rx.Observable.of({
-                        results: data
+                        results: data,
+                        procTime: Math.round((new Date().getTime() - t1) / 10) / 100
                     })
                 }
             );
