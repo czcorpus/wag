@@ -33,14 +33,23 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             return (
                 <globComponents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
                         hasData={false} sourceIdent="SyD">
-                    <div>
-                        {this.props.result.map((item, i) => {
-                            return (
-                                <pre key={i}>
-                                    total: {item.total}
-                                </pre>
-                            )
-                        })}
+                    <div className="SydTileView">
+                        <pre>############ in development ###################</pre>
+                        <h3>freq calc. benchmark</h3>
+                        <table>
+                            <tbody>
+                                {this.props.result.map((item, i) => {
+                                    return (
+                                        <tr key={`${item.corpname}:${item.fcrit}`}>
+                                            <td>{item.corpname}</td>
+                                            <td>{item.fcrit}</td>
+                                            <td className="num">{item.total}</td>
+                                        </tr>
+                                    )
+                                })}
+                            </tbody>
+                        </table>
+                        <p>proc time: <strong>{this.props.procTime}</strong>s.</p>
                     </div>
                 </globComponents.TileWrapper>
             );

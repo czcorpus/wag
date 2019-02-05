@@ -59,6 +59,7 @@ export class SyDTile implements ITileProvider {
             {
                 isBusy: false,
                 error: null,
+                procTime: -1,
                 corp1: conf.corp1,
                 corp1Fcrit: Immutable.List<string>(conf.corp1Fcrit),
                 corp2: conf.corp2,

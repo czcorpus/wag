@@ -29,6 +29,7 @@ import { SystemMessageType } from '../../abstract/types';
 export interface SydModelState {
     isBusy:boolean;
     error:string;
+    procTime:number;
     corp1:string;
     corp1Fcrit:Immutable.List<string>;
     corp2:string;
@@ -80,6 +81,8 @@ export class SydModel extends StatelessModel<SydModelState> {
             [GlobalActionName.RequestQueryResponse]: (state, action) => {
                 const newState = this.copyState(state);
                 newState.isBusy = true;
+                newState.procTime = -1;
+                newState.result = Immutable.List<StrippedFreqResponse>();
                 return newState;
             },
             [ActionName.DataLoadDone]: (state, action:Actions.DataLoadDone) => {
@@ -92,6 +95,7 @@ export class SydModel extends StatelessModel<SydModelState> {
                 } else {
                     newState.isBusy = false;
                     newState.result = Immutable.List<StrippedFreqResponse>(action.payload.data.results);
+                    newState.procTime = action.payload.data.procTime;
                 }
                 return newState;
             }
