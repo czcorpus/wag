@@ -46,14 +46,16 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
         this.actionMatch = {
             [ActionName.AcknowledgeSize]: (state, action:Actions.AcknowledgeSize) => {
                 const newState = this.copyState(state);
-                newState.tileProps = newState.tileProps.map(tile => {
+                newState.tileProps = newState.tileProps.map<TileFrameProps>(tile => {
                     return {
                         tileId: tile.tileId,
                         Component: tile.Component,
                         label: tile.label,
                         supportsExtendedView: tile.supportsExtendedView,
-                        queryTypeSupport: tile.queryTypeSupport,
+                        supportsCurrQueryType: tile.supportsCurrQueryType,
                         renderSize: action.payload.size,
+                        widthFract: tile.widthFract,
+                        extWidthFract: tile.extWidthFract,
                         isHidden: tile.isHidden
                     }
                 }).toList();

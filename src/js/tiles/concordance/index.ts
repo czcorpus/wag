@@ -98,19 +98,12 @@ export class ConcordanceTile implements ITileProvider {
         return this.view;
     }
 
-    supportsExtendedView():boolean {
-        return true;
-    }
-
     getLabel():string {
         return this.ut.translate('concordance__main_label');
     }
 
-    getQueryTypeSupport(qt:QueryType, lang1:string, lang2?:string):number {
-        if (qt === QueryType.SINGLE_QUERY || qt === QueryType.TRANSLAT_QUERY) {
-            return 1;
-        }
-        return 0;
+    supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {
+        return qt === QueryType.SINGLE_QUERY || qt === QueryType.TRANSLAT_QUERY;
     }
 
     disable():void {
@@ -120,8 +113,16 @@ export class ConcordanceTile implements ITileProvider {
     isHidden():boolean {
         return this._isHidden;
     }
+
+    getWidthFract():number {
+        return 1;
+    }
+
+    getExtWidthFract():number {
+        return 2;
+    }
 }
 
-export const init:TileFactory.TileFactory<ConcordanceTileConf> = ({tileId, dispatcher, appServices, ut, mainForm, isHidden, conf}) => {
-    return new ConcordanceTile({tileId, dispatcher, appServices, ut, mainForm, isHidden, conf});
+export const init:TileFactory.TileFactory<ConcordanceTileConf> = ({tileId, dispatcher, appServices, ut, mainForm, isHidden, widthFract, conf}) => {
+    return new ConcordanceTile({tileId, dispatcher, appServices, ut, mainForm, isHidden, widthFract, conf});
 }

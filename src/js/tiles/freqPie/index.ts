@@ -49,7 +49,7 @@ export class FreqPieTile implements ITileProvider {
     constructor(lang1:string, lang2:string, {tileId, dispatcher, appServices, ut, mainForm, waitForTile, conf}:TileFactory.Args<FreqPieTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
-        this.label = this.appServices.importExternalLabel(conf.label);
+        this.label = this.appServices.importExternalMessage(conf.label);
         this.model = new FreqPieModel(
             dispatcher,
             {
@@ -95,11 +95,8 @@ export class FreqPieTile implements ITileProvider {
         return false;
     }
 
-    getQueryTypeSupport(qt:QueryType, lang1:string, lang2?:string):number {
-        if (qt === QueryType.SINGLE_QUERY || qt === QueryType.TRANSLAT_QUERY) {
-            return 1;
-        }
-        return 0;
+    supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {
+        return qt === QueryType.SINGLE_QUERY || qt === QueryType.TRANSLAT_QUERY;
     }
 
     disable():void {
@@ -109,10 +106,18 @@ export class FreqPieTile implements ITileProvider {
     isHidden():boolean {
         return false;
     }
+
+    getWidthFract():number {
+        return 1;
+    }
+
+    getExtWidthFract():number|null {
+        return null;
+    }
 }
 
 
 export const init:TileFactory.TileFactory<FreqPieTileConf> = ({
-    tileId, dispatcher, appServices, ut, mainForm, lang1, lang2, waitForTile, conf}) => {
-    return new FreqPieTile(lang1, lang2, {tileId, dispatcher, appServices, ut, mainForm, waitForTile, conf});
+    tileId, dispatcher, appServices, ut, mainForm, lang1, lang2, waitForTile, widthFract, conf}) => {
+    return new FreqPieTile(lang1, lang2, {tileId, dispatcher, appServices, ut, mainForm, widthFract, waitForTile, conf});
 }

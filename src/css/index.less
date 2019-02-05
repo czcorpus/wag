@@ -6,11 +6,47 @@ body {
     background-image: @main-background;
 }
 
-section.tiles {
-    display: grid;
-    grid-gap: 1em;
-    grid-template-columns: 1fr 1fr 1fr;
-    color: #444;
+section.TilesSections {
+
+    padding: 0.7em;
+
+    section.tiles {
+        display: grid;
+        grid-gap: 1em;
+        grid-template-columns: 1fr 1fr 1fr;
+        color: #444;
+
+    }
+
+    section.group {
+
+        > header {
+
+            margin-top: 1em;
+            margin-bottom: 1em;
+
+            h2 {
+                margin-bottom: 0;
+                color: @color-portal-blue-header;
+                font-size: 1.3em;
+
+                .mark {
+                    display: inline-block;
+                    vertical-align: middle;
+                    font-size: 0.9em;
+                    padding-right: 0.3em;
+                    padding-bottom: 0.2em;
+                }
+            }
+
+            p {
+                margin-top: 0.7em;
+                margin-bottom: 0.1em;
+                color: #444;
+            }
+        }
+
+    }
 }
 
 
@@ -45,10 +81,6 @@ section.tiles {
     .provider {
         margin: 0 0.7em 0.7em 0.7em;
     }
-}
-
-.tiles {
-    margin-top: 2em;
 }
 
 .tiles .window4-mount {

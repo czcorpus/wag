@@ -48,6 +48,8 @@ export interface TimeDistribModelState {
     isBusy:boolean;
     error:string;
     corpname:string;
+    subcname:string;
+    subcDesc:string;
     q:string;
     attrTime:string;
     attrValue:string;
@@ -81,6 +83,7 @@ const stateToAPIArgs = (state:TimeDistribModelState, queryId:string):QueryArgs =
 
     return {
         corpname: state.corpname,
+        usesubcorp: state.subcname,
         q: queryId ? queryId : state.q,
         ctfcrit1: '0', // = structural attr
         ctfcrit2: getAttrCtx(state, Dimension.SECOND),

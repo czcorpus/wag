@@ -89,11 +89,8 @@ export class TreqTile implements ITileProvider {
         return false;
     }
 
-    getQueryTypeSupport(qt:QueryType, lang1:string, lang2?:string):number {
-        if (qt === QueryType.TRANSLAT_QUERY) {
-            return 1000;
-        }
-        return 0;
+    supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {
+        return qt === QueryType.TRANSLAT_QUERY;
     }
 
     disable():void {
@@ -103,10 +100,18 @@ export class TreqTile implements ITileProvider {
     isHidden():boolean {
         return false;
     }
+
+    getWidthFract():number {
+        return 1;
+    }
+
+    getExtWidthFract():number|null {
+        return null;
+    }
 }
 
 
 export const init:TileFactory.TileFactory<TreqTileConf> = ({
-    tileId, dispatcher, appServices, ut, mainForm, lang1, lang2, conf}) => {
-    return new TreqTile(lang1, lang2, {tileId, dispatcher, appServices, ut, mainForm, conf});
+    tileId, dispatcher, appServices, ut, mainForm, lang1, lang2, widthFract, conf}) => {
+    return new TreqTile(lang1, lang2, {tileId, dispatcher, appServices, ut, mainForm, widthFract, conf});
 }
