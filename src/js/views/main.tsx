@@ -405,13 +405,15 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                     tileId: this.props.tile.tileId,
                     size: ut.getElementSize(this.ref.current)
                 }
-            })
+            });
         }
 
         render() {
+            const dynStyle = {gridColumn: `span ${this.props.isExpanded ? this.props.tile.extWidthFract : this.props.tile.widthFract}`};
             return (
                 <section key={`tile-ident-${this.props.tile.tileId}`}
-                        className={`cnc-tile app-output${this.props.isExpanded ? ' expanded' : ''}`}>
+                        className={`cnc-tile app-output${this.props.isExpanded ? ' expanded' : ''}`}
+                        style={dynStyle}>
                     <header className="cnc-tile-header panel">
                         <h2>{this.props.tile.label}</h2>
                         {this.props.tile.supportsExtendedView ?

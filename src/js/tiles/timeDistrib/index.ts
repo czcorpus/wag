@@ -58,17 +58,16 @@ export class TimeDistTile implements ITileProvider {
 
     private readonly model:TimeDistribModel;
 
-    // a (time based) structural attribute property we are looking for in this tile
-    private readonly distProperty:string;
+    private readonly widthFract:number;
 
     private view:TileComponent;
 
     constructor(dispatcher:ActionDispatcher, tileId:number, waitForTile:number, ut:ViewUtils<GlobalComponents>,
-                appServices:AppServices, conf:TimeDistTileConf) {
+                appServices:AppServices, widthFract:number, conf:TimeDistTileConf) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.ut = ut;
-        this.distProperty = conf.distProperty;
+        this.widthFract = widthFract;
         this.model = new TimeDistribModel(
             dispatcher,
             {
@@ -130,7 +129,7 @@ export class TimeDistTile implements ITileProvider {
     }
 
     getWidthFract():number {
-        return 1;
+        return this.widthFract;
     }
 
     getExtWidthFract():number|null {
@@ -141,6 +140,6 @@ export class TimeDistTile implements ITileProvider {
 
 
 
-export const init:TileFactory.TileFactory<TimeDistTileConf>  = ({tileId, waitForTile, dispatcher, ut, appServices, conf}) => {
-    return new TimeDistTile(dispatcher, tileId, waitForTile, ut, appServices, conf);
+export const init:TileFactory.TileFactory<TimeDistTileConf>  = ({tileId, waitForTile, dispatcher, ut, appServices, widthFract, conf}) => {
+    return new TimeDistTile(dispatcher, tileId, waitForTile, ut, appServices, widthFract, conf);
 }

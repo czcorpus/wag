@@ -63,11 +63,11 @@ export const stateToArgs = (state:ConcordanceTileState, query:string, querySelec
         corpname: state.corpname,
         iquery: query,
         queryselector: querySelector,
-        kwicleftctx: state.kwicLeftCtx.toString(),
-        kwicrightctx: state.kwicRightCtx.toString(),
+        kwicleftctx: (-1 * state.kwicLeftCtx).toFixed(),
+        kwicrightctx: state.kwicRightCtx.toFixed(),
         async: '0',
-        pagesize: state.pageSize.toString(),
-        fromp: state.loadPage.toFixed(0),
+        pagesize: state.pageSize.toFixed(),
+        fromp: state.loadPage.toFixed(),
         attr_vmode: state.attr_vmode,
         attrs: state.attrs.join(','),
         viewmode: state.viewMode,
@@ -86,9 +86,9 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
     private readonly tileId:number;
 
-    private static readonly BASIC_KWIC_CTX = 5;
+    public static readonly BASIC_KWIC_CTX = 10;
 
-    private static readonly EXPANDED_KWIC_CTX = 10;
+    public static readonly EXPANDED_KWIC_CTX = 10;
 
     constructor({dispatcher, tileId, appServices, service, mainForm, initState}:ConcordanceTileModelArgs) {
         super(dispatcher, initState);
@@ -112,7 +112,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                     newState.isExpanded = false;
                     newState.isBusy = true;
                     newState.error = null;
-                    newState.kwicLeftCtx = -1 * ConcordanceTileModel.BASIC_KWIC_CTX;
+                    newState.kwicLeftCtx = ConcordanceTileModel.BASIC_KWIC_CTX;
                     newState.kwicRightCtx = ConcordanceTileModel.BASIC_KWIC_CTX;
                     return newState;
                 }
@@ -130,7 +130,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                     newState.isExpanded = true;
                     newState.isBusy = true;
                     newState.error = null;
-                    newState.kwicLeftCtx = -1 * ConcordanceTileModel.EXPANDED_KWIC_CTX;
+                    newState.kwicLeftCtx = ConcordanceTileModel.EXPANDED_KWIC_CTX;
                     newState.kwicRightCtx = ConcordanceTileModel.EXPANDED_KWIC_CTX;
                     return newState;
                 }

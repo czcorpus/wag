@@ -44,9 +44,12 @@ export class TreqTile implements ITileProvider {
 
     private view:TileComponent;
 
-    constructor(lang1:string, lang2:string, {tileId, dispatcher, appServices, ut, mainForm, conf}:TileFactory.Args<TreqTileConf>) {
+    private readonly widthFract:number;
+
+    constructor(lang1:string, lang2:string, {tileId, dispatcher, appServices, ut, mainForm, widthFract, conf}:TileFactory.Args<TreqTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
+        this.widthFract = widthFract;
         this.model = new TreqModel(
             dispatcher,
             {
@@ -103,7 +106,7 @@ export class TreqTile implements ITileProvider {
     }
 
     getWidthFract():number {
-        return 1;
+        return this.widthFract;
     }
 
     getExtWidthFract():number|null {
