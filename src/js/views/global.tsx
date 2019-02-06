@@ -51,7 +51,7 @@ export interface GlobalComponents {
     ErrorBoundary:React.ComponentClass;
 
     ModalBox:React.ComponentClass<{
-        onCloseClick:()=>void;
+        onCloseClick?:()=>void;
         title:string;
         isScrollable:boolean;
     }>;
