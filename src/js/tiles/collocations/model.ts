@@ -20,7 +20,7 @@ import * as Rx from '@reactivex/rxjs';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
 import {ActionName as ConcActionName, Actions as ConcActions} from '../concordance/actions';
-import {ActionName, DataRow, Actions, CollApiArgs, DataHeading} from './common';
+import {ActionName, DataRow, Actions, CollApiArgs, DataHeading, CollocMetric} from './common';
 import { KontextCollAPI } from './service';
 import { AppServices } from '../../appServices';
 import { SystemMessageType } from '../../abstract/types';
@@ -35,7 +35,6 @@ export interface CollocModelArgs {
     waitForTile:number;
 }
 
-
 export interface CollocModelState {
     isBusy:boolean;
     isExpanded:boolean;
@@ -47,8 +46,8 @@ export interface CollocModelState {
     ctow:number;
     cminfreq:number;
     cminbgr:number;
-    cbgrfns:Array<string>;
-    csortfn:string;
+    cbgrfns:Array<CollocMetric>;
+    csortfn:CollocMetric;
     data:Immutable.List<DataRow>;
     heading:DataHeading;
     citemsperpage:number;
@@ -81,6 +80,19 @@ export class CollocModel extends StatelessModel<CollocModelState> {
     private readonly tileId:number;
 
     private readonly waitForTile:number;
+
+    private readonly measureMap = {
+        't': 'T-score',
+        'm': 'MI',
+        '3': 'MI3',
+        'l': 'log likelihood',
+        's': 'min. sensitivity',
+        'd': 'logDice',
+        'p': 'MI.log_f',
+        'r': 'relative freq.'
+    };
+
+    private static readonly BASE_WC_FONT_SIZE = 25;
 
     constructor({dispatcher, tileId, waitForTile, appServices, service, initState}:CollocModelArgs) {
         super(dispatcher, initState);
@@ -140,13 +152,24 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                     newState.error = action.error.message;
 
                 } else {
-                    newState.data = Immutable.List<DataRow>(action.payload.data);
-                    newState.heading = action.payload.heading.map((v, i) => {
-                        if (i === 0) {
-                            return {n: 'Abs.', s: ''};
-                        }
-                        return v;
-                    });
+                    const minVal = Math.min(...action.payload.data.map(v => v.stats[0]));
+                    const scaledTotal = action.payload.data.map(v => v.stats[0] - minVal).reduce((curr, acc) => acc + curr, 0);
+                    newState.data = Immutable.List<DataRow>(action.payload.data.map(item => ({
+                        str: item.str,
+                        stats: item.stats,
+                        freq: item.freq,
+                        nfilter: item.nfilter,
+                        pfilter: item.pfilter,
+                        wcFontSize: Math.round((item.stats[0] - minVal) / scaledTotal * 100 + CollocModel.BASE_WC_FONT_SIZE)
+                    })));
+
+                    newState.heading =
+                        [{label: 'Abs', ident: ''}]
+                        .concat(
+                            action.payload.heading
+                                .map((v, i) => this.measureMap[v.ident] ? {label: this.measureMap[v.ident], ident: v.ident} : null)
+                                .filter(v => v !== null)
+                        );
                 }
                 return newState;
             }
@@ -175,9 +198,9 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                                     seDispatch({
                                         name: ActionName.DataLoadDone,
                                         payload: {
-                                            heading: data.Head,
-                                            data: data.Items,
-                                            q: '~' + data.conc_persistence_op_id,
+                                            heading: data.collHeadings,
+                                            data: data.data,
+                                            q: '~' + data.concId,
                                         }
                                     });
                                 },

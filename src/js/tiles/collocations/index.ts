@@ -79,8 +79,8 @@ export class CollocationsTile implements ITileProvider {
                 ctow: 2,
                 cminfreq: 1,
                 cminbgr: 3,
-                cbgrfns: [CollocMetric.MI, CollocMetric.T_SCORE, CollocMetric.LOG_DICE],
-                csortfn: CollocMetric.MI,
+                cbgrfns: [CollocMetric.LOG_DICE, CollocMetric.MI, CollocMetric.T_SCORE],
+                csortfn: CollocMetric.LOG_DICE,
                 data: Immutable.List<DataRow>(),
                 heading: [],
                 citemsperpage: 10
