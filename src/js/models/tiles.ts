@@ -28,6 +28,7 @@ export interface WdglanceTilesState {
     isAnswerMode:boolean;
     isBusy:boolean;
     expandedTiles:Immutable.Set<number>;
+    hiddenGroups:Immutable.Set<number>;
     tileProps:Immutable.List<TileFrameProps>;
     corpusInfoData:APIResponse|null;
 }
@@ -109,6 +110,17 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                 newState.corpusInfoData = null;
                 return newState;
             },
+            [ActionName.ToggleGroupVisibility]: (state, action:Actions.ToggleGroupVisibility) => {
+                const newState = this.copyState(state);
+                if (newState.hiddenGroups.contains(action.payload.groupIdx)) {
+                    newState.hiddenGroups = newState.hiddenGroups.remove(action.payload.groupIdx);
+
+                } else {
+                    newState.hiddenGroups = newState.hiddenGroups.add(action.payload.groupIdx);
+                }
+
+                return newState;
+            }
         };
     }
 

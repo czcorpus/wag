@@ -272,6 +272,7 @@ export const init = (
             isAnswerMode: false,
             isBusy: false,
             expandedTiles: Immutable.Set<number>(),
+            hiddenGroups:Immutable.Set<number>(),
             tileProps: Immutable.List<TileFrameProps>(tiles),
             corpusInfoData: null
         },

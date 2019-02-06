@@ -30,7 +30,10 @@
         "global__corp_info_attrs_remark_label": "Remark",
         "global__no_citation_info": "-",
         "global__view_mode_kwic": "KWIC",
-        "global__view_mode_sent": "sentence"
+        "global__view_mode_sent": "sentence",
+        "global__click_to_show_group": "Click to show the result group",
+        "global__click_to_hide_group": "Click to hide the result group",
+        "global__show_group_link": "Show"
 
     },
     "cs-CZ": {
@@ -64,6 +67,9 @@
         "global__corp_info_attrs_remark_label": "Poznámka",
         "global__no_citation_info": "-",
         "global__view_mode_kwic": "KWIC",
-        "global__view_mode_sent": "věta"
+        "global__view_mode_sent": "věta",
+        "global__click_to_show_group": "Klikněte pro zobrazení skupiny výsledků",
+        "global__click_to_hide_group": "Klikněte pro schování skupiny výsledků",
+        "global__show_group_link": "Zobrazit"
     }
 }

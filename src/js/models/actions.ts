@@ -36,7 +36,8 @@ export enum ActionName {
     ResetExpandTile = 'MAIN_RESET_EXPAND_TILE',
     GetCorpusInfo = 'MAIN_GET_CORPUS_INFO',
     GetCorpusInfoDone = 'MAIN_GET_CORPUS_INFO_DONE',
-    CloseCorpusInfo = 'MAIN_CLOSE_CORPUS_INFO'
+    CloseCorpusInfo = 'MAIN_CLOSE_CORPUS_INFO',
+    ToggleGroupVisibility = 'MAIN_TOGGLE_GROUP_VISIBILITY'
 }
 
 export namespace Actions {
@@ -147,5 +148,11 @@ export namespace Actions {
         data:APIResponse;
     }> {
         name:ActionName.GetCorpusInfoDone;
+    }
+
+    export interface ToggleGroupVisibility extends Action<{
+        groupIdx:number;
+    }> {
+        name:ActionName.ToggleGroupVisibility;
     }
 }

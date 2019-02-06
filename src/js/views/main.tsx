@@ -472,25 +472,54 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             })
         }
 
+        mkGroupClickHandler(groupIdx:number) {
+            return () => {
+                dispatcher.dispatch<Actions.ToggleGroupVisibility>({
+                    name: ActionName.ToggleGroupVisibility,
+                    payload: {
+                        groupIdx: groupIdx
+                    }
+                });
+            }
+        }
+
         render() {
             return (
                 <section className="TilesSections">
                     {this.props.isAnswerMode ?
-                        this.props.layout.map(group => {
+                        this.props.layout.map((group, groupIdx) => {
+                            const groupHidden = this.props.hiddenGroups.contains(groupIdx);
                             return (
                                 <section key={`group:${group.groupLabel}`} className="group">
                                     <header>
-                                        <h2><span className="mark">{'\u25B6'}</span>{group.groupLabel}</h2>
+                                        <h2>
+                                            <span className="mark">{'\u25B6'}</span>
+                                            <a onClick={this.mkGroupClickHandler(groupIdx)}
+                                                    title={groupHidden ? ut.translate('global__click_to_show_group') : ut.translate('global__click_to_hide_group')}>
+                                                {group.groupLabel}
+                                            </a>
+                                        </h2>
                                         <p>{group.groupDesc}</p>
                                     </header>
-                                    <section className="tiles">
-                                    {group.tiles
-                                        .map(v => this.props.tileProps.get(v.tileId))
-                                        .filter(v => v.supportsCurrQueryType)
-                                        .map(tile => <TileContainer key={`tile:${tile.tileId}`} tile={tile}
-                                                            isExpanded={this.props.expandedTiles.contains(tile.tileId)} />)
+                                    {groupHidden ?
+                                        <section className="hidden-content cnc-tile">
+                                            <div className="cnc-tile-body">
+                                                <a className="show" onClick={this.mkGroupClickHandler(groupIdx)}>
+                                                    {ut.translate('global__show_group_link')}
+                                                    {'\u00a0'}
+                                                    {'\u2026'}
+                                                </a>
+                                            </div>
+                                        </section> :
+                                        <section className="tiles">
+                                        {group.tiles
+                                            .map(v => this.props.tileProps.get(v.tileId))
+                                            .filter(v => v.supportsCurrQueryType)
+                                            .map(tile => <TileContainer key={`tile:${tile.tileId}`} tile={tile}
+                                                                isExpanded={this.props.expandedTiles.contains(tile.tileId)} />)
+                                        }
+                                        </section>
                                     }
-                                    </section>
                                 </section>
                             );
                         }) :
