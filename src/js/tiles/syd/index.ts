@@ -99,11 +99,8 @@ export class SyDTile implements ITileProvider {
         return this.appServices.translate('syd_main_label');
     }
 
-    getQueryTypeSupport(qt:QueryType, lang1:string, lang2?:string):number {
-        if (qt === QueryType.CMP_QUERY) {
-            return 100;
-        }
-        return 0;
+    supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {
+        return qt === QueryType.CMP_QUERY;
     }
 
     disable():void {
@@ -112,6 +109,14 @@ export class SyDTile implements ITileProvider {
 
     isHidden():boolean {
         return false;
+    }
+
+    getWidthFract():number {
+        return 1;
+    }
+
+    getExtWidthFract():number|null {
+        return null;
     }
 }
 

@@ -103,15 +103,8 @@ export class CollocationsTile implements ITileProvider {
         return this.view;
     }
 
-    supportsExtendedView():boolean {
-        return true;
-    }
-
-    getQueryTypeSupport(qt:QueryType, lang1:string, lang2?:string):number {
-        if (qt === QueryType.SINGLE_QUERY || qt === QueryType.TRANSLAT_QUERY) {
-            return 1;
-        }
-        return 0;
+    supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {
+        return qt === QueryType.SINGLE_QUERY || qt === QueryType.TRANSLAT_QUERY;
     }
 
     disable():void {
@@ -121,9 +114,17 @@ export class CollocationsTile implements ITileProvider {
     isHidden():boolean {
         return false;
     }
+
+    getWidthFract():number {
+        return 1;
+    }
+
+    getExtWidthFract():number {
+        return 2;
+    }
 }
 
 
-export const init:TileFactory.TileFactory<CollocationsTileConf> = ({tileId, dispatcher, appServices, ut, mainForm, waitForTile, conf}) => {
-    return new CollocationsTile({tileId, dispatcher, appServices, ut, mainForm, waitForTile, conf});
+export const init:TileFactory.TileFactory<CollocationsTileConf> = ({tileId, dispatcher, appServices, ut, mainForm, waitForTile, widthFract, conf}) => {
+    return new CollocationsTile({tileId, dispatcher, appServices, ut, mainForm, waitForTile, widthFract, conf});
 }

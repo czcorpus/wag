@@ -50,8 +50,11 @@ export class AppServices {
         return this.translator.translate(key, args);
     }
 
-    importExternalLabel(label:string|{[lang:string]:string}):string {
-        if (typeof label === 'string') {
+    importExternalMessage(label:string|{[lang:string]:string}):string {
+        if (!label) {
+            return '';
+
+        } else if (typeof label === 'string') {
             return this.translate(label);
         } else {
             for (let k in label) {
@@ -59,7 +62,7 @@ export class AppServices {
                     return label[k];
                 }
             }
-        }
+        }``
         return '??';
     }
 

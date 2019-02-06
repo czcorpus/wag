@@ -43,6 +43,7 @@ export interface GlobalComponents {
         isBusy:boolean;
         hasData:boolean;
         sourceIdent:string;
+        subcorpDesc?:string;
         htmlClass?:string;
         error?:string;
     }>;
@@ -153,6 +154,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
                     <div className="source">
                         {ut.translate('global__source')}:{'\u00a0'}
                         <a onClick={handleSourceClick}>{props.sourceIdent}</a>
+                        {props.subcorpDesc ? <span> / {props.subcorpDesc}</span> : null}
                     </div>
                 </div>
             );

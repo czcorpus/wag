@@ -41,6 +41,7 @@ import {encodeArgs} from './shared/ajax';
 import { Forms } from './shared/data';
 import { MessagesModel } from './models/messages';
 import { CorpusInfoAPI } from './shared/api/corpusInfo';
+import {LayoutManager, LayoutConf} from './layout';
 
 declare var require:(src:string)=>void;  // webpack
 require('../css/index.less');
@@ -59,23 +60,26 @@ export interface WdglanceConf {
     rootUrl:string;
     hostUrl:string;
     corpInfoApiUrl:string;
+    layouts:{[qt:string]:LayoutConf};
     tilesConf:{[ident:string]:TileConf};
 }
 
 const attachTile = (queryType:QueryType, lang1:string, lang2:string) =>
     (data:Array<TileFrameProps>, tile:ITileProvider):void => {
     tile.init();
-    const support = tile.getQueryTypeSupport(queryType, lang1, lang2);
+    const support = tile.supportsQueryType(queryType, lang1, lang2);
     data.push({
         tileId: tile.getIdent(),
         Component: tile.getView(),
         label: tile.getLabel(),
-        supportsExtendedView: tile.supportsExtendedView(),
-        queryTypeSupport: support,
+        supportsExtendedView: !!tile.getExtWidthFract(),
+        supportsCurrQueryType: support,
         renderSize: [50, 50],
-        isHidden: tile.isHidden()
+        isHidden: tile.isHidden(),
+        widthFract: tile.getWidthFract(),
+        extWidthFract: tile.getExtWidthFract()
     });
-    if (support === 0) {
+    if (!support) {
         tile.disable();
     }
 };
@@ -94,6 +98,8 @@ const tileFactory = (
         viewUtils:ViewUtils<GlobalComponents>,
         mainForm:WdglanceMainFormModel,
         appServices:AppServices,
+        layoutManager:LayoutManager,
+        queryType:QueryType,
         lang1:string,
         lang2:string,
         tileIdentMap:{[ident:string]:number}) => (
@@ -112,6 +118,7 @@ const tileFactory = (
                         lang2: lang2,
                         isHidden: conf.isHidden,
                         waitForTile: tileIdentMap[conf.dependsOn],
+                        widthFract: layoutManager.getTileWidthFract(queryType, tileIdentMap[confName]),
                         conf: conf as ConcordanceTileConf
                     });
                 case 'TTDistribTile':
@@ -125,6 +132,7 @@ const tileFactory = (
                         lang2: lang2,
                         isHidden: conf.isHidden,
                         waitForTile: tileIdentMap[conf.dependsOn],
+                        widthFract: layoutManager.getTileWidthFract(queryType, tileIdentMap[confName]),
                         conf: conf as TTDistTileConf
                     });
                 case 'TimeDistribTile':
@@ -138,6 +146,7 @@ const tileFactory = (
                         lang2: lang2,
                         isHidden: conf.isHidden,
                         waitForTile: tileIdentMap[conf.dependsOn],
+                        widthFract: layoutManager.getTileWidthFract(queryType, tileIdentMap[confName]),
                         conf: conf as TimeDistTileConf
                     });
                 case 'CollocTile':
@@ -151,6 +160,7 @@ const tileFactory = (
                         lang2: lang2,
                         isHidden: conf.isHidden,
                         waitForTile: tileIdentMap[conf.dependsOn],
+                        widthFract: layoutManager.getTileWidthFract(queryType, tileIdentMap[confName]),
                         conf: conf as CollocationsTileConf
                     });
                 case 'TreqTile':
@@ -164,6 +174,7 @@ const tileFactory = (
                         lang2: lang2,
                         isHidden: conf.isHidden,
                         waitForTile: tileIdentMap[conf.dependsOn],
+                        widthFract: layoutManager.getTileWidthFract(queryType, tileIdentMap[confName]),
                         conf: conf as TreqTileConf,
                     });
                 case 'SyDTile':
@@ -177,6 +188,7 @@ const tileFactory = (
                         lang2: lang2,
                         isHidden: conf.isHidden,
                         waitForTile: tileIdentMap[conf.dependsOn],
+                        widthFract: layoutManager.getTileWidthFract(queryType, tileIdentMap[confName]),
                         conf: conf as SyDTileConf,
                     });
                 case 'FreqPieTile':
@@ -190,6 +202,7 @@ const tileFactory = (
                         lang2: lang2,
                         isHidden: conf.isHidden,
                         waitForTile: tileIdentMap[conf.dependsOn],
+                        widthFract: layoutManager.getTileWidthFract(queryType, tileIdentMap[confName]),
                         conf: conf as FreqPieTileConf,
                     });
                 default:
@@ -245,7 +258,9 @@ export const init = (
         queryType,
         query1,
         query2,
+        layouts,
         tilesConf}:WdglanceConf) => {
+
 
     const uiLangSel = uiLang || 'en-US';
     const dispatcher = new ActionDispatcher();
@@ -299,7 +314,20 @@ export const init = (
     const attachTileCurr = attachTile(queryType, query1Lang, query2Lang);
     const tilesMap = attachNumericTileIdents(tilesConf);
     //console.log('tilemap: ', tilesMap);
-    const factory = tileFactory(dispatcher, viewUtils, formModel, appServices, query1Lang, query2Lang, tilesMap);
+
+    const layoutManager = new LayoutManager(layouts, tilesMap, appServices);
+
+    const factory = tileFactory(
+        dispatcher,
+        viewUtils,
+        formModel,
+        appServices,
+        layoutManager,
+        queryType,
+        query1Lang,
+        query2Lang,
+        tilesMap
+    );
     Object.keys(tilesConf).forEach((ident, i) => {
         attachTileCurr(tiles, factory(ident, tilesConf[ident]));
     });
@@ -330,7 +358,12 @@ export const init = (
                 if (!form.contains(document.activeElement)) {
                     ReactDOM.unmountComponentAtNode(mountElement);
                     ReactDOM.render(
-                        React.createElement(component.WdglanceMain, {}),
+                        React.createElement(
+                            component.WdglanceMain,
+                            {
+                                layout: layoutManager.getLayout(queryType)
+                            }
+                        ),
                         mountElement
                     );
                 }
@@ -338,7 +371,12 @@ export const init = (
         );
 
     ReactDOM.render(
-        React.createElement(component.WdglanceMain, {}),
+        React.createElement(
+            component.WdglanceMain,
+            {
+                layout: layoutManager.getLayout(queryType)
+            }
+        ),
         mountElement
     );
 };

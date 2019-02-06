@@ -58,7 +58,7 @@ export class TTDistTile implements ITileProvider {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.ut = ut;
-        this.label = appServices.importExternalLabel(conf.label);
+        this.label = appServices.importExternalMessage(conf.label);
         this.model = new TTDistribModel(
             this.dispatcher,
             tileId,
@@ -92,19 +92,12 @@ export class TTDistTile implements ITileProvider {
         return this.view;
     }
 
-    supportsExtendedView():boolean {
-        return false;
-    }
-
     getLabel():string {
         return this.label ? this.label : this.ut.translate('ttDistrib__main_label');
     }
 
-    getQueryTypeSupport(qt:QueryType, lang1:string, lang2?:string):number {
-        if (qt === QueryType.SINGLE_QUERY || qt === QueryType.TRANSLAT_QUERY) {
-            return 1;
-        }
-        return 0;
+    supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {
+        return qt === QueryType.SINGLE_QUERY || qt === QueryType.TRANSLAT_QUERY;
     }
 
     disable():void {
@@ -113,6 +106,14 @@ export class TTDistTile implements ITileProvider {
 
     isHidden():boolean {
         return false;
+    }
+
+    getWidthFract():number {
+        return 1;
+    }
+
+    getExtWidthFract():number|null {
+        return null;
     }
 
 }

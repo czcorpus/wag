@@ -36,7 +36,9 @@ export namespace KeyCodes {
 }
 
 
-
+/**
+ * pseudo uuid (aka good enough for the use)
+ */
 export const puid = ():string => {
     const ab = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     const len = ab.length;

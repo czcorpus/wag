@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { ITileProvider, TileFactory, QueryType, TileComponent, TileConf } from '../../abstract/types';
+import { ITileProvider, TileFactory, QueryType, TileComponent, TileConf, CorpSrchTileConf } from '../../abstract/types';
 import { ActionDispatcher, ViewUtils } from 'kombo';
 import { GlobalComponents } from '../../views/global';
 import { TimeDistribModel, FreqFilterQuantity, AlignType } from './model';
@@ -30,11 +30,9 @@ declare var require:(src:string)=>void;  // webpack
 require('./style.less');
 
 
-export interface TimeDistTileConf extends TileConf {
+export interface TimeDistTileConf extends CorpSrchTileConf {
 
     apiURL:string;
-
-    corpname:string;
 
     /**
      * E.g. 'lemma', 'word'
@@ -75,6 +73,8 @@ export class TimeDistTile implements ITileProvider {
                 isBusy: false,
                 error: null,
                 corpname: conf.corpname,
+                subcname: conf.subcname,
+                subcDesc: appServices.importExternalMessage(conf.subcDesc),
                 q: null,
                 attrTime: conf.timeProperty,
                 attrValue: conf.distProperty,
@@ -115,11 +115,8 @@ export class TimeDistTile implements ITileProvider {
         return this.ut.translate('timeDistrib__main_label');
     }
 
-    getQueryTypeSupport(qt:QueryType, lang1:string, lang2?:string):number {
-        if (qt === QueryType.SINGLE_QUERY || qt === QueryType.TRANSLAT_QUERY) {
-            return 1;
-        }
-        return 0;
+    supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {
+        return qt === QueryType.SINGLE_QUERY || qt === QueryType.TRANSLAT_QUERY;
     }
 
     disable():void {
@@ -128,6 +125,14 @@ export class TimeDistTile implements ITileProvider {
 
     isHidden():boolean {
         return false;
+    }
+
+    getWidthFract():number {
+        return 1;
+    }
+
+    getExtWidthFract():number|null {
+        return null;
     }
 
 }

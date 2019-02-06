@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import {ActionDispatcher, Bound, ViewUtils} from 'kombo';
+import {ActionDispatcher, Bound, ViewUtils, BoundWithProps} from 'kombo';
 import * as React from 'react';
 import * as Immutable from 'immutable';
 import * as Rx from '@reactivex/rxjs';
@@ -29,6 +29,7 @@ import { TileFrameProps, SystemMessageType, QueryType } from '../abstract/types'
 import { WdglanceTilesModel, WdglanceTilesState } from '../models/tiles';
 import { MessagesState, MessagesModel } from '../models/messages';
 import {init as corpusInfoViewInit} from './corpusInfo';
+import { TileGroup } from '../layout';
 
 
 export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, formModel:WdglanceMainFormModel, tilesModel:WdglanceTilesModel,
@@ -456,7 +457,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     // -------------------- <TilesSections /> -----------------------------
 
-    class TilesSections extends React.PureComponent<WdglanceTilesState> {
+    class TilesSections extends React.PureComponent<{layout:Immutable.List<TileGroup>} & WdglanceTilesState> {
 
         constructor(props) {
             super(props);
@@ -471,44 +472,51 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
         render() {
             return (
-                <div>
-                    <section className="tiles">
+                <section className="TilesSections">
                     {this.props.isAnswerMode ?
-                        (
-                            <>
-                            {this.props.tileProps
-                                .filter(tile => tile.queryTypeSupport > 0)
-                                .filter(tile => !tile.isHidden)
-                                .sort((a, b) => b.queryTypeSupport - a.queryTypeSupport)
-                                .map((tile) => <TileContainer key={`tile:${tile.tileId}`} tile={tile}
-                                                    isExpanded={this.props.expandedTiles.contains(tile.tileId)} />)
-                            }
-                            </>
-                        ) :
-                        <InitialHelp />
+                        this.props.layout.map(group => {
+                            return (
+                                <section key={`group:${group.groupLabel}`} className="group">
+                                    <header>
+                                        <h2><span className="mark">{'\u25B6'}</span>{group.groupLabel}</h2>
+                                        <p>{group.groupDesc}</p>
+                                    </header>
+                                    <section className="tiles">
+                                    {group.tiles
+                                        .map(v => this.props.tileProps.get(v.tileId))
+                                        .filter(v => v.supportsCurrQueryType)
+                                        .map(tile => <TileContainer key={`tile:${tile.tileId}`} tile={tile}
+                                                            isExpanded={this.props.expandedTiles.contains(tile.tileId)} />)
+                                    }
+                                    </section>
+                                </section>
+                            );
+                        }) :
+                        <section className="tiles"><InitialHelp /></section>
                     }
-                    </section>
                     {this.props.corpusInfoData ?
                         <globalComponents.ModalBox onCloseClick={this.handleCloseCorpusInfo}
                                 title={this.props.corpusInfoData.corpname} isScrollable={false}>
                             <CorpusInfo data={this.props.corpusInfoData} />
                         </globalComponents.ModalBox> : null}
-                </div>
+                </section>
             );
         }
     }
 
-    const BoundTilesSections = Bound(TilesSections, tilesModel);
+    const BoundTilesSections = BoundWithProps<any, any>(TilesSections, tilesModel); // TODO type issue
 
     // ------------------ <WdglanceMain /> ------------------------------
 
-    const WdglanceMain:React.SFC<{}> = (props) => {
+    const WdglanceMain:React.SFC<{
+        layout:Immutable.List<TileGroup>
+    }> = (props) => {
 
         return (
             <div className="WdglanceMain">
                 <WdglanceControlsBound />
                 <BoundMessagesBox />
-                <BoundTilesSections />
+                <BoundTilesSections layout={props.layout} />
             </div>
         );
     }

@@ -26,6 +26,7 @@ export type RawDataItem = [string, string, number, number];
 
 export interface QueryArgs {
     corpname:string;
+    usesubcorp:string;
     q:string;
     ctfcrit1:string;
     ctfcrit2:string;
