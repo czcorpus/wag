@@ -96,7 +96,7 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
             },
             [ActionName.GetCorpusInfoDone]: (state, action:Actions.GetCorpusInfoDone) => {
                 const newState = this.copyState(state);
-                newState.isBusy = true;
+                newState.isBusy = false;
                 if (action.error) {
                     newState.corpusInfoData = null;
 

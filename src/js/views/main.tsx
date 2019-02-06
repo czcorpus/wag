@@ -486,6 +486,10 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         render() {
             return (
                 <section className="TilesSections">
+                    <header className="status">
+                        {this.props.isBusy ?
+                            <globalComponents.AjaxLoader htmlClass="loader" /> : null}
+                    </header>
                     {this.props.isAnswerMode ?
                         this.props.layout.map((group, groupIdx) => {
                             const groupHidden = this.props.hiddenGroups.contains(groupIdx);
