@@ -22,10 +22,30 @@ import { ajax$ } from '../../shared/ajax';
 import { CollApiArgs, DataRow, DataHeading } from './common';
 
 
-export interface CollApiResponse {
+type ResponseDataHeading = Array<{
+    s:string;
+    n:string;
+}>;
+
+interface ResponseDataRow {
+    Stats:Array<{s:string}>;
+    freq:number;
+    nfilter:[string, string];
+    pfilter:[string, string];
+    str:string;
+}
+
+
+interface HttpApiResponse {
     conc_persistence_op_id:string;
-    Head:DataHeading;
-    Items:Array<DataRow>;
+    Head:ResponseDataHeading;
+    Items:Array<ResponseDataRow>;
+}
+
+export interface CollApiResponse {
+    concId:string;
+    collHeadings:DataHeading;
+    data:Array<DataRow>;
 }
 
 
@@ -39,11 +59,25 @@ export class KontextCollAPI implements DataApi<CollApiArgs, CollApiResponse> {
 
 
     call(queryArgs:CollApiArgs):Rx.Observable<CollApiResponse> {
-        return ajax$(
+        return ajax$<HttpApiResponse>(
             'GET',
             this.apiURL,
             queryArgs,
             {}
+
+        ).concatMap(
+            (data) => Rx.Observable.of({
+                concId: data.conc_persistence_op_id,
+                collHeadings: data.Head.map(v => ({label: v.n, ident: v.s})),
+                data: data.Items.map(item => ({
+                    stats: item.Stats.map(v => parseFloat(v.s)),
+                    freq: item.freq,
+                    pfilter: item.pfilter,
+                    nfilter: item.nfilter,
+                    str: item.str,
+                    wcFontSize: -1
+                }))
+            })
         );
     }
 

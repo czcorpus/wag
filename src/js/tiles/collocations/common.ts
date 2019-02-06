@@ -19,23 +19,28 @@
 import { Action } from 'kombo';
 
 export interface DataRow {
-    Stats:Array<{s:string}>;
+    str:string;
+    stats:Array<number>;
     freq:number;
     nfilter:[string, string];
     pfilter:[string, string];
-    str:string;
+    wcFontSize:number;
 }
 
-export type DataHeading = Array<{n:string; s:string}>;
+export type DataHeading = Array<{
+    label:string;
+    ident:string;
+}>;
 
 export enum CollocMetric {
     T_SCORE = 't',
     MI = 'm',
     MI3 = '3',
-    LOG_LIKELYHOOD = 'l',
-    MIN_SENSITIVITY = 's',
+    LOG_LKL = 'l',
+    MIN_SENS = 's',
     LOG_DICE = 'd',
     MI_LOG_F = 'p',
+    REL_FREQ = 'f'
 }
 
 export interface CollApiArgs {

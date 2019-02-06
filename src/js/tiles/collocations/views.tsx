@@ -63,7 +63,7 @@ export const drawChart = (container:HTMLElement, size:[number, number], data:Imm
             tooltip = d3.select('body .wcloud-tooltip');
         }
 
-        const text = itemGroup
+        itemGroup
             .append('text')
             .style('font-size', d => `${d.size}px`)
             .style('font-family', 'Impact')
@@ -84,7 +84,7 @@ export const drawChart = (container:HTMLElement, size:[number, number], data:Imm
                 tooltip
                     .style('left', `${d3.event.pageX}px`)
                     .style('top', `${d3.event.pageY - 30}px`)
-                    .text(valMapping.get(datum.text).Stats.map((v, i) => `${measures[i]}: ${v.s}`).join(', '))
+                    .text(valMapping.get(datum.text).stats.map((v, i) => `${measures[i+1]}: ${v}`).join(', '))
 
             })
             .on('mouseover', (datum, i, values) => {
@@ -108,13 +108,14 @@ export const drawChart = (container:HTMLElement, size:[number, number], data:Imm
             });
     }
 
-    const totalFreq = dataImp.reduce((acc, curr) => parseFloat(curr.Stats[0].s) + acc, 0);
     const layout = cloud()
         .size(size)
-        .words(dataImp.map(d => ({
-            text: d.str,
-            size: ((parseFloat(d.Stats[0].s) / totalFreq) * 100) ** 1.5
-        })))
+        .words(dataImp.map(d => {
+            return {
+                text: d.str,
+                size: d.wcFontSize
+            };
+        }))
         .padding(5)
         .rotate(() => 0)
         .font("Impact")
@@ -145,7 +146,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                     this.chartContainer.current,
                     [this.props.renderSize[0], this.props.data.size * 30],
                     this.props.data,
-                    this.props.heading.map(v => v.n)
+                    this.props.heading.map(v => v.label)
                 );
             }
         }
@@ -156,7 +157,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                     this.chartContainer.current,
                     [this.props.renderSize[0], this.props.data.size * 30],
                     this.props.data,
-                    this.props.heading.map(v => v.n)
+                    this.props.heading.map(v => v.label)
                 );
             }
         }
@@ -172,13 +173,14 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                             <table className="cnc-table data">
                                 <tbody>
                                     <tr>
-                                        {this.props.heading.map((h, i) => <th key={`${i}:${h.s}`}>{h.s}</th>)}
+                                        <th />
+                                        {this.props.heading.map((h, i) => <th key={`${i}:${h.ident}`}>{h.label}</th>)}
                                     </tr>
                                     {this.props.data.map((row, i) => (
                                         <tr key={`${i}:${row.str}`}>
-                                            <td>{row.str}</td>
-                                            {row.Stats.map((stat, i) => <td key={`stat-${i}`}>{stat.s}</td>)}
-                                            <td>{row.Stats[1].s}</td>
+                                            <td className="word">{row.str}</td>
+                                            <td className="num">{ut.formatNumber(row.freq)}</td>
+                                            {row.stats.map((stat, i) => <td key={`stat-${i}`} className="num">{ut.formatNumber(stat, 2)}</td>)}
                                         </tr>
                                     ))}
                                 </tbody>
