@@ -25,6 +25,7 @@ declare var require:any;
 require('./style.less');
 
 export interface TreqTileConf extends TileConf {
+    tileType:'TreqTile';
     apiURL:string;
     backlinkURL:string;
     srchPackages:SearchPackages;

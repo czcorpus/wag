@@ -33,6 +33,11 @@ require('./style.less');
 export interface CollocationsTileConf extends TileConf {
     apiURL:string;
     corpname:string;
+    tileType:'CollocTile';
+}
+
+export function isCollocationsTileConf(conf:TileConf):conf is CollocationsTileConf {
+    return conf.tileType == 'CollocTile';
 }
 
 /**

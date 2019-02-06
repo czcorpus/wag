@@ -29,6 +29,7 @@ require('./style.less');
 
 
 export interface ConcordanceTileConf extends TileConf {
+    tileType:'ConcordanceTile';
     apiURL:string;
     corpname:string;
     posAttrs:Array<string>;

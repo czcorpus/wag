@@ -32,6 +32,8 @@ require('./style.less');
 
 export interface TimeDistTileConf extends CorpSrchTileConf {
 
+    tileType:'TimeDistribTile';
+
     apiURL:string;
 
     /**
