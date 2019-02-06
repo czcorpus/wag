@@ -30,6 +30,7 @@ require('./style.less');
 
 
 export interface TTDistTileConf extends TileConf {
+    tileType:'TTDistribTile';
     apiURL:string;
     corpname:string;
     fcrit:string;

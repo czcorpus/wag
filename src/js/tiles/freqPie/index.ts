@@ -24,6 +24,7 @@ import { FreqDistribAPI } from '../../shared/api/kontextFreqs';
 
 
 export interface FreqPieTileConf extends TileConf{
+    tileType:'FreqPieTile';
     apiURL:string;
     corpname:string;
     fcrit:string;

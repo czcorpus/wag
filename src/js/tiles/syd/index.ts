@@ -29,6 +29,7 @@ declare var require:any;
 require('./style.less');
 
 export interface SyDTileConf extends TileConf {
+    tileType:'SyDTile';
     apiURL:string;
     concApiURL:string;
     corp1:string;

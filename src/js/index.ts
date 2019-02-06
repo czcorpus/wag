@@ -35,7 +35,7 @@ import * as translations from 'translations';
 import { AppServices } from './appServices';
 import { SystemNotifications } from './notifications';
 import { ActionName } from './models/actions';
-import { TileFrameProps, ITileProvider, QueryType, TileConf } from './abstract/types';
+import { TileFrameProps, ITileProvider, QueryType, TileConf, TileFactory } from './abstract/types';
 import { WdglanceTilesModel } from './models/tiles';
 import {encodeArgs} from './shared/ajax';
 import { Forms } from './shared/data';
@@ -50,6 +50,8 @@ require('../css/components/main.less');
 require('../css/mobile.less');
 
 
+type AnyConf = ConcordanceTileConf | TTDistTileConf | TreqTileConf | SyDTileConf | FreqPieTileConf | TimeDistTileConf | CollocationsTileConf;
+
 export interface WdglanceConf {
     uiLang:string;
     query1Lang:string;
@@ -61,7 +63,7 @@ export interface WdglanceConf {
     hostUrl:string;
     corpInfoApiUrl:string;
     layouts:{[qt:string]:LayoutConf};
-    tilesConf:{[ident:string]:TileConf};
+    tilesConf:{[ident:string]:AnyConf};
 }
 
 const attachTile = (queryType:QueryType, lang1:string, lang2:string) =>
@@ -85,7 +87,7 @@ const attachTile = (queryType:QueryType, lang1:string, lang2:string) =>
 };
 
 
-const attachNumericTileIdents = (config:{[ident:string]:TileConf}):{[ident:string]:number} => {
+const attachNumericTileIdents = (config:{[ident:string]:AnyConf}):{[ident:string]:number} => {
     const ans = {};
     Object.keys(config).forEach((ident, i) => {
         ans[ident] = i;
@@ -104,107 +106,39 @@ const tileFactory = (
         lang2:string,
         tileIdentMap:{[ident:string]:number}) => (
                 confName:string,
-                conf:TileConf):ITileProvider|null => {
+                conf:AnyConf):ITileProvider|null => {
+
+            const applyFactory = <T extends TileConf>(initFn:TileFactory.TileFactory<T>, conf:T) => {
+                return initFn({
+                    tileId: tileIdentMap[confName],
+                    dispatcher: dispatcher,
+                    ut: viewUtils,
+                    mainForm: mainForm,
+                    appServices: appServices,
+                    lang1: lang1,
+                    lang2: lang2,
+                    isHidden: conf.isHidden,
+                    waitForTile: tileIdentMap[conf.dependsOn],
+                    widthFract: layoutManager.getTileWidthFract(queryType, tileIdentMap[confName]),
+                    conf: conf
+                });
+            };
 
             switch (conf.tileType) {
                 case 'ConcordanceTile':
-                    return concInit({
-                        tileId: tileIdentMap[confName],
-                        dispatcher: dispatcher,
-                        ut: viewUtils,
-                        mainForm: mainForm,
-                        appServices: appServices,
-                        lang1: lang1,
-                        lang2: lang2,
-                        isHidden: conf.isHidden,
-                        waitForTile: tileIdentMap[conf.dependsOn],
-                        widthFract: layoutManager.getTileWidthFract(queryType, tileIdentMap[confName]),
-                        conf: conf as ConcordanceTileConf
-                    });
+                    return applyFactory<ConcordanceTileConf>(concInit, conf);
                 case 'TTDistribTile':
-                    return freqInit({
-                        tileId: tileIdentMap[confName],
-                        dispatcher: dispatcher,
-                        ut: viewUtils,
-                        mainForm: mainForm,
-                        appServices: appServices,
-                        lang1: lang1,
-                        lang2: lang2,
-                        isHidden: conf.isHidden,
-                        waitForTile: tileIdentMap[conf.dependsOn],
-                        widthFract: layoutManager.getTileWidthFract(queryType, tileIdentMap[confName]),
-                        conf: conf as TTDistTileConf
-                    });
+                    return applyFactory<TTDistTileConf>(freqInit, conf);
                 case 'TimeDistribTile':
-                    return timeDistInit({
-                        tileId: tileIdentMap[confName],
-                        dispatcher: dispatcher,
-                        ut: viewUtils,
-                        mainForm: mainForm,
-                        appServices: appServices,
-                        lang1: lang1,
-                        lang2: lang2,
-                        isHidden: conf.isHidden,
-                        waitForTile: tileIdentMap[conf.dependsOn],
-                        widthFract: layoutManager.getTileWidthFract(queryType, tileIdentMap[confName]),
-                        conf: conf as TimeDistTileConf
-                    });
+                    return applyFactory<TimeDistTileConf>(timeDistInit, conf);
                 case 'CollocTile':
-                    return collocInit({
-                        tileId: tileIdentMap[confName],
-                        dispatcher: dispatcher,
-                        ut: viewUtils,
-                        mainForm: mainForm,
-                        appServices: appServices,
-                        lang1: lang1,
-                        lang2: lang2,
-                        isHidden: conf.isHidden,
-                        waitForTile: tileIdentMap[conf.dependsOn],
-                        widthFract: layoutManager.getTileWidthFract(queryType, tileIdentMap[confName]),
-                        conf: conf as CollocationsTileConf
-                    });
+                    return applyFactory<CollocationsTileConf>(collocInit, conf);
                 case 'TreqTile':
-                    return treqInit({
-                        tileId: tileIdentMap[confName],
-                        dispatcher: dispatcher,
-                        ut: viewUtils,
-                        mainForm: mainForm,
-                        appServices: appServices,
-                        lang1: lang1,
-                        lang2: lang2,
-                        isHidden: conf.isHidden,
-                        waitForTile: tileIdentMap[conf.dependsOn],
-                        widthFract: layoutManager.getTileWidthFract(queryType, tileIdentMap[confName]),
-                        conf: conf as TreqTileConf,
-                    });
+                    return applyFactory<TreqTileConf>(treqInit, conf);
                 case 'SyDTile':
-                    return sydInit({
-                        tileId: tileIdentMap[confName],
-                        dispatcher: dispatcher,
-                        ut: viewUtils,
-                        mainForm: mainForm,
-                        appServices: appServices,
-                        lang1: lang1,
-                        lang2: lang2,
-                        isHidden: conf.isHidden,
-                        waitForTile: tileIdentMap[conf.dependsOn],
-                        widthFract: layoutManager.getTileWidthFract(queryType, tileIdentMap[confName]),
-                        conf: conf as SyDTileConf,
-                    });
+                    return applyFactory<SyDTileConf>(sydInit, conf);
                 case 'FreqPieTile':
-                    return freqPieInit({
-                        tileId: tileIdentMap[confName],
-                        dispatcher: dispatcher,
-                        ut: viewUtils,
-                        mainForm: mainForm,
-                        appServices: appServices,
-                        lang1: lang1,
-                        lang2: lang2,
-                        isHidden: conf.isHidden,
-                        waitForTile: tileIdentMap[conf.dependsOn],
-                        widthFract: layoutManager.getTileWidthFract(queryType, tileIdentMap[confName]),
-                        conf: conf as FreqPieTileConf,
-                    });
+                    return applyFactory<FreqPieTileConf>(freqPieInit, conf);
                 default:
                     return null;
             }
