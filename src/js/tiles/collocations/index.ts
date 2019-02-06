@@ -55,13 +55,16 @@ export class CollocationsTile implements ITileProvider {
 
     private readonly model:CollocModel;
 
+    private readonly widthFract:number;
+
     private view:TileComponent;
 
-    constructor({tileId, dispatcher, appServices, ut, waitForTile, conf}:TileFactory.Args<CollocationsTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, waitForTile, widthFract, conf}:TileFactory.Args<CollocationsTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.ut = ut;
         this.appServices = appServices;
+        this.widthFract = widthFract;
         this.model = new CollocModel({
             dispatcher: dispatcher,
             tileId: tileId,
@@ -121,11 +124,11 @@ export class CollocationsTile implements ITileProvider {
     }
 
     getWidthFract():number {
-        return 1;
+        return this.widthFract;
     }
 
     getExtWidthFract():number {
-        return 2;
+        return this.widthFract + 1;
     }
 }
 

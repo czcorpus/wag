@@ -45,11 +45,14 @@ export class FreqPieTile implements ITileProvider {
 
     private readonly model:FreqPieModel;
 
+    private readonly widthFract:number;
+
     private view:TileComponent;
 
-    constructor(lang1:string, lang2:string, {tileId, dispatcher, appServices, ut, mainForm, waitForTile, conf}:TileFactory.Args<FreqPieTileConf>) {
+    constructor(lang1:string, lang2:string, {tileId, dispatcher, appServices, ut, mainForm, waitForTile, widthFract, conf}:TileFactory.Args<FreqPieTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
+        this.widthFract = widthFract;
         this.label = this.appServices.importExternalMessage(conf.label);
         this.model = new FreqPieModel(
             dispatcher,
@@ -109,7 +112,7 @@ export class FreqPieTile implements ITileProvider {
     }
 
     getWidthFract():number {
-        return 1;
+        return this.widthFract;
     }
 
     getExtWidthFract():number|null {

@@ -50,12 +50,15 @@ export class ConcordanceTile implements ITileProvider {
 
     private view:TileComponent;
 
+    private readonly widthFract:number;
+
     private readonly _isHidden:boolean;
 
-    constructor({tileId, dispatcher, appServices, ut, mainForm, isHidden, conf}:TileFactory.Args<ConcordanceTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, mainForm, isHidden, widthFract, conf}:TileFactory.Args<ConcordanceTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this._isHidden = !!isHidden;
+        this.widthFract = widthFract;
         this.model = new ConcordanceTileModel({
             dispatcher: dispatcher,
             tileId: tileId,
@@ -76,8 +79,8 @@ export class ConcordanceTile implements ITileProvider {
                 pageSize: 20,
                 currPage: 1,
                 loadPage: 1,
-                kwicLeftCtx: -3,
-                kwicRightCtx: 3,
+                kwicLeftCtx: ConcordanceTileModel.BASIC_KWIC_CTX,
+                kwicRightCtx: ConcordanceTileModel.BASIC_KWIC_CTX,
                 attr_vmode: 'mouseover',
                 viewMode: ViewMode.KWIC,
                 attrs: Immutable.List<string>(conf.posAttrs)
@@ -116,11 +119,11 @@ export class ConcordanceTile implements ITileProvider {
     }
 
     getWidthFract():number {
-        return 1;
+        return this.widthFract;
     }
 
     getExtWidthFract():number {
-        return 2;
+        return this.widthFract;
     }
 }
 

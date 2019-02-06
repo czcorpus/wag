@@ -46,20 +46,26 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
         this.actionMatch = {
             [ActionName.AcknowledgeSize]: (state, action:Actions.AcknowledgeSize) => {
                 const newState = this.copyState(state);
-                newState.tileProps = newState.tileProps.map<TileFrameProps>(tile => {
-                    return {
-                        tileId: tile.tileId,
-                        Component: tile.Component,
-                        label: tile.label,
-                        supportsExtendedView: tile.supportsExtendedView,
-                        supportsCurrQueryType: tile.supportsCurrQueryType,
-                        renderSize: action.payload.size,
-                        widthFract: tile.widthFract,
-                        extWidthFract: tile.extWidthFract,
-                        isHidden: tile.isHidden
-                    }
-                }).toList();
-                return newState;
+                const srchId = newState.tileProps.findIndex(v => v.tileId === action.payload.tileId);
+                if (srchId > -1) {
+                    const tile = newState.tileProps.get(srchId);
+                    newState.tileProps = newState.tileProps.set(
+                        srchId,
+                        {
+                            tileId: tile.tileId,
+                            Component: tile.Component,
+                            label: tile.label,
+                            supportsExtendedView: tile.supportsExtendedView,
+                            supportsCurrQueryType: tile.supportsCurrQueryType,
+                            renderSize: [action.payload.size[0] + tile.tileId, action.payload.size[1]],
+                            widthFract: tile.widthFract,
+                            extWidthFract: tile.extWidthFract,
+                            isHidden: tile.isHidden
+                        }
+                    );
+                    return newState;
+                }
+                return state;
             },
             [ActionName.ExpandTile]: (state, action:Actions.ExpandTile) => {
                 const newState = this.copyState(state);

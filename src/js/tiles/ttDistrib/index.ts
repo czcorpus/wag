@@ -55,10 +55,14 @@ export class TTDistTile implements ITileProvider {
 
     private readonly label:string;
 
-    constructor(dispatcher:ActionDispatcher, tileId:number, waitForTile:number, ut:ViewUtils<GlobalComponents>, appServices:AppServices, conf:TTDistTileConf) {
+    private readonly widthFract:number;
+
+    constructor(dispatcher:ActionDispatcher, tileId:number, waitForTile:number, ut:ViewUtils<GlobalComponents>, appServices:AppServices,
+                widthFract:number, conf:TTDistTileConf) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.ut = ut;
+        this.widthFract = widthFract;
         this.label = appServices.importExternalMessage(conf.label);
         this.model = new TTDistribModel(
             this.dispatcher,
@@ -110,7 +114,7 @@ export class TTDistTile implements ITileProvider {
     }
 
     getWidthFract():number {
-        return 1;
+        return this.widthFract;
     }
 
     getExtWidthFract():number|null {
@@ -120,6 +124,6 @@ export class TTDistTile implements ITileProvider {
 }
 
 
-export const init:TileFactory.TileFactory<TTDistTileConf>  = ({tileId, waitForTile, dispatcher, ut, appServices, mainForm, conf}) => {
-    return new TTDistTile(dispatcher, tileId, waitForTile, ut, appServices, conf);
+export const init:TileFactory.TileFactory<TTDistTileConf>  = ({tileId, waitForTile, dispatcher, ut, appServices, mainForm, widthFract, conf}) => {
+    return new TTDistTile(dispatcher, tileId, waitForTile, ut, appServices, widthFract, conf);
 }

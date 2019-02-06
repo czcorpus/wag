@@ -51,10 +51,13 @@ export class SyDTile implements ITileProvider {
 
     private readonly appServices:AppServices;
 
+    private readonly widthFract:number;
+
     constructor(dispatcher:ActionDispatcher, tileId:number, waitForTile:number, ut:ViewUtils<GlobalComponents>, mainForm:WdglanceMainFormModel,
-            appServices:AppServices, conf:SyDTileConf) {
+            appServices:AppServices, widthFract, conf:SyDTileConf) {
         this.tileId = tileId;
         this.appServices = appServices;
+        this.widthFract = widthFract;
         this.model = new SydModel(
             dispatcher,
             {
@@ -113,7 +116,7 @@ export class SyDTile implements ITileProvider {
     }
 
     getWidthFract():number {
-        return 1;
+        return this.widthFract;
     }
 
     getExtWidthFract():number|null {
@@ -123,6 +126,6 @@ export class SyDTile implements ITileProvider {
 
 
 export const init:TileFactory.TileFactory<SyDTileConf> = ({
-    tileId, waitForTile, dispatcher, appServices, ut, mainForm, lang1, lang2, conf}) => {
-    return new SyDTile(dispatcher, tileId, waitForTile, ut, mainForm, appServices, conf);
+    tileId, waitForTile, dispatcher, appServices, ut, mainForm, lang1, lang2, widthFract, conf}) => {
+    return new SyDTile(dispatcher, tileId, waitForTile, ut, mainForm, appServices, widthFract, conf);
 }
