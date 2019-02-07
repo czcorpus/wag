@@ -20,7 +20,7 @@ import * as Rx from '@reactivex/rxjs';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
 import {ActionName as ConcActionName, Actions as ConcActions} from '../concordance/actions';
-import {ActionName, DataRow, Actions, CollApiArgs, DataHeading, CollocMetric} from './common';
+import {ActionName, DataRow, Actions, CollApiArgs, DataHeading, CollocMetric, SrchContextType} from './common';
 import { KontextCollAPI } from './service';
 import { AppServices } from '../../appServices';
 import { SystemMessageType } from '../../abstract/types';
@@ -43,8 +43,8 @@ export interface CollocModelState {
     corpname:string;
     q:string;
     cattr:string;
-    cfromw:number;
-    ctow:number;
+    ctxSize:number;
+    ctxType:SrchContextType;
     cminfreq:number;
     cminbgr:number;
     cbgrfns:Array<CollocMetric>;
@@ -55,13 +55,28 @@ export interface CollocModelState {
 }
 
 
+const ctxToRange = (ctxType:SrchContextType, range:number):[number, number] => {
+    switch (ctxType) {
+        case SrchContextType.BOTH:
+            return [-1 * range, range];
+        case SrchContextType.LEFT:
+            return [-1 * range, 0];
+        case SrchContextType.RIGHT:
+            return [0, range];
+        default:
+            throw new Error('unknown ctxType ' + ctxType);
+    }
+};
+
+
 export const stateToArgs = (state:CollocModelState, q:string):CollApiArgs => {
+    const [cfromw, ctow] = ctxToRange(state.ctxType, state.ctxSize);
     return {
         corpname: state.corpname,
         q: q ? q : state.q,
         cattr: state.cattr,
-        cfromw: state.cfromw,
-        ctow: state.ctow,
+        cfromw: cfromw,
+        ctow: ctow,
         cminfreq: state.cminfreq,
         cminbgr: state.cminbgr,
         cbgrfns: state.cbgrfns,
@@ -146,35 +161,83 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                 return newState;
             },
             [ActionName.DataLoadDone]: (state, action:Actions.DataLoadDone) => {
-                const newState = this.copyState(state);
-                newState.q = action.payload.q;
-                newState.isBusy = false;
-                if (action.error) {
-                    newState.error = action.error.message;
+                if (action.payload.tileId === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.q = action.payload.q;
+                    newState.isBusy = false;
+                    if (action.error) {
+                        newState.error = action.error.message;
 
-                } else {
-                    const minVal = Math.min(...action.payload.data.map(v => v.stats[0]));
-                    const scaledTotal = action.payload.data.map(v => v.stats[0] - minVal).reduce((curr, acc) => acc + curr, 0);
-                    newState.data = Immutable.List<DataRow>(action.payload.data.map(item => ({
-                        str: item.str,
-                        stats: item.stats,
-                        freq: item.freq,
-                        nfilter: item.nfilter,
-                        pfilter: item.pfilter,
-                        wcFontSize: Math.round((item.stats[0] - minVal) / scaledTotal * 100 + CollocModel.BASE_WC_FONT_SIZE)
-                    })));
+                    } else {
+                        const minVal = Math.min(...action.payload.data.map(v => v.stats[0]));
+                        const scaledTotal = action.payload.data.map(v => v.stats[0] - minVal).reduce((curr, acc) => acc + curr, 0);
+                        newState.data = Immutable.List<DataRow>(action.payload.data.map(item => ({
+                            str: item.str,
+                            stats: item.stats,
+                            freq: item.freq,
+                            nfilter: item.nfilter,
+                            pfilter: item.pfilter,
+                            wcFontSize: Math.round((item.stats[0] - minVal) / scaledTotal * 100 + CollocModel.BASE_WC_FONT_SIZE)
+                        })));
 
-                    newState.heading =
-                        [{label: 'Abs', ident: ''}]
-                        .concat(
-                            action.payload.heading
-                                .map((v, i) => this.measureMap[v.ident] ? {label: this.measureMap[v.ident], ident: v.ident} : null)
-                                .filter(v => v !== null)
-                        );
+                        newState.heading =
+                            [{label: 'Abs', ident: ''}]
+                            .concat(
+                                action.payload.heading
+                                    .map((v, i) => this.measureMap[v.ident] ? {label: this.measureMap[v.ident], ident: v.ident} : null)
+                                    .filter(v => v !== null)
+                            );
+                    }
+                    return newState;
                 }
-                return newState;
+                return state;
+            },
+            [ActionName.SetSrchContextType]: (state, action:Actions.SetSrchContextType) => {
+                if (action.payload.tileId === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.isBusy = true;
+                    newState.ctxType = action.payload.ctxType;
+                    return newState;
+
+                }
+                return state;
             }
         }
+    }
+
+    private requestData(state:CollocModelState, concId:string, prevActionErr:Error|null, seDispatch:SEDispatcher):void {
+        new Rx.Observable((observer:Rx.Observer<CollApiArgs>) => {
+            if (prevActionErr) {
+                observer.error(prevActionErr);
+
+            } else {
+                console.log('colloc args: ', stateToArgs(state, '~' + concId));
+                observer.next(stateToArgs(state, '~' + concId));
+                observer.complete();
+            }
+        })
+        .concatMap(args => this.service.call(args))
+        .subscribe(
+            (data) => {
+                seDispatch<Actions.DataLoadDone>({
+                    name: ActionName.DataLoadDone,
+                    payload: {
+                        tileId: this.tileId,
+                        heading: data.collHeadings,
+                        data: data.data,
+                        q: '~' + data.concId,
+                    }
+                });
+            },
+            (err) => {
+                this.appServices.showMessage(SystemMessageType.ERROR, err);
+                seDispatch({
+                    name: ActionName.DataLoadDone,
+                    payload: {},
+                    error: err
+                });
+            }
+        );
     }
 
     sideEffects(state:CollocModelState, action:Action, seDispatch:SEDispatcher):void {
@@ -184,41 +247,15 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                     (action:Action) => {
                         if (action.name === ConcActionName.DataLoadDone && action.payload['tileId'] === this.waitForTile) {
                             const payload = (action as ConcActions.DataLoadDone).payload;
-                            new Rx.Observable((observer:Rx.Observer<CollApiArgs>) => {
-                                if (action.error) {
-                                    observer.error(action.error);
-
-                                } else {
-                                    observer.next(stateToArgs(state, '~' + payload.data.conc_persistence_op_id));
-                                    observer.complete();
-                                }
-                            })
-                            .concatMap(args => this.service.call(args))
-                            .subscribe(
-                                (data) => {
-                                    seDispatch({
-                                        name: ActionName.DataLoadDone,
-                                        payload: {
-                                            heading: data.collHeadings,
-                                            data: data.data,
-                                            q: '~' + data.concId,
-                                        }
-                                    });
-                                },
-                                (err) => {
-                                    this.appServices.showMessage(SystemMessageType.ERROR, err);
-                                    seDispatch({
-                                        name: ActionName.DataLoadDone,
-                                        payload: {},
-                                        error: err
-                                    });
-                                }
-                            );
+                            this.requestData(state, payload.data.conc_persistence_op_id, action.error, seDispatch);
                             return true;
                         }
                         return false;
                     }
                 );
+            break;
+            case ActionName.SetSrchContextType:
+                this.requestData(state, state.q, null, seDispatch);
             break;
         }
     }

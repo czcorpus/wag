@@ -131,6 +131,24 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
     const globalCompontents = ut.getComponents();
 
 
+    // -------------- <Controls /> -------------------------------------
+
+    const Controls:React.SFC<{
+
+    }> = (props) => {
+        return (
+            <form>
+                <select>
+                    <option>left</option>
+                    <option>right</option>
+                </select>
+            </form>
+        );
+    };
+
+
+    // -------------- <CollocTile /> -------------------------------------
+
     class CollocTile extends React.PureComponent<CollocModelState & CoreTileComponentProps> {
 
         private chartContainer:React.RefObject<HTMLDivElement>;
@@ -151,8 +169,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             }
         }
 
-        componentDidUpdate() {
-            if (this.chartContainer.current) {
+        componentDidUpdate(prevProps) {
+            if (this.chartContainer.current && this.props.data !== prevProps.data) {
                 drawChart(
                     this.chartContainer.current,
                     [this.props.renderSize[0] / (this.props.widthFract > 1 ? 2 : 1), this.props.data.size * 30],
@@ -167,6 +185,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                 <globalCompontents.TileWrapper isBusy={this.props.isBusy} error={this.props.error} htmlClass="CollocTile"
                         hasData={this.props.data.size > 0}
                         sourceIdent={this.props.corpname}>
+                    {this.props.isTweakMode ? <Controls /> : null}
                     <div className="boxes">
                         <div ref={this.chartContainer} style={{minHeight: '10em', position: 'relative'}} />
                         {this.props.widthFract > 1 ?

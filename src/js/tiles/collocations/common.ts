@@ -57,19 +57,34 @@ export interface CollApiArgs {
     format:'json';
 }
 
+export enum SrchContextType {
+    LEFT = 'lft',
+    RIGHT = 'rgt',
+    BOTH = 'both'
+}
 
 export enum ActionName {
-    DataLoadDone = 'COLLOCATIONS_DATA_LOAD_DONE'
+    DataLoadDone = 'COLLOCATIONS_DATA_LOAD_DONE',
+    SetSrchContextType = 'COLLOCATIONS_SET_SRCH_CONTEXT_TYPE'
 }
 
 
 export namespace Actions {
 
     export interface DataLoadDone extends Action<{
+        tileId:number;
         data:Array<DataRow>;
         heading:DataHeading;
         q:string;
     }> {
         name:ActionName.DataLoadDone;
+    }
+
+    export interface SetSrchContextType extends Action<{
+        tileId:number;
+        ctxType:SrchContextType;
+
+    }> {
+        name:ActionName.SetSrchContextType;
     }
 }
