@@ -131,30 +131,36 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
         };
 
         if (props.isBusy && !props.hasData) {
-            return <div className="service-tile"><AjaxLoader htmlClass="centered" /></div>;
+            return <div className="TileWrapper"><AjaxLoader htmlClass="centered" /></div>;
 
         } else if (props.error) {
             return (
-                <div className="service-tile">
-                    <p>
-                        <MessageStatusIcon statusType={SystemMessageType.ERROR} isInline={true} />
-                        {props.error}
-                    </p>
-                    <div style={{textAlign: 'center'}}>
-                        <EmptySet fontSize="10em" />
+                <div className="TileWrapper">
+                    <div className="cnc-tile-body content">
+                        <p>
+                            <MessageStatusIcon statusType={SystemMessageType.ERROR} isInline={true} />
+                            {props.error}
+                        </p>
+                        <div style={{textAlign: 'center'}}>
+                            <EmptySet fontSize="10em" />
+                        </div>
                     </div>
                 </div>
             );
 
         } else {
             return (
-                <div className={`service-tile${props.htmlClass ? ' ' + props.htmlClass : ''}`}>
+                <div className={`TileWrapper${props.htmlClass ? ' ' + props.htmlClass : ''}`}>
                     <div className="loader-wrapper">{props.hasData && props.isBusy ? <TitleLoaderBar  /> : null}</div>
-                    {props.children}
-                    <div className="source">
-                        {ut.translate('global__source')}:{'\u00a0'}
-                        <a onClick={handleSourceClick}>{props.sourceIdent}</a>
-                        {props.subcorpDesc ? <span> / {props.subcorpDesc}</span> : null}
+                    <div className="cnc-tile-body content">
+                        <div>
+                            {props.children}
+                        </div>
+                        <div className="source">
+                            {ut.translate('global__source')}:{'\u00a0'}
+                            <a onClick={handleSourceClick}>{props.sourceIdent}</a>
+                            {props.subcorpDesc ? <span> / {props.subcorpDesc}</span> : null}
+                        </div>
                     </div>
                 </div>
             );

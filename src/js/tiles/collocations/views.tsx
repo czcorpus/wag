@@ -25,7 +25,7 @@ import * as Rx from '@reactivex/rxjs';
 import {ActionDispatcher, ViewUtils, BoundWithProps} from 'kombo';
 import {CollocModel, CollocModelState} from './model';
 import { GlobalComponents } from '../../views/global';
-import { DataRow } from './common';
+import { DataRow, ActionName, Actions, SrchContextType } from './common';
 import { TileComponent, CoreTileComponentProps } from '../../abstract/types';
 
 
@@ -131,6 +131,45 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
     const globalCompontents = ut.getComponents();
 
 
+    // -------------- <Controls /> -------------------------------------
+
+    const Controls:React.SFC<{
+        tileId:number;
+        value:SrchContextType;
+
+    }> = (props) => {
+
+        const handleChange = (evt:React.ChangeEvent<HTMLSelectElement>) => {
+            dispatcher.dispatch<Actions.SetSrchContextType>({
+                name: ActionName.SetSrchContextType,
+                payload: {
+                    tileId: props.tileId,
+                    ctxType: evt.target.value as SrchContextType
+                }
+            })
+        }
+
+        return (
+            <form className="Controls cnc-form">
+                <label>{ut.translate('collocations__search_in_context_label')}: </label>
+                <select value={props.value} onChange={handleChange}>
+                    <option value={SrchContextType.LEFT}>
+                        {ut.translate('collocations__context_left')}
+                    </option>
+                    <option value={SrchContextType.RIGHT}>
+                        {ut.translate('collocations__context_right')}
+                    </option>
+                    <option value={SrchContextType.BOTH}>
+                        {ut.translate('collocations__context_both')}
+                    </option>
+                </select>
+            </form>
+        );
+    };
+
+
+    // -------------- <CollocTile /> -------------------------------------
+
     class CollocTile extends React.PureComponent<CollocModelState & CoreTileComponentProps> {
 
         private chartContainer:React.RefObject<HTMLDivElement>;
@@ -151,8 +190,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             }
         }
 
-        componentDidUpdate() {
-            if (this.chartContainer.current) {
+        componentDidUpdate(prevProps) {
+            if (this.chartContainer.current && this.props.data !== prevProps.data) {
                 drawChart(
                     this.chartContainer.current,
                     [this.props.renderSize[0] / (this.props.widthFract > 1 ? 2 : 1), this.props.data.size * 30],
@@ -165,8 +204,14 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         render() {
             return (
                 <globalCompontents.TileWrapper isBusy={this.props.isBusy} error={this.props.error} htmlClass="CollocTile"
-                        hasData={this.props.data.size > 0}
-                        sourceIdent={this.props.corpname}>
+                        hasData={this.props.data.size > 0} sourceIdent={this.props.corpname}>
+                    {this.props.isTweakMode ?
+                        <>
+                            <Controls tileId={this.props.tileId} value={this.props.ctxType} />
+                            <hr />
+                        </> :
+                        null
+                    }
                     <div className="boxes">
                         <div ref={this.chartContainer} style={{minHeight: '10em', position: 'relative'}} />
                         {this.props.widthFract > 1 ?

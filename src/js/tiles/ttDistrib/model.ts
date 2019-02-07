@@ -26,16 +26,12 @@ import {ActionName, Actions} from './actions';
 import { AppServices } from '../../appServices';
 
 
-
-export interface TTDistribModel {
-}
-
 export interface TTDistribModelState {
     isBusy:boolean;
     error:string;
     data:Immutable.List<DataRow>;
     corpname:string;
-    q:string;
+    concId:string;
     fcrit:string;
     flimit:number;
     freqSort:string;
@@ -44,9 +40,9 @@ export interface TTDistribModelState {
 }
 
 
-const stateToAPIArgs = (state:TTDistribModelState, queryId:string):QueryArgs => ({
+const stateToAPIArgs = (state:TTDistribModelState, concId:string):QueryArgs => ({
     corpname: state.corpname,
-    q: queryId ? queryId : state.q,
+    q: `~${concId ? concId : state.concId}`,
     fcrit: state.fcrit,
     flimit: state.flimit.toString(),
     freq_sort: state.freqSort,
@@ -115,14 +111,14 @@ export class TTDistribModel extends StatelessModel<TTDistribModelState> {
                                 observer.next({});
                                 observer.complete();
                             }
-                        }).concatMap(args => this.api.call(stateToAPIArgs(state, '~' + payload.data.conc_persistence_op_id)))
+                        }).concatMap(args => this.api.call(stateToAPIArgs(state, payload.data.conc_persistence_op_id)))
                         .subscribe(
                             resp => {
                                 dispatch<Actions.LoadDataDone>({
                                     name: ActionName.LoadDataDone,
                                     payload: {
                                         data: resp.data,
-                                        q: resp.q,
+                                        concId: resp.concId,
                                         tileId: this.tileId
                                     }
                                 });
@@ -132,7 +128,7 @@ export class TTDistribModel extends StatelessModel<TTDistribModelState> {
                                     name: ActionName.LoadDataDone,
                                     payload: {
                                         data: null,
-                                        q: null,
+                                        concId: null,
                                         tileId: this.tileId
                                     },
                                     error: error

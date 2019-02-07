@@ -61,7 +61,7 @@ export class FreqPieTile implements ITileProvider {
                 error: null,
                 data: Immutable.List<FreqPieDataRow>(),
                 corpname: conf.corpname,
-                q: null,
+                concId: null,
                 fcrit: conf.fcrit,
                 flimit: conf.flimit,
                 freqSort: conf.freqSort,

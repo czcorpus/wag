@@ -36,7 +36,7 @@ export interface FreqPieModelState {
     error:string;
     data:Immutable.List<FreqPieDataRow>;
     corpname:string;
-    q:string;
+    concId:string;
     fcrit:string;
     flimit:number;
     freqSort:string;
@@ -45,9 +45,9 @@ export interface FreqPieModelState {
 }
 
 
-const stateToAPIArgs = (state:FreqPieModelState, queryId:string):QueryArgs => ({
+const stateToAPIArgs = (state:FreqPieModelState, concId:string):QueryArgs => ({
     corpname: state.corpname,
-    q: queryId ? queryId : state.q,
+    q: `~${concId ? concId : state.concId}`,
     fcrit: state.fcrit,
     flimit: state.flimit.toString(),
     freq_sort: state.freqSort,
@@ -120,14 +120,14 @@ export class FreqPieModel extends StatelessModel<FreqPieModelState> {
                                 observer.next({});
                                 observer.complete();
                             }
-                        }).concatMap(args => this.api.call(stateToAPIArgs(state, '~' + payload.data.conc_persistence_op_id)))
+                        }).concatMap(args => this.api.call(stateToAPIArgs(state, payload.data.conc_persistence_op_id)))
                         .subscribe(
                             resp => {
                                 dispatch<Actions.LoadDataDone>({
                                     name: ActionName.LoadDataDone,
                                     payload: {
                                         data: resp.data,
-                                        q: resp.q,
+                                        concId: resp.concId,
                                         tileId: this.tileId
                                     }
                                 });
@@ -137,7 +137,7 @@ export class FreqPieModel extends StatelessModel<FreqPieModelState> {
                                     name: ActionName.LoadDataDone,
                                     payload: {
                                         data: null,
-                                        q: null,
+                                        concId: null,
                                         tileId: this.tileId
                                     },
                                     error: error

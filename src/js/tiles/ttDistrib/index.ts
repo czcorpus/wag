@@ -75,7 +75,7 @@ export class TTDistTile implements ITileProvider {
                 error: null,
                 data: Immutable.List<DataRow>(),
                 corpname: conf.corpname,
-                q: null,
+                concId: null,
                 fcrit: conf.fcrit,
                 flimit: conf.flimit,
                 freqSort: conf.freqSort,

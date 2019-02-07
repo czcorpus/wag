@@ -46,7 +46,7 @@ export interface DataItem {
 
 
 export interface APIResponse {
-    q:string;
+    concId:string;
     data:Array<DataItem>;
 }
 
@@ -80,7 +80,7 @@ export class TimeDistribAPI implements DataApi<QueryArgs, APIResponse> {
         ).concatMap<HTTPResponse, APIResponse>(
             (resp) => {
                 return Rx.Observable.of({
-                    q:null, // TODO
+                    concId: null, // TODO
                     data: resp.data.data.map(row => ({
                         datetime: row[0],
                         abs: row[2],

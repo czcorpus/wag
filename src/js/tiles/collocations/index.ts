@@ -24,7 +24,7 @@ import { KontextCollAPI } from "./service";
 import {init as viewInit} from './views';
 import { ActionDispatcher, ViewUtils } from "kombo";
 import { GlobalComponents } from "../../views/global";
-import { CollocMetric, DataRow } from "./common";
+import { CollocMetric, DataRow, SrchContextType } from "./common";
 
 declare var require:(src:string)=>void;  // webpack
 require('./style.less');
@@ -74,13 +74,14 @@ export class CollocationsTile implements ITileProvider {
             initState: {
                 isBusy: false,
                 isTweakMode: false,
+                tileId: tileId,
                 widthFract: widthFract,
                 error: null,
                 corpname: conf.corpname,
-                q: '',
+                concId: null,
                 cattr: CorePosAttribute.LEMMA,
-                cfromw: -2,
-                ctow: 2,
+                ctxSize: 2,
+                ctxType: SrchContextType.BOTH,
                 cminfreq: 1,
                 cminbgr: 3,
                 cbgrfns: [CollocMetric.LOG_DICE, CollocMetric.MI, CollocMetric.T_SCORE],
