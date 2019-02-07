@@ -117,8 +117,8 @@ export class TTDistTile implements ITileProvider {
         return this.widthFract;
     }
 
-    getExtWidthFract():number|null {
-        return null;
+    supportsTweakMode():boolean {
+        return false;
     }
 
 }

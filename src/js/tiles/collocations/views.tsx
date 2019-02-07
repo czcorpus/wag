@@ -155,7 +155,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             if (this.chartContainer.current) {
                 drawChart(
                     this.chartContainer.current,
-                    [this.props.renderSize[0], this.props.data.size * 30],
+                    [this.props.renderSize[0] / (this.props.widthFract > 1 ? 2 : 1), this.props.data.size * 30],
                     this.props.data,
                     this.props.heading.map(v => v.label)
                 );
@@ -169,7 +169,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         sourceIdent={this.props.corpname}>
                     <div className="boxes">
                         <div ref={this.chartContainer} style={{minHeight: '10em', position: 'relative'}} />
-                        {this.props.isExpanded ?
+                        {this.props.widthFract > 1 ?
                             <table className="cnc-table data">
                                 <tbody>
                                     <tr>

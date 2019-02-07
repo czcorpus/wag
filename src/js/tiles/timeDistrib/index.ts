@@ -108,10 +108,6 @@ export class TimeDistTile implements ITileProvider {
         return this.view;
     }
 
-    supportsExtendedView():boolean {
-        return false;
-    }
-
     getLabel():string {
         return this.ut.translate('timeDistrib__main_label');
     }
@@ -132,8 +128,8 @@ export class TimeDistTile implements ITileProvider {
         return this.widthFract;
     }
 
-    getExtWidthFract():number|null {
-        return null;
+    supportsTweakMode():boolean {
+        return false;
     }
 
 }

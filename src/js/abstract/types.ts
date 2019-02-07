@@ -86,7 +86,7 @@ export interface TileFrameProps {
 
     label:string;
 
-    supportsExtendedView:boolean;
+    supportsTweakMode:boolean;
 
     supportsCurrQueryType:boolean;
 
@@ -102,11 +102,6 @@ export interface TileFrameProps {
      * standard mode width in CSS grid fr units
      */
     widthFract:number;
-
-    /**
-     * extended mode width in CSS grid fr units
-     */
-    extWidthFract:number;
 }
 
 export type CoreTileComponentProps = {renderSize:[number, number]}
@@ -133,11 +128,7 @@ export interface ITileProvider {
 
     getWidthFract():number;
 
-    /**
-     * If null then we assume no support
-     * for extended mode.
-     */
-    getExtWidthFract():number|null;
+    supportsTweakMode():boolean;
 }
 
 /**

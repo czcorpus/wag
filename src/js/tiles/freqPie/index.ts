@@ -95,10 +95,6 @@ export class FreqPieTile implements ITileProvider {
         return this.view;
     }
 
-    supportsExtendedView():boolean {
-        return false;
-    }
-
     supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {
         return qt === QueryType.SINGLE_QUERY || qt === QueryType.TRANSLAT_QUERY;
     }
@@ -115,8 +111,8 @@ export class FreqPieTile implements ITileProvider {
         return this.widthFract;
     }
 
-    getExtWidthFract():number|null {
-        return null;
+    supportsTweakMode():boolean {
+        return false;
     }
 }
 

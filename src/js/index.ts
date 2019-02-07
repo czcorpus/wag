@@ -34,7 +34,7 @@ import { GlobalComponents, init as globalCompInit } from './views/global';
 import * as translations from 'translations';
 import { AppServices } from './appServices';
 import { SystemNotifications } from './notifications';
-import { ActionName } from './models/actions';
+import { ActionName, Actions } from './models/actions';
 import { TileFrameProps, ITileProvider, QueryType, TileConf, TileFactory } from './abstract/types';
 import { WdglanceTilesModel } from './models/tiles';
 import {encodeArgs} from './shared/ajax';
@@ -74,12 +74,11 @@ const attachTile = (queryType:QueryType, lang1:string, lang2:string) =>
         tileId: tile.getIdent(),
         Component: tile.getView(),
         label: tile.getLabel(),
-        supportsExtendedView: !!tile.getExtWidthFract(),
+        supportsTweakMode: tile.supportsTweakMode(),
         supportsCurrQueryType: support,
         renderSize: [50, 50],
         isHidden: tile.isHidden(),
-        widthFract: tile.getWidthFract(),
-        extWidthFract: tile.getExtWidthFract()
+        widthFract: tile.getWidthFract()
     });
     if (!support) {
         tile.disable();
@@ -266,12 +265,15 @@ export const init = (
         attachTileCurr(tiles, factory(ident, tilesConf[ident]));
     });
 
+    const MOBILE_MEDIA_QUERY = 'screen and (max-width: 800px), screen and (orientation:portrait)';
+
     const tilesModel = new WdglanceTilesModel(
         dispatcher,
         {
             isAnswerMode: false,
             isBusy: false,
-            expandedTiles: Immutable.Set<number>(),
+            isMobile: window.matchMedia(MOBILE_MEDIA_QUERY).matches,
+            tweakActiveTiles: Immutable.Set<number>(),
             hiddenGroups:Immutable.Set<number>(),
             tileProps: Immutable.List<TileFrameProps>(tiles),
             corpusInfoData: null
@@ -292,6 +294,14 @@ export const init = (
                 const form = document.querySelector('.WdglanceControls');
                 if (!form.contains(document.activeElement)) {
                     ReactDOM.unmountComponentAtNode(mountElement);
+
+                    dispatcher.dispatch<Actions.SetScreenMode>({
+                        name: ActionName.SetScreenMode,
+                        payload: {
+                            isMobile: window.matchMedia(MOBILE_MEDIA_QUERY).matches
+                        }
+                    });
+
                     ReactDOM.render(
                         React.createElement(
                             component.WdglanceMain,

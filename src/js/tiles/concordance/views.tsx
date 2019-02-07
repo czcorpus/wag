@@ -151,7 +151,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         hasData={this.props.lines.size > 0}
                         sourceIdent={this.props.corpname}>
                     <div className="service-tile ConcordanceTileView">
-                        {this.props.isExpanded ?
+                        {this.props.isTweakMode ?
                             <div><Controls currPage={this.props.currPage} viewMode={this.props.viewMode} tileId={this.props.tileId} /><hr /></div> :
                             null
                         }

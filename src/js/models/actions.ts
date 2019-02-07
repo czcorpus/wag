@@ -28,12 +28,13 @@ export enum ActionName {
     RequestQueryResponse = 'MAIN_REQUEST_QUERY_RESPONSE',
     ChangeTargetLanguage = 'MAIN_CHANGE_TARGET_LANGUAGE',
     ChangeQueryType = 'MAIN_CHANGE_QUERY_TYPE',
-    AcknowledgeSize = 'MAIN_ACKNOWLEDGE_SIZE',
+    SetTileRenderSize = 'MAIN_SET_TILE_RENDER_SIZE',
+    SetScreenMode = 'MAIN_SET_SCREEN_MODE',
     AddSystemMessage = 'MAIN_ADD_SYSTEM_MESSAGE',
     RemoveSystemMessage = 'MAIN_REMOVE_SYSTEM_MESSAGE',
     SubmitQuery = 'MAIN_SUBMIT_QUERY',
-    ExpandTile = 'MAIN_EXPAND_TILE',
-    ResetExpandTile = 'MAIN_RESET_EXPAND_TILE',
+    EnableTileTweakMode = 'MAIN_ENABLE_TILE_TWEAK_MODE',
+    DisableTileTweakMode = 'MAIN_DISABLE_TILE_TWEAK_MODE',
     GetCorpusInfo = 'MAIN_GET_CORPUS_INFO',
     GetCorpusInfoDone = 'MAIN_GET_CORPUS_INFO_DONE',
     CloseCorpusInfo = 'MAIN_CLOSE_CORPUS_INFO',
@@ -95,11 +96,19 @@ export namespace Actions {
         name:ActionName.ChangeQueryType;
     }
 
-    export interface AcknowledgeSize extends Action<{
+    export interface SetTileRenderSize extends Action<{
         size:[number, number];
+        isMobile:boolean;
         tileId:number;
     }> {
-        name:ActionName.AcknowledgeSize;
+        name:ActionName.SetTileRenderSize;
+    }
+
+    export interface SetScreenMode extends Action<{
+        isMobile:boolean;
+
+    }> {
+        name: ActionName.SetScreenMode;
     }
 
     export interface AddSystemMessage extends Action<{
@@ -121,16 +130,16 @@ export namespace Actions {
         name:ActionName.SubmitQuery;
     }
 
-    export interface ExpandTile extends Action<{
+    export interface EnableTileTweakMode extends Action<{
         ident:number;
     }> {
-        name:ActionName.ExpandTile;
+        name:ActionName.EnableTileTweakMode;
     }
 
-    export interface ResetExpandTile extends Action<{
+    export interface DisableTileTweakMode extends Action<{
         ident:number;
     }> {
-        name:ActionName.ResetExpandTile;
+        name:ActionName.DisableTileTweakMode;
     }
 
     export interface GetCorpusInfo extends Action<{

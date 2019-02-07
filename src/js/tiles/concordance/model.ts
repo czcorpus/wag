@@ -29,7 +29,7 @@ import { SystemMessageType } from '../../abstract/types';
 export interface ConcordanceTileState {
     isBusy:boolean;
     error:string|null;
-    isExpanded:boolean;
+    isTweakMode:boolean;
     lines:Immutable.List<Line>;
     corpname:string;
     fullsize:number;
@@ -98,18 +98,18 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
         this.tileId = tileId;
 
         this.actionMatch = {
-            [GlobalActionName.ExpandTile]: (state, action:GlobalActions.ExpandTile) => {
+            [GlobalActionName.EnableTileTweakMode]: (state, action:GlobalActions.EnableTileTweakMode) => {
                 if (action.payload.ident === this.tileId) {
                     const newState = this.copyState(state);
-                    newState.isExpanded = true;
+                    newState.isTweakMode = true;
                     return newState;
                 }
                 return state;
             },
-            [GlobalActionName.ResetExpandTile]: (state, action:GlobalActions.ExpandTile) => {
+            [GlobalActionName.DisableTileTweakMode]: (state, action:GlobalActions.DisableTileTweakMode) => {
                 if (action.payload.ident === this.tileId) {
                     const newState = this.copyState(state);
-                    newState.isExpanded = false;
+                    newState.isTweakMode = false;
                     newState.isBusy = true;
                     newState.error = null;
                     newState.kwicLeftCtx = ConcordanceTileModel.BASIC_KWIC_CTX;
@@ -124,10 +124,10 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 newState.error = null;
                 return newState;
             },
-            [GlobalActionName.ExpandTile]: (state, action) => {
+            [GlobalActionName.EnableTileTweakMode]: (state, action) => {
                 if (action.payload['ident'] === this.tileId) {
                     const newState = this.copyState(state);
-                    newState.isExpanded = true;
+                    newState.isTweakMode = true;
                     newState.isBusy = true;
                     newState.error = null;
                     newState.kwicLeftCtx = ConcordanceTileModel.EXPANDED_KWIC_CTX;
@@ -224,8 +224,8 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
     sideEffects(state:ConcordanceTileState, action:Action, dispatch:SEDispatcher):void {
         switch(action.name) {
             case GlobalActionName.RequestQueryResponse:
-            case GlobalActionName.ExpandTile:
-            case GlobalActionName.ResetExpandTile:
+            case GlobalActionName.EnableTileTweakMode:
+            case GlobalActionName.DisableTileTweakMode:
                 this.reloadData(state, dispatch);
             break;
             case ActionName.LoadNextPage:

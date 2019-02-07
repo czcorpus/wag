@@ -27,7 +27,8 @@ import { CorpusInfoAPI, APIResponse } from '../shared/api/corpusInfo';
 export interface WdglanceTilesState {
     isAnswerMode:boolean;
     isBusy:boolean;
-    expandedTiles:Immutable.Set<number>;
+    isMobile:boolean;
+    tweakActiveTiles:Immutable.Set<number>;
     hiddenGroups:Immutable.Set<number>;
     tileProps:Immutable.List<TileFrameProps>;
     corpusInfoData:APIResponse|null;
@@ -45,7 +46,12 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
         this.appServices = appServices;
         this.corpusInfoApi = corpusInfoApi;
         this.actionMatch = {
-            [ActionName.AcknowledgeSize]: (state, action:Actions.AcknowledgeSize) => {
+            [ActionName.SetScreenMode]: (state, action:Actions.SetScreenMode) => {
+                const newState = this.copyState(state);
+                newState.isMobile = action.payload.isMobile;
+                return newState;
+            },
+            [ActionName.SetTileRenderSize]: (state, action:Actions.SetTileRenderSize) => {
                 const newState = this.copyState(state);
                 const srchId = newState.tileProps.findIndex(v => v.tileId === action.payload.tileId);
                 if (srchId > -1) {
@@ -56,11 +62,10 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                             tileId: tile.tileId,
                             Component: tile.Component,
                             label: tile.label,
-                            supportsExtendedView: tile.supportsExtendedView,
+                            supportsTweakMode: tile.supportsTweakMode,
                             supportsCurrQueryType: tile.supportsCurrQueryType,
                             renderSize: [action.payload.size[0] + tile.tileId, action.payload.size[1]],
                             widthFract: tile.widthFract,
-                            extWidthFract: tile.extWidthFract,
                             isHidden: tile.isHidden
                         }
                     );
@@ -68,14 +73,14 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                 }
                 return state;
             },
-            [ActionName.ExpandTile]: (state, action:Actions.ExpandTile) => {
+            [ActionName.EnableTileTweakMode]: (state, action:Actions.EnableTileTweakMode) => {
                 const newState = this.copyState(state);
-                newState.expandedTiles = newState.expandedTiles.add(action.payload.ident);
+                newState.tweakActiveTiles = newState.tweakActiveTiles.add(action.payload.ident);
                 return newState;
             },
-            [ActionName.ResetExpandTile]: (state, action:Actions.ExpandTile) => {
+            [ActionName.DisableTileTweakMode]: (state, action:Actions.DisableTileTweakMode) => {
                 const newState = this.copyState(state);
-                newState.expandedTiles = newState.expandedTiles.remove(action.payload.ident);
+                newState.tweakActiveTiles = newState.tweakActiveTiles.remove(action.payload.ident);
                 return newState;
             },
             [ActionName.EnableAnswerMode]: (state, action:Actions.EnableAnswerMode) => {

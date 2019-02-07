@@ -95,10 +95,6 @@ export class SyDTile implements ITileProvider {
         return this.view;
     }
 
-    supportsExtendedView():boolean {
-        return false;
-    }
-
     getLabel():string {
         return this.appServices.translate('syd_main_label');
     }
@@ -119,8 +115,8 @@ export class SyDTile implements ITileProvider {
         return this.widthFract;
     }
 
-    getExtWidthFract():number|null {
-        return null;
+    supportsTweakMode():boolean {
+        return false;
     }
 }
 
