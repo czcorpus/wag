@@ -436,7 +436,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                             null
                         }
                     </header>
-                    <div className="provider cnc-tile-body" ref={this.ref}>
+                    <div className="provider" ref={this.ref}>
                         {this.props.tile.Component ?
                             <globalComponents.ErrorBoundary>
                                 <this.props.tile.Component renderSize={this.props.tile.renderSize} />

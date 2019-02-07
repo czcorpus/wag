@@ -76,7 +76,7 @@ export class TimeDistTile implements ITileProvider {
                 corpname: conf.corpname,
                 subcname: conf.subcname,
                 subcDesc: appServices.importExternalMessage(conf.subcDesc),
-                q: null,
+                concId: null,
                 attrTime: conf.timeProperty,
                 attrValue: conf.distProperty,
                 minFreq: '10', // TODO (conf)

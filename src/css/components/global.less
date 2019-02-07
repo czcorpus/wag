@@ -92,7 +92,8 @@ span.MessageStatusIcon {
     }
   }
 
-.service-tile {
+.TileWrapper {
+    height: 100%;
 
     .loader-wrapper {
         height: 0.2em;
@@ -111,17 +112,23 @@ span.MessageStatusIcon {
         }
     }
 
-    .source {
-        margin-top: 1em;
-        color: @color-light-text;
+    .content {
+        height: 100%;
 
-        a {
-            cursor: pointer;
-            text-decoration: underline;
-        }
+        .source {
+            width: 100%;
+            align-self: flex-end;
+            margin-top: 1em;
+            color: @color-light-text;
 
-        a:hover {
-            text-decoration: none;
+            a {
+                cursor: pointer;
+                text-decoration: underline;
+            }
+
+            a:hover {
+                text-decoration: none;
+            }
         }
     }
 }

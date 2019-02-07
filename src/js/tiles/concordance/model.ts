@@ -139,14 +139,17 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             [ActionName.DataLoadDone]: (state, action:Actions.DataLoadDone) => {
                 if (action.payload.tileId === this.tileId) {
                     const newState = this.copyState(state);
+                    newState.isBusy = false;
                     if (action.error) {
-                        newState.isBusy = false;
                         this.appServices.showMessage(SystemMessageType.ERROR, action.error);
 
+                    } else if (action.payload.data.fullsize === 0) {
+                        newState.error = this.appServices.translate('global__not_enough_data_to_show_result');
+
                     } else {
-                        newState.isBusy = false;
                         // debug:
                         action.payload.data.messages.forEach(msg => console.log(`${importMessageType(msg[0]).toUpperCase()}: conc - ${msg[1]}`));
+
                         newState.lines = Immutable.List<Line>(action.payload.data.Lines);
                         newState.concsize = action.payload.data.concsize; // TODO fullsize?
                         newState.resultARF = action.payload.data.result_arf;

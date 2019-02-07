@@ -50,7 +50,7 @@ export interface TimeDistribModelState {
     corpname:string;
     subcname:string;
     subcDesc:string;
-    q:string;
+    concId:string;
     attrTime:string;
     attrValue:string;
     minFreq:string;
@@ -79,12 +79,12 @@ const getAttrCtx = (state:TimeDistribModelState, dim:Dimension):string => {
 }
 
 
-const stateToAPIArgs = (state:TimeDistribModelState, queryId:string):QueryArgs => {
+const stateToAPIArgs = (state:TimeDistribModelState, concId:string):QueryArgs => {
 
     return {
         corpname: state.corpname,
         usesubcorp: state.subcname,
-        q: queryId ? queryId : state.q,
+        q: `~${concId ? concId : state.concId}`,
         ctfcrit1: '0', // = structural attr
         ctfcrit2: getAttrCtx(state, Dimension.SECOND),
         ctattr1: state.attrTime,
@@ -164,7 +164,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                 observer.next({});
                                 observer.complete();
                             }
-                        }).concatMap(args => this.api.call(stateToAPIArgs(state, '~' + payload.data.conc_persistence_op_id)))
+                        }).concatMap(args => this.api.call(stateToAPIArgs(state, payload.data.conc_persistence_op_id)))
                         .subscribe(
                             resp => {
                                 const dataFull = resp.data.map<DataItemWithWCI>(v => {
@@ -181,7 +181,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                     name: ActionName.LoadDataDone,
                                     payload: {
                                         data: dataFull,
-                                        q: resp.q,
+                                        concId: resp.concId,
                                         tileId: this.tileId
                                     }
                                 });
@@ -191,7 +191,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                     name: ActionName.LoadDataDone,
                                     payload: {
                                         data: null,
-                                        q: null,
+                                        concId: null,
                                         tileId: this.tileId
                                     },
                                     error: error

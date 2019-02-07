@@ -74,10 +74,11 @@ export class CollocationsTile implements ITileProvider {
             initState: {
                 isBusy: false,
                 isTweakMode: false,
+                tileId: tileId,
                 widthFract: widthFract,
                 error: null,
                 corpname: conf.corpname,
-                q: '',
+                concId: null,
                 cattr: CorePosAttribute.LEMMA,
                 ctxSize: 2,
                 ctxType: SrchContextType.BOTH,

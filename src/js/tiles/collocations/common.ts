@@ -75,7 +75,7 @@ export namespace Actions {
         tileId:number;
         data:Array<DataRow>;
         heading:DataHeading;
-        q:string;
+        concId:string;
     }> {
         name:ActionName.DataLoadDone;
     }

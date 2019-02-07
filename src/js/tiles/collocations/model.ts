@@ -37,11 +37,12 @@ export interface CollocModelArgs {
 
 export interface CollocModelState {
     isBusy:boolean;
+    tileId:number;
     isTweakMode:boolean;
     error:string|null;
     widthFract:number;
     corpname:string;
-    q:string;
+    concId:string;
     cattr:string;
     ctxSize:number;
     ctxType:SrchContextType;
@@ -69,11 +70,11 @@ const ctxToRange = (ctxType:SrchContextType, range:number):[number, number] => {
 };
 
 
-export const stateToArgs = (state:CollocModelState, q:string):CollApiArgs => {
+export const stateToArgs = (state:CollocModelState, concId:string):CollApiArgs => {
     const [cfromw, ctow] = ctxToRange(state.ctxType, state.ctxSize);
     return {
         corpname: state.corpname,
-        q: q ? q : state.q,
+        q: `~${concId ? concId : state.concId}`,
         cattr: state.cattr,
         cfromw: cfromw,
         ctow: ctow,
@@ -136,6 +137,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse)  => {
                 const newState = this.copyState(state);
                 newState.isBusy = true;
+                newState.error = null;
                 return newState;
             },
             [GlobalActionName.EnableTileTweakMode]: (state, action:GlobalActions.EnableTileTweakMode) => {
@@ -163,10 +165,13 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             [ActionName.DataLoadDone]: (state, action:Actions.DataLoadDone) => {
                 if (action.payload.tileId === this.tileId) {
                     const newState = this.copyState(state);
-                    newState.q = action.payload.q;
+                    newState.concId = action.payload.concId;
                     newState.isBusy = false;
                     if (action.error) {
                         newState.error = action.error.message;
+
+                    } else if (action.payload.data.length === 0) {
+                        newState.error = this.appServices.translate('global__not_enough_data_to_show_result');
 
                     } else {
                         const minVal = Math.min(...action.payload.data.map(v => v.stats[0]));
@@ -211,8 +216,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                 observer.error(prevActionErr);
 
             } else {
-                console.log('colloc args: ', stateToArgs(state, '~' + concId));
-                observer.next(stateToArgs(state, '~' + concId));
+                observer.next(stateToArgs(state, concId));
                 observer.complete();
             }
         })
@@ -225,7 +229,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                         tileId: this.tileId,
                         heading: data.collHeadings,
                         data: data.data,
-                        q: '~' + data.concId,
+                        concId: data.concId,
                     }
                 });
             },
@@ -255,7 +259,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                 );
             break;
             case ActionName.SetSrchContextType:
-                this.requestData(state, state.q, null, seDispatch);
+                this.requestData(state, state.concId, null, seDispatch);
             break;
         }
     }
