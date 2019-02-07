@@ -33,8 +33,8 @@ export enum ActionName {
     AddSystemMessage = 'MAIN_ADD_SYSTEM_MESSAGE',
     RemoveSystemMessage = 'MAIN_REMOVE_SYSTEM_MESSAGE',
     SubmitQuery = 'MAIN_SUBMIT_QUERY',
-    ExpandTile = 'MAIN_EXPAND_TILE',
-    ResetExpandTile = 'MAIN_RESET_EXPAND_TILE',
+    EnableTileTweakMode = 'MAIN_ENABLE_TILE_TWEAK_MODE',
+    DisableTileTweakMode = 'MAIN_DISABLE_TILE_TWEAK_MODE',
     GetCorpusInfo = 'MAIN_GET_CORPUS_INFO',
     GetCorpusInfoDone = 'MAIN_GET_CORPUS_INFO_DONE',
     CloseCorpusInfo = 'MAIN_CLOSE_CORPUS_INFO',
@@ -130,16 +130,16 @@ export namespace Actions {
         name:ActionName.SubmitQuery;
     }
 
-    export interface ExpandTile extends Action<{
+    export interface EnableTileTweakMode extends Action<{
         ident:number;
     }> {
-        name:ActionName.ExpandTile;
+        name:ActionName.EnableTileTweakMode;
     }
 
-    export interface ResetExpandTile extends Action<{
+    export interface DisableTileTweakMode extends Action<{
         ident:number;
     }> {
-        name:ActionName.ResetExpandTile;
+        name:ActionName.DisableTileTweakMode;
     }
 
     export interface GetCorpusInfo extends Action<{

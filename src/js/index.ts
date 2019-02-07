@@ -74,12 +74,11 @@ const attachTile = (queryType:QueryType, lang1:string, lang2:string) =>
         tileId: tile.getIdent(),
         Component: tile.getView(),
         label: tile.getLabel(),
-        supportsExtendedView: !!tile.getExtWidthFract(),
+        supportsTweakMode: tile.supportsTweakMode(),
         supportsCurrQueryType: support,
         renderSize: [50, 50],
         isHidden: tile.isHidden(),
-        widthFract: tile.getWidthFract(),
-        extWidthFract: tile.getExtWidthFract()
+        widthFract: tile.getWidthFract()
     });
     if (!support) {
         tile.disable();
@@ -274,7 +273,7 @@ export const init = (
             isAnswerMode: false,
             isBusy: false,
             isMobile: window.matchMedia(MOBILE_MEDIA_QUERY).matches,
-            expandedTiles: Immutable.Set<number>(),
+            tweakActiveTiles: Immutable.Set<number>(),
             hiddenGroups:Immutable.Set<number>(),
             tileProps: Immutable.List<TileFrameProps>(tiles),
             corpusInfoData: null

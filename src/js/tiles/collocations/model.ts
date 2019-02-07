@@ -37,8 +37,9 @@ export interface CollocModelArgs {
 
 export interface CollocModelState {
     isBusy:boolean;
-    isExpanded:boolean;
+    isTweakMode:boolean;
     error:string|null;
+    widthFract:number;
     corpname:string;
     q:string;
     cattr:string;
@@ -92,7 +93,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
         'r': 'relative freq.'
     };
 
-    private static readonly BASE_WC_FONT_SIZE = 25;
+    private static readonly BASE_WC_FONT_SIZE = 30;
 
     constructor({dispatcher, tileId, waitForTile, appServices, service, initState}:CollocModelArgs) {
         super(dispatcher, initState);
@@ -101,18 +102,18 @@ export class CollocModel extends StatelessModel<CollocModelState> {
         this.appServices = appServices;
         this.service = service;
         this.actionMatch = {
-            [GlobalActionName.ExpandTile]: (state, action:GlobalActions.ExpandTile) => {
+            [GlobalActionName.EnableTileTweakMode]: (state, action:GlobalActions.EnableTileTweakMode) => {
                 if (action.payload.ident === this.tileId) {
                     const newState = this.copyState(state);
-                    newState.isExpanded = true;
+                    newState.isTweakMode = true;
                     return newState;
                 }
                 return state;
             },
-            [GlobalActionName.ResetExpandTile]: (state, action:GlobalActions.ExpandTile) => {
+            [GlobalActionName.DisableTileTweakMode]: (state, action:GlobalActions.DisableTileTweakMode) => {
                 if (action.payload.ident === this.tileId) {
                     const newState = this.copyState(state);
-                    newState.isExpanded = false;
+                    newState.isTweakMode = false;
                     return newState;
                 }
                 return state;
@@ -122,22 +123,22 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                 newState.isBusy = true;
                 return newState;
             },
-            [GlobalActionName.ExpandTile]: (state, action:GlobalActions.ExpandTile) => {
+            [GlobalActionName.EnableTileTweakMode]: (state, action:GlobalActions.EnableTileTweakMode) => {
                 let newState:CollocModelState;
                 if (action.payload['ident'] === this.tileId) {
                     newState = this.copyState(state);
-                    newState.isExpanded = true;
+                    newState.isTweakMode = true;
 
                 } else {
                     newState = state;
                 }
                 return newState;
             },
-            [GlobalActionName.ResetExpandTile]: (state, action:GlobalActions.ResetExpandTile) => {
+            [GlobalActionName.DisableTileTweakMode]: (state, action:GlobalActions.DisableTileTweakMode) => {
                 let newState:CollocModelState;
                 if (action.payload['ident'] === this.tileId) {
                     newState = this.copyState(state);
-                    newState.isExpanded = false;
+                    newState.isTweakMode = false;
 
                 } else {
                     newState = state;

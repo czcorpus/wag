@@ -73,7 +73,8 @@ export class CollocationsTile implements ITileProvider {
             service: new KontextCollAPI(conf.apiURL),
             initState: {
                 isBusy: false,
-                isExpanded: false,
+                isTweakMode: false,
+                widthFract: widthFract,
                 error: null,
                 corpname: conf.corpname,
                 q: '',
@@ -127,8 +128,8 @@ export class CollocationsTile implements ITileProvider {
         return this.widthFract;
     }
 
-    getExtWidthFract():number {
-        return this.widthFract + 1;
+    supportsTweakMode():boolean {
+        return true;
     }
 }
 

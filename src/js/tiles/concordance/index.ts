@@ -69,7 +69,7 @@ export class ConcordanceTile implements ITileProvider {
                 tileId: tileId,
                 isBusy: false,
                 error: null,
-                isExpanded: false,
+                isTweakMode: false,
                 lines: Immutable.List<Line>(),
                 corpname: conf.corpname,
                 fullsize: -1,
@@ -122,8 +122,8 @@ export class ConcordanceTile implements ITileProvider {
         return this.widthFract;
     }
 
-    getExtWidthFract():number {
-        return this.widthFract;
+    supportsTweakMode():boolean {
+        return true;
     }
 }
 

@@ -305,9 +305,9 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
     const WdglanceControlsBound = Bound<WdglanceMainState>(WdglanceControls, formModel);
 
 
-    // ------------- <ExtendButton /> --------------------------------------
+    // ------------- <TweakButton /> --------------------------------------
 
-    const ExtendButton:React.SFC<{
+    const TweakButton:React.SFC<{
         tileIdent:number;
         extended:boolean;
 
@@ -316,7 +316,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         const handleClick = () => {
             if (props.extended) {
                 dispatcher.dispatch({
-                    name: ActionName.ResetExpandTile,
+                    name: ActionName.DisableTileTweakMode,
                     payload: {
                         ident: props.tileIdent
                     }
@@ -324,7 +324,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
             } else {
                 dispatcher.dispatch({
-                    name: ActionName.ExpandTile,
+                    name: ActionName.EnableTileTweakMode,
                     payload: {
                         ident: props.tileIdent
                     }
@@ -332,9 +332,11 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             }
         };
 
-        return <span className="ExtendButton">
-            <button type="button" onClick={handleClick} title={props.extended ? ut.translate('global__reset_size') : ut.translate('global__extend')}>
-                {props.extended ? <i className="fa fa-compress"></i> : <i className="fa fa-expand"></i>}
+        return <span className="TweakButton">
+            <button type="button" onClick={handleClick} title={props.extended ? ut.translate('global__reset_size') : ut.translate('global__tweak')}>
+                {props.extended ?
+                    <img src={ut.createStaticUrl('config-icon_s.svg')} alt="configuration icon" /> :
+                    <img src={ut.createStaticUrl('config-icon.svg')} alt="configuration icon (highlighted)" />}
             </button>
         </span>
     };
@@ -387,7 +389,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
     // ------------- <TileContainer /> --------------------------------------
 
     class TileContainer extends React.Component<{
-        isExpanded:boolean;
+        isTweakMode:boolean;
         isMobile:boolean;
         tile:TileFrameProps;
     }, {}> {
@@ -416,7 +418,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
             } else {
                 return {
-                    gridColumn: `span ${this.props.isExpanded ? this.props.tile.extWidthFract : this.props.tile.widthFract}`
+                    gridColumn: `span ${this.props.tile.widthFract}`
                 };
             }
         }
@@ -425,12 +427,12 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
             return (
                 <section key={`tile-ident-${this.props.tile.tileId}`}
-                        className={`cnc-tile app-output${this.props.isExpanded ? ' expanded' : ''}`}
+                        className={`cnc-tile app-output${this.props.isTweakMode ? ' expanded' : ''}`}
                         style={this.genStyle()}>
                     <header className="cnc-tile-header panel">
                         <h2>{this.props.tile.label}</h2>
-                        {this.props.tile.supportsExtendedView ?
-                            <ExtendButton tileIdent={this.props.tile.tileId} extended={this.props.isExpanded} /> :
+                        {this.props.tile.supportsTweakMode ?
+                            <TweakButton tileIdent={this.props.tile.tileId} extended={this.props.isTweakMode} /> :
                             null
                         }
                     </header>
@@ -534,7 +536,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                                             .filter(v => v.supportsCurrQueryType)
                                             .map(tile => <TileContainer key={`tile:${tile.tileId}`} tile={tile}
                                                                 isMobile={this.props.isMobile}
-                                                                isExpanded={this.props.expandedTiles.contains(tile.tileId)} />)
+                                                                isTweakMode={this.props.tweakActiveTiles.contains(tile.tileId)} />)
                                         }
                                         </section>
                                     }

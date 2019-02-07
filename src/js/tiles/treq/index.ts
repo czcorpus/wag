@@ -89,10 +89,6 @@ export class TreqTile implements ITileProvider {
         return this.view;
     }
 
-    supportsExtendedView():boolean {
-        return false;
-    }
-
     supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {
         return qt === QueryType.TRANSLAT_QUERY;
     }
@@ -109,8 +105,8 @@ export class TreqTile implements ITileProvider {
         return this.widthFract;
     }
 
-    getExtWidthFract():number|null {
-        return null;
+    supportsTweakMode():boolean {
+        return false;
     }
 }
 
