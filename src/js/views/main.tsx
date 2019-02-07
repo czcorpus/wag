@@ -388,6 +388,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     class TileContainer extends React.Component<{
         isExpanded:boolean;
+        isMobile:boolean;
         tile:TileFrameProps;
     }, {}> {
 
@@ -399,21 +400,33 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         }
 
         componentDidMount() {
-            dispatcher.dispatch<Actions.AcknowledgeSize>({
-                name: ActionName.AcknowledgeSize,
+            dispatcher.dispatch<Actions.SetTileRenderSize>({
+                name: ActionName.SetTileRenderSize,
                 payload: {
                     tileId: this.props.tile.tileId,
-                    size: ut.getElementSize(this.ref.current)
+                    size: ut.getElementSize(this.ref.current),
+                    isMobile: this.props.isMobile
                 }
             });
         }
 
+        private genStyle() {
+            if (this.props.isMobile) {
+                return {};
+
+            } else {
+                return {
+                    gridColumn: `span ${this.props.isExpanded ? this.props.tile.extWidthFract : this.props.tile.widthFract}`
+                };
+            }
+        }
+
         render() {
-            const dynStyle = {gridColumn: `span ${this.props.isExpanded ? this.props.tile.extWidthFract : this.props.tile.widthFract}`};
+
             return (
                 <section key={`tile-ident-${this.props.tile.tileId}`}
                         className={`cnc-tile app-output${this.props.isExpanded ? ' expanded' : ''}`}
-                        style={dynStyle}>
+                        style={this.genStyle()}>
                     <header className="cnc-tile-header panel">
                         <h2>{this.props.tile.label}</h2>
                         {this.props.tile.supportsExtendedView ?
@@ -520,6 +533,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                                             .map(v => this.props.tileProps.get(v.tileId))
                                             .filter(v => v.supportsCurrQueryType)
                                             .map(tile => <TileContainer key={`tile:${tile.tileId}`} tile={tile}
+                                                                isMobile={this.props.isMobile}
                                                                 isExpanded={this.props.expandedTiles.contains(tile.tileId)} />)
                                         }
                                         </section>

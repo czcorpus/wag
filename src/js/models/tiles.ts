@@ -27,6 +27,7 @@ import { CorpusInfoAPI, APIResponse } from '../shared/api/corpusInfo';
 export interface WdglanceTilesState {
     isAnswerMode:boolean;
     isBusy:boolean;
+    isMobile:boolean;
     expandedTiles:Immutable.Set<number>;
     hiddenGroups:Immutable.Set<number>;
     tileProps:Immutable.List<TileFrameProps>;
@@ -45,7 +46,12 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
         this.appServices = appServices;
         this.corpusInfoApi = corpusInfoApi;
         this.actionMatch = {
-            [ActionName.AcknowledgeSize]: (state, action:Actions.AcknowledgeSize) => {
+            [ActionName.SetScreenMode]: (state, action:Actions.SetScreenMode) => {
+                const newState = this.copyState(state);
+                newState.isMobile = action.payload.isMobile;
+                return newState;
+            },
+            [ActionName.SetTileRenderSize]: (state, action:Actions.SetTileRenderSize) => {
                 const newState = this.copyState(state);
                 const srchId = newState.tileProps.findIndex(v => v.tileId === action.payload.tileId);
                 if (srchId > -1) {

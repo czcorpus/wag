@@ -28,7 +28,8 @@ export enum ActionName {
     RequestQueryResponse = 'MAIN_REQUEST_QUERY_RESPONSE',
     ChangeTargetLanguage = 'MAIN_CHANGE_TARGET_LANGUAGE',
     ChangeQueryType = 'MAIN_CHANGE_QUERY_TYPE',
-    AcknowledgeSize = 'MAIN_ACKNOWLEDGE_SIZE',
+    SetTileRenderSize = 'MAIN_SET_TILE_RENDER_SIZE',
+    SetScreenMode = 'MAIN_SET_SCREEN_MODE',
     AddSystemMessage = 'MAIN_ADD_SYSTEM_MESSAGE',
     RemoveSystemMessage = 'MAIN_REMOVE_SYSTEM_MESSAGE',
     SubmitQuery = 'MAIN_SUBMIT_QUERY',
@@ -95,11 +96,19 @@ export namespace Actions {
         name:ActionName.ChangeQueryType;
     }
 
-    export interface AcknowledgeSize extends Action<{
+    export interface SetTileRenderSize extends Action<{
         size:[number, number];
+        isMobile:boolean;
         tileId:number;
     }> {
-        name:ActionName.AcknowledgeSize;
+        name:ActionName.SetTileRenderSize;
+    }
+
+    export interface SetScreenMode extends Action<{
+        isMobile:boolean;
+
+    }> {
+        name: ActionName.SetScreenMode;
     }
 
     export interface AddSystemMessage extends Action<{

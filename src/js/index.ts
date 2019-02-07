@@ -34,7 +34,7 @@ import { GlobalComponents, init as globalCompInit } from './views/global';
 import * as translations from 'translations';
 import { AppServices } from './appServices';
 import { SystemNotifications } from './notifications';
-import { ActionName } from './models/actions';
+import { ActionName, Actions } from './models/actions';
 import { TileFrameProps, ITileProvider, QueryType, TileConf, TileFactory } from './abstract/types';
 import { WdglanceTilesModel } from './models/tiles';
 import {encodeArgs} from './shared/ajax';
@@ -266,11 +266,14 @@ export const init = (
         attachTileCurr(tiles, factory(ident, tilesConf[ident]));
     });
 
+    const MOBILE_MEDIA_QUERY = 'screen and (max-width: 800px), screen and (orientation:portrait)';
+
     const tilesModel = new WdglanceTilesModel(
         dispatcher,
         {
             isAnswerMode: false,
             isBusy: false,
+            isMobile: window.matchMedia(MOBILE_MEDIA_QUERY).matches,
             expandedTiles: Immutable.Set<number>(),
             hiddenGroups:Immutable.Set<number>(),
             tileProps: Immutable.List<TileFrameProps>(tiles),
@@ -292,6 +295,14 @@ export const init = (
                 const form = document.querySelector('.WdglanceControls');
                 if (!form.contains(document.activeElement)) {
                     ReactDOM.unmountComponentAtNode(mountElement);
+
+                    dispatcher.dispatch<Actions.SetScreenMode>({
+                        name: ActionName.SetScreenMode,
+                        payload: {
+                            isMobile: window.matchMedia(MOBILE_MEDIA_QUERY).matches
+                        }
+                    });
+
                     ReactDOM.render(
                         React.createElement(
                             component.WdglanceMain,
