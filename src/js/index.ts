@@ -67,7 +67,7 @@ export interface WdglanceConf {
 }
 
 const attachTile = (queryType:QueryType, lang1:string, lang2:string) =>
-    (data:Array<TileFrameProps>, tile:ITileProvider):void => {
+    (data:Array<TileFrameProps>, tile:ITileProvider, helpURL:string):void => {
     tile.init();
     const support = tile.supportsQueryType(queryType, lang1, lang2);
     data.push({
@@ -76,9 +76,11 @@ const attachTile = (queryType:QueryType, lang1:string, lang2:string) =>
         label: tile.getLabel(),
         supportsTweakMode: tile.supportsTweakMode(),
         supportsCurrQueryType: support,
+        supportsHelpView: tile.supportsHelpView(),
         renderSize: [50, 50],
         isHidden: tile.isHidden(),
-        widthFract: tile.getWidthFract()
+        widthFract: tile.getWidthFract(),
+        helpURL: helpURL,
     });
     if (!support) {
         tile.disable();
@@ -262,7 +264,11 @@ export const init = (
         tilesMap
     );
     Object.keys(tilesConf).forEach((ident, i) => {
-        attachTileCurr(tiles, factory(ident, tilesConf[ident]));
+        attachTileCurr(
+            tiles,
+            factory(ident, tilesConf[ident]),
+            appServices.importExternalMessage(tilesConf[ident].helpURL)
+        );
     });
 
     const MOBILE_MEDIA_QUERY = 'screen and (max-width: 800px), screen and (orientation:portrait)';
@@ -274,6 +280,8 @@ export const init = (
             isBusy: false,
             isMobile: window.matchMedia(MOBILE_MEDIA_QUERY).matches,
             tweakActiveTiles: Immutable.Set<number>(),
+            helpActiveTiles:Immutable.Set<number>(),
+            tilesHelpData: Immutable.Map<number, string>(),
             hiddenGroups:Immutable.Set<number>(),
             tileProps: Immutable.List<TileFrameProps>(tiles),
             isModalVisible: false,

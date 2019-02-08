@@ -118,6 +118,10 @@ export class SyDTile implements ITileProvider {
     supportsTweakMode():boolean {
         return false;
     }
+
+    supportsHelpView():boolean {
+        return true;
+    }
 }
 
 

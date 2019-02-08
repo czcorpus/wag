@@ -304,11 +304,50 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     const WdglanceControlsBound = Bound<WdglanceMainState>(WdglanceControls, formModel);
 
+    // ------------- <HelpButton /> --------------------------------------
+
+    const HelpButton:React.SFC<{
+        tileId:number;
+        isHelpMode:boolean;
+
+    }> = (props) => {
+
+        const handleClick = () => {
+            if (props.isHelpMode) {
+                dispatcher.dispatch<Actions.HideTileHelp>({
+                    name: ActionName.HideTileHelp,
+                    payload: {
+                        tileId: props.tileId
+                    }
+                });
+
+            } else {
+                dispatcher.dispatch<Actions.ShowTileHelp>({
+                    name: ActionName.ShowTileHelp,
+                    payload: {
+                        tileId: props.tileId
+                    }
+                });
+            }
+        }
+
+        return (
+            <span className="HelpButton">
+                <button type="button" onClick={handleClick} title={props.isHelpMode ? ut.translate('global__hide_tile_help') : ut.translate('global__show_tile_help')}>
+                    {props.isHelpMode ?
+                        <img src={ut.createStaticUrl('question-mark_s.svg')}   /> :
+                        <img src={ut.createStaticUrl('question-mark.svg')}   />
+                    }
+                </button>
+            </span>
+        );
+    }
+
 
     // ------------- <TweakButton /> --------------------------------------
 
     const TweakButton:React.SFC<{
-        tileIdent:number;
+        tileId:number;
         extended:boolean;
 
     }> = (props) => {
@@ -318,7 +357,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                 dispatcher.dispatch({
                     name: ActionName.DisableTileTweakMode,
                     payload: {
-                        ident: props.tileIdent
+                        ident: props.tileId
                     }
                 });
 
@@ -326,7 +365,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                 dispatcher.dispatch({
                     name: ActionName.EnableTileTweakMode,
                     payload: {
-                        ident: props.tileIdent
+                        ident: props.tileId
                     }
                 });
             }
@@ -390,7 +429,9 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     class TileContainer extends React.Component<{
         isTweakMode:boolean;
+        helpHTML:string;
         isMobile:boolean;
+        helpURL:string;
         tile:TileFrameProps;
     }, {}> {
 
@@ -431,12 +472,22 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         style={this.genStyle()}>
                     <header className="cnc-tile-header panel">
                         <h2>{this.props.tile.label}</h2>
+                        <div className="window-buttons">
                         {this.props.tile.supportsTweakMode ?
-                            <TweakButton tileIdent={this.props.tile.tileId} extended={this.props.isTweakMode} /> :
+                            <TweakButton tileId={this.props.tile.tileId} extended={this.props.isTweakMode} /> :
                             null
                         }
+                        {this.props.tile.supportsHelpView ?
+                            <HelpButton tileId={this.props.tile.tileId} isHelpMode={!!this.props.helpHTML} /> :
+                            null
+                        }
+                        </div>
                     </header>
-                    <div className="provider" ref={this.ref}>
+                    {this.props.helpHTML ?
+                        <div className="provider"><div className="cnc-tile-body" dangerouslySetInnerHTML={{__html: this.props.helpHTML}} /></div> :
+                        null
+                    }
+                    <div className={`provider${!!this.props.helpHTML ? ' hidden' : ''}`} ref={this.ref}>
                         {this.props.tile.Component ?
                             <globalComponents.ErrorBoundary>
                                 <this.props.tile.Component renderSize={this.props.tile.renderSize} />
@@ -456,7 +507,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
         render() {
             return (
-                <div>
+                <div className="MessagesBox">
                 {this.props.systemMessages.size > 0 ?
                     <ul className="Messages">
                         {this.props.systemMessages.map(
@@ -536,6 +587,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                                             .filter(v => v.supportsCurrQueryType)
                                             .map(tile => <TileContainer key={`tile:${tile.tileId}`} tile={tile}
                                                                 isMobile={this.props.isMobile}
+                                                                helpHTML={this.props.helpActiveTiles.contains(tile.tileId) ? this.props.tilesHelpData.get(tile.tileId) : null}
+                                                                helpURL={tile.helpURL}
                                                                 isTweakMode={this.props.tweakActiveTiles.contains(tile.tileId)} />)
                                         }
                                         </section>

@@ -18,10 +18,12 @@
 
 import {StatelessModel, ActionDispatcher, Action, SEDispatcher} from 'kombo';
 import { ActionName, Actions } from './actions';
+import * as Rx from '@reactivex/rxjs';
 import * as Immutable from 'immutable';
 import { AppServices } from '../appServices';
 import { TileFrameProps, SystemMessageType } from '../abstract/types';
 import { CorpusInfoAPI, APIResponse as CorpusInfoResponse} from '../shared/api/corpusInfo';
+import { ajax$, ResponseType } from '../shared/ajax';
 
 
 export interface WdglanceTilesState {
@@ -30,6 +32,8 @@ export interface WdglanceTilesState {
     isMobile:boolean;
     isModalVisible:boolean;
     tweakActiveTiles:Immutable.Set<number>;
+    helpActiveTiles:Immutable.Set<number>;
+    tilesHelpData:Immutable.Map<number, string>; // raw html data loaded from a trusted resource
     hiddenGroups:Immutable.Set<number>;
     tileProps:Immutable.List<TileFrameProps>;
     modalBoxData:CorpusInfoResponse|null; // or other possible data types
@@ -68,7 +72,9 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                             supportsCurrQueryType: tile.supportsCurrQueryType,
                             renderSize: [action.payload.size[0] + tile.tileId, action.payload.size[1]],
                             widthFract: tile.widthFract,
-                            isHidden: tile.isHidden
+                            isHidden: tile.isHidden,
+                            supportsHelpView: tile.supportsHelpView,
+                            helpURL: tile.helpURL
                         }
                     );
                     return newState;
@@ -83,6 +89,24 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
             [ActionName.DisableTileTweakMode]: (state, action:Actions.DisableTileTweakMode) => {
                 const newState = this.copyState(state);
                 newState.tweakActiveTiles = newState.tweakActiveTiles.remove(action.payload.ident);
+                return newState;
+            },
+            [ActionName.ShowTileHelp]: (state, action:Actions.ShowTileHelp) => {
+                const newState = this.copyState(state);
+                if (newState.tilesHelpData.has(action.payload.tileId)) {
+                    newState.helpActiveTiles = newState.helpActiveTiles.add(action.payload.tileId);
+                }
+                return newState;
+            },
+            [ActionName.LoadTileHelpDone]: (state, action:Actions.LoadTileHelpDone) => {
+                const newState = this.copyState(state);
+                newState.tilesHelpData = newState.tilesHelpData.set(action.payload.tileId, action.payload.html);
+                newState.helpActiveTiles = newState.helpActiveTiles.add(action.payload.tileId);
+                return newState;
+            },
+            [ActionName.HideTileHelp]: (state, action:Actions.HideTileHelp) => {
+                const newState = this.copyState(state);
+                newState.helpActiveTiles = newState.helpActiveTiles.remove(action.payload.tileId);
                 return newState;
             },
             [ActionName.EnableAnswerMode]: (state, action:Actions.EnableAnswerMode) => {
@@ -163,6 +187,54 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                         })
                     }
                 );
+            break;
+            case ActionName.ShowTileHelp:
+                if (!state.tilesHelpData.has(action.payload['tileId'])) {
+                    new Rx.Observable<string>((observer) => {
+                        if (state.tileProps.get(action.payload['tileId']).helpURL) {
+                            observer.next(state.tileProps.get(action.payload['tileId']).helpURL);
+                            observer.complete();
+
+                        } else {
+                            observer.error(new Error('Missing help URL'));
+                        }
+
+                    }).concatMap(
+                        (url) => {
+                            return ajax$<string>(
+                                'GET',
+                                url,
+                                {},
+                                {
+                                    responseType: ResponseType.TEXT
+                                }
+                            );
+                        }
+
+                    ).subscribe(
+                        (html) => {
+                            dispatch<Actions.LoadTileHelpDone>({
+                                name: ActionName.LoadTileHelpDone,
+                                payload: {
+                                    tileId: action.payload['tileId'],
+                                    html: html
+                                }
+                            });
+                        },
+                        (err) => {
+                            this.appServices.showMessage(SystemMessageType.ERROR, err);
+                            dispatch<Actions.LoadTileHelpDone>({
+                                name: ActionName.LoadTileHelpDone,
+                                error: err,
+                                payload: {
+                                    tileId: action.payload['tileId'],
+                                    html: null
+                                }
+                            });
+                        }
+                    );
+                }
+            break;
         }
     }
 }

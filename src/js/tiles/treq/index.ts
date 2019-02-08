@@ -108,6 +108,10 @@ export class TreqTile implements ITileProvider {
     supportsTweakMode():boolean {
         return false;
     }
+
+    supportsHelpView():boolean {
+        return true;
+    }
 }
 
 

@@ -114,6 +114,10 @@ export class FreqPieTile implements ITileProvider {
     supportsTweakMode():boolean {
         return false;
     }
+
+    supportsHelpView():boolean {
+        return true;
+    }
 }
 
 

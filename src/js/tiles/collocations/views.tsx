@@ -167,6 +167,12 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         );
     };
 
+    // -------------- <HelpView /> -------------------------------------
+
+    const HelpView:React.SFC<{}> = (props) => {
+        return <div>HELP...</div>;
+    };
+
 
     // -------------- <CollocTile /> -------------------------------------
 
@@ -191,7 +197,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         }
 
         componentDidUpdate(prevProps) {
-            if (this.chartContainer.current && this.props.data !== prevProps.data) {
+            if (this.chartContainer.current &&
+                    (this.props.data !== prevProps.data)) {
                 drawChart(
                     this.chartContainer.current,
                     [this.props.renderSize[0] / (this.props.widthFract > 1 ? 2 : 1), this.props.data.size * 30],

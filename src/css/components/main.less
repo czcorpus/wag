@@ -1,46 +1,56 @@
 @import '../shared.less';
 
-.Messages {
+.MessagesBox {
 
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
+    position: fixed;
+    left: 50%;
+    z-index: 10000;
+    top: 15%;
 
-    .SystemMessage {
 
+    .Messages {
+
+        min-width: 20em;
+        list-style-type: none;
+        position: relative;
+        left: -50%;
         margin: 0;
         padding: 0;
+        border-radius: .25em;
+        box-shadow: 0.05em 0.05em 0.15em 0.05em rgba(0,0,0, 0.2);
 
-        .wrapper {
+        .SystemMessage {
+            background-color: #444444;
+            color: #FFFFFF;
+            margin: 0;
+            padding: 0;
 
-            display: inline-block;
-            margin-top: 0.2em;
-            margin-bottom: 0.2em;
+            .wrapper {
 
-            .flex {
-                display: flex;
-                align-items: center;
-                background-color: #ffffff;
-                border-radius: @default-border-radius;
-                border-color: @color-light-grey;
-                border-width: 0.05em;
-                border-style: solid;
+                display: inline-block;
+                margin-top: 0.2em;
+                margin-bottom: 0.2em;
 
-                > * {
-                    padding: 0.4em;
-                }
+                .flex {
+                    display: flex;
+                    align-items: center;
 
-                .info-icon {
-                    width: 1.2em;
-                }
+                    > * {
+                        padding: 0.4em;
+                    }
 
-                p {
-                    margin: 0;
+                    .info-icon {
+                        width: 1.2em;
+                    }
+
+                    p {
+                        margin: 0;
+                    }
                 }
             }
         }
-    }
 
+    }
 }
 
 .WdglanceMain {

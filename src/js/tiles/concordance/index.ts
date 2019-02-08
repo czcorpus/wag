@@ -125,6 +125,10 @@ export class ConcordanceTile implements ITileProvider {
     supportsTweakMode():boolean {
         return true;
     }
+
+    supportsHelpView():boolean {
+        return true;
+    }
 }
 
 export const init:TileFactory.TileFactory<ConcordanceTileConf> = ({tileId, dispatcher, appServices, ut, mainForm, isHidden, widthFract, conf}) => {

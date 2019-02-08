@@ -132,6 +132,10 @@ export class CollocationsTile implements ITileProvider {
     supportsTweakMode():boolean {
         return true;
     }
+
+    supportsHelpView():boolean {
+        return true;
+    }
 }
 
 
