@@ -21,17 +21,19 @@ import { ActionName, Actions } from './actions';
 import * as Immutable from 'immutable';
 import { AppServices } from '../appServices';
 import { TileFrameProps, SystemMessageType } from '../abstract/types';
-import { CorpusInfoAPI, APIResponse } from '../shared/api/corpusInfo';
+import { CorpusInfoAPI, APIResponse as CorpusInfoResponse} from '../shared/api/corpusInfo';
 
 
 export interface WdglanceTilesState {
     isAnswerMode:boolean;
     isBusy:boolean;
     isMobile:boolean;
+    isModalVisible:boolean;
     tweakActiveTiles:Immutable.Set<number>;
     hiddenGroups:Immutable.Set<number>;
     tileProps:Immutable.List<TileFrameProps>;
-    corpusInfoData:APIResponse|null;
+    modalBoxData:CorpusInfoResponse|null; // or other possible data types
+    modalBoxTitle:string;
 }
 
 
@@ -95,7 +97,9 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
             },
             [ActionName.GetCorpusInfo]: (state, action:Actions.GetCorpusInfo) => {
                 const newState = this.copyState(state);
-                newState.corpusInfoData = null;
+                newState.modalBoxData = null;
+                newState.modalBoxTitle = null;
+                newState.isModalVisible = true;
                 newState.isBusy = true;
                 return newState;
             },
@@ -103,16 +107,18 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                 const newState = this.copyState(state);
                 newState.isBusy = false;
                 if (action.error) {
-                    newState.corpusInfoData = null;
+                    newState.isModalVisible = false;
 
                 } else {
-                    newState.corpusInfoData = action.payload.data
+                    newState.modalBoxData = action.payload.data;
+                    newState.modalBoxTitle = action.payload.data.corpname;
                 }
                 return newState;
             },
             [ActionName.CloseCorpusInfo]: (state, action:Actions.CloseCorpusInfo) => {
                 const newState = this.copyState(state);
-                newState.corpusInfoData = null;
+                newState.modalBoxData = null;
+                newState.isModalVisible = false;
                 return newState;
             },
             [ActionName.ToggleGroupVisibility]: (state, action:Actions.ToggleGroupVisibility) => {

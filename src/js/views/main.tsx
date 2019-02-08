@@ -502,7 +502,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             return (
                 <section className="TilesSections">
                     <header className="status">
-                        {this.props.isBusy ?
+                        {this.props.isBusy && !this.props.isModalVisible ?
                             <globalComponents.AjaxLoader htmlClass="loader" /> : null}
                     </header>
                     {this.props.isAnswerMode ?
@@ -545,10 +545,15 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         }) :
                         <section className="tiles"><InitialHelp /></section>
                     }
-                    {this.props.corpusInfoData ?
+                    {this.props.isModalVisible ?
                         <globalComponents.ModalBox onCloseClick={this.handleCloseCorpusInfo}
-                                title={this.props.corpusInfoData.corpname} isScrollable={false}>
-                            <CorpusInfo data={this.props.corpusInfoData} />
+                                title={this.props.modalBoxTitle} isScrollable={false}>
+                            {this.props.modalBoxData ? /* TODO thisis hardcoded; no other type possible here */
+                                <CorpusInfo data={this.props.modalBoxData} /> :
+                                <div style={{textAlign: 'center', minWidth: '10em', minHeight: '5em'}}>
+                                    <globalComponents.AjaxLoader htmlClass="loader" />
+                                </div>
+                            }
                         </globalComponents.ModalBox> : null}
                 </section>
             );

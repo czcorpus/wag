@@ -276,7 +276,9 @@ export const init = (
             tweakActiveTiles: Immutable.Set<number>(),
             hiddenGroups:Immutable.Set<number>(),
             tileProps: Immutable.List<TileFrameProps>(tiles),
-            corpusInfoData: null
+            isModalVisible: false,
+            modalBoxData: null,
+            modalBoxTitle: null
         },
         appServices,
         new CorpusInfoAPI(corpInfoApiUrl)

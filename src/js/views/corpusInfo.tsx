@@ -18,20 +18,15 @@
 import * as React from 'react';
 import { ActionDispatcher, ViewUtils } from 'kombo';
 import { GlobalComponents } from './global';
+import { APIResponse as CorpusInfoResponse} from '../shared/api/corpusInfo';
 
 export interface CorpusInfoBoxProps {
-    data:{
-        corpname:string;
-        size:number;
-        description:string;
-        structlist:Array<{name:string; size:number}>;
-        attrlist:Array<{name:string; size:number}>;
-        citation_info:any; // TODO
-        web_url:string;
-    }
+    data:CorpusInfoResponse;
 }
 
 export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>):React.SFC<CorpusInfoBoxProps> {
+
+    const globalComponents = ut.getComponents();
 
     // ---------------------------- <ItemAndNumRow /> -----------------------------
 
@@ -159,6 +154,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                 return '-';
             }
         };
+
         return (
             <div className="CorpusInfoBox">
                 <dl>
