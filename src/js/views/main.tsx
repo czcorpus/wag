@@ -348,34 +348,47 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     const TweakButton:React.SFC<{
         tileId:number;
-        extended:boolean;
+        isExtended:boolean;
+        isDisabled:boolean;
 
     }> = (props) => {
 
         const handleClick = () => {
-            if (props.extended) {
-                dispatcher.dispatch({
-                    name: ActionName.DisableTileTweakMode,
-                    payload: {
-                        ident: props.tileId
-                    }
-                });
+            if (!props.isDisabled) {
+                if (props.isExtended) {
+                    dispatcher.dispatch({
+                        name: ActionName.DisableTileTweakMode,
+                        payload: {
+                            ident: props.tileId
+                        }
+                    });
 
-            } else {
-                dispatcher.dispatch({
-                    name: ActionName.EnableTileTweakMode,
-                    payload: {
-                        ident: props.tileId
-                    }
-                });
+                } else {
+                    dispatcher.dispatch({
+                        name: ActionName.EnableTileTweakMode,
+                        payload: {
+                            ident: props.tileId
+                        }
+                    });
+                }
             }
         };
 
-        return <span className="TweakButton">
-            <button type="button" onClick={handleClick} title={props.extended ? ut.translate('global__reset_size') : ut.translate('global__tweak')}>
-                {props.extended ?
-                    <img src={ut.createStaticUrl('config-icon_s.svg')} alt="configuration icon" /> :
-                    <img src={ut.createStaticUrl('config-icon.svg')} alt="configuration icon (highlighted)" />}
+        const getIcon = () => {
+            if (props.isDisabled) {
+                return <img src={ut.createStaticUrl('config-icon_g.svg')} alt="configuration icon (disabled)" />;
+
+            } else if (props.isExtended) {
+                return <img src={ut.createStaticUrl('config-icon_s.svg')} alt="configuration icon" />;
+
+            } else {
+                return <img src={ut.createStaticUrl('config-icon.svg')} alt="configuration icon (highlighted)" />;
+            }
+        };
+
+        return <span className={`TweakButton${props.isDisabled ? ' disabled' : ''}`}>
+            <button type="button" onClick={handleClick} title={props.isExtended ? ut.translate('global__reset_size') : ut.translate('global__tweak')}>
+                {getIcon()}
             </button>
         </span>
     };
@@ -474,7 +487,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         <h2>{this.props.tile.label}</h2>
                         <div className="window-buttons">
                         {this.props.tile.supportsTweakMode ?
-                            <TweakButton tileId={this.props.tile.tileId} extended={this.props.isTweakMode} /> :
+                            <TweakButton tileId={this.props.tile.tileId} isExtended={this.props.isTweakMode}
+                                    isDisabled={!!this.props.helpHTML} /> :
                             null
                         }
                         {this.props.tile.supportsHelpView ?
