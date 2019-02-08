@@ -30,6 +30,7 @@ import {init as collocInit, CollocationsTileConf} from './tiles/collocations/ind
 import {init as treqInit, TreqTileConf} from './tiles/treq/index';
 import {init as sydInit, SyDTileConf} from './tiles/syd/index';
 import {init as freqPieInit, FreqPieTileConf} from './tiles/freqPie/index';
+import {init as summaryInit, SummaryTileConf} from './tiles/summary/index';
 import { GlobalComponents, init as globalCompInit } from './views/global';
 import * as translations from 'translations';
 import { AppServices } from './appServices';
@@ -50,7 +51,8 @@ require('../css/components/main.less');
 require('../css/mobile.less');
 
 
-type AnyConf = ConcordanceTileConf | TTDistTileConf | TreqTileConf | SyDTileConf | FreqPieTileConf | TimeDistTileConf | CollocationsTileConf;
+type AnyConf = ConcordanceTileConf | TTDistTileConf | TreqTileConf | SyDTileConf | FreqPieTileConf | TimeDistTileConf |
+        CollocationsTileConf | SummaryTileConf;
 
 export interface WdglanceConf {
     uiLang:string;
@@ -140,6 +142,9 @@ const tileFactory = (
                     return applyFactory<SyDTileConf>(sydInit, conf);
                 case 'FreqPieTile':
                     return applyFactory<FreqPieTileConf>(freqPieInit, conf);
+                case 'SummaryTile':
+                    return applyFactory<SummaryTileConf>(summaryInit, conf);
+
                 default:
                     return null;
             }
@@ -248,7 +253,7 @@ export const init = (
     const tiles:Array<TileFrameProps> = [];
     const attachTileCurr = attachTile(queryType, query1Lang, query2Lang);
     const tilesMap = attachNumericTileIdents(tilesConf);
-    //console.log('tilemap: ', tilesMap);
+    console.log('tilemap: ', tilesMap);
 
     const layoutManager = new LayoutManager(layouts, tilesMap, appServices);
 
