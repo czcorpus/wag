@@ -38,7 +38,10 @@ export enum ActionName {
     GetCorpusInfo = 'MAIN_GET_CORPUS_INFO',
     GetCorpusInfoDone = 'MAIN_GET_CORPUS_INFO_DONE',
     CloseCorpusInfo = 'MAIN_CLOSE_CORPUS_INFO',
-    ToggleGroupVisibility = 'MAIN_TOGGLE_GROUP_VISIBILITY'
+    ToggleGroupVisibility = 'MAIN_TOGGLE_GROUP_VISIBILITY',
+    ShowTileHelp = 'MAIN_SHOW_TILE_HELP',
+    LoadTileHelpDone = 'MAIN_LOAD_TILE_HELP_DONE',
+    HideTileHelp = 'MAIN_HIDE_TILE_HELP',
 }
 
 export namespace Actions {
@@ -163,5 +166,27 @@ export namespace Actions {
         groupIdx:number;
     }> {
         name:ActionName.ToggleGroupVisibility;
+    }
+
+    export interface ShowTileHelp extends Action<{
+        tileId:number;
+
+    }> {
+        name:ActionName.ShowTileHelp;
+    }
+
+    export interface HideTileHelp extends Action<{
+        tileId:number;
+
+    }> {
+        name:ActionName.HideTileHelp;
+    }
+
+    export interface LoadTileHelpDone extends Action<{
+        tileId:number;
+        html:string;
+
+    }> {
+        name:ActionName.LoadTileHelpDone;
     }
 }

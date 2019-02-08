@@ -33,7 +33,9 @@
         "global__view_mode_sent": "sentence",
         "global__click_to_show_group": "Click to show the result group",
         "global__click_to_hide_group": "Click to hide the result group",
-        "global__show_group_link": "Show"
+        "global__show_group_link": "Show",
+        "global__show_tile_help": "Show tile help",
+        "global__hide_tile_help": "Hide tile help"
 
     },
     "cs-CZ": {
@@ -70,6 +72,8 @@
         "global__view_mode_sent": "věta",
         "global__click_to_show_group": "Klikněte pro zobrazení skupiny výsledků",
         "global__click_to_hide_group": "Klikněte pro schování skupiny výsledků",
-        "global__show_group_link": "Zobrazit"
+        "global__show_group_link": "Zobrazit",
+        "global__show_tile_help": "Ukázat nápovědu k dlaždici",
+        "global__hide_tile_help": "Schovat nápovědu k dlaždici"
     }
 }

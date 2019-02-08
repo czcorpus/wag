@@ -132,6 +132,9 @@ export class TimeDistTile implements ITileProvider {
         return false;
     }
 
+    supportsHelpView():boolean {
+        return true;
+    }
 }
 
 

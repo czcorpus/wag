@@ -79,7 +79,7 @@ section.TilesSections {
         justify-content: space-between;
         align-items: center;
 
-        .TweakButton {
+        .window-buttons > span {
             vertical-align: middle;
 
             button {
@@ -102,9 +102,14 @@ section.TilesSections {
     }
 
     .provider {
+        display: initial;
         height: calc(100% - 3em);
         margin: 0;
         overflow: hidden;
+    }
+
+    .provider.hidden {
+        display: none;
     }
 }
 

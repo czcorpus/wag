@@ -19,9 +19,18 @@ import * as Rx from '@reactivex/rxjs';
 import { MultiDict } from './data';
 
 
+export enum ResponseType {
+    ARRAY_BUFFER = "arraybuffer",
+    BLOB = "blob",
+    DOCUMENT = "document",
+    JSON = "json",
+    TEXT = "text"
+}
+
+
 export interface AjaxOptions {
     contentType?:string;
-    responseType?:string;
+    responseType?:ResponseType;
     accept?:string;
 }
 
@@ -79,7 +88,7 @@ const prepareAjax = (method:string, url:string, args:AjaxArgs, options?:AjaxOpti
         options.contentType = 'application/x-www-form-urlencoded; charset=UTF-8';
     }
     if (!options.responseType) {
-        options.responseType = 'json';
+        options.responseType = ResponseType.JSON;
     }
 
     let body;

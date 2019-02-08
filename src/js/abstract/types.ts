@@ -53,6 +53,7 @@ export enum QueryType {
  */
 export interface TileConf {
     tileType:string;
+    helpURL:string;
     isHidden?:boolean;
     dependsOn?:string;
     label?:string;
@@ -89,6 +90,10 @@ export interface TileFrameProps {
     supportsTweakMode:boolean;
 
     supportsCurrQueryType:boolean;
+
+    supportsHelpView:boolean;
+
+    helpURL:string;
 
     renderSize:[number, number];
 
@@ -129,6 +134,8 @@ export interface ITileProvider {
     getWidthFract():number;
 
     supportsTweakMode():boolean;
+
+    supportsHelpView():boolean;
 }
 
 /**
