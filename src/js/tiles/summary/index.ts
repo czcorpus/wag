@@ -18,22 +18,33 @@
 import * as Immutable from 'immutable';
 import { TileConf, ITileProvider, TileComponent, QueryType, TileFactory } from '../../abstract/types';
 import { AppServices } from '../../appServices';
-import { SummaryModel } from './model';
+import { SummaryModel, FlevelDistribItem } from './model';
 import {init as viewInit} from './view';
 import { LemmaFreqApi, SummaryDataRow } from './api';
+import { SimilarFreqWordsApi } from './sfwApi';
+declare var require:(src:string)=>void;  // webpack
+require('./style.less');
 
 
 export interface SummaryTileConf extends TileConf {
     tileType:'SummaryTile';
     apiURL:string;
+    sfwApiURL:string;
     corpname:string;
+    corpusSize:number;
     fcrit:string;
     flimit:number;
     freqSort:string;
     fpage:number;
     fttIncludeEmpty:boolean;
+    flevelDistrib?:Array<FlevelDistribItem>;
 }
 
+const defaultFlevelDistrib = [
+    {rel: 71.5079, flevel: 1.0}, {rel: 19.9711, flevel: 2.0}, {rel: 6.2886, flevel: 3.0},
+    {rel: 1.8387, flevel: 4.0}, {rel: 0.3606, flevel: 5.0}, {rel: 0.0293, flevel: 6.0},
+    {rel: 0.0037, flevel: 7.0}
+];
 
 export class SummaryTile implements ITileProvider {
 
@@ -60,15 +71,21 @@ export class SummaryTile implements ITileProvider {
                 isBusy: false,
                 error: null,
                 corpname: conf.corpname,
+                corpusSize: conf.corpusSize,
                 concId: null,
                 fcrit: conf.fcrit,
                 flimit: conf.flimit,
                 fpage: conf.fpage,
                 freqSort: conf.freqSort,
                 includeEmpty: conf.fttIncludeEmpty,
-                data: Immutable.List<SummaryDataRow>()
+                data: Immutable.List<SummaryDataRow>(),
+                flevelDistrb: Immutable.List<FlevelDistribItem>(
+                    conf.flevelDistrib ? conf.flevelDistrib : defaultFlevelDistrib
+                ),
+                similarFreqWords: Immutable.List<string>()
             },
             new LemmaFreqApi(conf.apiURL),
+            new SimilarFreqWordsApi(conf.sfwApiURL),
             waitForTile,
             appServices
         );

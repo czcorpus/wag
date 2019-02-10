@@ -242,7 +242,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
                                     ref={this.ref}
                                     onClick={this.props.onCloseClick}
                                     onKeyDown={this.handleKey}>
-                                <i className="fa fa-window-close" aria-hidden="true"></i>
+                                <img src={ut.createStaticUrl('close-icon.svg')} alt="close icon" />
                             </button>
                         </header>
                         <div className="content cnc-tile-body">

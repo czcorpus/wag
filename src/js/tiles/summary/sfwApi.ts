@@ -15,22 +15,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import * as Rx from '@reactivex/rxjs';
+import { DataApi } from '../../abstract/types';
+import { ajax$ } from '../../shared/ajax';
 
-import { Action } from 'kombo';
-import { SummaryDataRow } from './api';
 
-
-export enum ActionName {
-    LoadDataDone = 'SUMMARY_LOAD_DATA_DONE'
+export interface RequestArgs {
+    word:string;
 }
 
-export namespace Actions {
+export interface Response {
+    result:Array<{word:string}>;
+}
 
-    export interface LoadDataDone extends Action<{
-        data:Array<SummaryDataRow>;
-        simFreqWords:Array<string>;
-        concId:string;
-    }> {
-        name: ActionName.LoadDataDone
+export class SimilarFreqWordsApi implements DataApi<RequestArgs, Response> {
+
+    private readonly apiURL:string;
+
+    constructor(apiURL:string) {
+        this.apiURL = apiURL;
+    }
+
+    call(args:RequestArgs):Rx.Observable<Response> {
+        return ajax$(
+            'GET',
+            this.apiURL,
+            {word: args.word}
+        );
     }
 }
+

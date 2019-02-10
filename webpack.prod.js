@@ -6,7 +6,7 @@ const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 // helper functions
 
-const mkpath = (p) => path.resolve(__dirname, '.', p);
+const mkpath = (...p) => path.resolve(__dirname, '.', ...p);
 
 
 const SRC_PATH = mkpath('src');
@@ -24,6 +24,7 @@ module.exports = (env) => ({
         libraryTarget: 'var',
         library: '[name]Page'
     },
+    exclude: [path.resolve(SRC_PATH, 'server')],
     resolve: {
         alias: {}, // filled in dynamically
         modules: [

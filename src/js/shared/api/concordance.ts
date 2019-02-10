@@ -61,7 +61,7 @@ export interface Line {
     toknum:number;
 }
 
-export interface ConcResponse {
+interface HTTPResponse {
     conc_persistence_op_id:string;
     messages:Array<[string, string]>;
     Lines:Array<Line>;
@@ -69,6 +69,10 @@ export interface ConcResponse {
     concsize:number;
     result_arf:number;
     result_relative_freq:number;
+}
+
+export interface ConcResponse extends HTTPResponse {
+    query:string;
 }
 
 
@@ -85,6 +89,18 @@ export class ConcApi implements DataApi<RequestArgs, ConcResponse> {
             'GET',
             this.apiURL,
             args
+
+        ).concatMap(
+            data => Rx.Observable.of({
+                conc_persistence_op_id: data.conc_persistence_op_id,
+                messages: data.messages,
+                Lines: data.Lines,
+                fullsize: data.fullsize,
+                concsize: data.concsize,
+                result_arf: data.result_arf,
+                result_relative_freq: data.result_relative_freq,
+                query: args.iquery // TODO
+            })
         );
     }
 }

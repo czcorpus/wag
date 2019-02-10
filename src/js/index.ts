@@ -49,6 +49,7 @@ require('../css/index.less');
 require('../css/components/global.less');
 require('../css/components/main.less');
 require('../css/mobile.less');
+require('theme.less');
 
 
 type AnyConf = ConcordanceTileConf | TTDistTileConf | TreqTileConf | SyDTileConf | FreqPieTileConf | TimeDistTileConf |

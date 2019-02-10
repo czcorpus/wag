@@ -1,11 +1,18 @@
 {
-    "staticFilesUrl": "/wdglance/assets/",
+    "address": "localhost",
+    "port": 3000,
+    "staticFilesUrl": "/wdg/assets/",
+    "theme": "default.less",
     "languages": {
-        "en-US": "Angličtina",
+        "en-US": "English",
         "cs-CZ": "Čeština"
     },
     "develServer": {
         "port": 9001,
-        "urlRootPath": "/wdglance/"
+        "urlRootPath": "/wdg/"
+    },
+    "auxServices": {
+        "wordDistribDb": "/var/www/work/wdglance/syn2015.db",
+        "similarFreqWordsCtx": [-5, 5]
     }
 }

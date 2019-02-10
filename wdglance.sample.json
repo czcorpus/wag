@@ -1,0 +1,272 @@
+{
+	"rootUrl": "http://portal.korpus.test/wdg/",
+	"hostUrl": "http://portal.korpus.test/wdg/",
+	"corpInfoApiUrl": "http://kontext.korpus.test/kontext/corpora/ajax_get_corp_details",
+	"layouts": {
+		"single": [
+			{
+				"groupLabel": "Současný psaný jazyk",
+				"groupDesc": "Tato část poskytuje přehled o vyhledaném slově v psané jazyce. Jedná se zejména o beletrii, publicistiku, odbornou literaturu apod.",
+				"groupTemplate": null,
+				"tiles": [
+					{"tile": "Summary", "width": 3},
+					{"tile": "ConcordanceSynchronic", "width": 2},
+					{"tile": "TextTypesSynchronic", "width": 1},
+					{"tile": "MediaTypesSynchronic", "width": 1},
+					{"tile": "TimeDistLemmaSynchronic", "width": 2},
+					{"tile": "CollocationsSynchronic", "width": 2}
+				]
+			},
+			{
+				"groupLabel": "Současný mluvený jazyk",
+				"groupDesc": "Tato část obsahuje data získaná z tzv. mluvených korpusů, které obsahují přepisy rozhovorů mezi rodilými mluvčími češtiny",
+				"tiles": [
+						{"tile": "SpeakerSex", "width": 1},
+						{"tile": "SpeakerRegion", "width": 1},
+						{"tile": "AuthEducationSpoken", "width": 1}
+				]
+			}
+		],
+		"cmp": [
+			{
+				"groupLabel": "Data ze SyDu",
+				"groupDesc": "V této části zatím funguje jen testování proveditelnosti",
+				"tiles": [
+						{"tile": "SyDTile", "width": 3}
+				]
+			}
+		],
+		"translat": [
+			{
+				"groupLabel": "Překlad z korpusových dat",
+				"groupDesc": "Tato část obsahuje výsledky získané z tzv. paralelního korpusu, který je tvořen dvěma obsahově stejnými korpusy v různých jazycích. Současně je doplněn informacemi o tom, která věta (či věty) v jednom jazyce odpovídá které větě (či větám) v druhém jazyce. Na základě toho je možné odvodit též přibližný překlad jednotlivých slov.",
+				"tiles": [
+					{"tile": "Treq", "width": 1},
+					{"tile": "ConcordanceSynchronic", "width": 2}
+				]
+			}
+		]
+	},
+	"tiles": {
+		"cs": {
+			"Summary": {
+				"tileType": "SummaryTile",
+				"dependsOn": "ConcordanceSynchronic",
+				"label": {"cs-CZ": "Souhrn", "en-US": "summary"},
+				"apiURL": "http://kontext.korpus.test/kontext/freqs",
+				"sfwApiURL": "http://portal.korpus.test/wdg/similar-freq-words",
+				"helpURL": "http://portal.korpus.test/wdg/static/help/czcorpus/missing.html",
+				"corpname": "syn2015",
+				"corpusSize": 120748715,
+				"fcrit": "lemma/ie 0<0 pos/ie 0<0",
+				"flimit": 1,
+				"freqSort": "freq",
+				"fpage": 1,
+				"fttIncludeEmpty": false
+			},
+			"ConcordanceSynchronic": {
+				"tileType": "ConcordanceTile",
+				"apiURL": "http://kontext.korpus.test/kontext/first",
+				"helpURL": "http://portal.korpus.test/wdg/static/help/czcorpus/missing.html",
+				"corpname": "syn2015",
+				"posAttrs": ["word", "lemma", "tag"]
+			},
+			"TextTypesSynchronic": {
+				"tileType": "TTDistribTile",
+				"label": "ttDistrib__indicator_text_types",
+				"helpURL": "http://portal.korpus.test/wdg/static/help/czcorpus/missing.html",
+				"dependsOn": "ConcordanceSynchronic",
+				"apiURL": "http://kontext.korpus.test/kontext/freqs",
+				"corpname": "syn2015",
+				"fcrit": "doc.txtype 0",
+				"flimit": 1,
+				"freqSort": "rel",
+				"fpage": 1,
+				"fttIncludeEmpty": false
+			},
+			"MediaTypesSynchronic": {
+				"tileType": "TTDistribTile",
+				"label": "ttDistrib__indicator_medium",
+				"dependsOn": "ConcordanceSynchronic",
+				"apiURL": "http://kontext.korpus.test/kontext/freqs",
+				"corpname": "syn2015",
+				"fcrit": "doc.medium 0",
+				"flimit": 1,
+				"freqSort": "rel",
+				"fpage": 1,
+				"fttIncludeEmpty": false
+			},
+			"TimeDistLemmaSynchronic": {
+				"tileType": "TimeDistribTile",
+				"dependsOn": "ConcordanceSynchronic",
+				"apiURL": "http://kontext.korpus.test/kontext/freqct",
+				"corpname": "syn2015",
+				"distProperty": "lemma",
+				"timeProperty": "doc.pubyear"
+			},
+			"CollocationsSynchronic": {
+				"tileType": "CollocTile",
+				"dependsOn": "ConcordanceSynchronic",
+				"apiURL": "http://kontext.korpus.test/kontext/collx",
+				"corpname": "syn2015"
+			},
+			"AuthSexSynchronic": {
+				"tileType": "FreqPieTile",
+				"label": "freqpie__indicator_auth_sex",
+				"dependsOn": "ConcordanceSynchronic",
+				"apiURL": "http://kontext.korpus.test/kontext/freqs",
+				"corpname": "syn2015",
+				"fcrit": "doc.authsex 0",
+				"flimit": 1,
+				"freqSort": "rel",
+				"fpage": 1,
+				"fttIncludeEmpty": false
+			},
+			"Treq": {
+				"tileType": "TreqTile",
+				"apiURL": "http://portal.korpus.test/treq/api.php",
+				"backlinkURL": "http://treq.korpus.cz",
+				"srchPackages": {
+					"en": ["SYNDICATE", "CORE"],
+					"de": ["SYNDICATE", "CORE"]
+				}
+			},
+			"SyDTileConf": {
+				"tileType": "SyDTile",
+				"apiURL": "http://kontext.korpus.test/kontext/freqs",
+				"concApiURL": "http://kontext.korpus.test/kontext/first",
+				"corp1": "syn2015",
+				"corp1Fcrit": ["word/i 0<0", "tag/ 0<0", "doc.id 0"],
+				"corp2": "oral2013",
+				"corp2Fcrit": ["word/i 0<0"]
+			},
+			"ConcordanceSpoken": {
+				"tileType": "ConcordanceTile",
+				"isHidden": true,
+				"apiURL": "http://kontext.korpus.test/kontext/first",
+				"corpname": "oral2013",
+				"posAttrs": ["word"]
+			},
+			"AuthEducationSpoken": {
+				"tileType": "FreqPieTile",
+				"label": "freqpie__indicator_speaker_education",
+				"dependsOn": "ConcordanceSpoken",
+				"apiURL": "http://kontext.korpus.test/kontext/freqs",
+				"corpname": "oral2013",
+				"fcrit": "sp.vzdelanityp 0",
+				"flimit": 1,
+				"freqSort": "rel",
+				"fpage": 1,
+				"fttIncludeEmpty": false
+			},
+			"SpeakerSex": {
+				"tileType": "FreqPieTile",
+				"label": "freqpie__indicator_speaker_sex",
+				"dependsOn": "ConcordanceSpoken",
+				"apiURL": "http://kontext.korpus.test/kontext/freqs",
+				"corpname": "oral2013",
+				"fcrit": "sp.pohlavi 0",
+				"flimit": 1,
+				"freqSort": "rel",
+				"fpage": 1,
+				"fttIncludeEmpty": false
+			},
+			"SpeakerRegion": {
+				"tileType": "TTDistribTile",
+				"label": "ttDistrib__speaker_region",
+				"dependsOn": "ConcordanceSpoken",
+				"apiURL": "http://kontext.korpus.test/kontext/freqs",
+				"corpname": "oral2013",
+				"fcrit": "sp.oblast 0",
+				"flimit": 1,
+				"freqSort": "rel",
+				"fpage": 1,
+				"fttIncludeEmpty": false
+			}
+		},
+		"en": {
+			"ConcordanceTileConf": {
+				"tileType": "ConcordanceTile",
+				"apiURL": "http://kontext.korpus.test/kontext/first",
+				"corpname": "intercorp_v11_en",
+				"posAttrs": ["word", "lemma", "tag"]
+			},
+			"TTDistTileConf": {
+				"tileType": "TTDistribTile",
+				"apiURL": "http://kontext.korpus.test/kontext/freqs",
+				"corpname": "intercorp_v11_en",
+				"dependsOn": "ConcordanceTileConf",
+				"fcrit": "text.txtype 0",
+				"flimit": 1,
+				"freqSort": "rel",
+				"fpage": 1,
+				"fttIncludeEmpty": false
+			},
+			"TimeDistTileConf": {
+				"tileType": "TimeDistribTile",
+				"apiURL": "http://kontext.korpus.test/kontext/freqct",
+				"dependsOn": "ConcordanceTileConf",
+				"corpname": "intercorp_v11_en",
+				"distProperty": "lemma",
+				"timeProperty": "text.pubDateYear"
+			},
+			"CollocationsTileConf": {
+				"tileType": "CollocTile",
+				"apiURL": "http://kontext.korpus.test/kontext/collx",
+				"corpname": "intercorp_v11_en",
+				"dependsOn": "ConcordanceTileConf"
+			},
+			"TreqTileConf": {
+				"tileType": "TreqTile",
+				"apiURL": "http://portal.korpus.test/treq/api.php",
+				"backlinkURL": "http://treq.korpus.cz",
+				"srchPackages": {
+					"cs": ["SYNDICATE", "CORE"],
+					"de": ["SYNDICATE", "CORE"]
+				}
+			}
+		},
+		"de": {
+			"ConcordanceTileConf": {
+				"tileType": "ConcordanceTile",
+				"apiURL": "http://kontext.korpus.test/kontext/first",
+				"corpname": "intercorp_v11_de",
+				"posAttrs": ["word", "lemma", "tag"]
+			},
+			"TTDistTileConf": {
+				"tileType": "TTDistribTile",
+				"apiURL": "http://kontext.korpus.test/kontext/freqs",
+				"corpname": "intercorp_v11_de",
+				"dependsOn": "ConcordanceTileConf",
+				"fcrit": "text.txtype 0",
+				"flimit": 1,
+				"freqSort": "rel",
+				"fpage": 1,
+				"fttIncludeEmpty": false
+			},
+			"TimeDistTileConf": {
+				"tileType": "TimeDistribTile",
+				"apiURL": "http://kontext.korpus.test/kontext/freqct",
+				"corpname": "intercorp_v11_de",
+				"dependsOn": "ConcordanceTileConf",
+				"distProperty": "lemma",
+				"timeProperty": "text.pubDateYear"
+			},
+			"CollocationsTileConf": {
+				"tileType": "CollocTile",
+				"apiURL": "http://kontext.korpus.test/kontext/collx",
+				"corpname": "intercorp_v11_de",
+				"dependsOn": "ConcordanceTileConf"
+			},
+			"TreqTileConf": {
+				"tileType": "TreqTile",
+				"apiURL": "http://portal.korpus.test/treq/api.php",
+				"backlinkURL": "http://treq.korpus.cz",
+				"srchPackages": {
+					"cs": ["SYNDICATE", "CORE"],
+					"en": ["SYNDICATE", "CORE"]
+				}
+			}
+		}
+	}
+}
