@@ -41,15 +41,18 @@
             fs.writeFileSync(destItem, "module.exports = " + JSON.stringify(translations) + ";\n");
             const loadconf = (path) => {
                 false
-            }        });
+            }
+        });
     }
 
     function loadModulePathMap(conf, srcPath, distPath) {
         const langs = Object.keys(conf['languages']);
+        console.log(conf)
         console.log('langs: ', langs);
         mergeTranslations(srcPath, path.resolve(distPath, '.compiled/translations.js'), langs);
         const moduleMap = {
-            'translations': path.resolve(distPath, '.compiled/translations')
+            'translations': path.resolve(distPath, '.compiled/translations'),
+            'theme.less': path.resolve(srcPath, 'css', 'themes', conf['theme'])
         };
         return moduleMap;
     }

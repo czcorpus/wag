@@ -23,12 +23,19 @@ import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../mo
 import {ActionName as ConcActionName, Actions as ConcActions} from '../concordance/actions';
 import { ActionName, Actions } from './actions';
 import { AppServices } from '../../appServices';
+import { SimilarFreqWordsApi } from './sfwApi';
+import { concat } from '@reactivex/rxjs/dist/package/operator/concat';
 
+export interface FlevelDistribItem {
+    rel:number;
+    flevel:number;
+}
 
 export interface SummaryModelState {
     isBusy:boolean;
     error:string;
     corpname:string;
+    corpusSize:number;
     concId:string;
     fcrit:string;
     flimit:number;
@@ -36,6 +43,8 @@ export interface SummaryModelState {
     freqSort:string;
     includeEmpty:boolean;
     data:Immutable.List<SummaryDataRow>;
+    flevelDistrb:Immutable.List<FlevelDistribItem>;
+    similarFreqWords:Immutable.List<string>;
 }
 
 const stateToAPIArgs = (state:SummaryModelState, concId:string):RequestArgs => ({
@@ -49,20 +58,38 @@ const stateToAPIArgs = (state:SummaryModelState, concId:string):RequestArgs => (
     format: 'json'
 });
 
+const posTable = {
+    n: {'cs-CZ': 'podstatné jméno', 'en-US': 'noun'},
+	a: {'cs-CZ': 'přídavné jméno', 'en-US': 'adjective'},
+	p: {'cs-CZ': 'zájmeno', 'en-US': 'pronoun'},
+	c: {'cs-CZ': 'číslovka, nebo číselný výraz s číslicemi', 'en-US': 'numeral'},
+	v: {'cs-CZ': 'sloveso', 'en-US': 'verb'},
+	d: {'cs-CZ': 'příslovce', 'en-US': 'adverb'},
+	r: {'cs-CZ': 'předložka', 'en-US': 'preposition'},
+	j: {'cs-CZ': 'spojka', 'en-US': 'conjunction'},
+	t: {'cs-CZ': 'částice', 'en-US': 'particle'},
+	i: {'cs-CZ': 'citoslovce', 'en-US': 'interjection'},
+	z: {'cs-CZ': 'interpunkce', 'en-US': 'punctuation'},
+    x: {'cs-CZ': 'neznámý nebo neurčený slovní druh', 'en-US': 'unknown or undetermined part of speech'}
+}
+
 export class SummaryModel extends StatelessModel<SummaryModelState> {
 
     private readonly api:LemmaFreqApi;
+
+    private readonly sfwApi:SimilarFreqWordsApi;
 
     private readonly waitForTile:number;
 
     private readonly appServices:AppServices;
 
-    constructor(dispatcher:ActionDispatcher, initialState:SummaryModelState, api:LemmaFreqApi, waitForTile:number,
-                    appServices:AppServices) {
+    constructor(dispatcher:ActionDispatcher, initialState:SummaryModelState, api:LemmaFreqApi,
+        sfwApi:SimilarFreqWordsApi, waitForTile:number, appServices:AppServices) {
         super(dispatcher, initialState);
         this.api = api;
         this.waitForTile = waitForTile;
         this.appServices = appServices;
+        this.sfwApi = sfwApi;
         this.actionMatch = {
             [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
                 const newState = this.copyState(state);
@@ -78,10 +105,12 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
 
                 } else if (action.payload.data.length === 0) {
                     newState.data = Immutable.List<SummaryDataRow>();
+                    newState.similarFreqWords = Immutable.List<string>();
                     newState.error = this.appServices.translate('global__not_enough_data_to_show_result');
 
                 } else {
                     newState.data = Immutable.List<SummaryDataRow>(action.payload.data);
+                    newState.similarFreqWords = Immutable.List<string>(action.payload.simFreqWords);
                 }
 
                 return newState;
@@ -95,13 +124,36 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                 this.suspend((action:Action) => {
                     if (action.name === ConcActionName.DataLoadDone && action.payload['tileId'] === this.waitForTile) {
                         const payload = (action as ConcActions.DataLoadDone).payload;
-                        this.api.call(stateToAPIArgs(state, payload.data.conc_persistence_op_id)).subscribe(
+                        const data1$ = this.api
+                            .call(stateToAPIArgs(state, payload.data.conc_persistence_op_id))
+                            .concatMap(
+                                (data) => Rx.Observable.of({
+                                        concId: data.concId,
+                                        data: data.data.map(v => {
+                                            const flevel = Math.log(v.abs / state.corpusSize * 1e9) / Math.log(10);
+                                            const srch = state.flevelDistrb.find(candid => ~~Math.round(candid.flevel) === ~~Math.round(flevel));
+                                            return {
+                                                lemma: v.lemma,
+                                                pos: this.appServices.importExternalMessage(posTable[v.pos]),
+                                                abs: v.abs,
+                                                ipm: v.abs / state.corpusSize * 1e6,
+                                                flevel: flevel,
+                                                percSimilarWords: srch ? srch.rel : -1
+                                            }
+                                        })
+                                    }));
+
+                        const data2$ = this.sfwApi.call({word: payload.data.query});
+
+                        Rx.Observable.forkJoin(data1$, data2$)
+                            .subscribe(
                             (data) => {
                                 dispatch<Actions.LoadDataDone>({
                                     name: ActionName.LoadDataDone,
                                     payload: {
-                                        data: data.data,
-                                        concId: data.concId
+                                        data: data[0].data,
+                                        simFreqWords: data[1].result.map(v => v.word),
+                                        concId: data[0].concId
                                     }
                                 });
                             },
@@ -112,6 +164,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                                     error: err,
                                     payload: {
                                         data: [], // TODO
+                                        simFreqWords: [],
                                         concId: null // TODO
                                     }
                                 });

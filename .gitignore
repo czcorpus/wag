@@ -59,4 +59,6 @@ typings/
 
 # custom 
 dist
+dist-server
 conf.json
+wdglance.json

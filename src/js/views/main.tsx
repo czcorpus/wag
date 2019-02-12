@@ -30,6 +30,7 @@ import { WdglanceTilesModel, WdglanceTilesState } from '../models/tiles';
 import { MessagesState, MessagesModel } from '../models/messages';
 import {init as corpusInfoViewInit} from './corpusInfo';
 import { TileGroup } from '../layout';
+import { SystemMessage } from '../notifications';
 
 
 export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, formModel:WdglanceMainFormModel, tilesModel:WdglanceTilesModel,
@@ -302,7 +303,17 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         }
     }
 
-    const WdglanceControlsBound = Bound<WdglanceMainState>(WdglanceControls, formModel);
+    const WdglanceControlsBound = formModel ?
+            Bound<WdglanceMainState>(WdglanceControls, formModel) :
+            (props) => <WdglanceControls
+                            query={Forms.newFormValue('', true)}
+                            query2={Forms.newFormValue('', false)}
+                            queryType={QueryType.SINGLE_QUERY}
+                            targetLanguage="cs" /* TODO */
+                            targetLanguage2="en"
+                            availLanguages={Immutable.List<[string, string]>()}
+                            availQueryTypes={Immutable.List<[QueryType, string]>()}
+                            isValid={true} />
 
     // ------------- <HelpButton /> --------------------------------------
 
@@ -535,7 +546,9 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         }
     }
 
-    const BoundMessagesBox = Bound(MessagesBox, messagesModel);
+    const BoundMessagesBox = messagesModel ?
+            Bound(MessagesBox, messagesModel) :
+            (props) => <MessagesBox systemMessages={Immutable.List<SystemMessage>()} />;
 
     // -------------------- <TilesSections /> -----------------------------
 
@@ -627,7 +640,23 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         }
     }
 
-    const BoundTilesSections = BoundWithProps<any, any>(TilesSections, tilesModel); // TODO type issue
+    const BoundTilesSections = tilesModel ?
+        BoundWithProps<any, any>(TilesSections, tilesModel) :   // TODO type issue
+        (props) => {
+            return <TilesSections
+                        isAnswerMode={false}
+                        isBusy={false}
+                        isMobile={false}
+                        isModalVisible={false}
+                        tweakActiveTiles={Immutable.Set<number>()}
+                        helpActiveTiles={Immutable.Set<number>()}
+                        tilesHelpData={Immutable.Map<number, string>()}
+                        hiddenGroups={Immutable.Set<number>()}
+                        tileProps={Immutable.List<TileFrameProps>()}
+                        modalBoxData={null}
+                        modalBoxTitle=""
+                        layout={Immutable.List<TileGroup>()} />
+        }
 
     // ------------------ <WdglanceMain /> ------------------------------
 

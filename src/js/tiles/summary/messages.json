@@ -1,0 +1,12 @@
+{
+    "en-US": {
+        "summary__pos": "part of speech",
+        "summary__num_similarly_freq_words": "num. of similarly frequent words",
+        "summary__words_with_nearest_freq": "Words with nearest frequency"
+    },
+    "cs-CZ": {
+        "summary__pos": "slovní druh",
+        "summary__num_similarly_freq_words": "num. of similarly frequent words",
+        "summary__words_with_nearest_freq": "Slova s nejbližší frekvencí"
+    }
+}

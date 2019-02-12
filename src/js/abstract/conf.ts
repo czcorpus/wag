@@ -16,21 +16,36 @@
  * limitations under the License.
  */
 
-import { Action } from 'kombo';
-import { SummaryDataRow } from './api';
-
-
-export enum ActionName {
-    LoadDataDone = 'SUMMARY_LOAD_DATA_DONE'
+export interface UserConf {
+    uiLang:string;
+    queryType:string;
+	query1Lang:string;
+	query2Lang:string;
+	query1:string;
+    query2:string;
+    tilesConf:{[ident:string]:any};
 }
 
-export namespace Actions {
 
-    export interface LoadDataDone extends Action<{
-        data:Array<SummaryDataRow>;
-        simFreqWords:Array<string>;
-        concId:string;
-    }> {
-        name: ActionName.LoadDataDone
-    }
+export interface ClientConf {
+    rootUrl:string;
+	hostUrl:string;
+	corpInfoApiUrl:string;
+	tiles:{[lang:string]:{[ident:string]:any}};
+	layouts:any;
+}
+
+export interface ServerConf {
+    address:string;
+    port:number;
+    staticFilesUrl:string;
+    languages:{[code:string]:string};
+    develServer:{
+        port:number;
+        urlRootPath:string;
+    };
+    auxServices:{
+        wordDistribDb:string;
+        similarFreqWordsCtx:[number, number];
+    };
 }
