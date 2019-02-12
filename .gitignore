@@ -57,8 +57,8 @@ typings/
 # dotenv environment variables file
 .env
 
-# custom 
+# custom
 dist
 dist-server
-conf.json
-wdglance.json
+conf/conf.json
+conf/wdglance.json

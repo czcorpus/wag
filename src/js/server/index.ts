@@ -29,8 +29,8 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const serverConf:ServerConf = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../conf.json'), 'utf8'));
-const clientConf:ClientConf = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../wdglance.json'), 'utf8'));
+const serverConf:ServerConf = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../conf/conf.json'), 'utf8'));
+const clientConf:ClientConf = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../conf/wdglance.json'), 'utf8'));
 const db = new sqlite3.Database(serverConf.auxServices.wordDistribDb);
 
 wdgRouter({
