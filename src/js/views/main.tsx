@@ -44,6 +44,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
     const SystemMessage:React.SFC<{
         type:SystemMessageType;
         text:string;
+        ident:string;
     }> = (props) => {
 
         let classType:string;
@@ -61,12 +62,26 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             break;
         }
 
+        const handleCloseClick = () => {
+            dispatcher.dispatch({
+                name: ActionName.RemoveSystemMessage,
+                    payload: {
+                        ident: props.ident
+                    }
+            });
+        };
+
         return (
             <li className="SystemMessage">
                 <div className={`wrapper cnc-msgbox ${classType}`}>
                     <div className="flex">
                         <globalComponents.MessageStatusIcon statusType={props.type} isInline={true} />
                         <p>{props.text}</p>
+                        <div className="close">
+                            <a onClick={handleCloseClick}>
+                                <img src={ut.createStaticUrl('close-icon.svg')} />
+                            </a>
+                        </div>
                     </div>
                 </div>
             </li>
@@ -536,7 +551,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                 {this.props.systemMessages.size > 0 ?
                     <ul className="Messages">
                         {this.props.systemMessages.map(
-                                msg => <SystemMessage key={msg.ident} type={msg.type} text={msg.text} />)
+                                msg => <SystemMessage key={msg.ident} type={msg.type} text={msg.text}
+                                                ident={msg.ident} />)
                         }
                     </ul> :
                     null
