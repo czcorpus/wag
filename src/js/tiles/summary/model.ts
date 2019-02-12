@@ -18,13 +18,13 @@
 import * as Immutable from 'immutable';
 import * as Rx from '@reactivex/rxjs';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
-import { LemmaFreqApi, RequestArgs, SummaryDataRow } from './api';
+import { LemmaFreqApi, RequestArgs, SummaryDataRow} from './api';
+import {Response as SFWResponse, SimilarlyFreqWord} from './sfwApi';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
 import {ActionName as ConcActionName, Actions as ConcActions} from '../concordance/actions';
 import { ActionName, Actions } from './actions';
 import { AppServices } from '../../appServices';
 import { SimilarFreqWordsApi } from './sfwApi';
-import { concat } from '@reactivex/rxjs/dist/package/operator/concat';
 
 export interface FlevelDistribItem {
     rel:number;
@@ -43,8 +43,9 @@ export interface SummaryModelState {
     freqSort:string;
     includeEmpty:boolean;
     data:Immutable.List<SummaryDataRow>;
+    currLemmaIdx:number;
     flevelDistrb:Immutable.List<FlevelDistribItem>;
-    similarFreqWords:Immutable.List<string>;
+    similarFreqWords:Immutable.List<SimilarlyFreqWord>;
 }
 
 const stateToAPIArgs = (state:SummaryModelState, concId:string):RequestArgs => ({
@@ -105,14 +106,20 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
 
                 } else if (action.payload.data.length === 0) {
                     newState.data = Immutable.List<SummaryDataRow>();
-                    newState.similarFreqWords = Immutable.List<string>();
+                    newState.similarFreqWords = Immutable.List<SimilarlyFreqWord>();
                     newState.error = this.appServices.translate('global__not_enough_data_to_show_result');
 
                 } else {
                     newState.data = Immutable.List<SummaryDataRow>(action.payload.data);
-                    newState.similarFreqWords = Immutable.List<string>(action.payload.simFreqWords);
+                    newState.similarFreqWords = Immutable.List<SimilarlyFreqWord>(action.payload.simFreqWords);
+                    newState.currLemmaIdx = 0;
                 }
 
+                return newState;
+            },
+            [ActionName.SetActiveLemma]: (state, action:Actions.SetActiveLemma) => {
+                const newState = this.copyState(state);
+                newState.currLemmaIdx = action.payload.idx;
                 return newState;
             }
         }
@@ -143,7 +150,17 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                                         })
                                     }));
 
-                        const data2$ = this.sfwApi.call({word: payload.data.query});
+                        const data2$ = this.sfwApi
+                            .call({word: payload.data.query})
+                            .map<SFWResponse, SFWResponse>(
+                                (data) => ({
+                                    result: data.result.map(v => ({
+                                        word: v.word,
+                                        abs: v.abs,
+                                        ipm: v.abs / state.corpusSize * 1e6
+                                    }))
+                                })
+                            );
 
                         Rx.Observable.forkJoin(data1$, data2$)
                             .subscribe(
@@ -152,7 +169,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                                     name: ActionName.LoadDataDone,
                                     payload: {
                                         data: data[0].data,
-                                        simFreqWords: data[1].result.map(v => v.word),
+                                        simFreqWords: data[1].result,
                                         concId: data[0].concId
                                     }
                                 });

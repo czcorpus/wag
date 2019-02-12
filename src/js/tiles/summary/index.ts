@@ -21,7 +21,7 @@ import { AppServices } from '../../appServices';
 import { SummaryModel, FlevelDistribItem } from './model';
 import {init as viewInit} from './view';
 import { LemmaFreqApi, SummaryDataRow } from './api';
-import { SimilarFreqWordsApi } from './sfwApi';
+import { SimilarFreqWordsApi, SimilarlyFreqWord } from './sfwApi';
 declare var require:(src:string)=>void;  // webpack
 require('./style.less');
 
@@ -79,10 +79,11 @@ export class SummaryTile implements ITileProvider {
                 freqSort: conf.freqSort,
                 includeEmpty: conf.fttIncludeEmpty,
                 data: Immutable.List<SummaryDataRow>(),
+                currLemmaIdx: -1,
                 flevelDistrb: Immutable.List<FlevelDistribItem>(
                     conf.flevelDistrib ? conf.flevelDistrib : defaultFlevelDistrib
                 ),
-                similarFreqWords: Immutable.List<string>()
+                similarFreqWords: Immutable.List<SimilarlyFreqWord>()
             },
             new LemmaFreqApi(conf.apiURL),
             new SimilarFreqWordsApi(conf.sfwApiURL),

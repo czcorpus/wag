@@ -18,19 +18,28 @@
 
 import { Action } from 'kombo';
 import { SummaryDataRow } from './api';
+import { SimilarlyFreqWord } from './sfwApi';
 
 
 export enum ActionName {
-    LoadDataDone = 'SUMMARY_LOAD_DATA_DONE'
+    LoadDataDone = 'SUMMARY_LOAD_DATA_DONE',
+    SetActiveLemma = 'SUMMARY_SET_ACTIVE_LEMMA',
 }
 
 export namespace Actions {
 
     export interface LoadDataDone extends Action<{
         data:Array<SummaryDataRow>;
-        simFreqWords:Array<string>;
+        simFreqWords:Array<SimilarlyFreqWord>;
         concId:string;
     }> {
-        name: ActionName.LoadDataDone
+        name: ActionName.LoadDataDone;
+    }
+
+    export interface SetActiveLemma extends Action<{
+        idx:number;
+
+    }> {
+        name: ActionName.SetActiveLemma;
     }
 }

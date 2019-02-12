@@ -18,15 +18,15 @@
 import * as React from 'react';
 import * as Immutable from 'immutable';
 import {BoundWithProps} from 'kombo';
-import {LineChart, XAxis, YAxis, CartesianGrid, Line, Label, ReferenceArea, Tooltip} from 'recharts';
-import * as d3 from 'd3';
-import * as d3Scale from 'd3-scale';
+import {LineChart, XAxis, YAxis, CartesianGrid, Line, Label, Tooltip} from 'recharts';
 import {ActionDispatcher, ViewUtils} from 'kombo';
 import { GlobalComponents } from '../../views/global';
 import { CoreTileComponentProps, TileComponent } from '../../abstract/types';
 import { SummaryModelState, SummaryModel } from './model';
 import { SummaryDataRow } from './api';
-import { map } from '@reactivex/rxjs/dist/package/operators';
+import { dispatch } from 'd3';
+import { ActionName, Actions } from './actions';
+import { SimilarlyFreqWord } from './sfwApi';
 
 /*
 cx: 65
@@ -57,6 +57,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     const globalComponents = ut.getComponents();
 
+    // -------------------- <LineDot /> -----------------------------------------------
+
     const LineDot:React.SFC<{
         cx:number;
         cy:number;
@@ -66,10 +68,13 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
     }> = (props) => {
 
         return <svg>
-            <circle cx={props.cx} cy={props.cy} r={props.payload.lemma ? 5 : 5} stroke={props.payload.color} strokeWidth="2"
-                        fill={props.payload.color} />
+            <circle cx={props.cx} cy={props.cy} r={props.payload.lemma ? 4 : 5} stroke={props.payload.color} strokeWidth="1"
+                        fill={props.payload.color} fillOpacity={props.payload.lemma ? 1 : 0.3} />
         </svg>
     };
+
+
+    // -------------------- <CustomTooltip /> -----------------------------------------------
 
     const CustomTooltip:React.SFC<{
         active:boolean;
@@ -109,33 +114,114 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     };
 
+    // -------------------- <Chart /> -----------------------------------------------
+
     const Chart:React.SFC<{
-        data:Immutable.List<SummaryDataRow>;
+        lemmaItem:SummaryDataRow;
 
     }> = (props) => {
         const levels = [{ipm: 0.01, v: 1}, {ipm: 0.1, v: 2}, {ipm: 1, v: 3}, {ipm: 10, v: 4}, {ipm: 100, v: 5}, {ipm: 1000, v: 6}, {ipm: 10000, v: 7}];
         const data = levels
             .map(v => ({ipm: v.ipm, flevel: v.v, abs: null, lemma: null, pos: null, color: '#8884d8'}))
-            .concat(props.data.map(v => ({ipm: v.ipm, flevel: v.flevel, abs: v.abs, lemma: v.lemma, pos: v.pos, color: '#F0680B'}))
-            .toArray())
+            .concat([{
+                ipm: props.lemmaItem.ipm,
+                flevel: props.lemmaItem.flevel,
+                abs: props.lemmaItem.abs,
+                lemma: props.lemmaItem.lemma,
+                pos: props.lemmaItem.pos,
+                color: '#F0680B'}
+            ])
             .sort((v1, v2) => v1.flevel - v2.flevel);
 
 
         return (
             <LineChart width={400} height={250} data={data}>
                 <CartesianGrid stroke="#eee" strokeDasharray="5 5"/>
-                <XAxis dataKey="flevel" type="number" domain={[1, 8]} interval={0}>
+                <XAxis dataKey="flevel" type="number" domain={[1, 8]} ticks={[1, 2, 3, 4, 5, 6, 7, 8]}>
 
                 </XAxis>
                 <YAxis dataKey="ipm" type="number">
                     <Label value="instances per million" angle={-90} position="insideBottomLeft" />
                 </YAxis>
                 <Line  type="monotone" dataKey="ipm" stroke="#8884d8"
+                    isAnimationActive={false}
                     dot={({cx, cy, stroke, payload, value}) => <LineDot key={`ld:${cx}:${cy}`} cx={cx} cy={cy} stroke={stroke} payload={payload} value={value} />} />
                 <Tooltip isAnimationActive={false} content={CustomTooltip} />
             </LineChart>
         );
     };
+
+    // -------------------- <NearestFreqWords /> -----------------------------------------------
+
+    const NearestFreqWords:React.SFC<{
+        data:Immutable.List<SimilarlyFreqWord>;
+
+    }> = (props) => {
+        return (
+            <table className="NearestFreqWords cnc-table data">
+                <tbody>
+                    <tr>
+                        <th></th>
+                        <th>ipm</th>
+                    </tr>
+                {props.data.map(v => (
+                        <tr key={`k:${v.word}`}>
+                            <td>{v.word}</td>
+                            <td>{ut.formatNumber(v.ipm, 2)}</td>
+                        </tr>
+                    ))
+                }
+                </tbody>
+            </table>
+        );
+    }
+
+    // -------------------- <LemmaSelector /> -----------------------------------------------
+
+    const LemmaSelector:React.SFC<{
+        data:Immutable.List<SummaryDataRow>;
+        currIdx:number;
+
+    }> = (props) => {
+
+        const handleLineClick = (idx) => () => {
+            dispatcher.dispatch<Actions.SetActiveLemma>({
+                name: ActionName.SetActiveLemma,
+                payload: {
+                    idx: idx
+                }
+            });
+        };
+
+        return (
+            <table className="cnc-table data LemmaSelector">
+                <tbody>
+                    <tr>
+                        <th></th>
+                        <td>{ut.translate('summary__pos')}</td>
+                        <td>{ut.translate('summary__ipm')}</td>
+                    </tr>
+                    {props.data.map((word, idx) => (
+                        <tr key={`w:${word.lemma}:${word.pos}`}
+                                className={props.currIdx === idx ? 'current' : null} onClick={handleLineClick(idx)}>
+                            <th>
+                                {word.lemma}
+                            </th>
+                            <td>
+                                {word.pos}
+                            </td>
+                            <td className="num">
+                                {ut.formatNumber(word.ipm, 2)}
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        );
+    };
+
+
+    // -------------------- <SummaryTileView /> -----------------------------------------------
 
     class SummaryTileView extends React.PureComponent<SummaryModelState & CoreTileComponentProps> {
 
@@ -144,36 +230,17 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                 <globalComponents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
                         hasData={false} sourceIdent={this.props.corpname}>
                     <div className="SummaryTileView">
-                        <div>
-                            <Chart data={this.props.data} />
-                            <table className="cnc-table data">
-                                <tbody>
-                                    <tr>
-                                        <th></th>
-                                        <td>{ut.translate('summary__pos')}</td>
-                                        <td>{ut.translate('summary__num_similarly_freq_words')} [%]</td>
-                                    </tr>
-                                    {this.props.data.map(word => (
-                                        <tr key={`w:${word.lemma}:${word.pos}`}>
-                                            <th>
-                                                {word.lemma}
-                                            </th>
-                                            <td>
-                                                {word.pos}
-                                            </td>
-                                            <td className="num">
-                                                {ut.formatNumber(word.percSimilarWords, 1)}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                        <div className="cell">
+                            <h3>{ut.translate('summary__found_lemmas')}</h3>
+                            <LemmaSelector data={this.props.data} currIdx={this.props.currLemmaIdx} />
                         </div>
-                        <div>
+                        <div className="cell">
+                            <h3>{ut.translate('summary__freq_bands')}</h3>
+                            <Chart lemmaItem={this.props.data.get(this.props.currLemmaIdx)} />
+                        </div>
+                        <div className="cell">
                             <h3>{ut.translate('summary__words_with_nearest_freq')}</h3>
-                            <ul>
-                                {this.props.similarFreqWords.map(v => <li key={`k:${v}`}>{v}</li>)}
-                            </ul>
+                            <NearestFreqWords data={this.props.similarFreqWords} />
                         </div>
                     </div>
                 </globalComponents.TileWrapper>

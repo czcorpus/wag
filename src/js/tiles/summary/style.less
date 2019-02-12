@@ -7,8 +7,35 @@
     justify-content: baseline;
     align-items: top;
 
-    > div {
+    > div.cell {
 
+        padding: 0.3em 1em;
+
+        h3 {
+            margin-top: 0;
+        }
+
+    }
+
+    > div.cell:not(:last-child) {
+        border-style: solid;
+        border-color: @color-light-grey;
+        border-width: 0 1px 0 0;
+    }
+
+    table.LemmaSelector {
+
+        tr {
+            cursor: pointer;
+        }
+
+        tr.current {
+            background-color: @color-logo-orange;
+        }
+    }
+
+    .NearestFreqWords {
+        border-spacing: 0;
     }
 
 }
