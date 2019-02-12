@@ -18,7 +18,7 @@
 import * as Rx from '@reactivex/rxjs';
 import * as React from 'react';
 import { renderToString } from 'react-dom/server';
-import {init as viewInit} from '../views/layout';
+import {init as viewInit, LayoutProps} from '../views/layout';
 import {Database} from 'sqlite3';
 import {Express} from 'express';
 import {ServerConf, ClientConf, UserConf} from '../abstract/conf';
@@ -51,7 +51,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         });
         const view = viewInit(null, viewUtils);
 
-        const appString = renderToString(React.createElement<{config:ClientConf; userConfig:UserConf}>(view, {
+        const appString = renderToString(React.createElement<LayoutProps>(view, {
             config: services.clientConf,
             userConfig: {
                 uiLang: uiLang,
@@ -68,10 +68,10 @@ export const wdgRouter = (services:Services) => (app:Express) => {
 
     // Find words with similar frequency
     app.get('/similar-freq-words/', (req, res) => {
-        new Rx.Observable<{word:string}>((observer) => {
+        new Rx.Observable<{word:string, abs:number}>((observer) => {
             services.db.serialize(() => {
                 services.db.each(
-                    'SELECT value, (SELECT idx FROM postag WHERE value = ?) AS srch ' +
+                    'SELECT value, `count` AS abs, (SELECT idx FROM postag WHERE value = ?) AS srch ' +
                     'FROM postag ' +
                     'WHERE idx >= srch + ? AND idx <= srch + ? AND idx <> srch ORDER BY idx;',
                     [
@@ -84,7 +84,10 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                             observer.error(err);
 
                         } else {
-                            observer.next({word: row['value']});
+                            observer.next({
+                                word: row['value'],
+                                abs: row['abs']
+                            });
                         }
                     },
                     () => {

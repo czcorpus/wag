@@ -58,7 +58,7 @@ export class AppServices {
             return this.translate(label);
         } else {
             for (let k in label) {
-                if (k.split('-')[0] === this.uiLang) {
+                if (k === this.uiLang || k.split('-')[0] === this.uiLang) {
                     return label[k];
                 }
             }

@@ -24,8 +24,14 @@ export interface RequestArgs {
     word:string;
 }
 
+export interface SimilarlyFreqWord {
+    word:string;
+    abs:number;
+    ipm:number;
+}
+
 export interface Response {
-    result:Array<{word:string}>;
+    result:Array<SimilarlyFreqWord>;
 }
 
 export class SimilarFreqWordsApi implements DataApi<RequestArgs, Response> {

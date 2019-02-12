@@ -25,14 +25,17 @@ import { GlobalComponents } from './global';
 import { TileGroup } from '../layout';
 
 
-export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>):React.SFC<{}> {
+export interface LayoutProps {
+    config:ClientConf;
+    userConfig:UserConf;
+}
+
+
+export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>):React.SFC<LayoutProps> {
 
     const mainViews = mainViewInit(dispatcher, ut, null, null, null);
 
-    const Layout:React.SFC<{
-        config:ClientConf;
-        userConfig:UserConf;
-    }> = (props) => {
+    const Layout:React.SFC<LayoutProps> = (props) => {
 
         const createScriptStr = () => {
             return `indexPage.init(document.querySelector('.wdglance-mount'),
