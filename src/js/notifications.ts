@@ -83,6 +83,7 @@ export class SystemNotifications {
         } else {
             msg = text;
         }
+
         this.messageEvents.next({
             ident: puid(),
             type: type,
