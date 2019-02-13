@@ -32,7 +32,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         render() {
             return (
                 <globComponents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
-                        hasData={false} sourceIdent="SyD">
+                        hasData={false} sourceIdent={{corp: '??'}}>
                     <div className="SydTileView">
                         <pre>############ in development ###################</pre>
                         <h3>freq calc. benchmark</h3>

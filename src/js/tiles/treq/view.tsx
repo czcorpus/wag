@@ -109,7 +109,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             return (
                 <globComponents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
                             hasData={this.props.translations.size > 0}
-                            sourceIdent="Treq">
+                            sourceIdent={{corp: 'InterCorp'}}>
                     <TreqTranslations translations={this.props.translations}
                             treqLink={[this.props.treqBackLinkRootURL, new MultiDict(this.props.treqBackLinkArgs).items()]} />
                 </globComponents.TileWrapper>

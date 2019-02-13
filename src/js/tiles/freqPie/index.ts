@@ -49,7 +49,7 @@ export class FreqPieTile implements ITileProvider {
 
     private view:TileComponent;
 
-    constructor(lang1:string, lang2:string, {tileId, dispatcher, appServices, ut, mainForm, waitForTile, widthFract, conf}:TileFactory.Args<FreqPieTileConf>) {
+    constructor(lang1:string, lang2:string, {tileId, dispatcher, appServices, ut, mainForm, waitForTiles, widthFract, conf}:TileFactory.Args<FreqPieTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
@@ -69,7 +69,7 @@ export class FreqPieTile implements ITileProvider {
                 fttIncludeEmpty: conf.fttIncludeEmpty
             },
             tileId,
-            waitForTile,
+            waitForTiles[0],
             appServices,
             new FreqDistribAPI(conf.apiURL)
         );
@@ -122,6 +122,6 @@ export class FreqPieTile implements ITileProvider {
 
 
 export const init:TileFactory.TileFactory<FreqPieTileConf> = ({
-    tileId, dispatcher, appServices, ut, mainForm, lang1, lang2, waitForTile, widthFract, conf}) => {
-    return new FreqPieTile(lang1, lang2, {tileId, dispatcher, appServices, ut, mainForm, widthFract, waitForTile, conf});
+    tileId, dispatcher, appServices, ut, mainForm, lang1, lang2, waitForTiles, widthFract, conf}) => {
+    return new FreqPieTile(lang1, lang2, {tileId, dispatcher, appServices, ut, mainForm, widthFract, waitForTiles, conf});
 }

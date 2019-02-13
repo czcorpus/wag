@@ -18,7 +18,7 @@
 import * as Immutable from 'immutable';
 import * as React from 'react';
 import {ActionDispatcher, ViewUtils, BoundWithProps} from 'kombo';
-import { TTDistribModel, TTDistribModelState } from './model';
+import { MergeCorpFreqModel, MergeCorpFreqModelState } from './model';
 import {BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, Legend} from 'recharts';
 import { DataRow } from '../../shared/api/kontextFreqs';
 import { GlobalComponents } from '../../views/global';
@@ -26,7 +26,7 @@ import { SystemColor } from '../../shared/colors';
 import { CoreTileComponentProps, TileComponent } from '../../abstract/types';
 
 
-export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:TTDistribModel):TileComponent {
+export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:MergeCorpFreqModel):TileComponent {
 
     const globComponents = ut.getComponents();
 
@@ -54,20 +54,20 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     // -------------------------- <TTDistribTile /> --------------------------------------
 
-    class TTDistribTile extends React.PureComponent<TTDistribModelState & CoreTileComponentProps> {
+    class TTDistribTile extends React.PureComponent<MergeCorpFreqModelState & CoreTileComponentProps> {
 
         render() {
             return (
                 <globComponents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.data.size > 0}
-                        sourceIdent={{corp: this.props.corpname}}>
+                        sourceIdent={this.props.sources.map(v => ({corp: v.corpname})).toArray()}>
                     <div className="TTDistribTile">
-                        <Chart data={this.props.data} size={[this.props.renderSize[0], this.props.data.size * 50]} />
+                        <Chart data={this.props.data} size={[this.props.renderSize[0], this.props.data.size * this.props.pixelsPerItem]} />
                     </div>
                 </globComponents.TileWrapper>
             );
         }
     }
 
-    return BoundWithProps<CoreTileComponentProps, TTDistribModelState>(TTDistribTile, model);
+    return BoundWithProps<CoreTileComponentProps, MergeCorpFreqModelState>(TTDistribTile, model);
 }

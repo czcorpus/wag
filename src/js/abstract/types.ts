@@ -55,7 +55,7 @@ export interface TileConf {
     tileType:string;
     helpURL:string;
     isHidden?:boolean;
-    dependsOn?:string;
+    dependsOn?:string|Array<string>;
     label?:string;
 }
 
@@ -151,7 +151,7 @@ export namespace TileFactory {
         mainForm:WdglanceMainFormModel;
         lang1?:string;
         lang2?:string;
-        waitForTile?:number;
+        waitForTiles?:Array<number>;
         isHidden?:boolean;
         widthFract:number;
         conf:T;

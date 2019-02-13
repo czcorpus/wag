@@ -50,6 +50,7 @@ export interface DataRow {
 
 export interface APIResponse {
     concId:string;
+    corpname:string;
     data:Array<DataRow>;
 }
 
@@ -85,7 +86,8 @@ export class FreqDistribAPI implements DataApi<QueryArgs, APIResponse> {
                         freq: v.freq,
                         ipm: v.rel
                 })),
-                concId: resp.conc_persistence_op_id
+                concId: resp.conc_persistence_op_id,
+                corpname: args.corpname
             })
         );
     }

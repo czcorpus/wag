@@ -147,6 +147,7 @@ export namespace Actions {
 
     export interface GetCorpusInfo extends Action<{
         corpusId:string;
+        subcorpusId?:string;
     }> {
         name:ActionName.GetCorpusInfo;
     }

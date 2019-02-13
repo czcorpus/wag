@@ -76,8 +76,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         render() {
             return <globComponents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
                             hasData={this.props.data.size > 0}
-                            sourceIdent={this.props.corpname}
-                            subcorpDesc={this.props.subcDesc}>
+                            sourceIdent={{corp: this.props.corpname, subcorp: this.props.subcDesc}}>
                     <div className="TimeDistribTile">
                         <Chart data={this.props.data.toArray()}
                                 distProperty={this.props.attrValue}

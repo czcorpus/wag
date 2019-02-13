@@ -211,7 +211,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         render() {
             return (
                 <globalCompontents.TileWrapper isBusy={this.props.isBusy} error={this.props.error} htmlClass="CollocTile"
-                        hasData={this.props.data.size > 0} sourceIdent={this.props.corpname}>
+                        hasData={this.props.data.size > 0} sourceIdent={{corp: this.props.corpname}}>
                     {this.props.isTweakMode ?
                         <>
                             <Controls tileId={this.props.tileId} value={this.props.ctxType} />
