@@ -5,7 +5,7 @@
         "summary__found_lemmas": "Found lemmas",
         "summary__num_similarly_freq_words": "num. of similarly frequent words",
         "summary__words_with_nearest_freq": "Words with nearest frequency",
-        "summary__freq_bands": "Frequency bands"
+        "summary__freq_bands": "Frequency band"
     },
     "cs-CZ": {
         "summary__pos": "slovní druh",
@@ -13,6 +13,6 @@
         "summary__found_lemmas": "Nalezená lemmata",
         "summary__num_similarly_freq_words": "počet slov s podobným výskytem",
         "summary__words_with_nearest_freq": "Slova s nejbližší frekvencí",
-        "summary__freq_bands": "Frekvenční pásma"
+        "summary__freq_bands": "Frekvenční pásmo"
     }
 }

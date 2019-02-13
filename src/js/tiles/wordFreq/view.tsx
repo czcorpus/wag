@@ -24,7 +24,6 @@ import { GlobalComponents } from '../../views/global';
 import { CoreTileComponentProps, TileComponent } from '../../abstract/types';
 import { SummaryModelState, SummaryModel } from './model';
 import { SummaryDataRow } from './api';
-import { dispatch } from 'd3';
 import { ActionName, Actions } from './actions';
 import { SimilarlyFreqWord } from './sfwApi';
 
@@ -114,6 +113,16 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     };
 
+    // -------------------- <Stars /> -----------------------------------------------
+
+    const Stars:React.SFC<{
+        freqBand:number;
+
+    }> = (props) => {
+        return <span className="Stars">{[1, 2, 3, 4, 5, 6, 7].map(v =>
+                <img key={`${v}`} src={ut.createStaticUrl(`star${v <= props.freqBand ? '' : '_grey'}.svg`)} />)}</span>
+    };
+
     // -------------------- <Chart /> -----------------------------------------------
 
     const Chart:React.SFC<{
@@ -167,7 +176,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                 {props.data.map(v => (
                         <tr key={`k:${v.word}`}>
                             <td>{v.word}</td>
-                            <td>{ut.formatNumber(v.ipm, 2)}</td>
+                            <td className="num">{ut.formatNumber(v.ipm, 2)}</td>
                         </tr>
                     ))
                 }
@@ -221,22 +230,28 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
     };
 
 
-    // -------------------- <SummaryTileView /> -----------------------------------------------
+    // -------------------- <WordFreqTileView /> -----------------------------------------------
 
-    class SummaryTileView extends React.PureComponent<SummaryModelState & CoreTileComponentProps> {
+    class WordFreqTileView extends React.PureComponent<SummaryModelState & CoreTileComponentProps> {
 
         render() {
             return (
                 <globalComponents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
-                        hasData={false} sourceIdent={{corp: this.props.corpname}}>
-                    <div className="SummaryTileView">
+                        hasData={this.props.data.size > 0} sourceIdent={{corp: this.props.corpname}}>
+                    <div className="WordFreqTileView">
                         <div className="cell">
                             <h3>{ut.translate('summary__found_lemmas')}</h3>
                             <LemmaSelector data={this.props.data} currIdx={this.props.currLemmaIdx} />
                         </div>
                         <div className="cell">
                             <h3>{ut.translate('summary__freq_bands')}</h3>
-                            <Chart lemmaItem={this.props.data.get(this.props.currLemmaIdx)} />
+                                {this.props.data.size > 0 ?
+                                <>
+                                    <Stars freqBand={Math.round(this.props.data.get(this.props.currLemmaIdx).flevel)} />
+                                    <Chart lemmaItem={this.props.data.get(this.props.currLemmaIdx)} />
+                                </> :
+                                null
+                                }
                         </div>
                         <div className="cell">
                             <h3>{ut.translate('summary__words_with_nearest_freq')}</h3>
@@ -248,5 +263,5 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         }
     }
 
-    return BoundWithProps(SummaryTileView, model);
+    return BoundWithProps(WordFreqTileView, model);
 }

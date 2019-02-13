@@ -26,8 +26,8 @@ declare var require:(src:string)=>void;  // webpack
 require('./style.less');
 
 
-export interface SummaryTileConf extends TileConf {
-    tileType:'SummaryTile';
+export interface WordFreqTileConf extends TileConf {
+    tileType:'WordFreqTile';
     apiURL:string;
     sfwApiURL:string;
     corpname:string;
@@ -46,7 +46,7 @@ const defaultFlevelDistrib = [
     {rel: 0.0037, flevel: 7.0}
 ];
 
-export class SummaryTile implements ITileProvider {
+export class WordFreqTile implements ITileProvider {
 
     private readonly tileId:number;
 
@@ -60,7 +60,7 @@ export class SummaryTile implements ITileProvider {
 
     private view:TileComponent;
 
-    constructor(lang1:string, lang2:string, {tileId, dispatcher, appServices, ut, mainForm, waitForTiles, widthFract, conf}:TileFactory.Args<SummaryTileConf>) {
+    constructor(lang1:string, lang2:string, {tileId, dispatcher, appServices, ut, mainForm, waitForTiles, widthFract, conf}:TileFactory.Args<WordFreqTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
@@ -79,7 +79,7 @@ export class SummaryTile implements ITileProvider {
                 freqSort: conf.freqSort,
                 includeEmpty: conf.fttIncludeEmpty,
                 data: Immutable.List<SummaryDataRow>(),
-                currLemmaIdx: -1,
+                currLemmaIdx: 0,
                 flevelDistrb: Immutable.List<FlevelDistribItem>(
                     conf.flevelDistrib ? conf.flevelDistrib : defaultFlevelDistrib
                 ),
@@ -138,7 +138,7 @@ export class SummaryTile implements ITileProvider {
 }
 
 
-export const init:TileFactory.TileFactory<SummaryTileConf> = ({
+export const init:TileFactory.TileFactory<WordFreqTileConf> = ({
     tileId, dispatcher, appServices, ut, mainForm, lang1, lang2, waitForTiles, widthFract, conf}) => {
-    return new SummaryTile(lang1, lang2, {tileId, dispatcher, appServices, ut, mainForm, widthFract, waitForTiles, conf});
+    return new WordFreqTile(lang1, lang2, {tileId, dispatcher, appServices, ut, mainForm, widthFract, waitForTiles, conf});
 }

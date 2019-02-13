@@ -50,7 +50,7 @@
 	"tiles": {
 		"cs": {
 			"Summary": {
-				"tileType": "SummaryTile",
+				"tileType": "WordFreqTile",
 				"dependsOn": "ConcordanceSynchronic",
 				"label": {"cs-CZ": "Souhrn", "en-US": "summary"},
 				"apiURL": "http://kontext.korpus.test/kontext/freqs",
