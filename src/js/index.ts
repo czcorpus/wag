@@ -30,7 +30,7 @@ import {init as collocInit, CollocationsTileConf} from './tiles/collocations/ind
 import {init as treqInit, TreqTileConf} from './tiles/treq/index';
 import {init as sydInit, SyDTileConf} from './tiles/syd/index';
 import {init as freqPieInit, FreqPieTileConf} from './tiles/freqPie/index';
-import {init as summaryInit, SummaryTileConf} from './tiles/summary/index';
+import {init as summaryInit, WordFreqTileConf} from './tiles/wordFreq/index';
 import {init as MergeCorpFreqInit, MergeCorpFreqTileConf } from './tiles/mergeCorpFreq/index';
 import { GlobalComponents, init as globalCompInit } from './views/global';
 import * as translations from 'translations';
@@ -54,7 +54,7 @@ require('theme.less');
 
 
 type AnyConf = ConcordanceTileConf | TTDistTileConf | TreqTileConf | SyDTileConf | FreqPieTileConf | TimeDistTileConf |
-        CollocationsTileConf | SummaryTileConf | MergeCorpFreqTileConf;
+        CollocationsTileConf | WordFreqTileConf | MergeCorpFreqTileConf;
 
 export interface WdglanceConf {
     uiLang:string;
@@ -153,8 +153,8 @@ const tileFactory = (
                     return applyFactory<FreqPieTileConf>(freqPieInit, conf);
                 case 'MergeCorpFreqTile':
                     return applyFactory<MergeCorpFreqTileConf>(MergeCorpFreqInit, conf);
-                case 'SummaryTile':
-                    return applyFactory<SummaryTileConf>(summaryInit, conf);
+                case 'WordFreqTile':
+                    return applyFactory<WordFreqTileConf>(summaryInit, conf);
 
                 default:
                     return null;
