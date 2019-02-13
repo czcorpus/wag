@@ -22,6 +22,10 @@ import { KeyCodes } from '../shared/util';
 import { SystemMessageType } from '../abstract/types';
 import { Actions, ActionName } from '../models/actions';
 
+export interface SourceInfo {
+    corp:string;
+    subcorp?:string;
+}
 
 export interface GlobalComponents {
 
@@ -42,8 +46,7 @@ export interface GlobalComponents {
     TileWrapper:React.SFC<{
         isBusy:boolean;
         hasData:boolean;
-        sourceIdent:string;
-        subcorpDesc?:string;
+        sourceIdent:SourceInfo|Array<SourceInfo>;
         htmlClass?:string;
         error?:string;
     }>;
@@ -117,18 +120,40 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
         return <span className="EmptySet" style={{fontSize: props.fontSize}}>{'\u2205'}</span>;
     };
 
-    // --------------- <TileWrapper /> -------------------------------------------
+    // --------------- <SourceLink /> -------------------------------------------
 
-    const TileWrapper:GlobalComponents['TileWrapper'] = (props) => {
+    const SourceLink:React.SFC<{
+        data:SourceInfo|Array<SourceInfo>;
 
-        const handleSourceClick = () => {
+    }> = (props) => {
+
+        const handleClick = (corp:string, subcorp:string) => () => {
             dispatcher.dispatch<Actions.GetCorpusInfo>({
                 name: ActionName.GetCorpusInfo,
                 payload: {
-                    corpusId: props.sourceIdent
+                    corpusId: corp,
+                    subcorpusId: subcorp
                 }
             });
         };
+
+        return (
+            <div className="source">
+                {ut.translate('global__source')}:{'\u00a0'}
+                {(Array.isArray(props.data) ? props.data : [props.data]).map((item, i) =>
+                    <React.Fragment key={`${item.corp}:${item.subcorp}`}>
+                        {i > 0 ? <span> + </span> : null}
+                        <a onClick={handleClick(item.corp, item.subcorp)}>{item.corp}</a>
+                        {item.subcorp ? <span> / {item.subcorp}</span> : null}
+                    </React.Fragment>
+                )}
+            </div>
+        );
+    };
+
+    // --------------- <TileWrapper /> -------------------------------------------
+
+    const TileWrapper:GlobalComponents['TileWrapper'] = (props) => {
 
         if (props.isBusy && !props.hasData) {
             return <div className="TileWrapper"><AjaxLoader htmlClass="centered" /></div>;
@@ -156,11 +181,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
                         <div>
                             {props.children}
                         </div>
-                        <div className="source">
-                            {ut.translate('global__source')}:{'\u00a0'}
-                            <a onClick={handleSourceClick}>{props.sourceIdent}</a>
-                            {props.subcorpDesc ? <span> / {props.subcorpDesc}</span> : null}
-                        </div>
+                        <SourceLink data={props.sourceIdent} />
                     </div>
                 </div>
             );

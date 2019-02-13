@@ -60,7 +60,7 @@ export class SummaryTile implements ITileProvider {
 
     private view:TileComponent;
 
-    constructor(lang1:string, lang2:string, {tileId, dispatcher, appServices, ut, mainForm, waitForTile, widthFract, conf}:TileFactory.Args<SummaryTileConf>) {
+    constructor(lang1:string, lang2:string, {tileId, dispatcher, appServices, ut, mainForm, waitForTiles, widthFract, conf}:TileFactory.Args<SummaryTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
@@ -87,7 +87,7 @@ export class SummaryTile implements ITileProvider {
             },
             new LemmaFreqApi(conf.apiURL),
             new SimilarFreqWordsApi(conf.sfwApiURL),
-            waitForTile,
+            waitForTiles[0],
             appServices
         );
         this.view = viewInit(
@@ -139,6 +139,6 @@ export class SummaryTile implements ITileProvider {
 
 
 export const init:TileFactory.TileFactory<SummaryTileConf> = ({
-    tileId, dispatcher, appServices, ut, mainForm, lang1, lang2, waitForTile, widthFract, conf}) => {
-    return new SummaryTile(lang1, lang2, {tileId, dispatcher, appServices, ut, mainForm, widthFract, waitForTile, conf});
+    tileId, dispatcher, appServices, ut, mainForm, lang1, lang2, waitForTiles, widthFract, conf}) => {
+    return new SummaryTile(lang1, lang2, {tileId, dispatcher, appServices, ut, mainForm, widthFract, waitForTiles, conf});
 }

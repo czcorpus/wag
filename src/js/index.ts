@@ -31,6 +31,7 @@ import {init as treqInit, TreqTileConf} from './tiles/treq/index';
 import {init as sydInit, SyDTileConf} from './tiles/syd/index';
 import {init as freqPieInit, FreqPieTileConf} from './tiles/freqPie/index';
 import {init as summaryInit, SummaryTileConf} from './tiles/summary/index';
+import {init as MergeCorpFreqInit, MergeCorpFreqTileConf } from './tiles/mergeCorpFreq/index';
 import { GlobalComponents, init as globalCompInit } from './views/global';
 import * as translations from 'translations';
 import { AppServices } from './appServices';
@@ -53,7 +54,7 @@ require('theme.less');
 
 
 type AnyConf = ConcordanceTileConf | TTDistTileConf | TreqTileConf | SyDTileConf | FreqPieTileConf | TimeDistTileConf |
-        CollocationsTileConf | SummaryTileConf;
+        CollocationsTileConf | SummaryTileConf | MergeCorpFreqTileConf;
 
 export interface WdglanceConf {
     uiLang:string;
@@ -99,6 +100,13 @@ const attachNumericTileIdents = (config:{[ident:string]:AnyConf}):{[ident:string
     return ans;
 };
 
+const importDependsOnList = (d:string|Array<string>):Array<string> => {
+    if (!d) {
+        return [];
+    }
+    return (typeof d === 'string' ? [d] : d);
+};
+
 const tileFactory = (
         dispatcher:ActionDispatcher,
         viewUtils:ViewUtils<GlobalComponents>,
@@ -122,7 +130,7 @@ const tileFactory = (
                     lang1: lang1,
                     lang2: lang2,
                     isHidden: conf.isHidden,
-                    waitForTile: tileIdentMap[conf.dependsOn],
+                    waitForTiles: importDependsOnList(conf.dependsOn).map(v => tileIdentMap[v]),
                     widthFract: layoutManager.getTileWidthFract(queryType, tileIdentMap[confName]),
                     conf: conf
                 });
@@ -143,6 +151,8 @@ const tileFactory = (
                     return applyFactory<SyDTileConf>(sydInit, conf);
                 case 'FreqPieTile':
                     return applyFactory<FreqPieTileConf>(freqPieInit, conf);
+                case 'MergeCorpFreqTile':
+                    return applyFactory<MergeCorpFreqTileConf>(MergeCorpFreqInit, conf);
                 case 'SummaryTile':
                     return applyFactory<SummaryTileConf>(summaryInit, conf);
 

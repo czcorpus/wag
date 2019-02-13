@@ -59,7 +59,7 @@ export class CollocationsTile implements ITileProvider {
 
     private view:TileComponent;
 
-    constructor({tileId, dispatcher, appServices, ut, waitForTile, widthFract, conf}:TileFactory.Args<CollocationsTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, waitForTiles, widthFract, conf}:TileFactory.Args<CollocationsTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.ut = ut;
@@ -68,7 +68,7 @@ export class CollocationsTile implements ITileProvider {
         this.model = new CollocModel({
             dispatcher: dispatcher,
             tileId: tileId,
-            waitForTile: waitForTile,
+            waitForTile: waitForTiles[0],
             appServices: appServices,
             service: new KontextCollAPI(conf.apiURL),
             initState: {
@@ -139,6 +139,6 @@ export class CollocationsTile implements ITileProvider {
 }
 
 
-export const init:TileFactory.TileFactory<CollocationsTileConf> = ({tileId, dispatcher, appServices, ut, mainForm, waitForTile, widthFract, conf}) => {
-    return new CollocationsTile({tileId, dispatcher, appServices, ut, mainForm, waitForTile, widthFract, conf});
+export const init:TileFactory.TileFactory<CollocationsTileConf> = ({tileId, dispatcher, appServices, ut, mainForm, waitForTiles, widthFract, conf}) => {
+    return new CollocationsTile({tileId, dispatcher, appServices, ut, mainForm, waitForTiles, widthFract, conf});
 }

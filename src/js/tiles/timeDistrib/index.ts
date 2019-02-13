@@ -139,6 +139,6 @@ export class TimeDistTile implements ITileProvider {
 
 
 
-export const init:TileFactory.TileFactory<TimeDistTileConf>  = ({tileId, waitForTile, dispatcher, ut, appServices, widthFract, conf}) => {
-    return new TimeDistTile(dispatcher, tileId, waitForTile, ut, appServices, widthFract, conf);
+export const init:TileFactory.TileFactory<TimeDistTileConf>  = ({tileId, waitForTiles, dispatcher, ut, appServices, widthFract, conf}) => {
+    return new TimeDistTile(dispatcher, tileId, waitForTiles[0], ut, appServices, widthFract, conf);
 }

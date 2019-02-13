@@ -20,7 +20,7 @@ import * as Immutable from 'immutable';
 import { ITileProvider, TileFactory, QueryType, TileComponent, TileConf } from '../../abstract/types';
 import {init as viewInit} from './view';
 import { ActionDispatcher, ViewUtils } from "kombo";
-import { TTDistribModel } from "./model";
+import { MergeCorpFreqModel, SourceArgs } from "./model";
 import { FreqDistribAPI, DataRow } from "../../shared/api/kontextFreqs";
 import { GlobalComponents } from "../../views/global";
 import { AppServices } from '../../appServices';
@@ -29,25 +29,37 @@ declare var require:(src:string)=>void;  // webpack
 require('./style.less');
 
 
-export interface TTDistTileConf extends TileConf {
-    tileType:'TTDistribTile';
+export interface MergeCorpFreqTileConf extends TileConf {
+    tileType:'MergeCorpFreqTile';
     apiURL:string;
-    corpname:string;
-    fcrit:string;
-    flimit:number;
-    freqSort:string;
-    fpage:number;
-    fttIncludeEmpty:boolean;
+    pixelsPerItem?:number;
+    sources:Array<{
+        corpname:string;
+        corpusSize:number;
+        fcrit:string;
+        flimit:number;
+        freqSort:string;
+        fpage:number;
+        fttIncludeEmpty:boolean;
+        valuePlaceholder?:string;
+    }>;
 }
 
-
-export class TTDistTile implements ITileProvider {
+/**
+ * A freq. dist. tile with multiple corpora as sources.
+ * It was created mainly to be able to group text types
+ * with spoken language as additional "text type" category.
+ *
+ * The tile's model requires more advanced configuration
+ * as it depends typically on more than one other tile.
+ */
+export class MergeCorpFreqTile implements ITileProvider {
 
     private readonly dispatcher:ActionDispatcher;
 
     private readonly ut:ViewUtils<GlobalComponents>;
 
-    private readonly model:TTDistribModel;
+    private readonly model:MergeCorpFreqModel;
 
     private readonly tileId:number;
 
@@ -57,30 +69,36 @@ export class TTDistTile implements ITileProvider {
 
     private readonly widthFract:number;
 
-    constructor(dispatcher:ActionDispatcher, tileId:number, waitForTile:number, ut:ViewUtils<GlobalComponents>, appServices:AppServices,
-                widthFract:number, conf:TTDistTileConf) {
+    constructor(dispatcher:ActionDispatcher, tileId:number, waitForTiles:Array<number>, ut:ViewUtils<GlobalComponents>, appServices:AppServices,
+                widthFract:number, conf:MergeCorpFreqTileConf) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.ut = ut;
         this.widthFract = widthFract;
         this.label = appServices.importExternalMessage(conf.label);
-        this.model = new TTDistribModel(
+        this.model = new MergeCorpFreqModel(
             this.dispatcher,
             tileId,
-            waitForTile,
+            waitForTiles,
             appServices,
             new FreqDistribAPI(conf.apiURL),
             {
                 isBusy: false,
                 error: null,
                 data: Immutable.List<DataRow>(),
-                corpname: conf.corpname,
-                concId: null,
-                fcrit: conf.fcrit,
-                flimit: conf.flimit,
-                freqSort: conf.freqSort,
-                fpage: conf.fpage,
-                fttIncludeEmpty: conf.fttIncludeEmpty
+                sources: Immutable.List<SourceArgs>(conf.sources.map(src => ({
+                    corpname: src.corpname,
+                    corpusSize: src.corpusSize,
+                    fcrit: src.fcrit,
+                    flimit: src.flimit,
+                    freqSort: src.freqSort,
+                    fpage: src.fpage,
+                    fttIncludeEmpty: src.fttIncludeEmpty,
+                    valuePlaceholder: src.valuePlaceholder ?
+                            appServices.importExternalMessage(src.valuePlaceholder) :
+                            null
+                }))),
+                pixelsPerItem: conf.pixelsPerItem ? conf.pixelsPerItem : 50
             }
         );
     }
@@ -128,6 +146,6 @@ export class TTDistTile implements ITileProvider {
 }
 
 
-export const init:TileFactory.TileFactory<TTDistTileConf>  = ({tileId, waitForTiles, dispatcher, ut, appServices, mainForm, widthFract, conf}) => {
-    return new TTDistTile(dispatcher, tileId, waitForTiles[0], ut, appServices, widthFract, conf);
+export const init:TileFactory.TileFactory<MergeCorpFreqTileConf>  = ({tileId, waitForTiles, dispatcher, ut, appServices, mainForm, widthFract, conf}) => {
+    return new MergeCorpFreqTile(dispatcher, tileId, waitForTiles, ut, appServices, widthFract, conf);
 }

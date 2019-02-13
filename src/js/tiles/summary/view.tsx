@@ -135,7 +135,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
 
         return (
-            <LineChart width={400} height={250} data={data}>
+            <LineChart width={300} height={250} data={data}>
                 <CartesianGrid stroke="#eee" strokeDasharray="5 5"/>
                 <XAxis dataKey="flevel" type="number" domain={[1, 8]} ticks={[1, 2, 3, 4, 5, 6, 7, 8]}>
 
@@ -228,7 +228,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         render() {
             return (
                 <globalComponents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
-                        hasData={false} sourceIdent={this.props.corpname}>
+                        hasData={false} sourceIdent={{corp: this.props.corpname}}>
                     <div className="SummaryTileView">
                         <div className="cell">
                             <h3>{ut.translate('summary__found_lemmas')}</h3>

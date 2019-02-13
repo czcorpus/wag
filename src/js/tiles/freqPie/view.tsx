@@ -75,7 +75,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             return (
                 <globalComponents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.data.size > 0}
-                        sourceIdent={this.props.corpname}>
+                        sourceIdent={{corp: this.props.corpname}}>
                     <div>
                         <Chart data={this.props.data} size={[this.props.renderSize[0], 300]} />
                     </div>
