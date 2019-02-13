@@ -24,7 +24,6 @@ module.exports = (env) => ({
         libraryTarget: 'var',
         library: '[name]Page'
     },
-    exclude: [path.resolve(SRC_PATH, 'server')],
     resolve: {
         alias: {}, // filled in dynamically
         modules: [
