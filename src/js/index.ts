@@ -70,7 +70,8 @@ export interface WdglanceConf {
     tilesConf:{[ident:string]:AnyConf};
 }
 
-const attachTile = (queryType:QueryType, lang1:string, lang2:string) =>
+
+const mkAttachTile = (queryType:QueryType, lang1:string, lang2:string) =>
     (data:Array<TileFrameProps>, tile:ITileProvider, helpURL:string):void => {
     tile.init();
     const support = tile.supportsQueryType(queryType, lang1, lang2);
@@ -82,7 +83,6 @@ const attachTile = (queryType:QueryType, lang1:string, lang2:string) =>
         supportsCurrQueryType: support,
         supportsHelpView: tile.supportsHelpView(),
         renderSize: [50, 50],
-        isHidden: tile.isHidden(),
         widthFract: tile.getWidthFract(),
         helpURL: helpURL,
     });
@@ -95,19 +95,26 @@ const attachTile = (queryType:QueryType, lang1:string, lang2:string) =>
 const attachNumericTileIdents = (config:{[ident:string]:AnyConf}):{[ident:string]:number} => {
     const ans = {};
     Object.keys(config).forEach((ident, i) => {
-        ans[ident] = i;
+        if (!config[ident].isDisabled) {
+            ans[ident] = i;
+        }
     });
     return ans;
 };
 
+
 const importDependsOnList = (d:string|Array<string>):Array<string> => {
     if (!d) {
         return [];
+
+    } else if (typeof d === 'string') {
+        return [d];
     }
-    return (typeof d === 'string' ? [d] : d);
+    return d;
 };
 
-const tileFactory = (
+
+const mkTileFactory = (
         dispatcher:ActionDispatcher,
         viewUtils:ViewUtils<GlobalComponents>,
         mainForm:WdglanceMainFormModel,
@@ -129,7 +136,6 @@ const tileFactory = (
                     appServices: appServices,
                     lang1: lang1,
                     lang2: lang2,
-                    isHidden: conf.isHidden,
                     waitForTiles: importDependsOnList(conf.dependsOn).map(v => tileIdentMap[v]),
                     widthFract: layoutManager.getTileWidthFract(queryType, tileIdentMap[confName]),
                     conf: conf
@@ -262,13 +268,13 @@ export const init = (
     );
 
     const tiles:Array<TileFrameProps> = [];
-    const attachTileCurr = attachTile(queryType, query1Lang, query2Lang);
+    const attachTile = mkAttachTile(queryType, query1Lang, query2Lang);
     const tilesMap = attachNumericTileIdents(tilesConf);
     console.log('tilemap: ', tilesMap);
 
     const layoutManager = new LayoutManager(layouts, tilesMap, appServices);
 
-    const factory = tileFactory(
+    const factory = mkTileFactory(
         dispatcher,
         viewUtils,
         formModel,
@@ -280,11 +286,13 @@ export const init = (
         tilesMap
     );
     Object.keys(tilesConf).forEach((ident, i) => {
-        attachTileCurr(
-            tiles,
-            factory(ident, tilesConf[ident]),
-            appServices.importExternalMessage(tilesConf[ident].helpURL)
-        );
+        if (!tilesConf[ident].isDisabled) {
+            attachTile(
+                tiles,
+                factory(ident, tilesConf[ident]),
+                appServices.importExternalMessage(tilesConf[ident].helpURL)
+            );
+        }
     });
 
     const MOBILE_MEDIA_QUERY = 'screen and (max-width: 800px), screen and (orientation:portrait)';

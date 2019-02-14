@@ -72,7 +72,6 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                             supportsCurrQueryType: tile.supportsCurrQueryType,
                             renderSize: [action.payload.size[0] + tile.tileId, action.payload.size[1]],
                             widthFract: tile.widthFract,
-                            isHidden: tile.isHidden,
                             supportsHelpView: tile.supportsHelpView,
                             helpURL: tile.helpURL
                         }

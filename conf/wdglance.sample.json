@@ -64,6 +64,34 @@
 				"fpage": 1,
 				"fttIncludeEmpty": false
 			},
+			"RootTypeDist": {
+				"tileType": "MergeCorpFreqTile",
+				"apiURL": "https://kontext.korpus.test/kontext/freqs",
+				"dependsOn": ["ConcordanceSynchronic", "ConcordanceSpoken"],
+				"label": "Zastoupení podle použití",
+				"pixelsPerItem": 80,
+				"sources": [
+						{
+								"corpname": "syn2015",
+								"corpusSize": 120748715,
+								"fcrit": "doc.txtype_group 0",
+								"flimit": 1,
+								"freqSort": "freq",
+								"fpage": 1,
+								"fttIncludeEmpty": false
+						},
+						{
+								"corpname": "oral2013",
+								"corpusSize": 3285508,
+								"valuePlaceholder": {"cs-CZ": "Mluvený jazyk", "en-US": "Spoken language"},
+								"fcrit": "word/ie 0<0",
+								"flimit": 1,
+								"freqSort": "freq",
+								"fpage": 1,
+								"fttIncludeEmpty": false
+						}
+				]
+			},
 			"ConcordanceSynchronic": {
 				"tileType": "ConcordanceTile",
 				"apiURL": "http://kontext.korpus.test/kontext/first",
@@ -142,7 +170,6 @@
 			},
 			"ConcordanceSpoken": {
 				"tileType": "ConcordanceTile",
-				"isHidden": true,
 				"apiURL": "http://kontext.korpus.test/kontext/first",
 				"corpname": "oral2013",
 				"posAttrs": ["word"]

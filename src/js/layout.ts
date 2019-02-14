@@ -76,6 +76,22 @@ export class LayoutManager {
                                 group.tiles.map(v => ({tileId: tileMap[v.tile], width: v.width})))
                 }
             }));
+        const invalid = this.validateLayouts();
+        invalid.forEach(item => {
+            console.error(`Invalid layout configuration for group ${item.group} at position ${item.idx}`);
+        });
+    }
+
+    /**
+     * Return a list of information about invalid items.
+     */
+    private validateLayouts():Immutable.List<{group:string; idx:number, tileId:number|undefined}> {
+        return this.singleQueryLayout
+            .concat(this.translatQueryLayout)
+            .concat(this.cmpQueryLayout)
+            .flatMap(v => v.tiles.map((v2, idx) => ({group: v.groupLabel, tileId: v2.tileId, idx: idx})))
+            .filter(v => v.tileId === undefined)
+            .toList();
     }
 
     getLayout(queryType:QueryType):Immutable.List<TileGroup> {
