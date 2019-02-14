@@ -30,6 +30,7 @@ export interface ConcordanceTileState {
     isBusy:boolean;
     error:string|null;
     isTweakMode:boolean;
+    widthFract:number;
     lines:Immutable.List<Line>;
     corpname:string;
     fullsize:number;
@@ -86,17 +87,12 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
     private readonly tileId:number;
 
-    public static readonly BASIC_KWIC_CTX = 10;
-
-    public static readonly EXPANDED_KWIC_CTX = 10;
-
     constructor({dispatcher, tileId, appServices, service, mainForm, initState}:ConcordanceTileModelArgs) {
         super(dispatcher, initState);
         this.service = service;
         this.mainForm = mainForm;
         this.appServices = appServices;
         this.tileId = tileId;
-
         this.actionMatch = {
             [GlobalActionName.EnableTileTweakMode]: (state, action:GlobalActions.EnableTileTweakMode) => {
                 if (action.payload.ident === this.tileId) {
@@ -110,10 +106,6 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 if (action.payload.ident === this.tileId) {
                     const newState = this.copyState(state);
                     newState.isTweakMode = false;
-                    newState.isBusy = true;
-                    newState.error = null;
-                    newState.kwicLeftCtx = ConcordanceTileModel.BASIC_KWIC_CTX;
-                    newState.kwicRightCtx = ConcordanceTileModel.BASIC_KWIC_CTX;
                     return newState;
                 }
                 return state;
@@ -123,18 +115,6 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 newState.isBusy = true;
                 newState.error = null;
                 return newState;
-            },
-            [GlobalActionName.EnableTileTweakMode]: (state, action) => {
-                if (action.payload['ident'] === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isTweakMode = true;
-                    newState.isBusy = true;
-                    newState.error = null;
-                    newState.kwicLeftCtx = ConcordanceTileModel.EXPANDED_KWIC_CTX;
-                    newState.kwicRightCtx = ConcordanceTileModel.EXPANDED_KWIC_CTX;
-                    return newState;
-                }
-                return state;
             },
             [ActionName.DataLoadDone]: (state, action:Actions.DataLoadDone) => {
                 if (action.payload.tileId === this.tileId) {
@@ -227,8 +207,6 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
     sideEffects(state:ConcordanceTileState, action:Action, dispatch:SEDispatcher):void {
         switch(action.name) {
             case GlobalActionName.RequestQueryResponse:
-            case GlobalActionName.EnableTileTweakMode:
-            case GlobalActionName.DisableTileTweakMode:
                 this.reloadData(state, dispatch);
             break;
             case ActionName.LoadNextPage:

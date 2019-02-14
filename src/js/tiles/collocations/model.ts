@@ -140,17 +140,6 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                 newState.error = null;
                 return newState;
             },
-            [GlobalActionName.EnableTileTweakMode]: (state, action:GlobalActions.EnableTileTweakMode) => {
-                let newState:CollocModelState;
-                if (action.payload['ident'] === this.tileId) {
-                    newState = this.copyState(state);
-                    newState.isTweakMode = true;
-
-                } else {
-                    newState = state;
-                }
-                return newState;
-            },
             [GlobalActionName.DisableTileTweakMode]: (state, action:GlobalActions.DisableTileTweakMode) => {
                 let newState:CollocModelState;
                 if (action.payload['ident'] === this.tileId) {

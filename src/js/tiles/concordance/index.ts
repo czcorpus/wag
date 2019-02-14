@@ -67,6 +67,7 @@ export class ConcordanceTile implements ITileProvider {
                 isBusy: false,
                 error: null,
                 isTweakMode: false,
+                widthFract: widthFract,
                 lines: Immutable.List<Line>(),
                 corpname: conf.corpname,
                 fullsize: -1,
@@ -76,8 +77,8 @@ export class ConcordanceTile implements ITileProvider {
                 pageSize: 20,
                 currPage: 1,
                 loadPage: 1,
-                kwicLeftCtx: ConcordanceTileModel.BASIC_KWIC_CTX,
-                kwicRightCtx: ConcordanceTileModel.BASIC_KWIC_CTX,
+                kwicLeftCtx: [0, 4, 8, 12][widthFract] || 2,
+                kwicRightCtx: [0, 4, 8, 12][widthFract] || 2,
                 attr_vmode: 'mouseover',
                 viewMode: ViewMode.KWIC,
                 attrs: Immutable.List<string>(conf.posAttrs)
