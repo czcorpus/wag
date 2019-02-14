@@ -70,7 +70,8 @@ export interface WdglanceConf {
     tilesConf:{[ident:string]:AnyConf};
 }
 
-const attachTile = (queryType:QueryType, lang1:string, lang2:string) =>
+
+const mkAttachTile = (queryType:QueryType, lang1:string, lang2:string) =>
     (data:Array<TileFrameProps>, tile:ITileProvider, helpURL:string):void => {
     tile.init();
     const support = tile.supportsQueryType(queryType, lang1, lang2);
@@ -100,14 +101,19 @@ const attachNumericTileIdents = (config:{[ident:string]:AnyConf}):{[ident:string
     return ans;
 };
 
+
 const importDependsOnList = (d:string|Array<string>):Array<string> => {
     if (!d) {
         return [];
+
+    } else if (typeof d === 'string') {
+        return [d];
     }
-    return (typeof d === 'string' ? [d] : d);
+    return d;
 };
 
-const tileFactory = (
+
+const mkTileFactory = (
         dispatcher:ActionDispatcher,
         viewUtils:ViewUtils<GlobalComponents>,
         mainForm:WdglanceMainFormModel,
@@ -262,13 +268,13 @@ export const init = (
     );
 
     const tiles:Array<TileFrameProps> = [];
-    const attachTileCurr = attachTile(queryType, query1Lang, query2Lang);
+    const attachTile = mkAttachTile(queryType, query1Lang, query2Lang);
     const tilesMap = attachNumericTileIdents(tilesConf);
     console.log('tilemap: ', tilesMap);
 
     const layoutManager = new LayoutManager(layouts, tilesMap, appServices);
 
-    const factory = tileFactory(
+    const factory = mkTileFactory(
         dispatcher,
         viewUtils,
         formModel,
@@ -280,7 +286,7 @@ export const init = (
         tilesMap
     );
     Object.keys(tilesConf).forEach((ident, i) => {
-        attachTileCurr(
+        attachTile(
             tiles,
             factory(ident, tilesConf[ident]),
             appServices.importExternalMessage(tilesConf[ident].helpURL)
