@@ -295,14 +295,12 @@ export const init = (
         }
     });
 
-    const MOBILE_MEDIA_QUERY = 'screen and (max-width: 900px) and (orientation:portrait)';
-
     const tilesModel = new WdglanceTilesModel(
         dispatcher,
         {
             isAnswerMode: false,
             isBusy: false,
-            isMobile: window.matchMedia(MOBILE_MEDIA_QUERY).matches,
+            isMobile: appServices.isMobileMode(),
             tweakActiveTiles: Immutable.Set<number>(),
             helpActiveTiles:Immutable.Set<number>(),
             tilesHelpData: Immutable.Map<number, string>(),
@@ -324,12 +322,10 @@ export const init = (
         .throttleTime(500)
         .subscribe(
             () => {
-                const form = document.querySelector('.WdglanceControls');
-
                 dispatcher.dispatch<Actions.SetScreenMode>({
                     name: ActionName.SetScreenMode,
                     payload: {
-                        isMobile: window.matchMedia(MOBILE_MEDIA_QUERY).matches
+                        isMobile: appServices.isMobileMode()
                     }
                 });
             }
