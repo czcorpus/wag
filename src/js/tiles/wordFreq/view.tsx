@@ -238,7 +238,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             return (
                 <globalComponents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.data.size > 0} sourceIdent={{corp: this.props.corpname}}>
-                    <div className="WordFreqTileView">
+                    <div className={`WordFreqTileView${this.props.isMobile ? ' mobile' : ''}`}>
                         <div className="cell">
                             <h3>{ut.translate('summary__found_lemmas')}</h3>
                             <LemmaSelector data={this.props.data} currIdx={this.props.currLemmaIdx} />
@@ -248,7 +248,10 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                                 {this.props.data.size > 0 ?
                                 <>
                                     <Stars freqBand={Math.round(this.props.data.get(this.props.currLemmaIdx).flevel)} />
-                                    <Chart lemmaItem={this.props.data.get(this.props.currLemmaIdx)} />
+                                    {this.props.isMobile ?
+                                        null :
+                                        <Chart lemmaItem={this.props.data.get(this.props.currLemmaIdx)} />
+                                    }
                                 </> :
                                 null
                                 }

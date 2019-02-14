@@ -30,6 +30,7 @@ export interface ConcordanceTileState {
     isBusy:boolean;
     error:string|null;
     isTweakMode:boolean;
+    isMobile:boolean;
     widthFract:number;
     lines:Immutable.List<Line>;
     corpname:string;
@@ -38,6 +39,8 @@ export interface ConcordanceTileState {
     numPages:number;
     resultARF:number;
     resultIPM:number;
+    initialKwicLeftCtx:number;
+    initialKwicRightCtx:number;
     kwicLeftCtx:number;
     kwicRightCtx:number;
     pageSize:number;
@@ -88,6 +91,8 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
     private readonly tileId:number;
 
+    public static readonly CTX_SIZES = [4, 4, 8, 12];
+
     constructor({dispatcher, tileId, appServices, service, mainForm, initState}:ConcordanceTileModelArgs) {
         super(dispatcher, initState);
         this.service = service;
@@ -95,6 +100,22 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
         this.appServices = appServices;
         this.tileId = tileId;
         this.actionMatch = {
+            [GlobalActionName.SetScreenMode]: (state, action:GlobalActions.SetScreenMode) => {
+                if (action.payload.isMobile !== state.isMobile) {
+                    const newState = this.copyState(state);
+                    newState.isMobile = action.payload.isMobile;
+                    if (action.payload.isMobile) {
+                        newState.kwicLeftCtx = ConcordanceTileModel.CTX_SIZES[0];
+                        newState.kwicRightCtx = ConcordanceTileModel.CTX_SIZES[0];
+
+                    } else {
+                        newState.kwicLeftCtx = newState.initialKwicLeftCtx;
+                        newState.kwicRightCtx = newState.initialKwicRightCtx;
+                    }
+                    return newState;
+                }
+                return state;
+            },
             [GlobalActionName.EnableTileTweakMode]: (state, action:GlobalActions.EnableTileTweakMode) => {
                 if (action.payload.ident === this.tileId) {
                     const newState = this.copyState(state);
@@ -215,6 +236,11 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             case ActionName.LoadPrevPage:
             case ActionName.SetViewMode:
                 if (action.payload['tileId'] === this.tileId) {
+                    this.reloadData(state, dispatch);
+                }
+            break;
+            case GlobalActionName.SetScreenMode:
+                if (state.lines.size > 0) {
                     this.reloadData(state, dispatch);
                 }
             break;
