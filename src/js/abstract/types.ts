@@ -134,12 +134,6 @@ export interface TileFrameProps {
     renderSize:[number, number];
 
     /**
-     * Such a tile is invisible but its model
-     * is active (i.e. it reacts to actions).
-     */
-    isHidden:boolean;
-
-    /**
      * standard mode width in CSS grid fr units
      */
     widthFract:number;
@@ -172,8 +166,6 @@ export interface ITileProvider {
 
     getView():TileComponent;
 
-    isHidden():boolean;
-
     /**
      */
     supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean;
@@ -203,7 +195,6 @@ export namespace TileFactory {
         lang1?:string;
         lang2?:string;
         waitForTiles?:Array<number>;
-        isHidden?:boolean;
         widthFract:number;
         conf:T;
     }

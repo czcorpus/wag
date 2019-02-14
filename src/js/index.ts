@@ -83,7 +83,6 @@ const mkAttachTile = (queryType:QueryType, lang1:string, lang2:string) =>
         supportsCurrQueryType: support,
         supportsHelpView: tile.supportsHelpView(),
         renderSize: [50, 50],
-        isHidden: tile.isHidden(),
         widthFract: tile.getWidthFract(),
         helpURL: helpURL,
     });
@@ -96,7 +95,9 @@ const mkAttachTile = (queryType:QueryType, lang1:string, lang2:string) =>
 const attachNumericTileIdents = (config:{[ident:string]:AnyConf}):{[ident:string]:number} => {
     const ans = {};
     Object.keys(config).forEach((ident, i) => {
-        ans[ident] = i;
+        if (!config[ident].isDisabled) {
+            ans[ident] = i;
+        }
     });
     return ans;
 };
@@ -135,7 +136,6 @@ const mkTileFactory = (
                     appServices: appServices,
                     lang1: lang1,
                     lang2: lang2,
-                    isHidden: conf.isHidden,
                     waitForTiles: importDependsOnList(conf.dependsOn).map(v => tileIdentMap[v]),
                     widthFract: layoutManager.getTileWidthFract(queryType, tileIdentMap[confName]),
                     conf: conf
@@ -286,11 +286,13 @@ export const init = (
         tilesMap
     );
     Object.keys(tilesConf).forEach((ident, i) => {
-        attachTile(
-            tiles,
-            factory(ident, tilesConf[ident]),
-            appServices.importExternalMessage(tilesConf[ident].helpURL)
-        );
+        if (!tilesConf[ident].isDisabled) {
+            attachTile(
+                tiles,
+                factory(ident, tilesConf[ident]),
+                appServices.importExternalMessage(tilesConf[ident].helpURL)
+            );
+        }
     });
 
     const MOBILE_MEDIA_QUERY = 'screen and (max-width: 800px), screen and (orientation:portrait)';

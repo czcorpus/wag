@@ -107,10 +107,6 @@ export class SyDTile implements ITileProvider {
         this.model.suspend(()=>undefined);
     }
 
-    isHidden():boolean {
-        return false;
-    }
-
     getWidthFract():number {
         return this.widthFract;
     }
