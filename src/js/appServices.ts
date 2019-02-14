@@ -77,4 +77,8 @@ export class AppServices {
     createActionUrl(path:string, args?:{[k:string]:string}|Array<[string, string]>):string {
         return this.actionUrlCreator(path, args);
     }
+
+    isMobileMode():boolean {
+        return window.matchMedia('screen and (max-width: 900px) and (orientation:portrait)').matches;
+    }
 }

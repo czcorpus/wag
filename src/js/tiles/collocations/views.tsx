@@ -175,11 +175,19 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             this.chartContainer = React.createRef();
         }
 
+
+        private calcChartAreaWidth():[number, number] {
+            return [
+                this.props.renderSize[0] / (this.props.widthFract > 1 && !this.props.isMobile ? 2 : 1),
+                Math.max(240, this.props.data.size * 30)
+            ];
+        }
+
         componentDidMount() {
             if (this.chartContainer.current) {
                 drawChart(
                     this.chartContainer.current,
-                    [this.props.renderSize[0], Math.max(240, this.props.data.size * 30)],
+                    this.calcChartAreaWidth(),
                     this.props.data,
                     this.props.heading.map(v => v.label)
                 );
@@ -192,7 +200,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                     this.props.isMobile !== prevProps.isMobile)) {
                 drawChart(
                     this.chartContainer.current,
-                    [this.props.renderSize[0] / (this.props.widthFract > 1 ? 2 : 1), Math.max(240, this.props.data.size * 30)],
+                    this.calcChartAreaWidth(),
                     this.props.data,
                     this.props.heading.map(v => v.label)
                 );
