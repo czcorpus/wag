@@ -33,6 +33,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     const Paginator:React.SFC<{
         page:number;
+        numPages:number;
         tileId:number;
 
     }> = (props) => {
@@ -57,9 +58,13 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
         return (
             <span className="Paginator">
-                <a onClick={handlePrevPage}><img className="arrow" src={ut.createStaticUrl('prev-page.svg')} /></a>
+                <a onClick={handlePrevPage} className={`${props.page === 1 ? 'disabled' : null}`}>
+                    <img className="arrow" src={ut.createStaticUrl('prev-page.svg')} />
+                </a>
                 <input className="page" type="text" readOnly={true} value={props.page} />
-                <a onClick={handleNextPage}><img className="arrow" src={ut.createStaticUrl('next-page.svg')} /></a>
+                <a onClick={handleNextPage} className={`${props.page === props.numPages ? 'disabled' : null}`}>
+                    <img className="arrow" src={ut.createStaticUrl('next-page.svg')} />
+                </a>
             </span>
         );
     };
@@ -93,6 +98,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     const Controls:React.SFC<{
         currPage:number;
+        numPages:number;
         viewMode:ViewMode;
         tileId:number;
 
@@ -101,7 +107,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             <form className="Controls cnc-form">
                 <fieldset>
                         <label>{ut.translate('concordance__page')}:{'\u00a0'}
-                        <Paginator page={props.currPage} tileId={props.tileId} />
+                        <Paginator page={props.currPage} numPages={props.numPages} tileId={props.tileId} />
                         </label>
                         <label>{ut.translate('concordance__view_mode')}:{'\u00a0'}
                             <ViewModeSwitch mode={props.viewMode} tileId={props.tileId} />
@@ -152,7 +158,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         sourceIdent={{corp: this.props.corpname}}>
                     <div className="ConcordanceTileView">
                         {this.props.isTweakMode ?
-                            <div><Controls currPage={this.props.currPage} viewMode={this.props.viewMode} tileId={this.props.tileId} /><hr /></div> :
+                            <div><Controls currPage={this.props.currPage} numPages={this.props.numPages}
+                                    viewMode={this.props.viewMode} tileId={this.props.tileId} /><hr /></div> :
                             null
                         }
                         <dl className="summary">

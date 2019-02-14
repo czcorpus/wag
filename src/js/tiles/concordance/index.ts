@@ -72,6 +72,7 @@ export class ConcordanceTile implements ITileProvider {
                 corpname: conf.corpname,
                 fullsize: -1,
                 concsize: -1,
+                numPages: -1,
                 resultARF: -1,
                 resultIPM: -1,
                 pageSize: 20,

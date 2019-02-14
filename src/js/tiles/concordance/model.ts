@@ -35,6 +35,7 @@ export interface ConcordanceTileState {
     corpname:string;
     fullsize:number;
     concsize:number;
+    numPages:number;
     resultARF:number;
     resultIPM:number;
     kwicLeftCtx:number;
@@ -135,6 +136,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                         newState.resultARF = action.payload.data.result_arf;
                         newState.resultIPM = action.payload.data.result_relative_freq;
                         newState.currPage = newState.loadPage;
+                        newState.numPages = Math.ceil(newState.concsize / newState.pageSize);
                     }
                     return newState;
                 }
