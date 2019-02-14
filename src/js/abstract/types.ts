@@ -30,6 +30,8 @@ export type AnyInterface<T> = {
 export type ListOfPairs = Array<[string, string|number]>;
 
 
+export type LocalizedConfMsg = string|{[lang:string]:string};
+
 export enum SystemMessageType {
     INFO = 'info',
     WARNING = 'warning',
@@ -52,16 +54,50 @@ export enum QueryType {
  * provided by hosting page
  */
 export interface TileConf {
+
+    /**
+     * An identifier as defined by tiles configuration interface
+     */
     tileType:string;
+
+    /**
+     * An address providing a raw text or an HTML which will be
+     * used as a help for the tile. Please make sure only trusted
+     * sources are used here as the HTML is injected "as is" to
+     * the page.
+     */
     helpURL:string;
-    isHidden?:boolean;
+
+    /**
+     * Normally, any tile configured in the "tiles" section
+     * will be active no matter whether it is also in the
+     * "layouts" section. This allows e.g. a hidden concordance
+     * tile to ask for a concordance used by multiple visible
+     * tiles (e.g. colloc, freqs.). To be able to keep possibly
+     * usable items in the "tiles" configuration file it is
+     * possible to disable them. I.e. in case a tile is disabled
+     * it cannot be put in the layout without Wdglance complying
+     * about invalid configuration.
+     *
+     */
+    isDisabled?:boolean;
+
+    /**
+     * In case a tile supports this (most of them does so) it can
+     * wait for a specific tile to finish its operation. Again,
+     * this is used mainly for 'concordance -> analysis' combinations.
+     */
     dependsOn?:string|Array<string>;
-    label?:string;
+
+    /**
+     * A label used in the header of the tile
+     */
+    label?:LocalizedConfMsg;
 }
 
 /**
- * A configuration for a tile directly accessing
- * corpus data (typically via KonText API).
+ * An extended version of the basic tile configuration
+ * directly accessing a single (sub)corpus (typically via KonText API).
  */
 export interface CorpSrchTileConf extends TileConf {
 
@@ -109,10 +145,23 @@ export interface TileFrameProps {
     widthFract:number;
 }
 
+/**
+ * This type specifies required tile component properties
+ * core components expected them to have.
+ */
 export type CoreTileComponentProps = {renderSize:[number, number]}
 
+/**
+ * A general tile component.
+ */
 export type TileComponent = React.ComponentClass<CoreTileComponentProps>|React.SFC<CoreTileComponentProps>;
 
+/**
+ * ITileProvider specifes an object which encapsulates an implementation
+ * of a tile as required by wdglance initialization process. Based on
+ * values returned by these methods, wdglance will prepare all the properties
+ * for React components and states for models.
+ */
 export interface ITileProvider {
 
     init():void;
@@ -139,7 +188,9 @@ export interface ITileProvider {
 }
 
 /**
- *
+ * Each tile module must provide this factory
+ * to allow wdglance create proper instance
+ * of a respective tile.
  */
 export namespace TileFactory {
 
@@ -163,7 +214,10 @@ export namespace TileFactory {
 }
 
 /**
- *
+ * A general data api. While in most cases
+ * the solution of such an API is an internal
+ * issue of a respective tile, sometimes it
+ * is useful to share such API libraries.
  */
 export interface DataApi<T, U> {
     call(queryArgs:T):Rx.Observable<U>;

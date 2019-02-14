@@ -170,7 +170,6 @@
 			},
 			"ConcordanceSpoken": {
 				"tileType": "ConcordanceTile",
-				"isHidden": true,
 				"apiURL": "http://kontext.korpus.test/kontext/first",
 				"corpname": "oral2013",
 				"posAttrs": ["word"]
