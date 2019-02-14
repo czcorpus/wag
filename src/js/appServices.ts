@@ -19,7 +19,7 @@
 import { SystemNotifications } from "./notifications";
 import {ITranslator} from 'kombo';
 import { SystemMessageType } from "./abstract/types";
-
+declare var DocumentTouch;
 
 export class AppServices {
 
@@ -28,6 +28,8 @@ export class AppServices {
     private readonly translator:ITranslator;
 
     private readonly uiLang:string;
+
+    private forcedMobileMode:boolean; // for debugging
 
     private readonly staticUrlCreator:(path:string) => string;
 
@@ -40,6 +42,7 @@ export class AppServices {
         this.translator = translator;
         this.staticUrlCreator = staticUrlCreator;
         this.actionUrlCreator = actionUrlCreator;
+        this.forcedMobileMode = false;
     }
 
     showMessage(type:SystemMessageType, text:string|Error):void {
@@ -78,7 +81,13 @@ export class AppServices {
         return this.actionUrlCreator(path, args);
     }
 
+    forceMobileMode():void {
+        this.forcedMobileMode = true;
+    }
+
     isMobileMode():boolean {
-        return window.matchMedia('screen and (max-width: 900px) and (orientation:portrait)').matches;
+        return this.forcedMobileMode ||
+            (window.matchMedia('screen and max-width: 480px').matches
+                && (('ontouchstart' in window) || window['DocumentTouch'] && document instanceof DocumentTouch));
     }
 }
