@@ -1,4 +1,4 @@
-@media screen and (max-width: 800px), screen and (orientation:portrait) {
+@media screen and (max-width: 900px) and (orientation:portrait) {
 
     section.TilesSections section.tiles {
         display: grid;
@@ -7,4 +7,28 @@
         color: #444;
     }
 
+
+    .QueryTypeSelector {
+
+        label {
+            display: block;
+            margin-left: 0.7em;
+        }
+    }
+
+    .WdglanceControls {
+
+        text-align: left;
+
+        .main {
+            display: initial;
+            text-align: left;
+
+            > * {
+                display: inline-block;
+                padding: 0.3em;
+            }
+        }
+
+    }
 }

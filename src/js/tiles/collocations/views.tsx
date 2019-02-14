@@ -31,96 +31,92 @@ import { TileComponent, CoreTileComponentProps } from '../../abstract/types';
 
 export const drawChart = (container:HTMLElement, size:[number, number], data:Immutable.List<DataRow>, measures:Array<string>) => {
     container.innerHTML = '';
+
     if (size[0] === 0 || size[1] === 0) {
         // otherwise the browser may crash
         return;
     }
-    const dataImp:Array<DataRow> = data.toArray();
+    const dataImp:Array<{text:string; size:number}> = data.map(d => ({text: d.str, size: d.wcFontSize})).toArray()
     const c20 = d3Scale.scaleOrdinal(d3.schemeCategory10).domain(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']);
     const valMapping = Immutable.Map<string, DataRow>(data.map(v => [v.str, v]));
 
-    const draw = (words:Array<{size:number, rotate:number, text:string, x:number, y:number}>) => {
-        const itemGroup = d3.select(container).append('svg')
-            .attr('width', layout.size()[0])
-            .attr('height', layout.size()[1])
-            .append('g')
-            .attr('transform', `translate(${layout.size()[0] / 2},${layout.size()[1] / 2})`)
-            .selectAll('g')
-            .data(words)
-            .enter()
-            .append('g')
-            .attr('transform', d => `translate(${d.x}, ${d.y}) rotate(${d.rotate})`);
-
-        let tooltip;
-        if (!window.document.querySelector('body > .wcloud-tooltip')) {
-            tooltip = d3.select('body')
-                .append('div')
-                .classed('wcloud-tooltip', true)
-                .style('opacity', 0)
-                .text('');
-
-        } else {
-            tooltip = d3.select('body .wcloud-tooltip');
-        }
-
-        itemGroup
-            .append('text')
-            .style('font-size', d => `${d.size}px`)
-            .style('font-family', 'Impact')
-            .style('fill', (d, i) => c20(`${i}`))
-            .style('pointer-events', 'none')
-            .attr('text-anchor', 'middle')
-            .text(d => d.text);
-
-        const rect = itemGroup.append('rect')
-            .attr('x',function (d) { return (this.parentNode as SVGAElement).getBBox().x})
-            .attr('y',function (d) { return (this.parentNode as SVGAElement).getBBox().y})
-            .attr('width', function (d) { return (this.parentNode as SVGAElement).getBBox().width})
-            .attr('height', function (d) { return (this.parentNode as SVGAElement).getBBox().height})
-            .attr('opacity', 0)
-            .style('pointer-events', 'fill');
-
-        rect.on('mousemove', (datum, i, values) => {
-                tooltip
-                    .style('left', `${d3.event.pageX}px`)
-                    .style('top', `${d3.event.pageY - 30}px`)
-                    .text(valMapping.get(datum.text).stats.map((v, i) => `${measures[i+1]}: ${v}`).join(', '))
-
-            })
-            .on('mouseover', (datum, i, values) => {
-                tooltip
-                    .transition()
-                    .duration(200)
-                    .style('color', c20(`${i}`))
-                    .style('opacity', '0.9')
-                    .style('pointer-events', 'none');
-
-            })
-            .on('mouseout', (datum, i, values) => {
-                Rx.Observable.of(null).timeout(1000).subscribe(
-                    () => {
-                        tooltip
-                            .transition()
-                            .duration(100)
-                            .style('opacity', '0');
-                    }
-                );
-            });
-    }
-
     const layout = cloud()
         .size(size)
-        .words(dataImp.map(d => {
-            return {
-                text: d.str,
-                size: d.wcFontSize
-            };
-        }))
+        .words(dataImp)
         .padding(5)
         .rotate(() => 0)
         .font("Impact")
         .fontSize(d => d.size)
-        .on('end', draw);
+        .on('end', (words:Array<{size:number, rotate:number, text:string, x:number, y:number}>) => {
+            const itemGroup = d3.select(container).append('svg')
+                .attr('width', layout.size()[0])
+                .attr('height', layout.size()[1])
+                .append('g')
+                .attr('transform', `translate(${layout.size()[0] / 2},${layout.size()[1] / 2})`)
+                .selectAll('g')
+                .data(words)
+                .enter()
+                .append('g')
+                .attr('transform', d => `translate(${d.x}, ${d.y}) rotate(${d.rotate})`);
+
+            let tooltip;
+            if (!window.document.querySelector('body > .wcloud-tooltip')) {
+                tooltip = d3.select('body')
+                    .append('div')
+                    .classed('wcloud-tooltip', true)
+                    .style('opacity', 0)
+                    .text('');
+
+            } else {
+                tooltip = d3.select('body .wcloud-tooltip');
+            }
+
+            itemGroup
+                .append('text')
+                .style('font-size', d => `${d.size}px`)
+                .style('font-family', 'Impact')
+                .style('fill', (d, i) => c20(`${i}`))
+                .style('pointer-events', 'none')
+                .attr('text-anchor', 'middle')
+                .text(d => d.text);
+
+            const rect = itemGroup.append('rect')
+                .attr('x',function (d) { return (this.parentNode as SVGAElement).getBBox().x})
+                .attr('y',function (d) { return (this.parentNode as SVGAElement).getBBox().y})
+                .attr('width', function (d) { return (this.parentNode as SVGAElement).getBBox().width})
+                .attr('height', function (d) { return (this.parentNode as SVGAElement).getBBox().height})
+                .attr('opacity', 0)
+                .style('pointer-events', 'fill');
+
+            rect
+                .on('mousemove', (datum, i, values) => {
+                    tooltip
+                        .style('left', `${d3.event.pageX}px`)
+                        .style('top', `${d3.event.pageY - 30}px`)
+                        .text(valMapping.get(datum.text).stats.map((v, i) => `${measures[i+1]}: ${v}`).join(', '))
+
+                })
+                .on('mouseover', (datum, i, values) => {
+                    tooltip
+                        .transition()
+                        .duration(200)
+                        .style('color', c20(`${i}`))
+                        .style('opacity', '0.9')
+                        .style('pointer-events', 'none');
+
+                })
+                .on('mouseout', (datum, i, values) => {
+                    Rx.Observable.of(null).timeout(1000).subscribe(
+                        () => {
+                            tooltip
+                                .transition()
+                                .duration(100)
+                                .style('opacity', '0');
+                        }
+                    );
+                });
+        }
+    );
 
     layout.start();
 };
@@ -167,12 +163,6 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         );
     };
 
-    // -------------- <HelpView /> -------------------------------------
-
-    const HelpView:React.SFC<{}> = (props) => {
-        return <div>HELP...</div>;
-    };
-
 
     // -------------- <CollocTile /> -------------------------------------
 
@@ -189,7 +179,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             if (this.chartContainer.current) {
                 drawChart(
                     this.chartContainer.current,
-                    [this.props.renderSize[0], this.props.data.size * 30],
+                    [this.props.renderSize[0], Math.max(240, this.props.data.size * 30)],
                     this.props.data,
                     this.props.heading.map(v => v.label)
                 );
@@ -198,10 +188,11 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
         componentDidUpdate(prevProps) {
             if (this.chartContainer.current &&
-                    (this.props.data !== prevProps.data)) {
+                    (this.props.data !== prevProps.data ||
+                    this.props.isMobile !== prevProps.isMobile)) {
                 drawChart(
                     this.chartContainer.current,
-                    [this.props.renderSize[0] / (this.props.widthFract > 1 ? 2 : 1), this.props.data.size * 30],
+                    [this.props.renderSize[0] / (this.props.widthFract > 1 ? 2 : 1), Math.max(240, this.props.data.size * 30)],
                     this.props.data,
                     this.props.heading.map(v => v.label)
                 );
@@ -221,7 +212,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                     }
                     <div className="boxes">
                         <div ref={this.chartContainer} style={{minHeight: '10em', position: 'relative'}} />
-                        {this.props.widthFract > 1 ?
+                        {this.props.widthFract > 1 && !this.props.isMobile ?
                             <table className="cnc-table data">
                                 <tbody>
                                     <tr>

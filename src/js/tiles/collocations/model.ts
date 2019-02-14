@@ -140,17 +140,6 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                 newState.error = null;
                 return newState;
             },
-            [GlobalActionName.EnableTileTweakMode]: (state, action:GlobalActions.EnableTileTweakMode) => {
-                let newState:CollocModelState;
-                if (action.payload['ident'] === this.tileId) {
-                    newState = this.copyState(state);
-                    newState.isTweakMode = true;
-
-                } else {
-                    newState = state;
-                }
-                return newState;
-            },
             [GlobalActionName.DisableTileTweakMode]: (state, action:GlobalActions.DisableTileTweakMode) => {
                 let newState:CollocModelState;
                 if (action.payload['ident'] === this.tileId) {
@@ -176,14 +165,17 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                     } else {
                         const minVal = Math.min(...action.payload.data.map(v => v.stats[0]));
                         const scaledTotal = action.payload.data.map(v => v.stats[0] - minVal).reduce((curr, acc) => acc + curr, 0);
-                        newState.data = Immutable.List<DataRow>(action.payload.data.map(item => ({
-                            str: item.str,
-                            stats: item.stats,
-                            freq: item.freq,
-                            nfilter: item.nfilter,
-                            pfilter: item.pfilter,
-                            wcFontSize: Math.round((item.stats[0] - minVal) / scaledTotal * 100 + CollocModel.BASE_WC_FONT_SIZE)
-                        })));
+                        newState.data = Immutable.List<DataRow>(action.payload.data.map(item => {
+                            const wcFontSizeRatio = scaledTotal > 0 ? (item.stats[0] - minVal) / scaledTotal : 1;
+                            return {
+                                str: item.str,
+                                stats: item.stats,
+                                freq: item.freq,
+                                nfilter: item.nfilter,
+                                pfilter: item.pfilter,
+                                wcFontSize: Math.round(wcFontSizeRatio * 100 + CollocModel.BASE_WC_FONT_SIZE)
+                            }
+                        }));
 
                         newState.heading =
                             [{label: 'Abs', ident: ''}]

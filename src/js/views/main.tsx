@@ -297,6 +297,11 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             return (
                 <div>
                     <form className="WdglanceControls cnc-form">
+                        <div>
+                            <QueryTypeSelector avail={this.props.availQueryTypes}
+                                    value={this.props.queryType}
+                                    onChange={this.handleQueryTypeChange} />
+                        </div>
                         <div className="main">
                             <QueryFields query={this.props.query}
                                     query2={this.props.query2}
@@ -306,11 +311,6 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                                     availLanguages={this.props.availLanguages}
                                     onEnterKey={this.handleSubmit} />
                             <SubmitButton onClick={this.handleSubmit} />
-                        </div>
-                        <div>
-                            <QueryTypeSelector avail={this.props.availQueryTypes}
-                                    value={this.props.queryType}
-                                    onChange={this.handleQueryTypeChange} />
                         </div>
                     </form>
                 </div>
@@ -530,7 +530,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                     <div className={`provider${!!this.props.helpHTML ? ' hidden' : ''}`} ref={this.ref}>
                         {this.props.tile.Component ?
                             <globalComponents.ErrorBoundary>
-                                <this.props.tile.Component renderSize={this.props.tile.renderSize} />
+                                <this.props.tile.Component renderSize={this.props.tile.renderSize} isMobile={this.props.isMobile} />
                             </globalComponents.ErrorBoundary> :
                             null
                         }

@@ -3,6 +3,8 @@
 
 .ConcordanceTileView {
 
+    overflow: hidden;
+
     dl.summary {
         margin-top: 0.7em;
         margin-bottom: 0.7em;
@@ -31,12 +33,11 @@
         tr td.left,
         tr td.right,
         tr td.kwic {
-            display: inline;
+            display: inline-block;
         }
     }
 
     table.conc-lines {
-
         border-spacing: 0;
 
         tr {
@@ -89,6 +90,10 @@
                 cursor: pointer;
             }
 
+            a.disabled {
+                visibility: hidden;
+            }
+
             .arrow {
                 width: 1em;
                 display: inline-block;
@@ -96,7 +101,7 @@
             }
 
             input.page {
-                width: 2em;
+                width: 3em;
                 margin-left: 0.3em;
                 margin-right: 0.3em;
             }

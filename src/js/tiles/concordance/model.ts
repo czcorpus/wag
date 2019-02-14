@@ -30,12 +30,17 @@ export interface ConcordanceTileState {
     isBusy:boolean;
     error:string|null;
     isTweakMode:boolean;
+    isMobile:boolean;
+    widthFract:number;
     lines:Immutable.List<Line>;
     corpname:string;
     fullsize:number;
     concsize:number;
+    numPages:number;
     resultARF:number;
     resultIPM:number;
+    initialKwicLeftCtx:number;
+    initialKwicRightCtx:number;
     kwicLeftCtx:number;
     kwicRightCtx:number;
     pageSize:number;
@@ -86,9 +91,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
     private readonly tileId:number;
 
-    public static readonly BASIC_KWIC_CTX = 10;
-
-    public static readonly EXPANDED_KWIC_CTX = 10;
+    public static readonly CTX_SIZES = [4, 4, 8, 12];
 
     constructor({dispatcher, tileId, appServices, service, mainForm, initState}:ConcordanceTileModelArgs) {
         super(dispatcher, initState);
@@ -96,8 +99,23 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
         this.mainForm = mainForm;
         this.appServices = appServices;
         this.tileId = tileId;
-
         this.actionMatch = {
+            [GlobalActionName.SetScreenMode]: (state, action:GlobalActions.SetScreenMode) => {
+                if (action.payload.isMobile !== state.isMobile) {
+                    const newState = this.copyState(state);
+                    newState.isMobile = action.payload.isMobile;
+                    if (action.payload.isMobile) {
+                        newState.kwicLeftCtx = ConcordanceTileModel.CTX_SIZES[0];
+                        newState.kwicRightCtx = ConcordanceTileModel.CTX_SIZES[0];
+
+                    } else {
+                        newState.kwicLeftCtx = newState.initialKwicLeftCtx;
+                        newState.kwicRightCtx = newState.initialKwicRightCtx;
+                    }
+                    return newState;
+                }
+                return state;
+            },
             [GlobalActionName.EnableTileTweakMode]: (state, action:GlobalActions.EnableTileTweakMode) => {
                 if (action.payload.ident === this.tileId) {
                     const newState = this.copyState(state);
@@ -110,10 +128,6 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 if (action.payload.ident === this.tileId) {
                     const newState = this.copyState(state);
                     newState.isTweakMode = false;
-                    newState.isBusy = true;
-                    newState.error = null;
-                    newState.kwicLeftCtx = ConcordanceTileModel.BASIC_KWIC_CTX;
-                    newState.kwicRightCtx = ConcordanceTileModel.BASIC_KWIC_CTX;
                     return newState;
                 }
                 return state;
@@ -123,18 +137,6 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 newState.isBusy = true;
                 newState.error = null;
                 return newState;
-            },
-            [GlobalActionName.EnableTileTweakMode]: (state, action) => {
-                if (action.payload['ident'] === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isTweakMode = true;
-                    newState.isBusy = true;
-                    newState.error = null;
-                    newState.kwicLeftCtx = ConcordanceTileModel.EXPANDED_KWIC_CTX;
-                    newState.kwicRightCtx = ConcordanceTileModel.EXPANDED_KWIC_CTX;
-                    return newState;
-                }
-                return state;
             },
             [ActionName.DataLoadDone]: (state, action:Actions.DataLoadDone) => {
                 if (action.payload.tileId === this.tileId) {
@@ -155,6 +157,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                         newState.resultARF = action.payload.data.result_arf;
                         newState.resultIPM = action.payload.data.result_relative_freq;
                         newState.currPage = newState.loadPage;
+                        newState.numPages = Math.ceil(newState.concsize / newState.pageSize);
                     }
                     return newState;
                 }
@@ -227,14 +230,17 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
     sideEffects(state:ConcordanceTileState, action:Action, dispatch:SEDispatcher):void {
         switch(action.name) {
             case GlobalActionName.RequestQueryResponse:
-            case GlobalActionName.EnableTileTweakMode:
-            case GlobalActionName.DisableTileTweakMode:
                 this.reloadData(state, dispatch);
             break;
             case ActionName.LoadNextPage:
             case ActionName.LoadPrevPage:
             case ActionName.SetViewMode:
                 if (action.payload['tileId'] === this.tileId) {
+                    this.reloadData(state, dispatch);
+                }
+            break;
+            case GlobalActionName.SetScreenMode:
+                if (state.lines.size > 0) {
                     this.reloadData(state, dispatch);
                 }
             break;

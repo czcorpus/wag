@@ -143,7 +143,10 @@ export interface TileFrameProps {
  * This type specifies required tile component properties
  * core components expected them to have.
  */
-export type CoreTileComponentProps = {renderSize:[number, number]}
+export interface CoreTileComponentProps {
+    renderSize:[number, number];
+    isMobile:boolean;
+}
 
 /**
  * A general tile component.

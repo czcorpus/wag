@@ -295,7 +295,7 @@ export const init = (
         }
     });
 
-    const MOBILE_MEDIA_QUERY = 'screen and (max-width: 800px), screen and (orientation:portrait)';
+    const MOBILE_MEDIA_QUERY = 'screen and (max-width: 900px) and (orientation:portrait)';
 
     const tilesModel = new WdglanceTilesModel(
         dispatcher,
@@ -321,31 +321,17 @@ export const init = (
     const component = viewInit(dispatcher, viewUtils, formModel, tilesModel, messagesModel);
 
     Rx.Observable.fromEvent(window, 'resize')
-        .debounceTime(300)
-        .distinctUntilChanged()
+        .throttleTime(500)
         .subscribe(
             () => {
                 const form = document.querySelector('.WdglanceControls');
-                if (!form.contains(document.activeElement)) {
-                    ReactDOM.unmountComponentAtNode(mountElement);
 
-                    dispatcher.dispatch<Actions.SetScreenMode>({
-                        name: ActionName.SetScreenMode,
-                        payload: {
-                            isMobile: window.matchMedia(MOBILE_MEDIA_QUERY).matches
-                        }
-                    });
-
-                    ReactDOM.render(
-                        React.createElement(
-                            component.WdglanceMain,
-                            {
-                                layout: layoutManager.getLayout(queryType)
-                            }
-                        ),
-                        mountElement
-                    );
-                }
+                dispatcher.dispatch<Actions.SetScreenMode>({
+                    name: ActionName.SetScreenMode,
+                    payload: {
+                        isMobile: window.matchMedia(MOBILE_MEDIA_QUERY).matches
+                    }
+                });
             }
         );
 

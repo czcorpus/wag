@@ -42,7 +42,7 @@
     "d3-cloud": "^1.2.5",
     "express": "^4.16.4",
     "immutable": "^3.8.2",
-    "kombo": "^0.22.1",
+    "kombo": "^0.22.2",
     "react": "^16.5.2",
     "react-dom": "^16.5.2",
     "recharts": "^1.4.2",
