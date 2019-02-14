@@ -87,7 +87,7 @@ export class AppServices {
 
     isMobileMode():boolean {
         return this.forcedMobileMode ||
-            (window.matchMedia('screen and max-width: 480px').matches
+            (window.matchMedia('screen and (max-width: 480px)').matches
                 && (('ontouchstart' in window) || window['DocumentTouch'] && document instanceof DocumentTouch));
     }
 }
