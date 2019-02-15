@@ -79,10 +79,10 @@ export class ConcordanceTile implements ITileProvider {
                 pageSize: 20,
                 currPage: 1,
                 loadPage: 1,
-                initialKwicLeftCtx: ConcordanceTileModel.CTX_SIZES[widthFract] || ConcordanceTileModel.CTX_SIZES[0],
-                initialKwicRightCtx: ConcordanceTileModel.CTX_SIZES[widthFract] || ConcordanceTileModel.CTX_SIZES[0],
-                kwicLeftCtx: appServices.isMobileMode() ? ConcordanceTileModel.CTX_SIZES[0] : ConcordanceTileModel.CTX_SIZES[widthFract],
-                kwicRightCtx: appServices.isMobileMode() ? ConcordanceTileModel.CTX_SIZES[0] : ConcordanceTileModel.CTX_SIZES[widthFract],
+                initialKwicLeftCtx: this.calcContext(widthFract),
+                initialKwicRightCtx: this.calcContext(widthFract),
+                kwicLeftCtx: appServices.isMobileMode() ? ConcordanceTileModel.CTX_SIZES[0] : this.calcContext(widthFract),
+                kwicRightCtx: appServices.isMobileMode() ? ConcordanceTileModel.CTX_SIZES[0] : this.calcContext(widthFract),
                 attr_vmode: 'mouseover',
                 viewMode: ViewMode.KWIC,
                 attrs: Immutable.List<string>(conf.posAttrs)
@@ -90,6 +90,10 @@ export class ConcordanceTile implements ITileProvider {
         });
         this.model.suspend
         this.ut = ut;
+    }
+
+    private calcContext(widthFract:number|undefined):number {
+        return ConcordanceTileModel.CTX_SIZES[widthFract || 0] || ConcordanceTileModel.CTX_SIZES[0];
     }
 
     init():void {
