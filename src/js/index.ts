@@ -236,6 +236,7 @@ export const init = (
         viewUtils.createStaticUrl,
         viewUtils.createActionUrl
     );
+    appServices.forceMobileMode();
 
     const globalComponents = globalCompInit(dispatcher, viewUtils);
     viewUtils.attachComponents(globalComponents);
