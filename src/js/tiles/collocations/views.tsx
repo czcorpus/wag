@@ -49,8 +49,10 @@ export const drawChart = (container:HTMLElement, size:[number, number], data:Imm
         .fontSize(d => d.size)
         .on('end', (words:Array<{size:number, rotate:number, text:string, x:number, y:number}>) => {
             const itemGroup = d3.select(container).append('svg')
-                .attr('width', layout.size()[0])
-                .attr('height', layout.size()[1])
+                .attr('width', '100%')
+                .attr('height', '100%')
+                .attr("preserveAspectRatio", "xMinYMin meet")
+                .attr('viewbox', `0 0 ${layout.size()[0]} ${layout.size()[1]}`)
                 .append('g')
                 .attr('transform', `translate(${layout.size()[0] / 2},${layout.size()[1] / 2})`)
                 .selectAll('g')
@@ -219,7 +221,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         null
                     }
                     <div className="boxes">
-                        <div ref={this.chartContainer} style={{minHeight: '10em', position: 'relative'}} />
+                        <div className="chart" ref={this.chartContainer} />
                         {this.props.widthFract > 1 && !this.props.isMobile ?
                             <table className="cnc-table data">
                                 <tbody>

@@ -19,7 +19,7 @@ import * as Immutable from 'immutable';
 import * as React from 'react';
 import {ActionDispatcher, ViewUtils, BoundWithProps} from 'kombo';
 import { TTDistribModel, TTDistribModelState } from './model';
-import {BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, Legend} from 'recharts';
+import {ResponsiveContainer, BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, Legend} from 'recharts';
 import { DataRow } from '../../shared/api/kontextFreqs';
 import { GlobalComponents } from '../../views/global';
 import { SystemColor } from '../../shared/colors';
@@ -40,14 +40,16 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
         return (
             <div className="Chart">
-                <BarChart width={props.size[0] - 30} height={props.size[1] + 50} data={props.data.toArray()} layout="vertical">
-                    <CartesianGrid />
-                    <Bar dataKey="ipm" fill={SystemColor.COLOR_LOGO_BLUE} />
-                    <XAxis type="number" />
-                    <YAxis type="category" dataKey="name" width={120} />
-                    <Legend />
-                    <Tooltip cursor={false} isAnimationActive={false} />
-                </BarChart>
+                <ResponsiveContainer width="90%" height={props.size[1] + 50}>
+                    <BarChart data={props.data.toArray()} layout="vertical">
+                        <CartesianGrid />
+                        <Bar dataKey="ipm" fill={SystemColor.COLOR_LOGO_BLUE} isAnimationActive={false} />
+                        <XAxis type="number" />
+                        <YAxis type="category" dataKey="name" width={120} />
+                        <Legend />
+                        <Tooltip cursor={false} isAnimationActive={false} />
+                    </BarChart>
+                </ResponsiveContainer>
             </div>
         );
     };

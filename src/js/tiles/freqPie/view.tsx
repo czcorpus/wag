@@ -19,7 +19,7 @@ import * as React from 'react';
 import * as Immutable from 'immutable';
 import * as d3 from 'd3';
 import * as d3Scale from 'd3-scale';
-import {PieChart, Pie, Cell, Legend} from 'recharts';
+import {ResponsiveContainer, PieChart, Pie, Cell, Legend} from 'recharts';
 import {BoundWithProps} from 'kombo';
 import {ActionDispatcher, ViewUtils} from 'kombo';
 import { GlobalComponents } from '../../views/global';
@@ -52,18 +52,20 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         };
 
         return (
-            <PieChart width={props.size[0]} height={props.size[1]}>
-                <Pie
-                        data={props.data.toArray()}
-                        dataKey="percent"
-                        labelLine={false}
-                        label={renderCustomizedLabel}
-                        outerRadius={Math.min(...props.size) / 2.5}
-                        fill="#8884d8">
-        	        {props.data.map((entry, index) => <Cell key={`cell-${entry.name}`} fill={c20(`${index}`)}/>)}
-                </Pie>
-                <Legend verticalAlign="top" height={36}/>
-            </PieChart>
+            <ResponsiveContainer width="90%" height={props.size[1]}>
+                <PieChart>
+                    <Pie
+                            data={props.data.toArray()}
+                            dataKey="percent"
+                            labelLine={false}
+                            label={renderCustomizedLabel}
+                            outerRadius={Math.min(...props.size) / 2.5}
+                            fill="#8884d8">
+                        {props.data.map((entry, index) => <Cell key={`cell-${entry.name}`} fill={c20(`${index}`)}/>)}
+                    </Pie>
+                    <Legend verticalAlign="top" height={36}/>
+                </PieChart>
+            </ResponsiveContainer>
         );
 
 

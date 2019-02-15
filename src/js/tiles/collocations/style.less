@@ -4,9 +4,13 @@
 
     .boxes {
         display: flex;
-        align-items: flex-start;
+        align-items: stretch;
         justify-content: space-between;
         flex-direction: row;
+
+        > .chart {
+            min-width: 50%;
+        }
     }
 
     table td.word {
