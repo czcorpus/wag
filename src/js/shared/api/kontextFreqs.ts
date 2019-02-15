@@ -54,10 +54,20 @@ export interface APIResponse {
     data:Array<DataRow>;
 }
 
+export interface ApiDataBlock {
+    data:Array<DataRow>;
+}
+
+export interface APIBlockResponse {
+    concId:string;
+    corpname:string;
+    blocks:Array<ApiDataBlock>;
+}
+
 export interface QueryArgs {
     corpname:string;
     q:string;
-    fcrit:string;
+    fcrit:Array<string>;
     flimit:string;
     freq_sort:string;
     fpage:string;
@@ -85,6 +95,37 @@ export class FreqDistribAPI implements DataApi<QueryArgs, APIResponse> {
                         name: v.Word.map(v => v.n).join(' '),
                         freq: v.freq,
                         ipm: v.rel
+                })),
+                concId: resp.conc_persistence_op_id,
+                corpname: args.corpname
+            })
+        );
+    }
+}
+
+
+export class MultiBlockFreqDistribAPI implements DataApi<QueryArgs, APIBlockResponse> {
+
+    private readonly apiURL:string;
+
+    constructor(apiURL:string) {
+        this.apiURL = apiURL;
+    }
+
+    call(args:QueryArgs):Rx.Observable<APIBlockResponse> {
+        return ajax$<HTTPResponse>(
+            'GET',
+            this.apiURL,
+            args
+
+        ).concatMap<HTTPResponse, APIBlockResponse>(
+            resp => Rx.Observable.of({
+                blocks: resp.Blocks.map(block => ({
+                    data: block.Items.map(v => ({
+                        name: v.Word.map(v => v.n).join(' '),
+                        freq: v.freq,
+                        ipm: v.rel
+                    }))
                 })),
                 concId: resp.conc_persistence_op_id,
                 corpname: args.corpname

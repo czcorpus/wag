@@ -18,11 +18,12 @@
 import * as Immutable from 'immutable';
 import * as Rx from '@reactivex/rxjs';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
-import { FreqDistribAPI, QueryArgs } from '../../shared/api/kontextFreqs';
+import { QueryArgs, MultiBlockFreqDistribAPI } from '../../shared/api/kontextFreqs';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
 import {ActionName as ConcActionName, Actions as ConcActions} from '../concordance/actions';
 import {Actions, ActionName} from './actions';
 import { AppServices } from '../../appServices';
+import { puid } from '../../shared/util';
 
 
 export interface FreqPieDataRow {
@@ -30,14 +31,18 @@ export interface FreqPieDataRow {
     percent:number;
 }
 
+export interface DataBlock {
+    data:Immutable.List<FreqPieDataRow>;
+    ident:string;
+}
 
 export interface FreqPieModelState {
     isBusy:boolean;
     error:string;
-    data:Immutable.List<FreqPieDataRow>;
+    blocks:Immutable.List<DataBlock>;
     corpname:string;
     concId:string;
-    fcrit:string;
+    fcrit:Array<string>;
     flimit:number;
     freqSort:string;
     fpage:number;
@@ -63,11 +68,11 @@ export class FreqPieModel extends StatelessModel<FreqPieModelState> {
 
     private readonly waitForTile:number;
 
-    private readonly api:FreqDistribAPI;
+    private readonly api:MultiBlockFreqDistribAPI;
 
     private readonly appServices:AppServices;
 
-    constructor(dispatcher:ActionDispatcher, initState:FreqPieModelState, tileId:number, waitForTile:number, appServices:AppServices, api:FreqDistribAPI) {
+    constructor(dispatcher:ActionDispatcher, initState:FreqPieModelState, tileId:number, waitForTile:number, appServices:AppServices, api:MultiBlockFreqDistribAPI) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.waitForTile = waitForTile;
@@ -85,19 +90,30 @@ export class FreqPieModel extends StatelessModel<FreqPieModelState> {
                     const newState = this.copyState(state);
                     newState.isBusy = false;
                     if (action.error) {
-                        newState.data = Immutable.List<FreqPieDataRow>();
+                        newState.blocks = Immutable.List<DataBlock>({
+                            data: state.fcrit.map(v => Immutable.List<FreqPieDataRow>()),
+                            ident: puid()
+                        });
                         newState.error = action.error.message;
 
-                    } else if (action.payload.data.length === 0) {
-                        newState.data = Immutable.List<FreqPieDataRow>();
+                    } else if (action.payload.blocks.length === 0) {
+                        newState.blocks = Immutable.List<DataBlock>({
+                            data: state.fcrit.map(v => Immutable.List<FreqPieDataRow>()),
+                            ident: puid()
+                        });
                         newState.error = this.appServices.translate('global__not_enough_data_to_show_result');
 
                     } else {
-                        const totalFreq = action.payload.data.reduce((acc, curr) => acc + curr.freq, 0);
-                        newState.data = Immutable.List<FreqPieDataRow>(action.payload.data.map(v => ({
-                            name: v.name,
-                            percent: v.freq / totalFreq * 100
-                        })));
+                        newState.blocks = Immutable.List<DataBlock>(action.payload.blocks.map(block => {
+                            const totalFreq = block.data.reduce((acc, curr) => acc + curr.freq, 0);
+                            return {
+                                data: Immutable.List<FreqPieDataRow>(block.data.map(v => ({
+                                    name: v.name,
+                                    percent: v.freq / totalFreq * 100
+                                }))),
+                                ident: puid()
+                            };
+                        }));
                     }
                     return newState;
                 }
@@ -126,7 +142,7 @@ export class FreqPieModel extends StatelessModel<FreqPieModelState> {
                                 dispatch<Actions.LoadDataDone>({
                                     name: ActionName.LoadDataDone,
                                     payload: {
-                                        data: resp.data,
+                                        blocks: resp.blocks,
                                         concId: resp.concId,
                                         tileId: this.tileId
                                     }
@@ -136,7 +152,7 @@ export class FreqPieModel extends StatelessModel<FreqPieModelState> {
                                 dispatch<Actions.LoadDataDone>({
                                     name: ActionName.LoadDataDone,
                                     payload: {
-                                        data: null,
+                                        blocks: null,
                                         concId: null,
                                         tileId: this.tileId
                                     },

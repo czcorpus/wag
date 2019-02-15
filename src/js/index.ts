@@ -94,11 +94,12 @@ const mkAttachTile = (queryType:QueryType, lang1:string, lang2:string) =>
 
 const attachNumericTileIdents = (config:{[ident:string]:AnyConf}):{[ident:string]:number} => {
     const ans = {};
-    Object.keys(config).forEach((ident, i) => {
-        if (!config[ident].isDisabled) {
-            ans[ident] = i;
-        }
-    });
+    Object.keys(config)
+        .map<[string, boolean]>(k => [k, config[k].isDisabled])
+        .filter(v => !v[1])
+        .forEach((item, i) => {
+            ans[item[0]] = i;
+        });
     return ans;
 };
 
@@ -161,7 +162,6 @@ const mkTileFactory = (
                     return applyFactory<MergeCorpFreqTileConf>(MergeCorpFreqInit, conf);
                 case 'WordFreqTile':
                     return applyFactory<WordFreqTileConf>(summaryInit, conf);
-
                 default:
                     return null;
             }
@@ -237,7 +237,6 @@ export const init = (
         viewUtils.createActionUrl
     );
 
-
     const globalComponents = globalCompInit(dispatcher, viewUtils);
     viewUtils.attachComponents(globalComponents);
     const formModel = new WdglanceMainFormModel(
@@ -271,8 +270,7 @@ export const init = (
     const tiles:Array<TileFrameProps> = [];
     const attachTile = mkAttachTile(queryType, query1Lang, query2Lang);
     const tilesMap = attachNumericTileIdents(tilesConf);
-    console.log('tilemap: ', tilesMap);
-
+    console.log('tiles map: ', tilesMap);
     const layoutManager = new LayoutManager(layouts, tilesMap, appServices);
 
     const factory = mkTileFactory(

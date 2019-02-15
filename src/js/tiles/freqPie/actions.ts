@@ -17,7 +17,7 @@
  */
 
 import { Action } from 'kombo';
-import { DataRow } from '../../shared/api/kontextFreqs';
+import { ApiDataBlock } from '../../shared/api/kontextFreqs';
 
 
 export enum ActionName {
@@ -27,7 +27,7 @@ export enum ActionName {
 export namespace Actions {
 
     export interface LoadDataDone extends Action<{
-        data:Array<DataRow>;
+        blocks:Array<ApiDataBlock>;
         concId:string;
         tileId:number;
     }> {

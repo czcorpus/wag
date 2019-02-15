@@ -43,7 +43,7 @@ export interface TTDistribModelState {
 const stateToAPIArgs = (state:TTDistribModelState, concId:string):QueryArgs => ({
     corpname: state.corpname,
     q: `~${concId ? concId : state.concId}`,
-    fcrit: state.fcrit,
+    fcrit: [state.fcrit],
     flimit: state.flimit.toString(),
     freq_sort: state.freqSort,
     fpage: state.fpage.toString(),

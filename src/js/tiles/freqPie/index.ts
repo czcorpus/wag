@@ -18,16 +18,19 @@
 import * as Immutable from 'immutable';
 import { ITileProvider, QueryType, TileFactory, TileComponent, TileConf } from '../../abstract/types';
 import { AppServices } from '../../appServices';
-import { FreqPieModel, FreqPieDataRow } from './model';
+import { FreqPieModel, FreqPieDataRow, DataBlock } from './model';
 import {init as viewInit} from './view';
-import { FreqDistribAPI } from '../../shared/api/kontextFreqs';
+import { MultiBlockFreqDistribAPI } from '../../shared/api/kontextFreqs';
+import { puid } from '../../shared/util';
+declare var require:any;
+require('./style.less');
 
 
 export interface FreqPieTileConf extends TileConf{
     tileType:'FreqPieTile';
     apiURL:string;
     corpname:string;
-    fcrit:string;
+    fcrit:string|Array<string>;
     flimit:number;
     freqSort:string;
     fpage:number;
@@ -54,15 +57,19 @@ export class FreqPieTile implements ITileProvider {
         this.appServices = appServices;
         this.widthFract = widthFract;
         this.label = this.appServices.importExternalMessage(conf.label);
+        const criteria = typeof conf.fcrit === 'string' ? [conf.fcrit] : conf.fcrit;
         this.model = new FreqPieModel(
             dispatcher,
             {
                 isBusy: false,
                 error: null,
-                data: Immutable.List<FreqPieDataRow>(),
+                blocks: Immutable.List<DataBlock>(criteria.map(v => ({
+                    data: Immutable.List<FreqPieDataRow>(),
+                    ident: puid()
+                }))),
                 corpname: conf.corpname,
                 concId: null,
-                fcrit: conf.fcrit,
+                fcrit: criteria,
                 flimit: conf.flimit,
                 freqSort: conf.freqSort,
                 fpage: conf.fpage,
@@ -71,7 +78,7 @@ export class FreqPieTile implements ITileProvider {
             tileId,
             waitForTiles[0],
             appServices,
-            new FreqDistribAPI(conf.apiURL)
+            new MultiBlockFreqDistribAPI(conf.apiURL)
         );
         this.view = viewInit(
             dispatcher,
