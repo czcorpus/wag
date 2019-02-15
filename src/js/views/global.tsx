@@ -56,7 +56,6 @@ export interface GlobalComponents {
     ModalBox:React.ComponentClass<{
         onCloseClick?:()=>void;
         title:string;
-        isScrollable:boolean;
     }>;
 }
 
@@ -224,7 +223,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
 
     // --------------- <ModalBox /> -------------------------------------------
 
-    class ModalBox extends React.PureComponent<{onCloseClick:()=>void; title:string; isScrollable:boolean}> {
+    class ModalBox extends React.PureComponent<{onCloseClick:()=>void; title:string}> {
 
         private ref:React.RefObject<HTMLButtonElement>;
 
@@ -247,16 +246,9 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
         }
 
         render() {
-            const style = {};
-            if (this.props.isScrollable) {
-                style['overflow'] = 'auto';
-
-            } else {
-                style['overflow'] = 'hidden';
-            }
             return (
                 <div id="modal-overlay">
-                    <div className="box cnc-tile" style={style}>
+                    <div className="box cnc-tile">
                         <header className="cnc-tile-header">
                             <span>{this.props.title}</span>
                             <button className="close"

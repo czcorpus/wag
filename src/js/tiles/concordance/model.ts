@@ -91,7 +91,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
     private readonly tileId:number;
 
-    public static readonly CTX_SIZES = [4, 4, 8, 12];
+    public static readonly CTX_SIZES = [3, 3, 8, 12];
 
     constructor({dispatcher, tileId, appServices, service, mainForm, initState}:ConcordanceTileModelArgs) {
         super(dispatcher, initState);

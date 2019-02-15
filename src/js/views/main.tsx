@@ -144,9 +144,13 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     }> = (props) => {
 
-        return <button className="SubmitButton cnc-button cnc-button-primary" type="button" onClick={props.onClick}>
-            {ut.translate('global__search')}
-        </button>;
+        return (
+            <span className="SubmitButton">
+                <button className="cnc-button cnc-button-primary" type="button" onClick={props.onClick}>
+                    {ut.translate('global__search')}
+                </button>
+            </span>
+        );
     };
 
     // ------------------ <QueryTypeSelector /> ------------------------------
@@ -643,7 +647,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                     }
                     {this.props.isModalVisible ?
                         <globalComponents.ModalBox onCloseClick={this.handleCloseCorpusInfo}
-                                title={this.props.modalBoxTitle} isScrollable={false}>
+                                title={this.props.modalBoxTitle}>
                             {this.props.modalBoxData ? /* TODO thisis hardcoded; no other type possible here */
                                 <CorpusInfo data={this.props.modalBoxData} /> :
                                 <div style={{textAlign: 'center', minWidth: '10em', minHeight: '5em'}}>
