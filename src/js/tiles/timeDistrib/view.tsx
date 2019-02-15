@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as React from 'react';
-import {CartesianGrid, XAxis, YAxis, Tooltip, AreaChart, Area, Legend} from 'recharts';
+import {ResponsiveContainer, CartesianGrid, XAxis, YAxis, Tooltip, AreaChart, Area, Legend} from 'recharts';
 import {ActionDispatcher, ViewUtils, BoundWithProps} from 'kombo';
 import { GlobalComponents } from '../../views/global';
 import { TimeDistribModel, TimeDistribModelState } from './model';
@@ -52,20 +52,23 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
     }> = (props) => {
 
         return (
-            <AreaChart width={props.size[0] - 30} height={props.size[1]} data={props.data}
-                    margin={{top: 10, right: 30, left: 0, bottom: 0}}>
-                <CartesianGrid strokeDasharray="3 3"/>
-                <XAxis dataKey="datetime"/>
-                <YAxis />
-                <Tooltip isAnimationActive={false} />
-                <Area type="linear"
-                        dataKey="interval"
-                        name={ut.translate('timeDistrib__estimated_interval')}
-                        stroke={SystemColor.COLOR_LOGO_GREEN}
-                        fill={SystemColor.COLOR_LOGO_GREEN}
-                        strokeWidth={1} />
-                <Legend content={<ChartLegend metric={ut.translate('timeDistrib__ipm_human')} distProperty={props.distProperty} />} />
-            </AreaChart>
+            <ResponsiveContainer width="90%" height={props.size[1]}>
+                <AreaChart data={props.data}
+                        margin={{top: 10, right: 30, left: 0, bottom: 0}}>
+                    <CartesianGrid strokeDasharray="3 3"/>
+                    <XAxis dataKey="datetime"/>
+                    <YAxis />
+                    <Tooltip isAnimationActive={false} />
+                    <Area type="linear"
+                            dataKey="interval"
+                            name={ut.translate('timeDistrib__estimated_interval')}
+                            stroke={SystemColor.COLOR_LOGO_GREEN}
+                            fill={SystemColor.COLOR_LOGO_GREEN}
+                            strokeWidth={1}
+                            isAnimationActive={false} />
+                    <Legend content={<ChartLegend metric={ut.translate('timeDistrib__ipm_human')} distProperty={props.distProperty} />} />
+                </AreaChart>
+            </ResponsiveContainer>
         );
     }
 
