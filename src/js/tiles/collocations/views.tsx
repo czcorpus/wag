@@ -222,7 +222,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                     }
                     <div className="boxes">
                         <div className="chart" ref={this.chartContainer}
-                                style={{height: this.props.isMobile ? `${this.props.data.size * 30}px` : "100%"}} />
+                                style={{height: this.props.isMobile ? `${this.props.data.size * 30}px` : "initial"}} />
                         {this.props.widthFract > 1 && !this.props.isMobile ?
                             <table className="cnc-table data">
                                 <tbody>

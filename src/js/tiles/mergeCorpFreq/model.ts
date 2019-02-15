@@ -49,7 +49,7 @@ export interface MergeCorpFreqModelState {
 const sourceToAPIArgs = (src:SourceArgs, concId:string):QueryArgs => ({
     corpname: src.corpname,
     q: `~${concId}`,
-    fcrit: src.fcrit,
+    fcrit: [src.fcrit],
     flimit: src.flimit.toString(),
     freq_sort: src.freqSort,
     fpage: src.fpage.toString(),

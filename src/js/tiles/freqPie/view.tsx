@@ -76,10 +76,14 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         render() {
             return (
                 <globalComponents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
-                        hasData={this.props.data.size > 0}
+                        hasData={this.props.blocks.size > 0}
                         sourceIdent={{corp: this.props.corpname}}>
-                    <div>
-                        <Chart data={this.props.data} size={[this.props.renderSize[0], 300]} />
+                    <div className="FreqPieTileView">
+                        {this.props.blocks.map(block => (
+                            <div key={block.ident} style={{width: `${100 / this.props.blocks.size}%`, height: "100%"}}>
+                                <Chart data={block.data} size={[this.props.renderSize[0], 300]} />
+                            </div>
+                        ))}
                     </div>
                 </globalComponents.TileWrapper>
             );

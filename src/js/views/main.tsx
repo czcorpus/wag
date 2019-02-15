@@ -508,7 +508,6 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         }
 
         render() {
-
             return (
                 <section key={`tile-ident-${this.props.tile.tileId}`}
                         className={`cnc-tile app-output${this.props.isTweakMode ? ' expanded' : ''}`}
