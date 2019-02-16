@@ -144,8 +144,10 @@ export interface TileFrameProps {
  * core components expected them to have.
  */
 export interface CoreTileComponentProps {
+    tileId:number;
     renderSize:[number, number];
     isMobile:boolean;
+    widthFract:number;
 }
 
 /**

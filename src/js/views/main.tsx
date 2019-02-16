@@ -533,7 +533,11 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                     <div className={`provider${!!this.props.helpHTML ? ' hidden' : ''}`} ref={this.ref}>
                         {this.props.tile.Component ?
                             <globalComponents.ErrorBoundary>
-                                <this.props.tile.Component renderSize={this.props.tile.renderSize} isMobile={this.props.isMobile} />
+                                <this.props.tile.Component
+                                        tileId={this.props.tile.tileId}
+                                        renderSize={this.props.tile.renderSize}
+                                        isMobile={this.props.isMobile}
+                                        widthFract={this.props.tile.widthFract} />
                             </globalComponents.ErrorBoundary> :
                             null
                         }
