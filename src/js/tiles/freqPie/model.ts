@@ -40,6 +40,7 @@ export interface FreqPieModelState {
     isBusy:boolean;
     error:string;
     blocks:Immutable.List<DataBlock>;
+    activeBlock:number;
     corpname:string;
     concId:string;
     fcrit:Array<string>;
@@ -84,6 +85,14 @@ export class FreqPieModel extends StatelessModel<FreqPieModelState> {
                 newState.isBusy = true;
                 newState.error = null;
                 return newState;
+            },
+            [ActionName.SetActiveBlock]: (state, action:Actions.SetActiveBlock) => {
+                if (action.payload.tileId === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.activeBlock = action.payload.idx;
+                    return newState;
+                }
+                return state;
             },
             [ActionName.LoadDataDone]: (state, action:Actions.LoadDataDone) => {
                 if (action.payload.tileId === this.tileId) {

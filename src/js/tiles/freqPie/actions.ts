@@ -21,7 +21,8 @@ import { ApiDataBlock } from '../../shared/api/kontextFreqs';
 
 
 export enum ActionName {
-    LoadDataDone = 'FREQ_PIE_LOAD_DATA_DONE'
+    LoadDataDone = 'FREQ_PIE_LOAD_DATA_DONE',
+    SetActiveBlock = 'FREQ_PIE_SET_ACTIVE_BLOCK'
 }
 
 export namespace Actions {
@@ -31,6 +32,13 @@ export namespace Actions {
         concId:string;
         tileId:number;
     }> {
-        name: ActionName.LoadDataDone
+        name: ActionName.LoadDataDone;
+    }
+
+    export interface SetActiveBlock extends Action<{
+        idx:number;
+        tileId:number;
+    }> {
+        name: ActionName.SetActiveBlock;
     }
 }
