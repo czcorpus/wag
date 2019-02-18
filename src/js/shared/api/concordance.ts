@@ -23,7 +23,8 @@ import { DataApi } from '../../abstract/types';
 export enum QuerySelector {
     BASIC = 'iqueryrow',
     CQL = 'cqlrow',
-    LEMMA = 'lemmarow'
+    LEMMA = 'lemmarow',
+    WORD = 'wordrow'
 }
 
 export enum ViewMode {
@@ -36,6 +37,7 @@ export interface RequestArgs {
     iquery?:string;
     lemma?:string;
     cql?:string;
+    word?:string;
     queryselector:QuerySelector;
     kwicleftctx:string;
     kwicrightctx:string;
@@ -77,6 +79,42 @@ export interface ConcResponse extends HTTPResponse {
 }
 
 
+const getQuery = (args:RequestArgs):string => {
+    switch (args.queryselector) {
+        case QuerySelector.BASIC:
+            return args.iquery;
+        case QuerySelector.CQL:
+            return args.cql;
+        case QuerySelector.LEMMA:
+            return args.lemma;
+        case QuerySelector.WORD:
+            return args.word;
+        default:
+            throw new Error(`Unsupported query selector ${args.queryselector}`);
+    }
+};
+
+
+export const setQuery = (args:RequestArgs, q:string):void => {
+    switch (args.queryselector) {
+        case QuerySelector.BASIC:
+            args.iquery = q;
+        break;
+        case QuerySelector.CQL:
+            args.cql = q;
+        break;
+        case QuerySelector.LEMMA:
+            args.lemma = q;
+        break;
+        case QuerySelector.WORD:
+            args.word = q;
+        break;
+        default:
+            throw new Error(`Unsupported query selector ${args.queryselector}`);
+    }
+}
+
+
 export class ConcApi implements DataApi<RequestArgs, ConcResponse> {
 
     private readonly apiURL;
@@ -99,7 +137,7 @@ export class ConcApi implements DataApi<RequestArgs, ConcResponse> {
                 concsize: data.concsize,
                 result_arf: data.result_arf,
                 result_relative_freq: data.result_relative_freq,
-                query: args.iquery, // TODO
+                query: getQuery(args),
                 corpname: args.corpname
             })
         );
