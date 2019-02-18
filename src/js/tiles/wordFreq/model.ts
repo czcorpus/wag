@@ -107,7 +107,6 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                 } else if (action.payload.data.length === 0) {
                     newState.data = Immutable.List<SummaryDataRow>();
                     newState.similarFreqWords = Immutable.List<SimilarlyFreqWord>();
-                    newState.error = this.appServices.translate('global__not_enough_data_to_show_result');
 
                 } else {
                     newState.data = Immutable.List<SummaryDataRow>(action.payload.data);

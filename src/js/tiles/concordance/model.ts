@@ -147,9 +147,6 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                     if (action.error) {
                         newState.error = action.error.message;
 
-                    } else if (action.payload.data.fullsize === 0) {
-                        newState.error = this.appServices.translate('global__not_enough_data_to_show_result');
-
                     } else {
                         // debug:
                         action.payload.data.messages.forEach(msg => console.log(`${importMessageType(msg[0]).toUpperCase()}: conc - ${msg[1]}`));

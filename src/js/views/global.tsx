@@ -178,7 +178,18 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
                     <div className="loader-wrapper">{props.hasData && props.isBusy ? <TitleLoaderBar  /> : null}</div>
                     <div className="cnc-tile-body content">
                         <div>
-                            {props.children}
+                            {props.hasData ?
+                                props.children :
+                                <>
+                                    <p>
+                                        <MessageStatusIcon statusType={SystemMessageType.ERROR} isInline={true} />
+                                        {ut.translate('global__not_enough_data_to_show_result')}
+                                    </p>
+                                    <div style={{textAlign: 'center'}}>
+                                        <EmptySet fontSize="10em" />
+                                    </div>
+                                </>
+                            }
                         </div>
                         <SourceLink data={props.sourceIdent} />
                     </div>
@@ -204,7 +215,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
         render() {
             if (this.state.error) {
                 return (
-                    <div>
+                    <div className="cnc-tile-body">
                         <p>
                         <MessageStatusIcon statusType={SystemMessageType.ERROR} isInline={true} />
                             {ut.translate('global__failed_to_render_component')}

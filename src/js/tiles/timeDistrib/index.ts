@@ -45,6 +45,8 @@ export interface TimeDistTileConf extends CorpSrchTileConf {
      * E.g. doc.pubyear
      */
     timeProperty:string;
+
+    minFreq:number;
 }
 
 
@@ -79,7 +81,7 @@ export class TimeDistTile implements ITileProvider {
                 concId: null,
                 attrTime: conf.timeProperty,
                 attrValue: conf.distProperty,
-                minFreq: '10', // TODO (conf)
+                minFreq: conf.minFreq,
                 minFreqType: FreqFilterQuantity.IPM,
                 alignType1: AlignType.LEFT,
                 ctxIndex1: 6, // TODO conf/explain

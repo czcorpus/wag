@@ -157,13 +157,13 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                                 return (
                                     <div key={block.ident} style={{width: chartsViewBoxWidth, height: "100%"}}>
                                         <Chart data={block.data} width={chartWidth} height={300}
-                                                radius={Math.min(this.props.renderSize[0], 100)}
+                                                radius={Math.min(this.props.renderSize[0], 90)}
                                                 isMobile={this.props.isMobile} />
                                     </div>
                                 );
                             })}
                         </div>
-                        {(this.props.widthFract == 1 || this.props.isMobile) && this.props.blocks.size > 1 ?
+                        {this.props.isMobile && this.props.blocks.size > 1 ?
                             <ChartSwitch blockIndices={this.props.blocks.map((_, i) => i).toList()}
                                     currentIdx={this.props.activeBlock}
                                     onChange={this.handleDotClick} /> :
