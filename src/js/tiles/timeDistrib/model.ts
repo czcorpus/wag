@@ -88,7 +88,7 @@ const stateToAPIArgs = (state:TimeDistribModelState, concId:string):QueryArgs =>
         ctfcrit1: '0', // = structural attr
         ctfcrit2: getAttrCtx(state, Dimension.SECOND),
         ctattr1: state.attrTime,
-        ctattr2: state.attrValue,
+        ctattr2: `${state.attrValue}/i`,
         ctminfreq: state.minFreq.toFixed(),
         ctminfreq_type: state.minFreqType,
         format: 'json'
@@ -138,7 +138,6 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
                     } else if (action.payload.data.length < TimeDistribModel.MIN_DATA_ITEMS_TO_SHOW) {
                         newState.data = Immutable.List<DataItemWithWCI>();
-                        newState.error = this.appServices.translate('global__not_enough_data_to_show_result');
 
                     } else {
                         newState.data = Immutable.List<DataItemWithWCI>(action.payload.data);
