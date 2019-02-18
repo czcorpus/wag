@@ -1,6 +1,6 @@
 /*
- * Copyright 2018 Tomas Machalek <tomas.machalek@gmail.com>
- * Copyright 2018 Institute of the Czech National Corpus,
+ * Copyright 2019 Tomas Machalek <tomas.machalek@gmail.com>
+ * Copyright 2019 Institute of the Czech National Corpus,
  *                Faculty of Arts, Charles University
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,32 +15,58 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import * as Immutable from 'immutable';
 import * as Rx from '@reactivex/rxjs';
-import {QueryArgs, FreqDistribAPI, DataRow} from '../../shared/api/kontextFreqs';
-import {StatelessModel, ActionDispatcher, Action, SEDispatcher} from 'kombo';
+import * as Immutable from 'immutable';
+import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
+import {FreqDistribAPI, DataRow} from '../../shared/api/kontextFreqs';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
 import {ActionName as ConcActionName, Actions as ConcActions} from '../concordance/actions';
-import {ActionName, Actions} from './actions';
 import { AppServices } from '../../appServices';
+import { ActionName, Actions } from './actions';
 import { GeneralTTDistribModelState, stateToAPIArgs } from '../../shared/models/freq';
 
+/*
+oral2013:
 
-export type TTDistribModelState = GeneralTTDistribModelState;
+"pohraničí české": "naCPO",
+"středočeská": "naSTR",
+"jihozápadočeská": "naJZC",
+"severovýchodočeská": "naSVC",
+"česko-moravská": "naCMO",
+"středomoravská": "naSTM",
+"pohraničí moravské": "naMPO",
+"slezská": "naSLE",
+"východomoravská": "naVYM"
+
+??:
+"české pohraničí": "naCPO",
+"středočeská": "naSTR",
+"jihozápadočeská": "naJZC",
+"severovýchodočeská": "naSVC",
+"českomoravská": "naCMO",
+"středomoravská": "naSTM",
+"pohraničí moravské a slezské": "naMPO",
+"slezská": "naSLE",
+"východomoravská": "naVYM"
+*/
+
+export interface GeoAreasModelState extends GeneralTTDistribModelState {
+    areaCodeMapping:Immutable.Map<string, string>;
+    highlightedTableRow:number;
+}
 
 
-export class TTDistribModel extends StatelessModel<TTDistribModelState> {
-
-    private api:FreqDistribAPI;
-
-    private readonly appServices:AppServices;
+export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
 
     private readonly tileId:number;
 
     private readonly waitForTile:number;
 
-    constructor(dispatcher:ActionDispatcher, tileId:number, waitForTile:number, appServices:AppServices, api:FreqDistribAPI, initState:TTDistribModelState) {
+    private readonly appServices:AppServices;
+
+    private readonly api:FreqDistribAPI;
+
+    constructor(dispatcher:ActionDispatcher, tileId:number, waitForTile:number, appServices:AppServices, api:FreqDistribAPI, initState:GeoAreasModelState) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.waitForTile = waitForTile;
@@ -70,11 +96,27 @@ export class TTDistribModel extends StatelessModel<TTDistribModelState> {
                     return newState;
                 }
                 return state;
+            },
+            [ActionName.SetHighlightedTableRow]: (state, action:Actions.SetHighlightedTableRow) => {
+                if (action.payload.tileId === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.highlightedTableRow = newState.data.findIndex(v => v.name === action.payload.areaName);
+                    return newState;
+                }
+                return state;
+            },
+            [ActionName.ClearHighlightedTableRow]: (state, action:Actions.ClearHighlightedTableRow) => {
+                if (action.payload.tileId === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.highlightedTableRow = -1;
+                    return newState;
+                }
+                return state;
             }
         }
     }
 
-    sideEffects(state:TTDistribModelState, action:Action, dispatch:SEDispatcher):void {
+    sideEffects(state:GeoAreasModelState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
                 this.suspend((action:Action) => {

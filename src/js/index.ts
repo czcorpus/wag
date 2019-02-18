@@ -32,6 +32,7 @@ import {init as sydInit, SyDTileConf} from './tiles/syd/index';
 import {init as freqPieInit, FreqPieTileConf} from './tiles/freqPie/index';
 import {init as summaryInit, WordFreqTileConf} from './tiles/wordFreq/index';
 import {init as MergeCorpFreqInit, MergeCorpFreqTileConf } from './tiles/mergeCorpFreq/index';
+import {init as geoAreasInit, GeoAreasTileConf} from './tiles/geoAreas/index';
 import { GlobalComponents, init as globalCompInit } from './views/global';
 import * as translations from 'translations';
 import { AppServices } from './appServices';
@@ -54,7 +55,7 @@ require('theme.less');
 
 
 type AnyConf = ConcordanceTileConf | TTDistTileConf | TreqTileConf | SyDTileConf | FreqPieTileConf | TimeDistTileConf |
-        CollocationsTileConf | WordFreqTileConf | MergeCorpFreqTileConf;
+        CollocationsTileConf | WordFreqTileConf | MergeCorpFreqTileConf | GeoAreasTileConf;
 
 export interface WdglanceConf {
     uiLang:string;
@@ -162,6 +163,8 @@ const mkTileFactory = (
                     return applyFactory<MergeCorpFreqTileConf>(MergeCorpFreqInit, conf);
                 case 'WordFreqTile':
                     return applyFactory<WordFreqTileConf>(summaryInit, conf);
+                case 'GeoAreasTile':
+                    return applyFactory<GeoAreasTileConf>(geoAreasInit, conf);
                 default:
                     return null;
             }
