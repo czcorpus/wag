@@ -159,9 +159,6 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                     if (action.error) {
                         newState.error = action.error.message;
 
-                    } else if (action.payload.data.length === 0) {
-                        newState.error = this.appServices.translate('global__not_enough_data_to_show_result');
-
                     } else {
                         const minVal = Math.min(...action.payload.data.map(v => v.stats[0]));
                         const scaledTotal = action.payload.data.map(v => v.stats[0] - minVal).reduce((curr, acc) => acc + curr, 0);

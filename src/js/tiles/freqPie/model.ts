@@ -110,7 +110,6 @@ export class FreqPieModel extends StatelessModel<FreqPieModelState> {
                             data: Immutable.List<FreqPieDataRow>(),
                             ident: puid()
                         })));
-                        newState.error = this.appServices.translate('global__not_enough_data_to_show_result');
 
                     } else {
                         newState.blocks = Immutable.List<DataBlock>(action.payload.blocks.map(block => {

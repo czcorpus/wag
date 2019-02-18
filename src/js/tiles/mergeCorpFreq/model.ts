@@ -93,7 +93,6 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
 
                     } else if (action.payload.data.length === 0) {
                         newState.data = Immutable.List<DataRow>();
-                        newState.error = this.appServices.translate('global__not_enough_data_to_show_result');
 
                     } else {
                         newState.data = Immutable.List<DataRow>(action.payload.data);
