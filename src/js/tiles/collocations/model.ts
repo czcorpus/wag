@@ -243,6 +243,19 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                     (action:Action) => {
                         if (action.name === ConcActionName.DataLoadDone && action.payload['tileId'] === this.waitForTile) {
                             const payload = (action as ConcActions.DataLoadDone).payload;
+                            if (action.error) {
+                                seDispatch({
+                                    name: ActionName.DataLoadDone,
+                                    payload: {
+                                        tileId: this.tileId,
+                                        data: [],
+                                        heading: null,
+                                        concId: null
+                                    },
+                                    error: new Error(this.appServices.translate('global__failed_to_obtain_required_data')),
+                                });
+                                return true;
+                            }
                             this.requestData(state, payload.data.conc_persistence_op_id, action.error, seDispatch);
                             return true;
                         }

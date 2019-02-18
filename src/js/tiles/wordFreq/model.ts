@@ -102,7 +102,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                 const newState = this.copyState(state);
                 newState.isBusy = false;
                 if (action.error) {
-                    newState.error = action.error.toString();
+                    newState.error = action.error.message;
 
                 } else if (action.payload.data.length === 0) {
                     newState.data = Immutable.List<SummaryDataRow>();
@@ -130,6 +130,18 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
             case GlobalActionName.RequestQueryResponse:
                 this.suspend((action:Action) => {
                     if (action.name === ConcActionName.DataLoadDone && action.payload['tileId'] === this.waitForTile) {
+                        if (action.error) {
+                            dispatch<Actions.LoadDataDone>({
+                                name: ActionName.LoadDataDone,
+                                error: new Error(this.appServices.translate('global__failed_to_obtain_required_data')),
+                                payload: {
+                                    data: [],
+                                    simFreqWords: [],
+                                    concId: null
+                                }
+                            });
+                            return true;
+                        }
                         const payload = (action as ConcActions.DataLoadDone).payload;
                         const data1$ = this.api
                             .call(stateToAPIArgs(state, payload.data.conc_persistence_op_id))

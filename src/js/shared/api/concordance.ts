@@ -91,8 +91,7 @@ export class ConcApi implements DataApi<RequestArgs, ConcResponse> {
             this.apiURL,
             args
 
-        ).concatMap(
-            data => Rx.Observable.of({
+        ).map(data => ({
                 conc_persistence_op_id: data.conc_persistence_op_id,
                 messages: data.messages,
                 Lines: data.Lines,

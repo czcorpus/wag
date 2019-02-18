@@ -144,6 +144,18 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
             case GlobalActionName.RequestQueryResponse:
                 this.suspend((action:Action) => {
                     if (action.name === ConcActionName.DataLoadDone && this.waitingForTiles.has(action.payload['tileId'])) {
+                        if (action.error) {
+                            dispatch({
+                                name: ActionName.LoadDataDone,
+                                error: new Error(this.appServices.translate('global__failed_to_obtain_required_data')),
+                                payload: {
+                                    data: [],
+                                    concId: null, // TODO
+                                    tileId: this.tileId
+                                }
+                            });
+                            return true;
+                        }
                         const payload = (action as ConcActions.DataLoadDone).payload;
 
                         if (this.waitingForTiles.get(payload.tileId) === null) {
