@@ -153,17 +153,17 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                     <div className="FreqPieTileView">
                         <div className="charts" ref={this.chartsRef} onScroll={this.handleScroll}>
                             {this.props.blocks.map(block => {
-                                const chartWidth = this.props.isMobile ? this.props.renderSize[0].toFixed() : "90%";
+                                const chartWidth = this.props.isMobile ? (this.props.renderSize[0] * 0.9).toFixed() : "90%";
                                 return (
                                     <div key={block.ident} style={{width: chartsViewBoxWidth, height: "100%"}}>
                                         <Chart data={block.data} width={chartWidth} height={300}
-                                                radius={Math.min(...this.props.renderSize) / 4}
+                                                radius={Math.min(this.props.renderSize[0], 100)}
                                                 isMobile={this.props.isMobile} />
                                     </div>
                                 );
                             })}
                         </div>
-                        {this.props.isMobile || this.props.widthFract == 1 ?
+                        {(this.props.widthFract == 1 || this.props.isMobile) && this.props.blocks.size > 1 ?
                             <ChartSwitch blockIndices={this.props.blocks.map((_, i) => i).toList()}
                                     currentIdx={this.props.activeBlock}
                                     onChange={this.handleDotClick} /> :
