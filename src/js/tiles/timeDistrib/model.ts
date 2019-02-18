@@ -158,7 +158,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         const payload = (action as ConcActions.DataLoadDone).payload;
                         new Rx.Observable((observer:Rx.Observer<{}>) => {
                             if (action.error) {
-                                observer.error(action.error);
+                                observer.error(new Error(this.appServices.translate('global__failed_to_obtain_required_data')));
 
                             } else {
                                 observer.next({});

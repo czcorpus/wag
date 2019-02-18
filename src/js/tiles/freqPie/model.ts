@@ -43,7 +43,7 @@ export interface FreqPieModelState {
     activeBlock:number;
     corpname:string;
     concId:string;
-    fcrit:Array<string>;
+    fcrit:Immutable.List<string>;
     flimit:number;
     freqSort:string;
     fpage:number;
@@ -54,7 +54,7 @@ export interface FreqPieModelState {
 const stateToAPIArgs = (state:FreqPieModelState, concId:string):QueryArgs => ({
     corpname: state.corpname,
     q: `~${concId ? concId : state.concId}`,
-    fcrit: state.fcrit,
+    fcrit: state.fcrit.toArray(),
     flimit: state.flimit.toString(),
     freq_sort: state.freqSort,
     fpage: state.fpage.toString(),
@@ -99,17 +99,17 @@ export class FreqPieModel extends StatelessModel<FreqPieModelState> {
                     const newState = this.copyState(state);
                     newState.isBusy = false;
                     if (action.error) {
-                        newState.blocks = Immutable.List<DataBlock>({
-                            data: state.fcrit.map(v => Immutable.List<FreqPieDataRow>()),
+                        newState.blocks = Immutable.List<DataBlock>(state.fcrit.map(_ => ({
+                            data: Immutable.List<FreqPieDataRow>(),
                             ident: puid()
-                        });
+                        })));
                         newState.error = action.error.message;
 
                     } else if (action.payload.blocks.length === 0) {
-                        newState.blocks = Immutable.List<DataBlock>({
-                            data: state.fcrit.map(v => Immutable.List<FreqPieDataRow>()),
+                        newState.blocks = Immutable.List<DataBlock>(state.fcrit.map(_ => ({
+                            data: Immutable.List<FreqPieDataRow>(),
                             ident: puid()
-                        });
+                        })));
                         newState.error = this.appServices.translate('global__not_enough_data_to_show_result');
 
                     } else {
@@ -136,6 +136,18 @@ export class FreqPieModel extends StatelessModel<FreqPieModelState> {
             case GlobalActionName.RequestQueryResponse:
                 this.suspend((action:Action) => {
                     if (action.name === ConcActionName.DataLoadDone && action.payload['tileId'] === this.waitForTile) {
+                        if (action.error) {
+                            dispatch<Actions.LoadDataDone>({
+                                name: ActionName.LoadDataDone,
+                                payload: {
+                                    blocks: [],
+                                    concId: null,
+                                    tileId: this.tileId
+                                },
+                                error: new Error(this.appServices.translate('global__failed_to_obtain_required_data'))
+                            });
+                            return true;
+                        }
                         const payload = (action as ConcActions.DataLoadDone).payload;
                         new Rx.Observable((observer:Rx.Observer<{}>) => {
                             if (action.error) {

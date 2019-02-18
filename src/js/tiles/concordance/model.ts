@@ -143,7 +143,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                     const newState = this.copyState(state);
                     newState.isBusy = false;
                     if (action.error) {
-                        this.appServices.showMessage(SystemMessageType.ERROR, action.error);
+                        newState.error = action.error.message;
 
                     } else if (action.payload.data.fullsize === 0) {
                         newState.error = this.appServices.translate('global__not_enough_data_to_show_result');

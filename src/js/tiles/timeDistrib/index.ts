@@ -117,7 +117,7 @@ export class TimeDistTile implements ITileProvider {
     }
 
     disable():void {
-        this.model.suspend(()=>undefined);
+        this.model.suspend(()=>false);
     }
 
     getWidthFract():number {

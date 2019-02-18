@@ -148,7 +148,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             const chartsViewBoxWidth = this.props.isMobile ? '100%' : `${100 / this.props.blocks.size}%`;
             return (
                 <globalComponents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
-                        hasData={this.props.blocks.size > 0}
+                        hasData={this.props.blocks.find(v => v.data.size > 0) !== undefined}
                         sourceIdent={{corp: this.props.corpname}}>
                     <div className="FreqPieTileView">
                         <div className="charts" ref={this.chartsRef} onScroll={this.handleScroll}>

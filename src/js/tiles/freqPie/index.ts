@@ -70,7 +70,7 @@ export class FreqPieTile implements ITileProvider {
                 activeBlock: 0,
                 corpname: conf.corpname,
                 concId: null,
-                fcrit: criteria,
+                fcrit: Immutable.List<string>(criteria),
                 flimit: conf.flimit,
                 freqSort: conf.freqSort,
                 fpage: conf.fpage,
@@ -108,7 +108,7 @@ export class FreqPieTile implements ITileProvider {
     }
 
     disable():void {
-        this.model.suspend(()=>undefined);
+        this.model.suspend(()=>false);
     }
 
     getWidthFract():number {
