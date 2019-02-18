@@ -21,7 +21,7 @@ import { ITileProvider, TileFactory, QueryType, TileComponent, TileConf } from '
 import {init as viewInit} from './views';
 import { ConcordanceTileModel } from './model';
 import { ActionDispatcher, ViewUtils } from 'kombo';
-import { ConcApi, Line, ViewMode } from '../../shared/api/concordance';
+import { ConcApi, Line, ViewMode, QuerySelector } from '../../shared/api/concordance';
 import { GlobalComponents } from '../../views/global';
 
 declare var require:any;
@@ -69,6 +69,7 @@ export class ConcordanceTile implements ITileProvider {
                 isTweakMode: false,
                 isMobile: appServices.isMobileMode(),
                 widthFract: widthFract,
+                querySelector: QuerySelector.WORD,
                 lines: Immutable.List<Line>(),
                 corpname: conf.corpname,
                 fullsize: -1,

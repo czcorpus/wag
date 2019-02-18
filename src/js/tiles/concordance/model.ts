@@ -19,7 +19,7 @@ import * as Immutable from 'immutable';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
 import {ActionName, Actions} from './actions';
-import {ConcApi, Line, QuerySelector, RequestArgs, ViewMode} from '../../shared/api/concordance';
+import {ConcApi, Line, QuerySelector, RequestArgs, ViewMode, setQuery} from '../../shared/api/concordance';
 import { WdglanceMainFormModel } from '../../models/query';
 import { AppServices } from '../../appServices';
 import { importMessageType } from '../../notifications';
@@ -32,6 +32,7 @@ export interface ConcordanceTileState {
     isTweakMode:boolean;
     isMobile:boolean;
     widthFract:number;
+    querySelector:QuerySelector;
     lines:Immutable.List<Line>;
     corpname:string;
     fullsize:number;
@@ -63,11 +64,10 @@ export interface ConcordanceTileModelArgs {
 }
 
 
-export const stateToArgs = (state:ConcordanceTileState, query:string, querySelector:QuerySelector):RequestArgs => {
-    return {
+export const stateToArgs = (state:ConcordanceTileState, query:string):RequestArgs => {
+    const ans:RequestArgs = {
         corpname: state.corpname,
-        iquery: query,
-        queryselector: querySelector,
+        queryselector: state.querySelector,
         kwicleftctx: (-1 * state.kwicLeftCtx).toFixed(),
         kwicrightctx: state.kwicRightCtx.toFixed(),
         async: '0',
@@ -78,6 +78,8 @@ export const stateToArgs = (state:ConcordanceTileState, query:string, querySelec
         viewmode: state.viewMode,
         format:'json'
     };
+    setQuery(ans, query);
+    return ans;
 }
 
 
@@ -203,7 +205,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
     private reloadData(state:ConcordanceTileState, dispatch:SEDispatcher):void {
         this.service
-            .call(stateToArgs(state, this.mainForm.getState().query.value, QuerySelector.BASIC))
+            .call(stateToArgs(state, this.mainForm.getState().query.value))
             .subscribe(
                 (data) => {
                     dispatch<Actions.DataLoadDone>({
