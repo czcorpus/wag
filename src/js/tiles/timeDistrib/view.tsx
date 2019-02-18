@@ -55,8 +55,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             <ResponsiveContainer width="90%" height={props.size[1]}>
                 <AreaChart data={props.data}
                         margin={{top: 10, right: 30, left: 0, bottom: 0}}>
-                    <CartesianGrid strokeDasharray="3 3"/>
-                    <XAxis dataKey="datetime"/>
+                    <CartesianGrid strokeDasharray="1 1"/>
+                    <XAxis dataKey="datetime" interval="preserveStartEnd" minTickGap={0} type="category" />
                     <YAxis />
                     <Tooltip isAnimationActive={false} />
                     <Area type="linear"

@@ -53,7 +53,7 @@ export interface TimeDistribModelState {
     concId:string;
     attrTime:string;
     attrValue:string;
-    minFreq:string;
+    minFreq:number;
     minFreqType:FreqFilterQuantity;
     alignType1:AlignType;
     ctxIndex1:number;
@@ -89,7 +89,7 @@ const stateToAPIArgs = (state:TimeDistribModelState, concId:string):QueryArgs =>
         ctfcrit2: getAttrCtx(state, Dimension.SECOND),
         ctattr1: state.attrTime,
         ctattr2: state.attrValue,
-        ctminfreq: state.minFreq,
+        ctminfreq: state.minFreq.toFixed(),
         ctminfreq_type: state.minFreqType,
         format: 'json'
     };

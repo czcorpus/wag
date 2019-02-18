@@ -81,11 +81,13 @@ export class TimeDistribAPI implements DataApi<QueryArgs, APIResponse> {
             (resp) => {
                 return Rx.Observable.of({
                     concId: null, // TODO
-                    data: resp.data.data.map(row => ({
-                        datetime: row[0],
-                        abs: row[2],
-                        domainSize: row[3]
-                    })).sort((a, b) => parseInt(a.datetime) - parseInt(b.datetime))
+                    data: resp.data.data
+                        .map(row => ({
+                            datetime: row[0],
+                            abs: row[2],
+                            domainSize: row[3]
+                        }))
+                        .sort((a, b) => parseInt(a.datetime) - parseInt(b.datetime))
                 });
             }
         );

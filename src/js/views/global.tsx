@@ -204,7 +204,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
         render() {
             if (this.state.error) {
                 return (
-                    <div>
+                    <div className="cnc-tile-body">
                         <p>
                         <MessageStatusIcon statusType={SystemMessageType.ERROR} isInline={true} />
                             {ut.translate('global__failed_to_render_component')}
