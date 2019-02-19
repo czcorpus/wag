@@ -162,7 +162,6 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         onChange:(v:QueryType)=>void;
 
     }> = (props) => {
-
         return <div className="QueryTypeSelector">
             {props.avail.map((v, i) =>
                 <React.Fragment key={v[0]}>
@@ -695,7 +694,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
         return (
             <div className="WdglanceMain">
-                <WdglanceControlsBound />
+                <WdglanceControlsBound isMobile={props.isMobile} />
                 <BoundMessagesBox />
                 <BoundTilesSections layout={props.layout} />
             </div>
