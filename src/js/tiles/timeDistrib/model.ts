@@ -163,7 +163,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                 observer.next({});
                                 observer.complete();
                             }
-                        }).concatMap(args => this.api.call(stateToAPIArgs(state, payload.data.conc_persistence_op_id)))
+                        })
+                        .concatMap(args => this.api.call(stateToAPIArgs(state, payload.data.conc_persistence_op_id)))
                         .subscribe(
                             resp => {
                                 const dataFull = resp.data.map<DataItemWithWCI>(v => {
@@ -186,6 +187,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                 });
                             },
                             error => {
+                                console.error(error);
                                 dispatch<Actions.LoadDataDone>({
                                     name: ActionName.LoadDataDone,
                                     payload: {
