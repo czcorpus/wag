@@ -72,7 +72,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         <h1>Word At a Glance</h1>
                     </header>
                     <section className="wdglance-mount">
-                        <mainViews.WdglanceMain layout={Immutable.List<TileGroup>()} />
+                        <mainViews.WdglanceMain layout={Immutable.List<TileGroup>()} isMobile={false} />
                     </section>
                     <script type="text/javascript" src="./dist/common.js"></script>
                     <script type="text/javascript" src="./dist/index.js"></script>
