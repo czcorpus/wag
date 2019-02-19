@@ -33,6 +33,10 @@ module.exports = (env) => ({
     module: {
         rules: [
             {
+                test: /\.inline\.svg/,
+                use: 'raw-loader',
+            },
+            {
                 test: /\.(png|jpg|gif|svg)$/,
                 use: [
                     {
