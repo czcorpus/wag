@@ -158,18 +158,21 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
     const QueryTypeSelector:React.SFC<{
         avail:Immutable.List<[QueryType, string]>;
         value:QueryType;
+        isMobile:boolean;
         onChange:(v:QueryType)=>void;
 
     }> = (props) => {
 
         return <div className="QueryTypeSelector">
-            {props.avail.map(v =>
-                <label key={v[0]}>
-                    <input type="radio" value={v[0]}
-                            onChange={(evt:React.ChangeEvent<HTMLInputElement>) => props.onChange(evt.target.value as QueryType)}
-                            checked={v[0] === props.value} />
-                    {v[1]}
-                </label>
+            {props.avail.map((v, i) =>
+                <React.Fragment key={v[0]}>
+                    {i > 0 && props.isMobile ? <span> | </span> : null}
+                    <a onClick={(evt:React.MouseEvent<HTMLAnchorElement>) => props.onChange(v[0])}
+                                className={v[0] === props.value ? 'current' : null}
+                                aria-current={v[0] === props.value ? 'page' : null}>
+                        {v[1]}
+                    </a>
+                </React.Fragment>
             )}
         </div>
     };
@@ -263,7 +266,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     // ------------------ <WdglanceControls /> ------------------------------
 
-    class WdglanceControls extends React.PureComponent<WdglanceMainState> {
+    class WdglanceControls extends React.PureComponent<WdglanceMainState & {isMobile:boolean}> {
 
         constructor(props) {
             super(props);
@@ -304,7 +307,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         <div>
                             <QueryTypeSelector avail={this.props.availQueryTypes}
                                     value={this.props.queryType}
-                                    onChange={this.handleQueryTypeChange} />
+                                    onChange={this.handleQueryTypeChange}
+                                    isMobile={this.props.isMobile} />
                         </div>
                         <div className="main">
                             <QueryFields query={this.props.query}
@@ -323,7 +327,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
     }
 
     const WdglanceControlsBound = formModel ?
-            Bound<WdglanceMainState>(WdglanceControls, formModel) :
+            BoundWithProps<{isMobile:boolean}, WdglanceMainState>(WdglanceControls, formModel) :
             (props) => <WdglanceControls
                             query={Forms.newFormValue('', true)}
                             query2={Forms.newFormValue('', false)}
@@ -332,6 +336,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                             targetLanguage2="en"
                             availLanguages={Immutable.List<[string, string]>()}
                             availQueryTypes={Immutable.List<[QueryType, string]>()}
+                            isMobile={false}
                             isValid={true} />
 
     // ------------- <HelpButton /> --------------------------------------
@@ -684,7 +689,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
     // ------------------ <WdglanceMain /> ------------------------------
 
     const WdglanceMain:React.SFC<{
-        layout:Immutable.List<TileGroup>
+        layout:Immutable.List<TileGroup>;
+        isMobile:boolean;
     }> = (props) => {
 
         return (

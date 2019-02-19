@@ -74,6 +74,8 @@ export class WdglanceMainFormModel extends StatelessModel<WdglanceMainState> {
             },
             [ActionName.SubmitQuery]: (state, action:Actions.SubmitQuery) => {
                 const newState = this.copyState(state);
+                newState.query.value = newState.query.value.trim();
+                newState.query2.value = newState.query2.value.trim();
                 newState.isValid = this.queryIsValid(newState);
                 return newState;
             }

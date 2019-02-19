@@ -338,7 +338,8 @@ export const init = (
         React.createElement(
             component.WdglanceMain,
             {
-                layout: layoutManager.getLayout(queryType)
+                layout: layoutManager.getLayout(queryType),
+                isMobile: appServices.isMobileMode()
             }
         ),
         mountElement

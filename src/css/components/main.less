@@ -91,18 +91,17 @@
     .QueryTypeSelector {
         margin-top: 1em;
 
-        label {
+        a {
             padding: 0.2em;
+            cursor: pointer;
         }
 
-        label:not(:first-child) {
-            margin-left: 0.7em;
+        a:hover {
+            text-decoration: underline;
         }
 
-        input[type="radio"] {
-            display: inline-block;
-            vertical-align: middle;
-            margin: 0 0.2em;
+        a.current {
+            color: @color-logo-orange;
         }
     }
 

@@ -47,15 +47,30 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, APIResponse> {
 
     private readonly apiURL:string;
 
+    private readonly cache:{[corp:string]:HTTPResponse};
+
     constructor(apiURL:string) {
         this.apiURL = apiURL;
+        this.cache = {};
     }
 
     call(args:QueryArgs):Rx.Observable<APIResponse> {
-        return ajax$<HTTPResponse>(
-            'GET',
-            this.apiURL,
-            args
-        );
+        if (args.corpname in this.cache) {
+            return Rx.Observable.of(this.cache[args.corpname]);
+
+        } else {
+            const ans = ajax$<HTTPResponse>(
+                'GET',
+                this.apiURL,
+                args
+            ).share();
+            ans.subscribe(
+                (data) => {
+                    this.cache[args.corpname] = data;
+                }
+            );
+            return ans;
+        }
+
     }
 }
