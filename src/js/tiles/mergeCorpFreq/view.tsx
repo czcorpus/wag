@@ -64,7 +64,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         hasData={this.props.data.find(v => v.freq > 0) !== undefined}
                         sourceIdent={this.props.sources.map(v => ({corp: v.corpname})).toArray()}>
                     <div className="TTDistribTile">
-                        <Chart data={this.props.data} size={[this.props.renderSize[0], this.props.data.size * this.props.pixelsPerItem]} />
+                        <Chart data={this.props.data} size={[this.props.renderSize[0], 70 + this.props.data.size * this.props.pixelsPerItem]} />
                     </div>
                 </globComponents.TileWrapper>
             );

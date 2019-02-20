@@ -130,7 +130,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                                 const chartWidth = this.props.isMobile ? (this.props.renderSize[0] * 0.95).toFixed() : "90%";
                                 return (
                                     <div key={block.ident} style={{width: chartsViewBoxWidth, height: "100%"}}>
-                                        <Chart data={block.data} width={chartWidth} height={block.data.size * 50}
+                                        <Chart data={block.data} width={chartWidth} height={70 + block.data.size * 40}
                                                 isMobile={this.props.isMobile} />
                                     </div>
                                 );
