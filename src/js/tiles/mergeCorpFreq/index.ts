@@ -98,7 +98,7 @@ export class MergeCorpFreqTile implements ITileProvider {
                             appServices.importExternalMessage(src.valuePlaceholder) :
                             null
                 }))),
-                pixelsPerItem: conf.pixelsPerItem ? conf.pixelsPerItem : 50
+                pixelsPerItem: conf.pixelsPerItem ? conf.pixelsPerItem : 40
             }
         );
     }
