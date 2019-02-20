@@ -80,17 +80,21 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         );
         const rMin = max > 1000 ? 110 : 90;
         const rMax = max > 1000 ? 190 : 170;
-        const a = (rMax - rMin) / (max - min);
+        const a = max !== min ? (rMax - rMin) / (max - min) : 0;
         const b = rMin - a * min;
         const mkSize = (v:number) => a * v + b;
 
+        // clear possible previous labels
+        document.querySelectorAll('#svg-graph-p g.label-mount').forEach(elm => {
+            while (elm.firstChild) {
+                elm.removeChild(elm.firstChild);
+            }
+        });
+        // insert data
         props.data.forEach(v => {
             const ident = props.areaCodeMapping.get(v.name);
             if (ident) {
                 const elm = document.getElementById(`${ident}-g`);
-                while (elm.firstChild) {
-                    elm.removeChild(elm.firstChild);
-                }
                 const ellipse = createSVGElement(
                     elm,
                     'ellipse',
