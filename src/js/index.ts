@@ -297,7 +297,7 @@ export const init = (
             );
         }
     });
-
+    console.log('xxx: ', layouts[queryType].slice(1).map((_, i) => i));
     const tilesModel = new WdglanceTilesModel(
         dispatcher,
         {
@@ -308,7 +308,7 @@ export const init = (
             helpActiveTiles:Immutable.Set<number>(),
             tilesHelpData: Immutable.Map<number, string>(),
             hiddenGroups:Immutable.Set<number>(),
-            hiddenGroupsHeaders:Immutable.Set<number>(),
+            hiddenGroupsHeaders:Immutable.Set<number>(appServices.isMobileMode() ? layouts[queryType].map((_, i) => i) : []),
             tileProps: Immutable.List<TileFrameProps>(tiles),
             isModalVisible: false,
             modalBoxData: null,
