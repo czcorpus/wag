@@ -106,7 +106,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                     }
                 );
                 Rx.Observable.fromEvent(ellipse, 'mouseover')
-                    .debounceTime(200)
+                    .throttleTime(200)
                     .subscribe(() => {
                         dispatcher.dispatch<Actions.SetHighlightedTableRow>({
                             name: ActionName.SetHighlightedTableRow,
@@ -117,7 +117,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         });
                     });
                 Rx.Observable.fromEvent(ellipse, 'mouseout')
-                    .debounceTime(200)
+                    .throttleTime(200)
                     .subscribe(() => {
                         dispatcher.dispatch<Actions.ClearHighlightedTableRow>({
                             name: ActionName.ClearHighlightedTableRow,

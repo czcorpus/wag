@@ -22,7 +22,6 @@ import { DataRow, QueryArgs } from '../api/kontextFreqs';
 interface TTDistribModelStateBase {
     isBusy:boolean;
     error:string;
-    data:Immutable.List<DataRow>;
     corpname:string;
     concId:string;
     flimit:number;
@@ -33,13 +32,20 @@ interface TTDistribModelStateBase {
 
 export interface GeneralTTDistribModelState extends TTDistribModelStateBase {
     fcrit:string;
+    data:Immutable.List<DataRow>;
 }
 
-export interface GeneralMultiCritTTDistribModelState extends TTDistribModelStateBase {
+export interface FreqDataBlock<T> {
+    data:Immutable.List<T>;
+    ident:string;
+}
+
+export interface GeneralMultiCritTTDistribModelState<T> extends TTDistribModelStateBase {
     fcrit:Immutable.List<string>;
+    blocks:Immutable.List<FreqDataBlock<T>>;
 }
 
-export const stateToAPIArgs = (state:GeneralTTDistribModelState|GeneralMultiCritTTDistribModelState, concId:string):QueryArgs => ({
+export const stateToAPIArgs = <T>(state:GeneralTTDistribModelState|GeneralMultiCritTTDistribModelState<T>, concId:string):QueryArgs => ({
     corpname: state.corpname,
     q: `~${concId ? concId : state.concId}`,
     fcrit: typeof state.fcrit === 'string' ? [state.fcrit] : state.fcrit.toArray(),

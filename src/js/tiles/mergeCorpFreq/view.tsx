@@ -43,7 +43,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                 <ResponsiveContainer width="90%" height={props.size[1] + 50}>
                     <BarChart data={props.data.toArray()} layout="vertical">
                         <CartesianGrid />
-                        <Bar dataKey="ipm" fill={SystemColor.COLOR_LOGO_BLUE} />
+                        <Bar dataKey="ipm" fill={SystemColor.COLOR_LOGO_BLUE} isAnimationActive={false} />
                         <XAxis type="number" />
                         <YAxis type="category" dataKey="name" width={120} />
                         <Legend />

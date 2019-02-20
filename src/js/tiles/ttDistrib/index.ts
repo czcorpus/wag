@@ -21,9 +21,11 @@ import { ITileProvider, TileFactory, QueryType, TileComponent, TileConf } from '
 import {init as viewInit} from './view';
 import { ActionDispatcher, ViewUtils } from "kombo";
 import { TTDistribModel } from "./model";
-import { FreqDistribAPI, DataRow } from "../../shared/api/kontextFreqs";
+import { DataRow, MultiBlockFreqDistribAPI } from "../../shared/api/kontextFreqs";
 import { GlobalComponents } from "../../views/global";
 import { AppServices } from '../../appServices';
+import { FreqDataBlock } from '../../shared/models/freq';
+import { puid } from '../../shared/util';
 
 declare var require:(src:string)=>void;  // webpack
 require('./style.less');
@@ -65,19 +67,24 @@ export class TTDistTile implements ITileProvider {
         this.ut = ut;
         this.widthFract = widthFract;
         this.label = appServices.importExternalMessage(conf.label);
+        const criteria = Immutable.List<string>(typeof conf.fcrit === 'string' ? [conf.fcrit] : conf.fcrit);
         this.model = new TTDistribModel(
             this.dispatcher,
             tileId,
             waitForTile,
             appServices,
-            new FreqDistribAPI(conf.apiURL),
+            new MultiBlockFreqDistribAPI(conf.apiURL),
             {
                 isBusy: false,
                 error: null,
-                data: Immutable.List<DataRow>(),
+                blocks: Immutable.List<FreqDataBlock<DataRow>>(criteria.map(v => ({
+                    data: Immutable.List<DataRow>(),
+                    ident: puid()
+                }))),
+                activeBlock: 0,
                 corpname: conf.corpname,
                 concId: null,
-                fcrit: Immutable.List<string>(typeof conf.fcrit === 'string' ? [conf.fcrit] : conf.fcrit),
+                fcrit: criteria,
                 flimit: conf.flimit,
                 freqSort: conf.freqSort,
                 fpage: conf.fpage,

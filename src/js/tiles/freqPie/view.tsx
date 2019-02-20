@@ -90,28 +90,12 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         labelLine={false}
                         label={renderCustomizedLabel}
                         outerRadius={props.radius}
-                        fill="#8884d8">
+                        fill="#8884d8"
+                        isAnimationActive={false}>
                     {props.data.map((entry, index) => <Cell key={`cell-${entry.name}`} fill={c20(`${index}`)}/>)}
                 </Pie>
                 <Legend verticalAlign="top" height={36}/>
             </ChartWrapper>
-        );
-    };
-
-    // ------- <ChartSwitch /> ---------------------------------------------------
-
-    const ChartSwitch:React.SFC<{
-        blockIndices:Immutable.List<number>;
-        currentIdx:number;
-        onChange:(idx:number)=>void;
-
-    }> = (props) => {
-        return (
-            <div className="ChartSwitch">
-                {props.blockIndices.map(ident =>
-                        <a key={ident} className={`${props.currentIdx === ident ? 'current' : ''}`}
-                                onClick={()=>props.onChange(ident)}>{'\u25A0'}</a>)}
-            </div>
         );
     };
 
@@ -140,7 +124,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
         private handleDotClick(idx:number) {
             if (this.chartsRef.current && this.props.isMobile) {
-                this.chartsRef.current.scrollLeft = this.props.renderSize[0] * idx;
+                this.chartsRef.current.scrollLeft = Math.round(this.props.renderSize[0] * 0.95 * idx);
             }
         }
 
@@ -153,7 +137,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                     <div className="FreqPieTileView">
                         <div className="charts" ref={this.chartsRef} onScroll={this.handleScroll}>
                             {this.props.blocks.map(block => {
-                                const chartWidth = this.props.isMobile ? (this.props.renderSize[0] * 0.9).toFixed() : "90%";
+                                const chartWidth = this.props.isMobile ? (this.props.renderSize[0] * 0.95).toFixed() : "90%";
                                 return (
                                     <div key={block.ident} style={{width: chartsViewBoxWidth, height: "100%"}}>
                                         <Chart data={block.data} width={chartWidth} height={300}
@@ -164,7 +148,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                             })}
                         </div>
                         {this.props.isMobile && this.props.blocks.size > 1 ?
-                            <ChartSwitch blockIndices={this.props.blocks.map((_, i) => i).toList()}
+                            <globalComponents.HorizontalBlockSwitch blockIndices={this.props.blocks.map((_, i) => i).toList()}
                                     currentIdx={this.props.activeBlock}
                                     onChange={this.handleDotClick} /> :
                             null

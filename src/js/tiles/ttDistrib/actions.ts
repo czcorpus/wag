@@ -17,21 +17,29 @@
  */
 
 import { Action } from 'kombo';
-import { DataRow } from '../../shared/api/kontextFreqs';
+import { ApiDataBlock } from '../../shared/api/kontextFreqs';
 
 
 export enum ActionName {
-    LoadDataDone = 'TT_DISTRIB_LOAD_DATA_DONE'
+    LoadDataDone = 'TT_DISTRIB_LOAD_DATA_DONE',
+    SetActiveBlock = 'TT_DISTRIB_SET_ACTIVE_BLOCK'
 }
 
 export namespace Actions {
 
     export interface LoadDataDone extends Action<{
-        data:Array<DataRow>;
+        blocks:Array<ApiDataBlock>;
         concId:string;
         tileId:number;
 
     }> {
         name: ActionName.LoadDataDone
+    }
+
+    export interface SetActiveBlock extends Action<{
+        idx:number;
+        tileId:number;
+    }> {
+        name: ActionName.SetActiveBlock;
     }
 }

@@ -24,6 +24,7 @@ import { DataRow } from '../../shared/api/kontextFreqs';
 import { GlobalComponents } from '../../views/global';
 import { SystemColor } from '../../shared/colors';
 import { CoreTileComponentProps, TileComponent } from '../../abstract/types';
+import { ActionName, Actions } from './actions';
 
 
 export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:TTDistribModel):TileComponent {
@@ -31,25 +32,58 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
     const globComponents = ut.getComponents();
 
 
+    // ------- <ChartWrapper /> ---------------------------------------------------
+
+    const ChartWrapper:React.SFC<{
+        data:Immutable.List<DataRow>;
+        width:string|number;
+        height:string|number;
+        isMobile:boolean;
+
+    }> = (props) => {
+        if (props.isMobile) {
+            return (
+                <BarChart data={props.data.toArray()}
+                        width={typeof props.width === 'string' ? parseInt(props.width) : props.width}
+                        height={typeof props.height === 'string' ? parseInt(props.height) : props.height}
+                        layout="vertical"
+                        isAnimationActive={false}>
+                    {props.children}
+                </BarChart>
+            );
+
+        } else {
+            return (
+                <ResponsiveContainer width={props.width} height={props.height}>
+                    <BarChart data={props.data.toArray()} layout="vertical">
+                        {props.children}
+                    </BarChart>
+                </ResponsiveContainer>
+            );
+        }
+    }
+
+
     // -------------------------- <Chart /> --------------------------------------
 
     const Chart:React.SFC<{
         data:Immutable.List<DataRow>;
-        size:[number, number];
+        width:string|number;
+        height:string|number;
+        isMobile:boolean;
+
     }> = (props) => {
 
         return (
             <div className="Chart">
-                <ResponsiveContainer width="90%" height={props.size[1] + 50}>
-                    <BarChart data={props.data.toArray()} layout="vertical">
-                        <CartesianGrid />
-                        <Bar dataKey="ipm" fill={SystemColor.COLOR_LOGO_BLUE} isAnimationActive={false} />
-                        <XAxis type="number" />
-                        <YAxis type="category" dataKey="name" width={120} />
-                        <Legend />
-                        <Tooltip cursor={false} isAnimationActive={false} />
-                    </BarChart>
-                </ResponsiveContainer>
+                <ChartWrapper data={props.data} isMobile={props.isMobile} width={props.width} height={props.height}>
+                    <CartesianGrid />
+                    <Bar data={props.data.toArray()} dataKey="ipm" fill={SystemColor.COLOR_LOGO_BLUE} isAnimationActive={false} />
+                    <XAxis type="number" />
+                    <YAxis type="category" dataKey="name" width={120} />
+                    <Legend />
+                    <Tooltip cursor={false} isAnimationActive={false} />
+                </ChartWrapper>
             </div>
         );
     };
@@ -58,13 +92,57 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     class TTDistribTile extends React.PureComponent<TTDistribModelState & CoreTileComponentProps> {
 
+        private chartsRef:React.RefObject<HTMLDivElement>;
+
+        constructor(props) {
+            super(props);
+            this.chartsRef = React.createRef();
+            this.handleScroll = this.handleScroll.bind(this);
+            this.handleDotClick = this.handleDotClick.bind(this);
+        }
+
+        private handleScroll():void {
+            dispatcher.dispatch<Actions.SetActiveBlock>({
+                name: ActionName.SetActiveBlock,
+                payload: {
+                    idx: Math.round(this.chartsRef.current.scrollLeft / this.props.renderSize[0]),
+                    tileId: this.props.tileId
+                }
+            });
+        }
+
+        private handleDotClick(idx:number) {
+            if (this.chartsRef.current && this.props.isMobile) {
+                this.chartsRef.current.scrollLeft = Math.round(this.props.renderSize[0] * 0.95 * idx);
+            }
+        }
+
         render() {
+            const chartsViewBoxWidth = this.props.isMobile ? '100%' : `${100 / this.props.blocks.size}%`;
+
             return (
                 <globComponents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
-                        hasData={this.props.data.size > 0}
+                        hasData={this.props.blocks.find(v => v.data.size > 0) !== undefined}
                         sourceIdent={{corp: this.props.corpname}}>
                     <div className="TTDistribTile">
-                        <Chart data={this.props.data} size={[this.props.renderSize[0], this.props.data.size * 50]} />
+                        <div className="charts" ref={this.chartsRef} onScroll={this.handleScroll}>
+                            {this.props.blocks.map(block => {
+                                const chartWidth = this.props.isMobile ? (this.props.renderSize[0] * 0.95).toFixed() : "90%";
+                                return (
+                                    <div key={block.ident} style={{width: chartsViewBoxWidth, height: "100%"}}>
+                                        <Chart data={block.data} width={chartWidth} height={block.data.size * 50}
+                                                isMobile={this.props.isMobile} />
+                                    </div>
+                                );
+                            })}
+                        </div>
+                        {this.props.isMobile && this.props.blocks.size > 1 ?
+                            <globComponents.HorizontalBlockSwitch htmlClass="ChartSwitch"
+                                    blockIndices={this.props.blocks.map((_, i) => i).toList()}
+                                    currentIdx={this.props.activeBlock}
+                                    onChange={this.handleDotClick} /> :
+                            null
+                        }
                     </div>
                 </globComponents.TileWrapper>
             );
