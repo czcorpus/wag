@@ -169,7 +169,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         sourceIdent={{corp: this.props.corpname}}>
                     <div className="GeoAreasTileView">
                         <div className="flex-item" style={{width: areaWidth, height: '80%'}}>
-                            <div style={{width: '100%', height: '100%'}} dangerouslySetInnerHTML={{__html: areaMap}} />
+                            <div style={{width: '100%', height: '100%', overflowX: 'auto'}} dangerouslySetInnerHTML={{__html: areaMap}} />
                             <p className="legend">{ut.translate('geolocations__ipm_map_legend')}</p>
                         </div>
                         {this.props.widthFract > 2 && !this.props.isMobile ?
