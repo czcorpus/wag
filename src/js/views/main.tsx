@@ -577,6 +577,43 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             Bound(MessagesBox, messagesModel) :
             (props) => <MessagesBox systemMessages={Immutable.List<SystemMessage>()} />;
 
+
+    // -------------------- <TileGroupHeading /> -----------------------------
+
+    const TileGroupHeading:React.SFC<{
+        groupHidden:boolean;
+        group:TileGroup;
+        headerTextActive:boolean;
+        clickHandler:()=>void;
+        helpClickHandler:()=>void;
+
+    }> = (props) => {
+
+
+        return (
+            <div className="TileGroupHeading">
+                <h2>
+                    <span className="flex">
+                        <span className="switch-common">
+                            <span className={`triangle${props.groupHidden ? ' right' : ''}`}>
+                                {props.groupHidden ?
+                                    <img src={ut.createStaticUrl('triangle_w_right.svg')} /> :
+                                    <img src={ut.createStaticUrl('triangle_w_down.svg')} />
+                                }
+                            </span>
+                            <a className="switch" onClick={()=>props.clickHandler()}
+                                    title={props.groupHidden ? ut.translate('global__click_to_show_group') : ut.translate('global__click_to_hide_group')}>
+                                {props.group.groupLabel}
+                            </a>
+                        </span>
+                        <a className={`help${props.headerTextActive ? ' active' : ''}`} onClick={()=>props.helpClickHandler()}>?</a>
+                    </span>
+                </h2>
+            </div>
+        );
+    };
+
+
     // -------------------- <TilesSections /> -----------------------------
 
     class TilesSections extends React.PureComponent<{layout:Immutable.List<TileGroup>} & WdglanceTilesState> {
@@ -592,15 +629,24 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             })
         }
 
-        mkGroupClickHandler(groupIdx:number) {
-            return () => {
-                dispatcher.dispatch<Actions.ToggleGroupVisibility>({
-                    name: ActionName.ToggleGroupVisibility,
-                    payload: {
-                        groupIdx: groupIdx
-                    }
-                });
-            }
+        // note: no need to bind this one
+        handleGroupClick(groupIdx:number):void {
+            dispatcher.dispatch<Actions.ToggleGroupVisibility>({
+                name: ActionName.ToggleGroupVisibility,
+                payload: {
+                    groupIdx: groupIdx
+                }
+            });
+        }
+
+        // note: no need to bind this one
+        handleGroupHeaderClick(groupIdx:number):void {
+            dispatcher.dispatch<Actions.ToggleGroupHeader>({
+                name: ActionName.ToggleGroupHeader,
+                payload: {
+                    groupIdx: groupIdx
+                }
+            });
         }
 
         render() {
@@ -616,25 +662,15 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                             return (
                                 <section key={`group:${group.groupLabel}`} className="group">
                                     <header>
-                                        <h2>
-                                            <span className="mark">{'\u25B6'}</span>
-                                            <a onClick={this.mkGroupClickHandler(groupIdx)}
-                                                    title={groupHidden ? ut.translate('global__click_to_show_group') : ut.translate('global__click_to_hide_group')}>
-                                                {group.groupLabel}
-                                            </a>
-                                        </h2>
-                                        <p>{group.groupDesc}</p>
+                                        <TileGroupHeading groupHidden={groupHidden} group={group}
+                                                headerTextActive={!this.props.hiddenGroupsHeaders.contains(groupIdx)}
+                                                clickHandler={()=>this.handleGroupClick(groupIdx)}
+                                                helpClickHandler={()=>this.handleGroupHeaderClick(groupIdx)} />
+                                        {this.props.hiddenGroupsHeaders.contains(groupIdx) ? null : <p>{group.groupDesc}</p>}
                                     </header>
+
                                     {groupHidden ?
-                                        <section className="hidden-content cnc-tile">
-                                            <div className="cnc-tile-body">
-                                                <a className="show" onClick={this.mkGroupClickHandler(groupIdx)}>
-                                                    {ut.translate('global__show_group_link')}
-                                                    {'\u00a0'}
-                                                    {'\u2026'}
-                                                </a>
-                                            </div>
-                                        </section> :
+                                        null :
                                         <section className="tiles">
                                         {group.tiles
                                             .map(v => this.props.tileProps.get(v.tileId))
@@ -679,6 +715,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         helpActiveTiles={Immutable.Set<number>()}
                         tilesHelpData={Immutable.Map<number, string>()}
                         hiddenGroups={Immutable.Set<number>()}
+                        hiddenGroupsHeaders={Immutable.Set<number>()}
                         tileProps={Immutable.List<TileFrameProps>()}
                         modalBoxData={null}
                         modalBoxTitle=""

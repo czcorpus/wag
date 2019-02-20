@@ -59,11 +59,11 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         return (
             <span className="Paginator">
                 <a onClick={handlePrevPage} className={`${props.page === 1 ? 'disabled' : null}`}>
-                    <img className="arrow" src={ut.createStaticUrl('prev-page.svg')} />
+                    <img className="arrow" src={ut.createStaticUrl('triangle_left.svg')} />
                 </a>
                 <input className="page" type="text" readOnly={true} value={props.page} />
                 <a onClick={handleNextPage} className={`${props.page === props.numPages ? 'disabled' : null}`}>
-                    <img className="arrow" src={ut.createStaticUrl('next-page.svg')} />
+                    <img className="arrow" src={ut.createStaticUrl('triangle_right.svg')} />
                 </a>
             </span>
         );
