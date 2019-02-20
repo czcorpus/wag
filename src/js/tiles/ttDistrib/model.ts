@@ -18,16 +18,18 @@
 
 import * as Immutable from 'immutable';
 import * as Rx from '@reactivex/rxjs';
-import {QueryArgs, FreqDistribAPI, DataRow} from '../../shared/api/kontextFreqs';
+import {FreqDistribAPI, DataRow} from '../../shared/api/kontextFreqs';
 import {StatelessModel, ActionDispatcher, Action, SEDispatcher} from 'kombo';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
 import {ActionName as ConcActionName, Actions as ConcActions} from '../concordance/actions';
 import {ActionName, Actions} from './actions';
 import { AppServices } from '../../appServices';
-import { GeneralTTDistribModelState, stateToAPIArgs } from '../../shared/models/freq';
+import { stateToAPIArgs, GeneralMultiCritTTDistribModelState } from '../../shared/models/freq';
 
 
-export type TTDistribModelState = GeneralTTDistribModelState;
+export interface TTDistribModelState extends GeneralMultiCritTTDistribModelState {
+    maxNumCategories:number;
+}
 
 
 export class TTDistribModel extends StatelessModel<TTDistribModelState> {
@@ -94,7 +96,7 @@ export class TTDistribModel extends StatelessModel<TTDistribModelState> {
                                 dispatch<Actions.LoadDataDone>({
                                     name: ActionName.LoadDataDone,
                                     payload: {
-                                        data: resp.data,
+                                        data: resp.data.sort((x1, x2) => x2.ipm - x1.ipm).slice(0, state.maxNumCategories),
                                         concId: resp.concId,
                                         tileId: this.tileId
                                     }

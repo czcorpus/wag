@@ -19,24 +19,30 @@
 import * as Immutable from 'immutable';
 import { DataRow, QueryArgs } from '../api/kontextFreqs';
 
-
-export interface GeneralTTDistribModelState {
+interface TTDistribModelStateBase {
     isBusy:boolean;
     error:string;
     data:Immutable.List<DataRow>;
     corpname:string;
     concId:string;
-    fcrit:string;
     flimit:number;
     freqSort:string;
     fpage:number;
     fttIncludeEmpty:boolean;
 }
 
-export const stateToAPIArgs = (state:GeneralTTDistribModelState, concId:string):QueryArgs => ({
+export interface GeneralTTDistribModelState extends TTDistribModelStateBase {
+    fcrit:string;
+}
+
+export interface GeneralMultiCritTTDistribModelState extends TTDistribModelStateBase {
+    fcrit:Immutable.List<string>;
+}
+
+export const stateToAPIArgs = (state:GeneralTTDistribModelState|GeneralMultiCritTTDistribModelState, concId:string):QueryArgs => ({
     corpname: state.corpname,
     q: `~${concId ? concId : state.concId}`,
-    fcrit: [state.fcrit],
+    fcrit: typeof state.fcrit === 'string' ? [state.fcrit] : state.fcrit.toArray(),
     flimit: state.flimit.toString(),
     freq_sort: state.freqSort,
     fpage: state.fpage.toString(),

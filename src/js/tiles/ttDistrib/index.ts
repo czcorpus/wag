@@ -33,11 +33,12 @@ export interface TTDistTileConf extends TileConf {
     tileType:'TTDistribTile';
     apiURL:string;
     corpname:string;
-    fcrit:string;
+    fcrit:string|Array<string>;
     flimit:number;
     freqSort:string;
     fpage:number;
     fttIncludeEmpty:boolean;
+    maxNumCategories:number;
 }
 
 
@@ -76,11 +77,12 @@ export class TTDistTile implements ITileProvider {
                 data: Immutable.List<DataRow>(),
                 corpname: conf.corpname,
                 concId: null,
-                fcrit: conf.fcrit,
+                fcrit: Immutable.List<string>(typeof conf.fcrit === 'string' ? [conf.fcrit] : conf.fcrit),
                 flimit: conf.flimit,
                 freqSort: conf.freqSort,
                 fpage: conf.fpage,
-                fttIncludeEmpty: conf.fttIncludeEmpty
+                fttIncludeEmpty: conf.fttIncludeEmpty,
+                maxNumCategories: conf.maxNumCategories
             }
         );
     }
