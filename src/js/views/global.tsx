@@ -15,9 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import {ActionDispatcher, ViewUtils} from 'kombo';
+import * as Immutable from 'immutable';
 import * as React from 'react';
+import {ActionDispatcher, ViewUtils} from 'kombo';
 import { KeyCodes } from '../shared/util';
 import { SystemMessageType } from '../abstract/types';
 import { Actions, ActionName } from '../models/actions';
@@ -56,6 +56,13 @@ export interface GlobalComponents {
     ModalBox:React.ComponentClass<{
         onCloseClick?:()=>void;
         title:string;
+    }>;
+
+    HorizontalBlockSwitch:React.SFC<{
+        blockIndices:Immutable.List<number>;
+        currentIdx:number;
+        htmlClass?:string;
+        onChange:(idx:number)=>void;
     }>;
 }
 
@@ -278,12 +285,27 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
         }
     }
 
+    // ------- <HorizontalBlockSwitch /> ---------------------------------------------------
+
+    const HorizontalBlockSwitch:GlobalComponents['HorizontalBlockSwitch'] = (props) => {
+        return (
+            <div className={`HorizontalBlockSwitch${props.htmlClass ? ' ' + props.htmlClass : ''}`}>
+                {props.blockIndices.map(ident =>
+                        <a key={ident} className={`${props.currentIdx === ident ? 'current' : ''}`}
+                                onClick={()=>props.onChange(ident)}>{'\u25A0'}</a>)}
+            </div>
+        );
+    };
+
+    // ===================
+
     return {
         AjaxLoader: AjaxLoader,
         MessageStatusIcon: MessageStatusIcon,
         EmptySet: EmptySet,
         TileWrapper: TileWrapper,
         ErrorBoundary: ErrorBoundary,
-        ModalBox: ModalBox
+        ModalBox: ModalBox,
+        HorizontalBlockSwitch: HorizontalBlockSwitch
     };
 }

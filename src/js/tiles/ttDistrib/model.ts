@@ -18,21 +18,25 @@
 
 import * as Immutable from 'immutable';
 import * as Rx from '@reactivex/rxjs';
-import {QueryArgs, FreqDistribAPI, DataRow} from '../../shared/api/kontextFreqs';
+import {DataRow, MultiBlockFreqDistribAPI} from '../../shared/api/kontextFreqs';
 import {StatelessModel, ActionDispatcher, Action, SEDispatcher} from 'kombo';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
 import {ActionName as ConcActionName, Actions as ConcActions} from '../concordance/actions';
 import {ActionName, Actions} from './actions';
 import { AppServices } from '../../appServices';
-import { GeneralTTDistribModelState, stateToAPIArgs } from '../../shared/models/freq';
+import { stateToAPIArgs, GeneralMultiCritTTDistribModelState, FreqDataBlock } from '../../shared/models/freq';
+import { puid } from '../../shared/util';
 
 
-export type TTDistribModelState = GeneralTTDistribModelState;
+export interface TTDistribModelState extends GeneralMultiCritTTDistribModelState<DataRow> {
+    maxNumCategories:number;
+    activeBlock:number;
+}
 
 
 export class TTDistribModel extends StatelessModel<TTDistribModelState> {
 
-    private api:FreqDistribAPI;
+    private api:MultiBlockFreqDistribAPI;
 
     private readonly appServices:AppServices;
 
@@ -40,7 +44,7 @@ export class TTDistribModel extends StatelessModel<TTDistribModelState> {
 
     private readonly waitForTile:number;
 
-    constructor(dispatcher:ActionDispatcher, tileId:number, waitForTile:number, appServices:AppServices, api:FreqDistribAPI, initState:TTDistribModelState) {
+    constructor(dispatcher:ActionDispatcher, tileId:number, waitForTile:number, appServices:AppServices, api:MultiBlockFreqDistribAPI, initState:TTDistribModelState) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.waitForTile = waitForTile;
@@ -53,19 +57,42 @@ export class TTDistribModel extends StatelessModel<TTDistribModelState> {
                 newState.error = null;
                 return newState;
             },
+            [ActionName.SetActiveBlock]: (state, action:Actions.SetActiveBlock) => {
+                if (action.payload.tileId === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.activeBlock = action.payload.idx;
+                    return newState;
+                }
+                return state;
+            },
             [ActionName.LoadDataDone]: (state, action:Actions.LoadDataDone) => {
                 if (action.payload.tileId === this.tileId) {
                     const newState = this.copyState(state);
                     newState.isBusy = false;
                     if (action.error) {
-                        newState.data = Immutable.List<DataRow>();
+                        newState.blocks = Immutable.List<FreqDataBlock<DataRow>>(state.fcrit.map(_ => ({
+                            data: Immutable.List<FreqDataBlock<DataRow>>(),
+                            ident: puid()
+                        })));
                         newState.error = action.error.message;
 
-                    } else if (action.payload.data.length === 0) {
-                        newState.data = Immutable.List<DataRow>();
+                    } else if (action.payload.blocks.length === 0) {
+                        newState.blocks = Immutable.List<FreqDataBlock<DataRow>>(state.fcrit.map(_ => ({
+                            data: Immutable.List<FreqDataBlock<DataRow>>(),
+                            ident: puid()
+                        })));
 
                     } else {
-                        newState.data = Immutable.List<DataRow>(action.payload.data);
+                        newState.blocks = Immutable.List<FreqDataBlock<DataRow>>(action.payload.blocks.map(block => {
+                            return {
+                                data: Immutable.List<FreqDataBlock<DataRow>>(block.data.map(v => ({
+                                    name: v.name,
+                                    freq: v.freq,
+                                    ipm: v.ipm
+                                }))),
+                                ident: puid()
+                            };
+                        }));
                     }
                     return newState;
                 }
@@ -94,7 +121,11 @@ export class TTDistribModel extends StatelessModel<TTDistribModelState> {
                                 dispatch<Actions.LoadDataDone>({
                                     name: ActionName.LoadDataDone,
                                     payload: {
-                                        data: resp.data,
+                                        blocks: resp.blocks.map(block => {
+                                            return {
+                                                data: block.data.sort((x1, x2) => x2.ipm - x1.ipm).slice(0, state.maxNumCategories),
+                                            }
+                                        }),
                                         concId: resp.concId,
                                         tileId: this.tileId
                                     }
@@ -104,7 +135,7 @@ export class TTDistribModel extends StatelessModel<TTDistribModelState> {
                                 dispatch<Actions.LoadDataDone>({
                                     name: ActionName.LoadDataDone,
                                     payload: {
-                                        data: null,
+                                        blocks: null,
                                         concId: null,
                                         tileId: this.tileId
                                     },

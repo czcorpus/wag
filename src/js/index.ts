@@ -297,7 +297,7 @@ export const init = (
             );
         }
     });
-    console.log('xxx: ', layouts[queryType].slice(1).map((_, i) => i));
+
     const tilesModel = new WdglanceTilesModel(
         dispatcher,
         {

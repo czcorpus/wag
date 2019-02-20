@@ -152,13 +152,13 @@
    <text class="sidlo_label" style="text-anchor:middle;font-size:40px;" transform="translate(1739.053858779379,614.2264586070705)" dy=".35em">Jičín</text>
    <text class="sidlo_label" style="text-anchor:middle;font-size:40px;" transform="translate(1101.5192191308488,531.782972307301)" dy=".35em">Litoměřice</text>
    <text class="sidlo_label" style="text-anchor:middle;font-size:40px;" transform="translate(1247.4188144098325,903.6034970677174)" dy=".35em">Praha</text>
-   <g transform="translate(420, 800)" id="naCPO-g" style="opacity: 0.75" />
-   <g transform="translate(1320, 920)" id="naSTR-g" style="opacity: 0.75" />
-   <g transform="translate(1100, 1480)" id="naJZC-g" style="opacity: .75;" />
-   <g transform="translate(2800, 950)" id="naMPO-g" style="opacity: 0.75;" />
-   <g transform="translate(2050, 890)" id="naSVC-g" style="opacity: 0.75" />
-   <g transform="translate(2050, 1320)" id="naCMO-g" style="opacity: .75;" />
-   <g transform="translate(3300, 1200)" id="naSLE-g" style="opacity: .75;" />
-   <g transform="translate(2980, 1630)" id="naVYM-g" style="opacity: .75;" />
-   <g transform="translate(2300, 1550)" id="naSTM-g" style="opacity: .75;" />
+   <g transform="translate(420, 800)" id="naCPO-g" class="label-mount" style="opacity: .75" />
+   <g transform="translate(1320, 920)" id="naSTR-g" class="label-mount" style="opacity: .75" />
+   <g transform="translate(1100, 1480)" id="naJZC-g" class="label-mount" style="opacity: .75;" />
+   <g transform="translate(2800, 950)" id="naMPO-g" class="label-mount" style="opacity: .75;" />
+   <g transform="translate(2050, 890)" id="naSVC-g" class="label-mount" style="opacity: .75" />
+   <g transform="translate(2050, 1320)" id="naCMO-g" class="label-mount" style="opacity: .75;" />
+   <g transform="translate(3300, 1200)" id="naSLE-g" class="label-mount" style="opacity: .75;" />
+   <g transform="translate(2980, 1630)" id="naVYM-g" class="label-mount" style="opacity: .75;" />
+   <g transform="translate(2300, 1550)" id="naSTM-g" class="label-mount" style="opacity: .75;" />
 </svg>
