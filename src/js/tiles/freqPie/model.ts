@@ -24,6 +24,7 @@ import {ActionName as ConcActionName, Actions as ConcActions} from '../concordan
 import {Actions, ActionName} from './actions';
 import { AppServices } from '../../appServices';
 import { puid } from '../../shared/util';
+import { GeneralMultiCritTTDistribModelState } from '../../shared/models/freq';
 
 
 export interface FreqPieDataRow {
@@ -36,18 +37,8 @@ export interface DataBlock {
     ident:string;
 }
 
-export interface FreqPieModelState {
-    isBusy:boolean;
-    error:string;
-    blocks:Immutable.List<DataBlock>;
+export interface FreqPieModelState extends GeneralMultiCritTTDistribModelState<FreqPieDataRow> {
     activeBlock:number;
-    corpname:string;
-    concId:string;
-    fcrit:Immutable.List<string>;
-    flimit:number;
-    freqSort:string;
-    fpage:number;
-    fttIncludeEmpty:boolean;
 }
 
 
