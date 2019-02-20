@@ -39,6 +39,7 @@ export enum ActionName {
     GetCorpusInfoDone = 'MAIN_GET_CORPUS_INFO_DONE',
     CloseCorpusInfo = 'MAIN_CLOSE_CORPUS_INFO',
     ToggleGroupVisibility = 'MAIN_TOGGLE_GROUP_VISIBILITY',
+    ToggleGroupHeader = 'MAIN_TOGGLE_GROUP_HEADER',
     ShowTileHelp = 'MAIN_SHOW_TILE_HELP',
     LoadTileHelpDone = 'MAIN_LOAD_TILE_HELP_DONE',
     HideTileHelp = 'MAIN_HIDE_TILE_HELP',
@@ -167,6 +168,12 @@ export namespace Actions {
         groupIdx:number;
     }> {
         name:ActionName.ToggleGroupVisibility;
+    }
+
+    export interface ToggleGroupHeader extends Action<{
+        groupIdx:number;
+    }> {
+        name:ActionName.ToggleGroupHeader;
     }
 
     export interface ShowTileHelp extends Action<{

@@ -308,6 +308,7 @@ export const init = (
             helpActiveTiles:Immutable.Set<number>(),
             tilesHelpData: Immutable.Map<number, string>(),
             hiddenGroups:Immutable.Set<number>(),
+            hiddenGroupsHeaders:Immutable.Set<number>(),
             tileProps: Immutable.List<TileFrameProps>(tiles),
             isModalVisible: false,
             modalBoxData: null,

@@ -35,6 +35,7 @@ export interface WdglanceTilesState {
     helpActiveTiles:Immutable.Set<number>;
     tilesHelpData:Immutable.Map<number, string>; // raw html data loaded from a trusted resource
     hiddenGroups:Immutable.Set<number>;
+    hiddenGroupsHeaders:Immutable.Set<number>;
     tileProps:Immutable.List<TileFrameProps>;
     modalBoxData:CorpusInfoResponse|null; // or other possible data types
     modalBoxTitle:string;
@@ -153,6 +154,16 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                     newState.hiddenGroups = newState.hiddenGroups.add(action.payload.groupIdx);
                 }
 
+                return newState;
+            },
+            [ActionName.ToggleGroupHeader]: (state, action:Actions.ToggleGroupHeader) => {
+                const newState = this.copyState(state);
+                if (newState.hiddenGroupsHeaders.contains(action.payload.groupIdx)) {
+                    newState.hiddenGroupsHeaders = newState.hiddenGroupsHeaders.remove(action.payload.groupIdx);
+
+                } else {
+                    newState.hiddenGroupsHeaders = newState.hiddenGroupsHeaders.add(action.payload.groupIdx);
+                }
                 return newState;
             }
         };
