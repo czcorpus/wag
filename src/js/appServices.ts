@@ -18,7 +18,7 @@
 
 import { SystemNotifications } from "./notifications";
 import {ITranslator} from 'kombo';
-import { SystemMessageType } from "./abstract/types";
+import { SystemMessageType } from "./common/types";
 declare var DocumentTouch;
 
 export class AppServices {

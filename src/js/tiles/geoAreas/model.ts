@@ -18,12 +18,12 @@
 import * as Rx from '@reactivex/rxjs';
 import * as Immutable from 'immutable';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
-import {FreqDistribAPI, DataRow} from '../../shared/api/kontextFreqs';
+import {FreqDistribAPI, DataRow} from '../../common/api/kontextFreqs';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
 import {ActionName as ConcActionName, Actions as ConcActions} from '../concordance/actions';
 import { AppServices } from '../../appServices';
 import { ActionName, Actions } from './actions';
-import { GeneralTTDistribModelState, stateToAPIArgs } from '../../shared/models/freq';
+import { GeneralTTDistribModelState, stateToAPIArgs } from '../../common/models/freq';
 
 /*
 oral2013:

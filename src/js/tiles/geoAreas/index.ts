@@ -17,12 +17,12 @@
  */
 
 import * as Immutable from 'immutable';
-import { ITileProvider, QueryType, TileConf, TileFactory, TileComponent } from '../../abstract/types';
+import { ITileProvider, QueryType, TileConf, TileFactory, TileComponent } from '../../common/types';
 import { ActionDispatcher } from 'kombo';
 import { AppServices } from '../../appServices';
 import {init as viewInit} from './views';
 import { GeoAreasModel } from './model';
-import { DataRow, FreqDistribAPI } from '../../shared/api/kontextFreqs';
+import { DataRow, FreqDistribAPI } from '../../common/api/kontextFreqs';
 declare var require:any;
 require('./style.less');
 

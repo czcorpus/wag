@@ -26,7 +26,7 @@ import {ActionDispatcher, ViewUtils, BoundWithProps} from 'kombo';
 import {CollocModel, CollocModelState} from './model';
 import { GlobalComponents } from '../../views/global';
 import { DataRow, ActionName, Actions, SrchContextType } from './common';
-import { TileComponent, CoreTileComponentProps } from '../../abstract/types';
+import { TileComponent, CoreTileComponentProps } from '../../common/types';
 
 
 export const drawChart = (container:HTMLElement, size:[number, number], data:Immutable.List<DataRow>, measures:Array<string>) => {

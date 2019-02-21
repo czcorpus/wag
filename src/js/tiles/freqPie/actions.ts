@@ -17,7 +17,7 @@
  */
 
 import { Action } from 'kombo';
-import { ApiDataBlock } from '../../shared/api/kontextFreqs';
+import { ApiDataBlock } from '../../common/api/kontextFreqs';
 
 
 export enum ActionName {

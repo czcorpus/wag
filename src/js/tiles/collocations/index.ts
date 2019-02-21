@@ -17,7 +17,7 @@
  */
 
 import * as Immutable from 'immutable';
-import { TileFactory, ITileProvider, CorePosAttribute, QueryType, TileComponent, TileConf } from "../../abstract/types";
+import { TileFactory, ITileProvider, CorePosAttribute, QueryType, TileComponent, TileConf } from "../../common/types";
 import { AppServices } from "../../appServices";
 import { CollocModel } from "./model";
 import { KontextCollAPI } from "./service";

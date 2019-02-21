@@ -23,7 +23,7 @@ import {ActionName as ConcActionName, Actions as ConcActions} from '../concordan
 import {ActionName, DataRow, Actions, CollApiArgs, DataHeading, CollocMetric, SrchContextType} from './common';
 import { KontextCollAPI } from './service';
 import { AppServices } from '../../appServices';
-import { SystemMessageType } from '../../abstract/types';
+import { SystemMessageType } from '../../common/types';
 
 
 export interface CollocModelArgs {

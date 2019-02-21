@@ -17,11 +17,11 @@
  */
 
 import * as Immutable from 'immutable';
-import { ITileProvider, TileFactory, QueryType, TileComponent, TileConf } from '../../abstract/types';
+import { ITileProvider, TileFactory, QueryType, TileComponent, TileConf } from '../../common/types';
 import {init as viewInit} from './view';
 import { ActionDispatcher, ViewUtils } from "kombo";
 import { MergeCorpFreqModel, SourceArgs } from "./model";
-import { FreqDistribAPI, DataRow } from "../../shared/api/kontextFreqs";
+import { FreqDistribAPI, DataRow } from "../../common/api/kontextFreqs";
 import { GlobalComponents } from "../../views/global";
 import { AppServices } from '../../appServices';
 

@@ -17,7 +17,7 @@
  */
 import * as Immutable from 'immutable';
 import { AppServices } from './appServices';
-import { QueryType } from './abstract/types';
+import { QueryType } from './common/types';
 
 export interface LayoutItemConf {
     width:number;

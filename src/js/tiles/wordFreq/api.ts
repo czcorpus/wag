@@ -17,9 +17,9 @@
  */
 
 import * as Rx from '@reactivex/rxjs';
-import { DataApi } from '../../abstract/types';
-import { ajax$ } from '../../shared/ajax';
-import {HTTPResponse} from '../../shared/api/kontextFreqs';
+import { DataApi } from '../../common/types';
+import { ajax$ } from '../../common/ajax';
+import {HTTPResponse} from '../../common/api/kontextFreqs';
 
 export interface RequestArgs {
     corpname:string;

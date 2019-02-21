@@ -24,7 +24,7 @@ import {BoundWithProps} from 'kombo';
 import {ActionDispatcher, ViewUtils} from 'kombo';
 import { GlobalComponents } from '../../views/global';
 import { FreqPieModel, FreqPieModelState, FreqPieDataRow } from './model';
-import { CoreTileComponentProps, TileComponent } from '../../abstract/types';
+import { CoreTileComponentProps, TileComponent } from '../../common/types';
 import { ActionName } from './actions';
 
 

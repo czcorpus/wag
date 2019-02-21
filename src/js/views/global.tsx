@@ -18,8 +18,8 @@
 import * as Immutable from 'immutable';
 import * as React from 'react';
 import {ActionDispatcher, ViewUtils} from 'kombo';
-import { KeyCodes } from '../shared/util';
-import { SystemMessageType } from '../abstract/types';
+import { KeyCodes } from '../common/util';
+import { SystemMessageType } from '../common/types';
 import { Actions, ActionName } from '../models/actions';
 
 export interface SourceInfo {

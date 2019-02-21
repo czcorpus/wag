@@ -23,7 +23,7 @@ import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../mo
 import { SyDAPI, RequestArgs, StrippedFreqResponse } from './api';
 import { ActionName, Actions } from './actions';
 import { AppServices } from '../../appServices';
-import { SystemMessageType } from '../../abstract/types';
+import { SystemMessageType } from '../../common/types';
 
 
 export interface SydModelState {

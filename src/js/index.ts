@@ -38,12 +38,12 @@ import * as translations from 'translations';
 import { AppServices } from './appServices';
 import { SystemNotifications } from './notifications';
 import { ActionName, Actions } from './models/actions';
-import { TileFrameProps, ITileProvider, QueryType, TileConf, TileFactory } from './abstract/types';
+import { TileFrameProps, ITileProvider, QueryType, TileConf, TileFactory } from './common/types';
 import { WdglanceTilesModel } from './models/tiles';
-import {encodeArgs} from './shared/ajax';
-import { Forms } from './shared/data';
+import {encodeArgs} from './common/ajax';
+import { Forms } from './common/data';
 import { MessagesModel } from './models/messages';
-import { CorpusInfoAPI } from './shared/api/corpusInfo';
+import { CorpusInfoAPI } from './common/api/corpusInfo';
 import {LayoutManager, LayoutConf} from './layout';
 
 declare var require:(src:string)=>void;  // webpack

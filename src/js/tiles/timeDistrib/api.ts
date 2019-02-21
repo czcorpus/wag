@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 import * as Rx from '@reactivex/rxjs';
-import { DataApi } from '../../abstract/types';
-import {ajax$} from '../../shared/ajax';
+import { DataApi } from '../../common/types';
+import {ajax$} from '../../common/ajax';
 
 
 // X-label, Y-label, abs, domain size

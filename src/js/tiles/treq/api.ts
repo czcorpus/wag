@@ -17,8 +17,8 @@
  */
 
 import * as Rx from '@reactivex/rxjs';
-import { DataApi } from '../../abstract/types';
-import {ajax$} from '../../shared/ajax';
+import { DataApi } from '../../common/types';
+import {ajax$} from '../../common/ajax';
 
 /*
         multiw_flag = '1' if ' ' in lemma else '0'

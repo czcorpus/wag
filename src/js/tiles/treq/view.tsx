@@ -22,8 +22,8 @@ import {ActionDispatcher, ViewUtils} from 'kombo';
 import { GlobalComponents } from '../../views/global';
 import { TreqModel, TreqModelState } from './model';
 import { TreqTranslation } from './api';
-import { MultiDict } from '../../shared/data';
-import { CoreTileComponentProps, TileComponent } from '../../abstract/types';
+import { MultiDict } from '../../common/data';
+import { CoreTileComponentProps, TileComponent } from '../../common/types';
 
 
 export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:TreqModel):TileComponent {
