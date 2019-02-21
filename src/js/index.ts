@@ -78,7 +78,6 @@ export interface WdglanceConf {
 
 const mkAttachTile = (queryType:QueryType, lang1:string, lang2:string) =>
     (data:Array<TileFrameProps>, tile:ITileProvider, helpURL:string):void => {
-    tile.init();
     const support = tile.supportsQueryType(queryType, lang1, lang2);
     data.push({
         tileId: tile.getIdent(),

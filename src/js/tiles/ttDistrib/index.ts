@@ -61,8 +61,7 @@ export class TTDistTile implements ITileProvider {
 
     private readonly widthFract:number;
 
-    constructor(dispatcher:ActionDispatcher, tileId:number, waitForTile:number, ut:ViewUtils<GlobalComponents>, theme:Theme,
-                appServices:AppServices, widthFract:number, conf:TTDistTileConf) {
+    constructor({dispatcher, tileId, waitForTiles, ut, theme, appServices, widthFract, conf}:TileFactory.Args<TTDistTileConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
@@ -71,7 +70,7 @@ export class TTDistTile implements ITileProvider {
         this.model = new TTDistribModel(
             this.dispatcher,
             tileId,
-            waitForTile,
+            waitForTiles[0],
             appServices,
             new MultiBlockFreqDistribAPI(conf.apiURL),
             {
@@ -93,9 +92,6 @@ export class TTDistTile implements ITileProvider {
             }
         );
         this.view = viewInit(this.dispatcher, ut, theme, this.model);
-    }
-
-    init():void {
     }
 
     getIdent():number {
@@ -133,6 +129,4 @@ export class TTDistTile implements ITileProvider {
 }
 
 
-export const init:TileFactory.TileFactory<TTDistTileConf>  = ({tileId, waitForTiles, dispatcher, ut, theme, appServices, widthFract, conf}) => {
-    return new TTDistTile(dispatcher, tileId, waitForTiles[0], ut, theme, appServices, widthFract, conf);
-}
+export const init:TileFactory.TileFactory<TTDistTileConf>  = (args) => new TTDistTile(args);

@@ -164,8 +164,6 @@ export type TileComponent = React.ComponentClass<CoreTileComponentProps>|React.S
  */
 export interface ITileProvider {
 
-    init():void;
-
     getLabel():string;
 
     getIdent():number;

@@ -53,8 +53,7 @@ export class SyDTile implements ITileProvider {
 
     private readonly widthFract:number;
 
-    constructor(dispatcher:ActionDispatcher, tileId:number, waitForTile:number, ut:ViewUtils<GlobalComponents>, mainForm:WdglanceMainFormModel,
-            appServices:AppServices, widthFract, conf:SyDTileConf) {
+    constructor({dispatcher, tileId, waitForTiles, ut, mainForm, appServices, widthFract, conf}:TileFactory.Args<SyDTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
@@ -75,16 +74,12 @@ export class SyDTile implements ITileProvider {
                 result: Immutable.List<StrippedFreqResponse>()
             },
             tileId,
-            waitForTile,
+            waitForTiles[0],
             mainForm,
             appServices,
             new SyDAPI(conf.apiURL, conf.concApiURL)
         );
         this.view = viewInit(dispatcher, ut, this.model);
-    }
-
-    init():void {
-
     }
 
     getIdent():number {
@@ -121,7 +116,4 @@ export class SyDTile implements ITileProvider {
 }
 
 
-export const init:TileFactory.TileFactory<SyDTileConf> = ({
-    tileId, waitForTiles, dispatcher, appServices, ut, mainForm, lang1, lang2, widthFract, conf}) => {
-    return new SyDTile(dispatcher, tileId, waitForTiles[0], ut, mainForm, appServices, widthFract, conf);
-}
+export const init:TileFactory.TileFactory<SyDTileConf> = (args) => new SyDTile(args);

@@ -60,7 +60,7 @@ export class WordFreqTile implements ITileProvider {
 
     private view:TileComponent;
 
-    constructor(lang1:string, lang2:string, {tileId, dispatcher, appServices, ut, mainForm, waitForTiles, widthFract, conf}:TileFactory.Args<WordFreqTileConf>) {
+    constructor({tileId, dispatcher, appServices, lang1, lang2, ut, mainForm, waitForTiles, widthFract, conf}:TileFactory.Args<WordFreqTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
@@ -97,9 +97,6 @@ export class WordFreqTile implements ITileProvider {
         );
     }
 
-    init():void {
-    }
-
     getIdent():number {
         return this.tileId;
     }
@@ -134,7 +131,4 @@ export class WordFreqTile implements ITileProvider {
 }
 
 
-export const init:TileFactory.TileFactory<WordFreqTileConf> = ({
-    tileId, dispatcher, appServices, ut, mainForm, lang1, lang2, waitForTiles, widthFract, theme, conf}) => {
-    return new WordFreqTile(lang1, lang2, {tileId, dispatcher, appServices, ut, theme, mainForm, widthFract, waitForTiles, conf});
-}
+export const init:TileFactory.TileFactory<WordFreqTileConf> = (args) => new WordFreqTile(args);

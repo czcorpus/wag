@@ -23,6 +23,7 @@ import { ConcordanceTileModel } from './model';
 import { ActionDispatcher, ViewUtils } from 'kombo';
 import { ConcApi, Line, ViewMode, QuerySelector } from '../../common/api/concordance';
 import { GlobalComponents } from '../../views/global';
+import { AppServices } from '../../appServices';
 
 declare var require:any;
 require('./style.less');
@@ -46,7 +47,7 @@ export class ConcordanceTile implements ITileProvider {
 
     private readonly model:ConcordanceTileModel;
 
-    private readonly ut:ViewUtils<GlobalComponents>;
+    private readonly appServices:AppServices;
 
     private view:TileComponent;
 
@@ -56,6 +57,7 @@ export class ConcordanceTile implements ITileProvider {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.widthFract = widthFract;
+        this.appServices = appServices;
         this.model = new ConcordanceTileModel({
             dispatcher: dispatcher,
             tileId: tileId,
@@ -90,15 +92,11 @@ export class ConcordanceTile implements ITileProvider {
             }
         });
         this.model.suspend
-        this.ut = ut;
+        this.view = viewInit(this.dispatcher, ut, this.model);
     }
 
     private calcContext(widthFract:number|undefined):number {
         return ConcordanceTileModel.CTX_SIZES[widthFract || 0] || ConcordanceTileModel.CTX_SIZES[0];
-    }
-
-    init():void {
-        this.view = viewInit(this.dispatcher, this.ut, this.model);
     }
 
     getIdent():number {
@@ -110,7 +108,7 @@ export class ConcordanceTile implements ITileProvider {
     }
 
     getLabel():string {
-        return this.ut.translate('concordance__main_label');
+        return this.appServices.translate('concordance__main_label');
     }
 
     supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {
@@ -134,6 +132,4 @@ export class ConcordanceTile implements ITileProvider {
     }
 }
 
-export const init:TileFactory.TileFactory<ConcordanceTileConf> = ({tileId, dispatcher, appServices, ut, mainForm, theme, widthFract, conf}) => {
-    return new ConcordanceTile({tileId, dispatcher, appServices, ut, mainForm, widthFract, theme, conf});
-}
+export const init:TileFactory.TileFactory<ConcordanceTileConf> = (args) => new ConcordanceTile(args);
