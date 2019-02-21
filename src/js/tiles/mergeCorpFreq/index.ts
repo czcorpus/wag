@@ -70,8 +70,8 @@ export class MergeCorpFreqTile implements ITileProvider {
 
     private readonly widthFract:number;
 
-    constructor(dispatcher:ActionDispatcher, tileId:number, waitForTiles:Array<number>, ut:ViewUtils<GlobalComponents>,
-                theme:Theme, appServices:AppServices, widthFract:number, conf:MergeCorpFreqTileConf) {
+    constructor({dispatcher, tileId, waitForTiles, ut,
+                theme, appServices, widthFract, conf}:TileFactory.Args<MergeCorpFreqTileConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
@@ -102,9 +102,6 @@ export class MergeCorpFreqTile implements ITileProvider {
             }
         );
         this.view = viewInit(this.dispatcher, ut, theme, this.model);
-    }
-
-    init():void {
     }
 
     getIdent():number {
@@ -142,6 +139,4 @@ export class MergeCorpFreqTile implements ITileProvider {
 }
 
 
-export const init:TileFactory.TileFactory<MergeCorpFreqTileConf>  = ({tileId, waitForTiles, dispatcher, ut, appServices, theme, widthFract, conf}) => {
-    return new MergeCorpFreqTile(dispatcher, tileId, waitForTiles, ut, theme, appServices, widthFract, conf);
-}
+export const init:TileFactory.TileFactory<MergeCorpFreqTileConf>  = (args) => new MergeCorpFreqTile(args);

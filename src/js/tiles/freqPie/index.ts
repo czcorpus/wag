@@ -89,9 +89,6 @@ export class FreqPieTile implements ITileProvider {
         );
     }
 
-    init():void {
-    }
-
     getIdent():number {
         return this.tileId;
     }

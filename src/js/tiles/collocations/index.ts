@@ -100,10 +100,6 @@ export class CollocationsTile implements ITileProvider {
         );
     }
 
-    init():void {
-
-    }
-
     getIdent():number {
         return this.tileId;
     }
@@ -138,6 +134,4 @@ export class CollocationsTile implements ITileProvider {
 }
 
 
-export const init:TileFactory.TileFactory<CollocationsTileConf> = ({tileId, dispatcher, appServices, ut, theme, mainForm, waitForTiles, widthFract, conf}) => {
-    return new CollocationsTile({tileId, dispatcher, appServices, ut, theme, mainForm, waitForTiles, widthFract, conf});
-}
+export const init:TileFactory.TileFactory<CollocationsTileConf> = (args) => new CollocationsTile(args);

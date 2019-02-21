@@ -65,8 +65,7 @@ export class TimeDistTile implements ITileProvider {
 
     private view:TileComponent;
 
-    constructor(dispatcher:ActionDispatcher, tileId:number, waitForTile:number, ut:ViewUtils<GlobalComponents>,
-                theme:Theme, appServices:AppServices, widthFract:number, conf:TimeDistTileConf) {
+    constructor({dispatcher, tileId, waitForTiles, ut, theme, appServices, widthFract, conf}:TileFactory.Args<TimeDistTileConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
@@ -92,15 +91,11 @@ export class TimeDistTile implements ITileProvider {
                 data: Immutable.List<DataItemWithWCI>()
             },
             tileId,
-            waitForTile,
+            waitForTiles[0],
             new TimeDistribAPI(conf.apiURL),
             appServices
         );
         this.view = viewInit(this.dispatcher, ut, theme, this.model);
-    }
-
-
-    init():void {
     }
 
     getIdent():number {
@@ -137,7 +132,4 @@ export class TimeDistTile implements ITileProvider {
 }
 
 
-
-export const init:TileFactory.TileFactory<TimeDistTileConf>  = ({tileId, waitForTiles, dispatcher, ut, theme, appServices, widthFract, conf}) => {
-    return new TimeDistTile(dispatcher, tileId, waitForTiles[0], ut, theme, appServices, widthFract, conf);
-}
+export const init:TileFactory.TileFactory<TimeDistTileConf>  = (args) => new TimeDistTile(args);

@@ -46,7 +46,7 @@ export class TreqTile implements ITileProvider {
 
     private readonly widthFract:number;
 
-    constructor(lang1:string, lang2:string, {tileId, dispatcher, appServices, ut, mainForm, widthFract, conf}:TileFactory.Args<TreqTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, lang1, lang2, mainForm, widthFract, conf}:TileFactory.Args<TreqTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
@@ -72,9 +72,6 @@ export class TreqTile implements ITileProvider {
             ut,
             this.model
         );
-    }
-
-    init():void {
     }
 
     getIdent():number {
@@ -111,7 +108,4 @@ export class TreqTile implements ITileProvider {
 }
 
 
-export const init:TileFactory.TileFactory<TreqTileConf> = ({
-    tileId, dispatcher, appServices, ut, mainForm, lang1, lang2, widthFract, theme, conf}) => {
-    return new TreqTile(lang1, lang2, {tileId, dispatcher, appServices, ut, theme, mainForm, widthFract, conf});
-}
+export const init:TileFactory.TileFactory<TreqTileConf> = (args) => new TreqTile(args);

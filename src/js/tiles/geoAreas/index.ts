@@ -86,10 +86,6 @@ export class GeoAreasTile implements ITileProvider {
         this.view = viewInit(this.dispatcher, ut, theme, this.model);
     }
 
-    init():void {
-
-    }
-
     getLabel():string {
         return this.label ? this.label : this.appServices.translate('geolocations__main_label');
     }
@@ -125,6 +121,4 @@ export class GeoAreasTile implements ITileProvider {
     }
 }
 
-export const init:TileFactory.TileFactory<GeoAreasTileConf>  = (args) => {
-    return new GeoAreasTile(args);
-}
+export const init:TileFactory.TileFactory<GeoAreasTileConf>  = (args) => new GeoAreasTile(args);
