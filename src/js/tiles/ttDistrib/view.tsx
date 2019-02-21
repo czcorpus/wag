@@ -73,16 +73,14 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         isMobile:boolean;
 
     }> = (props) => {
-
-        const maxLabelWidth = props.data.max((v1, v2) => v1.name.length > v2.name.length ? v1.name.length : v2.name.length).name.length;
-
+        const maxLabelWidth = props.data.max((v1, v2) => v1.name.length - v2.name.length).name.length;
         return (
             <div className="Chart">
                 <ChartWrapper data={props.data} isMobile={props.isMobile} width={props.width} height={props.height}>
                     <CartesianGrid />
                     <Bar data={props.data.toArray()} dataKey="ipm" fill={theme.barColor(0)} isAnimationActive={false} />
                     <XAxis type="number" />
-                    <YAxis type="category" dataKey="name" width={Math.max(60, maxLabelWidth * 13)} />
+                    <YAxis type="category" dataKey="name" width={Math.max(60, maxLabelWidth * 8)} />
                     <Legend />
                     <Tooltip cursor={false} isAnimationActive={false} />
                 </ChartWrapper>
