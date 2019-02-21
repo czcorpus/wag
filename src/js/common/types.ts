@@ -218,3 +218,6 @@ export namespace TileFactory {
 export interface DataApi<T, U> {
     call(queryArgs:T):Rx.Observable<U>;
 }
+
+
+export type DbValueMapping = {[corp:string]:{[key:string]:LocalizedConfMsg}};

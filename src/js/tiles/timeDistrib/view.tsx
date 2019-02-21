@@ -20,7 +20,7 @@ import {ResponsiveContainer, CartesianGrid, XAxis, YAxis, Tooltip, AreaChart, Ar
 import {ActionDispatcher, ViewUtils, BoundWithProps} from 'kombo';
 import { GlobalComponents } from '../../views/global';
 import { TimeDistribModel, TimeDistribModelState } from './model';
-import {SystemColor} from '../../common/colors';
+import {barColors} from '../../common/theme';
 import { DataItemWithWCI } from './common';
 import { CoreTileComponentProps, TileComponent } from '../../common/types';
 
@@ -62,8 +62,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                     <Area type="linear"
                             dataKey="interval"
                             name={ut.translate('timeDistrib__estimated_interval')}
-                            stroke={SystemColor.COLOR_LOGO_GREEN}
-                            fill={SystemColor.COLOR_LOGO_GREEN}
+                            stroke={barColors(0)}
+                            fill={barColors(0)}
                             strokeWidth={1}
                             isAnimationActive={false} />
                     <Legend content={<ChartLegend metric={ut.translate('timeDistrib__ipm_human')} distProperty={props.distProperty} />} />

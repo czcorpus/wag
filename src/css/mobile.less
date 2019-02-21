@@ -44,15 +44,15 @@
 
             margin-bottom: 0.7em;
 
-            a {
+            span.item {
                 display: block;
                 margin-left: 0;
                 padding-top: 0.3em;
                 padding-bottom: 0.3em;
-            }
 
-            a:not(:first-child) {
-                margin: 0;
+                a:not(:first-child) {
+                    margin: 0;
+                }
             }
         }
     }
@@ -72,7 +72,11 @@
 
     .WdglanceControls {
         padding: 0;
-        margin-bottom: 1em;
+        margin-bottom: 2em;
+
+        .QueryTypeSelector {
+            margin-top: 0.2em;
+        }
     }
 
     section.TilesSections {
@@ -92,14 +96,18 @@
                     align-items: center;
                     justify-content: space-between;
 
+
+                    a:hover {
+                        color: #FFFFFF;
+                    }
+
                 }
             }
         }
     }
 
     .WdglanceControls .main .SubmitButton button {
-        padding-left: 1.5em;
-        padding-right: 1.5em;
+        padding: 0.5em 1.5em 0.5em 1.5em;
     }
 
     #modal-overlay {

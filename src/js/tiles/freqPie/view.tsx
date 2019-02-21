@@ -17,21 +17,20 @@
  */
 import * as React from 'react';
 import * as Immutable from 'immutable';
-import * as d3 from 'd3';
-import * as d3Scale from 'd3-scale';
 import {ResponsiveContainer, PieChart, Pie, Cell, Legend} from 'recharts';
 import {BoundWithProps} from 'kombo';
 import {ActionDispatcher, ViewUtils} from 'kombo';
 import { GlobalComponents } from '../../views/global';
 import { FreqPieModel, FreqPieModelState, FreqPieDataRow } from './model';
 import { CoreTileComponentProps, TileComponent } from '../../common/types';
+import {categoryPalette} from '../../common/theme';
 import { ActionName } from './actions';
 
 
 export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:FreqPieModel):TileComponent {
 
     const globalComponents = ut.getComponents();
-    const c20 = d3Scale.scaleOrdinal(d3.schemeCategory10).domain(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']);
+    const colorPalette = categoryPalette(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']);
 
     // ------- <ChartWrapper /> ---------------------------------------------------
 
@@ -92,7 +91,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         outerRadius={props.radius}
                         fill="#8884d8"
                         isAnimationActive={false}>
-                    {props.data.map((entry, index) => <Cell key={`cell-${entry.name}`} fill={c20(`${index}`)}/>)}
+                    {props.data.map((entry, index) => <Cell key={`cell-${entry.name}`} fill={colorPalette(`${index}`)}/>)}
                 </Pie>
                 <Legend verticalAlign="top" height={36}/>
             </ChartWrapper>

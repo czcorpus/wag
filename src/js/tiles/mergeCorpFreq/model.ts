@@ -120,11 +120,17 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                             return acc.concat(
                                 (curr.data.length > 0 ? curr.data : [{name: srcConf.valuePlaceholder, freq: 0, ipm: 0}]).map(
                                 v => v.ipm ?
-                                    v :
+                                    {
+                                        freq: v.freq,
+                                        ipm: v.ipm,
+                                        name: this.appServices.translateDbValue(curr.corpname, v.name)
+                                    } :
                                     {
                                         freq: v.freq,
                                         ipm: Math.round(v.freq / srcConf.corpusSize * 1e8) / 100,
-                                        name: srcConf.valuePlaceholder ? srcConf.valuePlaceholder : v.name
+                                        name: srcConf.valuePlaceholder ?
+                                                srcConf.valuePlaceholder :
+                                                this.appServices.translateDbValue(curr.corpname, v.name)
                                     }
                             ));
                         },

@@ -16,11 +16,27 @@
  * limitations under the License.
  */
 
-import { SystemNotifications } from "./notifications";
+import { SystemNotifications } from './notifications';
 import {ITranslator} from 'kombo';
-import { SystemMessageType } from "./common/types";
+import { SystemMessageType, DbValueMapping } from './common/types';
 declare var DocumentTouch;
 
+/**
+ *
+ */
+export interface AppServicesArgs {
+    notifications:SystemNotifications;
+    uiLang:string;
+    translator:ITranslator;
+    staticUrlCreator:(path:string)=>string;
+    actionUrlCreator:(path: string)=>string;
+    dbValuesMapping:DbValueMapping;
+    args?:{[k:string]:string}|Array<[string, string]>;
+}
+
+/**
+ *
+ */
 export class AppServices {
 
     private readonly notifications:SystemNotifications;
@@ -31,18 +47,20 @@ export class AppServices {
 
     private forcedMobileMode:boolean; // for debugging
 
+    private readonly dbValuesMapping:DbValueMapping;
+
     private readonly staticUrlCreator:(path:string) => string;
 
     private readonly actionUrlCreator:(path: string, args?:{[k:string]:string}|Array<[string, string]>) => string;
 
-    constructor(notifications:SystemNotifications, uiLang:string, translator:ITranslator, staticUrlCreator:(path:string) => string,
-                actionUrlCreator:(path: string, args?:{[k:string]:string}|Array<[string, string]>) => string) {
+    constructor({notifications, uiLang, translator, staticUrlCreator, actionUrlCreator, dbValuesMapping, args}:AppServicesArgs) {
         this.notifications = notifications;
         this.uiLang = uiLang;
         this.translator = translator;
         this.staticUrlCreator = staticUrlCreator;
         this.actionUrlCreator = actionUrlCreator;
         this.forcedMobileMode = false;
+        this.dbValuesMapping = dbValuesMapping;
     }
 
     showMessage(type:SystemMessageType, text:string|Error):void {
@@ -89,5 +107,9 @@ export class AppServices {
         return this.forcedMobileMode ||
             (window.matchMedia('screen and (max-width: 480px)').matches
                 && (('ontouchstart' in window) || window['DocumentTouch'] && document instanceof DocumentTouch));
+    }
+
+    translateDbValue(corpname:string, value:string):string {
+        return this.importExternalMessage((this.dbValuesMapping[corpname] || {})[value]) || value;
     }
 }

@@ -50,7 +50,6 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             actionUrlCreator: (path, args) => services.clientConf.hostUrl + path + '?' + encodeArgs(args)
         });
         const view = viewInit(null, viewUtils);
-
         const appString = renderToString(React.createElement<LayoutProps>(view, {
             config: services.clientConf,
             userConfig: {
@@ -60,7 +59,8 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                 queryType: req.query['queryType'] || 'single',
                 query1: req.query['q1'] || '',
                 query2: req.query['q2'] || '',
-                tilesConf: services.clientConf.tiles[lang1]
+                tilesConf: services.clientConf.tiles[lang1],
+                dbValuesMapping: services.clientConf.dbValuesMapping
             }
         }));
         res.send(`<!DOCTYPE html>${appString}`);
