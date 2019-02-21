@@ -166,11 +166,14 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             {props.avail.map((v, i) =>
                 <React.Fragment key={v[0]}>
                     {i > 0 && !props.isMobile ? <span> | </span> : null}
-                    <a onClick={(evt:React.MouseEvent<HTMLAnchorElement>) => props.onChange(v[0])}
-                                className={v[0] === props.value ? 'current' : null}
-                                aria-current={v[0] === props.value ? 'page' : null}>
-                        {v[1]}
-                    </a>
+                    <span className="item">
+                        <a onClick={(evt:React.MouseEvent<HTMLAnchorElement>) => props.onChange(v[0])}
+                                    className={v[0] === props.value ? 'current' : null}
+                                    aria-current={v[0] === props.value ? 'page' : null}>
+                            {v[1]}
+                        </a>
+                        {v[0] === props.value ? <span>{'\u2713'}</span> : null}
+                    </span>
                 </React.Fragment>
             )}
         </div>
@@ -594,18 +597,18 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             <div className="TileGroupHeading">
                 <h2>
                     <span className="flex">
-                        <span className="switch-common">
+                        <a className="switch-common" onClick={()=>props.clickHandler()}
+                                    title={props.groupHidden ? ut.translate('global__click_to_show_group') : ut.translate('global__click_to_hide_group')}>
                             <span className={`triangle${props.groupHidden ? ' right' : ''}`}>
                                 {props.groupHidden ?
                                     <img src={ut.createStaticUrl('triangle_w_right.svg')} /> :
                                     <img src={ut.createStaticUrl('triangle_w_down.svg')} />
                                 }
                             </span>
-                            <a className="switch" onClick={()=>props.clickHandler()}
-                                    title={props.groupHidden ? ut.translate('global__click_to_show_group') : ut.translate('global__click_to_hide_group')}>
+                            <span className="switch">
                                 {props.group.groupLabel}
-                            </a>
-                        </span>
+                            </span>
+                        </a>
                         <a className={`help${props.headerTextActive ? ' active' : ''}`} onClick={()=>props.helpClickHandler()}>?</a>
                     </span>
                 </h2>
