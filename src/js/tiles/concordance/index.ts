@@ -17,11 +17,11 @@
  */
 
 import * as Immutable from 'immutable';
-import { ITileProvider, TileFactory, QueryType, TileComponent, TileConf } from '../../abstract/types';
+import { ITileProvider, TileFactory, QueryType, TileComponent, TileConf } from '../../common/types';
 import {init as viewInit} from './views';
 import { ConcordanceTileModel } from './model';
 import { ActionDispatcher, ViewUtils } from 'kombo';
-import { ConcApi, Line, ViewMode, QuerySelector } from '../../shared/api/concordance';
+import { ConcApi, Line, ViewMode, QuerySelector } from '../../common/api/concordance';
 import { GlobalComponents } from '../../views/global';
 
 declare var require:any;

@@ -18,13 +18,13 @@
 import * as Immutable from 'immutable';
 import * as Rx from '@reactivex/rxjs';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
-import { QueryArgs, MultiBlockFreqDistribAPI } from '../../shared/api/kontextFreqs';
+import { QueryArgs, MultiBlockFreqDistribAPI } from '../../common/api/kontextFreqs';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
 import {ActionName as ConcActionName, Actions as ConcActions} from '../concordance/actions';
 import {Actions, ActionName} from './actions';
 import { AppServices } from '../../appServices';
-import { puid } from '../../shared/util';
-import { GeneralMultiCritTTDistribModelState } from '../../shared/models/freq';
+import { puid } from '../../common/util';
+import { GeneralMultiCritTTDistribModelState } from '../../common/models/freq';
 
 
 export interface FreqPieDataRow {

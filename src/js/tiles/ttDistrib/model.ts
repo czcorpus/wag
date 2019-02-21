@@ -18,14 +18,14 @@
 
 import * as Immutable from 'immutable';
 import * as Rx from '@reactivex/rxjs';
-import {DataRow, MultiBlockFreqDistribAPI} from '../../shared/api/kontextFreqs';
+import {DataRow, MultiBlockFreqDistribAPI} from '../../common/api/kontextFreqs';
 import {StatelessModel, ActionDispatcher, Action, SEDispatcher} from 'kombo';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
 import {ActionName as ConcActionName, Actions as ConcActions} from '../concordance/actions';
 import {ActionName, Actions} from './actions';
 import { AppServices } from '../../appServices';
-import { stateToAPIArgs, GeneralMultiCritTTDistribModelState, FreqDataBlock } from '../../shared/models/freq';
-import { puid } from '../../shared/util';
+import { stateToAPIArgs, GeneralMultiCritTTDistribModelState, FreqDataBlock } from '../../common/models/freq';
+import { puid } from '../../common/util';
 
 
 export interface TTDistribModelState extends GeneralMultiCritTTDistribModelState<DataRow> {

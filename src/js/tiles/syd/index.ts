@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { TileFactory, ITileProvider, QueryType, TileComponent, TileConf } from '../../abstract/types';
+import { TileFactory, ITileProvider, QueryType, TileComponent, TileConf } from '../../common/types';
 import { ActionDispatcher, ViewUtils } from 'kombo';
 import { GlobalComponents } from '../../views/global';
 import { AppServices } from '../../appServices';

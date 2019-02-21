@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { ListOfPairs, AnyInterface } from '../abstract/types';
+import { ListOfPairs, AnyInterface } from './types';
 
 export class MultiDict<T={}> {
 

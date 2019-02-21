@@ -19,11 +19,11 @@ import * as Immutable from 'immutable';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
 import {ActionName, Actions} from './actions';
-import {ConcApi, Line, QuerySelector, RequestArgs, ViewMode, setQuery} from '../../shared/api/concordance';
+import {ConcApi, Line, QuerySelector, RequestArgs, ViewMode, setQuery} from '../../common/api/concordance';
 import { WdglanceMainFormModel } from '../../models/query';
 import { AppServices } from '../../appServices';
 import { importMessageType } from '../../notifications';
-import { SystemMessageType } from '../../abstract/types';
+import { SystemMessageType } from '../../common/types';
 
 
 export interface ConcordanceTileState {

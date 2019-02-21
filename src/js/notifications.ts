@@ -19,8 +19,8 @@
 import * as Rx from '@reactivex/rxjs';
 import { ActionDispatcher } from 'kombo';
 import {ActionName} from './models/actions';
-import {puid} from './shared/util';
-import { SystemMessageType } from './abstract/types';
+import {puid} from './common/util';
+import { SystemMessageType } from './common/types';
 
 
 export interface SystemMessage {

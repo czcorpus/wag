@@ -20,9 +20,9 @@ import {ResponsiveContainer, CartesianGrid, XAxis, YAxis, Tooltip, AreaChart, Ar
 import {ActionDispatcher, ViewUtils, BoundWithProps} from 'kombo';
 import { GlobalComponents } from '../../views/global';
 import { TimeDistribModel, TimeDistribModelState } from './model';
-import {SystemColor} from '../../shared/colors';
+import {SystemColor} from '../../common/colors';
 import { DataItemWithWCI } from './common';
-import { CoreTileComponentProps, TileComponent } from '../../abstract/types';
+import { CoreTileComponentProps, TileComponent } from '../../common/types';
 
 
 export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:TimeDistribModel):TileComponent {

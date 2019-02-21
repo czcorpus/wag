@@ -18,7 +18,7 @@
 
 import * as Rx from '@reactivex/rxjs';
 import {ajax$} from '../ajax';
-import { DataApi } from '../../abstract/types';
+import { DataApi } from '../types';
 
 export enum QuerySelector {
     BASIC = 'iqueryrow',

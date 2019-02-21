@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { TileConf, ITileProvider, TileComponent, QueryType, TileFactory } from '../../abstract/types';
+import { TileConf, ITileProvider, TileComponent, QueryType, TileFactory } from '../../common/types';
 import { AppServices } from '../../appServices';
 import { SummaryModel, FlevelDistribItem } from './model';
 import {init as viewInit} from './view';

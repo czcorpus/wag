@@ -22,7 +22,7 @@ import {wdgRouter} from './routes';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as sqlite3 from 'sqlite3';
-import {ServerConf, ClientConf} from '../abstract/conf';
+import {ServerConf, ClientConf} from '../common/conf';
 import * as translations from 'translations';
 
 const app = express();

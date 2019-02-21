@@ -20,7 +20,7 @@ import {BoundWithProps} from 'kombo';
 import {ActionDispatcher, ViewUtils} from 'kombo';
 import { GlobalComponents } from '../../views/global';
 import { SydModel, SydModelState } from './model';
-import { CoreTileComponentProps, TileComponent } from '../../abstract/types';
+import { CoreTileComponentProps, TileComponent } from '../../common/types';
 
 
 export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:SydModel):TileComponent {

@@ -20,10 +20,10 @@ import * as React from 'react';
 import {ActionDispatcher, ViewUtils, BoundWithProps} from 'kombo';
 import { MergeCorpFreqModel, MergeCorpFreqModelState } from './model';
 import {ResponsiveContainer, BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, Legend} from 'recharts';
-import { DataRow } from '../../shared/api/kontextFreqs';
+import { DataRow } from '../../common/api/kontextFreqs';
 import { GlobalComponents } from '../../views/global';
-import { SystemColor } from '../../shared/colors';
-import { CoreTileComponentProps, TileComponent } from '../../abstract/types';
+import { SystemColor } from '../../common/colors';
+import { CoreTileComponentProps, TileComponent } from '../../common/types';
 
 
 export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:MergeCorpFreqModel):TileComponent {

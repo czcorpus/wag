@@ -21,9 +21,9 @@ import * as Immutable from 'immutable';
 import * as React from 'react';
 import {ActionDispatcher, ViewUtils, BoundWithProps} from 'kombo';
 import { GlobalComponents } from '../../../views/global';
-import { CoreTileComponentProps, TileComponent } from '../../../abstract/types';
+import { CoreTileComponentProps, TileComponent } from '../../../common/types';
 import { GeoAreasModelState, GeoAreasModel } from '../model';
-import { DataRow } from '../../../shared/api/kontextFreqs';
+import { DataRow } from '../../../common/api/kontextFreqs';
 import { Actions, ActionName } from '../actions';
 
 declare var require:(src:string)=>string;  // webpack

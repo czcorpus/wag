@@ -21,7 +21,7 @@ import {BoundWithProps} from 'kombo';
 import {LineChart, XAxis, YAxis, CartesianGrid, Line, Label, Tooltip} from 'recharts';
 import {ActionDispatcher, ViewUtils} from 'kombo';
 import { GlobalComponents } from '../../views/global';
-import { CoreTileComponentProps, TileComponent } from '../../abstract/types';
+import { CoreTileComponentProps, TileComponent } from '../../common/types';
 import { SummaryModelState, SummaryModel } from './model';
 import { SummaryDataRow } from './api';
 import { ActionName, Actions } from './actions';

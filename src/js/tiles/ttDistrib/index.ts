@@ -17,15 +17,15 @@
  */
 
 import * as Immutable from 'immutable';
-import { ITileProvider, TileFactory, QueryType, TileComponent, TileConf } from '../../abstract/types';
+import { ITileProvider, TileFactory, QueryType, TileComponent, TileConf } from '../../common/types';
 import {init as viewInit} from './view';
 import { ActionDispatcher, ViewUtils } from "kombo";
 import { TTDistribModel } from "./model";
-import { DataRow, MultiBlockFreqDistribAPI } from "../../shared/api/kontextFreqs";
+import { DataRow, MultiBlockFreqDistribAPI } from "../../common/api/kontextFreqs";
 import { GlobalComponents } from "../../views/global";
 import { AppServices } from '../../appServices';
-import { FreqDataBlock } from '../../shared/models/freq';
-import { puid } from '../../shared/util';
+import { FreqDataBlock } from '../../common/models/freq';
+import { puid } from '../../common/util';
 
 declare var require:(src:string)=>void;  // webpack
 require('./style.less');

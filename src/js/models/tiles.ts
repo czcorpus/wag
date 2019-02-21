@@ -21,9 +21,9 @@ import { ActionName, Actions } from './actions';
 import * as Rx from '@reactivex/rxjs';
 import * as Immutable from 'immutable';
 import { AppServices } from '../appServices';
-import { TileFrameProps, SystemMessageType } from '../abstract/types';
-import { CorpusInfoAPI, APIResponse as CorpusInfoResponse} from '../shared/api/corpusInfo';
-import { ajax$, ResponseType } from '../shared/ajax';
+import { TileFrameProps, SystemMessageType } from '../common/types';
+import { CorpusInfoAPI, APIResponse as CorpusInfoResponse} from '../common/api/corpusInfo';
+import { ajax$, ResponseType } from '../common/ajax';
 
 
 export interface WdglanceTilesState {

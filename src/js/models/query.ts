@@ -19,8 +19,8 @@ import {StatelessModel, Action, ActionDispatcher, SEDispatcher} from 'kombo';
 import { ActionName, Actions } from './actions';
 import * as Immutable from 'immutable';
 import { AppServices } from '../appServices';
-import {Forms} from '../shared/data';
-import { SystemMessageType, QueryType } from '../abstract/types';
+import {Forms} from '../common/data';
+import { SystemMessageType, QueryType } from '../common/types';
 
 
 export interface WdglanceMainState {

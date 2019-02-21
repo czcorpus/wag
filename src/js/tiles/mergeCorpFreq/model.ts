@@ -18,7 +18,7 @@
 
 import * as Immutable from 'immutable';
 import * as Rx from '@reactivex/rxjs';
-import {QueryArgs, FreqDistribAPI, DataRow, APIResponse} from '../../shared/api/kontextFreqs';
+import {QueryArgs, FreqDistribAPI, DataRow, APIResponse} from '../../common/api/kontextFreqs';
 import {StatelessModel, ActionDispatcher, Action, SEDispatcher} from 'kombo';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
 import {ActionName as ConcActionName, Actions as ConcActions} from '../concordance/actions';

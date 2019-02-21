@@ -35,11 +35,11 @@
  */
 
 import * as Rx from '@reactivex/rxjs';
-import { DataApi, CorePosAttribute } from '../../abstract/types';
-import {ConcApi, QuerySelector, ViewMode, ConcResponse} from '../../shared/api/concordance';
-import {HTTPResponse as FreqsHTTPResponse} from '../../shared/api/kontextFreqs';
-import { ajax$ } from '../../shared/ajax';
-import { MultiDict } from '../../shared/data';
+import { DataApi, CorePosAttribute } from '../../common/types';
+import {ConcApi, QuerySelector, ViewMode, ConcResponse} from '../../common/api/concordance';
+import {HTTPResponse as FreqsHTTPResponse} from '../../common/api/kontextFreqs';
+import { ajax$ } from '../../common/ajax';
+import { MultiDict } from '../../common/data';
 
 export interface RequestArgs {
     corp1:string;

@@ -21,10 +21,10 @@ import { renderToString } from 'react-dom/server';
 import {init as viewInit, LayoutProps} from '../views/layout';
 import {Database} from 'sqlite3';
 import {Express} from 'express';
-import {ServerConf, ClientConf, UserConf} from '../abstract/conf';
+import {ServerConf, ClientConf, UserConf} from '../common/conf';
 import { ViewUtils } from 'kombo';
 import { GlobalComponents } from '../views/global';
-import { encodeArgs } from '../shared/ajax';
+import { encodeArgs } from '../common/ajax';
 
 
 
