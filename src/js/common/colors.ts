@@ -16,14 +16,3 @@
  * limitations under the License.
  */
 
-export enum SystemColor {
-    COLOR_LOGO_ORANGE = '#F0680B',
-    COLOR_LOGO_GREEN = '#57AB27',
-    COLOR_LOGO_PINK = '#E2007A',
-    COLOR_LOGO_PINK_LIGHT = '#FFC8AD',
-    COLOR_LOGO_BLUE = '#009EE0',
-    COLOR_LOGO_BLUE_OPAQUE = 'RGBA(0, 158, 224, 0.7)',
-    COLOR_LOGO_BLUE_SHINE = '#00CAF6',
-    COLOR_WHITELIKE_BLUE = '#e2f4fb',
-    COLOR_LIGHT_GREY = '#DADADA'
-}

@@ -22,7 +22,7 @@ import { TTDistribModel, TTDistribModelState } from './model';
 import {ResponsiveContainer, BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, Legend} from 'recharts';
 import { DataRow } from '../../common/api/kontextFreqs';
 import { GlobalComponents } from '../../views/global';
-import { SystemColor } from '../../common/colors';
+import { barColors2 } from '../../common/theme';
 import { CoreTileComponentProps, TileComponent } from '../../common/types';
 import { ActionName, Actions } from './actions';
 
@@ -78,7 +78,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             <div className="Chart">
                 <ChartWrapper data={props.data} isMobile={props.isMobile} width={props.width} height={props.height}>
                     <CartesianGrid />
-                    <Bar data={props.data.toArray()} dataKey="ipm" fill={SystemColor.COLOR_LOGO_BLUE} isAnimationActive={false} />
+                    <Bar data={props.data.toArray()} dataKey="ipm" fill={barColors2(0)} isAnimationActive={false} />
                     <XAxis type="number" />
                     <YAxis type="category" dataKey="name" width={120} />
                     <Legend />

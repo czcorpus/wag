@@ -22,7 +22,7 @@ import { MergeCorpFreqModel, MergeCorpFreqModelState } from './model';
 import {ResponsiveContainer, BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, Legend} from 'recharts';
 import { DataRow } from '../../common/api/kontextFreqs';
 import { GlobalComponents } from '../../views/global';
-import { SystemColor } from '../../common/colors';
+import { barColors2 } from '../../common/theme';
 import { CoreTileComponentProps, TileComponent } from '../../common/types';
 
 
@@ -43,7 +43,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                 <ResponsiveContainer width="90%" height={props.size[1] + 50}>
                     <BarChart data={props.data.toArray()} layout="vertical">
                         <CartesianGrid />
-                        <Bar dataKey="ipm" fill={SystemColor.COLOR_LOGO_BLUE} isAnimationActive={false} />
+                        <Bar dataKey="ipm" fill={barColors2(0)} isAnimationActive={false} />
                         <XAxis type="number" />
                         <YAxis type="category" dataKey="name" width={120} />
                         <Legend />

@@ -27,6 +27,7 @@ import {CollocModel, CollocModelState} from './model';
 import { GlobalComponents } from '../../views/global';
 import { DataRow, ActionName, Actions, SrchContextType } from './common';
 import { TileComponent, CoreTileComponentProps } from '../../common/types';
+import {categoryPalette} from '../../common/theme';
 
 
 export const drawChart = (container:HTMLElement, size:[number, number], data:Immutable.List<DataRow>, measures:Array<string>) => {
@@ -37,7 +38,7 @@ export const drawChart = (container:HTMLElement, size:[number, number], data:Imm
         return;
     }
     const dataImp:Array<{text:string; size:number}> = data.map(d => ({text: d.str, size: d.wcFontSize})).toArray()
-    const c20 = d3Scale.scaleOrdinal(d3.schemeCategory10).domain(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']);
+    const colorPalette = categoryPalette(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']);
     const valMapping = Immutable.Map<string, DataRow>(data.map(v => [v.str, v]));
 
     const layout = cloud()
@@ -77,7 +78,7 @@ export const drawChart = (container:HTMLElement, size:[number, number], data:Imm
                 .append('text')
                 .style('font-size', d => `${d.size}px`)
                 .style('font-family', 'Impact')
-                .style('fill', (d, i) => c20(`${i}`))
+                .style('fill', (d, i) => colorPalette(`${i}`))
                 .style('pointer-events', 'none')
                 .attr('text-anchor', 'middle')
                 .text(d => d.text);
@@ -102,7 +103,7 @@ export const drawChart = (container:HTMLElement, size:[number, number], data:Imm
                     tooltip
                         .transition()
                         .duration(200)
-                        .style('color', c20(`${i}`))
+                        .style('color', colorPalette(`${i}`))
                         .style('opacity', '0.9')
                         .style('pointer-events', 'none');
 
