@@ -735,6 +735,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         return (
             <div className="WdglanceMain">
                 <WdglanceControlsBound isMobile={props.isMobile} />
+                <hr className="controls-separ" />
                 <BoundMessagesBox />
                 <BoundTilesSections layout={props.layout} />
             </div>
