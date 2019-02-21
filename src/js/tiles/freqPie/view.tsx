@@ -23,14 +23,14 @@ import {ActionDispatcher, ViewUtils} from 'kombo';
 import { GlobalComponents } from '../../views/global';
 import { FreqPieModel, FreqPieModelState, FreqPieDataRow } from './model';
 import { CoreTileComponentProps, TileComponent } from '../../common/types';
-import {categoryPalette} from '../../common/theme';
 import { ActionName } from './actions';
+import { Theme } from '../../common/theme';
 
 
-export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:FreqPieModel):TileComponent {
+export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:FreqPieModel):TileComponent {
 
     const globalComponents = ut.getComponents();
-    const colorPalette = categoryPalette(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']);
+    const colorPalette = theme.categoryPalette(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']);
 
     // ------- <ChartWrapper /> ---------------------------------------------------
 

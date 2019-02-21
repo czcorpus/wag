@@ -25,6 +25,7 @@ import {init as viewInit} from './view';
 import { AlphaLevel } from './stat';
 import { DataItemWithWCI } from './common';
 import { AppServices } from '../../appServices';
+import { Theme } from '../../common/theme';
 
 declare var require:(src:string)=>void;  // webpack
 require('./style.less');
@@ -56,20 +57,20 @@ export class TimeDistTile implements ITileProvider {
 
     private readonly tileId:number;
 
-    private readonly ut:ViewUtils<GlobalComponents>;
-
     private readonly model:TimeDistribModel;
 
     private readonly widthFract:number;
 
+    private readonly appServices:AppServices;
+
     private view:TileComponent;
 
     constructor(dispatcher:ActionDispatcher, tileId:number, waitForTile:number, ut:ViewUtils<GlobalComponents>,
-                appServices:AppServices, widthFract:number, conf:TimeDistTileConf) {
+                theme:Theme, appServices:AppServices, widthFract:number, conf:TimeDistTileConf) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
-        this.ut = ut;
         this.widthFract = widthFract;
+        this.appServices = appServices;
         this.model = new TimeDistribModel(
             dispatcher,
             {
@@ -95,11 +96,11 @@ export class TimeDistTile implements ITileProvider {
             new TimeDistribAPI(conf.apiURL),
             appServices
         );
+        this.view = viewInit(this.dispatcher, ut, theme, this.model);
     }
 
 
     init():void {
-        this.view = viewInit(this.dispatcher, this.ut, this.model);
     }
 
     getIdent():number {
@@ -111,7 +112,7 @@ export class TimeDistTile implements ITileProvider {
     }
 
     getLabel():string {
-        return this.ut.translate('timeDistrib__main_label');
+        return this.appServices.translate('timeDistrib__main_label');
     }
 
     supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {
@@ -137,6 +138,6 @@ export class TimeDistTile implements ITileProvider {
 
 
 
-export const init:TileFactory.TileFactory<TimeDistTileConf>  = ({tileId, waitForTiles, dispatcher, ut, appServices, widthFract, conf}) => {
-    return new TimeDistTile(dispatcher, tileId, waitForTiles[0], ut, appServices, widthFract, conf);
+export const init:TileFactory.TileFactory<TimeDistTileConf>  = ({tileId, waitForTiles, dispatcher, ut, theme, appServices, widthFract, conf}) => {
+    return new TimeDistTile(dispatcher, tileId, waitForTiles[0], ut, theme, appServices, widthFract, conf);
 }

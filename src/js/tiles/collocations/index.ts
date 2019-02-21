@@ -59,7 +59,7 @@ export class CollocationsTile implements ITileProvider {
 
     private view:TileComponent;
 
-    constructor({tileId, dispatcher, appServices, ut, waitForTiles, widthFract, conf}:TileFactory.Args<CollocationsTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, theme, waitForTiles, widthFract, conf}:TileFactory.Args<CollocationsTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.ut = ut;
@@ -91,14 +91,17 @@ export class CollocationsTile implements ITileProvider {
                 citemsperpage: 10
             }
         });
+
+        this.view = viewInit(
+            this.dispatcher,
+            ut,
+            theme,
+            this.model
+        );
     }
 
     init():void {
-        this.view = viewInit(
-            this.dispatcher,
-            this.ut,
-            this.model
-        );
+
     }
 
     getIdent():number {
@@ -135,6 +138,6 @@ export class CollocationsTile implements ITileProvider {
 }
 
 
-export const init:TileFactory.TileFactory<CollocationsTileConf> = ({tileId, dispatcher, appServices, ut, mainForm, waitForTiles, widthFract, conf}) => {
-    return new CollocationsTile({tileId, dispatcher, appServices, ut, mainForm, waitForTiles, widthFract, conf});
+export const init:TileFactory.TileFactory<CollocationsTileConf> = ({tileId, dispatcher, appServices, ut, theme, mainForm, waitForTiles, widthFract, conf}) => {
+    return new CollocationsTile({tileId, dispatcher, appServices, ut, theme, mainForm, waitForTiles, widthFract, conf});
 }

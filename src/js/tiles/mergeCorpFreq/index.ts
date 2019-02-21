@@ -24,6 +24,7 @@ import { MergeCorpFreqModel, SourceArgs } from "./model";
 import { FreqDistribAPI, DataRow } from "../../common/api/kontextFreqs";
 import { GlobalComponents } from "../../views/global";
 import { AppServices } from '../../appServices';
+import { Theme } from '../../common/theme';
 
 declare var require:(src:string)=>void;  // webpack
 require('./style.less');
@@ -69,11 +70,10 @@ export class MergeCorpFreqTile implements ITileProvider {
 
     private readonly widthFract:number;
 
-    constructor(dispatcher:ActionDispatcher, tileId:number, waitForTiles:Array<number>, ut:ViewUtils<GlobalComponents>, appServices:AppServices,
-                widthFract:number, conf:MergeCorpFreqTileConf) {
+    constructor(dispatcher:ActionDispatcher, tileId:number, waitForTiles:Array<number>, ut:ViewUtils<GlobalComponents>,
+                theme:Theme, appServices:AppServices, widthFract:number, conf:MergeCorpFreqTileConf) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
-        this.ut = ut;
         this.widthFract = widthFract;
         this.label = appServices.importExternalMessage(conf.label);
         this.model = new MergeCorpFreqModel(
@@ -101,10 +101,10 @@ export class MergeCorpFreqTile implements ITileProvider {
                 pixelsPerItem: conf.pixelsPerItem ? conf.pixelsPerItem : 40
             }
         );
+        this.view = viewInit(this.dispatcher, ut, theme, this.model);
     }
 
     init():void {
-        this.view = viewInit(this.dispatcher, this.ut, this.model);
     }
 
     getIdent():number {
@@ -142,6 +142,6 @@ export class MergeCorpFreqTile implements ITileProvider {
 }
 
 
-export const init:TileFactory.TileFactory<MergeCorpFreqTileConf>  = ({tileId, waitForTiles, dispatcher, ut, appServices, mainForm, widthFract, conf}) => {
-    return new MergeCorpFreqTile(dispatcher, tileId, waitForTiles, ut, appServices, widthFract, conf);
+export const init:TileFactory.TileFactory<MergeCorpFreqTileConf>  = ({tileId, waitForTiles, dispatcher, ut, appServices, theme, widthFract, conf}) => {
+    return new MergeCorpFreqTile(dispatcher, tileId, waitForTiles, ut, theme, appServices, widthFract, conf);
 }

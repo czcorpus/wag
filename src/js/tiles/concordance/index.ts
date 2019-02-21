@@ -134,6 +134,6 @@ export class ConcordanceTile implements ITileProvider {
     }
 }
 
-export const init:TileFactory.TileFactory<ConcordanceTileConf> = ({tileId, dispatcher, appServices, ut, mainForm, widthFract, conf}) => {
-    return new ConcordanceTile({tileId, dispatcher, appServices, ut, mainForm, widthFract, conf});
+export const init:TileFactory.TileFactory<ConcordanceTileConf> = ({tileId, dispatcher, appServices, ut, mainForm, theme, widthFract, conf}) => {
+    return new ConcordanceTile({tileId, dispatcher, appServices, ut, mainForm, widthFract, theme, conf});
 }

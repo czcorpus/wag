@@ -21,6 +21,7 @@ import { ActionDispatcher, ViewUtils } from 'kombo';
 import { GlobalComponents } from '../views/global';
 import { WdglanceMainFormModel } from '../models/query';
 import { AppServices } from '../appServices';
+import { Theme } from './theme';
 
 export type AnyInterface<T> = {
     [P in keyof T]: T[P];
@@ -195,6 +196,7 @@ export namespace TileFactory {
         tileId:number;
         dispatcher:ActionDispatcher;
         ut:ViewUtils<GlobalComponents>;
+        theme:Theme,
         appServices:AppServices;
         mainForm:WdglanceMainFormModel;
         lang1?:string;

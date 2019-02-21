@@ -1,3 +1,5 @@
+import { ColorsConf } from "./conf";
+
 /*
  * Copyright 2019 Tomas Machalek <tomas.machalek@gmail.com>
  * Copyright 2019 Institute of the Czech National Corpus,
@@ -16,7 +18,6 @@
  * limitations under the License.
  */
 
-
 export enum SystemColor {
     COLOR_LOGO_ORANGE = '#F0680B',
     COLOR_LOGO_GREEN = '#57AB27',
@@ -29,36 +30,40 @@ export enum SystemColor {
     COLOR_LIGHT_GREY = '#DADADA'
 }
 
+export class Theme {
 
-const colors = [
-    '#DD8959',
-    '#1334FF',
-    '#3A9179',
-    '#FF3833',
-    '#2DE239',
-    '#07B4FF',
-    '#E52E92',
-    '#FFB700',
-    '#CE536B',
-    '#72BF4D'
-];
+    private readonly catColors:Array<string>;
 
-export const categoryPalette = (values:Array<string|number>) => {
-    const mapping = {};
-    values.forEach((v, i) => {
-        mapping[typeof v === 'string' ? v : v.toFixed()] = colors[i % colors.length];
-    });
-    return (v:string|number) => mapping[typeof v === 'string' ? v : v.toFixed()];
-}
+    private readonly barColors:Array<string>;
+
+    constructor(conf:ColorsConf) {
+        this.catColors = conf.category ? conf.category : [
+            '#DD8959',
+            '#1334FF',
+            '#3A9179',
+            '#FF3833',
+            '#2DE239',
+            '#07B4FF',
+            '#E52E92',
+            '#FFB700',
+            '#CE536B',
+            '#72BF4D'
+        ];
+
+        this.barColors = conf.bar ? conf.bar : ['#7fc77e', '#4AB2A1', '#54A82C'];
+    }
+
+    categoryPalette(values:Array<string|number>) {
+        const mapping = {};
+        values.forEach((v, i) => {
+            mapping[typeof v === 'string' ? v : v.toFixed()] = this.catColors[i % this.catColors.length];
+        });
+        return (v:string|number) => mapping[typeof v === 'string' ? v : v.toFixed()];
+    }
 
 
-export const barColors = (idx:number):string => {
-    const colors = ['#7fc77e', '#4AB2A1', '#54A82C'];
-    return colors[idx % colors.length];
-}
+    barColor(idx:number):string {
+        return this.barColors[idx % this.barColors.length];
+    }
 
-
-export const barColors2 = (idx:number):string => {
-    const colors = ['#7fc77e'];
-    return colors[idx % colors.length];
 }

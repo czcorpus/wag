@@ -112,6 +112,6 @@ export class TreqTile implements ITileProvider {
 
 
 export const init:TileFactory.TileFactory<TreqTileConf> = ({
-    tileId, dispatcher, appServices, ut, mainForm, lang1, lang2, widthFract, conf}) => {
-    return new TreqTile(lang1, lang2, {tileId, dispatcher, appServices, ut, mainForm, widthFract, conf});
+    tileId, dispatcher, appServices, ut, mainForm, lang1, lang2, widthFract, theme, conf}) => {
+    return new TreqTile(lang1, lang2, {tileId, dispatcher, appServices, ut, theme, mainForm, widthFract, conf});
 }
