@@ -12,8 +12,14 @@
         display: flex;
         flex-direction: row;
         align-items: center;
+        justify-content: space-between;
         flex-wrap: nowrap;
         overflow-x: auto;
         overflow-y: hidden;
+
+        > *:not(:last-child) {
+            box-sizing: border-box;
+            margin-right: 10px;
+        }
     }
 }

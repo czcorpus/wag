@@ -74,13 +74,15 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     }> = (props) => {
 
+        const maxLabelWidth = props.data.max((v1, v2) => v1.name.length > v2.name.length ? v1.name.length : v2.name.length).name.length;
+
         return (
             <div className="Chart">
                 <ChartWrapper data={props.data} isMobile={props.isMobile} width={props.width} height={props.height}>
                     <CartesianGrid />
                     <Bar data={props.data.toArray()} dataKey="ipm" fill={barColors2(0)} isAnimationActive={false} />
                     <XAxis type="number" />
-                    <YAxis type="category" dataKey="name" width={120} />
+                    <YAxis type="category" dataKey="name" width={Math.max(60, maxLabelWidth * 9.5)} />
                     <Legend />
                     <Tooltip cursor={false} isAnimationActive={false} />
                 </ChartWrapper>
@@ -113,7 +115,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
         private handleDotClick(idx:number) {
             if (this.chartsRef.current && this.props.isMobile) {
-                this.chartsRef.current.scrollLeft = Math.round(this.props.renderSize[0] * 0.95 * idx);
+                this.chartsRef.current.scrollLeft = Math.round(this.props.renderSize[0] * 0.92 * idx);
             }
         }
 
@@ -127,7 +129,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                     <div className="TTDistribTile">
                         <div className="charts" ref={this.chartsRef} onScroll={this.handleScroll}>
                             {this.props.blocks.map(block => {
-                                const chartWidth = this.props.isMobile ? (this.props.renderSize[0] * 0.95).toFixed() : "90%";
+                                const chartWidth = this.props.isMobile ? (this.props.renderSize[0] * 0.9).toFixed() : "90%";
                                 return (
                                     <div key={block.ident} style={{width: chartsViewBoxWidth, height: "100%"}}>
                                         <Chart data={block.data} width={chartWidth} height={70 + block.data.size * 40}
