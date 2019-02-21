@@ -111,6 +111,8 @@ export class CollocModel extends StatelessModel<CollocModelState> {
 
     private static readonly BASE_WC_FONT_SIZE = 30;
 
+    private static readonly BASE_WC_FONT_SIZE_MOBILE = 27;
+
     constructor({dispatcher, tileId, waitForTile, appServices, service, initState}:CollocModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
@@ -170,7 +172,8 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                                 freq: item.freq,
                                 nfilter: item.nfilter,
                                 pfilter: item.pfilter,
-                                wcFontSize: Math.round(wcFontSizeRatio * 100 + CollocModel.BASE_WC_FONT_SIZE)
+                                wcFontSize: Math.round(wcFontSizeRatio * 100 + CollocModel.BASE_WC_FONT_SIZE),
+                                wcFontSizeMobile: Math.round(wcFontSizeRatio * 100 + CollocModel.BASE_WC_FONT_SIZE_MOBILE)
                             }
                         }));
 

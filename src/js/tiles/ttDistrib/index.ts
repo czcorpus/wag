@@ -26,6 +26,7 @@ import { GlobalComponents } from "../../views/global";
 import { AppServices } from '../../appServices';
 import { FreqDataBlock } from '../../common/models/freq';
 import { puid } from '../../common/util';
+import { Theme } from '../../common/theme';
 
 declare var require:(src:string)=>void;  // webpack
 require('./style.less');
@@ -60,11 +61,10 @@ export class TTDistTile implements ITileProvider {
 
     private readonly widthFract:number;
 
-    constructor(dispatcher:ActionDispatcher, tileId:number, waitForTile:number, ut:ViewUtils<GlobalComponents>, appServices:AppServices,
-                widthFract:number, conf:TTDistTileConf) {
+    constructor(dispatcher:ActionDispatcher, tileId:number, waitForTile:number, ut:ViewUtils<GlobalComponents>, theme:Theme,
+                appServices:AppServices, widthFract:number, conf:TTDistTileConf) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
-        this.ut = ut;
         this.widthFract = widthFract;
         this.label = appServices.importExternalMessage(conf.label);
         const criteria = Immutable.List<string>(typeof conf.fcrit === 'string' ? [conf.fcrit] : conf.fcrit);
@@ -92,10 +92,10 @@ export class TTDistTile implements ITileProvider {
                 maxNumCategories: conf.maxNumCategories
             }
         );
+        this.view = viewInit(this.dispatcher, ut, theme, this.model);
     }
 
     init():void {
-        this.view = viewInit(this.dispatcher, this.ut, this.model);
     }
 
     getIdent():number {
@@ -133,6 +133,6 @@ export class TTDistTile implements ITileProvider {
 }
 
 
-export const init:TileFactory.TileFactory<TTDistTileConf>  = ({tileId, waitForTiles, dispatcher, ut, appServices, mainForm, widthFract, conf}) => {
-    return new TTDistTile(dispatcher, tileId, waitForTiles[0], ut, appServices, widthFract, conf);
+export const init:TileFactory.TileFactory<TTDistTileConf>  = ({tileId, waitForTiles, dispatcher, ut, theme, appServices, widthFract, conf}) => {
+    return new TTDistTile(dispatcher, tileId, waitForTiles[0], ut, theme, appServices, widthFract, conf);
 }

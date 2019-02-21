@@ -17,7 +17,6 @@
  */
 
 import * as d3 from 'd3';
-import * as d3Scale from 'd3-scale';
 import * as cloud from 'd3-cloud';
 import * as React from 'react';
 import * as Immutable from 'immutable';
@@ -27,18 +26,23 @@ import {CollocModel, CollocModelState} from './model';
 import { GlobalComponents } from '../../views/global';
 import { DataRow, ActionName, Actions, SrchContextType } from './common';
 import { TileComponent, CoreTileComponentProps } from '../../common/types';
-import {categoryPalette} from '../../common/theme';
+import { Theme } from '../../common/theme';
 
 
-export const drawChart = (container:HTMLElement, size:[number, number], data:Immutable.List<DataRow>, measures:Array<string>) => {
+export const drawChart = (theme:Theme, isMobile:boolean, container:HTMLElement, size:[number, number], data:Immutable.List<DataRow>, measures:Array<string>) => {
     container.innerHTML = '';
 
     if (size[0] === 0 || size[1] === 0) {
         // otherwise the browser may crash
         return;
     }
-    const dataImp:Array<{text:string; size:number}> = data.map(d => ({text: d.str, size: d.wcFontSize})).toArray()
-    const colorPalette = categoryPalette(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']);
+    const dataImp:Array<{text:string; size:number}> = data.map(d => {
+        return {
+            text: d.str,
+            size: isMobile ? d.wcFontSizeMobile : d.wcFontSize
+        };
+    }).toArray();
+    const colorPalette = theme.categoryPalette(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']);
     const valMapping = Immutable.Map<string, DataRow>(data.map(v => [v.str, v]));
 
     const layout = cloud()
@@ -125,7 +129,7 @@ export const drawChart = (container:HTMLElement, size:[number, number], data:Imm
 };
 
 
-export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:CollocModel):TileComponent {
+export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:CollocModel):TileComponent {
 
     const globalCompontents = ut.getComponents();
 
@@ -189,6 +193,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         componentDidMount() {
             if (this.chartContainer.current) {
                 drawChart(
+                    theme,
+                    this.props.isMobile,
                     this.chartContainer.current,
                     this.calcChartAreaWidth(),
                     this.props.data,
@@ -202,6 +208,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                     (this.props.data !== prevProps.data ||
                     this.props.isMobile !== prevProps.isMobile)) {
                 drawChart(
+                    theme,
+                    this.props.isMobile,
                     this.chartContainer.current,
                     this.calcChartAreaWidth(),
                     this.props.data,

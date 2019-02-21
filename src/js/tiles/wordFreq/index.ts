@@ -135,6 +135,6 @@ export class WordFreqTile implements ITileProvider {
 
 
 export const init:TileFactory.TileFactory<WordFreqTileConf> = ({
-    tileId, dispatcher, appServices, ut, mainForm, lang1, lang2, waitForTiles, widthFract, conf}) => {
-    return new WordFreqTile(lang1, lang2, {tileId, dispatcher, appServices, ut, mainForm, widthFract, waitForTiles, conf});
+    tileId, dispatcher, appServices, ut, mainForm, lang1, lang2, waitForTiles, widthFract, theme, conf}) => {
+    return new WordFreqTile(lang1, lang2, {tileId, dispatcher, appServices, ut, theme, mainForm, widthFract, waitForTiles, conf});
 }

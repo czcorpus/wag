@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+import { ColorsConf } from "./conf";
 
 export enum SystemColor {
     COLOR_LOGO_ORANGE = '#F0680B',
@@ -30,35 +31,51 @@ export enum SystemColor {
 }
 
 
-const colors = [
-    '#DD8959',
-    '#1334FF',
-    '#3A9179',
-    '#FF3833',
-    '#2DE239',
-    '#07B4FF',
-    '#E52E92',
-    '#FFB700',
-    '#CE536B',
-    '#72BF4D'
-];
-
-export const categoryPalette = (values:Array<string|number>) => {
-    const mapping = {};
-    values.forEach((v, i) => {
-        mapping[typeof v === 'string' ? v : v.toFixed()] = colors[i % colors.length];
-    });
-    return (v:string|number) => mapping[typeof v === 'string' ? v : v.toFixed()];
+const brightnessAdjustHex = (hex:string, ratio:number):string => {
+    const code = hex.length === 7 ? hex.substr(1) : hex.substr(1).replace(/(.)/g, '$1$1');
+    const r = parseInt(code.substr(0, 2), 16);
+    const g = parseInt(code.substr(2, 2), 16);
+    const b = parseInt(code.substr(4, 2), 16);
+    const mkColor = c => Math.round((1 << 8) + c + (256 - c) * ratio).toString(16).substr(1);
+    return `#${mkColor(r)}${mkColor(g)}${mkColor(b)}`;
 }
 
+export class Theme {
 
-export const barColors = (idx:number):string => {
-    const colors = ['#7fc77e', '#4AB2A1', '#54A82C'];
-    return colors[idx % colors.length];
-}
+    private readonly catColors:Array<string>;
+
+    private readonly barColors:Array<string>;
+
+    constructor(conf:ColorsConf) {
+        this.catColors = conf.category ? conf.category : [
+            '#DD8959',
+            '#1334FF',
+            '#3A9179',
+            '#FF3833',
+            '#2DE239',
+            '#07B4FF',
+            '#E52E92',
+            '#FFB700',
+            '#CE536B',
+            '#72BF4D'
+        ];
+
+        this.barColors = conf.bar ? conf.bar : ['#7fc77e', '#4AB2A1', '#54A82C'];
+    }
+
+    categoryPalette(values:Array<string|number>) {
+        const mapping = {};
+        values.forEach((v, i) => {
+            mapping[typeof v === 'string' ? v : v.toFixed()] = this.catColors[i % this.catColors.length];
+        });
+        return (v:string|number) => mapping[typeof v === 'string' ? v : v.toFixed()];
+    }
 
 
-export const barColors2 = (idx:number):string => {
-    const colors = ['#7fc77e'];
-    return colors[idx % colors.length];
+    barColor(idx:number, brightness?:number):string {
+        return brightness ?
+            brightnessAdjustHex(this.barColors[idx % this.barColors.length], brightness) :
+            this.barColors[idx % this.barColors.length];
+    }
+
 }

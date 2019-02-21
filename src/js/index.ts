@@ -45,6 +45,8 @@ import { Forms } from './common/data';
 import { MessagesModel } from './models/messages';
 import { CorpusInfoAPI } from './common/api/corpusInfo';
 import {LayoutManager, LayoutConf} from './layout';
+import { Theme } from './common/theme';
+import { ColorsConf } from './common/conf';
 
 declare var require:(src:string)=>void;  // webpack
 require('../css/index.less');
@@ -69,6 +71,7 @@ export interface WdglanceConf {
     corpInfoApiUrl:string;
     layouts:{[qt:string]:LayoutConf};
     tilesConf:{[ident:string]:AnyConf};
+    colors:ColorsConf;
     dbValuesMapping:DbValueMapping;
 }
 
@@ -122,6 +125,7 @@ const mkTileFactory = (
         viewUtils:ViewUtils<GlobalComponents>,
         mainForm:WdglanceMainFormModel,
         appServices:AppServices,
+        theme:Theme,
         layoutManager:LayoutManager,
         queryType:QueryType,
         lang1:string,
@@ -141,6 +145,7 @@ const mkTileFactory = (
                     lang2: lang2,
                     waitForTiles: importDependsOnList(conf.dependsOn).map(v => tileIdentMap[v]),
                     widthFract: layoutManager.getTileWidthFract(queryType, tileIdentMap[confName]),
+                    theme: theme,
                     conf: conf
                 });
             };
@@ -220,6 +225,7 @@ export const init = (
         query1,
         query2,
         layouts,
+        colors,
         tilesConf,
         dbValuesMapping}:WdglanceConf) => {
 
@@ -279,12 +285,14 @@ export const init = (
     const tilesMap = attachNumericTileIdents(tilesConf);
     console.log('tiles map: ', tilesMap);
     const layoutManager = new LayoutManager(layouts, tilesMap, appServices);
+    const theme = new Theme(colors);
 
     const factory = mkTileFactory(
         dispatcher,
         viewUtils,
         formModel,
         appServices,
+        theme,
         layoutManager,
         queryType,
         query1Lang,

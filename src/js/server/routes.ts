@@ -60,7 +60,8 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                 query1: req.query['q1'] || '',
                 query2: req.query['q2'] || '',
                 tilesConf: services.clientConf.tiles[lang1],
-                dbValuesMapping: services.clientConf.dbValuesMapping
+                dbValuesMapping: services.clientConf.dbValuesMapping,
+                colors: services.clientConf.colors
             }
         }));
         res.send(`<!DOCTYPE html>${appString}`);

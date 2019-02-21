@@ -25,6 +25,7 @@ import { CoreTileComponentProps, TileComponent } from '../../../common/types';
 import { GeoAreasModelState, GeoAreasModel } from '../model';
 import { DataRow } from '../../../common/api/kontextFreqs';
 import { Actions, ActionName } from '../actions';
+import { Theme } from '../../../common/theme';
 
 declare var require:(src:string)=>string;  // webpack
 const areaMap = require('!!raw-loader!./mapCzech.inline.svg');
@@ -39,7 +40,7 @@ const createSVGElement = (parent:Element, name:string, attrs:{[name:string]:stri
 }
 
 
-export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:GeoAreasModel):TileComponent {
+export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:GeoAreasModel):TileComponent {
 
     const globComponents = ut.getComponents();
 
@@ -103,9 +104,9 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         'ry': (mkSize(v.ipm) / 1.5).toFixed(1),
                         'cx': '0',
                         'cy': '0',
-                        'stroke': '#FFC8AD',
+                        'stroke': theme.barColor(0, 0.2),
                         'stroke-width': '3',
-                        'fill': '#E2007A',
+                        'fill': theme.barColor(0),
                         'pointer-events': 'fill'
                     }
                 );

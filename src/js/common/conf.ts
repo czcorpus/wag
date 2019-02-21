@@ -30,12 +30,19 @@ export interface UserConf {
 }
 
 
+export interface ColorsConf {
+    category:Array<string>;
+    bar:Array<string>;
+}
+
+
 export interface ClientConf {
     rootUrl:string;
 	hostUrl:string;
 	corpInfoApiUrl:string;
     tiles:{[lang:string]:{[ident:string]:any}};
     dbValuesMapping:DbValueMapping;
+    colors:ColorsConf;
 	layouts:any;
 }
 
