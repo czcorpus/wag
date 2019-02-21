@@ -56,7 +56,7 @@ export class GeoAreasTile implements ITileProvider {
 
     private readonly widthFract:number;
 
-    constructor({tileId, dispatcher, appServices, ut, waitForTiles, widthFract, conf}:TileFactory.Args<GeoAreasTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, theme, waitForTiles, widthFract, conf}:TileFactory.Args<GeoAreasTileConf>) {
         this.tileId = tileId;
         this.label = appServices.importExternalMessage(conf.label);
         this.dispatcher = dispatcher;
@@ -83,7 +83,7 @@ export class GeoAreasTile implements ITileProvider {
                 fttIncludeEmpty: conf.fttIncludeEmpty
             }
         );
-        this.view = viewInit(this.dispatcher, ut, this.model);
+        this.view = viewInit(this.dispatcher, ut, theme, this.model);
     }
 
     init():void {

@@ -1,5 +1,3 @@
-import { ColorsConf } from "./conf";
-
 /*
  * Copyright 2019 Tomas Machalek <tomas.machalek@gmail.com>
  * Copyright 2019 Institute of the Czech National Corpus,
@@ -18,6 +16,8 @@ import { ColorsConf } from "./conf";
  * limitations under the License.
  */
 
+import { ColorsConf } from "./conf";
+
 export enum SystemColor {
     COLOR_LOGO_ORANGE = '#F0680B',
     COLOR_LOGO_GREEN = '#57AB27',
@@ -28,6 +28,16 @@ export enum SystemColor {
     COLOR_LOGO_BLUE_SHINE = '#00CAF6',
     COLOR_WHITELIKE_BLUE = '#e2f4fb',
     COLOR_LIGHT_GREY = '#DADADA'
+}
+
+
+const brightnessAdjustHex = (hex:string, ratio:number):string => {
+    const code = hex.length === 7 ? hex.substr(1) : hex.substr(1).replace(/(.)/g, '$1$1');
+    const r = parseInt(code.substr(0, 2), 16);
+    const g = parseInt(code.substr(2, 2), 16);
+    const b = parseInt(code.substr(4, 2), 16);
+    const mkColor = c => Math.round((1 << 8) + c + (256 - c) * ratio).toString(16).substr(1);
+    return `#${mkColor(r)}${mkColor(g)}${mkColor(b)}`;
 }
 
 export class Theme {
@@ -62,8 +72,10 @@ export class Theme {
     }
 
 
-    barColor(idx:number):string {
-        return this.barColors[idx % this.barColors.length];
+    barColor(idx:number, brightness?:number):string {
+        return brightness ?
+            brightnessAdjustHex(this.barColors[idx % this.barColors.length], brightness) :
+            this.barColors[idx % this.barColors.length];
     }
 
 }
