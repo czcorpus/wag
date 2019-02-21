@@ -25,6 +25,7 @@ export interface DataRow {
     nfilter:[string, string];
     pfilter:[string, string];
     wcFontSize:number;
+    wcFontSizeMobile:number;
 }
 
 export type DataHeading = Array<{

@@ -29,14 +29,19 @@ import { TileComponent, CoreTileComponentProps } from '../../common/types';
 import { Theme } from '../../common/theme';
 
 
-export const drawChart = (theme:Theme, container:HTMLElement, size:[number, number], data:Immutable.List<DataRow>, measures:Array<string>) => {
+export const drawChart = (theme:Theme, isMobile:boolean, container:HTMLElement, size:[number, number], data:Immutable.List<DataRow>, measures:Array<string>) => {
     container.innerHTML = '';
 
     if (size[0] === 0 || size[1] === 0) {
         // otherwise the browser may crash
         return;
     }
-    const dataImp:Array<{text:string; size:number}> = data.map(d => ({text: d.str, size: d.wcFontSize})).toArray()
+    const dataImp:Array<{text:string; size:number}> = data.map(d => {
+        return {
+            text: d.str,
+            size: isMobile ? d.wcFontSizeMobile : d.wcFontSize
+        };
+    }).toArray();
     const colorPalette = theme.categoryPalette(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']);
     const valMapping = Immutable.Map<string, DataRow>(data.map(v => [v.str, v]));
 
@@ -189,6 +194,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             if (this.chartContainer.current) {
                 drawChart(
                     theme,
+                    this.props.isMobile,
                     this.chartContainer.current,
                     this.calcChartAreaWidth(),
                     this.props.data,
@@ -203,6 +209,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                     this.props.isMobile !== prevProps.isMobile)) {
                 drawChart(
                     theme,
+                    this.props.isMobile,
                     this.chartContainer.current,
                     this.calcChartAreaWidth(),
                     this.props.data,
