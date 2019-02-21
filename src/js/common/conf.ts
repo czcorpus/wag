@@ -16,6 +16,9 @@
  * limitations under the License.
  */
 
+import { DbValueMapping } from './types';
+
+
 export interface UserConf {
     uiLang:string;
     queryType:string;
@@ -31,7 +34,8 @@ export interface ClientConf {
     rootUrl:string;
 	hostUrl:string;
 	corpInfoApiUrl:string;
-	tiles:{[lang:string]:{[ident:string]:any}};
+    tiles:{[lang:string]:{[ident:string]:any}};
+    dbValuesMapping:DbValueMapping;
 	layouts:any;
 }
 

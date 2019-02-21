@@ -82,7 +82,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                     <CartesianGrid />
                     <Bar data={props.data.toArray()} dataKey="ipm" fill={barColors2(0)} isAnimationActive={false} />
                     <XAxis type="number" />
-                    <YAxis type="category" dataKey="name" width={Math.max(60, maxLabelWidth * 9.5)} />
+                    <YAxis type="category" dataKey="name" width={Math.max(60, maxLabelWidth * 13)} />
                     <Legend />
                     <Tooltip cursor={false} isAnimationActive={false} />
                 </ChartWrapper>

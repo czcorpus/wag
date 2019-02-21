@@ -50,7 +50,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                     hostUrl: props.config.hostUrl,
                     corpInfoApiUrl: props.config.corpInfoApiUrl,
                     layouts: props.config.layouts,
-                    tilesConf: props.userConfig.tilesConf
+                    tilesConf: props.userConfig.tilesConf,
+                    dbValuesMapping: props.config.dbValuesMapping
                 })});`
         };
 

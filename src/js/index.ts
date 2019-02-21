@@ -38,7 +38,7 @@ import * as translations from 'translations';
 import { AppServices } from './appServices';
 import { SystemNotifications } from './notifications';
 import { ActionName, Actions } from './models/actions';
-import { TileFrameProps, ITileProvider, QueryType, TileConf, TileFactory } from './common/types';
+import { TileFrameProps, ITileProvider, QueryType, TileConf, TileFactory, DbValueMapping } from './common/types';
 import { WdglanceTilesModel } from './models/tiles';
 import {encodeArgs} from './common/ajax';
 import { Forms } from './common/data';
@@ -69,6 +69,7 @@ export interface WdglanceConf {
     corpInfoApiUrl:string;
     layouts:{[qt:string]:LayoutConf};
     tilesConf:{[ident:string]:AnyConf};
+    dbValuesMapping:DbValueMapping;
 }
 
 
@@ -219,7 +220,8 @@ export const init = (
         query1,
         query2,
         layouts,
-        tilesConf}:WdglanceConf) => {
+        tilesConf,
+        dbValuesMapping}:WdglanceConf) => {
 
 
     const uiLangSel = uiLang || 'en-US';
@@ -232,13 +234,14 @@ export const init = (
     });
 
     const notifications = new SystemNotifications(dispatcher);
-    const appServices = new AppServices(
-        notifications,
-        uiLang,
-        viewUtils,
-        viewUtils.createStaticUrl,
-        viewUtils.createActionUrl
-    );
+    const appServices = new AppServices({
+        notifications: notifications,
+        uiLang: uiLang,
+        translator: viewUtils,
+        staticUrlCreator: viewUtils.createStaticUrl,
+        actionUrlCreator: viewUtils.createActionUrl,
+        dbValuesMapping: dbValuesMapping || {}
+    });
     //appServices.forceMobileMode(); // DEBUG
 
     const globalComponents = globalCompInit(dispatcher, viewUtils);

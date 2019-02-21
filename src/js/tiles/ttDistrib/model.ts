@@ -86,7 +86,7 @@ export class TTDistribModel extends StatelessModel<TTDistribModelState> {
                         newState.blocks = Immutable.List<FreqDataBlock<DataRow>>(action.payload.blocks.map(block => {
                             return {
                                 data: Immutable.List<FreqDataBlock<DataRow>>(block.data.map(v => ({
-                                    name: v.name,
+                                    name: this.appServices.translateDbValue(state.corpname, v.name),
                                     freq: v.freq,
                                     ipm: v.ipm
                                 }))),
