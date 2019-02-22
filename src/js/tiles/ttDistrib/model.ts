@@ -70,27 +70,30 @@ export class TTDistribModel extends StatelessModel<TTDistribModelState> {
                     const newState = this.copyState(state);
                     newState.isBusy = false;
                     if (action.error) {
-                        newState.blocks = Immutable.List<FreqDataBlock<DataRow>>(state.fcrit.map(_ => ({
+                        newState.blocks = Immutable.List<FreqDataBlock<DataRow>>(state.fcrit.map((_, i) => ({
                             data: Immutable.List<FreqDataBlock<DataRow>>(),
-                            ident: puid()
+                            ident: puid(),
+                            label: state.critLabels.get(i)
                         })));
                         newState.error = action.error.message;
 
                     } else if (action.payload.blocks.length === 0) {
-                        newState.blocks = Immutable.List<FreqDataBlock<DataRow>>(state.fcrit.map(_ => ({
+                        newState.blocks = Immutable.List<FreqDataBlock<DataRow>>(state.fcrit.map((_, i) => ({
                             data: Immutable.List<FreqDataBlock<DataRow>>(),
-                            ident: puid()
+                            ident: puid(),
+                            label: state.critLabels.get(i)
                         })));
 
                     } else {
-                        newState.blocks = Immutable.List<FreqDataBlock<DataRow>>(action.payload.blocks.map(block => {
+                        newState.blocks = Immutable.List<FreqDataBlock<DataRow>>(action.payload.blocks.map((block, i) => {
                             return {
                                 data: Immutable.List<FreqDataBlock<DataRow>>(block.data.map(v => ({
                                     name: this.appServices.translateDbValue(state.corpname, v.name),
                                     freq: v.freq,
                                     ipm: v.ipm
                                 }))),
-                                ident: puid()
+                                ident: puid(),
+                                label: state.critLabels.get(i)
                             };
                         }));
                     }

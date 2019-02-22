@@ -93,7 +93,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         isAnimationActive={false}>
                     {props.data.map((entry, index) => <Cell key={`cell-${entry.name}`} fill={colorPalette(`${index}`)}/>)}
                 </Pie>
-                <Legend verticalAlign="top" height={36}/>
+                <Legend verticalAlign="bottom" height={36}/>
             </ChartWrapper>
         );
     };
@@ -139,6 +139,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                                 const chartWidth = this.props.isMobile ? (this.props.renderSize[0] * 0.95).toFixed() : "90%";
                                 return (
                                     <div key={block.ident} style={{width: chartsViewBoxWidth, height: "100%"}}>
+                                        <h3>{block.label}</h3>
                                         <Chart data={block.data} width={chartWidth} height={300}
                                                 radius={Math.min(this.props.renderSize[0], 90)}
                                                 isMobile={this.props.isMobile} />
