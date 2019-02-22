@@ -42,7 +42,7 @@ export const drawChart = (theme:Theme, isMobile:boolean, container:HTMLElement, 
             size: isMobile ? d.wcFontSizeMobile : d.wcFontSize
         };
     }).toArray();
-    const colorPalette = theme.categoryPalette(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']);
+    const colorPalette = theme.scaleColor(0, 9);
     const valMapping = Immutable.Map<string, DataRow>(data.map(v => [v.str, v]));
 
     const layout = cloud()
@@ -82,7 +82,7 @@ export const drawChart = (theme:Theme, isMobile:boolean, container:HTMLElement, 
                 .append('text')
                 .style('font-size', d => `${d.size}px`)
                 .style('font-family', 'Impact')
-                .style('fill', (d, i) => colorPalette(`${i}`))
+                .style('fill', (d, i) => colorPalette(i))
                 .style('pointer-events', 'none')
                 .attr('text-anchor', 'middle')
                 .text(d => d.text);
@@ -107,7 +107,7 @@ export const drawChart = (theme:Theme, isMobile:boolean, container:HTMLElement, 
                     tooltip
                         .transition()
                         .duration(200)
-                        .style('color', colorPalette(`${i}`))
+                        .style('color', colorPalette(i))
                         .style('opacity', '0.9')
                         .style('pointer-events', 'none');
 

@@ -46,6 +46,8 @@ export class Theme {
 
     private readonly barColors:Array<string>;
 
+    private readonly scaleColors:Array<string>;
+
     constructor(conf:ColorsConf) {
         this.catColors = conf.category ? conf.category : [
             '#DD8959',
@@ -59,8 +61,23 @@ export class Theme {
             '#CE536B',
             '#72BF4D'
         ];
-
-        this.barColors = conf.bar ? conf.bar : ['#7fc77e', '#4AB2A1', '#54A82C'];
+        this.barColors = conf.bar ? conf.bar : [
+            '#7fc77e',
+            '#4AB2A1',
+            '#54A82C'
+        ];
+        this.scaleColors = conf.scale ? conf.scale : [
+            '#2a0017',
+            '#3e0022',
+            '#53002d',
+            '#670038',
+            '#7c0043',
+            '#90004e',
+            '#a50059',
+            '#b90064',
+            '#ce006f',
+            '#e2007a'
+        ];
     }
 
     categoryPalette(values:Array<string|number>) {
@@ -76,6 +93,15 @@ export class Theme {
         return brightness ?
             brightnessAdjustHex(this.barColors[idx % this.barColors.length], brightness) :
             this.barColors[idx % this.barColors.length];
+    }
+
+    scaleColor(min:number, max:number) {
+
+        const a = max !== min ? 10 / (max - min) : 0;
+        const b = -1 * a * min;
+        return (v:number) => {
+            return this.scaleColors[Math.round(a * v + b)];
+        }
     }
 
 }

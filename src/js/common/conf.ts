@@ -40,6 +40,7 @@ export interface UserConf {
 export interface ColorsConf {
     category:Array<string>;
     bar:Array<string>;
+    scale:Array<string>;
 }
 
 
