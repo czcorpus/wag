@@ -24,9 +24,10 @@ import {ActionName as ConcActionName, Actions as ConcActions} from '../concordan
 import {ActionName, Actions, DataItemWithWCI} from './common';
 import {wilsonConfInterval, AlphaLevel} from './stat';
 import { AppServices } from '../../appServices';
-import { ConcApi, QuerySelector, ViewMode } from '../../common/api/concordance';
+import { ConcApi, QuerySelector, ViewMode, setQuery } from '../../common/api/concordance';
 import {stateToArgs as concStateToArgs} from '../../common/models/concordance';
 import { WdglanceMainFormModel } from '../../models/query';
+import { ConcReduceApi, RequestArgs as ReduceRequestArgs } from '../../common/api/concReduce';
 
 
 export const enum FreqFilterQuantity {
@@ -63,6 +64,7 @@ export interface TimeDistribModelState {
     alignType2:AlignType;
     ctxIndex2:number;
     alphaLevel:AlphaLevel;
+    concReduceRatio:number;
     data:Immutable.List<DataItemWithWCI>;
 }
 
@@ -114,6 +116,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private readonly concApi:ConcApi|null;
 
+    private readonly concReduceApi:ConcReduceApi|null;
+
     private readonly appServices:AppServices;
 
     private readonly tileId:number;
@@ -125,11 +129,12 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
     private unfinishedChunks:Immutable.Map<string, boolean>; // subcname => done
 
     constructor(dispatcher, initState:TimeDistribModelState, tileId:number, waitForTile:number, api:TimeDistribAPI,
-                concApi:ConcApi, appServices:AppServices, mainForm:WdglanceMainFormModel) {
+                concApi:ConcApi, concReduceApi:ConcReduceApi, appServices:AppServices, mainForm:WdglanceMainFormModel) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.api = api;
         this.concApi = concApi;
+        this.concReduceApi = concReduceApi;
         this.waitForTile = waitForTile;
         this.appServices = appServices;
         this.mainForm = mainForm;
@@ -157,6 +162,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     } else {
                         newState.data = this.mergeChunks(newState.data, Immutable.List<DataItemWithWCI>(action.payload.data));
                         this.unfinishedChunks = this.unfinishedChunks.set(action.payload.subcname, false);
+                        console.log('update chunks: ', this.unfinishedChunks.toJS());
                         if (!this.hasUnfinishedCHunks()) {
                             newState.isBusy = false;
                         }
@@ -244,6 +250,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     });
 
                 } else { // here we must create our own concordance(s)
+                    const query = this.mainForm.getState().query.value;
                     state.subcnames.toArray().map(subcname =>
                         this.concApi.call(concStateToArgs(
                             {
@@ -259,8 +266,22 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                 tileId: this.tileId,
                                 attrs: Immutable.List<string>(['word'])
                             },
-                            this.mainForm.getState().query.value
+                            query
                         ))
+                        .concatMap(
+                            (resp) => {
+                                const args:ReduceRequestArgs = {
+                                    corpname: resp.corpname,
+                                    usesubcorp: resp.usesubcorp,
+                                    q: `~${resp.conc_persistence_op_id}`,
+                                    rlines: Math.round(resp.fullsize * state.concReduceRatio),
+                                    queryselector: QuerySelector.WORD,
+                                    format: 'json'
+                                };
+                                setQuery(args, query);
+                                return this.concReduceApi.call(args);
+                            }
+                        )
                         .map(v => ({
                             subcname: v.usesubcorp,
                             concId: v.conc_persistence_op_id
