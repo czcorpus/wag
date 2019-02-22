@@ -19,8 +19,9 @@ import * as Immutable from 'immutable';
 import * as React from 'react';
 import {ActionDispatcher, ViewUtils} from 'kombo';
 import { KeyCodes } from '../common/util';
-import { SystemMessageType } from '../common/types';
+import { SystemMessageType, BacklinkWithArgs } from '../common/types';
 import { Actions, ActionName } from '../models/actions';
+import { MultiDict } from '../common/data';
 
 export interface SourceInfo {
     corp:string;
@@ -47,6 +48,7 @@ export interface GlobalComponents {
         isBusy:boolean;
         hasData:boolean;
         sourceIdent:SourceInfo|Array<SourceInfo>;
+        backlink?:BacklinkWithArgs<{}>;
         htmlClass?:string;
         error?:string;
     }>;
@@ -126,10 +128,28 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
         return <span className="EmptySet" style={{fontSize: props.fontSize}}>{'\u2205'}</span>;
     };
 
+    // ------------- <BacklinkForm /> ----------------------------------
+
+    const BacklinkForm:React.SFC<{
+        values:BacklinkWithArgs<{}>;
+
+    }> = (props) => {
+        const args = new MultiDict(props.values.args);
+        return <form className="BacklinkForm" action={props.values.url} method={props.values.method} target="_blank">
+            {args.items().map(([k, v], i) =>
+                <input key={`arg:${i}:${k}`} type="hidden" name={k} value={v} />
+            )}
+            <button type="submit">
+                {props.values.label}
+            </button>
+        </form>;
+    }
+
     // --------------- <SourceLink /> -------------------------------------------
 
     const SourceLink:React.SFC<{
         data:SourceInfo|Array<SourceInfo>;
+        backlink:BacklinkWithArgs<{}>;
 
     }> = (props) => {
 
@@ -153,6 +173,14 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
                         {item.subcorp ? <span> / {item.subcorp}</span> : null}
                     </React.Fragment>
                 )}
+                {props.backlink ?
+                    <>
+                    ,{'\u00a0'}
+                    {ut.translate('global__more_info')}:{'\u00a0'}
+                    <BacklinkForm values={props.backlink} />
+                    </> :
+                    null
+                }
             </div>
         );
     };
@@ -198,7 +226,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
                                 </>
                             }
                         </div>
-                        <SourceLink data={props.sourceIdent} />
+                        <SourceLink data={props.sourceIdent} backlink={props.backlink} />
                     </div>
                 </div>
             );

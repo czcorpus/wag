@@ -34,6 +34,7 @@ export enum ViewMode {
 
 export interface RequestArgs {
     corpname:string;
+    usesubcorp?:string;
     iquery?:string;
     lemma?:string;
     cql?:string;

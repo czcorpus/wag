@@ -16,9 +16,10 @@
  * limitations under the License.
  */
 
-import { ListOfPairs, AnyInterface } from './types';
+import { ListOfPairs, AnyInterface, IMultiDict } from './types';
 
-export class MultiDict<T={}> {
+
+export class MultiDict<T={}> implements IMultiDict {
 
     private _data:any;
 

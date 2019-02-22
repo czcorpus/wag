@@ -22,7 +22,6 @@ import {ActionDispatcher, ViewUtils} from 'kombo';
 import { GlobalComponents } from '../../views/global';
 import { TreqModel, TreqModelState } from './model';
 import { TreqTranslation } from './api';
-import { MultiDict } from '../../common/data';
 import { CoreTileComponentProps, TileComponent } from '../../common/types';
 
 
@@ -30,30 +29,10 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     const globComponents = ut.getComponents();
 
-    // ------------- <TreqBacklinkForm /> ----------------------------------
-
-    const TreqBacklinkForm:React.SFC<{
-        action:string;
-        args:Array<[string, string]>;
-
-    }> = (props) => {
-        return <form className="TreqBacklinkForm" action={props.action} method="post" target="_blank">
-            {props.args.map(([k, v], i) =>
-                <input key={`arg:${i}:${k}`} type="hidden" name={k} value={v} />
-            )}
-            <p className="submit">
-                <button type="submit" className="cnc-button">
-                    {ut.translate('treq__view_in_treq')}
-                </button>
-            </p>
-        </form>;
-    }
-
     // -----
 
     const TreqTranslations:React.SFC<{
         translations:Immutable.List<TreqTranslation>;
-        treqLink:[string, Array<[string, string]>];
 
     }> = (props) => {
 
@@ -96,7 +75,6 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         return (
             <div className="TreqTranslations">
                 {renderWords()}
-                <TreqBacklinkForm action={props.treqLink[0]} args={props.treqLink[1]} />
             </div>
         );
     };
@@ -109,9 +87,9 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             return (
                 <globComponents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
                             hasData={this.props.translations.size > 0}
-                            sourceIdent={{corp: 'InterCorp'}}>
-                    <TreqTranslations translations={this.props.translations}
-                            treqLink={[this.props.treqBackLinkRootURL, new MultiDict(this.props.treqBackLinkArgs).items()]} />
+                            sourceIdent={{corp: 'InterCorp'}}
+                            backlink={this.props.treqBackLink}>
+                    <TreqTranslations translations={this.props.translations} />
                 </globComponents.TileWrapper>
             );
         }
