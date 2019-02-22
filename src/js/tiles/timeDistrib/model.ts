@@ -103,7 +103,7 @@ const stateToAPIArgs = (state:TimeDistribModelState, concId:string, subcname:str
 
 const roundFloat = (v:number):number => Math.round(v * 100) / 100;
 
-const calcIPM = (v:DataItem) => Math.round(v.abs / v.domainSize * 1e6 * 100) / 100;
+const calcIPM = (v:DataItem|DataItemWithWCI) => Math.round(v.abs / v.domainSize * 1e6 * 100) / 100;
 
 /**
  *
@@ -160,7 +160,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         newState.data = Immutable.List<DataItemWithWCI>();
 
                     } else {
-                        newState.data = this.mergeChunks(newState.data, Immutable.List<DataItemWithWCI>(action.payload.data));
+                        newState.data = this.mergeChunks(newState.data, Immutable.List<DataItemWithWCI>(action.payload.data), newState.alphaLevel);
                         this.unfinishedChunks = this.unfinishedChunks.set(action.payload.subcname, false);
                         console.log('update chunks: ', this.unfinishedChunks.toJS());
                         if (!this.hasUnfinishedCHunks()) {
@@ -178,8 +178,26 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         return this.unfinishedChunks.includes(true);
     }
 
-    private mergeChunks(ch1:Immutable.List<DataItemWithWCI>, ch2:Immutable.List<DataItemWithWCI>):Immutable.List<DataItemWithWCI> {
-        return ch1.concat(ch2).sort((x1, x2) => parseInt(x1.datetime) - parseInt(x2.datetime)).toList();
+    private mergeChunks(ch1:Immutable.List<DataItemWithWCI>, ch2:Immutable.List<DataItemWithWCI>, alphaLevel:AlphaLevel):Immutable.List<DataItemWithWCI> {
+        return ch2.reduce(
+            (acc, curr) => {
+                if (acc.has(curr.datetime)) {
+                    const tmp = acc.get(curr.datetime);
+                    tmp.domainSize += curr.domainSize;
+                    tmp.abs += curr.abs;
+                    tmp.datetime = curr.datetime;
+                    tmp.ipm = calcIPM(tmp);
+                    const confInt = wilsonConfInterval(tmp.abs, tmp.domainSize, alphaLevel);
+                    tmp.interval = [roundFloat(confInt[0] * 1e6), roundFloat(confInt[1] * 1e6)];
+                    return acc.set(tmp.datetime, tmp);
+
+                } else {
+                    return acc.set(curr.datetime, curr);
+                }
+            },
+            Immutable.Map<string, DataItemWithWCI>(ch1.map(v => [v.datetime, v]))
+
+        ).sort((x1, x2) => parseInt(x1.datetime) - parseInt(x2.datetime)).toList();
     }
 
 
@@ -191,6 +209,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     return {
                         datetime: v.datetime,
                         abs: v.abs,
+                        domainSize: v.domainSize,
                         ipm: calcIPM(v),
                         interval: [roundFloat(confInt[0] * 1e6), roundFloat(confInt[1] * 1e6)]
                     };
