@@ -25,6 +25,7 @@ import { AlphaLevel } from './stat';
 import { DataItemWithWCI } from './common';
 import { AppServices } from '../../appServices';
 import { ConcApi } from '../../common/api/concordance';
+import { ConcReduceApi } from '../../common/api/concReduce';
 
 declare var require:(src:string)=>void;  // webpack
 require('./style.less');
@@ -37,6 +38,10 @@ export interface TimeDistTileConf extends CorpSrchTileConf {
     apiURL:string;
 
     concApiURL?:string;
+
+    concReduceApiURL?:string;
+
+    concReduceRatio?:number;
 
     /**
      * E.g. 'lemma', 'word'
@@ -103,12 +108,14 @@ export class TimeDistTile implements ITileProvider {
                 alignType2: AlignType.LEFT,
                 ctxIndex2: 6, // TODO conf/explain
                 alphaLevel: AlphaLevel.LEVEL_0_1, // TODO conf/explain
-                data: Immutable.List<DataItemWithWCI>()
+                data: Immutable.List<DataItemWithWCI>(),
+                concReduceRatio: conf.concReduceRatio || -1
             },
             tileId,
             waitForTiles[0] || -1,
             new TimeDistribAPI(conf.apiURL),
             conf.concApiURL ? new ConcApi(conf.concApiURL) : null,
+            conf.concReduceApiURL ? new ConcReduceApi(conf.concReduceApiURL) : null,
             appServices,
             mainForm
         );

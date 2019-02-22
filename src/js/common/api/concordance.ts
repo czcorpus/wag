@@ -32,14 +32,17 @@ export enum ViewMode {
     SENT = 'sen'
 }
 
-export interface RequestArgs {
-    corpname:string;
+export interface AnyQuery {
+    queryselector:QuerySelector;
     usesubcorp?:string;
     iquery?:string;
     lemma?:string;
     cql?:string;
     word?:string;
-    queryselector:QuerySelector;
+}
+
+export interface RequestArgs extends AnyQuery {
+    corpname:string;
     kwicleftctx:string;
     kwicrightctx:string;
     async:string;
@@ -81,7 +84,7 @@ export interface ConcResponse extends HTTPResponse {
 }
 
 
-const getQuery = (args:RequestArgs):string => {
+export const getQuery = (args:AnyQuery):string => {
     switch (args.queryselector) {
         case QuerySelector.BASIC:
             return args.iquery;
@@ -97,7 +100,7 @@ const getQuery = (args:RequestArgs):string => {
 };
 
 
-export const setQuery = (args:RequestArgs, q:string):void => {
+export const setQuery = (args:AnyQuery, q:string):void => {
     switch (args.queryselector) {
         case QuerySelector.BASIC:
             args.iquery = q;
