@@ -18,12 +18,15 @@
 import * as Immutable from 'immutable';
 import * as Rx from '@reactivex/rxjs';
 import { StatelessModel, Action, SEDispatcher } from 'kombo';
-import { TimeDistribAPI, DataItem, QueryArgs } from './api';
+import { TimeDistribAPI, DataItem, QueryArgs, APIResponse } from './api';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
 import {ActionName as ConcActionName, Actions as ConcActions} from '../concordance/actions';
 import {ActionName, Actions, DataItemWithWCI} from './common';
 import {wilsonConfInterval, AlphaLevel} from './stat';
 import { AppServices } from '../../appServices';
+import { ConcApi, QuerySelector, ViewMode } from '../../common/api/concordance';
+import {stateToArgs as concStateToArgs} from '../../common/models/concordance';
+import { WdglanceMainFormModel } from '../../models/query';
 
 
 export const enum FreqFilterQuantity {
@@ -48,7 +51,7 @@ export interface TimeDistribModelState {
     isBusy:boolean;
     error:string;
     corpname:string;
-    subcname:string;
+    subcnames:Immutable.List<string>;
     subcDesc:string;
     concId:string;
     attrTime:string;
@@ -79,11 +82,11 @@ const getAttrCtx = (state:TimeDistribModelState, dim:Dimension):string => {
 }
 
 
-const stateToAPIArgs = (state:TimeDistribModelState, concId:string):QueryArgs => {
+const stateToAPIArgs = (state:TimeDistribModelState, concId:string, subcname:string):QueryArgs => {
 
     return {
         corpname: state.corpname,
-        usesubcorp: state.subcname,
+        usesubcorp: subcname,
         q: `~${concId ? concId : state.concId}`,
         ctfcrit1: '0', // = structural attr
         ctfcrit2: getAttrCtx(state, Dimension.SECOND),
@@ -109,20 +112,31 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private readonly api:TimeDistribAPI;
 
+    private readonly concApi:ConcApi|null;
+
     private readonly appServices:AppServices;
 
     private readonly tileId:number;
 
     private readonly waitForTile:number;
 
-    constructor(dispatcher, initState:TimeDistribModelState, tileId:number, waitForTile:number, api:TimeDistribAPI, appServices:AppServices) {
+    private readonly mainForm:WdglanceMainFormModel;
+
+    private unfinishedChunks:Immutable.Map<string, boolean>; // subcname => done
+
+    constructor(dispatcher, initState:TimeDistribModelState, tileId:number, waitForTile:number, api:TimeDistribAPI,
+                concApi:ConcApi, appServices:AppServices, mainForm:WdglanceMainFormModel) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.api = api;
+        this.concApi = concApi;
         this.waitForTile = waitForTile;
         this.appServices = appServices;
+        this.mainForm = mainForm;
+        this.unfinishedChunks = Immutable.Map<string, boolean>(initState.subcnames.map(v => [v, false]));
         this.actionMatch = {
             [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
+                this.unfinishedChunks = this.unfinishedChunks.map(v => true).toMap();
                 const newState = this.copyState(state);
                 newState.isBusy = true;
                 newState.error = null;
@@ -131,16 +145,21 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             [ActionName.LoadDataDone]: (state, action:Actions.LoadDataDone) => {
                 if (action.payload.tileId === this.tileId) {
                     const newState = this.copyState(state);
-                    newState.isBusy = false;
                     if (action.error) {
+                        this.unfinishedChunks = this.unfinishedChunks.map(v => false).toMap();
                         newState.data = Immutable.List<DataItemWithWCI>();
                         newState.error = action.error.message;
+                        newState.isBusy = false;
 
-                    } else if (action.payload.data.length < TimeDistribModel.MIN_DATA_ITEMS_TO_SHOW) {
+                    } else if (action.payload.data.length < TimeDistribModel.MIN_DATA_ITEMS_TO_SHOW && !this.hasUnfinishedCHunks()) {
                         newState.data = Immutable.List<DataItemWithWCI>();
 
                     } else {
-                        newState.data = Immutable.List<DataItemWithWCI>(action.payload.data);
+                        newState.data = this.mergeChunks(newState.data, Immutable.List<DataItemWithWCI>(action.payload.data));
+                        this.unfinishedChunks = this.unfinishedChunks.set(action.payload.subcname, false);
+                        if (!this.hasUnfinishedCHunks()) {
+                            newState.isBusy = false;
+                        }
                     }
                     return newState;
                 }
@@ -149,60 +168,113 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         };
     }
 
+    private hasUnfinishedCHunks():boolean {
+        return this.unfinishedChunks.includes(true);
+    }
+
+    private mergeChunks(ch1:Immutable.List<DataItemWithWCI>, ch2:Immutable.List<DataItemWithWCI>):Immutable.List<DataItemWithWCI> {
+        return ch1.concat(ch2).sort((x1, x2) => parseInt(x1.datetime) - parseInt(x2.datetime)).toList();
+    }
+
+
+    private getFreqs(concCalc:Rx.Observable<APIResponse>, state:TimeDistribModelState, seDispatch:SEDispatcher) {
+        concCalc.subscribe(
+            resp => {
+                const dataFull = resp.data.map<DataItemWithWCI>(v => {
+                    const confInt = wilsonConfInterval(v.abs, v.domainSize, state.alphaLevel);
+                    return {
+                        datetime: v.datetime,
+                        abs: v.abs,
+                        ipm: calcIPM(v),
+                        interval: [roundFloat(confInt[0] * 1e6), roundFloat(confInt[1] * 1e6)]
+                    };
+                });
+
+                seDispatch<Actions.LoadDataDone>({
+                    name: ActionName.LoadDataDone,
+                    payload: {
+                        data: dataFull,
+                        subcname: resp.usesubcorp,
+                        concId: resp.concId,
+                        tileId: this.tileId
+                    }
+                });
+            },
+            error => {
+                console.error(error);
+                seDispatch<Actions.LoadDataDone>({
+                    name: ActionName.LoadDataDone,
+                    payload: {
+                        subcname: null,
+                        data: null,
+                        concId: null,
+                        tileId: this.tileId
+                    },
+                    error: error
+                });
+            }
+        );
+    }
+
     sideEffects(state:TimeDistribModelState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
-                this.suspend((action:Action) => {
-                    if (action.name === ConcActionName.DataLoadDone && action.payload['tileId'] === this.waitForTile) {
-                        const payload = (action as ConcActions.DataLoadDone).payload;
-                        new Rx.Observable((observer:Rx.Observer<{}>) => {
-                            if (action.error) {
-                                observer.error(new Error(this.appServices.translate('global__failed_to_obtain_required_data')));
+                if (this.waitForTile > -1) { // in this case we rely on a concordance provided by other tile
+                    this.suspend((action:Action) => {
+                        if (action.name === ConcActionName.DataLoadDone && action.payload['tileId'] === this.waitForTile) {
+                            const payload = (action as ConcActions.DataLoadDone).payload;
+                            const ans = new Rx.Observable((observer:Rx.Observer<{concId: string}>) => {
+                                if (action.error) {
+                                    observer.error(new Error(this.appServices.translate('global__failed_to_obtain_required_data')));
 
-                            } else {
-                                observer.next({});
-                                observer.complete();
-                            }
-                        })
-                        .concatMap(args => this.api.call(stateToAPIArgs(state, payload.data.conc_persistence_op_id)))
-                        .subscribe(
-                            resp => {
-                                const dataFull = resp.data.map<DataItemWithWCI>(v => {
-                                    const confInt = wilsonConfInterval(v.abs, v.domainSize, state.alphaLevel);
-                                    return {
-                                        datetime: v.datetime,
-                                        abs: v.abs,
-                                        ipm: calcIPM(v),
-                                        interval: [roundFloat(confInt[0] * 1e6), roundFloat(confInt[1] * 1e6)]
-                                    };
-                                });
+                                } else {
+                                    observer.next({concId: payload.data.conc_persistence_op_id});
+                                    observer.complete();
+                                }
+                            })
+                            .concatMap(args => this.api.call(stateToAPIArgs(state, args.concId, state.subcnames.get(0))));
+                            this.getFreqs(
+                                ans,
+                                state,
+                                dispatch
+                            );
+                            return true;
+                        }
+                        return false;
+                    });
 
-                                dispatch<Actions.LoadDataDone>({
-                                    name: ActionName.LoadDataDone,
-                                    payload: {
-                                        data: dataFull,
-                                        concId: resp.concId,
-                                        tileId: this.tileId
-                                    }
-                                });
+                } else { // here we must create our own concordance(s)
+                    state.subcnames.toArray().map(subcname =>
+                        this.concApi.call(concStateToArgs(
+                            {
+                                querySelector: QuerySelector.WORD,
+                                corpname: state.corpname,
+                                subcname: subcname,
+                                kwicLeftCtx: -1,
+                                kwicRightCtx: 1,
+                                pageSize: 10,
+                                loadPage: 1,
+                                attr_vmode: 'mouseover',
+                                viewMode: ViewMode.KWIC,
+                                tileId: this.tileId,
+                                attrs: Immutable.List<string>(['word'])
                             },
-                            error => {
-                                console.error(error);
-                                dispatch<Actions.LoadDataDone>({
-                                    name: ActionName.LoadDataDone,
-                                    payload: {
-                                        data: null,
-                                        concId: null,
-                                        tileId: this.tileId
-                                    },
-                                    error: error
-                                });
-                            }
+                            this.mainForm.getState().query.value
+                        ))
+                        .map(v => ({
+                            subcname: v.usesubcorp,
+                            concId: v.conc_persistence_op_id
+                        }))
+                        .concatMap(args => this.api.call(stateToAPIArgs(state, args.concId, args.subcname)))
+
+                    ).forEach(chunk => {
+                        this.getFreqs(
+                            chunk,
+                            state,
+                            dispatch
                         );
-                        return true;
-                    }
-                    return false;
-                });
+                    });
+                }
             break;
         }
     }

@@ -16,16 +16,15 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { ITileProvider, TileFactory, QueryType, TileComponent, TileConf, CorpSrchTileConf } from '../../common/types';
-import { ActionDispatcher, ViewUtils } from 'kombo';
-import { GlobalComponents } from '../../views/global';
+import { ITileProvider, TileFactory, QueryType, TileComponent, CorpSrchTileConf } from '../../common/types';
+import { ActionDispatcher } from 'kombo';
 import { TimeDistribModel, FreqFilterQuantity, AlignType } from './model';
 import { TimeDistribAPI } from './api';
 import {init as viewInit} from './view';
 import { AlphaLevel } from './stat';
 import { DataItemWithWCI } from './common';
 import { AppServices } from '../../appServices';
-import { Theme } from '../../common/theme';
+import { ConcApi } from '../../common/api/concordance';
 
 declare var require:(src:string)=>void;  // webpack
 require('./style.less');
@@ -36,6 +35,8 @@ export interface TimeDistTileConf extends CorpSrchTileConf {
     tileType:'TimeDistribTile';
 
     apiURL:string;
+
+    concApiURL?:string;
 
     /**
      * E.g. 'lemma', 'word'
@@ -50,7 +51,21 @@ export interface TimeDistTileConf extends CorpSrchTileConf {
     minFreq:number;
 }
 
-
+/**
+ * Important note: the tile works in two mutually exclusive
+ * modes:
+ * 1) depending on a concordance tile
+ *   - in such case the concordance (subc)corpus must be
+ *     the same as the (sub)corpus this tile works with
+ *   - the 'dependsOn' conf value must be set
+ *   - the 'subcname' should have only one value (others are ignored)
+ *
+ * 2) independent - creating its own concordances, using possibly multiple subcorpora
+ *   - the 'dependsOn' cannot be present in the confir
+ *   - the 'subcname' can have any number of items
+ *     - the tile queries all the subcorpora and then merges all the data
+ *
+ */
 export class TimeDistTile implements ITileProvider {
 
     private readonly dispatcher:ActionDispatcher;
@@ -65,7 +80,7 @@ export class TimeDistTile implements ITileProvider {
 
     private view:TileComponent;
 
-    constructor({dispatcher, tileId, waitForTiles, ut, theme, appServices, widthFract, conf}:TileFactory.Args<TimeDistTileConf>) {
+    constructor({dispatcher, tileId, waitForTiles, ut, theme, appServices, widthFract, mainForm, conf}:TileFactory.Args<TimeDistTileConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
@@ -76,7 +91,7 @@ export class TimeDistTile implements ITileProvider {
                 isBusy: false,
                 error: null,
                 corpname: conf.corpname,
-                subcname: conf.subcname,
+                subcnames: Immutable.List<string>(Array.isArray(conf.subcname) ? conf.subcname : [conf.subcname]),
                 subcDesc: appServices.importExternalMessage(conf.subcDesc),
                 concId: null,
                 attrTime: conf.timeProperty,
@@ -91,9 +106,11 @@ export class TimeDistTile implements ITileProvider {
                 data: Immutable.List<DataItemWithWCI>()
             },
             tileId,
-            waitForTiles[0],
+            waitForTiles[0] || -1,
             new TimeDistribAPI(conf.apiURL),
-            appServices
+            conf.concApiURL ? new ConcApi(conf.concApiURL) : null,
+            appServices,
+            mainForm
         );
         this.view = viewInit(this.dispatcher, ut, theme, this.model);
     }

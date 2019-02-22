@@ -19,11 +19,12 @@ import * as Immutable from 'immutable';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
 import {ActionName, Actions} from './actions';
-import {ConcApi, Line, QuerySelector, RequestArgs, ViewMode, setQuery} from '../../common/api/concordance';
+import {ConcApi, Line} from '../../common/api/concordance';
 import { WdglanceMainFormModel } from '../../models/query';
 import { AppServices } from '../../appServices';
 import { importMessageType } from '../../notifications';
 import { SystemMessageType, BacklinkWithArgs, Backlink, HTTPMethod } from '../../common/types';
+import { ConcordanceMinState, stateToArgs } from '../../common/models/concordance';
 
 
 export interface BacklinkArgs {
@@ -33,16 +34,14 @@ export interface BacklinkArgs {
 }
 
 
-export interface ConcordanceTileState {
+export interface ConcordanceTileState extends ConcordanceMinState {
     isBusy:boolean;
     error:string|null;
     isTweakMode:boolean;
     isMobile:boolean;
     widthFract:number;
-    querySelector:QuerySelector;
     lines:Immutable.List<Line>;
-    corpname:string;
-    subcname:string;
+    currPage:number;
     fullsize:number;
     concsize:number;
     numPages:number;
@@ -50,15 +49,6 @@ export interface ConcordanceTileState {
     resultIPM:number;
     initialKwicLeftCtx:number;
     initialKwicRightCtx:number;
-    kwicLeftCtx:number;
-    kwicRightCtx:number;
-    pageSize:number;
-    currPage:number; // from 1
-    loadPage:number; // the one we are going to load
-    attr_vmode:'mouseover';
-    viewMode:ViewMode;
-    tileId:number;
-    attrs:Immutable.List<string>;
     backlink:BacklinkWithArgs<BacklinkArgs>;
 }
 
@@ -71,26 +61,6 @@ export interface ConcordanceTileModelArgs {
     mainForm:WdglanceMainFormModel;
     initState:ConcordanceTileState;
     backlink:Backlink;
-}
-
-
-export const stateToArgs = (state:ConcordanceTileState, query:string):RequestArgs => {
-    const ans:RequestArgs = {
-        corpname: state.corpname,
-        usesubcorp: state.subcname,
-        queryselector: state.querySelector,
-        kwicleftctx: (-1 * state.kwicLeftCtx).toFixed(),
-        kwicrightctx: state.kwicRightCtx.toFixed(),
-        async: '0',
-        pagesize: state.pageSize.toFixed(),
-        fromp: state.loadPage.toFixed(),
-        attr_vmode: state.attr_vmode,
-        attrs: state.attrs.join(','),
-        viewmode: state.viewMode,
-        format:'json'
-    };
-    setQuery(ans, query);
-    return ans;
 }
 
 

@@ -28,6 +28,7 @@ export namespace Actions {
     export interface LoadDataDone extends Action<{
         data:Array<DataItemWithWCI>;
         concId:string;
+        subcname:string;
         tileId:number;
     }> {
         name: ActionName.LoadDataDone
