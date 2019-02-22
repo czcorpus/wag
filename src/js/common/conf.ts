@@ -16,9 +16,12 @@
  * limitations under the License.
  */
 
-import { DbValueMapping } from './types';
+import { DbValueMapping, TileConf, LocalizedConfMsg } from './types';
 
-
+/**
+ * A page configuration based on
+ * user specific information/input.
+ */
 export interface UserConf {
     uiLang:string;
     queryType:string;
@@ -26,26 +29,47 @@ export interface UserConf {
 	query2Lang:string;
 	query1:string;
     query2:string;
-    tilesConf:{[ident:string]:any};
+    tilesConf:{[ident:string]:TileConf};
 }
 
-
+/**
+ * This specifies a 'theming' for
+ * JavaScript generated stuff
+ * (mainly chart colors).
+ */
 export interface ColorsConf {
     category:Array<string>;
     bar:Array<string>;
 }
 
 
+export interface LayoutConfig {
+    groupLabel:LocalizedConfMsg;
+    groupDesc:LocalizedConfMsg;
+    groupTemplate:any; // TODO unfinished concept
+    tiles:Array<{tile:string; width:number}>;
+}
+
+/**
+ * Client side app configuration.
+ */
 export interface ClientConf {
     rootUrl:string;
 	hostUrl:string;
 	corpInfoApiUrl:string;
-    tiles:{[lang:string]:{[ident:string]:any}};
+    tiles:{[lang:string]:{[ident:string]:TileConf}};
     dbValuesMapping:DbValueMapping;
     colors:ColorsConf;
-	layouts:any;
+	layouts:{
+        single:LayoutConfig;
+        cmp:LayoutConfig;
+        translat:LayoutConfig;
+    };
 }
 
+/**
+ * Server side app configuration.
+ */
 export interface ServerConf {
     address:string;
     port:number;

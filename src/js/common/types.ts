@@ -70,6 +70,14 @@ export interface TileConf {
     helpURL:string;
 
     /**
+     * An optional link to an application the specific tile
+     * represents (more or less). It is expected that the
+     * tile logic is able to pass proper arguments to the
+     * page.
+     */
+    backlinkURL?:string;
+
+    /**
      * Normally, any tile configured in the "tiles" section
      * will be active no matter whether it is also in the
      * "layouts" section. This allows e.g. a hidden concordance
