@@ -54,16 +54,16 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         );
     };
 
-    // -------------------------- <TTDistribTile /> --------------------------------------
+    // -------------------------- <MergeCorpTTDistribTile /> --------------------------------------
 
-    class TTDistribTile extends React.PureComponent<MergeCorpFreqModelState & CoreTileComponentProps> {
+    class MergeCorpTTDistribTile extends React.PureComponent<MergeCorpFreqModelState & CoreTileComponentProps> {
 
         render() {
             return (
                 <globComponents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.data.find(v => v.freq > 0) !== undefined}
                         sourceIdent={this.props.sources.map(v => ({corp: v.corpname})).toArray()}>
-                    <div className="TTDistribTile">
+                    <div className="MergeCorpTTDistribTile">
                         <Chart data={this.props.data} size={[this.props.renderSize[0], 70 + this.props.data.size * this.props.pixelsPerItem]} />
                     </div>
                 </globComponents.TileWrapper>
@@ -71,5 +71,5 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         }
     }
 
-    return BoundWithProps<CoreTileComponentProps, MergeCorpFreqModelState>(TTDistribTile, model);
+    return BoundWithProps<CoreTileComponentProps, MergeCorpFreqModelState>(MergeCorpTTDistribTile, model);
 }

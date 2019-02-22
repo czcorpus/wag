@@ -17,7 +17,7 @@
  */
 
 import * as Immutable from 'immutable';
-import { ITileProvider, TileFactory, QueryType, TileComponent, TileConf } from '../../common/types';
+import { ITileProvider, TileFactory, QueryType, TileComponent, TileConf, LocalizedConfMsg } from '../../common/types';
 import {init as viewInit} from './view';
 import { ActionDispatcher, ViewUtils } from "kombo";
 import { TTDistribModel } from "./model";
@@ -37,6 +37,7 @@ export interface TTDistTileConf extends TileConf {
     apiURL:string;
     corpname:string;
     fcrit:string|Array<string>;
+    critLabels:LocalizedConfMsg|Array<LocalizedConfMsg>;
     flimit:number;
     freqSort:string;
     fpage:number;
@@ -61,12 +62,18 @@ export class TTDistTile implements ITileProvider {
 
     private readonly widthFract:number;
 
+    private readonly appServices:AppServices;
+
     constructor({dispatcher, tileId, waitForTiles, ut, theme, appServices, widthFract, conf}:TileFactory.Args<TTDistTileConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
+        this.appServices = appServices;
         this.label = appServices.importExternalMessage(conf.label);
         const criteria = Immutable.List<string>(typeof conf.fcrit === 'string' ? [conf.fcrit] : conf.fcrit);
+        const labels = Array.isArray(conf.critLabels) ?
+            conf.critLabels.map(v => this.appServices.importExternalMessage(v)) :
+            [this.appServices.importExternalMessage(conf.critLabels)];
         this.model = new TTDistribModel(
             this.dispatcher,
             tileId,
@@ -84,6 +91,7 @@ export class TTDistTile implements ITileProvider {
                 corpname: conf.corpname,
                 concId: null,
                 fcrit: criteria,
+                critLabels: Immutable.List<string>(labels),
                 flimit: conf.flimit,
                 freqSort: conf.freqSort,
                 fpage: conf.fpage,

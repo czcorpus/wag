@@ -16,21 +16,23 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { ITileProvider, QueryType, TileFactory, TileComponent, TileConf } from '../../common/types';
+import { ITileProvider, QueryType, TileFactory, TileComponent, TileConf, LocalizedConfMsg } from '../../common/types';
 import { AppServices } from '../../appServices';
-import { FreqPieModel, FreqPieDataRow, DataBlock } from './model';
+import { FreqPieModel, FreqPieDataRow } from './model';
 import {init as viewInit} from './view';
 import { MultiBlockFreqDistribAPI } from '../../common/api/kontextFreqs';
 import { puid } from '../../common/util';
+import { FreqDataBlock } from '../../common/models/freq';
 declare var require:any;
 require('./style.less');
 
 
-export interface FreqPieTileConf extends TileConf{
+export interface FreqPieTileConf extends TileConf {
     tileType:'FreqPieTile';
     apiURL:string;
     corpname:string;
     fcrit:string|Array<string>;
+    critLabels:LocalizedConfMsg|Array<LocalizedConfMsg>;
     flimit:number;
     freqSort:string;
     fpage:number;
@@ -58,12 +60,15 @@ export class FreqPieTile implements ITileProvider {
         this.widthFract = widthFract;
         this.label = this.appServices.importExternalMessage(conf.label);
         const criteria = typeof conf.fcrit === 'string' ? [conf.fcrit] : conf.fcrit;
+        const labels = Array.isArray(conf.critLabels) ?
+            conf.critLabels.map(v => this.appServices.importExternalMessage(v)) :
+            [this.appServices.importExternalMessage(conf.critLabels)];
         this.model = new FreqPieModel(
             dispatcher,
             {
                 isBusy: false,
                 error: null,
-                blocks: Immutable.List<DataBlock>(criteria.map(v => ({
+                blocks: Immutable.List<FreqDataBlock<FreqPieDataRow>>(criteria.map(v => ({
                     data: Immutable.List<FreqPieDataRow>(),
                     ident: puid()
                 }))),
@@ -71,6 +76,7 @@ export class FreqPieTile implements ITileProvider {
                 corpname: conf.corpname,
                 concId: null,
                 fcrit: Immutable.List<string>(criteria),
+                critLabels: Immutable.List<string>(labels),
                 flimit: conf.flimit,
                 freqSort: conf.freqSort,
                 fpage: conf.fpage,

@@ -24,17 +24,12 @@ import {ActionName as ConcActionName, Actions as ConcActions} from '../concordan
 import {Actions, ActionName} from './actions';
 import { AppServices } from '../../appServices';
 import { puid } from '../../common/util';
-import { GeneralMultiCritTTDistribModelState } from '../../common/models/freq';
+import { GeneralMultiCritTTDistribModelState, FreqDataBlock } from '../../common/models/freq';
 
 
 export interface FreqPieDataRow {
     name:string;
     percent:number;
-}
-
-export interface DataBlock {
-    data:Immutable.List<FreqPieDataRow>;
-    ident:string;
 }
 
 export interface FreqPieModelState extends GeneralMultiCritTTDistribModelState<FreqPieDataRow> {
@@ -90,27 +85,30 @@ export class FreqPieModel extends StatelessModel<FreqPieModelState> {
                     const newState = this.copyState(state);
                     newState.isBusy = false;
                     if (action.error) {
-                        newState.blocks = Immutable.List<DataBlock>(state.fcrit.map(_ => ({
+                        newState.blocks = Immutable.List<FreqDataBlock<FreqPieDataRow>>(state.fcrit.map((_, i) => ({
                             data: Immutable.List<FreqPieDataRow>(),
-                            ident: puid()
+                            ident: puid(),
+                            label: state.critLabels.get(i)
                         })));
                         newState.error = action.error.message;
 
                     } else if (action.payload.blocks.length === 0) {
-                        newState.blocks = Immutable.List<DataBlock>(state.fcrit.map(_ => ({
+                        newState.blocks = Immutable.List<FreqDataBlock<FreqPieDataRow>>(state.fcrit.map((_, i) => ({
                             data: Immutable.List<FreqPieDataRow>(),
-                            ident: puid()
+                            ident: puid(),
+                            label: state.critLabels.get(i)
                         })));
 
                     } else {
-                        newState.blocks = Immutable.List<DataBlock>(action.payload.blocks.map(block => {
+                        newState.blocks = Immutable.List<FreqDataBlock<FreqPieDataRow>>(action.payload.blocks.map((block, i) => {
                             const totalFreq = block.data.reduce((acc, curr) => acc + curr.freq, 0);
                             return {
                                 data: Immutable.List<FreqPieDataRow>(block.data.map(v => ({
                                     name: v.name,
                                     percent: v.freq / totalFreq * 100
                                 }))),
-                                ident: puid()
+                                ident: puid(),
+                                label: state.critLabels.get(i)
                             };
                         }));
                     }

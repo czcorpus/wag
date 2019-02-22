@@ -18,6 +18,7 @@
 
 import * as Immutable from 'immutable';
 import { DataRow, QueryArgs } from '../api/kontextFreqs';
+import { LocalizedConfMsg } from '../types';
 
 interface TTDistribModelStateBase {
     isBusy:boolean;
@@ -38,10 +39,12 @@ export interface GeneralTTDistribModelState extends TTDistribModelStateBase {
 export interface FreqDataBlock<T> {
     data:Immutable.List<T>;
     ident:string;
+    label:string;
 }
 
 export interface GeneralMultiCritTTDistribModelState<T> extends TTDistribModelStateBase {
     fcrit:Immutable.List<string>;
+    critLabels:Immutable.List<LocalizedConfMsg>;
     blocks:Immutable.List<FreqDataBlock<T>>;
 }
 
