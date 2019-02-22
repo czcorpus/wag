@@ -22,6 +22,7 @@ import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../mo
 import { TreqAPI, TreqTranslation, RequestArgs, PageArgs } from './api';
 import { ActionName, Actions } from './actions';
 import { WdglanceMainFormModel } from '../../models/query';
+import { Backlink, BacklinkWithArgs, HTTPMethod } from '../../common/types';
 
 
 export interface TreqModelState {
@@ -32,8 +33,7 @@ export interface TreqModelState {
     searchPackages:Immutable.List<string>;
     translations:Immutable.List<TreqTranslation>;
     sum:number;
-    treqBackLinkArgs:PageArgs|null;
-    treqBackLinkRootURL:string|null;
+    treqBackLink:BacklinkWithArgs<PageArgs>|null;
 }
 
 
@@ -75,9 +75,13 @@ export class TreqModel extends StatelessModel<TreqModelState> {
 
     private readonly mainForm:WdglanceMainFormModel;
 
-    constructor(dispatcher:ActionDispatcher, initialState:TreqModelState, tileId:number, api:TreqAPI, mainForm:WdglanceMainFormModel) {
+    private readonly backlink:Backlink;
+
+    constructor(dispatcher:ActionDispatcher, initialState:TreqModelState, tileId:number, api:TreqAPI,
+            backlink:Backlink, mainForm:WdglanceMainFormModel) {
         super(dispatcher, initialState);
         this.api = api;
+        this.backlink = backlink;
         this.mainForm = mainForm;
         this.tileId = tileId;
         this.actionMatch = {
@@ -97,11 +101,22 @@ export class TreqModel extends StatelessModel<TreqModelState> {
                 } else {
                     newState.translations = Immutable.List<TreqTranslation>(action.payload.data.lines);
                     newState.sum = action.payload.data.sum;
-                    newState.treqBackLinkArgs = stateToPageArgs(state, action.payload.query);
+                    newState.treqBackLink = this.makeBacklink(state, action.payload.query);
                 }
                 return newState;
             }
         }
+    }
+
+    private makeBacklink(state:TreqModelState, query:string):BacklinkWithArgs<PageArgs> {
+        return this.backlink ?
+            {
+                url: this.backlink.url,
+                label: this.backlink.label,
+                method: this.backlink.method || HTTPMethod.GET,
+                args: stateToPageArgs(state, query)
+            } :
+            null;
     }
 
     sideEffects(state:TreqModelState, action:Action, dispatch:SEDispatcher):void {

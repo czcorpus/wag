@@ -23,7 +23,14 @@ import {ConcApi, Line, QuerySelector, RequestArgs, ViewMode, setQuery} from '../
 import { WdglanceMainFormModel } from '../../models/query';
 import { AppServices } from '../../appServices';
 import { importMessageType } from '../../notifications';
-import { SystemMessageType } from '../../common/types';
+import { SystemMessageType, BacklinkWithArgs, Backlink, HTTPMethod } from '../../common/types';
+
+
+export interface BacklinkArgs {
+    corpname:string;
+    usesubcorp:string;
+    q:string;
+}
 
 
 export interface ConcordanceTileState {
@@ -35,6 +42,7 @@ export interface ConcordanceTileState {
     querySelector:QuerySelector;
     lines:Immutable.List<Line>;
     corpname:string;
+    subcname:string;
     fullsize:number;
     concsize:number;
     numPages:number;
@@ -51,6 +59,7 @@ export interface ConcordanceTileState {
     viewMode:ViewMode;
     tileId:number;
     attrs:Immutable.List<string>;
+    backlink:BacklinkWithArgs<BacklinkArgs>;
 }
 
 
@@ -61,12 +70,14 @@ export interface ConcordanceTileModelArgs {
     service:ConcApi;
     mainForm:WdglanceMainFormModel;
     initState:ConcordanceTileState;
+    backlink:Backlink;
 }
 
 
 export const stateToArgs = (state:ConcordanceTileState, query:string):RequestArgs => {
     const ans:RequestArgs = {
         corpname: state.corpname,
+        usesubcorp: state.subcname,
         queryselector: state.querySelector,
         kwicleftctx: (-1 * state.kwicLeftCtx).toFixed(),
         kwicrightctx: state.kwicRightCtx.toFixed(),
@@ -93,14 +104,17 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
     private readonly tileId:number;
 
+    private readonly backlink:Backlink;
+
     public static readonly CTX_SIZES = [3, 3, 8, 12];
 
-    constructor({dispatcher, tileId, appServices, service, mainForm, initState}:ConcordanceTileModelArgs) {
+    constructor({dispatcher, tileId, appServices, service, mainForm, initState, backlink}:ConcordanceTileModelArgs) {
         super(dispatcher, initState);
         this.service = service;
         this.mainForm = mainForm;
         this.appServices = appServices;
         this.tileId = tileId;
+        this.backlink = backlink;
         this.actionMatch = {
             [GlobalActionName.SetScreenMode]: (state, action:GlobalActions.SetScreenMode) => {
                 if (action.payload.isMobile !== state.isMobile) {
@@ -157,6 +171,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                         newState.resultIPM = action.payload.data.result_relative_freq;
                         newState.currPage = newState.loadPage;
                         newState.numPages = Math.ceil(newState.concsize / newState.pageSize);
+                        newState.backlink = this.createBackLink(state, action);
                     }
                     return newState;
                 }
@@ -198,6 +213,21 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 return state;
             }
         };
+    }
+
+    private createBackLink(state:ConcordanceTileState, action:Actions.DataLoadDone):BacklinkWithArgs<BacklinkArgs> {
+        return this.backlink ?
+            {
+                url: this.backlink.url,
+                method: this.backlink.method || HTTPMethod.GET,
+                label: this.backlink.label,
+                args: {
+                    corpname: state.corpname,
+                    usesubcorp: state.subcname,
+                    q: `~${action.payload.data.conc_persistence_op_id}`
+                }
+            } :
+            null;
     }
 
     private reloadData(state:ConcordanceTileState, dispatch:SEDispatcher):void {

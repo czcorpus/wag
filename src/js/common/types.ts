@@ -27,11 +27,45 @@ export type AnyInterface<T> = {
     [P in keyof T]: T[P];
 };
 
+export interface IMultiDict {
+    getFirst(key:string):string;
+    getList(key:string):Array<string>;
+    set(key:string, value:number|boolean|string):void;
+    add(key:string, value:any):void;
+    replace(key:string, values:Array<string>);
+    remove(key:string):void;
+    items():Array<[string, string]>;
+    has(key:string):boolean;
+}
 
 export type ListOfPairs = Array<[string, string|number]>;
 
+export enum HTTPMethod {
+    GET = 'GET',
+    HEAD = 'HEAD',
+    POST = 'POST',
+    PUT = 'PUT',
+    DELETE = 'DELETE',
+    CONNECT = 'CONNECT',
+    OPTIONS = 'OPTIONS',
+    TRACE = 'TRACE',
+    PATCH = 'PATCH'
+}
 
 export type LocalizedConfMsg = string|{[lang:string]:string};
+
+export interface Backlink {
+    url:string;
+    label:LocalizedConfMsg;
+    method?:HTTPMethod;
+}
+
+export interface BacklinkWithArgs<T> {
+    url:string;
+    label:LocalizedConfMsg;
+    args:AnyInterface<T>;
+    method:HTTPMethod;
+}
 
 export enum SystemMessageType {
     INFO = 'info',
@@ -75,7 +109,7 @@ export interface TileConf {
      * tile logic is able to pass proper arguments to the
      * page.
      */
-    backlinkURL?:string;
+    backlink?:Backlink;
 
     /**
      * Normally, any tile configured in the "tiles" section

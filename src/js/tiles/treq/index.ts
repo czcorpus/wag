@@ -27,7 +27,6 @@ require('./style.less');
 export interface TreqTileConf extends TileConf {
     tileType:'TreqTile';
     apiURL:string;
-    backlinkURL:string;
     srchPackages:SearchPackages;
 }
 
@@ -60,11 +59,11 @@ export class TreqTile implements ITileProvider {
                 searchPackages: Immutable.List<string>(conf.srchPackages[lang2] || []),
                 translations: Immutable.List<TreqTranslation>(),
                 sum: 0,
-                treqBackLinkArgs: null,
-                treqBackLinkRootURL: conf.backlinkURL
+                treqBackLink: null
             },
             tileId,
             new TreqAPI(conf.apiURL),
+            conf.backlink || null,
             mainForm
         );
         this.view = viewInit(

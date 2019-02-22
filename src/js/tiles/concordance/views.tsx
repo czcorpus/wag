@@ -155,7 +155,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             return (
                 <globalCompontents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.lines.size > 0}
-                        sourceIdent={{corp: this.props.corpname}}>
+                        sourceIdent={{corp: this.props.corpname}}
+                        backlink={this.props.backlink}>
                     <div className="ConcordanceTileView">
                         {this.props.isTweakMode ?
                             <div><Controls currPage={this.props.currPage} numPages={this.props.numPages}

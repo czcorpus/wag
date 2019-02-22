@@ -17,22 +17,21 @@
  */
 
 import * as Immutable from 'immutable';
-import { ITileProvider, TileFactory, QueryType, TileComponent, TileConf } from '../../common/types';
+import { ITileProvider, TileFactory, QueryType, TileComponent, TileConf, Backlink, CorpSrchTileConf } from '../../common/types';
 import {init as viewInit} from './views';
 import { ConcordanceTileModel } from './model';
-import { ActionDispatcher, ViewUtils } from 'kombo';
+import { ActionDispatcher } from 'kombo';
 import { ConcApi, Line, ViewMode, QuerySelector } from '../../common/api/concordance';
-import { GlobalComponents } from '../../views/global';
 import { AppServices } from '../../appServices';
 
 declare var require:any;
 require('./style.less');
 
 
-export interface ConcordanceTileConf extends TileConf {
+export interface ConcordanceTileConf extends CorpSrchTileConf {
     tileType:'ConcordanceTile';
     apiURL:string;
-    corpname:string;
+    backlink:Backlink;
     posAttrs:Array<string>;
 }
 
@@ -64,6 +63,7 @@ export class ConcordanceTile implements ITileProvider {
             appServices: appServices,
             service: new ConcApi(conf.apiURL),
             mainForm: mainForm,
+            backlink: conf.backlink || null,
             initState: {
                 tileId: tileId,
                 isBusy: false,
@@ -74,6 +74,7 @@ export class ConcordanceTile implements ITileProvider {
                 querySelector: QuerySelector.WORD,
                 lines: Immutable.List<Line>(),
                 corpname: conf.corpname,
+                subcname: conf.subcname,
                 fullsize: -1,
                 concsize: -1,
                 numPages: -1,
@@ -88,7 +89,8 @@ export class ConcordanceTile implements ITileProvider {
                 kwicRightCtx: appServices.isMobileMode() ? ConcordanceTileModel.CTX_SIZES[0] : this.calcContext(widthFract),
                 attr_vmode: 'mouseover',
                 viewMode: ViewMode.KWIC,
-                attrs: Immutable.List<string>(conf.posAttrs)
+                attrs: Immutable.List<string>(conf.posAttrs),
+                backlink: null
             }
         });
         this.model.suspend
