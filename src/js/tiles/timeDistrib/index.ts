@@ -41,7 +41,7 @@ export interface TimeDistTileConf extends CorpSrchTileConf {
 
     concReduceApiURL?:string;
 
-    concReduceRatio?:number;
+    concMaxSize?:number;
 
     /**
      * E.g. 'lemma', 'word'
@@ -109,7 +109,7 @@ export class TimeDistTile implements ITileProvider {
                 ctxIndex2: 6, // TODO conf/explain
                 alphaLevel: AlphaLevel.LEVEL_0_1, // TODO conf/explain
                 data: Immutable.List<DataItemWithWCI>(),
-                concReduceRatio: conf.concReduceRatio || -1
+                concMaxSize: conf.concMaxSize || -1
             },
             tileId,
             waitForTiles[0] || -1,

@@ -64,7 +64,7 @@ export interface TimeDistribModelState {
     alignType2:AlignType;
     ctxIndex2:number;
     alphaLevel:AlphaLevel;
-    concReduceRatio:number;
+    concMaxSize:number;
     data:Immutable.List<DataItemWithWCI>;
 }
 
@@ -162,7 +162,6 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     } else {
                         newState.data = this.mergeChunks(newState.data, Immutable.List<DataItemWithWCI>(action.payload.data), newState.alphaLevel);
                         this.unfinishedChunks = this.unfinishedChunks.set(action.payload.subcname, false);
-                        console.log('update chunks: ', this.unfinishedChunks.toJS());
                         if (!this.hasUnfinishedCHunks()) {
                             newState.isBusy = false;
                         }
@@ -289,16 +288,21 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         ))
                         .concatMap(
                             (resp) => {
-                                const args:ReduceRequestArgs = {
-                                    corpname: resp.corpname,
-                                    usesubcorp: resp.usesubcorp,
-                                    q: `~${resp.conc_persistence_op_id}`,
-                                    rlines: Math.round(resp.fullsize * state.concReduceRatio),
-                                    queryselector: QuerySelector.WORD,
-                                    format: 'json'
-                                };
-                                setQuery(args, query);
-                                return this.concReduceApi.call(args);
+                                if (resp.fullsize > state.concMaxSize) {
+                                    const args:ReduceRequestArgs = {
+                                        corpname: resp.corpname,
+                                        usesubcorp: resp.usesubcorp,
+                                        q: `~${resp.conc_persistence_op_id}`,
+                                        rlines: Math.round(state.concMaxSize),
+                                        queryselector: QuerySelector.WORD,
+                                        format: 'json'
+                                    };
+                                    setQuery(args, query);
+                                    return this.concReduceApi.call(args);
+
+                                } else {
+                                    return Rx.Observable.of(resp);
+                                }
                             }
                         )
                         .map(v => ({
