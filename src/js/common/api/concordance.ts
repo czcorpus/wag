@@ -77,6 +77,7 @@ interface HTTPResponse {
 export interface ConcResponse extends HTTPResponse {
     query:string;
     corpname:string;
+    usesubcorp:string;
 }
 
 
@@ -139,7 +140,8 @@ export class ConcApi implements DataApi<RequestArgs, ConcResponse> {
                 result_arf: data.result_arf,
                 result_relative_freq: data.result_relative_freq,
                 query: getQuery(args),
-                corpname: args.corpname
+                corpname: args.corpname,
+                usesubcorp: args.usesubcorp
             })
         );
     }

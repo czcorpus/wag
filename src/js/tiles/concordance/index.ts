@@ -74,7 +74,7 @@ export class ConcordanceTile implements ITileProvider {
                 querySelector: QuerySelector.WORD,
                 lines: Immutable.List<Line>(),
                 corpname: conf.corpname,
-                subcname: conf.subcname,
+                subcname: Array.isArray(conf.subcname) ? conf.subcname[0] : conf.subcname,
                 fullsize: -1,
                 concsize: -1,
                 numPages: -1,

@@ -146,7 +146,7 @@ export interface CorpSrchTileConf extends TileConf {
 
     corpname:string;
 
-    subcname?:string;
+    subcname?:string|Array<string>;
 
     subcDesc?:string|{[lang:string]:string};
 }

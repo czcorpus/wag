@@ -46,6 +46,8 @@ export interface DataItem {
 
 
 export interface APIResponse {
+    corpname:string;
+    usesubcorp:string;
     concId:string;
     data:Array<DataItem>;
 }
@@ -80,6 +82,8 @@ export class TimeDistribAPI implements DataApi<QueryArgs, APIResponse> {
         ).concatMap<HTTPResponse, APIResponse>(
             (resp) => {
                 return Rx.Observable.of({
+                    corpname: queryArgs.corpname,
+                    usesubcorp: queryArgs.usesubcorp,
                     concId: null, // TODO
                     data: resp.data.data
                         .map(row => ({
