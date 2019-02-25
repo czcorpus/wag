@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import * as Rx from '@reactivex/rxjs';
+import {Observable, Observer} from 'rxjs';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
 import { QueryArgs, MultiBlockFreqDistribAPI } from '../../common/api/kontextFreqs';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
@@ -137,7 +137,7 @@ export class FreqPieModel extends StatelessModel<FreqPieModelState> {
                             return true;
                         }
                         const payload = (action as ConcActions.DataLoadDone).payload;
-                        new Rx.Observable((observer:Rx.Observer<{}>) => {
+                        new Observable((observer:Observer<{}>) => {
                             if (action.error) {
                                 observer.error(action.error);
 

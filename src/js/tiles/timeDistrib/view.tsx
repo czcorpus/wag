@@ -75,7 +75,6 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
     // -------------- <TimeDistribTile /> ------------------------------------------------------
 
     class TimeDistribTile extends React.PureComponent<TimeDistribModelState & CoreTileComponentProps> {
-
         render() {
             return <globComponents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
                             hasData={this.props.data.size > 0}

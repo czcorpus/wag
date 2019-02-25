@@ -17,7 +17,7 @@
  */
 
 import * as Immutable from 'immutable';
-import * as Rx from '@reactivex/rxjs';
+import {Observable} from 'rxjs';
 import {QueryArgs, FreqDistribAPI, DataRow, APIResponse} from '../../common/api/kontextFreqs';
 import {StatelessModel, ActionDispatcher, Action, SEDispatcher} from 'kombo';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
@@ -104,15 +104,15 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
         }
     }
 
-    private loadFreqs(state:MergeCorpFreqModelState):Rx.Observable<APIResponse> {
-        const streams$ = state.sources.map<Rx.Observable<APIResponse>>(src => {
+    private loadFreqs(state:MergeCorpFreqModelState):Observable<APIResponse> {
+        const streams$ = state.sources.map<Observable<APIResponse>>(src => {
             const srchKey = this.waitingForTiles.findKey(v => v && v.corpname === src.corpname);
             return srchKey !== undefined ?
                 this.api.call(sourceToAPIArgs(src, this.waitingForTiles.get(srchKey).concId)) :
-                Rx.Observable.throw(new Error(`Cannot find concordance result for ${src.corpname}. Passing an empty stream.`));
+                Observable.throw(new Error(`Cannot find concordance result for ${src.corpname}. Passing an empty stream.`));
         }).toArray();
 
-        return Rx.Observable
+        return Observable
             .forkJoin(...streams$)
             .map(partials => {
                 const data = partials.reduce<Array<DataRow>>((acc, curr) => {

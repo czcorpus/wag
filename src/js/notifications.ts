@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import * as Rx from '@reactivex/rxjs';
+import {Observable, Subject, Scheduler} from 'rxjs';
 import { ActionDispatcher } from 'kombo';
 import {ActionName} from './models/actions';
 import {puid} from './common/util';
@@ -44,11 +44,11 @@ export class SystemNotifications {
 
     private static DEFAULT_MESSAGE_TTL = 10;
 
-    private messageEvents:Rx.Subject<SystemMessage>;
+    private messageEvents:Subject<SystemMessage>;
 
     constructor(dispatcher:ActionDispatcher) {
-        this.messageEvents = new Rx.Subject<SystemMessage>();
-        this.messageEvents.observeOn(Rx.Scheduler.async).subscribe(
+        this.messageEvents = new Subject<SystemMessage>();
+        this.messageEvents.observeOn(Scheduler.async).subscribe(
             (data) => {
                 dispatcher.dispatch({
                     name: ActionName.AddSystemMessage,
@@ -59,7 +59,7 @@ export class SystemNotifications {
                         ttl: data.ttl
                     }
                 });
-                Rx.Observable.of({
+                Observable.of({
                     name: ActionName.RemoveSystemMessage,
                     payload: {
                         ident: data.ident

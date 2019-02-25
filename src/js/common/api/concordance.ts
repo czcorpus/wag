@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import * as Rx from '@reactivex/rxjs';
+import {Observable} from 'rxjs';
 import {ajax$} from '../ajax';
 import { DataApi } from '../types';
 
@@ -128,7 +128,7 @@ export class ConcApi implements DataApi<RequestArgs, ConcResponse> {
         this.apiURL = apiURL;
     }
 
-    call(args:RequestArgs):Rx.Observable<ConcResponse> {
+    call(args:RequestArgs):Observable<ConcResponse> {
         return ajax$<ConcResponse>(
             'GET',
             this.apiURL,

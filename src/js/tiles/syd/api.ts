@@ -34,7 +34,7 @@
  * limitations under the License.
  */
 
-import * as Rx from '@reactivex/rxjs';
+import {Observable} from 'rxjs';
 import { DataApi, CorePosAttribute } from '../../common/types';
 import {ConcApi, QuerySelector, ViewMode, ConcResponse} from '../../common/api/concordance';
 import {HTTPResponse as FreqsHTTPResponse} from '../../common/api/kontextFreqs';
@@ -95,7 +95,7 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
         this.conc2 = new ConcApi(concApiURL);
     }
 
-    call(args:RequestArgs):Rx.Observable<Response> {
+    call(args:RequestArgs):Observable<Response> {
         const t1 = new Date().getTime();
         const conc1$ = this.conc1.call({
             corpname: args.corp1,
@@ -127,7 +127,7 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
             format:'json'
         }).share();
 
-        const createRequests = (conc$:Rx.Observable<ConcResponse>, corpname:string, frcrits:Array<string>) => {
+        const createRequests = (conc$:Observable<ConcResponse>, corpname:string, frcrits:Array<string>) => {
             return frcrits.map(fcrit => conc$.concatMap(
                 (data) => {
                     const args1 = new MultiDict();
@@ -148,7 +148,7 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
                 }
             ).concatMap<FreqsHTTPResponse, StrippedFreqResponse>(
                 (data) => {
-                    return Rx.Observable.of({
+                    return Observable.of({
                         items: data.Blocks[0].Items,
                         total: data.Blocks[0].Total,
                         corpname: corpname,
@@ -161,11 +161,11 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
         const s1$ = createRequests(conc1$, args.corp1, args.fcrit1);
         const s2$ = createRequests(conc2$, args.corp2, args.fcrit2);
 
-        return Rx.Observable
+        return Observable
             .forkJoin(...s1$, ...s2$)
             .concatMap(
                 (data) => {
-                    return Rx.Observable.of({
+                    return Observable.of({
                         results: data,
                         procTime: Math.round((new Date().getTime() - t1) / 10) / 100
                     })

@@ -15,7 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Rx from '@reactivex/rxjs';
+
+import {Observable, AjaxResponse} from 'rxjs';
 import { MultiDict } from './data';
 
 
@@ -132,9 +133,9 @@ const prepareAjax = (method:string, url:string, args:AjaxArgs, options?:AjaxOpti
 };
 
 
-export const ajax$ = <T>(method:string, url:string, args:AjaxArgs, options?:AjaxOptions):Rx.Observable<T> => {
+export const ajax$ = <T>(method:string, url:string, args:AjaxArgs, options?:AjaxOptions):Observable<T> => {
     const callArgs = prepareAjax(method, url, args, options);
-    return Rx.Observable.ajax({
+    return Observable.ajax({
         url: callArgs.url,
         body: callArgs.requestBody,
         method: callArgs.method,
@@ -142,5 +143,5 @@ export const ajax$ = <T>(method:string, url:string, args:AjaxArgs, options?:Ajax
         headers: {
             'Content-Type': callArgs.contentType
         }
-    }).map<Rx.AjaxResponse, T>(v => v.response);
+    }).map<AjaxResponse, T>(v => v.response);
 }

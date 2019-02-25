@@ -31,7 +31,7 @@
     "webpack-node-externals": "^1.7.2"
   },
   "dependencies": {
-    "@reactivex/rxjs": "^5.5.6",
+    "rxjs": "^5.5.6",
     "@types/d3": "^5.0.1",
     "@types/express": "^4.16.1",
     "@types/react": "^16.8.3",
@@ -43,7 +43,7 @@
     "d3-cloud": "^1.2.5",
     "express": "^4.16.4",
     "immutable": "^3.8.2",
-    "kombo": "^0.22.5",
+    "kombo": "^0.22.6",
     "react": "^16.8.2",
     "react-dom": "^16.8.2",
     "recharts": "^1.4.2",

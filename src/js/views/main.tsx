@@ -19,7 +19,7 @@
 import {ActionDispatcher, Bound, ViewUtils, BoundWithProps} from 'kombo';
 import * as React from 'react';
 import * as Immutable from 'immutable';
-import * as Rx from '@reactivex/rxjs';
+import {Observable} from 'rxjs';
 import {WdglanceMainState, WdglanceMainFormModel} from '../models/query';
 import {ActionName, Actions} from '../models/actions';
 import {KeyCodes} from '../common/util';
@@ -276,7 +276,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         }
 
         private handleSubmit() {
-            dispatcher.dispatch(Rx.Observable.of(
+            dispatcher.dispatch(Observable.of(
                 {
                     name: ActionName.EnableAnswerMode
                 },
@@ -390,7 +390,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     }> = (props) => {
 
-        const handleClick = () => {
+        const handleClick = (evt:React.MouseEvent<HTMLButtonElement>) => {
             if (!props.isDisabled) {
                 if (props.isExtended) {
                     dispatcher.dispatch({
@@ -731,7 +731,6 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         layout:Immutable.List<TileGroup>;
         isMobile:boolean;
     }> = (props) => {
-
         return (
             <div className="WdglanceMain">
                 <WdglanceControlsBound isMobile={props.isMobile} />

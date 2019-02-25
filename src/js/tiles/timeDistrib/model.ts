@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import * as Rx from '@reactivex/rxjs';
+import {Observable, Observer} from 'rxjs';
 import { StatelessModel, Action, SEDispatcher } from 'kombo';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
 import {ActionName as ConcActionName, Actions as ConcActions} from '../concordance/actions';
@@ -164,7 +164,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
     }
 
 
-    private getFreqs(concCalc:Rx.Observable<APIResponse>, state:TimeDistribModelState, seDispatch:SEDispatcher) {
+    private getFreqs(concCalc:Observable<APIResponse>, state:TimeDistribModelState, seDispatch:SEDispatcher) {
         concCalc.subscribe(
             resp => {
                 const dataFull = resp.data.map<DataItemWithWCI>(v => {
@@ -210,7 +210,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     this.suspend((action:Action) => {
                         if (action.name === ConcActionName.DataLoadDone && action.payload['tileId'] === this.waitForTile) {
                             const payload = (action as ConcActions.DataLoadDone).payload;
-                            const ans = new Rx.Observable((observer:Rx.Observer<{concId: string}>) => {
+                            const ans = new Observable((observer:Observer<{concId: string}>) => {
                                 if (action.error) {
                                     observer.error(new Error(this.appServices.translate('global__failed_to_obtain_required_data')));
 

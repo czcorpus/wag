@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import * as Rx from '@reactivex/rxjs';
+import {Observable} from 'rxjs';
 import {ajax$} from '../ajax';
 import { DataApi } from '../types';
 
@@ -89,7 +89,7 @@ export class FreqDistribAPI implements DataApi<QueryArgs, APIResponse> {
         this.apiURL = apiURL;
     }
 
-    call(args:QueryArgs):Rx.Observable<APIResponse> {
+    call(args:QueryArgs):Observable<APIResponse> {
         return ajax$<HTTPResponse>(
             'GET',
             this.apiURL,
@@ -119,14 +119,14 @@ export class MultiBlockFreqDistribAPI implements DataApi<QueryArgs, APIBlockResp
         this.apiURL = apiURL;
     }
 
-    call(args:QueryArgs):Rx.Observable<APIBlockResponse> {
+    call(args:QueryArgs):Observable<APIBlockResponse> {
         return ajax$<HTTPResponse>(
             'GET',
             this.apiURL,
             args
 
         ).concatMap<HTTPResponse, APIBlockResponse>(
-            resp => Rx.Observable.of({
+            resp => Observable.of({
                 blocks: resp.Blocks.map(block => ({
                     data: block.Items.map(v => ({
                         name: v.Word.map(v => v.n).join(' '),

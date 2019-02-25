@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import * as Rx from '@reactivex/rxjs';
+import {Observable, Observer} from 'rxjs';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
 import {ActionName as ConcActionName, Actions as ConcActions} from '../concordance/actions';
@@ -203,7 +203,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
     }
 
     private requestData(state:CollocModelState, concId:string, prevActionErr:Error|null, seDispatch:SEDispatcher):void {
-        new Rx.Observable((observer:Rx.Observer<CollApiArgs>) => {
+        new Observable((observer:Observer<CollApiArgs>) => {
             if (prevActionErr) {
                 observer.error(prevActionErr);
 

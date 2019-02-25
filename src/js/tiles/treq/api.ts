@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import * as Rx from '@reactivex/rxjs';
+import {Observable} from 'rxjs';
 import { DataApi } from '../../common/types';
 import {ajax$} from '../../common/ajax';
 
@@ -89,14 +89,14 @@ export class TreqAPI implements DataApi<RequestArgs, TreqResponse> {
         this.apiURL = apiURL;
     }
 
-    call(args:RequestArgs):Rx.Observable<TreqResponse> {
+    call(args:RequestArgs):Observable<TreqResponse> {
         return ajax$<HTTPResponse>(
             'GET',
             this.apiURL,
             args
 
         ).concatMap(
-            resp => Rx.Observable.of({
+            resp => Observable.of({
                 sum: resp.sum,
                 lines: resp.lines.map(v => ({
                     freq: parseInt(v.freq),
