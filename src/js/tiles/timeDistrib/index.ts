@@ -39,10 +39,6 @@ export interface TimeDistTileConf extends CorpSrchTileConf {
 
     concApiURL?:string;
 
-    concReduceApiURL?:string;
-
-    concMaxSize?:number;
-
     /**
      * E.g. doc.pubyear
      */
@@ -104,14 +100,12 @@ export class TimeDistTile implements ITileProvider {
                 fttIncludeEmpty: false,
                 fmaxitems: 100,
                 alphaLevel: AlphaLevel.LEVEL_0_1, // TODO conf/explain
-                data: Immutable.List<DataItemWithWCI>(),
-                concMaxSize: conf.concMaxSize || -1
+                data: Immutable.List<DataItemWithWCI>()
             },
             tileId,
             waitForTiles[0] || -1,
             new FreqDistribAPI(conf.apiURL),
             conf.concApiURL ? new ConcApi(conf.concApiURL) : null,
-            conf.concReduceApiURL ? new ConcReduceApi(conf.concReduceApiURL) : null,
             appServices,
             mainForm
         );

@@ -26,7 +26,7 @@ import { AppServices } from '../../appServices';
 import { ConcApi, QuerySelector, ViewMode, setQuery, ConcResponse } from '../../common/api/concordance';
 import {stateToArgs as concStateToArgs} from '../../common/models/concordance';
 import { WdglanceMainFormModel } from '../../models/query';
-import { ConcReduceApi, RequestArgs as ReduceRequestArgs, ApiResponse as ReduceResponse} from '../../common/api/concReduce';
+import { ApiResponse as ReduceResponse} from '../../common/api/concReduce';
 import {GeneralTTDistribModelState, stateToAPIArgs} from '../../common/models/freq';
 import { FreqDistribAPI, APIResponse, DataRow } from '../../common/api/kontextFreqs';
 
@@ -54,7 +54,6 @@ export interface TimeDistribModelState extends GeneralTTDistribModelState<DataIt
     subcDesc:string;
     timeAxisLegend:string;
     alphaLevel:AlphaLevel;
-    concMaxSize:number;
 }
 
 const roundFloat = (v:number):number => Math.round(v * 100) / 100;
@@ -72,8 +71,6 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private readonly concApi:ConcApi|null;
 
-    private readonly concReduceApi:ConcReduceApi|null;
-
     private readonly appServices:AppServices;
 
     private readonly tileId:number;
@@ -85,12 +82,11 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
     private unfinishedChunks:Immutable.Map<string, boolean>; // subcname => done
 
     constructor(dispatcher, initState:TimeDistribModelState, tileId:number, waitForTile:number, api:FreqDistribAPI,
-                concApi:ConcApi, concReduceApi:ConcReduceApi, appServices:AppServices, mainForm:WdglanceMainFormModel) {
+                concApi:ConcApi, appServices:AppServices, mainForm:WdglanceMainFormModel) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.api = api;
         this.concApi = concApi;
-        this.concReduceApi = concReduceApi;
         this.waitForTile = waitForTile;
         this.appServices = appServices;
         this.mainForm = mainForm;
@@ -253,36 +249,20 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                             },
                             query
                         ))
-                        .concatMap<ConcResponse, ReduceResponse>(
-                            (resp) => {
-                                if (resp.fullsize > state.concMaxSize) {
-                                    const args:ReduceRequestArgs = {
-                                        corpname: resp.corpname,
-                                        usesubcorp: resp.usesubcorp,
-                                        q: `~${resp.conc_persistence_op_id}`,
-                                        rlines: Math.round(state.concMaxSize),
-                                        queryselector: QuerySelector.WORD,
-                                        format: 'json'
-                                    };
-                                    setQuery(args, query);
-                                    return this.concReduceApi.call(args);
-
-                                } else {
-                                    return Rx.Observable.of({
-                                        conc_persistence_op_id: resp.conc_persistence_op_id,
-                                        messages: resp.messages,
-                                        Lines: resp.Lines,
-                                        fullsize: resp.fullsize,
-                                        concsize: resp.concsize,
-                                        rlines: resp.concsize,
-                                        result_arf: resp.result_arf,
-                                        result_relative_freq: resp.result_relative_freq,
-                                        query: resp.query,
-                                        corpname: resp.corpname,
-                                        usesubcorp: resp.usesubcorp
-                                    });
-                                }
-                            }
+                        .map<ConcResponse, ReduceResponse>(
+                            (resp) => ({
+                                conc_persistence_op_id: resp.conc_persistence_op_id,
+                                messages: resp.messages,
+                                Lines: resp.Lines,
+                                fullsize: resp.fullsize,
+                                concsize: resp.concsize,
+                                rlines: resp.concsize,
+                                result_arf: resp.result_arf,
+                                result_relative_freq: resp.result_relative_freq,
+                                query: resp.query,
+                                corpname: resp.corpname,
+                                usesubcorp: resp.usesubcorp
+                            })
                         )
                         .map(v => ({
                             subcname: v.usesubcorp,
