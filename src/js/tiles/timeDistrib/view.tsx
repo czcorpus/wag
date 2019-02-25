@@ -32,12 +32,12 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
     // -------------------------- <Chart /> --------------------------------------
 
     const ChartLegend:React.SFC<{
-        distProperty:string;
+        timeAxisLegend:string;
         metric:string;
 
     }> = (props) => {
         return (
-            <p style={{textAlign: 'center'}}>{ut.translate('timeDistrib__chart_legend_{property}{metric}', {property: props.distProperty,
+            <p style={{textAlign: 'center'}}>{ut.translate('timeDistrib__chart_legend_{property}{metric}', {property: props.timeAxisLegend,
                 metric: props.metric})}</p>
         );
     }
@@ -47,10 +47,10 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
     const Chart:React.SFC<{
         data:Array<DataItemWithWCI>;
         size:[number, number];
-        distProperty:string;
+        timeAxisLegend:string;
+        isPartial:boolean;
 
     }> = (props) => {
-
         return (
             <ResponsiveContainer width="90%" height={props.size[1]}>
                 <AreaChart data={props.data}
@@ -60,13 +60,13 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                     <YAxis />
                     <Tooltip isAnimationActive={false} />
                     <Area type="linear"
-                            dataKey="interval"
+                            dataKey="ipmInterval"
                             name={ut.translate('timeDistrib__estimated_interval')}
-                            stroke={theme.barColor(0)}
-                            fill={theme.barColor(0)}
+                            stroke={props.isPartial ? '#dddddd' : theme.barColor(0)}
+                            fill={props.isPartial ? '#eeeeee' : theme.barColor(0)}
                             strokeWidth={1}
                             isAnimationActive={false} />
-                    <Legend content={<ChartLegend metric={ut.translate('timeDistrib__ipm_human')} distProperty={props.distProperty} />} />
+                    <Legend content={<ChartLegend metric={ut.translate('timeDistrib__ipm_human')} timeAxisLegend={props.timeAxisLegend} />} />
                 </AreaChart>
             </ResponsiveContainer>
         );
@@ -82,8 +82,9 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                             sourceIdent={{corp: this.props.corpname, subcorp: this.props.subcDesc}}>
                     <div className="TimeDistribTile">
                         <Chart data={this.props.data.toArray()}
-                                distProperty={this.props.attrValue}
-                                size={[this.props.renderSize[0], 300]} />
+                                timeAxisLegend={this.props.timeAxisLegend}
+                                size={[this.props.renderSize[0], 300]}
+                                isPartial={this.props.isBusy} />
                     </div>
                     </globComponents.TileWrapper>
         }

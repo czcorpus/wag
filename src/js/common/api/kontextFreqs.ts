@@ -23,6 +23,7 @@ import { DataApi } from '../types';
 
 export interface HTTPResponse {
     conc_persistence_op_id:string;
+    concsize:number;
     Blocks:Array<{
         Head:Array<{s:string; n:string}>;
         Items:Array<{
@@ -31,6 +32,7 @@ export interface HTTPResponse {
             freq:number;
             freqbar:number;
             nbar:number;
+            norm:number;
             nfilter:Array<[string, string]>;
             pfilter:Array<[string, string]>;
             rel:number;
@@ -46,11 +48,14 @@ export interface DataRow {
     name:string;
     freq:number;
     ipm:number;
+    norm:number;
 }
 
 export interface APIResponse {
     concId:string;
     corpname:string;
+    concsize:number;
+    usesubcorp:string|null;
     data:Array<DataRow>;
 }
 
@@ -66,6 +71,7 @@ export interface APIBlockResponse {
 
 export interface QueryArgs {
     corpname:string;
+    usesubcorp?:string;
     q:string;
     fcrit:Array<string>;
     flimit:string;
@@ -89,17 +95,18 @@ export class FreqDistribAPI implements DataApi<QueryArgs, APIResponse> {
             this.apiURL,
             args
 
-        ).concatMap<HTTPResponse, APIResponse>(
-            resp => Rx.Observable.of({
-                data: resp.Blocks[0].Items.map(v => ({
-                        name: v.Word.map(v => v.n).join(' '),
-                        freq: v.freq,
-                        ipm: v.rel
-                })),
-                concId: resp.conc_persistence_op_id,
-                corpname: args.corpname
-            })
-        );
+        ).map<HTTPResponse, APIResponse>(resp => ({
+            data: resp.Blocks[0].Items.map(v => ({
+                    name: v.Word.map(v => v.n).join(' '),
+                    freq: v.freq,
+                    ipm: v.rel,
+                    norm: v.norm
+            })),
+            concId: resp.conc_persistence_op_id,
+            corpname: args.corpname,
+            usesubcorp: args.usesubcorp || null,
+            concsize: resp.concsize
+        }));
     }
 }
 

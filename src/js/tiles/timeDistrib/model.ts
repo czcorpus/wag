@@ -18,16 +18,17 @@
 import * as Immutable from 'immutable';
 import * as Rx from '@reactivex/rxjs';
 import { StatelessModel, Action, SEDispatcher } from 'kombo';
-import { TimeDistribAPI, DataItem, QueryArgs, APIResponse } from './api';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
 import {ActionName as ConcActionName, Actions as ConcActions} from '../concordance/actions';
 import {ActionName, Actions, DataItemWithWCI} from './common';
 import {wilsonConfInterval, AlphaLevel} from './stat';
 import { AppServices } from '../../appServices';
-import { ConcApi, QuerySelector, ViewMode, setQuery } from '../../common/api/concordance';
+import { ConcApi, QuerySelector, ViewMode, setQuery, ConcResponse } from '../../common/api/concordance';
 import {stateToArgs as concStateToArgs} from '../../common/models/concordance';
 import { WdglanceMainFormModel } from '../../models/query';
-import { ConcReduceApi, RequestArgs as ReduceRequestArgs } from '../../common/api/concReduce';
+import { ConcReduceApi, RequestArgs as ReduceRequestArgs, ApiResponse as ReduceResponse} from '../../common/api/concReduce';
+import {GeneralTTDistribModelState, stateToAPIArgs} from '../../common/models/freq';
+import { FreqDistribAPI, APIResponse, DataRow } from '../../common/api/kontextFreqs';
 
 
 export const enum FreqFilterQuantity {
@@ -48,62 +49,17 @@ export const enum Dimension {
 }
 
 
-export interface TimeDistribModelState {
-    isBusy:boolean;
-    error:string;
-    corpname:string;
+export interface TimeDistribModelState extends GeneralTTDistribModelState<DataItemWithWCI> {
     subcnames:Immutable.List<string>;
     subcDesc:string;
-    concId:string;
-    attrTime:string;
-    attrValue:string;
-    minFreq:number;
-    minFreqType:FreqFilterQuantity;
-    alignType1:AlignType;
-    ctxIndex1:number;
-    alignType2:AlignType;
-    ctxIndex2:number;
+    timeAxisLegend:string;
     alphaLevel:AlphaLevel;
     concMaxSize:number;
-    data:Immutable.List<DataItemWithWCI>;
 }
-
-const getAttrCtx = (state:TimeDistribModelState, dim:Dimension):string => {
-
-    const POSITION_LA = ['-6<0', '-5<0', '-4<0', '-3<0', '-2<0', '-1<0', '0<0', '1<0', '2<0', '3<0', '4<0', '5<0', '6<0'];
-
-    const POSITION_RA = ['-6>0', '-5>0', '-4>0', '-3>0', '-2>0', '-1>0', '0>0', '1>0', '2>0', '3>0', '4>0', '5>0', '6>0'];
-
-    if (dim === Dimension.FIRST) {
-        return state.alignType1 === AlignType.LEFT ? POSITION_LA[state.ctxIndex1] : POSITION_RA[state.ctxIndex1];
-
-    } else if (dim === Dimension.SECOND) {
-        return state.alignType2 === AlignType.LEFT ? POSITION_LA[state.ctxIndex2] : POSITION_RA[state.ctxIndex2];
-    }
-    throw new Error('Unknown dimension ' + dim);
-}
-
-
-const stateToAPIArgs = (state:TimeDistribModelState, concId:string, subcname:string):QueryArgs => {
-
-    return {
-        corpname: state.corpname,
-        usesubcorp: subcname,
-        q: `~${concId ? concId : state.concId}`,
-        ctfcrit1: '0', // = structural attr
-        ctfcrit2: getAttrCtx(state, Dimension.SECOND),
-        ctattr1: state.attrTime,
-        ctattr2: `${state.attrValue}/i`,
-        ctminfreq: state.minFreq.toFixed(),
-        ctminfreq_type: state.minFreqType,
-        format: 'json'
-    };
-};
-
 
 const roundFloat = (v:number):number => Math.round(v * 100) / 100;
 
-const calcIPM = (v:DataItem|DataItemWithWCI) => Math.round(v.abs / v.domainSize * 1e6 * 100) / 100;
+const calcIPM = (v:DataRow|DataItemWithWCI, domainSize:number) => Math.round(v.freq / domainSize * 1e6 * 100) / 100;
 
 /**
  *
@@ -112,7 +68,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private static readonly MIN_DATA_ITEMS_TO_SHOW = 2;
 
-    private readonly api:TimeDistribAPI;
+    private readonly api:FreqDistribAPI;
 
     private readonly concApi:ConcApi|null;
 
@@ -128,7 +84,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private unfinishedChunks:Immutable.Map<string, boolean>; // subcname => done
 
-    constructor(dispatcher, initState:TimeDistribModelState, tileId:number, waitForTile:number, api:TimeDistribAPI,
+    constructor(dispatcher, initState:TimeDistribModelState, tileId:number, waitForTile:number, api:FreqDistribAPI,
                 concApi:ConcApi, concReduceApi:ConcReduceApi, appServices:AppServices, mainForm:WdglanceMainFormModel) {
         super(dispatcher, initState);
         this.tileId = tileId;
@@ -161,7 +117,11 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         newState.data = Immutable.List<DataItemWithWCI>();
 
                     } else {
-                        newState.data = this.mergeChunks(newState.data, Immutable.List<DataItemWithWCI>(action.payload.data), newState.alphaLevel);
+                        newState.data = this.mergeChunks(
+                            newState,
+                            Immutable.List<DataItemWithWCI>(action.payload.data)
+                        );
+
                         this.unfinishedChunks = this.unfinishedChunks.set(action.payload.subcname, false);
                         if (!this.hasUnfinishedCHunks()) {
                             newState.isBusy = false;
@@ -178,24 +138,31 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         return this.unfinishedChunks.includes(true);
     }
 
-    private mergeChunks(ch1:Immutable.List<DataItemWithWCI>, ch2:Immutable.List<DataItemWithWCI>, alphaLevel:AlphaLevel):Immutable.List<DataItemWithWCI> {
-        return ch2.reduce(
+    private mergeChunks(state:TimeDistribModelState, newChunk:Immutable.List<DataItemWithWCI>):Immutable.List<DataItemWithWCI> {
+        return newChunk.reduce(
             (acc, curr) => {
                 if (acc.has(curr.datetime)) {
                     const tmp = acc.get(curr.datetime);
-                    tmp.domainSize += curr.domainSize;
-                    tmp.abs += curr.abs;
+                    tmp.freq += curr.freq;
                     tmp.datetime = curr.datetime;
-                    tmp.ipm = calcIPM(tmp);
-                    const confInt = wilsonConfInterval(tmp.abs, tmp.domainSize, alphaLevel);
-                    tmp.interval = [roundFloat(confInt[0] * 1e6), roundFloat(confInt[1] * 1e6)];
+                    tmp.norm += curr.norm;
+                    tmp.ipm = calcIPM(tmp, tmp.norm);
+                    const confInt = wilsonConfInterval(tmp.freq, tmp.norm, state.alphaLevel);
+                    tmp.ipmInterval = [roundFloat(confInt[0] * 1e6), roundFloat(confInt[1] * 1e6)];
                     return acc.set(tmp.datetime, tmp);
 
                 } else {
-                    return acc.set(curr.datetime, curr);
+                    const confInt = wilsonConfInterval(curr.freq, curr.norm, state.alphaLevel);
+                    return acc.set(curr.datetime, {
+                        datetime: curr.datetime,
+                        freq: curr.freq,
+                        norm: curr.norm,
+                        ipm: calcIPM(curr, curr.norm),
+                        ipmInterval: [roundFloat(confInt[0] * 1e6), roundFloat(confInt[1] * 1e6)]
+                    });
                 }
             },
-            Immutable.Map<string, DataItemWithWCI>(ch1.map(v => [v.datetime, v]))
+            Immutable.Map<string, DataItemWithWCI>(state.data.map(v => [v.datetime, v]))
 
         ).sort((x1, x2) => parseInt(x1.datetime) - parseInt(x2.datetime)).toList();
     }
@@ -205,13 +172,12 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         concCalc.subscribe(
             resp => {
                 const dataFull = resp.data.map<DataItemWithWCI>(v => {
-                    const confInt = wilsonConfInterval(v.abs, v.domainSize, state.alphaLevel);
                     return {
-                        datetime: v.datetime,
-                        abs: v.abs,
-                        domainSize: v.domainSize,
-                        ipm: calcIPM(v),
-                        interval: [roundFloat(confInt[0] * 1e6), roundFloat(confInt[1] * 1e6)]
+                        datetime: v.name,
+                        freq: v.freq,
+                        norm: v.norm,
+                        ipm: -1,
+                        ipmInterval: [-1, -1]
                     };
                 });
 
@@ -230,8 +196,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 seDispatch<Actions.LoadDataDone>({
                     name: ActionName.LoadDataDone,
                     payload: {
-                        subcname: null,
                         data: null,
+                        subcname: null,
                         concId: null,
                         tileId: this.tileId
                     },
@@ -257,7 +223,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                     observer.complete();
                                 }
                             })
-                            .concatMap(args => this.api.call(stateToAPIArgs(state, args.concId, state.subcnames.get(0))));
+                            .concatMap(args => this.api.call(stateToAPIArgs<DataItemWithWCI>(state, args.concId, state.subcnames.get(0))));
                             this.getFreqs(
                                 ans,
                                 state,
@@ -287,7 +253,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                             },
                             query
                         ))
-                        .concatMap(
+                        .concatMap<ConcResponse, ReduceResponse>(
                             (resp) => {
                                 if (resp.fullsize > state.concMaxSize) {
                                     const args:ReduceRequestArgs = {
@@ -302,7 +268,19 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                     return this.concReduceApi.call(args);
 
                                 } else {
-                                    return Rx.Observable.of(resp);
+                                    return Rx.Observable.of({
+                                        conc_persistence_op_id: resp.conc_persistence_op_id,
+                                        messages: resp.messages,
+                                        Lines: resp.Lines,
+                                        fullsize: resp.fullsize,
+                                        concsize: resp.concsize,
+                                        rlines: resp.concsize,
+                                        result_arf: resp.result_arf,
+                                        result_relative_freq: resp.result_relative_freq,
+                                        query: resp.query,
+                                        corpname: resp.corpname,
+                                        usesubcorp: resp.usesubcorp
+                                    });
                                 }
                             }
                         )

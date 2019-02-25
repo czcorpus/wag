@@ -96,7 +96,8 @@ export class TTDistTile implements ITileProvider {
                 freqSort: conf.freqSort,
                 fpage: conf.fpage,
                 fttIncludeEmpty: conf.fttIncludeEmpty,
-                maxNumCategories: conf.maxNumCategories
+                maxNumCategories: conf.maxNumCategories,
+                fmaxitems: 100
             }
         );
         this.view = viewInit(this.dispatcher, ut, theme, this.model);

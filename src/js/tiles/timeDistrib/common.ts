@@ -37,8 +37,8 @@ export namespace Actions {
 
 export interface DataItemWithWCI {
     datetime:string;
-    abs:number;
-    domainSize:number;
+    freq:number;
     ipm:number;
-    interval:[number, number];
+    norm:number;
+    ipmInterval:[number, number];
 }

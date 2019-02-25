@@ -31,7 +31,12 @@ export interface RequestArgs extends AnyQuery {
 }
 
 
-export class ConcReduceApi implements DataApi<RequestArgs, ConcResponse> {
+export interface ApiResponse extends ConcResponse {
+    rlines:number;
+}
+
+
+export class ConcReduceApi implements DataApi<RequestArgs, ApiResponse> {
 
     private readonly apiURL;
 
@@ -39,8 +44,8 @@ export class ConcReduceApi implements DataApi<RequestArgs, ConcResponse> {
         this.apiURL = apiURL;
     }
 
-    call(args:RequestArgs):Rx.Observable<ConcResponse> {
-        return ajax$<ConcResponse>(
+    call(args:RequestArgs):Rx.Observable<ApiResponse> {
+        return ajax$<ApiResponse>(
             'GET',
             this.apiURL,
             args
@@ -50,6 +55,7 @@ export class ConcReduceApi implements DataApi<RequestArgs, ConcResponse> {
             Lines: data.Lines,
             fullsize: data.fullsize,
             concsize: data.concsize,
+            rlines: args.rlines,
             result_arf: data.result_arf,
             result_relative_freq: data.result_relative_freq,
             query: getQuery(args),

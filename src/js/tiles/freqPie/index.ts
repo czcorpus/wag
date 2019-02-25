@@ -80,7 +80,8 @@ export class FreqPieTile implements ITileProvider {
                 flimit: conf.flimit,
                 freqSort: conf.freqSort,
                 fpage: conf.fpage,
-                fttIncludeEmpty: conf.fttIncludeEmpty
+                fttIncludeEmpty: conf.fttIncludeEmpty,
+                fmaxitems: 100
             },
             tileId,
             waitForTiles[0],

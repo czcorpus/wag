@@ -23,8 +23,6 @@ import { ActionDispatcher, ViewUtils } from "kombo";
 import { MergeCorpFreqModel, SourceArgs } from "./model";
 import { FreqDistribAPI, DataRow } from "../../common/api/kontextFreqs";
 import { GlobalComponents } from "../../views/global";
-import { AppServices } from '../../appServices';
-import { Theme } from '../../common/theme';
 
 declare var require:(src:string)=>void;  // webpack
 require('./style.less');

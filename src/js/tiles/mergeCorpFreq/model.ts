@@ -116,29 +116,36 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
             .forkJoin(...streams$)
             .map(partials => {
                 const data = partials.reduce<Array<DataRow>>((acc, curr) => {
-                            const srcConf = state.sources.find(v => v.corpname === curr.corpname);
-                            return acc.concat(
-                                (curr.data.length > 0 ? curr.data : [{name: srcConf.valuePlaceholder, freq: 0, ipm: 0}]).map(
-                                v => v.ipm ?
-                                    {
-                                        freq: v.freq,
-                                        ipm: v.ipm,
-                                        name: this.appServices.translateDbValue(curr.corpname, v.name)
-                                    } :
-                                    {
-                                        freq: v.freq,
-                                        ipm: Math.round(v.freq / srcConf.corpusSize * 1e8) / 100,
-                                        name: srcConf.valuePlaceholder ?
-                                                srcConf.valuePlaceholder :
-                                                this.appServices.translateDbValue(curr.corpname, v.name)
-                                    }
-                            ));
-                        },
-                        []
+                    const srcConf = state.sources.find(v => v.corpname === curr.corpname);
+                    return acc.concat(
+                        (curr.data.length > 0 ?
+                            curr.data :
+                            [{name: srcConf.valuePlaceholder, freq: 0, ipm: 0, norm: 0}]
+                        ).map(
+                            v => v.ipm ?
+                                {
+                                    freq: v.freq,
+                                    ipm: v.ipm,
+                                    norm: v.norm,
+                                    name: this.appServices.translateDbValue(curr.corpname, v.name)
+                                } :
+                                {
+                                    freq: v.freq,
+                                    ipm: Math.round(v.freq / srcConf.corpusSize * 1e8) / 100,
+                                    norm: v.norm,
+                                    name: srcConf.valuePlaceholder ?
+                                            srcConf.valuePlaceholder :
+                                            this.appServices.translateDbValue(curr.corpname, v.name)
+                                }
+                        ));
+                    },
+                    []
                 );
                 return {
                     concId: '', // TODO
                     corpname: '', // TODO
+                    usesubcorp: null,
+                    concsize: 0,
                     data: data
                 };
             });

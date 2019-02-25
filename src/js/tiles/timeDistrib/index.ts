@@ -19,13 +19,13 @@ import * as Immutable from 'immutable';
 import { ITileProvider, TileFactory, QueryType, TileComponent, CorpSrchTileConf } from '../../common/types';
 import { ActionDispatcher } from 'kombo';
 import { TimeDistribModel, FreqFilterQuantity, AlignType } from './model';
-import { TimeDistribAPI } from './api';
 import {init as viewInit} from './view';
 import { AlphaLevel } from './stat';
 import { DataItemWithWCI } from './common';
 import { AppServices } from '../../appServices';
 import { ConcApi } from '../../common/api/concordance';
 import { ConcReduceApi } from '../../common/api/concReduce';
+import { FreqDistribAPI } from '../../common/api/kontextFreqs';
 
 declare var require:(src:string)=>void;  // webpack
 require('./style.less');
@@ -44,16 +44,13 @@ export interface TimeDistTileConf extends CorpSrchTileConf {
     concMaxSize?:number;
 
     /**
-     * E.g. 'lemma', 'word'
-     */
-    distProperty:string;
-
-    /**
      * E.g. doc.pubyear
      */
-    timeProperty:string;
+    fcrit:string;
 
-    minFreq:number;
+    timeAxisLegend:string;
+
+    flimit:number;
 }
 
 /**
@@ -99,21 +96,20 @@ export class TimeDistTile implements ITileProvider {
                 subcnames: Immutable.List<string>(Array.isArray(conf.subcname) ? conf.subcname : [conf.subcname]),
                 subcDesc: appServices.importExternalMessage(conf.subcDesc),
                 concId: null,
-                attrTime: conf.timeProperty,
-                attrValue: conf.distProperty,
-                minFreq: conf.minFreq,
-                minFreqType: FreqFilterQuantity.IPM,
-                alignType1: AlignType.LEFT,
-                ctxIndex1: 6, // TODO conf/explain
-                alignType2: AlignType.LEFT,
-                ctxIndex2: 6, // TODO conf/explain
+                fcrit: conf.fcrit,
+                timeAxisLegend: conf.timeAxisLegend,
+                flimit: conf.flimit,
+                freqSort: "rel",
+                fpage: 1,
+                fttIncludeEmpty: false,
+                fmaxitems: 100,
                 alphaLevel: AlphaLevel.LEVEL_0_1, // TODO conf/explain
                 data: Immutable.List<DataItemWithWCI>(),
                 concMaxSize: conf.concMaxSize || -1
             },
             tileId,
             waitForTiles[0] || -1,
-            new TimeDistribAPI(conf.apiURL),
+            new FreqDistribAPI(conf.apiURL),
             conf.concApiURL ? new ConcApi(conf.concApiURL) : null,
             conf.concReduceApiURL ? new ConcReduceApi(conf.concReduceApiURL) : null,
             appServices,
