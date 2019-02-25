@@ -17,7 +17,7 @@
  */
 
 import * as Immutable from 'immutable';
-import { DataRow, QueryArgs } from '../api/kontextFreqs';
+import { QueryArgs, DataRow } from '../api/kontextFreqs';
 import { LocalizedConfMsg } from '../types';
 
 interface TTDistribModelStateBase {
@@ -29,11 +29,12 @@ interface TTDistribModelStateBase {
     freqSort:string;
     fpage:number;
     fttIncludeEmpty:boolean;
+    fmaxitems:number;
 }
 
-export interface GeneralTTDistribModelState extends TTDistribModelStateBase {
+export interface GeneralTTDistribModelState<T=DataRow> extends TTDistribModelStateBase {
     fcrit:string;
-    data:Immutable.List<DataRow>;
+    data:Immutable.List<T>;
 }
 
 export interface FreqDataBlock<T> {
@@ -48,8 +49,9 @@ export interface GeneralMultiCritTTDistribModelState<T> extends TTDistribModelSt
     blocks:Immutable.List<FreqDataBlock<T>>;
 }
 
-export const stateToAPIArgs = <T>(state:GeneralTTDistribModelState|GeneralMultiCritTTDistribModelState<T>, concId:string):QueryArgs => ({
+export const stateToAPIArgs = <T>(state:GeneralTTDistribModelState<T>|GeneralMultiCritTTDistribModelState<T>, concId:string, subcname?:string):QueryArgs => ({
     corpname: state.corpname,
+    usesubcorp: subcname,
     q: `~${concId ? concId : state.concId}`,
     fcrit: typeof state.fcrit === 'string' ? [state.fcrit] : state.fcrit.toArray(),
     flimit: state.flimit.toString(),

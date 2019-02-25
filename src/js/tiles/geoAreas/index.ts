@@ -80,7 +80,8 @@ export class GeoAreasTile implements ITileProvider {
                 flimit: conf.flimit,
                 freqSort: conf.freqSort,
                 fpage: conf.fpage,
-                fttIncludeEmpty: conf.fttIncludeEmpty
+                fttIncludeEmpty: conf.fttIncludeEmpty,
+                fmaxitems: 100
             }
         );
         this.view = viewInit(this.dispatcher, ut, theme, this.model);
