@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Rx from '@reactivex/rxjs';
+import {Observable} from 'rxjs';
 import { DataApi } from '../../common/types';
 import { ajax$ } from '../../common/ajax';
 
@@ -42,7 +42,7 @@ export class SimilarFreqWordsApi implements DataApi<RequestArgs, Response> {
         this.apiURL = apiURL;
     }
 
-    call(args:RequestArgs):Rx.Observable<Response> {
+    call(args:RequestArgs):Observable<Response> {
         return ajax$(
             'GET',
             this.apiURL,

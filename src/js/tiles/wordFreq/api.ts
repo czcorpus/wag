@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import * as Rx from '@reactivex/rxjs';
+import {Observable} from 'rxjs';
 import { DataApi } from '../../common/types';
 import { ajax$ } from '../../common/ajax';
 import {HTTPResponse} from '../../common/api/kontextFreqs';
@@ -55,7 +55,7 @@ export class LemmaFreqApi implements DataApi<RequestArgs, Response> {
         this.apiURL = apiURL;
     }
 
-    call(args:RequestArgs):Rx.Observable<Response> {
+    call(args:RequestArgs):Observable<Response> {
         return ajax$<HTTPResponse>(
             'GET',
             this.apiURL,
@@ -63,7 +63,7 @@ export class LemmaFreqApi implements DataApi<RequestArgs, Response> {
 
         ).concatMap(
             (data) => {
-                return Rx.Observable.of({
+                return Observable.of({
                     concId: data.conc_persistence_op_id,
                     data: data.Blocks[0].Items.map(item => ({
                         lemma: item.Word[0].n,

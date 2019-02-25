@@ -17,7 +17,7 @@
  */
 /// <reference path="./translations.d.ts" />
 import * as Immutable from 'immutable';
-import * as Rx from '@reactivex/rxjs';
+import {Observable} from 'rxjs';
 import { ActionDispatcher, ViewUtils, StatefulModel, Action } from 'kombo';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
@@ -332,7 +332,7 @@ export const init = (
 
     const component = viewInit(dispatcher, viewUtils, formModel, tilesModel, messagesModel);
 
-    Rx.Observable.fromEvent(window, 'resize')
+    Observable.fromEvent(window, 'resize')
         .throttleTime(500)
         .subscribe(
             () => {

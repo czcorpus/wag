@@ -20,7 +20,7 @@ import * as d3 from 'd3';
 import * as cloud from 'd3-cloud';
 import * as React from 'react';
 import * as Immutable from 'immutable';
-import * as Rx from '@reactivex/rxjs';
+import {Observable} from 'rxjs';
 import {ActionDispatcher, ViewUtils, BoundWithProps} from 'kombo';
 import {CollocModel, CollocModelState} from './model';
 import { GlobalComponents } from '../../views/global';
@@ -113,7 +113,7 @@ export const drawChart = (theme:Theme, isMobile:boolean, container:HTMLElement, 
 
                 })
                 .on('mouseout', (datum, i, values) => {
-                    Rx.Observable.of(null).timeout(1000).subscribe(
+                    Observable.of(null).timeout(1000).subscribe(
                         () => {
                             tooltip
                                 .transition()

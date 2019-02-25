@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import * as Rx from '@reactivex/rxjs';
+import {Observable} from 'rxjs';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
 import { LemmaFreqApi, RequestArgs, SummaryDataRow} from './api';
 import {Response as SFWResponse, SimilarlyFreqWord} from './sfwApi';
@@ -145,7 +145,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                         const data1$ = this.api
                             .call(stateToAPIArgs(state, payload.data.conc_persistence_op_id))
                             .concatMap(
-                                (data) => Rx.Observable.of({
+                                (data) => Observable.of({
                                         concId: data.concId,
                                         data: data.data.map(v => {
                                             const flevel = Math.log(v.abs / state.corpusSize * 1e9) / Math.log(10);
@@ -173,7 +173,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                                 })
                             );
 
-                        Rx.Observable.forkJoin(data1$, data2$)
+                        Observable.forkJoin(data1$, data2$)
                             .subscribe(
                             (data) => {
                                 dispatch<Actions.LoadDataDone>({

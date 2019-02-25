@@ -17,7 +17,7 @@
  */
 
 import * as Immutable from 'immutable';
-import * as Rx from '@reactivex/rxjs';
+import {Observable, Observer} from 'rxjs';
 import {DataRow, MultiBlockFreqDistribAPI} from '../../common/api/kontextFreqs';
 import {StatelessModel, ActionDispatcher, Action, SEDispatcher} from 'kombo';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
@@ -110,7 +110,7 @@ export class TTDistribModel extends StatelessModel<TTDistribModelState> {
                 this.suspend((action:Action) => {
                     if (action.name === ConcActionName.DataLoadDone && action.payload['tileId'] === this.waitForTile) {
                         const payload = (action as ConcActions.DataLoadDone).payload;
-                        new Rx.Observable((observer:Rx.Observer<{}>) => {
+                        new Observable((observer:Observer<{}>) => {
                             if (action.error) {
                                 observer.error(new Error(this.appServices.translate('global__failed_to_obtain_required_data')));
 

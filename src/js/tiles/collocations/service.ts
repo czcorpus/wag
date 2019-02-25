@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import * as Rx from '@reactivex/rxjs';
+import {Observable} from 'rxjs';
 import { DataApi } from '../../common/types';
 import { ajax$ } from '../../common/ajax';
 import { CollApiArgs, DataRow, DataHeading } from './common';
@@ -58,7 +58,7 @@ export class KontextCollAPI implements DataApi<CollApiArgs, CollApiResponse> {
     }
 
 
-    call(queryArgs:CollApiArgs):Rx.Observable<CollApiResponse> {
+    call(queryArgs:CollApiArgs):Observable<CollApiResponse> {
         return ajax$<HttpApiResponse>(
             'GET',
             this.apiURL,
@@ -66,7 +66,7 @@ export class KontextCollAPI implements DataApi<CollApiArgs, CollApiResponse> {
             {}
 
         ).concatMap(
-            (data) => Rx.Observable.of({
+            (data) => Observable.of({
                 concId: data.conc_persistence_op_id,
                 collHeadings: data.Head.map(v => ({label: v.n, ident: v.s})),
                 data: data.Items.map(item => ({

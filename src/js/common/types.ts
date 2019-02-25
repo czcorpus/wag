@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import * as Rx from '@reactivex/rxjs';
+import {Observable} from 'rxjs';
 import { ActionDispatcher, ViewUtils } from 'kombo';
 import { GlobalComponents } from '../views/global';
 import { WdglanceMainFormModel } from '../models/query';
@@ -258,7 +258,7 @@ export namespace TileFactory {
  * is useful to share such API libraries.
  */
 export interface DataApi<T, U> {
-    call(queryArgs:T):Rx.Observable<U>;
+    call(queryArgs:T):Observable<U>;
 }
 
 

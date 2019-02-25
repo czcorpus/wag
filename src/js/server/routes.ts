@@ -15,13 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Rx from '@reactivex/rxjs';
+import {Observable} from 'rxjs';
 import * as React from 'react';
 import { renderToString } from 'react-dom/server';
 import {init as viewInit, LayoutProps} from '../views/layout';
 import {Database} from 'sqlite3';
 import {Express} from 'express';
-import {ServerConf, ClientConf, UserConf} from '../common/conf';
+import {ServerConf, ClientConf} from '../common/conf';
 import { ViewUtils } from 'kombo';
 import { GlobalComponents } from '../views/global';
 import { encodeArgs } from '../common/ajax';
@@ -69,7 +69,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
 
     // Find words with similar frequency
     app.get('/similar-freq-words/', (req, res) => {
-        new Rx.Observable<{word:string, abs:number}>((observer) => {
+        new Observable<{word:string, abs:number}>((observer) => {
             services.db.serialize(() => {
                 services.db.each(
                     'SELECT value, `count` AS abs, (SELECT idx FROM postag WHERE value = ?) AS srch ' +

@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import * as Rx from '@reactivex/rxjs';
+import {Observable} from 'rxjs';
 import {ajax$} from '../ajax';
 import { DataApi } from '../types';
 
@@ -54,9 +54,9 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, APIResponse> {
         this.cache = {};
     }
 
-    call(args:QueryArgs):Rx.Observable<APIResponse> {
+    call(args:QueryArgs):Observable<APIResponse> {
         if (args.corpname in this.cache) {
-            return Rx.Observable.of(this.cache[args.corpname]);
+            return Observable.of(this.cache[args.corpname]);
 
         } else {
             const ans = ajax$<HTTPResponse>(

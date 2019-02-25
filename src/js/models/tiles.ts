@@ -18,7 +18,7 @@
 
 import {StatelessModel, ActionDispatcher, Action, SEDispatcher} from 'kombo';
 import { ActionName, Actions } from './actions';
-import * as Rx from '@reactivex/rxjs';
+import {Observable} from 'rxjs';
 import * as Immutable from 'immutable';
 import { AppServices } from '../appServices';
 import { TileFrameProps, SystemMessageType } from '../common/types';
@@ -200,7 +200,7 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
             break;
             case ActionName.ShowTileHelp:
                 if (!state.tilesHelpData.has(action.payload['tileId'])) {
-                    new Rx.Observable<string>((observer) => {
+                    new Observable<string>((observer) => {
                         if (state.tileProps.get(action.payload['tileId']).helpURL) {
                             observer.next(state.tileProps.get(action.payload['tileId']).helpURL);
                             observer.complete();

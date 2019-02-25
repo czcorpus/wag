@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Rx from '@reactivex/rxjs';
+import {Observable, Observer} from 'rxjs';
 import * as Immutable from 'immutable';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
 import {FreqDistribAPI, DataRow} from '../../common/api/kontextFreqs';
@@ -122,7 +122,7 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                 this.suspend((action:Action) => {
                     if (action.name === ConcActionName.DataLoadDone && action.payload['tileId'] === this.waitForTile) {
                         const payload = (action as ConcActions.DataLoadDone).payload;
-                        new Rx.Observable((observer:Rx.Observer<{}>) => {
+                        new Observable((observer:Observer<{}>) => {
                             if (action.error) {
                                 observer.error(new Error(this.appServices.translate('global__failed_to_obtain_required_data')));
 

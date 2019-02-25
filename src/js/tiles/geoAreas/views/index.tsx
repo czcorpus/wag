@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import * as Rx from '@reactivex/rxjs';
+import {Observable} from 'rxjs';
 import * as Immutable from 'immutable';
 import * as React from 'react';
 import {ActionDispatcher, ViewUtils, BoundWithProps} from 'kombo';
@@ -110,7 +110,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         'pointer-events': 'fill'
                     }
                 );
-                Rx.Observable.fromEvent(ellipse, 'mouseover')
+                Observable.fromEvent(ellipse, 'mouseover')
                     .throttleTime(200)
                     .subscribe(() => {
                         dispatcher.dispatch<Actions.SetHighlightedTableRow>({
@@ -121,7 +121,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                             }
                         });
                     });
-                Rx.Observable.fromEvent(ellipse, 'mouseout')
+                Observable.fromEvent(ellipse, 'mouseout')
                     .throttleTime(200)
                     .subscribe(() => {
                         dispatcher.dispatch<Actions.ClearHighlightedTableRow>({

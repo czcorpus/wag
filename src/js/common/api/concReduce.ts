@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import * as Rx from '@reactivex/rxjs';
+import {Observable} from 'rxjs';
 import {ajax$} from '../ajax';
 import { DataApi } from '../types';
 import { ConcResponse, getQuery, AnyQuery } from './concordance';
@@ -44,7 +44,7 @@ export class ConcReduceApi implements DataApi<RequestArgs, ApiResponse> {
         this.apiURL = apiURL;
     }
 
-    call(args:RequestArgs):Rx.Observable<ApiResponse> {
+    call(args:RequestArgs):Observable<ApiResponse> {
         return ajax$<ApiResponse>(
             'GET',
             this.apiURL,
