@@ -18,7 +18,8 @@
 
 import {StatelessModel, ActionDispatcher, Action, SEDispatcher} from 'kombo';
 import { ActionName, Actions } from './actions';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
+import {concatMap} from 'rxjs/operators/concatMap';
 import * as Immutable from 'immutable';
 import { AppServices } from '../appServices';
 import { TileFrameProps, SystemMessageType } from '../common/types';
@@ -209,17 +210,19 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                             observer.error(new Error('Missing help URL'));
                         }
 
-                    }).concatMap(
-                        (url) => {
-                            return ajax$<string>(
-                                'GET',
-                                url,
-                                {},
-                                {
-                                    responseType: ResponseType.TEXT
-                                }
-                            );
-                        }
+                    }).pipe(
+                        concatMap(
+                            (url) => {
+                                return ajax$<string>(
+                                    'GET',
+                                    url,
+                                    {},
+                                    {
+                                        responseType: ResponseType.TEXT
+                                    }
+                                );
+                            }
+                        )
 
                     ).subscribe(
                         (html) => {

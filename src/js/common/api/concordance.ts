@@ -16,7 +16,8 @@
  * limitations under the License.
  */
 
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
+import {map} from 'rxjs/operators/map';
 import {ajax$} from '../ajax';
 import { DataApi } from '../types';
 
@@ -134,7 +135,8 @@ export class ConcApi implements DataApi<RequestArgs, ConcResponse> {
             this.apiURL,
             args
 
-        ).map(data => ({
+        ).pipe(
+            map(data => ({
                 conc_persistence_op_id: data.conc_persistence_op_id,
                 messages: data.messages,
                 Lines: data.Lines,
@@ -145,7 +147,7 @@ export class ConcApi implements DataApi<RequestArgs, ConcResponse> {
                 query: getQuery(args),
                 corpname: args.corpname,
                 usesubcorp: args.usesubcorp
-            })
+            }))
         );
     }
 }

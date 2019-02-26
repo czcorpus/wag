@@ -16,7 +16,9 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import {Observable, Observer} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
+import {Observer} from 'rxjs/Observer';
+import {concatMap} from 'rxjs/operators/concatMap';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
 import { QueryArgs, MultiBlockFreqDistribAPI } from '../../common/api/kontextFreqs';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
@@ -145,7 +147,7 @@ export class FreqPieModel extends StatelessModel<FreqPieModelState> {
                                 observer.next({});
                                 observer.complete();
                             }
-                        }).concatMap(args => this.api.call(stateToAPIArgs(state, payload.data.conc_persistence_op_id)))
+                        }).pipe(concatMap(args => this.api.call(stateToAPIArgs(state, payload.data.conc_persistence_op_id))))
                         .subscribe(
                             resp => {
                                 dispatch<Actions.LoadDataDone>({

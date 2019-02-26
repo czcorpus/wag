@@ -17,7 +17,9 @@
  */
 
 import * as Immutable from 'immutable';
-import {Observable, Observer} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
+import {concatMap} from 'rxjs/operators/concatMap';
+import {Observer} from 'rxjs/Observer';
 import {DataRow, MultiBlockFreqDistribAPI} from '../../common/api/kontextFreqs';
 import {StatelessModel, ActionDispatcher, Action, SEDispatcher} from 'kombo';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
@@ -118,7 +120,9 @@ export class TTDistribModel extends StatelessModel<TTDistribModelState> {
                                 observer.next({});
                                 observer.complete();
                             }
-                        }).concatMap(args => this.api.call(stateToAPIArgs(state, payload.data.conc_persistence_op_id)))
+                        }).pipe(
+                            concatMap(args => this.api.call(stateToAPIArgs(state, payload.data.conc_persistence_op_id)))
+                        )
                         .subscribe(
                             resp => {
                                 dispatch<Actions.LoadDataDone>({

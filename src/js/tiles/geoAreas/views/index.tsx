@@ -16,7 +16,8 @@
  * limitations under the License.
  */
 
-import {Observable} from 'rxjs';
+import {throttleTime} from 'rxjs/operators/throttleTime';
+import {fromEvent} from 'rxjs/observable/fromEvent';
 import * as Immutable from 'immutable';
 import * as React from 'react';
 import {ActionDispatcher, ViewUtils, BoundWithProps} from 'kombo';
@@ -110,8 +111,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         'pointer-events': 'fill'
                     }
                 );
-                Observable.fromEvent(ellipse, 'mouseover')
-                    .throttleTime(200)
+                fromEvent(ellipse, 'mouseover')
+                    .pipe(throttleTime(200))
                     .subscribe(() => {
                         dispatcher.dispatch<Actions.SetHighlightedTableRow>({
                             name: ActionName.SetHighlightedTableRow,
@@ -121,8 +122,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                             }
                         });
                     });
-                Observable.fromEvent(ellipse, 'mouseout')
-                    .throttleTime(200)
+                fromEvent(ellipse, 'mouseout')
+                    .pipe(throttleTime(200))
                     .subscribe(() => {
                         dispatcher.dispatch<Actions.ClearHighlightedTableRow>({
                             name: ActionName.ClearHighlightedTableRow,

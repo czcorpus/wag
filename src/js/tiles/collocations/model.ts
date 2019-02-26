@@ -16,7 +16,9 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import {Observable, Observer} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
+import {Observer} from 'rxjs/Observer';
+import {concatMap} from 'rxjs/operators/concatMap';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
 import {ActionName as ConcActionName, Actions as ConcActions} from '../concordance/actions';
@@ -212,7 +214,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                 observer.complete();
             }
         })
-        .concatMap(args => this.service.call(args))
+        .pipe(concatMap(args => this.service.call(args)))
         .subscribe(
             (data) => {
                 seDispatch<Actions.DataLoadDone>({

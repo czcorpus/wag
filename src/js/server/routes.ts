@@ -15,7 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
+import {reduce} from 'rxjs/operators/reduce';
 import * as React from 'react';
 import { renderToString } from 'react-dom/server';
 import {init as viewInit, LayoutProps} from '../views/layout';
@@ -25,6 +26,7 @@ import {ServerConf, ClientConf} from '../common/conf';
 import { ViewUtils } from 'kombo';
 import { GlobalComponents } from '../views/global';
 import { encodeArgs } from '../common/ajax';
+import { any } from 'prop-types';
 
 
 
@@ -97,12 +99,14 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                 );
             });
 
-        }).reduce(
-            (acc, curr) => {
-                acc.push(curr);
-                return acc;
-            },
-            []
+        }).pipe(
+            reduce<{word:string; abs:number}>(
+                (acc, curr) => {
+                    acc.push(curr);
+                    return acc;
+                },
+                []
+            )
         ).subscribe(
             (data) => {
                 res.setHeader('Content-Type', 'application/json');

@@ -17,7 +17,8 @@
  */
 /// <reference path="./translations.d.ts" />
 import * as Immutable from 'immutable';
-import {Observable} from 'rxjs';
+import {throttleTime} from 'rxjs/operators/throttleTime';
+import {fromEvent} from 'rxjs/observable/fromEvent';
 import { ActionDispatcher, ViewUtils, StatefulModel, Action } from 'kombo';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
@@ -332,8 +333,8 @@ export const init = (
 
     const component = viewInit(dispatcher, viewUtils, formModel, tilesModel, messagesModel);
 
-    Observable.fromEvent(window, 'resize')
-        .throttleTime(500)
+    fromEvent(window, 'resize')
+        .pipe(throttleTime(500))
         .subscribe(
             () => {
                 dispatcher.dispatch<Actions.SetScreenMode>({

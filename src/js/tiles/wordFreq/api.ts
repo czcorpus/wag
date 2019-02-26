@@ -16,7 +16,8 @@
  * limitations under the License.
  */
 
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
+import {map} from 'rxjs/operators/map';
 import { DataApi } from '../../common/types';
 import { ajax$ } from '../../common/ajax';
 import {HTTPResponse} from '../../common/api/kontextFreqs';
@@ -61,20 +62,18 @@ export class LemmaFreqApi implements DataApi<RequestArgs, Response> {
             this.apiURL,
             args
 
-        ).concatMap(
-            (data) => {
-                return Observable.of({
-                    concId: data.conc_persistence_op_id,
-                    data: data.Blocks[0].Items.map(item => ({
-                        lemma: item.Word[0].n,
-                        pos: item.Word[1].n,
-                        abs: item.freq,
-                        ipm: -1,
-                        flevel: -1,
-                        percSimilarWords: -1
-                    }))
-                });
-            }
-        );
+        ).pipe(map(
+            (data) => ({
+                concId: data.conc_persistence_op_id,
+                data: data.Blocks[0].Items.map(item => ({
+                    lemma: item.Word[0].n,
+                    pos: item.Word[1].n,
+                    abs: item.freq,
+                    ipm: -1,
+                    flevel: -1,
+                    percSimilarWords: -1
+                }))
+            })
+        ));
     }
 }

@@ -16,7 +16,8 @@
  * limitations under the License.
  */
 
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
+import {concatMap} from 'rxjs/operators/concatMap';
 import { DataApi } from '../../common/types';
 import { ajax$ } from '../../common/ajax';
 import { CollApiArgs, DataRow, DataHeading } from './common';
@@ -65,20 +66,22 @@ export class KontextCollAPI implements DataApi<CollApiArgs, CollApiResponse> {
             queryArgs,
             {}
 
-        ).concatMap(
-            (data) => Observable.of({
-                concId: data.conc_persistence_op_id,
-                collHeadings: data.Head.map(v => ({label: v.n, ident: v.s})),
-                data: data.Items.map(item => ({
-                    stats: item.Stats.map(v => parseFloat(v.s)),
-                    freq: item.freq,
-                    pfilter: item.pfilter,
-                    nfilter: item.nfilter,
-                    str: item.str,
-                    wcFontSize: -1,
-                    wcFontSizeMobile: -1
-                }))
-            })
+        ).pipe(
+            concatMap(
+                (data) => Observable.of({
+                    concId: data.conc_persistence_op_id,
+                    collHeadings: data.Head.map(v => ({label: v.n, ident: v.s})),
+                    data: data.Items.map(item => ({
+                        stats: item.Stats.map(v => parseFloat(v.s)),
+                        freq: item.freq,
+                        pfilter: item.pfilter,
+                        nfilter: item.nfilter,
+                        str: item.str,
+                        wcFontSize: -1,
+                        wcFontSizeMobile: -1
+                    }))
+                })
+            )
         );
     }
 
