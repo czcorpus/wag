@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import * as d3 from 'd3';
+import {select as d3select, event as d3event} from 'd3-selection';
 import * as cloud from 'd3-cloud';
 import * as React from 'react';
 import * as Immutable from 'immutable';
@@ -54,7 +54,7 @@ export const drawChart = (theme:Theme, isMobile:boolean, container:HTMLElement, 
         .font("Impact")
         .fontSize(d => d.size)
         .on('end', (words:Array<{size:number, rotate:number, text:string, x:number, y:number}>) => {
-            const itemGroup = d3.select(container).append('svg')
+            const itemGroup = d3select(container).append('svg')
                 .attr('width', '100%')
                 .attr('height', '100%')
                 .attr("preserveAspectRatio", "xMinYMin meet")
@@ -69,14 +69,14 @@ export const drawChart = (theme:Theme, isMobile:boolean, container:HTMLElement, 
 
             let tooltip;
             if (!window.document.querySelector('body > .wcloud-tooltip')) {
-                tooltip = d3.select('body')
+                tooltip = d3select('body')
                     .append('div')
                     .classed('wcloud-tooltip', true)
                     .style('opacity', 0)
                     .text('');
 
             } else {
-                tooltip = d3.select('body .wcloud-tooltip');
+                tooltip = d3select('body .wcloud-tooltip');
             }
 
             itemGroup
@@ -99,8 +99,8 @@ export const drawChart = (theme:Theme, isMobile:boolean, container:HTMLElement, 
             rect
                 .on('mousemove', (datum, i, values) => {
                     tooltip
-                        .style('left', `${d3.event.pageX}px`)
-                        .style('top', `${d3.event.pageY - 30}px`)
+                        .style('left', `${d3event.pageX}px`)
+                        .style('top', `${d3event.pageY - 30}px`)
                         .text(valMapping.get(datum.text).stats.map((v, i) => `${measures[i+1]}: ${v}`).join(', '))
 
                 })
