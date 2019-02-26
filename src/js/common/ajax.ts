@@ -16,7 +16,10 @@
  * limitations under the License.
  */
 
-import {Observable, AjaxResponse} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
+import {AjaxResponse} from 'rxjs/observable/dom/AjaxObservable';
+import {ajax} from 'rxjs/observable/dom/ajax';
+import {map} from 'rxjs/operators/map';
 import { MultiDict } from './data';
 
 
@@ -135,7 +138,7 @@ const prepareAjax = (method:string, url:string, args:AjaxArgs, options?:AjaxOpti
 
 export const ajax$ = <T>(method:string, url:string, args:AjaxArgs, options?:AjaxOptions):Observable<T> => {
     const callArgs = prepareAjax(method, url, args, options);
-    return Observable.ajax({
+    return ajax({
         url: callArgs.url,
         body: callArgs.requestBody,
         method: callArgs.method,
@@ -143,5 +146,5 @@ export const ajax$ = <T>(method:string, url:string, args:AjaxArgs, options?:Ajax
         headers: {
             'Content-Type': callArgs.contentType
         }
-    }).map<AjaxResponse, T>(v => v.response);
+    }).pipe(map<AjaxResponse, T>(v => v.response));
 }

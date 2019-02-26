@@ -16,7 +16,10 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import {Observable, Observer} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
+import {Observer} from 'rxjs/Observer';
+import {concatMap} from 'rxjs/operators/concatMap';
+import {map} from 'rxjs/operators/map';
 import { StatelessModel, Action, SEDispatcher } from 'kombo';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
 import {ActionName as ConcActionName, Actions as ConcActions} from '../concordance/actions';
@@ -219,7 +222,9 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                     observer.complete();
                                 }
                             })
-                            .concatMap(args => this.api.call(stateToAPIArgs<DataItemWithWCI>(state, args.concId, state.subcnames.get(0))));
+                            .pipe(
+                                concatMap(args => this.api.call(stateToAPIArgs<DataItemWithWCI>(state, args.concId, state.subcnames.get(0))))
+                            );
                             this.getFreqs(
                                 ans,
                                 state,
@@ -248,27 +253,29 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                 attrs: Immutable.List<string>(['word'])
                             },
                             query
-                        ))
-                        .map<ConcResponse, ReduceResponse>(
-                            (resp) => ({
-                                conc_persistence_op_id: resp.conc_persistence_op_id,
-                                messages: resp.messages,
-                                Lines: resp.Lines,
-                                fullsize: resp.fullsize,
-                                concsize: resp.concsize,
-                                rlines: resp.concsize,
-                                result_arf: resp.result_arf,
-                                result_relative_freq: resp.result_relative_freq,
-                                query: resp.query,
-                                corpname: resp.corpname,
-                                usesubcorp: resp.usesubcorp
-                            })
+
+                        )).pipe(
+                            map<ConcResponse, ReduceResponse>(
+                                (resp) => ({
+                                    conc_persistence_op_id: resp.conc_persistence_op_id,
+                                    messages: resp.messages,
+                                    Lines: resp.Lines,
+                                    fullsize: resp.fullsize,
+                                    concsize: resp.concsize,
+                                    rlines: resp.concsize,
+                                    result_arf: resp.result_arf,
+                                    result_relative_freq: resp.result_relative_freq,
+                                    query: resp.query,
+                                    corpname: resp.corpname,
+                                    usesubcorp: resp.usesubcorp
+                                })
+                            ),
+                            map(v => ({
+                                subcname: v.usesubcorp,
+                                concId: v.conc_persistence_op_id
+                            })),
+                            concatMap(args => this.api.call(stateToAPIArgs(state, args.concId, args.subcname)))
                         )
-                        .map(v => ({
-                            subcname: v.usesubcorp,
-                            concId: v.conc_persistence_op_id
-                        }))
-                        .concatMap(args => this.api.call(stateToAPIArgs(state, args.concId, args.subcname)))
 
                     ).forEach(chunk => {
                         this.getFreqs(

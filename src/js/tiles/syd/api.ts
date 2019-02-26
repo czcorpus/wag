@@ -34,7 +34,10 @@
  * limitations under the License.
  */
 
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
+import {share} from 'rxjs/operators/share';
+import {forkJoin} from 'rxjs/observable/forkJoin';
+import {concatMap} from 'rxjs/operators/concatMap';
 import { DataApi, CorePosAttribute } from '../../common/types';
 import {ConcApi, QuerySelector, ViewMode, ConcResponse} from '../../common/api/concordance';
 import {HTTPResponse as FreqsHTTPResponse} from '../../common/api/kontextFreqs';
@@ -110,7 +113,7 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
             attrs: CorePosAttribute.WORD,
             viewmode: ViewMode.KWIC,
             format:'json'
-        }).share();
+        }).pipe(share());
 
         const conc2$ = this.conc2.call({
             corpname: args.corp2,
@@ -125,51 +128,56 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
             attrs: CorePosAttribute.WORD,
             viewmode: ViewMode.KWIC,
             format:'json'
-        }).share();
+        }).pipe(share());
 
         const createRequests = (conc$:Observable<ConcResponse>, corpname:string, frcrits:Array<string>) => {
-            return frcrits.map(fcrit => conc$.concatMap(
-                (data) => {
-                    const args1 = new MultiDict();
-                    args1.set('q', '~' + data.conc_persistence_op_id);
-                    args1.set('corpname', corpname);
-                    args1.set('fcrit', fcrit);
-                    args1.set('flimit', args.flimit);
-                    args1.set('freq_sort', args.freq_sort);
-                    args1.set('fpage', args.fpage);
-                    args1.set('ftt_include_empty', args.ftt_include_empty);
-                    args1.set('format', args.format);
+            return frcrits.map(
+                fcrit => conc$.pipe(
+                    concatMap(
+                        (data) => {
+                            const args1 = new MultiDict();
+                            args1.set('q', '~' + data.conc_persistence_op_id);
+                            args1.set('corpname', corpname);
+                            args1.set('fcrit', fcrit);
+                            args1.set('flimit', args.flimit);
+                            args1.set('freq_sort', args.freq_sort);
+                            args1.set('fpage', args.fpage);
+                            args1.set('ftt_include_empty', args.ftt_include_empty);
+                            args1.set('format', args.format);
 
-                    return ajax$<FreqsHTTPResponse>(
-                        'GET',
-                        this.apiURL,
-                        args1
-                    );
-                }
-            ).concatMap<FreqsHTTPResponse, StrippedFreqResponse>(
-                (data) => {
-                    return Observable.of({
-                        items: data.Blocks[0].Items,
-                        total: data.Blocks[0].Total,
-                        corpname: corpname,
-                        fcrit: fcrit
-                    });
-                }
-            ));
+                            return ajax$<FreqsHTTPResponse>(
+                                'GET',
+                                this.apiURL,
+                                args1
+                            );
+                        }
+                    ),
+                    concatMap<FreqsHTTPResponse, StrippedFreqResponse>(
+                        (data) => {
+                            return Observable.of({
+                                items: data.Blocks[0].Items,
+                                total: data.Blocks[0].Total,
+                                corpname: corpname,
+                                fcrit: fcrit
+                            });
+                        }
+                    )
+                )
+            );
         };
 
         const s1$ = createRequests(conc1$, args.corp1, args.fcrit1);
         const s2$ = createRequests(conc2$, args.corp2, args.fcrit2);
 
-        return Observable
-            .forkJoin(...s1$, ...s2$)
-            .concatMap(
+        return forkJoin(...s1$, ...s2$).pipe(
+            concatMap(
                 (data) => {
                     return Observable.of({
                         results: data,
                         procTime: Math.round((new Date().getTime() - t1) / 10) / 100
                     })
                 }
-            );
+            )
+        );
     }
 }

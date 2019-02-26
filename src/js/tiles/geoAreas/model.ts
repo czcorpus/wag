@@ -15,7 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Observable, Observer} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
+import {concatMap} from 'rxjs/operators/concatMap';
+import {Observer} from 'rxjs/Observer';
 import * as Immutable from 'immutable';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
 import {FreqDistribAPI, DataRow} from '../../common/api/kontextFreqs';
@@ -130,7 +132,7 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                                 observer.next({});
                                 observer.complete();
                             }
-                        }).concatMap(args => this.api.call(stateToAPIArgs(state, payload.data.conc_persistence_op_id)))
+                        }).pipe(concatMap(args => this.api.call(stateToAPIArgs(state, payload.data.conc_persistence_op_id))))
                         .subscribe(
                             resp => {
                                 dispatch<Actions.LoadDataDone>({

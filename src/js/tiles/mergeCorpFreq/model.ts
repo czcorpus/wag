@@ -17,7 +17,9 @@
  */
 
 import * as Immutable from 'immutable';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
+import {forkJoin} from 'rxjs/observable/forkJoin';
+import {map} from 'rxjs/operators/map';
 import {QueryArgs, FreqDistribAPI, DataRow, APIResponse} from '../../common/api/kontextFreqs';
 import {StatelessModel, ActionDispatcher, Action, SEDispatcher} from 'kombo';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
@@ -112,9 +114,8 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                 Observable.throw(new Error(`Cannot find concordance result for ${src.corpname}. Passing an empty stream.`));
         }).toArray();
 
-        return Observable
-            .forkJoin(...streams$)
-            .map(partials => {
+        return forkJoin(...streams$).pipe(
+            map((partials:Array<APIResponse>) => {
                 const data = partials.reduce<Array<DataRow>>((acc, curr) => {
                     const srcConf = state.sources.find(v => v.corpname === curr.corpname);
                     return acc.concat(
@@ -148,7 +149,8 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                     concsize: 0,
                     data: data
                 };
-            });
+            })
+        );
     }
 
     sideEffects(state:MergeCorpFreqModelState, action:Action, dispatch:SEDispatcher):void {

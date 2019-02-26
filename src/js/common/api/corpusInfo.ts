@@ -16,7 +16,8 @@
  * limitations under the License.
  */
 
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
+import {share} from 'rxjs/operators/share';
 import {ajax$} from '../ajax';
 import { DataApi } from '../types';
 
@@ -63,12 +64,14 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, APIResponse> {
                 'GET',
                 this.apiURL,
                 args
-            ).share();
+            ).pipe(share());
+
             ans.subscribe(
                 (data) => {
                     this.cache[args.corpname] = data;
                 }
             );
+
             return ans;
         }
 

@@ -19,7 +19,7 @@
 import {ActionDispatcher, Bound, ViewUtils, BoundWithProps} from 'kombo';
 import * as React from 'react';
 import * as Immutable from 'immutable';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 import {WdglanceMainState, WdglanceMainFormModel} from '../models/query';
 import {ActionName, Actions} from '../models/actions';
 import {KeyCodes} from '../common/util';

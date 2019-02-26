@@ -16,7 +16,8 @@
  * limitations under the License.
  */
 
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
+import {map} from 'rxjs/operators/map';
 import { DataApi } from '../../common/types';
 import {ajax$} from '../../common/ajax';
 
@@ -95,16 +96,18 @@ export class TreqAPI implements DataApi<RequestArgs, TreqResponse> {
             this.apiURL,
             args
 
-        ).concatMap(
-            resp => Observable.of({
-                sum: resp.sum,
-                lines: resp.lines.map(v => ({
-                    freq: parseInt(v.freq),
-                    perc: parseFloat(v.perc),
-                    left: v.left,
-                    right: v.righ
-                })).slice(0, 10)
-            })
+        ).pipe(
+            map(
+                resp => ({
+                    sum: resp.sum,
+                    lines: resp.lines.map(v => ({
+                        freq: parseInt(v.freq),
+                        perc: parseFloat(v.perc),
+                        left: v.left,
+                        right: v.righ
+                    })).slice(0, 10)
+                })
+            )
         );
     }
 }

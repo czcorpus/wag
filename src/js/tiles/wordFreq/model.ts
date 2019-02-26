@@ -16,7 +16,10 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
+import {map} from 'rxjs/operators/map';
+import {concatMap} from 'rxjs/operators/concatMap';
+import {forkJoin} from 'rxjs/observable/forkJoin';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
 import { LemmaFreqApi, RequestArgs, SummaryDataRow} from './api';
 import {Response as SFWResponse, SimilarlyFreqWord} from './sfwApi';
@@ -144,8 +147,9 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                         const payload = (action as ConcActions.DataLoadDone).payload;
                         const data1$ = this.api
                             .call(stateToAPIArgs(state, payload.data.conc_persistence_op_id))
-                            .concatMap(
-                                (data) => Observable.of({
+                            .pipe(
+                                concatMap(
+                                    (data) => Observable.of({
                                         concId: data.concId,
                                         data: data.data.map(v => {
                                             const flevel = Math.log(v.abs / state.corpusSize * 1e9) / Math.log(10);
@@ -159,11 +163,13 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                                                 percSimilarWords: srch ? srch.rel : -1
                                             }
                                         })
-                                    }));
+                                    })
+                                )
+                            );
 
                         const data2$ = this.sfwApi
                             .call({word: payload.data.query})
-                            .map<SFWResponse, SFWResponse>(
+                            .pipe(map<SFWResponse, SFWResponse>(
                                 (data) => ({
                                     result: data.result.map(v => ({
                                         word: v.word,
@@ -171,9 +177,9 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                                         ipm: v.abs / state.corpusSize * 1e6
                                     }))
                                 })
-                            );
+                            ));
 
-                        Observable.forkJoin(data1$, data2$)
+                        forkJoin(data1$, data2$)
                             .subscribe(
                             (data) => {
                                 dispatch<Actions.LoadDataDone>({

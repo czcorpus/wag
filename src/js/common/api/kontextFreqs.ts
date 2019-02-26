@@ -16,7 +16,8 @@
  * limitations under the License.
  */
 
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
+import {map} from 'rxjs/operators/map';
 import {ajax$} from '../ajax';
 import { DataApi } from '../types';
 
@@ -95,18 +96,20 @@ export class FreqDistribAPI implements DataApi<QueryArgs, APIResponse> {
             this.apiURL,
             args
 
-        ).map<HTTPResponse, APIResponse>(resp => ({
-            data: resp.Blocks[0].Items.map(v => ({
-                    name: v.Word.map(v => v.n).join(' '),
-                    freq: v.freq,
-                    ipm: v.rel,
-                    norm: v.norm
-            })),
-            concId: resp.conc_persistence_op_id,
-            corpname: args.corpname,
-            usesubcorp: args.usesubcorp || null,
-            concsize: resp.concsize
-        }));
+        ).pipe(
+            map<HTTPResponse, APIResponse>(resp => ({
+                data: resp.Blocks[0].Items.map(v => ({
+                        name: v.Word.map(v => v.n).join(' '),
+                        freq: v.freq,
+                        ipm: v.rel,
+                        norm: v.norm
+                })),
+                concId: resp.conc_persistence_op_id,
+                corpname: args.corpname,
+                usesubcorp: args.usesubcorp || null,
+                concsize: resp.concsize
+            }))
+        );
     }
 }
 
@@ -125,18 +128,21 @@ export class MultiBlockFreqDistribAPI implements DataApi<QueryArgs, APIBlockResp
             this.apiURL,
             args
 
-        ).concatMap<HTTPResponse, APIBlockResponse>(
-            resp => Observable.of({
-                blocks: resp.Blocks.map(block => ({
-                    data: block.Items.map(v => ({
-                        name: v.Word.map(v => v.n).join(' '),
-                        freq: v.freq,
-                        ipm: v.rel
-                    }))
-                })),
-                concId: resp.conc_persistence_op_id,
-                corpname: args.corpname
-            })
+        ).pipe(
+            map<HTTPResponse, APIBlockResponse>(
+                resp => ({
+                    blocks: resp.Blocks.map(block => ({
+                        data: block.Items.map(v => ({
+                            name: v.Word.map(v => v.n).join(' '),
+                            freq: v.freq,
+                            ipm: v.rel,
+                            norm: v.norm
+                        }))
+                    })),
+                    concId: resp.conc_persistence_op_id,
+                    corpname: args.corpname
+                })
+            )
         );
     }
 }

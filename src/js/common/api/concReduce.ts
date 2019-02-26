@@ -16,7 +16,8 @@
  * limitations under the License.
  */
 
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
+import {map} from 'rxjs/operators/map';
 import {ajax$} from '../ajax';
 import { DataApi } from '../types';
 import { ConcResponse, getQuery, AnyQuery } from './concordance';
@@ -49,18 +50,20 @@ export class ConcReduceApi implements DataApi<RequestArgs, ApiResponse> {
             'GET',
             this.apiURL,
             args
-        ).map(data => ({
-            conc_persistence_op_id: data.conc_persistence_op_id,
-            messages: data.messages,
-            Lines: data.Lines,
-            fullsize: data.fullsize,
-            concsize: data.concsize,
-            rlines: args.rlines,
-            result_arf: data.result_arf,
-            result_relative_freq: data.result_relative_freq,
-            query: getQuery(args),
-            corpname: args.corpname,
-            usesubcorp: args.usesubcorp
-        }))
+        ).pipe(
+            map(data => ({
+                conc_persistence_op_id: data.conc_persistence_op_id,
+                messages: data.messages,
+                Lines: data.Lines,
+                fullsize: data.fullsize,
+                concsize: data.concsize,
+                rlines: args.rlines,
+                result_arf: data.result_arf,
+                result_relative_freq: data.result_relative_freq,
+                query: getQuery(args),
+                corpname: args.corpname,
+                usesubcorp: args.usesubcorp
+            }))
+        );
     }
 }
