@@ -28,9 +28,6 @@ import { DataRow } from '../../../common/api/kontextFreqs';
 import { Actions, ActionName } from '../actions';
 import { Theme } from '../../../common/theme';
 
-declare var require:(src:string)=>string;  // webpack
-const areaMap = require('!!raw-loader!./mapCzech.inline.svg');
-
 const createSVGElement = (parent:Element, name:string, attrs:{[name:string]:string}):SVGElement => {
     const elm = document.createElementNS('http://www.w3.org/2000/svg', name);
     Object.keys(attrs).forEach(k => {
@@ -175,7 +172,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         sourceIdent={{corp: this.props.corpname}}>
                     <div className="GeoAreasTileView">
                         <div className="flex-item" style={{width: areaWidth, height: '80%'}}>
-                            <div style={{width: '100%', height: '100%', overflowX: 'auto'}} dangerouslySetInnerHTML={{__html: areaMap}} />
+                            <div style={{width: '100%', height: '100%', overflowX: 'auto'}} dangerouslySetInnerHTML={{__html: this.props.mapSVG}} />
                             <p className="legend">{ut.translate('geolocations__ipm_map_legend')}</p>
                         </div>
                         {this.props.widthFract > 2 && !this.props.isMobile ?

@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Observable, Observer} from 'rxjs';
+import {Observable, Observer, of as rxOf, forkJoin} from 'rxjs';
 import {concatMap} from 'rxjs/operators';
 import * as Immutable from 'immutable';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
@@ -25,6 +25,7 @@ import {ActionName as ConcActionName, Actions as ConcActions} from '../concordan
 import { AppServices } from '../../appServices';
 import { ActionName, Actions } from './actions';
 import { GeneralTTDistribModelState, stateToAPIArgs } from '../../common/models/freq';
+import { ajax$, ResponseType } from '../../common/ajax';
 
 /*
 oral2013:
@@ -54,6 +55,7 @@ oral2013:
 export interface GeoAreasModelState extends GeneralTTDistribModelState {
     areaCodeMapping:Immutable.Map<string, string>;
     highlightedTableRow:number;
+    mapSVG:string;
 }
 
 
@@ -90,9 +92,15 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
 
                     } else if (action.payload.data.length === 0) {
                         newState.data = Immutable.List<DataRow>();
+                        if (action.payload.mapSVG) {
+                            newState.mapSVG = action.payload.mapSVG;
+                        }
 
                     } else {
                         newState.data = Immutable.List<DataRow>(action.payload.data);
+                        if (action.payload.mapSVG) {
+                            newState.mapSVG = action.payload.mapSVG;
+                        }
                     }
                     return newState;
                 }
@@ -117,28 +125,46 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
         }
     }
 
+    private loadMap():Observable<string> {
+        return ajax$<string>(
+            'GET',
+            this.appServices.createStaticUrl('mapCzech.inline.svg'),
+            {},
+            {
+                responseType: ResponseType.TEXT
+            }
+        );
+    }
+
     sideEffects(state:GeoAreasModelState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
                 this.suspend((action:Action) => {
                     if (action.name === ConcActionName.DataLoadDone && action.payload['tileId'] === this.waitForTile) {
                         const payload = (action as ConcActions.DataLoadDone).payload;
-                        new Observable((observer:Observer<{}>) => {
-                            if (action.error) {
-                                observer.error(new Error(this.appServices.translate('global__failed_to_obtain_required_data')));
 
-                            } else {
-                                observer.next({});
-                                observer.complete();
-                            }
-                        }).pipe(concatMap(args => this.api.call(stateToAPIArgs(state, payload.data.conc_persistence_op_id))))
+                        forkJoin(
+                            new Observable((observer:Observer<{}>) => {
+                                if (action.error) {
+                                    observer.error(new Error(this.appServices.translate('global__failed_to_obtain_required_data')));
+
+                                } else {
+                                    observer.next({});
+                                    observer.complete();
+                                }
+                            }).pipe(
+                                concatMap(args => this.api.call(stateToAPIArgs(state, payload.data.conc_persistence_op_id)))
+                            ),
+                            state.mapSVG ? rxOf(null) : this.loadMap()
+                        )
                         .subscribe(
                             resp => {
                                 dispatch<Actions.LoadDataDone>({
                                     name: ActionName.LoadDataDone,
                                     payload: {
-                                        data: resp.data,
-                                        concId: resp.concId,
+                                        data: resp[0].data,
+                                        mapSVG: resp[1],
+                                        concId: resp[0].concId,
                                         tileId: this.tileId
                                     }
                                 });
@@ -148,6 +174,7 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                                     name: ActionName.LoadDataDone,
                                     payload: {
                                         data: null,
+                                        mapSVG: null,
                                         concId: null,
                                         tileId: this.tileId
                                     },

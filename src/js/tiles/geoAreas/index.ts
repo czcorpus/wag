@@ -72,6 +72,7 @@ export class GeoAreasTile implements ITileProvider {
                 isBusy: false,
                 error: null,
                 areaCodeMapping: Immutable.Map<string, string>(conf.areaCodeMapping),
+                mapSVG: '',
                 highlightedTableRow: -1,
                 data: Immutable.List<DataRow>(),
                 corpname: conf.corpname,
