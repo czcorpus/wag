@@ -31,6 +31,7 @@ export interface ConcordanceMinState {
     attr_vmode:'mouseover';
     viewMode:ViewMode;
     tileId:number;
+    shuffle:boolean;
     attrs:Immutable.List<string>;
 }
 
@@ -49,6 +50,7 @@ export const stateToArgs = (state:ConcordanceMinState, query:string):RequestArgs
         attr_vmode: state.attr_vmode,
         attrs: state.attrs.join(','),
         viewmode: state.viewMode,
+        shuffle: state.shuffle ? 1 : undefined,
         format:'json'
     };
     setQuery(ans, query);

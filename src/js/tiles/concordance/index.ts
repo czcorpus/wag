@@ -83,6 +83,7 @@ export class ConcordanceTile implements ITileProvider {
                 pageSize: 20,
                 currPage: 1,
                 loadPage: 1,
+                shuffle: true,
                 initialKwicLeftCtx: this.calcContext(widthFract),
                 initialKwicRightCtx: this.calcContext(widthFract),
                 kwicLeftCtx: appServices.isMobileMode() ? ConcordanceTileModel.CTX_SIZES[0] : this.calcContext(widthFract),

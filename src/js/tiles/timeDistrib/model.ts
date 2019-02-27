@@ -24,7 +24,7 @@ import {ActionName as ConcActionName, Actions as ConcActions} from '../concordan
 import {ActionName, Actions, DataItemWithWCI} from './common';
 import {wilsonConfInterval, AlphaLevel} from './stat';
 import { AppServices } from '../../appServices';
-import { ConcApi, QuerySelector, ViewMode, setQuery, ConcResponse } from '../../common/api/concordance';
+import { ConcApi, QuerySelector, ViewMode, ConcResponse } from '../../common/api/concordance';
 import {stateToArgs as concStateToArgs} from '../../common/models/concordance';
 import { WdglanceMainFormModel } from '../../models/query';
 import { ApiResponse as ReduceResponse} from '../../common/api/concReduce';
@@ -245,6 +245,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                 kwicRightCtx: 1,
                                 pageSize: 10,
                                 loadPage: 1,
+                                shuffle: false,
                                 attr_vmode: 'mouseover',
                                 viewMode: ViewMode.KWIC,
                                 tileId: this.tileId,
