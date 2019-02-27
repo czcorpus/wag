@@ -52,18 +52,18 @@ export type AjaxArgs = MultiDict|{[key:string]:any}|string;
 const exportValue = (v) => v === null || v === undefined ? '' : encodeURIComponent(v);
 
 
-export const encodeArgs = (obj):string => {
+export const encodeArgs = (obj:{}):string => {
     const ans = [];
     let p; // ES5 issue
     for (p in obj) {
-        if (obj.hasOwnProperty(p)) {
-            const val = obj[p] !== null && obj[p] !== undefined ? obj[p] : '';
-            if (Object.prototype.toString.apply(val) === '[object Array]') {
+        if (obj.hasOwnProperty(p) && obj[p] !== undefined) {
+            const val = obj[p] !== null ? obj[p] : '';
+            if (Array.isArray(val)) {
                 val.forEach(item => {
                     ans.push(encodeURIComponent(p) + '=' + exportValue(item));
                 });
 
-            } else {
+            } else if (val !== undefined) {
                 ans.push(encodeURIComponent(p) + '=' + exportValue(val));
             }
         }
@@ -75,7 +75,7 @@ const encodeURLParameters = (params:MultiDict):string => {
     function exportValue(v) {
         return v === null || v === undefined ? '' : encodeURIComponent(v);
     }
-    return params.items().map((item) => {
+    return params.items().filter(v => v[0] !== undefined).map((item) => {
         return encodeURIComponent(item[0]) + '=' + exportValue(item[1]);
     }).join('&');
 };
