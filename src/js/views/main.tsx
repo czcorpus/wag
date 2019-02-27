@@ -19,7 +19,7 @@
 import {ActionDispatcher, Bound, ViewUtils, BoundWithProps} from 'kombo';
 import * as React from 'react';
 import * as Immutable from 'immutable';
-import {Observable} from 'rxjs/Observable';
+import {of as rxOf} from 'rxjs';
 import {WdglanceMainState, WdglanceMainFormModel} from '../models/query';
 import {ActionName, Actions} from '../models/actions';
 import {KeyCodes} from '../common/util';
@@ -276,7 +276,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         }
 
         private handleSubmit() {
-            dispatcher.dispatch(Observable.of(
+            dispatcher.dispatch(rxOf(
                 {
                     name: ActionName.EnableAnswerMode
                 },

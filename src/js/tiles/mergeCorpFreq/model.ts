@@ -17,9 +17,8 @@
  */
 
 import * as Immutable from 'immutable';
-import {Observable} from 'rxjs/Observable';
-import {forkJoin} from 'rxjs/observable/forkJoin';
-import {map} from 'rxjs/operators/map';
+import {Observable, forkJoin} from 'rxjs';
+import {map} from 'rxjs/operators';
 import {QueryArgs, FreqDistribAPI, DataRow, APIResponse} from '../../common/api/kontextFreqs';
 import {StatelessModel, ActionDispatcher, Action, SEDispatcher} from 'kombo';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';

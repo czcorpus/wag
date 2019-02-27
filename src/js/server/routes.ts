@@ -15,8 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Observable} from 'rxjs/Observable';
-import {reduce} from 'rxjs/operators/reduce';
+import {Observable} from 'rxjs';
+import {reduce} from 'rxjs/operators';
 import * as React from 'react';
 import { renderToString } from 'react-dom/server';
 import {init as viewInit, LayoutProps} from '../views/layout';

@@ -16,9 +16,8 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import {Observable} from 'rxjs/Observable';
-import {Observer} from 'rxjs/Observer';
-import {concatMap} from 'rxjs/operators/concatMap';
+import {Observable, Observer} from 'rxjs';
+import {concatMap} from 'rxjs/operators';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
 import { QueryArgs, MultiBlockFreqDistribAPI } from '../../common/api/kontextFreqs';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';

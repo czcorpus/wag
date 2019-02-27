@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-import {Observable} from 'rxjs/Observable';
-import {map} from 'rxjs/operators/map';
+import {Observable} from 'rxjs';
+import {map} from 'rxjs/operators';
 import {ajax$} from '../ajax';
 import { DataApi } from '../types';
 

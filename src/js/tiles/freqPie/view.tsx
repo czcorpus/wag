@@ -17,11 +17,7 @@
  */
 import * as React from 'react';
 import * as Immutable from 'immutable';
-import {ResponsiveContainer} from 'recharts/es6/component/ResponsiveContainer';
-import {PieChart} from 'recharts/es6/chart/PieChart';
-import {Pie} from 'recharts/es6/polar/Pie';
-import {Cell} from 'recharts/es6/component/Cell';
-import {Legend} from 'recharts/es6/component/Legend';
+import {ResponsiveContainer, PieChart, Pie, Cell, Legend} from 'recharts';
 import {BoundWithProps} from 'kombo';
 import {ActionDispatcher, ViewUtils} from 'kombo';
 import { GlobalComponents } from '../../views/global';

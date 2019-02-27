@@ -34,10 +34,8 @@
  * limitations under the License.
  */
 
-import {Observable} from 'rxjs/Observable';
-import {share} from 'rxjs/operators/share';
-import {forkJoin} from 'rxjs/observable/forkJoin';
-import {concatMap} from 'rxjs/operators/concatMap';
+import {Observable, forkJoin, of as rxOf} from 'rxjs';
+import {share, concatMap} from 'rxjs/operators';
 import { DataApi, CorePosAttribute } from '../../common/types';
 import {ConcApi, QuerySelector, ViewMode, ConcResponse} from '../../common/api/concordance';
 import {HTTPResponse as FreqsHTTPResponse} from '../../common/api/kontextFreqs';
@@ -152,9 +150,9 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
                             );
                         }
                     ),
-                    concatMap<FreqsHTTPResponse, StrippedFreqResponse>(
+                    concatMap(
                         (data) => {
-                            return Observable.of({
+                            return rxOf({
                                 items: data.Blocks[0].Items,
                                 total: data.Blocks[0].Total,
                                 corpname: corpname,
@@ -172,7 +170,7 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
         return forkJoin(...s1$, ...s2$).pipe(
             concatMap(
                 (data) => {
-                    return Observable.of({
+                    return rxOf({
                         results: data,
                         procTime: Math.round((new Date().getTime() - t1) / 10) / 100
                     })

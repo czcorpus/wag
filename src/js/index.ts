@@ -17,8 +17,8 @@
  */
 /// <reference path="./translations.d.ts" />
 import * as Immutable from 'immutable';
-import {throttleTime} from 'rxjs/operators/throttleTime';
-import {fromEvent} from 'rxjs/observable/fromEvent';
+import {throttleTime} from 'rxjs/operators';
+import {fromEvent} from 'rxjs';
 import { ActionDispatcher, ViewUtils, StatefulModel, Action } from 'kombo';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';

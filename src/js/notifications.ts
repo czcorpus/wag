@@ -16,11 +16,9 @@
  * limitations under the License.
  */
 
-import {Observable} from 'rxjs/Observable';
-import {observeOn} from 'rxjs/operators/observeOn';
-import {delay} from 'rxjs/operators/delay';
-import {Subject} from 'rxjs/Subject';
-import {async} from 'rxjs/scheduler/async';
+import {Subject, of as rxOf} from 'rxjs';
+import {observeOn, delay} from 'rxjs/operators';
+import {asyncScheduler} from 'rxjs';
 import { ActionDispatcher } from 'kombo';
 import {ActionName} from './models/actions';
 import {puid} from './common/util';
@@ -52,7 +50,7 @@ export class SystemNotifications {
 
     constructor(dispatcher:ActionDispatcher) {
         this.messageEvents = new Subject<SystemMessage>();
-        this.messageEvents.pipe(observeOn(async)).subscribe(
+        this.messageEvents.pipe(observeOn(asyncScheduler)).subscribe(
             (data) => {
                 dispatcher.dispatch({
                     name: ActionName.AddSystemMessage,
@@ -63,7 +61,7 @@ export class SystemNotifications {
                         ttl: data.ttl
                     }
                 });
-                Observable.of({
+                rxOf({
                     name: ActionName.RemoveSystemMessage,
                     payload: {
                         ident: data.ident

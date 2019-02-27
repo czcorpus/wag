@@ -40,7 +40,7 @@ module.exports = (env) => ({
                 test: /\.tsx?$/,
                 use: [
                     {
-                        loader: 'ts-loader',
+                        loader: 'awesome-typescript-loader',
                         options: {
                             configFile: path.resolve(__dirname, 'tsconfig.server.json'),
                             transpileOnly: env ? !!env.TS_TRANSPILE_ONLY : false

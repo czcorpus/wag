@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-import {Observable} from 'rxjs/Observable';
-import {share} from 'rxjs/operators/share';
+import {Observable, of as rxOf} from 'rxjs';
+import {share} from 'rxjs/operators';
 import {ajax$} from '../ajax';
 import { DataApi } from '../types';
 
@@ -57,7 +57,7 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, APIResponse> {
 
     call(args:QueryArgs):Observable<APIResponse> {
         if (args.corpname in this.cache) {
-            return Observable.of(this.cache[args.corpname]);
+            return rxOf(this.cache[args.corpname]);
 
         } else {
             const ans = ajax$<HTTPResponse>(

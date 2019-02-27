@@ -50,12 +50,32 @@ module.exports = (env) => ({
                 ]
             },
             {
+                test: /\.js$/,
+                use: [
+                    {
+                        loader: 'babel-loader',
+                        options: {
+                            presets: [
+                                ['@babel/preset-env', { "modules": false }]
+                            ]
+                        }
+                    }
+                ]
+            },
+            {
                 test: /\.tsx?$/,
                 use: [
                     {
-                        loader: 'ts-loader',
+                        loader: 'awesome-typescript-loader',
                         options: {
-                            transpileOnly: env ? !!env.TS_TRANSPILE_ONLY : false
+                            useBabel: true,
+                            babelOptions: {
+                                babelrc: false,
+                                presets: [
+                                    ['@babel/preset-env', {'targets': 'last 2 versions, ie 11', 'modules': false }]
+                                ]
+                            },
+                            babelCore: '@babel/core'
                         }
                     }
                 ]
