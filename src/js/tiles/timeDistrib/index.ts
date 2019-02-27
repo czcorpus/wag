@@ -18,13 +18,12 @@
 import * as Immutable from 'immutable';
 import { ITileProvider, TileFactory, QueryType, TileComponent, CorpSrchTileConf } from '../../common/types';
 import { ActionDispatcher } from 'kombo';
-import { TimeDistribModel, FreqFilterQuantity, AlignType } from './model';
+import { TimeDistribModel } from './model';
 import {init as viewInit} from './view';
 import { AlphaLevel } from './stat';
 import { DataItemWithWCI } from './common';
 import { AppServices } from '../../appServices';
 import { ConcApi } from '../../common/api/concordance';
-import { ConcReduceApi } from '../../common/api/concReduce';
 import { FreqDistribAPI } from '../../common/api/kontextFreqs';
 
 declare var require:(src:string)=>void;  // webpack

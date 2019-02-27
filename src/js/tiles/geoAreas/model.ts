@@ -15,9 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Observable} from 'rxjs/Observable';
-import {concatMap} from 'rxjs/operators/concatMap';
-import {Observer} from 'rxjs/Observer';
+import {Observable, Observer} from 'rxjs';
+import {concatMap} from 'rxjs/operators';
 import * as Immutable from 'immutable';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
 import {FreqDistribAPI, DataRow} from '../../common/api/kontextFreqs';

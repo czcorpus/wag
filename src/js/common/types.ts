@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import { ActionDispatcher, ViewUtils } from 'kombo';
 import { GlobalComponents } from '../views/global';
 import { WdglanceMainFormModel } from '../models/query';

@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-import {throttleTime} from 'rxjs/operators/throttleTime';
-import {fromEvent} from 'rxjs/observable/fromEvent';
+import {throttleTime} from 'rxjs/operators';
+import {fromEvent} from 'rxjs';
 import * as Immutable from 'immutable';
 import * as React from 'react';
 import {ActionDispatcher, ViewUtils, BoundWithProps} from 'kombo';

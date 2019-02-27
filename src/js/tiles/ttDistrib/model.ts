@@ -17,9 +17,8 @@
  */
 
 import * as Immutable from 'immutable';
-import {Observable} from 'rxjs/Observable';
-import {concatMap} from 'rxjs/operators/concatMap';
-import {Observer} from 'rxjs/Observer';
+import {Observable, Observer} from 'rxjs';
+import {concatMap} from 'rxjs/operators';
 import {DataRow, MultiBlockFreqDistribAPI} from '../../common/api/kontextFreqs';
 import {StatelessModel, ActionDispatcher, Action, SEDispatcher} from 'kombo';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';

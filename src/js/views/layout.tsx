@@ -61,7 +61,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                 <head>
                     <meta charSet="utf-8" />
                     <meta name="viewport" content="width=device-width, initial-scale=1" />
-                    <link href="./dist/index.css" rel="stylesheet" type="text/css" />
+                    <link href="./dist/common.css" rel="stylesheet" type="text/css" />
                     <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Droid+Sans+Mono%7CRoboto:100,400,400italic,700,700italic%7CRoboto+Condensed:400,700&amp;subset=latin,latin-ext" media="all" />
                     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Special+Elite" media="all"/>
                     <link rel="stylesheet" type="text/css" href="https://www.korpus.cz/vendor/webmodel/ui/style.css?v=1509638045" />

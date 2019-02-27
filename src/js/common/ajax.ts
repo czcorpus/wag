@@ -16,10 +16,9 @@
  * limitations under the License.
  */
 
-import {Observable} from 'rxjs/Observable';
-import {AjaxResponse} from 'rxjs/observable/dom/AjaxObservable';
-import {ajax} from 'rxjs/observable/dom/ajax';
-import {map} from 'rxjs/operators/map';
+import {Observable} from 'rxjs';
+import {ajax, AjaxResponse} from 'rxjs/ajax';
+import {map} from 'rxjs/operators';
 import { MultiDict } from './data';
 
 

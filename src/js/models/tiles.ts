@@ -18,8 +18,8 @@
 
 import {StatelessModel, ActionDispatcher, Action, SEDispatcher} from 'kombo';
 import { ActionName, Actions } from './actions';
-import {Observable} from 'rxjs/Observable';
-import {concatMap} from 'rxjs/operators/concatMap';
+import {Observable} from 'rxjs';
+import {concatMap} from 'rxjs/operators';
 import * as Immutable from 'immutable';
 import { AppServices } from '../appServices';
 import { TileFrameProps, SystemMessageType } from '../common/types';

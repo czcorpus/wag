@@ -8,6 +8,7 @@ const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 const mkpath = (...p) => path.resolve(__dirname, '.', ...p);
 
+process.env.NODE_ENV = 'production';
 
 const SRC_PATH = mkpath('src');
 const DIST_PATH = mkpath('dist');
@@ -52,12 +53,35 @@ module.exports = (env) => ({
                 ]
             },
             {
+                test: /\.js$/,
+                use: [
+                    {
+                        loader: 'babel-loader',
+                        options: {
+                            presets: [
+                                ['@babel/preset-env', {
+                                    "modules": false,
+                                    'targets': 'last 3 versions'
+                                }]
+                            ]
+                        }
+                    }
+                ]
+            },
+            {
                 test: /\.tsx?$/,
                 use: [
                     {
-                        loader: 'ts-loader',
+                        loader: 'awesome-typescript-loader',
                         options: {
-                            transpileOnly: env ? !!env.TS_TRANSPILE_ONLY : false
+                            useBabel: true,
+                            babelOptions: {
+                                babelrc: false,
+                                presets: [
+                                    ['@babel/preset-env', {'modules': false }]
+                                ]
+                            },
+                            babelCore: '@babel/core'
                         }
                     }
                 ]
