@@ -77,7 +77,8 @@ module.exports = (env) => ({
                                     ['@babel/preset-env', {'modules': false }]
                                 ]
                             },
-                            babelCore: '@babel/core'
+                            babelCore: '@babel/core',
+                            useCache: true
                         }
                     }
                 ]

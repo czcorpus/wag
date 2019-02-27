@@ -71,7 +71,8 @@ module.exports = (env) => ({
                                     ['@babel/preset-env', {'targets': 'last 2 versions, ie 11', 'modules': false }]
                                 ]
                             },
-                            babelCore: '@babel/core'
+                            babelCore: '@babel/core',
+                            useCache: true
                         }
                     }
                 ]
