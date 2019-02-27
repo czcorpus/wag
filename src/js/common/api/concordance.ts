@@ -52,6 +52,7 @@ export interface RequestArgs extends AnyQuery {
     attr_vmode:string;
     attrs:string;
     viewmode:ViewMode;
+    shuffle?:number;
     format:'json';
 }
 
