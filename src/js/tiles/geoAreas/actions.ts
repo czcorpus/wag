@@ -30,6 +30,7 @@ export namespace Actions {
 
     export interface LoadDataDone extends Action<{
         data:Array<DataRow>;
+        mapSVG:string|null;
         concId:string;
         tileId:number;
 
