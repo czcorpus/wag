@@ -21,10 +21,10 @@ import {concatMap} from 'rxjs/operators';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
 import {ActionName as ConcActionName, Actions as ConcActions} from '../concordance/actions';
-import {ActionName, DataRow, Actions, CollApiArgs, DataHeading, CollocMetric, SrchContextType} from './common';
+import {ActionName, DataRow, Actions, CollApiArgs, DataHeading, CollocMetric, SrchContextType, CoreCollRequestArgs} from './common';
 import { KontextCollAPI } from './service';
 import { AppServices } from '../../appServices';
-import { SystemMessageType } from '../../common/types';
+import { SystemMessageType, Backlink, BacklinkWithArgs, HTTPMethod } from '../../common/types';
 
 
 export interface CollocModelArgs {
@@ -34,6 +34,7 @@ export interface CollocModelArgs {
     service:KontextCollAPI;
     initState:CollocModelState;
     waitForTile:number;
+    backlink:Backlink;
 }
 
 export interface CollocModelState {
@@ -54,6 +55,7 @@ export interface CollocModelState {
     data:Immutable.List<DataRow>;
     heading:DataHeading;
     citemsperpage:number;
+    backlink:BacklinkWithArgs<CoreCollRequestArgs>;
 }
 
 
@@ -91,6 +93,11 @@ export const stateToArgs = (state:CollocModelState, concId:string):CollApiArgs =
 
 export class CollocModel extends StatelessModel<CollocModelState> {
 
+    private static readonly BASE_WC_FONT_SIZE = 30;
+
+    private static readonly BASE_WC_FONT_SIZE_MOBILE = 27;
+
+
     private readonly service:KontextCollAPI;
 
     private readonly appServices:AppServices;
@@ -110,16 +117,15 @@ export class CollocModel extends StatelessModel<CollocModelState> {
         'r': 'relative freq.'
     };
 
-    private static readonly BASE_WC_FONT_SIZE = 30;
+    private readonly backlink:Backlink;
 
-    private static readonly BASE_WC_FONT_SIZE_MOBILE = 27;
-
-    constructor({dispatcher, tileId, waitForTile, appServices, service, initState}:CollocModelArgs) {
+    constructor({dispatcher, tileId, waitForTile, appServices, service, initState, backlink}:CollocModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.waitForTile = waitForTile;
         this.appServices = appServices;
         this.service = service;
+        this.backlink = backlink;
         this.actionMatch = {
             [GlobalActionName.EnableTileTweakMode]: (state, action:GlobalActions.EnableTileTweakMode) => {
                 if (action.payload.ident === this.tileId) {
@@ -185,6 +191,8 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                                     .map((v, i) => this.measureMap[v.ident] ? {label: this.measureMap[v.ident], ident: v.ident} : null)
                                     .filter(v => v !== null)
                             );
+
+                        newState.backlink = this.createBackLink(newState, action);
                     }
                     return newState;
                 }
@@ -201,6 +209,29 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                 return state;
             }
         }
+    }
+
+    private createBackLink(state:CollocModelState, action:Actions.DataLoadDone):BacklinkWithArgs<CoreCollRequestArgs> {
+        const [cfromw, ctow] = ctxToRange(state.ctxType, state.ctxSize);
+        return this.backlink ?
+            {
+                url: this.backlink.url,
+                method: this.backlink.method || HTTPMethod.GET,
+                label: this.backlink.label,
+                args: {
+                    corpname: state.corpname,
+                    q: `~${action.payload.concId}`,
+                    cattr: state.cattr,
+                    cfromw: cfromw,
+                    ctow: ctow,
+                    cminfreq: state.cminfreq,
+                    cminbgr: state.cminbgr,
+                    cbgrfns: state.cbgrfns,
+                    csortfn: state.csortfn,
+                    citemsperpage: state.citemsperpage
+                }
+            } :
+            null;
     }
 
     private requestData(state:CollocModelState, concId:string, prevActionErr:Error|null, seDispatch:SEDispatcher):void {

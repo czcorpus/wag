@@ -44,7 +44,7 @@ export enum CollocMetric {
     REL_FREQ = 'f'
 }
 
-export interface CollApiArgs {
+export interface CoreCollRequestArgs {
     corpname:string;
     q:string;
     cattr:string;
@@ -55,6 +55,9 @@ export interface CollApiArgs {
     cbgrfns:Array<string>;
     csortfn:string;
     citemsperpage:number;
+}
+
+export interface CollApiArgs extends CoreCollRequestArgs {
     format:'json';
 }
 
