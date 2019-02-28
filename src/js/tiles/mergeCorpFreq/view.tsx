@@ -62,7 +62,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             return (
                 <globComponents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.data.find(v => v.freq > 0) !== undefined}
-                        sourceIdent={this.props.sources.map(v => ({corp: v.corpname})).toArray()}>
+                        sourceIdent={this.props.sources.groupBy(v => v.corpname).map(v => ({corp: v.first().corpname})).toArray()}>
                     <div className="MergeCorpTTDistribTile">
                         <Chart data={this.props.data} size={[this.props.renderSize[0], 70 + this.props.data.size * this.props.pixelsPerItem]} />
                     </div>

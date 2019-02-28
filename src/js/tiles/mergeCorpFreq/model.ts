@@ -19,7 +19,7 @@
 import * as Immutable from 'immutable';
 import {Observable, forkJoin} from 'rxjs';
 import {map} from 'rxjs/operators';
-import {QueryArgs, FreqDistribAPI, DataRow, APIResponse} from '../../common/api/kontextFreqs';
+import {SingleCritQueryArgs, FreqDistribAPI, DataRow, APIResponse} from '../../common/api/kontextFreqs';
 import {StatelessModel, ActionDispatcher, Action, SEDispatcher} from 'kombo';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
 import {ActionName as ConcActionName, Actions as ConcActions} from '../concordance/actions';
@@ -27,15 +27,37 @@ import {ActionName, Actions} from './actions';
 import { AppServices } from '../../appServices';
 
 
+/**
+ * SourceArgs configures a single source
+ * of data.
+ */
 export interface SourceArgs {
+
     corpname:string;
+
     corpusSize:number;
+
     fcrit:string;
-    flimit:number;
-    freqSort:string;
-    fpage:number;
-    fttIncludeEmpty:boolean;
+
+    /**
+     * In case 'fcrit' describes a positional
+     * attribute we have to replace ann actual
+     * value returned by freq. distrib. function
+     * (which is equal to our query: e.g. for
+     * the query 'house' the value will be 'house')
+     * by something more specific (e.g. 'social media')
+     */
     valuePlaceholder:string|null;
+
+    flimit:number;
+
+    freqSort:string;
+
+    fpage:number;
+
+    fttIncludeEmpty:boolean;
+
+    uuid:string;
 }
 
 export interface MergeCorpFreqModelState {
@@ -47,14 +69,15 @@ export interface MergeCorpFreqModelState {
 }
 
 
-const sourceToAPIArgs = (src:SourceArgs, concId:string):QueryArgs => ({
+const sourceToAPIArgs = (src:SourceArgs, concId:string):SingleCritQueryArgs => ({
     corpname: src.corpname,
     q: `~${concId}`,
-    fcrit: [src.fcrit],
+    fcrit: src.fcrit,
     flimit: src.flimit.toString(),
     freq_sort: src.freqSort,
     fpage: src.fpage.toString(),
     ftt_include_empty: src.fttIncludeEmpty ? '1' : '0',
+    req_id: src.uuid,
     format: 'json'
 });
 
@@ -105,7 +128,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
         }
     }
 
-    private loadFreqs(state:MergeCorpFreqModelState):Observable<APIResponse> {
+    private loadFreqs(state:MergeCorpFreqModelState):Observable<Array<DataRow>> {
         const streams$ = state.sources.map<Observable<APIResponse>>(src => {
             const srchKey = this.waitingForTiles.findKey(v => v && v.corpname === src.corpname);
             return srchKey !== undefined ?
@@ -115,8 +138,8 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
 
         return forkJoin(...streams$).pipe(
             map((partials:Array<APIResponse>) => {
-                const data = partials.reduce<Array<DataRow>>((acc, curr) => {
-                    const srcConf = state.sources.find(v => v.corpname === curr.corpname);
+                return partials.reduce<Array<DataRow>>((acc, curr) => {
+                    const srcConf = state.sources.find(v => v.uuid === curr.reqId);
                     return acc.concat(
                         (curr.data.length > 0 ?
                             curr.data :
@@ -141,13 +164,6 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                     },
                     []
                 );
-                return {
-                    concId: '', // TODO
-                    corpname: '', // TODO
-                    usesubcorp: null,
-                    concsize: 0,
-                    data: data
-                };
             })
         );
     }
@@ -183,7 +199,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                                     dispatch({
                                         name: ActionName.LoadDataDone,
                                         payload: {
-                                            data: data.data,
+                                            data: data,
                                             concId: null, // TODO
                                             tileId: this.tileId
                                         }

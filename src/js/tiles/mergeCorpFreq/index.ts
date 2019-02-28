@@ -23,6 +23,7 @@ import { ActionDispatcher, ViewUtils } from "kombo";
 import { MergeCorpFreqModel, SourceArgs } from "./model";
 import { FreqDistribAPI, DataRow } from "../../common/api/kontextFreqs";
 import { GlobalComponents } from "../../views/global";
+import { puid } from '../../common/util';
 
 declare var require:(src:string)=>void;  // webpack
 require('./style.less');
@@ -94,7 +95,8 @@ export class MergeCorpFreqTile implements ITileProvider {
                     fttIncludeEmpty: src.fttIncludeEmpty,
                     valuePlaceholder: src.valuePlaceholder ?
                             appServices.importExternalMessage(src.valuePlaceholder) :
-                            null
+                            null,
+                    uuid: puid()
                 }))),
                 pixelsPerItem: conf.pixelsPerItem ? conf.pixelsPerItem : 40
             }

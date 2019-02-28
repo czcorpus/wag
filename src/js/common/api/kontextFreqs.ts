@@ -58,6 +58,7 @@ export interface APIResponse {
     concsize:number;
     usesubcorp:string|null;
     data:Array<DataRow>;
+    reqId:string;
 }
 
 export interface ApiDataBlock {
@@ -70,19 +71,31 @@ export interface APIBlockResponse {
     blocks:Array<ApiDataBlock>;
 }
 
-export interface QueryArgs {
+
+interface CoreQueryArgs {
     corpname:string;
     usesubcorp?:string;
     q:string;
-    fcrit:Array<string>;
     flimit:string;
     freq_sort:string;
     fpage:string;
     ftt_include_empty:string;
+    req_id?:string;
     format:'json';
 }
 
-export class FreqDistribAPI implements DataApi<QueryArgs, APIResponse> {
+
+export interface SingleCritQueryArgs extends CoreQueryArgs {
+    fcrit:string;
+}
+
+/**
+ * FreqDistribAPI represents a simplified variant where we ask
+ * the API only for a single freq. distrib. criterium. It then
+ * converts KonText's original response to a nicer form
+ * (no multiple data blocks as they are not needed).
+ */
+export class FreqDistribAPI implements DataApi<SingleCritQueryArgs, APIResponse> {
 
     private readonly apiURL:string;
 
@@ -90,7 +103,7 @@ export class FreqDistribAPI implements DataApi<QueryArgs, APIResponse> {
         this.apiURL = apiURL;
     }
 
-    call(args:QueryArgs):Observable<APIResponse> {
+    call(args:SingleCritQueryArgs):Observable<APIResponse> {
         return ajax$<HTTPResponse>(
             'GET',
             this.apiURL,
@@ -107,14 +120,22 @@ export class FreqDistribAPI implements DataApi<QueryArgs, APIResponse> {
                 concId: resp.conc_persistence_op_id,
                 corpname: args.corpname,
                 usesubcorp: args.usesubcorp || null,
-                concsize: resp.concsize
+                concsize: resp.concsize,
+                reqId: args.req_id
             }))
         );
     }
 }
 
+export interface MultiCritQueryArgs extends CoreQueryArgs {
+    fcrit:Array<string>;
+}
 
-export class MultiBlockFreqDistribAPI implements DataApi<QueryArgs, APIBlockResponse> {
+/**
+ * MultiBlockFreqDistribAPI creates requests with multiple freq. distrib.
+ * criteria.
+ */
+export class MultiBlockFreqDistribAPI implements DataApi<MultiCritQueryArgs, APIBlockResponse> {
 
     private readonly apiURL:string;
 
@@ -122,7 +143,7 @@ export class MultiBlockFreqDistribAPI implements DataApi<QueryArgs, APIBlockResp
         this.apiURL = apiURL;
     }
 
-    call(args:QueryArgs):Observable<APIBlockResponse> {
+    call(args:MultiCritQueryArgs):Observable<APIBlockResponse> {
         return ajax$<HTTPResponse>(
             'GET',
             this.apiURL,

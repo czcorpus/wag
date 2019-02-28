@@ -17,7 +17,7 @@
  */
 
 import * as Immutable from 'immutable';
-import { QueryArgs, DataRow } from '../api/kontextFreqs';
+import { DataRow, SingleCritQueryArgs, MultiCritQueryArgs } from '../api/kontextFreqs';
 import { LocalizedConfMsg } from '../types';
 
 interface TTDistribModelStateBase {
@@ -32,9 +32,13 @@ interface TTDistribModelStateBase {
     fmaxitems:number;
 }
 
-export interface GeneralTTDistribModelState<T=DataRow> extends TTDistribModelStateBase {
+export interface GeneralSingleCritTTDistribModelState<T=DataRow> extends TTDistribModelStateBase {
     fcrit:string;
     data:Immutable.List<T>;
+}
+
+function isMultiCritState<T>(state:GeneralSingleCritTTDistribModelState<T>|GeneralMultiCritTTDistribModelState<T>): state is GeneralMultiCritTTDistribModelState<T> {
+    return (<GeneralMultiCritTTDistribModelState<T>>state).blocks !== undefined;
 }
 
 export interface FreqDataBlock<T> {
@@ -43,20 +47,42 @@ export interface FreqDataBlock<T> {
     label:string;
 }
 
-export interface GeneralMultiCritTTDistribModelState<T> extends TTDistribModelStateBase {
+export interface GeneralMultiCritTTDistribModelState<T=DataRow> extends TTDistribModelStateBase {
     fcrit:Immutable.List<string>;
     critLabels:Immutable.List<LocalizedConfMsg>;
     blocks:Immutable.List<FreqDataBlock<T>>;
 }
 
-export const stateToAPIArgs = <T>(state:GeneralTTDistribModelState<T>|GeneralMultiCritTTDistribModelState<T>, concId:string, subcname?:string):QueryArgs => ({
-    corpname: state.corpname,
-    usesubcorp: subcname,
-    q: `~${concId ? concId : state.concId}`,
-    fcrit: typeof state.fcrit === 'string' ? [state.fcrit] : state.fcrit.toArray(),
-    flimit: state.flimit.toString(),
-    freq_sort: state.freqSort,
-    fpage: state.fpage.toString(),
-    ftt_include_empty: state.fttIncludeEmpty ? '1' : '0',
-    format: 'json'
-});
+
+
+export function stateToAPIArgs<T>(state:GeneralSingleCritTTDistribModelState<T>, concId:string, subcname?:string):SingleCritQueryArgs;
+export function stateToAPIArgs<T>(state:GeneralMultiCritTTDistribModelState<T>, concId:string, subcname?:string):MultiCritQueryArgs;
+export function stateToAPIArgs<T>(state:GeneralSingleCritTTDistribModelState<T>|GeneralMultiCritTTDistribModelState<T>, concId:string, subcname?:string) {
+
+    if (isMultiCritState(state)) {
+        return {
+            corpname: state.corpname,
+            usesubcorp: subcname,
+            q: `~${concId ? concId : state.concId}`,
+            fcrit: state.fcrit.toArray(),
+            flimit: state.flimit.toString(),
+            freq_sort: state.freqSort,
+            fpage: state.fpage.toString(),
+            ftt_include_empty: state.fttIncludeEmpty ? '1' : '0',
+            format: 'json'
+        } as MultiCritQueryArgs;
+
+    } else {
+        return {
+            corpname: state.corpname,
+            usesubcorp: subcname,
+            q: `~${concId ? concId : state.concId}`,
+            fcrit: state.fcrit,
+            flimit: state.flimit.toString(),
+            freq_sort: state.freqSort,
+            fpage: state.fpage.toString(),
+            ftt_include_empty: state.fttIncludeEmpty ? '1' : '0',
+            format: 'json'
+        } as SingleCritQueryArgs;
+    }
+};
