@@ -19,7 +19,7 @@ import * as Immutable from 'immutable';
 import {Observable, Observer} from 'rxjs';
 import {concatMap} from 'rxjs/operators';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
-import { QueryArgs, MultiBlockFreqDistribAPI } from '../../common/api/kontextFreqs';
+import { MultiCritQueryArgs, MultiBlockFreqDistribAPI } from '../../common/api/kontextFreqs';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
 import {ActionName as ConcActionName, Actions as ConcActions} from '../concordance/actions';
 import {Actions, ActionName} from './actions';
@@ -38,7 +38,7 @@ export interface FreqPieModelState extends GeneralMultiCritTTDistribModelState<F
 }
 
 
-const stateToAPIArgs = (state:FreqPieModelState, concId:string):QueryArgs => ({
+const stateToAPIArgs = (state:FreqPieModelState, concId:string):MultiCritQueryArgs => ({
     corpname: state.corpname,
     q: `~${concId ? concId : state.concId}`,
     fcrit: state.fcrit.toArray(),

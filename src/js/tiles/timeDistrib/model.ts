@@ -28,7 +28,7 @@ import { ConcApi, QuerySelector, ViewMode, ConcResponse } from '../../common/api
 import {stateToArgs as concStateToArgs} from '../../common/models/concordance';
 import { WdglanceMainFormModel } from '../../models/query';
 import { ApiResponse as ReduceResponse} from '../../common/api/concReduce';
-import {GeneralTTDistribModelState, stateToAPIArgs} from '../../common/models/freq';
+import {GeneralSingleCritTTDistribModelState, stateToAPIArgs} from '../../common/models/freq';
 import { FreqDistribAPI, APIResponse, DataRow } from '../../common/api/kontextFreqs';
 
 
@@ -50,7 +50,7 @@ export const enum Dimension {
 }
 
 
-export interface TimeDistribModelState extends GeneralTTDistribModelState<DataItemWithWCI> {
+export interface TimeDistribModelState extends GeneralSingleCritTTDistribModelState<DataItemWithWCI> {
     subcnames:Immutable.List<string>;
     subcDesc:string;
     timeAxisLegend:string;

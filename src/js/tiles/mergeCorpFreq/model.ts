@@ -19,42 +19,68 @@
 import * as Immutable from 'immutable';
 import {Observable, forkJoin} from 'rxjs';
 import {map} from 'rxjs/operators';
-import {QueryArgs, FreqDistribAPI, DataRow, APIResponse} from '../../common/api/kontextFreqs';
+import {SingleCritQueryArgs, FreqDistribAPI, DataRow, APIResponse, BacklinkArgs} from '../../common/api/kontextFreqs';
 import {StatelessModel, ActionDispatcher, Action, SEDispatcher} from 'kombo';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
 import {ActionName as ConcActionName, Actions as ConcActions} from '../concordance/actions';
 import {ActionName, Actions} from './actions';
 import { AppServices } from '../../appServices';
+import { BacklinkWithArgs, Backlink, HTTPMethod } from '../../common/types';
 
 
-export interface SourceArgs {
+export interface ModelSourceArgs {
+
     corpname:string;
+
     corpusSize:number;
+
     fcrit:string;
-    flimit:number;
-    freqSort:string;
-    fpage:number;
-    fttIncludeEmpty:boolean;
+
+    /**
+     * In case 'fcrit' describes a positional
+     * attribute we have to replace ann actual
+     * value returned by freq. distrib. function
+     * (which is equal to our query: e.g. for
+     * the query 'house' the value will be 'house')
+     * by something more specific (e.g. 'social media')
+     */
     valuePlaceholder:string|null;
+
+    flimit:number;
+
+    freqSort:string;
+
+    fpage:number;
+
+    fttIncludeEmpty:boolean;
+
+    backlinkTpl:Backlink;
+
+    uuid:string;
+}
+
+export interface SourceMappedDataRow extends DataRow {
+    sourceId:string;
+    backlink:BacklinkWithArgs<BacklinkArgs>|null;
 }
 
 export interface MergeCorpFreqModelState {
     isBusy:boolean;
     error:string;
-    data:Immutable.List<DataRow>;
-    sources:Immutable.List<SourceArgs>;
+    data:Immutable.List<SourceMappedDataRow>;
+    sources:Immutable.List<ModelSourceArgs>;
     pixelsPerItem:number;
 }
 
-
-const sourceToAPIArgs = (src:SourceArgs, concId:string):QueryArgs => ({
+const sourceToAPIArgs = (src:ModelSourceArgs, concId:string):SingleCritQueryArgs => ({
     corpname: src.corpname,
     q: `~${concId}`,
-    fcrit: [src.fcrit],
+    fcrit: src.fcrit,
     flimit: src.flimit.toString(),
     freq_sort: src.freqSort,
     fpage: src.fpage.toString(),
     ftt_include_empty: src.fttIncludeEmpty ? '1' : '0',
+    req_id: src.uuid,
     format: 'json'
 });
 
@@ -89,14 +115,14 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                     const newState = this.copyState(state);
                     newState.isBusy = false;
                     if (action.error) {
-                        newState.data = Immutable.List<DataRow>();
+                        newState.data = Immutable.List<SourceMappedDataRow>();
                         newState.error = action.error.message;
 
                     } else if (action.payload.data.length === 0) {
-                        newState.data = Immutable.List<DataRow>();
+                        newState.data = Immutable.List<SourceMappedDataRow>();
 
                     } else {
-                        newState.data = Immutable.List<DataRow>(action.payload.data);
+                        newState.data = Immutable.List<SourceMappedDataRow>(action.payload.data);
                     }
                     return newState;
                 }
@@ -105,7 +131,27 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
         }
     }
 
-    private loadFreqs(state:MergeCorpFreqModelState):Observable<APIResponse> {
+    private createBackLink(source:ModelSourceArgs, concId:string):BacklinkWithArgs<BacklinkArgs> {
+        return source.backlinkTpl ?
+            {
+                url: source.backlinkTpl.url,
+                method: source.backlinkTpl.method || HTTPMethod.GET,
+                label: source.backlinkTpl.label,
+                args: {
+                    corpname: source.corpname,
+                    usesubcorp: null,
+                    q: `~${concId}`,
+                    fcrit: [source.fcrit],
+                    flimit: source.flimit.toFixed(),
+                    freq_sort: source.freqSort,
+                    fpage: source.fpage.toFixed(),
+                    ftt_include_empty: source.fttIncludeEmpty ? '1' : '0'
+                }
+            } :
+            null;
+    }
+
+    private loadFreqs(state:MergeCorpFreqModelState):Observable<Array<SourceMappedDataRow>> {
         const streams$ = state.sources.map<Observable<APIResponse>>(src => {
             const srchKey = this.waitingForTiles.findKey(v => v && v.corpname === src.corpname);
             return srchKey !== undefined ?
@@ -115,39 +161,40 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
 
         return forkJoin(...streams$).pipe(
             map((partials:Array<APIResponse>) => {
-                const data = partials.reduce<Array<DataRow>>((acc, curr) => {
-                    const srcConf = state.sources.find(v => v.corpname === curr.corpname);
+                return partials.reduce<Array<SourceMappedDataRow>>((acc, curr) => {
+                    const srcConf = state.sources.find(v => v.uuid === curr.reqId);
                     return acc.concat(
                         (curr.data.length > 0 ?
                             curr.data :
                             [{name: srcConf.valuePlaceholder, freq: 0, ipm: 0, norm: 0}]
                         ).map(
-                            v => v.ipm ?
-                                {
-                                    freq: v.freq,
-                                    ipm: v.ipm,
-                                    norm: v.norm,
-                                    name: this.appServices.translateDbValue(curr.corpname, v.name)
-                                } :
-                                {
-                                    freq: v.freq,
-                                    ipm: Math.round(v.freq / srcConf.corpusSize * 1e8) / 100,
-                                    norm: v.norm,
-                                    name: srcConf.valuePlaceholder ?
-                                            srcConf.valuePlaceholder :
-                                            this.appServices.translateDbValue(curr.corpname, v.name)
+                            v => {
+                                const name = srcConf.valuePlaceholder ?
+                                srcConf.valuePlaceholder :
+                                this.appServices.translateDbValue(curr.corpname, v.name);
+
+                                return v.ipm ?
+                                    {
+                                        sourceId: srcConf.uuid,
+                                        backlink: this.createBackLink(srcConf, curr.concId),
+                                        freq: v.freq,
+                                        ipm: v.ipm,
+                                        norm: v.norm,
+                                        name: name
+                                    } :
+                                    {
+                                        sourceId: srcConf.uuid,
+                                        backlink: this.createBackLink(srcConf, curr.concId),
+                                        freq: v.freq,
+                                        ipm: Math.round(v.freq / srcConf.corpusSize * 1e8) / 100,
+                                        norm: v.norm,
+                                        name: name
+                                    };
                                 }
                         ));
                     },
                     []
                 );
-                return {
-                    concId: '', // TODO
-                    corpname: '', // TODO
-                    usesubcorp: null,
-                    concsize: 0,
-                    data: data
-                };
             })
         );
     }
@@ -158,7 +205,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                 this.suspend((action:Action) => {
                     if (action.name === ConcActionName.DataLoadDone && this.waitingForTiles.has(action.payload['tileId'])) {
                         if (action.error) {
-                            dispatch({
+                            dispatch<Actions.LoadDataDone>({
                                 name: ActionName.LoadDataDone,
                                 error: new Error(this.appServices.translate('global__failed_to_obtain_required_data')),
                                 payload: {
@@ -183,7 +230,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                                     dispatch({
                                         name: ActionName.LoadDataDone,
                                         payload: {
-                                            data: data.data,
+                                            data: data,
                                             concId: null, // TODO
                                             tileId: this.tileId
                                         }

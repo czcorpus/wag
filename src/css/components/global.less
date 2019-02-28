@@ -122,11 +122,11 @@ span.MessageStatusIcon {
 
             a {
                 cursor: pointer;
-                text-decoration: underline;
+                text-decoration: none;
             }
 
             a:hover {
-                text-decoration: none;
+                text-decoration: underline;
             }
         }
     }
@@ -166,10 +166,14 @@ span.MessageStatusIcon {
         border: none;
         background-color: transparent;
         cursor: pointer;
-        text-decoration: underline;
+        text-decoration: none;
         color: #009ee0;
         background-image: url(../../../assets/external-link.png);
         background-repeat: no-repeat;
         background-position: 99% 0;
+    }
+
+    button:hover {
+        text-decoration: underline;
     }
 }
