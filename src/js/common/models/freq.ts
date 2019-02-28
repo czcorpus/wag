@@ -17,8 +17,8 @@
  */
 
 import * as Immutable from 'immutable';
-import { DataRow, SingleCritQueryArgs, MultiCritQueryArgs } from '../api/kontextFreqs';
-import { LocalizedConfMsg } from '../types';
+import { DataRow, SingleCritQueryArgs, MultiCritQueryArgs, BacklinkArgs } from '../api/kontextFreqs';
+import { LocalizedConfMsg, Backlink, BacklinkWithArgs, HTTPMethod } from '../types';
 
 
 interface FreqBarModelStateBase {
@@ -86,4 +86,26 @@ export function stateToAPIArgs<T>(state:GeneralSingleCritFreqBarModelState<T>|Ge
             format: 'json'
         } as SingleCritQueryArgs;
     }
+};
+
+
+export const createBackLink = <T>(state:GeneralMultiCritFreqBarModelState<T>|GeneralSingleCritFreqBarModelState<T>,
+            backlink:Backlink, concId:string):BacklinkWithArgs<BacklinkArgs> => {
+    return backlink ?
+        {
+            url: backlink.url,
+            method: backlink.method || HTTPMethod.GET,
+            label: backlink.label,
+            args: {
+                corpname: state.corpname,
+                usesubcorp: null,
+                q: `~${concId}`,
+                fcrit: isMultiCritState(state) ? state.fcrit.toArray() : [state.fcrit],
+                flimit: state.flimit.toFixed(),
+                freq_sort: state.freqSort,
+                fpage: state.fpage.toFixed(),
+                ftt_include_empty: state.fttIncludeEmpty ? '1' : '0'
+            }
+        } :
+        null;
 };
