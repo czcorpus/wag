@@ -19,7 +19,7 @@
 import * as Immutable from 'immutable';
 import {Observable, Observer} from 'rxjs';
 import {concatMap} from 'rxjs/operators';
-import {DataRow, MultiBlockFreqDistribAPI} from '../../common/api/kontextFreqs';
+import {DataRow, MultiBlockFreqDistribAPI, BacklinkArgs} from '../../common/api/kontextFreqs';
 import {StatelessModel, ActionDispatcher, Action, SEDispatcher} from 'kombo';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
 import {ActionName as ConcActionName, Actions as ConcActions} from '../concordance/actions';
@@ -27,11 +27,13 @@ import {ActionName, Actions} from './actions';
 import { AppServices } from '../../appServices';
 import { stateToAPIArgs, GeneralMultiCritFreqBarModelState, FreqDataBlock } from '../../common/models/freq';
 import { puid } from '../../common/util';
+import { BacklinkWithArgs, Backlink, HTTPMethod } from '../../common/types';
 
 
 export interface FreqBarModelState extends GeneralMultiCritFreqBarModelState<DataRow> {
     maxNumCategories:number;
     activeBlock:number;
+    backlink:BacklinkWithArgs<BacklinkArgs>;
 }
 
 
@@ -45,12 +47,16 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState> {
 
     private readonly waitForTile:number;
 
-    constructor(dispatcher:ActionDispatcher, tileId:number, waitForTile:number, appServices:AppServices, api:MultiBlockFreqDistribAPI, initState:FreqBarModelState) {
+    private readonly backlink:Backlink|null;
+
+    constructor(dispatcher:ActionDispatcher, tileId:number, waitForTile:number, appServices:AppServices, api:MultiBlockFreqDistribAPI,
+                backlink:Backlink|null, initState:FreqBarModelState) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.waitForTile = waitForTile;
         this.appServices = appServices;
         this.api = api;
+        this.backlink = backlink;
         this.actionMatch = {
             [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
                 const newState = this.copyState(state);
@@ -84,6 +90,7 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState> {
                             ident: puid(),
                             label: state.critLabels.get(i)
                         })));
+                        newState.backlink = this.createBackLink(newState, action.payload.concId);
 
                     } else {
                         newState.blocks = Immutable.List<FreqDataBlock<DataRow>>(action.payload.blocks.map((block, i) => {
@@ -97,12 +104,33 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState> {
                                 label: state.critLabels.get(i)
                             };
                         }));
+                        newState.backlink = this.createBackLink(newState, action.payload.concId);
                     }
                     return newState;
                 }
                 return state;
             }
         }
+    }
+
+    private createBackLink(state:FreqBarModelState, concId:string):BacklinkWithArgs<BacklinkArgs> {
+        return this.backlink ?
+            {
+                url: this.backlink.url,
+                method: this.backlink.method || HTTPMethod.GET,
+                label: this.backlink.label,
+                args: {
+                    corpname: state.corpname,
+                    usesubcorp: null,
+                    q: `~${concId}`,
+                    fcrit: state.fcrit.toArray(),
+                    flimit: state.flimit.toFixed(),
+                    freq_sort: state.freqSort,
+                    fpage: state.fpage.toFixed(),
+                    ftt_include_empty: state.fttIncludeEmpty ? '1' : '0'
+                }
+            } :
+            null;
     }
 
     sideEffects(state:FreqBarModelState, action:Action, dispatch:SEDispatcher):void {

@@ -25,7 +25,7 @@ import * as ReactDOM from 'react-dom';
 import {init as viewInit} from './views/main';
 import { WdglanceMainFormModel } from './models/query';
 import {init as concInit, ConcordanceTileConf} from './tiles/concordance/index';
-import {init as freqInit, TTDistTileConf} from './tiles/freqBar/index';
+import {init as freqInit, FreqBarTileConf} from './tiles/freqBar/index';
 import {init as timeDistInit, TimeDistTileConf} from './tiles/timeDistrib/index';
 import {init as collocInit, CollocationsTileConf} from './tiles/collocations/index';
 import {init as treqInit, TreqTileConf} from './tiles/treq/index';
@@ -57,7 +57,7 @@ require('../css/mobile.less');
 require('theme.less');
 
 
-type AnyConf = ConcordanceTileConf | TTDistTileConf | TreqTileConf | SyDTileConf | FreqPieTileConf | TimeDistTileConf |
+type AnyConf = ConcordanceTileConf | FreqBarTileConf | TreqTileConf | SyDTileConf | FreqPieTileConf | TimeDistTileConf |
         CollocationsTileConf | WordFreqTileConf | MergeCorpFreqTileConf | GeoAreasTileConf;
 
 export interface WdglanceConf {
@@ -154,7 +154,7 @@ const mkTileFactory = (
                 case 'ConcordanceTile':
                     return applyFactory<ConcordanceTileConf>(concInit, conf);
                 case 'FreqBarTile':
-                    return applyFactory<TTDistTileConf>(freqInit, conf);
+                    return applyFactory<FreqBarTileConf>(freqInit, conf);
                 case 'TimeDistribTile':
                     return applyFactory<TimeDistTileConf>(timeDistInit, conf);
                 case 'CollocTile':
