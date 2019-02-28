@@ -100,8 +100,8 @@
 				"posAttrs": ["word", "lemma", "tag"]
 			},
 			"TextTypesSynchronic": {
-				"tileType": "TTDistribTile",
-				"label": "ttDistrib__indicator_text_types",
+				"tileType": "FreqBarTile",
+				"label": "freqBar__indicator_text_types",
 				"helpURL": "http://portal.korpus.test/wdg/static/help/czcorpus/missing.html",
 				"dependsOn": "ConcordanceSynchronic",
 				"apiURL": "http://kontext.korpus.test/kontext/freqs",
@@ -113,8 +113,8 @@
 				"fttIncludeEmpty": false
 			},
 			"MediaTypesSynchronic": {
-				"tileType": "TTDistribTile",
-				"label": "ttDistrib__indicator_medium",
+				"tileType": "FreqBarTile",
+				"label": "freqBar__indicator_medium",
 				"dependsOn": "ConcordanceSynchronic",
 				"apiURL": "http://kontext.korpus.test/kontext/freqs",
 				"corpname": "syn2015",
@@ -199,8 +199,8 @@
 				"fttIncludeEmpty": false
 			},
 			"SpeakerRegion": {
-				"tileType": "TTDistribTile",
-				"label": "ttDistrib__speaker_region",
+				"tileType": "FreqBarTile",
+				"label": "freqBar__speaker_region",
 				"dependsOn": "ConcordanceSpoken",
 				"apiURL": "http://kontext.korpus.test/kontext/freqs",
 				"corpname": "oral2013",
@@ -219,7 +219,7 @@
 				"posAttrs": ["word", "lemma", "tag"]
 			},
 			"TTDistTileConf": {
-				"tileType": "TTDistribTile",
+				"tileType": "FreqBarTile",
 				"apiURL": "http://kontext.korpus.test/kontext/freqs",
 				"corpname": "intercorp_v11_en",
 				"dependsOn": "ConcordanceTileConf",
@@ -261,7 +261,7 @@
 				"posAttrs": ["word", "lemma", "tag"]
 			},
 			"TTDistTileConf": {
-				"tileType": "TTDistribTile",
+				"tileType": "FreqBarTile",
 				"apiURL": "http://kontext.korpus.test/kontext/freqs",
 				"corpname": "intercorp_v11_de",
 				"dependsOn": "ConcordanceTileConf",

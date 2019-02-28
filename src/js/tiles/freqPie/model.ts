@@ -25,7 +25,7 @@ import {ActionName as ConcActionName, Actions as ConcActions} from '../concordan
 import {Actions, ActionName} from './actions';
 import { AppServices } from '../../appServices';
 import { puid } from '../../common/util';
-import { GeneralMultiCritTTDistribModelState, FreqDataBlock } from '../../common/models/freq';
+import { GeneralMultiCritFreqBarModelState, FreqDataBlock } from '../../common/models/freq';
 
 
 export interface FreqPieDataRow {
@@ -33,7 +33,7 @@ export interface FreqPieDataRow {
     percent:number;
 }
 
-export interface FreqPieModelState extends GeneralMultiCritTTDistribModelState<FreqPieDataRow> {
+export interface FreqPieModelState extends GeneralMultiCritFreqBarModelState<FreqPieDataRow> {
     activeBlock:number;
 }
 

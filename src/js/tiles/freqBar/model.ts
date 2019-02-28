@@ -25,17 +25,17 @@ import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../mo
 import {ActionName as ConcActionName, Actions as ConcActions} from '../concordance/actions';
 import {ActionName, Actions} from './actions';
 import { AppServices } from '../../appServices';
-import { stateToAPIArgs, GeneralMultiCritTTDistribModelState, FreqDataBlock } from '../../common/models/freq';
+import { stateToAPIArgs, GeneralMultiCritFreqBarModelState, FreqDataBlock } from '../../common/models/freq';
 import { puid } from '../../common/util';
 
 
-export interface TTDistribModelState extends GeneralMultiCritTTDistribModelState<DataRow> {
+export interface FreqBarModelState extends GeneralMultiCritFreqBarModelState<DataRow> {
     maxNumCategories:number;
     activeBlock:number;
 }
 
 
-export class TTDistribModel extends StatelessModel<TTDistribModelState> {
+export class FreqBarModel extends StatelessModel<FreqBarModelState> {
 
     private api:MultiBlockFreqDistribAPI;
 
@@ -45,7 +45,7 @@ export class TTDistribModel extends StatelessModel<TTDistribModelState> {
 
     private readonly waitForTile:number;
 
-    constructor(dispatcher:ActionDispatcher, tileId:number, waitForTile:number, appServices:AppServices, api:MultiBlockFreqDistribAPI, initState:TTDistribModelState) {
+    constructor(dispatcher:ActionDispatcher, tileId:number, waitForTile:number, appServices:AppServices, api:MultiBlockFreqDistribAPI, initState:FreqBarModelState) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.waitForTile = waitForTile;
@@ -105,7 +105,7 @@ export class TTDistribModel extends StatelessModel<TTDistribModelState> {
         }
     }
 
-    sideEffects(state:TTDistribModelState, action:Action, dispatch:SEDispatcher):void {
+    sideEffects(state:FreqBarModelState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
                 this.suspend((action:Action) => {

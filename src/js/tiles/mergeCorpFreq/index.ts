@@ -126,7 +126,7 @@ export class MergeCorpFreqTile implements ITileProvider {
     }
 
     getLabel():string {
-        return this.label ? this.label : this.ut.translate('ttDistrib__main_label');
+        return this.label ? this.label : this.ut.translate('mergeCorpFreq__main_label');
     }
 
     supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {

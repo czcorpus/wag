@@ -21,7 +21,7 @@ import { DataRow, SingleCritQueryArgs, MultiCritQueryArgs } from '../api/kontext
 import { LocalizedConfMsg } from '../types';
 
 
-interface TTDistribModelStateBase {
+interface FreqBarModelStateBase {
     isBusy:boolean;
     error:string;
     corpname:string;
@@ -33,13 +33,13 @@ interface TTDistribModelStateBase {
     fmaxitems:number;
 }
 
-export interface GeneralSingleCritTTDistribModelState<T=DataRow> extends TTDistribModelStateBase {
+export interface GeneralSingleCritFreqBarModelState<T=DataRow> extends FreqBarModelStateBase {
     fcrit:string;
     data:Immutable.List<T>;
 }
 
-function isMultiCritState<T>(state:GeneralSingleCritTTDistribModelState<T>|GeneralMultiCritTTDistribModelState<T>): state is GeneralMultiCritTTDistribModelState<T> {
-    return (<GeneralMultiCritTTDistribModelState<T>>state).blocks !== undefined;
+function isMultiCritState<T>(state:GeneralSingleCritFreqBarModelState<T>|GeneralMultiCritFreqBarModelState<T>): state is GeneralMultiCritFreqBarModelState<T> {
+    return (<GeneralMultiCritFreqBarModelState<T>>state).blocks !== undefined;
 }
 
 export interface FreqDataBlock<T> {
@@ -48,7 +48,7 @@ export interface FreqDataBlock<T> {
     label:string;
 }
 
-export interface GeneralMultiCritTTDistribModelState<T=DataRow> extends TTDistribModelStateBase {
+export interface GeneralMultiCritFreqBarModelState<T=DataRow> extends FreqBarModelStateBase {
     fcrit:Immutable.List<string>;
     critLabels:Immutable.List<LocalizedConfMsg>;
     blocks:Immutable.List<FreqDataBlock<T>>;
@@ -56,9 +56,9 @@ export interface GeneralMultiCritTTDistribModelState<T=DataRow> extends TTDistri
 
 
 
-export function stateToAPIArgs<T>(state:GeneralSingleCritTTDistribModelState<T>, concId:string, subcname?:string):SingleCritQueryArgs;
-export function stateToAPIArgs<T>(state:GeneralMultiCritTTDistribModelState<T>, concId:string, subcname?:string):MultiCritQueryArgs;
-export function stateToAPIArgs<T>(state:GeneralSingleCritTTDistribModelState<T>|GeneralMultiCritTTDistribModelState<T>, concId:string, subcname?:string) {
+export function stateToAPIArgs<T>(state:GeneralSingleCritFreqBarModelState<T>, concId:string, subcname?:string):SingleCritQueryArgs;
+export function stateToAPIArgs<T>(state:GeneralMultiCritFreqBarModelState<T>, concId:string, subcname?:string):MultiCritQueryArgs;
+export function stateToAPIArgs<T>(state:GeneralSingleCritFreqBarModelState<T>|GeneralMultiCritFreqBarModelState<T>, concId:string, subcname?:string) {
 
     if (isMultiCritState(state)) {
         return {

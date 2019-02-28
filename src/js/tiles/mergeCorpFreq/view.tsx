@@ -54,9 +54,9 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         );
     };
 
-    // -------------------------- <MergeCorpTTDistribTile /> --------------------------------------
+    // -------------------------- <MergeCorpFreqBarTile /> --------------------------------------
 
-    class MergeCorpTTDistribTile extends React.PureComponent<MergeCorpFreqModelState & CoreTileComponentProps> {
+    class MergeCorpFreqBarTile extends React.PureComponent<MergeCorpFreqModelState & CoreTileComponentProps> {
 
         render() {
             const backlinks = this.props.data
@@ -70,7 +70,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         hasData={this.props.data.find(v => v.freq > 0) !== undefined}
                         sourceIdent={this.props.sources.groupBy(v => v.corpname).map(v => ({corp: v.first().corpname})).toArray()}
                         backlink={backlinks}>
-                    <div className="MergeCorpTTDistribTile">
+                    <div className="MergeCorpFreqBarTile">
                         <Chart data={this.props.data} size={[this.props.renderSize[0], 70 + this.props.data.size * this.props.pixelsPerItem]} />
                     </div>
                 </globComponents.TileWrapper>
@@ -78,5 +78,5 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         }
     }
 
-    return BoundWithProps<CoreTileComponentProps, MergeCorpFreqModelState>(MergeCorpTTDistribTile, model);
+    return BoundWithProps<CoreTileComponentProps, MergeCorpFreqModelState>(MergeCorpFreqBarTile, model);
 }

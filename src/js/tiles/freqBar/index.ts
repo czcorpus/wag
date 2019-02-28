@@ -20,7 +20,7 @@ import * as Immutable from 'immutable';
 import { ITileProvider, TileFactory, QueryType, TileComponent, TileConf, LocalizedConfMsg } from '../../common/types';
 import {init as viewInit} from './view';
 import { ActionDispatcher, ViewUtils } from "kombo";
-import { TTDistribModel } from "./model";
+import { FreqBarModel } from "./model";
 import { DataRow, MultiBlockFreqDistribAPI } from "../../common/api/kontextFreqs";
 import { GlobalComponents } from "../../views/global";
 import { AppServices } from '../../appServices';
@@ -33,7 +33,7 @@ require('./style.less');
 
 
 export interface TTDistTileConf extends TileConf {
-    tileType:'TTDistribTile';
+    tileType:'FreqBarTile';
     apiURL:string;
     corpname:string;
     fcrit:string|Array<string>;
@@ -52,7 +52,7 @@ export class TTDistTile implements ITileProvider {
 
     private readonly ut:ViewUtils<GlobalComponents>;
 
-    private readonly model:TTDistribModel;
+    private readonly model:FreqBarModel;
 
     private readonly tileId:number;
 
@@ -74,7 +74,7 @@ export class TTDistTile implements ITileProvider {
         const labels = Array.isArray(conf.critLabels) ?
             conf.critLabels.map(v => this.appServices.importExternalMessage(v)) :
             [this.appServices.importExternalMessage(conf.critLabels)];
-        this.model = new TTDistribModel(
+        this.model = new FreqBarModel(
             this.dispatcher,
             tileId,
             waitForTiles[0],
@@ -112,7 +112,7 @@ export class TTDistTile implements ITileProvider {
     }
 
     getLabel():string {
-        return this.label ? this.label : this.ut.translate('ttDistrib__main_label');
+        return this.label ? this.label : this.ut.translate('freqBar__main_label');
     }
 
     supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {
