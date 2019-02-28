@@ -18,7 +18,7 @@
 import * as Immutable from 'immutable';
 import * as React from 'react';
 import {ActionDispatcher, ViewUtils, BoundWithProps} from 'kombo';
-import { TTDistribModel, TTDistribModelState } from './model';
+import { FreqBarModel, FreqBarModelState } from './model';
 import {ResponsiveContainer, BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, Legend} from 'recharts';
 import { DataRow } from '../../common/api/kontextFreqs';
 import { GlobalComponents } from '../../views/global';
@@ -27,7 +27,7 @@ import { ActionName, Actions } from './actions';
 import { Theme } from '../../common/theme';
 
 
-export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:TTDistribModel):TileComponent {
+export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:FreqBarModel):TileComponent {
 
     const globComponents = ut.getComponents();
 
@@ -88,9 +88,9 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         );
     };
 
-    // -------------------------- <TTDistribTile /> --------------------------------------
+    // -------------------------- <FreqBarTile /> --------------------------------------
 
-    class TTDistribTile extends React.PureComponent<TTDistribModelState & CoreTileComponentProps> {
+    class FreqBarTile extends React.PureComponent<FreqBarModelState & CoreTileComponentProps> {
 
         private chartsRef:React.RefObject<HTMLDivElement>;
 
@@ -124,7 +124,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                 <globComponents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.blocks.find(v => v.data.size > 0) !== undefined}
                         sourceIdent={{corp: this.props.corpname}}>
-                    <div className="TTDistribTile">
+                    <div className="FreqBarTile">
                         <div className="charts" ref={this.chartsRef} onScroll={this.handleScroll}>
                             {this.props.blocks.map(block => {
                                 const chartWidth = this.props.isMobile ? (this.props.renderSize[0] * 0.9).toFixed() : "90%";
@@ -150,5 +150,5 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         }
     }
 
-    return BoundWithProps<CoreTileComponentProps, TTDistribModelState>(TTDistribTile, model);
+    return BoundWithProps<CoreTileComponentProps, FreqBarModelState>(FreqBarTile, model);
 }

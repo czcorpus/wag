@@ -1,14 +1,8 @@
 {
     "en-US": {
-        "ttDistrib__main_label": "Frequency distribution",
-        "ttDistrib__indicator_text_types": "text types",
-        "ttDistrib__indicator_medium": "media types",
-        "ttDistrib__speaker_region": "regions by speakers"
+        "mergeCorpFreq__main_label": "Frequency distribution"
     },
     "cs-CZ": {
-        "ttDistrib__main_label": "Frekvenční distribuce",
-        "ttDistrib__indicator_text_types": "typy textů",
-        "ttDistrib__indicator_medium": "typy médií",
-        "ttDistrib__speaker_region": "oblasti podle mluvčích"
+        "mergeCorpFreq__main_label": "Frekvenční distribuce"
     }
 }

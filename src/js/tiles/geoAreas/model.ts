@@ -24,7 +24,7 @@ import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../mo
 import {ActionName as ConcActionName, Actions as ConcActions} from '../concordance/actions';
 import { AppServices } from '../../appServices';
 import { ActionName, Actions } from './actions';
-import { GeneralSingleCritTTDistribModelState, stateToAPIArgs } from '../../common/models/freq';
+import { GeneralSingleCritFreqBarModelState, stateToAPIArgs } from '../../common/models/freq';
 import { ajax$, ResponseType } from '../../common/ajax';
 
 /*
@@ -52,7 +52,7 @@ oral2013:
 "východomoravská": "naVYM"
 */
 
-export interface GeoAreasModelState extends GeneralSingleCritTTDistribModelState {
+export interface GeoAreasModelState extends GeneralSingleCritFreqBarModelState {
     areaCodeMapping:Immutable.Map<string, string>;
     highlightedTableRow:number;
     mapSVG:string;

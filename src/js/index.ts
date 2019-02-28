@@ -25,7 +25,7 @@ import * as ReactDOM from 'react-dom';
 import {init as viewInit} from './views/main';
 import { WdglanceMainFormModel } from './models/query';
 import {init as concInit, ConcordanceTileConf} from './tiles/concordance/index';
-import {init as freqInit, TTDistTileConf} from './tiles/ttDistrib/index';
+import {init as freqInit, TTDistTileConf} from './tiles/freqBar/index';
 import {init as timeDistInit, TimeDistTileConf} from './tiles/timeDistrib/index';
 import {init as collocInit, CollocationsTileConf} from './tiles/collocations/index';
 import {init as treqInit, TreqTileConf} from './tiles/treq/index';
@@ -153,7 +153,7 @@ const mkTileFactory = (
             switch (conf.tileType) {
                 case 'ConcordanceTile':
                     return applyFactory<ConcordanceTileConf>(concInit, conf);
-                case 'TTDistribTile':
+                case 'FreqBarTile':
                     return applyFactory<TTDistTileConf>(freqInit, conf);
                 case 'TimeDistribTile':
                     return applyFactory<TimeDistTileConf>(timeDistInit, conf);
