@@ -123,7 +123,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             return (
                 <globComponents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.blocks.find(v => v.data.size > 0) !== undefined}
-                        sourceIdent={{corp: this.props.corpname}}>
+                        sourceIdent={{corp: this.props.corpname}}
+                        backlink={this.props.backlink}>
                     <div className="FreqBarTile">
                         <div className="charts" ref={this.chartsRef} onScroll={this.handleScroll}>
                             {this.props.blocks.map(block => {

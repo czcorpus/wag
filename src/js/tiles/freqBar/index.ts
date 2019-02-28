@@ -17,7 +17,7 @@
  */
 
 import * as Immutable from 'immutable';
-import { ITileProvider, TileFactory, QueryType, TileComponent, TileConf, LocalizedConfMsg } from '../../common/types';
+import { ITileProvider, TileFactory, QueryType, TileComponent, TileConf, LocalizedConfMsg, Backlink } from '../../common/types';
 import {init as viewInit} from './view';
 import { ActionDispatcher, ViewUtils } from "kombo";
 import { FreqBarModel } from "./model";
@@ -26,13 +26,13 @@ import { GlobalComponents } from "../../views/global";
 import { AppServices } from '../../appServices';
 import { FreqDataBlock } from '../../common/models/freq';
 import { puid } from '../../common/util';
-import { Theme } from '../../common/theme';
+
 
 declare var require:(src:string)=>void;  // webpack
 require('./style.less');
 
 
-export interface TTDistTileConf extends TileConf {
+export interface FreqBarTileConf extends TileConf {
     tileType:'FreqBarTile';
     apiURL:string;
     corpname:string;
@@ -43,10 +43,11 @@ export interface TTDistTileConf extends TileConf {
     fpage:number;
     fttIncludeEmpty:boolean;
     maxNumCategories:number;
+    backlink?:Backlink;
 }
 
 
-export class TTDistTile implements ITileProvider {
+export class FreqBarTile implements ITileProvider {
 
     private readonly dispatcher:ActionDispatcher;
 
@@ -64,7 +65,7 @@ export class TTDistTile implements ITileProvider {
 
     private readonly appServices:AppServices;
 
-    constructor({dispatcher, tileId, waitForTiles, ut, theme, appServices, widthFract, conf}:TileFactory.Args<TTDistTileConf>) {
+    constructor({dispatcher, tileId, waitForTiles, ut, theme, appServices, widthFract, conf}:TileFactory.Args<FreqBarTileConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
@@ -80,6 +81,7 @@ export class TTDistTile implements ITileProvider {
             waitForTiles[0],
             appServices,
             new MultiBlockFreqDistribAPI(conf.apiURL),
+            conf.backlink || null,
             {
                 isBusy: false,
                 error: null,
@@ -97,7 +99,8 @@ export class TTDistTile implements ITileProvider {
                 fpage: conf.fpage,
                 fttIncludeEmpty: conf.fttIncludeEmpty,
                 maxNumCategories: conf.maxNumCategories,
-                fmaxitems: 100
+                fmaxitems: 100,
+                backlink: null
             }
         );
         this.view = viewInit(this.dispatcher, ut, theme, this.model);
@@ -138,4 +141,4 @@ export class TTDistTile implements ITileProvider {
 }
 
 
-export const init:TileFactory.TileFactory<TTDistTileConf>  = (args) => new TTDistTile(args);
+export const init:TileFactory.TileFactory<FreqBarTileConf>  = (args) => new FreqBarTile(args);
