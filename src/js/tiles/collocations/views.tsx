@@ -17,6 +17,7 @@
  */
 
 import {select as d3select, event as d3event} from 'd3-selection';
+import 'd3-transition';
 import * as cloud from 'd3-cloud';
 import * as React from 'react';
 import * as Immutable from 'immutable';
