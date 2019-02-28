@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { ITileProvider, QueryType, TileFactory, TileComponent, TileConf, LocalizedConfMsg } from '../../common/types';
+import { ITileProvider, QueryType, TileFactory, TileComponent, TileConf, LocalizedConfMsg, Backlink } from '../../common/types';
 import { AppServices } from '../../appServices';
 import { FreqPieModel, FreqPieDataRow } from './model';
 import {init as viewInit} from './view';
@@ -54,7 +54,7 @@ export class FreqPieTile implements ITileProvider {
 
     private view:TileComponent;
 
-    constructor(lang1:string, lang2:string, {tileId, dispatcher, appServices, ut, theme, waitForTiles, widthFract, conf}:TileFactory.Args<FreqPieTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, theme, waitForTiles, widthFract, conf}:TileFactory.Args<FreqPieTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
@@ -81,12 +81,14 @@ export class FreqPieTile implements ITileProvider {
                 freqSort: conf.freqSort,
                 fpage: conf.fpage,
                 fttIncludeEmpty: conf.fttIncludeEmpty,
-                fmaxitems: 100
+                fmaxitems: 100,
+                backlink: null
             },
             tileId,
             waitForTiles[0],
             appServices,
-            new MultiBlockFreqDistribAPI(conf.apiURL)
+            new MultiBlockFreqDistribAPI(conf.apiURL),
+            conf.backlink || null
         );
         this.view = viewInit(
             dispatcher,
@@ -130,7 +132,4 @@ export class FreqPieTile implements ITileProvider {
 }
 
 
-export const init:TileFactory.TileFactory<FreqPieTileConf> = ({
-    tileId, dispatcher, appServices, ut, mainForm, lang1, lang2, waitForTiles, widthFract, theme, conf}) => {
-    return new FreqPieTile(lang1, lang2, {tileId, dispatcher, appServices, ut, theme, mainForm, widthFract, waitForTiles, conf});
-}
+export const init:TileFactory.TileFactory<FreqPieTileConf> = (args) => new FreqPieTile(args);

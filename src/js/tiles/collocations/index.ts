@@ -17,23 +17,24 @@
  */
 
 import * as Immutable from 'immutable';
-import { TileFactory, ITileProvider, CorePosAttribute, QueryType, TileComponent, TileConf } from "../../common/types";
-import { AppServices } from "../../appServices";
-import { CollocModel } from "./model";
-import { KontextCollAPI } from "./service";
+import { TileFactory, ITileProvider, CorePosAttribute, QueryType, TileComponent, TileConf, BacklinkWithArgs } from '../../common/types';
+import { AppServices } from '../../appServices';
+import { CollocModel } from './model';
+import { KontextCollAPI } from './service';
 import {init as viewInit} from './views';
-import { ActionDispatcher, ViewUtils } from "kombo";
-import { GlobalComponents } from "../../views/global";
-import { CollocMetric, DataRow, SrchContextType } from "./common";
+import { ActionDispatcher } from 'kombo';
+import { CollocMetric, DataRow, SrchContextType } from './common';
+import { BacklinkArgs } from '../../common/api/kontextFreqs';
 
 declare var require:(src:string)=>void;  // webpack
 require('./style.less');
 
 
 export interface CollocationsTileConf extends TileConf {
+    tileType:'CollocTile';
     apiURL:string;
     corpname:string;
-    tileType:'CollocTile';
+    backlink:BacklinkWithArgs<BacklinkArgs>;
 }
 
 export function isCollocationsTileConf(conf:TileConf):conf is CollocationsTileConf {
@@ -49,8 +50,6 @@ export class CollocationsTile implements ITileProvider {
 
     private readonly dispatcher:ActionDispatcher;
 
-    private readonly ut:ViewUtils<GlobalComponents>;
-
     private readonly appServices:AppServices;
 
     private readonly model:CollocModel;
@@ -62,7 +61,6 @@ export class CollocationsTile implements ITileProvider {
     constructor({tileId, dispatcher, appServices, ut, theme, waitForTiles, widthFract, conf}:TileFactory.Args<CollocationsTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
-        this.ut = ut;
         this.appServices = appServices;
         this.widthFract = widthFract;
         this.model = new CollocModel({
@@ -71,6 +69,7 @@ export class CollocationsTile implements ITileProvider {
             waitForTile: waitForTiles[0],
             appServices: appServices,
             service: new KontextCollAPI(conf.apiURL),
+            backlink: conf.backlink || null,
             initState: {
                 isBusy: false,
                 isTweakMode: false,
@@ -88,7 +87,8 @@ export class CollocationsTile implements ITileProvider {
                 csortfn: CollocMetric.LOG_DICE,
                 data: Immutable.List<DataRow>(),
                 heading: [],
-                citemsperpage: 10
+                citemsperpage: 10,
+                backlink: null
             }
         });
 

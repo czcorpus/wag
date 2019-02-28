@@ -19,13 +19,14 @@ import * as Immutable from 'immutable';
 import {Observable, Observer} from 'rxjs';
 import {concatMap} from 'rxjs/operators';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
-import { MultiCritQueryArgs, MultiBlockFreqDistribAPI } from '../../common/api/kontextFreqs';
+import { MultiCritQueryArgs, MultiBlockFreqDistribAPI, BacklinkArgs } from '../../common/api/kontextFreqs';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
 import {ActionName as ConcActionName, Actions as ConcActions} from '../concordance/actions';
 import {Actions, ActionName} from './actions';
 import { AppServices } from '../../appServices';
 import { puid } from '../../common/util';
-import { GeneralMultiCritFreqBarModelState, FreqDataBlock } from '../../common/models/freq';
+import { GeneralMultiCritFreqBarModelState, FreqDataBlock, createBackLink } from '../../common/models/freq';
+import { BacklinkWithArgs, Backlink } from '../../common/types';
 
 
 export interface FreqPieDataRow {
@@ -35,6 +36,7 @@ export interface FreqPieDataRow {
 
 export interface FreqPieModelState extends GeneralMultiCritFreqBarModelState<FreqPieDataRow> {
     activeBlock:number;
+    backlink:BacklinkWithArgs<BacklinkArgs>;
 }
 
 
@@ -60,12 +62,16 @@ export class FreqPieModel extends StatelessModel<FreqPieModelState> {
 
     private readonly appServices:AppServices;
 
-    constructor(dispatcher:ActionDispatcher, initState:FreqPieModelState, tileId:number, waitForTile:number, appServices:AppServices, api:MultiBlockFreqDistribAPI) {
+    private readonly backlink:Backlink;
+
+    constructor(dispatcher:ActionDispatcher, initState:FreqPieModelState, tileId:number, waitForTile:number, appServices:AppServices, api:MultiBlockFreqDistribAPI,
+                backlink:Backlink) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.waitForTile = waitForTile;
         this.appServices = appServices;
         this.api = api;
+        this.backlink = backlink;
         this.actionMatch = {
             [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
                 const newState = this.copyState(state);
@@ -99,6 +105,7 @@ export class FreqPieModel extends StatelessModel<FreqPieModelState> {
                             ident: puid(),
                             label: state.critLabels.get(i)
                         })));
+                        newState.backlink = createBackLink(state, this.backlink, action.payload.concId);
 
                     } else {
                         newState.blocks = Immutable.List<FreqDataBlock<FreqPieDataRow>>(action.payload.blocks.map((block, i) => {
@@ -112,6 +119,7 @@ export class FreqPieModel extends StatelessModel<FreqPieModelState> {
                                 label: state.critLabels.get(i)
                             };
                         }));
+                        newState.backlink = createBackLink(state, this.backlink, action.payload.concId);
                     }
                     return newState;
                 }
