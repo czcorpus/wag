@@ -18,11 +18,11 @@
 import * as Immutable from 'immutable';
 import * as React from 'react';
 import {ActionDispatcher, ViewUtils, BoundWithProps} from 'kombo';
-import { MergeCorpFreqModel, MergeCorpFreqModelState } from './model';
+import { MergeCorpFreqModel, MergeCorpFreqModelState} from './model';
 import {ResponsiveContainer, BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, Legend} from 'recharts';
-import { DataRow } from '../../common/api/kontextFreqs';
+import { DataRow, BacklinkArgs } from '../../common/api/kontextFreqs';
 import { GlobalComponents } from '../../views/global';
-import { CoreTileComponentProps, TileComponent } from '../../common/types';
+import { CoreTileComponentProps, TileComponent, BacklinkWithArgs } from '../../common/types';
 import { Theme } from '../../common/theme';
 
 
@@ -59,10 +59,17 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
     class MergeCorpTTDistribTile extends React.PureComponent<MergeCorpFreqModelState & CoreTileComponentProps> {
 
         render() {
+            const backlinks = this.props.data
+                .groupBy(v => v.sourceId)
+                .map(v => v.get(0))
+                .map<BacklinkWithArgs<BacklinkArgs>>(v => v.backlink)
+                .toArray();
+
             return (
                 <globComponents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.data.find(v => v.freq > 0) !== undefined}
-                        sourceIdent={this.props.sources.groupBy(v => v.corpname).map(v => ({corp: v.first().corpname})).toArray()}>
+                        sourceIdent={this.props.sources.groupBy(v => v.corpname).map(v => ({corp: v.first().corpname})).toArray()}
+                        backlink={backlinks}>
                     <div className="MergeCorpTTDistribTile">
                         <Chart data={this.props.data} size={[this.props.renderSize[0], 70 + this.props.data.size * this.props.pixelsPerItem]} />
                     </div>

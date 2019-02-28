@@ -20,6 +20,7 @@ import * as Immutable from 'immutable';
 import { DataRow, SingleCritQueryArgs, MultiCritQueryArgs } from '../api/kontextFreqs';
 import { LocalizedConfMsg } from '../types';
 
+
 interface TTDistribModelStateBase {
     isBusy:boolean;
     error:string;

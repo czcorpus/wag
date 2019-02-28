@@ -17,10 +17,10 @@
  */
 
 import * as Immutable from 'immutable';
-import { ITileProvider, TileFactory, QueryType, TileComponent, TileConf } from '../../common/types';
+import { ITileProvider, TileFactory, QueryType, TileComponent, TileConf, Backlink } from '../../common/types';
 import {init as viewInit} from './view';
 import { ActionDispatcher, ViewUtils } from "kombo";
-import { MergeCorpFreqModel, SourceArgs } from "./model";
+import { MergeCorpFreqModel, ModelSourceArgs, SourceMappedDataRow } from "./model";
 import { FreqDistribAPI, DataRow } from "../../common/api/kontextFreqs";
 import { GlobalComponents } from "../../views/global";
 import { puid } from '../../common/util';
@@ -34,6 +34,7 @@ export interface MergeCorpFreqTileConf extends TileConf {
     apiURL:string;
     pixelsPerItem?:number;
     sources:Array<{
+
         corpname:string;
         corpusSize:number;
         fcrit:string;
@@ -41,7 +42,17 @@ export interface MergeCorpFreqTileConf extends TileConf {
         freqSort:string;
         fpage:number;
         fttIncludeEmpty:boolean;
+
+        /**
+          * In case 'fcrit' describes a positional
+          * attribute we have to replace ann actual
+          * value returned by freq. distrib. function
+          * (which is equal to our query: e.g. for
+          * the query 'house' the value will be 'house')
+          * by something more specific (e.g. 'social media')
+          */
         valuePlaceholder?:string;
+        backlink?:Backlink;
     }>;
 }
 
@@ -84,8 +95,8 @@ export class MergeCorpFreqTile implements ITileProvider {
             {
                 isBusy: false,
                 error: null,
-                data: Immutable.List<DataRow>(),
-                sources: Immutable.List<SourceArgs>(conf.sources.map(src => ({
+                data: Immutable.List<SourceMappedDataRow>(),
+                sources: Immutable.List<ModelSourceArgs>(conf.sources.map(src => ({
                     corpname: src.corpname,
                     corpusSize: src.corpusSize,
                     fcrit: src.fcrit,
@@ -96,7 +107,9 @@ export class MergeCorpFreqTile implements ITileProvider {
                     valuePlaceholder: src.valuePlaceholder ?
                             appServices.importExternalMessage(src.valuePlaceholder) :
                             null,
-                    uuid: puid()
+                    uuid: puid(),
+                    backlinkTpl: src.backlink || null,
+                    backlink: null
                 }))),
                 pixelsPerItem: conf.pixelsPerItem ? conf.pixelsPerItem : 40
             }

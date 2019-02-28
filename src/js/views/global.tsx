@@ -48,7 +48,7 @@ export interface GlobalComponents {
         isBusy:boolean;
         hasData:boolean;
         sourceIdent:SourceInfo|Array<SourceInfo>;
-        backlink?:BacklinkWithArgs<{}>;
+        backlink?:BacklinkWithArgs<{}>|Array<BacklinkWithArgs<{}>>;
         htmlClass?:string;
         error?:string;
     }>;
@@ -136,7 +136,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
     }> = (props) => {
         const args = new MultiDict(props.values.args);
         return <form className="BacklinkForm" action={props.values.url} method={props.values.method} target="_blank">
-            {args.items().map(([k, v], i) =>
+            {args.items().filter(v => v[1] !== null && v[1] !== undefined).map(([k, v], i) =>
                 <input key={`arg:${i}:${k}`} type="hidden" name={k} value={v} />
             )}
             <button type="submit">
@@ -149,7 +149,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
 
     const SourceLink:React.SFC<{
         data:SourceInfo|Array<SourceInfo>;
-        backlink:BacklinkWithArgs<{}>;
+        backlink:BacklinkWithArgs<{}>|Array<BacklinkWithArgs<{}>>;
 
     }> = (props) => {
 
@@ -177,7 +177,12 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
                     <>
                     ,{'\u00a0'}
                     {ut.translate('global__more_info')}:{'\u00a0'}
-                    <BacklinkForm values={props.backlink} />
+                    {(Array.isArray(props.backlink) ? props.backlink : [props.backlink]).map((item, i) =>
+                        <React.Fragment key={`${item.label}:${i}`}>
+                            {i > 0 ? <span>, </span> : null}
+                            <BacklinkForm values={item} />
+                        </React.Fragment>
+                    )}
                     </> :
                     null
                 }

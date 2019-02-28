@@ -72,6 +72,18 @@ export interface APIBlockResponse {
 }
 
 
+export interface BacklinkArgs {
+    corpname:string;
+    usesubcorp:string;
+    q:string;
+    fcrit:Array<string>;
+    flimit:string;
+    freq_sort:string;
+    fpage:string;
+    ftt_include_empty:string;
+}
+
+
 interface CoreQueryArgs {
     corpname:string;
     usesubcorp?:string;
