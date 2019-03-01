@@ -177,7 +177,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
                     <>
                     ,{'\u00a0'}
                     {ut.translate('global__more_info')}:{'\u00a0'}
-                    {(Array.isArray(props.backlink) ? props.backlink : [props.backlink]).map((item, i) =>
+                    {(Array.isArray(props.backlink) ? props.backlink : [props.backlink]).filter(v => !!v).map((item, i) =>
                         <React.Fragment key={`${item.label}:${i}`}>
                             {i > 0 ? <span>, </span> : null}
                             <BacklinkForm values={item} />

@@ -1,5 +1,6 @@
 {
     "en-US": {
+        "global__wdglance_title": "Word At a Glance",
         "global__search": "Search",
         "global__single_word_sel": "Search a word",
         "global__two_words_compare": "Compare two words",
@@ -41,6 +42,7 @@
 
     },
     "cs-CZ": {
+        "global__wdglance_title": "Slovo v kostce",
         "global__search": "Hledat",
         "global__single_word_sel": "Vyhledat slovo",
         "global__two_words_compare": "Porovnat dvě slova",
