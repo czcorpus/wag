@@ -21,12 +21,14 @@ import * as React from 'react';
 import { renderToString } from 'react-dom/server';
 import {init as viewInit, LayoutProps} from '../views/layout';
 import {Database} from 'sqlite3';
-import {Express} from 'express';
+import {Express, Request, Response} from 'express';
 import {ServerConf, ClientConf} from '../common/conf';
 import { ViewUtils } from 'kombo';
 import { GlobalComponents } from '../views/global';
 import { encodeArgs } from '../common/ajax';
-import { any } from 'prop-types';
+import { defaultFactory as mainFormFactory} from '../models/query';
+import { AppServices } from '../appServices';
+import {ServerSideActionDispatcher} from './core';
 
 
 
@@ -37,37 +39,69 @@ export interface Services {
     translations:{[loc:string]:{[key:string]:string}};
 }
 
+
+const mainAction = (services:Services, answerMode:boolean, req:Request, res:Response) => {
+
+    const uiLang = 'cs-CZ'; // TODO
+    const query1Lang = req.query['lang1'] || 'cs';
+    const query2Lang = req.query['lang2'] || 'en';
+    const queryType = req.query['queryType'] || 'single';
+    const query1 = req.query['q1'] || '';
+    const query2 = req.query['q2'] || '';
+
+    const dispatcher = new ServerSideActionDispatcher();
+
+    const viewUtils = new ViewUtils<GlobalComponents>({
+        uiLang: uiLang,
+        translations: services.translations,
+        staticUrlCreator: (path) => services.clientConf.rootUrl + 'assets/' + path,
+        actionUrlCreator: (path, args) => services.clientConf.hostUrl + path + '?' + encodeArgs(args)
+    });
+    const appServices = new AppServices({
+        notifications: null, // TODO
+        uiLang: uiLang,
+        translator: viewUtils,
+        staticUrlCreator: viewUtils.createStaticUrl,
+        actionUrlCreator: viewUtils.createActionUrl,
+        dbValuesMapping: services.clientConf.dbValuesMapping || {}
+    });
+
+    const mainFormModel = mainFormFactory({
+        dispatcher: dispatcher,
+        appServices: appServices,
+        query1: query1,
+        query1Lang: query1Lang || '',
+        query2: query2,
+        query2Lang: query2Lang || '',
+        queryType: queryType
+    })
+    const view = viewInit(dispatcher, viewUtils, mainFormModel);
+    const appString = renderToString(React.createElement<LayoutProps>(view, {
+        config: services.clientConf,
+        userConfig: {
+            uiLang: uiLang,
+            query1Lang: query1Lang,
+            query2Lang: query2Lang,
+            queryType: queryType,
+            query1: query1,
+            query2: query2,
+            tilesConf: services.clientConf.tiles[query1Lang],
+            dbValuesMapping: services.clientConf.dbValuesMapping,
+            answerMode: answerMode,
+            colors: services.clientConf.colors
+        }
+    }));
+    res.send(`<!DOCTYPE html>${appString}`);
+};
+
+
+
 export const wdgRouter = (services:Services) => (app:Express) => {
 
     // host page generator with some React server rendering (testing phase)
-    app.get('/', (req, res) => {
+    app.get('/', (req, res) => mainAction(services, false, req, res));
 
-        const lang1 = req.query['lang1'] || 'cs';
-        const uiLang = 'cs-CZ'; // TODO
-
-        const viewUtils = new ViewUtils<GlobalComponents>({
-            uiLang: uiLang,
-            translations: services.translations,
-            staticUrlCreator: (path) => services.clientConf.rootUrl + 'assets/' + path,
-            actionUrlCreator: (path, args) => services.clientConf.hostUrl + path + '?' + encodeArgs(args)
-        });
-        const view = viewInit(null, viewUtils);
-        const appString = renderToString(React.createElement<LayoutProps>(view, {
-            config: services.clientConf,
-            userConfig: {
-                uiLang: uiLang,
-                query1Lang: lang1,
-                query2Lang: req.query['lang2'] || 'en',
-                queryType: req.query['queryType'] || 'single',
-                query1: req.query['q1'] || '',
-                query2: req.query['q2'] || '',
-                tilesConf: services.clientConf.tiles[lang1],
-                dbValuesMapping: services.clientConf.dbValuesMapping,
-                colors: services.clientConf.colors
-            }
-        }));
-        res.send(`<!DOCTYPE html>${appString}`);
-    });
+    app.get('/search/', (req, res) => mainAction(services, true, req, res));
 
     // Find words with similar frequency
     app.get('/similar-freq-words/', (req, res) => {

@@ -29,6 +29,7 @@ export interface UserConf {
 	query2Lang:string;
 	query1:string;
     query2:string;
+    answerMode:boolean;
     tilesConf:{[ident:string]:TileConf};
 }
 

@@ -18,12 +18,12 @@
 /// <reference path="./translations.d.ts" />
 import * as Immutable from 'immutable';
 import {throttleTime} from 'rxjs/operators';
-import {fromEvent} from 'rxjs';
+import {fromEvent, of as rxOf} from 'rxjs';
 import { ActionDispatcher, ViewUtils, StatefulModel, Action } from 'kombo';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {init as viewInit} from './views/main';
-import { WdglanceMainFormModel } from './models/query';
+import { defaultFactory as wdglanceFormFactory, WdglanceMainFormModel } from './models/query';
 import {init as concInit, ConcordanceTileConf} from './tiles/concordance/index';
 import {init as freqInit, FreqBarTileConf} from './tiles/freqBar/index';
 import {init as timeDistInit, TimeDistTileConf} from './tiles/timeDistrib/index';
@@ -42,7 +42,6 @@ import { ActionName, Actions } from './models/actions';
 import { TileFrameProps, ITileProvider, QueryType, TileConf, TileFactory, DbValueMapping } from './common/types';
 import { WdglanceTilesModel } from './models/tiles';
 import {encodeArgs} from './common/ajax';
-import { Forms } from './common/data';
 import { MessagesModel } from './models/messages';
 import { CorpusInfoAPI } from './common/api/corpusInfo';
 import {LayoutManager, LayoutConf} from './layout';
@@ -74,6 +73,7 @@ export interface WdglanceConf {
     tilesConf:{[ident:string]:AnyConf};
     colors:ColorsConf;
     dbValuesMapping:DbValueMapping;
+    answerMode:boolean;
 }
 
 
@@ -227,8 +227,8 @@ export const init = (
         layouts,
         colors,
         tilesConf,
-        dbValuesMapping}:WdglanceConf) => {
-
+        dbValuesMapping,
+        answerMode}:WdglanceConf) => {
 
     const uiLangSel = uiLang || 'en-US';
     const dispatcher = new ActionDispatcher();
@@ -252,33 +252,15 @@ export const init = (
 
     const globalComponents = globalCompInit(dispatcher, viewUtils);
     viewUtils.attachComponents(globalComponents);
-    const formModel = new WdglanceMainFormModel(
-        dispatcher,
-        appServices,
-        {
-            query: Forms.newFormValue(query1 || '', true),
-            query2: Forms.newFormValue(query2 || '', false),
-            queryType: queryType,
-            availQueryTypes: Immutable.List<[QueryType, string]>([
-                [QueryType.SINGLE_QUERY, appServices.translate('global__single_word_sel')],
-                [QueryType.CMP_QUERY, appServices.translate('global__two_words_compare')],
-                [QueryType.TRANSLAT_QUERY, appServices.translate('global__word_translate')]
-            ]),
-            targetLanguage: query1Lang || '',
-            targetLanguage2: query2Lang || '',
-            availLanguages: Immutable.List<[string, string]>([
-                ['cs', 'čeština'],
-                ['en', 'English'],
-                ['de', 'Deutsch']
-            ]),
-            isValid: true,
-        }
-    );
-
-    dispatcher.captureAction(
-        ActionName.RequestQueryResponse,
-        (action) => formModel.getState().isValid
-    );
+    const formModel = wdglanceFormFactory({
+        dispatcher: dispatcher,
+        appServices: appServices,
+        query1: query1,
+        query1Lang: query1Lang || '',
+        query2: query2,
+        query2Lang: query2Lang || '',
+        queryType: queryType
+    });
 
     const tiles:Array<TileFrameProps> = [];
     const attachTile = mkAttachTile(queryType, query1Lang, query2Lang);
@@ -312,7 +294,7 @@ export const init = (
     const tilesModel = new WdglanceTilesModel(
         dispatcher,
         {
-            isAnswerMode: false,
+            isAnswerMode: answerMode,
             isBusy: false,
             isMobile: appServices.isMobileMode(),
             tweakActiveTiles: Immutable.Set<number>(),
@@ -354,6 +336,15 @@ export const init = (
                 isMobile: appServices.isMobileMode()
             }
         ),
-        mountElement
+        mountElement,
+        () => {
+            if (answerMode) {
+                dispatcher.dispatch(rxOf(
+                    {
+                        name: ActionName.RequestQueryResponse
+                    }
+                ));
+            }
+        }
     );
 };

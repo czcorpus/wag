@@ -16,10 +16,9 @@
  * limitations under the License.
  */
 
-import {ActionDispatcher, Bound, ViewUtils, BoundWithProps} from 'kombo';
+import {IActionDispatcher, Bound, ViewUtils, BoundWithProps} from 'kombo';
 import * as React from 'react';
 import * as Immutable from 'immutable';
-import {of as rxOf} from 'rxjs';
 import {WdglanceMainState, WdglanceMainFormModel} from '../models/query';
 import {ActionName, Actions} from '../models/actions';
 import {KeyCodes} from '../common/util';
@@ -33,7 +32,7 @@ import { TileGroup } from '../layout';
 import { SystemMessage } from '../notifications';
 
 
-export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, formModel:WdglanceMainFormModel, tilesModel:WdglanceTilesModel,
+export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, formModel:WdglanceMainFormModel, tilesModel:WdglanceTilesModel,
             messagesModel:MessagesModel) {
 
     const globalComponents = ut.getComponents();
@@ -276,17 +275,9 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         }
 
         private handleSubmit() {
-            dispatcher.dispatch(rxOf(
-                {
-                    name: ActionName.EnableAnswerMode
-                },
-                {
-                    name: ActionName.SubmitQuery
-                },
-                {
-                    name: ActionName.RequestQueryResponse
-                }
-            ));
+            dispatcher.dispatch<Actions.SubmitQuery>({
+                name: ActionName.SubmitQuery
+            });
         }
 
         handleQueryTypeChange(qt:QueryType):void {
