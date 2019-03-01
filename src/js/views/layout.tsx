@@ -25,11 +25,13 @@ import { GlobalComponents } from './global';
 import { TileGroup } from '../layout';
 import { WdglanceMainFormModel } from '../models/query';
 import {resolve as urlResolve} from 'url';
+import { HostPageEnv } from '../common/types';
 
 
 export interface LayoutProps {
     config:ClientConf;
     userConfig:UserConf;
+    hostPageEnv:HostPageEnv;
 }
 
 
@@ -68,18 +70,24 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <link href={`${urlResolve(props.config.hostUrl, 'dist/common.css')}`} rel="stylesheet" type="text/css" />
                     <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Droid+Sans+Mono%7CRoboto:100,400,400italic,700,700italic%7CRoboto+Condensed:400,700&amp;subset=latin,latin-ext" media="all" />
                     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Special+Elite" media="all"/>
-                    <link rel="stylesheet" type="text/css" href="https://www.korpus.cz/vendor/webmodel/ui/style.css?v=1509638045" />
-                    <link rel="stylesheet" type="text/css" href="//utils.korpus.cz/cdn/czcorpus/styles/1.0.0/main.css" />
-                    <link rel="stylesheet" type="text/css" href="https://www.korpus.cz/css/toolbar.css?v=1509638060" />
-                    <link rel="stylesheet" type="text/css" href="https://utils.korpus.cz/cdn/czcorpus/styles/1.0.0/main.css" />
+                    {props.hostPageEnv.styles.map(style =>
+                       <link key={style} rel="stylesheet" type="text/css" href={style} media="all"/> )}
                 </head>
                 <body>
+                    {props.hostPageEnv.html ?
+                        <div style={{height: props.hostPageEnv.toolbarHeight ? props.hostPageEnv.toolbarHeight : 'auto'}}
+                                dangerouslySetInnerHTML={{__html: props.hostPageEnv.html}} /> :
+                        null
+                    }
                     <header className="wdg-header">
                         <h1>Word At a Glance</h1>
                     </header>
                     <section className="wdglance-mount">
                         <mainViews.WdglanceMain layout={Immutable.List<TileGroup>()} isMobile={false} />
                     </section>
+                    {props.hostPageEnv.scripts.map(script =>
+                        <script key={script} type="text/javascript" src={script}></script>
+                    )}
                     <script type="text/javascript" src={`${urlResolve(props.config.hostUrl, 'dist/common.js')}`}></script>
                     <script type="text/javascript" src={`${urlResolve(props.config.hostUrl, 'dist/index.js')}`}></script>
                     <script type="text/javascript" dangerouslySetInnerHTML={{__html: createScriptStr()}} />

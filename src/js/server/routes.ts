@@ -29,6 +29,9 @@ import { encodeArgs } from '../common/ajax';
 import { defaultFactory as mainFormFactory} from '../models/query';
 import { AppServices } from '../appServices';
 import {ServerSideActionDispatcher} from './core';
+import { IToolbarProvider, HostPageEnv } from '../common/types';
+import { NextFunction } from 'connect';
+import { emptyValue } from './toolbar/empty';
 
 
 
@@ -36,11 +39,12 @@ export interface Services {
     serverConf:ServerConf;
     clientConf:ClientConf;
     db:Database;
+    toolbar:IToolbarProvider;
     translations:{[loc:string]:{[key:string]:string}};
 }
 
 
-const mainAction = (services:Services, answerMode:boolean, req:Request, res:Response) => {
+const mainAction = (services:Services, answerMode:boolean, req:Request, res:Response, next:NextFunction) => {
 
     const uiLang = 'cs-CZ'; // TODO
     const query1Lang = req.query['lang1'] || 'cs';
@@ -76,22 +80,34 @@ const mainAction = (services:Services, answerMode:boolean, req:Request, res:Resp
         queryType: queryType
     })
     const view = viewInit(dispatcher, viewUtils, mainFormModel);
-    const appString = renderToString(React.createElement<LayoutProps>(view, {
-        config: services.clientConf,
-        userConfig: {
-            uiLang: uiLang,
-            query1Lang: query1Lang,
-            query2Lang: query2Lang,
-            queryType: queryType,
-            query1: query1,
-            query2: query2,
-            tilesConf: services.clientConf.tiles[query1Lang],
-            dbValuesMapping: services.clientConf.dbValuesMapping,
-            answerMode: answerMode,
-            colors: services.clientConf.colors
+
+    const renderResult = (toolbarData:HostPageEnv) => {
+        const appString = renderToString(React.createElement<LayoutProps>(view, {
+            config: services.clientConf,
+            userConfig: {
+                uiLang: uiLang,
+                query1Lang: query1Lang,
+                query2Lang: query2Lang,
+                queryType: queryType,
+                query1: query1,
+                query2: query2,
+                tilesConf: services.clientConf.tiles[query1Lang],
+                answerMode: answerMode
+            },
+            hostPageEnv: toolbarData
+        }));
+        res.send(`<!DOCTYPE html>${appString}`);
+    };
+
+    services.toolbar.get().subscribe(
+        (toolbarData) => {
+            renderResult(toolbarData);
+        },
+        (err) => {
+            console.log(err);
+            renderResult(emptyValue());
         }
-    }));
-    res.send(`<!DOCTYPE html>${appString}`);
+    );
 };
 
 
@@ -99,9 +115,9 @@ const mainAction = (services:Services, answerMode:boolean, req:Request, res:Resp
 export const wdgRouter = (services:Services) => (app:Express) => {
 
     // host page generator with some React server rendering (testing phase)
-    app.get('/', (req, res) => mainAction(services, false, req, res));
+    app.get('/', (req, res, next) => mainAction(services, false, req, res, next));
 
-    app.get('/search/', (req, res) => mainAction(services, true, req, res));
+    app.get('/search/', (req, res, next) => mainAction(services, true, req, res, next));
 
     // Find words with similar frequency
     app.get('/similar-freq-words/', (req, res) => {
