@@ -23,7 +23,6 @@ import {APIResponse} from '../common/api/corpusInfo';
 export enum ActionName {
     ChangeQueryInput = 'MAIN_CHANGE_QUERY_INPUT',
     ChangeQueryInput2 = 'MAIN_CHANGE_QUERY_INPUT2',
-    EnableAnswerMode = 'MAIN_ENABLE_ANSWER_MODE',
     DisableAnswerMode = 'MAIN_DISABLE_ANSWER_MODE',
     RequestQueryResponse = 'MAIN_REQUEST_QUERY_RESPONSE',
     ChangeTargetLanguage = 'MAIN_CHANGE_TARGET_LANGUAGE',
@@ -50,12 +49,6 @@ export namespace Actions {
     export interface RequestQueryResponse extends Action<{
     }> {
         name:ActionName.ChangeQueryInput;
-    }
-
-    export interface EnableAnswerMode extends Action<{
-
-    }> {
-        name:ActionName.EnableAnswerMode;
     }
 
     export interface DisableAnswerMode extends Action<{

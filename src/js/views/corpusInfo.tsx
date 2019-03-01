@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as React from 'react';
-import { ActionDispatcher, ViewUtils } from 'kombo';
+import { IActionDispatcher, ViewUtils } from 'kombo';
 import { GlobalComponents } from './global';
 import { APIResponse as CorpusInfoResponse} from '../common/api/corpusInfo';
 
@@ -24,7 +24,7 @@ export interface CorpusInfoBoxProps {
     data:CorpusInfoResponse;
 }
 
-export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>):React.SFC<CorpusInfoBoxProps> {
+export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>):React.SFC<CorpusInfoBoxProps> {
 
     const globalComponents = ut.getComponents();
 

@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {StatelessModel, Action, ActionDispatcher, SEDispatcher} from 'kombo';
+import {StatelessModel, Action, IActionDispatcher, SEDispatcher} from 'kombo';
 import { ActionName, Actions } from './actions';
 import * as Immutable from 'immutable';
 import { AppServices } from '../appServices';
@@ -39,7 +39,7 @@ export class WdglanceMainFormModel extends StatelessModel<WdglanceMainState> {
 
     private readonly appServices:AppServices;
 
-    constructor(dispatcher:ActionDispatcher, appServices:AppServices, initialState:WdglanceMainState) {
+    constructor(dispatcher:IActionDispatcher, appServices:AppServices, initialState:WdglanceMainState) {
         super(dispatcher, initialState);
         this.appServices = appServices;
 
@@ -77,6 +77,15 @@ export class WdglanceMainFormModel extends StatelessModel<WdglanceMainState> {
                 newState.query.value = newState.query.value.trim();
                 newState.query2.value = newState.query2.value.trim();
                 newState.isValid = this.queryIsValid(newState);
+                if (newState.isValid) { // we leave the page here, TODO: use some kind of routing
+                    window.location.href = this.appServices.createActionUrl('search/', {
+                        q1: state.query.value,
+                        q2: state.query2.value,
+                        queryType: state.queryType,
+                        lang1: state.targetLanguage,
+                        lang2: state.targetLanguage2
+                    });
+                }
                 return newState;
             }
         }
@@ -118,3 +127,40 @@ export class WdglanceMainFormModel extends StatelessModel<WdglanceMainState> {
     }
 
 }
+
+export interface DefaultFactoryArgs {
+    dispatcher:IActionDispatcher;
+    appServices:AppServices;
+    query1:string;
+    query1Lang:string;
+    query2:string;
+    query2Lang:string;
+    queryType:QueryType;
+}
+
+export const defaultFactory = ({dispatcher, appServices, query1, query1Lang, query2,
+            query2Lang, queryType}:DefaultFactoryArgs) => {
+
+    return new WdglanceMainFormModel(
+        dispatcher,
+        appServices,
+        {
+            query: Forms.newFormValue(query1 || '', true),
+            query2: Forms.newFormValue(query2 || '', false),
+            queryType: queryType,
+            availQueryTypes: Immutable.List<[QueryType, string]>([
+                [QueryType.SINGLE_QUERY, appServices.translate('global__single_word_sel')],
+                [QueryType.CMP_QUERY, appServices.translate('global__two_words_compare')],
+                [QueryType.TRANSLAT_QUERY, appServices.translate('global__word_translate')]
+            ]),
+            targetLanguage: query1Lang || '',
+            targetLanguage2: query2Lang || '',
+            availLanguages: Immutable.List<[string, string]>([
+                ['cs', 'čeština'],
+                ['en', 'English'],
+                ['de', 'Deutsch']
+            ]),
+            isValid: true,
+        }
+    );
+};

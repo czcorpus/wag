@@ -110,11 +110,6 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                 newState.helpActiveTiles = newState.helpActiveTiles.remove(action.payload.tileId);
                 return newState;
             },
-            [ActionName.EnableAnswerMode]: (state, action:Actions.EnableAnswerMode) => {
-                const newState = this.copyState(state);
-                newState.isAnswerMode = true;
-                return newState;
-            },
             [ActionName.DisableAnswerMode]: (state, action:Actions.DisableAnswerMode) => {
                 const newState = this.copyState(state);
                 newState.isAnswerMode = true;

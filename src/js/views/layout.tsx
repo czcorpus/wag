@@ -17,12 +17,14 @@
  */
 
 import * as Immutable from 'immutable';
-import {ActionDispatcher, ViewUtils} from 'kombo';
+import {IActionDispatcher, ViewUtils} from 'kombo';
 import * as React from 'react';
 import { ClientConf, UserConf } from '../common/conf';
 import {init as mainViewInit} from './main';
 import { GlobalComponents } from './global';
 import { TileGroup } from '../layout';
+import { WdglanceMainFormModel } from '../models/query';
+import {resolve as urlResolve} from 'url';
 
 
 export interface LayoutProps {
@@ -31,9 +33,10 @@ export interface LayoutProps {
 }
 
 
-export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>):React.SFC<LayoutProps> {
+export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>,
+        formModel:WdglanceMainFormModel):React.SFC<LayoutProps> {
 
-    const mainViews = mainViewInit(dispatcher, ut, null, null, null);
+    const mainViews = mainViewInit(dispatcher, ut, formModel, null, null);
 
     const Layout:React.SFC<LayoutProps> = (props) => {
 
@@ -52,7 +55,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                     layouts: props.config.layouts,
                     tilesConf: props.userConfig.tilesConf,
                     dbValuesMapping: props.config.dbValuesMapping,
-                    colors: props.config.colors
+                    colors: props.config.colors,
+                    answerMode: props.userConfig.answerMode
                 })});`
         };
 
@@ -61,7 +65,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                 <head>
                     <meta charSet="utf-8" />
                     <meta name="viewport" content="width=device-width, initial-scale=1" />
-                    <link href="./dist/common.css" rel="stylesheet" type="text/css" />
+                    <link href={`${urlResolve(props.config.hostUrl, 'dist/common.css')}`} rel="stylesheet" type="text/css" />
                     <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Droid+Sans+Mono%7CRoboto:100,400,400italic,700,700italic%7CRoboto+Condensed:400,700&amp;subset=latin,latin-ext" media="all" />
                     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Special+Elite" media="all"/>
                     <link rel="stylesheet" type="text/css" href="https://www.korpus.cz/vendor/webmodel/ui/style.css?v=1509638045" />
@@ -76,8 +80,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                     <section className="wdglance-mount">
                         <mainViews.WdglanceMain layout={Immutable.List<TileGroup>()} isMobile={false} />
                     </section>
-                    <script type="text/javascript" src="./dist/common.js"></script>
-                    <script type="text/javascript" src="./dist/index.js"></script>
+                    <script type="text/javascript" src={`${urlResolve(props.config.hostUrl, 'dist/common.js')}`}></script>
+                    <script type="text/javascript" src={`${urlResolve(props.config.hostUrl, 'dist/index.js')}`}></script>
                     <script type="text/javascript" dangerouslySetInnerHTML={{__html: createScriptStr()}} />
                 </body>
             </html>
