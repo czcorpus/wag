@@ -85,4 +85,7 @@ export interface ServerConf {
         wordDistribDb:string;
         similarFreqWordsCtx:[number, number];
     };
+    toolbar:{
+        url:string;
+    }
 }

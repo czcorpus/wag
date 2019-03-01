@@ -263,3 +263,15 @@ export interface DataApi<T, U> {
 
 
 export type DbValueMapping = {[corp:string]:{[key:string]:LocalizedConfMsg}};
+
+
+export interface HostPageEnv {
+    styles:Array<string>;
+    scripts:Array<string>;
+    html:string|null;
+    toolbarHeight:string|null; // a CSS value
+}
+
+export interface IToolbarProvider {
+    get():Observable<HostPageEnv|null>;
+}
