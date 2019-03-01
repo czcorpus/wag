@@ -80,7 +80,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         null
                     }
                     <header className="wdg-header">
-                        <h1>{ut.translate('global__wdglance_title')}</h1>
+                        <h1><a href={props.config.hostUrl}>{ut.translate('global__wdglance_title')}</a></h1>
                     </header>
                     <section className="wdglance-mount">
                         <mainViews.WdglanceMain layout={Immutable.List<TileGroup>()} isMobile={false} />
