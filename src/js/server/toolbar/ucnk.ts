@@ -73,12 +73,12 @@ export class UCNKToolbar implements IToolbarProvider {
 
                         } else {
                             observer.next({
-                                styles: Object.keys(body.styles)
-                                    .sort((x1, x2) => parseInt(x1) - parseInt(x2))
-                                    .map(v => body.styles[v].url),
-                                scripts: Object.keys(body.scripts)
-                                    .sort((x1, x2) => parseInt(x1) - parseInt(x2))
-                                    .map(v => body.scripts[v].url)
+                                styles: Object.entries(body.styles)
+                                    .sort((x1, x2) => parseInt(x1[0]) - parseInt(x2[0]))
+                                    .map(v => v[1].url),
+                                scripts: Object.entries(body.scripts.depends)
+                                    .sort((x1, x2) => parseInt(x1[0]) - parseInt(x2[0]))
+                                    .map(v => v[1].url)
                                     .concat([body.scripts.main]),
                                 html: body.html,
                                 toolbarHeight: '50px'
