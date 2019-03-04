@@ -22,19 +22,16 @@ import { SimilarlyFreqWord } from './sfwApi';
 
 
 export enum ActionName {
-    LoadDataDone = 'SUMMARY_LOAD_DATA_DONE',
     SetActiveLemma = 'SUMMARY_SET_ACTIVE_LEMMA',
 }
 
-export namespace Actions {
+export interface DataLoadedPayload {
+    data:Array<SummaryDataRow>;
+    simFreqWords:Array<SimilarlyFreqWord>;
+    concId:string;
+}
 
-    export interface LoadDataDone extends Action<{
-        data:Array<SummaryDataRow>;
-        simFreqWords:Array<SimilarlyFreqWord>;
-        concId:string;
-    }> {
-        name: ActionName.LoadDataDone;
-    }
+export namespace Actions {
 
     export interface SetActiveLemma extends Action<{
         idx:number;

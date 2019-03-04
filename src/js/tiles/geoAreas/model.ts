@@ -21,9 +21,9 @@ import * as Immutable from 'immutable';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
 import {FreqDistribAPI, DataRow} from '../../common/api/kontextFreqs';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
-import {ActionName as ConcActionName, Actions as ConcActions} from '../concordance/actions';
+import {ActionName as ConcActionName, Actions as ConcActions, ConcLoadedPayload} from '../concordance/actions';
 import { AppServices } from '../../appServices';
-import { ActionName, Actions } from './actions';
+import { ActionName, Actions, DataLoadedPayload } from './actions';
 import { GeneralSingleCritFreqBarModelState, stateToAPIArgs } from '../../common/models/freq';
 import { ajax$, ResponseType } from '../../common/ajax';
 
@@ -82,7 +82,7 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                 newState.error = null;
                 return newState;
             },
-            [ActionName.LoadDataDone]: (state, action:Actions.LoadDataDone) => {
+            [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<DataLoadedPayload>) => {
                 if (action.payload.tileId === this.tileId) {
                     const newState = this.copyState(state);
                     newState.isBusy = false;
@@ -140,8 +140,8 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
                 this.suspend((action:Action) => {
-                    if (action.name === ConcActionName.DataLoadDone && action.payload['tileId'] === this.waitForTile) {
-                        const payload = (action as ConcActions.DataLoadDone).payload;
+                    if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
+                        const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
 
                         forkJoin(
                             new Observable((observer:Observer<{}>) => {
@@ -159,8 +159,8 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                         )
                         .subscribe(
                             resp => {
-                                dispatch<Actions.LoadDataDone>({
-                                    name: ActionName.LoadDataDone,
+                                dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                    name: GlobalActionName.TileDataLoaded,
                                     payload: {
                                         data: resp[0].data,
                                         mapSVG: resp[1],
@@ -170,8 +170,8 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                                 });
                             },
                             error => {
-                                dispatch<Actions.LoadDataDone>({
-                                    name: ActionName.LoadDataDone,
+                                dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                    name: GlobalActionName.TileDataLoaded,
                                     payload: {
                                         data: null,
                                         mapSVG: null,

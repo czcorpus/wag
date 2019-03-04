@@ -16,12 +16,11 @@
  * limitations under the License.
  */
 
-import { Action } from "kombo";
-import { ConcResponse, ViewMode } from "../../common/api/concordance";
+import { Action } from 'kombo';
+import { ConcResponse, ViewMode } from '../../common/api/concordance';
 
 
 export enum ActionName {
-    DataLoadDone = 'CONCORDANCE_LOAD_DATA_DONE',
     LoadNextPage = 'CONCORDANCE_LOAD_NEXT_PAGE',
     LoadNextPageDone = 'CONCORDANCE_LOAD_NEXT_PAGE_DONE',
     LoadPrevPage = 'CONCORDANCE_LOAD_PREV_PAGE',
@@ -30,14 +29,12 @@ export enum ActionName {
 }
 
 
-export namespace Actions {
+export interface ConcLoadedPayload {
+    data:ConcResponse;
+}
 
-    export interface DataLoadDone extends Action<{
-        data:ConcResponse;
-        tileId:number;
-    }> {
-        name:ActionName.DataLoadDone;
-    }
+
+export namespace Actions {
 
     export interface LoadNextPage extends Action<{
         tileId:number;

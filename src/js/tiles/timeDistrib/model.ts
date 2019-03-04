@@ -20,8 +20,8 @@ import {Observable, Observer} from 'rxjs';
 import {concatMap, map} from 'rxjs/operators';
 import { StatelessModel, Action, SEDispatcher } from 'kombo';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
-import {ActionName as ConcActionName, Actions as ConcActions} from '../concordance/actions';
-import {ActionName, Actions, DataItemWithWCI} from './common';
+import {ActionName as ConcActionName, Actions as ConcActions, ConcLoadedPayload} from '../concordance/actions';
+import {ActionName, Actions, DataItemWithWCI, DataLoadedPayload} from './common';
 import {wilsonConfInterval, AlphaLevel} from './stat';
 import { AppServices } from '../../appServices';
 import { ConcApi, QuerySelector, ViewMode, ConcResponse } from '../../common/api/concordance';
@@ -101,7 +101,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 newState.error = null;
                 return newState;
             },
-            [ActionName.LoadDataDone]: (state, action:Actions.LoadDataDone) => {
+            [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<DataLoadedPayload>) => {
                 if (action.payload.tileId === this.tileId) {
                     const newState = this.copyState(state);
                     if (action.error) {
@@ -178,8 +178,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     };
                 });
 
-                seDispatch<Actions.LoadDataDone>({
-                    name: ActionName.LoadDataDone,
+                seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                    name: GlobalActionName.TileDataLoaded,
                     payload: {
                         data: dataFull,
                         subcname: resp.usesubcorp,
@@ -190,8 +190,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             },
             error => {
                 console.error(error);
-                seDispatch<Actions.LoadDataDone>({
-                    name: ActionName.LoadDataDone,
+                seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                    name: GlobalActionName.TileDataLoaded,
                     payload: {
                         data: null,
                         subcname: null,
@@ -209,8 +209,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             case GlobalActionName.RequestQueryResponse:
                 if (this.waitForTile > -1) { // in this case we rely on a concordance provided by other tile
                     this.suspend((action:Action) => {
-                        if (action.name === ConcActionName.DataLoadDone && action.payload['tileId'] === this.waitForTile) {
-                            const payload = (action as ConcActions.DataLoadDone).payload;
+                        if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
+                            const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
                             const ans = new Observable((observer:Observer<{concId: string}>) => {
                                 if (action.error) {
                                     observer.error(new Error(this.appServices.translate('global__failed_to_obtain_required_data')));

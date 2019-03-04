@@ -40,7 +40,7 @@ import { AppServices } from './appServices';
 import { SystemNotifications } from './notifications';
 import { ActionName, Actions } from './models/actions';
 import { TileFrameProps, ITileProvider, QueryType, TileConf, TileFactory, DbValueMapping } from './common/types';
-import { WdglanceTilesModel } from './models/tiles';
+import { WdglanceTilesModel, TileResultFlagRec, TileResultFlag } from './models/tiles';
 import {encodeArgs} from './common/ajax';
 import { MessagesModel } from './models/messages';
 import { CorpusInfoAPI } from './common/api/corpusInfo';
@@ -298,10 +298,22 @@ export const init = (
             isBusy: false,
             isMobile: appServices.isMobileMode(),
             tweakActiveTiles: Immutable.Set<number>(),
-            helpActiveTiles:Immutable.Set<number>(),
+            helpActiveTiles: Immutable.Set<number>(),
             tilesHelpData: Immutable.Map<number, string>(),
-            hiddenGroups:Immutable.Set<number>(),
-            hiddenGroupsHeaders:Immutable.Set<number>(appServices.isMobileMode() ? layouts[queryType].map((_, i) => i) : []),
+            hiddenGroups: Immutable.Set<number>(),
+            hiddenGroupsHeaders: Immutable.Set<number>(appServices.isMobileMode() ? layouts[queryType].map((_, i) => i) : []),
+            tileResultFlags: Immutable.List<TileResultFlagRec>(
+                    layouts[queryType].reduce(
+                        (acc, curr, i) => acc.concat(curr.tiles
+                                .map<TileResultFlagRec>(v => ({
+                                    tileId: tilesMap[v.tile],
+                                    groupId: i,
+                                    status: TileResultFlag.PENDING,
+                                }))
+                            ),
+                        []
+                    )
+                ),
             tileProps: Immutable.List<TileFrameProps>(tiles),
             isModalVisible: false,
             modalBoxData: null,

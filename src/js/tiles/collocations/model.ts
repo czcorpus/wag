@@ -20,8 +20,8 @@ import {Observable, Observer} from 'rxjs';
 import {concatMap} from 'rxjs/operators';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
-import {ActionName as ConcActionName, Actions as ConcActions} from '../concordance/actions';
-import {ActionName, DataRow, Actions, CollApiArgs, DataHeading, CollocMetric, SrchContextType, CoreCollRequestArgs} from './common';
+import {ActionName as ConcActionName, Actions as ConcActions, ConcLoadedPayload} from '../concordance/actions';
+import {ActionName, DataRow, Actions, CollApiArgs, DataHeading, CollocMetric, SrchContextType, CoreCollRequestArgs, DataLoadDonePayload} from './common';
 import { KontextCollAPI } from './service';
 import { AppServices } from '../../appServices';
 import { SystemMessageType, Backlink, BacklinkWithArgs, HTTPMethod } from '../../common/types';
@@ -160,7 +160,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                 }
                 return newState;
             },
-            [ActionName.DataLoadDone]: (state, action:Actions.DataLoadDone) => {
+            [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<DataLoadDonePayload>) => {
                 if (action.payload.tileId === this.tileId) {
                     const newState = this.copyState(state);
                     newState.concId = action.payload.concId;
@@ -211,7 +211,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
         }
     }
 
-    private createBackLink(state:CollocModelState, action:Actions.DataLoadDone):BacklinkWithArgs<CoreCollRequestArgs> {
+    private createBackLink(state:CollocModelState, action:GlobalActions.TileDataLoaded<DataLoadDonePayload>):BacklinkWithArgs<CoreCollRequestArgs> {
         const [cfromw, ctow] = ctxToRange(state.ctxType, state.ctxSize);
         return this.backlink ?
             {
@@ -247,8 +247,8 @@ export class CollocModel extends StatelessModel<CollocModelState> {
         .pipe(concatMap(args => this.service.call(args)))
         .subscribe(
             (data) => {
-                seDispatch<Actions.DataLoadDone>({
-                    name: ActionName.DataLoadDone,
+                seDispatch<GlobalActions.TileDataLoaded<DataLoadDonePayload>>({
+                    name: GlobalActionName.TileDataLoaded,
                     payload: {
                         tileId: this.tileId,
                         heading: data.collHeadings,
@@ -260,7 +260,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             (err) => {
                 this.appServices.showMessage(SystemMessageType.ERROR, err);
                 seDispatch({
-                    name: ActionName.DataLoadDone,
+                    name: GlobalActionName.TileDataLoaded,
                     payload: {},
                     error: err
                 });
@@ -273,11 +273,11 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             case GlobalActionName.RequestQueryResponse:
                 this.suspend(
                     (action:Action) => {
-                        if (action.name === ConcActionName.DataLoadDone && action.payload['tileId'] === this.waitForTile) {
-                            const payload = (action as ConcActions.DataLoadDone).payload;
+                        if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
+                            const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
                             if (action.error) {
-                                seDispatch({
-                                    name: ActionName.DataLoadDone,
+                                seDispatch<GlobalActions.TileDataLoaded<DataLoadDonePayload>>({
+                                    name: GlobalActionName.TileDataLoaded,
                                     payload: {
                                         tileId: this.tileId,
                                         data: [],

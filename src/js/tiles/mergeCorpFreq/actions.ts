@@ -21,17 +21,15 @@ import { DataRow } from '../../common/api/kontextFreqs';
 
 
 export enum ActionName {
-    LoadDataDone = 'MULTI_CORP_FREQ_LOAD_DATA_DONE'
+    // TODO
+}
+
+export interface DataLoadedPayload {
+    data:Array<DataRow>;
+    concId:string;
 }
 
 export namespace Actions {
 
-    export interface LoadDataDone extends Action<{
-        data:Array<DataRow>;
-        concId:string;
-        tileId:number;
-
-    }> {
-        name: ActionName.LoadDataDone
-    }
+    // TODO
 }

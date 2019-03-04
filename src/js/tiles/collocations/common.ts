@@ -68,21 +68,18 @@ export enum SrchContextType {
 }
 
 export enum ActionName {
-    DataLoadDone = 'COLLOCATIONS_DATA_LOAD_DONE',
     SetSrchContextType = 'COLLOCATIONS_SET_SRCH_CONTEXT_TYPE'
 }
 
 
-export namespace Actions {
+export interface DataLoadDonePayload {
+    data:Array<DataRow>;
+    heading:DataHeading;
+    concId:string;
+}
 
-    export interface DataLoadDone extends Action<{
-        tileId:number;
-        data:Array<DataRow>;
-        heading:DataHeading;
-        concId:string;
-    }> {
-        name:ActionName.DataLoadDone;
-    }
+
+export namespace Actions {
 
     export interface SetSrchContextType extends Action<{
         tileId:number;

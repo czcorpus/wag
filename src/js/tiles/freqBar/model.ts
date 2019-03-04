@@ -22,8 +22,8 @@ import {concatMap} from 'rxjs/operators';
 import {DataRow, MultiBlockFreqDistribAPI, BacklinkArgs} from '../../common/api/kontextFreqs';
 import {StatelessModel, ActionDispatcher, Action, SEDispatcher} from 'kombo';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
-import {ActionName as ConcActionName, Actions as ConcActions} from '../concordance/actions';
-import {ActionName, Actions} from './actions';
+import {ActionName as ConcActionName, Actions as ConcActions, ConcLoadedPayload} from '../concordance/actions';
+import {ActionName, Actions, DataLoadedPayload} from './actions';
 import { AppServices } from '../../appServices';
 import { stateToAPIArgs, GeneralMultiCritFreqBarModelState, FreqDataBlock, createBackLink } from '../../common/models/freq';
 import { puid } from '../../common/util';
@@ -72,7 +72,7 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState> {
                 }
                 return state;
             },
-            [ActionName.LoadDataDone]: (state, action:Actions.LoadDataDone) => {
+            [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<DataLoadedPayload>) => {
                 if (action.payload.tileId === this.tileId) {
                     const newState = this.copyState(state);
                     newState.isBusy = false;
@@ -117,8 +117,8 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState> {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
                 this.suspend((action:Action) => {
-                    if (action.name === ConcActionName.DataLoadDone && action.payload['tileId'] === this.waitForTile) {
-                        const payload = (action as ConcActions.DataLoadDone).payload;
+                    if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
+                        const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
                         new Observable((observer:Observer<{}>) => {
                             if (action.error) {
                                 observer.error(new Error(this.appServices.translate('global__failed_to_obtain_required_data')));
@@ -132,8 +132,8 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState> {
                         )
                         .subscribe(
                             resp => {
-                                dispatch<Actions.LoadDataDone>({
-                                    name: ActionName.LoadDataDone,
+                                dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                    name: GlobalActionName.TileDataLoaded,
                                     payload: {
                                         blocks: resp.blocks.map(block => {
                                             return {
@@ -146,8 +146,8 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState> {
                                 });
                             },
                             error => {
-                                dispatch<Actions.LoadDataDone>({
-                                    name: ActionName.LoadDataDone,
+                                dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                    name: GlobalActionName.TileDataLoaded,
                                     payload: {
                                         blocks: null,
                                         concId: null,

@@ -21,20 +21,15 @@ import { ApiDataBlock } from '../../common/api/kontextFreqs';
 
 
 export enum ActionName {
-    LoadDataDone = 'TT_DISTRIB_LOAD_DATA_DONE',
     SetActiveBlock = 'TT_DISTRIB_SET_ACTIVE_BLOCK'
 }
 
+export interface DataLoadedPayload {
+    blocks:Array<ApiDataBlock>;
+    concId:string;
+}
+
 export namespace Actions {
-
-    export interface LoadDataDone extends Action<{
-        blocks:Array<ApiDataBlock>;
-        concId:string;
-        tileId:number;
-
-    }> {
-        name: ActionName.LoadDataDone
-    }
 
     export interface SetActiveBlock extends Action<{
         idx:number;

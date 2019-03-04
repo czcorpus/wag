@@ -21,16 +21,14 @@ import { Response } from "./api";
 
 
 export enum ActionName {
-    DataLoadDone = 'SYD_LOAD_DATA_DONE',
+    // TODO
 }
 
+export interface DataLoadedPayload {
+    data:Response;
+}
 
 export namespace Actions {
 
-    export interface DataLoadDone extends Action<{
-        data:Response;
-        tileId:number;
-    }> {
-        name:ActionName.DataLoadDone;
-    }
+    // TODO
 }

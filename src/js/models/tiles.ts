@@ -27,6 +27,19 @@ import { CorpusInfoAPI, APIResponse as CorpusInfoResponse} from '../common/api/c
 import { ajax$, ResponseType } from '../common/ajax';
 
 
+export enum TileResultFlag {
+    PENDING = 0,
+    EMPTY_RESULT = 1,
+    VALID_RESULT = 2
+}
+
+export interface TileResultFlagRec {
+    tileId:number;
+    groupId:number;
+    status:TileResultFlag;
+}
+
+
 export interface WdglanceTilesState {
     isAnswerMode:boolean;
     isBusy:boolean;
@@ -37,6 +50,7 @@ export interface WdglanceTilesState {
     tilesHelpData:Immutable.Map<number, string>; // raw html data loaded from a trusted resource
     hiddenGroups:Immutable.Set<number>;
     hiddenGroupsHeaders:Immutable.Set<number>;
+    tileResultFlags:Immutable.List<TileResultFlagRec>;
     tileProps:Immutable.List<TileFrameProps>;
     modalBoxData:CorpusInfoResponse|null; // or other possible data types
     modalBoxTitle:string;

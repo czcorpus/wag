@@ -25,6 +25,7 @@ export enum ActionName {
     ChangeQueryInput2 = 'MAIN_CHANGE_QUERY_INPUT2',
     DisableAnswerMode = 'MAIN_DISABLE_ANSWER_MODE',
     RequestQueryResponse = 'MAIN_REQUEST_QUERY_RESPONSE',
+    TileDataLoaded = 'MAIN_TILE_DATA_LOADED',
     ChangeTargetLanguage = 'MAIN_CHANGE_TARGET_LANGUAGE',
     ChangeQueryType = 'MAIN_CHANGE_QUERY_TYPE',
     SetTileRenderSize = 'MAIN_SET_TILE_RENDER_SIZE',
@@ -49,6 +50,13 @@ export namespace Actions {
     export interface RequestQueryResponse extends Action<{
     }> {
         name:ActionName.ChangeQueryInput;
+    }
+
+    export interface TileDataLoaded<T> extends Action<{
+        tileId:number;
+
+    } & T> {
+        name: ActionName.TileDataLoaded;
     }
 
     export interface DisableAnswerMode extends Action<{

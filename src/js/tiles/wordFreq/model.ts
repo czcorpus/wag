@@ -22,8 +22,8 @@ import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
 import { LemmaFreqApi, RequestArgs, SummaryDataRow} from './api';
 import {Response as SFWResponse, SimilarlyFreqWord} from './sfwApi';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
-import {ActionName as ConcActionName, Actions as ConcActions} from '../concordance/actions';
-import { ActionName, Actions } from './actions';
+import {ActionName as ConcActionName, Actions as ConcActions, ConcLoadedPayload} from '../concordance/actions';
+import { ActionName, Actions, DataLoadedPayload } from './actions';
 import { AppServices } from '../../appServices';
 import { SimilarFreqWordsApi } from './sfwApi';
 
@@ -85,7 +85,9 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
 
     private readonly appServices:AppServices;
 
-    constructor(dispatcher:ActionDispatcher, initialState:SummaryModelState, api:LemmaFreqApi,
+    private readonly tileId:number;
+
+    constructor(dispatcher:ActionDispatcher, initialState:SummaryModelState, tileId:number, api:LemmaFreqApi,
         sfwApi:SimilarFreqWordsApi, waitForTile:number, appServices:AppServices) {
         super(dispatcher, initialState);
         this.api = api;
@@ -99,23 +101,25 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                 newState.error = null;
                 return newState;
             },
-            [ActionName.LoadDataDone]: (state, action:Actions.LoadDataDone) => {
-                const newState = this.copyState(state);
-                newState.isBusy = false;
-                if (action.error) {
-                    newState.error = action.error.message;
+            [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<DataLoadedPayload>) => {
+                if (action.payload.tileId === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.isBusy = false;
+                    if (action.error) {
+                        newState.error = action.error.message;
 
-                } else if (action.payload.data.length === 0) {
-                    newState.data = Immutable.List<SummaryDataRow>();
-                    newState.similarFreqWords = Immutable.List<SimilarlyFreqWord>();
+                    } else if (action.payload.data.length === 0) {
+                        newState.data = Immutable.List<SummaryDataRow>();
+                        newState.similarFreqWords = Immutable.List<SimilarlyFreqWord>();
 
-                } else {
-                    newState.data = Immutable.List<SummaryDataRow>(action.payload.data);
-                    newState.similarFreqWords = Immutable.List<SimilarlyFreqWord>(action.payload.simFreqWords);
-                    newState.currLemmaIdx = 0;
+                    } else {
+                        newState.data = Immutable.List<SummaryDataRow>(action.payload.data);
+                        newState.similarFreqWords = Immutable.List<SimilarlyFreqWord>(action.payload.simFreqWords);
+                        newState.currLemmaIdx = 0;
+                    }
+                    return newState;
                 }
-
-                return newState;
+                return state;
             },
             [ActionName.SetActiveLemma]: (state, action:Actions.SetActiveLemma) => {
                 const newState = this.copyState(state);
@@ -129,12 +133,13 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
                 this.suspend((action:Action) => {
-                    if (action.name === ConcActionName.DataLoadDone && action.payload['tileId'] === this.waitForTile) {
+                    if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
                         if (action.error) {
-                            dispatch<Actions.LoadDataDone>({
-                                name: ActionName.LoadDataDone,
+                            dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                name: GlobalActionName.TileDataLoaded,
                                 error: new Error(this.appServices.translate('global__failed_to_obtain_required_data')),
                                 payload: {
+                                    tileId: this.tileId,
                                     data: [],
                                     simFreqWords: [],
                                     concId: null
@@ -142,7 +147,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                             });
                             return true;
                         }
-                        const payload = (action as ConcActions.DataLoadDone).payload;
+                        const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
                         const data1$ = this.api
                             .call(stateToAPIArgs(state, payload.data.conc_persistence_op_id))
                             .pipe(
@@ -180,9 +185,10 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                         forkJoin(data1$, data2$)
                             .subscribe(
                             (data) => {
-                                dispatch<Actions.LoadDataDone>({
-                                    name: ActionName.LoadDataDone,
+                                dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                    name: GlobalActionName.TileDataLoaded,
                                     payload: {
+                                        tileId: this.tileId,
                                         data: data[0].data,
                                         simFreqWords: data[1].result,
                                         concId: data[0].concId
@@ -191,10 +197,11 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                             },
                             (err) => {
                                 console.log(err);
-                                dispatch<Actions.LoadDataDone>({
-                                    name: ActionName.LoadDataDone,
+                                dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                    name: GlobalActionName.TileDataLoaded,
                                     error: err,
                                     payload: {
+                                        tileId: this.tileId,
                                         data: [], // TODO
                                         simFreqWords: [],
                                         concId: null // TODO

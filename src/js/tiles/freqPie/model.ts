@@ -21,8 +21,8 @@ import {concatMap} from 'rxjs/operators';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
 import { MultiCritQueryArgs, MultiBlockFreqDistribAPI, BacklinkArgs } from '../../common/api/kontextFreqs';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
-import {ActionName as ConcActionName, Actions as ConcActions} from '../concordance/actions';
-import {Actions, ActionName} from './actions';
+import {Actions as ConcActions, ConcLoadedPayload} from '../concordance/actions';
+import {Actions, ActionName, DataLoadedPayload} from './actions';
 import { AppServices } from '../../appServices';
 import { puid } from '../../common/util';
 import { GeneralMultiCritFreqBarModelState, FreqDataBlock, createBackLink } from '../../common/models/freq';
@@ -87,7 +87,7 @@ export class FreqPieModel extends StatelessModel<FreqPieModelState> {
                 }
                 return state;
             },
-            [ActionName.LoadDataDone]: (state, action:Actions.LoadDataDone) => {
+            [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<DataLoadedPayload>) => {
                 if (action.payload.tileId === this.tileId) {
                     const newState = this.copyState(state);
                     newState.isBusy = false;
@@ -132,10 +132,10 @@ export class FreqPieModel extends StatelessModel<FreqPieModelState> {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
                 this.suspend((action:Action) => {
-                    if (action.name === ConcActionName.DataLoadDone && action.payload['tileId'] === this.waitForTile) {
+                    if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
                         if (action.error) {
-                            dispatch<Actions.LoadDataDone>({
-                                name: ActionName.LoadDataDone,
+                            dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                name: GlobalActionName.TileDataLoaded,
                                 payload: {
                                     blocks: [],
                                     concId: null,
@@ -145,7 +145,7 @@ export class FreqPieModel extends StatelessModel<FreqPieModelState> {
                             });
                             return true;
                         }
-                        const payload = (action as ConcActions.DataLoadDone).payload;
+                        const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
                         new Observable((observer:Observer<{}>) => {
                             if (action.error) {
                                 observer.error(action.error);
@@ -157,8 +157,8 @@ export class FreqPieModel extends StatelessModel<FreqPieModelState> {
                         }).pipe(concatMap(args => this.api.call(stateToAPIArgs(state, payload.data.conc_persistence_op_id))))
                         .subscribe(
                             resp => {
-                                dispatch<Actions.LoadDataDone>({
-                                    name: ActionName.LoadDataDone,
+                                dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                    name: GlobalActionName.TileDataLoaded,
                                     payload: {
                                         blocks: resp.blocks,
                                         concId: resp.concId,
@@ -167,8 +167,8 @@ export class FreqPieModel extends StatelessModel<FreqPieModelState> {
                                 });
                             },
                             error => {
-                                dispatch<Actions.LoadDataDone>({
-                                    name: ActionName.LoadDataDone,
+                                dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                    name: GlobalActionName.TileDataLoaded,
                                     payload: {
                                         blocks: null,
                                         concId: null,

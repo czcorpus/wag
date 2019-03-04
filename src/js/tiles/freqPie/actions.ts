@@ -25,15 +25,12 @@ export enum ActionName {
     SetActiveBlock = 'FREQ_PIE_SET_ACTIVE_BLOCK'
 }
 
-export namespace Actions {
+export interface DataLoadedPayload {
+    blocks:Array<ApiDataBlock>;
+    concId:string;
+}
 
-    export interface LoadDataDone extends Action<{
-        blocks:Array<ApiDataBlock>;
-        concId:string;
-        tileId:number;
-    }> {
-        name: ActionName.LoadDataDone;
-    }
+export namespace Actions {
 
     export interface SetActiveBlock extends Action<{
         idx:number;

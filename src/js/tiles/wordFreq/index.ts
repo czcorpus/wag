@@ -85,6 +85,7 @@ export class WordFreqTile implements ITileProvider {
                 ),
                 similarFreqWords: Immutable.List<SimilarlyFreqWord>()
             },
+            tileId,
             new LemmaFreqApi(conf.apiURL),
             new SimilarFreqWordsApi(conf.sfwApiURL),
             waitForTiles[0],

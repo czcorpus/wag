@@ -20,19 +20,7 @@ import { Action } from 'kombo';
 
 
 export enum ActionName {
-    LoadDataDone = 'TIME_DISTRIB_LOAD_DATA_DONE'
-}
-
-export namespace Actions {
-
-    export interface LoadDataDone extends Action<{
-        data:Array<DataItemWithWCI>;
-        concId:string;
-        subcname:string;
-        tileId:number;
-    }> {
-        name: ActionName.LoadDataDone
-    }
+    // TODO
 }
 
 export interface DataItemWithWCI {
@@ -41,4 +29,15 @@ export interface DataItemWithWCI {
     ipm:number;
     norm:number;
     ipmInterval:[number, number];
+}
+
+export interface DataLoadedPayload {
+    data:Array<DataItemWithWCI>;
+    concId:string;
+    subcname:string;
+}
+
+export namespace Actions {
+
+    // TODO
 }

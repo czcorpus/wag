@@ -25,7 +25,7 @@ import {KeyCodes} from '../common/util';
 import { GlobalComponents } from './global';
 import { Forms } from '../common/data';
 import { TileFrameProps, SystemMessageType, QueryType } from '../common/types';
-import { WdglanceTilesModel, WdglanceTilesState } from '../models/tiles';
+import { WdglanceTilesModel, WdglanceTilesState, TileResultFlagRec } from '../models/tiles';
 import { MessagesState, MessagesModel } from '../models/messages';
 import {init as corpusInfoViewInit} from './corpusInfo';
 import { TileGroup } from '../layout';
@@ -710,6 +710,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         tilesHelpData={Immutable.Map<number, string>()}
                         hiddenGroups={Immutable.Set<number>()}
                         hiddenGroupsHeaders={Immutable.Set<number>()}
+                        tileResultFlags={Immutable.List<TileResultFlagRec>()}
                         tileProps={Immutable.List<TileFrameProps>()}
                         modalBoxData={null}
                         modalBoxTitle=""

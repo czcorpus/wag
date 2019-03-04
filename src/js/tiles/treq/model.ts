@@ -20,7 +20,7 @@ import * as Immutable from 'immutable';
 import { StatelessModel, Action, SEDispatcher, ActionDispatcher } from 'kombo';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
 import { TreqAPI, TreqTranslation, RequestArgs, PageArgs } from './api';
-import { ActionName, Actions } from './actions';
+import { ActionName, Actions, DataLoadedPayload } from './actions';
 import { WdglanceMainFormModel } from '../../models/query';
 import { Backlink, BacklinkWithArgs, HTTPMethod } from '../../common/types';
 
@@ -91,19 +91,22 @@ export class TreqModel extends StatelessModel<TreqModelState> {
                 newState.error = null;
                 return newState;
             },
-            [ActionName.LoadDataDone]: (state, action:Actions.LoadDataDone) => {
-                const newState = this.copyState(state);
-                newState.isBusy = false;
-                if (action.error) {
-                    newState.translations = Immutable.List<TreqTranslation>();
-                    newState.error = action.error.message;
+            [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<DataLoadedPayload>) => {
+                if (action.payload.tileId === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.isBusy = false;
+                    if (action.error) {
+                        newState.translations = Immutable.List<TreqTranslation>();
+                        newState.error = action.error.message;
 
-                } else {
-                    newState.translations = Immutable.List<TreqTranslation>(action.payload.data.lines);
-                    newState.sum = action.payload.data.sum;
-                    newState.treqBackLink = this.makeBacklink(state, action.payload.query);
+                    } else {
+                        newState.translations = Immutable.List<TreqTranslation>(action.payload.data.lines);
+                        newState.sum = action.payload.data.sum;
+                        newState.treqBackLink = this.makeBacklink(state, action.payload.query);
+                    }
+                    return newState;
                 }
-                return newState;
+                return state;
             }
         }
     }
@@ -124,18 +127,20 @@ export class TreqModel extends StatelessModel<TreqModelState> {
             case GlobalActionName.RequestQueryResponse:
                 this.api.call(stateToAPIArgs(state, this.mainForm.getState().query.value)).subscribe(
                     (data) => {
-                        dispatch<Actions.LoadDataDone>({
-                            name: ActionName.LoadDataDone,
+                        dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                            name: GlobalActionName.TileDataLoaded,
                             payload: {
+                                tileId: this.tileId,
                                 query: this.mainForm.getState().query.value,
                                 data: data
                             }
                         });
                     },
                     (error) => {
-                        dispatch<Actions.LoadDataDone>({
-                            name: ActionName.LoadDataDone,
+                        dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                            name: GlobalActionName.TileDataLoaded,
                             payload: {
+                                tileId: this.tileId,
                                 query: this.mainForm.getState().query.value,
                                 data: {lines: [], sum: -1}
                             },
