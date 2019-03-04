@@ -17,7 +17,7 @@
  */
 
 import * as Immutable from 'immutable';
-import { ITileProvider, TileFactory, QueryType, TileComponent, TileConf, Backlink, CorpSrchTileConf } from '../../common/types';
+import { ITileProvider, TileFactory, QueryType, TileComponent, Backlink, CorpSrchTileConf } from '../../common/types';
 import {init as viewInit} from './views';
 import { ConcordanceTileModel } from './model';
 import { ActionDispatcher } from 'kombo';
@@ -33,6 +33,7 @@ export interface ConcordanceTileConf extends CorpSrchTileConf {
     apiURL:string;
     backlink:Backlink;
     posAttrs:Array<string>;
+    parallelLangMapping?:{[lang:string]:string};
 }
 
 /**
@@ -52,7 +53,7 @@ export class ConcordanceTile implements ITileProvider {
 
     private readonly widthFract:number;
 
-    constructor({tileId, dispatcher, appServices, ut, mainForm, widthFract, conf}:TileFactory.Args<ConcordanceTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, mainForm, widthFract, conf, lang2}:TileFactory.Args<ConcordanceTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.widthFract = widthFract;
@@ -74,6 +75,7 @@ export class ConcordanceTile implements ITileProvider {
                 querySelector: QuerySelector.WORD,
                 lines: Immutable.List<Line>(),
                 corpname: conf.corpname,
+                otherCorpname: conf.parallelLangMapping ? conf.parallelLangMapping[lang2] : null,
                 subcname: Array.isArray(conf.subcname) ? conf.subcname[0] : conf.subcname,
                 fullsize: -1,
                 concsize: -1,
@@ -89,7 +91,7 @@ export class ConcordanceTile implements ITileProvider {
                 kwicLeftCtx: appServices.isMobileMode() ? ConcordanceTileModel.CTX_SIZES[0] : this.calcContext(widthFract),
                 kwicRightCtx: appServices.isMobileMode() ? ConcordanceTileModel.CTX_SIZES[0] : this.calcContext(widthFract),
                 attr_vmode: 'mouseover',
-                viewMode: ViewMode.KWIC,
+                viewMode: conf.parallelLangMapping ? ViewMode.SENT : ViewMode.KWIC,
                 attrs: Immutable.List<string>(conf.posAttrs),
                 backlink: null
             }

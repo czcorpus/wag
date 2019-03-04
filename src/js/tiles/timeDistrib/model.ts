@@ -242,6 +242,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                             {
                                 querySelector: QuerySelector.WORD,
                                 corpname: state.corpname,
+                                otherCorpname: undefined,
                                 subcname: subcname,
                                 kwicLeftCtx: -1,
                                 kwicRightCtx: 1,

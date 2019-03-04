@@ -30,7 +30,8 @@ export enum QuerySelector {
 
 export enum ViewMode {
     KWIC = 'kwic',
-    SENT = 'sen'
+    SENT = 'sen',
+    ALIGN = 'align'
 }
 
 export interface AnyQuery {
@@ -40,6 +41,11 @@ export interface AnyQuery {
     lemma?:string;
     cql?:string;
     word?:string;
+}
+
+export enum PCQValue {
+    POS = 'pos',
+    NET = 'neg'
 }
 
 export interface RequestArgs extends AnyQuery {
@@ -56,6 +62,13 @@ export interface RequestArgs extends AnyQuery {
     format:'json';
 }
 
+export interface PCRequestArgs extends RequestArgs {
+    maincorp:string;
+    align:string;
+    [parg:string]:string|number;
+}
+
+
 export interface LineElement {
     'class':string;
     str:string;
@@ -66,6 +79,12 @@ export interface Line {
     Left:Array<LineElement>;
     Kwic:Array<LineElement>;
     Right:Array<LineElement>;
+    Align?:Array<{
+        Left:Array<LineElement>;
+        Kwic:Array<LineElement>;
+        Right:Array<LineElement>;
+        toknum:number;
+    }>;
     toknum:number;
 }
 
@@ -130,7 +149,7 @@ export class ConcApi implements DataApi<RequestArgs, ConcResponse> {
         this.apiURL = apiURL;
     }
 
-    call(args:RequestArgs):Observable<ConcResponse> {
+    call(args:RequestArgs|PCRequestArgs):Observable<ConcResponse> {
         return ajax$<ConcResponse>(
             'GET',
             this.apiURL,
