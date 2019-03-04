@@ -232,7 +232,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                                         name: GlobalActionName.TileDataLoaded,
                                         payload: {
                                             tileId: this.tileId,
-                                            isEmpty: data.length === 0,
+                                            isEmpty: data.every(v => v.freq === 0),
                                             data: data,
                                             concId: null // TODO
                                         }

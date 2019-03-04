@@ -50,6 +50,7 @@ export interface WdglanceTilesState {
     tilesHelpData:Immutable.Map<number, string>; // raw html data loaded from a trusted resource
     hiddenGroups:Immutable.Set<number>;
     hiddenGroupsHeaders:Immutable.Set<number>;
+    datalessGroups:Immutable.Set<number>;
     tileResultFlags:Immutable.List<TileResultFlagRec>;
     tileProps:Immutable.List<TileFrameProps>;
     modalBoxData:CorpusInfoResponse|null; // or other possible data types
@@ -183,6 +184,7 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                     groupId: v.groupId,
                     status: TileResultFlag.PENDING
                 })).toList();
+                newState.datalessGroups = newState.datalessGroups.clear();
                 return newState;
             },
             [ActionName.TileDataLoaded]: (state, action:Actions.TileDataLoaded<{}>) => {
@@ -196,10 +198,27 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                         status: action.payload.isEmpty ? TileResultFlag.EMPTY_RESULT : TileResultFlag.VALID_RESULT
                     });
                 }
-                console.log(JSON.stringify(newState.tileResultFlags.map((v, i) => [v.tileId, v.status]).toJS()));
+                if (this.allTileStatusFlagsWritten(newState)) {
+                    this.findEmptyGroups(newState);
+                }
                 return newState;
             }
         };
+    }
+
+    private allTileStatusFlagsWritten(state:WdglanceTilesState):boolean {
+        return state.tileResultFlags.find(v => v.status === TileResultFlag.PENDING) === undefined;
+    }
+
+    private findEmptyGroups(state:WdglanceTilesState):void {
+        state.datalessGroups = Immutable.Set<number>(
+            state.tileResultFlags
+                .groupBy(v => v.groupId)
+                .map<[number, boolean]>((v, i) => [i, !v.find(v2 => v2.status !== TileResultFlag.EMPTY_RESULT)])
+                .filter(v => v[1])
+                .map(v => v[0])
+                .toList()
+        );
     }
 
     sideEffects(state:WdglanceTilesState, action:Action, dispatch:SEDispatcher):void {

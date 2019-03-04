@@ -56,6 +56,45 @@
             }
         }
     }
+
+
+    section.TilesSections {
+        padding: 0;
+
+        .TileGroupButton {
+
+            > * {
+                vertical-align: middle;
+            }
+
+            h2 {
+                display: block;
+
+                .flex {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+
+
+                    a:hover {
+                        color: #FFFFFF;
+                    }
+
+                }
+            }
+        }
+
+        section.group {
+
+            > header {
+                display: block;
+
+                .description {
+                    margin-top: 0.7em;
+                }
+            }
+        }
+    }
 }
 
 
@@ -82,7 +121,7 @@
     section.TilesSections {
         padding: 0;
 
-        .TileGroupHeading {
+        .TileGroupButton {
 
             > * {
                 vertical-align: middle;
@@ -101,6 +140,18 @@
                         color: #FFFFFF;
                     }
 
+                }
+            }
+        }
+
+        section.group {
+
+            > header {
+                display: block;
+
+                .description {
+                    margin-top: 0.7em;
+                    margin-left: 0;
                 }
             }
         }

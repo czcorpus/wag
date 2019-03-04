@@ -163,7 +163,7 @@ export class FreqPieModel extends StatelessModel<FreqPieModelState> {
                                     name: GlobalActionName.TileDataLoaded,
                                     payload: {
                                         tileId: this.tileId,
-                                        isEmpty: resp.blocks.length === 0,
+                                        isEmpty: resp.blocks.every(v => v.data.length === 0),
                                         blocks: resp.blocks,
                                         concId: resp.concId
                                     }

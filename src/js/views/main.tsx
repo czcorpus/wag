@@ -572,10 +572,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             (props) => <MessagesBox systemMessages={Immutable.List<SystemMessage>()} />;
 
 
-    // -------------------- <TileGroupHeading /> -----------------------------
+    // -------------------- <TileGroupButton /> -----------------------------
 
-    const TileGroupHeading:React.SFC<{
+    const TileGroupButton:React.SFC<{
         groupHidden:boolean;
+        groupDisabled:boolean;
         group:TileGroup;
         headerTextActive:boolean;
         clickHandler:()=>void;
@@ -585,10 +586,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
 
         return (
-            <div className="TileGroupHeading">
+            <div className={`TileGroupButton${props.groupDisabled ? ' disabled' : ''}`}>
                 <h2>
                     <span className="flex">
-                        <a className="switch-common" onClick={()=>props.clickHandler()}
+                        <a className="switch-common" onClick={props.groupDisabled ? null : ()=>props.clickHandler()}
                                     title={props.groupHidden ? ut.translate('global__click_to_show_group') : ut.translate('global__click_to_hide_group')}>
                             <span className={`triangle${props.groupHidden ? ' right' : ''}`}>
                                 {props.groupHidden ?
@@ -643,6 +644,37 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             });
         }
 
+        private renderResult(group:TileGroup, groupHidden:boolean, groupNoData:boolean) {
+            if (groupNoData) {
+                return (
+                    <section className="tiles">
+                        <section className="cnc-tile app-output" style={{gridColumn: 'span 3'}}>
+                            <header className="cnc-tile-header panel"><h2>:-(</h2></header>
+                            <div className="no-data">{ut.translate('global__not_enought_data_for_group')}</div>
+                        </section>
+                    </section>
+                );
+
+            } else if (groupHidden) {
+                return null;
+
+            } else {
+                return (
+                    <section className="tiles">
+                    {group.tiles
+                        .map(v => this.props.tileProps.get(v.tileId))
+                        .filter(v => v.supportsCurrQueryType)
+                        .map(tile => <TileContainer key={`tile:${tile.tileId}`} tile={tile}
+                                            isMobile={this.props.isMobile}
+                                            helpHTML={this.props.helpActiveTiles.contains(tile.tileId) ? this.props.tilesHelpData.get(tile.tileId) : null}
+                                            helpURL={tile.helpURL}
+                                            isTweakMode={this.props.tweakActiveTiles.contains(tile.tileId)} />)
+                    }
+                    </section>
+                );
+            }
+        }
+
         render() {
             return (
                 <section className="TilesSections">
@@ -653,30 +685,23 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     {this.props.isAnswerMode ?
                         this.props.layout.map((group, groupIdx) => {
                             const groupHidden = this.props.hiddenGroups.contains(groupIdx);
+                            const groupNoData = this.props.datalessGroups.contains(groupIdx);
                             return (
                                 <section key={`group:${group.groupLabel}`} className="group">
                                     <header>
-                                        <TileGroupHeading groupHidden={groupHidden} group={group}
+                                        <TileGroupButton
+                                                groupDisabled={groupNoData}
+                                                groupHidden={groupHidden}
+                                                group={group}
                                                 headerTextActive={!this.props.hiddenGroupsHeaders.contains(groupIdx)}
                                                 clickHandler={()=>this.handleGroupClick(groupIdx)}
                                                 helpClickHandler={()=>this.handleGroupHeaderClick(groupIdx)} />
-                                        {this.props.hiddenGroupsHeaders.contains(groupIdx) ? null : <p>{group.groupDesc}</p>}
-                                    </header>
-
-                                    {groupHidden ?
-                                        null :
-                                        <section className="tiles">
-                                        {group.tiles
-                                            .map(v => this.props.tileProps.get(v.tileId))
-                                            .filter(v => v.supportsCurrQueryType)
-                                            .map(tile => <TileContainer key={`tile:${tile.tileId}`} tile={tile}
-                                                                isMobile={this.props.isMobile}
-                                                                helpHTML={this.props.helpActiveTiles.contains(tile.tileId) ? this.props.tilesHelpData.get(tile.tileId) : null}
-                                                                helpURL={tile.helpURL}
-                                                                isTweakMode={this.props.tweakActiveTiles.contains(tile.tileId)} />)
+                                        {this.props.hiddenGroupsHeaders.contains(groupIdx) ?
+                                            null :
+                                            <div className="description"><p>{group.groupDesc}</p></div>
                                         }
-                                        </section>
-                                    }
+                                    </header>
+                                    {this.renderResult(group, groupHidden, groupNoData)}
                                 </section>
                             );
                         }) :
@@ -710,6 +735,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         tilesHelpData={Immutable.Map<number, string>()}
                         hiddenGroups={Immutable.Set<number>()}
                         hiddenGroupsHeaders={Immutable.Set<number>()}
+                        datalessGroups={Immutable.Set<number>()}
                         tileResultFlags={Immutable.List<TileResultFlagRec>()}
                         tileProps={Immutable.List<TileFrameProps>()}
                         modalBoxData={null}

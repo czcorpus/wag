@@ -136,7 +136,7 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState> {
                                     name: GlobalActionName.TileDataLoaded,
                                     payload: {
                                         tileId: this.tileId,
-                                        isEmpty: resp.blocks.length === 0,
+                                        isEmpty: resp.blocks.every(v => v.data.length === 0),
                                         blocks: resp.blocks.map(block => {
                                             return {
                                                 data: block.data.sort((x1, x2) => x2.ipm - x1.ipm).slice(0, state.maxNumCategories),

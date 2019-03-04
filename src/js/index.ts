@@ -302,6 +302,7 @@ export const init = (
             tilesHelpData: Immutable.Map<number, string>(),
             hiddenGroups: Immutable.Set<number>(),
             hiddenGroupsHeaders: Immutable.Set<number>(appServices.isMobileMode() ? layouts[queryType].map((_, i) => i) : []),
+            datalessGroups: Immutable.Set<number>(),
             tileResultFlags: Immutable.List<TileResultFlagRec>(
                     layouts[queryType].reduce(
                         (acc, curr, i) => acc.concat(curr.tiles

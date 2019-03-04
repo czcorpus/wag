@@ -23,7 +23,33 @@ section.TilesSections {
         left: calc(100% - 100px);
     }
 
-    .TileGroupHeading {
+    .no-data {
+        color: @color-logo-pink;
+        margin-bottom: 2em;
+        padding: 1em;
+    }
+
+    .TileGroupButton.disabled {
+
+        h2 {
+            background-color: @color-light-text;
+
+            .flex {
+
+                a:hover {
+                    color: inherit;
+                }
+
+                .switch-common {
+                    cursor: default;
+                }
+            }
+        }
+    }
+
+    .TileGroupButton {
+
+        white-space: nowrap;
 
         > * {
             vertical-align: middle;
@@ -37,6 +63,7 @@ section.TilesSections {
             font-weight: normal;
             font-size: 1.3em;
             box-shadow: 0 -0.1em 0 0 rgba(0,0,0, .25) inset;
+            margin: 0;
             padding: 0.1em;
 
             .flex {
@@ -103,22 +130,37 @@ section.TilesSections {
 
         > header {
 
+            padding: 0;
             margin-top: 0;
-            margin-bottom: 0.3em;
+            margin-bottom: 1.2em;
 
+            display: flex;
+            align-items: flex-end;
+            justify-content: flex-start;
 
-            p {
+            .description {
+                flex-grow: 1;
                 font-family: Roboto Condensed, Segoe UI, sans-serif;
                 margin-top: 0;
-                margin-bottom: 0.7em;
+                margin-left: .7em;
+                margin-bottom: 0;
+                padding: 0.7em 1.4em 0.7em 2.4em;
+                text-align: justify;
                 color: #4d3305;
-                background:rgba(220, 220, 220, 0.4);
+                background:rgba(220, 220, 220, 0.5);
                 border-radius: 0.25em;
-                padding: 0.7em;
-                max-width: 40em;
+
+                > p {
+                    max-width: 40em;
+                    margin-top: 0.4em;
+                    margin-bottom: 0.4em;
+                }
             }
         }
+    }
 
+    > section.group:not(:first-child) {
+        margin-top: 1.7em;
     }
 }
 
