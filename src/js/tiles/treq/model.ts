@@ -131,6 +131,7 @@ export class TreqModel extends StatelessModel<TreqModelState> {
                             name: GlobalActionName.TileDataLoaded,
                             payload: {
                                 tileId: this.tileId,
+                                isEmpty: data.lines.length === 0,
                                 query: this.mainForm.getState().query.value,
                                 data: data
                             }
@@ -141,6 +142,7 @@ export class TreqModel extends StatelessModel<TreqModelState> {
                             name: GlobalActionName.TileDataLoaded,
                             payload: {
                                 tileId: this.tileId,
+                                isEmpty: true,
                                 query: this.mainForm.getState().query.value,
                                 data: {lines: [], sum: -1}
                             },

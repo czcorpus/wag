@@ -54,6 +54,7 @@ export namespace Actions {
 
     export interface TileDataLoaded<T> extends Action<{
         tileId:number;
+        isEmpty:boolean;
 
     } & T> {
         name: ActionName.TileDataLoaded;

@@ -209,9 +209,10 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                                 name: GlobalActionName.TileDataLoaded,
                                 error: new Error(this.appServices.translate('global__failed_to_obtain_required_data')),
                                 payload: {
+                                    tileId: this.tileId,
+                                    isEmpty: true,
                                     data: [],
-                                    concId: null, // TODO
-                                    tileId: this.tileId
+                                    concId: null // TODO
                                 }
                             });
                             return true;
@@ -230,9 +231,10 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                                     dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
                                         name: GlobalActionName.TileDataLoaded,
                                         payload: {
+                                            tileId: this.tileId,
+                                            isEmpty: data.length === 0,
                                             data: data,
-                                            concId: null, // TODO
-                                            tileId: this.tileId
+                                            concId: null // TODO
                                         }
                                     });
                                 },
@@ -240,9 +242,10 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                                     dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
                                         name: GlobalActionName.TileDataLoaded,
                                         payload: {
+                                            tileId: this.tileId,
+                                            isEmpty: true,
                                             data: [],
-                                            concId: null, // TODO
-                                            tileId: this.tileId
+                                            concId: null // TODO
                                         },
                                         error: err
                                     });

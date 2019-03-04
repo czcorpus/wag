@@ -175,6 +175,29 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                     newState.hiddenGroupsHeaders = newState.hiddenGroupsHeaders.add(action.payload.groupIdx);
                 }
                 return newState;
+            },
+            [ActionName.RequestQueryResponse]: (state, action) => {
+                const newState = this.copyState(state);
+                newState.tileResultFlags = newState.tileResultFlags.map(v => ({
+                    tileId: v.tileId,
+                    groupId: v.groupId,
+                    status: TileResultFlag.PENDING
+                })).toList();
+                return newState;
+            },
+            [ActionName.TileDataLoaded]: (state, action:Actions.TileDataLoaded<{}>) => {
+                const newState = this.copyState(state);
+                const srchIdx = newState.tileResultFlags.findIndex(v => v.tileId === action.payload.tileId);
+                if (srchIdx > -1) {
+                    const curr = newState.tileResultFlags.get(srchIdx);
+                    newState.tileResultFlags = newState.tileResultFlags.set(srchIdx, {
+                        tileId: curr.tileId,
+                        groupId: curr.groupId,
+                        status: action.payload.isEmpty ? TileResultFlag.EMPTY_RESULT : TileResultFlag.VALID_RESULT
+                    });
+                }
+                console.log(JSON.stringify(newState.tileResultFlags.map((v, i) => [v.tileId, v.status]).toJS()));
+                return newState;
             }
         };
     }

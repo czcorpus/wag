@@ -181,10 +181,11 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
                     name: GlobalActionName.TileDataLoaded,
                     payload: {
+                        tileId: this.tileId,
+                        isEmpty: dataFull.length === 0,
                         data: dataFull,
                         subcname: resp.usesubcorp,
-                        concId: resp.concId,
-                        tileId: this.tileId
+                        concId: resp.concId
                     }
                 });
             },
@@ -193,10 +194,11 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
                     name: GlobalActionName.TileDataLoaded,
                     payload: {
+                        tileId: this.tileId,
+                        isEmpty: true,
                         data: null,
                         subcname: null,
-                        concId: null,
-                        tileId: this.tileId
+                        concId: null
                     },
                     error: error
                 });

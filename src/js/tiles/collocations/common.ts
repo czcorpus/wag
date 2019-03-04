@@ -72,7 +72,7 @@ export enum ActionName {
 }
 
 
-export interface DataLoadDonePayload {
+export interface DataLoadedPayload {
     data:Array<DataRow>;
     heading:DataHeading;
     concId:string;

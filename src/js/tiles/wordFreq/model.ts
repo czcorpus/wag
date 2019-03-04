@@ -90,6 +90,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
     constructor(dispatcher:ActionDispatcher, initialState:SummaryModelState, tileId:number, api:LemmaFreqApi,
         sfwApi:SimilarFreqWordsApi, waitForTile:number, appServices:AppServices) {
         super(dispatcher, initialState);
+        this.tileId = tileId;
         this.api = api;
         this.waitForTile = waitForTile;
         this.appServices = appServices;
@@ -140,6 +141,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                                 error: new Error(this.appServices.translate('global__failed_to_obtain_required_data')),
                                 payload: {
                                     tileId: this.tileId,
+                                    isEmpty: true,
                                     data: [],
                                     simFreqWords: [],
                                     concId: null
@@ -189,6 +191,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                                     name: GlobalActionName.TileDataLoaded,
                                     payload: {
                                         tileId: this.tileId,
+                                        isEmpty: data[0].data.length === 0,
                                         data: data[0].data,
                                         simFreqWords: data[1].result,
                                         concId: data[0].concId
@@ -202,6 +205,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                                     error: err,
                                     payload: {
                                         tileId: this.tileId,
+                                        isEmpty: true,
                                         data: [], // TODO
                                         simFreqWords: [],
                                         concId: null // TODO

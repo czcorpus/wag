@@ -27,6 +27,7 @@ import { AppServices } from '../../appServices';
 import { puid } from '../../common/util';
 import { GeneralMultiCritFreqBarModelState, FreqDataBlock, createBackLink } from '../../common/models/freq';
 import { BacklinkWithArgs, Backlink } from '../../common/types';
+import { runInNewContext } from 'vm';
 
 
 export interface FreqPieDataRow {
@@ -137,9 +138,10 @@ export class FreqPieModel extends StatelessModel<FreqPieModelState> {
                             dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
                                 name: GlobalActionName.TileDataLoaded,
                                 payload: {
+                                    tileId: this.tileId,
+                                    isEmpty: true,
                                     blocks: [],
-                                    concId: null,
-                                    tileId: this.tileId
+                                    concId: null
                                 },
                                 error: new Error(this.appServices.translate('global__failed_to_obtain_required_data'))
                             });
@@ -160,9 +162,10 @@ export class FreqPieModel extends StatelessModel<FreqPieModelState> {
                                 dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
                                     name: GlobalActionName.TileDataLoaded,
                                     payload: {
+                                        tileId: this.tileId,
+                                        isEmpty: resp.blocks.length === 0,
                                         blocks: resp.blocks,
-                                        concId: resp.concId,
-                                        tileId: this.tileId
+                                        concId: resp.concId
                                     }
                                 });
                             },
@@ -170,9 +173,10 @@ export class FreqPieModel extends StatelessModel<FreqPieModelState> {
                                 dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
                                     name: GlobalActionName.TileDataLoaded,
                                     payload: {
+                                        tileId: this.tileId,
+                                        isEmpty: true,
                                         blocks: null,
-                                        concId: null,
-                                        tileId: this.tileId
+                                        concId: null
                                     },
                                     error: error
                                 });

@@ -118,8 +118,9 @@ export class SydModel extends StatelessModel<SydModelState> {
                     seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
                         name: GlobalActionName.TileDataLoaded,
                         payload: {
-                            data: data,
-                            tileId: this.tileId
+                            tileId: this.tileId,
+                            isEmpty: data.results.length === 0,
+                            data: data
                         }
                     });
                 },
@@ -128,8 +129,9 @@ export class SydModel extends StatelessModel<SydModelState> {
                         name: GlobalActionName.TileDataLoaded,
                         error: err,
                         payload: {
-                            data: null,
-                            tileId: this.tileId
+                            tileId: this.tileId,
+                            isEmpty: true,
+                            data: null
                         }
                     });
                 }

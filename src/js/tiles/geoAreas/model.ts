@@ -162,10 +162,11 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                                 dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
                                     name: GlobalActionName.TileDataLoaded,
                                     payload: {
+                                        tileId: this.tileId,
+                                        isEmpty: resp[0].data.length === 0,
                                         data: resp[0].data,
                                         mapSVG: resp[1],
-                                        concId: resp[0].concId,
-                                        tileId: this.tileId
+                                        concId: resp[0].concId
                                     }
                                 });
                             },
@@ -173,10 +174,11 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                                 dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
                                     name: GlobalActionName.TileDataLoaded,
                                     payload: {
+                                        tileId: this.tileId,
+                                        isEmpty: true,
                                         data: null,
                                         mapSVG: null,
-                                        concId: null,
-                                        tileId: this.tileId
+                                        concId: null
                                     },
                                     error: error
                                 });

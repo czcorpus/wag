@@ -208,8 +208,9 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                     dispatch<GlobalActions.TileDataLoaded<ConcLoadedPayload>>({
                         name: GlobalActionName.TileDataLoaded,
                         payload: {
-                            data: data,
-                            tileId: this.tileId
+                            tileId: this.tileId,
+                            isEmpty: data.Lines.length === 0,
+                            data: data
                         }
                     });
                 },
@@ -218,8 +219,9 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                         name: GlobalActionName.TileDataLoaded,
                         error: err,
                         payload: {
-                            data: null,
-                            tileId: this.tileId
+                            tileId: this.tileId,
+                            isEmpty: true,
+                            data: null
                         }
                     });
                 }

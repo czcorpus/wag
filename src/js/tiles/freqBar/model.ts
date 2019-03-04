@@ -135,13 +135,14 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState> {
                                 dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
                                     name: GlobalActionName.TileDataLoaded,
                                     payload: {
+                                        tileId: this.tileId,
+                                        isEmpty: resp.blocks.length === 0,
                                         blocks: resp.blocks.map(block => {
                                             return {
                                                 data: block.data.sort((x1, x2) => x2.ipm - x1.ipm).slice(0, state.maxNumCategories),
                                             }
                                         }),
-                                        concId: resp.concId,
-                                        tileId: this.tileId
+                                        concId: resp.concId
                                     }
                                 });
                             },
@@ -149,9 +150,10 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState> {
                                 dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
                                     name: GlobalActionName.TileDataLoaded,
                                     payload: {
+                                        tileId: this.tileId,
+                                        isEmpty: true,
                                         blocks: null,
-                                        concId: null,
-                                        tileId: this.tileId
+                                        concId: null
                                     },
                                     error: error
                                 });

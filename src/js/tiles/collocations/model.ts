@@ -21,7 +21,7 @@ import {concatMap} from 'rxjs/operators';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
 import {ActionName as ConcActionName, Actions as ConcActions, ConcLoadedPayload} from '../concordance/actions';
-import {ActionName, DataRow, Actions, CollApiArgs, DataHeading, CollocMetric, SrchContextType, CoreCollRequestArgs, DataLoadDonePayload} from './common';
+import {ActionName, DataRow, Actions, CollApiArgs, DataHeading, CollocMetric, SrchContextType, CoreCollRequestArgs, DataLoadedPayload} from './common';
 import { KontextCollAPI } from './service';
 import { AppServices } from '../../appServices';
 import { SystemMessageType, Backlink, BacklinkWithArgs, HTTPMethod } from '../../common/types';
@@ -160,7 +160,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                 }
                 return newState;
             },
-            [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<DataLoadDonePayload>) => {
+            [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<DataLoadedPayload>) => {
                 if (action.payload.tileId === this.tileId) {
                     const newState = this.copyState(state);
                     newState.concId = action.payload.concId;
@@ -211,7 +211,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
         }
     }
 
-    private createBackLink(state:CollocModelState, action:GlobalActions.TileDataLoaded<DataLoadDonePayload>):BacklinkWithArgs<CoreCollRequestArgs> {
+    private createBackLink(state:CollocModelState, action:GlobalActions.TileDataLoaded<DataLoadedPayload>):BacklinkWithArgs<CoreCollRequestArgs> {
         const [cfromw, ctow] = ctxToRange(state.ctxType, state.ctxSize);
         return this.backlink ?
             {
@@ -247,10 +247,11 @@ export class CollocModel extends StatelessModel<CollocModelState> {
         .pipe(concatMap(args => this.service.call(args)))
         .subscribe(
             (data) => {
-                seDispatch<GlobalActions.TileDataLoaded<DataLoadDonePayload>>({
+                seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
                     name: GlobalActionName.TileDataLoaded,
                     payload: {
                         tileId: this.tileId,
+                        isEmpty: data.data.length === 0,
                         heading: data.collHeadings,
                         data: data.data,
                         concId: data.concId,
@@ -259,9 +260,15 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             },
             (err) => {
                 this.appServices.showMessage(SystemMessageType.ERROR, err);
-                seDispatch({
+                seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
                     name: GlobalActionName.TileDataLoaded,
-                    payload: {},
+                    payload: {
+                        tileId: this.tileId,
+                        isEmpty: true,
+                        heading: null,
+                        data: [],
+                        concId: null
+                    },
                     error: err
                 });
             }
@@ -276,10 +283,11 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                         if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
                             const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
                             if (action.error) {
-                                seDispatch<GlobalActions.TileDataLoaded<DataLoadDonePayload>>({
+                                seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
                                     name: GlobalActionName.TileDataLoaded,
                                     payload: {
                                         tileId: this.tileId,
+                                        isEmpty: true,
                                         data: [],
                                         heading: null,
                                         concId: null
