@@ -187,7 +187,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
         private calcChartAreaWidth():[number, number] {
             return [
-                this.props.renderSize[0] / (this.props.widthFract > 1 && !this.props.isMobile ? 2 : 1),
+                this.props.renderSize[0] / (this.props.widthFract > 1 && !this.props.isMobile ? 2 : 1.1),
                 Math.max(240, this.props.data.size * 30)
             ];
         }
