@@ -21,7 +21,7 @@ import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
 import { WdglanceMainFormModel } from '../../models/query';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
 import { SyDAPI, RequestArgs, StrippedFreqResponse } from './api';
-import { ActionName, Actions } from './actions';
+import { ActionName, Actions, DataLoadedPayload } from './actions';
 import { AppServices } from '../../appServices';
 import { SystemMessageType } from '../../common/types';
 
@@ -85,19 +85,22 @@ export class SydModel extends StatelessModel<SydModelState> {
                 newState.result = Immutable.List<StrippedFreqResponse>();
                 return newState;
             },
-            [ActionName.DataLoadDone]: (state, action:Actions.DataLoadDone) => {
-                const newState = this.copyState(state);
-                newState.isBusy = false;
-                if (action.error) {
+            [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<DataLoadedPayload>) => {
+                if (action.payload.tileId === this.tileId) {
+                    const newState = this.copyState(state);
                     newState.isBusy = false;
-                    newState.error = action.error.message;
+                    if (action.error) {
+                        newState.isBusy = false;
+                        newState.error = action.error.message;
 
-                } else {
-                    newState.isBusy = false;
-                    newState.result = Immutable.List<StrippedFreqResponse>(action.payload.data.results);
-                    newState.procTime = action.payload.data.procTime;
+                    } else {
+                        newState.isBusy = false;
+                        newState.result = Immutable.List<StrippedFreqResponse>(action.payload.data.results);
+                        newState.procTime = action.payload.data.procTime;
+                    }
+                    return newState;
                 }
-                return newState;
+                return state;
             }
         };
     }
@@ -112,21 +115,23 @@ export class SydModel extends StatelessModel<SydModelState> {
                 )
             .subscribe(
                 (data) => {
-                    seDispatch<Actions.DataLoadDone>({
-                        name: ActionName.DataLoadDone,
+                    seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                        name: GlobalActionName.TileDataLoaded,
                         payload: {
-                            data: data,
-                            tileId: this.tileId
+                            tileId: this.tileId,
+                            isEmpty: data.results.length === 0,
+                            data: data
                         }
                     });
                 },
                 (err) => {
-                    seDispatch<Actions.DataLoadDone>({
-                        name: ActionName.DataLoadDone,
+                    seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                        name: GlobalActionName.TileDataLoaded,
                         error: err,
                         payload: {
-                            data: null,
-                            tileId: this.tileId
+                            tileId: this.tileId,
+                            isEmpty: true,
+                            data: null
                         }
                     });
                 }

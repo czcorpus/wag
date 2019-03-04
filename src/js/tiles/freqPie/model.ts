@@ -21,12 +21,13 @@ import {concatMap} from 'rxjs/operators';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
 import { MultiCritQueryArgs, MultiBlockFreqDistribAPI, BacklinkArgs } from '../../common/api/kontextFreqs';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
-import {ActionName as ConcActionName, Actions as ConcActions} from '../concordance/actions';
-import {Actions, ActionName} from './actions';
+import {Actions as ConcActions, ConcLoadedPayload} from '../concordance/actions';
+import {Actions, ActionName, DataLoadedPayload} from './actions';
 import { AppServices } from '../../appServices';
 import { puid } from '../../common/util';
 import { GeneralMultiCritFreqBarModelState, FreqDataBlock, createBackLink } from '../../common/models/freq';
 import { BacklinkWithArgs, Backlink } from '../../common/types';
+import { runInNewContext } from 'vm';
 
 
 export interface FreqPieDataRow {
@@ -87,7 +88,7 @@ export class FreqPieModel extends StatelessModel<FreqPieModelState> {
                 }
                 return state;
             },
-            [ActionName.LoadDataDone]: (state, action:Actions.LoadDataDone) => {
+            [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<DataLoadedPayload>) => {
                 if (action.payload.tileId === this.tileId) {
                     const newState = this.copyState(state);
                     newState.isBusy = false;
@@ -132,20 +133,21 @@ export class FreqPieModel extends StatelessModel<FreqPieModelState> {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
                 this.suspend((action:Action) => {
-                    if (action.name === ConcActionName.DataLoadDone && action.payload['tileId'] === this.waitForTile) {
+                    if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
                         if (action.error) {
-                            dispatch<Actions.LoadDataDone>({
-                                name: ActionName.LoadDataDone,
+                            dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                name: GlobalActionName.TileDataLoaded,
                                 payload: {
+                                    tileId: this.tileId,
+                                    isEmpty: true,
                                     blocks: [],
-                                    concId: null,
-                                    tileId: this.tileId
+                                    concId: null
                                 },
                                 error: new Error(this.appServices.translate('global__failed_to_obtain_required_data'))
                             });
                             return true;
                         }
-                        const payload = (action as ConcActions.DataLoadDone).payload;
+                        const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
                         new Observable((observer:Observer<{}>) => {
                             if (action.error) {
                                 observer.error(action.error);
@@ -157,22 +159,24 @@ export class FreqPieModel extends StatelessModel<FreqPieModelState> {
                         }).pipe(concatMap(args => this.api.call(stateToAPIArgs(state, payload.data.conc_persistence_op_id))))
                         .subscribe(
                             resp => {
-                                dispatch<Actions.LoadDataDone>({
-                                    name: ActionName.LoadDataDone,
+                                dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                    name: GlobalActionName.TileDataLoaded,
                                     payload: {
+                                        tileId: this.tileId,
+                                        isEmpty: resp.blocks.every(v => v.data.length === 0),
                                         blocks: resp.blocks,
-                                        concId: resp.concId,
-                                        tileId: this.tileId
+                                        concId: resp.concId
                                     }
                                 });
                             },
                             error => {
-                                dispatch<Actions.LoadDataDone>({
-                                    name: ActionName.LoadDataDone,
+                                dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                    name: GlobalActionName.TileDataLoaded,
                                     payload: {
+                                        tileId: this.tileId,
+                                        isEmpty: true,
                                         blocks: null,
-                                        concId: null,
-                                        tileId: this.tileId
+                                        concId: null
                                     },
                                     error: error
                                 });

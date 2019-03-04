@@ -22,8 +22,8 @@ import {map} from 'rxjs/operators';
 import {SingleCritQueryArgs, FreqDistribAPI, DataRow, APIResponse, BacklinkArgs} from '../../common/api/kontextFreqs';
 import {StatelessModel, ActionDispatcher, Action, SEDispatcher} from 'kombo';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
-import {ActionName as ConcActionName, Actions as ConcActions} from '../concordance/actions';
-import {ActionName, Actions} from './actions';
+import {ConcLoadedPayload} from '../concordance/actions';
+import {ActionName, Actions, DataLoadedPayload} from './actions';
 import { AppServices } from '../../appServices';
 import { BacklinkWithArgs, Backlink, HTTPMethod } from '../../common/types';
 
@@ -110,7 +110,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                 newState.error = null;
                 return newState;
             },
-            [ActionName.LoadDataDone]: (state, action:Actions.LoadDataDone) => {
+            [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<DataLoadedPayload>) => {
                 if (action.payload.tileId === this.tileId) {
                     const newState = this.copyState(state);
                     newState.isBusy = false;
@@ -203,20 +203,21 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
                 this.suspend((action:Action) => {
-                    if (action.name === ConcActionName.DataLoadDone && this.waitingForTiles.has(action.payload['tileId'])) {
+                    if (action.name === GlobalActionName.TileDataLoaded && this.waitingForTiles.has(action.payload['tileId'])) {
                         if (action.error) {
-                            dispatch<Actions.LoadDataDone>({
-                                name: ActionName.LoadDataDone,
+                            dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                name: GlobalActionName.TileDataLoaded,
                                 error: new Error(this.appServices.translate('global__failed_to_obtain_required_data')),
                                 payload: {
+                                    tileId: this.tileId,
+                                    isEmpty: true,
                                     data: [],
-                                    concId: null, // TODO
-                                    tileId: this.tileId
+                                    concId: null // TODO
                                 }
                             });
                             return true;
                         }
-                        const payload = (action as ConcActions.DataLoadDone).payload;
+                        const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
 
                         if (this.waitingForTiles.get(payload.tileId) === null) {
                             this.waitingForTiles = this.waitingForTiles.set(
@@ -227,22 +228,24 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                         if (!this.waitingForTiles.findKey(v => v === null)) {
                             this.loadFreqs(state).subscribe(
                                 (data) => {
-                                    dispatch({
-                                        name: ActionName.LoadDataDone,
+                                    dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                        name: GlobalActionName.TileDataLoaded,
                                         payload: {
+                                            tileId: this.tileId,
+                                            isEmpty: data.every(v => v.freq === 0),
                                             data: data,
-                                            concId: null, // TODO
-                                            tileId: this.tileId
+                                            concId: null // TODO
                                         }
                                     });
                                 },
                                 (err) => {
-                                    dispatch({
-                                        name: ActionName.LoadDataDone,
+                                    dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                        name: GlobalActionName.TileDataLoaded,
                                         payload: {
+                                            tileId: this.tileId,
+                                            isEmpty: true,
                                             data: [],
-                                            concId: null, // TODO
-                                            tileId: this.tileId
+                                            concId: null // TODO
                                         },
                                         error: err
                                     });

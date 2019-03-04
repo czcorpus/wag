@@ -21,22 +21,17 @@ import { DataRow } from '../../common/api/kontextFreqs';
 
 
 export enum ActionName {
-    LoadDataDone = 'GEO_AREAS_LOAD_DATA_DONE',
     SetHighlightedTableRow = 'GEO_AREAS_SET_HIGHLIGHTED_TABLE_ROW',
     ClearHighlightedTableRow = 'GEO_AREAS_CLEAR_HIGHLIGHTED_TABLE_ROW'
 }
 
+export interface DataLoadedPayload {
+    data:Array<DataRow>;
+    mapSVG:string|null;
+    concId:string;
+}
+
 export namespace Actions {
-
-    export interface LoadDataDone extends Action<{
-        data:Array<DataRow>;
-        mapSVG:string|null;
-        concId:string;
-        tileId:number;
-
-    }> {
-        name: ActionName.LoadDataDone
-    }
 
     export interface SetHighlightedTableRow extends Action<{
         areaName:string;

@@ -18,7 +18,7 @@
 import * as Immutable from 'immutable';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
-import {ActionName, Actions} from './actions';
+import {ActionName, Actions, ConcLoadedPayload} from './actions';
 import {ConcApi, Line} from '../../common/api/concordance';
 import { WdglanceMainFormModel } from '../../models/query';
 import { AppServices } from '../../appServices';
@@ -124,7 +124,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 newState.error = null;
                 return newState;
             },
-            [ActionName.DataLoadDone]: (state, action:Actions.DataLoadDone) => {
+            [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<ConcLoadedPayload>) => {
                 if (action.payload.tileId === this.tileId) {
                     const newState = this.copyState(state);
                     newState.isBusy = false;
@@ -185,7 +185,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
         };
     }
 
-    private createBackLink(state:ConcordanceTileState, action:Actions.DataLoadDone):BacklinkWithArgs<BacklinkArgs> {
+    private createBackLink(state:ConcordanceTileState, action:GlobalActions.TileDataLoaded<ConcLoadedPayload>):BacklinkWithArgs<BacklinkArgs> {
         return this.backlink ?
             {
                 url: this.backlink.url,
@@ -205,21 +205,23 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             .call(stateToArgs(state, this.mainForm.getState().query.value))
             .subscribe(
                 (data) => {
-                    dispatch<Actions.DataLoadDone>({
-                        name: ActionName.DataLoadDone,
+                    dispatch<GlobalActions.TileDataLoaded<ConcLoadedPayload>>({
+                        name: GlobalActionName.TileDataLoaded,
                         payload: {
-                            data: data,
-                            tileId: this.tileId
+                            tileId: this.tileId,
+                            isEmpty: data.Lines.length === 0,
+                            data: data
                         }
                     });
                 },
                 (err) => {
-                    dispatch<Actions.DataLoadDone>({
-                        name: ActionName.DataLoadDone,
+                    dispatch<GlobalActions.TileDataLoaded<ConcLoadedPayload>>({
+                        name: GlobalActionName.TileDataLoaded,
                         error: err,
                         payload: {
-                            data: null,
-                            tileId: this.tileId
+                            tileId: this.tileId,
+                            isEmpty: true,
+                            data: null
                         }
                     });
                 }

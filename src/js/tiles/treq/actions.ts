@@ -21,15 +21,15 @@ import {TreqResponse} from './api';
 
 
 export enum ActionName {
-    LoadDataDone = 'TREQ_LOAD_DATA_DONE'
+    /// TODO
+}
+
+export interface DataLoadedPayload {
+    query:string;
+    data:TreqResponse;
 }
 
 export namespace Actions {
 
-    export interface LoadDataDone extends Action<{
-        query:string;
-        data:TreqResponse;
-    }> {
-        name: ActionName.LoadDataDone
-    }
+    // TODO
 }
