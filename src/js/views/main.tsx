@@ -164,7 +164,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         return <div className="QueryTypeSelector">
             {props.avail.map((v, i) =>
                 <React.Fragment key={v[0]}>
-                    {i > 0 && !props.isMobile ? <span> | </span> : null}
+                    {i > 0 && !props.isMobile ? <span className="separ"> | </span> : null}
                     <span className="item">
                         <a onClick={(evt:React.MouseEvent<HTMLAnchorElement>) => props.onChange(v[0])}
                                     className={v[0] === props.value ? 'current' : null}
