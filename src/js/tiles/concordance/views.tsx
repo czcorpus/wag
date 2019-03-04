@@ -135,14 +135,23 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     const Row:React.SFC<{
         data:Line;
+        isParallel:boolean;
 
     }> = (props) => {
         return (
-            <tr className="Row">
-                <td className="left">{props.data.Left.map((s, i) => <RowItem key={`${props.data.toknum}-L${i}`} data={s} />)}</td>
-                <td className="kwic">{props.data.Kwic.map((s, i) => <RowItem key={`${props.data.toknum}-K${i}`} data={s} isKwic={true} />)}</td>
-                <td className="right">{props.data.Right.map((s, i) => <RowItem key={`${props.data.toknum}-R${i}`} data={s} />)}</td>
-            </tr>
+            <>
+                <tr className="Row">
+                    <td className="left">{props.data.Left.map((s, i) => <RowItem key={`${props.data.toknum}:L${i}`} data={s} />)}</td>
+                    <td className="kwic">{props.data.Kwic.map((s, i) => <RowItem key={`${props.data.toknum}:K${i}`} data={s} isKwic={true} />)}</td>
+                    <td className="right">{props.data.Right.map((s, i) => <RowItem key={`${props.data.toknum}:R${i}`} data={s} />)}</td>
+                </tr>
+                {props.isParallel ?
+                    <tr className="Row aligned">
+                        <td colSpan={3} className="align">{props.data.Align[0].Kwic.map((s, i) => <RowItem key={`${props.data.Align[0].toknum}:K${i}`} data={s} />)}</td>
+                    </tr> :
+                    null
+                }
+            </>
         );
     }
 
@@ -170,9 +179,9 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                             <dd>{ut.formatNumber(this.props.resultIPM, 2)}</dd>
                         </dl>
                         <hr />
-                        <table className={`conc-lines${this.props.viewMode === ViewMode.SENT ? ' sent' : ''}`}>
+                        <table className={`conc-lines${this.props.viewMode === ViewMode.SENT || this.props.viewMode === ViewMode.ALIGN ? ' sent' : ''}`}>
                             <tbody>
-                                {this.props.lines.map(line => <Row key={`${line.toknum}`} data={line} />)}
+                                {this.props.lines.map(line => <Row key={`${line.toknum}`} data={line} isParallel={!!this.props.otherCorpname} />)}
                             </tbody>
                         </table>
                     </div>

@@ -69,12 +69,20 @@
                 text-align: center;
                 color: @color-logo-pink;
             }
+
+            td.align {
+                text-align: left;
+            }
         }
 
         tr:not(:last-child) > td {
             border-width: 0 0 1px 0;
             border-style: solid;
             border-color: @color-light-grey;
+        }
+
+        tr.Row.aligned {
+            background-color: @color-whitelike-blue;
         }
     }
 
