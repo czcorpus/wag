@@ -112,4 +112,8 @@ export class LayoutManager {
         return srch ? srch.width : null;
     }
 
+    isInCurrentLayout(queryType:QueryType, tileId:number):boolean {
+        return this.getLayout(queryType).flatMap(v => v.tiles).find(v => v.tileId === tileId) !== undefined;
+    }
+
 }
