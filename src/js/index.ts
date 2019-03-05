@@ -47,6 +47,7 @@ import { CorpusInfoAPI } from './common/api/corpusInfo';
 import {LayoutManager, LayoutConf} from './layout';
 import { Theme } from './common/theme';
 import { ColorsConf } from './common/conf';
+import { EmptyTile } from './tiles/empty';
 
 declare var require:(src:string)=>void;  // webpack
 require('../css/index.less');
@@ -99,12 +100,9 @@ const mkAttachTile = (queryType:QueryType, lang1:string, lang2:string) =>
 
 const attachNumericTileIdents = (config:{[ident:string]:AnyConf}):{[ident:string]:number} => {
     const ans = {};
-    Object.keys(config)
-        .map<[string, boolean]>(k => [k, config[k].isDisabled])
-        .filter(v => !v[1])
-        .forEach((item, i) => {
-            ans[item[0]] = i;
-        });
+    Object.keys(config).forEach((k, i) => {
+        ans[k] = i;
+    });
     return ans;
 };
 
@@ -149,6 +147,10 @@ const mkTileFactory = (
                     conf: conf
                 });
             };
+
+            if (conf.isDisabled || !layoutManager.isInCurrentLayout(queryType, tileIdentMap[confName])) {
+                return new EmptyTile(tileIdentMap[confName]);
+            }
 
             switch (conf.tileType) {
                 case 'ConcordanceTile':
@@ -208,7 +210,6 @@ class QueryLangChangeHandler extends StatefulModel<{}> {
             break;
         }
     }
-
 }
 
 
@@ -282,13 +283,11 @@ export const init = (
         tilesMap
     );
     Object.keys(tilesConf).forEach((ident, i) => {
-        if (!tilesConf[ident].isDisabled) {
-            attachTile(
-                tiles,
-                factory(ident, tilesConf[ident]),
-                appServices.importExternalMessage(tilesConf[ident].helpURL)
-            );
-        }
+        attachTile(
+            tiles,
+            factory(ident, tilesConf[ident]),
+            appServices.importExternalMessage(tilesConf[ident].helpURL)
+        );
     });
 
     const tilesModel = new WdglanceTilesModel(
