@@ -21,7 +21,6 @@ import { AppServices } from '../../appServices';
 import { SummaryModel, FlevelDistribItem } from './model';
 import {init as viewInit} from './view';
 import { LemmaFreqApi, SummaryDataRow } from './api';
-import { SimilarFreqWordsApi, SimilarlyFreqWord } from './sfwApi';
 declare var require:(src:string)=>void;  // webpack
 require('./style.less');
 
@@ -82,12 +81,10 @@ export class WordFreqTile implements ITileProvider {
                 currLemmaIdx: 0,
                 flevelDistrb: Immutable.List<FlevelDistribItem>(
                     conf.flevelDistrib ? conf.flevelDistrib : defaultFlevelDistrib
-                ),
-                similarFreqWords: Immutable.List<SimilarlyFreqWord>()
+                )
             },
             tileId,
             new LemmaFreqApi(conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
-            new SimilarFreqWordsApi(conf.sfwApiURL),
             waitForTiles[0],
             appServices
         );

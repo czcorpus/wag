@@ -16,25 +16,9 @@
  * limitations under the License.
  */
 
-import { Action } from 'kombo';
-import { SummaryDataRow } from './api';
+import { SimilarlyFreqWord } from './api';
 
-
-export enum ActionName {
-    SetActiveLemma = 'SUMMARY_SET_ACTIVE_LEMMA',
-}
 
 export interface DataLoadedPayload {
-    data:Array<SummaryDataRow>;
-    concId:string;
-}
-
-export namespace Actions {
-
-    export interface SetActiveLemma extends Action<{
-        idx:number;
-
-    }> {
-        name: ActionName.SetActiveLemma;
-    }
+    data:Array<SimilarlyFreqWord>;
 }

@@ -16,16 +16,14 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import {Observable, forkJoin, of as rxOf} from 'rxjs';
-import {map, concatMap} from 'rxjs/operators';
-import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
-import { LemmaFreqApi, RequestArgs, SummaryDataRow} from './api';
-import {Response as SFWResponse, SimilarlyFreqWord} from './sfwApi';
+import {of as rxOf} from 'rxjs';
+import {concatMap} from 'rxjs/operators';
+import {StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
+import {LemmaFreqApi, RequestArgs, SummaryDataRow} from './api';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
-import {ActionName as ConcActionName, Actions as ConcActions, ConcLoadedPayload} from '../concordance/actions';
-import { ActionName, Actions, DataLoadedPayload } from './actions';
-import { AppServices } from '../../appServices';
-import { SimilarFreqWordsApi } from './sfwApi';
+import {ConcLoadedPayload} from '../concordance/actions';
+import {ActionName, Actions, DataLoadedPayload } from './actions';
+import {AppServices } from '../../appServices';
 
 export interface FlevelDistribItem {
     rel:number;
@@ -46,7 +44,6 @@ export interface SummaryModelState {
     data:Immutable.List<SummaryDataRow>;
     currLemmaIdx:number;
     flevelDistrb:Immutable.List<FlevelDistribItem>;
-    similarFreqWords:Immutable.List<SimilarlyFreqWord>;
 }
 
 const stateToAPIArgs = (state:SummaryModelState, concId:string):RequestArgs => ({
@@ -79,8 +76,6 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
 
     private readonly api:LemmaFreqApi;
 
-    private readonly sfwApi:SimilarFreqWordsApi;
-
     private readonly waitForTile:number;
 
     private readonly appServices:AppServices;
@@ -88,13 +83,12 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
     private readonly tileId:number;
 
     constructor(dispatcher:ActionDispatcher, initialState:SummaryModelState, tileId:number, api:LemmaFreqApi,
-        sfwApi:SimilarFreqWordsApi, waitForTile:number, appServices:AppServices) {
+            waitForTile:number, appServices:AppServices) {
         super(dispatcher, initialState);
         this.tileId = tileId;
         this.api = api;
         this.waitForTile = waitForTile;
         this.appServices = appServices;
-        this.sfwApi = sfwApi;
         this.actionMatch = {
             [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
                 const newState = this.copyState(state);
@@ -111,11 +105,9 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
 
                     } else if (action.payload.data.length === 0) {
                         newState.data = Immutable.List<SummaryDataRow>();
-                        newState.similarFreqWords = Immutable.List<SimilarlyFreqWord>();
 
                     } else {
                         newState.data = Immutable.List<SummaryDataRow>(action.payload.data);
-                        newState.similarFreqWords = Immutable.List<SimilarlyFreqWord>(action.payload.simFreqWords);
                         newState.currLemmaIdx = 0;
                     }
                     return newState;
@@ -143,14 +135,13 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                                     tileId: this.tileId,
                                     isEmpty: true,
                                     data: [],
-                                    simFreqWords: [],
                                     concId: null
                                 }
                             });
                             return true;
                         }
                         const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
-                        const data1$ = this.api
+                        this.api
                             .call(stateToAPIArgs(state, payload.data.conc_persistence_op_id))
                             .pipe(
                                 concatMap(
@@ -170,48 +161,31 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                                         })
                                     })
                                 )
-                            );
-
-                        const data2$:Observable<SFWResponse> = this.sfwApi
-                            .call({word: payload.data.query})
-                            .pipe(map<SFWResponse, SFWResponse>(
-                                (data) => ({
-                                    result: data.result.map(v => ({
-                                        word: v.word,
-                                        abs: v.abs,
-                                        ipm: v.abs / state.corpusSize * 1e6
-                                    }))
-                                })
-                            ));
-
-                        forkJoin(data1$, data2$)
-                            .subscribe(
-                            (data) => {
-                                dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                    name: GlobalActionName.TileDataLoaded,
-                                    payload: {
-                                        tileId: this.tileId,
-                                        isEmpty: data[0].data.length === 0,
-                                        data: data[0].data,
-                                        simFreqWords: data[1].result,
-                                        concId: data[0].concId
-                                    }
-                                });
-                            },
-                            (err) => {
-                                console.log(err);
-                                dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                    name: GlobalActionName.TileDataLoaded,
-                                    error: err,
-                                    payload: {
-                                        tileId: this.tileId,
-                                        isEmpty: true,
-                                        data: [], // TODO
-                                        simFreqWords: [],
-                                        concId: null // TODO
-                                    }
-                                });
-                            }
+                            ).subscribe(
+                                (data) => {
+                                    dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                        name: GlobalActionName.TileDataLoaded,
+                                        payload: {
+                                            tileId: this.tileId,
+                                            isEmpty: data.data.length === 0,
+                                            data: data.data,
+                                            concId: data.concId
+                                        }
+                                    });
+                                },
+                                (err) => {
+                                    console.log(err);
+                                    dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                        name: GlobalActionName.TileDataLoaded,
+                                        error: err,
+                                        payload: {
+                                            tileId: this.tileId,
+                                            isEmpty: true,
+                                            data: [], // TODO
+                                            concId: null // TODO
+                                        }
+                                    });
+                                }
                         );
                         return true;
                     }
