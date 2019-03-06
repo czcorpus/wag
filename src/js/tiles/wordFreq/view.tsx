@@ -25,7 +25,6 @@ import { CoreTileComponentProps, TileComponent } from '../../common/types';
 import { SummaryModelState, SummaryModel } from './model';
 import { SummaryDataRow } from './api';
 import { ActionName, Actions } from './actions';
-import { SimilarlyFreqWord } from './sfwApi';
 
 /*
 cx: 65
@@ -160,31 +159,6 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         );
     };
 
-    // -------------------- <NearestFreqWords /> -----------------------------------------------
-
-    const NearestFreqWords:React.SFC<{
-        data:Immutable.List<SimilarlyFreqWord>;
-
-    }> = (props) => {
-        return (
-            <table className="NearestFreqWords cnc-table data">
-                <tbody>
-                    <tr>
-                        <th></th>
-                        <th>ipm</th>
-                    </tr>
-                {props.data.map(v => (
-                        <tr key={`k:${v.word}`}>
-                            <td>{v.word}</td>
-                            <td className="num">{ut.formatNumber(v.ipm, 2)}</td>
-                        </tr>
-                    ))
-                }
-                </tbody>
-            </table>
-        );
-    }
-
     // -------------------- <LemmaSelector /> -----------------------------------------------
 
     const LemmaSelector:React.SFC<{
@@ -255,10 +229,6 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                                 </> :
                                 null
                                 }
-                        </div>
-                        <div className="cell">
-                            <h3>{ut.translate('summary__words_with_nearest_freq')}</h3>
-                            <NearestFreqWords data={this.props.similarFreqWords} />
                         </div>
                     </div>
                 </globalComponents.TileWrapper>
