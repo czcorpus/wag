@@ -62,7 +62,7 @@ export class ConcordanceTile implements ITileProvider {
             dispatcher: dispatcher,
             tileId: tileId,
             appServices: appServices,
-            service: new ConcApi(conf.apiURL),
+            service: new ConcApi(conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             mainForm: mainForm,
             backlink: conf.backlink || null,
             initState: {

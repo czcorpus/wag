@@ -19,7 +19,7 @@
 import {Observable, of as rxOf} from 'rxjs';
 import {share} from 'rxjs/operators';
 import {ajax$} from '../ajax';
-import { DataApi } from '../types';
+import { DataApi, HTTPHeaders } from '../types';
 
 
 interface HTTPResponse {
@@ -48,10 +48,13 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, APIResponse> {
 
     private readonly apiURL:string;
 
+    private readonly customHeaders:HTTPHeaders;
+
     private readonly cache:{[corp:string]:HTTPResponse};
 
-    constructor(apiURL:string) {
+    constructor(apiURL:string, customHeaders?:HTTPHeaders) {
         this.apiURL = apiURL;
+        this.customHeaders = customHeaders || {};
         this.cache = {};
     }
 
@@ -63,7 +66,9 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, APIResponse> {
             const ans = ajax$<HTTPResponse>(
                 'GET',
                 this.apiURL,
-                args
+                args,
+                {headers: this.customHeaders}
+
             ).pipe(share());
 
             ans.subscribe(

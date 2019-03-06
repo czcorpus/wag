@@ -275,3 +275,5 @@ export interface HostPageEnv {
 export interface IToolbarProvider {
     get():Observable<HostPageEnv|null>;
 }
+
+export type HTTPHeaders = {[key:string]:string};

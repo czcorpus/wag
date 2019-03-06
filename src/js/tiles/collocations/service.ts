@@ -18,7 +18,7 @@
 
 import {Observable, of as rxOf} from 'rxjs';
 import {concatMap} from 'rxjs/operators';
-import { DataApi } from '../../common/types';
+import { DataApi, HTTPHeaders } from '../../common/types';
 import { ajax$ } from '../../common/ajax';
 import { CollApiArgs, DataRow, DataHeading } from './common';
 
@@ -54,8 +54,11 @@ export class KontextCollAPI implements DataApi<CollApiArgs, CollApiResponse> {
 
     private readonly apiURL:string;
 
-    constructor(apiURL:string) {
+    private readonly customHeaders:HTTPHeaders;
+
+    constructor(apiURL:string, customHeaders?:HTTPHeaders) {
         this.apiURL = apiURL;
+        this.customHeaders = customHeaders || {};
     }
 
 
@@ -64,7 +67,7 @@ export class KontextCollAPI implements DataApi<CollApiArgs, CollApiResponse> {
             'GET',
             this.apiURL,
             queryArgs,
-            {}
+            {headers: this.customHeaders}
 
         ).pipe(
             concatMap(

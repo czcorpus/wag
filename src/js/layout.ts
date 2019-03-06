@@ -24,11 +24,22 @@ export interface LayoutItemConf {
     tile:string;
 }
 
-export type LayoutConf = Array<{
+export interface TileGroupConf {
     groupLabel:string;
     groupDesc:string;
-    tiles:Array<LayoutItemConf>
-}>;
+    tiles:Array<LayoutItemConf>;
+}
+
+export type LayoutConf = Array<TileGroupConf|string>;
+
+function itemIsGroupConf(v:string|TileGroupConf):v is TileGroupConf {
+    return typeof v === 'object' && v['groupLabel'] !== undefined;
+}
+
+function itemIsServiceConf(v:string|TileGroupConf):v is string {
+    return typeof v === 'string';
+}
+
 
 export interface TileGroup {
     groupLabel:string;
@@ -38,19 +49,24 @@ export interface TileGroup {
 }
 
 
-
 export class LayoutManager {
 
-    private singleQueryLayout:Immutable.List<TileGroup>;
+    private readonly singleQueryLayout:Immutable.List<TileGroup>;
 
-    private cmpQueryLayout:Immutable.List<TileGroup>;
+    private readonly singleQueryService:Immutable.List<number>;
 
-    private translatQueryLayout:Immutable.List<TileGroup>;
+    private readonly cmpQueryLayout:Immutable.List<TileGroup>;
+
+    private readonly cmpQueryService:Immutable.List<number>;
+
+    private readonly translatQueryLayout:Immutable.List<TileGroup>;
+
+    private readonly translatQueryService:Immutable.List<number>;
 
     constructor(layouts:{[qt:string]:LayoutConf}, tileMap:{[ident:string]:number}, appServices:AppServices) {
 
         this.singleQueryLayout = Immutable.List<TileGroup>(
-                (layouts[QueryType.SINGLE_QUERY] || []).map<TileGroup>(group => {
+                (layouts[QueryType.SINGLE_QUERY] || []).filter(itemIsGroupConf).map<TileGroup>(group => {
                     return {
                         groupLabel: appServices.importExternalMessage(group.groupLabel),
                         groupDesc: appServices.importExternalMessage(group.groupDesc),
@@ -58,8 +74,12 @@ export class LayoutManager {
                                     group.tiles.map(v => ({tileId: tileMap[v.tile], width: v.width})))
                     }
                 }));
+        this.singleQueryService = Immutable.List<number>(
+            (layouts[QueryType.SINGLE_QUERY] || []).filter(itemIsServiceConf).map(v => tileMap[v])
+        );
+
         this.cmpQueryLayout = Immutable.List<TileGroup>(
-            (layouts[QueryType.CMP_QUERY] || []).map<TileGroup>(group => {
+            (layouts[QueryType.CMP_QUERY] || []).filter(itemIsGroupConf).map<TileGroup>(group => {
                 return {
                     groupLabel: appServices.importExternalMessage(group.groupLabel),
                     groupDesc: appServices.importExternalMessage(group.groupDesc),
@@ -67,8 +87,12 @@ export class LayoutManager {
                                 group.tiles.map(v => ({tileId: tileMap[v.tile], width: v.width})))
                 }
             }));
+        this.cmpQueryService = Immutable.List<number>(
+                (layouts[QueryType.CMP_QUERY] || []).filter(itemIsServiceConf).map(v => tileMap[v])
+            );
+
         this.translatQueryLayout = Immutable.List<TileGroup>(
-            (layouts[QueryType.TRANSLAT_QUERY] || []).map<TileGroup>(group => {
+            (layouts[QueryType.TRANSLAT_QUERY] || []).filter(itemIsGroupConf).map<TileGroup>(group => {
                 return {
                     groupLabel: appServices.importExternalMessage(group.groupLabel),
                     groupDesc: appServices.importExternalMessage(group.groupDesc),
@@ -76,6 +100,10 @@ export class LayoutManager {
                                 group.tiles.map(v => ({tileId: tileMap[v.tile], width: v.width})))
                 }
             }));
+        this.translatQueryService = Immutable.List<number>(
+                (layouts[QueryType.TRANSLAT_QUERY] || []).filter(itemIsServiceConf).map(v => tileMap[v])
+            );
+
         const invalid = this.validateLayouts();
         invalid.forEach(item => {
             console.error(`Invalid layout configuration for group ${item.group} at position ${item.idx}`);
@@ -112,8 +140,22 @@ export class LayoutManager {
         return srch ? srch.width : null;
     }
 
+    private isServiceOf(queryType:QueryType, tileId:number):boolean {
+        switch (queryType) {
+            case QueryType.SINGLE_QUERY:
+                return this.singleQueryService.find(v => v === tileId) !== undefined;
+            case QueryType.CMP_QUERY:
+                return this.cmpQueryService.find(v => v === tileId) !== undefined;
+            case QueryType.TRANSLAT_QUERY:
+                return this.translatQueryService.find(v => v === tileId) !== undefined;
+            default:
+                return false;
+        }
+    }
+
     isInCurrentLayout(queryType:QueryType, tileId:number):boolean {
-        return this.getLayout(queryType).flatMap(v => v.tiles).find(v => v.tileId === tileId) !== undefined;
+        return this.getLayout(queryType).flatMap(v => v.tiles).find(v => v.tileId === tileId) !== undefined ||
+            this.isServiceOf(queryType, tileId);
     }
 
 }

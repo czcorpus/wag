@@ -60,7 +60,7 @@ export class WordFreqTile implements ITileProvider {
 
     private view:TileComponent;
 
-    constructor({tileId, dispatcher, appServices, lang1, lang2, ut, mainForm, waitForTiles, widthFract, conf}:TileFactory.Args<WordFreqTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, waitForTiles, widthFract, conf}:TileFactory.Args<WordFreqTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
@@ -86,7 +86,7 @@ export class WordFreqTile implements ITileProvider {
                 similarFreqWords: Immutable.List<SimilarlyFreqWord>()
             },
             tileId,
-            new LemmaFreqApi(conf.apiURL),
+            new LemmaFreqApi(conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             new SimilarFreqWordsApi(conf.sfwApiURL),
             waitForTiles[0],
             appServices

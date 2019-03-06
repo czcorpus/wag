@@ -19,7 +19,7 @@
 import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {ajax$} from '../ajax';
-import { DataApi } from '../types';
+import { DataApi, HTTPHeaders } from '../types';
 
 
 export interface HTTPResponse {
@@ -111,15 +111,19 @@ export class FreqDistribAPI implements DataApi<SingleCritQueryArgs, APIResponse>
 
     private readonly apiURL:string;
 
-    constructor(apiURL:string) {
+    private readonly customHeaders:HTTPHeaders;
+
+    constructor(apiURL:string, customHeaders?:HTTPHeaders) {
         this.apiURL = apiURL;
+        this.customHeaders = customHeaders || {};
     }
 
     call(args:SingleCritQueryArgs):Observable<APIResponse> {
         return ajax$<HTTPResponse>(
             'GET',
             this.apiURL,
-            args
+            args,
+            {headers: this.customHeaders}
 
         ).pipe(
             map<HTTPResponse, APIResponse>(resp => ({
@@ -151,15 +155,19 @@ export class MultiBlockFreqDistribAPI implements DataApi<MultiCritQueryArgs, API
 
     private readonly apiURL:string;
 
-    constructor(apiURL:string) {
+    private readonly customHeaders:HTTPHeaders;
+
+    constructor(apiURL:string, customHeaders?:HTTPHeaders) {
         this.apiURL = apiURL;
+        this.customHeaders = customHeaders || {};
     }
 
     call(args:MultiCritQueryArgs):Observable<APIBlockResponse> {
         return ajax$<HTTPResponse>(
             'GET',
             this.apiURL,
-            args
+            args,
+            {headers: this.customHeaders}
 
         ).pipe(
             map<HTTPResponse, APIBlockResponse>(

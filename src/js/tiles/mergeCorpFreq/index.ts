@@ -91,7 +91,7 @@ export class MergeCorpFreqTile implements ITileProvider {
             tileId,
             waitForTiles,
             appServices,
-            new FreqDistribAPI(conf.apiURL),
+            new FreqDistribAPI(conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             {
                 isBusy: false,
                 error: null,

@@ -87,7 +87,7 @@ export class FreqPieTile implements ITileProvider {
             tileId,
             waitForTiles[0],
             appServices,
-            new MultiBlockFreqDistribAPI(conf.apiURL),
+            new MultiBlockFreqDistribAPI(conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             conf.backlink || null
         );
         this.view = viewInit(

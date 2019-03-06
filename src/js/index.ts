@@ -39,7 +39,7 @@ import * as translations from 'translations';
 import { AppServices } from './appServices';
 import { SystemNotifications } from './notifications';
 import { ActionName, Actions } from './models/actions';
-import { TileFrameProps, ITileProvider, QueryType, TileConf, TileFactory, DbValueMapping } from './common/types';
+import { TileFrameProps, ITileProvider, QueryType, TileConf, TileFactory, DbValueMapping, HTTPHeaders } from './common/types';
 import { WdglanceTilesModel, TileResultFlagRec, TileResultFlag } from './models/tiles';
 import {encodeArgs} from './common/ajax';
 import { MessagesModel } from './models/messages';
@@ -74,6 +74,7 @@ export interface WdglanceConf {
     tilesConf:{[ident:string]:AnyConf};
     colors:ColorsConf;
     dbValuesMapping:DbValueMapping;
+    apiHeaders:{[urlPrefix:string]:HTTPHeaders};
     answerMode:boolean;
 }
 
@@ -229,6 +230,7 @@ export const init = (
         colors,
         tilesConf,
         dbValuesMapping,
+        apiHeaders,
         answerMode}:WdglanceConf) => {
 
     const uiLangSel = uiLang || 'en-US';
@@ -247,7 +249,8 @@ export const init = (
         translator: viewUtils,
         staticUrlCreator: viewUtils.createStaticUrl,
         actionUrlCreator: viewUtils.createActionUrl,
-        dbValuesMapping: dbValuesMapping || {}
+        dbValuesMapping: dbValuesMapping || {},
+        apiHeadersMapping: apiHeaders
     });
     //appServices.forceMobileMode(); // DEBUG
 
@@ -300,13 +303,14 @@ export const init = (
             helpActiveTiles: Immutable.Set<number>(),
             tilesHelpData: Immutable.Map<number, string>(),
             hiddenGroups: Immutable.Set<number>(),
-            hiddenGroupsHeaders: Immutable.Set<number>(appServices.isMobileMode() ? layouts[queryType].map((_, i) => i) : []),
+            hiddenGroupsHeaders: Immutable.Set<number>(
+                appServices.isMobileMode() ? layoutManager.getLayout(queryType).map((_, i) => i) : []),
             datalessGroups: Immutable.Set<number>(),
             tileResultFlags: Immutable.List<TileResultFlagRec>(
-                    layouts[queryType].reduce(
+                    layoutManager.getLayout(queryType).reduce(
                         (acc, curr, i) => acc.concat(curr.tiles
                                 .map<TileResultFlagRec>(v => ({
-                                    tileId: tilesMap[v.tile],
+                                    tileId: v.tileId,
                                     groupId: i,
                                     status: TileResultFlag.PENDING,
                                 }))

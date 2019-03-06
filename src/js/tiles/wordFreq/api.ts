@@ -18,7 +18,7 @@
 
 import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
-import { DataApi } from '../../common/types';
+import { DataApi, HTTPHeaders } from '../../common/types';
 import { ajax$ } from '../../common/ajax';
 import {HTTPResponse} from '../../common/api/kontextFreqs';
 
@@ -52,15 +52,19 @@ export class LemmaFreqApi implements DataApi<RequestArgs, Response> {
 
     private readonly apiURL:string;
 
-    constructor(apiURL:string) {
+    private readonly customHeaders:HTTPHeaders;
+
+    constructor(apiURL:string, customHeaders?:HTTPHeaders) {
         this.apiURL = apiURL;
+        this.customHeaders = customHeaders || {};
     }
 
     call(args:RequestArgs):Observable<Response> {
         return ajax$<HTTPResponse>(
             'GET',
             this.apiURL,
-            args
+            args,
+            {headers: this.customHeaders}
 
         ).pipe(map(
             (data) => ({

@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { DbValueMapping, TileConf, LocalizedConfMsg } from './types';
+import { DbValueMapping, TileConf, LocalizedConfMsg, HTTPHeaders } from './types';
 
 /**
  * A page configuration based on
@@ -59,9 +59,10 @@ export interface ClientConf {
     rootUrl:string;
 	hostUrl:string;
 	corpInfoApiUrl:string;
-    tiles:{[lang:string]:{[ident:string]:TileConf}};
     dbValuesMapping:DbValueMapping;
+    apiHeaders:{[urlPrefix:string]:HTTPHeaders};
     colors:ColorsConf;
+    tiles:{[lang:string]:{[ident:string]:TileConf}};
 	layouts:{
         single:LayoutConfig;
         cmp:LayoutConfig;

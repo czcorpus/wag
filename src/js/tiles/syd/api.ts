@@ -36,7 +36,7 @@
 
 import {Observable, forkJoin, of as rxOf} from 'rxjs';
 import {share, concatMap} from 'rxjs/operators';
-import { DataApi, CorePosAttribute } from '../../common/types';
+import { DataApi, CorePosAttribute, HTTPHeaders } from '../../common/types';
 import {ConcApi, QuerySelector, ViewMode, ConcResponse} from '../../common/api/concordance';
 import {HTTPResponse as FreqsHTTPResponse} from '../../common/api/kontextFreqs';
 import { ajax$ } from '../../common/ajax';
@@ -61,10 +61,6 @@ export interface Response {
     procTime:number;
 }
 
-interface HTTPResponse {
-    conc_persistence_op_id:string;
-}
-
 export interface StrippedFreqResponse {
     items:Array<{
         Word:Array<{n:string}>;
@@ -84,16 +80,19 @@ export interface StrippedFreqResponse {
 
 export class SyDAPI implements DataApi<RequestArgs, Response> {
 
-    private readonly apiURL;
+    private readonly apiURL:string;
+
+    private readonly customHeaders:HTTPHeaders;
 
     private readonly conc1:ConcApi;
 
     private readonly conc2:ConcApi;
 
-    constructor(apiURL:string, concApiURL:string) {
+    constructor(apiURL:string, concApiURL:string, customHeaders?:HTTPHeaders) {
         this.apiURL = apiURL;
-        this.conc1 = new ConcApi(concApiURL);
-        this.conc2 = new ConcApi(concApiURL);
+        this.customHeaders = customHeaders || {};
+        this.conc1 = new ConcApi(concApiURL, this.customHeaders);
+        this.conc2 = new ConcApi(concApiURL, this.customHeaders);
     }
 
     call(args:RequestArgs):Observable<Response> {
@@ -146,7 +145,8 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
                             return ajax$<FreqsHTTPResponse>(
                                 'GET',
                                 this.apiURL,
-                                args1
+                                args1,
+                                {headers: this.customHeaders}
                             );
                         }
                     ),

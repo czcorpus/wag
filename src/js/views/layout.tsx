@@ -57,6 +57,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     layouts: props.config.layouts,
                     tilesConf: props.userConfig.tilesConf,
                     dbValuesMapping: props.config.dbValuesMapping,
+                    apiHeaders: props.config.apiHeaders,
                     colors: props.config.colors,
                     answerMode: props.userConfig.answerMode
                 })});`

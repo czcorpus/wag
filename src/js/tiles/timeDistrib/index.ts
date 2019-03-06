@@ -103,8 +103,8 @@ export class TimeDistTile implements ITileProvider {
             },
             tileId,
             waitForTiles[0] || -1,
-            new FreqDistribAPI(conf.apiURL),
-            conf.concApiURL ? new ConcApi(conf.concApiURL) : null,
+            new FreqDistribAPI(conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            conf.concApiURL ? new ConcApi(conf.concApiURL, appServices.getApiHeaders(conf.apiURL)) : null,
             appServices,
             mainForm
         );

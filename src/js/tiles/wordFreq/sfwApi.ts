@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import {Observable} from 'rxjs';
-import { DataApi } from '../../common/types';
+import { DataApi, HTTPHeaders } from '../../common/types';
 import { ajax$ } from '../../common/ajax';
 
 
@@ -38,15 +38,21 @@ export class SimilarFreqWordsApi implements DataApi<RequestArgs, Response> {
 
     private readonly apiURL:string;
 
-    constructor(apiURL:string) {
+    private readonly customHeaders:HTTPHeaders;
+
+    constructor(apiURL:string, customHeaders?:HTTPHeaders) {
         this.apiURL = apiURL;
+        this.customHeaders = customHeaders || {};
     }
 
     call(args:RequestArgs):Observable<Response> {
         return ajax$(
             'GET',
             this.apiURL,
-            {word: args.word}
+            {
+                word: args.word
+            },
+            {headers: this.customHeaders}
         );
     }
 }
