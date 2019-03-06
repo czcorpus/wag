@@ -58,7 +58,6 @@ export interface APIResponse {
     concsize:number;
     usesubcorp:string|null;
     data:Array<DataRow>;
-    reqId:string;
 }
 
 export interface ApiDataBlock {
@@ -92,7 +91,6 @@ interface CoreQueryArgs {
     freq_sort:string;
     fpage:string;
     ftt_include_empty:string;
-    req_id?:string;
     format:'json';
 }
 
@@ -136,8 +134,7 @@ export class FreqDistribAPI implements DataApi<SingleCritQueryArgs, APIResponse>
                 concId: resp.conc_persistence_op_id,
                 corpname: args.corpname,
                 usesubcorp: args.usesubcorp || null,
-                concsize: resp.concsize,
-                reqId: args.req_id
+                concsize: resp.concsize
             }))
         );
     }

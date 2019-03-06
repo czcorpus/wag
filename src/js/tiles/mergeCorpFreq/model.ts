@@ -26,6 +26,7 @@ import {ConcLoadedPayload} from '../concordance/actions';
 import {DataLoadedPayload} from './actions';
 import { AppServices } from '../../appServices';
 import { BacklinkWithArgs, Backlink, HTTPMethod } from '../../common/types';
+import { callWithRequestId } from '../../common/api/util';
 
 
 export interface ModelSourceArgs {
@@ -80,7 +81,6 @@ const sourceToAPIArgs = (src:ModelSourceArgs, concId:string):SingleCritQueryArgs
     freq_sort: src.freqSort,
     fpage: src.fpage.toString(),
     ftt_include_empty: src.fttIncludeEmpty ? '1' : '0',
-    req_id: src.uuid,
     format: 'json'
 });
 
@@ -152,31 +152,36 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
     }
 
     private loadFreqs(state:MergeCorpFreqModelState):Observable<Array<SourceMappedDataRow>> {
-        const streams$ = state.sources.map<Observable<APIResponse>>(src => {
+        const streams$ = state.sources.map<Observable<[APIResponse, string]>>(src => {
             const srchKey = this.waitingForTiles.findKey(v => v && v.corpname === src.corpname);
             return srchKey !== undefined ?
-                this.api.call(sourceToAPIArgs(src, this.waitingForTiles.get(srchKey).concId)) :
+                callWithRequestId(
+                    this.api,
+                    sourceToAPIArgs(src, this.waitingForTiles.get(srchKey).concId),
+                    src.uuid
+                ) :
                 Observable.throw(new Error(`Cannot find concordance result for ${src.corpname}. Passing an empty stream.`));
         }).toArray();
 
         return forkJoin(...streams$).pipe(
-            map((partials:Array<APIResponse>) => {
+            map((partials:Array<[APIResponse, string]>) => {
                 return partials.reduce<Array<SourceMappedDataRow>>((acc, curr) => {
-                    const srcConf = state.sources.find(v => v.uuid === curr.reqId);
+                    const [resp, reqId] = curr;
+                    const srcConf = state.sources.find(v => v.uuid === reqId);
                     return acc.concat(
-                        (curr.data.length > 0 ?
-                            curr.data :
+                        (resp.data.length > 0 ?
+                            resp.data :
                             [{name: srcConf.valuePlaceholder, freq: 0, ipm: 0, norm: 0}]
                         ).map(
                             v => {
                                 const name = srcConf.valuePlaceholder ?
                                 srcConf.valuePlaceholder :
-                                this.appServices.translateDbValue(curr.corpname, v.name);
+                                this.appServices.translateDbValue(resp.corpname, v.name);
 
                                 return v.ipm ?
                                     {
                                         sourceId: srcConf.uuid,
-                                        backlink: this.createBackLink(srcConf, curr.concId),
+                                        backlink: this.createBackLink(srcConf, resp.concId),
                                         freq: v.freq,
                                         ipm: v.ipm,
                                         norm: v.norm,
@@ -184,7 +189,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                                     } :
                                     {
                                         sourceId: srcConf.uuid,
-                                        backlink: this.createBackLink(srcConf, curr.concId),
+                                        backlink: this.createBackLink(srcConf, resp.concId),
                                         freq: v.freq,
                                         ipm: Math.round(v.freq / srcConf.corpusSize * 1e8) / 100,
                                         norm: v.norm,

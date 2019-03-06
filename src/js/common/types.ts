@@ -261,7 +261,6 @@ export interface DataApi<T, U> {
     call(queryArgs:T):Observable<U>;
 }
 
-
 export type DbValueMapping = {[corp:string]:{[key:string]:LocalizedConfMsg}};
 
 
