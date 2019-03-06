@@ -20,6 +20,7 @@ import {Observable} from 'rxjs';
 import {ajax, AjaxResponse} from 'rxjs/ajax';
 import {map} from 'rxjs/operators';
 import { MultiDict } from './data';
+import { HTTPHeaders } from './types';
 
 
 export enum ResponseType {
@@ -35,6 +36,7 @@ export interface AjaxOptions {
     contentType?:string;
     responseType?:ResponseType;
     accept?:string;
+    headers?:HTTPHeaders;
 }
 
 interface AjaxRequestProps {
@@ -137,13 +139,17 @@ const prepareAjax = (method:string, url:string, args:AjaxArgs, options?:AjaxOpti
 
 export const ajax$ = <T>(method:string, url:string, args:AjaxArgs, options?:AjaxOptions):Observable<T> => {
     const callArgs = prepareAjax(method, url, args, options);
+    const headers:HTTPHeaders = {'Content-Type': callArgs.contentType};
+    if (options && options.headers) {
+        Object.keys(options.headers).forEach(key => {
+            headers[key] = options.headers[key];
+        });
+    }
     return ajax({
         url: callArgs.url,
         body: callArgs.requestBody,
         method: callArgs.method,
         responseType: callArgs.responseType,
-        headers: {
-            'Content-Type': callArgs.contentType
-        }
+        headers: headers
     }).pipe(map<AjaxResponse, T>(v => v.response));
 }

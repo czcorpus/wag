@@ -19,7 +19,7 @@
 import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {ajax$} from '../ajax';
-import { DataApi } from '../types';
+import { DataApi, HTTPHeaders } from '../types';
 
 export enum QuerySelector {
     BASIC = 'iqueryrow',
@@ -145,15 +145,19 @@ export class ConcApi implements DataApi<RequestArgs, ConcResponse> {
 
     private readonly apiURL;
 
-    constructor(apiURL:string) {
+    private readonly customHeaders:HTTPHeaders;
+
+    constructor(apiURL:string, customHeaders?:HTTPHeaders) {
         this.apiURL = apiURL;
+        this.customHeaders = customHeaders || {};
     }
 
     call(args:RequestArgs|PCRequestArgs):Observable<ConcResponse> {
         return ajax$<ConcResponse>(
             'GET',
             this.apiURL,
-            args
+            args,
+            {headers: this.customHeaders}
 
         ).pipe(
             map(data => ({

@@ -18,7 +18,7 @@
 
 import { SystemNotifications } from './notifications';
 import {ITranslator} from 'kombo';
-import { SystemMessageType, DbValueMapping } from './common/types';
+import { SystemMessageType, DbValueMapping, HTTPHeaders } from './common/types';
 declare var DocumentTouch;
 
 /**
@@ -31,7 +31,7 @@ export interface AppServicesArgs {
     staticUrlCreator:(path:string)=>string;
     actionUrlCreator:(path: string)=>string;
     dbValuesMapping:DbValueMapping;
-    args?:{[k:string]:string}|Array<[string, string]>;
+    apiHeadersMapping:{[urlPrefix:string]:HTTPHeaders};
 }
 
 /**
@@ -53,7 +53,9 @@ export class AppServices {
 
     private readonly actionUrlCreator:(path: string, args?:{[k:string]:string}|Array<[string, string]>) => string;
 
-    constructor({notifications, uiLang, translator, staticUrlCreator, actionUrlCreator, dbValuesMapping, args}:AppServicesArgs) {
+    private readonly apiHeadersMapping:{[urlPrefix:string]:HTTPHeaders};
+
+    constructor({notifications, uiLang, translator, staticUrlCreator, actionUrlCreator, dbValuesMapping, apiHeadersMapping}:AppServicesArgs) {
         this.notifications = notifications;
         this.uiLang = uiLang;
         this.translator = translator;
@@ -61,6 +63,7 @@ export class AppServices {
         this.actionUrlCreator = actionUrlCreator;
         this.forcedMobileMode = false;
         this.dbValuesMapping = dbValuesMapping;
+        this.apiHeadersMapping = apiHeadersMapping || {};
     }
 
     showMessage(type:SystemMessageType, text:string|Error):void {
@@ -111,5 +114,15 @@ export class AppServices {
 
     translateDbValue(corpname:string, value:string):string {
         return this.importExternalMessage((this.dbValuesMapping[corpname] || {})[value]) || value;
+    }
+
+    getApiHeaders(apiUrl:string):HTTPHeaders {
+        const prefixes = Object.keys(this.apiHeadersMapping);
+        for (let i = 0; i < prefixes.length; i += 1) {
+            if (apiUrl.indexOf(prefixes[i]) === 0) {
+                return this.apiHeadersMapping[prefixes[i]];
+            }
+        }
+        return {};
     }
 }

@@ -67,7 +67,8 @@ const mainAction = (services:Services, answerMode:boolean, req:Request, res:Resp
         translator: viewUtils,
         staticUrlCreator: viewUtils.createStaticUrl,
         actionUrlCreator: viewUtils.createActionUrl,
-        dbValuesMapping: services.clientConf.dbValuesMapping || {}
+        dbValuesMapping: services.clientConf.dbValuesMapping || {},
+        apiHeadersMapping: services.clientConf.apiHeaders || {}
     });
 
     const mainFormModel = mainFormFactory({

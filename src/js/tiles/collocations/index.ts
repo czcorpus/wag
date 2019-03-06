@@ -68,7 +68,7 @@ export class CollocationsTile implements ITileProvider {
             tileId: tileId,
             waitForTile: waitForTiles[0],
             appServices: appServices,
-            service: new KontextCollAPI(conf.apiURL),
+            service: new KontextCollAPI(conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             backlink: conf.backlink || null,
             initState: {
                 isBusy: false,

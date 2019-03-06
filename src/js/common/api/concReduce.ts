@@ -19,7 +19,7 @@
 import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {ajax$} from '../ajax';
-import { DataApi } from '../types';
+import { DataApi, HTTPHeaders } from '../types';
 import { ConcResponse, getQuery, AnyQuery } from './concordance';
 
 
@@ -39,17 +39,22 @@ export interface ApiResponse extends ConcResponse {
 
 export class ConcReduceApi implements DataApi<RequestArgs, ApiResponse> {
 
-    private readonly apiURL;
+    private readonly apiURL:string;
 
-    constructor(apiURL:string) {
+    private readonly customHeaders:HTTPHeaders;
+
+    constructor(apiURL:string, customHeaders?:HTTPHeaders) {
         this.apiURL = apiURL;
+        this.customHeaders = customHeaders || {};
     }
 
     call(args:RequestArgs):Observable<ApiResponse> {
         return ajax$<ApiResponse>(
             'GET',
             this.apiURL,
-            args
+            args,
+            {headers: this.customHeaders}
+
         ).pipe(
             map(data => ({
                 conc_persistence_op_id: data.conc_persistence_op_id,

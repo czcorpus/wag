@@ -67,7 +67,7 @@ export class GeoAreasTile implements ITileProvider {
             tileId,
             waitForTiles[0],
             appServices,
-            new FreqDistribAPI(conf.apiURL),
+            new FreqDistribAPI(conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             {
                 isBusy: false,
                 error: null,
