@@ -42,7 +42,7 @@ export interface SummaryModelState {
     freqSort:string;
     includeEmpty:boolean;
     data:Immutable.List<SummaryDataRow>;
-    currLemmaIdx:number;
+    currLemmaIdent:number;
     flevelDistrb:Immutable.List<FlevelDistribItem>;
 }
 
@@ -108,15 +108,20 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
 
                     } else {
                         newState.data = Immutable.List<SummaryDataRow>(action.payload.data);
-                        newState.currLemmaIdx = 0;
+                        newState.currLemmaIdent = -1;
                     }
                     return newState;
                 }
                 return state;
             },
-            [ActionName.SetActiveLemma]: (state, action:Actions.SetActiveLemma) => {
+            [ActionName.HighlightLemma]: (state, action:Actions.HighlightLemma) => {
                 const newState = this.copyState(state);
-                newState.currLemmaIdx = action.payload.idx;
+                newState.currLemmaIdent = action.payload.ident;
+                return newState;
+            },
+            [ActionName.UnhighlightLemma]: (state, _) => {
+                const newState = this.copyState(state);
+                newState.currLemmaIdent = -1;
                 return newState;
             }
         }
@@ -151,6 +156,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                                             const flevel = Math.log(v.abs / state.corpusSize * 1e9) / Math.log(10);
                                             const srch = state.flevelDistrb.find(candid => ~~Math.round(candid.flevel) === ~~Math.round(flevel));
                                             return {
+                                                ident: v.ident,
                                                 lemma: v.lemma,
                                                 pos: this.appServices.importExternalMessage(posTable[v.pos]),
                                                 abs: v.abs,

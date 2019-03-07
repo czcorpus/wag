@@ -34,6 +34,7 @@ export interface RequestArgs {
 }
 
 export interface SummaryDataRow {
+    ident:number;
     lemma:string;
     pos:string;
     abs:number;
@@ -69,7 +70,8 @@ export class LemmaFreqApi implements DataApi<RequestArgs, Response> {
         ).pipe(map(
             (data) => ({
                 concId: data.conc_persistence_op_id,
-                data: data.Blocks[0].Items.map(item => ({
+                data: data.Blocks[0].Items.map((item, i) => ({
+                    ident: i,
                     lemma: item.Word[0].n,
                     pos: item.Word[1].n,
                     abs: item.freq,
