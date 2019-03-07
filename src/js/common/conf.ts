@@ -84,7 +84,7 @@ export interface ServerConf {
     };
     auxServices:{
         wordDistribDb:string;
-        similarFreqWordsCtx:[number, number];
+        similarFreqWordsMaxCtx:[number, number];
     };
     toolbar:{
         url:string;

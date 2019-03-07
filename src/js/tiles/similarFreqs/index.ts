@@ -21,14 +21,19 @@ import { AppServices } from '../../appServices';
 import { SimFreqsModel } from './model';
 import {init as viewInit} from './view';
 import { SimilarlyFreqWord, SimilarFreqWordsApi } from './api';
+declare var require:(src:string)=>void;  // webpack
+require('./style.less');
+
 
 export interface SimilarFreqsTileConf extends TileConf {
     tileType:'SimilarFreqsTile';
     corpname:string;
     corpusSize:number;
+    srchRange:number;
     apiURL:string;
 
 }
+
 
 export class SimilarFreqsTile implements ITileProvider {
 
@@ -56,6 +61,7 @@ export class SimilarFreqsTile implements ITileProvider {
                 error: null,
                 corpname: conf.corpname,
                 corpusSize: conf.corpusSize,
+                srchRange: conf.srchRange,
                 data: Immutable.List<SimilarlyFreqWord>()
             },
             tileId,
