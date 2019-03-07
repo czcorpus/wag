@@ -21,7 +21,8 @@ import { SummaryDataRow } from './api';
 
 
 export enum ActionName {
-    SetActiveLemma = 'SUMMARY_SET_ACTIVE_LEMMA',
+    HighlightLemma = 'WORD_FREQ_HIGHLIGHT_LEMMA',
+    UnhighlightLemma = 'WORD_FREQ_UNHIGHLIGHT_LEMMA'
 }
 
 export interface DataLoadedPayload {
@@ -31,10 +32,15 @@ export interface DataLoadedPayload {
 
 export namespace Actions {
 
-    export interface SetActiveLemma extends Action<{
-        idx:number;
+    export interface HighlightLemma extends Action<{
+        ident:number;
 
     }> {
-        name: ActionName.SetActiveLemma;
+        name: ActionName.HighlightLemma;
+    }
+
+    export interface UnhighlightLemma extends Action<{
+    }> {
+        name: ActionName.UnhighlightLemma;
     }
 }

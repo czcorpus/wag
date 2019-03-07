@@ -18,7 +18,7 @@
 import * as React from 'react';
 import * as Immutable from 'immutable';
 import {BoundWithProps} from 'kombo';
-import {LineChart, XAxis, YAxis, CartesianGrid, Line, Label, Tooltip} from 'recharts';
+import {LineChart, XAxis, YAxis, CartesianGrid, Line, Label, Tooltip, Dot} from 'recharts';
 import {ActionDispatcher, ViewUtils} from 'kombo';
 import { GlobalComponents } from '../../views/global';
 import { CoreTileComponentProps, TileComponent } from '../../common/types';
@@ -42,7 +42,8 @@ value: 0.01
 width: 330
 */
 
-interface FreqDistItem {
+interface ChartFreqDistItem {
+    ident:number;
     ipm:number;
     flevel:number;
     abs:number;
@@ -61,14 +62,45 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         cx:number;
         cy:number;
         stroke:string;
-        payload:FreqDistItem;
+        payload:ChartFreqDistItem;
         value:number;
+        active:boolean;
     }> = (props) => {
 
-        return <svg>
-            <circle cx={props.cx} cy={props.cy} r={props.payload.lemma ? 4 : 5} stroke={props.payload.color} strokeWidth="1"
-                        fill={props.payload.color} fillOpacity={props.payload.lemma ? 1 : 0.3} />
-        </svg>
+
+        const handleMouseEnter = () => {
+            dispatcher.dispatch<Actions.HighlightLemma>({
+                name: ActionName.HighlightLemma,
+                payload: {
+                    ident: props.payload.ident
+                }
+            });
+        };
+
+        const handleMouseLeave = () => {
+            dispatcher.dispatch<Actions.UnhighlightLemma>({
+                name: ActionName.UnhighlightLemma
+            });
+        };
+
+        const getDotSize = () => {
+            if (props.payload.lemma) {
+                if (props.active) {
+                    return 6;
+                }
+                return 4;
+            }
+            return 1;
+        }
+
+        return (
+            <svg>
+                <Dot cx={props.cx} cy={props.cy} r={getDotSize()} stroke={props.payload.color}
+                        fill={props.payload.color} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} >
+
+                </Dot>
+            </svg>
+        );
     };
 
 
@@ -77,7 +109,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
     const CustomTooltip:React.SFC<{
         active:boolean;
         type:string;
-        payload:Array<{payload:FreqDistItem}>;
+        payload:Array<{payload:ChartFreqDistItem}>;
         label:string;
 
     }> = (props) => {
@@ -125,27 +157,29 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
     // -------------------- <Chart /> -----------------------------------------------
 
     const Chart:React.SFC<{
-        lemmaItem:SummaryDataRow;
+        lemmaItems:Array<SummaryDataRow>;
+        activeIdent:number;
 
     }> = (props) => {
         const levels = [{ipm: 0.01, v: 1}, {ipm: 0.1, v: 2}, {ipm: 1, v: 3}, {ipm: 10, v: 4}, {ipm: 100, v: 5}, {ipm: 1000, v: 6}, {ipm: 10000, v: 7}];
+        const lemmas:Array<ChartFreqDistItem> = props.lemmaItems.map(v2 => ({
+            ident: v2.ident,
+            ipm: v2.ipm,
+            flevel: v2.flevel,
+            abs: v2.abs,
+            lemma: v2.lemma,
+            pos: v2.pos,
+            color: '#F0680B'
+        }));
         const data = levels
             .map(v => ({ipm: v.ipm, flevel: v.v, abs: null, lemma: null, pos: null, color: '#8884d8'}))
-            .concat([{
-                ipm: props.lemmaItem.ipm,
-                flevel: props.lemmaItem.flevel,
-                abs: props.lemmaItem.abs,
-                lemma: props.lemmaItem.lemma,
-                pos: props.lemmaItem.pos,
-                color: '#F0680B'}
-            ])
+            .concat(lemmas)
             .sort((v1, v2) => v1.flevel - v2.flevel);
 
-
         return (
-            <LineChart width={300} height={250} data={data}>
+            <LineChart width={340} height={200} data={data}>
                 <CartesianGrid stroke="#eee" strokeDasharray="5 5"/>
-                <XAxis dataKey="flevel" type="number" domain={[1, 8]} ticks={[1, 2, 3, 4, 5, 6, 7, 8]}>
+                <XAxis dataKey="flevel" type="number" domain={[1, 7]} ticks={[1, 2, 3, 4, 5, 6, 7]}>
 
                 </XAxis>
                 <YAxis dataKey="ipm" type="number">
@@ -153,40 +187,51 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                 </YAxis>
                 <Line  type="monotone" dataKey="ipm" stroke="#8884d8"
                     isAnimationActive={false}
-                    dot={({cx, cy, stroke, payload, value}) => <LineDot key={`ld:${cx}:${cy}`} cx={cx} cy={cy} stroke={stroke} payload={payload} value={value} />} />
-                <Tooltip isAnimationActive={false} content={CustomTooltip} />
+                    dot={({cx, cy, stroke, payload, value}) =>
+                            <LineDot key={`ld:${cx}:${cy}`} cx={cx} cy={cy} stroke={stroke} payload={payload} value={value}
+                                        active={payload.ident === props.activeIdent} />} />
+
             </LineChart>
         );
     };
 
-    // -------------------- <LemmaSelector /> -----------------------------------------------
+    // -------------------- <LemmaList /> -----------------------------------------------
 
-    const LemmaSelector:React.SFC<{
+    const LemmaList:React.SFC<{
         data:Immutable.List<SummaryDataRow>;
-        currIdx:number;
+        currIdent:number;
 
     }> = (props) => {
 
-        const handleLineClick = (idx) => () => {
-            dispatcher.dispatch<Actions.SetActiveLemma>({
-                name: ActionName.SetActiveLemma,
+        const handleMouseEnter = (ident:number) => () => {
+            dispatcher.dispatch<Actions.HighlightLemma>({
+                name: ActionName.HighlightLemma,
                 payload: {
-                    idx: idx
+                    ident: ident
                 }
             });
         };
 
+        const handleMouseLeave = () => {
+            dispatcher.dispatch<Actions.UnhighlightLemma>({
+                name: ActionName.UnhighlightLemma
+            });
+        };
+
         return (
-            <table className="cnc-table data LemmaSelector">
+            <table className="cnc-table data LemmaList">
                 <tbody>
                     <tr>
                         <th></th>
-                        <td>{ut.translate('summary__pos')}</td>
-                        <td>{ut.translate('summary__ipm')}</td>
+                        <th>{ut.translate('summary__pos')}</th>
+                        <th>{ut.translate('summary__ipm')}</th>
+                        <th>{ut.translate('summary__freq_bands')}</th>
                     </tr>
-                    {props.data.map((word, idx) => (
+                    {props.data.map(word => (
                         <tr key={`w:${word.lemma}:${word.pos}`}
-                                className={props.currIdx === idx ? 'current' : null} onClick={handleLineClick(idx)}>
+                                className={props.currIdent === word.ident ? 'current' : null}
+                                onMouseEnter={handleMouseEnter(word.ident)}
+                                onMouseLeave={handleMouseLeave}>
                             <th>
                                 {word.lemma}
                             </th>
@@ -195,6 +240,9 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                             </td>
                             <td className="num">
                                 {ut.formatNumber(word.ipm, 2)}
+                            </td>
+                            <td>
+                                <Stars freqBand={Math.round(word.flevel)} />
                             </td>
                         </tr>
                     ))}
@@ -207,24 +255,20 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
     // -------------------- <WordFreqTileView /> -----------------------------------------------
 
     class WordFreqTileView extends React.PureComponent<SummaryModelState & CoreTileComponentProps> {
-
         render() {
             return (
                 <globalComponents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.data.size > 0} sourceIdent={{corp: this.props.corpname}}>
                     <div className={`WordFreqTileView${this.props.isMobile ? ' mobile' : ''}`}>
                         <div className="cell">
-                            <h3>{ut.translate('summary__found_lemmas')}</h3>
-                            <LemmaSelector data={this.props.data} currIdx={this.props.currLemmaIdx} />
+                            <LemmaList data={this.props.data} currIdent={this.props.currLemmaIdent} />
                         </div>
                         <div className="cell">
-                            <h3>{ut.translate('summary__freq_bands')}</h3>
                                 {this.props.data.size > 0 ?
                                 <>
-                                    <Stars freqBand={Math.round(this.props.data.get(this.props.currLemmaIdx).flevel)} />
                                     {this.props.isMobile ?
                                         null :
-                                        <Chart lemmaItem={this.props.data.get(this.props.currLemmaIdx)} />
+                                        <Chart lemmaItems={this.props.data.toArray()} activeIdent={this.props.currLemmaIdent} />
                                     }
                                 </> :
                                 null

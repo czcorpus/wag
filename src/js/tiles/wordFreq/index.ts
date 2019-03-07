@@ -78,7 +78,7 @@ export class WordFreqTile implements ITileProvider {
                 freqSort: conf.freqSort,
                 includeEmpty: conf.fttIncludeEmpty,
                 data: Immutable.List<SummaryDataRow>(),
-                currLemmaIdx: 0,
+                currLemmaIdent: -1,
                 flevelDistrb: Immutable.List<FlevelDistribItem>(
                     conf.flevelDistrib ? conf.flevelDistrib : defaultFlevelDistrib
                 )
