@@ -22,12 +22,14 @@ import { ajax$ } from '../../common/ajax';
 
 export interface RequestArgs {
     word:string;
+    srchRange:number;
 }
 
 export interface SimilarlyFreqWord {
     word:string;
     abs:number;
     ipm:number;
+    highlighted?:boolean;
 }
 
 export interface Response {
@@ -50,7 +52,8 @@ export class SimilarFreqWordsApi implements DataApi<RequestArgs, Response> {
             'GET',
             this.apiURL,
             {
-                word: args.word
+                word: args.word,
+                srchRange: args.srchRange
             },
             {headers: this.customHeaders}
         );

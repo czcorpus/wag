@@ -40,10 +40,10 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                 <tbody>
                     <tr>
                         <th></th>
-                        <th>ipm</th>
+                        <th style={{textAlign: 'right'}}>ipm</th>
                     </tr>
                 {props.data.map(v => (
-                        <tr key={`k:${v.word}`}>
+                        <tr key={`k:${v.word}`} className={`${v.highlighted ? 'highlighted' : null}`}>
                             <td>{v.word}</td>
                             <td className="num">{ut.formatNumber(v.ipm, 2)}</td>
                         </tr>

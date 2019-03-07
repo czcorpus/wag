@@ -28,6 +28,7 @@ export interface SimFreqsModelState {
     error:string;
     corpname:string;
     corpusSize:number;
+    srchRange:number;
     data:Immutable.List<SimilarlyFreqWord>;
 }
 
@@ -76,15 +77,20 @@ export class SimFreqsModel extends StatelessModel<SimFreqsModelState> {
     sideEffects(state:SimFreqsModelState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
+                const query = this.mainForm.getState().query.value;
                 this.api
-                    .call({word: this.mainForm.getState().query.value})
+                    .call({
+                        word: query,
+                        srchRange: state.srchRange
+                    })
                     .pipe(
                         map<Response, Response>(
                             (data) => ({
                                 result: data.result.map(v => ({
                                     word: v.word,
                                     abs: v.abs,
-                                    ipm: v.abs / state.corpusSize * 1e6
+                                    ipm: v.abs / state.corpusSize * 1e6,
+                                    highlighted: v.word === query ? true : undefined
                                 }))
                             })
                         )

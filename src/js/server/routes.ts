@@ -127,11 +127,11 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                 services.db.each(
                     'SELECT value, `count` AS abs, (SELECT idx FROM postag WHERE value = ?) AS srch ' +
                     'FROM postag ' +
-                    'WHERE idx >= srch + ? AND idx <= srch + ? AND idx <> srch ORDER BY idx;',
+                    'WHERE idx >= srch + ? AND idx <= srch + ? ORDER BY idx;',
                     [
                         req.query.word,
-                        services.serverConf.auxServices.similarFreqWordsCtx[0],
-                        services.serverConf.auxServices.similarFreqWordsCtx[1]
+                        Math.max(-1 * parseInt(req.query.srchRange), services.serverConf.auxServices.similarFreqWordsMaxCtx[0]),
+                        Math.min(parseInt(req.query.srchRange), services.serverConf.auxServices.similarFreqWordsMaxCtx[1])
                     ],
                     (err, row) => {
                         if (err) {

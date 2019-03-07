@@ -13,6 +13,6 @@
     },
     "auxServices": {
         "wordDistribDb": "/var/www/work/wdglance/syn2015.db",
-        "similarFreqWordsCtx": [-5, 5]
+        "similarFreqWordsMaxCtx": [-50, 50]
     }
 }
