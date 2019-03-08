@@ -276,3 +276,14 @@ export interface IToolbarProvider {
 }
 
 export type HTTPHeaders = {[key:string]:string};
+
+export interface SubqueryPayload {
+    tileId:number;
+    subqueries:Array<string>;
+    lang1:string;
+    lang2:string;
+}
+
+export function isSubqueryPayload(payload:{}):payload is SubqueryPayload {
+    return Array.isArray(payload['subqueries']);
+}

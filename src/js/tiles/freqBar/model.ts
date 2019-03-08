@@ -22,12 +22,12 @@ import {concatMap} from 'rxjs/operators';
 import {DataRow, MultiBlockFreqDistribAPI, BacklinkArgs} from '../../common/api/kontextFreqs';
 import {StatelessModel, ActionDispatcher, Action, SEDispatcher} from 'kombo';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
-import {ActionName as ConcActionName, Actions as ConcActions, ConcLoadedPayload} from '../concordance/actions';
+import {ConcLoadedPayload} from '../concordance/actions';
 import {ActionName, Actions, DataLoadedPayload} from './actions';
 import { AppServices } from '../../appServices';
 import { stateToAPIArgs, GeneralMultiCritFreqBarModelState, FreqDataBlock, createBackLink } from '../../common/models/freq';
 import { puid } from '../../common/util';
-import { BacklinkWithArgs, Backlink } from '../../common/types';
+import { BacklinkWithArgs, Backlink, LocalizedConfMsg } from '../../common/types';
 
 
 export interface FreqBarModelState extends GeneralMultiCritFreqBarModelState<DataRow> {
@@ -39,13 +39,13 @@ export interface FreqBarModelState extends GeneralMultiCritFreqBarModelState<Dat
 
 export class FreqBarModel extends StatelessModel<FreqBarModelState> {
 
-    private api:MultiBlockFreqDistribAPI;
+    protected api:MultiBlockFreqDistribAPI;
 
-    private readonly appServices:AppServices;
+    protected readonly appServices:AppServices;
 
-    private readonly tileId:number;
+    protected readonly tileId:number;
 
-    private readonly waitForTile:number;
+    protected readonly waitForTile:number;
 
     private readonly backlink:Backlink|null;
 
@@ -80,7 +80,7 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState> {
                         newState.blocks = Immutable.List<FreqDataBlock<DataRow>>(state.fcrit.map((_, i) => ({
                             data: Immutable.List<FreqDataBlock<DataRow>>(),
                             ident: puid(),
-                            label: state.critLabels.get(i)
+                            label: action.payload.blockLabels ? action.payload.blockLabels[i] : state.critLabels.get(i)
                         })));
                         newState.error = action.error.message;
 
@@ -101,7 +101,7 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState> {
                                     ipm: v.ipm
                                 }))),
                                 ident: puid(),
-                                label: state.critLabels.get(i)
+                                label: action.payload.blockLabels ? action.payload.blockLabels[i] : state.critLabels.get(i)
                             };
                         }));
                         newState.backlink = createBackLink(newState, this.backlink, action.payload.concId);
@@ -166,5 +166,16 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState> {
             break;
         }
     }
+}
 
+export const factory = (
+    dispatcher:ActionDispatcher,
+    tileId:number,
+    waitForTile:number,
+    appServices:AppServices,
+    api:MultiBlockFreqDistribAPI,
+    backlink:Backlink|null,
+    initState:FreqBarModelState) => {
+
+    return new FreqBarModel(dispatcher, tileId, waitForTile, appServices, api, backlink, initState);
 }
