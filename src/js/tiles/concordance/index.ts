@@ -78,6 +78,7 @@ export class ConcordanceTile implements ITileProvider {
                 corpname: conf.corpname,
                 otherCorpname: conf.parallelLangMapping ? conf.parallelLangMapping[lang2] : null,
                 subcname: Array.isArray(conf.subcname) ? conf.subcname[0] : conf.subcname,
+                subcDesc: conf.subcDesc ? appServices.importExternalMessage(conf.subcDesc) : '??',
                 fullsize: -1,
                 concsize: -1,
                 numPages: -1,
