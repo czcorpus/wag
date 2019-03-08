@@ -50,6 +50,7 @@ export interface DataRow {
     freq:number;
     ipm:number;
     norm:number;
+    order?:number;
 }
 
 export interface APIResponse {

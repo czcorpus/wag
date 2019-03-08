@@ -22,7 +22,9 @@ import { FreqPieModel, FreqPieDataRow } from './model';
 import {init as viewInit} from './view';
 import { MultiBlockFreqDistribAPI } from '../../common/api/kontextFreqs';
 import { puid } from '../../common/util';
-import { FreqDataBlock } from '../../common/models/freq';
+import { FreqDataBlock, SubqueryModeConf } from '../../common/models/freq';
+import { factory as subqModelFactory } from './subqModel';
+import { factory as defaultModelFactory } from './model';
 declare var require:any;
 require('./style.less');
 
@@ -37,6 +39,13 @@ export interface FreqPieTileConf extends TileConf {
     freqSort:string;
     fpage:number;
     fttIncludeEmpty:boolean;
+    maxNumCategories:number;
+    // if defined, then we wait for some other
+    // tile which produces payload extended
+    // from SubqueryPayload. This tile will
+    // perform provided subqueries, and
+    // obtains respective freq. distributions.
+    subqueryMode?:SubqueryModeConf;
 }
 
 
@@ -63,7 +72,8 @@ export class FreqPieTile implements ITileProvider {
         const labels = Array.isArray(conf.critLabels) ?
             conf.critLabels.map(v => this.appServices.importExternalMessage(v)) :
             [this.appServices.importExternalMessage(conf.critLabels)];
-        this.model = new FreqPieModel(
+        const modelFact = conf.subqueryMode ? subqModelFactory(conf.subqueryMode) : defaultModelFactory;
+        this.model = modelFact(
             dispatcher,
             {
                 isBusy: false,
@@ -82,7 +92,8 @@ export class FreqPieTile implements ITileProvider {
                 fpage: conf.fpage,
                 fttIncludeEmpty: conf.fttIncludeEmpty,
                 fmaxitems: 100,
-                backlink: null
+                backlink: null,
+                maxNumCategories: conf.maxNumCategories
             },
             tileId,
             waitForTiles[0],

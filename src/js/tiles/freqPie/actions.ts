@@ -18,6 +18,7 @@
 
 import { Action } from 'kombo';
 import { ApiDataBlock } from '../../common/api/kontextFreqs';
+import { LocalizedConfMsg } from '../../common/types';
 
 
 export enum ActionName {
@@ -26,8 +27,9 @@ export enum ActionName {
 }
 
 export interface DataLoadedPayload {
-    blocks:Array<ApiDataBlock>;
     concId:string;
+    blocks:Array<ApiDataBlock>;
+    blockLabels?:Array<LocalizedConfMsg>;
 }
 
 export namespace Actions {

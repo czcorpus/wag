@@ -16,43 +16,34 @@
  * limitations under the License.
  */
 
-import { FreqBarModel, FreqBarModelState } from './model';
+import { FreqPieModel, FreqPieModelState } from './model';
 import { ActionDispatcher, Action, SEDispatcher } from 'kombo';
-import { AppServices } from '../../appServices';
 import { MultiBlockFreqDistribAPI, APIBlockResponse, ApiDataBlock } from '../../common/api/kontextFreqs';
-import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
 import { Backlink, isSubqueryPayload, SubqueryPayload } from '../../common/types';
-import { ConcApi, ViewMode, RequestArgs, ConcResponse, QuerySelector } from '../../common/api/concordance';
+import { AppServices } from '../../appServices';
+import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
+import { SubqueryModeConf, stateToAPIArgs } from '../../common/models/freq';
+import { ConcApi, ViewMode, QuerySelector, RequestArgs, ConcResponse } from '../../common/api/concordance';
 import { Observable, forkJoin } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
-import { stateToAPIArgs, SubqueryModeConf } from '../../common/models/freq';
 import { DataLoadedPayload } from './actions';
 
-/**
- * SubqFreqBarModel is an extension of FreqBarModel
- * which produces its own concordances for provided
- * subqueries and then combines the results into
- * a single one (= multiple blocks/charts).
- *
- * To be able to use this tile there must exist at
- * least one other tile which generates 'TileDataLoaded'
- * action with 'SubqueryPayload'.
- */
-export class SubqFreqBarModel extends FreqBarModel {
+
+export class SubqFreqPieModel extends FreqPieModel {
 
     private readonly subqConf:SubqueryModeConf;
 
     private readonly concApi:ConcApi;
 
-    constructor(dispatcher:ActionDispatcher, tileId:number, waitForTile:number, appServices:AppServices, api:MultiBlockFreqDistribAPI,
-            backlink:Backlink|null, initState:FreqBarModelState, subqConf:SubqueryModeConf) {
-        super(dispatcher, tileId, waitForTile, appServices, api, backlink, initState);
+    constructor(dispatcher:ActionDispatcher, initState:FreqPieModelState,
+            tileId:number, waitForTile:number, appServices:AppServices,
+            api:MultiBlockFreqDistribAPI, backlink:Backlink, subqConf:SubqueryModeConf) {
+        super(dispatcher, initState, tileId, waitForTile, appServices, api, backlink);
         this.subqConf = subqConf;
         this.concApi = new ConcApi(subqConf.concApiURL, appServices.getApiHeaders(subqConf.concApiURL));
     }
 
-
-    private loadFreq(state:FreqBarModelState, corp:string, query:string):Observable<APIBlockResponse> {
+    private loadFreq(state:FreqPieModelState, corp:string, query:string):Observable<APIBlockResponse> {
         return this.concApi.call({
             corpname: corp,
             kwicleftctx: '-1',
@@ -73,7 +64,7 @@ export class SubqFreqBarModel extends FreqBarModel {
         );
     }
 
-    sideEffects(state:FreqBarModelState, action:Action, dispatch:SEDispatcher):void {
+    sideEffects(state:FreqPieModelState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
                 this.suspend((action:Action) => {
@@ -98,11 +89,20 @@ export class SubqFreqBarModel extends FreqBarModel {
                                         tileId: this.tileId,
                                         isEmpty: combined.every(v => v.data.length === 0),
                                         blocks: combined.map(block => {
+                                            const tmp = block.data
+                                                .sort((x1, x2) => x2.freq - x1.freq)
+                                                .map((v, i) => ({
+                                                    name: v.name,
+                                                    freq: v.freq,
+                                                    ipm: v.ipm,
+                                                    order: i,
+                                                    norm: v.norm
+                                                }))
                                             return {
-                                                data: block.data.sort(((x1, x2) => x1.name.localeCompare(x2.name))).slice(0, state.maxNumCategories),
+                                                data: tmp.sort(((x1, x2) => x1.name.localeCompare(x2.name))),
                                             }
                                         }),
-                                        blockLabels: subqueries,
+                                        blockLabels: subqueries.map(v => `"${v}"`),
                                         concId: null // TODO do we need this?
                                     }
                                 });
@@ -122,17 +122,17 @@ export class SubqFreqBarModel extends FreqBarModel {
 
 export const factory =
     (
-        subqConf:SubqueryModeConf) =>
+        subqConf:SubqueryModeConf
+    ) =>
     (
         dispatcher:ActionDispatcher,
+        initState:FreqPieModelState,
         tileId:number,
         waitForTile:number,
         appServices:AppServices,
         api:MultiBlockFreqDistribAPI,
-        backlink:Backlink|null,
-        initState:FreqBarModelState) => {
+        backlink:Backlink
+    ) => {
 
-        return new SubqFreqBarModel(dispatcher, tileId, waitForTile, appServices, api, backlink,
-                initState, subqConf);
-
-    };
+    return new SubqFreqPieModel(dispatcher, initState, tileId, waitForTile, appServices, api, backlink, subqConf);
+};

@@ -23,9 +23,9 @@ import { ActionDispatcher, ViewUtils } from "kombo";
 import { DataRow, MultiBlockFreqDistribAPI } from "../../common/api/kontextFreqs";
 import { GlobalComponents } from "../../views/global";
 import { AppServices } from '../../appServices';
-import { FreqDataBlock } from '../../common/models/freq';
+import { FreqDataBlock, SubqueryModeConf } from '../../common/models/freq';
 import { puid } from '../../common/util';
-import { SubqFreqBarModel, factory as subqModelFactory, SubqueryModeConf } from './subqModel';
+import { factory as subqModelFactory } from './subqModel';
 import { FreqBarModel, factory as defaultModelFactory } from './model';
 
 

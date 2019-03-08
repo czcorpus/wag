@@ -21,13 +21,13 @@ import {concatMap} from 'rxjs/operators';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
 import { MultiCritQueryArgs, MultiBlockFreqDistribAPI, BacklinkArgs } from '../../common/api/kontextFreqs';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
-import {Actions as ConcActions, ConcLoadedPayload} from '../concordance/actions';
+import {ConcLoadedPayload} from '../concordance/actions';
 import {Actions, ActionName, DataLoadedPayload} from './actions';
 import { AppServices } from '../../appServices';
 import { puid } from '../../common/util';
 import { GeneralMultiCritFreqBarModelState, FreqDataBlock, createBackLink } from '../../common/models/freq';
 import { BacklinkWithArgs, Backlink } from '../../common/types';
-import { runInNewContext } from 'vm';
+import { cursorTo } from 'readline';
 
 
 export interface FreqPieDataRow {
@@ -37,6 +37,7 @@ export interface FreqPieDataRow {
 
 export interface FreqPieModelState extends GeneralMultiCritFreqBarModelState<FreqPieDataRow> {
     activeBlock:number;
+    maxNumCategories:number;
     backlink:BacklinkWithArgs<BacklinkArgs>;
 }
 
@@ -55,11 +56,11 @@ const stateToAPIArgs = (state:FreqPieModelState, concId:string):MultiCritQueryAr
 
 export class FreqPieModel extends StatelessModel<FreqPieModelState> {
 
-    private readonly tileId:number;
+    protected readonly tileId:number;
 
-    private readonly waitForTile:number;
+    protected readonly waitForTile:number;
 
-    private readonly api:MultiBlockFreqDistribAPI;
+    protected readonly api:MultiBlockFreqDistribAPI;
 
     private readonly appServices:AppServices;
 
@@ -104,20 +105,30 @@ export class FreqPieModel extends StatelessModel<FreqPieModelState> {
                         newState.blocks = Immutable.List<FreqDataBlock<FreqPieDataRow>>(state.fcrit.map((_, i) => ({
                             data: Immutable.List<FreqPieDataRow>(),
                             ident: puid(),
-                            label: state.critLabels.get(i)
+                            label: action.payload.blockLabels ? action.payload.blockLabels[i] : state.critLabels.get(i)
                         })));
                         newState.backlink = createBackLink(state, this.backlink, action.payload.concId);
 
                     } else {
                         newState.blocks = Immutable.List<FreqDataBlock<FreqPieDataRow>>(action.payload.blocks.map((block, i) => {
                             const totalFreq = block.data.reduce((acc, curr) => acc + curr.freq, 0);
+                            const dataSlice = block.data.filter(v => v.order === undefined || v.order < state.maxNumCategories);
+                            let data = Immutable.List<FreqPieDataRow>(Immutable.List<FreqPieDataRow>(dataSlice.map(v => ({
+                                name: v.name,
+                                percent: v.freq / totalFreq * 100
+                            }))));
+                            if (block.data.length > state.maxNumCategories) {
+                                const otherSlice = block.data.filter(v => v.order !== undefined && v.order >= state.maxNumCategories);
+                                const totalOther = otherSlice.reduce((acc, curr) => acc + curr.freq, 0);
+                                data = data.push({
+                                    name: this.appServices.translate('freqpie__other_chart_item'),
+                                    percent: totalOther / totalFreq * 100
+                                });
+                            }
                             return {
-                                data: Immutable.List<FreqPieDataRow>(block.data.map(v => ({
-                                    name: v.name,
-                                    percent: v.freq / totalFreq * 100
-                                }))),
+                                data: data,
                                 ident: puid(),
-                                label: state.critLabels.get(i)
+                                label: action.payload.blockLabels ? action.payload.blockLabels[i] : state.critLabels.get(i)
                             };
                         }));
                         newState.backlink = createBackLink(state, this.backlink, action.payload.concId);
@@ -189,5 +200,16 @@ export class FreqPieModel extends StatelessModel<FreqPieModelState> {
             break;
         }
     }
-
 }
+
+export const factory = (
+        dispatcher:ActionDispatcher,
+        initState:FreqPieModelState,
+        tileId:number,
+        waitForTile:number,
+        appServices:AppServices,
+        api:MultiBlockFreqDistribAPI,
+        backlink:Backlink) => {
+
+    return new FreqPieModel(dispatcher, initState, tileId, waitForTile, appServices, api, backlink);
+};
