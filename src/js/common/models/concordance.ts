@@ -25,6 +25,7 @@ export interface ConcordanceMinState {
     corpname:string;
     otherCorpname:string;
     subcname:string;
+    subcDesc:string;
     kwicLeftCtx:number;
     kwicRightCtx:number;
     pageSize:number;

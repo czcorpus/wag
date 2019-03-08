@@ -244,6 +244,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                 corpname: state.corpname,
                                 otherCorpname: undefined,
                                 subcname: subcname,
+                                subcDesc: null,
                                 kwicLeftCtx: -1,
                                 kwicRightCtx: 1,
                                 pageSize: 10,
