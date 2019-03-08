@@ -18,8 +18,8 @@
 
 import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
-import {ajax$} from '../ajax';
-import { DataApi, HTTPHeaders } from '../types';
+import {ajax$} from '../../ajax';
+import { DataApi, HTTPHeaders } from '../../types';
 
 export enum QuerySelector {
     BASIC = 'iqueryrow',

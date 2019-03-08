@@ -17,7 +17,7 @@
  */
 
 import { Action } from 'kombo';
-import { ConcResponse, ViewMode } from '../../common/api/concordance';
+import { ConcResponse, ViewMode } from '../../common/api/kontext/concordance';
 
 
 export enum ActionName {

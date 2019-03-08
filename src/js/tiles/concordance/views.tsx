@@ -20,7 +20,7 @@ import {ActionDispatcher, BoundWithProps, ViewUtils} from 'kombo';
 import * as React from 'react';
 import {ConcordanceTileModel, ConcordanceTileState} from './model';
 import { GlobalComponents } from '../../views/global';
-import { Line, LineElement, ViewMode } from '../../common/api/concordance';
+import { Line, LineElement, ViewMode } from '../../common/api/kontext/concordance';
 import { ActionName, Actions } from './actions';
 import { TileComponent, CoreTileComponentProps } from '../../common/types';
 

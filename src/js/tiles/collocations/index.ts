@@ -24,7 +24,7 @@ import { KontextCollAPI } from './service';
 import {init as viewInit} from './views';
 import { ActionDispatcher } from 'kombo';
 import { CollocMetric, DataRow, SrchContextType } from './common';
-import { BacklinkArgs } from '../../common/api/kontextFreqs';
+import { BacklinkArgs } from '../../common/api/kontext/freqs';
 
 declare var require:(src:string)=>void;  // webpack
 require('./style.less');

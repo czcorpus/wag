@@ -17,7 +17,7 @@
  */
 
 import * as Immutable from 'immutable';
-import { DataRow, SingleCritQueryArgs, MultiCritQueryArgs, BacklinkArgs } from '../api/kontextFreqs';
+import { DataRow, SingleCritQueryArgs, MultiCritQueryArgs, BacklinkArgs } from '../api/kontext/freqs';
 import { LocalizedConfMsg, Backlink, BacklinkWithArgs, HTTPMethod } from '../types';
 
 

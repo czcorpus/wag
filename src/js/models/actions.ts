@@ -18,7 +18,7 @@
 
 import {Action} from 'kombo';
 import { SystemMessageType, QueryType } from '../common/types';
-import {APIResponse} from '../common/api/corpusInfo';
+import {APIResponse} from '../common/api/kontext/corpusInfo';
 
 export enum ActionName {
     ChangeQueryInput = 'MAIN_CHANGE_QUERY_INPUT',

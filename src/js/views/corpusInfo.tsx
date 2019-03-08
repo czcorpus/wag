@@ -18,7 +18,7 @@
 import * as React from 'react';
 import { IActionDispatcher, ViewUtils } from 'kombo';
 import { GlobalComponents } from './global';
-import { APIResponse as CorpusInfoResponse} from '../common/api/corpusInfo';
+import { APIResponse as CorpusInfoResponse} from '../common/api/kontext/corpusInfo';
 
 export interface CorpusInfoBoxProps {
     data:CorpusInfoResponse;

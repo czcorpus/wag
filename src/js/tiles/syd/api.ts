@@ -37,8 +37,8 @@
 import {Observable, forkJoin, of as rxOf} from 'rxjs';
 import {share, concatMap} from 'rxjs/operators';
 import { DataApi, CorePosAttribute, HTTPHeaders } from '../../common/types';
-import {ConcApi, QuerySelector, ViewMode, ConcResponse} from '../../common/api/concordance';
-import {HTTPResponse as FreqsHTTPResponse} from '../../common/api/kontextFreqs';
+import {ConcApi, QuerySelector, ViewMode, ConcResponse} from '../../common/api/kontext/concordance';
+import {HTTPResponse as FreqsHTTPResponse} from '../../common/api/kontext/freqs';
 import { ajax$ } from '../../common/ajax';
 import { MultiDict } from '../../common/data';
 

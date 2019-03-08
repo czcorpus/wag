@@ -20,7 +20,7 @@ import { ITileProvider, QueryType, TileFactory, TileComponent, TileConf, Localiz
 import { AppServices } from '../../appServices';
 import { FreqPieModel, FreqPieDataRow } from './model';
 import {init as viewInit} from './view';
-import { MultiBlockFreqDistribAPI } from '../../common/api/kontextFreqs';
+import { MultiBlockFreqDistribAPI } from '../../common/api/kontext/freqs';
 import { puid } from '../../common/util';
 import { FreqDataBlock, SubqueryModeConf } from '../../common/models/freq';
 import { factory as subqModelFactory } from './subqModel';

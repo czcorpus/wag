@@ -19,10 +19,10 @@
 import { FreqBarModel, FreqBarModelState } from './model';
 import { ActionDispatcher, Action, SEDispatcher } from 'kombo';
 import { AppServices } from '../../appServices';
-import { MultiBlockFreqDistribAPI, APIBlockResponse, ApiDataBlock } from '../../common/api/kontextFreqs';
+import { MultiBlockFreqDistribAPI, APIBlockResponse, ApiDataBlock } from '../../common/api/kontext/freqs';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
 import { Backlink, isSubqueryPayload, SubqueryPayload } from '../../common/types';
-import { ConcApi, ViewMode, RequestArgs, ConcResponse, QuerySelector } from '../../common/api/concordance';
+import { ConcApi, ViewMode, RequestArgs, ConcResponse, QuerySelector } from '../../common/api/kontext/concordance';
 import { Observable, forkJoin } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 import { stateToAPIArgs, SubqueryModeConf } from '../../common/models/freq';

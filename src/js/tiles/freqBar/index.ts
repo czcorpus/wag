@@ -20,7 +20,7 @@ import * as Immutable from 'immutable';
 import { ITileProvider, TileFactory, QueryType, TileComponent, TileConf, LocalizedConfMsg, Backlink } from '../../common/types';
 import {init as viewInit} from './view';
 import { ActionDispatcher, ViewUtils } from "kombo";
-import { DataRow, MultiBlockFreqDistribAPI } from "../../common/api/kontextFreqs";
+import { DataRow, MultiBlockFreqDistribAPI } from "../../common/api/kontext/freqs";
 import { GlobalComponents } from "../../views/global";
 import { AppServices } from '../../appServices';
 import { FreqDataBlock, SubqueryModeConf } from '../../common/models/freq';

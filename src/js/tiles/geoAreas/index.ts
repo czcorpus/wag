@@ -22,7 +22,7 @@ import { ActionDispatcher } from 'kombo';
 import { AppServices } from '../../appServices';
 import {init as viewInit} from './views';
 import { GeoAreasModel } from './model';
-import { DataRow, FreqDistribAPI } from '../../common/api/kontextFreqs';
+import { DataRow, FreqDistribAPI } from '../../common/api/kontext/freqs';
 declare var require:any;
 require('./style.less');
 

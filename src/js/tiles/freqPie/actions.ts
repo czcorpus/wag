@@ -17,7 +17,7 @@
  */
 
 import { Action } from 'kombo';
-import { ApiDataBlock } from '../../common/api/kontextFreqs';
+import { ApiDataBlock } from '../../common/api/kontext/freqs';
 import { LocalizedConfMsg } from '../../common/types';
 
 

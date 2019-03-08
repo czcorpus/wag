@@ -20,7 +20,7 @@ import * as React from 'react';
 import {ActionDispatcher, ViewUtils, BoundWithProps} from 'kombo';
 import { MergeCorpFreqModel, MergeCorpFreqModelState} from './model';
 import {ResponsiveContainer, BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, Legend} from 'recharts';
-import { DataRow, BacklinkArgs } from '../../common/api/kontextFreqs';
+import { DataRow, BacklinkArgs } from '../../common/api/kontext/freqs';
 import { GlobalComponents } from '../../views/global';
 import { CoreTileComponentProps, TileComponent, BacklinkWithArgs } from '../../common/types';
 import { Theme } from '../../common/theme';

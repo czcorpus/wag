@@ -21,7 +21,7 @@ import { ITileProvider, TileFactory, QueryType, TileComponent, TileConf, Backlin
 import {init as viewInit} from './view';
 import { ActionDispatcher, ViewUtils } from "kombo";
 import { MergeCorpFreqModel, ModelSourceArgs, SourceMappedDataRow } from "./model";
-import { FreqDistribAPI, DataRow } from "../../common/api/kontextFreqs";
+import { FreqDistribAPI, DataRow } from "../../common/api/kontext/freqs";
 import { GlobalComponents } from "../../views/global";
 import { puid } from '../../common/util';
 

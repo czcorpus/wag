@@ -19,7 +19,7 @@ import {Observable, Observer, of as rxOf, forkJoin} from 'rxjs';
 import {concatMap} from 'rxjs/operators';
 import * as Immutable from 'immutable';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
-import {FreqDistribAPI, DataRow} from '../../common/api/kontextFreqs';
+import {FreqDistribAPI, DataRow} from '../../common/api/kontext/freqs';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
 import {ActionName as ConcActionName, Actions as ConcActions, ConcLoadedPayload} from '../concordance/actions';
 import { AppServices } from '../../appServices';

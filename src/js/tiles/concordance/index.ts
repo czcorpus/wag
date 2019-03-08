@@ -21,7 +21,7 @@ import { ITileProvider, TileFactory, QueryType, TileComponent, Backlink, CorpSrc
 import {init as viewInit} from './views';
 import { ConcordanceTileModel } from './model';
 import { ActionDispatcher } from 'kombo';
-import { ConcApi, Line, ViewMode, QuerySelector } from '../../common/api/concordance';
+import { ConcApi, Line, ViewMode, QuerySelector } from '../../common/api/kontext/concordance';
 import { AppServices } from '../../appServices';
 
 declare var require:any;
