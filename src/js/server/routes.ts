@@ -32,6 +32,7 @@ import {ServerSideActionDispatcher} from './core';
 import { IToolbarProvider, HostPageEnv } from '../common/types';
 import { NextFunction } from 'connect';
 import { emptyValue } from './toolbar/empty';
+import {newError, ErrorType, mapToStatusCode} from '../common/errors';
 
 
 
@@ -124,15 +125,16 @@ export const wdgRouter = (services:Services) => (app:Express) => {
     app.get('/similar-freq-words/', (req, res) => {
         new Observable<{word:string, abs:number}>((observer) => {
             services.db.serialize(() => {
+                if (isNaN(parseInt(req.query.srchRange))) {
+                    throw newError(ErrorType.BAD_REQUEST, `Invalid range provided, srchRange = ${req.query.srchRange}`);
+                }
+                const lft = Math.max(-1 * parseInt(req.query.srchRange), services.serverConf.auxServices.similarFreqWordsMaxCtx[0]);
+                const rgt = Math.min(parseInt(req.query.srchRange), services.serverConf.auxServices.similarFreqWordsMaxCtx[1]);
                 services.db.each(
                     'SELECT value, `count` AS abs, (SELECT idx FROM postag WHERE value = ?) AS srch ' +
                     'FROM postag ' +
                     'WHERE idx >= srch + ? AND idx <= srch + ? ORDER BY idx;',
-                    [
-                        req.query.word,
-                        Math.max(-1 * parseInt(req.query.srchRange), services.serverConf.auxServices.similarFreqWordsMaxCtx[0]),
-                        Math.min(parseInt(req.query.srchRange), services.serverConf.auxServices.similarFreqWordsMaxCtx[1])
-                    ],
+                    [req.query.word, lft, rgt],
                     (err, row) => {
                         if (err) {
                             observer.error(err);
@@ -162,6 +164,11 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             (data) => {
                 res.setHeader('Content-Type', 'application/json');
                 res.send(JSON.stringify({result: data}));
+            },
+            (err:Error) => {
+                res.status(mapToStatusCode(err.name)).send({
+                    message: err.message
+                });
             }
         )
     });
