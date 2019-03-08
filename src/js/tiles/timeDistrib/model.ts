@@ -24,12 +24,12 @@ import {ActionName as ConcActionName, Actions as ConcActions, ConcLoadedPayload}
 import {ActionName, Actions, DataItemWithWCI, DataLoadedPayload} from './common';
 import {wilsonConfInterval, AlphaLevel} from './stat';
 import { AppServices } from '../../appServices';
-import { ConcApi, QuerySelector, ViewMode, ConcResponse } from '../../common/api/concordance';
+import { ConcApi, QuerySelector, ViewMode, ConcResponse } from '../../common/api/kontext/concordance';
 import {stateToArgs as concStateToArgs} from '../../common/models/concordance';
 import { WdglanceMainFormModel } from '../../models/query';
-import { ApiResponse as ReduceResponse} from '../../common/api/concReduce';
+import { ApiResponse as ReduceResponse} from '../../common/api/kontext/concReduce';
 import {GeneralSingleCritFreqBarModelState, stateToAPIArgs} from '../../common/models/freq';
-import { FreqDistribAPI, APIResponse, DataRow } from '../../common/api/kontextFreqs';
+import { FreqDistribAPI, APIResponse, DataRow } from '../../common/api/kontext/freqs';
 
 
 export const enum FreqFilterQuantity {

@@ -24,7 +24,7 @@ import {ActionDispatcher, ViewUtils, BoundWithProps} from 'kombo';
 import { GlobalComponents } from '../../../views/global';
 import { CoreTileComponentProps, TileComponent } from '../../../common/types';
 import { GeoAreasModelState, GeoAreasModel } from '../model';
-import { DataRow } from '../../../common/api/kontextFreqs';
+import { DataRow } from '../../../common/api/kontext/freqs';
 import { Actions, ActionName } from '../actions';
 import { Theme } from '../../../common/theme';
 

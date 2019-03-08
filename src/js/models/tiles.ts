@@ -23,7 +23,7 @@ import {concatMap} from 'rxjs/operators';
 import * as Immutable from 'immutable';
 import { AppServices } from '../appServices';
 import { TileFrameProps, SystemMessageType } from '../common/types';
-import { CorpusInfoAPI, APIResponse as CorpusInfoResponse} from '../common/api/corpusInfo';
+import { CorpusInfoAPI, APIResponse as CorpusInfoResponse} from '../common/api/kontext/corpusInfo';
 import { ajax$, ResponseType } from '../common/ajax';
 
 

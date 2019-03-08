@@ -20,7 +20,7 @@ import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
 import { DataApi, HTTPHeaders } from '../../common/types';
 import { ajax$ } from '../../common/ajax';
-import {HTTPResponse} from '../../common/api/kontextFreqs';
+import {HTTPResponse} from '../../common/api/kontext/freqs';
 
 export interface RequestArgs {
     corpname:string;

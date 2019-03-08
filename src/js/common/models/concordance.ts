@@ -17,7 +17,7 @@
  */
 
 import * as Immutable from 'immutable';
-import { QuerySelector, ViewMode, RequestArgs, setQuery, PCRequestArgs, PCQValue } from "../api/concordance";
+import { QuerySelector, ViewMode, RequestArgs, setQuery, PCRequestArgs, PCQValue } from "../api/kontext/concordance";
 
 
 export interface ConcordanceMinState {

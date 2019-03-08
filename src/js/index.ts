@@ -44,7 +44,7 @@ import { TileFrameProps, ITileProvider, QueryType, TileConf, TileFactory, DbValu
 import { WdglanceTilesModel, TileResultFlagRec, TileResultFlag } from './models/tiles';
 import {encodeArgs} from './common/ajax';
 import { MessagesModel } from './models/messages';
-import { CorpusInfoAPI } from './common/api/corpusInfo';
+import { CorpusInfoAPI } from './common/api/kontext/corpusInfo';
 import {LayoutManager, LayoutConf} from './layout';
 import { Theme } from './common/theme';
 import { ColorsConf } from './common/conf';

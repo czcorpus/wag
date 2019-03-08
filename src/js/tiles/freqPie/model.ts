@@ -19,7 +19,7 @@ import * as Immutable from 'immutable';
 import {Observable, Observer} from 'rxjs';
 import {concatMap} from 'rxjs/operators';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
-import { MultiCritQueryArgs, MultiBlockFreqDistribAPI, BacklinkArgs } from '../../common/api/kontextFreqs';
+import { MultiCritQueryArgs, MultiBlockFreqDistribAPI, BacklinkArgs } from '../../common/api/kontext/freqs';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
 import {ConcLoadedPayload} from '../concordance/actions';
 import {Actions, ActionName, DataLoadedPayload} from './actions';

@@ -19,7 +19,7 @@ import * as Immutable from 'immutable';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
 import {ActionName, Actions, ConcLoadedPayload} from './actions';
-import {ConcApi, Line} from '../../common/api/concordance';
+import {ConcApi, Line} from '../../common/api/kontext/concordance';
 import { WdglanceMainFormModel } from '../../models/query';
 import { AppServices } from '../../appServices';
 import { importMessageType } from '../../notifications';

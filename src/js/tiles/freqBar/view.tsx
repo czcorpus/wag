@@ -20,7 +20,7 @@ import * as React from 'react';
 import {ActionDispatcher, ViewUtils, BoundWithProps} from 'kombo';
 import { FreqBarModel, FreqBarModelState } from './model';
 import {ResponsiveContainer, BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, Legend} from 'recharts';
-import { DataRow } from '../../common/api/kontextFreqs';
+import { DataRow } from '../../common/api/kontext/freqs';
 import { GlobalComponents } from '../../views/global';
 import { CoreTileComponentProps, TileComponent } from '../../common/types';
 import { ActionName, Actions } from './actions';

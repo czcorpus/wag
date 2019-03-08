@@ -19,7 +19,7 @@
 import * as Immutable from 'immutable';
 import {Observable, forkJoin} from 'rxjs';
 import {map} from 'rxjs/operators';
-import {SingleCritQueryArgs, FreqDistribAPI, DataRow, APIResponse, BacklinkArgs} from '../../common/api/kontextFreqs';
+import {SingleCritQueryArgs, FreqDistribAPI, DataRow, APIResponse, BacklinkArgs} from '../../common/api/kontext/freqs';
 import {StatelessModel, ActionDispatcher, Action, SEDispatcher} from 'kombo';
 import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
 import {ConcLoadedPayload} from '../concordance/actions';

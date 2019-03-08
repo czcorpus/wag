@@ -23,8 +23,8 @@ import {init as viewInit} from './view';
 import { AlphaLevel } from './stat';
 import { DataItemWithWCI } from './common';
 import { AppServices } from '../../appServices';
-import { ConcApi } from '../../common/api/concordance';
-import { FreqDistribAPI } from '../../common/api/kontextFreqs';
+import { ConcApi } from '../../common/api/kontext/concordance';
+import { FreqDistribAPI } from '../../common/api/kontext/freqs';
 
 declare var require:(src:string)=>void;  // webpack
 require('./style.less');

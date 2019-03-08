@@ -17,7 +17,7 @@
  */
 
 import { Action } from 'kombo';
-import { DataRow } from '../../common/api/kontextFreqs';
+import { DataRow } from '../../common/api/kontext/freqs';
 
 
 export enum ActionName {
