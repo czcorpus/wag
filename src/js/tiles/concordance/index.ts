@@ -32,6 +32,7 @@ export interface ConcordanceTileConf extends CorpSrchTileConf {
     tileType:'ConcordanceTile';
     apiURL:string;
     backlink:Backlink;
+    pageSize:number;
     posAttrs:Array<string>;
     parallelLangMapping?:{[lang:string]:string};
 }
@@ -82,7 +83,7 @@ export class ConcordanceTile implements ITileProvider {
                 numPages: -1,
                 resultARF: -1,
                 resultIPM: -1,
-                pageSize: 20,
+                pageSize: conf.pageSize,
                 currPage: 1,
                 loadPage: 1,
                 shuffle: true,
