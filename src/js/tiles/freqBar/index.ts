@@ -20,17 +20,17 @@ import * as Immutable from 'immutable';
 import { ITileProvider, TileFactory, QueryType, TileComponent, TileConf, LocalizedConfMsg, Backlink } from '../../common/types';
 import {init as viewInit} from './view';
 import { ActionDispatcher, ViewUtils } from "kombo";
-import { FreqBarModel } from "./model";
 import { DataRow, MultiBlockFreqDistribAPI } from "../../common/api/kontextFreqs";
 import { GlobalComponents } from "../../views/global";
 import { AppServices } from '../../appServices';
-import { FreqDataBlock } from '../../common/models/freq';
+import { FreqDataBlock, SubqueryModeConf } from '../../common/models/freq';
 import { puid } from '../../common/util';
+import { factory as subqModelFactory } from './subqModel';
+import { FreqBarModel, factory as defaultModelFactory } from './model';
 
 
 declare var require:(src:string)=>void;  // webpack
 require('./style.less');
-
 
 export interface FreqBarTileConf extends TileConf {
     tileType:'FreqBarTile';
@@ -44,6 +44,13 @@ export interface FreqBarTileConf extends TileConf {
     fttIncludeEmpty:boolean;
     maxNumCategories:number;
     backlink?:Backlink;
+
+    // if defined, then we wait for some other
+    // tile which produces payload extended
+    // from SubqueryPayload. This tile will
+    // perform provided subqueries, and
+    // obtains respective freq. distributions.
+    subqueryMode?:SubqueryModeConf;
 }
 
 
@@ -75,7 +82,9 @@ export class FreqBarTile implements ITileProvider {
         const labels = Array.isArray(conf.critLabels) ?
             conf.critLabels.map(v => this.appServices.importExternalMessage(v)) :
             [this.appServices.importExternalMessage(conf.critLabels)];
-        this.model = new FreqBarModel(
+
+        const modelFact = conf.subqueryMode ? subqModelFactory(conf.subqueryMode) : defaultModelFactory;
+        this.model = modelFact(
             this.dispatcher,
             tileId,
             waitForTiles[0],

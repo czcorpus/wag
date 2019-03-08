@@ -133,6 +133,9 @@ export class TreqModel extends StatelessModel<TreqModelState> {
                                 tileId: this.tileId,
                                 isEmpty: data.lines.length === 0,
                                 query: this.mainForm.getState().query.value,
+                                subqueries: data.lines.map(v => v.right),
+                                lang1: this.mainForm.getState().targetLanguage,
+                                lang2: this.mainForm.getState().targetLanguage2,
                                 data: data
                             }
                         });
@@ -144,6 +147,9 @@ export class TreqModel extends StatelessModel<TreqModelState> {
                                 tileId: this.tileId,
                                 isEmpty: true,
                                 query: this.mainForm.getState().query.value,
+                                subqueries: [],
+                                lang1: this.mainForm.getState().targetLanguage,
+                                lang2: this.mainForm.getState().targetLanguage2,
                                 data: {lines: [], sum: -1}
                             },
                             error: error

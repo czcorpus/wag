@@ -16,15 +16,15 @@
  * limitations under the License.
  */
 
-import { Action } from 'kombo';
 import {TreqResponse} from './api';
+import { SubqueryPayload } from '../../common/types';
 
 
 export enum ActionName {
     /// TODO
 }
 
-export interface DataLoadedPayload {
+export interface DataLoadedPayload extends SubqueryPayload {
     query:string;
     data:TreqResponse;
 }

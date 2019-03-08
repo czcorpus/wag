@@ -109,3 +109,19 @@ export const createBackLink = <T>(state:GeneralMultiCritFreqBarModelState<T>|Gen
         } :
         null;
 };
+
+/**
+ * SubqueryModeConf defines a special part
+ * of the tile configuration which makes it
+ * able to search for provided subquieries
+ * in custom concordances.
+ *
+ * E.g. TreqTile produces some translations
+ * and we want to find some freq. info
+ * for most relevant ones (= subqueries).
+ */
+export interface SubqueryModeConf {
+    concApiURL:string;
+    maxNumSubqueries:number;
+    langMapping:{[lang:string]:string};
+}
