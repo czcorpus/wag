@@ -18,7 +18,7 @@
 import * as Immutable from 'immutable';
 import { AppServices } from './appServices';
 import { QueryType } from './common/types';
-import { LayoutsConfig, LayoutConfig } from './common/conf';
+import { LayoutsConfig, LayoutConfig } from './conf';
 
 
 function itemIsGroupConf(v:string|LayoutConfig):v is LayoutConfig {

@@ -16,18 +16,18 @@
  * limitations under the License.
  */
 
-import { DbValueMapping, TileConf, LocalizedConfMsg, HTTPHeaders } from './types';
-import { ConcordanceTileConf } from '../tiles/concordance';
-import { FreqBarTileConf } from '../tiles/freqBar';
-import { TreqTileConf } from '../tiles/treq';
-import { SyDTileConf } from '../tiles/syd';
-import { FreqPieTileConf } from '../tiles/freqPie';
-import { TimeDistTileConf } from '../tiles/timeDistrib';
-import { CollocationsTileConf } from '../tiles/collocations';
-import { WordFreqTileConf } from '../tiles/wordFreq';
-import { MergeCorpFreqTileConf } from '../tiles/mergeCorpFreq';
-import { GeoAreasTileConf } from '../tiles/geoAreas';
-import { SimilarFreqsTileConf } from '../tiles/similarFreqs';
+import { DbValueMapping, LocalizedConfMsg, HTTPHeaders } from './common/types';
+import { ConcordanceTileConf } from './tiles/concordance';
+import { FreqBarTileConf } from './tiles/freqBar';
+import { TreqTileConf } from './tiles/treq';
+import { SyDTileConf } from './tiles/syd';
+import { FreqPieTileConf } from './tiles/freqPie';
+import { TimeDistTileConf } from './tiles/timeDistrib';
+import { CollocationsTileConf } from './tiles/collocations';
+import { WordFreqTileConf } from './tiles/wordFreq';
+import { MergeCorpFreqTileConf } from './tiles/mergeCorpFreq';
+import { GeoAreasTileConf } from './tiles/geoAreas';
+import { SimilarFreqsTileConf } from './tiles/similarFreqs';
 
 
 

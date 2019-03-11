@@ -22,7 +22,7 @@ import { renderToString } from 'react-dom/server';
 import {init as viewInit, LayoutProps} from '../views/layout';
 import {Database} from 'sqlite3';
 import {Express, Request, Response} from 'express';
-import {ServerConf, ClientConf, UserConf, mkRuntimeClientConf, ClientStaticConf} from '../common/conf';
+import {ServerConf, ClientConf, UserConf, mkRuntimeClientConf, ClientStaticConf} from '../conf';
 import { ViewUtils } from 'kombo';
 import { GlobalComponents } from '../views/global';
 import { encodeArgs } from '../common/ajax';

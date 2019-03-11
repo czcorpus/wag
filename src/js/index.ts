@@ -47,7 +47,7 @@ import {MessagesModel } from './models/messages';
 import {CorpusInfoAPI } from './common/api/kontext/corpusInfo';
 import {LayoutManager} from './layout';
 import {Theme } from './common/theme';
-import {ClientConf, UserConf, AnyTileConf } from './common/conf';
+import {ClientConf, UserConf, AnyTileConf } from './conf';
 import {EmptyTile } from './tiles/empty';
 
 declare var require:(src:string)=>void;  // webpack

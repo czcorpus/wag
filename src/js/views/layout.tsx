@@ -19,7 +19,7 @@
 import * as Immutable from 'immutable';
 import {IActionDispatcher, ViewUtils} from 'kombo';
 import * as React from 'react';
-import { ClientConf, UserConf } from '../common/conf';
+import { ClientConf, UserConf } from '../conf';
 import {init as mainViewInit} from './main';
 import { GlobalComponents } from './global';
 import { TileGroup } from '../layout';

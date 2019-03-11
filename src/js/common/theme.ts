@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { ColorsConf } from "./conf";
+import { ColorsConf } from "../conf";
 
 export enum SystemColor {
     COLOR_LOGO_ORANGE = '#F0680B',

@@ -22,7 +22,7 @@ import {wdgRouter} from './routes';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as sqlite3 from 'sqlite3';
-import {ServerConf, ClientStaticConf} from '../common/conf';
+import {ServerConf, ClientStaticConf} from '../conf';
 import * as translations from 'translations';
 import {UCNKToolbar} from './toolbar/ucnk';
 import {EmptyToolbar} from './toolbar/empty';
