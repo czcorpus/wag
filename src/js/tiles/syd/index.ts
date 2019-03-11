@@ -51,6 +51,8 @@ export class SyDTile implements ITileProvider {
 
     private readonly widthFract:number;
 
+    private readonly label:string;
+
     constructor({dispatcher, tileId, waitForTiles, ut, mainForm, appServices, widthFract, conf}:TileFactory.Args<SyDTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
@@ -77,6 +79,7 @@ export class SyDTile implements ITileProvider {
             appServices,
             new SyDAPI(conf.apiURL, conf.concApiURL)
         );
+        this.label = appServices.importExternalMessage(conf.label || 'syd_main_label');
         this.view = viewInit(dispatcher, ut, this.model);
     }
 
@@ -89,7 +92,7 @@ export class SyDTile implements ITileProvider {
     }
 
     getLabel():string {
-        return this.appServices.translate('syd_main_label');
+        return this.label;
     }
 
     supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {

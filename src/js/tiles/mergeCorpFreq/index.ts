@@ -115,6 +115,7 @@ export class MergeCorpFreqTile implements ITileProvider {
                 pixelsPerItem: conf.pixelsPerItem ? conf.pixelsPerItem : 40
             }
         );
+        this.label = appServices.importExternalMessage(conf.label || 'mergeCorpFreq__main_label');
         this.view = viewInit(this.dispatcher, ut, theme, this.model);
     }
 
@@ -127,7 +128,7 @@ export class MergeCorpFreqTile implements ITileProvider {
     }
 
     getLabel():string {
-        return this.label ? this.label : this.ut.translate('mergeCorpFreq__main_label');
+        return this.label;
     }
 
     supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {

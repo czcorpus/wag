@@ -76,7 +76,9 @@ export class TimeDistTile implements ITileProvider {
 
     private readonly appServices:AppServices;
 
-    private view:TileComponent;
+    private readonly view:TileComponent;
+
+    private readonly label:string;
 
     constructor({dispatcher, tileId, waitForTiles, ut, theme, appServices, widthFract, mainForm, conf}:TileFactory.Args<TimeDistTileConf>) {
         this.dispatcher = dispatcher;
@@ -109,6 +111,7 @@ export class TimeDistTile implements ITileProvider {
             appServices,
             mainForm
         );
+        this.label = appServices.importExternalMessage(conf.label || 'timeDistrib__main_label');
         this.view = viewInit(this.dispatcher, ut, theme, this.model);
     }
 
@@ -121,7 +124,7 @@ export class TimeDistTile implements ITileProvider {
     }
 
     getLabel():string {
-        return this.appServices.translate('timeDistrib__main_label');
+        return this.label;
     }
 
     supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {

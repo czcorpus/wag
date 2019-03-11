@@ -59,7 +59,7 @@ export class WordFreqTile implements ITileProvider {
 
     private readonly widthFract:number;
 
-    private view:TileComponent;
+    private readonly view:TileComponent;
 
     constructor({tileId, dispatcher, appServices, ut, waitForTiles, widthFract, conf}:TileFactory.Args<WordFreqTileConf>) {
         this.tileId = tileId;
@@ -90,11 +90,8 @@ export class WordFreqTile implements ITileProvider {
             waitForTiles[0],
             appServices
         );
-        this.view = viewInit(
-            dispatcher,
-            ut,
-            this.model
-        );
+        this.label = appServices.importExternalMessage(conf.label || 'freqpie__main_label');
+        this.view = viewInit(dispatcher, ut, this.model);
     }
 
     getIdent():number {
@@ -102,7 +99,7 @@ export class WordFreqTile implements ITileProvider {
     }
 
     getLabel():string {
-        return this.label ? this.label : this.appServices.translate('freqpie__main_label');
+        return this.label;
     }
 
     getView():TileComponent {

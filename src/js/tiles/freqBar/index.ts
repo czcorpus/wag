@@ -121,6 +121,7 @@ export class FreqBarTile implements ITileProvider {
                 backlink: null
             }
         );
+        this.label = appServices.importExternalMessage(conf.label || 'freqBar__main_label');
         this.view = viewInit(this.dispatcher, ut, theme, this.model);
     }
 
@@ -133,7 +134,7 @@ export class FreqBarTile implements ITileProvider {
     }
 
     getLabel():string {
-        return this.label ? this.label : this.ut.translate('freqBar__main_label');
+        return this.label;
     }
 
     supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {

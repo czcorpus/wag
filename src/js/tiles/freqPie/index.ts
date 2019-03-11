@@ -103,6 +103,7 @@ export class FreqPieTile implements ITileProvider {
             new MultiBlockFreqDistribAPI(conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             conf.backlink || null
         );
+        this.label = appServices.importExternalMessage(conf.label || 'freqpie__main_label');
         this.view = viewInit(
             dispatcher,
             ut,
@@ -116,7 +117,7 @@ export class FreqPieTile implements ITileProvider {
     }
 
     getLabel():string {
-        return this.label ? this.label : this.appServices.translate('freqpie__main_label');
+        return this.label;
     }
 
     getView():TileComponent {

@@ -68,6 +68,8 @@ export class CollocationsTile implements ITileProvider {
 
     private readonly widthFract:number;
 
+    private readonly label:string;
+
     private view:TileComponent;
 
     constructor({tileId, dispatcher, appServices, ut, theme, waitForTiles, widthFract, conf}:TileFactory.Args<CollocationsTileConf>) {
@@ -103,7 +105,7 @@ export class CollocationsTile implements ITileProvider {
                 backlink: null
             }
         });
-
+        this.label = appServices.importExternalMessage(conf.label || 'collocations__main_label');
         this.view = viewInit(
             this.dispatcher,
             ut,
@@ -117,7 +119,7 @@ export class CollocationsTile implements ITileProvider {
     }
 
     getLabel():string {
-        return this.appServices.translate('collocations__main_label');
+        return this.label;
     }
 
     getView():TileComponent {

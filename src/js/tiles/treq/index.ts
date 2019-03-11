@@ -43,9 +43,11 @@ export class TreqTile implements ITileProvider {
 
     private readonly model:TreqModel;
 
-    private view:TileComponent;
+    private readonly view:TileComponent;
 
     private readonly widthFract:number;
+
+    private readonly label:string;
 
     constructor({tileId, dispatcher, appServices, ut, lang1, lang2, mainForm, widthFract, conf}:TileFactory.Args<TreqTileConf>) {
         this.tileId = tileId;
@@ -68,11 +70,8 @@ export class TreqTile implements ITileProvider {
             conf.backlink || null,
             mainForm
         );
-        this.view = viewInit(
-            dispatcher,
-            ut,
-            this.model
-        );
+        this.label = appServices.importExternalMessage(conf.label || 'treq__main_label');
+        this.view = viewInit(dispatcher, ut, this.model);
     }
 
     getIdent():number {
@@ -80,7 +79,7 @@ export class TreqTile implements ITileProvider {
     }
 
     getLabel():string {
-        return this.appServices.translate('treq__main_label');
+        return this.label;
     }
 
     getView():TileComponent {
