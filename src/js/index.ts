@@ -19,11 +19,11 @@
 import * as Immutable from 'immutable';
 import {throttleTime} from 'rxjs/operators';
 import {fromEvent, of as rxOf} from 'rxjs';
-import { ActionDispatcher, ViewUtils, StatefulModel, Action } from 'kombo';
+import {ActionDispatcher, ViewUtils, StatefulModel, Action } from 'kombo';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {init as viewInit} from './views/main';
-import { defaultFactory as wdglanceFormFactory, WdglanceMainFormModel } from './models/query';
+import {defaultFactory as wdglanceFormFactory, WdglanceMainFormModel } from './models/query';
 import {init as concInit, ConcordanceTileConf} from './tiles/concordance/index';
 import {init as freqInit, FreqBarTileConf} from './tiles/freqBar/index';
 import {init as timeDistInit, TimeDistTileConf} from './tiles/timeDistrib/index';
@@ -35,20 +35,20 @@ import {init as summaryInit, WordFreqTileConf} from './tiles/wordFreq/index';
 import {init as MergeCorpFreqInit, MergeCorpFreqTileConf } from './tiles/mergeCorpFreq/index';
 import {init as geoAreasInit, GeoAreasTileConf} from './tiles/geoAreas/index';
 import {init as similarFreqsInit, SimilarFreqsTileConf} from './tiles/similarFreqs';
-import { GlobalComponents, init as globalCompInit } from './views/global';
+import {GlobalComponents, init as globalCompInit } from './views/global';
 import * as translations from 'translations';
-import { AppServices } from './appServices';
-import { SystemNotifications } from './notifications';
-import { ActionName, Actions } from './models/actions';
-import { TileFrameProps, ITileProvider, QueryType, TileConf, TileFactory, DbValueMapping, HTTPHeaders } from './common/types';
-import { WdglanceTilesModel, TileResultFlagRec, TileResultFlag } from './models/tiles';
+import {AppServices } from './appServices';
+import {SystemNotifications } from './notifications';
+import {ActionName, Actions } from './models/actions';
+import {TileFrameProps, ITileProvider, QueryType, TileConf, TileFactory, DbValueMapping, HTTPHeaders } from './common/types';
+import {WdglanceTilesModel, TileResultFlagRec, TileResultFlag } from './models/tiles';
 import {encodeArgs} from './common/ajax';
-import { MessagesModel } from './models/messages';
-import { CorpusInfoAPI } from './common/api/kontext/corpusInfo';
-import {LayoutManager, LayoutConf} from './layout';
-import { Theme } from './common/theme';
-import { ColorsConf } from './common/conf';
-import { EmptyTile } from './tiles/empty';
+import {MessagesModel } from './models/messages';
+import {CorpusInfoAPI } from './common/api/kontext/corpusInfo';
+import {LayoutManager} from './layout';
+import {Theme } from './common/theme';
+import {ClientConf, UserConf, AnyTileConf } from './common/conf';
+import {EmptyTile } from './tiles/empty';
 
 declare var require:(src:string)=>void;  // webpack
 require('../css/index.less');
@@ -56,28 +56,6 @@ require('../css/components/global.less');
 require('../css/components/main.less');
 require('../css/mobile.less');
 require('theme.less');
-
-
-type AnyConf = ConcordanceTileConf | FreqBarTileConf | TreqTileConf | SyDTileConf | FreqPieTileConf | TimeDistTileConf |
-        CollocationsTileConf | WordFreqTileConf | MergeCorpFreqTileConf | GeoAreasTileConf | SimilarFreqsTileConf;
-
-export interface WdglanceConf {
-    uiLang:string;
-    query1Lang:string;
-    query2Lang:string;
-    query1:string;
-    query2:string;
-    queryType:QueryType;
-    rootUrl:string;
-    hostUrl:string;
-    corpInfoApiUrl:string;
-    layouts:{[qt:string]:LayoutConf};
-    tilesConf:{[ident:string]:AnyConf};
-    colors:ColorsConf;
-    dbValuesMapping:DbValueMapping;
-    apiHeaders:{[urlPrefix:string]:HTTPHeaders};
-    answerMode:boolean;
-}
 
 
 const mkAttachTile = (queryType:QueryType, lang1:string, lang2:string) =>
@@ -100,7 +78,7 @@ const mkAttachTile = (queryType:QueryType, lang1:string, lang2:string) =>
 };
 
 
-const attachNumericTileIdents = (config:{[ident:string]:AnyConf}):{[ident:string]:number} => {
+const attachNumericTileIdents = (config:{[ident:string]:AnyTileConf}):{[ident:string]:number} => {
     const ans = {};
     Object.keys(config).forEach((k, i) => {
         ans[k] = i;
@@ -132,7 +110,7 @@ const mkTileFactory = (
         lang2:string,
         tileIdentMap:{[ident:string]:number}) => (
                 confName:string,
-                conf:AnyConf):ITileProvider|null => {
+                conf:AnyTileConf):ITileProvider|null => {
 
             const applyFactory = <T extends TileConf>(initFn:TileFactory.TileFactory<T>, conf:T) => {
                 return initFn({
@@ -217,43 +195,27 @@ class QueryLangChangeHandler extends StatefulModel<{}> {
 }
 
 
-export const init = (
-    mountElement:HTMLElement,
-    {
-        uiLang,
-        rootUrl,
-        hostUrl,
-        corpInfoApiUrl,
-        query1Lang,
-        query2Lang,
-        queryType,
-        query1,
-        query2,
-        layouts,
-        colors,
-        tilesConf,
-        dbValuesMapping,
-        apiHeaders,
-        answerMode}:WdglanceConf) => {
+export const init = (mountElement:HTMLElement, config:ClientConf, userConfig:UserConf) => {
 
-    const uiLangSel = uiLang || 'en-US';
+    const qType = userConfig.queryType as QueryType; // TODO validate
+    const uiLangSel = userConfig.uiLang || 'en-US';
     const dispatcher = new ActionDispatcher();
     const viewUtils = new ViewUtils<GlobalComponents>({
         uiLang: uiLangSel,
         translations: translations,
-        staticUrlCreator: (path) => rootUrl + 'assets/' + path,
-        actionUrlCreator: (path, args) => hostUrl + path + '?' + encodeArgs(args)
+        staticUrlCreator: (path) => config.rootUrl + 'assets/' + path,
+        actionUrlCreator: (path, args) => config.hostUrl + path + '?' + encodeArgs(args)
     });
 
     const notifications = new SystemNotifications(dispatcher);
     const appServices = new AppServices({
         notifications: notifications,
-        uiLang: uiLang,
+        uiLang: userConfig.uiLang,
         translator: viewUtils,
         staticUrlCreator: viewUtils.createStaticUrl,
         actionUrlCreator: viewUtils.createActionUrl,
-        dbValuesMapping: dbValuesMapping || {},
-        apiHeadersMapping: apiHeaders
+        dbValuesMapping: config.dbValuesMapping || {},
+        apiHeadersMapping: config.apiHeaders
     });
     //appServices.forceMobileMode(); // DEBUG
 
@@ -262,19 +224,23 @@ export const init = (
     const formModel = wdglanceFormFactory({
         dispatcher: dispatcher,
         appServices: appServices,
-        query1: query1,
-        query1Lang: query1Lang || '',
-        query2: query2,
-        query2Lang: query2Lang || '',
-        queryType: queryType
+        query1: userConfig.query1,
+        query1Lang: userConfig.query1Lang || '',
+        query2: userConfig.query2,
+        query2Lang: userConfig.query2Lang || '',
+        queryType: qType
     });
 
     const tiles:Array<TileFrameProps> = [];
-    const attachTile = mkAttachTile(queryType, query1Lang, query2Lang);
-    const tilesMap = attachNumericTileIdents(tilesConf);
+    const attachTile = mkAttachTile(
+        qType,
+        userConfig.query1Lang,
+        userConfig.query2Lang
+    );
+    const tilesMap = attachNumericTileIdents(config.tiles);
     console.log('tiles map: ', tilesMap);
-    const layoutManager = new LayoutManager(layouts, tilesMap, appServices);
-    const theme = new Theme(colors);
+    const layoutManager = new LayoutManager(config.layouts, tilesMap, appServices);
+    const theme = new Theme(config.colors);
 
     const factory = mkTileFactory(
         dispatcher,
@@ -283,23 +249,23 @@ export const init = (
         appServices,
         theme,
         layoutManager,
-        queryType,
-        query1Lang,
-        query2Lang,
+        qType,
+        userConfig.query1Lang,
+        userConfig.query2Lang,
         tilesMap
     );
-    Object.keys(tilesConf).forEach((ident, i) => {
+    Object.keys(config.tiles).forEach((ident, i) => {
         attachTile(
             tiles,
-            factory(ident, tilesConf[ident]),
-            appServices.importExternalMessage(tilesConf[ident].helpURL)
+            factory(ident, config.tiles[ident]),
+            appServices.importExternalMessage(config.tiles[ident].helpURL)
         );
     });
 
     const tilesModel = new WdglanceTilesModel(
         dispatcher,
         {
-            isAnswerMode: answerMode,
+            isAnswerMode: userConfig.answerMode,
             isBusy: false,
             isMobile: appServices.isMobileMode(),
             tweakActiveTiles: Immutable.Set<number>(),
@@ -307,9 +273,12 @@ export const init = (
             tilesHelpData: Immutable.Map<number, string>(),
             hiddenGroups: Immutable.Set<number>(),
             hiddenGroupsHeaders: Immutable.Set<number>(
-                appServices.isMobileMode() ? layoutManager.getLayout(queryType).map((_, i) => i) : []),
+                appServices.isMobileMode() ?
+                    layoutManager.getLayout(qType).map((_, i) => i) :
+                    []
+            ),
             datalessGroups: Immutable.Set<number>(),
-            tileResultFlags: layoutManager.getLayout(queryType).reduce(
+            tileResultFlags: layoutManager.getLayout(qType).reduce(
                 (acc, curr, i) => acc.concat(curr.tiles.map<TileResultFlagRec>(v => ({
                     tileId: v.tileId,
                     groupId: i,
@@ -323,7 +292,7 @@ export const init = (
             modalBoxTitle: null
         },
         appServices,
-        new CorpusInfoAPI(corpInfoApiUrl)
+        new CorpusInfoAPI(config.corpInfoApiUrl)
     );
     const messagesModel = new MessagesModel(dispatcher, appServices);
     const queryLangSwitchModel = new QueryLangChangeHandler(dispatcher, appServices);
@@ -347,13 +316,13 @@ export const init = (
         React.createElement(
             component.WdglanceMain,
             {
-                layout: layoutManager.getLayout(queryType),
+                layout: layoutManager.getLayout(qType),
                 isMobile: appServices.isMobileMode()
             }
         ),
         mountElement,
         () => {
-            if (answerMode) {
+            if (userConfig.answerMode) {
                 dispatcher.dispatch(rxOf(
                     {
                         name: ActionName.RequestQueryResponse

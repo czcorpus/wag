@@ -212,7 +212,7 @@
 			}
 		},
 		"en": {
-			"ConcordanceTileConf": {
+			"ConcordanceSynchronicEn": {
 				"tileType": "ConcordanceTile",
 				"apiURL": "http://kontext.korpus.test/kontext/first",
 				"corpname": "intercorp_v11_en",
@@ -222,7 +222,7 @@
 				"tileType": "FreqBarTile",
 				"apiURL": "http://kontext.korpus.test/kontext/freqs",
 				"corpname": "intercorp_v11_en",
-				"dependsOn": "ConcordanceTileConf",
+				"dependsOn": "ConcordanceSynchronicEn",
 				"fcrit": "text.txtype 0",
 				"flimit": 1,
 				"freqSort": "rel",
@@ -232,7 +232,7 @@
 			"TimeDistTileConf": {
 				"tileType": "TimeDistribTile",
 				"apiURL": "http://kontext.korpus.test/kontext/freqct",
-				"dependsOn": "ConcordanceTileConf",
+				"dependsOn": "ConcordanceSynchronicEn",
 				"corpname": "intercorp_v11_en",
 				"distProperty": "lemma",
 				"timeProperty": "text.pubDateYear"
@@ -241,7 +241,7 @@
 				"tileType": "CollocTile",
 				"apiURL": "http://kontext.korpus.test/kontext/collx",
 				"corpname": "intercorp_v11_en",
-				"dependsOn": "ConcordanceTileConf"
+				"dependsOn": "ConcordanceSynchronicEn"
 			},
 			"TreqTileConf": {
 				"tileType": "TreqTile",
@@ -254,7 +254,7 @@
 			}
 		},
 		"de": {
-			"ConcordanceTileConf": {
+			"ConcordanceSynchronicEn": {
 				"tileType": "ConcordanceTile",
 				"apiURL": "http://kontext.korpus.test/kontext/first",
 				"corpname": "intercorp_v11_de",
@@ -264,7 +264,7 @@
 				"tileType": "FreqBarTile",
 				"apiURL": "http://kontext.korpus.test/kontext/freqs",
 				"corpname": "intercorp_v11_de",
-				"dependsOn": "ConcordanceTileConf",
+				"dependsOn": "ConcordanceSynchronicEn",
 				"fcrit": "text.txtype 0",
 				"flimit": 1,
 				"freqSort": "rel",
@@ -275,7 +275,7 @@
 				"tileType": "TimeDistribTile",
 				"apiURL": "http://kontext.korpus.test/kontext/freqct",
 				"corpname": "intercorp_v11_de",
-				"dependsOn": "ConcordanceTileConf",
+				"dependsOn": "ConcordanceSynchronicEn",
 				"distProperty": "lemma",
 				"timeProperty": "text.pubDateYear"
 			},
@@ -283,7 +283,7 @@
 				"tileType": "CollocTile",
 				"apiURL": "http://kontext.korpus.test/kontext/collx",
 				"corpname": "intercorp_v11_de",
-				"dependsOn": "ConcordanceTileConf"
+				"dependsOn": "ConcordanceSynchronicEn"
 			},
 			"TreqTileConf": {
 				"tileType": "TreqTile",

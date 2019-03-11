@@ -44,23 +44,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         const createScriptStr = () => {
             return `indexPage.init(document.querySelector('.wdglance-mount'),
-                ${JSON.stringify({
-                    uiLang: props.userConfig.uiLang,
-                    query1Lang: props.userConfig.query1Lang,
-                    query2Lang: props.userConfig.query2Lang,
-                    query1: props.userConfig.query1,
-                    query2: props.userConfig.query2,
-                    queryType: props.userConfig.queryType,
-                    rootUrl: props.config.rootUrl,
-                    hostUrl: props.config.hostUrl,
-                    corpInfoApiUrl: props.config.corpInfoApiUrl,
-                    layouts: props.config.layouts,
-                    tilesConf: props.userConfig.tilesConf,
-                    dbValuesMapping: props.config.dbValuesMapping,
-                    apiHeaders: props.config.apiHeaders,
-                    colors: props.config.colors,
-                    answerMode: props.userConfig.answerMode
-                })});`
+                ${JSON.stringify(props.config)}, ${JSON.stringify(props.userConfig)});`
         };
 
         return (
