@@ -29,7 +29,6 @@ import { ajax$, ResponseType } from '../../common/ajax';
 
 /*
 oral2013:
-
 "pohraničí české": "naCPO",
 "středočeská": "naSTR",
 "jihozápadočeská": "naJZC",
@@ -50,6 +49,20 @@ oral2013:
 "pohraničí moravské a slezské": "naMPO",
 "slezská": "naSLE",
 "východomoravská": "naVYM"
+
+ORAL_V1:
+"středočeská": "naSTR",
+"severovýchodočeská": "naSVC",
+"středomoravská": "naSTM",
+"pohraničí": "naCPO",
+"východomoravská": "naVYM",
+"západočeská": "naJZC",
+"jihočeská": "naJZC",
+"slezská": "naSLE",
+"česko-moravská": "naCMO",
+"pohraničí moravské": "naMPO",
+"zahraničí": "naFRG",
+"neznámé": "naUNK"
 */
 
 export interface GeoAreasModelState extends GeneralSingleCritFreqBarModelState {
