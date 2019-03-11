@@ -25,12 +25,24 @@ import { CoreTileComponentProps, TileComponent } from '../../common/types';
 import { GlobalComponents } from '../../views/global';
 import { ActionName } from './actions';
 import { FreqPieDataRow, FreqPieModel, FreqPieModelState } from './model';
+import { FreqDataBlock } from '../../common/models/freq';
 
 
 export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:FreqPieModel):TileComponent {
 
     const globalComponents = ut.getComponents();
     const colorPalette = theme.categoryPalette(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']);
+
+    const createColorMapping = (blocks:Immutable.List<FreqDataBlock<FreqPieDataRow>>):{[v:string]:string} => {
+        const ans = {};
+        const items = blocks.flatMap(block => block.data.map(v => v.name));
+        items.forEach((name, i) => {
+            if (ans[name] === undefined) {
+                ans[name] = colorPalette(`${i % items.size}`);
+            }
+        });
+        return ans;
+    }
 
     // ------- <ChartWrapper /> ---------------------------------------------------
 
@@ -67,6 +79,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         height:number;
         radius:number;
         isMobile:boolean;
+        palette:(item:FreqPieDataRow, i:number)=>string;
+
     }> = (props) => {
 
         const renderCustomizedLabel = ({cx, cy, midAngle, innerRadius, outerRadius, percent, index}) => {
@@ -91,7 +105,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         outerRadius={props.radius}
                         fill="#8884d8"
                         isAnimationActive={false}>
-                    {props.data.map((entry, index) => <Cell key={`cell-${entry.name}`} fill={colorPalette(`${index}`)}/>)}
+                    {props.data.map((entry, index) => <Cell key={`cell-${entry.name}`} fill={props.palette(entry, index)}/>)}
                 </Pie>
                 <Legend verticalAlign="bottom" height={36}/>
             </ChartWrapper>
@@ -129,6 +143,16 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
         render() {
             const chartsViewBoxWidth = this.props.isMobile ? '100%' : `${100 / this.props.blocks.size}%`;
+
+            let paletteFn:(item:FreqPieDataRow, i:number)=>string;
+            if (this.props.useConsistentPalette) {
+                const mapping = createColorMapping(this.props.blocks);
+                paletteFn = (item:FreqPieDataRow, i:number) => mapping[item.name];
+
+            } else {
+                paletteFn = (_, i:number) => colorPalette(`${i}`);
+            }
+
             return (
                 <globalComponents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.blocks.find(v => v.data.size > 0) !== undefined}
@@ -143,7 +167,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                                         <h3>{block.label}</h3>
                                         <Chart data={block.data} width={chartWidth} height={300}
                                                 radius={Math.min(this.props.renderSize[0], 90)}
-                                                isMobile={this.props.isMobile} />
+                                                isMobile={this.props.isMobile}
+                                                palette={paletteFn} />
                                     </div>
                                 );
                             })}

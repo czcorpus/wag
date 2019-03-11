@@ -94,7 +94,8 @@ export class FreqPieTile implements ITileProvider {
                 fttIncludeEmpty: conf.fttIncludeEmpty,
                 fmaxitems: 100,
                 backlink: null,
-                maxNumCategories: conf.maxNumCategories
+                maxNumCategories: conf.maxNumCategories,
+                useConsistentPalette: !!conf.subqueryMode
             },
             tileId,
             waitForTiles[0],
