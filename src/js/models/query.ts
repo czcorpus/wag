@@ -104,17 +104,9 @@ export class WdglanceMainFormModel extends StatelessModel<WdglanceMainState> {
                 //this.queryWritingIn.next(state.query);
             break;
             case ActionName.SubmitQuery:
-                if (state.errors.size === 0) {
-                    this.appServices.showMessage(
-                        SystemMessageType.ERROR,
-                        this.appServices.translate('global__form_contains_errors')
-                    );
-
-                } else {
-                    state.errors.forEach(err => {
-                        this.appServices.showMessage(SystemMessageType.ERROR, err.message);
-                    });
-                }
+                state.errors.forEach(err => {
+                    this.appServices.showMessage(SystemMessageType.ERROR, err.message);
+                });
             break;
         }
     }
