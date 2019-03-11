@@ -34,6 +34,9 @@ export interface CollocationsTileConf extends TileConf {
     tileType:'CollocTile';
     apiURL:string;
     corpname:string;
+    minFreq:number;
+    minLocalFreq:number;
+    rangeSize:number;
     backlink:BacklinkWithArgs<BacklinkArgs>;
 }
 
@@ -79,10 +82,10 @@ export class CollocationsTile implements ITileProvider {
                 corpname: conf.corpname,
                 concId: null,
                 cattr: CorePosAttribute.LEMMA,
-                ctxSize: 2,
+                ctxSize: conf.rangeSize,
                 ctxType: SrchContextType.BOTH,
-                cminfreq: 1,
-                cminbgr: 3,
+                cminfreq: conf.minFreq,
+                cminbgr: conf.minLocalFreq,
                 cbgrfns: [CollocMetric.LOG_DICE, CollocMetric.MI, CollocMetric.T_SCORE],
                 csortfn: CollocMetric.LOG_DICE,
                 data: Immutable.List<DataRow>(),
