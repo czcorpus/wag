@@ -83,7 +83,7 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
         const conc1$ = this.conc1.call({
             corpname: args.corp1,
             iquery: args.word1,
-            queryselector: QuerySelector.BASIC,
+            queryselector: QuerySelector.PHRASE,
             kwicleftctx: '-1',
             kwicrightctx: '1',
             async: '0',
@@ -98,7 +98,7 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
         const conc2$ = this.conc2.call({
             corpname: args.corp2,
             iquery: args.word2,
-            queryselector: QuerySelector.BASIC,
+            queryselector: QuerySelector.PHRASE,
             kwicleftctx: '-5',
             kwicrightctx: '5',
             async: '0',

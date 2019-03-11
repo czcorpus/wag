@@ -241,7 +241,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     state.subcnames.toArray().map(subcname =>
                         this.concApi.call(concStateToArgs(
                             {
-                                querySelector: QuerySelector.WORD,
+                                querySelector: QuerySelector.PHRASE,
                                 corpname: state.corpname,
                                 otherCorpname: undefined,
                                 subcname: subcname,

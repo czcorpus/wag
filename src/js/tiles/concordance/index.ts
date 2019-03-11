@@ -76,7 +76,7 @@ export class ConcordanceTile implements ITileProvider {
                 isTweakMode: false,
                 isMobile: appServices.isMobileMode(),
                 widthFract: widthFract,
-                querySelector: QuerySelector.WORD,
+                querySelector: QuerySelector.PHRASE,
                 lines: Immutable.List<Line>(),
                 corpname: conf.corpname,
                 otherCorpname: conf.parallelLangMapping ? conf.parallelLangMapping[lang2] : null,

@@ -159,7 +159,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                                             return {
                                                 ident: v.ident,
                                                 lemma: v.lemma,
-                                                pos: this.appServices.importExternalMessage(posTable[v.pos]),
+                                                pos: v.pos.split(/\s+/).map(v => this.appServices.importExternalMessage(posTable[v])).join(', '),
                                                 abs: v.abs,
                                                 ipm: v.abs / state.corpusSize * 1e6,
                                                 flevel: flevel,

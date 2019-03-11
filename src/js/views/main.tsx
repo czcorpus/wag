@@ -331,7 +331,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             availLanguages={Immutable.List<[string, string]>()}
                             availQueryTypes={Immutable.List<[QueryType, string]>()}
                             isMobile={false}
-                            isValid={true} />
+                            errors={Immutable.List<Error>()} />
 
     // ------------- <HelpButton /> --------------------------------------
 
