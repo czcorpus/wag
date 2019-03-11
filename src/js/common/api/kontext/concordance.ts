@@ -26,7 +26,8 @@ export enum QuerySelector {
     BASIC = 'iqueryrow',
     CQL = 'cqlrow',
     LEMMA = 'lemmarow',
-    WORD = 'wordrow'
+    WORD = 'wordrow',
+    PHRASE = 'phraserow'
 }
 
 export enum ViewMode {
@@ -42,6 +43,7 @@ export interface AnyQuery {
     lemma?:string;
     cql?:string;
     word?:string;
+    phrase?:string;
 }
 
 export enum PCQValue {
@@ -116,6 +118,8 @@ export const getQuery = (args:AnyQuery):string => {
             return args.lemma;
         case QuerySelector.WORD:
             return args.word;
+        case QuerySelector.PHRASE:
+            return args.phrase;
         default:
             throw new Error(`Unsupported query selector ${args.queryselector}`);
     }
@@ -135,6 +139,9 @@ export const setQuery = (args:AnyQuery, q:string):void => {
         break;
         case QuerySelector.WORD:
             args.word = q;
+        break;
+        case QuerySelector.PHRASE:
+            args.phrase = q;
         break;
         default:
             throw new Error(`Unsupported query selector ${args.queryselector}`);
