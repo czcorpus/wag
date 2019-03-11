@@ -16,15 +16,26 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import {Observable, Observer} from 'rxjs';
-import {concatMap} from 'rxjs/operators';
-import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
-import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
-import {ActionName as ConcActionName, Actions as ConcActions, ConcLoadedPayload} from '../concordance/actions';
-import {ActionName, DataRow, Actions, CollApiArgs, DataHeading, CollocMetric, SrchContextType, CoreCollRequestArgs, DataLoadedPayload} from './common';
-import { KontextCollAPI } from './service';
+import { Action, ActionDispatcher, SEDispatcher, StatelessModel } from 'kombo';
+import { Observable, Observer } from 'rxjs';
+import { concatMap } from 'rxjs/operators';
+
 import { AppServices } from '../../appServices';
-import { SystemMessageType, Backlink, BacklinkWithArgs, HTTPMethod } from '../../common/types';
+import { Backlink, BacklinkWithArgs, HTTPMethod, SystemMessageType } from '../../common/types';
+import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
+import { ConcLoadedPayload } from '../concordance/actions';
+import {
+    ActionName,
+    Actions,
+    CollApiArgs,
+    CollocMetric,
+    CoreCollRequestArgs,
+    DataHeading,
+    DataLoadedPayload,
+    DataRow,
+    SrchContextType,
+} from './common';
+import { KontextCollAPI } from './service';
 
 
 export interface CollocModelArgs {

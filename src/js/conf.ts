@@ -15,8 +15,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { DbValueMapping, HTTPHeaders, LocalizedConfMsg } from './common/types';
+import { CollocationsTileConf } from './tiles/collocations';
+import { ConcordanceTileConf } from './tiles/concordance';
+import { FreqBarTileConf } from './tiles/freqBar';
+import { FreqPieTileConf } from './tiles/freqPie';
+import { GeoAreasTileConf } from './tiles/geoAreas';
+import { MergeCorpFreqTileConf } from './tiles/mergeCorpFreq';
+import { SimilarFreqsTileConf } from './tiles/similarFreqs';
+import { SyDTileConf } from './tiles/syd';
+import { TimeDistTileConf } from './tiles/timeDistrib';
+import { TreqTileConf } from './tiles/treq';
+import { WordFreqTileConf } from './tiles/wordFreq';
 
-import { DbValueMapping, TileConf, LocalizedConfMsg, HTTPHeaders } from './types';
+
+
+
+export type AnyTileConf =
+    ConcordanceTileConf |
+    FreqBarTileConf |
+    TreqTileConf |
+    SyDTileConf |
+    FreqPieTileConf |
+    TimeDistTileConf |
+    CollocationsTileConf |
+    WordFreqTileConf |
+    MergeCorpFreqTileConf |
+    GeoAreasTileConf |
+    SimilarFreqsTileConf;
 
 /**
  * A page configuration based on
@@ -30,7 +56,6 @@ export interface UserConf {
 	query1:string;
     query2:string;
     answerMode:boolean;
-    tilesConf:{[ident:string]:TileConf};
 }
 
 /**
@@ -52,9 +77,37 @@ export interface LayoutConfig {
     tiles:Array<{tile:string; width:number}>;
 }
 
+export interface LayoutsConfig {
+    single:Array<LayoutConfig|string>;
+    cmp:Array<LayoutConfig|string>;
+    translat:Array<LayoutConfig|string>;
+}
+
 /**
  * Client side app configuration.
  */
+export interface ClientStaticConf {
+    rootUrl:string;
+	hostUrl:string;
+	corpInfoApiUrl:string;
+    dbValuesMapping:DbValueMapping;
+    apiHeaders:{[urlPrefix:string]:HTTPHeaders};
+    colors:ColorsConf;
+    tiles:{[lang:string]:{[ident:string]:AnyTileConf}};
+	layouts:LayoutsConfig;
+}
+
+export const mkRuntimeClientConf = (conf:ClientStaticConf, lang:string):ClientConf => ({
+    rootUrl: conf.rootUrl,
+    hostUrl: conf.hostUrl,
+    corpInfoApiUrl: conf.corpInfoApiUrl,
+    dbValuesMapping: conf.dbValuesMapping,
+    apiHeaders: conf.apiHeaders,
+    colors: conf.colors,
+    tiles: conf.tiles[lang],
+    layouts: conf.layouts
+});
+
 export interface ClientConf {
     rootUrl:string;
 	hostUrl:string;
@@ -62,12 +115,8 @@ export interface ClientConf {
     dbValuesMapping:DbValueMapping;
     apiHeaders:{[urlPrefix:string]:HTTPHeaders};
     colors:ColorsConf;
-    tiles:{[lang:string]:{[ident:string]:TileConf}};
-	layouts:{
-        single:LayoutConfig;
-        cmp:LayoutConfig;
-        translat:LayoutConfig;
-    };
+    tiles:{[lang:string]:AnyTileConf};
+	layouts:LayoutsConfig;
 }
 
 /**

@@ -15,10 +15,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import * as Immutable from 'immutable';
-import { DataRow, SingleCritQueryArgs, MultiCritQueryArgs, BacklinkArgs } from '../api/kontext/freqs';
-import { LocalizedConfMsg, Backlink, BacklinkWithArgs, HTTPMethod } from '../types';
+
+import { BacklinkArgs, DataRow, MultiCritQueryArgs, SingleCritQueryArgs } from '../api/kontext/freqs';
+import { Backlink, BacklinkWithArgs, HTTPMethod, LocalizedConfMsg } from '../types';
+
 
 
 interface FreqBarModelStateBase {

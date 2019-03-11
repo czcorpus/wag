@@ -15,16 +15,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import {StatelessModel, ActionDispatcher, Action, SEDispatcher} from 'kombo';
-import { ActionName, Actions } from './actions';
-import {Observable} from 'rxjs';
-import {concatMap} from 'rxjs/operators';
 import * as Immutable from 'immutable';
+import { Action, ActionDispatcher, SEDispatcher, StatelessModel } from 'kombo';
+import { Observable } from 'rxjs';
+import { concatMap } from 'rxjs/operators';
+
 import { AppServices } from '../appServices';
-import { TileFrameProps, SystemMessageType } from '../common/types';
-import { CorpusInfoAPI, APIResponse as CorpusInfoResponse} from '../common/api/kontext/corpusInfo';
 import { ajax$, ResponseType } from '../common/ajax';
+import { APIResponse as CorpusInfoResponse, CorpusInfoAPI } from '../common/api/kontext/corpusInfo';
+import { SystemMessageType, TileFrameProps } from '../common/types';
+import { ActionName, Actions } from './actions';
+
 
 
 export enum TileResultFlag {

@@ -15,14 +15,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import * as Immutable from 'immutable';
-import { ITileProvider, TileFactory, QueryType, TileComponent, Backlink, CorpSrchTileConf } from '../../common/types';
-import {init as viewInit} from './views';
-import { ConcordanceTileModel } from './model';
 import { ActionDispatcher } from 'kombo';
-import { ConcApi, Line, ViewMode, QuerySelector } from '../../common/api/kontext/concordance';
+
 import { AppServices } from '../../appServices';
+import { ConcApi, Line, QuerySelector, ViewMode } from '../../common/api/kontext/concordance';
+import { Backlink, CorpSrchTileConf, ITileProvider, QueryType, TileComponent, TileFactory } from '../../common/types';
+import { ConcordanceTileModel } from './model';
+import { init as viewInit } from './views';
+
 
 declare var require:any;
 require('./style.less');

@@ -15,9 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Observable} from 'rxjs';
-import { DataApi, HTTPHeaders } from '../../common/types';
+import { Observable } from 'rxjs';
+
 import { ajax$ } from '../../common/ajax';
+import { DataApi, HTTPHeaders } from '../../common/types';
 
 
 export interface RequestArgs {

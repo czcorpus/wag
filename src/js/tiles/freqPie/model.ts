@@ -16,18 +16,18 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import {Observable, Observer} from 'rxjs';
-import {concatMap} from 'rxjs/operators';
-import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
-import { MultiCritQueryArgs, MultiBlockFreqDistribAPI, BacklinkArgs } from '../../common/api/kontext/freqs';
-import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
-import {ConcLoadedPayload} from '../concordance/actions';
-import {Actions, ActionName, DataLoadedPayload} from './actions';
+import { Action, ActionDispatcher, SEDispatcher, StatelessModel } from 'kombo';
+import { Observable, Observer } from 'rxjs';
+import { concatMap } from 'rxjs/operators';
+
 import { AppServices } from '../../appServices';
+import { BacklinkArgs, MultiBlockFreqDistribAPI, MultiCritQueryArgs } from '../../common/api/kontext/freqs';
+import { createBackLink, FreqDataBlock, GeneralMultiCritFreqBarModelState } from '../../common/models/freq';
+import { Backlink, BacklinkWithArgs } from '../../common/types';
 import { puid } from '../../common/util';
-import { GeneralMultiCritFreqBarModelState, FreqDataBlock, createBackLink } from '../../common/models/freq';
-import { BacklinkWithArgs, Backlink } from '../../common/types';
-import { cursorTo } from 'readline';
+import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
+import { ConcLoadedPayload } from '../concordance/actions';
+import { ActionName, Actions, DataLoadedPayload } from './actions';
 
 
 export interface FreqPieDataRow {

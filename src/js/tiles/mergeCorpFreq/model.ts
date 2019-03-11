@@ -15,18 +15,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import * as Immutable from 'immutable';
-import {Observable, forkJoin} from 'rxjs';
-import {map} from 'rxjs/operators';
-import {SingleCritQueryArgs, FreqDistribAPI, DataRow, APIResponse, BacklinkArgs} from '../../common/api/kontext/freqs';
-import {StatelessModel, ActionDispatcher, Action, SEDispatcher} from 'kombo';
-import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
-import {ConcLoadedPayload} from '../concordance/actions';
-import {DataLoadedPayload} from './actions';
+import { Action, ActionDispatcher, SEDispatcher, StatelessModel } from 'kombo';
+import { forkJoin, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+
 import { AppServices } from '../../appServices';
-import { BacklinkWithArgs, Backlink, HTTPMethod } from '../../common/types';
+import { APIResponse, BacklinkArgs, DataRow, FreqDistribAPI, SingleCritQueryArgs } from '../../common/api/kontext/freqs';
 import { callWithRequestId } from '../../common/api/util';
+import { Backlink, BacklinkWithArgs, HTTPMethod } from '../../common/types';
+import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
+import { ConcLoadedPayload } from '../concordance/actions';
+import { DataLoadedPayload } from './actions';
+
 
 
 export interface ModelSourceArgs {

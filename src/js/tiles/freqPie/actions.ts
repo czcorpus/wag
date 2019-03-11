@@ -15,10 +15,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import { Action } from 'kombo';
+
 import { ApiDataBlock } from '../../common/api/kontext/freqs';
 import { LocalizedConfMsg } from '../../common/types';
+
 
 
 export enum ActionName {

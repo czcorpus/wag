@@ -15,12 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Observable, of as rxOf } from 'rxjs';
+import { concatMap } from 'rxjs/operators';
 
-import {Observable, of as rxOf} from 'rxjs';
-import {concatMap} from 'rxjs/operators';
-import { DataApi, HTTPHeaders } from '../../common/types';
 import { ajax$ } from '../../common/ajax';
-import { CollApiArgs, DataRow, DataHeading } from './common';
+import { DataApi, HTTPHeaders } from '../../common/types';
+import { CollApiArgs, DataHeading, DataRow } from './common';
+
 
 
 type ResponseDataHeading = Array<{

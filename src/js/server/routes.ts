@@ -15,30 +15,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Observable} from 'rxjs';
-import {reduce} from 'rxjs/operators';
+import { NextFunction } from 'connect';
+import { Express, Request, Response } from 'express';
+import { ViewUtils } from 'kombo';
 import * as React from 'react';
 import { renderToString } from 'react-dom/server';
-import {init as viewInit, LayoutProps} from '../views/layout';
-import {Database} from 'sqlite3';
-import {Express, Request, Response} from 'express';
-import {ServerConf, ClientConf} from '../common/conf';
-import { ViewUtils } from 'kombo';
-import { GlobalComponents } from '../views/global';
-import { encodeArgs } from '../common/ajax';
-import { defaultFactory as mainFormFactory} from '../models/query';
+import { Observable } from 'rxjs';
+import { reduce } from 'rxjs/operators';
+import { Database } from 'sqlite3';
+
 import { AppServices } from '../appServices';
-import {ServerSideActionDispatcher} from './core';
-import { IToolbarProvider, HostPageEnv } from '../common/types';
-import { NextFunction } from 'connect';
+import { encodeArgs } from '../common/ajax';
+import { ErrorType, mapToStatusCode, newError } from '../common/errors';
+import { HostPageEnv, IToolbarProvider, QueryType } from '../common/types';
+import { ClientStaticConf, mkRuntimeClientConf, ServerConf, UserConf } from '../conf';
+import { defaultFactory as mainFormFactory } from '../models/query';
+import { GlobalComponents } from '../views/global';
+import { init as viewInit, LayoutProps } from '../views/layout';
+import { ServerSideActionDispatcher } from './core';
 import { emptyValue } from './toolbar/empty';
-import {newError, ErrorType, mapToStatusCode} from '../common/errors';
 
 
 
 export interface Services {
     serverConf:ServerConf;
-    clientConf:ClientConf;
+    clientConf:ClientStaticConf;
     db:Database;
     toolbar:IToolbarProvider;
     translations:{[loc:string]:{[key:string]:string}};
@@ -47,24 +48,27 @@ export interface Services {
 
 const mainAction = (services:Services, answerMode:boolean, req:Request, res:Response, next:NextFunction) => {
 
-    const uiLang = 'cs-CZ'; // TODO
-    const query1Lang = req.query['lang1'] || 'cs';
-    const query2Lang = req.query['lang2'] || 'en';
-    const queryType = req.query['queryType'] || 'single';
-    const query1 = req.query['q1'] || '';
-    const query2 = req.query['q2'] || '';
+    const userConfig:UserConf = {
+        uiLang: 'cs-CZ',
+        query1Lang: req.query['lang1'] || 'cs',
+        query2Lang: req.query['lang2'] || 'en',
+        queryType: req.query['queryType'] || 'single',
+        query1: req.query['q1'] || '',
+        query2: req.query['q2'] || '',
+        answerMode: answerMode
+    };
 
     const dispatcher = new ServerSideActionDispatcher();
 
     const viewUtils = new ViewUtils<GlobalComponents>({
-        uiLang: uiLang,
+        uiLang: userConfig.uiLang,
         translations: services.translations,
         staticUrlCreator: (path) => services.clientConf.rootUrl + 'assets/' + path,
         actionUrlCreator: (path, args) => services.clientConf.hostUrl + path + '?' + encodeArgs(args)
     });
     const appServices = new AppServices({
         notifications: null, // TODO
-        uiLang: uiLang,
+        uiLang: userConfig.uiLang,
         translator: viewUtils,
         staticUrlCreator: viewUtils.createStaticUrl,
         actionUrlCreator: viewUtils.createActionUrl,
@@ -75,27 +79,18 @@ const mainAction = (services:Services, answerMode:boolean, req:Request, res:Resp
     const mainFormModel = mainFormFactory({
         dispatcher: dispatcher,
         appServices: appServices,
-        query1: query1,
-        query1Lang: query1Lang || '',
-        query2: query2,
-        query2Lang: query2Lang || '',
-        queryType: queryType
+        query1: userConfig.query1,
+        query1Lang: userConfig.query1Lang || '',
+        query2: userConfig.query2,
+        query2Lang: userConfig.query2Lang || '',
+        queryType: userConfig.queryType as QueryType
     })
     const view = viewInit(dispatcher, viewUtils, mainFormModel);
 
     const renderResult = (toolbarData:HostPageEnv) => {
         const appString = renderToString(React.createElement<LayoutProps>(view, {
-            config: services.clientConf,
-            userConfig: {
-                uiLang: uiLang,
-                query1Lang: query1Lang,
-                query2Lang: query2Lang,
-                queryType: queryType,
-                query1: query1,
-                query2: query2,
-                tilesConf: services.clientConf.tiles[query1Lang],
-                answerMode: answerMode
-            },
+            config: mkRuntimeClientConf(services.clientConf, userConfig.query1Lang),
+            userConfig: userConfig,
             hostPageEnv: toolbarData
         }));
         res.send(`<!DOCTYPE html>${appString}`);

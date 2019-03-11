@@ -16,15 +16,16 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
-import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
-import {ActionName, Actions, ConcLoadedPayload} from './actions';
-import {ConcApi, Line} from '../../common/api/kontext/concordance';
-import { WdglanceMainFormModel } from '../../models/query';
+import { Action, ActionDispatcher, SEDispatcher, StatelessModel } from 'kombo';
+
 import { AppServices } from '../../appServices';
-import { importMessageType } from '../../notifications';
-import { SystemMessageType, BacklinkWithArgs, Backlink, HTTPMethod } from '../../common/types';
+import { ConcApi, Line } from '../../common/api/kontext/concordance';
 import { ConcordanceMinState, stateToArgs } from '../../common/models/concordance';
+import { Backlink, BacklinkWithArgs, HTTPMethod, SystemMessageType } from '../../common/types';
+import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
+import { WdglanceMainFormModel } from '../../models/query';
+import { importMessageType } from '../../notifications';
+import { ActionName, Actions, ConcLoadedPayload } from './actions';
 
 
 export interface BacklinkArgs {

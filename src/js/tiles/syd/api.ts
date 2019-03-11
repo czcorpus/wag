@@ -1,21 +1,3 @@
-/*
- * Copyright 2019 Tomas Machalek <tomas.machalek@gmail.com>
- * Copyright 2019 Institute of the Czech National Corpus,
- *                Faculty of Arts, Charles University
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
  /*
  * Copyright 2019 Tomas Machalek <tomas.machalek@gmail.com>
  * Copyright 2019 Institute of the Czech National Corpus,
@@ -33,14 +15,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { forkJoin, Observable, of as rxOf } from 'rxjs';
+import { concatMap, share } from 'rxjs/operators';
 
-import {Observable, forkJoin, of as rxOf} from 'rxjs';
-import {share, concatMap} from 'rxjs/operators';
-import { DataApi, CorePosAttribute, HTTPHeaders } from '../../common/types';
-import {ConcApi, QuerySelector, ViewMode, ConcResponse} from '../../common/api/kontext/concordance';
-import {HTTPResponse as FreqsHTTPResponse} from '../../common/api/kontext/freqs';
 import { ajax$ } from '../../common/ajax';
+import { ConcApi, ConcResponse, QuerySelector, ViewMode } from '../../common/api/kontext/concordance';
+import { HTTPResponse as FreqsHTTPResponse } from '../../common/api/kontext/freqs';
 import { MultiDict } from '../../common/data';
+import { CorePosAttribute, DataApi, HTTPHeaders } from '../../common/types';
+
 
 export interface RequestArgs {
     corp1:string;

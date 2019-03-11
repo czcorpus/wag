@@ -15,14 +15,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import {ActionDispatcher, BoundWithProps, ViewUtils} from 'kombo';
+import { ActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
-import {ConcordanceTileModel, ConcordanceTileState} from './model';
-import { GlobalComponents } from '../../views/global';
+
 import { Line, LineElement, ViewMode } from '../../common/api/kontext/concordance';
+import { CoreTileComponentProps, TileComponent } from '../../common/types';
+import { GlobalComponents } from '../../views/global';
 import { ActionName, Actions } from './actions';
-import { TileComponent, CoreTileComponentProps } from '../../common/types';
+import { ConcordanceTileModel, ConcordanceTileState } from './model';
+
 
 
 export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:ConcordanceTileModel):TileComponent {

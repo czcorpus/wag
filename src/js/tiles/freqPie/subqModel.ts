@@ -15,18 +15,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import { FreqPieModel, FreqPieModelState } from './model';
-import { ActionDispatcher, Action, SEDispatcher } from 'kombo';
-import { MultiBlockFreqDistribAPI, APIBlockResponse, ApiDataBlock } from '../../common/api/kontext/freqs';
-import { Backlink, isSubqueryPayload, SubqueryPayload } from '../../common/types';
-import { AppServices } from '../../appServices';
-import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
-import { SubqueryModeConf, stateToAPIArgs } from '../../common/models/freq';
-import { ConcApi, ViewMode, QuerySelector, RequestArgs, ConcResponse } from '../../common/api/kontext/concordance';
-import { Observable, forkJoin } from 'rxjs';
+import { Action, ActionDispatcher, SEDispatcher } from 'kombo';
+import { forkJoin, Observable } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
+
+import { AppServices } from '../../appServices';
+import { ConcApi, ConcResponse, QuerySelector, RequestArgs, ViewMode } from '../../common/api/kontext/concordance';
+import { APIBlockResponse, ApiDataBlock, MultiBlockFreqDistribAPI } from '../../common/api/kontext/freqs';
+import { stateToAPIArgs, SubqueryModeConf } from '../../common/models/freq';
+import { Backlink, isSubqueryPayload, SubqueryPayload } from '../../common/types';
+import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
 import { DataLoadedPayload } from './actions';
+import { FreqPieModel, FreqPieModelState } from './model';
+
 
 
 export class SubqFreqPieModel extends FreqPieModel {

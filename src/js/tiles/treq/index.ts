@@ -16,11 +16,13 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { TileFactory, ITileProvider, QueryType, TileComponent, TileConf } from '../../common/types';
+
 import { AppServices } from '../../appServices';
-import {init as viewInit} from './view';
+import { ITileProvider, QueryType, TileComponent, TileConf, TileFactory } from '../../common/types';
+import { SearchPackages, TreqAPI, TreqTranslation } from './api';
 import { TreqModel } from './model';
-import { TreqAPI, TreqTranslation, SearchPackages } from './api';
+import { init as viewInit } from './view';
+
 declare var require:any;
 require('./style.less');
 

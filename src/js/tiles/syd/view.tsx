@@ -15,12 +15,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { ActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
-import {BoundWithProps} from 'kombo';
-import {ActionDispatcher, ViewUtils} from 'kombo';
+
+import { CoreTileComponentProps, TileComponent } from '../../common/types';
 import { GlobalComponents } from '../../views/global';
 import { SydModel, SydModelState } from './model';
-import { CoreTileComponentProps, TileComponent } from '../../common/types';
 
 
 export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:SydModel):TileComponent {

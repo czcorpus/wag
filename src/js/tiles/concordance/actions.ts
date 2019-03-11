@@ -15,9 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import { Action } from 'kombo';
+
 import { ConcResponse, ViewMode } from '../../common/api/kontext/concordance';
+
 
 
 export enum ActionName {

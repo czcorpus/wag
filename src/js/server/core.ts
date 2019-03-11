@@ -15,10 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Action, IActionDispatcher, IStatelessModel, StatefulModel } from 'kombo';
+import { BehaviorSubject, Observable, Subscription } from 'rxjs';
+import { scan, startWith } from 'rxjs/operators';
 
-import {IActionDispatcher, Action, StatefulModel, IStatelessModel} from 'kombo';
-import {Observable, Subscription, BehaviorSubject} from 'rxjs';
-import {startWith, scan} from 'rxjs/operators';
 
 
 export class ServerSideActionDispatcher implements IActionDispatcher {

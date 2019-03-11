@@ -15,12 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {StatelessModel, Action, IActionDispatcher, SEDispatcher} from 'kombo';
-import { ActionName, Actions } from './actions';
 import * as Immutable from 'immutable';
+import { Action, IActionDispatcher, SEDispatcher, StatelessModel } from 'kombo';
+
 import { AppServices } from '../appServices';
-import {Forms} from '../common/data';
-import { SystemMessageType, QueryType } from '../common/types';
+import { Forms } from '../common/data';
+import { QueryType, SystemMessageType } from '../common/types';
+import { ActionName, Actions } from './actions';
 
 
 export interface WdglanceMainState {

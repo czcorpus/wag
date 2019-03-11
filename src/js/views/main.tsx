@@ -15,21 +15,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import {IActionDispatcher, Bound, ViewUtils, BoundWithProps} from 'kombo';
-import * as React from 'react';
 import * as Immutable from 'immutable';
-import {WdglanceMainState, WdglanceMainFormModel} from '../models/query';
-import {ActionName, Actions} from '../models/actions';
-import {KeyCodes} from '../common/util';
-import { GlobalComponents } from './global';
+import { Bound, BoundWithProps, IActionDispatcher, ViewUtils } from 'kombo';
+import * as React from 'react';
+
 import { Forms } from '../common/data';
-import { TileFrameProps, SystemMessageType, QueryType } from '../common/types';
-import { WdglanceTilesModel, WdglanceTilesState, TileResultFlagRec } from '../models/tiles';
-import { MessagesState, MessagesModel } from '../models/messages';
-import {init as corpusInfoViewInit} from './corpusInfo';
+import { QueryType, SystemMessageType, TileFrameProps } from '../common/types';
+import { KeyCodes } from '../common/util';
 import { TileGroup } from '../layout';
+import { ActionName, Actions } from '../models/actions';
+import { MessagesModel, MessagesState } from '../models/messages';
+import { WdglanceMainFormModel, WdglanceMainState } from '../models/query';
+import { TileResultFlagRec, WdglanceTilesModel, WdglanceTilesState } from '../models/tiles';
 import { SystemMessage } from '../notifications';
+import { init as corpusInfoViewInit } from './corpusInfo';
+import { GlobalComponents } from './global';
+
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, formModel:WdglanceMainFormModel, tilesModel:WdglanceTilesModel,

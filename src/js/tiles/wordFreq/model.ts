@@ -16,14 +16,15 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import {of as rxOf} from 'rxjs';
-import {concatMap} from 'rxjs/operators';
-import {StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
-import {LemmaFreqApi, RequestArgs, SummaryDataRow} from './api';
-import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
-import {ConcLoadedPayload} from '../concordance/actions';
-import {ActionName, Actions, DataLoadedPayload } from './actions';
-import {AppServices } from '../../appServices';
+import { Action, ActionDispatcher, SEDispatcher, StatelessModel } from 'kombo';
+import { of as rxOf } from 'rxjs';
+import { concatMap } from 'rxjs/operators';
+
+import { AppServices } from '../../appServices';
+import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
+import { ConcLoadedPayload } from '../concordance/actions';
+import { ActionName, Actions, DataLoadedPayload } from './actions';
+import { LemmaFreqApi, RequestArgs, SummaryDataRow } from './api';
 
 export interface FlevelDistribItem {
     rel:number;

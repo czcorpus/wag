@@ -16,27 +16,17 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
+
 import { AppServices } from './appServices';
 import { QueryType } from './common/types';
+import { LayoutConfig, LayoutsConfig } from './conf';
 
-export interface LayoutItemConf {
-    width:number;
-    tile:string;
-}
 
-export interface TileGroupConf {
-    groupLabel:string;
-    groupDesc:string;
-    tiles:Array<LayoutItemConf>;
-}
-
-export type LayoutConf = Array<TileGroupConf|string>;
-
-function itemIsGroupConf(v:string|TileGroupConf):v is TileGroupConf {
+function itemIsGroupConf(v:string|LayoutConfig):v is LayoutConfig {
     return typeof v === 'object' && v['groupLabel'] !== undefined;
 }
 
-function itemIsServiceConf(v:string|TileGroupConf):v is string {
+function itemIsServiceConf(v:string|LayoutConfig):v is string {
     return typeof v === 'string';
 }
 
@@ -63,10 +53,10 @@ export class LayoutManager {
 
     private readonly translatQueryService:Immutable.List<number>;
 
-    constructor(layouts:{[qt:string]:LayoutConf}, tileMap:{[ident:string]:number}, appServices:AppServices) {
+    constructor(layouts:LayoutsConfig, tileMap:{[ident:string]:number}, appServices:AppServices) {
 
         this.singleQueryLayout = Immutable.List<TileGroup>(
-                (layouts[QueryType.SINGLE_QUERY] || []).filter(itemIsGroupConf).map<TileGroup>(group => {
+                (layouts.single || []).filter(itemIsGroupConf).map<TileGroup>(group => {
                     return {
                         groupLabel: appServices.importExternalMessage(group.groupLabel),
                         groupDesc: appServices.importExternalMessage(group.groupDesc),
@@ -75,11 +65,11 @@ export class LayoutManager {
                     }
                 }));
         this.singleQueryService = Immutable.List<number>(
-            (layouts[QueryType.SINGLE_QUERY] || []).filter(itemIsServiceConf).map(v => tileMap[v])
+            (layouts.single || []).filter(itemIsServiceConf).map(v => tileMap[v])
         );
 
         this.cmpQueryLayout = Immutable.List<TileGroup>(
-            (layouts[QueryType.CMP_QUERY] || []).filter(itemIsGroupConf).map<TileGroup>(group => {
+            (layouts.cmp || []).filter(itemIsGroupConf).map<TileGroup>(group => {
                 return {
                     groupLabel: appServices.importExternalMessage(group.groupLabel),
                     groupDesc: appServices.importExternalMessage(group.groupDesc),
@@ -88,11 +78,11 @@ export class LayoutManager {
                 }
             }));
         this.cmpQueryService = Immutable.List<number>(
-                (layouts[QueryType.CMP_QUERY] || []).filter(itemIsServiceConf).map(v => tileMap[v])
+                (layouts.cmp || []).filter(itemIsServiceConf).map(v => tileMap[v])
             );
 
         this.translatQueryLayout = Immutable.List<TileGroup>(
-            (layouts[QueryType.TRANSLAT_QUERY] || []).filter(itemIsGroupConf).map<TileGroup>(group => {
+            (layouts.translat || []).filter(itemIsGroupConf).map<TileGroup>(group => {
                 return {
                     groupLabel: appServices.importExternalMessage(group.groupLabel),
                     groupDesc: appServices.importExternalMessage(group.groupDesc),
@@ -101,7 +91,7 @@ export class LayoutManager {
                 }
             }));
         this.translatQueryService = Immutable.List<number>(
-                (layouts[QueryType.TRANSLAT_QUERY] || []).filter(itemIsServiceConf).map(v => tileMap[v])
+                (layouts.translat || []).filter(itemIsServiceConf).map(v => tileMap[v])
             );
 
         const invalid = this.validateLayouts();

@@ -16,15 +16,16 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
+import { ActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
-import {ActionDispatcher, ViewUtils, BoundWithProps} from 'kombo';
-import { FreqBarModel, FreqBarModelState } from './model';
-import {ResponsiveContainer, BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, Legend} from 'recharts';
+import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+
 import { DataRow } from '../../common/api/kontext/freqs';
-import { GlobalComponents } from '../../views/global';
-import { CoreTileComponentProps, TileComponent } from '../../common/types';
-import { ActionName, Actions } from './actions';
 import { Theme } from '../../common/theme';
+import { CoreTileComponentProps, TileComponent } from '../../common/types';
+import { GlobalComponents } from '../../views/global';
+import { ActionName, Actions } from './actions';
+import { FreqBarModel, FreqBarModelState } from './model';
 
 
 export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:FreqBarModel):TileComponent {

@@ -15,9 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Observable, of as rxOf } from 'rxjs';
 
-import {Observable, of as rxOf} from 'rxjs';
-import { IToolbarProvider, HostPageEnv } from '../../common/types';
+import { HostPageEnv, IToolbarProvider } from '../../common/types';
+
 
 
 export const emptyValue = ():HostPageEnv => {

@@ -15,8 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { ITileProvider, QueryType, TileComponent } from '../common/types';
 
-import { ITileProvider, TileComponent, QueryType } from '../common/types';
 
 /**
  * EmptyTile is used as a placeholder in case a configured

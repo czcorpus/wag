@@ -15,9 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import {TreqResponse} from './api';
 import { SubqueryPayload } from '../../common/types';
+import { TreqResponse } from './api';
+
 
 
 export enum ActionName {

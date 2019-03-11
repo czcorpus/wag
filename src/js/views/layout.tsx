@@ -15,17 +15,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import * as Immutable from 'immutable';
-import {IActionDispatcher, ViewUtils} from 'kombo';
+import { IActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
-import { ClientConf, UserConf } from '../common/conf';
-import {init as mainViewInit} from './main';
-import { GlobalComponents } from './global';
+import { resolve as urlResolve } from 'url';
+
+import { HostPageEnv } from '../common/types';
+import { ClientConf, UserConf } from '../conf';
 import { TileGroup } from '../layout';
 import { WdglanceMainFormModel } from '../models/query';
-import {resolve as urlResolve} from 'url';
-import { HostPageEnv } from '../common/types';
+import { GlobalComponents } from './global';
+import { init as mainViewInit } from './main';
+
 
 
 export interface LayoutProps {
@@ -44,23 +45,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         const createScriptStr = () => {
             return `indexPage.init(document.querySelector('.wdglance-mount'),
-                ${JSON.stringify({
-                    uiLang: props.userConfig.uiLang,
-                    query1Lang: props.userConfig.query1Lang,
-                    query2Lang: props.userConfig.query2Lang,
-                    query1: props.userConfig.query1,
-                    query2: props.userConfig.query2,
-                    queryType: props.userConfig.queryType,
-                    rootUrl: props.config.rootUrl,
-                    hostUrl: props.config.hostUrl,
-                    corpInfoApiUrl: props.config.corpInfoApiUrl,
-                    layouts: props.config.layouts,
-                    tilesConf: props.userConfig.tilesConf,
-                    dbValuesMapping: props.config.dbValuesMapping,
-                    apiHeaders: props.config.apiHeaders,
-                    colors: props.config.colors,
-                    answerMode: props.userConfig.answerMode
-                })});`
+                ${JSON.stringify(props.config)}, ${JSON.stringify(props.userConfig)});`
         };
 
         return (

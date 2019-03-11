@@ -16,20 +16,21 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import {Observable, Observer} from 'rxjs';
-import {concatMap, map} from 'rxjs/operators';
-import { StatelessModel, Action, SEDispatcher } from 'kombo';
-import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
-import {ActionName as ConcActionName, Actions as ConcActions, ConcLoadedPayload} from '../concordance/actions';
-import {ActionName, Actions, DataItemWithWCI, DataLoadedPayload} from './common';
-import {wilsonConfInterval, AlphaLevel} from './stat';
+import { Action, SEDispatcher, StatelessModel } from 'kombo';
+import { Observable, Observer } from 'rxjs';
+import { concatMap, map } from 'rxjs/operators';
+
 import { AppServices } from '../../appServices';
-import { ConcApi, QuerySelector, ViewMode, ConcResponse } from '../../common/api/kontext/concordance';
-import {stateToArgs as concStateToArgs} from '../../common/models/concordance';
+import { ConcApi, ConcResponse, QuerySelector, ViewMode } from '../../common/api/kontext/concordance';
+import { ApiResponse as ReduceResponse } from '../../common/api/kontext/concReduce';
+import { APIResponse, DataRow, FreqDistribAPI } from '../../common/api/kontext/freqs';
+import { stateToArgs as concStateToArgs } from '../../common/models/concordance';
+import { GeneralSingleCritFreqBarModelState, stateToAPIArgs } from '../../common/models/freq';
+import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
 import { WdglanceMainFormModel } from '../../models/query';
-import { ApiResponse as ReduceResponse} from '../../common/api/kontext/concReduce';
-import {GeneralSingleCritFreqBarModelState, stateToAPIArgs} from '../../common/models/freq';
-import { FreqDistribAPI, APIResponse, DataRow } from '../../common/api/kontext/freqs';
+import { ConcLoadedPayload } from '../concordance/actions';
+import { DataItemWithWCI, DataLoadedPayload } from './common';
+import { AlphaLevel, wilsonConfInterval } from './stat';
 
 
 export const enum FreqFilterQuantity {

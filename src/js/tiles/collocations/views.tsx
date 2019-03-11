@@ -15,20 +15,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import {select as d3select, event as d3event} from 'd3-selection';
 import 'd3-transition';
+
 import * as cloud from 'd3-cloud';
-import * as React from 'react';
+import { event as d3event, select as d3select } from 'd3-selection';
 import * as Immutable from 'immutable';
-import {of as rxOf} from 'rxjs';
-import {timeout} from 'rxjs/operators';
-import {ActionDispatcher, ViewUtils, BoundWithProps} from 'kombo';
-import {CollocModel, CollocModelState} from './model';
-import { GlobalComponents } from '../../views/global';
-import { DataRow, ActionName, Actions, SrchContextType } from './common';
-import { TileComponent, CoreTileComponentProps } from '../../common/types';
+import { ActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
+import * as React from 'react';
+import { of as rxOf } from 'rxjs';
+import { timeout } from 'rxjs/operators';
+
 import { Theme } from '../../common/theme';
+import { CoreTileComponentProps, TileComponent } from '../../common/types';
+import { GlobalComponents } from '../../views/global';
+import { ActionName, Actions, DataRow, SrchContextType } from './common';
+import { CollocModel, CollocModelState } from './model';
+
 
 
 export const drawChart = (theme:Theme, isMobile:boolean, container:HTMLElement, size:[number, number], data:Immutable.List<DataRow>, measures:Array<string>) => {

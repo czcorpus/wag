@@ -15,16 +15,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as React from 'react';
 import * as Immutable from 'immutable';
-import {ResponsiveContainer, PieChart, Pie, Cell, Legend} from 'recharts';
-import {BoundWithProps} from 'kombo';
-import {ActionDispatcher, ViewUtils} from 'kombo';
-import { GlobalComponents } from '../../views/global';
-import { FreqPieModel, FreqPieModelState, FreqPieDataRow } from './model';
-import { CoreTileComponentProps, TileComponent } from '../../common/types';
-import { ActionName } from './actions';
+import { ActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
+import * as React from 'react';
+import { Cell, Legend, Pie, PieChart, ResponsiveContainer } from 'recharts';
+
 import { Theme } from '../../common/theme';
+import { CoreTileComponentProps, TileComponent } from '../../common/types';
+import { GlobalComponents } from '../../views/global';
+import { ActionName } from './actions';
+import { FreqPieDataRow, FreqPieModel, FreqPieModelState } from './model';
 
 
 export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:FreqPieModel):TileComponent {

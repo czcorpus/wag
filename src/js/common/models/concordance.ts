@@ -15,9 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import * as Immutable from 'immutable';
-import { QuerySelector, ViewMode, RequestArgs, setQuery, PCRequestArgs, PCQValue } from "../api/kontext/concordance";
+
+import { PCQValue, PCRequestArgs, QuerySelector, RequestArgs, setQuery, ViewMode } from '../api/kontext/concordance';
+
 
 
 export interface ConcordanceMinState {

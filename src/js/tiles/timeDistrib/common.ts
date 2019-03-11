@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-import { Action } from 'kombo';
-
 
 export enum ActionName {
     // TODO

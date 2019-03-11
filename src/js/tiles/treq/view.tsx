@@ -15,14 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as React from 'react';
 import * as Immutable from 'immutable';
-import {BoundWithProps} from 'kombo';
-import {ActionDispatcher, ViewUtils} from 'kombo';
-import { GlobalComponents } from '../../views/global';
-import { TreqModel, TreqModelState } from './model';
-import { TreqTranslation } from './api';
+import { ActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
+import * as React from 'react';
+
 import { CoreTileComponentProps, TileComponent } from '../../common/types';
+import { GlobalComponents } from '../../views/global';
+import { TreqTranslation } from './api';
+import { TreqModel, TreqModelState } from './model';
 
 
 export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:TreqModel):TileComponent {

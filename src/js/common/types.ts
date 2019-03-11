@@ -15,13 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import {Observable} from 'rxjs';
 import { ActionDispatcher, ViewUtils } from 'kombo';
-import { GlobalComponents } from '../views/global';
-import { WdglanceMainFormModel } from '../models/query';
+import { Observable } from 'rxjs';
+
 import { AppServices } from '../appServices';
+import { WdglanceMainFormModel } from '../models/query';
+import { GlobalComponents } from '../views/global';
 import { Theme } from './theme';
+
 
 export type AnyInterface<T> = {
     [P in keyof T]: T[P];

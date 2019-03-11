@@ -16,15 +16,16 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { ITileProvider, QueryType, TileFactory, TileComponent, TileConf, LocalizedConfMsg, Backlink } from '../../common/types';
+
 import { AppServices } from '../../appServices';
-import { FreqPieModel, FreqPieDataRow } from './model';
-import {init as viewInit} from './view';
 import { MultiBlockFreqDistribAPI } from '../../common/api/kontext/freqs';
-import { puid } from '../../common/util';
 import { FreqDataBlock, SubqueryModeConf } from '../../common/models/freq';
+import { ITileProvider, LocalizedConfMsg, QueryType, TileComponent, TileConf, TileFactory } from '../../common/types';
+import { puid } from '../../common/util';
+import { factory as defaultModelFactory, FreqPieDataRow, FreqPieModel } from './model';
 import { factory as subqModelFactory } from './subqModel';
-import { factory as defaultModelFactory } from './model';
+import { init as viewInit } from './view';
+
 declare var require:any;
 require('./style.less');
 

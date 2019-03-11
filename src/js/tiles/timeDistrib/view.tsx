@@ -15,14 +15,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { ActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
-import {ResponsiveContainer, CartesianGrid, XAxis, YAxis, Tooltip, AreaChart, Area, Legend} from 'recharts';
-import {ActionDispatcher, ViewUtils, BoundWithProps} from 'kombo';
-import { GlobalComponents } from '../../views/global';
-import { TimeDistribModel, TimeDistribModelState } from './model';
-import { DataItemWithWCI } from './common';
-import { CoreTileComponentProps, TileComponent } from '../../common/types';
+import { Area, AreaChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+
 import { Theme } from '../../common/theme';
+import { CoreTileComponentProps, TileComponent } from '../../common/types';
+import { GlobalComponents } from '../../views/global';
+import { DataItemWithWCI } from './common';
+import { TimeDistribModel, TimeDistribModelState } from './model';
 
 
 export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:TimeDistribModel):TileComponent {

@@ -16,23 +16,24 @@
  * limitations under the License.
  */
 /// <reference path="../translations.d.ts" />
+import * as bodyParser from 'body-parser';
 import * as express from 'express';
-import * as bodyParser from 'body-parser'
-import {wdgRouter} from './routes';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as sqlite3 from 'sqlite3';
-import {ServerConf, ClientConf} from '../common/conf';
 import * as translations from 'translations';
-import {UCNKToolbar} from './toolbar/ucnk';
-import {EmptyToolbar} from './toolbar/empty';
+
+import { ClientStaticConf, ServerConf } from '../conf';
+import { wdgRouter } from './routes';
+import { EmptyToolbar } from './toolbar/empty';
+import { UCNKToolbar } from './toolbar/ucnk';
 
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 const serverConf:ServerConf = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../conf/conf.json'), 'utf8'));
-const clientConf:ClientConf = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../conf/wdglance.json'), 'utf8'));
+const clientConf:ClientStaticConf = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../conf/wdglance.json'), 'utf8'));
 const db = new sqlite3.Database(serverConf.auxServices.wordDistribDb);
 const toolbar = serverConf.toolbar ? new UCNKToolbar(serverConf.toolbar.url) : new EmptyToolbar();
 

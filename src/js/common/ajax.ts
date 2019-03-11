@@ -15,12 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Observable } from 'rxjs';
+import { ajax, AjaxResponse } from 'rxjs/ajax';
+import { map } from 'rxjs/operators';
 
-import {Observable} from 'rxjs';
-import {ajax, AjaxResponse} from 'rxjs/ajax';
-import {map} from 'rxjs/operators';
 import { MultiDict } from './data';
 import { HTTPHeaders } from './types';
+
 
 
 export enum ResponseType {

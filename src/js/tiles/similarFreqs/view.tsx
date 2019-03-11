@@ -15,13 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as React from 'react';
 import * as Immutable from 'immutable';
-import {ActionDispatcher, ViewUtils, BoundWithProps} from 'kombo';
-import { GlobalComponents } from '../../views/global';
+import { ActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
+import * as React from 'react';
+
 import { CoreTileComponentProps, TileComponent } from '../../common/types';
-import { SimFreqsModel, SimFreqsModelState } from './model';
+import { GlobalComponents } from '../../views/global';
 import { SimilarlyFreqWord } from './api';
+import { SimFreqsModel, SimFreqsModelState } from './model';
 
 
 
