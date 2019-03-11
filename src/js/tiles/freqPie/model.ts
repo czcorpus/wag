@@ -38,6 +38,7 @@ export interface FreqPieDataRow {
 export interface FreqPieModelState extends GeneralMultiCritFreqBarModelState<FreqPieDataRow> {
     activeBlock:number;
     maxNumCategories:number;
+    useConsistentPalette:boolean;
     backlink:BacklinkWithArgs<BacklinkArgs>;
 }
 
