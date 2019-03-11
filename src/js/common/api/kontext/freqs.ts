@@ -171,12 +171,15 @@ export class MultiBlockFreqDistribAPI implements DataApi<MultiCritQueryArgs, API
             map<HTTPResponse, APIBlockResponse>(
                 resp => ({
                     blocks: resp.Blocks.map(block => ({
-                        data: block.Items.map(v => ({
-                            name: v.Word.map(v => v.n).join(' '),
-                            freq: v.freq,
-                            ipm: v.rel,
-                            norm: v.norm
-                        }))
+                        data: block.Items
+                            .sort((x1, x2) => x2.freq - x1.freq)
+                            .map((v,  i) => ({
+                                name: v.Word.map(v => v.n).join(' '),
+                                freq: v.freq,
+                                ipm: v.rel,
+                                norm: v.norm,
+                                order: i
+                            }))
                     })),
                     concId: resp.conc_persistence_op_id,
                     corpname: args.corpname

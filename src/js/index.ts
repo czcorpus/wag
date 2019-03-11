@@ -309,18 +309,14 @@ export const init = (
             hiddenGroupsHeaders: Immutable.Set<number>(
                 appServices.isMobileMode() ? layoutManager.getLayout(queryType).map((_, i) => i) : []),
             datalessGroups: Immutable.Set<number>(),
-            tileResultFlags: Immutable.List<TileResultFlagRec>(
-                    layoutManager.getLayout(queryType).reduce(
-                        (acc, curr, i) => acc.concat(curr.tiles
-                                .map<TileResultFlagRec>(v => ({
-                                    tileId: v.tileId,
-                                    groupId: i,
-                                    status: TileResultFlag.PENDING,
-                                }))
-                            ),
-                        []
-                    )
-                ),
+            tileResultFlags: layoutManager.getLayout(queryType).reduce(
+                (acc, curr, i) => acc.concat(curr.tiles.map<TileResultFlagRec>(v => ({
+                    tileId: v.tileId,
+                    groupId: i,
+                    status: TileResultFlag.PENDING,
+                }))).toList(),
+                Immutable.List<TileResultFlagRec>()
+            ),
             tileProps: Immutable.List<TileFrameProps>(tiles),
             isModalVisible: false,
             modalBoxData: null,

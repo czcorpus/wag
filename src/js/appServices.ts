@@ -80,14 +80,15 @@ export class AppServices {
 
         } else if (typeof label === 'string') {
             return this.translate(label);
-        } else {
+
+        } else if (typeof label === 'object') {
             for (let k in label) {
                 if (k === this.uiLang || k.split('-')[0] === this.uiLang) {
                     return label[k];
                 }
             }
-        }``
-        return '??';
+        }
+        return `?? ${label}`;
     }
 
     formatDate(d: Date, timeFormat?: number): string {
