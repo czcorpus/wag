@@ -54,7 +54,7 @@ ORAL_V1:
 "středočeská": "naSTR",
 "severovýchodočeská": "naSVC",
 "středomoravská": "naSTM",
-"pohraničí": "naCPO",
+"pohraničí české": "naCPO",
 "východomoravská": "naVYM",
 "západočeská": "naJZC",
 "jihočeská": "naJZC",

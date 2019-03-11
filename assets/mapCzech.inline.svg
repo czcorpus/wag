@@ -965,23 +965,23 @@
      id="naSTM-g"
      class="label-mount"
      style="opacity: .75;" />
-   <g id="naFRG-g" transform="translate(370, 120)">
-   <rect
-      style="fill:#999999;stroke-width:8.13584805"
-      id="rect692"
-      width="320"
-      height="162.5"
-      x="-220"
-      y="-130" />
+   <g id="naFRG-g" transform="translate(350, 200)">
+      <rect
+         style="fill:#d35f5f;stroke-width:8.13584805"
+         id="rect692"
+         width="320"
+         height="162.5"
+         x="-220"
+         y="-130" />
    </g>
-   <g id="naUNK-g" transform="translate(370, 400)">
-   <rect
-      style="fill:#d35f5f;stroke-width:8.13584805"
-      id="rect692-3"
-      width="320"
-      height="162.5"
-      x="-220"
-      y="-130"
-       />
+   <g id="naUNK-g" transform="translate(350, 2000)">
+      <rect
+         style="fill:#999999;stroke-width:8.13584805"
+         id="rect692-3"
+         width="320"
+         height="162.5"
+         x="-220"
+         y="-130"
+         />
    </g>
 </svg>
