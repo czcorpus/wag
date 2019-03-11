@@ -55,6 +55,8 @@ export class ConcordanceTile implements ITileProvider {
 
     private readonly widthFract:number;
 
+    private readonly label:string;
+
     constructor({tileId, dispatcher, appServices, ut, mainForm, widthFract, conf, lang2}:TileFactory.Args<ConcordanceTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
@@ -99,7 +101,7 @@ export class ConcordanceTile implements ITileProvider {
                 backlink: null
             }
         });
-        this.model.suspend
+        this.label = appServices.importExternalMessage(conf.label || 'concordance__main_label');
         this.view = viewInit(this.dispatcher, ut, this.model);
     }
 
@@ -116,7 +118,7 @@ export class ConcordanceTile implements ITileProvider {
     }
 
     getLabel():string {
-        return this.appServices.translate('concordance__main_label');
+        return this.label;
     }
 
     supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {

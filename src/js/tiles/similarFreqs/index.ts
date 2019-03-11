@@ -43,8 +43,6 @@ export class SimilarFreqsTile implements ITileProvider {
 
     private readonly label:string;
 
-    private readonly appServices:AppServices;
-
     private readonly model:SimFreqsModel;
 
     private readonly widthFract:number;
@@ -54,7 +52,6 @@ export class SimilarFreqsTile implements ITileProvider {
     constructor({tileId, dispatcher, appServices, ut, mainForm, widthFract, conf}:TileFactory.Args<SimilarFreqsTileConf>) {
         this.tileId = tileId;
         this.widthFract = widthFract;
-        this.appServices = appServices;
         this.label = appServices.importExternalMessage(conf.label);
         this.model = new SimFreqsModel(
             dispatcher,
@@ -69,7 +66,8 @@ export class SimilarFreqsTile implements ITileProvider {
             tileId,
             new SimilarFreqWordsApi(conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             mainForm
-        )
+        );
+        this.label = appServices.importExternalMessage(conf.label || 'similarFreqs__main_label');
         this.view = viewInit(dispatcher, ut, this.model);
     }
 

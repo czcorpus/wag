@@ -87,11 +87,12 @@ export class GeoAreasTile implements ITileProvider {
                 fmaxitems: 100
             }
         );
+        this.label = appServices.importExternalMessage(conf.label || 'geolocations__main_label');
         this.view = viewInit(this.dispatcher, ut, theme, this.model);
     }
 
     getLabel():string {
-        return this.label ? this.label : this.appServices.translate('geolocations__main_label');
+        return this.label;
     }
 
     getIdent():number {
