@@ -15,11 +15,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
-import {Observable} from 'rxjs';
-import {map} from 'rxjs/operators';
+import { ajax$ } from '../../common/ajax';
 import { DataApi } from '../../common/types';
-import {ajax$} from '../../common/ajax';
+
 
 /*
         multiw_flag = '1' if ' ' in lemma else '0'

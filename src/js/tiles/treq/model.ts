@@ -15,14 +15,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import * as Immutable from 'immutable';
-import { StatelessModel, Action, SEDispatcher, ActionDispatcher } from 'kombo';
-import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
-import { TreqAPI, TreqTranslation, RequestArgs, PageArgs } from './api';
-import { ActionName, Actions, DataLoadedPayload } from './actions';
-import { WdglanceMainFormModel } from '../../models/query';
+import { Action, ActionDispatcher, SEDispatcher, StatelessModel } from 'kombo';
+
 import { Backlink, BacklinkWithArgs, HTTPMethod } from '../../common/types';
+import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
+import { WdglanceMainFormModel } from '../../models/query';
+import { DataLoadedPayload } from './actions';
+import { PageArgs, RequestArgs, TreqAPI, TreqTranslation } from './api';
+
 
 
 export interface TreqModelState {

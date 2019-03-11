@@ -16,15 +16,16 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { ITileProvider, TileFactory, QueryType, TileComponent, CorpSrchTileConf } from '../../common/types';
 import { ActionDispatcher } from 'kombo';
-import { TimeDistribModel } from './model';
-import {init as viewInit} from './view';
-import { AlphaLevel } from './stat';
-import { DataItemWithWCI } from './common';
+
 import { AppServices } from '../../appServices';
 import { ConcApi } from '../../common/api/kontext/concordance';
 import { FreqDistribAPI } from '../../common/api/kontext/freqs';
+import { CorpSrchTileConf, ITileProvider, QueryType, TileComponent, TileFactory } from '../../common/types';
+import { DataItemWithWCI } from './common';
+import { TimeDistribModel } from './model';
+import { AlphaLevel } from './stat';
+import { init as viewInit } from './view';
 
 declare var require:(src:string)=>void;  // webpack
 require('./style.less');

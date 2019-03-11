@@ -15,14 +15,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import * as Immutable from 'immutable';
-import { ITileProvider, QueryType, TileConf, TileFactory, TileComponent } from '../../common/types';
 import { ActionDispatcher } from 'kombo';
+
 import { AppServices } from '../../appServices';
-import {init as viewInit} from './views';
-import { GeoAreasModel } from './model';
 import { DataRow, FreqDistribAPI } from '../../common/api/kontext/freqs';
+import { ITileProvider, QueryType, TileComponent, TileConf, TileFactory } from '../../common/types';
+import { GeoAreasModel } from './model';
+import { init as viewInit } from './views';
+
+
 declare var require:any;
 require('./style.less');
 

@@ -15,8 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { AnyInterface, IMultiDict, ListOfPairs } from './types';
 
-import { ListOfPairs, AnyInterface, IMultiDict } from './types';
 
 
 export class MultiDict<T={}> implements IMultiDict {

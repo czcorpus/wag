@@ -15,11 +15,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Observable, of as rxOf } from 'rxjs';
+import { share } from 'rxjs/operators';
 
-import {Observable, of as rxOf} from 'rxjs';
-import {share} from 'rxjs/operators';
-import {ajax$} from '../../ajax';
+import { ajax$ } from '../../ajax';
 import { DataApi, HTTPHeaders } from '../../types';
+
 
 
 interface HTTPResponse {

@@ -15,24 +15,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Observable} from 'rxjs';
-import {reduce} from 'rxjs/operators';
+import { NextFunction } from 'connect';
+import { Express, Request, Response } from 'express';
+import { ViewUtils } from 'kombo';
 import * as React from 'react';
 import { renderToString } from 'react-dom/server';
-import {init as viewInit, LayoutProps} from '../views/layout';
-import {Database} from 'sqlite3';
-import {Express, Request, Response} from 'express';
-import {ServerConf, ClientConf, UserConf, mkRuntimeClientConf, ClientStaticConf} from '../conf';
-import { ViewUtils } from 'kombo';
-import { GlobalComponents } from '../views/global';
-import { encodeArgs } from '../common/ajax';
-import { defaultFactory as mainFormFactory} from '../models/query';
+import { Observable } from 'rxjs';
+import { reduce } from 'rxjs/operators';
+import { Database } from 'sqlite3';
+
 import { AppServices } from '../appServices';
-import {ServerSideActionDispatcher} from './core';
-import { IToolbarProvider, HostPageEnv, QueryType } from '../common/types';
-import { NextFunction } from 'connect';
+import { encodeArgs } from '../common/ajax';
+import { ErrorType, mapToStatusCode, newError } from '../common/errors';
+import { HostPageEnv, IToolbarProvider, QueryType } from '../common/types';
+import { ClientStaticConf, mkRuntimeClientConf, ServerConf, UserConf } from '../conf';
+import { defaultFactory as mainFormFactory } from '../models/query';
+import { GlobalComponents } from '../views/global';
+import { init as viewInit, LayoutProps } from '../views/layout';
+import { ServerSideActionDispatcher } from './core';
 import { emptyValue } from './toolbar/empty';
-import {newError, ErrorType, mapToStatusCode} from '../common/errors';
 
 
 

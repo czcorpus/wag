@@ -15,18 +15,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import {throttleTime} from 'rxjs/operators';
-import {fromEvent} from 'rxjs';
 import * as Immutable from 'immutable';
+import { ActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
-import {ActionDispatcher, ViewUtils, BoundWithProps} from 'kombo';
-import { GlobalComponents } from '../../../views/global';
-import { CoreTileComponentProps, TileComponent } from '../../../common/types';
-import { GeoAreasModelState, GeoAreasModel } from '../model';
+import { fromEvent } from 'rxjs';
+import { throttleTime } from 'rxjs/operators';
+
 import { DataRow } from '../../../common/api/kontext/freqs';
-import { Actions, ActionName } from '../actions';
 import { Theme } from '../../../common/theme';
+import { CoreTileComponentProps, TileComponent } from '../../../common/types';
+import { GlobalComponents } from '../../../views/global';
+import { ActionName, Actions } from '../actions';
+import { GeoAreasModel, GeoAreasModelState } from '../model';
+
 
 const createSVGElement = (parent:Element, name:string, attrs:{[name:string]:string}):SVGElement => {
     const elm = document.createElementNS('http://www.w3.org/2000/svg', name);

@@ -15,12 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import {StatelessModel, ActionDispatcher} from 'kombo';
-import { ActionName, Actions } from './actions';
 import * as Immutable from 'immutable';
+import { ActionDispatcher, StatelessModel } from 'kombo';
+
 import { AppServices } from '../appServices';
 import { SystemMessage } from '../notifications';
+import { ActionName, Actions } from './actions';
+
 
 
 export interface MessagesState {

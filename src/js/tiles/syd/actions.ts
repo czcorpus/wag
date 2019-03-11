@@ -15,9 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Response } from './api';
 
-import { Action } from "kombo";
-import { Response } from "./api";
 
 
 export enum ActionName {

@@ -16,12 +16,13 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import {map} from 'rxjs/operators';
-import { StatelessModel, IActionDispatcher, Action, SEDispatcher } from 'kombo';
-import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
-import { SimilarlyFreqWord, SimilarFreqWordsApi, Response } from './api';
-import { DataLoadedPayload } from './actions';
+import { Action, IActionDispatcher, SEDispatcher, StatelessModel } from 'kombo';
+import { map } from 'rxjs/operators';
+
+import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
 import { WdglanceMainFormModel } from '../../models/query';
+import { DataLoadedPayload } from './actions';
+import { Response, SimilarFreqWordsApi, SimilarlyFreqWord } from './api';
 
 export interface SimFreqsModelState {
     isBusy:boolean;

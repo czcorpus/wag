@@ -16,11 +16,13 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { ITileProvider, TileComponent, QueryType, TileFactory, TileConf } from '../../common/types';
+
 import { AppServices } from '../../appServices';
+import { ITileProvider, QueryType, TileComponent, TileConf, TileFactory } from '../../common/types';
+import { SimilarFreqWordsApi, SimilarlyFreqWord } from './api';
 import { SimFreqsModel } from './model';
-import {init as viewInit} from './view';
-import { SimilarlyFreqWord, SimilarFreqWordsApi } from './api';
+import { init as viewInit } from './view';
+
 declare var require:(src:string)=>void;  // webpack
 require('./style.less');
 

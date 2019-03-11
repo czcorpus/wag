@@ -15,12 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
-import {Observable} from 'rxjs';
-import {map} from 'rxjs/operators';
-import { DataApi, HTTPHeaders } from '../../common/types';
 import { ajax$ } from '../../common/ajax';
-import {HTTPResponse} from '../../common/api/kontext/freqs';
+import { HTTPResponse } from '../../common/api/kontext/freqs';
+import { DataApi, HTTPHeaders } from '../../common/types';
+
 
 export interface RequestArgs {
     corpname:string;

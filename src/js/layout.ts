@@ -16,9 +16,10 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
+
 import { AppServices } from './appServices';
 import { QueryType } from './common/types';
-import { LayoutsConfig, LayoutConfig } from './conf';
+import { LayoutConfig, LayoutsConfig } from './conf';
 
 
 function itemIsGroupConf(v:string|LayoutConfig):v is LayoutConfig {

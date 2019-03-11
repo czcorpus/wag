@@ -16,11 +16,13 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { TileConf, ITileProvider, TileComponent, QueryType, TileFactory } from '../../common/types';
+
 import { AppServices } from '../../appServices';
-import { SummaryModel, FlevelDistribItem } from './model';
-import {init as viewInit} from './view';
+import { ITileProvider, QueryType, TileComponent, TileConf, TileFactory } from '../../common/types';
 import { LemmaFreqApi, SummaryDataRow } from './api';
+import { FlevelDistribItem, SummaryModel } from './model';
+import { init as viewInit } from './view';
+
 declare var require:(src:string)=>void;  // webpack
 require('./style.less');
 

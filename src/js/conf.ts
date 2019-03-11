@@ -15,19 +15,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import { DbValueMapping, LocalizedConfMsg, HTTPHeaders } from './common/types';
+import { DbValueMapping, HTTPHeaders, LocalizedConfMsg } from './common/types';
+import { CollocationsTileConf } from './tiles/collocations';
 import { ConcordanceTileConf } from './tiles/concordance';
 import { FreqBarTileConf } from './tiles/freqBar';
-import { TreqTileConf } from './tiles/treq';
-import { SyDTileConf } from './tiles/syd';
 import { FreqPieTileConf } from './tiles/freqPie';
-import { TimeDistTileConf } from './tiles/timeDistrib';
-import { CollocationsTileConf } from './tiles/collocations';
-import { WordFreqTileConf } from './tiles/wordFreq';
-import { MergeCorpFreqTileConf } from './tiles/mergeCorpFreq';
 import { GeoAreasTileConf } from './tiles/geoAreas';
+import { MergeCorpFreqTileConf } from './tiles/mergeCorpFreq';
 import { SimilarFreqsTileConf } from './tiles/similarFreqs';
+import { SyDTileConf } from './tiles/syd';
+import { TimeDistTileConf } from './tiles/timeDistrib';
+import { TreqTileConf } from './tiles/treq';
+import { WordFreqTileConf } from './tiles/wordFreq';
+
 
 
 

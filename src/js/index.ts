@@ -17,38 +17,39 @@
  */
 /// <reference path="./translations.d.ts" />
 import * as Immutable from 'immutable';
-import {throttleTime} from 'rxjs/operators';
-import {fromEvent, of as rxOf} from 'rxjs';
-import {ActionDispatcher, ViewUtils, StatefulModel, Action } from 'kombo';
+import { Action, ActionDispatcher, StatefulModel, ViewUtils } from 'kombo';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import {init as viewInit} from './views/main';
-import {defaultFactory as wdglanceFormFactory, WdglanceMainFormModel } from './models/query';
-import {init as concInit, ConcordanceTileConf} from './tiles/concordance/index';
-import {init as freqInit, FreqBarTileConf} from './tiles/freqBar/index';
-import {init as timeDistInit, TimeDistTileConf} from './tiles/timeDistrib/index';
-import {init as collocInit, CollocationsTileConf} from './tiles/collocations/index';
-import {init as treqInit, TreqTileConf} from './tiles/treq/index';
-import {init as sydInit, SyDTileConf} from './tiles/syd/index';
-import {init as freqPieInit, FreqPieTileConf} from './tiles/freqPie/index';
-import {init as summaryInit, WordFreqTileConf} from './tiles/wordFreq/index';
-import {init as MergeCorpFreqInit, MergeCorpFreqTileConf } from './tiles/mergeCorpFreq/index';
-import {init as geoAreasInit, GeoAreasTileConf} from './tiles/geoAreas/index';
-import {init as similarFreqsInit, SimilarFreqsTileConf} from './tiles/similarFreqs';
-import {GlobalComponents, init as globalCompInit } from './views/global';
+import { fromEvent, of as rxOf } from 'rxjs';
+import { throttleTime } from 'rxjs/operators';
 import * as translations from 'translations';
-import {AppServices } from './appServices';
-import {SystemNotifications } from './notifications';
-import {ActionName, Actions } from './models/actions';
-import {TileFrameProps, ITileProvider, QueryType, TileConf, TileFactory, DbValueMapping, HTTPHeaders } from './common/types';
-import {WdglanceTilesModel, TileResultFlagRec, TileResultFlag } from './models/tiles';
-import {encodeArgs} from './common/ajax';
-import {MessagesModel } from './models/messages';
-import {CorpusInfoAPI } from './common/api/kontext/corpusInfo';
-import {LayoutManager} from './layout';
-import {Theme } from './common/theme';
-import {ClientConf, UserConf, AnyTileConf } from './conf';
-import {EmptyTile } from './tiles/empty';
+
+import { AppServices } from './appServices';
+import { encodeArgs } from './common/ajax';
+import { CorpusInfoAPI } from './common/api/kontext/corpusInfo';
+import { Theme } from './common/theme';
+import { ITileProvider, QueryType, TileConf, TileFactory, TileFrameProps } from './common/types';
+import { AnyTileConf, ClientConf, UserConf } from './conf';
+import { LayoutManager } from './layout';
+import { ActionName, Actions } from './models/actions';
+import { MessagesModel } from './models/messages';
+import { defaultFactory as wdglanceFormFactory, WdglanceMainFormModel } from './models/query';
+import { TileResultFlag, TileResultFlagRec, WdglanceTilesModel } from './models/tiles';
+import { SystemNotifications } from './notifications';
+import { CollocationsTileConf, init as collocInit } from './tiles/collocations';
+import { ConcordanceTileConf, init as concInit } from './tiles/concordance';
+import { EmptyTile } from './tiles/empty';
+import { FreqBarTileConf, init as freqInit } from './tiles/freqBar';
+import { FreqPieTileConf, init as freqPieInit } from './tiles/freqPie';
+import { GeoAreasTileConf, init as geoAreasInit } from './tiles/geoAreas';
+import { init as MergeCorpFreqInit, MergeCorpFreqTileConf } from './tiles/mergeCorpFreq';
+import { init as similarFreqsInit, SimilarFreqsTileConf } from './tiles/similarFreqs';
+import { init as sydInit, SyDTileConf } from './tiles/syd';
+import { init as timeDistInit, TimeDistTileConf } from './tiles/timeDistrib';
+import { init as treqInit, TreqTileConf } from './tiles/treq';
+import { init as summaryInit, WordFreqTileConf } from './tiles/wordFreq';
+import { GlobalComponents, init as globalCompInit } from './views/global';
+import { init as viewInit } from './views/main';
 
 declare var require:(src:string)=>void;  // webpack
 require('../css/index.less');

@@ -15,15 +15,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import * as Immutable from 'immutable';
-import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
-import { WdglanceMainFormModel } from '../../models/query';
-import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
-import { SyDAPI, RequestArgs, StrippedFreqResponse } from './api';
-import { ActionName, Actions, DataLoadedPayload } from './actions';
+import { Action, ActionDispatcher, SEDispatcher, StatelessModel } from 'kombo';
+
 import { AppServices } from '../../appServices';
-import { SystemMessageType } from '../../common/types';
+import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
+import { WdglanceMainFormModel } from '../../models/query';
+import { DataLoadedPayload } from './actions';
+import { RequestArgs, StrippedFreqResponse, SyDAPI } from './api';
+
 
 
 export interface SydModelState {

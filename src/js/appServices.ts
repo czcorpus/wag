@@ -15,10 +15,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { ITranslator } from 'kombo';
 
+import { DbValueMapping, HTTPHeaders, SystemMessageType } from './common/types';
 import { SystemNotifications } from './notifications';
-import {ITranslator} from 'kombo';
-import { SystemMessageType, DbValueMapping, HTTPHeaders } from './common/types';
+
+
 declare var DocumentTouch;
 
 /**

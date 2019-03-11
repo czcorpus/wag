@@ -15,17 +15,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import * as Immutable from 'immutable';
-import {IActionDispatcher, ViewUtils} from 'kombo';
+import { IActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
+import { resolve as urlResolve } from 'url';
+
+import { HostPageEnv } from '../common/types';
 import { ClientConf, UserConf } from '../conf';
-import {init as mainViewInit} from './main';
-import { GlobalComponents } from './global';
 import { TileGroup } from '../layout';
 import { WdglanceMainFormModel } from '../models/query';
-import {resolve as urlResolve} from 'url';
-import { HostPageEnv } from '../common/types';
+import { GlobalComponents } from './global';
+import { init as mainViewInit } from './main';
+
 
 
 export interface LayoutProps {

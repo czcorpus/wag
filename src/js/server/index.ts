@@ -16,16 +16,17 @@
  * limitations under the License.
  */
 /// <reference path="../translations.d.ts" />
+import * as bodyParser from 'body-parser';
 import * as express from 'express';
-import * as bodyParser from 'body-parser'
-import {wdgRouter} from './routes';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as sqlite3 from 'sqlite3';
-import {ServerConf, ClientStaticConf} from '../conf';
 import * as translations from 'translations';
-import {UCNKToolbar} from './toolbar/ucnk';
-import {EmptyToolbar} from './toolbar/empty';
+
+import { ClientStaticConf, ServerConf } from '../conf';
+import { wdgRouter } from './routes';
+import { EmptyToolbar } from './toolbar/empty';
+import { UCNKToolbar } from './toolbar/ucnk';
 
 const app = express();
 app.use(bodyParser.json());

@@ -15,14 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import {Subject, of as rxOf} from 'rxjs';
-import {observeOn, delay} from 'rxjs/operators';
-import {asyncScheduler} from 'rxjs';
 import { ActionDispatcher } from 'kombo';
-import {ActionName} from './models/actions';
-import {puid} from './common/util';
+import { asyncScheduler, of as rxOf, Subject } from 'rxjs';
+import { delay, observeOn } from 'rxjs/operators';
+
 import { SystemMessageType } from './common/types';
+import { puid } from './common/util';
+import { ActionName } from './models/actions';
+
 
 
 export interface SystemMessage {

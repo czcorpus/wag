@@ -15,18 +15,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import * as Immutable from 'immutable';
-import { ITileProvider, TileFactory, QueryType, TileComponent, TileConf, LocalizedConfMsg, Backlink } from '../../common/types';
-import {init as viewInit} from './view';
-import { ActionDispatcher, ViewUtils } from "kombo";
-import { DataRow, MultiBlockFreqDistribAPI } from "../../common/api/kontext/freqs";
-import { GlobalComponents } from "../../views/global";
+import { ActionDispatcher, ViewUtils } from 'kombo';
+
 import { AppServices } from '../../appServices';
+import { DataRow, MultiBlockFreqDistribAPI } from '../../common/api/kontext/freqs';
 import { FreqDataBlock, SubqueryModeConf } from '../../common/models/freq';
+import {
+    Backlink,
+    ITileProvider,
+    LocalizedConfMsg,
+    QueryType,
+    TileComponent,
+    TileConf,
+    TileFactory,
+} from '../../common/types';
 import { puid } from '../../common/util';
+import { GlobalComponents } from '../../views/global';
+import { factory as defaultModelFactory, FreqBarModel } from './model';
 import { factory as subqModelFactory } from './subqModel';
-import { FreqBarModel, factory as defaultModelFactory } from './model';
+import { init as viewInit } from './view';
+
 
 
 declare var require:(src:string)=>void;  // webpack

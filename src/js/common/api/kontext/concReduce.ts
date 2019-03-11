@@ -15,12 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
-import {Observable} from 'rxjs';
-import {map} from 'rxjs/operators';
-import {ajax$} from '../../ajax';
+import { ajax$ } from '../../ajax';
 import { DataApi, HTTPHeaders } from '../../types';
-import { ConcResponse, getQuery, AnyQuery } from './concordance';
+import { AnyQuery, ConcResponse, getQuery } from './concordance';
+
 
 
 export interface RequestArgs extends AnyQuery {

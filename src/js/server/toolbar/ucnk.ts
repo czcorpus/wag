@@ -15,9 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Observable} from 'rxjs';
 import * as request from 'request';
-import { IToolbarProvider, HostPageEnv } from '../../common/types';
+import { Observable } from 'rxjs';
+
+import { HostPageEnv, IToolbarProvider } from '../../common/types';
 
 
 interface ToolbarResponse {

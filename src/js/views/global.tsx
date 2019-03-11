@@ -16,12 +16,13 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
+import { ActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
-import {ActionDispatcher, ViewUtils} from 'kombo';
-import { KeyCodes } from '../common/util';
-import { SystemMessageType, BacklinkWithArgs } from '../common/types';
-import { Actions, ActionName } from '../models/actions';
+
 import { MultiDict } from '../common/data';
+import { BacklinkWithArgs, SystemMessageType } from '../common/types';
+import { KeyCodes } from '../common/util';
+import { ActionName, Actions } from '../models/actions';
 
 export interface SourceInfo {
     corp:string;

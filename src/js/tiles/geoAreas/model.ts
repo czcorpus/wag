@@ -15,17 +15,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Observable, Observer, of as rxOf, forkJoin} from 'rxjs';
-import {concatMap} from 'rxjs/operators';
 import * as Immutable from 'immutable';
-import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
-import {FreqDistribAPI, DataRow} from '../../common/api/kontext/freqs';
-import {ActionName as GlobalActionName, Actions as GlobalActions} from '../../models/actions';
-import {ActionName as ConcActionName, Actions as ConcActions, ConcLoadedPayload} from '../concordance/actions';
+import { Action, ActionDispatcher, SEDispatcher, StatelessModel } from 'kombo';
+import { forkJoin, Observable, Observer, of as rxOf } from 'rxjs';
+import { concatMap } from 'rxjs/operators';
+
 import { AppServices } from '../../appServices';
-import { ActionName, Actions, DataLoadedPayload } from './actions';
-import { GeneralSingleCritFreqBarModelState, stateToAPIArgs } from '../../common/models/freq';
 import { ajax$, ResponseType } from '../../common/ajax';
+import { DataRow, FreqDistribAPI } from '../../common/api/kontext/freqs';
+import { GeneralSingleCritFreqBarModelState, stateToAPIArgs } from '../../common/models/freq';
+import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
+import { ConcLoadedPayload } from '../concordance/actions';
+import { ActionName, Actions, DataLoadedPayload } from './actions';
 
 /*
 oral2013:

@@ -15,10 +15,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Action } from 'kombo';
 
-import {Action} from 'kombo';
-import { SystemMessageType, QueryType } from '../common/types';
-import {APIResponse} from '../common/api/kontext/corpusInfo';
+import { APIResponse } from '../common/api/kontext/corpusInfo';
+import { QueryType, SystemMessageType } from '../common/types';
+
 
 export enum ActionName {
     ChangeQueryInput = 'MAIN_CHANGE_QUERY_INPUT',

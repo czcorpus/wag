@@ -16,14 +16,12 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { TileFactory, ITileProvider, QueryType, TileComponent, TileConf } from '../../common/types';
-import { ActionDispatcher, ViewUtils } from 'kombo';
-import { GlobalComponents } from '../../views/global';
+
 import { AppServices } from '../../appServices';
-import {init as viewInit} from './view';
+import { ITileProvider, QueryType, TileComponent, TileConf, TileFactory } from '../../common/types';
+import { StrippedFreqResponse, SyDAPI } from './api';
 import { SydModel } from './model';
-import { WdglanceMainFormModel } from '../../models/query';
-import { SyDAPI, StrippedFreqResponse } from './api';
+import { init as viewInit } from './view';
 
 declare var require:any;
 require('./style.less');

@@ -15,16 +15,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as React from 'react';
 import * as Immutable from 'immutable';
-import {BoundWithProps} from 'kombo';
-import {LineChart, XAxis, YAxis, CartesianGrid, Line, Label, Tooltip, Dot} from 'recharts';
-import {ActionDispatcher, ViewUtils} from 'kombo';
-import { GlobalComponents } from '../../views/global';
+import { ActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
+import * as React from 'react';
+import { CartesianGrid, Dot, Label, Line, LineChart, XAxis, YAxis } from 'recharts';
+
 import { CoreTileComponentProps, TileComponent } from '../../common/types';
-import { SummaryModelState, SummaryModel } from './model';
-import { SummaryDataRow } from './api';
+import { GlobalComponents } from '../../views/global';
 import { ActionName, Actions } from './actions';
+import { SummaryDataRow } from './api';
+import { SummaryModel, SummaryModelState } from './model';
 
 /*
 cx: 65

@@ -15,9 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {DataApi} from '../types';
-import {Observable} from 'rxjs';
-import {map} from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+
+import { DataApi } from '../types';
 
 export const callWithRequestId = <T, U>(api:DataApi<T, U>, args:T, reqId:string):Observable<[U, string]> => {
     return api.call(args).pipe(

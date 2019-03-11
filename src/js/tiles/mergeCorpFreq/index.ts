@@ -15,15 +15,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import * as Immutable from 'immutable';
-import { ITileProvider, TileFactory, QueryType, TileComponent, TileConf, Backlink } from '../../common/types';
-import {init as viewInit} from './view';
-import { ActionDispatcher, ViewUtils } from "kombo";
-import { MergeCorpFreqModel, ModelSourceArgs, SourceMappedDataRow } from "./model";
-import { FreqDistribAPI, DataRow } from "../../common/api/kontext/freqs";
-import { GlobalComponents } from "../../views/global";
+import { ActionDispatcher, ViewUtils } from 'kombo';
+
+import { FreqDistribAPI } from '../../common/api/kontext/freqs';
+import { Backlink, ITileProvider, QueryType, TileComponent, TileConf, TileFactory } from '../../common/types';
 import { puid } from '../../common/util';
+import { GlobalComponents } from '../../views/global';
+import { MergeCorpFreqModel, ModelSourceArgs, SourceMappedDataRow } from './model';
+import { init as viewInit } from './view';
+
 
 declare var require:(src:string)=>void;  // webpack
 require('./style.less');
