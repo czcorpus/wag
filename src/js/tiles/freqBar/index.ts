@@ -44,7 +44,7 @@ require('./style.less');
 export interface FreqBarTileConf extends TileConf {
     tileType:'FreqBarTile';
     apiURL:string;
-    corpname:string;
+    corpname:string|null; // null can be used in case subqueryMode is enabled
     fcrit:string|Array<string>;
     critLabels:LocalizedConfMsg|Array<LocalizedConfMsg>;
     flimit:number;

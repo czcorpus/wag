@@ -12,6 +12,7 @@
   "devDependencies": {
     "@babel/core": "^7.3.4",
     "@babel/preset-env": "^7.3.4",
+    "ajv-cli": "^3.0.0",
     "awesome-typescript-loader": "^5.2.1",
     "babel-loader": "^8.0.5",
     "clean-webpack-plugin": "^0.1.19",
@@ -26,6 +27,7 @@
     "source-map-loader": "^0.2.4",
     "style-loader": "^0.23.0",
     "typescript": "^3.3.3",
+    "typescript-json-schema": "^0.36.0",
     "uglifyjs-webpack-plugin": "^1.2.7",
     "webpack": "^4.20.2",
     "webpack-cli": "^3.1.2",

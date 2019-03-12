@@ -84,7 +84,8 @@ export interface LayoutsConfig {
 }
 
 /**
- * Client side app configuration.
+ * Client side app configuration as present in wdglance.json
+ * configuration file.
  */
 export interface ClientStaticConf {
     rootUrl:string;
@@ -108,6 +109,11 @@ export const mkRuntimeClientConf = (conf:ClientStaticConf, lang:string):ClientCo
     layouts: conf.layouts
 });
 
+/**
+ * Client side app configuration as generated
+ * for a specific session (e.g. with tiles for
+ * specific query type).
+ */
 export interface ClientConf {
     rootUrl:string;
 	hostUrl:string;
