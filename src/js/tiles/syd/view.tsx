@@ -32,18 +32,26 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         render() {
             return (
                 <globComponents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
-                        hasData={false} sourceIdent={{corp: '??'}}>
+                        hasData={this.props.result.find(v => v.items.length > 0) !== undefined}
+                        sourceIdent={[this.props.corp1, this.props.corp2].map(v => ({corp: v}))}>
                     <div className="SydTileView">
                         <pre>############ in development ###################</pre>
                         <h3>freq calc. benchmark</h3>
                         <table>
                             <tbody>
+                                <tr>
+                                    <th>corpus</th>
+                                    <th>conc. size</th>
+                                    <th>freq. criterium</th>
+                                    <th>result size</th>
+                                </tr>
                                 {this.props.result.map((item, i) => {
                                     return (
                                         <tr key={`${item.corpname}:${item.fcrit}`}>
                                             <td>{item.corpname}</td>
+                                            <td className="num">{ut.formatNumber(item.concsize)}</td>
                                             <td>{item.fcrit}</td>
-                                            <td className="num">{item.total}</td>
+                                            <td className="num">{ut.formatNumber(item.total)}</td>
                                         </tr>
                                     )
                                 })}

@@ -77,7 +77,7 @@ export class SyDTile implements ITileProvider {
             waitForTiles[0],
             mainForm,
             appServices,
-            new SyDAPI(conf.apiURL, conf.concApiURL)
+            new SyDAPI(conf.apiURL, conf.concApiURL, appServices.getApiHeaders(conf.apiURL))
         );
         this.label = appServices.importExternalMessage(conf.label || 'syd_main_label');
         this.view = viewInit(dispatcher, ut, this.model);
