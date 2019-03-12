@@ -41,14 +41,16 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                             <tbody>
                                 <tr>
                                     <th>corpus</th>
+                                    <td>req. id</td>
                                     <th>conc. size</th>
                                     <th>freq. criterium</th>
                                     <th>result size</th>
                                 </tr>
                                 {this.props.result.map((item, i) => {
                                     return (
-                                        <tr key={`${item.corpname}:${item.fcrit}`}>
+                                        <tr key={`${item.reqId}:${item.corpname}:${item.fcrit}`}>
                                             <td>{item.corpname}</td>
+                                            <td>{item.reqId}</td>
                                             <td className="num">{ut.formatNumber(item.concsize)}</td>
                                             <td>{item.fcrit}</td>
                                             <td className="num">{ut.formatNumber(item.total)}</td>
