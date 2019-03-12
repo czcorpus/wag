@@ -19,7 +19,14 @@ import { forkJoin, Observable, of as rxOf } from 'rxjs';
 import { concatMap, share } from 'rxjs/operators';
 
 import { ajax$ } from '../../common/ajax';
-import { ConcApi, ConcResponse, QuerySelector, ViewMode } from '../../common/api/kontext/concordance';
+import {
+    ConcApi,
+    ConcResponse,
+    QuerySelector,
+    RequestArgs as ConcRequestArgs,
+    setQuery,
+    ViewMode,
+} from '../../common/api/kontext/concordance';
 import { HTTPResponse as FreqsHTTPResponse } from '../../common/api/kontext/freqs';
 import { MultiDict } from '../../common/data';
 import { CorePosAttribute, DataApi, HTTPHeaders } from '../../common/types';
@@ -58,6 +65,7 @@ export interface StrippedFreqResponse {
     }>;
     total:number;
     corpname:string;
+    concsize:number;
     fcrit:string;
 }
 
@@ -80,9 +88,8 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
 
     call(args:RequestArgs):Observable<Response> {
         const t1 = new Date().getTime();
-        const conc1$ = this.conc1.call({
+        const args1:ConcRequestArgs = {
             corpname: args.corp1,
-            iquery: args.word1,
             queryselector: QuerySelector.PHRASE,
             kwicleftctx: '-1',
             kwicrightctx: '1',
@@ -93,11 +100,12 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
             attrs: CorePosAttribute.WORD,
             viewmode: ViewMode.KWIC,
             format:'json'
-        }).pipe(share());
+        };
+        setQuery(args1, args.word1);
+        const conc1$ = this.conc1.call(args1).pipe(share());
 
-        const conc2$ = this.conc2.call({
+        const args2:ConcRequestArgs = {
             corpname: args.corp2,
-            iquery: args.word2,
             queryselector: QuerySelector.PHRASE,
             kwicleftctx: '-5',
             kwicrightctx: '5',
@@ -108,7 +116,9 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
             attrs: CorePosAttribute.WORD,
             viewmode: ViewMode.KWIC,
             format:'json'
-        }).pipe(share());
+        };
+        setQuery(args2, args.word2);
+        const conc2$ = this.conc2.call(args2).pipe(share());
 
         const createRequests = (conc$:Observable<ConcResponse>, corpname:string, frcrits:Array<string>) => {
             return frcrits.map(
@@ -139,7 +149,8 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
                                 items: data.Blocks[0].Items,
                                 total: data.Blocks[0].Total,
                                 corpname: corpname,
-                                fcrit: fcrit
+                                fcrit: fcrit,
+                                concsize: data.concsize
                             });
                         }
                     )
