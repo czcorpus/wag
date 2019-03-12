@@ -77,15 +77,12 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
 
     private readonly customHeaders:HTTPHeaders;
 
-    private readonly conc1:ConcApi;
-
-    private readonly conc2:ConcApi;
+    private readonly concApi:ConcApi;
 
     constructor(apiURL:string, concApiURL:string, customHeaders?:HTTPHeaders) {
         this.apiURL = apiURL;
         this.customHeaders = customHeaders || {};
-        this.conc1 = new ConcApi(concApiURL, this.customHeaders);
-        this.conc2 = new ConcApi(concApiURL, this.customHeaders);
+        this.concApi = new ConcApi(concApiURL, this.customHeaders);
     }
 
     call(args:RequestArgs):Observable<Response> {
@@ -107,7 +104,7 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
             format:'json'
         };
         setQuery(args1, args.word1);
-        const conc1$ = callWithRequestId(this.conc1, args1, `${args.corp1}:${args.word1}`).pipe(share());
+        const concQ1C1$ = callWithRequestId(this.concApi, args1, `${args.corp1}/${args.word1}`).pipe(share());
 
         // query 1, corp 2 ---------
 
@@ -125,7 +122,7 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
             format:'json'
         };
         setQuery(args2, args.word1);
-        const conc2$ = callWithRequestId(this.conc2, args2, `${args.corp2}:${args.word1}`).pipe(share());
+        const concQ1C2$ = callWithRequestId(this.concApi, args2, `${args.corp2}/${args.word1}`).pipe(share());
 
         // query 2, corp 1 ---------
 
@@ -143,12 +140,12 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
             format:'json'
         };
         setQuery(args3, args.word2);
-        const conc3$ = callWithRequestId(this.conc1, args3, `${args.corp1}:${args.word2}`).pipe(share());
+        const concQ2C1$ = callWithRequestId(this.concApi, args3, `${args.corp1}/${args.word2}`).pipe(share());
 
         // query 2, corp 2 ---------
 
         const args4:ConcRequestArgs = {
-            corpname: args.corp1,
+            corpname: args.corp2,
             queryselector: QuerySelector.PHRASE,
             kwicleftctx: '-1',
             kwicrightctx: '1',
@@ -161,7 +158,7 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
             format:'json'
         };
         setQuery(args4, args.word2);
-        const conc4$ = callWithRequestId(this.conc2, args4, `${args.corp2}:${args.word2}`).pipe(share());
+        const concQ2C2$ = callWithRequestId(this.concApi, args4, `${args.corp2}/${args.word2}`).pipe(share());
 
         const createRequests = (conc$:Observable<[ConcResponse, string]>, corpname:string, frcrits:Array<string>) => {
             return frcrits.map(
@@ -213,10 +210,10 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
             );
         };
 
-        const s1$ = createRequests(conc1$, args.corp1, args.fcrit1);
-        const s2$ = createRequests(conc2$, args.corp2, args.fcrit2);
-        const s3$ = createRequests(conc3$, args.corp1, args.fcrit1);
-        const s4$ = createRequests(conc4$, args.corp2, args.fcrit2);
+        const s1$ = createRequests(concQ1C1$, args.corp1, args.fcrit1);
+        const s2$ = createRequests(concQ1C2$, args.corp2, args.fcrit2);
+        const s3$ = createRequests(concQ2C1$, args.corp1, args.fcrit1);
+        const s4$ = createRequests(concQ2C2$, args.corp2, args.fcrit2);
 
         return forkJoin(...s1$, ...s2$, ...s3$, ...s4$).pipe(
             concatMap(
