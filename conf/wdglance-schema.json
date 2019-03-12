@@ -1,0 +1,1239 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "definitions": {
+        "AnyInterface": {
+            "type": "object"
+        },
+        "Backlink": {
+            "properties": {
+                "label": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                },
+                "method": {
+                    "$ref": "#/definitions/HTTPMethod"
+                },
+                "url": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "BacklinkWithArgs<BacklinkArgs>": {
+            "properties": {
+                "args": {
+                    "$ref": "#/definitions/AnyInterface"
+                },
+                "label": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                },
+                "method": {
+                    "$ref": "#/definitions/HTTPMethod"
+                },
+                "url": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "CollocationsTileConf": {
+            "properties": {
+                "apiURL": {
+                    "type": "string"
+                },
+                "backlink": {
+                    "$ref": "#/definitions/BacklinkWithArgs<BacklinkArgs>",
+                    "description": "An optional link to an application the specific tile\nrepresents (more or less). It is expected that the\ntile logic is able to pass proper arguments to the\npage."
+                },
+                "corpname": {
+                    "type": "string"
+                },
+                "dependsOn": {
+                    "anyOf": [
+                        {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "In case a tile supports this (most of them does so) it can\nwait for a specific tile to finish its operation. Again,\nthis is used mainly for 'concordance -> analysis' combinations."
+                },
+                "helpURL": {
+                    "description": "An address providing a raw text or an HTML which will be\nused as a help for the tile. Please make sure only trusted\nsources are used here as the HTML is injected \"as is\" to\nthe page.",
+                    "type": "string"
+                },
+                "isDisabled": {
+                    "description": "Normally, any tile configured in the \"tiles\" section\nwill be active no matter whether it is also in the\n\"layouts\" section. This allows e.g. a hidden concordance\ntile to ask for a concordance used by multiple visible\ntiles (e.g. colloc, freqs.). To be able to keep possibly\nusable items in the \"tiles\" configuration file it is\npossible to disable them. I.e. in case a tile is disabled\nit cannot be put in the layout without Wdglance complying\nabout invalid configuration.",
+                    "type": "boolean"
+                },
+                "label": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "A label used in the header of the tile"
+                },
+                "minFreq": {
+                    "type": "number"
+                },
+                "minLocalFreq": {
+                    "type": "number"
+                },
+                "rangeSize": {
+                    "type": "number"
+                },
+                "tileType": {
+                    "description": "An identifier as defined by tiles configuration interface",
+                    "const": "CollocTile"
+                }
+            },
+            "type": "object"
+        },
+        "ColorsConf": {
+            "description": "This specifies a 'theming' for\nJavaScript generated stuff\n(mainly chart colors).",
+            "properties": {
+                "bar": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "category": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "scale": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                }
+            },
+            "type": "object"
+        },
+        "ConcordanceTileConf": {
+            "properties": {
+                "apiURL": {
+                    "type": "string"
+                },
+                "backlink": {
+                    "$ref": "#/definitions/Backlink",
+                    "description": "An optional link to an application the specific tile\nrepresents (more or less). It is expected that the\ntile logic is able to pass proper arguments to the\npage."
+                },
+                "corpname": {
+                    "type": "string"
+                },
+                "dependsOn": {
+                    "anyOf": [
+                        {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "In case a tile supports this (most of them does so) it can\nwait for a specific tile to finish its operation. Again,\nthis is used mainly for 'concordance -> analysis' combinations."
+                },
+                "helpURL": {
+                    "description": "An address providing a raw text or an HTML which will be\nused as a help for the tile. Please make sure only trusted\nsources are used here as the HTML is injected \"as is\" to\nthe page.",
+                    "type": "string"
+                },
+                "isDisabled": {
+                    "description": "Normally, any tile configured in the \"tiles\" section\nwill be active no matter whether it is also in the\n\"layouts\" section. This allows e.g. a hidden concordance\ntile to ask for a concordance used by multiple visible\ntiles (e.g. colloc, freqs.). To be able to keep possibly\nusable items in the \"tiles\" configuration file it is\npossible to disable them. I.e. in case a tile is disabled\nit cannot be put in the layout without Wdglance complying\nabout invalid configuration.",
+                    "type": "boolean"
+                },
+                "label": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "A label used in the header of the tile"
+                },
+                "pageSize": {
+                    "type": "number"
+                },
+                "parallelLangMapping": {
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "type": "object"
+                },
+                "posAttrs": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "subcDesc": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                },
+                "subcname": {
+                    "anyOf": [
+                        {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                },
+                "tileType": {
+                    "description": "An identifier as defined by tiles configuration interface",
+                    "const": "ConcordanceTile"
+                }
+            },
+            "type": "object"
+        },
+        "FlevelDistribItem": {
+            "properties": {
+                "flevel": {
+                    "type": "number"
+                },
+                "rel": {
+                    "type": "number"
+                }
+            },
+            "type": "object"
+        },
+        "FreqBarTileConf": {
+            "properties": {
+                "apiURL": {
+                    "type": "string"
+                },
+                "backlink": {
+                    "$ref": "#/definitions/Backlink",
+                    "description": "An optional link to an application the specific tile\nrepresents (more or less). It is expected that the\ntile logic is able to pass proper arguments to the\npage."
+                },
+                "corpname": {
+                    "type": "string"
+                },
+                "critLabels": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "items": {
+                                "anyOf": [
+                                    {
+                                        "additionalProperties": {
+                                            "type": "string"
+                                        },
+                                        "type": "object"
+                                    },
+                                    {
+                                        "type": "string"
+                                    }
+                                ]
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                },
+                "dependsOn": {
+                    "anyOf": [
+                        {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "In case a tile supports this (most of them does so) it can\nwait for a specific tile to finish its operation. Again,\nthis is used mainly for 'concordance -> analysis' combinations."
+                },
+                "fcrit": {
+                    "anyOf": [
+                        {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                },
+                "flimit": {
+                    "type": "number"
+                },
+                "fpage": {
+                    "type": "number"
+                },
+                "freqSort": {
+                    "type": "string"
+                },
+                "fttIncludeEmpty": {
+                    "type": "boolean"
+                },
+                "helpURL": {
+                    "description": "An address providing a raw text or an HTML which will be\nused as a help for the tile. Please make sure only trusted\nsources are used here as the HTML is injected \"as is\" to\nthe page.",
+                    "type": "string"
+                },
+                "isDisabled": {
+                    "description": "Normally, any tile configured in the \"tiles\" section\nwill be active no matter whether it is also in the\n\"layouts\" section. This allows e.g. a hidden concordance\ntile to ask for a concordance used by multiple visible\ntiles (e.g. colloc, freqs.). To be able to keep possibly\nusable items in the \"tiles\" configuration file it is\npossible to disable them. I.e. in case a tile is disabled\nit cannot be put in the layout without Wdglance complying\nabout invalid configuration.",
+                    "type": "boolean"
+                },
+                "label": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "A label used in the header of the tile"
+                },
+                "maxNumCategories": {
+                    "type": "number"
+                },
+                "subqueryMode": {
+                    "$ref": "#/definitions/SubqueryModeConf"
+                },
+                "tileType": {
+                    "description": "An identifier as defined by tiles configuration interface",
+                    "const": "FreqBarTile"
+                }
+            },
+            "type": "object"
+        },
+        "FreqPieTileConf": {
+            "properties": {
+                "apiURL": {
+                    "type": "string"
+                },
+                "backlink": {
+                    "$ref": "#/definitions/Backlink",
+                    "description": "An optional link to an application the specific tile\nrepresents (more or less). It is expected that the\ntile logic is able to pass proper arguments to the\npage."
+                },
+                "corpname": {
+                    "type": ["string", "null"]
+                },
+                "critLabels": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "items": {
+                                "anyOf": [
+                                    {
+                                        "additionalProperties": {
+                                            "type": "string"
+                                        },
+                                        "type": "object"
+                                    },
+                                    {
+                                        "type": "string"
+                                    }
+                                ]
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                },
+                "dependsOn": {
+                    "anyOf": [
+                        {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "In case a tile supports this (most of them does so) it can\nwait for a specific tile to finish its operation. Again,\nthis is used mainly for 'concordance -> analysis' combinations."
+                },
+                "fcrit": {
+                    "anyOf": [
+                        {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                },
+                "flimit": {
+                    "type": "number"
+                },
+                "fpage": {
+                    "type": "number"
+                },
+                "freqSort": {
+                    "type": "string"
+                },
+                "fttIncludeEmpty": {
+                    "type": "boolean"
+                },
+                "helpURL": {
+                    "description": "An address providing a raw text or an HTML which will be\nused as a help for the tile. Please make sure only trusted\nsources are used here as the HTML is injected \"as is\" to\nthe page.",
+                    "type": "string"
+                },
+                "isDisabled": {
+                    "description": "Normally, any tile configured in the \"tiles\" section\nwill be active no matter whether it is also in the\n\"layouts\" section. This allows e.g. a hidden concordance\ntile to ask for a concordance used by multiple visible\ntiles (e.g. colloc, freqs.). To be able to keep possibly\nusable items in the \"tiles\" configuration file it is\npossible to disable them. I.e. in case a tile is disabled\nit cannot be put in the layout without Wdglance complying\nabout invalid configuration.",
+                    "type": "boolean"
+                },
+                "label": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "A label used in the header of the tile"
+                },
+                "maxNumCategories": {
+                    "type": "number"
+                },
+                "subqueryMode": {
+                    "$ref": "#/definitions/SubqueryModeConf"
+                },
+                "tileType": {
+                    "description": "An identifier as defined by tiles configuration interface",
+                    "const": "FreqPieTile"
+                }
+            },
+            "type": "object"
+        },
+        "GeoAreasTileConf": {
+            "properties": {
+                "apiURL": {
+                    "type": "string"
+                },
+                "areaCodeMapping": {
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "type": "object"
+                },
+                "backlink": {
+                    "$ref": "#/definitions/Backlink",
+                    "description": "An optional link to an application the specific tile\nrepresents (more or less). It is expected that the\ntile logic is able to pass proper arguments to the\npage."
+                },
+                "corpname": {
+                    "type": "string"
+                },
+                "dependsOn": {
+                    "anyOf": [
+                        {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "In case a tile supports this (most of them does so) it can\nwait for a specific tile to finish its operation. Again,\nthis is used mainly for 'concordance -> analysis' combinations."
+                },
+                "fcrit": {
+                    "type": "string"
+                },
+                "flimit": {
+                    "type": "number"
+                },
+                "fpage": {
+                    "type": "number"
+                },
+                "freqSort": {
+                    "type": "string"
+                },
+                "fttIncludeEmpty": {
+                    "type": "boolean"
+                },
+                "helpURL": {
+                    "description": "An address providing a raw text or an HTML which will be\nused as a help for the tile. Please make sure only trusted\nsources are used here as the HTML is injected \"as is\" to\nthe page.",
+                    "type": "string"
+                },
+                "isDisabled": {
+                    "description": "Normally, any tile configured in the \"tiles\" section\nwill be active no matter whether it is also in the\n\"layouts\" section. This allows e.g. a hidden concordance\ntile to ask for a concordance used by multiple visible\ntiles (e.g. colloc, freqs.). To be able to keep possibly\nusable items in the \"tiles\" configuration file it is\npossible to disable them. I.e. in case a tile is disabled\nit cannot be put in the layout without Wdglance complying\nabout invalid configuration.",
+                    "type": "boolean"
+                },
+                "label": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "A label used in the header of the tile"
+                },
+                "tileType": {
+                    "description": "An identifier as defined by tiles configuration interface",
+                    "const": "GeoAreasTile",
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "HTTPMethod": {
+            "enum": [
+                "CONNECT",
+                "DELETE",
+                "GET",
+                "HEAD",
+                "OPTIONS",
+                "PATCH",
+                "POST",
+                "PUT",
+                "TRACE"
+            ],
+            "type": "string"
+        },
+        "LayoutConfig": {
+            "properties": {
+                "groupDesc": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                },
+                "groupLabel": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                },
+                "groupTemplate": {
+                },
+                "tiles": {
+                    "items": {
+                        "properties": {
+                            "tile": {
+                                "type": "string"
+                            },
+                            "width": {
+                                "type": "number"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "type": "array"
+                }
+            },
+            "type": "object"
+        },
+        "LayoutsConfig": {
+            "properties": {
+                "cmp": {
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/definitions/LayoutConfig"
+                            },
+                            {
+                                "type": "string"
+                            }
+                        ]
+                    },
+                    "type": "array"
+                },
+                "single": {
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/definitions/LayoutConfig"
+                            },
+                            {
+                                "type": "string"
+                            }
+                        ]
+                    },
+                    "type": "array"
+                },
+                "translat": {
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/definitions/LayoutConfig"
+                            },
+                            {
+                                "type": "string"
+                            }
+                        ]
+                    },
+                    "type": "array"
+                }
+            },
+            "type": "object"
+        },
+        "MergeCorpFreqTileConf": {
+            "properties": {
+                "apiURL": {
+                    "type": "string"
+                },
+                "backlink": {
+                    "$ref": "#/definitions/Backlink",
+                    "description": "An optional link to an application the specific tile\nrepresents (more or less). It is expected that the\ntile logic is able to pass proper arguments to the\npage."
+                },
+                "dependsOn": {
+                    "anyOf": [
+                        {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "In case a tile supports this (most of them does so) it can\nwait for a specific tile to finish its operation. Again,\nthis is used mainly for 'concordance -> analysis' combinations."
+                },
+                "helpURL": {
+                    "description": "An address providing a raw text or an HTML which will be\nused as a help for the tile. Please make sure only trusted\nsources are used here as the HTML is injected \"as is\" to\nthe page.",
+                    "type": "string"
+                },
+                "isDisabled": {
+                    "description": "Normally, any tile configured in the \"tiles\" section\nwill be active no matter whether it is also in the\n\"layouts\" section. This allows e.g. a hidden concordance\ntile to ask for a concordance used by multiple visible\ntiles (e.g. colloc, freqs.). To be able to keep possibly\nusable items in the \"tiles\" configuration file it is\npossible to disable them. I.e. in case a tile is disabled\nit cannot be put in the layout without Wdglance complying\nabout invalid configuration.",
+                    "type": "boolean"
+                },
+                "label": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "A label used in the header of the tile"
+                },
+                "pixelsPerItem": {
+                    "type": "number"
+                },
+                "sources": {
+                    "items": {
+                        "properties": {
+                            "backlink": {
+                                "$ref": "#/definitions/Backlink"
+                            },
+                            "corpname": {
+                                "type": "string"
+                            },
+                            "corpusSize": {
+                                "type": "number"
+                            },
+                            "fcrit": {
+                                "type": "string"
+                            },
+                            "flimit": {
+                                "type": "number"
+                            },
+                            "fpage": {
+                                "type": "number"
+                            },
+                            "freqSort": {
+                                "type": "string"
+                            },
+                            "fttIncludeEmpty": {
+                                "type": "boolean"
+                            },
+                            "valuePlaceholder": {
+                                "description": "In case 'fcrit' describes a positional\nattribute we have to replace ann actual\nvalue returned by freq. distrib. function\n(which is equal to our query: e.g. for\nthe query 'house' the value will be 'house')\nby something more specific (e.g. 'social media')",
+                                "type": ["string", "object"]
+                            }
+                        },
+                        "required": ["corpname", "corpusSize", "fcrit", "flimit", "freqSort", "fpage", "fttIncludeEmpty"],
+                        "type": "object"
+                    },
+                    "type": "array"
+                },
+                "tileType": {
+                    "description": "An identifier as defined by tiles configuration interface",
+                    "const": "MergeCorpFreqTile"
+                }
+            },
+            "type": "object"
+        },
+        "SimilarFreqsTileConf": {
+            "properties": {
+                "apiURL": {
+                    "type": "string"
+                },
+                "backlink": {
+                    "$ref": "#/definitions/Backlink",
+                    "description": "An optional link to an application the specific tile\nrepresents (more or less). It is expected that the\ntile logic is able to pass proper arguments to the\npage."
+                },
+                "corpname": {
+                    "type": "string"
+                },
+                "corpusSize": {
+                    "type": "number"
+                },
+                "dependsOn": {
+                    "anyOf": [
+                        {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "In case a tile supports this (most of them does so) it can\nwait for a specific tile to finish its operation. Again,\nthis is used mainly for 'concordance -> analysis' combinations."
+                },
+                "helpURL": {
+                    "description": "An address providing a raw text or an HTML which will be\nused as a help for the tile. Please make sure only trusted\nsources are used here as the HTML is injected \"as is\" to\nthe page.",
+                    "type": "string"
+                },
+                "isDisabled": {
+                    "description": "Normally, any tile configured in the \"tiles\" section\nwill be active no matter whether it is also in the\n\"layouts\" section. This allows e.g. a hidden concordance\ntile to ask for a concordance used by multiple visible\ntiles (e.g. colloc, freqs.). To be able to keep possibly\nusable items in the \"tiles\" configuration file it is\npossible to disable them. I.e. in case a tile is disabled\nit cannot be put in the layout without Wdglance complying\nabout invalid configuration.",
+                    "type": "boolean"
+                },
+                "label": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "A label used in the header of the tile"
+                },
+                "srchRange": {
+                    "type": "number"
+                },
+                "tileType": {
+                    "description": "An identifier as defined by tiles configuration interface",
+                    "const": "SimilarFreqsTile"
+                }
+            },
+            "type": "object"
+        },
+        "SubqueryModeConf": {
+            "description": "SubqueryModeConf defines a special part\nof the tile configuration which makes it\nable to search for provided subquieries\nin custom concordances.\n\nE.g. TreqTile produces some translations\nand we want to find some freq. info\nfor most relevant ones (= subqueries).",
+            "properties": {
+                "concApiURL": {
+                    "type": "string"
+                },
+                "langMapping": {
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "type": "object"
+                },
+                "maxNumSubqueries": {
+                    "type": "number"
+                }
+            },
+            "type": "object"
+        },
+        "SyDTileConf": {
+            "properties": {
+                "apiURL": {
+                    "type": "string"
+                },
+                "backlink": {
+                    "$ref": "#/definitions/Backlink",
+                    "description": "An optional link to an application the specific tile\nrepresents (more or less). It is expected that the\ntile logic is able to pass proper arguments to the\npage."
+                },
+                "concApiURL": {
+                    "type": "string"
+                },
+                "corp1": {
+                    "type": "string"
+                },
+                "corp1Fcrit": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "corp2": {
+                    "type": "string"
+                },
+                "corp2Fcrit": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "dependsOn": {
+                    "anyOf": [
+                        {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "In case a tile supports this (most of them does so) it can\nwait for a specific tile to finish its operation. Again,\nthis is used mainly for 'concordance -> analysis' combinations."
+                },
+                "helpURL": {
+                    "description": "An address providing a raw text or an HTML which will be\nused as a help for the tile. Please make sure only trusted\nsources are used here as the HTML is injected \"as is\" to\nthe page.",
+                    "type": "string"
+                },
+                "isDisabled": {
+                    "description": "Normally, any tile configured in the \"tiles\" section\nwill be active no matter whether it is also in the\n\"layouts\" section. This allows e.g. a hidden concordance\ntile to ask for a concordance used by multiple visible\ntiles (e.g. colloc, freqs.). To be able to keep possibly\nusable items in the \"tiles\" configuration file it is\npossible to disable them. I.e. in case a tile is disabled\nit cannot be put in the layout without Wdglance complying\nabout invalid configuration.",
+                    "type": "boolean"
+                },
+                "label": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "A label used in the header of the tile"
+                },
+                "tileType": {
+                    "description": "An identifier as defined by tiles configuration interface",
+                    "const": "SyDTile",
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "TimeDistTileConf": {
+            "properties": {
+                "apiURL": {
+                    "type": "string"
+                },
+                "backlink": {
+                    "$ref": "#/definitions/Backlink",
+                    "description": "An optional link to an application the specific tile\nrepresents (more or less). It is expected that the\ntile logic is able to pass proper arguments to the\npage."
+                },
+                "concApiURL": {
+                    "type": "string"
+                },
+                "corpname": {
+                    "type": "string"
+                },
+                "dependsOn": {
+                    "anyOf": [
+                        {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "In case a tile supports this (most of them does so) it can\nwait for a specific tile to finish its operation. Again,\nthis is used mainly for 'concordance -> analysis' combinations."
+                },
+                "fcrit": {
+                    "description": "E.g. doc.pubyear",
+                    "type": "string"
+                },
+                "flimit": {
+                    "type": "number"
+                },
+                "helpURL": {
+                    "description": "An address providing a raw text or an HTML which will be\nused as a help for the tile. Please make sure only trusted\nsources are used here as the HTML is injected \"as is\" to\nthe page.",
+                    "type": "string"
+                },
+                "isDisabled": {
+                    "description": "Normally, any tile configured in the \"tiles\" section\nwill be active no matter whether it is also in the\n\"layouts\" section. This allows e.g. a hidden concordance\ntile to ask for a concordance used by multiple visible\ntiles (e.g. colloc, freqs.). To be able to keep possibly\nusable items in the \"tiles\" configuration file it is\npossible to disable them. I.e. in case a tile is disabled\nit cannot be put in the layout without Wdglance complying\nabout invalid configuration.",
+                    "type": "boolean"
+                },
+                "label": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "A label used in the header of the tile"
+                },
+                "subcDesc": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                },
+                "subcname": {
+                    "anyOf": [
+                        {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                },
+                "tileType": {
+                    "description": "An identifier as defined by tiles configuration interface",
+                    "const": "TimeDistribTile"
+                },
+                "timeAxisLegend": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "TreqTileConf": {
+            "properties": {
+                "apiURL": {
+                    "type": "string"
+                },
+                "backlink": {
+                    "$ref": "#/definitions/Backlink",
+                    "description": "An optional link to an application the specific tile\nrepresents (more or less). It is expected that the\ntile logic is able to pass proper arguments to the\npage."
+                },
+                "dependsOn": {
+                    "anyOf": [
+                        {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "In case a tile supports this (most of them does so) it can\nwait for a specific tile to finish its operation. Again,\nthis is used mainly for 'concordance -> analysis' combinations."
+                },
+                "helpURL": {
+                    "description": "An address providing a raw text or an HTML which will be\nused as a help for the tile. Please make sure only trusted\nsources are used here as the HTML is injected \"as is\" to\nthe page.",
+                    "type": "string"
+                },
+                "isDisabled": {
+                    "description": "Normally, any tile configured in the \"tiles\" section\nwill be active no matter whether it is also in the\n\"layouts\" section. This allows e.g. a hidden concordance\ntile to ask for a concordance used by multiple visible\ntiles (e.g. colloc, freqs.). To be able to keep possibly\nusable items in the \"tiles\" configuration file it is\npossible to disable them. I.e. in case a tile is disabled\nit cannot be put in the layout without Wdglance complying\nabout invalid configuration.",
+                    "type": "boolean"
+                },
+                "label": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "A label used in the header of the tile"
+                },
+                "srchPackages": {
+                    "additionalProperties": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array"
+                    },
+                    "type": "object"
+                },
+                "tileType": {
+                    "description": "An identifier as defined by tiles configuration interface",
+                    "const": "TreqTile"
+                }
+            },
+            "type": "object"
+        },
+        "WordFreqTileConf": {
+            "properties": {
+                "apiURL": {
+                    "type": "string"
+                },
+                "backlink": {
+                    "$ref": "#/definitions/Backlink",
+                    "description": "An optional link to an application the specific tile\nrepresents (more or less). It is expected that the\ntile logic is able to pass proper arguments to the\npage."
+                },
+                "corpname": {
+                    "type": "string"
+                },
+                "corpusSize": {
+                    "type": "number"
+                },
+                "dependsOn": {
+                    "anyOf": [
+                        {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "In case a tile supports this (most of them does so) it can\nwait for a specific tile to finish its operation. Again,\nthis is used mainly for 'concordance -> analysis' combinations."
+                },
+                "fcrit": {
+                    "type": "string"
+                },
+                "flevelDistrib": {
+                    "items": {
+                        "$ref": "#/definitions/FlevelDistribItem"
+                    },
+                    "type": "array"
+                },
+                "flimit": {
+                    "type": "number"
+                },
+                "fpage": {
+                    "type": "number"
+                },
+                "freqSort": {
+                    "type": "string"
+                },
+                "fttIncludeEmpty": {
+                    "type": "boolean"
+                },
+                "helpURL": {
+                    "description": "An address providing a raw text or an HTML which will be\nused as a help for the tile. Please make sure only trusted\nsources are used here as the HTML is injected \"as is\" to\nthe page.",
+                    "type": "string"
+                },
+                "isDisabled": {
+                    "description": "Normally, any tile configured in the \"tiles\" section\nwill be active no matter whether it is also in the\n\"layouts\" section. This allows e.g. a hidden concordance\ntile to ask for a concordance used by multiple visible\ntiles (e.g. colloc, freqs.). To be able to keep possibly\nusable items in the \"tiles\" configuration file it is\npossible to disable them. I.e. in case a tile is disabled\nit cannot be put in the layout without Wdglance complying\nabout invalid configuration.",
+                    "type": "boolean"
+                },
+                "label": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "A label used in the header of the tile"
+                },
+                "sfwApiURL": {
+                    "type": "string"
+                },
+                "tileType": {
+                    "description": "An identifier as defined by tiles configuration interface",
+                    "const": "WordFreqTile"
+                }
+            },
+            "type": "object"
+        }
+    },
+    "description": "Client side app configuration as present in wdglance.json\nconfiguration file.",
+    "properties": {
+        "apiHeaders": {
+            "additionalProperties": {
+                "additionalProperties": {
+                    "type": "string"
+                },
+                "type": "object"
+            },
+            "type": "object"
+        },
+        "colors": {
+            "$ref": "#/definitions/ColorsConf"
+        },
+        "corpInfoApiUrl": {
+            "type": "string"
+        },
+        "dbValuesMapping": {
+            "additionalProperties": {
+                "additionalProperties": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                },
+                "type": "object"
+            },
+            "type": "object"
+        },
+        "hostUrl": {
+            "type": "string"
+        },
+        "layouts": {
+            "$ref": "#/definitions/LayoutsConfig"
+        },
+        "rootUrl": {
+            "type": "string"
+        },
+        "tiles": {
+            "additionalProperties": {
+                "additionalProperties": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/CollocationsTileConf"
+                        },
+                        {
+                            "$ref": "#/definitions/ConcordanceTileConf"
+                        },
+                        {
+                            "$ref": "#/definitions/FreqBarTileConf"
+                        },
+                        {
+                            "$ref": "#/definitions/FreqPieTileConf"
+                        },
+                        {
+                            "$ref": "#/definitions/GeoAreasTileConf"
+                        },
+                        {
+                            "$ref": "#/definitions/MergeCorpFreqTileConf"
+                        },
+                        {
+                            "$ref": "#/definitions/SimilarFreqsTileConf"
+                        },
+                        {
+                            "$ref": "#/definitions/SyDTileConf"
+                        },
+                        {
+                            "$ref": "#/definitions/TimeDistTileConf"
+                        },
+                        {
+                            "$ref": "#/definitions/TreqTileConf"
+                        },
+                        {
+                            "$ref": "#/definitions/WordFreqTileConf"
+                        }
+                    ]
+                },
+                "type": "object"
+            },
+            "type": "object"
+        }
+    },
+    "type": "object"
+}
+
