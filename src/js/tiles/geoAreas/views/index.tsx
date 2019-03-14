@@ -73,7 +73,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     // -----------------
 
-    const drawLabels = (props:GeoAreasModelState, tileId:number) => {
+    const drawLabels = (props:GeoAreasModelState, tileId:number, textColor:string, fillColor:string) => {
         const [min, max] = props.data.reduce(
             (acc, curr) => [Math.min(acc[0], curr.ipm), Math.max(acc[1], curr.ipm)],
             [props.data.get(0).ipm, props.data.get(0).ipm]
@@ -105,8 +105,9 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         'cy': '0',
                         'stroke': theme.barColor(0, 0.2),
                         'stroke-width': '3',
-                        'fill': theme.barColor(0),
-                        'pointer-events': 'fill'
+                        'fill': fillColor,
+                        'pointer-events': 'fill',
+                        'opacity': '0.8'
                     }
                 );
                 fromEvent(ellipse, 'mouseover')
@@ -139,8 +140,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         'text-anchor': 'middle',
                         'font-size': '4.5em',
                         'font-weight': 'bold',
-                        'fill': '#ffffff',
-                        'pointer-events': 'none'
+                        'fill': textColor
                     }
                 );
                 text.style.cssText = 'opacity: 1';
@@ -155,13 +155,13 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
         componentDidMount() {
             if (this.props.data.size > 0) {
-                drawLabels(this.props, this.props.tileId);
+                drawLabels(this.props, this.props.tileId, this.props.areaDiscTextColor, this.props.areaDiscFillColor);
             }
         }
 
         componentDidUpdate() {
             if (this.props.data.size > 0) {
-                drawLabels(this.props, this.props.tileId);
+                drawLabels(this.props, this.props.tileId, this.props.areaDiscTextColor, this.props.areaDiscFillColor);
             }
         }
 

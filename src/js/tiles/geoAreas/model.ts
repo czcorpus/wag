@@ -70,6 +70,8 @@ export interface GeoAreasModelState extends GeneralSingleCritFreqBarModelState {
     areaCodeMapping:Immutable.Map<string, string>;
     highlightedTableRow:number;
     mapSVG:string;
+    areaDiscFillColor:string;
+    areaDiscTextColor:string;
 }
 
 

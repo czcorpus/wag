@@ -38,6 +38,8 @@ export interface GeoAreasTileConf extends TileConf {
     fpage:number;
     fttIncludeEmpty:boolean;
     areaCodeMapping:{[name:string]:string};
+    areaDiscFillColor:string;
+    areaDiscTextColor:string;
     tileType:'GeoAreasTile';
 }
 
@@ -84,7 +86,9 @@ export class GeoAreasTile implements ITileProvider {
                 freqSort: conf.freqSort,
                 fpage: conf.fpage,
                 fttIncludeEmpty: conf.fttIncludeEmpty,
-                fmaxitems: 100
+                fmaxitems: 100,
+                areaDiscFillColor: conf.areaDiscFillColor,
+                areaDiscTextColor: conf.areaDiscTextColor
             }
         );
         this.label = appServices.importExternalMessage(conf.label || 'geolocations__main_label');
