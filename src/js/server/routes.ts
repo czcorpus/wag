@@ -118,7 +118,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
 
     // Find words with similar frequency
     app.get('/similar-freq-words/', (req, res) => {
-        new Observable<{word:string, abs:number}>((observer) => {
+        new Observable<{word:string, abs:number, arf:number, pos:string}>((observer) => {
             services.db.serialize(() => {
                 if (isNaN(parseInt(req.query.srchRange))) {
                     throw newError(ErrorType.BAD_REQUEST, `Invalid range provided, srchRange = ${req.query.srchRange}`);
@@ -126,8 +126,9 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                 const lft = Math.max(-1 * parseInt(req.query.srchRange), services.serverConf.auxServices.similarFreqWordsMaxCtx[0]);
                 const rgt = Math.min(parseInt(req.query.srchRange), services.serverConf.auxServices.similarFreqWordsMaxCtx[1]);
                 services.db.each(
-                    'SELECT value, `count` AS abs, (SELECT idx FROM postag WHERE value = ?) AS srch ' +
-                    'FROM postag ' +
+                    'SELECT col0, col1, col2, `count` AS abs, arf, ' +
+                    '(SELECT idx FROM colcounts WHERE col0 = ?) AS srch ' +
+                    'FROM colcounts ' +
                     'WHERE idx >= srch + ? AND idx <= srch + ? ORDER BY idx;',
                     [req.query.word, lft, rgt],
                     (err, row) => {
@@ -136,13 +137,20 @@ export const wdgRouter = (services:Services) => (app:Express) => {
 
                         } else {
                             observer.next({
-                                word: row['value'],
-                                abs: row['abs']
+                                word: row['col0'],
+                                abs: row['abs'],
+                                arf: row['arf'],
+                                pos: row['col2']
                             });
                         }
                     },
-                    () => {
-                        observer.complete();
+                    (err) => {
+                        if (err) {
+                            observer.error(err);
+
+                        } else {
+                            observer.complete();
+                        }
                     }
                 );
             });
