@@ -30,6 +30,7 @@ export interface SimilarlyFreqWord {
     word:string;
     abs:number;
     ipm:number;
+    arf:number;
     highlighted?:boolean;
 }
 

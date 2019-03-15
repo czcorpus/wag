@@ -90,6 +90,7 @@ export class SimFreqsModel extends StatelessModel<SimFreqsModelState> {
                                 result: data.result.map(v => ({
                                     word: v.word,
                                     abs: v.abs,
+                                    arf: v.arf,
                                     ipm: v.abs / state.corpusSize * 1e6,
                                     highlighted: v.word === query ? true : undefined
                                 }))
