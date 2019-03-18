@@ -112,7 +112,8 @@ export class MergeCorpFreqTile implements ITileProvider {
                     backlinkTpl: src.backlink || null,
                     backlink: null
                 }))),
-                pixelsPerItem: conf.pixelsPerItem ? conf.pixelsPerItem : 40
+                pixelsPerItem: conf.pixelsPerItem ? conf.pixelsPerItem : 30,
+                barGap: Math.max(10, 40 - conf.pixelsPerItem)
             }
         );
         this.label = appServices.importExternalMessage(conf.label || 'mergeCorpFreq__main_label');

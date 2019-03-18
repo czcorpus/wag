@@ -72,6 +72,7 @@ export interface MergeCorpFreqModelState {
     data:Immutable.List<SourceMappedDataRow>;
     sources:Immutable.List<ModelSourceArgs>;
     pixelsPerItem:number;
+    barGap:number;
 }
 
 const sourceToAPIArgs = (src:ModelSourceArgs, concId:string):SingleCritQueryArgs => ({
