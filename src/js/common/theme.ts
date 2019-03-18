@@ -97,11 +97,9 @@ export class Theme {
 
     scaleColor(min:number, max:number) {
 
-        const a = max !== min ? 10 / (max - min) : 0;
+        const a = max !== min ? (this.scaleColors.length - 1) / (max - min) : 0;
         const b = -1 * a * min;
-        return (v:number) => {
-            return this.scaleColors[Math.round(a * v + b)];
-        }
+        return (v:number) => this.scaleColors[Math.round(a * v + b)];
     }
 
 }

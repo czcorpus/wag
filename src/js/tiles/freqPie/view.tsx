@@ -31,14 +31,17 @@ import { FreqDataBlock } from '../../common/models/freq';
 export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:FreqPieModel):TileComponent {
 
     const globalComponents = ut.getComponents();
-    const colorPalette = theme.categoryPalette(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']);
+    const catList = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+    const colorPalette = theme.categoryPalette(catList);
 
     const createColorMapping = (blocks:Immutable.List<FreqDataBlock<FreqPieDataRow>>):{[v:string]:string} => {
         const ans = {};
         const items = blocks.flatMap(block => block.data.map(v => v.name));
-        items.forEach((name, i) => {
+        let i = 0;
+        items.forEach(name => {
             if (ans[name] === undefined) {
-                ans[name] = colorPalette(`${i % items.size}`);
+                ans[name] = colorPalette(`${i % catList.length}`);
+                i += 1;
             }
         });
         return ans;

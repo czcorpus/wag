@@ -36,12 +36,13 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
     const Chart:React.SFC<{
         data:Immutable.List<DataRow>;
         size:[number, number];
+        barGap:number;
     }> = (props) => {
 
         return (
             <div className="Chart">
                 <ResponsiveContainer width="90%" height={props.size[1] + 50}>
-                    <BarChart data={props.data.toArray()} layout="vertical">
+                    <BarChart data={props.data.toArray()} layout="vertical" barCategoryGap={props.barGap}>
                         <CartesianGrid />
                         <Bar dataKey="ipm" fill={theme.barColor(0)} isAnimationActive={false} />
                         <XAxis type="number" />
@@ -71,7 +72,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         sourceIdent={this.props.sources.groupBy(v => v.corpname).map(v => ({corp: v.first().corpname})).toArray()}
                         backlink={backlinks}>
                     <div className="MergeCorpFreqBarTile">
-                        <Chart data={this.props.data} size={[this.props.renderSize[0], 70 + this.props.data.size * this.props.pixelsPerItem]} />
+                        <Chart data={this.props.data} size={[this.props.renderSize[0], 70 + this.props.data.size * this.props.pixelsPerItem]}
+                                barGap={this.props.barGap} />
                     </div>
                 </globComponents.TileWrapper>
             );
