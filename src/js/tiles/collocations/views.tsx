@@ -85,7 +85,8 @@ export const drawChart = (theme:Theme, isMobile:boolean, container:HTMLElement, 
             itemGroup
                 .append('text')
                 .style('font-size', d => `${d.size}px`)
-                .style('font-family', 'Impact')
+                .style('font-family', 'Roboto Condensed')
+                .style('font-weight', '700')
                 .style('fill', (d, i) => colorPalette(i))
                 .style('pointer-events', 'none')
                 .attr('text-anchor', 'middle')
