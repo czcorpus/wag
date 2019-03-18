@@ -103,7 +103,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         'ry': (mkSize(v.ipm) / 1.5).toFixed(1),
                         'cx': '0',
                         'cy': '0',
-                        'stroke': theme.barColor(0, 0.2),
+                        'stroke': fillColor,
                         'stroke-width': '3',
                         'fill': fillColor,
                         'pointer-events': 'fill',
