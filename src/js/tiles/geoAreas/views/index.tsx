@@ -95,56 +95,58 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             const ident = props.areaCodeMapping.get(v.name);
             if (ident) {
                 const elm = document.getElementById(`${ident}-g`);
-                const ellipse = createSVGElement(
-                    elm,
-                    'ellipse',
-                    {
-                        'rx': mkSize(v.ipm).toFixed(1),
-                        'ry': (mkSize(v.ipm) / 1.5).toFixed(1),
-                        'cx': '0',
-                        'cy': '0',
-                        'stroke': fillColor,
-                        'stroke-width': '3',
-                        'fill': fillColor,
-                        'pointer-events': 'fill',
-                        'opacity': '0.8'
-                    }
-                );
-                fromEvent(ellipse, 'mouseover')
-                    .pipe(throttleTime(200))
-                    .subscribe(() => {
-                        dispatcher.dispatch<Actions.SetHighlightedTableRow>({
-                            name: ActionName.SetHighlightedTableRow,
-                            payload: {
-                                areaName: v.name,
-                                tileId: tileId
-                            }
+                if (elm) {
+                    const ellipse = createSVGElement(
+                        elm,
+                        'ellipse',
+                        {
+                            'rx': mkSize(v.ipm).toFixed(1),
+                            'ry': (mkSize(v.ipm) / 1.5).toFixed(1),
+                            'cx': '0',
+                            'cy': '0',
+                            'stroke': fillColor,
+                            'stroke-width': '3',
+                            'fill': fillColor,
+                            'pointer-events': 'fill',
+                            'opacity': '0.8'
+                        }
+                    );
+                    fromEvent(ellipse, 'mouseover')
+                        .pipe(throttleTime(200))
+                        .subscribe(() => {
+                            dispatcher.dispatch<Actions.SetHighlightedTableRow>({
+                                name: ActionName.SetHighlightedTableRow,
+                                payload: {
+                                    areaName: v.name,
+                                    tileId: tileId
+                                }
+                            });
                         });
-                    });
-                fromEvent(ellipse, 'mouseout')
-                    .pipe(throttleTime(200))
-                    .subscribe(() => {
-                        dispatcher.dispatch<Actions.ClearHighlightedTableRow>({
-                            name: ActionName.ClearHighlightedTableRow,
-                            payload: {
-                                tileId: tileId
-                            }
+                    fromEvent(ellipse, 'mouseout')
+                        .pipe(throttleTime(200))
+                        .subscribe(() => {
+                            dispatcher.dispatch<Actions.ClearHighlightedTableRow>({
+                                name: ActionName.ClearHighlightedTableRow,
+                                payload: {
+                                    tileId: tileId
+                                }
+                            });
                         });
-                    });
 
-                const text = createSVGElement(
-                    elm,
-                    'text',
-                    {
-                        'transform': 'translate(0, 15)',
-                        'text-anchor': 'middle',
-                        'font-size': '4.5em',
-                        'font-weight': 'bold',
-                        'fill': textColor
-                    }
-                );
-                text.style.cssText = 'opacity: 1';
-                text.textContent = ut.formatNumber(v.ipm, v.ipm >= 100 ? 0 : 1);
+                    const text = createSVGElement(
+                        elm,
+                        'text',
+                        {
+                            'transform': 'translate(0, 15)',
+                            'text-anchor': 'middle',
+                            'font-size': '4.5em',
+                            'font-weight': 'bold',
+                            'fill': textColor
+                        }
+                    );
+                    text.style.cssText = 'opacity: 1';
+                    text.textContent = ut.formatNumber(v.ipm, v.ipm >= 100 ? 0 : 1);
+                }
             }
         });
     }
