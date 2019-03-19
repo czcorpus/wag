@@ -20,7 +20,7 @@ import { Bound, BoundWithProps, IActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
 
 import { Forms } from '../common/data';
-import { QueryType, SystemMessageType, TileFrameProps } from '../common/types';
+import { QueryType, SystemMessageType, TileFrameProps, LemmaVariant, QueryPoS } from '../common/types';
 import { KeyCodes } from '../common/util';
 import { TileGroup } from '../layout';
 import { ActionName, Actions } from '../models/actions';
@@ -266,9 +266,58 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
     };
 
+    // --------------- <LemmaSelector /> -------------------------------------------
+
+    const LemmaSelector:React.SFC<{
+        lemmas:Immutable.List<LemmaVariant>;
+
+    }> = (props) => {
+
+        const mkHandleClick = (lemmaVar:LemmaVariant) => () => {
+            dispatcher.dispatch<Actions.ChangeCurrLemmaVariant>({
+                name: ActionName.ChangeCurrLemmaVariant,
+                payload: {
+                    word: lemmaVar.word,
+                    lemma: lemmaVar.lemma,
+                    pos: lemmaVar.pos
+                }
+            });
+            dispatcher.dispatch<Actions.SubmitQuery>({
+                name: ActionName.SubmitQuery
+            });
+        }
+
+        if (props.lemmas.size > 0) {
+            const curr = props.lemmas.find(v => v.isCurrent == true);
+            if (curr) {
+                return (
+                    <div className="LemmaSelector">
+                        {ut.translate('global__searching_by_pos')}:{'\u00a0'}<span className="curr">{curr.lemma} ({curr.posLabel})</span>
+                        <br />
+                        {props.lemmas.size > 1 ?
+                            <>
+                                {ut.translate('global__multiple_words_for_query')}:{'\u00a0'}
+                                <ul className="variants">
+                                    {props.lemmas.filter(v => !v.isCurrent).map((v, i) =>
+                                        <li key={`${v.lemma}:${v.pos}:${i}`}>
+                                            {i > 0 ? <span>, </span> : null}
+                                            <a onClick={mkHandleClick(v)}>{v.lemma} ({v.posLabel})</a>
+                                        </li>
+                                    )}
+                                </ul>
+                            </>
+                            : null
+                        }
+                    </div>
+                );
+            }
+        }
+        return <div className="LemmaSelector"></div>;
+    }
+
     // ------------------ <WdglanceControls /> ------------------------------
 
-    class WdglanceControls extends React.PureComponent<WdglanceMainState & {isMobile:boolean}> {
+    class WdglanceControls extends React.PureComponent<WdglanceMainState & {isMobile:boolean; isAnswerMode:boolean}> {
 
         constructor(props) {
             super(props);
@@ -296,8 +345,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         render() {
             return (
-                <div>
-                    <form className="WdglanceControls cnc-form">
+                <div className="WdglanceControls">
+                    <form className="cnc-form">
                         <div>
                             <QueryTypeSelector avail={this.props.availQueryTypes}
                                     value={this.props.queryType}
@@ -315,13 +364,17 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             <SubmitButton onClick={this.handleSubmit} />
                         </div>
                     </form>
+                    {this.props.isAnswerMode ?
+                        <LemmaSelector lemmas={this.props.lemmas} /> :
+                        null
+                    }
                 </div>
             );
         }
     }
 
     const WdglanceControlsBound = formModel ?
-            BoundWithProps<{isMobile:boolean}, WdglanceMainState>(WdglanceControls, formModel) :
+            BoundWithProps<{isMobile:boolean; isAnswerMode:boolean}, WdglanceMainState>(WdglanceControls, formModel) :
             (props) => <WdglanceControls
                             query={Forms.newFormValue('', true)}
                             query2={Forms.newFormValue('', false)}
@@ -331,6 +384,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             availLanguages={Immutable.List<[string, string]>()}
                             availQueryTypes={Immutable.List<[QueryType, string]>()}
                             isMobile={false}
+                            isAnswerMode={false}
+                            lemmas={Immutable.List<LemmaVariant>()}
                             errors={Immutable.List<Error>()} />
 
     // ------------- <HelpButton /> --------------------------------------
@@ -748,10 +803,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     const WdglanceMain:React.SFC<{
         layout:Immutable.List<TileGroup>;
         isMobile:boolean;
+        isAnswerMode:boolean;
     }> = (props) => {
         return (
             <div className="WdglanceMain">
-                <WdglanceControlsBound isMobile={props.isMobile} />
+                <WdglanceControlsBound isMobile={props.isMobile} isAnswerMode={props.isAnswerMode} />
                 <hr className="controls-separ" />
                 <BoundMessagesBox />
                 <BoundTilesSections layout={props.layout} />

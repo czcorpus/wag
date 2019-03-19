@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { DbValueMapping, HTTPHeaders, LocalizedConfMsg } from './common/types';
+import { DbValueMapping, HTTPHeaders, LocalizedConfMsg, LemmaVariant, QueryPoS } from './common/types';
 import { CollocationsTileConf } from './tiles/collocations';
 import { ConcordanceTileConf } from './tiles/concordance';
 import { FreqBarTileConf } from './tiles/freqBar';
@@ -52,8 +52,10 @@ export interface UserConf {
     uiLang:string;
     queryType:string;
 	query1Lang:string;
-	query2Lang:string;
-	query1:string;
+    query2Lang:string;
+    queryPos?:QueryPoS;
+    query1:string;
+    lemma1?:string;
     query2:string;
     answerMode:boolean;
 }

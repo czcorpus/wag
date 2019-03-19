@@ -17,7 +17,8 @@
  */
 import * as Immutable from 'immutable';
 
-import { PCQValue, PCRequestArgs, QuerySelector, RequestArgs, setQuery, ViewMode } from '../api/kontext/concordance';
+import { PCQValue, PCRequestArgs, QuerySelector, RequestArgs, setQuery, ViewMode, mkPosQuery } from '../api/kontext/concordance';
+import { QueryPoS, LemmaVariant } from '../types';
 
 
 
@@ -36,11 +37,12 @@ export interface ConcordanceMinState {
     tileId:number;
     shuffle:boolean;
     attrs:Immutable.List<string>;
+    posQueryGenerator:[string, string];
 }
 
 
 
-export const stateToArgs = (state:ConcordanceMinState, query:string):RequestArgs|PCRequestArgs => {
+export const stateToArgs = (state:ConcordanceMinState, lvar:LemmaVariant):RequestArgs|PCRequestArgs => {
     if (state.otherCorpname) {
         const ans:PCRequestArgs = {
             corpname: state.corpname,
@@ -63,7 +65,7 @@ export const stateToArgs = (state:ConcordanceMinState, query:string):RequestArgs
         ans[`include_empty_${state.otherCorpname}`] = '0';
         ans[`queryselector_${state.otherCorpname}`] = 'wordrow';
         ans[`word_${state.otherCorpname}`] = '';
-        setQuery(ans, query);
+        setQuery(ans, mkPosQuery(lvar, state.posQueryGenerator));
         return ans;
 
     } else {
@@ -82,7 +84,7 @@ export const stateToArgs = (state:ConcordanceMinState, query:string):RequestArgs
             shuffle: state.shuffle ? 1 : undefined,
             format:'json'
         };
-        setQuery(ans, query);
+        setQuery(ans, mkPosQuery(lvar, state.posQueryGenerator));
         return ans;
     }
 }

@@ -17,7 +17,7 @@
  */
 import { ITranslator } from 'kombo';
 
-import { DbValueMapping, HTTPHeaders, SystemMessageType } from './common/types';
+import { DbValueMapping, HTTPHeaders, SystemMessageType, QueryPoS } from './common/types';
 import { SystemNotifications } from './notifications';
 
 

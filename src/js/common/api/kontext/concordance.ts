@@ -19,7 +19,8 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { ajax$ } from '../../ajax';
-import { DataApi, HTTPHeaders } from '../../types';
+import { DataApi, HTTPHeaders, QueryPoS, LemmaVariant } from '../../types';
+import { posQueryFactory } from './posQuery';
 
 
 export enum QuerySelector {
@@ -123,6 +124,12 @@ export const getQuery = (args:AnyQuery):string => {
         default:
             throw new Error(`Unsupported query selector ${args.queryselector}`);
     }
+};
+
+
+export const mkPosQuery = (lvar:LemmaVariant, generator:[string, string]):string => {
+    const fn = posQueryFactory(generator[1]);
+    return `[word="${lvar.word}" & lemma="${lvar.lemma}" & ${generator[0]}="${fn(lvar.pos)}"]`; // TODO escape stuff !!!
 };
 
 

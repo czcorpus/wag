@@ -18,12 +18,13 @@
 import { Action } from 'kombo';
 
 import { APIResponse } from '../common/api/kontext/corpusInfo';
-import { QueryType, SystemMessageType } from '../common/types';
+import { QueryType, SystemMessageType, LemmaVariant, QueryPoS } from '../common/types';
 
 
 export enum ActionName {
     ChangeQueryInput = 'MAIN_CHANGE_QUERY_INPUT',
     ChangeQueryInput2 = 'MAIN_CHANGE_QUERY_INPUT2',
+    ChangeCurrLemmaVariant = 'MAIN_CHANGE_CURR_LEMMA_VARIANT',
     DisableAnswerMode = 'MAIN_DISABLE_ANSWER_MODE',
     RequestQueryResponse = 'MAIN_REQUEST_QUERY_RESPONSE',
     TileDataLoaded = 'MAIN_TILE_DATA_LOADED',
@@ -77,6 +78,15 @@ export namespace Actions {
         value:string;
     }> {
         name:ActionName.ChangeQueryInput2;
+    }
+
+    export interface ChangeCurrLemmaVariant extends Action<{
+        word:string;
+        lemma:string;
+        pos:QueryPoS;
+
+    }> {
+        name:ActionName.ChangeCurrLemmaVariant;
     }
 
     // this action currently reload the page so we need

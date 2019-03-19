@@ -20,7 +20,7 @@ import { Action, IActionDispatcher, SEDispatcher, StatelessModel } from 'kombo';
 
 import { AppServices } from '../appServices';
 import { Forms } from '../common/data';
-import { QueryType, SystemMessageType } from '../common/types';
+import { QueryType, SystemMessageType, LemmaVariant } from '../common/types';
 import { ActionName, Actions } from './actions';
 
 
@@ -33,8 +33,23 @@ export interface WdglanceMainState {
     availLanguages:Immutable.List<[string, string]>;
     availQueryTypes:Immutable.List<[QueryType, string]>;
     errors:Immutable.List<Error>;
+    lemmas:Immutable.List<LemmaVariant>;
 }
 
+export const findCurrLemmaVariant = (lemmas:Immutable.List<LemmaVariant>):LemmaVariant => {
+    const srch = lemmas.find(v => v.isCurrent);
+    return srch ? srch : {
+        lemma: undefined,
+        word: undefined,
+        pos: undefined,
+        posLabel: '',
+        abs: -1,
+        ipm: -1,
+        arf: -1,
+        flevel: -1,
+        isCurrent: true
+    };
+};
 
 export class WdglanceMainFormModel extends StatelessModel<WdglanceMainState> {
 
@@ -60,6 +75,22 @@ export class WdglanceMainFormModel extends StatelessModel<WdglanceMainState> {
                 newState.query2 = Forms.updateFormInput(newState.query2, {value: action.payload.value});
                 return newState;
             },
+            [ActionName.ChangeCurrLemmaVariant]: (state, action:Actions.ChangeCurrLemmaVariant) => {
+                const newState = this.copyState(state);
+                newState.lemmas = newState.lemmas.map(v => ({
+                    lemma: v.lemma,
+                    word: v.word,
+                    pos: v.pos,
+                    posLabel: v.posLabel,
+                    abs: v.abs,
+                    ipm: v.ipm,
+                    arf: v.arf,
+                    flevel: v.flevel,
+                    isCurrent: v.pos === action.payload.pos && v.word == action.payload.word &&
+                            v.lemma === action.payload.lemma ? true : false
+                })).toList();
+                return newState;
+            },
             [ActionName.ChangeTargetLanguage]: (state, action:Actions.ChangeTargetLanguage) => {
                 const newState = this.copyState(state);
                 newState.targetLanguage = action.payload.lang1;
@@ -81,16 +112,21 @@ export class WdglanceMainFormModel extends StatelessModel<WdglanceMainState> {
             [ActionName.SubmitQuery]: (state, action:Actions.SubmitQuery) => {
                 const newState = this.copyState(state);
                 newState.query.value = newState.query.value.trim();
+                if (newState.lemmas.size > 0 && newState.lemmas.get(0).word !== newState.query.value) {
+                    newState.lemmas = newState.lemmas.clear();
+                }
                 newState.query2.value = newState.query2.value.trim();
                 newState.errors = newState.errors.clear();
                 this.validateQuery(newState);
                 if (newState.errors.size === 0) { // we leave the page here, TODO: use some kind of routing
                     window.location.href = this.appServices.createActionUrl('search/', {
-                        q1: state.query.value,
-                        q2: state.query2.value,
-                        queryType: state.queryType,
-                        lang1: state.targetLanguage,
-                        lang2: state.targetLanguage2
+                        q1: newState.query.value,
+                        q2: newState.query2.value,
+                        queryType: newState.queryType,
+                        lang1: newState.targetLanguage,
+                        lang2: newState.targetLanguage2,
+                        pos: findCurrLemmaVariant(newState.lemmas).pos,
+                        lemma1: findCurrLemmaVariant(newState.lemmas).lemma
                     });
                 }
                 return newState;
@@ -138,10 +174,11 @@ export interface DefaultFactoryArgs {
     query2:string;
     query2Lang:string;
     queryType:QueryType;
+    lemmas:Array<LemmaVariant>;
 }
 
 export const defaultFactory = ({dispatcher, appServices, query1, query1Lang, query2,
-            query2Lang, queryType}:DefaultFactoryArgs) => {
+            query2Lang, queryType, lemmas}:DefaultFactoryArgs) => {
 
     return new WdglanceMainFormModel(
         dispatcher,
@@ -162,7 +199,8 @@ export const defaultFactory = ({dispatcher, appServices, query1, query1Lang, que
                 ['en', 'English'],
                 ['de', 'Deutsch']
             ]),
-            errors: Immutable.List<Error>()
+            errors: Immutable.List<Error>(),
+            lemmas: Immutable.List<LemmaVariant>(lemmas)
         }
     );
 };

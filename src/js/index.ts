@@ -28,7 +28,7 @@ import { AppServices } from './appServices';
 import { encodeArgs } from './common/ajax';
 import { CorpusInfoAPI } from './common/api/kontext/corpusInfo';
 import { Theme } from './common/theme';
-import { ITileProvider, QueryType, TileConf, TileFactory, TileFrameProps } from './common/types';
+import { ITileProvider, QueryType, TileConf, TileFactory, TileFrameProps, LemmaVariant } from './common/types';
 import { AnyTileConf, ClientConf, UserConf } from './conf';
 import { LayoutManager } from './layout';
 import { ActionName, Actions } from './models/actions';
@@ -197,7 +197,7 @@ class QueryLangChangeHandler extends StatefulModel<{}> {
 }
 
 
-export const init = (mountElement:HTMLElement, config:ClientConf, userConfig:UserConf) => {
+export const init = (mountElement:HTMLElement, config:ClientConf, userConfig:UserConf, lemmas:Array<LemmaVariant>) => {
 
     const qType = userConfig.queryType as QueryType; // TODO validate
     const uiLangSel = userConfig.uiLang || 'en-US';
@@ -230,7 +230,8 @@ export const init = (mountElement:HTMLElement, config:ClientConf, userConfig:Use
         query1Lang: userConfig.query1Lang || '',
         query2: userConfig.query2,
         query2Lang: userConfig.query2Lang || '',
-        queryType: qType
+        queryType: qType,
+        lemmas: lemmas
     });
 
     const tiles:Array<TileFrameProps> = [];
@@ -319,17 +320,23 @@ export const init = (mountElement:HTMLElement, config:ClientConf, userConfig:Use
             component.WdglanceMain,
             {
                 layout: layoutManager.getLayout(qType),
-                isMobile: appServices.isMobileMode()
+                isMobile: appServices.isMobileMode(),
+                isAnswerMode: userConfig.answerMode
             }
         ),
         mountElement,
         () => {
             if (userConfig.answerMode) {
-                dispatcher.dispatch(rxOf(
-                    {
-                        name: ActionName.RequestQueryResponse
-                    }
-                ));
+                if (lemmas.find(v => v.isCurrent)) {
+                    dispatcher.dispatch(rxOf(
+                        {
+                            name: ActionName.RequestQueryResponse
+                        }
+                    ));
+
+                } else {
+                    // TODO show error
+                }
             }
         }
     );
