@@ -16,6 +16,77 @@ section.TilesSections {
         grid-template-columns: 1fr 1fr 1fr;
         color: #444;
 
+
+        .app-output.span1 {
+            grid-column: span 1;
+        }
+
+        .app-output.span2 {
+            grid-column: span 2;
+        }
+
+        .app-output.span3 {
+            grid-column: span 3;
+        }
+
+        .app-output {
+
+            .panel {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+
+                .window-buttons > span {
+                    vertical-align: middle;
+
+                    button {
+                        border: none;
+                        background-color: transparent;
+                        cursor: pointer;
+
+                        img {
+                            width:1.1em;
+                        }
+                    }
+                }
+
+                .window-buttons > .TweakButton {
+                    img {
+                        width: 1.3em;
+                    }
+                }
+
+                .window-buttons > span.disabled {
+                    button {
+                        cursor: default;
+                    }
+                }
+
+                h2 {
+                    margin: 0;
+                    padding: 0;
+                    font-size: 1.3em;
+                    font-weight: normal;
+                }
+
+                h3 {
+                    font-size: 1.1em;
+                }
+            }
+
+            .provider {
+                display: initial;
+                height: calc(100% - 3em);
+                margin: 0;
+                overflow: hidden;
+            }
+
+            .provider.hidden {
+                display: none;
+            }
+        }
+
     }
 
     > header .loader {
@@ -161,65 +232,6 @@ section.TilesSections {
 
     > section.group:not(:first-child) {
         margin-top: 1.7em;
-    }
-}
-
-
-.app-output {
-
-    .panel {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-
-        .window-buttons > span {
-            vertical-align: middle;
-
-            button {
-                border: none;
-                background-color: transparent;
-                cursor: pointer;
-
-                img {
-                    width:1.1em;
-                }
-            }
-        }
-
-        .window-buttons > .TweakButton {
-            img {
-                width: 1.3em;
-            }
-        }
-
-        .window-buttons > span.disabled {
-            button {
-                cursor: default;
-            }
-        }
-
-        h2 {
-            margin: 0;
-            padding: 0;
-            font-size: 1.3em;
-            font-weight: normal;
-        }
-
-        h3 {
-            font-size: 1.1em;
-        }
-    }
-
-    .provider {
-        display: initial;
-        height: calc(100% - 3em);
-        margin: 0;
-        overflow: hidden;
-    }
-
-    .provider.hidden {
-        display: none;
     }
 }
 

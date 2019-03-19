@@ -29,15 +29,16 @@
         }
     }
 
-    table {
+    table.conc-lines {
         font-family: @condensed-font-family;
-        display: block;
+        display: inline-block;
         position: relative;
         left: 50%;
         transform: translateX(-50%);
     }
 
     table.conc-lines.sent {
+        display: block;
         tr td.left,
         tr td.right,
         tr td.kwic {
@@ -48,12 +49,12 @@
     table.conc-lines {
         border-spacing: 0;
 
-        tr {
+        tr.Row {
             white-space: nowrap;
 
             td {
-                padding-top: 0.15em;
-                padding-bottom: 0.15em;
+                padding-top: 0.2em;
+                padding-bottom: 0.2em;
             }
 
             td.left {
@@ -76,14 +77,14 @@
             }
         }
 
-        tr:not(:last-child) > td {
-            border-width: 0 0 1px 0;
+        tr.Row.aligned td {
             border-style: solid;
-            border-color: @color-light-grey;
+            border-width: 0 0 0.5em 0;
+            border-color: #FFFFFF;
         }
 
-        tr.Row.aligned {
-            background-color: @color-whitelike-blue;
+        tr.Row:nth-child(2n) {
+            background-color: #eff9fe;
         }
     }
 
