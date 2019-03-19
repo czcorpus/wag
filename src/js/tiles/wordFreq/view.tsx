@@ -169,7 +169,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             abs: v2.abs,
             lemma: v2.lemma,
             pos: v2.pos,
-            color: '#F0680B'
+            color: '#E2007A'
         }));
         const data = levels
             .map(v => ({ipm: v.ipm, flevel: v.v, abs: null, lemma: null, pos: null, color: '#8884d8'}))

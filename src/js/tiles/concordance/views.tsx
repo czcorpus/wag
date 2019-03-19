@@ -182,7 +182,6 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                             <dt>{ut.translate('concordance__ipm')}:</dt>
                             <dd>{ut.formatNumber(this.props.resultIPM, 2)}</dd>
                         </dl>
-                        <hr />
                         <table className={`conc-lines${this.props.viewMode === ViewMode.SENT || this.props.viewMode === ViewMode.ALIGN ? ' sent' : ''}`}>
                             <tbody>
                                 {this.props.lines.map(line => <Row key={`${line.toknum}`} data={line} isParallel={!!this.props.otherCorpname} />)}
