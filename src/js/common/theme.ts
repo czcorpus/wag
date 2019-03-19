@@ -48,6 +48,8 @@ export class Theme {
 
     private readonly scaleColors:Array<string>;
 
+    private readonly catOtherColor:string;
+
     constructor(conf:ColorsConf) {
         this.catColors = conf.category ? conf.category : [
             '#DD8959',
@@ -78,6 +80,7 @@ export class Theme {
             '#ce006f',
             '#e2007a'
         ];
+        this.catOtherColor = conf.categoryOther ? conf.categoryOther : '#494949';
     }
 
     categoryPalette(values:Array<string|number>) {
@@ -86,6 +89,10 @@ export class Theme {
             mapping[typeof v === 'string' ? v : v.toFixed()] = this.catColors[i % this.catColors.length];
         });
         return (v:string|number) => mapping[typeof v === 'string' ? v : v.toFixed()];
+    }
+
+    categoryOtherColor():string {
+        return this.catOtherColor;
     }
 
 

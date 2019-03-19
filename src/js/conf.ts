@@ -65,6 +65,7 @@ export interface UserConf {
  */
 export interface ColorsConf {
     category:Array<string>;
+    categoryOther:string;
     bar:Array<string>;
     scale:Array<string>;
 }

@@ -36,12 +36,16 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     const createColorMapping = (blocks:Immutable.List<FreqDataBlock<FreqPieDataRow>>):{[v:string]:string} => {
         const ans = {};
-        const items = blocks.flatMap(block => block.data.map(v => v.name));
         let i = 0;
-        items.forEach(name => {
-            if (ans[name] === undefined) {
-                ans[name] = colorPalette(`${i % catList.length}`);
-                i += 1;
+        blocks.flatMap(block => block.data).forEach(item => {
+            if (item.isTheRest) {
+                ans[item.name] = theme.categoryOtherColor();
+
+            } else {
+                if (ans[item.name] === undefined) {
+                    ans[item.name] = colorPalette(`${i % catList.length}`);
+                    i += 1;
+                }
             }
         });
         return ans;

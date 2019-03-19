@@ -21,7 +21,7 @@ import { Observable, Observer } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 
 import { AppServices } from '../../appServices';
-import { BacklinkArgs, MultiBlockFreqDistribAPI, MultiCritQueryArgs } from '../../common/api/kontext/freqs';
+import { BacklinkArgs, MultiBlockFreqDistribAPI, MultiCritQueryArgs, DataRow } from '../../common/api/kontext/freqs';
 import { createBackLink, FreqDataBlock, GeneralMultiCritFreqBarModelState } from '../../common/models/freq';
 import { Backlink, BacklinkWithArgs } from '../../common/types';
 import { puid } from '../../common/util';
@@ -33,6 +33,7 @@ import { ActionName, Actions, DataLoadedPayload } from './actions';
 export interface FreqPieDataRow {
     name:string;
     percent:number;
+    isTheRest:boolean;
 }
 
 export interface FreqPieModelState extends GeneralMultiCritFreqBarModelState<FreqPieDataRow> {
@@ -111,19 +112,24 @@ export class FreqPieModel extends StatelessModel<FreqPieModelState> {
                         newState.backlink = createBackLink(state, this.backlink, action.payload.concId);
 
                     } else {
+                        const dataRowIsIncluded = (d:DataRow, totalFreq:number) => d.freq / totalFreq >= 0.05 &&
+                            (d.order < state.maxNumCategories || d.order === undefined);
+
                         newState.blocks = Immutable.List<FreqDataBlock<FreqPieDataRow>>(action.payload.blocks.map((block, i) => {
                             const totalFreq = block.data.reduce((acc, curr) => acc + curr.freq, 0);
-                            const dataSlice = block.data.filter(v => v.order === undefined || v.order < state.maxNumCategories);
-                            let data = Immutable.List<FreqPieDataRow>(Immutable.List<FreqPieDataRow>(dataSlice.map(v => ({
+                            const dataSlice = block.data.filter(v => dataRowIsIncluded(v, totalFreq));
+                            let data = Immutable.List<FreqPieDataRow>(dataSlice.map(v => ({
                                 name: v.name,
-                                percent: v.freq / totalFreq * 100
-                            }))));
-                            if (block.data.length > state.maxNumCategories) {
-                                const otherSlice = block.data.filter(v => v.order !== undefined && v.order >= state.maxNumCategories);
+                                percent: v.freq / totalFreq * 100,
+                                isTheRest: false
+                            })));
+                            if (data.size < block.data.length) {
+                                const otherSlice = block.data.filter(v => !dataRowIsIncluded(v, totalFreq));
                                 const totalOther = otherSlice.reduce((acc, curr) => acc + curr.freq, 0);
                                 data = data.push({
                                     name: this.appServices.translate('freqpie__other_chart_item'),
-                                    percent: totalOther / totalFreq * 100
+                                    percent: totalOther / totalFreq * 100,
+                                    isTheRest: true
                                 });
                             }
                             return {
