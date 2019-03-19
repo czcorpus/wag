@@ -35,15 +35,17 @@ import { CollocModel, CollocModelState } from './model';
 
 export const drawChart = (theme:Theme, isMobile:boolean, container:HTMLElement, size:[number, number], data:Immutable.List<DataRow>, measures:Array<string>) => {
     container.innerHTML = '';
+    const font = 'Roboto Condensed';
 
     if (size[0] === 0 || size[1] === 0) {
         // otherwise the browser may crash
         return;
     }
+
     const dataImp:Array<{text:string; size:number}> = data.map(d => {
         return {
             text: d.str,
-            size: isMobile ? d.wcFontSizeMobile : d.wcFontSize
+            size: isMobile ? d.wcFontSizeMobile : d.wcFontSize * Math.min(size[0] / 500, 1)
         };
     }).toArray();
     const colorPalette = theme.scaleColor(0, 9);
@@ -54,7 +56,7 @@ export const drawChart = (theme:Theme, isMobile:boolean, container:HTMLElement, 
         .words(dataImp)
         .padding(5)
         .rotate(() => 0)
-        .font("Impact")
+        .font(font)
         .fontSize(d => d.size)
         .on('end', (words:Array<{size:number, rotate:number, text:string, x:number, y:number}>) => {
             const itemGroup = d3select(container).append('svg')
@@ -85,7 +87,7 @@ export const drawChart = (theme:Theme, isMobile:boolean, container:HTMLElement, 
             itemGroup
                 .append('text')
                 .style('font-size', d => `${d.size}px`)
-                .style('font-family', 'Roboto Condensed')
+                .style('font-family', font)
                 .style('font-weight', '700')
                 .style('fill', (d, i) => colorPalette(i))
                 .style('pointer-events', 'none')
