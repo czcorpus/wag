@@ -75,6 +75,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
     const ViewModeSwitch:React.SFC<{
         mode:ViewMode;
         tileId:number;
+        isEnabled:boolean;
     }> = (props) => {
 
         const handleChange = (evt:React.ChangeEvent<HTMLSelectElement>) => {
@@ -88,7 +89,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         };
 
         return (
-            <select value={props.mode} onChange={handleChange}>
+            <select value={props.mode} onChange={handleChange} disabled={!props.isEnabled}>
                 <option value={ViewMode.KWIC}>{ut.translate('global__view_mode_kwic')}</option>
                 <option value={ViewMode.SENT}>{ut.translate('global__view_mode_sent')}</option>
             </select>
@@ -101,6 +102,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         currPage:number;
         numPages:number;
         viewMode:ViewMode;
+        viewModeEnabled:boolean;
         tileId:number;
 
     }> = (props) => {
@@ -110,8 +112,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         <label>{ut.translate('concordance__page')}:{'\u00a0'}
                         <Paginator page={props.currPage} numPages={props.numPages} tileId={props.tileId} />
                         </label>
-                        <label>{ut.translate('concordance__view_mode')}:{'\u00a0'}
-                            <ViewModeSwitch mode={props.viewMode} tileId={props.tileId} />
+                        <label title={props.viewModeEnabled ? null : ut.translate('global__func_not_avail')}>{ut.translate('concordance__view_mode')}:{'\u00a0'}
+                            <ViewModeSwitch mode={props.viewMode} tileId={props.tileId} isEnabled={props.viewModeEnabled} />
                         </label>
                 </fieldset>
             </form>
@@ -170,7 +172,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                     <div className="ConcordanceTileView">
                         {this.props.isTweakMode ?
                             <div><Controls currPage={this.props.currPage} numPages={this.props.numPages}
-                                    viewMode={this.props.viewMode} tileId={this.props.tileId} /><hr /></div> :
+                                    viewMode={this.props.viewMode} tileId={this.props.tileId}
+                                    viewModeEnabled={!this.props.otherCorpname} /><hr /></div> :
                             null
                         }
                         <dl className="summary">

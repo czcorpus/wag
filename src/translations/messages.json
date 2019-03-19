@@ -41,7 +41,8 @@
         "global__show_tile_help": "Show tile help",
         "global__hide_tile_help": "Hide tile help",
         "global__failed_to_obtain_required_data": "Failed to obtain data required for the calculation.",
-        "global__not_enought_data_for_group": "Not enough data to display any result in this section"
+        "global__not_enought_data_for_group": "Not enough data to display any result in this section",
+        "global__func_not_avail": "Function not available in this case"
 
     },
     "cs-CZ": {
@@ -86,6 +87,7 @@
         "global__show_tile_help": "Ukázat nápovědu k dlaždici",
         "global__hide_tile_help": "Schovat nápovědu k dlaždici",
         "global__failed_to_obtain_required_data": "Nepodařilo se získat data potřebná k výpočtu.",
-        "global__not_enought_data_for_group": "Pro zobrazení výsledků v této skupině není dostatek dat"
+        "global__not_enought_data_for_group": "Pro zobrazení výsledků v této skupině není dostatek dat",
+        "global__func_not_avail": "Funkce zde není k dispozici"
     }
 }
