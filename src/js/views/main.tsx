@@ -495,22 +495,21 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             });
         }
 
-        private genStyle() {
-            if (this.props.isMobile) {
-                return {};
-
-            } else {
-                return {
-                    gridColumn: `span ${this.props.tile.widthFract}`
-                };
+        private getHTMLClass() {
+            const ans = ['cnc-tile', 'app-output'];
+            if (this.props.isTweakMode) {
+                ans.push('expanded');
             }
+            if (!this.props.isMobile) {
+                ans.push(`span${this.props.tile.widthFract}`);
+            }
+            return ans.join(' ');
         }
 
         render() {
             return (
                 <section key={`tile-ident-${this.props.tile.tileId}`}
-                        className={`cnc-tile app-output${this.props.isTweakMode ? ' expanded' : ''}`}
-                        style={this.genStyle()}>
+                        className={this.getHTMLClass()}>
                     <header className="cnc-tile-header panel">
                         <h2>{this.props.tile.label}</h2>
                         <div className="window-buttons">
