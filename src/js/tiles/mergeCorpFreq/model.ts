@@ -17,7 +17,7 @@
  */
 import * as Immutable from 'immutable';
 import { Action, ActionDispatcher, SEDispatcher, StatelessModel } from 'kombo';
-import { forkJoin, Observable } from 'rxjs';
+import { forkJoin, Observable, throwError } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { AppServices } from '../../appServices';
@@ -162,7 +162,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                     sourceToAPIArgs(src, this.waitingForTiles.get(srchKey).concId),
                     src.uuid
                 ) :
-                Observable.throw(new Error(`Cannot find concordance result for ${src.corpname}. Passing an empty stream.`));
+                throwError(new Error(`Cannot find concordance result for ${src.corpname}. Passing an empty stream.`));
         }).toArray();
 
         return forkJoin(...streams$).pipe(

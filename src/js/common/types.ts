@@ -288,3 +288,38 @@ export interface SubqueryPayload {
 export function isSubqueryPayload(payload:{}):payload is SubqueryPayload {
     return Array.isArray(payload['subqueries']);
 }
+
+
+export interface LemmaVariant {
+    lemma:string;
+    word:string;
+    pos:QueryPoS;
+    posLabel:string;
+    abs:number;
+    ipm:number;
+    arf:number;
+    flevel:number;
+    isCurrent:boolean;
+}
+
+export enum QueryPoS {
+    NOUN = 'N',
+    ADJECTIVE = 'A',
+    PRONOUN = 'P',
+    NUMERAL = 'C',
+    VERB = 'V',
+    ADVERB = 'D',
+    PREPOSITION = 'R',
+    CONJUNCTION = 'J',
+    PARTICLE = 'T',
+    INTERJECTION = 'I',
+    PUNCTUATION = 'Z',
+    UNKNOWN = 'X'
+}
+
+export const importQueryPos = (s:string):QueryPoS => {
+    if (['n', 'a', 'p', 'c', 'v', 'd', 'r', 'j', 't', 'i', 'z', 'x'].indexOf(s.toLowerCase()) > -1) {
+        return s.toUpperCase() as QueryPoS;
+    }
+    throw new Error(`Invalid PoS value [${s}]`);
+};

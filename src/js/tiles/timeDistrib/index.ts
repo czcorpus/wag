@@ -47,6 +47,8 @@ export interface TimeDistTileConf extends CorpSrchTileConf {
     timeAxisLegend:string;
 
     flimit:number;
+
+    posQueryGenerator:[string, string];
 }
 
 /**
@@ -102,7 +104,8 @@ export class TimeDistTile implements ITileProvider {
                 fttIncludeEmpty: false,
                 fmaxitems: 100,
                 alphaLevel: AlphaLevel.LEVEL_0_1, // TODO conf/explain
-                data: Immutable.List<DataItemWithWCI>()
+                data: Immutable.List<DataItemWithWCI>(),
+                posQueryGenerator: conf.posQueryGenerator
             },
             tileId,
             waitForTiles[0] || -1,

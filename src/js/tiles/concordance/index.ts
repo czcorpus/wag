@@ -35,6 +35,7 @@ export interface ConcordanceTileConf extends CorpSrchTileConf {
     backlink:Backlink;
     pageSize:number;
     posAttrs:Array<string>;
+    posQueryGenerator:[string, string]; // a positional attribute name and a function to create a query value (e.g. ['tag', (v) => `${v}.+`])
     parallelLangMapping?:{[lang:string]:string};
 }
 
@@ -76,7 +77,7 @@ export class ConcordanceTile implements ITileProvider {
                 isTweakMode: false,
                 isMobile: appServices.isMobileMode(),
                 widthFract: widthFract,
-                querySelector: QuerySelector.PHRASE,
+                querySelector: QuerySelector.CQL,
                 lines: Immutable.List<Line>(),
                 corpname: conf.corpname,
                 otherCorpname: conf.parallelLangMapping ? conf.parallelLangMapping[lang2] : null,
@@ -98,7 +99,8 @@ export class ConcordanceTile implements ITileProvider {
                 attr_vmode: 'mouseover',
                 viewMode: conf.parallelLangMapping ? ViewMode.SENT : ViewMode.KWIC,
                 attrs: Immutable.List<string>(conf.posAttrs),
-                backlink: null
+                backlink: null,
+                posQueryGenerator: conf.posQueryGenerator
             }
         });
         this.label = appServices.importExternalMessage(conf.label || 'concordance__main_label');

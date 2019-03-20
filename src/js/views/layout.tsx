@@ -20,7 +20,7 @@ import { IActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
 import { resolve as urlResolve } from 'url';
 
-import { HostPageEnv } from '../common/types';
+import { HostPageEnv, LemmaVariant } from '../common/types';
 import { ClientConf, UserConf } from '../conf';
 import { TileGroup } from '../layout';
 import { WdglanceMainFormModel } from '../models/query';
@@ -33,6 +33,7 @@ export interface LayoutProps {
     config:ClientConf;
     userConfig:UserConf;
     hostPageEnv:HostPageEnv;
+    lemmas:Array<LemmaVariant>;
 }
 
 
@@ -45,7 +46,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         const createScriptStr = () => {
             return `indexPage.init(document.querySelector('.wdglance-mount'),
-                ${JSON.stringify(props.config)}, ${JSON.stringify(props.userConfig)});`
+                ${JSON.stringify(props.config)}, ${JSON.stringify(props.userConfig)}, ${JSON.stringify(props.lemmas)});`
         };
 
         return (
@@ -69,7 +70,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <h1><a href={props.config.hostUrl}>{ut.translate('global__wdglance_title')}</a></h1>
                     </header>
                     <section className="wdglance-mount">
-                        <mainViews.WdglanceMain layout={Immutable.List<TileGroup>()} isMobile={false} />
+                        <mainViews.WdglanceMain layout={Immutable.List<TileGroup>()} isMobile={false} isAnswerMode={false} />
                     </section>
                     {props.hostPageEnv.scripts.map(script =>
                         <script key={script} type="text/javascript" src={script}></script>

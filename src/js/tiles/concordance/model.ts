@@ -23,7 +23,7 @@ import { ConcApi, Line } from '../../common/api/kontext/concordance';
 import { ConcordanceMinState, stateToArgs } from '../../common/models/concordance';
 import { Backlink, BacklinkWithArgs, HTTPMethod, SystemMessageType } from '../../common/types';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
-import { WdglanceMainFormModel } from '../../models/query';
+import { WdglanceMainFormModel, findCurrLemmaVariant } from '../../models/query';
 import { importMessageType } from '../../notifications';
 import { ActionName, Actions, ConcLoadedPayload } from './actions';
 
@@ -202,8 +202,9 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
     }
 
     private reloadData(state:ConcordanceTileState, dispatch:SEDispatcher):void {
+        const formState = this.mainForm.getState();
         this.service
-            .call(stateToArgs(state, this.mainForm.getState().query.value))
+            .call(stateToArgs(state, findCurrLemmaVariant(formState.lemmas)))
             .subscribe(
                 (data) => {
                     dispatch<GlobalActions.TileDataLoaded<ConcLoadedPayload>>({

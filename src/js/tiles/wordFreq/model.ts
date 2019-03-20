@@ -25,6 +25,7 @@ import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../
 import { ConcLoadedPayload } from '../concordance/actions';
 import { ActionName, Actions, DataLoadedPayload } from './actions';
 import { LemmaFreqApi, RequestArgs, SummaryDataRow } from './api';
+import { posTable } from '../../server/freqdb/common';
 
 export interface FlevelDistribItem {
     rel:number;
@@ -57,21 +58,6 @@ const stateToAPIArgs = (state:SummaryModelState, concId:string):RequestArgs => (
     ftt_include_empty: state.includeEmpty ? '1' : '0',
     format: 'json'
 });
-
-const posTable = {
-    n: {'cs-CZ': 'podstatné jméno', 'en-US': 'noun'},
-	a: {'cs-CZ': 'přídavné jméno', 'en-US': 'adjective'},
-	p: {'cs-CZ': 'zájmeno', 'en-US': 'pronoun'},
-	c: {'cs-CZ': 'číslovka, nebo číselný výraz s číslicemi', 'en-US': 'numeral'},
-	v: {'cs-CZ': 'sloveso', 'en-US': 'verb'},
-	d: {'cs-CZ': 'příslovce', 'en-US': 'adverb'},
-	r: {'cs-CZ': 'předložka', 'en-US': 'preposition'},
-	j: {'cs-CZ': 'spojka', 'en-US': 'conjunction'},
-	t: {'cs-CZ': 'částice', 'en-US': 'particle'},
-	i: {'cs-CZ': 'citoslovce', 'en-US': 'interjection'},
-	z: {'cs-CZ': 'interpunkce', 'en-US': 'punctuation'},
-    x: {'cs-CZ': 'neznámý nebo neurčený slovní druh', 'en-US': 'unknown or undetermined part of speech'}
-}
 
 export class SummaryModel extends StatelessModel<SummaryModelState> {
 

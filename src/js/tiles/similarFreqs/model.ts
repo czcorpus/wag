@@ -20,7 +20,7 @@ import { Action, IActionDispatcher, SEDispatcher, StatelessModel } from 'kombo';
 import { map } from 'rxjs/operators';
 
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
-import { WdglanceMainFormModel } from '../../models/query';
+import { WdglanceMainFormModel, findCurrLemmaVariant } from '../../models/query';
 import { DataLoadedPayload } from './actions';
 import { Response, SimilarFreqWordsApi, SimilarlyFreqWord } from './api';
 
@@ -78,47 +78,49 @@ export class SimFreqsModel extends StatelessModel<SimFreqsModelState> {
     sideEffects(state:SimFreqsModelState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
-                const query = this.mainForm.getState().query.value;
-                this.api
-                    .call({
-                        word: query,
-                        srchRange: state.srchRange
-                    })
-                    .pipe(
-                        map<Response, Response>(
-                            (data) => ({
-                                result: data.result.map(v => ({
-                                    word: v.word,
-                                    abs: v.abs,
-                                    arf: v.arf,
-                                    ipm: v.abs / state.corpusSize * 1e6,
-                                    highlighted: v.word === query ? true : undefined
-                                }))
-                            })
-                        )
-                    ).subscribe(
-                        (data) => {
-                            dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                name: GlobalActionName.TileDataLoaded,
-                                payload: {
-                                    tileId: this.tileId,
-                                    isEmpty: data.result.length === 0,
-                                    data: data.result
-                                }
-                            });
-                        },
-                        (error) => {
-                            dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                name: GlobalActionName.TileDataLoaded,
-                                error: error,
-                                payload: {
-                                    tileId: this.tileId,
-                                    isEmpty: true,
-                                    data: []
-                                }
-                            });
-                        }
+                const mainFormState = this.mainForm.getState();
+                const currLemmaVar = findCurrLemmaVariant(mainFormState.lemmas);
+                this.api.call({
+                    word: currLemmaVar.word,
+                    lemma: currLemmaVar.lemma,
+                    srchRange: state.srchRange,
+                    pos: currLemmaVar.pos
+                })
+                .pipe(
+                    map<Response, Response>(
+                        (data) => ({
+                            result: data.result.map(v => ({
+                                word: v.word,
+                                abs: v.abs,
+                                arf: v.arf,
+                                ipm: v.abs / state.corpusSize * 1e6,
+                                highlighted: v.word === mainFormState.query.value ? true : undefined
+                            }))
+                        })
                     )
+                ).subscribe(
+                    (data) => {
+                        dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                            name: GlobalActionName.TileDataLoaded,
+                            payload: {
+                                tileId: this.tileId,
+                                isEmpty: data.result.length === 0,
+                                data: data.result
+                            }
+                        });
+                    },
+                    (error) => {
+                        dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                            name: GlobalActionName.TileDataLoaded,
+                            error: error,
+                            payload: {
+                                tileId: this.tileId,
+                                isEmpty: true,
+                                data: []
+                            }
+                        });
+                    }
+                );
             break;
         }
 

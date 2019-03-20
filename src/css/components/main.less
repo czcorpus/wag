@@ -76,6 +76,37 @@
     text-align: center;
     padding: 1em;
 
+    .LemmaSelector {
+        padding: 0.8em 0 0 0;
+        font-size: 80%;
+
+        .curr {
+            color: @color-logo-pink;
+        }
+
+        .variants {
+            display: inline;
+            margin: 0;
+            padding: 0;
+            list-style-type: none;
+
+            li {
+                margin: 0;
+                padding: 0;
+                display: inline-block;
+
+                a {
+                    color: @color-logo-blue;
+                    cursor: pointer;
+                }
+
+                a:hover {
+                    text-decoration: underline;
+                }
+            }
+        }
+    }
+
     .main {
         margin-top: 1em;
         display: flex;

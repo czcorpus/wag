@@ -27,7 +27,7 @@ import { APIResponse, DataRow, FreqDistribAPI } from '../../common/api/kontext/f
 import { stateToArgs as concStateToArgs } from '../../common/models/concordance';
 import { GeneralSingleCritFreqBarModelState, stateToAPIArgs } from '../../common/models/freq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
-import { WdglanceMainFormModel } from '../../models/query';
+import { WdglanceMainFormModel, findCurrLemmaVariant } from '../../models/query';
 import { ConcLoadedPayload } from '../concordance/actions';
 import { DataItemWithWCI, DataLoadedPayload } from './common';
 import { AlphaLevel, wilsonConfInterval } from './stat';
@@ -56,6 +56,7 @@ export interface TimeDistribModelState extends GeneralSingleCritFreqBarModelStat
     subcDesc:string;
     timeAxisLegend:string;
     alphaLevel:AlphaLevel;
+    posQueryGenerator:[string, string];
 }
 
 const roundFloat = (v:number):number => Math.round(v * 100) / 100;
@@ -237,11 +238,11 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     });
 
                 } else { // here we must create our own concordance(s)
-                    const query = this.mainForm.getState().query.value;
+                    const formState = this.mainForm.getState();
                     state.subcnames.toArray().map(subcname =>
                         this.concApi.call(concStateToArgs(
                             {
-                                querySelector: QuerySelector.PHRASE,
+                                querySelector: QuerySelector.CQL,
                                 corpname: state.corpname,
                                 otherCorpname: undefined,
                                 subcname: subcname,
@@ -254,9 +255,10 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                 attr_vmode: 'mouseover',
                                 viewMode: ViewMode.KWIC,
                                 tileId: this.tileId,
-                                attrs: Immutable.List<string>(['word'])
+                                attrs: Immutable.List<string>(['word']),
+                                posQueryGenerator: state.posQueryGenerator
                             },
-                            query
+                            findCurrLemmaVariant(formState.lemmas)
 
                         )).pipe(
                             map<ConcResponse, ReduceResponse>(
