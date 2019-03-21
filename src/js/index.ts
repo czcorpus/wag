@@ -48,6 +48,7 @@ import { init as sydInit, SyDTileConf } from './tiles/syd';
 import { init as timeDistInit, TimeDistTileConf } from './tiles/timeDistrib';
 import { init as treqInit, TreqTileConf } from './tiles/treq';
 import { init as summaryInit, WordFreqTileConf } from './tiles/wordFreq';
+import { init as concFilterInit, ConcFilterTileConf } from './tiles/concFilter';
 import { GlobalComponents, init as globalCompInit } from './views/global';
 import { init as viewInit } from './views/main';
 
@@ -157,6 +158,8 @@ const mkTileFactory = (
                     return applyFactory<GeoAreasTileConf>(geoAreasInit, conf);
                 case 'SimilarFreqsTile':
                     return applyFactory<SimilarFreqsTileConf>(similarFreqsInit, conf);
+                case 'ConcFilterTile':
+                    return applyFactory<ConcFilterTileConf>(concFilterInit, conf);
                 default:
                     return null;
             }

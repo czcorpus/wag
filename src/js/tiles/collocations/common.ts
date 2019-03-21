@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 import { Action } from 'kombo';
+import { SubqueryPayload } from '../../common/types';
 
 
 export interface DataRow {
@@ -72,7 +73,7 @@ export enum ActionName {
 }
 
 
-export interface DataLoadedPayload {
+export interface DataLoadedPayload extends SubqueryPayload {
     data:Array<DataRow>;
     heading:DataHeading;
     concId:string;
