@@ -17,9 +17,8 @@
  */
 import * as Immutable from 'immutable';
 
-import { PCQValue, PCRequestArgs, QuerySelector, RequestArgs, setQuery, ViewMode, mkPosQuery } from '../api/kontext/concordance';
-import { QueryPoS, LemmaVariant } from '../types';
-
+import { PCQValue, PCRequestArgs, QuerySelector, RequestArgs, setQuery, ViewMode, mkLemmaMatchQuery } from '../api/kontext/concordance';
+import { LemmaVariant } from '../types';
 
 
 export interface ConcordanceMinState {
@@ -39,7 +38,6 @@ export interface ConcordanceMinState {
     attrs:Immutable.List<string>;
     posQueryGenerator:[string, string];
 }
-
 
 
 export const stateToArgs = (state:ConcordanceMinState, lvar:LemmaVariant):RequestArgs|PCRequestArgs => {
@@ -65,7 +63,7 @@ export const stateToArgs = (state:ConcordanceMinState, lvar:LemmaVariant):Reques
         ans[`include_empty_${state.otherCorpname}`] = '0';
         ans[`queryselector_${state.otherCorpname}`] = 'wordrow';
         ans[`word_${state.otherCorpname}`] = '';
-        setQuery(ans, mkPosQuery(lvar, state.posQueryGenerator));
+        setQuery(ans, mkLemmaMatchQuery(lvar, state.posQueryGenerator));
         return ans;
 
     } else {
@@ -84,7 +82,7 @@ export const stateToArgs = (state:ConcordanceMinState, lvar:LemmaVariant):Reques
             shuffle: state.shuffle ? 1 : undefined,
             format:'json'
         };
-        setQuery(ans, mkPosQuery(lvar, state.posQueryGenerator));
+        setQuery(ans, mkLemmaMatchQuery(lvar, state.posQueryGenerator));
         return ans;
     }
 }

@@ -43,7 +43,7 @@
         "global__failed_to_obtain_required_data": "Failed to obtain data required for the calculation.",
         "global__not_enought_data_for_group": "Not enough data to display any result in this section",
         "global__func_not_avail": "Function not available in this case",
-        "global__multiple_words_for_query": "The searched term provides also",
+        "global__multiple_words_for_query": "Alternatives",
         "global__searching_by_pos": "Showing results for"
 
     },
@@ -91,7 +91,7 @@
         "global__failed_to_obtain_required_data": "Nepodařilo se získat data potřebná k výpočtu.",
         "global__not_enought_data_for_group": "Pro zobrazení výsledků v této skupině není dostatek dat",
         "global__func_not_avail": "Funkce zde není k dispozici",
-        "global__multiple_words_for_query": "Hledaný výraz odpovídá také",
+        "global__multiple_words_for_query": "Alternativy",
         "global__searching_by_pos": "Zobrazuji výsledky pro"
     }
 }

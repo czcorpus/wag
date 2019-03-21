@@ -77,31 +77,35 @@
     padding: 1em;
 
     .LemmaSelector {
-        padding: 0.8em 0 0 0;
         font-size: 80%;
+        padding: 0.8em 0 0 0;
+        color: #454545;
 
         .curr {
+            font-size: 125%;
             color: @color-logo-pink;
         }
 
         .variants {
-            display: inline;
-            margin: 0;
-            padding: 0;
-            list-style-type: none;
-
-            li {
+            ul {
+                display: inline;
                 margin: 0;
                 padding: 0;
-                display: inline-block;
+                list-style-type: none;
 
-                a {
-                    color: @color-logo-blue;
-                    cursor: pointer;
-                }
+                li {
+                    margin: 0;
+                    padding: 0;
+                    display: inline-block;
 
-                a:hover {
-                    text-decoration: underline;
+                    a {
+                        color: @color-logo-blue;
+                        cursor: pointer;
+                    }
+
+                    a:hover {
+                        text-decoration: underline;
+                    }
                 }
             }
         }
