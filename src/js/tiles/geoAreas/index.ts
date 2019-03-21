@@ -128,6 +128,10 @@ export class GeoAreasTile implements ITileProvider {
     supportsHelpView():boolean {
         return true;
     }
+
+    supportsAltView():boolean {
+        return false;
+    }
 }
 
 export const init:TileFactory.TileFactory<GeoAreasTileConf>  = (args) => new GeoAreasTile(args);

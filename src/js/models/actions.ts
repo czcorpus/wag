@@ -35,6 +35,8 @@ export enum ActionName {
     AddSystemMessage = 'MAIN_ADD_SYSTEM_MESSAGE',
     RemoveSystemMessage = 'MAIN_REMOVE_SYSTEM_MESSAGE',
     SubmitQuery = 'MAIN_SUBMIT_QUERY',
+    EnableAltViewMode = 'MAIN_ENABLE_ALT_VIEW_MODE',
+    DisableAltViewMode = 'MAIN_DISABLE_ALT_VIEW_MODE',
     EnableTileTweakMode = 'MAIN_ENABLE_TILE_TWEAK_MODE',
     DisableTileTweakMode = 'MAIN_DISABLE_TILE_TWEAK_MODE',
     GetCorpusInfo = 'MAIN_GET_CORPUS_INFO',
@@ -145,6 +147,18 @@ export namespace Actions {
 
     export interface SubmitQuery extends Action<{}> {
         name:ActionName.SubmitQuery;
+    }
+
+    export interface EnableAltViewMode extends Action<{
+        ident:number;
+    }> {
+        name:ActionName.EnableAltViewMode;
+    }
+
+    export interface DisableAltViewMode extends Action<{
+        ident:number;
+    }> {
+        name:ActionName.DisableAltViewMode;
     }
 
     export interface EnableTileTweakMode extends Action<{

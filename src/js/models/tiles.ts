@@ -46,6 +46,7 @@ export interface WdglanceTilesState {
     isBusy:boolean;
     isMobile:boolean;
     isModalVisible:boolean;
+    altViewActiveTiles:Immutable.Set<number>;
     tweakActiveTiles:Immutable.Set<number>;
     helpActiveTiles:Immutable.Set<number>;
     tilesHelpData:Immutable.Map<number, string>; // raw html data loaded from a trusted resource
@@ -88,15 +89,26 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                             label: tile.label,
                             supportsTweakMode: tile.supportsTweakMode,
                             supportsCurrQueryType: tile.supportsCurrQueryType,
+                            supportsHelpView: tile.supportsHelpView,
+                            supportsAltView: tile.supportsAltView,
                             renderSize: [action.payload.size[0] + tile.tileId, action.payload.size[1]],
                             widthFract: tile.widthFract,
-                            supportsHelpView: tile.supportsHelpView,
                             helpURL: tile.helpURL
                         }
                     );
                     return newState;
                 }
                 return state;
+            },
+            [ActionName.EnableAltViewMode]: (state, action:Actions.EnableAltViewMode) => {
+                const newState = this.copyState(state);
+                newState.altViewActiveTiles = newState.altViewActiveTiles.add(action.payload.ident);
+                return newState;
+            },
+            [ActionName.DisableAltViewMode]: (state, action:Actions.DisableAltViewMode) => {
+                const newState = this.copyState(state);
+                newState.altViewActiveTiles = newState.altViewActiveTiles.remove(action.payload.ident);
+                return newState;
             },
             [ActionName.EnableTileTweakMode]: (state, action:Actions.EnableTileTweakMode) => {
                 const newState = this.copyState(state);

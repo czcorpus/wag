@@ -105,6 +105,10 @@ export class SimilarFreqsTile implements ITileProvider {
         return true;
     }
 
+    supportsAltView():boolean {
+        return false;
+    }
+
 }
 
 

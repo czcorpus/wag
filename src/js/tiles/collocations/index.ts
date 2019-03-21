@@ -83,6 +83,7 @@ export class CollocationsTile implements ITileProvider {
             initState: {
                 isBusy: false,
                 isTweakMode: false,
+                isAltViewMode: false,
                 tileId: tileId,
                 widthFract: widthFract,
                 error: null,
@@ -139,6 +140,10 @@ export class CollocationsTile implements ITileProvider {
     }
 
     supportsHelpView():boolean {
+        return true;
+    }
+
+    supportsAltView():boolean {
         return true;
     }
 }

@@ -152,6 +152,10 @@ export class MergeCorpFreqTile implements ITileProvider {
         return true;
     }
 
+    supportsAltView():boolean {
+        return false;
+    }
+
 }
 
 

@@ -28,7 +28,7 @@ import { timeout } from 'rxjs/operators';
 import { Theme } from '../../common/theme';
 import { CoreTileComponentProps, TileComponent } from '../../common/types';
 import { GlobalComponents } from '../../views/global';
-import { ActionName, Actions, DataRow, SrchContextType } from './common';
+import { ActionName, Actions, DataRow, SrchContextType, DataHeading } from './common';
 import { CollocModel, CollocModelState } from './model';
 
 
@@ -177,6 +177,32 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         );
     };
 
+    // -------------- <TableView /> -------------------------------------
+
+    const TableView:React.SFC<{
+        data:Immutable.List<DataRow>;
+        heading:DataHeading;
+
+    }> = (props) => {
+        return (
+            <table className="cnc-table data">
+                <tbody>
+                    <tr>
+                        <th />
+                        {props.heading.map((h, i) => <th key={`${i}:${h.ident}`}>{h.label}</th>)}
+                    </tr>
+                    {props.data.map((row, i) => (
+                        <tr key={`${i}:${row.str}`}>
+                            <td className="word">{row.str}</td>
+                            <td className="num">{ut.formatNumber(row.freq)}</td>
+                            {row.stats.map((stat, i) => <td key={`stat-${i}`} className="num">{ut.formatNumber(stat, 2)}</td>)}
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        );
+    }
+
 
     // -------------- <CollocTile /> -------------------------------------
 
@@ -213,7 +239,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         componentDidUpdate(prevProps) {
             if (this.chartContainer.current &&
                     (this.props.data !== prevProps.data ||
-                    this.props.isMobile !== prevProps.isMobile)) {
+                    this.props.isMobile !== prevProps.isMobile ||
+                    this.props.isAltViewMode !== prevProps.isAltViewMode)) {
                 drawChart(
                     theme,
                     this.props.isMobile,
@@ -238,25 +265,14 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         null
                     }
                     <div className="boxes">
-                        <div className="chart" ref={this.chartContainer}
-                                style={{height: this.props.isMobile ? `${this.props.data.size * 30}px` : "initial"}} />
-                        {this.props.widthFract > 1 && !this.props.isMobile ?
-                            <table className="cnc-table data">
-                                <tbody>
-                                    <tr>
-                                        <th />
-                                        {this.props.heading.map((h, i) => <th key={`${i}:${h.ident}`}>{h.label}</th>)}
-                                    </tr>
-                                    {this.props.data.map((row, i) => (
-                                        <tr key={`${i}:${row.str}`}>
-                                            <td className="word">{row.str}</td>
-                                            <td className="num">{ut.formatNumber(row.freq)}</td>
-                                            {row.stats.map((stat, i) => <td key={`stat-${i}`} className="num">{ut.formatNumber(stat, 2)}</td>)}
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table> : null
+                        {this.props.isAltViewMode ?
+                            <TableView heading={this.props.heading} data={this.props.data} /> :
+                            <div className="chart" ref={this.chartContainer}
+                                style={this.props.isMobile ?
+                                        {height: `${this.props.data.size * 30}px`} :
+                                        {height: `${this.props.data.size * 40}px`, width: '100%'}} />
                         }
+
                     </div>
                 </globalCompontents.TileWrapper>
             );

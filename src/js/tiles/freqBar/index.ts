@@ -157,6 +157,10 @@ export class FreqBarTile implements ITileProvider {
         return true;
     }
 
+    supportsAltView():boolean {
+        return false;
+    }
+
 }
 
 

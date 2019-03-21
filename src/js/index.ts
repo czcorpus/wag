@@ -71,6 +71,7 @@ const mkAttachTile = (queryType:QueryType, lang1:string, lang2:string) =>
         supportsTweakMode: tile.supportsTweakMode(),
         supportsCurrQueryType: support,
         supportsHelpView: tile.supportsHelpView(),
+        supportsAltView: tile.supportsAltView(),
         renderSize: [50, 50],
         widthFract: tile.getWidthFract(),
         helpURL: helpURL,
@@ -276,6 +277,7 @@ export const init = (mountElement:HTMLElement, config:ClientConf, userConfig:Use
             isMobile: appServices.isMobileMode(),
             tweakActiveTiles: Immutable.Set<number>(),
             helpActiveTiles: Immutable.Set<number>(),
+            altViewActiveTiles: Immutable.Set<number>(),
             tilesHelpData: Immutable.Map<number, string>(),
             hiddenGroups: Immutable.Set<number>(),
             hiddenGroupsHeaders: Immutable.Set<number>(

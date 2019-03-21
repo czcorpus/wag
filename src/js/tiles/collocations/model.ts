@@ -52,6 +52,7 @@ export interface CollocModelState {
     isBusy:boolean;
     tileId:number;
     isTweakMode:boolean;
+    isAltViewMode:boolean;
     error:string|null;
     widthFract:number;
     corpname:string;
@@ -150,6 +151,22 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                 if (action.payload.ident === this.tileId) {
                     const newState = this.copyState(state);
                     newState.isTweakMode = false;
+                    return newState;
+                }
+                return state;
+            },
+            [GlobalActionName.EnableAltViewMode]: (state, action:GlobalActions.EnableAltViewMode) => {
+                if (action.payload.ident === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.isAltViewMode = true;
+                    return newState;
+                }
+                return state;
+            },
+            [GlobalActionName.DisableAltViewMode]: (state, action:GlobalActions.DisableAltViewMode) => {
+                if (action.payload.ident === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.isAltViewMode = false;
                     return newState;
                 }
                 return state;

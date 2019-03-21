@@ -125,6 +125,10 @@ export class WordFreqTile implements ITileProvider {
     supportsHelpView():boolean {
         return true;
     }
+
+    supportsAltView():boolean {
+        return false;
+    }
 }
 
 

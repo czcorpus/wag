@@ -142,6 +142,10 @@ export class ConcordanceTile implements ITileProvider {
     supportsHelpView():boolean {
         return true;
     }
+
+    supportsAltView():boolean {
+        return false;
+    }
 }
 
 export const init:TileFactory.TileFactory<ConcordanceTileConf> = (args) => new ConcordanceTile(args);

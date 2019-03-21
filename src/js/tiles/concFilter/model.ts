@@ -103,7 +103,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
         return resp
             .map(v => v.Lines)
             .reduce(
-                (acc, curr) => acc.concat(curr.slice(0, 2)),
+                (acc, curr) => acc.concat(curr.slice(0, 1)), // TODO
                 []
             );
     }
