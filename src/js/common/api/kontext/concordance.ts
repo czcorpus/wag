@@ -19,7 +19,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { ajax$ } from '../../ajax';
-import { DataApi, HTTPHeaders, QueryPoS, LemmaVariant } from '../../types';
+import { DataApi, HTTPHeaders, LemmaVariant } from '../../types';
 import { posQueryFactory } from './posQuery';
 
 
@@ -127,9 +127,16 @@ export const getQuery = (args:AnyQuery):string => {
 };
 
 
-export const mkPosQuery = (lvar:LemmaVariant, generator:[string, string]):string => {
+const escapeVal = (v:string) => v.replace(/"/, '\\"');
+
+export const mkFullMatchQuery = (lvar:LemmaVariant, generator:[string, string]):string => {
     const fn = posQueryFactory(generator[1]);
-    return `[word="${lvar.word}" & lemma="${lvar.lemma}" & ${generator[0]}="${fn(lvar.pos)}"]`; // TODO escape stuff !!!
+    return `[word="${escapeVal(lvar.word)}" & lemma="${escapeVal(lvar.lemma)}" & ${generator[0]}="${fn(lvar.pos)}"]`; // TODO escape stuff !!!
+};
+
+export const mkLemmaMatchQuery = (lvar:LemmaVariant, generator:[string, string]):string => {
+    const fn = posQueryFactory(generator[1]);
+    return `[lemma="${escapeVal(lvar.lemma)}" & ${generator[0]}="${fn(lvar.pos)}"]`; // TODO escape stuff !!!
 };
 
 

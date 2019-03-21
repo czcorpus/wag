@@ -17,15 +17,17 @@
  */
 import * as Immutable from 'immutable';
 import { Action, ActionDispatcher, SEDispatcher, StatelessModel } from 'kombo';
-
+import { Observable } from 'rxjs';
+import { concatMap } from 'rxjs/operators';
 import { AppServices } from '../../appServices';
-import { ConcApi, Line } from '../../common/api/kontext/concordance';
+import { ConcApi, Line, PCRequestArgs, RequestArgs } from '../../common/api/kontext/concordance';
 import { ConcordanceMinState, stateToArgs } from '../../common/models/concordance';
 import { Backlink, BacklinkWithArgs, HTTPMethod, SystemMessageType } from '../../common/types';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
-import { WdglanceMainFormModel, findCurrLemmaVariant } from '../../models/query';
+import { findCurrLemmaVariant, WdglanceMainFormModel } from '../../models/query';
 import { importMessageType } from '../../notifications';
 import { ActionName, Actions, ConcLoadedPayload } from './actions';
+
 
 
 export interface BacklinkArgs {
@@ -203,31 +205,41 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
     private reloadData(state:ConcordanceTileState, dispatch:SEDispatcher):void {
         const formState = this.mainForm.getState();
-        this.service
-            .call(stateToArgs(state, findCurrLemmaVariant(formState.lemmas)))
-            .subscribe(
-                (data) => {
-                    dispatch<GlobalActions.TileDataLoaded<ConcLoadedPayload>>({
-                        name: GlobalActionName.TileDataLoaded,
-                        payload: {
-                            tileId: this.tileId,
-                            isEmpty: data.Lines.length === 0,
-                            data: data
-                        }
-                    });
-                },
-                (err) => {
-                    dispatch<GlobalActions.TileDataLoaded<ConcLoadedPayload>>({
-                        name: GlobalActionName.TileDataLoaded,
-                        error: err,
-                        payload: {
-                            tileId: this.tileId,
-                            isEmpty: true,
-                            data: null
-                        }
-                    });
-                }
-            );
+        new Observable<RequestArgs|PCRequestArgs>((observer) => {
+            try {
+                observer.next(stateToArgs(state, findCurrLemmaVariant(formState.lemmas)));
+                observer.complete();
+
+            } catch (e) {
+                observer.error(e);
+            }
+
+        }).pipe(
+            concatMap(args => this.service.call(args))
+        )
+        .subscribe(
+            (data) => {
+                dispatch<GlobalActions.TileDataLoaded<ConcLoadedPayload>>({
+                    name: GlobalActionName.TileDataLoaded,
+                    payload: {
+                        tileId: this.tileId,
+                        isEmpty: data.Lines.length === 0,
+                        data: data
+                    }
+                });
+            },
+            (err) => {
+                dispatch<GlobalActions.TileDataLoaded<ConcLoadedPayload>>({
+                    name: GlobalActionName.TileDataLoaded,
+                    error: err,
+                    payload: {
+                        tileId: this.tileId,
+                        isEmpty: true,
+                        data: null
+                    }
+                });
+            }
+        );
     }
 
     sideEffects(state:ConcordanceTileState, action:Action, dispatch:SEDispatcher):void {

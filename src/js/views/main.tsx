@@ -295,9 +295,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         {ut.translate('global__searching_by_pos')}:{'\u00a0'}<span className="curr">{curr.lemma} ({curr.posLabel})</span>
                         <br />
                         {props.lemmas.size > 1 ?
-                            <>
+                            <div className="variants">
                                 {ut.translate('global__multiple_words_for_query')}:{'\u00a0'}
-                                <ul className="variants">
+                                <ul>
                                     {props.lemmas.filter(v => !v.isCurrent).map((v, i) =>
                                         <li key={`${v.lemma}:${v.pos}:${i}`}>
                                             {i > 0 ? <span>, </span> : null}
@@ -305,7 +305,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                         </li>
                                     )}
                                 </ul>
-                            </>
+                            </div>
                             : null
                         }
                     </div>
