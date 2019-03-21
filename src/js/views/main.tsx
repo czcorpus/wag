@@ -427,6 +427,40 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         );
     }
 
+    // ------------- <AltViewButton /> --------------------------------------
+
+    const AltViewButton:React.SFC<{
+        isAltView:boolean;
+        tileId:number;
+
+    }> = (props) => {
+
+        const handleClick = () => {
+            if (props.isAltView) {
+                dispatcher.dispatch({
+                    name: ActionName.DisableAltViewMode,
+                    payload: {
+                        ident: props.tileId
+                    }
+                });
+
+            } else {
+                dispatcher.dispatch({
+                    name: ActionName.EnableAltViewMode,
+                    payload: {
+                        ident: props.tileId
+                    }
+                });
+            }
+        };
+
+        return <span className="AltViewButton">
+            <button type="button" onClick={handleClick}>
+                <img src={ut.createStaticUrl('brackets.svg')} />
+            </button>
+        </span>
+    }
+
 
     // ------------- <TweakButton /> --------------------------------------
 
@@ -528,6 +562,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         isTweakMode:boolean;
         helpHTML:string;
         isMobile:boolean;
+        isAltViewMode:boolean;
         helpURL:string;
         tile:TileFrameProps;
     }, {}> {
@@ -568,6 +603,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <header className="cnc-tile-header panel">
                         <h2>{this.props.tile.label}</h2>
                         <div className="window-buttons">
+                        {this.props.tile.supportsAltView ?
+                            <AltViewButton tileId={this.props.tile.tileId} isAltView={this.props.isAltViewMode} />  :
+                            null
+                        }
                         {this.props.tile.supportsTweakMode ?
                             <TweakButton tileId={this.props.tile.tileId} isExtended={this.props.isTweakMode}
                                     isDisabled={!!this.props.helpHTML} /> :
@@ -723,7 +762,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                             isMobile={this.props.isMobile}
                                             helpHTML={this.props.helpActiveTiles.contains(tile.tileId) ? this.props.tilesHelpData.get(tile.tileId) : null}
                                             helpURL={tile.helpURL}
-                                            isTweakMode={this.props.tweakActiveTiles.contains(tile.tileId)} />)
+                                            isTweakMode={this.props.tweakActiveTiles.contains(tile.tileId)}
+                                            isAltViewMode={this.props.altViewActiveTiles.contains(tile.tileId)} />)
                     }
                     </section>
                 );
@@ -787,6 +827,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         isModalVisible={false}
                         tweakActiveTiles={Immutable.Set<number>()}
                         helpActiveTiles={Immutable.Set<number>()}
+                        altViewActiveTiles={Immutable.Set<number>()}
                         tilesHelpData={Immutable.Map<number, string>()}
                         hiddenGroups={Immutable.Set<number>()}
                         hiddenGroupsHeaders={Immutable.Set<number>()}

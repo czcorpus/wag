@@ -149,6 +149,10 @@ export class TimeDistTile implements ITileProvider {
     supportsHelpView():boolean {
         return true;
     }
+
+    supportsAltView():boolean {
+        return false;
+    }
 }
 
 

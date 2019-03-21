@@ -63,4 +63,8 @@ export class EmptyTile implements ITileProvider {
     supportsHelpView():boolean {
         return false;
     }
+
+    supportsAltView():boolean {
+        return false;
+    }
 }

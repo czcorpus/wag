@@ -173,6 +173,8 @@ export interface TileFrameProps {
 
     supportsHelpView:boolean;
 
+    supportsAltView:boolean;
+
     helpURL:string;
 
     renderSize:[number, number];
@@ -224,6 +226,8 @@ export interface ITileProvider {
     supportsTweakMode():boolean;
 
     supportsHelpView():boolean;
+
+    supportsAltView():boolean;
 }
 
 /**

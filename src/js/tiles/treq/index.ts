@@ -105,6 +105,10 @@ export class TreqTile implements ITileProvider {
     supportsHelpView():boolean {
         return true;
     }
+
+    supportsAltView():boolean {
+        return false;
+    }
 }
 
 
