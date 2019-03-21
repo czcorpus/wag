@@ -34,6 +34,10 @@ export interface ConcLoadedPayload {
     data:ConcResponse;
 }
 
+export function isConcLoadedPayload(p:any):p is ConcLoadedPayload {
+    const x = (p as ConcLoadedPayload).data;
+    return x && !!x.conc_persistence_op_id;
+}
 
 export namespace Actions {
 

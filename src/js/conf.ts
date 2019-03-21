@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { DbValueMapping, HTTPHeaders, LocalizedConfMsg, LemmaVariant, QueryPoS } from './common/types';
+import { DbValueMapping, HTTPHeaders, LocalizedConfMsg, QueryPoS } from './common/types';
 import { CollocationsTileConf } from './tiles/collocations';
 import { ConcordanceTileConf } from './tiles/concordance';
 import { FreqBarTileConf } from './tiles/freqBar';
@@ -27,6 +27,7 @@ import { SyDTileConf } from './tiles/syd';
 import { TimeDistTileConf } from './tiles/timeDistrib';
 import { TreqTileConf } from './tiles/treq';
 import { WordFreqTileConf } from './tiles/wordFreq';
+import { ConcFilterTileConf } from './tiles/concFilter';
 
 
 
@@ -42,7 +43,8 @@ export type AnyTileConf =
     WordFreqTileConf |
     MergeCorpFreqTileConf |
     GeoAreasTileConf |
-    SimilarFreqsTileConf;
+    SimilarFreqsTileConf |
+    ConcFilterTileConf;
 
 /**
  * A page configuration based on

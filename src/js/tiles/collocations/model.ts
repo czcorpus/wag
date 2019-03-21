@@ -266,6 +266,9 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                         heading: data.collHeadings,
                         data: data.data,
                         concId: data.concId,
+                        subqueries: data.data.map(v => v.str),
+                        lang1: null,
+                        lang2: null
                     }
                 });
             },
@@ -278,7 +281,10 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                         isEmpty: true,
                         heading: null,
                         data: [],
-                        concId: null
+                        concId: null,
+                        subqueries: [],
+                        lang1: null,
+                        lang2: null
                     },
                     error: err
                 });
@@ -301,7 +307,10 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                                         isEmpty: true,
                                         data: [],
                                         heading: null,
-                                        concId: null
+                                        concId: null,
+                                        subqueries: [],
+                                        lang1: null,
+                                        lang2: null
                                     },
                                     error: new Error(this.appServices.translate('global__failed_to_obtain_required_data')),
                                 });

@@ -49,10 +49,6 @@ export interface CollocationsTileConf extends TileConf {
     backlink:BacklinkWithArgs<BacklinkArgs>;
 }
 
-export function isCollocationsTileConf(conf:TileConf):conf is CollocationsTileConf {
-    return conf.tileType == 'CollocTile';
-}
-
 /**
  *
  */

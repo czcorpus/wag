@@ -63,7 +63,21 @@ export interface RequestArgs extends AnyQuery {
     attrs:string;
     viewmode:ViewMode;
     shuffle?:number;
+    q?:string; // here we modify an existing concordance
     format:'json';
+}
+
+export enum PNFilter {
+    POS = 'p',
+    NEG = 'n'
+}
+
+export interface FilterRequestArgs extends RequestArgs {
+    pnfilter:PNFilter;
+    filfl:'f';
+    filfpos:number;
+    filtpos:number;
+    inclkwic:number;
 }
 
 export interface PCRequestArgs extends RequestArgs {
@@ -174,7 +188,7 @@ export class ConcApi implements DataApi<RequestArgs, ConcResponse> {
         this.customHeaders = customHeaders || {};
     }
 
-    call(args:RequestArgs|PCRequestArgs):Observable<ConcResponse> {
+    call(args:RequestArgs|PCRequestArgs|FilterRequestArgs):Observable<ConcResponse> {
         return ajax$<ConcResponse>(
             'GET',
             this.apiURL,

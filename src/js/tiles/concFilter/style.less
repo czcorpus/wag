@@ -1,0 +1,26 @@
+@import '../../../css/shared.less';
+
+.CollocExamplesView {
+
+    .sentences {
+
+        p:nth-child(odd) {
+            background-color: @color-whitelike-blue;
+        }
+
+        p {
+            padding: 0.4em 0.1em;
+            margin: 0;
+
+            .kwic {
+                color: @color-logo-pink;
+            }
+
+            .coll {
+                color: @color-logo-pink;
+                font-size: 120%;
+                font-style: italic;
+            }
+        }
+    }
+}
