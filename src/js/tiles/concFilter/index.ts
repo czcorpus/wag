@@ -76,7 +76,8 @@ export class ConcFilterTile implements ITileProvider {
                 posAttrs: Immutable.List<string>(conf.posAttrs),
                 lines: Immutable.List<Line>(),
                 viewMode: ViewMode.SENT,
-                attrVmode: 'mouseover'
+                attrVmode: 'mouseover',
+                itemsPerSrc: 1
             }
         );
         this.label = appServices.importExternalMessage(conf.label || 'collexamples__main_label');

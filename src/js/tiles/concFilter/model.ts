@@ -21,7 +21,7 @@ import { AppServices } from '../../appServices';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
 import { isSubqueryPayload } from '../../common/types';
 import { ConcApi, FilterRequestArgs, QuerySelector, ViewMode, PNFilter, ConcResponse, Line } from '../../common/api/kontext/concordance';
-import { Observable, forkJoin } from 'rxjs';
+import { Observable, merge } from 'rxjs';
 import { isConcLoadedPayload } from '../concordance/actions';
 import { CollExamplesLoadedPayload } from './actions';
 
@@ -36,6 +36,7 @@ export interface ConcFilterModelState {
     posAttrs:Immutable.List<string>;
     attrVmode:'mouseover';
     viewMode:ViewMode;
+    itemsPerSrc:number;
     lines:Immutable.List<Line>;
 }
 
@@ -60,13 +61,14 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                 const newState = this.copyState(state);
                 newState.isBusy = true;
                 newState.error = null;
+                newState.lines = newState.lines.clear();
                 return newState;
             },
             [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<CollExamplesLoadedPayload>) => {
                 if (action.payload.tileId === this.tileId) {
                     const newState = this.copyState(state);
                     newState.isBusy = false;
-                    newState.lines = Immutable.List<Line>(action.payload.data);
+                    newState.lines = newState.lines.concat(action.payload.data).toList();
                     return newState;
                 }
                 return state;
@@ -100,15 +102,6 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
             };
             return this.api.call(args)
         });
-    }
-
-    private mergeConcResponses(resp:Array<ConcResponse>):Array<Line> {
-        return resp
-            .map(v => v.Lines)
-            .reduce(
-                (acc, curr) => acc.concat(curr.slice(0, 1)), // TODO
-                []
-            );
     }
 
     sideEffects(state:ConcFilterModelState, action:Action, seDispatch:SEDispatcher):void {
@@ -157,16 +150,16 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                                         subq = v;
                                     }
                                 });
-                                forkJoin(this.loadFreqs(state, conc, subq)).subscribe(
+                                merge(...this.loadFreqs(state, conc, subq)).subscribe(
                                     (data) => {
                                         seDispatch<GlobalActions.TileDataLoaded<CollExamplesLoadedPayload>>({
                                             name: GlobalActionName.TileDataLoaded,
                                             payload: {
                                                 tileId: this.tileId,
-                                                isEmpty: !data.some(v => v.Lines.length > 0),
-                                                data: this.mergeConcResponses(data)
+                                                isEmpty: false, // here we cannot assume final state
+                                                data: data.Lines.slice(0, state.itemsPerSrc)
                                             }
-                                        })
+                                        });
                                     },
                                     (err) => {
                                         seDispatch<GlobalActions.TileDataLoaded<CollExamplesLoadedPayload>>({
