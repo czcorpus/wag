@@ -22,7 +22,7 @@ import { AppServices } from '../../appServices';
 import { TileConf, ITileProvider, TileFactory, TileComponent, QueryType } from '../../common/types';
 import { ConcFilterModel } from './model';
 import { init as viewInit } from './view';
-import { ConcApi, Line } from '../../common/api/kontext/concordance';
+import { ConcApi, Line, ViewMode } from '../../common/api/kontext/concordance';
 
 
 declare var require:(src:string)=>void;  // webpack
@@ -33,6 +33,7 @@ export interface ConcFilterTileConf extends TileConf {
     tileType:'ConcFilterTile';
     apiURL:string;
     corpname:string;
+    posAttrs:Array<string>;
 }
 
 /**
@@ -70,9 +71,12 @@ export class ConcFilterTile implements ITileProvider {
                 error: null,
                 isTweakMode: false,
                 isMobile: appServices.isMobileMode(),
-                corpname: conf.corpname,
-                lines: Immutable.List<Line>(),
                 widthFract: widthFract,
+                corpname: conf.corpname,
+                posAttrs: Immutable.List<string>(conf.posAttrs),
+                lines: Immutable.List<Line>(),
+                viewMode: ViewMode.SENT,
+                attrVmode: 'mouseover'
             }
         );
         this.label = appServices.importExternalMessage(conf.label || 'collexamples__main_label');

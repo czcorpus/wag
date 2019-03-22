@@ -33,6 +33,9 @@ export interface ConcFilterModelState {
     widthFract:number;
     error:string;
     corpname:string;
+    posAttrs:Immutable.List<string>;
+    attrVmode:'mouseover';
+    viewMode:ViewMode;
     lines:Immutable.List<Line>;
 }
 
@@ -81,11 +84,11 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                 kwicleftctx: undefined,
                 kwicrightctx: undefined,
                 async: '0',
-                pagesize: undefined,
+                pagesize: '5',
                 fromp: '1', // TODO choose randomly stuff??
-                attr_vmode: undefined,
-                attrs: undefined,
-                viewmode: ViewMode.SENT,
+                attr_vmode: state.attrVmode,
+                attrs: state.posAttrs.join(','),
+                viewmode: state.viewMode,
                 shuffle: 1,
                 q: '~' + concId,
                 format: 'json',
