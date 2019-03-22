@@ -22,7 +22,6 @@ import { FreqBarTileConf } from './tiles/freqBar';
 import { FreqPieTileConf } from './tiles/freqPie';
 import { GeoAreasTileConf } from './tiles/geoAreas';
 import { MergeCorpFreqTileConf } from './tiles/mergeCorpFreq';
-import { SimilarFreqsTileConf } from './tiles/similarFreqs';
 import { SyDTileConf } from './tiles/syd';
 import { TimeDistTileConf } from './tiles/timeDistrib';
 import { TreqTileConf } from './tiles/treq';
@@ -43,7 +42,6 @@ export type AnyTileConf =
     WordFreqTileConf |
     MergeCorpFreqTileConf |
     GeoAreasTileConf |
-    SimilarFreqsTileConf |
     ConcFilterTileConf;
 
 /**

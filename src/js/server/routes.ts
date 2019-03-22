@@ -21,7 +21,7 @@ import { ViewUtils } from 'kombo';
 import * as React from 'react';
 import { renderToString } from 'react-dom/server';
 import { Observable, forkJoin } from 'rxjs';
-import { concatMap } from 'rxjs/operators';
+import { concatMap, map } from 'rxjs/operators';
 
 import { AppServices } from '../appServices';
 import { encodeArgs } from '../common/ajax';
@@ -176,6 +176,14 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                 (data) => {
                     return getSimilarFreqWords(services.db, appServices, data.word, data.lemma, data.pos, data.lft, data.rgt);
                 }
+            ),
+            map(
+                (data) => {
+                    return data;
+                }
+            ),
+            map(
+                (data) => data.sort((v1, v2) => v1.arf - v2.arf)
             )
         )
         .subscribe(

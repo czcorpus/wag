@@ -10,10 +10,11 @@
 
 .WordFreqTileView {
 
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: top;
+    .chart {
+        float: right;
+        width: 340px;
+        margin-right: 2em;
+    }
 
     > div.cell:not(:last-child) {
         margin-bottom: 1.7em;
@@ -32,14 +33,25 @@
         }
     }
 
-    .LemmaList {
+    dl.info {
 
-        th {
-            text-align: left;
+        dt {
+            margin-bottom: 0.4em;
+            color: @color-light-text;
+            font-family: @condensed-font-family;
         }
 
-        tr.current {
-            background-color: @color-light-pink;
+        dd {
+            font-size: 1.5em;
+            margin-left: 1em;
+        }
+
+        dd:not(:last-child) {
+            margin-bottom: 0.7em;
+        }
+
+        dd.word-list {
+
         }
     }
 

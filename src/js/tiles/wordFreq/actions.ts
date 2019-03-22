@@ -15,33 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Action } from 'kombo';
-
-import { SummaryDataRow } from './api';
-
-
-
-export enum ActionName {
-    HighlightLemma = 'WORD_FREQ_HIGHLIGHT_LEMMA',
-    UnhighlightLemma = 'WORD_FREQ_UNHIGHLIGHT_LEMMA'
-}
+import { FreqDBRow } from './api';
 
 export interface DataLoadedPayload {
-    data:Array<SummaryDataRow>;
-    concId:string;
-}
-
-export namespace Actions {
-
-    export interface HighlightLemma extends Action<{
-        ident:number;
-
-    }> {
-        name: ActionName.HighlightLemma;
-    }
-
-    export interface UnhighlightLemma extends Action<{
-    }> {
-        name: ActionName.UnhighlightLemma;
-    }
+    data:Array<FreqDBRow>;
 }
