@@ -15,13 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { map } from 'rxjs/operators';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
 import * as Immutable from 'immutable';
 import { AppServices } from '../../appServices';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
-import { isSubqueryPayload } from '../../common/types';
+import { isSubqueryPayload, SubQueryItem } from '../../common/types';
 import { ConcApi, FilterRequestArgs, QuerySelector, ViewMode, PNFilter, ConcResponse, Line } from '../../common/api/kontext/concordance';
-import { Observable, forkJoin } from 'rxjs';
+import { Observable, merge } from 'rxjs';
 import { isConcLoadedPayload } from '../concordance/actions';
 import { CollExamplesLoadedPayload } from './actions';
 
@@ -33,6 +34,10 @@ export interface ConcFilterModelState {
     widthFract:number;
     error:string;
     corpname:string;
+    posAttrs:Immutable.List<string>;
+    attrVmode:'mouseover';
+    viewMode:ViewMode;
+    itemsPerSrc:number;
     lines:Immutable.List<Line>;
 }
 
@@ -45,47 +50,84 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
 
     private readonly tileId:number;
 
-    private waitingForTiles:Immutable.Map<number, string|Array<string>|null>;
+    private waitingForTiles:Immutable.Map<number, string|Array<SubQueryItem>|null>;
 
     constructor(dispatcher:ActionDispatcher, tileId:number, waitForTiles:Array<number>, appServices:AppServices, api:ConcApi, initState:ConcFilterModelState) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.api = api;
-        this.waitingForTiles = Immutable.Map<number, string|Array<string>>(waitForTiles.map(v => [v, null]));
+        this.waitingForTiles = Immutable.Map<number, string|Array<SubQueryItem>|null>(waitForTiles.map(v => [v, null]));
         this.actionMatch = {
             [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse)  => {
                 const newState = this.copyState(state);
                 newState.isBusy = true;
                 newState.error = null;
+                newState.lines = newState.lines.clear();
                 return newState;
             },
             [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<CollExamplesLoadedPayload>) => {
                 if (action.payload.tileId === this.tileId) {
                     const newState = this.copyState(state);
                     newState.isBusy = false;
-                    newState.lines = Immutable.List<Line>(action.payload.data);
+                    newState.lines = newState.lines.concat(action.payload.data).toList();
                     return newState;
                 }
                 return state;
-            }
+            },
+            [GlobalActionName.SubqItemHighlighted] : (state, action:GlobalActions.SubqItemHighlighted) => {
+               const srchIdx = state.lines.findIndex(v => v.interactionId === action.payload.interactionId);
+               if (srchIdx > -1) {
+                    const newState = this.copyState(state);
+                    const line = state.lines.get(srchIdx);
+                    newState.lines = newState.lines.set(srchIdx, {
+                        Left: line.Left,
+                        Kwic: line.Kwic,
+                        Right: line.Right,
+                        Align: line.Align,
+                        toknum: line.toknum,
+                        interactionId: line.interactionId,
+                        isHighlighted: true
+                    });
+                    return newState;
+               }
+               return state;
+            },
+            [GlobalActionName.SubqItemDehighlighted] : (state, action:GlobalActions.SubqItemDehighlighted) => {
+               const srchIdx = state.lines.findIndex(v => v.interactionId === action.payload.interactionId);
+               if (srchIdx > -1) {
+                const newState = this.copyState(state);
+                const line = state.lines.get(srchIdx);
+                newState.lines = newState.lines.set(srchIdx, {
+                    Left: line.Left,
+                    Kwic: line.Kwic,
+                    Right: line.Right,
+                    Align: line.Align,
+                    toknum: line.toknum,
+                    interactionId: line.interactionId,
+                    isHighlighted: false
+                });
+                return newState;
+           }
+               return state;
+            },
         };
     }
 
 
-    private loadFreqs(state:ConcFilterModelState, concId:string, queries:Array<string>):Array<Observable<ConcResponse>> {
+    private loadFreqs(state:ConcFilterModelState, concId:string, queries:Array<SubQueryItem>):Array<Observable<ConcResponse>> {
         return queries.map(subq => {
             const args:FilterRequestArgs = {
                 queryselector: QuerySelector.CQL,
-                cql: `[word="${subq}"]`,            // TODO escape stuff
+                cql: `[word="${subq.value}"]`,            // TODO escape stuff
                 corpname: state.corpname,
                 kwicleftctx: undefined,
                 kwicrightctx: undefined,
                 async: '0',
-                pagesize: undefined,
+                pagesize: '5',
                 fromp: '1', // TODO choose randomly stuff??
-                attr_vmode: undefined,
-                attrs: undefined,
-                viewmode: ViewMode.SENT,
+                attr_vmode: state.attrVmode,
+                attrs: state.posAttrs.join(','),
+                viewmode: state.viewMode,
                 shuffle: 1,
                 q: '~' + concId,
                 format: 'json',
@@ -95,17 +137,28 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                 filtpos: 3,
                 inclkwic: 0
             };
-            return this.api.call(args)
-        });
-    }
-
-    private mergeConcResponses(resp:Array<ConcResponse>):Array<Line> {
-        return resp
-            .map(v => v.Lines)
-            .reduce(
-                (acc, curr) => acc.concat(curr.slice(0, 1)), // TODO
-                []
+            return this.api.call(args).pipe(
+                map(v => ({
+                    conc_persistence_op_id: v.conc_persistence_op_id,
+                    messages: v.messages,
+                    Lines: v.Lines.map(line => ({
+                        Left: line.Left,
+                        Kwic: line.Kwic,
+                        Right: line.Right,
+                        Align: line.Align,
+                        toknum: line.toknum,
+                        interactionId: subq.interactionId
+                    })),
+                    fullsize: v.fullsize,
+                    concsize: v.concsize,
+                    result_arf: v.result_arf,
+                    result_relative_freq: v.result_relative_freq,
+                    query: v.query,
+                    corpname: v.corpname,
+                    usesubcorp: v.usesubcorp
+                }))
             );
+        });
     }
 
     sideEffects(state:ConcFilterModelState, action:Action, seDispatch:SEDispatcher):void {
@@ -145,7 +198,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
 
                             if (!this.waitingForTiles.findKey(v => v === null)) {
                                 let conc:string;
-                                let subq:Array<string>;
+                                let subq:Array<SubQueryItem>;
                                 this.waitingForTiles.forEach((v, k) => {
                                     if (typeof v === 'string') {
                                         conc = v;
@@ -154,14 +207,14 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                                         subq = v;
                                     }
                                 });
-                                forkJoin(this.loadFreqs(state, conc, subq)).subscribe(
+                                merge(...this.loadFreqs(state, conc, subq)).subscribe(
                                     (data) => {
                                         seDispatch<GlobalActions.TileDataLoaded<CollExamplesLoadedPayload>>({
                                             name: GlobalActionName.TileDataLoaded,
                                             payload: {
                                                 tileId: this.tileId,
-                                                isEmpty: !data.some(v => v.Lines.length > 0),
-                                                data: this.mergeConcResponses(data)
+                                                isEmpty: false, // here we cannot assume final state
+                                                data: data.Lines.slice(0, state.itemsPerSrc)
                                             }
                                         })
                                     },

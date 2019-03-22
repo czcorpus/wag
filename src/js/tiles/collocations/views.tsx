@@ -30,115 +30,128 @@ import { CoreTileComponentProps, TileComponent } from '../../common/types';
 import { GlobalComponents } from '../../views/global';
 import { ActionName, Actions, DataRow, SrchContextType, DataHeading } from './common';
 import { CollocModel, CollocModelState } from './model';
-
-
-
-export const drawChart = (theme:Theme, isMobile:boolean, container:HTMLElement, size:[number, number], data:Immutable.List<DataRow>, measures:Array<string>) => {
-    container.innerHTML = '';
-    const font = 'Roboto Condensed';
-
-    if (size[0] === 0 || size[1] === 0) {
-        // otherwise the browser may crash
-        return;
-    }
-
-    const dataImp:Array<{text:string; size:number}> = data.map(d => {
-        return {
-            text: d.str,
-            size: isMobile ? d.wcFontSizeMobile : d.wcFontSize * Math.min(size[0] / 500, 1)
-        };
-    }).toArray();
-    const colorPalette = theme.scaleColor(0, 9);
-    const valMapping = Immutable.Map<string, DataRow>(data.map(v => [v.str, v]));
-
-    const layout = cloud()
-        .size(size)
-        .words(dataImp)
-        .padding(5)
-        .rotate(() => 0)
-        .font(font)
-        .fontSize(d => d.size)
-        .on('end', (words:Array<{size:number, rotate:number, text:string, x:number, y:number}>) => {
-            const itemGroup = d3select(container).append('svg')
-                .attr('width', '100%')
-                .attr('height', '100%')
-                .attr("preserveAspectRatio", "xMinYMin meet")
-                .attr('viewbox', `0 0 ${layout.size()[0]} ${layout.size()[1]}`)
-                .append('g')
-                .attr('transform', `translate(${layout.size()[0] / 2},${layout.size()[1] / 2})`)
-                .selectAll('g')
-                .data(words)
-                .enter()
-                .append('g')
-                .attr('transform', d => `translate(${d.x}, ${d.y}) rotate(${d.rotate})`);
-
-            let tooltip;
-            if (!window.document.querySelector('body > .wcloud-tooltip')) {
-                tooltip = d3select('body')
-                    .append('div')
-                    .classed('wcloud-tooltip', true)
-                    .style('opacity', 0)
-                    .text('');
-
-            } else {
-                tooltip = d3select('body .wcloud-tooltip');
-            }
-
-            itemGroup
-                .append('text')
-                .style('font-size', d => `${d.size}px`)
-                .style('font-family', font)
-                .style('font-weight', '700')
-                .style('fill', (d, i) => colorPalette(i))
-                .style('pointer-events', 'none')
-                .attr('text-anchor', 'middle')
-                .text(d => d.text);
-
-            const rect = itemGroup.append('rect')
-                .attr('x',function (d) { return (this.parentNode as SVGAElement).getBBox().x})
-                .attr('y',function (d) { return (this.parentNode as SVGAElement).getBBox().y})
-                .attr('width', function (d) { return (this.parentNode as SVGAElement).getBBox().width})
-                .attr('height', function (d) { return (this.parentNode as SVGAElement).getBBox().height})
-                .attr('opacity', 0)
-                .style('pointer-events', 'fill');
-
-            rect
-                .on('mousemove', (datum, i, values) => {
-                    tooltip
-                        .style('left', `${d3event.pageX}px`)
-                        .style('top', `${d3event.pageY - 30}px`)
-                        .text(valMapping.get(datum.text).stats.map((v, i) => `${measures[i+1]}: ${v}`).join(', '))
-
-                })
-                .on('mouseover', (datum, i, values) => {
-                    tooltip
-                        .transition()
-                        .duration(200)
-                        .style('color', colorPalette(i))
-                        .style('opacity', '0.9')
-                        .style('pointer-events', 'none');
-
-                })
-                .on('mouseout', (datum, i, values) => {
-                    rxOf(null).pipe(timeout(1000)).subscribe(
-                        () => {
-                            tooltip
-                                .transition()
-                                .duration(100)
-                                .style('opacity', '0');
-                        }
-                    );
-                });
-        }
-    );
-
-    layout.start();
-};
+import { Actions as GlobalActions, ActionName as GlobalActionName } from '../../models/actions';
 
 
 export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:CollocModel):TileComponent {
 
     const globalCompontents = ut.getComponents();
+
+
+    const drawChart = (theme:Theme, isMobile:boolean, container:HTMLElement, size:[number, number], data:Immutable.List<DataRow>, measures:Array<string>) => {
+        container.innerHTML = '';
+        const font = 'Roboto Condensed';
+
+        if (size[0] === 0 || size[1] === 0) {
+            // otherwise the browser may crash
+            return;
+        }
+
+        const dataImp:Array<{text:string; size:number, interactionId:string}> = data.map(d => {
+            return {
+                text: d.str,
+                size: isMobile ? d.wcFontSizeMobile : d.wcFontSize * Math.min(size[0] / 500, 1),
+                interactionId: d.interactionId
+            };
+        }).toArray();
+        const colorPalette = theme.scaleColor(0, 9);
+        const valMapping = Immutable.Map<string, DataRow>(data.map(v => [v.str, v]));
+
+        const layout = cloud()
+            .size(size)
+            .words(dataImp)
+            .padding(5)
+            .rotate(() => 0)
+            .font(font)
+            .fontSize(d => d.size)
+            .on('end', (words:Array<{size:number, rotate:number, text:string, x:number, y:number; interactionId:string}>) => {
+                const itemGroup = d3select(container).append('svg')
+                    .attr('width', '100%')
+                    .attr('height', '100%')
+                    .attr("preserveAspectRatio", "xMinYMin meet")
+                    .attr('viewbox', `0 0 ${layout.size()[0]} ${layout.size()[1]}`)
+                    .append('g')
+                    .attr('transform', `translate(${layout.size()[0] / 2},${layout.size()[1] / 2})`)
+                    .selectAll('g')
+                    .data(words)
+                    .enter()
+                    .append('g')
+                    .attr('transform', d => `translate(${d.x}, ${d.y}) rotate(${d.rotate})`);
+
+                let tooltip;
+                if (!window.document.querySelector('body > .wcloud-tooltip')) {
+                    tooltip = d3select('body')
+                        .append('div')
+                        .classed('wcloud-tooltip', true)
+                        .style('opacity', 0)
+                        .text('');
+
+                } else {
+                    tooltip = d3select('body .wcloud-tooltip');
+                }
+
+                itemGroup
+                    .append('text')
+                    .style('font-size', d => `${d.size}px`)
+                    .style('font-family', font)
+                    .style('font-weight', '700')
+                    .style('fill', (d, i) => colorPalette(i))
+                    .style('pointer-events', 'none')
+                    .attr('text-anchor', 'middle')
+                    .text(d => d.text);
+
+                const rect = itemGroup.append('rect')
+                    .attr('x',function (d) { return (this.parentNode as SVGAElement).getBBox().x})
+                    .attr('y',function (d) { return (this.parentNode as SVGAElement).getBBox().y})
+                    .attr('width', function (d) { return (this.parentNode as SVGAElement).getBBox().width})
+                    .attr('height', function (d) { return (this.parentNode as SVGAElement).getBBox().height})
+                    .attr('opacity', 0)
+                    .style('pointer-events', 'fill');
+
+                rect
+                    .on('mousemove', (datum, i, values) => {
+                        tooltip
+                            .style('left', `${d3event.pageX}px`)
+                            .style('top', `${d3event.pageY - 30}px`)
+                            .text(valMapping.get(datum.text).stats.map((v, i) => `${measures[i+1]}: ${v}`).join(', '))
+
+                    })
+                    .on('mouseover', (datum, i, values) => {
+                        tooltip
+                            .transition()
+                            .duration(200)
+                            .style('color', colorPalette(i))
+                            .style('opacity', '0.9')
+                            .style('pointer-events', 'none');
+                        dispatcher.dispatch<GlobalActions.SubqItemHighlighted>({
+                            name: GlobalActionName.SubqItemHighlighted,
+                            payload: {
+                                interactionId: datum.interactionId
+                            }
+                        });
+
+                    })
+                    .on('mouseout', (datum, i, values) => {
+                        rxOf(null).pipe(timeout(1000)).subscribe(
+                            () => {
+                                tooltip
+                                    .transition()
+                                    .duration(100)
+                                    .style('opacity', '0');
+                                dispatcher.dispatch<GlobalActions.SubqItemDehighlighted>({
+                                    name: GlobalActionName.SubqItemDehighlighted,
+                                    payload: {
+                                        interactionId: datum.interactionId
+                                    }
+                                });
+                            }
+                        );
+                    });
+            }
+        );
+
+        layout.start();
+    };
 
 
     // -------------- <Controls /> -------------------------------------

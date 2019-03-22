@@ -87,7 +87,7 @@ export class SubqFreqBarModel extends FreqBarModel {
                                 subq => this.loadFreq(
                                     state,
                                     this.subqConf.langMapping[payload.lang2],
-                                    subq
+                                    subq.value
                                 )
                             )
                         ).subscribe(
@@ -103,7 +103,7 @@ export class SubqFreqBarModel extends FreqBarModel {
                                                 data: block.data.sort(((x1, x2) => x1.name.localeCompare(x2.name))).slice(0, state.maxNumCategories),
                                             }
                                         }),
-                                        blockLabels: subqueries,
+                                        blockLabels: subqueries.map(v => v.value),
                                         concId: null // TODO do we need this?
                                     }
                                 });

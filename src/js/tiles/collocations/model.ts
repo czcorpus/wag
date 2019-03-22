@@ -36,6 +36,7 @@ import {
     SrchContextType,
 } from './common';
 import { KontextCollAPI } from './service';
+import { puid } from '../../common/util';
 
 
 export interface CollocModelArgs {
@@ -208,7 +209,8 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                                 nfilter: item.nfilter,
                                 pfilter: item.pfilter,
                                 wcFontSize: Math.round(wcFontSizeRatio * 100 + CollocModel.BASE_WC_FONT_SIZE),
-                                wcFontSizeMobile: Math.round(wcFontSizeRatio * 100 + CollocModel.BASE_WC_FONT_SIZE_MOBILE)
+                                wcFontSizeMobile: Math.round(wcFontSizeRatio * 100 + CollocModel.BASE_WC_FONT_SIZE_MOBILE),
+                                interactionId: item.interactionId
                             }
                         }));
 
@@ -283,7 +285,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                         heading: data.collHeadings,
                         data: data.data,
                         concId: data.concId,
-                        subqueries: data.data.map(v => v.str),
+                        subqueries: data.data.map(v => ({value: v.str, interactionId: v.interactionId})),
                         lang1: null,
                         lang2: null
                     }

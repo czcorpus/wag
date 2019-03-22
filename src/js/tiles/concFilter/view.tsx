@@ -35,7 +35,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     }> = (props) => {
         return (
-            <p>
+            <p className={`FilteredLine ${props.data.isHighlighted ? 'highlighted' : ''}`}>
                 {props.data.Left.map((v, i) => v.class ?
                     <span key={`${props.data.toknum}:L${i}`} className={v.class}>{v.str}</span> :
                     <span key={`${props.data.toknum}:L${i}`}>{v.str}</span>)

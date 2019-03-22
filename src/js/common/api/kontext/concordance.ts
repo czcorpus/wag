@@ -104,6 +104,8 @@ export interface Line {
         toknum:number;
     }>;
     toknum:number;
+    interactionId?:string;
+    isHighlighted?:boolean;
 }
 
 interface HTTPResponse {
@@ -121,7 +123,6 @@ export interface ConcResponse extends HTTPResponse {
     corpname:string;
     usesubcorp:string;
 }
-
 
 export const getQuery = (args:AnyQuery):string => {
     switch (args.queryselector) {

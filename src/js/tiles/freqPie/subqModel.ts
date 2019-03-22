@@ -78,7 +78,7 @@ export class SubqFreqPieModel extends FreqPieModel {
                                 subq => this.loadFreq(
                                     state,
                                     this.subqConf.langMapping[payload.lang2],
-                                    subq
+                                    subq.value
                                 )
                             )
                         ).subscribe(
