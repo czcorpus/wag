@@ -21,6 +21,7 @@ import { concatMap } from 'rxjs/operators';
 import { ajax$ } from '../../common/ajax';
 import { DataApi, HTTPHeaders } from '../../common/types';
 import { CollApiArgs, DataHeading, DataRow } from './common';
+import { puid } from '../../common/util';
 
 
 
@@ -82,7 +83,8 @@ export class KontextCollAPI implements DataApi<CollApiArgs, CollApiResponse> {
                         nfilter: item.nfilter,
                         str: item.str,
                         wcFontSize: -1,
-                        wcFontSizeMobile: -1
+                        wcFontSizeMobile: -1,
+                        interactionId: puid()
                     }))
                 })
             )

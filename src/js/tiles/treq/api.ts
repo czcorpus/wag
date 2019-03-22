@@ -20,6 +20,7 @@ import { map } from 'rxjs/operators';
 
 import { ajax$ } from '../../common/ajax';
 import { DataApi } from '../../common/types';
+import { puid } from '../../common/util';
 
 
 /*
@@ -71,6 +72,7 @@ export interface TreqTranslation {
     perc:number;
     left:string;
     right:string;
+    interactionId:string;
 }
 
 export interface TreqResponse {
@@ -105,7 +107,8 @@ export class TreqAPI implements DataApi<RequestArgs, TreqResponse> {
                         freq: parseInt(v.freq),
                         perc: parseFloat(v.perc),
                         left: v.left,
-                        right: v.righ
+                        right: v.righ,
+                        interactionId: puid()
                     })).slice(0, 10)
                 })
             )

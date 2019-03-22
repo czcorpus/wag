@@ -282,9 +282,14 @@ export interface IToolbarProvider {
 
 export type HTTPHeaders = {[key:string]:string};
 
+export interface SubQueryItem {
+    value:string;
+    interactionId?:string
+}
+
 export interface SubqueryPayload {
     tileId:number;
-    subqueries:Array<string>;
+    subqueries:Array<SubQueryItem>;
     lang1:string;
     lang2:string;
 }

@@ -19,7 +19,7 @@ import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
 import * as Immutable from 'immutable';
 import { AppServices } from '../../appServices';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
-import { isSubqueryPayload } from '../../common/types';
+import { isSubqueryPayload, SubQueryItem } from '../../common/types';
 import { ConcApi, FilterRequestArgs, QuerySelector, ViewMode, PNFilter, ConcResponse, Line } from '../../common/api/kontext/concordance';
 import { Observable, merge } from 'rxjs';
 import { isConcLoadedPayload } from '../concordance/actions';
@@ -49,13 +49,13 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
 
     private readonly tileId:number;
 
-    private waitingForTiles:Immutable.Map<number, string|Array<string>|null>;
+    private waitingForTiles:Immutable.Map<number, string|Array<SubQueryItem>|null>;
 
     constructor(dispatcher:ActionDispatcher, tileId:number, waitForTiles:Array<number>, appServices:AppServices, api:ConcApi, initState:ConcFilterModelState) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.api = api;
-        this.waitingForTiles = Immutable.Map<number, string|Array<string>>(waitForTiles.map(v => [v, null]));
+        this.waitingForTiles = Immutable.Map<number, string|Array<SubQueryItem>|null>(waitForTiles.map(v => [v, null]));
         this.actionMatch = {
             [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse)  => {
                 const newState = this.copyState(state);
@@ -77,11 +77,11 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
     }
 
 
-    private loadFreqs(state:ConcFilterModelState, concId:string, queries:Array<string>):Array<Observable<ConcResponse>> {
+    private loadFreqs(state:ConcFilterModelState, concId:string, queries:Array<SubQueryItem>):Array<Observable<ConcResponse>> {
         return queries.map(subq => {
             const args:FilterRequestArgs = {
                 queryselector: QuerySelector.CQL,
-                cql: `[word="${subq}"]`,            // TODO escape stuff
+                cql: `[word="${subq.value}"]`,            // TODO escape stuff
                 corpname: state.corpname,
                 kwicleftctx: undefined,
                 kwicrightctx: undefined,
@@ -141,7 +141,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
 
                             if (!this.waitingForTiles.findKey(v => v === null)) {
                                 let conc:string;
-                                let subq:Array<string>;
+                                let subq:Array<SubQueryItem>;
                                 this.waitingForTiles.forEach((v, k) => {
                                     if (typeof v === 'string') {
                                         conc = v;
