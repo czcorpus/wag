@@ -19,38 +19,37 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { ajax$ } from '../../common/ajax';
-import { HTTPResponse } from '../../common/api/kontext/freqs';
-import { DataApi, HTTPHeaders } from '../../common/types';
+import { DataApi, HTTPHeaders, QueryPoS, LemmaVariant } from '../../common/types';
 
 
 export interface RequestArgs {
-    corpname:string;
-    q:string;
-    fcrit:string; // e.g. 'lemma/e 0<0 pos/e 0<0'
-    flimit:string;
-    freq_sort:string;
-    fpage:string;
-    ftt_include_empty:string;
-    format:'json';
+    word:string;
+    lemma:string;
+    pos:QueryPoS;
+    srchRange:number;
 }
 
-export interface SummaryDataRow {
-    ident:number;
+export interface FreqDBRow {
+    word:string;
     lemma:string;
     pos:string;
+    posLabel:string;
     abs:number;
     ipm:number;
+    arf:number;
     flevel:number;
-    percSimilarWords:number;
-
+    isSearched:boolean;
 }
 
 export interface Response {
-    concId:string;
-    data:Array<SummaryDataRow>;
+    result:Array<FreqDBRow>;
 }
 
-export class LemmaFreqApi implements DataApi<RequestArgs, Response> {
+interface HTTPResponse {
+    result:Array<LemmaVariant>;
+}
+
+export class FreqDbAPI implements DataApi<RequestArgs, Response> {
 
     private readonly apiURL:string;
 
@@ -65,22 +64,29 @@ export class LemmaFreqApi implements DataApi<RequestArgs, Response> {
         return ajax$<HTTPResponse>(
             'GET',
             this.apiURL,
-            args,
+            {
+                word: args.word,
+                lemma: args.lemma,
+                pos: args.pos,
+                srchRange: args.srchRange
+            },
             {headers: this.customHeaders}
 
-        ).pipe(map(
-            (data) => ({
-                concId: data.conc_persistence_op_id,
-                data: data.Blocks[0].Items.map((item, i) => ({
-                    ident: i,
-                    lemma: item.Word[0].n,
-                    pos: item.Word[1].n,
-                    abs: item.freq,
-                    ipm: -1,
+        ).pipe(
+            map(data => ({
+                result: data.result.map(v => ({
+                    word: v.word,
+                    lemma: v.lemma,
+                    pos: v.pos,
+                    posLabel: v.pos,
+                    abs: v.abs,
+                    ipm: v.ipm,
+                    arf: v.arf,
                     flevel: -1,
-                    percSimilarWords: -1
+                    isSearched: v.lemma === args.lemma && v.pos === args.pos ? true : false
                 }))
-            })
-        ));
+            }))
+        );
     }
 }
+

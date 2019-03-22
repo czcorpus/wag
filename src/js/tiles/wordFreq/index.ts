@@ -19,9 +19,9 @@ import * as Immutable from 'immutable';
 
 import { AppServices } from '../../appServices';
 import { ITileProvider, QueryType, TileComponent, TileConf, TileFactory } from '../../common/types';
-import { LemmaFreqApi, SummaryDataRow } from './api';
+import { FreqDBRow, FreqDbAPI } from './api';
 import { FlevelDistribItem, SummaryModel } from './model';
-import { init as viewInit } from './view';
+import { init as viewInit } from './views';
 
 declare var require:(src:string)=>void;  // webpack
 require('./style.less');
@@ -30,7 +30,6 @@ require('./style.less');
 export interface WordFreqTileConf extends TileConf {
     tileType:'WordFreqTile';
     apiURL:string;
-    sfwApiURL:string;
     corpname:string;
     corpusSize:number;
     fcrit:string;
@@ -38,6 +37,7 @@ export interface WordFreqTileConf extends TileConf {
     freqSort:string;
     fpage:number;
     fttIncludeEmpty:boolean;
+    sfwRowRange:number;
     flevelDistrib?:Array<FlevelDistribItem>;
 }
 
@@ -61,7 +61,7 @@ export class WordFreqTile implements ITileProvider {
 
     private readonly view:TileComponent;
 
-    constructor({tileId, dispatcher, appServices, ut, waitForTiles, widthFract, conf}:TileFactory.Args<WordFreqTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, mainForm, widthFract, conf}:TileFactory.Args<WordFreqTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
@@ -73,21 +73,20 @@ export class WordFreqTile implements ITileProvider {
                 error: null,
                 corpname: conf.corpname,
                 corpusSize: conf.corpusSize,
-                concId: null,
                 fcrit: conf.fcrit,
                 flimit: conf.flimit,
                 fpage: conf.fpage,
                 freqSort: conf.freqSort,
                 includeEmpty: conf.fttIncludeEmpty,
-                data: Immutable.List<SummaryDataRow>(),
-                currLemmaIdent: -1,
+                data: Immutable.List<FreqDBRow>(),
+                sfwRowRange: conf.sfwRowRange,
                 flevelDistrb: Immutable.List<FlevelDistribItem>(
                     conf.flevelDistrib ? conf.flevelDistrib : defaultFlevelDistrib
                 )
             },
             tileId,
-            new LemmaFreqApi(conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
-            waitForTiles[0],
+            new FreqDbAPI(conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            mainForm,
             appServices
         );
         this.label = appServices.importExternalMessage(conf.label || 'freqpie__main_label');

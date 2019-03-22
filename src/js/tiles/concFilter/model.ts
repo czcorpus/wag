@@ -25,6 +25,7 @@ import { ConcApi, FilterRequestArgs, QuerySelector, ViewMode, PNFilter, ConcResp
 import { Observable, merge } from 'rxjs';
 import { isConcLoadedPayload } from '../concordance/actions';
 import { CollExamplesLoadedPayload } from './actions';
+import { DataLoadedPayload as CollDataLoadedPayload } from '../collocations/common';
 
 
 export interface ConcFilterModelState {
@@ -39,6 +40,7 @@ export interface ConcFilterModelState {
     viewMode:ViewMode;
     itemsPerSrc:number;
     lines:Immutable.List<Line>;
+    numPendingSources:number;
 }
 
 
@@ -65,11 +67,22 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                 newState.lines = newState.lines.clear();
                 return newState;
             },
-            [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<CollExamplesLoadedPayload>) => {
+            [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<CollExamplesLoadedPayload|CollDataLoadedPayload>) => {
                 if (action.payload.tileId === this.tileId) {
                     const newState = this.copyState(state);
-                    newState.isBusy = false;
+                    newState.numPendingSources -= 1;
+                    if (newState.numPendingSources === 0) {
+                        newState.isBusy = false;
+                    }
                     newState.lines = newState.lines.concat(action.payload.data).toList();
+                    return newState;
+
+                } else if (action.name === GlobalActionName.TileDataLoaded && this.waitingForTiles.has(action.payload.tileId)) {
+                    const payload = action.payload;
+                    const newState = this.copyState(state);
+                    if (isSubqueryPayload(payload)) {
+                        newState.numPendingSources = payload.subqueries.length;
+                    }
                     return newState;
                 }
                 return state;
@@ -118,7 +131,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
         return queries.map(subq => {
             const args:FilterRequestArgs = {
                 queryselector: QuerySelector.CQL,
-                cql: `[word="${subq.value}"]`,            // TODO escape stuff
+                cql: `[lemma="${subq.value}"]`,            // TODO escape stuff
                 corpname: state.corpname,
                 kwicleftctx: undefined,
                 kwicrightctx: undefined,

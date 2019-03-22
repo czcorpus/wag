@@ -43,7 +43,6 @@ import { FreqBarTileConf, init as freqInit } from './tiles/freqBar';
 import { FreqPieTileConf, init as freqPieInit } from './tiles/freqPie';
 import { GeoAreasTileConf, init as geoAreasInit } from './tiles/geoAreas';
 import { init as MergeCorpFreqInit, MergeCorpFreqTileConf } from './tiles/mergeCorpFreq';
-import { init as similarFreqsInit, SimilarFreqsTileConf } from './tiles/similarFreqs';
 import { init as sydInit, SyDTileConf } from './tiles/syd';
 import { init as timeDistInit, TimeDistTileConf } from './tiles/timeDistrib';
 import { init as treqInit, TreqTileConf } from './tiles/treq';
@@ -157,8 +156,6 @@ const mkTileFactory = (
                     return applyFactory<WordFreqTileConf>(summaryInit, conf);
                 case 'GeoAreasTile':
                     return applyFactory<GeoAreasTileConf>(geoAreasInit, conf);
-                case 'SimilarFreqsTile':
-                    return applyFactory<SimilarFreqsTileConf>(similarFreqsInit, conf);
                 case 'ConcFilterTile':
                     return applyFactory<ConcFilterTileConf>(concFilterInit, conf);
                 default:
