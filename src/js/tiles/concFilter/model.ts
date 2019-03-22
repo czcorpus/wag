@@ -15,6 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { map } from 'rxjs/operators';
 import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
 import * as Immutable from 'immutable';
 import { AppServices } from '../../appServices';
@@ -72,7 +73,43 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                     return newState;
                 }
                 return state;
-            }
+            },
+            [GlobalActionName.SubqItemHighlighted] : (state, action:GlobalActions.SubqItemHighlighted) => {
+               const srchIdx = state.lines.findIndex(v => v.interactionId === action.payload.interactionId);
+               if (srchIdx > -1) {
+                    const newState = this.copyState(state);
+                    const line = state.lines.get(srchIdx);
+                    newState.lines = newState.lines.set(srchIdx, {
+                        Left: line.Left,
+                        Kwic: line.Kwic,
+                        Right: line.Right,
+                        Align: line.Align,
+                        toknum: line.toknum,
+                        interactionId: line.interactionId,
+                        isHighlighted: true
+                    });
+                    return newState;
+               }
+               return state;
+            },
+            [GlobalActionName.SubqItemDehighlighted] : (state, action:GlobalActions.SubqItemDehighlighted) => {
+               const srchIdx = state.lines.findIndex(v => v.interactionId === action.payload.interactionId);
+               if (srchIdx > -1) {
+                const newState = this.copyState(state);
+                const line = state.lines.get(srchIdx);
+                newState.lines = newState.lines.set(srchIdx, {
+                    Left: line.Left,
+                    Kwic: line.Kwic,
+                    Right: line.Right,
+                    Align: line.Align,
+                    toknum: line.toknum,
+                    interactionId: line.interactionId,
+                    isHighlighted: false
+                });
+                return newState;
+           }
+               return state;
+            },
         };
     }
 
@@ -100,7 +137,27 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                 filtpos: 3,
                 inclkwic: 0
             };
-            return this.api.call(args)
+            return this.api.call(args).pipe(
+                map(v => ({
+                    conc_persistence_op_id: v.conc_persistence_op_id,
+                    messages: v.messages,
+                    Lines: v.Lines.map(line => ({
+                        Left: line.Left,
+                        Kwic: line.Kwic,
+                        Right: line.Right,
+                        Align: line.Align,
+                        toknum: line.toknum,
+                        interactionId: subq.interactionId
+                    })),
+                    fullsize: v.fullsize,
+                    concsize: v.concsize,
+                    result_arf: v.result_arf,
+                    result_relative_freq: v.result_relative_freq,
+                    query: v.query,
+                    corpname: v.corpname,
+                    usesubcorp: v.usesubcorp
+                }))
+            );
         });
     }
 
@@ -159,7 +216,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                                                 isEmpty: false, // here we cannot assume final state
                                                 data: data.Lines.slice(0, state.itemsPerSrc)
                                             }
-                                        });
+                                        })
                                     },
                                     (err) => {
                                         seDispatch<GlobalActions.TileDataLoaded<CollExamplesLoadedPayload>>({

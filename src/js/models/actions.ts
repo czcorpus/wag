@@ -47,6 +47,8 @@ export enum ActionName {
     ShowTileHelp = 'MAIN_SHOW_TILE_HELP',
     LoadTileHelpDone = 'MAIN_LOAD_TILE_HELP_DONE',
     HideTileHelp = 'MAIN_HIDE_TILE_HELP',
+    SubqItemHighlighted = 'MAIN_SUBQ_ITEM_HIGHLIGHTED',
+    SubqItemDehighlighted = 'MAIN_SUBQ_ITEM_DEHIGHLIGHTED'
 }
 
 export namespace Actions {
@@ -223,5 +225,19 @@ export namespace Actions {
 
     }> {
         name:ActionName.LoadTileHelpDone;
+    }
+
+    export interface SubqItemHighlighted extends Action<{
+        interactionId:string;
+
+    }> {
+        name:ActionName.SubqItemHighlighted;
+    }
+
+    export interface SubqItemDehighlighted extends Action<{
+        interactionId:string;
+
+    }> {
+        name:ActionName.SubqItemDehighlighted;
     }
 }

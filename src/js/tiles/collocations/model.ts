@@ -209,7 +209,8 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                                 nfilter: item.nfilter,
                                 pfilter: item.pfilter,
                                 wcFontSize: Math.round(wcFontSizeRatio * 100 + CollocModel.BASE_WC_FONT_SIZE),
-                                wcFontSizeMobile: Math.round(wcFontSizeRatio * 100 + CollocModel.BASE_WC_FONT_SIZE_MOBILE)
+                                wcFontSizeMobile: Math.round(wcFontSizeRatio * 100 + CollocModel.BASE_WC_FONT_SIZE_MOBILE),
+                                interactionId: item.interactionId
                             }
                         }));
 
