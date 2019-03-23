@@ -162,9 +162,12 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                 <globalComponents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.data.size > 0} sourceIdent={{corp: this.props.corpname}}>
                     <div className={`WordFreqTileView${this.props.isMobile ? ' mobile' : ''}`}>
-                        <div className="chart">
-                        <Chart lemmaItems={this.props.data.filter(v => v.isSearched).toArray()} />
-                        </div>
+                        {!this.props.isMobile ?
+                            <div className="chart">
+                            <Chart lemmaItems={this.props.data.filter(v => v.isSearched).toArray()} />
+                            </div> :
+                            null
+                        }
                         <dl className="info">
                             {srchWord ? <SrchWordInfo data={srchWord} /> : null}
                             <SimilarFreqWords data={this.props.data} />
