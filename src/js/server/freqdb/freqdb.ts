@@ -15,13 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import {Observable, merge} from 'rxjs';
-import {reduce, concatMap} from 'rxjs/operators';
-import { LemmaVariant, importQueryPos, QueryPoS } from '../../common/types';
-import { AppServices } from '../../appServices';
-import { posTable } from './common';
+import { Observable } from 'rxjs';
+import { concatMap, reduce } from 'rxjs/operators';
 import { Database } from 'sqlite3';
+
+import { AppServices } from '../../appServices';
+import { importQueryPos, LemmaVariant, QueryPoS } from '../../common/types';
+import { posTable } from './common';
+
 
 
 export const getLemmas = (db:Database, appServices:AppServices, word:string):Observable<Array<LemmaVariant>> => {
@@ -69,14 +70,22 @@ export const getLemmas = (db:Database, appServices:AppServices, word:string):Obs
 };
 
 
-const getNearFreqItems = (db:Database, appServices:AppServices, val:number, whereSgn:number, limit:number):Observable<LemmaVariant> => {
-    return new Observable<LemmaVariant>((observer) => {
-        db.each(
+const getNearFreqItems = (db:Database, appServices:AppServices, val:number, limit:number):Observable<LemmaVariant> => {
+
+    const mkPartialQuery = (whereSgn) => {
+        return (
             'SELECT col1, col2, SUM(arf) AS sarf, SUM(`count`) AS abs ' +
             'FROM colcounts ' +
             (whereSgn > 0 ? 'GROUP BY col1, col2 HAVING sarf >= ? ORDER BY sarf ASC' : 'GROUP BY col1, col2 HAVING sarf < ? ORDER BY sarf DESC') + ' ' +
-            'LIMIT ?',
-            [val, limit],
+            'LIMIT ?'
+        );
+    };
+
+    return new Observable<LemmaVariant>((observer) => {
+        console.log(`SELECT * FROM (${mkPartialQuery(1)}) UNION SELECT * FROM (${mkPartialQuery(-1)})`);
+        db.each(
+            `SELECT * FROM (${mkPartialQuery(1)}) UNION SELECT * FROM (${mkPartialQuery(-1)})`,
+            [val, limit, val, limit],
             (err, row) => {
                 if (err) {
                     observer.error(err);
@@ -135,10 +144,7 @@ export const getSimilarFreqWords = (db:Database, appServices:AppServices, word:s
         );
     }).pipe(
         concatMap(
-            (ans) => merge(
-                getNearFreqItems(db, appServices, ans.arf, 1, Math.abs(lft)),
-                getNearFreqItems(db, appServices, ans.arf, -1, Math.abs(rgt))
-            )
+            ans => getNearFreqItems(db, appServices, ans.arf, Math.abs(lft)),
         ),
         reduce<LemmaVariant>(
             (acc, curr) => acc.concat([curr]),
