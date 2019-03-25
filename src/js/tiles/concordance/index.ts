@@ -58,11 +58,14 @@ export class ConcordanceTile implements ITileProvider {
 
     private readonly label:string;
 
-    constructor({tileId, dispatcher, appServices, ut, mainForm, widthFract, conf, lang2}:TileFactory.Args<ConcordanceTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, mainForm, widthFract, waitForTiles, conf, lang2}:TileFactory.Args<ConcordanceTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.widthFract = widthFract;
         this.appServices = appServices;
+        if (Array.isArray(waitForTiles) && waitForTiles.length > 1) {
+            throw new Error('ConcordanceTile does not support waiting for multiple tiles. Only a single tile can be specified');
+        }
         this.model = new ConcordanceTileModel({
             dispatcher: dispatcher,
             tileId: tileId,
@@ -70,6 +73,7 @@ export class ConcordanceTile implements ITileProvider {
             service: new ConcApi(conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             mainForm: mainForm,
             backlink: conf.backlink || null,
+            waitForTile: Array.isArray(waitForTiles) ? waitForTiles[0] : waitForTiles,
             initState: {
                 tileId: tileId,
                 isBusy: false,
@@ -77,6 +81,7 @@ export class ConcordanceTile implements ITileProvider {
                 isTweakMode: false,
                 isMobile: appServices.isMobileMode(),
                 widthFract: widthFract,
+                concId: null,
                 querySelector: QuerySelector.CQL,
                 lines: Immutable.List<Line>(),
                 corpname: conf.corpname,

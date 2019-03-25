@@ -38,7 +38,7 @@ export enum ViewMode {
 }
 
 export interface AnyQuery {
-    queryselector:QuerySelector;
+    queryselector?:QuerySelector;
     usesubcorp?:string;
     iquery?:string;
     lemma?:string;
@@ -189,10 +189,15 @@ export class ConcApi implements DataApi<RequestArgs, ConcResponse> {
         this.customHeaders = customHeaders || {};
     }
 
+    private mkViewURLVariant():string {
+        const parsed = this.apiURL.split('/');
+        return parsed.slice(0, parsed.length - 1).concat(['view']).join('/');
+    }
+
     call(args:RequestArgs|PCRequestArgs|FilterRequestArgs):Observable<ConcResponse> {
         return ajax$<ConcResponse>(
             'GET',
-            this.apiURL,
+            args.q && /\/first$/.exec(this.apiURL) ? this.mkViewURLVariant() : this.apiURL,
             args,
             {headers: this.customHeaders}
 

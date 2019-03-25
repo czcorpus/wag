@@ -150,7 +150,9 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                 </tr>
                 {props.isParallel ?
                     <tr className="Row aligned">
-                        <td colSpan={3} className="align">{props.data.Align[0].Kwic.map((s, i) => <RowItem key={`${props.data.Align[0].toknum}:K${i}`} data={s} />)}</td>
+                        <td className="left">{props.data.Align[0].Left.map((s, i) => <RowItem key={`${props.data.Align[0].toknum}:L${i}`} data={s} />)}</td>
+                        <td className="kwic">{props.data.Align[0].Kwic.map((s, i) => <RowItem key={`${props.data.Align[0].toknum}:K${i}`} data={s} isKwic={true} />)}</td>
+                        <td className="right">{props.data.Align[0].Right.map((s, i) => <RowItem key={`${props.data.Align[0].toknum}:R${i}`} data={s} />)}</td>
                     </tr> :
                     null
                 }
@@ -164,6 +166,15 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
     class ConcordanceTileView extends React.PureComponent<ConcordanceTileState & CoreTileComponentProps> {
 
         render() {
+
+            const tableClasses = ['conc-lines'];
+            if (this.props.viewMode === ViewMode.SENT || this.props.viewMode === ViewMode.ALIGN) {
+                tableClasses.push('sent');
+            }
+            if (this.props.otherCorpname) {
+                tableClasses.push('aligned');
+            }
+
             return (
                 <globalCompontents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.lines.size > 0}
@@ -182,7 +193,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                             <dt>{ut.translate('concordance__ipm')}:</dt>
                             <dd>{ut.formatNumber(this.props.resultIPM, 2)}</dd>
                         </dl>
-                        <table className={`conc-lines${this.props.viewMode === ViewMode.SENT || this.props.viewMode === ViewMode.ALIGN ? ' sent' : ''}`}>
+                        <table className={tableClasses.join(' ')}>
                             <tbody>
                                 {this.props.lines.map(line => <Row key={`${line.toknum}`} data={line} isParallel={!!this.props.otherCorpname} />)}
                             </tbody>
