@@ -25,11 +25,11 @@ def get_lemma_arf(rows):
 def run(db):
     create_tables(db)
     cur = db.cursor()
-    cur.execute("SELECT col0, col1, col2, `count` AS abs, arf FROM colcounts ORDER BY col1, col0")
+    cur.execute("SELECT col0, col1, col2, `count` AS abs, arf FROM colcounts ORDER BY col1, col2, col0")
     curr_lemma = None
     words = []
     for item in [x for x in cur.fetchall()] + [(None, None, None, None, None)]:
-        if curr_lemma is None or item[1] != curr_lemma[1]:
+        if curr_lemma is None or item[1] != curr_lemma[1] or (item[1] == curr_lemma[1] and item[2] != curr_lemma[2]):
             if len(words) > 0:
                 cur.execute('INSERT INTO lemma (value, pos, count, arf) VALUES (?, ?, ?, ?)', [curr_lemma[1], curr_lemma[2], get_lemma_total(words), get_lemma_arf(words)])
                 for w in words:
