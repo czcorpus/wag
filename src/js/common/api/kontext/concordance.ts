@@ -197,7 +197,7 @@ export class ConcApi implements DataApi<RequestArgs, ConcResponse> {
     call(args:RequestArgs|PCRequestArgs|FilterRequestArgs):Observable<ConcResponse> {
         return ajax$<ConcResponse>(
             'GET',
-            args.q ? this.mkViewURLVariant() : this.apiURL,
+            args.q && /\/first$/.exec(this.apiURL) ? this.mkViewURLVariant() : this.apiURL,
             args,
             {headers: this.customHeaders}
 
