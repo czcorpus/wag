@@ -62,6 +62,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
         this.appServices = appServices;
         this.actionMatch = {
             [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse)  => {
+                this.waitingForTiles = this.waitingForTiles.map(v => null).toMap();
                 const newState = this.copyState(state);
                 newState.isBusy = true;
                 newState.error = null;
@@ -107,23 +108,33 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                return state;
             },
             [GlobalActionName.SubqItemDehighlighted] : (state, action:GlobalActions.SubqItemDehighlighted) => {
-               const srchIdx = state.lines.findIndex(v => v.interactionId === action.payload.interactionId);
-               if (srchIdx > -1) {
-                const newState = this.copyState(state);
-                const line = state.lines.get(srchIdx);
-                newState.lines = newState.lines.set(srchIdx, {
-                    Left: line.Left,
-                    Kwic: line.Kwic,
-                    Right: line.Right,
-                    Align: line.Align,
-                    toknum: line.toknum,
-                    interactionId: line.interactionId,
-                    isHighlighted: false
-                });
-                return newState;
-           }
+                const srchIdx = state.lines.findIndex(v => v.interactionId === action.payload.interactionId);
+                if (srchIdx > -1) {
+                    const newState = this.copyState(state);
+                    const line = state.lines.get(srchIdx);
+                    newState.lines = newState.lines.set(srchIdx, {
+                        Left: line.Left,
+                        Kwic: line.Kwic,
+                        Right: line.Right,
+                        Align: line.Align,
+                        toknum: line.toknum,
+                        interactionId: line.interactionId,
+                        isHighlighted: false
+                    });
+                    return newState;
+                }
                return state;
             },
+            [GlobalActionName.SubqChanged]: (state, action:GlobalActions.SubqChanged) => {
+                if (this.waitingForTiles.has(action.payload.tileId)) {
+                    this.waitingForTiles = this.waitingForTiles.map(v => typeof v === 'string' ? v : null).toMap();
+                    const newState = this.copyState(state);
+                    newState.isBusy = true;
+                    newState.lines = newState.lines.clear();
+                    return newState;
+                }
+                return state;
+            }
         };
     }
 
@@ -178,10 +189,10 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
     sideEffects(state:ConcFilterModelState, action:Action, seDispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
+            case GlobalActionName.SubqChanged:
                 this.suspend(
                     (action:Action) => {
                         if (action.name === GlobalActionName.TileDataLoaded && this.waitingForTiles.has(action.payload['tileId'])) {
-
                             if (action.error) {
                                 seDispatch<GlobalActions.TileDataLoaded<CollExamplesLoadedPayload>>({
                                     name: GlobalActionName.TileDataLoaded,
@@ -228,7 +239,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                                             payload: {
                                                 tileId: this.tileId,
                                                 isEmpty: false, // here we cannot assume final state
-                                                data: data.Lines.slice(0, state.itemsPerSrc)
+                                                data: data.Lines.slice(0, state.itemsPerSrc),
                                             }
                                         })
                                     },

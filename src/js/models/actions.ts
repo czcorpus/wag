@@ -18,7 +18,7 @@
 import { Action } from 'kombo';
 
 import { APIResponse } from '../common/api/kontext/corpusInfo';
-import { QueryType, SystemMessageType, QueryPoS } from '../common/types';
+import { QueryType, SystemMessageType, QueryPoS, SubqueryPayload } from '../common/types';
 
 
 export enum ActionName {
@@ -48,7 +48,8 @@ export enum ActionName {
     LoadTileHelpDone = 'MAIN_LOAD_TILE_HELP_DONE',
     HideTileHelp = 'MAIN_HIDE_TILE_HELP',
     SubqItemHighlighted = 'MAIN_SUBQ_ITEM_HIGHLIGHTED',
-    SubqItemDehighlighted = 'MAIN_SUBQ_ITEM_DEHIGHLIGHTED'
+    SubqItemDehighlighted = 'MAIN_SUBQ_ITEM_DEHIGHLIGHTED',
+    SubqChanged = 'MAIN_SUBQ_CHANGED'
 }
 
 export namespace Actions {
@@ -239,5 +240,12 @@ export namespace Actions {
 
     }> {
         name:ActionName.SubqItemDehighlighted;
+    }
+
+    export interface SubqChanged extends Action<{
+        tileId:number;
+
+    }> {
+        name:ActionName.SubqChanged;
     }
 }
