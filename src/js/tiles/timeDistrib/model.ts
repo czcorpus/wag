@@ -256,9 +256,11 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                 viewMode: ViewMode.KWIC,
                                 tileId: this.tileId,
                                 attrs: Immutable.List<string>(['word']),
+                                concId: null,
                                 posQueryGenerator: state.posQueryGenerator
                             },
-                            findCurrLemmaVariant(formState.lemmas)
+                            findCurrLemmaVariant(formState.lemmas),
+                            null
 
                         )).pipe(
                             map<ConcResponse, ReduceResponse>(

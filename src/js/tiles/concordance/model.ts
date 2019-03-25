@@ -22,7 +22,7 @@ import { concatMap } from 'rxjs/operators';
 import { AppServices } from '../../appServices';
 import { ConcApi, Line, PCRequestArgs, RequestArgs } from '../../common/api/kontext/concordance';
 import { ConcordanceMinState, stateToArgs } from '../../common/models/concordance';
-import { Backlink, BacklinkWithArgs, HTTPMethod, SystemMessageType } from '../../common/types';
+import { Backlink, BacklinkWithArgs, HTTPMethod, SystemMessageType, isSubqueryPayload } from '../../common/types';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
 import { findCurrLemmaVariant, WdglanceMainFormModel } from '../../models/query';
 import { importMessageType } from '../../notifications';
@@ -59,6 +59,7 @@ export interface ConcordanceTileState extends ConcordanceMinState {
 export interface ConcordanceTileModelArgs {
     dispatcher:ActionDispatcher;
     tileId:number;
+    waitForTile:number;
     appServices:AppServices;
     service:ConcApi;
     mainForm:WdglanceMainFormModel;
@@ -79,15 +80,18 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
     private readonly backlink:Backlink;
 
+    private readonly waitForTile:number;
+
     public static readonly CTX_SIZES = [3, 3, 8, 12];
 
-    constructor({dispatcher, tileId, appServices, service, mainForm, initState, backlink}:ConcordanceTileModelArgs) {
+    constructor({dispatcher, tileId, appServices, service, mainForm, initState, waitForTile, backlink}:ConcordanceTileModelArgs) {
         super(dispatcher, initState);
         this.service = service;
         this.mainForm = mainForm;
         this.appServices = appServices;
         this.tileId = tileId;
         this.backlink = backlink;
+        this.waitForTile = waitForTile;
         this.actionMatch = {
             [GlobalActionName.SetScreenMode]: (state, action:GlobalActions.SetScreenMode) => {
                 if (action.payload.isMobile !== state.isMobile) {
@@ -125,6 +129,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 const newState = this.copyState(state);
                 newState.isBusy = true;
                 newState.error = null;
+                newState.concId = null;
                 return newState;
             },
             [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<ConcLoadedPayload>) => {
@@ -145,6 +150,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                         newState.currPage = newState.loadPage;
                         newState.numPages = Math.ceil(newState.concsize / newState.pageSize);
                         newState.backlink = this.createBackLink(state, action);
+                        newState.concId = action.payload.data.conc_persistence_op_id;
                     }
                     return newState;
                 }
@@ -203,11 +209,11 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             null;
     }
 
-    private reloadData(state:ConcordanceTileState, dispatch:SEDispatcher):void {
+    private reloadData(state:ConcordanceTileState, dispatch:SEDispatcher, otherLangCql:string):void {
         const formState = this.mainForm.getState();
         new Observable<RequestArgs|PCRequestArgs>((observer) => {
             try {
-                observer.next(stateToArgs(state, findCurrLemmaVariant(formState.lemmas)));
+                observer.next(stateToArgs(state, state.concId ? null : findCurrLemmaVariant(formState.lemmas), otherLangCql));
                 observer.complete();
 
             } catch (e) {
@@ -229,6 +235,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 });
             },
             (err) => {
+                console.error(err);
                 dispatch<GlobalActions.TileDataLoaded<ConcLoadedPayload>>({
                     name: GlobalActionName.TileDataLoaded,
                     error: err,
@@ -245,18 +252,32 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
     sideEffects(state:ConcordanceTileState, action:Action, dispatch:SEDispatcher):void {
         switch(action.name) {
             case GlobalActionName.RequestQueryResponse:
-                this.reloadData(state, dispatch);
+                if (this.waitForTile) {
+                    this.suspend(
+                        (action) => {
+                            if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile &&
+                                    isSubqueryPayload(action.payload)) {
+                                const cql = `[word="${action.payload.subqueries.map(v => v.value).join('|')}"]`; // TODO escape
+                                this.reloadData(state, dispatch, cql);
+                                return true;
+                            }
+                            return false;
+                        }
+                    );
+                } else {
+                    this.reloadData(state, dispatch, null);
+                }
             break;
             case ActionName.LoadNextPage:
             case ActionName.LoadPrevPage:
             case ActionName.SetViewMode:
                 if (action.payload['tileId'] === this.tileId) {
-                    this.reloadData(state, dispatch);
+                    this.reloadData(state, dispatch, null);
                 }
             break;
             case GlobalActionName.SetScreenMode:
                 if (state.lines.size > 0) {
-                    this.reloadData(state, dispatch);
+                    this.reloadData(state, dispatch, null);
                 }
             break;
         }

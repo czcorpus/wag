@@ -22,6 +22,7 @@ import { LemmaVariant } from '../types';
 
 
 export interface ConcordanceMinState {
+    tileId:number;
     querySelector:QuerySelector;
     corpname:string;
     otherCorpname:string;
@@ -33,14 +34,14 @@ export interface ConcordanceMinState {
     loadPage:number; // the one we are going to load
     attr_vmode:'mouseover';
     viewMode:ViewMode;
-    tileId:number;
+    concId:string|null;
     shuffle:boolean;
     attrs:Immutable.List<string>;
     posQueryGenerator:[string, string];
 }
 
 
-export const stateToArgs = (state:ConcordanceMinState, lvar:LemmaVariant):RequestArgs|PCRequestArgs => {
+export const stateToArgs = (state:ConcordanceMinState, lvar:LemmaVariant|null, otherLangCql:string|null):RequestArgs|PCRequestArgs => {
     if (state.otherCorpname) {
         const ans:PCRequestArgs = {
             corpname: state.corpname,
@@ -61,9 +62,14 @@ export const stateToArgs = (state:ConcordanceMinState, lvar:LemmaVariant):Reques
         };
         ans[`pcq_pos_neg_${state.otherCorpname}`] = PCQValue.POS;
         ans[`include_empty_${state.otherCorpname}`] = '0';
-        ans[`queryselector_${state.otherCorpname}`] = 'wordrow';
-        ans[`word_${state.otherCorpname}`] = '';
-        setQuery(ans, mkLemmaMatchQuery(lvar, state.posQueryGenerator));
+        ans[`queryselector_${state.otherCorpname}`] = 'cqlrow';
+        ans[`cql_${state.otherCorpname}`] = otherLangCql || '';
+        if (lvar) {
+            setQuery(ans, mkLemmaMatchQuery(lvar, state.posQueryGenerator));
+
+        } else {
+            ans.q = `~${state.concId}`;
+        }
         return ans;
 
     } else {
@@ -82,7 +88,12 @@ export const stateToArgs = (state:ConcordanceMinState, lvar:LemmaVariant):Reques
             shuffle: state.shuffle ? 1 : undefined,
             format:'json'
         };
-        setQuery(ans, mkLemmaMatchQuery(lvar, state.posQueryGenerator));
+        if (lvar) {
+            setQuery(ans, mkLemmaMatchQuery(lvar, state.posQueryGenerator));
+
+        } else {
+            ans.q = `~${state.concId}`;
+        }
         return ans;
     }
 }
