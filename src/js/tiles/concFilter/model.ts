@@ -59,6 +59,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
         this.tileId = tileId;
         this.api = api;
         this.waitingForTiles = Immutable.Map<number, string|Array<SubQueryItem>|null>(waitForTiles.map(v => [v, null]));
+        this.appServices = appServices;
         this.actionMatch = {
             [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse)  => {
                 const newState = this.copyState(state);

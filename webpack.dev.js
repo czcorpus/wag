@@ -129,7 +129,12 @@ module.exports = (env) => ({
                 res.set('Content-Type', 'text/css');
                 res.send('');
             });
-          }
+        },
+        watchOptions: {
+            ignored: [
+                /node_modules/
+            ]
+        }
     },
     plugins: [
         new build.ProcTranslationsPlugin(SRC_PATH, DIST_PATH, CONF)
