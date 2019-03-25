@@ -65,7 +65,6 @@ export class FreqDbAPI implements DataApi<RequestArgs, Response> {
             'GET',
             this.apiURL,
             {
-                word: args.word,
                 lemma: args.lemma,
                 pos: args.pos,
                 srchRange: args.srchRange
@@ -75,7 +74,7 @@ export class FreqDbAPI implements DataApi<RequestArgs, Response> {
         ).pipe(
             map(data => ({
                 result: data.result.map(v => ({
-                    word: v.word,
+                    word: args.word,
                     lemma: v.lemma,
                     pos: v.pos,
                     posLabel: v.pos,

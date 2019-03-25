@@ -109,7 +109,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                 }).pipe(
                     concatMap(
                         (args) => this.api.call({
-                            word: undefined,
+                            word: args.word,
                             lemma: args.lemma,
                             pos: args.pos,
                             srchRange: state.sfwRowRange

@@ -25,21 +25,6 @@ import { SummaryModel, SummaryModelState } from '../model';
 import { FreqDBRow } from '../api';
 import { init as chartViewInit } from './chart';
 
-/*
-cx: 65
-cy: 214.99979
-dataKey: "ipm"
-fill: "#fff"
-height: 210
-index: 0
-key: "dot-0"
-payload: {ipm: 0.01, flevel: 1, abs: null, lemma: null, pos: null}
-r: 3
-stroke: "#8884d8"
-strokeWidth: 1
-value: 0.01
-width: 330
-*/
 
 interface ChartFreqDistItem {
     ipm:number;
@@ -50,51 +35,13 @@ interface ChartFreqDistItem {
     color:string;
 }
 
+
 export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:SummaryModel):TileComponent {
 
     const globalComponents = ut.getComponents();
     const Chart = chartViewInit(dispatcher, ut);
 
 
-    // -------------------- <CustomTooltip /> -----------------------------------------------
-
-    const CustomTooltip:React.SFC<{
-        active:boolean;
-        type:string;
-        payload:Array<{payload:ChartFreqDistItem}>;
-        label:string;
-
-    }> = (props) => {
-        if (!props.active) {
-            return null;
-
-        } else if (props.payload[0].payload.lemma) {
-            return (
-                <div className="FreqLevelCustomTooltip">
-                    <strong>lemma:</strong>{'\u00a0'}
-                    <span>{props.payload[0].payload.lemma}</span>
-                    <br />
-                    <strong>pos:</strong>{'\u00a0'}
-                    <span>{props.payload[0].payload.pos}</span>
-                    <br />
-                    <strong>ipm:</strong>{'\u00a0'}
-                    <span>{ut.formatNumber(props.payload[0].payload.ipm, 2)}</span>
-                </div>
-            );
-
-        } else {
-            return (
-                <div className="FreqLevelCustomTooltip">
-                    <strong>freq level:</strong>{'\u00a0'}
-                    <span>{props.payload[0].payload.flevel}</span>
-                    <br />
-                    <strong>ipm:</strong>{'\u00a0'}
-                    <span>{props.payload[0].payload.ipm}</span>
-                </div>
-            );
-        }
-
-    };
 
     // -------------------- <Stars /> -----------------------------------------------
 
