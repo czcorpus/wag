@@ -156,7 +156,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             apiHeadersMapping: services.clientConf.apiHeaders || {}
         });
 
-        new Observable<{word:string; lemma:string; pos:QueryPoS; lft:number; rgt:number}>((observer) => {
+        new Observable<{word:string; lemma:string; pos:QueryPoS; rng:number}>((observer) => {
             if (isNaN(parseInt(req.query.srchRange))) {
                 observer.error(
                     newError(ErrorType.BAD_REQUEST, `Invalid range provided, srchRange = ${req.query.srchRange}`));
@@ -166,24 +166,23 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                     word: req.query.word,
                     lemma: req.query.lemma,
                     pos: importQueryPos(req.query.pos),
-                    lft: Math.max(-1 * parseInt(req.query.srchRange), services.serverConf.auxServices.similarFreqWordsMaxCtx[0]),
-                    rgt: Math.min(parseInt(req.query.srchRange), services.serverConf.auxServices.similarFreqWordsMaxCtx[1])
+                    rng: Math.min(req.query.srchRange, services.serverConf.auxServices.similarFreqWordsMaxCtx)
                 });
                 observer.complete();
             }
         }).pipe(
             concatMap(
                 (data) => {
-                    return getSimilarFreqWords(services.db, appServices, data.word, data.lemma, data.pos, data.lft, data.rgt);
+                    return getSimilarFreqWords(services.db, appServices, data.lemma, data.pos, data.rng);
                 }
             ),
             map(
-                (data) => {
-                    return data;
-                }
-            ),
-            map(
-                (data) => data.sort((v1, v2) => v1.arf - v2.arf)
+                (data) => data.sort((v1:LemmaVariant, v2:LemmaVariant) => {
+                    if (v1.arf !== v2.arf) {
+                        return v1.arf - v2.arf;
+                    }
+                    return v1.lemma.localeCompare(v2.lemma);
+                })
             )
         )
         .subscribe(

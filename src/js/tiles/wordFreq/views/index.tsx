@@ -117,7 +117,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         }
                         <dl className="info">
                             {srchWord ? <SrchWordInfo data={srchWord} /> : null}
-                            <SimilarFreqWords data={this.props.data} />
+                            <SimilarFreqWords data={this.props.data.filter(v => !v.isSearched).toList()} />
                         </dl>
                     </div>
                 </globalComponents.TileWrapper>
