@@ -163,13 +163,19 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
     }> = (props) => {
 
         const handleChange = (evt:React.ChangeEvent<HTMLSelectElement>) => {
+            dispatcher.dispatch<GlobalActions.SubqChanged>({
+                name: GlobalActionName.SubqChanged,
+                payload: {
+                    tileId: props.tileId
+                }
+            });
             dispatcher.dispatch<Actions.SetSrchContextType>({
                 name: ActionName.SetSrchContextType,
                 payload: {
                     tileId: props.tileId,
                     ctxType: evt.target.value as SrchContextType
                 }
-            })
+            });
         }
 
         return (
