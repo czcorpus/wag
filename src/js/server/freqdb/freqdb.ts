@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Observable } from 'rxjs';
+import { Observable, merge, of as rxOf } from 'rxjs';
 import { concatMap, reduce } from 'rxjs/operators';
 import { Database } from 'sqlite3';
 
@@ -29,17 +29,17 @@ export const getLemmas = (db:Database, appServices:AppServices, word:string):Obs
     return new Observable<LemmaVariant>((observer) => {
         db.serialize(() => {
             db.each(
-                'SELECT col0, col1, col2, `count` AS abs, arf FROM colcounts WHERE col0 = ? ORDER BY arf DESC',
+                'SELECT value, lemma, pos, `count` AS abs, arf FROM word WHERE value = ? ORDER BY arf DESC',
                 [word],
                 (err, row) => {
                     if (err) {
                         observer.error(err);
 
                     } else {
-                        const pos = importQueryPos(row['col2']);
+                        const pos = importQueryPos(row['pos']);
                         observer.next({
-                            word: row['col0'],
-                            lemma: row['col1'],
+                            word: row['value'],
+                            lemma: row['lemma'],
                             abs: row['abs'],
                             ipm: -1,
                             arf: row['arf'],
@@ -70,38 +70,34 @@ export const getLemmas = (db:Database, appServices:AppServices, word:string):Obs
 };
 
 
-const getNearFreqItems = (db:Database, appServices:AppServices, val:number, limit:number):Observable<LemmaVariant> => {
+const exportRow = (row, appServices:AppServices, isCurrent:boolean):LemmaVariant => ({
+    word: '', // TODO different type here ?
+    lemma: row['value'],
+    abs: row['abs'],
+    arf: row['arf'],
+    ipm: -1,
+    flevel: -1,
+    pos: row['pos'],
+    posLabel: appServices.importExternalMessage(posTable[row['pos']]),
+    isCurrent: isCurrent
+});
 
-    const mkPartialQuery = (whereSgn) => {
-        return (
-            'SELECT col1, col2, SUM(arf) AS sarf, SUM(`count`) AS abs ' +
-            'FROM colcounts ' +
-            (whereSgn > 0 ? 'GROUP BY col1, col2 HAVING sarf >= ? ORDER BY sarf ASC' : 'GROUP BY col1, col2 HAVING sarf < ? ORDER BY sarf DESC') + ' ' +
-            'LIMIT ?'
-        );
-    };
+
+const getNearFreqItems = (db:Database, appServices:AppServices, val:LemmaVariant, whereSgn:number, limit:number):Observable<LemmaVariant> => {
 
     return new Observable<LemmaVariant>((observer) => {
-        console.log(`SELECT * FROM (${mkPartialQuery(1)}) UNION SELECT * FROM (${mkPartialQuery(-1)})`);
         db.each(
-            `SELECT * FROM (${mkPartialQuery(1)}) UNION SELECT * FROM (${mkPartialQuery(-1)})`,
-            [val, limit, val, limit],
+            'SELECT value, pos, arf, `count` AS abs ' +
+            'FROM lemma ' +
+            (whereSgn > 0 ? 'WHERE arf >= ? AND value <> ? AND pos <> ? ORDER BY arf ASC' : 'WHERE arf < ? ORDER BY arf DESC') + ' ' +
+            'LIMIT ?',
+            whereSgn > 0 ? [val.arf, val.lemma, val.pos, limit] : [val.arf, limit],
             (err, row) => {
                 if (err) {
                     observer.error(err);
 
                 } else {
-                    observer.next({
-                        word: row['col0'],
-                        lemma: row['col1'],
-                        abs: row['abs'],
-                        arf: row['sarf'],
-                        ipm: -1,
-                        flevel: -1,
-                        pos: row['col2'],
-                        posLabel: appServices.importExternalMessage(posTable[row['col2']]),
-                        isCurrent: false
-                    });
+                    observer.next(exportRow(row, appServices, false));
                 }
             },
             (err) => {
@@ -117,34 +113,29 @@ const getNearFreqItems = (db:Database, appServices:AppServices, val:number, limi
 }
 
 
-export const getSimilarFreqWords = (db:Database, appServices:AppServices, word:string, lemma:string, pos:QueryPoS, lft:number, rgt:number):Observable<Array<LemmaVariant>> => {
+export const getSimilarFreqWords = (db:Database, appServices:AppServices, lemma:string, pos:QueryPoS, rng:number):Observable<Array<LemmaVariant>> => {
     return new Observable<LemmaVariant>((observer) => {
         db.get(
-            'SELECT col1, col2, SUM(`count`) AS abs, SUM(arf) AS sarf FROM colcounts WHERE col1 = ? AND col2 = ?',
+            'SELECT value, pos, `count` AS abs, arf FROM lemma WHERE value = ? AND pos = ?',
             [lemma, pos],
             (err, row) => {
                 if (err) {
                     observer.error(err);
 
                 } else {
-                    observer.next({
-                        word: row['col0'],
-                        lemma: row['col1'],
-                        abs: row['abs'],
-                        arf: row['sarf'],
-                        ipm: -1,
-                        flevel: -1,
-                        pos: row['col2'],
-                        posLabel: appServices.importExternalMessage(posTable[row['col2']]),
-                        isCurrent: false
-                    });
+                    observer.next(exportRow(row, appServices, true));
                     observer.complete();
                 }
             }
         );
     }).pipe(
         concatMap(
-            ans => getNearFreqItems(db, appServices, ans.arf, Math.abs(lft)),
+            ans => merge(
+                getNearFreqItems(db, appServices, ans, 1, rng),
+                getNearFreqItems(db, appServices, ans, -1, rng),
+                rxOf(ans)
+
+            )
         ),
         reduce<LemmaVariant>(
             (acc, curr) => acc.concat([curr]),
