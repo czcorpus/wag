@@ -47,6 +47,7 @@ import { init as MergeCorpFreqInit, MergeCorpFreqTileConf } from './tiles/mergeC
 import { init as sydInit, SyDTileConf } from './tiles/syd';
 import { init as timeDistInit, TimeDistTileConf } from './tiles/timeDistrib';
 import { init as treqInit, TreqTileConf } from './tiles/treq';
+import {init as treqSubsetsInit, TreqSubsetsTileConf } from './tiles/treqSubsets';
 import { init as summaryInit, WordFreqTileConf } from './tiles/wordFreq';
 import { GlobalComponents, init as globalCompInit } from './views/global';
 import { init as viewInit } from './views/main';
@@ -146,6 +147,8 @@ const mkTileFactory = (
                     return applyFactory<CollocationsTileConf>(collocInit, conf);
                 case 'TreqTile':
                     return applyFactory<TreqTileConf>(treqInit, conf);
+                case 'TreqSubsetsTile':
+                    return applyFactory<TreqSubsetsTileConf>(treqSubsetsInit, conf);
                 case 'SyDTile':
                     return applyFactory<SyDTileConf>(sydInit, conf);
                 case 'FreqPieTile':

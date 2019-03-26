@@ -15,83 +15,79 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
 
-import { AppServices } from '../../appServices';
-import { ITileProvider, QueryType, TileComponent, TileConf, TileFactory } from '../../common/types';
-import { SearchPackages, TreqAPI, TreqTranslation } from '../../common/api/treq';
-import { TreqModel } from './model';
-import { init as viewInit } from './view';
+import * as Immutable from 'immutable';
+import { ITileProvider, TileComponent, QueryType, TileConf, TileFactory } from '../../common/types';
+import { TreqSubsetModel, TranslationSubset } from './model';
+import { TreqAPI, TreqTranslation } from '../../common/api/treq';
+import {init as viewInit} from './view';
 
 declare var require:any;
 require('./style.less');
 
-export interface TreqTileConf extends TileConf {
-    tileType:'TreqTile';
+
+export interface TreqSubsetsTileConf extends TileConf {
+    tileType:'TreqSubsetsTile';
+    srchPackages:{[lang:string]:Array<string>};
     apiURL:string;
-    srchPackages:SearchPackages;
 }
 
-/**
- *
- */
-export class TreqTile implements ITileProvider {
+
+export class TreqSubsetsTile implements ITileProvider {
 
     private readonly tileId:number;
 
-    private readonly appServices:AppServices;
+    private readonly widthFract:number;
 
-    private readonly model:TreqModel;
+    private readonly model:TreqSubsetModel;
 
     private readonly view:TileComponent;
 
-    private readonly widthFract:number;
-
-    private readonly label:string;
-
-    constructor({tileId, dispatcher, appServices, ut, lang1, lang2, mainForm, widthFract, conf}:TileFactory.Args<TreqTileConf>) {
+    constructor({tileId, dispatcher, appServices, theme, ut, lang1, lang2, mainForm, widthFract, conf}:TileFactory.Args<TreqSubsetsTileConf>) {
         this.tileId = tileId;
-        this.appServices = appServices;
         this.widthFract = widthFract;
-        this.model = new TreqModel(
+        this.model = new TreqSubsetModel(
             dispatcher,
             {
-                isBusy: false,
-                error: null,
                 lang1: lang1,
                 lang2: lang2,
-                searchPackages: Immutable.List<string>(conf.srchPackages[lang2] || []),
-                translations: Immutable.List<TreqTranslation>(),
-                sum: 0,
-                treqBackLink: null
+                isBusy: false,
+                error: null,
+                subsets: Immutable.List<TranslationSubset>(conf.srchPackages[lang2].map(v => ({
+                    ident: v,
+                    label: v,
+                    translations: Immutable.List<TreqTranslation>(),
+                    packages: Immutable.List<string>([v]),
+                    isPending: false
+                })))
             },
             tileId,
             new TreqAPI(conf.apiURL),
-            conf.backlink || null,
             mainForm
         );
-        this.label = appServices.importExternalMessage(conf.label || 'treq__main_label');
-        this.view = viewInit(dispatcher, ut, this.model);
+        this.view = viewInit(dispatcher, ut, theme, this.model);
+    }
+
+    getLabel():string {
+        return 'Treq subsets'; // TODO
     }
 
     getIdent():number {
         return this.tileId;
     }
 
-    getLabel():string {
-        return this.label;
-    }
-
     getView():TileComponent {
         return this.view;
     }
 
+    /**
+     */
     supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {
         return qt === QueryType.TRANSLAT_QUERY;
     }
 
     disable():void {
-        this.model.suspend(()=>false);
+        // TODO
     }
 
     getWidthFract():number {
@@ -109,7 +105,8 @@ export class TreqTile implements ITileProvider {
     supportsAltView():boolean {
         return false;
     }
+
 }
 
 
-export const init:TileFactory.TileFactory<TreqTileConf> = (args) => new TreqTile(args);
+export const init:TileFactory.TileFactory<TreqSubsetsTileConf> = (args) => new TreqSubsetsTile(args);

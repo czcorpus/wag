@@ -22,49 +22,18 @@ import { Backlink, BacklinkWithArgs, HTTPMethod } from '../../common/types';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
 import { WdglanceMainFormModel } from '../../models/query';
 import { DataLoadedPayload } from './actions';
-import { PageArgs, RequestArgs, TreqAPI, TreqTranslation } from './api';
+import { PageArgs, TreqAPI, TreqTranslation } from '../../common/api/treq';
+import { TreqModelMinState, stateToPageArgs, stateToAPIArgs } from '../../common/models/treq';
 
 
 
-export interface TreqModelState {
+export interface TreqModelState extends TreqModelMinState {
     isBusy:boolean;
     error:string;
-    lang1:string;
-    lang2:string;
     searchPackages:Immutable.List<string>;
     translations:Immutable.List<TreqTranslation>;
     sum:number;
     treqBackLink:BacklinkWithArgs<PageArgs>|null;
-}
-
-
-const stateToAPIArgs = (state:TreqModelState, query:string):RequestArgs => {
-    return {
-        left: state.lang1,
-        right: state.lang2,
-        viceslovne: '0',
-        regularni: '0',
-        lemma: '1',
-        aJeA: '1',
-        hledejKde: state.searchPackages.join(','),
-        hledejCo: query,
-        order: 'percDesc',
-        api: 'true'
-    };
-};
-
-
-const stateToPageArgs = (state:TreqModelState, query:string):PageArgs => {
-    return {
-        jazyk1: state.lang1,
-        jazyk2: state.lang2,
-        viceslovne: '0',
-        regularni: '0',
-        lemma: '1',
-        caseInsen: '1',
-        hledejCo: query,
-        'hledejKde[]': state.searchPackages.toArray()
-    };
 }
 
 
@@ -118,7 +87,7 @@ export class TreqModel extends StatelessModel<TreqModelState> {
                 url: this.backlink.url,
                 label: this.backlink.label,
                 method: this.backlink.method || HTTPMethod.GET,
-                args: stateToPageArgs(state, query)
+                args: stateToPageArgs(state, query, state.searchPackages)
             } :
             null;
     }
@@ -126,7 +95,7 @@ export class TreqModel extends StatelessModel<TreqModelState> {
     sideEffects(state:TreqModelState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
-                this.api.call(stateToAPIArgs(state, this.mainForm.getState().query.value)).subscribe(
+                this.api.call(stateToAPIArgs(state, this.mainForm.getState().query.value, state.searchPackages)).subscribe(
                     (data) => {
                         dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
                             name: GlobalActionName.TileDataLoaded,

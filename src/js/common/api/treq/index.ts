@@ -18,9 +18,9 @@
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { ajax$ } from '../../common/ajax';
-import { DataApi } from '../../common/types';
-import { puid } from '../../common/util';
+import { ajax$ } from '../../ajax';
+import { DataApi } from '../../types';
+import { puid } from '../../util';
 
 
 /*
