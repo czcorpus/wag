@@ -20,7 +20,7 @@ import * as Immutable from 'immutable';
 import { Action, ActionDispatcher, StatefulModel, ViewUtils } from 'kombo';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { fromEvent, of as rxOf } from 'rxjs';
+import { fromEvent } from 'rxjs';
 import { throttleTime } from 'rxjs/operators';
 import * as translations from 'translations';
 
@@ -28,7 +28,7 @@ import { AppServices } from './appServices';
 import { encodeArgs } from './common/ajax';
 import { CorpusInfoAPI } from './common/api/kontext/corpusInfo';
 import { Theme } from './common/theme';
-import { ITileProvider, QueryType, TileConf, TileFactory, TileFrameProps, LemmaVariant } from './common/types';
+import { ITileProvider, LemmaVariant, QueryType, TileConf, TileFactory, TileFrameProps } from './common/types';
 import { AnyTileConf, ClientConf, UserConf } from './conf';
 import { LayoutManager } from './layout';
 import { ActionName, Actions } from './models/actions';
@@ -37,6 +37,7 @@ import { defaultFactory as wdglanceFormFactory, WdglanceMainFormModel } from './
 import { TileResultFlag, TileResultFlagRec, WdglanceTilesModel } from './models/tiles';
 import { SystemNotifications } from './notifications';
 import { CollocationsTileConf, init as collocInit } from './tiles/collocations';
+import { ConcFilterTileConf, init as concFilterInit } from './tiles/concFilter';
 import { ConcordanceTileConf, init as concInit } from './tiles/concordance';
 import { EmptyTile } from './tiles/empty';
 import { FreqBarTileConf, init as freqInit } from './tiles/freqBar';
@@ -47,7 +48,6 @@ import { init as sydInit, SyDTileConf } from './tiles/syd';
 import { init as timeDistInit, TimeDistTileConf } from './tiles/timeDistrib';
 import { init as treqInit, TreqTileConf } from './tiles/treq';
 import { init as summaryInit, WordFreqTileConf } from './tiles/wordFreq';
-import { init as concFilterInit, ConcFilterTileConf } from './tiles/concFilter';
 import { GlobalComponents, init as globalCompInit } from './views/global';
 import { init as viewInit } from './views/main';
 
@@ -330,14 +330,14 @@ export const init = (mountElement:HTMLElement, config:ClientConf, userConfig:Use
         () => {
             if (userConfig.answerMode) {
                 if (lemmas.find(v => v.isCurrent)) {
-                    dispatcher.dispatch(rxOf(
-                        {
-                            name: ActionName.RequestQueryResponse
-                        }
-                    ));
+                    dispatcher.dispatch({
+                        name: ActionName.RequestQueryResponse
+                    });
 
                 } else {
-                    // TODO show error
+                    dispatcher.dispatch({
+                        name: ActionName.SetEmptyResult
+                    });
                 }
             }
         }

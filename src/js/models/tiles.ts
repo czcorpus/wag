@@ -215,6 +215,16 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                     this.findEmptyGroups(newState);
                 }
                 return newState;
+            },
+            [ActionName.SetEmptyResult]: (state, action) => {
+                const newState = this.copyState(state);
+                newState.tileResultFlags = newState.tileResultFlags.map(v => ({
+                    tileId: v.tileId,
+                    groupId: v.groupId,
+                    status: TileResultFlag.EMPTY_RESULT
+                })).toList();
+                this.findEmptyGroups(newState);
+                return newState;
             }
         };
     }
