@@ -218,7 +218,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
                                 props.children :
                                 <>
                                     <p className="msg">
-                                        <MessageStatusIcon statusType={SystemMessageType.INFO} isInline={true} />
+                                        <MessageStatusIcon statusType={SystemMessageType.WARNING} isInline={true} />
                                         {ut.translate('global__not_enough_data_to_show_result')}
                                     </p>
                                     <div />
