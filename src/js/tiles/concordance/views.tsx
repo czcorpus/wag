@@ -107,7 +107,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     }> = (props) => {
         return (
-            <form className="Controls cnc-form">
+            <form className="Controls cnc-form tile-tweak">
                 <fieldset>
                         <label>{ut.translate('concordance__page')}:{'\u00a0'}
                         <Paginator page={props.currPage} numPages={props.numPages} tileId={props.tileId} />

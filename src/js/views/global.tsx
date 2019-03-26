@@ -41,10 +41,6 @@ export interface GlobalComponents {
         htmlClass?:string;
     }>;
 
-    EmptySet:React.SFC<{
-        fontSize:string;
-    }>;
-
     TileWrapper:React.SFC<{
         isBusy:boolean;
         hasData:boolean;
@@ -121,12 +117,6 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
                 </div>
             );
         }
-    };
-
-    // --------------- <EmptySet /> -------------------------------------------
-
-    const EmptySet:GlobalComponents['EmptySet'] = (props) => {
-        return <span className="EmptySet" style={{fontSize: props.fontSize}}>{'\u2205'}</span>;
     };
 
     // ------------- <BacklinkForm /> ----------------------------------
@@ -206,33 +196,36 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
                             <MessageStatusIcon statusType={SystemMessageType.ERROR} isInline={true} />
                             {props.error}
                         </p>
-                        <div style={{textAlign: 'center'}}>
-                            <EmptySet fontSize="10em" />
-                        </div>
+                        <div />
                     </div>
                 </div>
             );
 
         } else {
+            const htmlClasses = ['TileWrapper'];
+            if (props.htmlClass) {
+                htmlClasses.push(props.htmlClass);
+            }
+            if (!props.hasData && !props.isBusy) {
+                htmlClasses.push('empty');
+            }
             return (
-                <div className={`TileWrapper${props.htmlClass ? ' ' + props.htmlClass : ''}`}>
+                <div className={htmlClasses.join(' ')}>
                     <div className="loader-wrapper">{props.hasData && props.isBusy ? <TitleLoaderBar  /> : null}</div>
                     <div className="cnc-tile-body content">
                         <div>
                             {props.hasData ?
                                 props.children :
                                 <>
-                                    <p>
-                                        <MessageStatusIcon statusType={SystemMessageType.ERROR} isInline={true} />
+                                    <p className="msg">
+                                        <MessageStatusIcon statusType={SystemMessageType.INFO} isInline={true} />
                                         {ut.translate('global__not_enough_data_to_show_result')}
                                     </p>
-                                    <div style={{textAlign: 'center'}}>
-                                        <EmptySet fontSize="10em" />
-                                    </div>
+                                    <div />
                                 </>
                             }
                         </div>
-                        <SourceLink data={props.sourceIdent} backlink={props.backlink} />
+                        {props.hasData ? <SourceLink data={props.sourceIdent} backlink={props.backlink} /> : null}
                     </div>
                 </div>
             );
@@ -261,9 +254,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
                         <MessageStatusIcon statusType={SystemMessageType.ERROR} isInline={true} />
                             {ut.translate('global__failed_to_render_component')}
                         </p>
-                        <p style={{textAlign: 'center'}}>
-                            <EmptySet fontSize="5em" />
-                        </p>
+                        <div />
                     </div>
                 );
 
@@ -336,7 +327,6 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
     return {
         AjaxLoader: AjaxLoader,
         MessageStatusIcon: MessageStatusIcon,
-        EmptySet: EmptySet,
         TileWrapper: TileWrapper,
         ErrorBoundary: ErrorBoundary,
         ModalBox: ModalBox,
