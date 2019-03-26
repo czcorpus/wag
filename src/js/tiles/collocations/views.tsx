@@ -38,10 +38,11 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
     const globalCompontents = ut.getComponents();
 
 
-    const drawChart = (theme:Theme, isMobile:boolean, container:HTMLElement, size:[number, number], data:Immutable.List<DataRow>, measures:Array<string>) => {
+    const drawChart = (theme:Theme, isMobile:boolean, container:HTMLElement, data:Immutable.List<DataRow>, measures:Array<string>) => {
         container.innerHTML = '';
         const font = 'Roboto Condensed';
 
+        const size = [container.getBoundingClientRect().width, container.getBoundingClientRect().height];
         if (size[0] === 0 || size[1] === 0) {
             // otherwise the browser may crash
             return;
@@ -61,6 +62,10 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             .size(size)
             .words(dataImp)
             .padding(5)
+            .spiral((size) => {
+                const e = size[0] / size[1];
+                return (t) => [e * t * 4 * Math.cos(t), 1 / e * 8 * t * Math.sin(t)]
+              })
             .rotate(() => 0)
             .font(font)
             .fontSize(d => d.size)
@@ -234,21 +239,12 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             this.chartContainer = React.createRef();
         }
 
-
-        private calcChartAreaWidth():[number, number] {
-            return [
-                this.props.renderSize[0] / (this.props.widthFract > 1 && !this.props.isMobile ? 2 : 1.1),
-                Math.max(240, this.props.data.size * 30)
-            ];
-        }
-
         componentDidMount() {
             if (this.chartContainer.current) {
                 drawChart(
                     theme,
                     this.props.isMobile,
                     this.chartContainer.current,
-                    this.calcChartAreaWidth(),
                     this.props.data,
                     this.props.heading.map(v => v.label)
                 );
@@ -264,7 +260,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                     theme,
                     this.props.isMobile,
                     this.chartContainer.current,
-                    this.calcChartAreaWidth(),
+
                     this.props.data,
                     this.props.heading.map(v => v.label)
                 );

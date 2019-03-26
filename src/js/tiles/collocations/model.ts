@@ -108,7 +108,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
 
     private static readonly BASE_WC_FONT_SIZE = 30;
 
-    private static readonly BASE_WC_FONT_SIZE_MOBILE = 27;
+    private static readonly BASE_WC_FONT_SIZE_MOBILE = 28;
 
 
     private readonly service:KontextCollAPI;
