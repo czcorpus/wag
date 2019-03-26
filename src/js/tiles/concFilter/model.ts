@@ -73,7 +73,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                 if (action.payload.tileId === this.tileId) {
                     const newState = this.copyState(state);
                     newState.numPendingSources -= 1;
-                    if (newState.numPendingSources === 0) {
+                    if (newState.numPendingSources <= 0) {
                         newState.isBusy = false;
                     }
                     newState.lines = newState.lines.concat(action.payload.data).toList();
@@ -232,6 +232,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                                         subq = v;
                                     }
                                 });
+
                                 merge(...this.loadFreqs(state, conc, subq)).subscribe(
                                     (data) => {
                                         seDispatch<GlobalActions.TileDataLoaded<CollExamplesLoadedPayload>>({
@@ -241,7 +242,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                                                 isEmpty: false, // here we cannot assume final state
                                                 data: data.Lines.slice(0, state.itemsPerSrc),
                                             }
-                                        })
+                                        });
                                     },
                                     (err) => {
                                         seDispatch<GlobalActions.TileDataLoaded<CollExamplesLoadedPayload>>({
@@ -253,6 +254,18 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                                             },
                                             error: err,
                                         });
+                                    },
+                                    () => {
+                                        if (subq.length === 0) {
+                                            seDispatch<GlobalActions.TileDataLoaded<CollExamplesLoadedPayload>>({
+                                                name: GlobalActionName.TileDataLoaded,
+                                                payload: {
+                                                    tileId: this.tileId,
+                                                    isEmpty: true,
+                                                    data: []
+                                                }
+                                            });
+                                        }
                                     }
                                 )
                                 return true;
