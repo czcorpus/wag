@@ -44,7 +44,8 @@
         "global__not_enought_data_for_group": "Not enough data to display any result in this section",
         "global__func_not_avail": "Function not available in this case",
         "global__multiple_words_for_query": "Alternatives",
-        "global__searching_by_pos": "Showing results for"
+        "global__searching_by_pos": "Showing results for",
+        "global__nothing_found_msg": "We have not found any result for the query. Please check spelling of the word and also the selected language."
 
     },
     "cs-CZ": {
@@ -92,6 +93,7 @@
         "global__not_enought_data_for_group": "Pro zobrazení výsledků v této skupině není dostatek dat",
         "global__func_not_avail": "Funkce zde není k dispozici",
         "global__multiple_words_for_query": "Alternativy",
-        "global__searching_by_pos": "Zobrazuji výsledky pro"
+        "global__searching_by_pos": "Zobrazuji výsledky pro",
+        "global__nothing_found_msg": "K zadanému dotazu jsme nenašli žádný výsledek. Zkontrolujte prosím zadané slovo a zvolený jazyk."
     }
 }

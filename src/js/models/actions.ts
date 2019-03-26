@@ -18,7 +18,7 @@
 import { Action } from 'kombo';
 
 import { APIResponse } from '../common/api/kontext/corpusInfo';
-import { QueryType, SystemMessageType, QueryPoS, SubqueryPayload } from '../common/types';
+import { QueryType, SystemMessageType, QueryPoS } from '../common/types';
 
 
 export enum ActionName {
@@ -27,6 +27,7 @@ export enum ActionName {
     ChangeCurrLemmaVariant = 'MAIN_CHANGE_CURR_LEMMA_VARIANT',
     DisableAnswerMode = 'MAIN_DISABLE_ANSWER_MODE',
     RequestQueryResponse = 'MAIN_REQUEST_QUERY_RESPONSE',
+    SetEmptyResult = 'MAIN_SET_EMPTY_RESULT',
     TileDataLoaded = 'MAIN_TILE_DATA_LOADED',
     ChangeTargetLanguage = 'MAIN_CHANGE_TARGET_LANGUAGE',
     ChangeQueryType = 'MAIN_CHANGE_QUERY_TYPE',
@@ -57,6 +58,12 @@ export namespace Actions {
     export interface RequestQueryResponse extends Action<{
     }> {
         name:ActionName.ChangeQueryInput;
+    }
+
+    export interface SetEmptyResult extends Action<{
+
+    }> {
+        name:ActionName.SetEmptyResult;
     }
 
     export interface TileDataLoaded<T> extends Action<{

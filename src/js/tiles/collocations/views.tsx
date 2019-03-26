@@ -179,7 +179,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         }
 
         return (
-            <form className="Controls cnc-form">
+            <form className="Controls cnc-form tile-tweak">
                 <label>{ut.translate('collocations__search_in_context_label')}: </label>
                 <select value={props.value} onChange={handleChange}>
                     <option value={SrchContextType.LEFT}>
