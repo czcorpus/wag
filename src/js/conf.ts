@@ -17,6 +17,7 @@
  */
 import { DbValueMapping, HTTPHeaders, LocalizedConfMsg, QueryPoS } from './common/types';
 import { CollocationsTileConf } from './tiles/collocations';
+import { ConcFilterTileConf } from './tiles/concFilter';
 import { ConcordanceTileConf } from './tiles/concordance';
 import { FreqBarTileConf } from './tiles/freqBar';
 import { FreqPieTileConf } from './tiles/freqPie';
@@ -25,16 +26,15 @@ import { MergeCorpFreqTileConf } from './tiles/mergeCorpFreq';
 import { SyDTileConf } from './tiles/syd';
 import { TimeDistTileConf } from './tiles/timeDistrib';
 import { TreqTileConf } from './tiles/treq';
+import { TreqSubsetsTileConf } from './tiles/treqSubsets';
 import { WordFreqTileConf } from './tiles/wordFreq';
-import { ConcFilterTileConf } from './tiles/concFilter';
-
-
 
 
 export type AnyTileConf =
     ConcordanceTileConf |
     FreqBarTileConf |
     TreqTileConf |
+    TreqSubsetsTileConf |
     SyDTileConf |
     FreqPieTileConf |
     TimeDistTileConf |

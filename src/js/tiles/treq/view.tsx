@@ -21,7 +21,7 @@ import * as React from 'react';
 
 import { CoreTileComponentProps, TileComponent } from '../../common/types';
 import { GlobalComponents } from '../../views/global';
-import { TreqTranslation } from './api';
+import { TreqTranslation } from '../../common/api/treq';
 import { TreqModel, TreqModelState } from './model';
 
 

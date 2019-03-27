@@ -15,12 +15,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { SubqueryPayload } from '../../common/types';
+
 import { TreqResponse } from '../../common/api/treq';
 
 
-
-export interface DataLoadedPayload extends SubqueryPayload {
+export interface DataLoadedPayload {
     query:string;
     data:TreqResponse;
+    subsetId:string|null;
 }
