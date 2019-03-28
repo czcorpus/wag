@@ -42,6 +42,33 @@ export interface TreqSubsetsModelState extends TreqModelMinState {
     subsets:Immutable.List<TranslationSubset>;
 }
 
+export interface MultiSrcTranslation {
+    value:string;
+    abs:number;
+    perc:number;
+}
+
+// transpose "package-first" oriented data structure to "word first" and emit values for each row
+export const flipRowColMapper = <T>(subsets:Immutable.List<TranslationSubset>, mapFn:(row:Immutable.List<MultiSrcTranslation>, word:string, idx:number)=>T):Immutable.List<T> => {
+    const numRows = Math.min(...subsets.map(s => s.translations.size).toArray());
+    const numCols = subsets.size;
+    const ans:Array<T> = [];
+
+    for (let i = 0; i < numRows; i += 1) {
+        const row:Array<MultiSrcTranslation> = [];
+        for (let j = 0; j < numCols; j += 1) {
+            const t = subsets.get(j).translations.get(i);
+            row.push({
+                value: t.left,
+                abs: t.freq,
+                perc: t.perc
+            });
+        }
+        ans.push(mapFn(Immutable.List<MultiSrcTranslation>(row), subsets.get(0).translations.get(i).right, i));
+    }
+    return Immutable.List<T>(ans);
+};
+
 
 export class TreqSubsetModel extends StatelessModel<TreqSubsetsModelState> {
 

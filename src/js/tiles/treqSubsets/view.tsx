@@ -22,9 +22,12 @@ import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAx
 
 import { CoreTileComponentProps, TileComponent } from '../../common/types';
 import { GlobalComponents } from '../../views/global';
-import { TreqSubsetModel, TreqSubsetsModelState, TranslationSubset } from './model';
+import { TreqSubsetModel, TreqSubsetsModelState, TranslationSubset, flipRowColMapper } from './model';
 import { TreqTranslation } from '../../common/api/treq';
 import { Theme } from '../../common/theme';
+
+
+type TooltipValues = {[key:string]:number|string}|null;
 
 
 export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:TreqSubsetModel):TileComponent {
@@ -65,6 +68,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
 
     // -------------------------- <Chart /> --------------------------------------
+    // TODO probably won't be used
 
     const Chart:React.SFC<{
         data:Immutable.List<TreqTranslation>;
@@ -87,6 +91,189 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             </div>
         );
     };
+
+    // ---------------------- <SimpleBar /> ------------------------------------------------------
+
+    const SimpleBar:React.SFC<{
+        perc:number;
+        abs:number;
+        maxValue:number;
+        maxWidth:number;
+        color:string;
+        onMouseOver:(e:React.MouseEvent, values:TooltipValues)=>void;
+        onMouseMove:(e:React.MouseEvent)=>void;
+        onMouseOut:(e:React.MouseEvent)=>void;
+
+    }> = (props) => {
+        const width = props.perc / props.maxValue * props.maxWidth;
+        const ticks = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+        const tooltipVals = {
+            [ut.translate('treqsubsets__abs')]: ut.formatNumber(props.abs, 0),
+            [ut.translate('treqsubsets__perc')]: `${ut.formatNumber(props.perc, 1)}%`
+        };
+
+        return (
+            <div className="SimpleBar" style={{height: '40px'}}>
+                <div className="bar"
+                        style={{backgroundColor: props.color, width: `${width}px`, 'height': '30px'}}
+                        onMouseOver={(e) => props.onMouseOver(e, tooltipVals)}
+                        onMouseMove={props.onMouseMove}
+                        onMouseOut={props.onMouseOut} />
+                <table className="grid" style={{height: '40px'}}>
+                    <tbody>
+                        <tr>
+                            {ticks.map(t => <td key={`tick:${t}`} style={{width: `${props.maxWidth / ticks.length}px`}}></td>)}
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        )
+    }
+
+    // -------------------- <TableTooltip /> ----------------------------------------------
+
+    const TableTooltip:React.SFC<{
+        x:number;
+        y:number;
+        visible:boolean;
+        values:TooltipValues;
+
+    }> = (props) => {
+        const style = {
+            display: props.visible ? 'block' : 'none',
+            top: props.y,
+            left: props.x
+        };
+
+        return (
+            <table className="tooltip" style={style}>
+                <tbody>
+                    {Object.keys(props.values || {}).map(label => {
+                        const v = props.values[label];
+                        return (
+                            <tr key={label}>
+                            <th>{label}:</th>
+                            {typeof v === 'number' ?
+                                <td className="num">{ut.formatNumber(v, 1)}</td> :
+                                <td>{v}</td>
+                            }
+                            </tr>
+                        );
+                    })}
+                </tbody>
+            </table>
+        );
+    }
+
+    // ---------------------- <ChartLikeTable /> ------------------------------------------
+
+    const ChartLikeTable:React.SFC<{
+        subsets:Immutable.List<TranslationSubset>;
+        widthInPx:number;
+        onMouseOver:(e:React.MouseEvent, values:{[key:string]:string|number})=>void;
+        onMouseMove:(e:React.MouseEvent)=>void;
+        onMouseOut:(e:React.MouseEvent)=>void;
+
+    }> = React.memo((props) => {
+
+        const catColors = theme.categoryPalette(props.subsets.map((_, i) => i).toArray());
+
+        return (
+            <table className="ChartLikeTable">
+                <tbody>
+                    <tr>
+                        <th />
+                        {props.subsets.map((v, i) => <th key={v.label} className="package" style={{color: catColors(i)}}>{v.label}</th>)}
+                    </tr>
+                    {flipRowColMapper(props.subsets, (row, word, i) => (
+                        <tr key={`${word}:${i}`}>
+                            <th className="word">{word}</th>
+                            {row.map((v, j) => (
+                                <td key={`cell:${i}:${j}`} style={{width: `${props.widthInPx}px`}}>
+                                    <SimpleBar maxWidth={props.widthInPx}
+                                        perc={v.perc}
+                                        abs={v.abs}
+                                        maxValue={100}
+                                        color={catColors(j)}
+                                        onMouseOver={props.onMouseOver}
+                                        onMouseMove={props.onMouseMove}
+                                        onMouseOut={props.onMouseOut}  />
+                                </td>
+                            ))}
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        );
+    });
+
+
+    // ---------------------- <ResultChart /> ------------------------------------------
+
+    class ResultChart extends React.Component<{
+        subsets:Immutable.List<TranslationSubset>;
+        widthInPx:number;
+    },
+    {
+        tooltipVisible:boolean;
+        tooltipX:number;
+        tooltipY:number;
+        tooltipValues:TooltipValues;
+    }> {
+
+        constructor(props) {
+            super(props);
+            this.state = {
+                tooltipVisible: false,
+                tooltipX: 0,
+                tooltipY: 0,
+                tooltipValues: null
+            };
+            this.handleMouseMove = this.handleMouseMove.bind(this);
+            this.handleMouseOut = this.handleMouseOut.bind(this);
+            this.handleMouseOver = this.handleMouseOver.bind(this);
+        }
+
+        handleMouseOver(e:React.MouseEvent, values:TooltipValues) {
+            this.setState({
+                tooltipVisible: true,
+                tooltipX: this.state.tooltipX,
+                tooltipY: this.state.tooltipY,
+                tooltipValues: values
+            });
+        }
+
+        handleMouseOut() {
+            this.setState({
+                tooltipVisible: false,
+                tooltipX: 0,
+                tooltipY: 0,
+                tooltipValues: null
+            });
+        }
+
+        handleMouseMove(e:React.MouseEvent) {
+            this.setState({
+                tooltipVisible: true,
+                tooltipX: Math.max(e.pageX + 20, 0),
+                tooltipY: Math.max(e.pageY - 50, 0),
+                tooltipValues: this.state.tooltipValues
+            });
+        }
+
+        render() {
+            return (
+                <div className="ChartLikeTable">
+                    <TableTooltip x={this.state.tooltipX} y={this.state.tooltipY} visible={this.state.tooltipVisible}
+                            values={this.state.tooltipValues} />
+                    <ChartLikeTable subsets={this.props.subsets} widthInPx={this.props.widthInPx}
+                        onMouseMove={this.handleMouseMove} onMouseOut={this.handleMouseOut}
+                        onMouseOver={this.handleMouseOver} />
+                </div>
+            );
+        }
+    }
 
     // --------------------- <SubsetChart /> ----------------------------
 
@@ -113,15 +300,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         hasData={this.props.subsets.flatMap(v => v.translations).size > 0}
                         sourceIdent={{corp: 'InterCorp'}}>
                     <div className="TreqSubsetsView">
-                        <div className="charts">
-                            {this.props.subsets.map(subset =>
-                                subset.translations.size > 0 ?
-                                    <div key={subset.ident} className="cell">
-                                        <SubsetChart data={subset} isMobile={this.props.isMobile} />
-                                    </div> :
-                                    null)
-                            }
-                        </div>
+                        <ResultChart subsets={this.props.subsets} widthInPx={180} />
                     </div>
                 </globalComponents.TileWrapper>
             );

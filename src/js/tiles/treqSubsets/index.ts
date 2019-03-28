@@ -43,6 +43,8 @@ export class TreqSubsetsTile implements ITileProvider {
 
     private readonly view:TileComponent;
 
+    private readonly label:string;
+
     constructor({tileId, dispatcher, appServices, theme, ut, lang1, lang2, mainForm, widthFract, conf}:TileFactory.Args<TreqSubsetsTileConf>) {
         this.tileId = tileId;
         this.widthFract = widthFract;
@@ -65,11 +67,12 @@ export class TreqSubsetsTile implements ITileProvider {
             new TreqAPI(conf.apiURL),
             mainForm
         );
+        this.label = appServices.importExternalMessage(conf.label || 'treqsubsets__main_label');
         this.view = viewInit(dispatcher, ut, theme, this.model);
     }
 
     getLabel():string {
-        return 'Treq subsets'; // TODO
+        return this.label;
     }
 
     getIdent():number {
