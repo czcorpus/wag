@@ -45,7 +45,9 @@
         "global__func_not_avail": "Function not available in this case",
         "global__multiple_words_for_query": "Alternatives",
         "global__searching_by_pos": "Showing results for",
-        "global__nothing_found_msg": "We have not found any result for the query. Please check spelling of the word and also the selected language."
+        "global__nothing_found_msg": "We have not found any result for the query. Please check spelling of the word and also the selected language.",
+        "global__switch_to_alt_view": "Switch to alternative view",
+        "global__switch_to_default_view": "Switch to default view"
 
     },
     "cs-CZ": {
@@ -94,6 +96,8 @@
         "global__func_not_avail": "Funkce zde není k dispozici",
         "global__multiple_words_for_query": "Alternativy",
         "global__searching_by_pos": "Zobrazuji výsledky pro",
-        "global__nothing_found_msg": "K zadanému dotazu jsme nenašli žádný výsledek. Zkontrolujte prosím zadané slovo a zvolený jazyk."
+        "global__nothing_found_msg": "K zadanému dotazu jsme nenašli žádný výsledek. Zkontrolujte prosím zadané slovo a zvolený jazyk.",
+        "global__switch_to_alt_view": "Přepnout do alternativního zobrazení",
+        "global__switch_to_default_view": "Přepnout do výchozího zobrazení"
     }
 }
