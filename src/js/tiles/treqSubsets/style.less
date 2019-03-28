@@ -1,3 +1,5 @@
+@import '../../../css/shared.less';
+
 .TreqSubsetsView {
 
     .charts {
@@ -10,4 +12,107 @@
         overflow-y: hidden;
     }
 
+    .ChartLikeTable {
+
+        table.tooltip {
+            position: absolute;
+            display: none;
+            color: @color-logo-blue;
+            background-color: #FFFFFF;
+            z-index: 10000;
+            padding: 1em;
+            border: 1px solid @color-light-grey;
+            border-spacing: 0;
+            border-collapse: collapse;
+            line-height: 1.3em;
+
+            th {
+                text-align: right;
+                color: @color-light-text;
+                padding-right: 0.4em;
+            }
+
+            td {
+                text-align: left;
+            }
+
+            td.num {
+
+            }
+
+            th, td {
+                font-weight: normal;
+            }
+
+        }
+
+        table.ChartLikeTable {
+
+            border-spacing: 0;
+            border-collapse: collapse;
+
+            td {
+                border: 1px solid #aaaaaa;
+            }
+
+            td {
+                padding: 0;
+            }
+
+            th.word {
+                text-align: right;
+                padding-right: 0.7em;
+                font-weight: normal;
+            }
+
+            th.package {
+                padding-bottom: 0.7em;
+            }
+
+            .SimpleBar {
+                .bar {
+                    position: absolute;
+                    margin-top: 5px;
+                    margin-bottom: 5px;
+                }
+
+                table.grid {
+                    border-spacing: 0;
+                    border-collapse: collapse;
+
+                    td {
+                        border-style: solid;
+                        border-color: #f2f2f2;
+                        border-width:  0 1px 0 1px;
+                    }
+                }
+            }
+        }
+    }
+
+    table.AltViewTable {
+
+        border-spacing: 0;
+        border-collapse: collapse;
+
+        td {
+            border: 1px solid #aaaaaa;
+            padding: 0.4em 0.7em;
+            text-align: right;
+        }
+
+        th.word {
+            text-align: right;
+            padding-right: 0.7em;
+            font-weight: normal;
+        }
+
+        th {
+            border: 1px solid #aaaaaa;
+        }
+
+        th.package {
+            padding: 0.7em 1em;
+        }
+    }
 }

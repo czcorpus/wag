@@ -1,8 +1,12 @@
 {
     "en-US": {
-        "treq__main_label": "Treq subsets"
+        "treqsubsets__main_label": "Treq subsets",
+        "treqsubsets__abs": "Abs. frequency",
+        "treqsubsets__perc": "Relative frequency"
     },
     "cs-CZ": {
-        "treq__main_label": "Treq - podmnožiny"
+        "treqsubsets__main_label": "Treq - podmnožiny",
+        "treqsubsets__abs": "Absolutní frekvence",
+        "treqsubsets__perc": "Relativní frekvence"
     }
 }
