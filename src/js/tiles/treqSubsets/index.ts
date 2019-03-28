@@ -54,6 +54,7 @@ export class TreqSubsetsTile implements ITileProvider {
                 lang1: lang1,
                 lang2: lang2,
                 isBusy: false,
+                isAltViewMode: false,
                 error: null,
                 subsets: Immutable.List<TranslationSubset>(conf.srchPackages[lang2].map(v => ({
                     ident: v,
@@ -106,7 +107,7 @@ export class TreqSubsetsTile implements ITileProvider {
     }
 
     supportsAltView():boolean {
-        return false;
+        return true;
     }
 
 }

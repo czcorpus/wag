@@ -39,6 +39,7 @@ export interface TranslationSubset {
 export interface TreqSubsetsModelState extends TreqModelMinState {
     isBusy:boolean;
     error:string;
+    isAltViewMode:boolean;
     subsets:Immutable.List<TranslationSubset>;
 }
 
@@ -83,6 +84,7 @@ export class TreqSubsetModel extends StatelessModel<TreqSubsetsModelState> {
             mainForm:WdglanceMainFormModel) {
         super(dispatcher, initialState);
         this.api = api;
+        this.tileId = tileId;
         this.mainForm = mainForm;
         this.actionMatch = {
             [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
@@ -120,7 +122,23 @@ export class TreqSubsetModel extends StatelessModel<TreqSubsetsModelState> {
                     }
                 }
                 return state;
-            }
+            },
+            [GlobalActionName.EnableAltViewMode]: (state, action:GlobalActions.EnableAltViewMode) => {
+                if (action.payload.ident === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.isAltViewMode = true;
+                    return newState;
+                }
+                return state;
+            },
+            [GlobalActionName.DisableAltViewMode]: (state, action:GlobalActions.DisableAltViewMode) => {
+                if (action.payload.ident === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.isAltViewMode = false;
+                    return newState;
+                }
+                return state;
+            },
         };
     }
 

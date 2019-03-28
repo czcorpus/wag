@@ -208,6 +208,41 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         );
     });
 
+    // ---------------------- <AltViewTable /> ------------------------------------------
+
+    const AltViewTable:React.SFC<{
+        subsets:Immutable.List<TranslationSubset>;
+    }> = (props) => {
+
+        return (
+            <table className="AltViewTable">
+                <tbody>
+                    <tr>
+                        <th />
+                        {props.subsets.map((v, i) =>
+                            <th key={v.label} colSpan={2} className="package">{v.label}</th>)}
+                    </tr>
+                    <tr className="absrel">
+                        <th />
+                        {props.subsets.map((v, i) =>
+                            <React.Fragment key={`A:${v.label}`}><th>abs</th><th>rel</th></React.Fragment>)}
+                    </tr>
+                    {flipRowColMapper(props.subsets, (row, word, i) => (
+                        <tr key={`${word}:${i}`}>
+                            <th className="word">{word}</th>
+                            {row.map((v, j) => (
+                                <React.Fragment key={`cell:${i}:${j}`}>
+                                    <td>{v.perc}</td>
+                                    <td>{v.abs}</td>
+                                </React.Fragment>
+                            ))}
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        );
+
+    };
 
     // ---------------------- <ResultChart /> ------------------------------------------
 
@@ -300,7 +335,10 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         hasData={this.props.subsets.flatMap(v => v.translations).size > 0}
                         sourceIdent={{corp: 'InterCorp'}}>
                     <div className="TreqSubsetsView">
-                        <ResultChart subsets={this.props.subsets} widthInPx={180} />
+                        {this.props.isAltViewMode ?
+                            <AltViewTable subsets={this.props.subsets} /> :
+                            <ResultChart subsets={this.props.subsets} widthInPx={180} />
+                        }
                     </div>
                 </globalComponents.TileWrapper>
             );
