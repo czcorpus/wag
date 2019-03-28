@@ -454,8 +454,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             }
         };
 
+        const label = props.isAltView ?
+                ut.translate('global__switch_to_default_view') :
+                ut.translate('global__switch_to_alt_view');
+
         return <span className="AltViewButton">
-            <button type="button" onClick={handleClick}>
+            <button type="button" onClick={handleClick} title={label}>
                 <img src={ut.createStaticUrl('brackets.svg')} />
             </button>
         </span>
