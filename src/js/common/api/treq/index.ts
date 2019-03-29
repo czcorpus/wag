@@ -85,6 +85,10 @@ interface HTTPResponse {
     lines:Array<{freq:string; perc:string; left:string; righ:string;}>;
 }
 
+export const mkInterctionId = (word:string):string => {
+    return `treqInteractionKey:${word}`;
+};
+
 export class TreqAPI implements DataApi<RequestArgs, TreqResponse> {
 
     private readonly apiURL;
@@ -108,7 +112,7 @@ export class TreqAPI implements DataApi<RequestArgs, TreqResponse> {
                         perc: parseFloat(v.perc),
                         left: v.left,
                         right: v.righ,
-                        interactionId: puid()
+                        interactionId: mkInterctionId(v.righ)
                     })).slice(0, 10)
                 })
             )

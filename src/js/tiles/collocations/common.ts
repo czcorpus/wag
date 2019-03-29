@@ -25,8 +25,6 @@ export interface DataRow {
     freq:number;
     nfilter:[string, string];
     pfilter:[string, string];
-    wcFontSize:number;
-    wcFontSizeMobile:number;
     interactionId:string;
 }
 

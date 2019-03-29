@@ -173,6 +173,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
     const ChartLikeTable:React.SFC<{
         subsets:Immutable.List<TranslationSubset>;
         chartWidthPx:number;
+        highlightedRowIdx:number;
         onMouseOver:(e:React.MouseEvent, values:{[key:string]:string|number})=>void;
         onMouseMove:(e:React.MouseEvent)=>void;
         onMouseOut:(e:React.MouseEvent)=>void;
@@ -189,7 +190,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         {props.subsets.map((v, i) => <th key={v.label} className="package" style={{color: catColors(i)}}>{v.label}</th>)}
                     </tr>
                     {flipRowColMapper(props.subsets, (row, word, i) => (
-                        <tr key={`${word}:${i}`}>
+                        <tr key={`${word}:${i}`} className={props.highlightedRowIdx === i ? 'highlighted' : null}>
                             <th className="word">{word}</th>
                             {row.map((v, j) => (
                                 <td key={`cell:${i}:${j}`} style={{paddingRight: '5px'}}>
@@ -251,6 +252,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     class ResultChart extends React.Component<{
         subsets:Immutable.List<TranslationSubset>;
+        highlightedRowIdx:number;
         chartWidthPx:number;
     },
     {
@@ -307,7 +309,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                             values={this.state.tooltipValues} />
                     <ChartLikeTable subsets={this.props.subsets} chartWidthPx={this.props.chartWidthPx}
                         onMouseMove={this.handleMouseMove} onMouseOut={this.handleMouseOut}
-                        onMouseOver={this.handleMouseOver} />
+                        onMouseOver={this.handleMouseOver}
+                        highlightedRowIdx={this.props.highlightedRowIdx} />
                 </div>
             );
         }
@@ -341,7 +344,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         <div className="data">
                             {this.props.isAltViewMode ?
                                 <AltViewTable subsets={this.props.subsets} /> :
-                                <ResultChart subsets={this.props.subsets} chartWidthPx={150} />
+                                <ResultChart subsets={this.props.subsets} chartWidthPx={150}
+                                        highlightedRowIdx={this.props.highlightedRowIdx} />
                             }
                         </div>
                     </div>

@@ -19,7 +19,7 @@ import * as Immutable from 'immutable';
 import {merge} from 'rxjs';
 import { Action, ActionDispatcher, SEDispatcher, StatelessModel } from 'kombo';
 
-import { TreqAPI, TreqTranslation } from '../../common/api/treq';
+import { TreqAPI, TreqTranslation, mkInterctionId } from '../../common/api/treq';
 import { stateToAPIArgs, TreqModelMinState } from '../../common/models/treq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
 import { WdglanceMainFormModel } from '../../models/query';
@@ -41,6 +41,7 @@ export interface TreqSubsetsModelState extends TreqModelMinState {
     error:string;
     isAltViewMode:boolean;
     subsets:Immutable.List<TranslationSubset>;
+    highlightedRowIdx:number;
 }
 
 export interface MultiSrcTranslation {
@@ -139,6 +140,24 @@ export class TreqSubsetModel extends StatelessModel<TreqSubsetsModelState> {
                 }
                 return state;
             },
+            [GlobalActionName.SubqItemHighlighted] : (state, action:GlobalActions.SubqItemHighlighted) => {
+                const srchIdx = state.subsets.get(0).translations.findIndex(v => v.interactionId === action.payload.interactionId);
+                if (srchIdx > -1) {
+                    const newState = this.copyState(state);
+                    newState.highlightedRowIdx = srchIdx;
+                    return newState;
+                }
+               return state;
+            },
+            [GlobalActionName.SubqItemDehighlighted] : (state, action:GlobalActions.SubqItemDehighlighted) => {
+                const srchIdx = state.subsets.get(0).translations.findIndex(v => v.interactionId === action.payload.interactionId);
+                if (srchIdx > -1) {
+                    const newState = this.copyState(state);
+                    newState.highlightedRowIdx = -1;
+                    return newState;
+                }
+               return state;
+            },
         };
     }
 
@@ -181,7 +200,7 @@ export class TreqSubsetModel extends StatelessModel<TreqSubsetsModelState> {
                     perc: 0,
                     left: '',
                     right: w,
-                    interactionId: null
+                    interactionId: mkInterctionId(w)
                 }
             }).toList(),
             isPending: false

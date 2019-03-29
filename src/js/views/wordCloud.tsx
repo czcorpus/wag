@@ -17,6 +17,7 @@
  */
 import { of as rxOf } from 'rxjs';
 import { timeout } from 'rxjs/operators';
+import * as seedrandom from 'seedrandom';
 import 'd3-transition';
 import * as cloud from 'd3-cloud';
 import { event as d3event, select as d3select, Selection } from 'd3-selection';
@@ -32,8 +33,6 @@ export interface WordCloudItem {
     value:number;
     tooltip:string;
     interactionId:string;
-    initSize:number;
-    initSizeMobile:number;
     size?:number;
 }
 
@@ -55,6 +54,11 @@ export interface WordCloudProps {
     isMobile:boolean;
     data:Array<WordCloudItem>;
 }
+
+
+const BASE_WC_FONT_SIZE = 30;
+
+const BASE_WC_FONT_SIZE_MOBILE = 25;
 
 
 export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme):React.ComponentClass<WordCloudProps, {}> {
@@ -123,17 +127,25 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             return;
         }
 
+        const minVal = Math.min(...data.map(v => v.value));
+        const scaledTotal = data.map(v => v.value - minVal).reduce((curr, acc) => acc + curr, 0);
+        const data2 = data.map(v => {
+            const wcFontSizeRatio = scaledTotal > 0 ? (v.value - minVal) / scaledTotal : 1;
+            return {
+                text: v.text,
+                value: v.value,
+                tooltip: v.tooltip,
+                interactionId: v.interactionId,
+                size: isMobile ?
+                    Math.round((wcFontSizeRatio * 100) ** 2 / 100 + BASE_WC_FONT_SIZE_MOBILE) :
+                    Math.round((wcFontSizeRatio * 100) ** 2 / 100 + BASE_WC_FONT_SIZE)
+            };
+        });
+
         const layout = cloud()
+            .random(seedrandom('wdglance_seed'))
             .size(size)
-            .words(data.map(d => ({
-                size: isMobile ? d.initSizeMobile : d.initSize * Math.min(size[0] / 500, 1),
-                text: d.text,
-                value: d.value,
-                tooltip: d.tooltip,
-                interactionId: d.interactionId,
-                initSize: d.initSize,
-                initSizeMobile: d.initSizeMobile
-            })))
+            .words(data2)
             .padding(5)
             .spiral((size) => {
                 const e = size[0] / size[1];

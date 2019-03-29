@@ -49,7 +49,7 @@ export class TreqTile implements ITileProvider {
 
     private readonly label:string;
 
-    constructor({tileId, dispatcher, appServices, ut, lang1, lang2, mainForm, widthFract, conf}:TileFactory.Args<TreqTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, theme, lang1, lang2, mainForm, widthFract, conf}:TileFactory.Args<TreqTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
@@ -57,6 +57,7 @@ export class TreqTile implements ITileProvider {
             dispatcher,
             {
                 isBusy: false,
+                isAltViewMode: false,
                 error: null,
                 lang1: lang1,
                 lang2: lang2,
@@ -71,7 +72,7 @@ export class TreqTile implements ITileProvider {
             mainForm
         );
         this.label = appServices.importExternalMessage(conf.label || 'treq__main_label');
-        this.view = viewInit(dispatcher, ut, this.model);
+        this.view = viewInit(dispatcher, ut, theme, this.model);
     }
 
     getIdent():number {
@@ -107,7 +108,7 @@ export class TreqTile implements ITileProvider {
     }
 
     supportsAltView():boolean {
-        return false;
+        return true;
     }
 }
 

@@ -106,10 +106,6 @@ export const stateToArgs = (state:CollocModelState, concId:string):CollApiArgs =
 
 export class CollocModel extends StatelessModel<CollocModelState> {
 
-    private static readonly BASE_WC_FONT_SIZE = 30;
-
-    private static readonly BASE_WC_FONT_SIZE_MOBILE = 28;
-
 
     private readonly service:KontextCollAPI;
 
@@ -198,22 +194,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                         newState.error = action.error.message;
 
                     } else {
-                        const minVal = Math.min(...action.payload.data.map(v => v.stats[0]));
-                        const scaledTotal = action.payload.data.map(v => v.stats[0] - minVal).reduce((curr, acc) => acc + curr, 0);
-                        newState.data = Immutable.List<DataRow>(action.payload.data.map(item => {
-                            const wcFontSizeRatio = scaledTotal > 0 ? (item.stats[0] - minVal) / scaledTotal : 1;
-                            return {
-                                str: item.str,
-                                stats: item.stats,
-                                freq: item.freq,
-                                nfilter: item.nfilter,
-                                pfilter: item.pfilter,
-                                wcFontSize: Math.round(wcFontSizeRatio * 100 + CollocModel.BASE_WC_FONT_SIZE),
-                                wcFontSizeMobile: Math.round(wcFontSizeRatio * 100 + CollocModel.BASE_WC_FONT_SIZE_MOBILE),
-                                interactionId: item.interactionId
-                            }
-                        }));
-
+                        newState.data = Immutable.List<DataRow>(action.payload.data);
                         newState.heading =
                             [{label: 'Abs', ident: ''}]
                             .concat(
