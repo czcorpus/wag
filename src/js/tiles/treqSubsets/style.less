@@ -2,12 +2,7 @@
 
 .TreqSubsetsView {
 
-    .charts {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-
+    .data {
         overflow-x: auto;
         overflow-y: hidden;
     }
@@ -94,6 +89,10 @@
 
         border-spacing: 0;
         border-collapse: collapse;
+
+        tr:nth-child(odd):not(.heading) {
+            background-color: @color-whitelike-blue;
+        }
 
         td {
             border: 1px solid #aaaaaa;
