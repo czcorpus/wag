@@ -29,6 +29,7 @@ import { TreqModelMinState, stateToPageArgs, stateToAPIArgs } from '../../common
 
 export interface TreqModelState extends TreqModelMinState {
     isBusy:boolean;
+    isAltViewMode:boolean;
     error:string;
     searchPackages:Immutable.List<string>;
     translations:Immutable.List<TreqTranslation>;
@@ -74,6 +75,22 @@ export class TreqModel extends StatelessModel<TreqModelState> {
                         newState.sum = action.payload.data.sum;
                         newState.treqBackLink = this.makeBacklink(state, action.payload.query);
                     }
+                    return newState;
+                }
+                return state;
+            },
+            [GlobalActionName.EnableAltViewMode]: (state, action:GlobalActions.EnableAltViewMode) => {
+                if (action.payload.ident === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.isAltViewMode = true;
+                    return newState;
+                }
+                return state;
+            },
+            [GlobalActionName.DisableAltViewMode]: (state, action:GlobalActions.DisableAltViewMode) => {
+                if (action.payload.ident === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.isAltViewMode = false;
                     return newState;
                 }
                 return state;

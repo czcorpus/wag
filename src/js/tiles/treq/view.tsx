@@ -23,15 +23,18 @@ import { CoreTileComponentProps, TileComponent } from '../../common/types';
 import { GlobalComponents } from '../../views/global';
 import { TreqTranslation } from '../../common/api/treq';
 import { TreqModel, TreqModelState } from './model';
+import { init as wordCloudViewInit } from '../../views/wordCloud';
+import { Theme } from '../../common/theme';
 
 
-export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:TreqModel):TileComponent {
+export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:TreqModel):TileComponent {
 
     const globComponents = ut.getComponents();
+    const WordCloud = wordCloudViewInit(dispatcher, ut, theme);
 
     // -----
 
-    const TreqTranslations:React.SFC<{
+    const TranslationsTable:React.SFC<{
         translations:Immutable.List<TreqTranslation>;
 
     }> = (props) => {
@@ -43,7 +46,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         <tbody>
                             <tr>
                                 <th />
-                                <th>{ut.translate('treq__abs_rel')}</th>
+                                <th>{ut.translate('treq__rel_freq')}</th>
                                 <th>{ut.translate('treq__abs_freq')}</th>
                             </tr>
                             {props.translations.map((translation, i) => (
@@ -73,7 +76,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         };
 
         return (
-            <div className="TreqTranslations">
+            <div className="TranslationsTable">
                 {renderWords()}
             </div>
         );
@@ -84,12 +87,26 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
     class TreqTileView extends React.PureComponent<TreqModelState & CoreTileComponentProps> {
 
         render() {
+
+            const data = this.props.translations.map(t => ({
+                text: t.right,
+                value: t.perc,
+                tooltip: `${ut.translate('treq__abs_freq')}: ${t.freq}, ${ut.translate('treq__rel_freq')}: ${t.perc}%`,
+                interactionId: t.interactionId
+            })).toArray();
+
+            const style = this.props.isMobile ? {height: `${this.props.translations.size * 30}px`} :
+                                                {height: `${this.props.translations.size * 40}px`, width: '100%'};
+
             return (
                 <globComponents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
                             hasData={this.props.translations.size > 0}
                             sourceIdent={{corp: 'InterCorp'}}
                             backlink={this.props.treqBackLink}>
-                    <TreqTranslations translations={this.props.translations} />
+                    {this.props.isAltViewMode ?
+                        <TranslationsTable translations={this.props.translations} /> :
+                        <WordCloud style={style} isMobile={this.props.isMobile} data={data} />
+                    }
                 </globComponents.TileWrapper>
             );
         }

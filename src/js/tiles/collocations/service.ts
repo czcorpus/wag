@@ -82,8 +82,6 @@ export class KontextCollAPI implements DataApi<CollApiArgs, CollApiResponse> {
                         pfilter: item.pfilter,
                         nfilter: item.nfilter,
                         str: item.str,
-                        wcFontSize: -1,
-                        wcFontSizeMobile: -1,
                         interactionId: puid()
                     }))
                 })
