@@ -98,35 +98,37 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         perc:number;
         abs:number;
         maxValue:number;
-        maxWidth:number;
+        width:number;
         color:string;
         onMouseOver:(e:React.MouseEvent, values:TooltipValues)=>void;
         onMouseMove:(e:React.MouseEvent)=>void;
         onMouseOut:(e:React.MouseEvent)=>void;
 
     }> = (props) => {
-        const width = props.perc / props.maxValue * props.maxWidth;
-        const ticks = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+        const ticks = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
         const tooltipVals = {
             [ut.translate('treqsubsets__abs')]: ut.formatNumber(props.abs, 0),
             [ut.translate('treqsubsets__perc')]: `${ut.formatNumber(props.perc, 1)}%`
         };
 
         return (
-            <div className="SimpleBar" style={{height: '40px'}}>
-                <div className="bar"
-                        style={{backgroundColor: props.color, width: `${width}px`, 'height': '30px'}}
+            <svg className="SimpleBar" style={{height: '40px', width: `${props.width}px`}}
+                    viewBox="0 0 100 20">
+                {ticks.map(t =>
+                    <line key={`tick:${t}`} x1={t * 10} y1={0}
+                            x2={t * 10} y2={20}
+                            style={{stroke: '#999999', fill: 'none', 'strokeWidth' :0.2}} />
+                )}
+                <rect className="bar"
+                        fill={props.color}
+                        x={0}
+                        y={2}
+                        width={props.perc}
+                        height={16}
                         onMouseOver={(e) => props.onMouseOver(e, tooltipVals)}
                         onMouseMove={props.onMouseMove}
                         onMouseOut={props.onMouseOut} />
-                <table className="grid" style={{height: '40px'}}>
-                    <tbody>
-                        <tr>
-                            {ticks.map(t => <td key={`tick:${t}`} style={{width: `${props.maxWidth / ticks.length}px`}}></td>)}
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+            </svg>
 
         )
     }
@@ -170,7 +172,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     const ChartLikeTable:React.SFC<{
         subsets:Immutable.List<TranslationSubset>;
-        widthInPx:number;
+        chartWidthPx:number;
         onMouseOver:(e:React.MouseEvent, values:{[key:string]:string|number})=>void;
         onMouseMove:(e:React.MouseEvent)=>void;
         onMouseOut:(e:React.MouseEvent)=>void;
@@ -190,8 +192,9 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         <tr key={`${word}:${i}`}>
                             <th className="word">{word}</th>
                             {row.map((v, j) => (
-                                <td key={`cell:${i}:${j}`} style={{width: `${props.widthInPx}px`}}>
-                                    <SimpleBar maxWidth={props.widthInPx}
+                                <td key={`cell:${i}:${j}`} style={{paddingRight: '5px'}}>
+                                    <SimpleBar
+                                        width={props.chartWidthPx}
                                         perc={v.perc}
                                         abs={v.abs}
                                         maxValue={100}
@@ -217,7 +220,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         return (
             <table className="AltViewTable">
                 <tbody>
-                    <tr>
+                    <tr className="heading">
                         <th />
                         {props.subsets.map((v, i) =>
                             <th key={v.label} colSpan={2} className="package">{v.label}</th>)}
@@ -248,7 +251,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     class ResultChart extends React.Component<{
         subsets:Immutable.List<TranslationSubset>;
-        widthInPx:number;
+        chartWidthPx:number;
     },
     {
         tooltipVisible:boolean;
@@ -302,7 +305,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                 <div className="ChartLikeTable">
                     <TableTooltip x={this.state.tooltipX} y={this.state.tooltipY} visible={this.state.tooltipVisible}
                             values={this.state.tooltipValues} />
-                    <ChartLikeTable subsets={this.props.subsets} widthInPx={this.props.widthInPx}
+                    <ChartLikeTable subsets={this.props.subsets} chartWidthPx={this.props.chartWidthPx}
                         onMouseMove={this.handleMouseMove} onMouseOut={this.handleMouseOut}
                         onMouseOver={this.handleMouseOver} />
                 </div>
@@ -335,10 +338,12 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         hasData={this.props.subsets.flatMap(v => v.translations).size > 0}
                         sourceIdent={{corp: 'InterCorp'}}>
                     <div className="TreqSubsetsView">
-                        {this.props.isAltViewMode ?
-                            <AltViewTable subsets={this.props.subsets} /> :
-                            <ResultChart subsets={this.props.subsets} widthInPx={180} />
-                        }
+                        <div className="data">
+                            {this.props.isAltViewMode ?
+                                <AltViewTable subsets={this.props.subsets} /> :
+                                <ResultChart subsets={this.props.subsets} chartWidthPx={150} />
+                            }
+                        </div>
                     </div>
                 </globalComponents.TileWrapper>
             );
