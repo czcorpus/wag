@@ -234,7 +234,7 @@ export class TreqSubsetModel extends StatelessModel<TreqSubsetsModelState> {
                     perc: 0,
                     left: '',
                     right: w,
-                    color: TreqSubsetModel.UNMATCHING_ITEM_COLOR,
+                    color: state.colorMap.get(w, TreqSubsetModel.UNMATCHING_ITEM_COLOR),
                     interactionId: mkInterctionId(w)
                 }
             }).toList(),
