@@ -112,24 +112,32 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         };
 
         return (
-            <svg className="SimpleBar" style={{height: '40px', width: `${props.width}px`}}
-                    viewBox="0 0 100 20">
-                {ticks.map(t =>
-                    <line key={`tick:${t}`} x1={t * 10} y1={0}
-                            x2={t * 10} y2={20}
-                            style={{stroke: t % 5 === 0 ? '#E2007A' : '#999999', fill: 'none', 'strokeWidth' :0.2}} />
-                )}
-                <rect x={0} y={0} width={100} height={20}
+            <svg className="SimpleBar" style={{height: `${Math.round(props.width / 3.333)}px`, width: `${props.width}px`}}
+                    viewBox="0 0 100 30" preserveAspectRatio="xMinYMin slice">
+                <g>
+                {ticks.map(t => {
+                    const y1 = t % 5 === 0 ? 2 : 6;
+                    const y2 = t % 5 === 0 ? 28 : 24;
+                    const width = 0.4;
+                    const stroke = t === 0 ? 'transparent' : (t % 5 === 0 ? '#CCCCCC' : '#DDDDDD');
+                    return (
+                        <line key={`tick:${t}`} x1={t * 10} y1={y1}
+                                x2={t * 10} y2={y2}
+                                style={{stroke: stroke, fill: 'none', 'strokeWidth': width}} />
+                    );
+                })}
+                <rect className="bar"
+                        fill={props.color}
+                        x={0}
+                        y={8}
+                        width={props.perc}
+                        height={14} />
+                <rect x={0} y={0} width={100} height={30}
                         fill="transparent"
                         onMouseOver={(e) => props.onMouseOver(e, tooltipVals)}
                         onMouseMove={props.onMouseMove}
                         onMouseOut={props.onMouseOut} />
-                <rect className="bar"
-                        fill={props.color}
-                        x={0}
-                        y={3}
-                        width={props.perc}
-                        height={14} />
+                </g>
             </svg>
 
         )

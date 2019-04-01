@@ -23,8 +23,9 @@ import { Backlink, BacklinkWithArgs, HTTPMethod } from '../../common/types';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
 import { WdglanceMainFormModel } from '../../models/query';
 import { DataLoadedPayload } from './actions';
-import { PageArgs, TreqAPI, TreqTranslation, TreqResponse } from '../../common/api/treq';
+import { PageArgs, TreqAPI, TreqTranslation } from '../../common/api/treq';
 import { TreqModelMinState, stateToPageArgs, stateToAPIArgs } from '../../common/models/treq';
+import { ColorScaleFunctionGenerator } from '../../common/theme';
 
 
 
@@ -36,6 +37,7 @@ export interface TreqModelState extends TreqModelMinState {
     translations:Immutable.List<TreqTranslation>;
     sum:number;
     treqBackLink:BacklinkWithArgs<PageArgs>|null;
+    maxNumLines:number;
 }
 
 
@@ -49,16 +51,16 @@ export class TreqModel extends StatelessModel<TreqModelState> {
 
     private readonly backlink:Backlink;
 
-    private readonly colors:(v:number)=>string;
+    private readonly scaleColorGen:ColorScaleFunctionGenerator;
 
     constructor(dispatcher:ActionDispatcher, initialState:TreqModelState, tileId:number, api:TreqAPI,
-            backlink:Backlink, mainForm:WdglanceMainFormModel, colors:(v:number)=>string) {
+            backlink:Backlink, mainForm:WdglanceMainFormModel, scaleColorGen:ColorScaleFunctionGenerator) {
         super(dispatcher, initialState);
         this.api = api;
         this.backlink = backlink;
         this.mainForm = mainForm;
         this.tileId = tileId;
-        this.colors = colors;
+        this.scaleColorGen = scaleColorGen;
         this.actionMatch = {
             [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
                 const newState = this.copyState(state);
@@ -118,17 +120,21 @@ export class TreqModel extends StatelessModel<TreqModelState> {
             case GlobalActionName.RequestQueryResponse:
                 this.api.call(stateToAPIArgs(state, this.mainForm.getState().query.value, state.searchPackages))
                     .pipe(
-                        map(item => ({
-                            sum: item.sum,
-                            lines: item.lines.map((line, i) => ({
-                                freq: line.freq,
-                                perc: line.perc,
-                                left: line.left,
-                                right: line.right,
-                                interactionId: line.interactionId,
-                                color: this.colors(i)
-                            }))
-                        }))
+                        map(item => {
+                            const lines = item.lines.slice(0, state.maxNumLines);
+                            const colors = this.scaleColorGen(0, lines.length)
+                            return {
+                                sum: item.sum,
+                                lines: lines.map((line, i) => ({
+                                    freq: line.freq,
+                                    perc: line.perc,
+                                    left: line.left,
+                                    right: line.right,
+                                    interactionId: line.interactionId,
+                                    color: colors(i)
+                                }))
+                            };
+                        })
                     )
                     .subscribe(
                         (data) => {
@@ -163,6 +169,7 @@ export class TreqModel extends StatelessModel<TreqModelState> {
                                 },
                                 error: error
                             });
+                            console.log(error);
                         }
                     );
             break;
