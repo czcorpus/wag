@@ -89,12 +89,12 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
     class TreqTileView extends React.PureComponent<TreqModelState & CoreTileComponentProps> {
 
         render() {
-
             const data = this.props.translations.map(t => ({
                 text: t.right,
                 value: t.perc,
                 tooltip: `${ut.translate('treq__abs_freq')}: ${t.freq}, ${ut.translate('treq__rel_freq')}: ${t.perc}%`,
-                interactionId: t.interactionId
+                interactionId: t.interactionId,
+                color: t.color
             })).toArray();
 
             const style = this.props.isMobile ? {height: `${this.props.translations.size * 30}px`} :

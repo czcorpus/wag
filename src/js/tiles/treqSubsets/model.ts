@@ -25,6 +25,7 @@ import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../
 import { WdglanceMainFormModel } from '../../models/query';
 import { DataLoadedPayload } from './actions';
 import { callWithRequestId } from '../../common/api/util';
+import { isSubqueryPayload } from '../../common/types';
 
 
 export interface TranslationSubset {
@@ -43,22 +44,33 @@ export interface TreqSubsetsModelState extends TreqModelMinState {
     subsets:Immutable.List<TranslationSubset>;
     highlightedRowIdx:number;
     maxNumLines:number;
+    colorMap:Immutable.Map<string, string>;
 }
 
-export interface MultiSrcTranslation {
+
+export interface MultiSrcTranslationRow {
+    idx:number;
+    heading:string;
+    cells:Immutable.List<MultiSrcTranslationCell>;
+    color:string;
+}
+
+
+export interface MultiSrcTranslationCell {
     abs:number;
     perc:number;
 }
 
+
 // transpose "package-first" oriented data structure to "word first" and emit values for each row
 export const flipRowColMapper = <T>(subsets:Immutable.List<TranslationSubset>, maxNumLines:number,
-            mapFn:(row:Immutable.List<MultiSrcTranslation>, word:string, idx:number)=>T):Immutable.List<T> => {
+            mapFn:(row:MultiSrcTranslationRow)=>T):Immutable.List<T> => {
     const numRows = Math.min(...subsets.map(s => s.translations.size).toArray());
     const numCols = subsets.size;
-    const tmp:Array<{heading: string; cells:Array<MultiSrcTranslation>}> = [];
+    const tmp:Array<MultiSrcTranslationRow> = [];
 
     for (let i = 0; i < numRows; i += 1) {
-        const row:Array<MultiSrcTranslation> = [];
+        const row:Array<MultiSrcTranslationCell> = [];
         for (let j = 0; j < numCols; j += 1) {
             const t = subsets.get(j).translations.get(i);
             row.push({
@@ -66,13 +78,19 @@ export const flipRowColMapper = <T>(subsets:Immutable.List<TranslationSubset>, m
                 perc: t.perc
             });
         }
-        tmp.push({heading: subsets.get(0).translations.get(i).right, cells: row});
+
+        tmp.push({
+            idx: i,
+            heading: subsets.get(0).translations.get(i).right,
+            cells: Immutable.List<MultiSrcTranslationCell>(row),
+            color: subsets.get(0).translations.get(i).color
+        });
     }
     return Immutable.List<T>(
         tmp
             .sort((v1, v2) => v2.cells.reduce((acc, curr) => acc + curr.perc, 0) - v1.cells.reduce((acc, curr) => acc + curr.perc, 0))
             .slice(0, maxNumLines)
-            .map((row, i) => mapFn(Immutable.List<MultiSrcTranslation>(row.cells), row.heading, i))
+            .map(row => mapFn(row))
     );
 };
 
@@ -80,19 +98,24 @@ export const flipRowColMapper = <T>(subsets:Immutable.List<TranslationSubset>, m
 export class TreqSubsetModel extends StatelessModel<TreqSubsetsModelState> {
 
 
+    public static readonly UNMATCHING_ITEM_COLOR = '#878787';
+
     private readonly tileId:number;
 
     private readonly api:TreqAPI;
 
     private readonly mainForm:WdglanceMainFormModel;
 
+    private readonly waitForColorsTile:number;
+
 
     constructor(dispatcher:ActionDispatcher, initialState:TreqSubsetsModelState, tileId:number, api:TreqAPI,
-            mainForm:WdglanceMainFormModel) {
+            mainForm:WdglanceMainFormModel, waitForColorsTile:number) {
         super(dispatcher, initialState);
         this.api = api;
         this.tileId = tileId;
         this.mainForm = mainForm;
+        this.waitForColorsTile = waitForColorsTile;
         this.actionMatch = {
             [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
                 const newState = this.copyState(state);
@@ -117,7 +140,14 @@ export class TreqSubsetModel extends StatelessModel<TreqSubsetsModelState> {
                             ident: val.ident,
                             label: val.label,
                             packages: val.packages,
-                            translations: Immutable.List<TreqTranslation>(action.payload.data.lines),
+                            translations: Immutable.List<TreqTranslation>(action.payload.data.lines).map(tran => ({
+                                freq: tran.freq,
+                                perc: tran.perc,
+                                left: tran.left,
+                                right: tran.right,
+                                interactionId: tran.interactionId,
+                                color: newState.colorMap.get(tran.right, TreqSubsetModel.UNMATCHING_ITEM_COLOR)
+                            })).toList(),
                             isPending: false
                         });
                         this.mkWordUnion(newState);
@@ -126,6 +156,14 @@ export class TreqSubsetModel extends StatelessModel<TreqSubsetsModelState> {
                         }
                         return newState;
                     }
+
+                } else if (action.payload.tileId === this.waitForColorsTile) {
+                        const payload = action.payload;
+                        const newState = this.copyState(state);
+                        if (isSubqueryPayload(payload)) {
+                            newState.colorMap = Immutable.Map<string, string>(payload.subqueries.map(sq => [sq.value, sq.color]));
+                        }
+                        return newState;
                 }
                 return state;
             },
@@ -187,7 +225,8 @@ export class TreqSubsetModel extends StatelessModel<TreqSubsetsModelState> {
                         perc: srch.perc,
                         left: srch.left,
                         right: srch.right,
-                        interactionId: srch.interactionId
+                        interactionId: srch.interactionId,
+                        color: state.colorMap.get(srch.right, TreqSubsetModel.UNMATCHING_ITEM_COLOR)
                     }
                 }
                 return {
@@ -195,6 +234,7 @@ export class TreqSubsetModel extends StatelessModel<TreqSubsetsModelState> {
                     perc: 0,
                     left: '',
                     right: w,
+                    color: TreqSubsetModel.UNMATCHING_ITEM_COLOR,
                     interactionId: mkInterctionId(w)
                 }
             }).toList(),
@@ -205,36 +245,44 @@ export class TreqSubsetModel extends StatelessModel<TreqSubsetsModelState> {
     sideEffects(state:TreqSubsetsModelState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
-                merge(...state.subsets.map(subset =>
-                        callWithRequestId(this.api, stateToAPIArgs(state, this.mainForm.getState().query.value, subset.packages), subset.ident)
-                ).toArray())
-                .subscribe(
-                    (resp) => {
-                        const [data, reqId] = resp;
-                        dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                            name: GlobalActionName.TileDataLoaded,
-                            payload: {
-                                tileId: this.tileId,
-                                isEmpty: data.lines.length === 0,
-                                query: this.mainForm.getState().query.value,
-                                data: data,
-                                subsetId: reqId
-                            }
-                        });
-                    },
-                    (error) => {
-                        dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                            name: GlobalActionName.TileDataLoaded,
-                            payload: {
-                                tileId: this.tileId,
-                                isEmpty: true,
-                                query: this.mainForm.getState().query.value,
-                                data: {lines: [], sum: -1},
-                                subsetId: null
-                            },
-                            error: error
-                        });
-                        console.log(error);
+                this.suspend(
+                    (action:Action) => {
+                        if (action.name === GlobalActionName.TileDataLoaded && this.waitForColorsTile === action.payload['tileId']) {
+                            merge(...state.subsets.map(subset =>
+                                callWithRequestId(this.api, stateToAPIArgs(state, this.mainForm.getState().query.value, subset.packages), subset.ident)
+                            ).toArray())
+                            .subscribe(
+                                (resp) => {
+                                    const [data, reqId] = resp;
+                                    dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                        name: GlobalActionName.TileDataLoaded,
+                                        payload: {
+                                            tileId: this.tileId,
+                                            isEmpty: data.lines.length === 0,
+                                            query: this.mainForm.getState().query.value,
+                                            data: data,
+                                            subsetId: reqId
+                                        }
+                                    });
+                                },
+                                (error) => {
+                                    dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                        name: GlobalActionName.TileDataLoaded,
+                                        payload: {
+                                            tileId: this.tileId,
+                                            isEmpty: true,
+                                            query: this.mainForm.getState().query.value,
+                                            data: {lines: [], sum: -1},
+                                            subsetId: null
+                                        },
+                                        error: error
+                                    });
+                                    console.log(error);
+                                }
+                            );
+                            return true;
+                        }
+                        return false;
                     }
                 );
             break;

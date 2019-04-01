@@ -45,7 +45,7 @@ export class TreqSubsetsTile implements ITileProvider {
 
     private readonly label:string;
 
-    constructor({tileId, dispatcher, appServices, theme, ut, lang1, lang2, mainForm, widthFract, conf}:TileFactory.Args<TreqSubsetsTileConf>) {
+    constructor({tileId, dispatcher, appServices, theme, ut, lang1, lang2, mainForm, widthFract, waitForTiles, conf}:TileFactory.Args<TreqSubsetsTileConf>) {
         this.tileId = tileId;
         this.widthFract = widthFract;
         this.model = new TreqSubsetModel(
@@ -64,11 +64,13 @@ export class TreqSubsetsTile implements ITileProvider {
                     isPending: false
                 }))),
                 highlightedRowIdx: -1,
-                maxNumLines: 12
+                maxNumLines: 12,
+                colorMap: Immutable.Map<string, string>()
             },
             tileId,
             new TreqAPI(conf.apiURL),
-            mainForm
+            mainForm,
+            waitForTiles[0]
         );
         this.label = appServices.importExternalMessage(conf.label || 'treqsubsets__main_label');
         this.view = viewInit(dispatcher, ut, theme, this.model);

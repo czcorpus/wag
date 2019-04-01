@@ -119,15 +119,17 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                             x2={t * 10} y2={20}
                             style={{stroke: '#999999', fill: 'none', 'strokeWidth' :0.2}} />
                 )}
-                <rect className="bar"
-                        fill={props.color}
-                        x={0}
-                        y={2}
-                        width={props.perc}
-                        height={16}
+                <rect x={0} y={0} width={100} height={20}
+                        fill="transparent"
                         onMouseOver={(e) => props.onMouseOver(e, tooltipVals)}
                         onMouseMove={props.onMouseMove}
                         onMouseOut={props.onMouseOut} />
+                <rect className="bar"
+                        fill={props.color}
+                        x={0}
+                        y={3}
+                        width={props.perc}
+                        height={14} />
             </svg>
 
         )
@@ -181,26 +183,26 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     }> = React.memo((props) => {
 
-        const catColors = theme.categoryPalette(props.subsets.map((_, i) => i).toArray());
-
         return (
             <table className="ChartLikeTable">
-                <tbody>
+                <thead>
                     <tr>
                         <th />
-                        {props.subsets.map((v, i) => <th key={v.label} className="package" style={{color: catColors(i)}}>{v.label}</th>)}
+                        {props.subsets.map((v, i) => <th key={v.label} className="package">{v.label}</th>)}
                     </tr>
-                    {flipRowColMapper(props.subsets, props.maxNumLines, (row, word, i) => (
-                        <tr key={`${word}:${i}`} className={props.highlightedRowIdx === i ? 'highlighted' : null}>
-                            <th className="word">{word}</th>
-                            {row.map((v, j) => (
-                                <td key={`cell:${i}:${j}`} style={{paddingRight: '5px'}}>
+                </thead>
+                <tbody>
+                    {flipRowColMapper(props.subsets, props.maxNumLines, row => (
+                        <tr key={`${row.heading}:${row.idx}`} className={props.highlightedRowIdx === row.idx ? 'highlighted' : null}>
+                            <th className="word">{row.heading}</th>
+                            {row.cells.map((v, j) => (
+                                <td key={`cell:${row.idx}:${j}`} style={{paddingRight: '5px'}}>
                                     <SimpleBar
                                         width={props.chartWidthPx}
                                         perc={v.perc}
                                         abs={v.abs}
                                         maxValue={100}
-                                        color={catColors(j)}
+                                        color={row.color}
                                         onMouseOver={props.onMouseOver}
                                         onMouseMove={props.onMouseMove}
                                         onMouseOut={props.onMouseOut}  />
@@ -236,11 +238,11 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                     </tr>
                 </thead>
                 <tbody>
-                    {flipRowColMapper(props.subsets, props.maxNumLines, (row, word, i) => (
-                        <tr key={`${word}:${i}`}>
-                            <th className="word">{word}</th>
-                            {row.map((v, j) => (
-                                <React.Fragment key={`cell:${i}:${j}`}>
+                    {flipRowColMapper(props.subsets, props.maxNumLines, row => (
+                        <tr key={`${row.heading}:${row.idx}`}>
+                            <th className="word">{row.heading}</th>
+                            {row.cells.map((v, j) => (
+                                <React.Fragment key={`cell:${row.idx}:${j}`}>
                                     <td>{v.perc}</td>
                                     <td>{v.abs}</td>
                                 </React.Fragment>
@@ -353,7 +355,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         <div className="data">
                             {this.props.isAltViewMode ?
                                 <AltViewTable subsets={this.props.subsets} maxNumLines={this.props.maxNumLines} /> :
-                                <ResultChart subsets={this.props.subsets} maxNumLines={this.props.maxNumLines} chartWidthPx={150}
+                                <ResultChart subsets={this.props.subsets} maxNumLines={this.props.maxNumLines} chartWidthPx={130}
                                         highlightedRowIdx={this.props.highlightedRowIdx} />
                             }
                         </div>
