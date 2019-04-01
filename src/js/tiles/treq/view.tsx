@@ -42,13 +42,15 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         const renderWords = () => {
             if (props.translations.size > 0) {
                 return (
-                    <table className="words">
-                        <tbody>
+                    <table className="data">
+                        <thead>
                             <tr>
                                 <th />
                                 <th>{ut.translate('treq__rel_freq')}</th>
                                 <th>{ut.translate('treq__abs_freq')}</th>
                             </tr>
+                        </thead>
+                        <tbody>
                             {props.translations.map((translation, i) => (
                                 <tr key={`${translation['righ']}:${i}`}>
                                     <td className="translation">
@@ -87,12 +89,12 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
     class TreqTileView extends React.PureComponent<TreqModelState & CoreTileComponentProps> {
 
         render() {
-
             const data = this.props.translations.map(t => ({
                 text: t.right,
                 value: t.perc,
                 tooltip: `${ut.translate('treq__abs_freq')}: ${t.freq}, ${ut.translate('treq__rel_freq')}: ${t.perc}%`,
-                interactionId: t.interactionId
+                interactionId: t.interactionId,
+                color: t.color
             })).toArray();
 
             const style = this.props.isMobile ? {height: `${this.props.translations.size * 30}px`} :

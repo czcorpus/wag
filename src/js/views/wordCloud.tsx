@@ -34,6 +34,7 @@ export interface WordCloudItem {
     tooltip:string;
     interactionId:string;
     size?:number;
+    color?:string;
 }
 
 
@@ -138,7 +139,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                 interactionId: v.interactionId,
                 size: isMobile ?
                     Math.round((wcFontSizeRatio * 100) ** 2 / 100 + BASE_WC_FONT_SIZE_MOBILE) :
-                    Math.round((wcFontSizeRatio * 100) ** 2 / 100 + BASE_WC_FONT_SIZE)
+                    Math.round((wcFontSizeRatio * 100) ** 2 / 100 + BASE_WC_FONT_SIZE),
+                color: v.color
             };
         });
 
@@ -175,7 +177,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                     .style('font-size', d => `${d.size}px`)
                     .style('font-family', font)
                     .style('font-weight', '700')
-                    .style('fill', (d, i) => colorPalette(i))
+                    .style('fill', (d, i) => d.color ? d.color : colorPalette(i))
                     .style('pointer-events', 'none')
                     .attr('text-anchor', 'middle')
                     .text(d => d.text);

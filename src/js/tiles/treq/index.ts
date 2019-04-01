@@ -53,6 +53,7 @@ export class TreqTile implements ITileProvider {
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
+        const colorPalette = theme.scaleColor(0, 9);
         this.model = new TreqModel(
             dispatcher,
             {
@@ -69,7 +70,8 @@ export class TreqTile implements ITileProvider {
             tileId,
             new TreqAPI(conf.apiURL),
             conf.backlink || null,
-            mainForm
+            mainForm,
+            (v:number) => colorPalette(v)
         );
         this.label = appServices.importExternalMessage(conf.label || 'treq__main_label');
         this.view = viewInit(dispatcher, ut, theme, this.model);

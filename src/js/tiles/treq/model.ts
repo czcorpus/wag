@@ -17,12 +17,13 @@
  */
 import * as Immutable from 'immutable';
 import { Action, ActionDispatcher, SEDispatcher, StatelessModel } from 'kombo';
+import { map } from 'rxjs/operators';
 
 import { Backlink, BacklinkWithArgs, HTTPMethod } from '../../common/types';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
 import { WdglanceMainFormModel } from '../../models/query';
 import { DataLoadedPayload } from './actions';
-import { PageArgs, TreqAPI, TreqTranslation } from '../../common/api/treq';
+import { PageArgs, TreqAPI, TreqTranslation, TreqResponse } from '../../common/api/treq';
 import { TreqModelMinState, stateToPageArgs, stateToAPIArgs } from '../../common/models/treq';
 
 
@@ -48,13 +49,16 @@ export class TreqModel extends StatelessModel<TreqModelState> {
 
     private readonly backlink:Backlink;
 
+    private readonly colors:(v:number)=>string;
+
     constructor(dispatcher:ActionDispatcher, initialState:TreqModelState, tileId:number, api:TreqAPI,
-            backlink:Backlink, mainForm:WdglanceMainFormModel) {
+            backlink:Backlink, mainForm:WdglanceMainFormModel, colors:(v:number)=>string) {
         super(dispatcher, initialState);
         this.api = api;
         this.backlink = backlink;
         this.mainForm = mainForm;
         this.tileId = tileId;
+        this.colors = colors;
         this.actionMatch = {
             [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
                 const newState = this.copyState(state);
@@ -112,37 +116,55 @@ export class TreqModel extends StatelessModel<TreqModelState> {
     sideEffects(state:TreqModelState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
-                this.api.call(stateToAPIArgs(state, this.mainForm.getState().query.value, state.searchPackages)).subscribe(
-                    (data) => {
-                        dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                            name: GlobalActionName.TileDataLoaded,
-                            payload: {
-                                tileId: this.tileId,
-                                isEmpty: data.lines.length === 0,
-                                query: this.mainForm.getState().query.value,
-                                subqueries: data.lines.map(v => ({value: v.right, interactionId: v.interactionId})),
-                                lang1: this.mainForm.getState().targetLanguage,
-                                lang2: this.mainForm.getState().targetLanguage2,
-                                data: data
-                            }
-                        });
-                    },
-                    (error) => {
-                        dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                            name: GlobalActionName.TileDataLoaded,
-                            payload: {
-                                tileId: this.tileId,
-                                isEmpty: true,
-                                query: this.mainForm.getState().query.value,
-                                subqueries: [],
-                                lang1: this.mainForm.getState().targetLanguage,
-                                lang2: this.mainForm.getState().targetLanguage2,
-                                data: {lines: [], sum: -1}
-                            },
-                            error: error
-                        });
-                    }
-                );
+                this.api.call(stateToAPIArgs(state, this.mainForm.getState().query.value, state.searchPackages))
+                    .pipe(
+                        map(item => ({
+                            sum: item.sum,
+                            lines: item.lines.map((line, i) => ({
+                                freq: line.freq,
+                                perc: line.perc,
+                                left: line.left,
+                                right: line.right,
+                                interactionId: line.interactionId,
+                                color: this.colors(i)
+                            }))
+                        }))
+                    )
+                    .subscribe(
+                        (data) => {
+                            dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                name: GlobalActionName.TileDataLoaded,
+                                payload: {
+                                    tileId: this.tileId,
+                                    isEmpty: data.lines.length === 0,
+                                    query: this.mainForm.getState().query.value,
+                                    subqueries: data.lines.map(v => ({
+                                        value: v.right,
+                                        interactionId: v.interactionId,
+                                        color: v.color
+                                    })),
+                                    lang1: this.mainForm.getState().targetLanguage,
+                                    lang2: this.mainForm.getState().targetLanguage2,
+                                    data: data
+                                }
+                            });
+                        },
+                        (error) => {
+                            dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                name: GlobalActionName.TileDataLoaded,
+                                payload: {
+                                    tileId: this.tileId,
+                                    isEmpty: true,
+                                    query: this.mainForm.getState().query.value,
+                                    subqueries: [],
+                                    lang1: this.mainForm.getState().targetLanguage,
+                                    lang2: this.mainForm.getState().targetLanguage2,
+                                    data: {lines: [], sum: -1}
+                                },
+                                error: error
+                            });
+                        }
+                    );
             break;
         }
     }

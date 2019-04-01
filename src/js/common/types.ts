@@ -284,7 +284,8 @@ export type HTTPHeaders = {[key:string]:string};
 
 export interface SubQueryItem {
     value:string;
-    interactionId?:string
+    interactionId?:string;
+    color?:string;
 }
 
 export interface SubqueryPayload {

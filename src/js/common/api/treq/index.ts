@@ -73,6 +73,7 @@ export interface TreqTranslation {
     left:string;
     right:string;
     interactionId:string;
+    color?:string;
 }
 
 export interface TreqResponse {
