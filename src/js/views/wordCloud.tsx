@@ -57,7 +57,7 @@ export interface WordCloudProps {
 }
 
 
-const BASE_WC_FONT_SIZE = 30;
+const BASE_WC_FONT_SIZE = 32;
 
 const BASE_WC_FONT_SIZE_MOBILE = 25;
 
@@ -138,8 +138,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                 tooltip: v.tooltip,
                 interactionId: v.interactionId,
                 size: isMobile ?
-                    Math.round((wcFontSizeRatio * 100) ** 2 / 100 + BASE_WC_FONT_SIZE_MOBILE) :
-                    Math.round((wcFontSizeRatio * 100) ** 2 / 100 + BASE_WC_FONT_SIZE),
+                    Math.round((wcFontSizeRatio * 100) ** 1.8 / 100 + BASE_WC_FONT_SIZE_MOBILE) :
+                    Math.round((wcFontSizeRatio * 100) ** 1.8 / 100 + BASE_WC_FONT_SIZE),
                 color: v.color
             };
         });

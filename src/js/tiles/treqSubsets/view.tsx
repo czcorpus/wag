@@ -117,7 +117,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                 {ticks.map(t =>
                     <line key={`tick:${t}`} x1={t * 10} y1={0}
                             x2={t * 10} y2={20}
-                            style={{stroke: '#999999', fill: 'none', 'strokeWidth' :0.2}} />
+                            style={{stroke: t % 5 === 0 ? '#E2007A' : '#999999', fill: 'none', 'strokeWidth' :0.2}} />
                 )}
                 <rect x={0} y={0} width={100} height={20}
                         fill="transparent"
