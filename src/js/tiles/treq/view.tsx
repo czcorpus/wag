@@ -42,13 +42,15 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         const renderWords = () => {
             if (props.translations.size > 0) {
                 return (
-                    <table className="words">
-                        <tbody>
+                    <table className="data">
+                        <thead>
                             <tr>
                                 <th />
                                 <th>{ut.translate('treq__rel_freq')}</th>
                                 <th>{ut.translate('treq__abs_freq')}</th>
                             </tr>
+                        </thead>
+                        <tbody>
                             {props.translations.map((translation, i) => (
                                 <tr key={`${translation['righ']}:${i}`}>
                                     <td className="translation">

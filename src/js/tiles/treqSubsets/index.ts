@@ -63,7 +63,8 @@ export class TreqSubsetsTile implements ITileProvider {
                     packages: Immutable.List<string>([v]),
                     isPending: false
                 }))),
-                highlightedRowIdx: -1
+                highlightedRowIdx: -1,
+                maxNumLines: 12
             },
             tileId,
             new TreqAPI(conf.apiURL),

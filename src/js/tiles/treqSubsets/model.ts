@@ -42,33 +42,38 @@ export interface TreqSubsetsModelState extends TreqModelMinState {
     isAltViewMode:boolean;
     subsets:Immutable.List<TranslationSubset>;
     highlightedRowIdx:number;
+    maxNumLines:number;
 }
 
 export interface MultiSrcTranslation {
-    value:string;
     abs:number;
     perc:number;
 }
 
 // transpose "package-first" oriented data structure to "word first" and emit values for each row
-export const flipRowColMapper = <T>(subsets:Immutable.List<TranslationSubset>, mapFn:(row:Immutable.List<MultiSrcTranslation>, word:string, idx:number)=>T):Immutable.List<T> => {
+export const flipRowColMapper = <T>(subsets:Immutable.List<TranslationSubset>, maxNumLines:number,
+            mapFn:(row:Immutable.List<MultiSrcTranslation>, word:string, idx:number)=>T):Immutable.List<T> => {
     const numRows = Math.min(...subsets.map(s => s.translations.size).toArray());
     const numCols = subsets.size;
-    const ans:Array<T> = [];
+    const tmp:Array<{heading: string; cells:Array<MultiSrcTranslation>}> = [];
 
     for (let i = 0; i < numRows; i += 1) {
         const row:Array<MultiSrcTranslation> = [];
         for (let j = 0; j < numCols; j += 1) {
             const t = subsets.get(j).translations.get(i);
             row.push({
-                value: t.left,
                 abs: t.freq,
                 perc: t.perc
             });
         }
-        ans.push(mapFn(Immutable.List<MultiSrcTranslation>(row), subsets.get(0).translations.get(i).right, i));
+        tmp.push({heading: subsets.get(0).translations.get(i).right, cells: row});
     }
-    return Immutable.List<T>(ans);
+    return Immutable.List<T>(
+        tmp
+            .sort((v1, v2) => v2.cells.reduce((acc, curr) => acc + curr.perc, 0) - v1.cells.reduce((acc, curr) => acc + curr.perc, 0))
+            .slice(0, maxNumLines)
+            .map((row, i) => mapFn(Immutable.List<MultiSrcTranslation>(row.cells), row.heading, i))
+    );
 };
 
 
@@ -80,6 +85,7 @@ export class TreqSubsetModel extends StatelessModel<TreqSubsetsModelState> {
     private readonly api:TreqAPI;
 
     private readonly mainForm:WdglanceMainFormModel;
+
 
     constructor(dispatcher:ActionDispatcher, initialState:TreqSubsetsModelState, tileId:number, api:TreqAPI,
             mainForm:WdglanceMainFormModel) {
@@ -116,7 +122,6 @@ export class TreqSubsetModel extends StatelessModel<TreqSubsetsModelState> {
                         });
                         this.mkWordUnion(newState);
                         if (!newState.subsets.find(v => v.isPending)) {
-                            this.cutResults(newState);
                             newState.isBusy = false;
                         }
                         return newState;
@@ -161,16 +166,6 @@ export class TreqSubsetModel extends StatelessModel<TreqSubsetsModelState> {
         };
     }
 
-    private cutResults(state:TreqSubsetsModelState):void {
-        state.subsets = state.subsets.map(subset => ({
-            ident: subset.ident,
-            label: subset.label,
-            packages: subset.packages,
-            translations: subset.translations.slice(0, 10).toList(),
-            isPending: false
-        })).toList();
-    }
-
     private mkWordUnion(state:TreqSubsetsModelState):void {
         const allWords = state.subsets
             .flatMap(subset => subset.translations)
@@ -206,7 +201,6 @@ export class TreqSubsetModel extends StatelessModel<TreqSubsetsModelState> {
             isPending: false
         })).toList();
     }
-
 
     sideEffects(state:TreqSubsetsModelState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {

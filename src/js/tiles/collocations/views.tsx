@@ -83,12 +83,14 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     }> = (props) => {
         return (
-            <table className="cnc-table data">
-                <tbody>
+            <table className="data">
+                <thead>
                     <tr>
                         <th />
                         {props.heading.map((h, i) => <th key={`${i}:${h.ident}`}>{h.label}</th>)}
                     </tr>
+                </thead>
+                <tbody>
                     {props.data.map((row, i) => (
                         <tr key={`${i}:${row.str}`}>
                             <td className="word">{row.str}</td>

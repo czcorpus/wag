@@ -172,6 +172,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     const ChartLikeTable:React.SFC<{
         subsets:Immutable.List<TranslationSubset>;
+        maxNumLines:number;
         chartWidthPx:number;
         highlightedRowIdx:number;
         onMouseOver:(e:React.MouseEvent, values:{[key:string]:string|number})=>void;
@@ -189,7 +190,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         <th />
                         {props.subsets.map((v, i) => <th key={v.label} className="package" style={{color: catColors(i)}}>{v.label}</th>)}
                     </tr>
-                    {flipRowColMapper(props.subsets, (row, word, i) => (
+                    {flipRowColMapper(props.subsets, props.maxNumLines, (row, word, i) => (
                         <tr key={`${word}:${i}`} className={props.highlightedRowIdx === i ? 'highlighted' : null}>
                             <th className="word">{word}</th>
                             {row.map((v, j) => (
@@ -216,12 +217,14 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     const AltViewTable:React.SFC<{
         subsets:Immutable.List<TranslationSubset>;
+        maxNumLines:number;
+
     }> = (props) => {
 
         return (
-            <table className="AltViewTable">
-                <tbody>
-                    <tr className="heading">
+            <table className="AltViewTable data">
+                <thead>
+                    <tr>
                         <th />
                         {props.subsets.map((v, i) =>
                             <th key={v.label} colSpan={2} className="package">{v.label}</th>)}
@@ -231,7 +234,9 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         {props.subsets.map((v, i) =>
                             <React.Fragment key={`A:${v.label}`}><th>abs</th><th>rel</th></React.Fragment>)}
                     </tr>
-                    {flipRowColMapper(props.subsets, (row, word, i) => (
+                </thead>
+                <tbody>
+                    {flipRowColMapper(props.subsets, props.maxNumLines, (row, word, i) => (
                         <tr key={`${word}:${i}`}>
                             <th className="word">{word}</th>
                             {row.map((v, j) => (
@@ -252,6 +257,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     class ResultChart extends React.Component<{
         subsets:Immutable.List<TranslationSubset>;
+        maxNumLines:number;
         highlightedRowIdx:number;
         chartWidthPx:number;
     },
@@ -307,7 +313,10 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                 <div className="ChartLikeTable">
                     <TableTooltip x={this.state.tooltipX} y={this.state.tooltipY} visible={this.state.tooltipVisible}
                             values={this.state.tooltipValues} />
-                    <ChartLikeTable subsets={this.props.subsets} chartWidthPx={this.props.chartWidthPx}
+                    <ChartLikeTable
+                        subsets={this.props.subsets}
+                        maxNumLines={this.props.maxNumLines}
+                        chartWidthPx={this.props.chartWidthPx}
                         onMouseMove={this.handleMouseMove} onMouseOut={this.handleMouseOut}
                         onMouseOver={this.handleMouseOver}
                         highlightedRowIdx={this.props.highlightedRowIdx} />
@@ -343,8 +352,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                     <div className="TreqSubsetsView">
                         <div className="data">
                             {this.props.isAltViewMode ?
-                                <AltViewTable subsets={this.props.subsets} /> :
-                                <ResultChart subsets={this.props.subsets} chartWidthPx={150}
+                                <AltViewTable subsets={this.props.subsets} maxNumLines={this.props.maxNumLines} /> :
+                                <ResultChart subsets={this.props.subsets} maxNumLines={this.props.maxNumLines} chartWidthPx={150}
                                         highlightedRowIdx={this.props.highlightedRowIdx} />
                             }
                         </div>
