@@ -31,6 +31,11 @@ export enum SystemColor {
 }
 
 
+export interface ColorScaleFunctionGenerator {
+    (min:number, max:number):(v:number)=>string;
+}
+
+
 const brightnessAdjustHex = (hex:string, ratio:number):string => {
     const code = hex.length === 7 ? hex.substr(1) : hex.substr(1).replace(/(.)/g, '$1$1');
     const r = parseInt(code.substr(0, 2), 16);
@@ -102,11 +107,18 @@ export class Theme {
             this.barColors[idx % this.barColors.length];
     }
 
-    scaleColor(min:number, max:number) {
+    scaleColor = (min:number, max:number):(v:number)=>string => {
 
         const a = max !== min ? (this.scaleColors.length - 1) / (max - min) : 0;
         const b = -1 * a * min;
         return (v:number) => this.scaleColors[Math.round(a * v + b)];
+    }
+
+    scaleColorIndexed = (min:number, max:number):(v:number)=>string => {
+        return (v:number) => {
+            const idx = Math.max(v - min, 0);
+            return this.scaleColors[idx] || '#dddddd';
+        };
     }
 
 }

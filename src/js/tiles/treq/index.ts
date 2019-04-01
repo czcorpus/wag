@@ -30,6 +30,7 @@ export interface TreqTileConf extends TileConf {
     tileType:'TreqTile';
     apiURL:string;
     srchPackages:SearchPackages;
+    maxNumLines?:number;
 }
 
 /**
@@ -49,11 +50,12 @@ export class TreqTile implements ITileProvider {
 
     private readonly label:string;
 
+    private static readonly DEFAULT_MAX_NUM_LINES = 10;
+
     constructor({tileId, dispatcher, appServices, ut, theme, lang1, lang2, mainForm, widthFract, conf}:TileFactory.Args<TreqTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
-        const colorPalette = theme.scaleColor(0, 9);
         this.model = new TreqModel(
             dispatcher,
             {
@@ -65,13 +67,14 @@ export class TreqTile implements ITileProvider {
                 searchPackages: Immutable.List<string>(conf.srchPackages[lang2] || []),
                 translations: Immutable.List<TreqTranslation>(),
                 sum: 0,
-                treqBackLink: null
+                treqBackLink: null,
+                maxNumLines: conf.maxNumLines || TreqTile.DEFAULT_MAX_NUM_LINES
             },
             tileId,
             new TreqAPI(conf.apiURL),
             conf.backlink || null,
             mainForm,
-            (v:number) => colorPalette(v)
+            theme.scaleColorIndexed
         );
         this.label = appServices.importExternalMessage(conf.label || 'treq__main_label');
         this.view = viewInit(dispatcher, ut, theme, this.model);
