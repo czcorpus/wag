@@ -30,7 +30,7 @@ export const getLemmas = (db:Database, appServices:AppServices, word:string):Obs
         db.serialize(() => {
             db.each(
                 'SELECT value, lemma, pos, `count` AS abs, arf FROM word WHERE value = ? ORDER BY arf DESC',
-                [word],
+                [word.toLowerCase()],
                 (err, row) => {
                     if (err) {
                         observer.error(err);
