@@ -167,31 +167,6 @@ const mkTileFactory = (
 }
 
 
-class QueryLangChangeHandler extends StatefulModel<{}> {
-
-    private readonly appServices:AppServices;
-
-    constructor(dispatcher:ActionDispatcher, appServices:AppServices) {
-        super(dispatcher, {});
-        this.appServices = appServices;
-    }
-
-    onAction(action:Action): void {
-        switch (action.name) {
-            case ActionName.ChangeTargetLanguage:
-                window.location.href = this.appServices.createActionUrl('', {
-                    lang1: action.payload['lang1'],
-                    lang2: action.payload['lang2'],
-                    queryType: action.payload['queryType'],
-                    q1: action.payload['q1'],
-                    q2: action.payload['q2']
-                });
-            break;
-        }
-    }
-}
-
-
 export const init = (mountElement:HTMLElement, config:ClientConf, userConfig:UserConf, lemmas:Array<LemmaVariant>) => {
 
     const qType = userConfig.queryType as QueryType; // TODO validate
@@ -295,7 +270,6 @@ export const init = (mountElement:HTMLElement, config:ClientConf, userConfig:Use
         new CorpusInfoAPI(config.corpInfoApiUrl)
     );
     const messagesModel = new MessagesModel(dispatcher, appServices);
-    const queryLangSwitchModel = new QueryLangChangeHandler(dispatcher, appServices);
 
     const component = viewInit(dispatcher, viewUtils, formModel, tilesModel, messagesModel);
 

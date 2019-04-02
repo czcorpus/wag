@@ -94,9 +94,15 @@ export class WdglanceMainFormModel extends StatelessModel<WdglanceMainState> {
             },
             [ActionName.ChangeTargetLanguage]: (state, action:Actions.ChangeTargetLanguage) => {
                 const newState = this.copyState(state);
+                const prevLang2 = newState.targetLanguage2;
                 newState.targetLanguage = action.payload.lang1;
                 newState.targetLanguage2 = action.payload.lang2;
                 newState.queryType = action.payload.queryType;
+                if (newState.isAnswerMode && newState.queryType === QueryType.TRANSLAT_QUERY &&
+                            prevLang2 !== action.payload.lang2) {
+                    console.log('submitting ', JSON.stringify(newState));
+                    this.checkAndSubmit(newState);
+                }
                 return newState;
             },
             [ActionName.ChangeQueryType]: (state, action:Actions.ChangeQueryType) => {
