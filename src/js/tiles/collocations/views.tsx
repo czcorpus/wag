@@ -126,10 +126,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         hasData={this.props.data.size > 0} sourceIdent={{corp: this.props.corpname}}
                         backlink={this.props.backlink}>
                     {this.props.isTweakMode ?
-                        <>
-                            <Controls tileId={this.props.tileId} value={this.props.ctxType} />
-                            <hr />
-                        </> :
+                            <Controls tileId={this.props.tileId} value={this.props.ctxType} /> :
                         null
                     }
                     <div className="boxes">
