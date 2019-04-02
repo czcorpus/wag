@@ -34,6 +34,7 @@ export interface WdglanceMainState {
     availQueryTypes:Immutable.List<[QueryType, string]>;
     errors:Immutable.List<Error>;
     lemmas:Immutable.List<LemmaVariant>;
+    isAnswerMode:boolean;
 }
 
 export const findCurrLemmaVariant = (lemmas:Immutable.List<LemmaVariant>):LemmaVariant => {
@@ -101,6 +102,11 @@ export class WdglanceMainFormModel extends StatelessModel<WdglanceMainState> {
             [ActionName.ChangeQueryType]: (state, action:Actions.ChangeQueryType) => {
                 const newState = this.copyState(state);
                 newState.queryType = action.payload.queryType;
+                if (newState.isAnswerMode &&
+                        ((newState.queryType !== QueryType.CMP_QUERY && newState.query.value !== '')
+                        || newState.query2.value !== '')) {
+                    this.checkAndSubmit(newState);
+                }
                 if (newState.queryType === QueryType.SINGLE_QUERY) {
                     newState.query2 = Forms.updateFormInput(newState.query2, {isRequired: false});
 
@@ -111,26 +117,30 @@ export class WdglanceMainFormModel extends StatelessModel<WdglanceMainState> {
             },
             [ActionName.SubmitQuery]: (state, action:Actions.SubmitQuery) => {
                 const newState = this.copyState(state);
-                newState.query.value = newState.query.value.trim();
-                if (newState.lemmas.size > 0 && newState.lemmas.get(0).word !== newState.query.value) {
-                    newState.lemmas = newState.lemmas.clear();
-                }
-                newState.query2.value = newState.query2.value.trim();
-                newState.errors = newState.errors.clear();
-                this.validateQuery(newState);
-                if (newState.errors.size === 0) { // we leave the page here, TODO: use some kind of routing
-                    window.location.href = this.appServices.createActionUrl('search/', {
-                        q1: newState.query.value,
-                        q2: newState.query2.value,
-                        queryType: newState.queryType,
-                        lang1: newState.targetLanguage,
-                        lang2: newState.targetLanguage2,
-                        pos: findCurrLemmaVariant(newState.lemmas).pos,
-                        lemma1: findCurrLemmaVariant(newState.lemmas).lemma
-                    });
-                }
+                this.checkAndSubmit(newState);
                 return newState;
             }
+        }
+    }
+
+    private checkAndSubmit(state:WdglanceMainState):void {
+        state.query.value = state.query.value.trim();
+        if (state.lemmas.size > 0 && state.lemmas.get(0).word !== state.query.value) {
+            state.lemmas = state.lemmas.clear();
+        }
+        state.query2.value = state.query2.value.trim();
+        state.errors = state.errors.clear();
+        this.validateQuery(state);
+        if (state.errors.size === 0) { // we leave the page here, TODO: use some kind of routing
+            window.location.href = this.appServices.createActionUrl('search/', {
+                q1: state.query.value,
+                q2: state.queryType === QueryType.CMP_QUERY ? state.query2.value : undefined,
+                queryType: state.queryType,
+                lang1: state.targetLanguage,
+                lang2: state.queryType === QueryType.TRANSLAT_QUERY ? state.targetLanguage2 : undefined,
+                pos: findCurrLemmaVariant(state.lemmas).pos,
+                lemma1: findCurrLemmaVariant(state.lemmas).lemma
+            });
         }
     }
 
@@ -175,10 +185,11 @@ export interface DefaultFactoryArgs {
     query2Lang:string;
     queryType:QueryType;
     lemmas:Array<LemmaVariant>;
+    isAnswerMode:boolean;
 }
 
 export const defaultFactory = ({dispatcher, appServices, query1, query1Lang, query2,
-            query2Lang, queryType, lemmas}:DefaultFactoryArgs) => {
+            query2Lang, queryType, lemmas, isAnswerMode}:DefaultFactoryArgs) => {
 
     return new WdglanceMainFormModel(
         dispatcher,
@@ -200,7 +211,8 @@ export const defaultFactory = ({dispatcher, appServices, query1, query1Lang, que
                 ['de', 'Deutsch']
             ]),
             errors: Immutable.List<Error>(),
-            lemmas: Immutable.List<LemmaVariant>(lemmas)
+            lemmas: Immutable.List<LemmaVariant>(lemmas),
+            isAnswerMode: isAnswerMode
         }
     );
 };

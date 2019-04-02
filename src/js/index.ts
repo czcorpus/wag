@@ -187,15 +187,6 @@ class QueryLangChangeHandler extends StatefulModel<{}> {
                     q2: action.payload['q2']
                 });
             break;
-            case ActionName.ChangeQueryType:
-                window.location.href = this.appServices.createActionUrl('', {
-                    lang1: action.payload['lang1'],
-                    lang2: action.payload['lang2'],
-                    queryType: action.payload['queryType'],
-                    q1: action.payload['q1'],
-                    q2: action.payload['q2']
-                });
-            break;
         }
     }
 }
@@ -235,7 +226,8 @@ export const init = (mountElement:HTMLElement, config:ClientConf, userConfig:Use
         query2: userConfig.query2,
         query2Lang: userConfig.query2Lang || '',
         queryType: qType,
-        lemmas: lemmas
+        lemmas: lemmas,
+        isAnswerMode: userConfig.answerMode
     });
 
     const tiles:Array<TileFrameProps> = [];
