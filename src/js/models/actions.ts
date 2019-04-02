@@ -25,7 +25,6 @@ export enum ActionName {
     ChangeQueryInput = 'MAIN_CHANGE_QUERY_INPUT',
     ChangeQueryInput2 = 'MAIN_CHANGE_QUERY_INPUT2',
     ChangeCurrLemmaVariant = 'MAIN_CHANGE_CURR_LEMMA_VARIANT',
-    DisableAnswerMode = 'MAIN_DISABLE_ANSWER_MODE',
     RequestQueryResponse = 'MAIN_REQUEST_QUERY_RESPONSE',
     SetEmptyResult = 'MAIN_SET_EMPTY_RESULT',
     TileDataLoaded = 'MAIN_TILE_DATA_LOADED',
@@ -72,12 +71,6 @@ export namespace Actions {
 
     } & T> {
         name: ActionName.TileDataLoaded;
-    }
-
-    export interface DisableAnswerMode extends Action<{
-
-    }> {
-        name:ActionName.DisableAnswerMode;
     }
 
     export interface ChangeQueryInput extends Action<{
