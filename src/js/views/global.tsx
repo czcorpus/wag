@@ -225,8 +225,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
                                 </>
                             }
                         </div>
-                        {props.hasData ? <SourceLink data={props.sourceIdent} backlink={props.backlink} /> : null}
                     </div>
+                    {props.hasData ? <SourceLink data={props.sourceIdent} backlink={props.backlink} /> : null}
                 </div>
             );
         }

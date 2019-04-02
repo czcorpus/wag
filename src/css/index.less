@@ -36,6 +36,9 @@ section.TilesSections {
 
         .app-output {
 
+            display: flex;
+            flex-direction: column;
+
             .panel {
                 display: flex;
                 flex-direction: row;
@@ -93,8 +96,9 @@ section.TilesSections {
             }
 
             .provider {
-                display: initial;
-                height: calc(100% - 3em);
+                box-sizing: border-box;
+                flex-grow: 1;
+                display: block;
                 margin: 0;
                 overflow: hidden;
             }
