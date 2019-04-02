@@ -92,7 +92,10 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             const data = this.props.translations.map(t => ({
                 text: t.right,
                 value: t.perc,
-                tooltip: `${ut.translate('treq__abs_freq')}: ${t.freq}, ${ut.translate('treq__rel_freq')}: ${t.perc}%`,
+                tooltip: [
+                    {label: ut.translate('treq__abs_freq'), value: t.freq},
+                    {label: ut.translate('treq__rel_freq'), value: t.perc, round: 1}
+                ],
                 interactionId: t.interactionId,
                 color: t.color
             })).toArray();

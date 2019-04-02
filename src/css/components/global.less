@@ -89,6 +89,9 @@ span.MessageStatusIcon {
   }
 
 .TileWrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
     height: 100%;
 
     .loader-wrapper {
@@ -109,27 +112,26 @@ span.MessageStatusIcon {
     }
 
     .content {
+        font-size: .9em;
+        padding: 1.25em;
+    }
 
-        .source {
-            width: 100%;
-            align-self: flex-end;
-            margin-top: 1em;
-            color: @color-light-text;
+    .source {
+        font-size: .9em;
+        padding: 1.25em;
+        color: @color-light-text;
 
-            a {
-                cursor: pointer;
-                text-decoration: none;
-            }
-
-            a:hover {
-                text-decoration: underline;
-            }
+        a {
+            cursor: pointer;
+            text-decoration: none;
+            color: @color-logo-blue;
         }
 
-        .tile-tweak {
-
+        a:hover {
+            text-decoration: underline;
         }
     }
+
 }
 
 .TileWrapper.empty {

@@ -56,7 +56,7 @@ export class TreqSubsetsTile implements ITileProvider {
                 isBusy: false,
                 isAltViewMode: false,
                 error: null,
-                subsets: Immutable.List<TranslationSubset>(conf.srchPackages[lang2].map(v => ({
+                subsets: Immutable.List<TranslationSubset>((conf.srchPackages[lang2] || []).map(v => ({
                     ident: v,
                     label: v,
                     translations: Immutable.List<TreqTranslation>(),

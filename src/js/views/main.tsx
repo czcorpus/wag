@@ -20,7 +20,7 @@ import { Bound, BoundWithProps, IActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
 
 import { Forms } from '../common/data';
-import { QueryType, SystemMessageType, TileFrameProps, LemmaVariant, QueryPoS } from '../common/types';
+import { QueryType, SystemMessageType, TileFrameProps, LemmaVariant, SearchLanguage } from '../common/types';
 import { KeyCodes } from '../common/util';
 import { TileGroup } from '../layout';
 import { ActionName, Actions } from '../models/actions';
@@ -92,7 +92,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const QueryLangSelector:React.SFC<{
         value:string;
-        availLanguages:Immutable.List<[string, string]>;
+        availLanguages:Immutable.List<SearchLanguage>;
         htmlClass?:string;
         onChange:(v:string)=>void;
 
@@ -106,7 +106,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             <select className={`QueryLangSelector${props.htmlClass ? ' ' + props.htmlClass : ''}`} onChange={changeHandler}
                     value={props.value}>
                 {props.availLanguages.map(v =>
-                        <option key={v[0]} value={v[0]}>{v[1]}</option>)}
+                        <option key={v.ident} value={v.ident}>{v.label}</option>)}
             </select>
         );
     };
@@ -187,7 +187,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         queryType:QueryType;
         targetLanguage:string;
         targetLanguage2:string;
-        availLanguages:Immutable.List<[string, string]>;
+        availLanguages:Immutable.List<SearchLanguage>;
         onEnterKey:()=>void;
 
     }> = (props) => {
@@ -381,7 +381,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             queryType={QueryType.SINGLE_QUERY}
                             targetLanguage="cs" /* TODO */
                             targetLanguage2="en"
-                            availLanguages={Immutable.List<[string, string]>()}
+                            availLanguages={Immutable.List<SearchLanguage>()}
                             availQueryTypes={Immutable.List<[QueryType, string]>()}
                             isMobile={false}
                             isAnswerMode={false}
@@ -913,7 +913,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         return (
             <div className="WdglanceMain">
                 <WdglanceControlsBound isMobile={props.isMobile} isAnswerMode={props.isAnswerMode} />
-                <hr className="controls-separ" />
                 <BoundMessagesBox />
                 <BoundTilesSections layout={props.layout} />
             </div>

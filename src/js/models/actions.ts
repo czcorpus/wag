@@ -60,6 +60,7 @@ export namespace Actions {
     }
 
     export interface SetEmptyResult extends Action<{
+        error?:string;
 
     }> {
         name:ActionName.SetEmptyResult;

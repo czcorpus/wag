@@ -117,7 +117,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             const data:Array<WordCloudItem> = this.props.data.map(v => ({
                 text: v.str,
                 value: v.stats[sortItemIdx > -1 ? sortItemIdx : 0],
-                tooltip: v.stats.map((v, i) => `${this.props.heading[i+1].label}: ${v}`).join(', '),
+                tooltip: v.stats.map((v, i) => ({label: this.props.heading[i+1].label,  value: v, round: 1})),
                 interactionId: v.interactionId
             })).toArray();
 
@@ -126,10 +126,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         hasData={this.props.data.size > 0} sourceIdent={{corp: this.props.corpname}}
                         backlink={this.props.backlink}>
                     {this.props.isTweakMode ?
-                        <>
-                            <Controls tileId={this.props.tileId} value={this.props.ctxType} />
-                            <hr />
-                        </> :
+                            <Controls tileId={this.props.tileId} value={this.props.ctxType} /> :
                         null
                     }
                     <div className="boxes">

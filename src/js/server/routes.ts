@@ -37,6 +37,23 @@ import { Services } from './actionServices';
 import { getLemmas, getSimilarFreqWords } from './freqdb/freqdb';
 
 
+
+const renderResult = (services:Services, toolbarData:HostPageEnv, lemmas:Array<LemmaVariant>, userConfig:UserConf, view:React.SFC<LayoutProps>):string => {
+    const appString = renderToString(
+        React.createElement<LayoutProps>(
+            view,
+            {
+                config: mkRuntimeClientConf(services.clientConf, userConfig.query1Lang),
+                userConfig: userConfig,
+                hostPageEnv: toolbarData,
+                lemmas: lemmas
+            }
+        )
+    );
+    return `<!DOCTYPE html>\n${appString}`;
+};
+
+
 const mainAction = (services:Services, answerMode:boolean, req:Request, res:Response, next:NextFunction) => {
 
     const userConfig:UserConf = {
@@ -77,41 +94,40 @@ const mainAction = (services:Services, answerMode:boolean, req:Request, res:Resp
         query2: userConfig.query2,
         query2Lang: userConfig.query2Lang || '',
         queryType: userConfig.queryType as QueryType,
-        lemmas: []
-    })
+        lemmas: [],
+        isAnswerMode: answerMode
+    });
     const view = viewInit(dispatcher, viewUtils, mainFormModel);
 
-    const renderResult = (toolbarData:HostPageEnv, lemmas:Array<LemmaVariant>) => {
-
-        const appString = renderToString(React.createElement<LayoutProps>(view, {
-            config: mkRuntimeClientConf(services.clientConf, userConfig.query1Lang),
-            userConfig: userConfig,
-            hostPageEnv: toolbarData,
-            lemmas: lemmas
-        }));
-        res.send(`<!DOCTYPE html>${appString}`);
-    };
-
     forkJoin(
+        new Observable<UserConf>(
+            (observer) => {
+                if (userConfig.queryType === QueryType.TRANSLAT_QUERY && userConfig.query1Lang === userConfig.query2Lang) {
+                    userConfig.error = appServices.translate('global__src_and_dst_langs_must_be_different');
+                }
+                observer.next(userConfig);
+                observer.complete();
+            }
+        ),
         services.toolbar.get(),
         getLemmas(services.db, appServices, userConfig.query1)
     )
     .subscribe(
         (ans) => {
-            const [toolbar, lemmas] = ans;
+            const [userSession, toolbar, lemmas] = ans;
             let currentFlagSolved = false;
             if (lemmas.length > 0) {
-                if (userConfig.queryPos) {
-                    const srchIdx = lemmas.findIndex(v => v.pos === userConfig.queryPos && (v.lemma === userConfig.lemma1 || !userConfig.lemma1));
+                if (userSession.queryPos) {
+                    const srchIdx = lemmas.findIndex(v => v.pos === userSession.queryPos && (v.lemma === userSession.lemma1 || !userSession.lemma1));
                     if (srchIdx > -1) {
                         lemmas[srchIdx].isCurrent = true;
                     }
                     currentFlagSolved = true; // even if we do not set anything (error detected on client)
                 }
                 if (!currentFlagSolved) {
-                    const numExact = lemmas.reduce((acc, curr) => curr.lemma === userConfig.query1 ? acc + 1 : acc, 0);
+                    const numExact = lemmas.reduce((acc, curr) => curr.lemma === userSession.query1 ? acc + 1 : acc, 0);
                     if (numExact > 0) {
-                        const exactMatchIdx = lemmas.findIndex(v => v.lemma === userConfig.query1);
+                        const exactMatchIdx = lemmas.findIndex(v => v.lemma === userSession.query1);
                         lemmas[exactMatchIdx].isCurrent = true;
 
                     } else {
@@ -119,11 +135,12 @@ const mainAction = (services:Services, answerMode:boolean, req:Request, res:Resp
                     }
                 }
             }
-            renderResult(toolbar, lemmas);
+            res.send(renderResult(services, toolbar, lemmas, userSession, view));
         },
         (err) => {
             console.log(err);
-            renderResult(emptyValue(), []);
+            userConfig.error = String(err);
+            res.send(renderResult(services, emptyValue(), [], userConfig, view));
         }
     );
 };

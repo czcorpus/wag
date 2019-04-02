@@ -53,12 +53,14 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
         return (
             <table className="DataTable data cnc-table">
-                <tbody>
+                <thead>
                     <tr>
                         <th>area</th>
                         <th>ipm</th>
                         <th>abs</th>
                     </tr>
+                </thead>
+                <tbody>
                     {props.rows.map((row, i) => (
                         <tr key={row.name} className={props.highlightedRow === i ? 'highlighted' : null}>
                             <td>{row.name}</td>
