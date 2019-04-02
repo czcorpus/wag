@@ -28,10 +28,13 @@ import { GlobalComponents } from '../views/global';
 import { Actions as GlobalActions, ActionName as GlobalActionName } from '../models/actions';
 
 
+export type TooltipData = Array<{label:string; value:string|number; round?:number}>;
+
+
 export interface WordCloudItem {
     text:string;
     value:number;
-    tooltip:string;
+    tooltip:TooltipData;
     interactionId:string;
     size?:number;
     color?:string;
@@ -69,12 +72,41 @@ const MAX_WC_FONT_SIZE_MOBILE = 75; // TODO test this one
 export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme):React.ComponentClass<WordCloudProps, {}> {
 
 
-    function applyTooltip(target:Selection<SVGRectElement, D3WCItem, any, any>, colorPalette:(v:number)=>string) {
+    const mkTooltip = (target:HTMLElement, data:TooltipData, cursor:[number, number]):HTMLTableElement => {
+        while (target.hasChildNodes()) {
+            target.removeChild(target.firstChild);
+        }
+        const table = document.createElement('table');
+        const tbody = document.createElement('tbody');
+        table.appendChild(tbody);
+        data.forEach(item => {
+            const tr = document.createElement('tr');
+            tbody.append(tr);
+            const th = document.createElement('th');
+            th.textContent = item.label + ':';
+            const td = document.createElement('td');
+            if (typeof item.value === 'number') {
+                td.className = 'num';
+            }
+            td.textContent = typeof item.value === 'string' ?
+                item.value :
+                ut.formatNumber(item.value, item.round !== undefined ? item.round : 0);
+            tr.appendChild(th);
+            tr.appendChild(td);
+        });
+        target.appendChild(table);
+        target.style.left = `${Math.max(cursor[0] - target.getBoundingClientRect().width - 7, 0)}px`;
+        target.style.top = `${Math.max(cursor[1] + 7, 0)}px`;
+        return table;
+    };
+
+
+    const applyTooltip = (target:Selection<SVGRectElement, D3WCItem, any, any>, colorPalette:(v:number)=>string) => {
         let tooltip:Selection<HTMLElement, {}, any, any>;
         if (!window.document.querySelector('body > .wcloud-tooltip')) {
             tooltip = d3select('body')
                 .append('div')
-                .classed('wcloud-tooltip', true)
+                .classed('wdg-tooltip wcloud-tooltip', true)
                 .style('opacity', 0)
                 .text('');
 
@@ -83,18 +115,15 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         }
         target
             .on('mousemove', (datum, i, values) => {
-                tooltip
-                    .style('left', `${d3event.pageX}px`)
-                    .style('top', `${d3event.pageY - 30}px`)
-                    .text(datum.tooltip)
+                mkTooltip(tooltip.node(), datum.tooltip, [d3event.pageX, d3event.pageY]);
 
             })
             .on('mouseover', (datum, i, values) => {
                 tooltip
                     .transition()
                     .duration(200)
-                    .style('color', colorPalette(i))
                     .style('opacity', '0.9')
+                    .style('display', 'block')
                     .style('pointer-events', 'none');
                 dispatcher.dispatch<GlobalActions.SubqItemHighlighted>({
                     name: GlobalActionName.SubqItemHighlighted,
@@ -120,7 +149,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                     }
                 );
             });
-    }
+    };
 
 
     function wordCloud(theme:Theme, isMobile:boolean, container:HTMLElement, data:Array<WordCloudItem>) {

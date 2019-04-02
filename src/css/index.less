@@ -44,6 +44,7 @@ section.TilesSections {
 
                 .window-buttons > span {
                     vertical-align: middle;
+                    white-space: nowrap;
 
                     button {
                         border: none;
@@ -286,4 +287,38 @@ hr.controls-separ {
     color: @color-light-grey;
     height: 1px;
     border: none;
+}
+
+.wdg-tooltip {
+
+    position: absolute;
+    display: none;
+    color: @color-logo-blue;
+    background-color: #FFFFFF;
+    z-index: 10000;
+    padding: 0.3em;
+    border: 1px solid @color-light-grey;
+    border-radius: 3px;
+    border-spacing: 0;
+    border-collapse: collapse;
+    line-height: 1.2em;
+
+    table {
+
+        th {
+            font-weight: normal;
+            text-align: right;
+            color: @color-light-text;
+            padding-right: 0.4em;
+        }
+
+        td {
+            text-align: left;
+        }
+
+        td.num {
+            text-align: right;
+        }
+
+    }
 }

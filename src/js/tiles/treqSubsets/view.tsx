@@ -18,12 +18,10 @@
 import * as Immutable from 'immutable';
 import { ActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
-import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 import { CoreTileComponentProps, TileComponent } from '../../common/types';
 import { GlobalComponents } from '../../views/global';
 import { TreqSubsetModel, TreqSubsetsModelState, TranslationSubset, flipRowColMapper } from './model';
-import { TreqTranslation } from '../../common/api/treq';
 import { Theme } from '../../common/theme';
 
 
@@ -33,64 +31,6 @@ type TooltipValues = {[key:string]:number|string}|null;
 export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:TreqSubsetModel):TileComponent {
 
     const globalComponents = ut.getComponents();
-
-
-    // ------- <ChartWrapper /> ---------------------------------------------------
-
-    const ChartWrapper:React.SFC<{
-        data:Immutable.List<TreqTranslation>;
-        width:string|number;
-        height:string|number;
-        isMobile:boolean;
-
-    }> = (props) => {
-        if (props.isMobile) {
-            return (
-                <BarChart data={props.data.toArray()}
-                        width={typeof props.width === 'string' ? parseInt(props.width) : props.width}
-                        height={typeof props.height === 'string' ? parseInt(props.height) : props.height}
-                        layout="vertical"
-                        isAnimationActive={false}>
-                    {props.children}
-                </BarChart>
-            );
-
-        } else {
-            return (
-                <ResponsiveContainer width={props.width} height={props.height}>
-                    <BarChart data={props.data.toArray()} layout="vertical">
-                        {props.children}
-                    </BarChart>
-                </ResponsiveContainer>
-            );
-        }
-    }
-
-
-    // -------------------------- <Chart /> --------------------------------------
-    // TODO probably won't be used
-
-    const Chart:React.SFC<{
-        data:Immutable.List<TreqTranslation>;
-        width:string|number;
-        height:string|number;
-        isMobile:boolean;
-
-    }> = (props) => {
-        const maxLabelWidth = props.data.max((v1, v2) => v1.right.length - v2.right.length).right.length;
-        return (
-            <div className="Chart">
-                <ChartWrapper data={props.data} isMobile={props.isMobile} width={props.width} height={props.height}>
-                    <CartesianGrid />
-                    <Bar data={props.data.toArray()} dataKey="perc" fill={theme.barColor(0)} isAnimationActive={false} />
-                    <XAxis type="number" />
-                    <YAxis type="category" dataKey="right" width={Math.max(60, maxLabelWidth * 8)} />
-                    <Legend />
-                    <Tooltip cursor={false} isAnimationActive={false} />
-                </ChartWrapper>
-            </div>
-        );
-    };
 
     // ---------------------- <SimpleBar /> ------------------------------------------------------
 
@@ -145,37 +85,58 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     // -------------------- <TableTooltip /> ----------------------------------------------
 
-    const TableTooltip:React.SFC<{
+    class TableTooltip extends React.Component<{
         x:number;
         y:number;
         visible:boolean;
         values:TooltipValues;
 
-    }> = (props) => {
-        const style = {
-            display: props.visible ? 'block' : 'none',
-            top: props.y,
-            left: props.x
-        };
+    }> {
 
-        return (
-            <table className="tooltip" style={style}>
-                <tbody>
-                    {Object.keys(props.values || {}).map(label => {
-                        const v = props.values[label];
-                        return (
-                            <tr key={label}>
-                            <th>{label}:</th>
-                            {typeof v === 'number' ?
-                                <td className="num">{ut.formatNumber(v, 1)}</td> :
-                                <td>{v}</td>
-                            }
-                            </tr>
-                        );
-                    })}
-                </tbody>
-            </table>
-        );
+        private ref:React.RefObject<HTMLDivElement>;
+
+        constructor(props) {
+            super(props);
+            this.ref = React.createRef();
+        }
+
+        private calcXPos():number {
+            return this.ref.current ? Math.max(0, this.props.x - this.ref.current.getBoundingClientRect().width - 25) : this.props.x;
+        }
+
+        private calcYPos():number {
+            return this.ref.current ? this.props.y + this.ref.current.getBoundingClientRect().height + 5 : this.props.y;
+        }
+
+        render() {
+
+            const style = {
+                display: this.props.visible ? 'block' : 'none',
+                top: this.calcYPos(),
+                left: this.calcXPos()
+            };
+
+            return (
+                <div className="wdg-tooltip" ref={this.ref} style={style}>
+                    <table>
+                        <tbody>
+                            {Object.keys(this.props.values || {}).map(label => {
+                                const v = this.props.values[label];
+                                return (
+                                    <tr key={label}>
+                                    <th>{label}:</th>
+                                    {typeof v === 'number' ?
+                                        <td className="num">{ut.formatNumber(v, 1)}</td> :
+                                        <td>{v}</td>
+                                    }
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                </div>
+            );
+        }
     }
 
     // ---------------------- <ChartLikeTable /> ------------------------------------------
@@ -333,21 +294,6 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                 </div>
             );
         }
-    }
-
-    // --------------------- <SubsetChart /> ----------------------------
-
-    const SubsetChart:React.SFC<{
-        data:TranslationSubset;
-        isMobile:boolean;
-
-    }> = (props) => {
-        return (
-            <div>
-                <h3>{props.data.label}:</h3>
-                <Chart data={props.data.translations} width={200} height={450} isMobile={props.isMobile} />
-            </div>
-        );
     }
 
     // --------------------- <TreqSubsetsView /> ----------------------------
