@@ -61,6 +61,10 @@ const BASE_WC_FONT_SIZE = 26;
 
 const BASE_WC_FONT_SIZE_MOBILE = 23;
 
+const MAX_WC_FONT_SIZE = 80;
+
+const MAX_WC_FONT_SIZE_MOBILE = 75; // TODO test this one
+
 
 export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme):React.ComponentClass<WordCloudProps, {}> {
 
@@ -128,6 +132,12 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             return;
         }
 
+        const adjustFontSize = (isMobile:boolean, v:number):number => {
+            return isMobile ?
+                Math.round(Math.min(MAX_WC_FONT_SIZE_MOBILE, v)) :
+                Math.round(Math.min(MAX_WC_FONT_SIZE, v));
+        }
+
         const minVal = Math.min(...data.map(v => v.value));
         const scaledTotal = data.map(v => v.value - minVal).reduce((curr, acc) => acc + curr, 0);
         const data2 = data.map(v => {
@@ -137,9 +147,12 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                 value: v.value,
                 tooltip: v.tooltip,
                 interactionId: v.interactionId,
-                size: isMobile ?
-                    Math.round((wcFontSizeRatio * 100) ** 1.9 / 100 + BASE_WC_FONT_SIZE_MOBILE) :
-                    Math.round((wcFontSizeRatio * 100) ** 1.9 / 100 + BASE_WC_FONT_SIZE),
+                size: adjustFontSize(
+                        isMobile,
+                        isMobile ?
+                            (wcFontSizeRatio * 100) ** 1.9 / 100 + BASE_WC_FONT_SIZE_MOBILE :
+                            (wcFontSizeRatio * 100) ** 1.9 / 100 + BASE_WC_FONT_SIZE
+                ),
                 color: v.color
             };
         });
@@ -220,7 +233,9 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         }
 
         render() {
-            return <div ref={this.chartContainer} style={this.props.style} />;
+            const style = Object.assign({}, this.props.style);
+            style['minHeight'] = `${2 * (this.props.isMobile ? MAX_WC_FONT_SIZE_MOBILE : MAX_WC_FONT_SIZE)}px`;
+            return <div ref={this.chartContainer} style={style} />;
         }
     }
 
