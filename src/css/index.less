@@ -42,22 +42,29 @@ section.TilesSections {
                 justify-content: space-between;
                 align-items: center;
 
-                .window-buttons > span {
-                    vertical-align: middle;
-                    white-space: nowrap;
+                .window-buttons  {
 
-                    button {
-                        border: none;
-                        background-color: transparent;
-                        cursor: pointer;
+                    display: flex;
+                    flex-direction: row;
+                    align-items: center;
 
-                        img {
-                            width:1.1em;
+                    span {
+                        vertical-align: middle;
+                        white-space: nowrap;
+
+                        button {
+                            border: none;
+                            background-color: transparent;
+                            cursor: pointer;
+
+                            img {
+                                width:1.1em;
+                            }
                         }
-                    }
 
-                    button:focus {
-                        outline: none;
+                        button:focus {
+                            outline: none;
+                        }
                     }
                 }
 
@@ -245,8 +252,8 @@ input.invalid, textarea.invalid {
 
 table.data {
 
-    border-spacing: 0;
-    border-collapse: collapse;
+    border-spacing: 2px;
+    border-collapse: separate;
 
 
     tbody tr:nth-child(odd):not(.heading) {
@@ -254,7 +261,7 @@ table.data {
     }
 
     td, th {
-        border: 1px solid #aaaaaa;
+        border: none;
         padding: 0.4em 0.7em;
     }
 
@@ -264,10 +271,6 @@ table.data {
 
     thead tr:last-child th {
         border-width: 1px 1px 2px 1px;
-    }
-
-    th, td {
-        border: 1px solid #aaaaaa;
     }
 }
 
