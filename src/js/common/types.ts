@@ -333,3 +333,9 @@ export const importQueryPos = (s:string):QueryPoS => {
     }
     throw new Error(`Invalid PoS value [${s}]`);
 };
+
+
+export interface SearchLanguage {
+    ident:string;
+    label:string;
+}

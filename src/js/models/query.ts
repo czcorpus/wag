@@ -20,7 +20,7 @@ import { Action, IActionDispatcher, SEDispatcher, StatelessModel } from 'kombo';
 
 import { AppServices } from '../appServices';
 import { Forms } from '../common/data';
-import { QueryType, SystemMessageType, LemmaVariant } from '../common/types';
+import { QueryType, SystemMessageType, LemmaVariant, SearchLanguage } from '../common/types';
 import { ActionName, Actions } from './actions';
 
 
@@ -30,7 +30,7 @@ export interface WdglanceMainState {
     queryType:QueryType;
     targetLanguage:string;
     targetLanguage2:string;
-    availLanguages:Immutable.List<[string, string]>;
+    availLanguages:Immutable.List<SearchLanguage>;
     availQueryTypes:Immutable.List<[QueryType, string]>;
     errors:Immutable.List<Error>;
     lemmas:Immutable.List<LemmaVariant>;
@@ -100,7 +100,6 @@ export class WdglanceMainFormModel extends StatelessModel<WdglanceMainState> {
                 newState.queryType = action.payload.queryType;
                 if (newState.isAnswerMode && newState.queryType === QueryType.TRANSLAT_QUERY &&
                             prevLang2 !== action.payload.lang2) {
-                    console.log('submitting ', JSON.stringify(newState));
                     this.checkAndSubmit(newState);
                 }
                 return newState;
@@ -175,6 +174,9 @@ export class WdglanceMainFormModel extends StatelessModel<WdglanceMainState> {
             state.query2 = Forms.updateFormInput(state.query2, {isValid: false});
             state.errors = state.errors.push(new Error(this.appServices.translate('global__2nd_query_contains_unsupported_chars')));
 
+        } else if (state.queryType === QueryType.TRANSLAT_QUERY && state.targetLanguage === state.targetLanguage2) {
+            state.errors = state.errors.push(new Error(this.appServices.translate('global__src_and_dst_langs_must_be_different')));
+
         } else {
             state.query2 = Forms.updateFormInput(state.query2, {isValid: true});
         }
@@ -209,12 +211,12 @@ export const defaultFactory = ({dispatcher, appServices, query1, query1Lang, que
                 [QueryType.CMP_QUERY, appServices.translate('global__two_words_compare')],
                 [QueryType.TRANSLAT_QUERY, appServices.translate('global__word_translate')]
             ]),
-            targetLanguage: query1Lang || '',
-            targetLanguage2: query2Lang || '',
-            availLanguages: Immutable.List<[string, string]>([
-                ['cs', 'čeština'],
-                ['en', 'English'],
-                ['de', 'Deutsch']
+            targetLanguage: query1Lang,
+            targetLanguage2: query2Lang,
+            availLanguages: Immutable.List<SearchLanguage>([ // TODO config based data here
+                {ident: 'cs', label: 'čeština'},
+                {ident: 'en', label: 'English'},
+                {ident: 'de', label: 'Deutsch'}
             ]),
             errors: Immutable.List<Error>(),
             lemmas: Immutable.List<LemmaVariant>(lemmas),

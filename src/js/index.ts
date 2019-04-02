@@ -17,7 +17,7 @@
  */
 /// <reference path="./translations.d.ts" />
 import * as Immutable from 'immutable';
-import { Action, ActionDispatcher, StatefulModel, ViewUtils } from 'kombo';
+import { ActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { fromEvent } from 'rxjs';
@@ -167,10 +167,10 @@ const mkTileFactory = (
 }
 
 
-export const init = (mountElement:HTMLElement, config:ClientConf, userConfig:UserConf, lemmas:Array<LemmaVariant>) => {
+export const init = (mountElement:HTMLElement, config:ClientConf, userSession:UserConf, lemmas:Array<LemmaVariant>) => {
 
-    const qType = userConfig.queryType as QueryType; // TODO validate
-    const uiLangSel = userConfig.uiLang || 'en-US';
+    const qType = userSession.queryType as QueryType; // TODO validate
+    const uiLangSel = userSession.uiLang || 'en-US';
     const dispatcher = new ActionDispatcher();
     const viewUtils = new ViewUtils<GlobalComponents>({
         uiLang: uiLangSel,
@@ -182,7 +182,7 @@ export const init = (mountElement:HTMLElement, config:ClientConf, userConfig:Use
     const notifications = new SystemNotifications(dispatcher);
     const appServices = new AppServices({
         notifications: notifications,
-        uiLang: userConfig.uiLang,
+        uiLang: userSession.uiLang,
         translator: viewUtils,
         staticUrlCreator: viewUtils.createStaticUrl,
         actionUrlCreator: viewUtils.createActionUrl,
@@ -196,20 +196,20 @@ export const init = (mountElement:HTMLElement, config:ClientConf, userConfig:Use
     const formModel = wdglanceFormFactory({
         dispatcher: dispatcher,
         appServices: appServices,
-        query1: userConfig.query1,
-        query1Lang: userConfig.query1Lang || '',
-        query2: userConfig.query2,
-        query2Lang: userConfig.query2Lang || '',
+        query1: userSession.query1,
+        query1Lang: userSession.query1Lang || 'cs',
+        query2: userSession.query2,
+        query2Lang: userSession.query2Lang || '',
         queryType: qType,
         lemmas: lemmas,
-        isAnswerMode: userConfig.answerMode
+        isAnswerMode: userSession.answerMode
     });
 
     const tiles:Array<TileFrameProps> = [];
     const attachTile = mkAttachTile(
         qType,
-        userConfig.query1Lang,
-        userConfig.query2Lang
+        userSession.query1Lang,
+        userSession.query2Lang
     );
     const tilesMap = attachNumericTileIdents(config.tiles);
     console.log('tiles map: ', tilesMap);
@@ -224,8 +224,8 @@ export const init = (mountElement:HTMLElement, config:ClientConf, userConfig:Use
         theme,
         layoutManager,
         qType,
-        userConfig.query1Lang,
-        userConfig.query2Lang,
+        userSession.query1Lang,
+        userSession.query2Lang,
         tilesMap
     );
     Object.keys(config.tiles).forEach((ident, i) => {
@@ -239,7 +239,7 @@ export const init = (mountElement:HTMLElement, config:ClientConf, userConfig:Use
     const tilesModel = new WdglanceTilesModel(
         dispatcher,
         {
-            isAnswerMode: userConfig.answerMode,
+            isAnswerMode: userSession.answerMode,
             isBusy: false,
             isMobile: appServices.isMobileMode(),
             tweakActiveTiles: Immutable.Set<number>(),
@@ -292,20 +292,23 @@ export const init = (mountElement:HTMLElement, config:ClientConf, userConfig:Use
             {
                 layout: layoutManager.getLayout(qType),
                 isMobile: appServices.isMobileMode(),
-                isAnswerMode: userConfig.answerMode
+                isAnswerMode: userSession.answerMode
             }
         ),
         mountElement,
         () => {
-            if (userConfig.answerMode) {
-                if (lemmas.find(v => v.isCurrent)) {
+            if (userSession.answerMode) {
+                if (lemmas.find(v => v.isCurrent) && !userSession.error) {
                     dispatcher.dispatch({
                         name: ActionName.RequestQueryResponse
                     });
 
                 } else {
                     dispatcher.dispatch({
-                        name: ActionName.SetEmptyResult
+                        name: ActionName.SetEmptyResult,
+                        payload: {
+                            error: userSession.error
+                        }
                     });
                 }
             }

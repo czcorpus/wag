@@ -58,6 +58,7 @@ export interface UserConf {
     lemma1?:string;
     query2:string;
     answerMode:boolean;
+    error?:string;
 }
 
 /**
@@ -125,7 +126,8 @@ export interface ClientConf {
     apiHeaders:{[urlPrefix:string]:HTTPHeaders};
     colors:ColorsConf;
     tiles:{[lang:string]:AnyTileConf};
-	layouts:LayoutsConfig;
+    layouts:LayoutsConfig;
+    error?:Error;
 }
 
 /**
