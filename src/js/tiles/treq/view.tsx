@@ -110,7 +110,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                             backlink={this.props.treqBackLink}>
                     {this.props.isAltViewMode ?
                         <TranslationsTable translations={this.props.translations} /> :
-                        <WordCloud style={style} isMobile={this.props.isMobile} data={data} />
+                        <WordCloud style={style} isMobile={this.props.isMobile} data={data} font="Roboto Condensed" />
                     }
                 </globComponents.TileWrapper>
             );

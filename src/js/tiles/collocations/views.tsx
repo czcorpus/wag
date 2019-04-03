@@ -22,10 +22,10 @@ import * as React from 'react';
 import { Theme } from '../../common/theme';
 import { CoreTileComponentProps, TileComponent } from '../../common/types';
 import { GlobalComponents } from '../../views/global';
-import { ActionName, Actions, DataRow, SrchContextType, DataHeading, CollocMetric } from './common';
+import { ActionName, Actions, DataRow, SrchContextType, DataHeading } from './common';
 import { CollocModel, CollocModelState } from './model';
 import { Actions as GlobalActions, ActionName as GlobalActionName } from '../../models/actions';
-import { init as wcloudViewInit, WordCloudItem } from '../../views/wordCloud';
+import { init as wcloudViewInit, WordCloudItem } from '../../views/wordCloud/index';
 
 
 export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:CollocModel):TileComponent {
@@ -134,7 +134,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                             <TableView heading={this.props.heading} data={this.props.data} /> :
                             <WordCloud data={data} isMobile={this.props.isMobile}
                                     style={this.props.isMobile ? {height: `${this.props.data.size * 30}px`} :
-                                                {height: `${this.props.data.size * 40}px`, width: '100%'}} />
+                                                {height: `${this.props.data.size * 40}px`, width: '100%'}}
+                                                font="Roboto Condensed" />
                         }
 
                     </div>
