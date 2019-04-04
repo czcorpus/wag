@@ -56,7 +56,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <meta name="viewport" content="width=device-width, initial-scale=1" />
                     <link href={`${urlResolve(props.config.hostUrl, 'dist/common.css')}`} rel="stylesheet" type="text/css" />
                     <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Droid+Sans+Mono%7CRoboto:100,400,400italic,700,700italic%7CRoboto+Condensed:400,700&amp;subset=latin,latin-ext" media="all" />
-                    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Special+Elite" media="all"/>
                     {props.hostPageEnv.styles.map(style =>
                        <link key={style} rel="stylesheet" type="text/css" href={style} media="all"/> )}
                 </head>
@@ -67,7 +66,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         null
                     }
                     <header className="wdg-header">
-                        <h1><a href={props.config.hostUrl}>{ut.translate('global__wdglance_title')}</a></h1>
+                        <a href={props.config.hostUrl} title={ut.translate('global__wdglance_title')}>
+                            <img src={ut.createStaticUrl('logo_cs.svg')} />
+                        </a>
                     </header>
                     <section className="wdglance-mount">
                         <mainViews.WdglanceMain layout={Immutable.List<TileGroup>()} isMobile={false} isAnswerMode={false} />
