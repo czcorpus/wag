@@ -17,7 +17,7 @@
  */
 import { ActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
-
+import * as Immutable from 'immutable';
 import { Theme } from '../../common/theme';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
 import { GlobalComponents } from '../../views/global';
@@ -27,14 +27,16 @@ import { Rect, WordCloudItemCalc, TooltipData, createRectangles, findPlacement, 
 export type WordCloudItem = WordCloudItemCalc;
 
 
-export interface WordCloudProps {
+export interface WordCloudProps<T> {
     style:{[prop:string]:string};
     isMobile:boolean;
     font:string;
-    data:Array<WordCloudItem>;
+    data:Immutable.List<T>;
+    dataTransform:(v:T)=>WordCloudItem;
 }
 
-interface WordCloudState {
+interface WordCloudState<T> {
+    data:Immutable.List<T>;
     rects:Array<Rect>;
     frameWidth:number;
     frameHeight:number;
@@ -45,7 +47,7 @@ interface WordCloudState {
 }
 
 
-export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme):React.ComponentClass<WordCloudProps, {}> {
+export function init<T>(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme):React.ComponentClass<WordCloudProps<T>, {}> {
 
     // -------------------------- <Word /> -----------------------------------------
 
@@ -135,7 +137,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     // -------------------------- <WordCloud /> -----------------------------------------
 
-    class WordCloud extends React.Component<WordCloudProps, WordCloudState> {
+    class WordCloud<T> extends React.Component<WordCloudProps<T>, WordCloudState<T>> {
 
         private readonly chartContainer:React.RefObject<HTMLDivElement>;
 
@@ -143,6 +145,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             super(props);
             this.chartContainer = React.createRef();
             this.state = {
+                data: this.props.data,
                 rects: [],
                 frameWidth: 0,
                 frameHeight: 0,
@@ -161,7 +164,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                 const bbox = this.chartContainer.current.getBoundingClientRect();
                 const vboxAspectRatio = bbox.width / bbox.height;
                 const rects = createRectangles(
-                    this.props.data,
+                    this.props.data.map(this.props.dataTransform).toArray(),
                     200,
                     200 / vboxAspectRatio,
                     this.props.isMobile,
@@ -170,6 +173,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                 const plac = findPlacement(rects, 200, 200 / vboxAspectRatio);
 
                 this.setState({
+                    data: this.state.data,
                     rects: plac.rectangles,
                     frameWidth: bbox.width,
                     frameHeight: bbox.height,
@@ -183,6 +187,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
         handleMouseMove(x:number, y:number, data:WordCloudItem) {
             this.setState({
+                data: this.state.data,
                 rects: this.state.rects,
                 frameWidth: this.state.frameWidth,
                 frameHeight: this.state.frameHeight,
@@ -196,6 +201,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         handleMouseOver(x:number, y:number, data:WordCloudItem) {
             if (data !== this.state.activeItem) {
                 this.setState({
+                    data: this.state.data,
                     rects: this.state.rects,
                     frameWidth: this.state.frameWidth,
                     frameHeight: this.state.frameHeight,
@@ -215,6 +221,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
         handleMouseOut(data:WordCloudItem) {
             this.setState({
+                data: this.state.data,
                 rects: this.state.rects,
                 frameWidth: this.state.frameWidth,
                 frameHeight: this.state.frameHeight,
@@ -229,6 +236,23 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                     interactionId: data.interactionId
                 }
             });
+        }
+
+        // TODO (use memoize helper?, what about resize?)
+        static getDerivedStateFromProps<T>(props:WordCloudProps<T>, state:WordCloudState<T>) {
+            if (props.data !== state.data) {
+                return {
+                    data: props.data,
+                    rects: [],
+                    frameWidth: state.frameWidth,
+                    frameHeight: state.frameHeight,
+                    viewBoxAspectRatio: state.viewBoxAspectRatio,
+                    transform: state.transform,
+                    activeItem: null,
+                    tooltipPos: [0, 0]
+                };
+            }
+            return null;
         }
 
         render() {
