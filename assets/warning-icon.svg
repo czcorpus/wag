@@ -1,60 +1,14 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!-- Generator: Adobe Illustrator 14.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 43363)  -->
-
-<svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   version="1.1"
-   id="Vrstva_1"
-   x="0px"
-   y="0px"
-   width="22.676px"
-   height="22.678px"
-   viewBox="0 0 22.676 22.678"
-   enable-background="new 0 0 22.676 22.678"
-   xml:space="preserve"
-   sodipodi:docname="warning-icon.svg"
-   inkscape:version="0.92.3 (2405546, 2018-03-11)"><metadata
-   id="metadata13"><rdf:RDF><cc:Work
-       rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
-         rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title></dc:title></cc:Work></rdf:RDF></metadata><defs
-   id="defs11" /><sodipodi:namedview
-   pagecolor="#ffffff"
-   bordercolor="#666666"
-   borderopacity="1"
-   objecttolerance="10"
-   gridtolerance="10"
-   guidetolerance="10"
-   inkscape:pageopacity="0"
-   inkscape:pageshadow="2"
-   inkscape:window-width="916"
-   inkscape:window-height="718"
-   id="namedview9"
-   showgrid="false"
-   inkscape:zoom="10.406562"
-   inkscape:cx="11.338"
-   inkscape:cy="11.339"
-   inkscape:window-x="713"
-   inkscape:window-y="321"
-   inkscape:window-maximized="0"
-   inkscape:current-layer="Vrstva_1" />
-<g
-   id="g6"
-   transform="matrix(1,0,0,-1,0,22.678)">
-	<path
-   d="M 5.669,0 C 5.669,0 0,0 0,5.669 v 11.339 c 0,0 0,5.67 5.669,5.67 h 11.337 c 0,0 5.67,0 5.67,-5.67 V 5.669 c 0,0 0,-5.669 -5.67,-5.669 z"
-   id="path2"
-   inkscape:connector-curvature="0"
-   style="fill:#009ddf" />
-	<path
-   d="m 11.362,2.449 c -1.225,0 -2.024,0.824 -2.024,1.899 0,1.05 0.775,1.898 1.974,1.898 1.274,0 2.05,-0.85 2.05,-1.898 -0.026,-1.075 -0.776,-1.899 -2,-1.899 z M 13.237,19.97 V 7.748 H 9.438 V 19.97 Z"
-   id="path4"
-   inkscape:connector-curvature="0"
-   style="fill:#e9f8ff" />
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="Vrstva_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="16px" height="16px" viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+<g>
+	<g>
+		<path fill="#009EE0" d="M16,14c0,1.1-0.9,2-2,2H2c-1.101,0-2-0.9-2-2V2c0-1.1,0.899-2,2-2h12c1.1,0,2,0.9,2,2V14z"/>
+	</g>
+	<path fill="#FFFFFF" d="M7.971,14.186c-0.938,0-1.59-0.705-1.59-1.643c0-0.977,0.67-1.645,1.627-1.645s1.588,0.668,1.606,1.645
+		c0,0.938-0.632,1.643-1.606,1.643H7.971z"/>
+	<polygon fill="#FFFFFF" points="6.979,9.996 6.58,1.814 9.436,1.814 9.038,9.996 	"/>
 </g>
 </svg>
