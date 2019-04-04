@@ -124,19 +124,31 @@
     }
 
     .QueryTypeSelector {
-        margin-top: 1em;
 
-        a {
-            padding: 0.2em;
-            cursor: pointer;
+        margin-top: 0.1em;
+        margin-bottom: 1.5em;
+
+        .item {
+
+            display: inline-block;
+
+            a {
+                padding: 0.2em;
+                cursor: pointer;
+                display: block;
+                text-decoration: none;
+            }
+
+            a:hover {
+                color: @color-logo-blue;
+            }
+
         }
 
-        a:hover {
-            text-decoration: underline;
-        }
-
-        a.current {
-            color: @color-logo-orange;
+        .item.current {
+            border-style: solid;
+            border-color: @color-logo-blue;
+            border-width: 0 0 2px 0;
         }
     }
 

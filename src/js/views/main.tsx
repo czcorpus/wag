@@ -166,13 +166,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             {props.avail.map((v, i) =>
                 <React.Fragment key={v[0]}>
                     {i > 0 && !props.isMobile ? <span className="separ"> | </span> : null}
-                    <span className="item">
+                    <span className={`item${v[0] === props.value ? ' current' : ''}`}>
                         <a onClick={(evt:React.MouseEvent<HTMLAnchorElement>) => props.onChange(v[0])}
-                                    className={v[0] === props.value ? 'current' : null}
                                     aria-current={v[0] === props.value ? 'page' : null}>
                             {v[1]}
                         </a>
-                        {v[0] === props.value ? <span>{'\u2713'}</span> : null}
                     </span>
                 </React.Fragment>
             )}

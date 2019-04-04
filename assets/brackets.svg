@@ -4,22 +4,22 @@
 <svg version="1.1" id="Vrstva_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 width="16px" height="16px" viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
 <g>
-	<path fill="#009DDF" d="M16,14c0,1.1-0.9,2-2,2H2c-1.1,0-2-0.9-2-2V2c0-1.1,0.9-2,2-2h12c1.1,0,2,0.9,2,2V14z"/>
+	<path fill="#009EE0" d="M16,14c0,1.1-0.9,2-2,2H2c-1.1,0-2-0.9-2-2V2c0-1.1,0.9-2,2-2h12c1.1,0,2,0.9,2,2V14z"/>
 	<rect x="1.947" y="1.948" fill="#FCFCFC" width="2.107" height="2.106"/>
 	<rect x="1.947" y="5.28" fill="#FCFCFC" width="2.107" height="2.106"/>
-	<rect x="1.947" y="8.612" fill="#FCFCFC" width="2.107" height="2.106"/>
-	<rect x="1.947" y="11.944" fill="#FCFCFC" width="2.107" height="2.106"/>
+	<rect x="1.947" y="8.611" fill="#FCFCFC" width="2.107" height="2.107"/>
+	<rect x="1.947" y="11.943" fill="#FCFCFC" width="2.107" height="2.105"/>
 	<rect x="5.279" y="1.948" fill="#FCFCFC" width="2.107" height="2.106"/>
 	<rect x="5.279" y="5.28" fill="#FCFCFC" width="2.107" height="2.106"/>
-	<rect x="5.279" y="8.612" fill="#FCFCFC" width="2.107" height="2.106"/>
-	<rect x="5.279" y="11.944" fill="#FCFCFC" width="2.107" height="2.106"/>
-	<rect x="8.611" y="1.948" fill="#FCFCFC" width="2.107" height="2.106"/>
-	<rect x="8.611" y="5.28" fill="#FCFCFC" width="2.107" height="2.106"/>
-	<rect x="8.611" y="8.612" fill="#FCFCFC" width="2.107" height="2.106"/>
-	<rect x="8.611" y="11.944" fill="#FCFCFC" width="2.107" height="2.106"/>
-	<rect x="11.943" y="1.948" fill="#FCFCFC" width="2.107" height="2.106"/>
-	<rect x="11.943" y="5.28" fill="#FCFCFC" width="2.107" height="2.106"/>
-	<rect x="11.943" y="8.612" fill="#FCFCFC" width="2.107" height="2.106"/>
-	<rect x="11.943" y="11.944" fill="#FCFCFC" width="2.107" height="2.106"/>
+	<rect x="5.279" y="8.611" fill="#FCFCFC" width="2.107" height="2.107"/>
+	<rect x="5.279" y="11.943" fill="#FCFCFC" width="2.107" height="2.105"/>
+	<rect x="8.611" y="1.948" fill="#FCFCFC" width="2.105" height="2.106"/>
+	<rect x="8.611" y="5.28" fill="#FCFCFC" width="2.105" height="2.106"/>
+	<rect x="8.611" y="8.611" fill="#FCFCFC" width="2.105" height="2.107"/>
+	<rect x="8.611" y="11.943" fill="#FCFCFC" width="2.105" height="2.105"/>
+	<rect x="11.943" y="1.948" fill="#FCFCFC" width="2.105" height="2.106"/>
+	<rect x="11.943" y="5.28" fill="#FCFCFC" width="2.105" height="2.106"/>
+	<rect x="11.943" y="8.611" fill="#FCFCFC" width="2.105" height="2.107"/>
+	<rect x="11.943" y="11.943" fill="#FCFCFC" width="2.105" height="2.105"/>
 </g>
 </svg>
