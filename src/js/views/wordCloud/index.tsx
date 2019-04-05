@@ -119,7 +119,11 @@ export function init<T>(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponen
         }
 
         render() {
-            const style = {left: `${this.calcXPos()}px`, top: `${this.calcYPos()}px`, display: 'block'};
+            const style = {
+                left: `${this.calcXPos()}px`,
+                top: `${this.calcYPos()}px`,
+                display: this.props.data && this.props.data.length > 0 ? 'block' : 'none'
+            };
 
             return (
                 <div ref={this.elmRef} className="wdg-tooltip" style={style}>
