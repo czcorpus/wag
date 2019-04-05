@@ -53,6 +53,12 @@ export enum HTTPMethod {
     PATCH = 'PATCH'
 }
 
+export interface ScreenProps {
+    isMobile:boolean;
+    innerWidth:number;
+    innerHeight:number;
+}
+
 export type LocalizedConfMsg = string|{[lang:string]:string};
 
 export interface Backlink {

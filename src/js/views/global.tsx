@@ -18,9 +18,10 @@
 import * as Immutable from 'immutable';
 import { ActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
+import { Observable } from 'rxjs';
 
 import { MultiDict } from '../common/data';
-import { BacklinkWithArgs, SystemMessageType } from '../common/types';
+import { BacklinkWithArgs, SystemMessageType, ScreenProps } from '../common/types';
 import { KeyCodes } from '../common/util';
 import { ActionName, Actions } from '../models/actions';
 
@@ -63,9 +64,13 @@ export interface GlobalComponents {
         htmlClass?:string;
         onChange:(idx:number)=>void;
     }>;
+
+    ResponsiveWrapper:React.ComponentClass<{
+        render:(width:number, height:number)=>React.ReactElement<{width:number, height:number} & {}>;
+    }>;
 }
 
-export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalComponents {
+export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>, resize$:Observable<ScreenProps>):GlobalComponents {
 
     // --------------- <AjaxLoader /> -------------------------------------------
 
@@ -322,6 +327,53 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
         );
     };
 
+    // ----------------------
+
+    class ResponsiveWrapper extends React.Component<{
+            render:(width:number, height:number)=>React.ReactElement<{width: number, height:number} & {}>;
+       },
+       {
+            width:number;
+            height:number;
+        }> {
+
+        private readonly ref:React.RefObject<HTMLDivElement>;
+
+        constructor(props) {
+            super(props);
+            this.state = {
+                width: 1,
+                height: 1,
+            };
+            this.ref = React.createRef();
+            this.handleWindowResize = this.handleWindowResize.bind(this);
+            resize$.subscribe(this.handleWindowResize);
+        }
+
+        componentDidMount() {
+            if (this.ref.current) {
+                this.setState({
+                    width: this.ref.current.getBoundingClientRect().width,
+                    height: this.ref.current.getBoundingClientRect().height
+                });
+            }
+        }
+
+        private handleWindowResize(props:ScreenProps) {
+            if (this.ref.current) {
+                this.setState({
+                    width: this.ref.current.getBoundingClientRect().width,
+                    height: this.ref.current.getBoundingClientRect().height
+                });
+            }
+        }
+
+        render() {
+            return <div style={{width: '100%', height: '100%'}} ref={this.ref}>{this.props.render(this.state.width, this.state.height)}</div>;
+        }
+
+    };
+
     // ===================
 
     return {
@@ -330,6 +382,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>):GlobalCompon
         TileWrapper: TileWrapper,
         ErrorBoundary: ErrorBoundary,
         ModalBox: ModalBox,
-        HorizontalBlockSwitch: HorizontalBlockSwitch
+        HorizontalBlockSwitch: HorizontalBlockSwitch,
+        ResponsiveWrapper: ResponsiveWrapper
     };
 }

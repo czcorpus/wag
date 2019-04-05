@@ -30,7 +30,7 @@ import { Theme } from '../../common/theme';
 export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:TreqModel):TileComponent {
 
     const globComponents = ut.getComponents();
-    const WordCloud = wordCloudViewInit(dispatcher, ut, theme);
+    const WordCloud = wordCloudViewInit<TreqTranslation>(dispatcher, ut, theme);
 
     // -----
 
@@ -89,7 +89,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
     class TreqTileView extends React.PureComponent<TreqModelState & CoreTileComponentProps> {
 
         render() {
-            const data = this.props.translations.map(t => ({
+            const dataTransform = (t:TreqTranslation) => ({
                 text: t.right,
                 value: t.perc,
                 tooltip: [
@@ -98,7 +98,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                 ],
                 interactionId: t.interactionId,
                 color: t.color
-            })).toArray();
+            });
 
             const style = this.props.isMobile ? {height: `${this.props.translations.size * 30}px`} :
                                                 {height: `${this.props.translations.size * 40}px`, width: '100%'};
@@ -110,7 +110,11 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                             backlink={this.props.treqBackLink}>
                     {this.props.isAltViewMode ?
                         <TranslationsTable translations={this.props.translations} /> :
-                        <WordCloud style={style} isMobile={this.props.isMobile} data={data} font="Roboto Condensed" />
+                        <globComponents.ResponsiveWrapper render={(width:number, height:number) => (
+                                    <WordCloud width={width} height={height}
+                                            style={style} isMobile={this.props.isMobile}
+                                            data={this.props.translations} font="Roboto Condensed"
+                                            dataTransform={dataTransform} />)} />
                     }
                 </globComponents.TileWrapper>
             );
