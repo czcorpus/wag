@@ -42,12 +42,13 @@ module.exports = (env) => ({
                     {
                         loader: 'awesome-typescript-loader',
                         options: {
-                            configFile: path.resolve(__dirname, 'tsconfig.server.json'),
-                            transpileOnly: env ? !!env.TS_TRANSPILE_ONLY : false
+                            configFileName: path.resolve(__dirname, 'tsconfig.server.json'),
+                            transpileOnly: env ? !!env.TS_TRANSPILE_ONLY : false,
+                            useCache: false
                         }
                     }
                 ]
-            },
+            }
         ]
     },
     node: {
@@ -66,9 +67,7 @@ module.exports = (env) => ({
             chunks: 'all',
             name: 'common'
         },
-        minimizer: [
-            new UglifyJsPlugin()
-        ]
+        minimizer: [] // no big deal on server-side (code is loaded once)
     },
     plugins: [
         new build.ProcTranslationsPlugin(SRC_PATH, DIST_PATH, CONF)
