@@ -20,15 +20,15 @@ import * as Immutable from 'immutable';
 import { ActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { fromEvent } from 'rxjs';
-import { throttleTime } from 'rxjs/operators';
+import { fromEvent, Observable } from 'rxjs';
+import { debounceTime, map } from 'rxjs/operators';
 import * as translations from 'translations';
 
 import { AppServices } from './appServices';
 import { encodeArgs } from './common/ajax';
 import { CorpusInfoAPI } from './common/api/kontext/corpusInfo';
 import { Theme } from './common/theme';
-import { ITileProvider, LemmaVariant, QueryType, TileConf, TileFactory, TileFrameProps } from './common/types';
+import { ITileProvider, LemmaVariant, QueryType, TileConf, TileFactory, TileFrameProps, ScreenProps } from './common/types';
 import { AnyTileConf, ClientConf, UserConf } from './conf';
 import { LayoutManager } from './layout';
 import { ActionName, Actions } from './models/actions';
@@ -191,7 +191,17 @@ export const init = (mountElement:HTMLElement, config:ClientConf, userSession:Us
     });
     //appServices.forceMobileMode(); // DEBUG
 
-    const globalComponents = globalCompInit(dispatcher, viewUtils);
+    const windowResize$:Observable<ScreenProps> = fromEvent(window, 'resize')
+        .pipe(
+            debounceTime(500),
+            map(v => ({
+                isMobile: appServices.isMobileMode(),
+                innerWidth: window.innerWidth,
+                innerHeight: window.innerHeight
+            }))
+        );
+
+    const globalComponents = globalCompInit(dispatcher, viewUtils, windowResize$);
     viewUtils.attachComponents(globalComponents);
     const formModel = wdglanceFormFactory({
         dispatcher: dispatcher,
@@ -273,18 +283,14 @@ export const init = (mountElement:HTMLElement, config:ClientConf, userSession:Us
 
     const component = viewInit(dispatcher, viewUtils, formModel, tilesModel, messagesModel);
 
-    fromEvent(window, 'resize')
-        .pipe(throttleTime(500))
-        .subscribe(
-            () => {
-                dispatcher.dispatch<Actions.SetScreenMode>({
-                    name: ActionName.SetScreenMode,
-                    payload: {
-                        isMobile: appServices.isMobileMode()
-                    }
-                });
-            }
-        );
+    windowResize$.subscribe(
+        (props) => {
+            dispatcher.dispatch<Actions.SetScreenMode>({
+                name: ActionName.SetScreenMode,
+                payload: props
+            });
+        }
+    );
 
     ReactDOM.render(
         React.createElement(

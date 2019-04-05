@@ -129,6 +129,8 @@ export namespace Actions {
 
     export interface SetScreenMode extends Action<{
         isMobile:boolean;
+        innerWidth:number;
+        innerHeight:number;
 
     }> {
         name: ActionName.SetScreenMode;

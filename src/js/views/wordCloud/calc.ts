@@ -35,6 +35,9 @@ export interface Rect {
     data?:WordCloudItemCalc;
 }
 
+export const MAX_WC_FONT_SIZE = 80;
+
+export const MAX_WC_FONT_SIZE_MOBILE = 75; // TODO test this one
 
 const MIN_WC_FONT_SIZE = 26;
 
@@ -42,9 +45,15 @@ const MIN_WC_FONT_SIZE_MOBILE = 23;
 
 const PLACE_NUM_SPIRAL_ITER = 8000;
 
-export const MAX_WC_FONT_SIZE = 80;
+const SPIRAL_STEP = 3.1415927 / 41;
 
-export const MAX_WC_FONT_SIZE_MOBILE = 75; // TODO test this one
+const SPIRAL_PARAM_A = 2;
+
+const SPIRAL_PARAM_B = 0.81;
+
+const WC_ITEM_MARGIN_X = 15;
+
+const WC_ITEM_MARGIN_Y = 10;
 
 
 export type TooltipData = Array<{label:string; value:string|number; round?:number}>;
@@ -57,9 +66,9 @@ function adjustFontSize(isMobile:boolean, v:number):number {
 }
 
 
-function calcOverlap(rA:Rect, rB:Rect, margin:number) {
-    return Math.max(0, Math.min(rA.x + rA.w + margin, rB.x + rB.w + margin) - Math.max(rA.x, rB.x)) *
-            Math.max(0, Math.min(rA.y + rA.h + margin, rB.y + rB.h + margin) - Math.max(rA.y, rB.y));
+function calcOverlap(rA:Rect, rB:Rect, marginX:number, marginY:number) {
+    return Math.max(0, Math.min(rA.x + rA.w + marginX, rB.x + rB.w + marginX) - Math.max(rA.x - marginX, rB.x - marginX)) *
+            Math.max(0, Math.min(rA.y + rA.h + marginY, rB.y + rB.h + marginY) - Math.max(rA.y - marginY, rB.y - marginY));
 }
 
 
@@ -81,6 +90,10 @@ class FontMeasure {
         ctx.font = `${fontSize}px ${fontName}`;
         return ctx.measureText(text).width;
     }
+
+    close():void {
+        document.body.removeChild(this.canv);
+    }
 }
 
 
@@ -100,26 +113,24 @@ function boundingBox(rects:Array<Rect>):Rect {
 }
 
 
-function mkSpiralPoint(x:number, y:number, idx:number, aspectRatio:number) {
-    const a = 2;
-    const b = 0.8;
-    const phi = idx * 3.1416 / 24;
-    const xc = (a + b * phi * aspectRatio) * Math.cos(phi);
-    const yc = (a + b * phi * 1 / aspectRatio) * Math.sin(phi);
-    return [xc + x, yc + y];
+function mkSpiralPoint(centerX:number, centerY:number, idx:number, aspectRatio:number):[number, number] {
+    const phi = idx * SPIRAL_STEP;
+    const xc = (SPIRAL_PARAM_A + SPIRAL_PARAM_B * phi * aspectRatio) * Math.cos(phi);
+    const yc = (SPIRAL_PARAM_A + SPIRAL_PARAM_B * phi * 1 / aspectRatio) * Math.sin(phi);
+    return [xc + centerX, yc + centerY];
 }
 
 
-function placeRect(rects:Array<Rect>, idx:number, initialX:number, initialY:number, aspectRatio:number) {
+function placeRect(rects:Array<Rect>, idx:number, initialX:number, initialY:number, aspectRatio:number):void {
     let overlap = 0;
     const corrAspRatio = aspectRatio ** 0.4;
     for (let i = 0; i < PLACE_NUM_SPIRAL_ITER; i += 1) {
-        const spiralPoint = mkSpiralPoint(initialX, initialY, 3.1416 / 15 * i, corrAspRatio);
+        const spiralPoint = mkSpiralPoint(initialX, initialY, i, corrAspRatio);
         rects[idx].x = spiralPoint[0];
         rects[idx].y = spiralPoint[1];
         overlap = 0;
         for (let j = 0; j < idx; j += 1) {
-            overlap = calcOverlap(rects[idx], rects[j], 10);
+            overlap = calcOverlap(rects[idx], rects[j], WC_ITEM_MARGIN_X, WC_ITEM_MARGIN_Y);
             if (overlap > 0) {
                 break;
             }
@@ -130,24 +141,24 @@ function placeRect(rects:Array<Rect>, idx:number, initialX:number, initialY:numb
     }
 }
 
-
-export const createRectangles = (data:Array<WordCloudItemCalc>, frameWidth:number, frameHeight:number, isMobile:boolean, font:string):Array<Rect> => {
+/**
+ * Create rectangle objects (with their position, size and data) placed in a "word cloud" way.
+ */
+function createRectangles(data:Array<WordCloudItemCalc>, frameWidth:number, frameHeight:number, isMobile:boolean, font:string):Array<Rect> {
     const ans = [];
     const measure = new FontMeasure();
-
     const minVal = Math.min(...data.map(v => v.value));
     const scaledTotal = data.map(v => v.value - minVal).reduce((curr, acc) => acc + curr, 0);
 
-
-    for (let i = 0; i < data.length; i += 1) {
-        const wcFontSizeRatio = scaledTotal > 0 ? (data[i].value - minVal) / scaledTotal : 1;
+    data.forEach((wcitem) => {
+        const wcFontSizeRatio = scaledTotal > 0 ? (wcitem.value - minVal) / scaledTotal : 1;
         const fontSize = adjustFontSize(
             isMobile,
             isMobile ?
                 Math.max((wcFontSizeRatio * 100) ** 1.9 / 10, MIN_WC_FONT_SIZE_MOBILE) :
                 Math.max((wcFontSizeRatio * 100) ** 1.9 / 10, MIN_WC_FONT_SIZE)
         );
-        const width = measure.getTextWidth(data[i].text, font, fontSize);
+        const width = measure.getTextWidth(wcitem.text, font, fontSize);
         const height = fontSize * 1.1;
         const x1 = frameWidth / 2 - width / 2; // TODO randomize?
         const y1 = frameHeight / 2 - height / 2;
@@ -158,14 +169,25 @@ export const createRectangles = (data:Array<WordCloudItemCalc>, frameWidth:numbe
             w: width,
             h: height,
             fontSize: fontSize,
-            data: data[i]
+            data: wcitem
         });
-    }
+    });
+
+    measure.close();
     return ans;
 }
 
 
-export const findPlacement = (rectangles:Array<Rect>, frameWidth:number, frameHeight:number):{rectangles: Array<Rect>, transform:string} => {
+export const createWordCloud = (
+        data:Array<WordCloudItemCalc>,
+        frameWidth:number,
+        frameHeight:number,
+        isMobile:boolean,
+        font:string
+    ):{rectangles: Array<Rect>, transform:string} => {
+
+    const rectangles = createRectangles(data, frameWidth, frameHeight, isMobile, font)
+            .sort((r1, r2) => r2[2] * r2[3] - r1[2] * r1[3]);
     for (let i = 0; i < rectangles.length; i += 1) {
         placeRect(
             rectangles,
@@ -177,5 +199,8 @@ export const findPlacement = (rectangles:Array<Rect>, frameWidth:number, frameHe
     }
     const bbox = boundingBox(rectangles);
     const scale = Math.min(frameWidth * 0.95 / bbox.w, frameHeight / bbox.h);
-    return {rectangles: rectangles, transform: `translate(${-bbox.x * scale} ${-bbox.y * scale}) scale(${scale}, ${scale})`};
+    return {
+        rectangles: rectangles,
+        transform: `translate(${-bbox.x * scale} ${-bbox.y * scale}) scale(${scale}, ${scale})`
+    };
 }

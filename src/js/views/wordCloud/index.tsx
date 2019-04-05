@@ -21,7 +21,7 @@ import * as Immutable from 'immutable';
 import { Theme } from '../../common/theme';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
 import { GlobalComponents } from '../../views/global';
-import { Rect, WordCloudItemCalc, TooltipData, createRectangles, findPlacement, MAX_WC_FONT_SIZE_MOBILE, MAX_WC_FONT_SIZE } from './calc';
+import { Rect, WordCloudItemCalc, TooltipData, createWordCloud, MAX_WC_FONT_SIZE_MOBILE, MAX_WC_FONT_SIZE } from './calc';
 
 
 export type WordCloudItem = WordCloudItemCalc;
@@ -30,17 +30,15 @@ export type WordCloudItem = WordCloudItemCalc;
 export interface WordCloudProps<T> {
     style:{[prop:string]:string};
     isMobile:boolean;
+    width:number;
+    height:number;
     font:string;
     data:Immutable.List<T>;
     dataTransform:(v:T)=>WordCloudItem;
 }
-
 interface WordCloudState<T> {
     data:Immutable.List<T>;
     rects:Array<Rect>;
-    frameWidth:number;
-    frameHeight:number;
-    viewBoxAspectRatio:number;
     transform:string;
     activeItem:WordCloudItem|null;
     tooltipPos:[number,number]|null;
@@ -147,9 +145,6 @@ export function init<T>(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponen
             this.state = {
                 data: this.props.data,
                 rects: [],
-                frameWidth: 0,
-                frameHeight: 0,
-                viewBoxAspectRatio: 1,
                 transform: '',
                 activeItem: null,
                 tooltipPos: [0, 0]
@@ -159,39 +154,10 @@ export function init<T>(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponen
             this.handleMouseOut = this.handleMouseOut.bind(this);
         }
 
-        componentDidMount() {
-            if (this.chartContainer.current) {
-                const bbox = this.chartContainer.current.getBoundingClientRect();
-                const vboxAspectRatio = bbox.width / bbox.height;
-                const rects = createRectangles(
-                    this.props.data.map(this.props.dataTransform).toArray(),
-                    200,
-                    200 / vboxAspectRatio,
-                    this.props.isMobile,
-                    this.props.font
-                ).sort((r1, r2) => r2[2] * r2[3] - r1[2] * r1[3]);
-                const plac = findPlacement(rects, 200, 200 / vboxAspectRatio);
-
-                this.setState({
-                    data: this.state.data,
-                    rects: plac.rectangles,
-                    frameWidth: bbox.width,
-                    frameHeight: bbox.height,
-                    viewBoxAspectRatio: vboxAspectRatio,
-                    transform: plac.transform,
-                    activeItem: null,
-                    tooltipPos: [0, 0]
-                });
-            }
-        }
-
         handleMouseMove(x:number, y:number, data:WordCloudItem) {
             this.setState({
                 data: this.state.data,
                 rects: this.state.rects,
-                frameWidth: this.state.frameWidth,
-                frameHeight: this.state.frameHeight,
-                viewBoxAspectRatio: this.state.viewBoxAspectRatio,
                 transform: this.state.transform,
                 activeItem: this.state.activeItem !== data ? data : this.state.activeItem,
                 tooltipPos: [x, y]
@@ -203,9 +169,6 @@ export function init<T>(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponen
                 this.setState({
                     data: this.state.data,
                     rects: this.state.rects,
-                    frameWidth: this.state.frameWidth,
-                    frameHeight: this.state.frameHeight,
-                    viewBoxAspectRatio: this.state.viewBoxAspectRatio,
                     transform: this.state.transform,
                     activeItem: data,
                     tooltipPos: [x, y]
@@ -223,9 +186,6 @@ export function init<T>(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponen
             this.setState({
                 data: this.state.data,
                 rects: this.state.rects,
-                frameWidth: this.state.frameWidth,
-                frameHeight: this.state.frameHeight,
-                viewBoxAspectRatio: this.state.viewBoxAspectRatio,
                 transform: this.state.transform,
                 activeItem: null,
                 tooltipPos: [0, 0]
@@ -244,9 +204,6 @@ export function init<T>(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponen
                 return {
                     data: props.data,
                     rects: [],
-                    frameWidth: state.frameWidth,
-                    frameHeight: state.frameHeight,
-                    viewBoxAspectRatio: state.viewBoxAspectRatio,
                     transform: state.transform,
                     activeItem: null,
                     tooltipPos: [0, 0]
@@ -256,6 +213,15 @@ export function init<T>(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponen
         }
 
         render() {
+            const vboxAspectRatio = this.props.width / this.props.height;
+            const wcloud = createWordCloud(
+                this.props.data.map(this.props.dataTransform).toArray(),
+                200,
+                200 / vboxAspectRatio,
+                this.props.isMobile,
+                this.props.font
+            );
+
             const style = Object.assign({}, this.props.style);
             style['minHeight'] = `${2 * (this.props.isMobile ? MAX_WC_FONT_SIZE_MOBILE : MAX_WC_FONT_SIZE)}px`;
             const colors = theme.scaleColorIndexed(0, 10);
@@ -264,9 +230,9 @@ export function init<T>(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponen
                     <Tooltip x={this.state.tooltipPos[0]} y={this.state.tooltipPos[1]}
                             data={this.state.activeItem ? this.state.activeItem.tooltip : []} />
                     <svg width="100%" height="100%" preserveAspectRatio="xMinYMid meet"
-                            viewBox={`0 0 200 ${(200 / this.state.viewBoxAspectRatio).toFixed()}`}>
-                        <g transform={this.state.transform}>
-                            {this.state.rects.map((r, i) =>
+                            viewBox={`0 0 200 ${(200 / vboxAspectRatio).toFixed()}`}>
+                        <g transform={wcloud.transform}>
+                            {wcloud.rectangles.map((r, i) =>
                                 <Word key={`${r.x}:${r.y}:${r.w}:${r.h}`} color={colors(i)} rect={r}
                                     onMouseMove={this.handleMouseMove}
                                     onMouseOut={this.handleMouseOut}

@@ -116,7 +116,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             const sortItemIdx = this.props.heading.findIndex(v => v.ident === this.props.csortfn);
             const dataTransform = (v:DataRow) => ({
                 text: v.str,
-                value: v.stats[sortItemIdx > -1 ? sortItemIdx : 0],
+                value: sortItemIdx > 0 ? v.stats[sortItemIdx - 1] : v.freq, // abs attr is not in the stats array (=> -1)
                 tooltip: v.stats.map((v, i) => ({label: this.props.heading[i+1].label,  value: v, round: 1})),
                 interactionId: v.interactionId
             });
@@ -132,11 +132,13 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                     <div className="boxes">
                         {this.props.isAltViewMode ?
                             <TableView heading={this.props.heading} data={this.props.data} /> :
-                            <WordCloud data={this.props.data} isMobile={this.props.isMobile}
-                                    style={this.props.isMobile ? {height: `${this.props.data.size * 30}px`} :
+                            <globalCompontents.ResponsiveWrapper render={(width:number, height:number) => (
+                                <WordCloud width={width} height={height} data={this.props.data} isMobile={this.props.isMobile}
+                                        style={this.props.isMobile ? {height: `${this.props.data.size * 30}px`} :
                                                 {height: `${this.props.data.size * 40}px`, width: '100%'}}
                                                 font="Roboto Condensed"
                                                 dataTransform={dataTransform} />
+                                )} />
                         }
 
                     </div>
