@@ -1,6 +1,6 @@
 {
     "en-US": {
-        "wordfreq_searched_form": "Searched form",
+        "wordfreq_searched_form": "Entered form",
         "wordfreq_abs_freq": "Absolute frequency",
         "wordfreq__pos": "part of speech",
         "wordfreq__ipm": "Instances per million tokens",
@@ -10,7 +10,7 @@
         "wordfreq__main_label": "Words with similar frequency"
     },
     "cs-CZ": {
-        "wordfreq_searched_form": "hledaný tvar",
+        "wordfreq_searched_form": "zadaný tvar",
         "wordfreq_abs_freq": "absolutní frekvence",
         "wordfreq__pos": "slovní druh",
         "wordfreq__ipm": "výskytů na milion tokenů",
