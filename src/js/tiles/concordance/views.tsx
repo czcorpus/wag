@@ -182,9 +182,9 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         backlink={this.props.backlink}>
                     <div className="ConcordanceTileView">
                         {this.props.isTweakMode ?
-                            <div><Controls currPage={this.props.currPage} numPages={this.props.numPages}
+                            <div className="tweak-box"><Controls currPage={this.props.currPage} numPages={this.props.numPages}
                                     viewMode={this.props.viewMode} tileId={this.props.tileId}
-                                    viewModeEnabled={!this.props.otherCorpname} /><hr /></div> :
+                                    viewModeEnabled={!this.props.otherCorpname} /></div> :
                             null
                         }
                         <dl className="summary">
