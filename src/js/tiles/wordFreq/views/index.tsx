@@ -20,6 +20,7 @@ import { ActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 
 import { CoreTileComponentProps, TileComponent } from '../../../common/types';
+import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { GlobalComponents } from '../../../views/global';
 import { SummaryModel, SummaryModelState } from '../model';
 import { FreqDBRow } from '../api';
@@ -60,6 +61,19 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     }> = (props) => {
 
+        const handleWordClick = (e:React.MouseEvent<HTMLAnchorElement>) => {
+            const word = (e.target as Element).getAttribute('data-value');
+            dispatcher.dispatch<GlobalActions.ChangeQueryInput>({
+                name: GlobalActionName.ChangeQueryInput,
+                payload: {
+                    value: word
+                }
+            });
+            dispatcher.dispatch<GlobalActions.SubmitQuery>({
+                name: GlobalActionName.SubmitQuery
+            });
+        };
+
         return (
             <>
                 <dt>{ut.translate('wordfreq__main_label')}:</dt>
@@ -67,7 +81,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                 {props.data.map((word, i) => (
                     <React.Fragment key={`w:${word.lemma}:${word.pos}`}>
                     {i > 0 ? ', ' : ''}
-                    <span>{word.lemma}</span>
+                    <a data-value={word.lemma} onClick={handleWordClick}>{word.lemma}</a>
                     </React.Fragment>
                 ))}
                 </dd>

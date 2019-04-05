@@ -30,3 +30,26 @@ body {
 	text-align: justify;
 	line-height: 1.6;
 }
+
+
+@media screen and (max-width: @media-small-screen) {
+
+	body {
+		> header.wdg-header {
+
+			text-align: center;
+			margin-top: 0.4em;
+			margin-bottom: 0.6em;
+
+			a {
+				display: inline-block;
+				margin: 0;
+				text-decoration: none;
+
+				img {
+					width: 20em;
+				}
+			}
+		}
+	}
+}
