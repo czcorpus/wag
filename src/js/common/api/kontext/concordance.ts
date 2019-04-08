@@ -146,12 +146,12 @@ const escapeVal = (v:string) => v.replace(/"/, '\\"');
 
 export const mkFullMatchQuery = (lvar:LemmaVariant, generator:[string, string]):string => {
     const fn = posQueryFactory(generator[1]);
-    return `[word="${escapeVal(lvar.word)}" & lemma="${escapeVal(lvar.lemma)}" & ${generator[0]}="${fn(lvar.pos)}"]`; // TODO escape stuff !!!
+    return `[word="(?i)${escapeVal(lvar.word)}" & lemma="${escapeVal(lvar.lemma)}" & ${generator[0]}="${fn(lvar.pos)}"]`; // TODO escape stuff !!!
 };
 
 export const mkLemmaMatchQuery = (lvar:LemmaVariant, generator:[string, string]):string => {
     const fn = posQueryFactory(generator[1]);
-    return `[lemma="${escapeVal(lvar.lemma)}" & ${generator[0]}="${fn(lvar.pos)}"]`; // TODO escape stuff !!!
+    return `[lemma="(?i)${escapeVal(lvar.lemma)}" & ${generator[0]}="${fn(lvar.pos)}"]`; // TODO escape stuff !!!
 };
 
 

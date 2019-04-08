@@ -195,16 +195,17 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         return (
             <table className="AltViewTable data">
                 <thead>
-                    <tr>
+                    <tr className="top-grouped">
                         <th />
                         {props.subsets.map((v, i) =>
-                            <th key={v.label} colSpan={2} className="package">{v.label}</th>)}
+                            <th key={v.label} colSpan={2} className="package separ">{v.label}</th>)}
                     </tr>
-                    <tr className="absrel">
+                    <tr className="absrel bottom-grouped">
                         <th />
                         {props.subsets.map((v, i) =>
-                            <React.Fragment key={`A:${v.label}`}><th>abs</th><th>rel</th></React.Fragment>)}
+                            <React.Fragment key={`A:${v.label}`}><th>abs</th><th className="separ">rel</th></React.Fragment>)}
                     </tr>
+                    <tr className="separ"><td colSpan={props.subsets.size * 2} /></tr>
                 </thead>
                 <tbody>
                     {flipRowColMapper(props.subsets, props.maxNumLines, row => (
