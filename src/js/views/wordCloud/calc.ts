@@ -187,7 +187,7 @@ export const createWordCloud = (
     ):{rectangles: Array<Rect>, transform:string} => {
 
     const rectangles = createRectangles(data, frameWidth, frameHeight, isMobile, font)
-            .sort((r1, r2) => r2[2] * r2[3] - r1[2] * r1[3]);
+            .sort((r1, r2) => r2.w * r2.h - r1.w * r1.h);
     for (let i = 0; i < rectangles.length; i += 1) {
         placeRect(
             rectangles,
