@@ -176,7 +176,7 @@ export const init = (mountElement:HTMLElement, config:ClientConf, userSession:Us
         uiLang: uiLangSel,
         translations: translations,
         staticUrlCreator: (path) => config.rootUrl + 'assets/' + path,
-        actionUrlCreator: (path, args) => config.hostUrl + path + '?' + encodeArgs(args)
+        actionUrlCreator: (path, args) => config.hostUrl + path + (Object.keys(args || {}).length > 0 ? '?' + encodeArgs(args) : '')
     });
 
     const notifications = new SystemNotifications(dispatcher);

@@ -17,7 +17,7 @@
  */
 import * as Immutable from 'immutable';
 import { Action, SEDispatcher, StatelessModel } from 'kombo';
-import { Observable, Observer } from 'rxjs';
+import { Observable, Observer, of as rxOf } from 'rxjs';
 import { concatMap, map } from 'rxjs/operators';
 
 import { AppServices } from '../../appServices';
@@ -32,6 +32,7 @@ import { DataItemWithWCI, DataLoadedPayload, SubchartID } from './common';
 import { AlphaLevel, wilsonConfInterval } from './stat';
 import { Actions, ActionName } from './common';
 import { callWithRequestId } from '../../common/api/util';
+import { LemmaVariant } from '../../common/types';
 
 
 export const enum FreqFilterQuantity {
@@ -114,19 +115,22 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<DataLoadedPayload>) => {
                 if (action.payload.tileId === this.tileId) {
                     const newState = this.copyState(state);
+                    const prevData = this.getDataOf(newState, action.payload.subchartId);
+                    let newData:Immutable.List<DataItemWithWCI>;
                     if (action.error) {
                         this.unfinishedChunks = this.mapChunkStatusOf((v, k) => false, action.payload.subchartId).toMap();
-                        newState.data = Immutable.List<DataItemWithWCI>();
+                        newData = Immutable.List<DataItemWithWCI>();
                         newState.error = action.error.message;
                         newState.isBusy = false;
 
                     } else if (action.payload.data.length < TimeDistribModel.MIN_DATA_ITEMS_TO_SHOW && !this.hasUnfinishedCHunks(action.payload.subchartId)) {
-                        newState.data = Immutable.List<DataItemWithWCI>();
+                        newData = Immutable.List<DataItemWithWCI>();
 
                     } else {
-                        newState.data = this.mergeChunks(
-                            newState,
-                            Immutable.List<DataItemWithWCI>(action.payload.data)
+                        newData = this.mergeChunks(
+                            prevData,
+                            Immutable.List<DataItemWithWCI>(action.payload.data),
+                            state.alphaLevel
                         );
 
                         this.unfinishedChunks = this.unfinishedChunks.set(this.mkChunkId(action.payload.subcname, action.payload.subchartId), false);
@@ -134,6 +138,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                             newState.isBusy = false;
                         }
                     }
+                    this.setDataOf(newState, action.payload.subchartId, newData);
                     return newState;
                 }
                 return state;
@@ -166,7 +171,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             [ActionName.SubmitCmpWord]: (state, action:Actions.SubmitCmpWord) => {
                 if (action.payload.tileId === this.tileId) {
                     const newState = this.copyState(state);
-                    console.log('TODO !!! submit: ', newState.wordCmp);
+                    newState.dataCmp = newState.dataCmp.clear();
                     return newState;
                 }
                 return state;
@@ -178,6 +183,19 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         return `${subchartId}:${subcname}`;
     }
 
+    private getDataOf(state:TimeDistribModelState, subchartId:SubchartID):Immutable.List<DataItemWithWCI> {
+        return subchartId === SubchartID.MAIN ? state.data : state.dataCmp;
+    }
+
+    private setDataOf(state:TimeDistribModelState, subchartId:SubchartID, data:Immutable.List<DataItemWithWCI>):void {
+        if (subchartId === SubchartID.MAIN) {
+            state.data = data;
+
+        } else {
+            state.dataCmp = data;
+        }
+    }
+
     private mapChunkStatusOf(mapFn:((v:boolean, k:string) => boolean), subchartId?:SubchartID):Immutable.Map<string, boolean> {
         return this.unfinishedChunks.map((v, k) => (subchartId && k.startsWith(subchartId) || !subchartId) ? mapFn(v, k) : v).toMap();
     }
@@ -186,7 +204,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         return this.unfinishedChunks.filter((v, k) => k.startsWith(subchartId)).includes(true);
     }
 
-    private mergeChunks(state:TimeDistribModelState, newChunk:Immutable.List<DataItemWithWCI>):Immutable.List<DataItemWithWCI> {
+    private mergeChunks(currData:Immutable.List<DataItemWithWCI>, newChunk:Immutable.List<DataItemWithWCI>, alphaLevel:AlphaLevel):Immutable.List<DataItemWithWCI> {
         return newChunk.reduce(
             (acc, curr) => {
                 if (acc.has(curr.datetime)) {
@@ -195,12 +213,12 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     tmp.datetime = curr.datetime;
                     tmp.norm += curr.norm;
                     tmp.ipm = calcIPM(tmp, tmp.norm);
-                    const confInt = wilsonConfInterval(tmp.freq, tmp.norm, state.alphaLevel);
+                    const confInt = wilsonConfInterval(tmp.freq, tmp.norm, alphaLevel);
                     tmp.ipmInterval = [roundFloat(confInt[0] * 1e6), roundFloat(confInt[1] * 1e6)];
                     return acc.set(tmp.datetime, tmp);
 
                 } else {
-                    const confInt = wilsonConfInterval(curr.freq, curr.norm, state.alphaLevel);
+                    const confInt = wilsonConfInterval(curr.freq, curr.norm, alphaLevel);
                     return acc.set(curr.datetime, {
                         datetime: curr.datetime,
                         freq: curr.freq,
@@ -210,7 +228,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     });
                 }
             },
-            Immutable.Map<string, DataItemWithWCI>(state.data.map(v => [v.datetime, v]))
+            Immutable.Map<string, DataItemWithWCI>(currData.map(v => [v.datetime, v]))
 
         ).sort((x1, x2) => parseInt(x1.datetime) - parseInt(x2.datetime)).toList();
     }
@@ -260,7 +278,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         );
     }
 
-    private loadData(state:TimeDistribModelState, dispatch:SEDispatcher, target:SubchartID):void {
+    private loadData(state:TimeDistribModelState, dispatch:SEDispatcher, target:SubchartID, lemmaVariant:Observable<LemmaVariant>):void {
         if (this.waitForTile > -1) { // in this case we rely on a concordance provided by other tile
             this.suspend((action:Action) => {
                 if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
@@ -292,60 +310,50 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             });
 
         } else { // here we must create our own concordance(s)
-            const formState = this.mainForm.getState();
             state.subcnames.toArray().map(subcname =>
-                callWithRequestId(
-                    this.concApi,
-                    concStateToArgs(
-                        {
-                            querySelector: QuerySelector.CQL,
-                            corpname: state.corpname,
-                            otherCorpname: undefined,
-                            subcname: subcname,
-                            subcDesc: null,
-                            kwicLeftCtx: -1,
-                            kwicRightCtx: 1,
-                            pageSize: 10,
-                            loadPage: 1,
-                            shuffle: false,
-                            attr_vmode: 'mouseover',
-                            viewMode: ViewMode.KWIC,
-                            tileId: this.tileId,
-                            attrs: Immutable.List<string>(['word']),
-                            concId: null,
-                            posQueryGenerator: state.posQueryGenerator
-                        },
-                        findCurrLemmaVariant(formState.lemmas),
-                        null
+                lemmaVariant.pipe(
+                    concatMap(
+                        (args:LemmaVariant) => callWithRequestId(
+                            this.concApi,
+                            concStateToArgs(
+                                {
+                                    querySelector: QuerySelector.CQL,
+                                    corpname: state.corpname,
+                                    otherCorpname: undefined,
+                                    subcname: subcname,
+                                    subcDesc: null,
+                                    kwicLeftCtx: -1,
+                                    kwicRightCtx: 1,
+                                    pageSize: 10,
+                                    loadPage: 1,
+                                    shuffle: false,
+                                    attr_vmode: 'mouseover',
+                                    viewMode: ViewMode.KWIC,
+                                    tileId: this.tileId,
+                                    attrs: Immutable.List<string>(['word']),
+                                    concId: null,
+                                    posQueryGenerator: state.posQueryGenerator
+                                },
+                                args,
+                                null
+                            ),
+                            target
+                        )
                     ),
-                    target
-
-                ).pipe(
-                    map<[ConcResponse, SubchartID], ConcResponseWithTarget>(
-                        (resp) => ({
-                            conc_persistence_op_id: resp[0].conc_persistence_op_id,
-                            messages: resp[0].messages,
-                            Lines: resp[0].Lines,
-                            fullsize: resp[0].fullsize,
-                            concsize: resp[0].concsize,
-                            result_arf: resp[0].result_arf,
-                            result_relative_freq: resp[0].result_relative_freq,
-                            query: resp[0].query,
-                            corpname: resp[0].corpname,
-                            usesubcorp: resp[0].usesubcorp,
-                            subchartId: resp[1]
+                    map(
+                        (v:[ConcResponse, SubchartID]) => ({
+                            subcname: v[0].usesubcorp,
+                            concId: v[0].conc_persistence_op_id,
+                            subchartId: v[1]
                         })
                     ),
-                    map(v => ({
-                        subcname: v.usesubcorp,
-                        concId: v.conc_persistence_op_id,
-                        subchartId: v.subchartId
-                    })),
-                    concatMap(args => callWithRequestId(
-                        this.api,
-                        stateToAPIArgs(state, args.concId, args.subcname),
-                        args.subchartId
-                    ))
+                    concatMap(
+                        (args) => callWithRequestId(
+                            this.api,
+                            stateToAPIArgs(state, args.concId, args.subcname),
+                            args.subchartId
+                        )
+                    )
                 )
 
             ).forEach(resp => {
@@ -361,7 +369,23 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
     sideEffects(state:TimeDistribModelState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
-                this.loadData(state, dispatch, SubchartID.MAIN);
+                const formState = this.mainForm.getState();
+                this.loadData(
+                    state,
+                    dispatch,
+                    SubchartID.MAIN,
+                    rxOf(findCurrLemmaVariant(formState.lemmas))
+                );
+            break;
+            case ActionName.SubmitCmpWord:
+                return this.loadData(
+                    state,
+                    dispatch,
+                    SubchartID.SECONDARY,
+                    this.appServices.queryLemmaDbApi(state.wordCmp).pipe(
+                        map(v => v.result[0])
+                    )
+                );
             break;
         }
     }

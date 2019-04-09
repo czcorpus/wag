@@ -3,12 +3,16 @@
         "timeDistrib__main_label": "Frequency of the word during time",
         "timeDistrib__chart_legend_{property}{metric}": "{property}, {metric}",
         "timeDistrib__ipm_human": "occurrences per million tokens",
-        "timeDistrib__estimated_interval": "Estimated interval"
+        "timeDistrib__estimated_interval": "Estimated interval",
+        "timeDistrib__cmp_with_other_word": "Compare the trend with other word",
+        "timeDistrib__cmp_submit": "Search"
     },
     "cs-CZ": {
         "timeDistrib__main_label": "Frekvence výskytu slova v čase",
         "timeDistrib__chart_legend_{property}{metric}": "{property}, {metric}",
         "timeDistrib__ipm_human": "výskyty na milion tokenů",
-        "timeDistrib__estimated_interval": "Odhadnutý interval"
+        "timeDistrib__estimated_interval": "Odhadnutý interval",
+        "timeDistrib__cmp_with_other_word": "Porovnat trend s jiným slovem",
+        "timeDistrib__cmp_submit": "Vyhledat"
     }
 }

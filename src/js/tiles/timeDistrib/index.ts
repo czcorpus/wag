@@ -99,7 +99,7 @@ export class TimeDistTile implements ITileProvider {
                 fcrit: conf.fcrit,
                 timeAxisLegend: conf.timeAxisLegend,
                 flimit: conf.flimit,
-                freqSort: "rel",
+                freqSort: 'rel',
                 fpage: 1,
                 fttIncludeEmpty: false,
                 fmaxitems: 100,

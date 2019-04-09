@@ -15,9 +15,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Observable } from 'rxjs';
 import { ITranslator } from 'kombo';
 
-import { DbValueMapping, HTTPHeaders, SystemMessageType, QueryPoS } from './common/types';
+import { DbValueMapping, HTTPHeaders, SystemMessageType, QueryPoS, LemmaVariant } from './common/types';
+import { LemmaDbApi, LemmaDbResponse } from './common/api/lemma';
 import { SystemNotifications } from './notifications';
 
 
@@ -57,6 +59,8 @@ export class AppServices {
 
     private readonly apiHeadersMapping:{[urlPrefix:string]:HTTPHeaders};
 
+    private readonly lemmaDbApi:LemmaDbApi;
+
     constructor({notifications, uiLang, translator, staticUrlCreator, actionUrlCreator, dbValuesMapping, apiHeadersMapping}:AppServicesArgs) {
         this.notifications = notifications;
         this.uiLang = uiLang;
@@ -66,6 +70,7 @@ export class AppServices {
         this.forcedMobileMode = false;
         this.dbValuesMapping = dbValuesMapping;
         this.apiHeadersMapping = apiHeadersMapping || {};
+        this.lemmaDbApi = new LemmaDbApi(actionUrlCreator('get-lemmas'));
     }
 
     showMessage(type:SystemMessageType, text:string|Error):void {
@@ -127,5 +132,9 @@ export class AppServices {
             }
         }
         return {};
+    }
+
+    queryLemmaDbApi(q:string):Observable<LemmaDbResponse> {
+        return this.lemmaDbApi.call({q: q});
     }
 }

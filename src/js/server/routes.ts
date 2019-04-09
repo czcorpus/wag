@@ -54,6 +54,29 @@ const renderResult = (services:Services, toolbarData:HostPageEnv, lemmas:Array<L
 };
 
 
+const createHelperServices = (services:Services, uiLang:string):[ViewUtils<GlobalComponents>, AppServices] => {
+    const viewUtils = new ViewUtils<GlobalComponents>({
+        uiLang: uiLang,
+        translations: services.translations,
+        staticUrlCreator: (path) => services.clientConf.rootUrl + 'assets/' + path,
+        actionUrlCreator: (path, args) => services.clientConf.hostUrl + path + '?' + encodeArgs(args)
+    });
+
+    return [
+        viewUtils,
+        new AppServices({
+            notifications: null, // TODO
+            uiLang: uiLang,
+            translator: viewUtils,
+            staticUrlCreator: viewUtils.createStaticUrl,
+            actionUrlCreator: viewUtils.createActionUrl,
+            dbValuesMapping: services.clientConf.dbValuesMapping || {},
+            apiHeadersMapping: services.clientConf.apiHeaders || {}
+        })
+    ];
+}
+
+
 const mainAction = (services:Services, answerMode:boolean, req:Request, res:Response, next:NextFunction) => {
 
     const userConfig:UserConf = {
@@ -70,21 +93,7 @@ const mainAction = (services:Services, answerMode:boolean, req:Request, res:Resp
 
     const dispatcher = new ServerSideActionDispatcher();
 
-    const viewUtils = new ViewUtils<GlobalComponents>({
-        uiLang: userConfig.uiLang,
-        translations: services.translations,
-        staticUrlCreator: (path) => services.clientConf.rootUrl + 'assets/' + path,
-        actionUrlCreator: (path, args) => services.clientConf.hostUrl + path + '?' + encodeArgs(args)
-    });
-    const appServices = new AppServices({
-        notifications: null, // TODO
-        uiLang: userConfig.uiLang,
-        translator: viewUtils,
-        staticUrlCreator: viewUtils.createStaticUrl,
-        actionUrlCreator: viewUtils.createActionUrl,
-        dbValuesMapping: services.clientConf.dbValuesMapping || {},
-        apiHeadersMapping: services.clientConf.apiHeaders || {}
-    });
+    const [viewUtils, appServices] = createHelperServices(services, userConfig.uiLang);
 
     const mainFormModel = mainFormFactory({
         dispatcher: dispatcher,
@@ -153,6 +162,21 @@ export const wdgRouter = (services:Services) => (app:Express) => {
     app.get('/', (req, res, next) => mainAction(services, false, req, res, next));
 
     app.get('/search/', (req, res, next) => mainAction(services, true, req, res, next));
+
+    app.get('/get-lemmas/', (req, res, next) => {
+        const [viewUtils, appServices] = createHelperServices(services, 'cs-CZ'); // TODO lang
+        getLemmas(services.db, appServices, req.query.q).subscribe(
+            (data) => {
+                res.setHeader('Content-Type', 'application/json');
+                res.send(JSON.stringify({result: data}));
+            },
+            (err:Error) => {
+                res.status(mapToStatusCode(err.name)).send({
+                    message: err.message
+                });
+            }
+        )
+    })
 
     // Find words with similar frequency
     app.get('/similar-freq-words/', (req, res) => {
