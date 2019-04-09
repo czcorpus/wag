@@ -22,15 +22,16 @@ import { concatMap, map } from 'rxjs/operators';
 
 import { AppServices } from '../../appServices';
 import { ConcApi, ConcResponse, QuerySelector, ViewMode } from '../../common/api/kontext/concordance';
-import { ApiResponse as ReduceResponse } from '../../common/api/kontext/concReduce';
 import { APIResponse, DataRow, FreqDistribAPI } from '../../common/api/kontext/freqs';
 import { stateToArgs as concStateToArgs } from '../../common/models/concordance';
 import { GeneralSingleCritFreqBarModelState, stateToAPIArgs } from '../../common/models/freq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
 import { WdglanceMainFormModel, findCurrLemmaVariant } from '../../models/query';
 import { ConcLoadedPayload } from '../concordance/actions';
-import { DataItemWithWCI, DataLoadedPayload } from './common';
+import { DataItemWithWCI, DataLoadedPayload, SubchartID } from './common';
 import { AlphaLevel, wilsonConfInterval } from './stat';
+import { Actions, ActionName } from './common';
+import { callWithRequestId } from '../../common/api/util';
 
 
 export const enum FreqFilterQuantity {
@@ -50,13 +51,19 @@ export const enum Dimension {
     SECOND = 2
 }
 
-
 export interface TimeDistribModelState extends GeneralSingleCritFreqBarModelState<DataItemWithWCI> {
     subcnames:Immutable.List<string>;
     subcDesc:string;
     timeAxisLegend:string;
     alphaLevel:AlphaLevel;
     posQueryGenerator:[string, string];
+    isTweakMode:boolean;
+    dataCmp:Immutable.List<DataItemWithWCI>;
+    wordCmp:string;
+}
+
+interface ConcResponseWithTarget extends ConcResponse {
+    subchartId:SubchartID;
 }
 
 const roundFloat = (v:number):number => Math.round(v * 100) / 100;
@@ -93,10 +100,11 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         this.waitForTile = waitForTile;
         this.appServices = appServices;
         this.mainForm = mainForm;
-        this.unfinishedChunks = Immutable.Map<string, boolean>(initState.subcnames.map(v => [v, false]));
+        this.unfinishedChunks = Immutable.Map<string, boolean>(initState.subcnames.flatMap(
+                v => Immutable.List([[this.mkChunkId(v, SubchartID.MAIN), false], [this.mkChunkId(v, SubchartID.SECONDARY), false]])));
         this.actionMatch = {
             [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
-                this.unfinishedChunks = this.unfinishedChunks.map(v => true).toMap();
+                this.unfinishedChunks = this.mapChunkStatusOf(v => true).toMap();
                 const newState = this.copyState(state);
                 newState.data = Immutable.List<DataItemWithWCI>();
                 newState.isBusy = true;
@@ -107,12 +115,12 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 if (action.payload.tileId === this.tileId) {
                     const newState = this.copyState(state);
                     if (action.error) {
-                        this.unfinishedChunks = this.unfinishedChunks.map(v => false).toMap();
+                        this.unfinishedChunks = this.mapChunkStatusOf((v, k) => false, action.payload.subchartId).toMap();
                         newState.data = Immutable.List<DataItemWithWCI>();
                         newState.error = action.error.message;
                         newState.isBusy = false;
 
-                    } else if (action.payload.data.length < TimeDistribModel.MIN_DATA_ITEMS_TO_SHOW && !this.hasUnfinishedCHunks()) {
+                    } else if (action.payload.data.length < TimeDistribModel.MIN_DATA_ITEMS_TO_SHOW && !this.hasUnfinishedCHunks(action.payload.subchartId)) {
                         newState.data = Immutable.List<DataItemWithWCI>();
 
                     } else {
@@ -121,11 +129,44 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                             Immutable.List<DataItemWithWCI>(action.payload.data)
                         );
 
-                        this.unfinishedChunks = this.unfinishedChunks.set(action.payload.subcname, false);
-                        if (!this.hasUnfinishedCHunks()) {
+                        this.unfinishedChunks = this.unfinishedChunks.set(this.mkChunkId(action.payload.subcname, action.payload.subchartId), false);
+                        if (!this.hasUnfinishedCHunks(action.payload.subchartId)) {
                             newState.isBusy = false;
                         }
                     }
+                    return newState;
+                }
+                return state;
+            },
+            [GlobalActionName.EnableTileTweakMode]: (state, action:GlobalActions.EnableTileTweakMode) => {
+                if (action.payload.ident === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.isTweakMode = true;
+                    return newState;
+                }
+                return state;
+            },
+            [GlobalActionName.DisableTileTweakMode]: (state, action:GlobalActions.DisableTileTweakMode) => {
+                if (action.payload.ident === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.isTweakMode = false;
+                    return newState;
+                }
+                return state;
+            },
+            [ActionName.ChangeCmpWord]: (state, action:Actions.ChangeCmpWord) => {
+                if (action.payload.tileId === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.wordCmp = action.payload.value;
+                    return newState;
+                }
+                return state;
+
+            },
+            [ActionName.SubmitCmpWord]: (state, action:Actions.SubmitCmpWord) => {
+                if (action.payload.tileId === this.tileId) {
+                    const newState = this.copyState(state);
+                    console.log('TODO !!! submit: ', newState.wordCmp);
                     return newState;
                 }
                 return state;
@@ -133,8 +174,16 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         };
     }
 
-    private hasUnfinishedCHunks():boolean {
-        return this.unfinishedChunks.includes(true);
+    private mkChunkId(subcname:string, subchartId:SubchartID):string {
+        return `${subchartId}:${subcname}`;
+    }
+
+    private mapChunkStatusOf(mapFn:((v:boolean, k:string) => boolean), subchartId?:SubchartID):Immutable.Map<string, boolean> {
+        return this.unfinishedChunks.map((v, k) => (subchartId && k.startsWith(subchartId) || !subchartId) ? mapFn(v, k) : v).toMap();
+    }
+
+    private hasUnfinishedCHunks(subchartId:SubchartID):boolean {
+        return this.unfinishedChunks.filter((v, k) => k.startsWith(subchartId)).includes(true);
     }
 
     private mergeChunks(state:TimeDistribModelState, newChunk:Immutable.List<DataItemWithWCI>):Immutable.List<DataItemWithWCI> {
@@ -167,10 +216,11 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
     }
 
 
-    private getFreqs(concCalc:Observable<APIResponse>, state:TimeDistribModelState, seDispatch:SEDispatcher) {
+    private getFreqs(concCalc:Observable<[APIResponse, SubchartID]>, state:TimeDistribModelState, seDispatch:SEDispatcher) {
         concCalc.subscribe(
             resp => {
-                const dataFull = resp.data.map<DataItemWithWCI>(v => {
+                const [data, subchartId] = resp;
+                const dataFull = data.data.map<DataItemWithWCI>(v => {
                     return {
                         datetime: v.name,
                         freq: v.freq,
@@ -184,10 +234,11 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     name: GlobalActionName.TileDataLoaded,
                     payload: {
                         tileId: this.tileId,
+                        subchartId: subchartId,
                         isEmpty: dataFull.length === 0,
                         data: dataFull,
-                        subcname: resp.usesubcorp,
-                        concId: resp.concId
+                        subcname: data.usesubcorp,
+                        concId: data.concId
                     }
                 });
             },
@@ -197,6 +248,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     name: GlobalActionName.TileDataLoaded,
                     payload: {
                         tileId: this.tileId,
+                        subchartId: null,
                         isEmpty: true,
                         data: null,
                         subcname: null,
@@ -208,91 +260,108 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         );
     }
 
+    private loadData(state:TimeDistribModelState, dispatch:SEDispatcher, target:SubchartID):void {
+        if (this.waitForTile > -1) { // in this case we rely on a concordance provided by other tile
+            this.suspend((action:Action) => {
+                if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
+                    const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
+                    const ans = new Observable((observer:Observer<{concId: string}>) => {
+                        if (action.error) {
+                            observer.error(new Error(this.appServices.translate('global__failed_to_obtain_required_data')));
+
+                        } else {
+                            observer.next({concId: payload.data.conc_persistence_op_id});
+                            observer.complete();
+                        }
+                    })
+                    .pipe(
+                        concatMap(args => callWithRequestId(
+                            this.api,
+                            stateToAPIArgs<DataItemWithWCI>(state, args.concId, state.subcnames.get(0)),
+                            target
+                        ))
+                    );
+                    this.getFreqs(
+                        ans,
+                        state,
+                        dispatch
+                    );
+                    return true;
+                }
+                return false;
+            });
+
+        } else { // here we must create our own concordance(s)
+            const formState = this.mainForm.getState();
+            state.subcnames.toArray().map(subcname =>
+                callWithRequestId(
+                    this.concApi,
+                    concStateToArgs(
+                        {
+                            querySelector: QuerySelector.CQL,
+                            corpname: state.corpname,
+                            otherCorpname: undefined,
+                            subcname: subcname,
+                            subcDesc: null,
+                            kwicLeftCtx: -1,
+                            kwicRightCtx: 1,
+                            pageSize: 10,
+                            loadPage: 1,
+                            shuffle: false,
+                            attr_vmode: 'mouseover',
+                            viewMode: ViewMode.KWIC,
+                            tileId: this.tileId,
+                            attrs: Immutable.List<string>(['word']),
+                            concId: null,
+                            posQueryGenerator: state.posQueryGenerator
+                        },
+                        findCurrLemmaVariant(formState.lemmas),
+                        null
+                    ),
+                    target
+
+                ).pipe(
+                    map<[ConcResponse, SubchartID], ConcResponseWithTarget>(
+                        (resp) => ({
+                            conc_persistence_op_id: resp[0].conc_persistence_op_id,
+                            messages: resp[0].messages,
+                            Lines: resp[0].Lines,
+                            fullsize: resp[0].fullsize,
+                            concsize: resp[0].concsize,
+                            result_arf: resp[0].result_arf,
+                            result_relative_freq: resp[0].result_relative_freq,
+                            query: resp[0].query,
+                            corpname: resp[0].corpname,
+                            usesubcorp: resp[0].usesubcorp,
+                            subchartId: resp[1]
+                        })
+                    ),
+                    map(v => ({
+                        subcname: v.usesubcorp,
+                        concId: v.conc_persistence_op_id,
+                        subchartId: v.subchartId
+                    })),
+                    concatMap(args => callWithRequestId(
+                        this.api,
+                        stateToAPIArgs(state, args.concId, args.subcname),
+                        args.subchartId
+                    ))
+                )
+
+            ).forEach(resp => {
+                this.getFreqs(
+                    resp,
+                    state,
+                    dispatch
+                );
+            });
+        }
+    }
+
     sideEffects(state:TimeDistribModelState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
-                if (this.waitForTile > -1) { // in this case we rely on a concordance provided by other tile
-                    this.suspend((action:Action) => {
-                        if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
-                            const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
-                            const ans = new Observable((observer:Observer<{concId: string}>) => {
-                                if (action.error) {
-                                    observer.error(new Error(this.appServices.translate('global__failed_to_obtain_required_data')));
-
-                                } else {
-                                    observer.next({concId: payload.data.conc_persistence_op_id});
-                                    observer.complete();
-                                }
-                            })
-                            .pipe(
-                                concatMap(args => this.api.call(stateToAPIArgs<DataItemWithWCI>(state, args.concId, state.subcnames.get(0))))
-                            );
-                            this.getFreqs(
-                                ans,
-                                state,
-                                dispatch
-                            );
-                            return true;
-                        }
-                        return false;
-                    });
-
-                } else { // here we must create our own concordance(s)
-                    const formState = this.mainForm.getState();
-                    state.subcnames.toArray().map(subcname =>
-                        this.concApi.call(concStateToArgs(
-                            {
-                                querySelector: QuerySelector.CQL,
-                                corpname: state.corpname,
-                                otherCorpname: undefined,
-                                subcname: subcname,
-                                subcDesc: null,
-                                kwicLeftCtx: -1,
-                                kwicRightCtx: 1,
-                                pageSize: 10,
-                                loadPage: 1,
-                                shuffle: false,
-                                attr_vmode: 'mouseover',
-                                viewMode: ViewMode.KWIC,
-                                tileId: this.tileId,
-                                attrs: Immutable.List<string>(['word']),
-                                concId: null,
-                                posQueryGenerator: state.posQueryGenerator
-                            },
-                            findCurrLemmaVariant(formState.lemmas),
-                            null
-
-                        )).pipe(
-                            map<ConcResponse, ReduceResponse>(
-                                (resp) => ({
-                                    conc_persistence_op_id: resp.conc_persistence_op_id,
-                                    messages: resp.messages,
-                                    Lines: resp.Lines,
-                                    fullsize: resp.fullsize,
-                                    concsize: resp.concsize,
-                                    rlines: resp.concsize,
-                                    result_arf: resp.result_arf,
-                                    result_relative_freq: resp.result_relative_freq,
-                                    query: resp.query,
-                                    corpname: resp.corpname,
-                                    usesubcorp: resp.usesubcorp
-                                })
-                            ),
-                            map(v => ({
-                                subcname: v.usesubcorp,
-                                concId: v.conc_persistence_op_id
-                            })),
-                            concatMap(args => this.api.call(stateToAPIArgs(state, args.concId, args.subcname)))
-                        )
-
-                    ).forEach(chunk => {
-                        this.getFreqs(
-                            chunk,
-                            state,
-                            dispatch
-                        );
-                    });
-                }
+                this.loadData(state, dispatch, SubchartID.MAIN);
             break;
         }
     }

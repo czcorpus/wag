@@ -105,7 +105,10 @@ export class TimeDistTile implements ITileProvider {
                 fmaxitems: 100,
                 alphaLevel: AlphaLevel.LEVEL_0_1, // TODO conf/explain
                 data: Immutable.List<DataItemWithWCI>(),
-                posQueryGenerator: conf.posQueryGenerator
+                dataCmp: Immutable.List<DataItemWithWCI>(),
+                posQueryGenerator: conf.posQueryGenerator,
+                isTweakMode: false,
+                wordCmp: ''
             },
             tileId,
             waitForTiles[0] || -1,
@@ -143,7 +146,7 @@ export class TimeDistTile implements ITileProvider {
     }
 
     supportsTweakMode():boolean {
-        return false;
+        return true;
     }
 
     supportsHelpView():boolean {

@@ -22,13 +22,51 @@ import { Area, AreaChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, X
 import { Theme } from '../../common/theme';
 import { CoreTileComponentProps, TileComponent } from '../../common/types';
 import { GlobalComponents } from '../../views/global';
-import { DataItemWithWCI } from './common';
+import { DataItemWithWCI, ActionName, Actions } from './common';
 import { TimeDistribModel, TimeDistribModelState } from './model';
 
 
 export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:TimeDistribModel):TileComponent {
 
     const globComponents = ut.getComponents();
+
+
+    // -------------------------- <TweakControls /> --------------------------------------
+
+    const TweakControls:React.SFC<{
+        tileId:number;
+        wordCmp:string;
+
+    }> = (props) => {
+
+        const handleInputChange = (e:React.ChangeEvent<HTMLInputElement>) => {
+            dispatcher.dispatch<Actions.ChangeCmpWord>({
+                name: ActionName.ChangeCmpWord,
+                payload: {
+                    tileId: props.tileId,
+                    value: e.target.value
+                }
+            });
+        };
+
+        const handleSubmit = () => {
+            dispatcher.dispatch<Actions.SubmitCmpWord>({
+                name: ActionName.SubmitCmpWord,
+                payload: {
+                    tileId: props.tileId
+                }
+            });
+        };
+
+        return (
+            <form>
+                <input type="text" value={props.wordCmp} onChange={handleInputChange} />
+                <button type="button" className="cnc-button-primary" onClick={handleSubmit}>
+                    update
+                </button>
+            </form>
+        )
+    };
 
     // -------------------------- <Chart /> --------------------------------------
 
@@ -81,6 +119,10 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                             hasData={this.props.data.size > 0}
                             sourceIdent={{corp: this.props.corpname, subcorp: this.props.subcDesc}}>
                     <div className="TimeDistribTile">
+                        {this.props.isTweakMode ?
+                            <div className="tweak-box"><TweakControls wordCmp={this.props.wordCmp} tileId={this.props.tileId} /></div> :
+                            null
+                        }
                         <Chart data={this.props.data.toArray()}
                                 timeAxisLegend={this.props.timeAxisLegend}
                                 size={[this.props.renderSize[0], 300]}
