@@ -15,13 +15,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { DataApi, LemmaVariant, HTTPMethod } from '../types';
+import { ajax$ } from '../ajax';
 
-import { DataApi } from '../types';
 
-export const callWithRequestId = <T, U, V>(api:DataApi<T, U>, args:T, reqId:V):Observable<[U, V]> => {
-    return api.call(args).pipe(
-        map(v => [v, reqId] as [U, V])
-    );
+export class LemmaDbRequestArgs {
+    q:string;
+}
+
+
+export class LemmaDbResponse {
+    result:Array<LemmaVariant>;
+}
+
+
+export class LemmaDbApi implements DataApi<LemmaDbRequestArgs, LemmaDbResponse> {
+
+    private readonly url:string;
+
+    constructor(url:string) {
+        this.url = url;
+    }
+
+    call(args:LemmaDbRequestArgs):Observable<LemmaDbResponse> {
+        return ajax$<LemmaDbResponse>(
+            HTTPMethod.GET,
+            this.url,
+            {
+                q: args.q
+            }
+        );
+    }
 }

@@ -15,10 +15,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+import { Action } from 'kombo';
 
 export enum ActionName {
-    // TODO
+    ChangeCmpWord = 'TIME_DISTRIB_CHANGE_CMP_WORD',
+    SubmitCmpWord = 'TIME_DISTRIB_SUBMIT_CMP_WORD'
 }
 
 export interface DataItemWithWCI {
@@ -32,10 +33,29 @@ export interface DataItemWithWCI {
 export interface DataLoadedPayload {
     data:Array<DataItemWithWCI>;
     concId:string;
+    subchartId:SubchartID;
     subcname:string;
 }
 
 export namespace Actions {
 
-    // TODO
+    export interface ChangeCmpWord extends Action<{
+        tileId:number;
+        value:string;
+
+    }> {
+        name:ActionName.ChangeCmpWord;
+    }
+
+    export interface SubmitCmpWord extends Action<{
+        tileId:number;
+
+    }> {
+        name:ActionName.SubmitCmpWord;
+    }
+}
+
+export enum SubchartID {
+    MAIN = 'main',
+    SECONDARY = 'secondary'
 }

@@ -99,13 +99,16 @@ export class TimeDistTile implements ITileProvider {
                 fcrit: conf.fcrit,
                 timeAxisLegend: conf.timeAxisLegend,
                 flimit: conf.flimit,
-                freqSort: "rel",
+                freqSort: 'rel',
                 fpage: 1,
                 fttIncludeEmpty: false,
                 fmaxitems: 100,
                 alphaLevel: AlphaLevel.LEVEL_0_1, // TODO conf/explain
                 data: Immutable.List<DataItemWithWCI>(),
-                posQueryGenerator: conf.posQueryGenerator
+                dataCmp: Immutable.List<DataItemWithWCI>(),
+                posQueryGenerator: conf.posQueryGenerator,
+                isTweakMode: false,
+                wordCmp: ''
             },
             tileId,
             waitForTiles[0] || -1,
@@ -143,7 +146,7 @@ export class TimeDistTile implements ITileProvider {
     }
 
     supportsTweakMode():boolean {
-        return false;
+        return true;
     }
 
     supportsHelpView():boolean {
