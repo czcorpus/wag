@@ -171,6 +171,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             [ActionName.SubmitCmpWord]: (state, action:Actions.SubmitCmpWord) => {
                 if (action.payload.tileId === this.tileId) {
                     const newState = this.copyState(state);
+                    newState.isBusy = true;
                     newState.dataCmp = newState.dataCmp.clear();
                     return newState;
                 }
