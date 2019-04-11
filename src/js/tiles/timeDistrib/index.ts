@@ -108,6 +108,7 @@ export class TimeDistTile implements ITileProvider {
                 dataCmp: Immutable.List<DataItemWithWCI>(),
                 posQueryGenerator: conf.posQueryGenerator,
                 isTweakMode: false,
+                wordMainLabel: '',
                 wordCmp: ''
             },
             tileId,

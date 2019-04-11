@@ -25,6 +25,7 @@ import { CoreTileComponentProps, TileComponent } from '../../common/types';
 import { GlobalComponents } from '../../views/global';
 import { DataItemWithWCI, ActionName, Actions } from './common';
 import { TimeDistribModel, TimeDistribModelState } from './model';
+import { KeyCodes } from '../../common/util';
 
 interface MultiChartItem {
     datetime:string;
@@ -62,61 +63,109 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
     // -------------------------- <TweakControls /> --------------------------------------
 
-    const TweakControls:React.SFC<{
+    class TweakControls extends React.Component<{
         tileId:number;
         wordCmp:string;
 
-    }> = (props) => {
+    }> {
 
-        const handleInputChange = (e:React.ChangeEvent<HTMLInputElement>) => {
+        private ref:React.RefObject<HTMLInputElement>;
+
+        constructor(props) {
+            super(props);
+            this.handleInputChange = this.handleInputChange.bind(this);
+            this.handleSubmit = this.handleSubmit.bind(this);
+            this.handleInputKeyDown = this.handleInputKeyDown.bind(this);
+            this.ref = React.createRef();
+        }
+
+        private handleInputChange(e:React.ChangeEvent<HTMLInputElement>) {
             dispatcher.dispatch<Actions.ChangeCmpWord>({
                 name: ActionName.ChangeCmpWord,
                 payload: {
-                    tileId: props.tileId,
+                    tileId: this.props.tileId,
                     value: e.target.value
                 }
             });
-        };
+        }
 
-        const handleSubmit = () => {
+        private handleInputKeyDown(e:React.KeyboardEvent) {
+            if (e.keyCode === KeyCodes.ENTER && !e.shiftKey && !e.ctrlKey) {
+                e.preventDefault();
+                e.stopPropagation();
+                dispatcher.dispatch<Actions.SubmitCmpWord>({
+                    name: ActionName.SubmitCmpWord,
+                    payload: {
+                        tileId: this.props.tileId
+                    }
+                });
+            }
+
+        }
+
+        private handleSubmit() {
             dispatcher.dispatch<Actions.SubmitCmpWord>({
                 name: ActionName.SubmitCmpWord,
                 payload: {
-                    tileId: props.tileId
+                    tileId: this.props.tileId
                 }
             });
-        };
+        }
 
-        return (
-            <form>
-                <label>
-                    {ut.translate('timeDistrib__cmp_with_other_word')}:{'\u00a0'}
-                    <input type="text" value={props.wordCmp} onChange={handleInputChange} />
-                </label>
-                {'\u00a0'}
-                <button type="button" className="cnc-button cnc-button-primary" onClick={handleSubmit}>
-                    {ut.translate('timeDistrib__cmp_submit')}
-                </button>
-            </form>
-        )
-    };
+        componentDidMount() {
+            if (this.ref.current) {
+                this.ref.current.focus();
+            }
+        }
+
+        render() {
+            return (
+                <form>
+                    <label>
+                        {ut.translate('timeDistrib__cmp_with_other_word')}:{'\u00a0'}
+                        <input ref={this.ref} type="text" value={this.props.wordCmp} onChange={this.handleInputChange}
+                                onKeyDown={this.handleInputKeyDown} />
+                    </label>
+                    {'\u00a0'}
+                    <button type="button" className="cnc-button cnc-button-primary" onClick={this.handleSubmit}>
+                        {ut.translate('timeDistrib__cmp_submit')}
+                    </button>
+                </form>
+            );
+        }
+    }
 
     // -------------------------- <Chart /> --------------------------------------
 
     const ChartLegend:React.SFC<{
+        rcData:{payload:Array<{color:string; payload:{stroke:string; fill:string; name:string}}>};
         timeAxisLegend:string;
         metric:string;
 
     }> = (props) => {
+
+        const mkBoxStyle = (color:string):{[k:string]:string} => ({
+            backgroundColor: color
+        });
+
         return (
-            <p style={{textAlign: 'center'}}>{ut.translate('timeDistrib__chart_legend_{property}{metric}', {property: props.timeAxisLegend,
-                metric: props.metric})}</p>
+            <p className="ChartLegend" style={{textAlign: 'center'}}>
+                {props.rcData.payload
+                    .filter(pitem => pitem.payload.name)
+                    .map((pitem, i) => (
+                        <span className="item" key={`${pitem.payload.name}:${i}`}><span className="box" style={mkBoxStyle(pitem.color)} />{pitem.payload.name}</span>
+                    ))
+                }
+                <br />({props.metric})
+            </p>
         );
     }
 
     // -------------- <Chart /> ------------------------------------------------------
 
     const Chart:React.SFC<{
+        wordCmp:string;
+        word:string;
         data1:Immutable.List<DataItemWithWCI>;
         data2:Immutable.List<DataItemWithWCI>;
         size:[number, number];
@@ -135,7 +184,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                     <Tooltip isAnimationActive={false} />
                     <Area type="linear"
                             dataKey="ipmInterval1"
-                            name={ut.translate('timeDistrib__estimated_interval')}
+                            name={ut.translate('timeDistrib__estimated_interval_for_{word}', {word: props.word})}
                             stroke={props.isPartial ? '#dddddd' : theme.barColor(0)}
                             fill={props.isPartial ? '#eeeeee' : theme.barColor(0)}
                             strokeWidth={1}
@@ -143,13 +192,13 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                             connectNulls={true} />
                     <Area type="linear"
                         dataKey="ipmInterval2"
-                        name={ut.translate('timeDistrib__estimated_interval')}
+                        name={props.wordCmp ? ut.translate('timeDistrib__estimated_interval_for_{word}', {word: props.word}): undefined}
                         stroke={props.isPartial ? '#dddddd' : theme.barColor(1)}
                         fill={props.isPartial ? '#eeeeee' : theme.barColor(1)}
                         strokeWidth={1}
                         isAnimationActive={false}
                         connectNulls={true} />
-                    <Legend content={<ChartLegend metric={ut.translate('timeDistrib__ipm_human')} timeAxisLegend={props.timeAxisLegend} />} />
+                    <Legend content={(props) => <ChartLegend metric={ut.translate('timeDistrib__ipm_human')} timeAxisLegend={props.timeAxisLegend} rcData={props} />} />
                 </AreaChart>
             </ResponsiveContainer>
         );
@@ -170,7 +219,9 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         <Chart data1={this.props.data} data2={this.props.dataCmp}
                                 timeAxisLegend={this.props.timeAxisLegend}
                                 size={[this.props.renderSize[0], 300]}
-                                isPartial={this.props.isBusy} />
+                                isPartial={this.props.isBusy}
+                                word={this.props.wordMainLabel}
+                                wordCmp={this.props.dataCmp.size > 0 ? this.props.wordCmp : ''} />
                     </div>
                     </globComponents.TileWrapper>
         }

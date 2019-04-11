@@ -35,6 +35,7 @@ export interface DataLoadedPayload {
     concId:string;
     subchartId:SubchartID;
     subcname:string;
+    wordMainLabel:string;
 }
 
 export namespace Actions {
