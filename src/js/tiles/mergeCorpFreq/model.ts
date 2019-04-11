@@ -59,6 +59,8 @@ export interface ModelSourceArgs {
     backlinkTpl:Backlink;
 
     uuid:string;
+
+    isSingleCategory:boolean;
 }
 
 export interface SourceMappedDataRow extends DataRow {
@@ -170,9 +172,28 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                 return partials.reduce<Array<SourceMappedDataRow>>((acc, curr) => {
                     const [resp, reqId] = curr;
                     const srcConf = state.sources.find(v => v.uuid === reqId);
+                    const dataNorm:Array<DataRow> = srcConf.isSingleCategory ?
+                        [resp.data.reduce(
+                            (acc, curr) => ({
+                                name: '',
+                                freq: acc.freq + curr.freq,
+                                ipm: undefined,
+                                norm: undefined,
+                                order: undefined
+
+                            }),
+                            {
+                                name: '',
+                                freq: 0,
+                                ipm: undefined,
+                                norm: undefined,
+                                order: undefined
+                            }
+                        )] :
+                        resp.data;
                     return acc.concat(
-                        (resp.data.length > 0 ?
-                            resp.data :
+                        (dataNorm.length > 0 ?
+                            dataNorm :
                             [{name: srcConf.valuePlaceholder, freq: 0, ipm: 0, norm: 0}]
                         ).map(
                             v => {
