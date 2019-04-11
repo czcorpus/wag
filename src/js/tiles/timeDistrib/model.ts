@@ -61,6 +61,7 @@ export interface TimeDistribModelState extends GeneralSingleCritFreqBarModelStat
     isTweakMode:boolean;
     dataCmp:Immutable.List<DataItemWithWCI>;
     wordCmp:string;
+    wordMainLabel:string; // a copy from mainform state used to attach a legend
 }
 
 interface ConcResponseWithTarget extends ConcResponse {
@@ -70,6 +71,14 @@ interface ConcResponseWithTarget extends ConcResponse {
 const roundFloat = (v:number):number => Math.round(v * 100) / 100;
 
 const calcIPM = (v:DataRow|DataItemWithWCI, domainSize:number) => Math.round(v.freq / domainSize * 1e6 * 100) / 100;
+
+
+interface DataFetchArgs {
+    concId:string;
+    subcName:string;
+    wordMainLabel:string;
+    targetId:SubchartID;
+}
 
 /**
  *
@@ -127,6 +136,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         newData = Immutable.List<DataItemWithWCI>();
 
                     } else {
+                        newState.wordMainLabel = action.payload.wordMainLabel;
                         newData = this.mergeChunks(
                             prevData,
                             Immutable.List<DataItemWithWCI>(action.payload.data),
@@ -235,11 +245,11 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
     }
 
 
-    private getFreqs(concCalc:Observable<[APIResponse, SubchartID]>, state:TimeDistribModelState, seDispatch:SEDispatcher) {
-        concCalc.subscribe(
-            resp => {
-                const [data, subchartId] = resp;
-                const dataFull = data.data.map<DataItemWithWCI>(v => {
+    private getFreqs(response:Observable<[APIResponse, DataFetchArgs]>, seDispatch:SEDispatcher) {
+        response.subscribe(
+            data => {
+                const [resp, args] = data;
+                const dataFull = resp.data.map<DataItemWithWCI>(v => {
                     return {
                         datetime: v.name,
                         freq: v.freq,
@@ -253,11 +263,12 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     name: GlobalActionName.TileDataLoaded,
                     payload: {
                         tileId: this.tileId,
-                        subchartId: subchartId,
+                        subchartId: args.targetId,
                         isEmpty: dataFull.length === 0,
                         data: dataFull,
-                        subcname: data.usesubcorp,
-                        concId: data.concId
+                        subcname: resp.usesubcorp,
+                        concId: resp.concId,
+                        wordMainLabel: args.wordMainLabel
                     }
                 });
             },
@@ -271,7 +282,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         isEmpty: true,
                         data: null,
                         subcname: null,
-                        concId: null
+                        concId: null,
+                        wordMainLabel: null
                     },
                     error: error
                 });
@@ -284,25 +296,33 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             this.suspend((action:Action) => {
                 if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
                     const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
-                    const ans = new Observable((observer:Observer<{concId: string}>) => {
-                        if (action.error) {
-                            observer.error(new Error(this.appServices.translate('global__failed_to_obtain_required_data')));
+                    const ans = lemmaVariant.pipe(
+                        concatMap(
+                            (lv) => {
+                                return new Observable((observer:Observer<DataFetchArgs>) => {
+                                    if (action.error) {
+                                        observer.error(new Error(this.appServices.translate('global__failed_to_obtain_required_data')));
 
-                        } else {
-                            observer.next({concId: payload.data.conc_persistence_op_id});
-                            observer.complete();
-                        }
-                    })
-                    .pipe(
+                                    } else {
+                                        observer.next({
+                                            concId: payload.data.conc_persistence_op_id,
+                                            subcName: payload.data.usesubcorp,
+                                            wordMainLabel: lv.lemma,
+                                            targetId: target
+                                        });
+                                        observer.complete();
+                                    }
+                                });
+                            }
+                        ),
                         concatMap(args => callWithRequestId(
                             this.api,
                             stateToAPIArgs<DataItemWithWCI>(state, args.concId, state.subcnames.get(0)),
-                            target
+                            args
                         ))
-                    );
+                    )
                     this.getFreqs(
                         ans,
-                        state,
                         dispatch
                     );
                     return true;
@@ -338,31 +358,29 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                 args,
                                 null
                             ),
-                            target
+                            {
+                                concId: null,
+                                subcName: subcname,
+                                wordMainLabel: args.lemma,
+                                targetId: target
+                            }
                         )
-                    ),
-                    map(
-                        (v:[ConcResponse, SubchartID]) => ({
-                            subcname: v[0].usesubcorp,
-                            concId: v[0].conc_persistence_op_id,
-                            subchartId: v[1]
-                        })
                     ),
                     concatMap(
-                        (args) => callWithRequestId(
-                            this.api,
-                            stateToAPIArgs(state, args.concId, args.subcname),
-                            args.subchartId
-                        )
+                        (data) => {
+                            const [concResp, args] = data;
+                            args.concId = concResp.conc_persistence_op_id;
+                            return callWithRequestId(
+                                this.api,
+                                stateToAPIArgs(state, args.concId, args.subcName),
+                                args
+                            );
+                        }
                     )
                 )
 
             ).forEach(resp => {
-                this.getFreqs(
-                    resp,
-                    state,
-                    dispatch
-                );
+                this.getFreqs(resp, dispatch);
             });
         }
     }
