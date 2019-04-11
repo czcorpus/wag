@@ -54,6 +54,13 @@ export interface MergeCorpFreqTileConf extends TileConf {
           */
         valuePlaceholder?:string;
         backlink?:Backlink;
+
+        /**
+         * If true then the model will always consider multiple
+         * values as some sub-categorization of a main category
+         * and merge all the values into one.
+         */
+        isSingleCategory?:boolean;
     }>;
 }
 
@@ -110,7 +117,8 @@ export class MergeCorpFreqTile implements ITileProvider {
                             null,
                     uuid: puid(),
                     backlinkTpl: src.backlink || null,
-                    backlink: null
+                    backlink: null,
+                    isSingleCategory: !!src.isSingleCategory
                 }))),
                 pixelsPerItem: conf.pixelsPerItem ? conf.pixelsPerItem : 30,
                 barGap: Math.max(10, 40 - conf.pixelsPerItem)
