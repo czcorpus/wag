@@ -21,7 +21,7 @@ import { GlobalComponents } from '../../views/global';
 import { Theme } from '../../common/theme';
 import { TileComponent, CoreTileComponentProps } from '../../common/types';
 import { ConcFilterModel, ConcFilterModelState } from './model';
-import { Line } from '../../common/api/kontext/concordance';
+import { Line } from '../../common/api/abstract/concordance';
 
 export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:ConcFilterModel):TileComponent {
 
@@ -57,7 +57,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             return (
                 <globalCompontents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.lines.size > 0}
-                        sourceIdent={{corp: this.props.corpname}}>
+                        sourceIdent={{corp: this.props.corpName}}>
                     <div className="CollocExamplesView">
                         <div className="sentences">
                             {this.props.lines.map((v, i) => <FilteredLine key={`${i}:${v.toknum}`} data={v} />)}

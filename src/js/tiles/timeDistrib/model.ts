@@ -21,9 +21,9 @@ import { Observable, Observer, of as rxOf } from 'rxjs';
 import { concatMap, map } from 'rxjs/operators';
 
 import { AppServices } from '../../appServices';
-import { ConcApi, ConcResponse, QuerySelector, ViewMode } from '../../common/api/kontext/concordance';
+import { ConcApi, QuerySelector, stateToArgs as concStateToArgs } from '../../common/api/kontext/concordance';
+import { ConcResponse, ViewMode } from '../../common/api/abstract/concordance';
 import { APIResponse, DataRow, FreqDistribAPI } from '../../common/api/kontext/freqs';
-import { stateToArgs as concStateToArgs } from '../../common/models/concordance';
 import { GeneralSingleCritFreqBarModelState, stateToAPIArgs } from '../../common/models/freq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
 import { WdglanceMainFormModel, findCurrLemmaVariant } from '../../models/query';
@@ -39,7 +39,7 @@ export const enum FreqFilterQuantity {
     ABS = 'abs',
     ABS_PERCENTILE = 'pabs',
     IPM = 'ipm',
-    IPM_PERCENTILE = "pipm"
+    IPM_PERCENTILE = 'pipm'
 }
 
 export const enum AlignType {
@@ -305,8 +305,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
                                     } else {
                                         observer.next({
-                                            concId: payload.data.conc_persistence_op_id,
-                                            subcName: payload.data.usesubcorp,
+                                            concId: payload.data.concPersistenceID,
+                                            subcName: payload.data.subcorpName,
                                             wordMainLabel: lv.lemma,
                                             targetId: target
                                         });
@@ -369,7 +369,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     concatMap(
                         (data) => {
                             const [concResp, args] = data;
-                            args.concId = concResp.conc_persistence_op_id;
+                            args.concId = concResp.concPersistenceID;
                             return callWithRequestId(
                                 this.api,
                                 stateToAPIArgs(state, args.concId, args.subcName),

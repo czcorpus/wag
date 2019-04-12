@@ -20,9 +20,10 @@ import { Action, ActionDispatcher, SEDispatcher, StatelessModel } from 'kombo';
 import { Observable } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 import { AppServices } from '../../appServices';
-import { ConcApi, Line, PCRequestArgs, RequestArgs } from '../../common/api/kontext/concordance';
-import { ConcordanceMinState, stateToArgs } from '../../common/models/concordance';
-import { Backlink, BacklinkWithArgs, HTTPMethod, SystemMessageType, isSubqueryPayload } from '../../common/types';
+import { PCRequestArgs, RequestArgs } from '../../common/api/kontext/concordance';
+import { Line, ConcResponse } from '../../common/api/abstract/concordance';
+import { ConcordanceMinState, IStateArgsMapper } from '../../common/models/concordance';
+import { Backlink, BacklinkWithArgs, HTTPMethod, SystemMessageType, isSubqueryPayload, DataApi } from '../../common/types';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
 import { findCurrLemmaVariant, WdglanceMainFormModel } from '../../models/query';
 import { importMessageType } from '../../notifications';
@@ -45,7 +46,6 @@ export interface ConcordanceTileState extends ConcordanceMinState {
     widthFract:number;
     lines:Immutable.List<Line>;
     currPage:number;
-    fullsize:number;
     concsize:number;
     numPages:number;
     resultARF:number;
@@ -53,6 +53,7 @@ export interface ConcordanceTileState extends ConcordanceMinState {
     initialKwicLeftCtx:number;
     initialKwicRightCtx:number;
     backlink:BacklinkWithArgs<BacklinkArgs>;
+    disableViewModes:boolean;
 }
 
 
@@ -61,16 +62,17 @@ export interface ConcordanceTileModelArgs {
     tileId:number;
     waitForTile:number;
     appServices:AppServices;
-    service:ConcApi;
+    service:DataApi<{}, ConcResponse>;
     mainForm:WdglanceMainFormModel;
     initState:ConcordanceTileState;
     backlink:Backlink;
+    stateToArgMapper:IStateArgsMapper<{}>;
 }
 
 
 export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
-    private readonly service:ConcApi;
+    private readonly service:DataApi<{}, ConcResponse>;
 
     private readonly mainForm:WdglanceMainFormModel;
 
@@ -82,9 +84,11 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
     private readonly waitForTile:number;
 
+    private readonly stateToArgMapper:IStateArgsMapper<{}>;
+
     public static readonly CTX_SIZES = [3, 3, 8, 12];
 
-    constructor({dispatcher, tileId, appServices, service, mainForm, initState, waitForTile, backlink}:ConcordanceTileModelArgs) {
+    constructor({dispatcher, tileId, appServices, service, mainForm, initState, waitForTile, backlink, stateToArgMapper}:ConcordanceTileModelArgs) {
         super(dispatcher, initState);
         this.service = service;
         this.mainForm = mainForm;
@@ -92,6 +96,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
         this.tileId = tileId;
         this.backlink = backlink;
         this.waitForTile = waitForTile;
+        this.stateToArgMapper = stateToArgMapper;
         this.actionMatch = {
             [GlobalActionName.SetScreenMode]: (state, action:GlobalActions.SetScreenMode) => {
                 if (action.payload.isMobile !== state.isMobile) {
@@ -145,12 +150,12 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
                         newState.lines = Immutable.List<Line>(action.payload.data.Lines);
                         newState.concsize = action.payload.data.concsize; // TODO fullsize?
-                        newState.resultARF = action.payload.data.result_arf;
-                        newState.resultIPM = action.payload.data.result_relative_freq;
+                        newState.resultARF = action.payload.data.arf;
+                        newState.resultIPM = action.payload.data.ipm;
                         newState.currPage = newState.loadPage;
                         newState.numPages = Math.ceil(newState.concsize / newState.pageSize);
                         newState.backlink = this.createBackLink(state, action);
-                        newState.concId = action.payload.data.conc_persistence_op_id;
+                        newState.concId = action.payload.data.concPersistenceID;
                     }
                     return newState;
                 }
@@ -203,7 +208,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 args: {
                     corpname: state.corpname,
                     usesubcorp: state.subcname,
-                    q: `~${action.payload.data.conc_persistence_op_id}`
+                    q: `~${action.payload.data.concPersistenceID}`
                 }
             } :
             null;
@@ -211,9 +216,9 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
     private reloadData(state:ConcordanceTileState, dispatch:SEDispatcher, otherLangCql:string):void {
         const formState = this.mainForm.getState();
-        new Observable<RequestArgs|PCRequestArgs>((observer) => {
+        new Observable<{}>((observer) => {
             try {
-                observer.next(stateToArgs(state, state.concId ? null : findCurrLemmaVariant(formState.lemmas), otherLangCql));
+                observer.next(this.stateToArgMapper(state, state.concId ? null : findCurrLemmaVariant(formState.lemmas), otherLangCql));
                 observer.complete();
 
             } catch (e) {

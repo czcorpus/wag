@@ -169,7 +169,7 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                                     observer.complete();
                                 }
                             }).pipe(
-                                concatMap(args => this.api.call(stateToAPIArgs(state, payload.data.conc_persistence_op_id)))
+                                concatMap(args => this.api.call(stateToAPIArgs(state, payload.data.concPersistenceID)))
                             ),
                             state.mapSVG ? rxOf(null) : this.loadMap()
                         )

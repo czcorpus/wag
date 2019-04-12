@@ -174,7 +174,7 @@ export class FreqPieModel extends StatelessModel<FreqPieModelState> {
                                 observer.next({});
                                 observer.complete();
                             }
-                        }).pipe(concatMap(args => this.api.call(stateToAPIArgs(state, payload.data.conc_persistence_op_id))))
+                        }).pipe(concatMap(args => this.api.call(stateToAPIArgs(state, payload.data.concPersistenceID))))
                         .subscribe(
                             resp => {
                                 dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({

@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Line } from '../../common/api/kontext/concordance';
+import { Line } from '../../common/api/abstract/concordance';
 
 export interface CollExamplesLoadedPayload {
     data:Array<Line>;

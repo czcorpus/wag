@@ -19,10 +19,13 @@ import * as Immutable from 'immutable';
 import { ActionDispatcher } from 'kombo';
 
 import { AppServices } from '../../appServices';
-import { ConcApi, Line, QuerySelector, ViewMode } from '../../common/api/kontext/concordance';
+import { QuerySelector } from '../../common/api/kontext/concordance';
+import { Line, ViewMode } from '../../common/api/abstract/concordance';
+
 import { Backlink, CorpSrchTileConf, ITileProvider, QueryType, TileComponent, TileFactory } from '../../common/types';
 import { ConcordanceTileModel } from './model';
 import { init as viewInit } from './views';
+import { createApiInstance, createMapperInstance } from './apiFactory';
 
 
 declare var require:any;
@@ -32,11 +35,13 @@ require('./style.less');
 export interface ConcordanceTileConf extends CorpSrchTileConf {
     tileType:'ConcordanceTile';
     apiURL:string;
+    apiType:string;
     backlink:Backlink;
     pageSize:number;
     posAttrs:Array<string>;
     posQueryGenerator:[string, string]; // a positional attribute name and a function to create a query value (e.g. ['tag', (v) => `${v}.+`])
     parallelLangMapping?:{[lang:string]:string};
+    disableViewModes?:boolean;
 }
 
 /**
@@ -70,7 +75,8 @@ export class ConcordanceTile implements ITileProvider {
             dispatcher: dispatcher,
             tileId: tileId,
             appServices: appServices,
-            service: new ConcApi(conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            service: createApiInstance(conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            stateToArgMapper: createMapperInstance(conf.apiType),
             mainForm: mainForm,
             backlink: conf.backlink || null,
             waitForTile: Array.isArray(waitForTiles) ? waitForTiles[0] : waitForTiles,
@@ -88,7 +94,6 @@ export class ConcordanceTile implements ITileProvider {
                 otherCorpname: conf.parallelLangMapping ? conf.parallelLangMapping[lang2] : null,
                 subcname: Array.isArray(conf.subcname) ? conf.subcname[0] : conf.subcname,
                 subcDesc: conf.subcDesc ? appServices.importExternalMessage(conf.subcDesc) : '',
-                fullsize: -1,
                 concsize: -1,
                 numPages: -1,
                 resultARF: -1,
@@ -105,7 +110,8 @@ export class ConcordanceTile implements ITileProvider {
                 viewMode: conf.parallelLangMapping ? ViewMode.SENT : ViewMode.KWIC,
                 attrs: Immutable.List<string>(conf.posAttrs),
                 backlink: null,
-                posQueryGenerator: conf.posQueryGenerator
+                posQueryGenerator: conf.posQueryGenerator,
+                disableViewModes: !!conf.disableViewModes
             }
         });
         this.label = appServices.importExternalMessage(conf.label || 'concordance__main_label');

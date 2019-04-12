@@ -20,7 +20,8 @@ import { map } from 'rxjs/operators';
 
 import { ajax$ } from '../../ajax';
 import { DataApi, HTTPHeaders } from '../../types';
-import { AnyQuery, ConcResponse, getQuery } from './concordance';
+import { AnyQuery, getQuery, HTTPResponse } from './concordance';
+import { ConcResponse } from '../abstract/concordance';
 
 
 
@@ -50,7 +51,7 @@ export class ConcReduceApi implements DataApi<RequestArgs, ApiResponse> {
     }
 
     call(args:RequestArgs):Observable<ApiResponse> {
-        return ajax$<ApiResponse>(
+        return ajax$<HTTPResponse>(
             'GET',
             this.apiURL,
             args,
@@ -58,17 +59,16 @@ export class ConcReduceApi implements DataApi<RequestArgs, ApiResponse> {
 
         ).pipe(
             map(data => ({
-                conc_persistence_op_id: data.conc_persistence_op_id,
+                concPersistenceID: data.conc_persistence_op_id,
                 messages: data.messages,
                 Lines: data.Lines,
-                fullsize: data.fullsize,
                 concsize: data.concsize,
                 rlines: args.rlines,
-                result_arf: data.result_arf,
-                result_relative_freq: data.result_relative_freq,
+                arf: data.result_arf,
+                ipm: data.result_relative_freq,
                 query: getQuery(args),
-                corpname: args.corpname,
-                usesubcorp: args.usesubcorp
+                corpName: args.corpname,
+                subcorpName: args.usesubcorp
             }))
         );
     }

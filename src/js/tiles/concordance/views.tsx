@@ -18,7 +18,7 @@
 import { ActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 
-import { Line, LineElement, ViewMode } from '../../common/api/kontext/concordance';
+import { Line, LineElement, ViewMode } from '../../common/api/abstract/concordance';
 import { CoreTileComponentProps, TileComponent } from '../../common/types';
 import { GlobalComponents } from '../../views/global';
 import { ActionName, Actions } from './actions';
@@ -184,14 +184,26 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                         {this.props.isTweakMode ?
                             <div className="tweak-box"><Controls currPage={this.props.currPage} numPages={this.props.numPages}
                                     viewMode={this.props.viewMode} tileId={this.props.tileId}
-                                    viewModeEnabled={!this.props.otherCorpname} /></div> :
+                                    viewModeEnabled={!this.props.otherCorpname && !this.props.disableViewModes} /></div> :
                             null
                         }
                         <dl className="summary">
                             <dt>{ut.translate('concordance__num_matching_items')}:</dt>
                             <dd>{ut.formatNumber(this.props.concsize, 0)}</dd>
-                            <dt>{ut.translate('concordance__ipm')}:</dt>
-                            <dd>{ut.formatNumber(this.props.resultIPM, 2)}</dd>
+                            {this.props.resultIPM > -1 ?
+                                <>
+                                    <dt>{ut.translate('concordance__ipm')}:</dt>
+                                    <dd>{ut.formatNumber(this.props.resultIPM, 2)}</dd>
+                                </> :
+                                null
+                            }
+                            {this.props.resultARF > -1 ?
+                                <>
+                                    <dt>{ut.translate('concordance__arf')}:</dt>
+                                    <dd>{ut.formatNumber(this.props.resultARF, 2)}</dd>
+                                </> :
+                                null
+                            }
                         </dl>
                         <table className={tableClasses.join(' ')}>
                             <tbody>

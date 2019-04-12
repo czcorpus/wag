@@ -250,7 +250,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                         if (this.waitingForTiles.get(payload.tileId) === null) {
                             this.waitingForTiles = this.waitingForTiles.set(
                                 payload.tileId,
-                                {corpname: payload.data.corpname, concId: payload.data.conc_persistence_op_id}
+                                {corpname: payload.data.corpName, concId: payload.data.concPersistenceID}
                             );
                         }
                         if (!this.waitingForTiles.findKey(v => v === null)) {

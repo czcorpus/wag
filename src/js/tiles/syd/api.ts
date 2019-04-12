@@ -21,12 +21,11 @@ import { concatMap, share } from 'rxjs/operators';
 import { ajax$ } from '../../common/ajax';
 import {
     ConcApi,
-    ConcResponse,
     QuerySelector,
     RequestArgs as ConcRequestArgs,
-    setQuery,
-    ViewMode,
+    setQuery
 } from '../../common/api/kontext/concordance';
+import { ConcResponse, ViewMode } from '../../common/api/abstract/concordance';
 import { HTTPResponse as FreqsHTTPResponse } from '../../common/api/kontext/freqs';
 import { MultiDict } from '../../common/data';
 import { CorePosAttribute, DataApi, HTTPHeaders } from '../../common/types';
@@ -167,7 +166,7 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
                         (resp) => {
                             const [data, reqId] = resp;
                             const args1 = new MultiDict();
-                            args1.set('q', '~' + data.conc_persistence_op_id);
+                            args1.set('q', '~' + data.concPersistenceID);
                             args1.set('corpname', corpname);
                             args1.set('fcrit', fcrit);
                             args1.set('flimit', args.flimit);

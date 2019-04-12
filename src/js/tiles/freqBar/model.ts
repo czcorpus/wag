@@ -129,7 +129,7 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState> {
                                 observer.complete();
                             }
                         }).pipe(
-                            concatMap(args => this.api.call(stateToAPIArgs(state, payload.data.conc_persistence_op_id)))
+                            concatMap(args => this.api.call(stateToAPIArgs(state, payload.data.concPersistenceID)))
                         )
                         .subscribe(
                             resp => {
