@@ -21,7 +21,8 @@ import * as Immutable from 'immutable';
 import { AppServices } from '../../appServices';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
 import { isSubqueryPayload, SubQueryItem } from '../../common/types';
-import { ConcApi, FilterRequestArgs, QuerySelector, ViewMode, PNFilter, ConcResponse, Line } from '../../common/api/kontext/concordance';
+import { ConcApi, FilterRequestArgs, QuerySelector, PNFilter } from '../../common/api/kontext/concordance';
+import { Line, ViewMode, ConcResponse } from '../../common/api/abstract/concordance';
 import { Observable, merge } from 'rxjs';
 import { isConcLoadedPayload } from '../concordance/actions';
 import { CollExamplesLoadedPayload } from './actions';
@@ -34,7 +35,7 @@ export interface ConcFilterModelState {
     isMobile:boolean;
     widthFract:number;
     error:string;
-    corpname:string;
+    corpName:string;
     posAttrs:Immutable.List<string>;
     attrVmode:'mouseover';
     viewMode:ViewMode;
@@ -144,7 +145,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
             const args:FilterRequestArgs = {
                 queryselector: QuerySelector.CQL,
                 cql: `[lemma="${subq.value}"]`,            // TODO escape stuff
-                corpname: state.corpname,
+                corpname: state.corpName,
                 kwicleftctx: undefined,
                 kwicrightctx: undefined,
                 async: '0',
@@ -164,7 +165,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
             };
             return this.api.call(args).pipe(
                 map(v => ({
-                    conc_persistence_op_id: v.conc_persistence_op_id,
+                    concPersistenceID: v.concPersistenceID,
                     messages: v.messages,
                     Lines: v.Lines.map(line => ({
                         Left: line.Left,
@@ -174,13 +175,12 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                         toknum: line.toknum,
                         interactionId: subq.interactionId
                     })),
-                    fullsize: v.fullsize,
                     concsize: v.concsize,
-                    result_arf: v.result_arf,
-                    result_relative_freq: v.result_relative_freq,
+                    arf: v.arf,
+                    ipm: v.ipm,
                     query: v.query,
-                    corpname: v.corpname,
-                    usesubcorp: v.usesubcorp
+                    corpName: v.corpName,
+                    subcorpName: v.subcorpName
                 }))
             );
         });
@@ -211,7 +211,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                             if (isConcLoadedPayload(payload) && this.waitingForTiles.get(basicPayload.tileId) === null) {
                                 this.waitingForTiles = this.waitingForTiles.set(
                                     basicPayload.tileId,
-                                    payload.data.conc_persistence_op_id
+                                    payload.data.concPersistenceID
                                 );
 
                             } else if (isSubqueryPayload(payload) && this.waitingForTiles.get(basicPayload.tileId) === null) {

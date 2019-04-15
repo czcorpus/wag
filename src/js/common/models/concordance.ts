@@ -17,7 +17,8 @@
  */
 import * as Immutable from 'immutable';
 
-import { PCQValue, PCRequestArgs, QuerySelector, RequestArgs, setQuery, ViewMode, mkLemmaMatchQuery } from '../api/kontext/concordance';
+import { QuerySelector} from '../api/kontext/concordance';
+import { ViewMode } from '../api/abstract/concordance';
 import { LemmaVariant } from '../types';
 
 
@@ -41,59 +42,7 @@ export interface ConcordanceMinState {
 }
 
 
-export const stateToArgs = (state:ConcordanceMinState, lvar:LemmaVariant|null, otherLangCql:string|null):RequestArgs|PCRequestArgs => {
-    if (state.otherCorpname) {
-        const ans:PCRequestArgs = {
-            corpname: state.corpname,
-            maincorp: state.corpname,
-            align: state.otherCorpname,
-            usesubcorp: state.subcname,
-            queryselector: state.querySelector,
-            kwicleftctx: (-1 * state.kwicLeftCtx).toFixed(),
-            kwicrightctx: state.kwicRightCtx.toFixed(),
-            async: '0',
-            pagesize: state.pageSize.toFixed(),
-            fromp: state.loadPage.toFixed(),
-            attr_vmode: state.attr_vmode,
-            attrs: state.attrs.join(','),
-            viewmode: state.viewMode,
-            shuffle: state.shuffle ? 1 : undefined,
-            format:'json'
-        };
-        ans[`pcq_pos_neg_${state.otherCorpname}`] = PCQValue.POS;
-        ans[`include_empty_${state.otherCorpname}`] = '0';
-        ans[`queryselector_${state.otherCorpname}`] = 'cqlrow';
-        ans[`cql_${state.otherCorpname}`] = otherLangCql || '';
-        if (lvar) {
-            setQuery(ans, mkLemmaMatchQuery(lvar, state.posQueryGenerator));
 
-        } else {
-            ans.q = `~${state.concId}`;
-        }
-        return ans;
-
-    } else {
-        const ans:RequestArgs = {
-            corpname: state.corpname,
-            usesubcorp: state.subcname,
-            queryselector: state.querySelector,
-            kwicleftctx: (-1 * state.kwicLeftCtx).toFixed(),
-            kwicrightctx: state.kwicRightCtx.toFixed(),
-            async: '0',
-            pagesize: state.pageSize.toFixed(),
-            fromp: state.loadPage.toFixed(),
-            attr_vmode: state.attr_vmode,
-            attrs: state.attrs.join(','),
-            viewmode: state.viewMode,
-            shuffle: state.shuffle ? 1 : undefined,
-            format:'json'
-        };
-        if (lvar) {
-            setQuery(ans, mkLemmaMatchQuery(lvar, state.posQueryGenerator));
-
-        } else {
-            ans.q = `~${state.concId}`;
-        }
-        return ans;
-    }
+export interface IStateArgsMapper<T> {
+    (state:ConcordanceMinState, lvar:LemmaVariant|null, otherLangCql:string|null):T;
 }

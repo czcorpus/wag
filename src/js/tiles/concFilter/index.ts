@@ -22,7 +22,8 @@ import { AppServices } from '../../appServices';
 import { TileConf, ITileProvider, TileFactory, TileComponent, QueryType } from '../../common/types';
 import { ConcFilterModel } from './model';
 import { init as viewInit } from './view';
-import { ConcApi, Line, ViewMode } from '../../common/api/kontext/concordance';
+import { ConcApi } from '../../common/api/kontext/concordance';
+import { Line, ViewMode } from '../../common/api/abstract/concordance';
 
 
 declare var require:(src:string)=>void;  // webpack
@@ -72,7 +73,7 @@ export class ConcFilterTile implements ITileProvider {
                 isTweakMode: false,
                 isMobile: appServices.isMobileMode(),
                 widthFract: widthFract,
-                corpname: conf.corpname,
+                corpName: conf.corpname,
                 posAttrs: Immutable.List<string>(conf.posAttrs),
                 lines: Immutable.List<Line>(),
                 viewMode: ViewMode.SENT,

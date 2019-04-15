@@ -17,7 +17,7 @@
  */
 import { Action } from 'kombo';
 
-import { ConcResponse, ViewMode } from '../../common/api/kontext/concordance';
+import { ConcResponse, ViewMode } from '../../common/api/abstract/concordance';
 
 
 
@@ -36,7 +36,7 @@ export interface ConcLoadedPayload {
 
 export function isConcLoadedPayload(p:any):p is ConcLoadedPayload {
     const x = (p as ConcLoadedPayload).data;
-    return x && !!x.conc_persistence_op_id;
+    return x && !!x.concPersistenceID
 }
 
 export namespace Actions {

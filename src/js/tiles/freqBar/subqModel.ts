@@ -20,7 +20,8 @@ import { forkJoin, Observable } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 
 import { AppServices } from '../../appServices';
-import { ConcApi, ConcResponse, QuerySelector, RequestArgs, ViewMode } from '../../common/api/kontext/concordance';
+import { ConcApi, QuerySelector, RequestArgs } from '../../common/api/kontext/concordance';
+import { ViewMode, ConcResponse } from '../../common/api/abstract/concordance';
 import { APIBlockResponse, ApiDataBlock, MultiBlockFreqDistribAPI } from '../../common/api/kontext/freqs';
 import { stateToAPIArgs, SubqueryModeConf } from '../../common/models/freq';
 import { Backlink, isSubqueryPayload, SubqueryPayload } from '../../common/types';
@@ -70,7 +71,7 @@ export class SubqFreqBarModel extends FreqBarModel {
             format:'json'
         } as RequestArgs)
         .pipe(
-            concatMap((v:ConcResponse) => this.api.call(stateToAPIArgs(state, v.conc_persistence_op_id)))
+            concatMap((v:ConcResponse) => this.api.call(stateToAPIArgs(state, v.concPersistenceID)))
         );
     }
 

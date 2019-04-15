@@ -21,6 +21,9 @@ import { map } from 'rxjs/operators';
 import { ajax$ } from '../../ajax';
 import { DataApi, HTTPHeaders, LemmaVariant } from '../../types';
 import { posQueryFactory } from './posQuery';
+import { ConcordanceMinState, IStateArgsMapper } from '../../models/concordance';
+import { Line, ConcResponse, ViewMode } from '../abstract/concordance';
+
 
 
 export enum QuerySelector {
@@ -29,12 +32,6 @@ export enum QuerySelector {
     LEMMA = 'lemmarow',
     WORD = 'wordrow',
     PHRASE = 'phraserow'
-}
-
-export enum ViewMode {
-    KWIC = 'kwic',
-    SENT = 'sen',
-    ALIGN = 'align'
 }
 
 export interface AnyQuery {
@@ -86,29 +83,7 @@ export interface PCRequestArgs extends RequestArgs {
     [parg:string]:string|number;
 }
 
-
-export interface LineElement {
-    'class':string;
-    str:string;
-    mouseover?:Array<string>;
-}
-
-export interface Line {
-    Left:Array<LineElement>;
-    Kwic:Array<LineElement>;
-    Right:Array<LineElement>;
-    Align?:Array<{
-        Left:Array<LineElement>;
-        Kwic:Array<LineElement>;
-        Right:Array<LineElement>;
-        toknum:number;
-    }>;
-    toknum:number;
-    interactionId?:string;
-    isHighlighted?:boolean;
-}
-
-interface HTTPResponse {
+export interface HTTPResponse {
     conc_persistence_op_id:string;
     messages:Array<[string, string]>;
     Lines:Array<Line>;
@@ -116,12 +91,6 @@ interface HTTPResponse {
     concsize:number;
     result_arf:number;
     result_relative_freq:number;
-}
-
-export interface ConcResponse extends HTTPResponse {
-    query:string;
-    corpname:string;
-    usesubcorp:string;
 }
 
 export const getQuery = (args:AnyQuery):string => {
@@ -178,9 +147,67 @@ export const setQuery = (args:AnyQuery, q:string):void => {
 }
 
 
+export const stateToArgs:IStateArgsMapper<RequestArgs|PCRequestArgs> = (state, lvar, otherLangCql) => {
+    if (state.otherCorpname) {
+        const ans:PCRequestArgs = {
+            corpname: state.corpname,
+            maincorp: state.corpname,
+            align: state.otherCorpname,
+            usesubcorp: state.subcname,
+            queryselector: state.querySelector,
+            kwicleftctx: (-1 * state.kwicLeftCtx).toFixed(),
+            kwicrightctx: state.kwicRightCtx.toFixed(),
+            async: '0',
+            pagesize: state.pageSize.toFixed(),
+            fromp: state.loadPage.toFixed(),
+            attr_vmode: state.attr_vmode,
+            attrs: state.attrs.join(','),
+            viewmode: state.viewMode,
+            shuffle: state.shuffle ? 1 : undefined,
+            format:'json'
+        };
+        ans[`pcq_pos_neg_${state.otherCorpname}`] = PCQValue.POS;
+        ans[`include_empty_${state.otherCorpname}`] = '0';
+        ans[`queryselector_${state.otherCorpname}`] = 'cqlrow';
+        ans[`cql_${state.otherCorpname}`] = otherLangCql || '';
+        if (lvar) {
+            setQuery(ans, mkLemmaMatchQuery(lvar, state.posQueryGenerator));
+
+        } else {
+            ans.q = `~${state.concId}`;
+        }
+        return ans;
+
+    } else {
+        const ans:RequestArgs = {
+            corpname: state.corpname,
+            usesubcorp: state.subcname,
+            queryselector: state.querySelector,
+            kwicleftctx: (-1 * state.kwicLeftCtx).toFixed(),
+            kwicrightctx: state.kwicRightCtx.toFixed(),
+            async: '0',
+            pagesize: state.pageSize.toFixed(),
+            fromp: state.loadPage.toFixed(),
+            attr_vmode: state.attr_vmode,
+            attrs: state.attrs.join(','),
+            viewmode: state.viewMode,
+            shuffle: state.shuffle ? 1 : undefined,
+            format:'json'
+        };
+        if (lvar) {
+            setQuery(ans, mkLemmaMatchQuery(lvar, state.posQueryGenerator));
+
+        } else {
+            ans.q = `~${state.concId}`;
+        }
+        return ans;
+    }
+}
+
+
 export class ConcApi implements DataApi<RequestArgs, ConcResponse> {
 
-    private readonly apiURL;
+    private readonly apiURL:string;
 
     private readonly customHeaders:HTTPHeaders;
 
@@ -195,7 +222,7 @@ export class ConcApi implements DataApi<RequestArgs, ConcResponse> {
     }
 
     call(args:RequestArgs|PCRequestArgs|FilterRequestArgs):Observable<ConcResponse> {
-        return ajax$<ConcResponse>(
+        return ajax$<HTTPResponse>(
             'GET',
             args.q && /\/first$/.exec(this.apiURL) ? this.mkViewURLVariant() : this.apiURL,
             args,
@@ -203,16 +230,15 @@ export class ConcApi implements DataApi<RequestArgs, ConcResponse> {
 
         ).pipe(
             map(data => ({
-                conc_persistence_op_id: data.conc_persistence_op_id,
+                concPersistenceID: data.conc_persistence_op_id,
                 messages: data.messages,
                 Lines: data.Lines,
-                fullsize: data.fullsize,
                 concsize: data.concsize,
-                result_arf: data.result_arf,
-                result_relative_freq: data.result_relative_freq,
+                arf: data.result_arf,
+                ipm: data.result_relative_freq,
                 query: getQuery(args),
-                corpname: args.corpname,
-                usesubcorp: args.usesubcorp
+                corpName: args.corpname,
+                subcorpName: args.usesubcorp
             }))
         );
     }
