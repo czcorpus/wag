@@ -826,12 +826,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         constructor(props) {
             super(props);
-            this.handleCloseCorpusInfo = this.handleCloseCorpusInfo.bind(this);
+            this.handleCloseSourceInfo = this.handleCloseSourceInfo.bind(this);
         }
 
-        handleCloseCorpusInfo() {
-            dispatcher.dispatch<Actions.CloseCorpusInfo>({
-                name: ActionName.CloseCorpusInfo
+        handleCloseSourceInfo() {
+            dispatcher.dispatch<Actions.CloseSourceInfo>({
+                name: ActionName.CloseSourceInfo
             })
         }
 
@@ -865,7 +865,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <section className="tiles"><InitialHelp /></section>
                     }
                     {this.props.isModalVisible ?
-                        <globalComponents.ModalBox onCloseClick={this.handleCloseCorpusInfo}
+                        <globalComponents.ModalBox onCloseClick={this.handleCloseSourceInfo}
                                 title={this.props.modalBoxTitle}>
                             {this.props.modalBoxData ? /* TODO thisis hardcoded; no other type possible here */
                                 <CorpusInfo data={this.props.modalBoxData} /> :

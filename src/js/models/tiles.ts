@@ -138,7 +138,7 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                 newState.helpActiveTiles = newState.helpActiveTiles.remove(action.payload.tileId);
                 return newState;
             },
-            [ActionName.GetCorpusInfo]: (state, action:Actions.GetCorpusInfo) => {
+            [ActionName.GetSourceInfo]: (state, action:Actions.GetSourceInfo) => {
                 const newState = this.copyState(state);
                 newState.modalBoxData = null;
                 newState.modalBoxTitle = null;
@@ -146,7 +146,7 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                 newState.isBusy = true;
                 return newState;
             },
-            [ActionName.GetCorpusInfoDone]: (state, action:Actions.GetCorpusInfoDone) => {
+            [ActionName.GetSourceInfoDone]: (state, action:Actions.GetSourceInfoDone) => {
                 const newState = this.copyState(state);
                 newState.isBusy = false;
                 if (action.error) {
@@ -158,7 +158,7 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                 }
                 return newState;
             },
-            [ActionName.CloseCorpusInfo]: (state, action:Actions.CloseCorpusInfo) => {
+            [ActionName.CloseSourceInfo]: (state, action:Actions.CloseSourceInfo) => {
                 const newState = this.copyState(state);
                 newState.modalBoxData = null;
                 newState.isModalVisible = false;
@@ -241,7 +241,7 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
 
     sideEffects(state:WdglanceTilesState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
-            case ActionName.GetCorpusInfo:
+            case ActionName.GetSourceInfo:
                 this.corpusInfoApi.call(
                     {
                         corpname: action.payload['corpusId'],
@@ -249,8 +249,8 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                     }
                 ).subscribe(
                     (data) => {
-                        dispatch<Actions.GetCorpusInfoDone>({
-                            name: ActionName.GetCorpusInfoDone,
+                        dispatch<Actions.GetSourceInfoDone>({
+                            name: ActionName.GetSourceInfoDone,
                             payload: {
                                 data: data
                             }
@@ -258,8 +258,8 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                     },
                     (error) => {
                         this.appServices.showMessage(SystemMessageType.ERROR, error);
-                        dispatch<Actions.GetCorpusInfoDone>({
-                            name: ActionName.GetCorpusInfoDone,
+                        dispatch<Actions.GetSourceInfoDone>({
+                            name: ActionName.GetSourceInfoDone,
                             error: error,
                             payload: {
                                 data: null

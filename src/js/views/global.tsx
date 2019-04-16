@@ -152,8 +152,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>, resize$:Obse
     }> = (props) => {
 
         const handleClick = (corp:string, subcorp:string) => () => {
-            dispatcher.dispatch<Actions.GetCorpusInfo>({
-                name: ActionName.GetCorpusInfo,
+            dispatcher.dispatch<Actions.GetSourceInfo>({
+                name: ActionName.GetSourceInfo,
                 payload: {
                     tileId: props.tileId,
                     corpusId: corp,
