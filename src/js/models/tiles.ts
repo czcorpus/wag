@@ -93,7 +93,8 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                             supportsAltView: tile.supportsAltView,
                             renderSize: [action.payload.size[0] + tile.tileId, action.payload.size[1]],
                             widthFract: tile.widthFract,
-                            helpURL: tile.helpURL
+                            helpURL: tile.helpURL,
+                            hasCustomSourceInfo: tile.hasCustomSourceInfo
                         }
                     );
                     return newState;

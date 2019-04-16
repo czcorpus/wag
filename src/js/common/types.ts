@@ -189,6 +189,8 @@ export interface TileFrameProps {
      * standard mode width in CSS grid fr units
      */
     widthFract:number;
+
+    hasCustomSourceInfo:boolean;
 }
 
 /**
@@ -234,6 +236,8 @@ export interface ITileProvider {
     supportsHelpView():boolean;
 
     supportsAltView():boolean;
+
+    hasCustomSourceInfo():boolean;
 }
 
 /**

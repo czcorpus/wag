@@ -115,6 +115,10 @@ export class TreqTile implements ITileProvider {
     supportsAltView():boolean {
         return true;
     }
+
+    hasCustomSourceInfo():boolean {
+        return false; // currently no need for a dynamic behavior
+    }
 }
 
 

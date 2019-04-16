@@ -164,6 +164,9 @@ export class MergeCorpFreqTile implements ITileProvider {
         return false;
     }
 
+    hasCustomSourceInfo():boolean {
+        return false; // currently no need for a dynamic behavior
+    }
 }
 
 

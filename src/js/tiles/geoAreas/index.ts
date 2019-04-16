@@ -132,6 +132,10 @@ export class GeoAreasTile implements ITileProvider {
     supportsAltView():boolean {
         return false;
     }
+
+    hasCustomSourceInfo():boolean {
+        return false; // currently no need for a dynamic behavior
+    }
 }
 
 export const init:TileFactory.TileFactory<GeoAreasTileConf>  = (args) => new GeoAreasTile(args);

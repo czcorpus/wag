@@ -121,6 +121,10 @@ export class ConcFilterTile implements ITileProvider {
     supportsAltView():boolean {
         return false;
     }
+
+    hasCustomSourceInfo():boolean {
+        return false; // currently no need for a dynamic behavior
+    }
 }
 
 

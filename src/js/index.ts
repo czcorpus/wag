@@ -75,6 +75,7 @@ const mkAttachTile = (queryType:QueryType, lang1:string, lang2:string) =>
         renderSize: [50, 50],
         widthFract: tile.getWidthFract(),
         helpURL: helpURL,
+        hasCustomSourceInfo: tile.hasCustomSourceInfo()
     });
     if (!support) {
         tile.disable();
