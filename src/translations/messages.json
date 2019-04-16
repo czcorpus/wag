@@ -1,6 +1,7 @@
 {
     "en-US": {
         "global__wdglance_title": "Word At a Glance",
+        "global__corpus": "corpus",
         "global__search": "Search",
         "global__single_word_sel": "Search a word",
         "global__two_words_compare": "Compare two words",
@@ -48,11 +49,16 @@
         "global__searching_by_pos": "Showing results for",
         "global__nothing_found_msg": "We have not found any result for the query. Please check spelling of the word and also the selected language.",
         "global__switch_to_alt_view": "Switch to alternative view",
-        "global__switch_to_default_view": "Switch to default view"
+        "global__switch_to_default_view": "Switch to default view",
+        "global__clarin_fcs_endpoint_label": "A Clarin Federated Content Search endpoint",
+        "global__source_general_desc_label": "General characteristics",
+        "global__source_desc_label": "Description",
+        "global__source_indices_label": "Available indices"
 
     },
     "cs-CZ": {
         "global__wdglance_title": "Slovo v kostce",
+        "global__corpus": "korpus",
         "global__search": "Hledat",
         "global__single_word_sel": "Vyhledat slovo",
         "global__two_words_compare": "Porovnat dvě slova",
@@ -100,6 +106,10 @@
         "global__searching_by_pos": "Zobrazuji výsledky pro",
         "global__nothing_found_msg": "K zadanému dotazu jsme nenašli žádný výsledek. Zkontrolujte prosím zadané slovo a zvolený jazyk.",
         "global__switch_to_alt_view": "Přepnout do alternativního zobrazení",
-        "global__switch_to_default_view": "Přepnout do výchozího zobrazení"
+        "global__switch_to_default_view": "Přepnout do výchozího zobrazení",
+        "global__clarin_fcs_endpoint_label": "Přístupový bod systému Clarin Federated Content Search",
+        "global__source_general_desc_label": "Obecná charakteristika",
+        "global__source_desc_label": "Popis",
+        "global__source_indices_label": "Dostupné indexy"
     }
 }

@@ -45,6 +45,10 @@ export class EmptyTile implements ITileProvider {
         return null;
     }
 
+    getSourceInfoView():null {
+        return null;
+    }
+
     supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {
         return false;
     }
@@ -65,10 +69,6 @@ export class EmptyTile implements ITileProvider {
     }
 
     supportsAltView():boolean {
-        return false;
-    }
-
-    hasCustomSourceInfo():boolean {
         return false;
     }
 }

@@ -91,6 +91,10 @@ export class SyDTile implements ITileProvider {
         return this.view;
     }
 
+    getSourceInfoView():null {
+        return null;
+    }
+
     getLabel():string {
         return this.label;
     }
@@ -117,10 +121,6 @@ export class SyDTile implements ITileProvider {
 
     supportsAltView():boolean {
         return false;
-    }
-
-    hasCustomSourceInfo():boolean {
-        return false; // currently no need for a dynamic behavior
     }
 }
 

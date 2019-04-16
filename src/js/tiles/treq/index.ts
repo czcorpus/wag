@@ -92,6 +92,10 @@ export class TreqTile implements ITileProvider {
         return this.view;
     }
 
+    getSourceInfoView():null {
+        return null;
+    }
+
     supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {
         return qt === QueryType.TRANSLAT_QUERY;
     }
@@ -114,10 +118,6 @@ export class TreqTile implements ITileProvider {
 
     supportsAltView():boolean {
         return true;
-    }
-
-    hasCustomSourceInfo():boolean {
-        return false; // currently no need for a dynamic behavior
     }
 }
 

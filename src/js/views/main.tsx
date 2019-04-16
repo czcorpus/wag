@@ -20,7 +20,7 @@ import { Bound, BoundWithProps, IActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
 
 import { Forms } from '../common/data';
-import { QueryType, SystemMessageType, TileFrameProps, LemmaVariant, SearchLanguage } from '../common/types';
+import { QueryType, SystemMessageType, TileFrameProps, LemmaVariant, SearchLanguage, SourceDetails } from '../common/types';
 import { KeyCodes } from '../common/util';
 import { TileGroup } from '../layout';
 import { ActionName, Actions } from '../models/actions';
@@ -30,6 +30,7 @@ import { TileResultFlagRec, WdglanceTilesModel, WdglanceTilesState } from '../mo
 import { SystemMessage } from '../notifications';
 import { init as corpusInfoViewInit } from './corpusInfo';
 import { GlobalComponents } from './global';
+import { isAPIResponse } from '../common/api/kontext/corpusInfo';
 
 
 
@@ -820,6 +821,35 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         );
     };
 
+    // -------------------- <SourceInfo /> -----------------------------
+
+    const SourceInfo:React.SFC<{
+        data:SourceDetails;
+        tileProps:Immutable.List<TileFrameProps>;
+    }> = (props) => {
+
+        if (props.data) {
+            const tile = props.tileProps.find(v => v.tileId === props.data.tileId);
+            if (!tile) {
+                throw new Error('Unable to get tile for loaded source info data');
+            }
+            if (tile.SourceInfoComponent) {
+                return <div><tile.SourceInfoComponent data={props.data} /></div>
+
+            } else if (isAPIResponse(props.data)) {
+                return <CorpusInfo data={props.data} />;
+
+            } else {
+                throw new Error('Unsupported source info view/data');
+            }
+        }
+        return (
+            <div style={{textAlign: 'center', minWidth: '10em', minHeight: '5em'}}>
+                <globalComponents.AjaxLoader htmlClass="loader" />
+            </div>
+        );
+    };
+
     // -------------------- <TilesSections /> -----------------------------
 
     class TilesSections extends React.PureComponent<{layout:Immutable.List<TileGroup>} & WdglanceTilesState> {
@@ -866,13 +896,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     }
                     {this.props.isModalVisible ?
                         <globalComponents.ModalBox onCloseClick={this.handleCloseSourceInfo}
-                                title={this.props.modalBoxTitle}>
-                            {this.props.modalBoxData ? /* TODO thisis hardcoded; no other type possible here */
-                                <CorpusInfo data={this.props.modalBoxData} /> :
-                                <div style={{textAlign: 'center', minWidth: '10em', minHeight: '5em'}}>
-                                    <globalComponents.AjaxLoader htmlClass="loader" />
-                                </div>
-                            }
+                                title={this.props.modalBoxData ? this.props.modalBoxData.title : ''}>
+                            <globalComponents.ErrorBoundary>
+                                <SourceInfo tileProps={this.props.tileProps} data={this.props.modalBoxData} />
+                            </globalComponents.ErrorBoundary>
                         </globalComponents.ModalBox> : null}
                 </section>
             );
@@ -897,7 +924,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         tileResultFlags={Immutable.List<TileResultFlagRec>()}
                         tileProps={Immutable.List<TileFrameProps>()}
                         modalBoxData={null}
-                        modalBoxTitle=""
                         layout={Immutable.List<TileGroup>()} />
         }
 

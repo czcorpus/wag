@@ -25,10 +25,43 @@ const directPos:PosQueryExport = (pos) => pos;
 
 const ppTagset:PosQueryExport = (pos) => `${pos.toUpperCase()}.+`;
 
+
+const pennTreebank:PosQueryExport = (pos) => {
+    // source: https://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html
+    return {
+        [QueryPoS.CONJUNCTION]: 'CC',
+        [QueryPoS.NUMERAL]: 'CD',
+        //DT	Determiner
+        //EX	Existential there
+        //FW	Foreign word
+        [QueryPoS.PREPOSITION]: 'IN',
+        [QueryPoS.ADJECTIVE]: 'J.*',
+        //LS	List item marker
+        //MD	Modal
+        [QueryPoS.NOUN]: 'N.*',
+        //PDT	Predeterminer
+        //POS	Possessive ending
+        [QueryPoS.PRONOUN]: 'PRP.*',
+        [QueryPoS.ADVERB]: 'R.*',
+        [QueryPoS.PARTICLE]: 'RP',
+        //SYM	Symbol
+        //TO	to
+        [QueryPoS.INTERJECTION]: 'UH', //	Interjection
+        [QueryPoS.VERB]: 'V.*'
+        //WDT	Wh-determiner
+        //WP	Wh-pronoun
+        //WP$	Possessive wh-pronoun
+        //WRB	Wh-adverb
+    }[pos];
+};
+
+
 export const posQueryFactory = (fnName:string):PosQueryExport => {
     switch (fnName) {
         case 'ppTagset':
             return ppTagset;
+        case 'pennTreebank':
+            return pennTreebank;
         case 'directPos':
         default:
             return directPos;
