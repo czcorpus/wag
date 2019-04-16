@@ -31,7 +31,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
         render() {
             return (
-                <globComponents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
+                <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.result.find(v => v.items.length > 0) !== undefined}
                         sourceIdent={[this.props.corp1, this.props.corp2].map(v => ({corp: v}))}>
                     <div className="SydTileView">

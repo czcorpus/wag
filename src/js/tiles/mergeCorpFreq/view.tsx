@@ -67,7 +67,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                 .toArray();
 
             return (
-                <globComponents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
+                <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.data.find(v => v.freq > 0) !== undefined}
                         sourceIdent={this.props.sources.groupBy(v => v.corpname).map(v => ({corp: v.first().corpname})).toArray()}
                         backlink={backlinks}>

@@ -180,6 +180,7 @@ export namespace Actions {
     }
 
     export interface GetCorpusInfo extends Action<{
+        tileId:number;
         corpusId:string;
         subcorpusId?:string;
     }> {

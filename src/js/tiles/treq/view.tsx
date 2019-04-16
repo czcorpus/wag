@@ -104,7 +104,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                                                 {height: `${this.props.translations.size * 40}px`, width: '100%'};
 
             return (
-                <globComponents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
+                <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
                             hasData={this.props.translations.size > 0}
                             sourceIdent={{corp: 'InterCorp'}}
                             backlink={this.props.treqBackLink}>

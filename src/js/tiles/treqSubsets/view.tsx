@@ -303,7 +303,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
         render() {
             return (
-                <globalComponents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
+                <globalComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.subsets.flatMap(v => v.translations).size > 0}
                         sourceIdent={{corp: 'InterCorp'}}>
                     <div className="TreqSubsetsView">

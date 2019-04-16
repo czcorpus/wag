@@ -176,7 +176,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             }
 
             return (
-                <globalCompontents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
+                <globalCompontents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.lines.size > 0}
                         sourceIdent={{corp: this.props.corpname, subcorp: this.props.subcDesc}}
                         backlink={this.props.backlink}>
