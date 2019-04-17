@@ -130,6 +130,10 @@ export class TimeDistTile implements ITileProvider {
         return this.view;
     }
 
+    getSourceInfoView():null {
+        return null;
+    }
+
     getLabel():string {
         return this.label;
     }

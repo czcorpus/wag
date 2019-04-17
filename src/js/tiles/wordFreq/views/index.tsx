@@ -120,7 +120,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             const srchWord = this.props.data.find(v => v.isSearched);
 
             return (
-                <globalComponents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
+                <globalComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.data.size > 0} sourceIdent={{corp: this.props.corpname}}>
                     <div className={`WordFreqTileView${this.props.isMobile ? ' mobile' : ''}`}>
                         {!this.props.isMobile ?

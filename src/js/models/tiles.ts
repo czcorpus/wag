@@ -18,12 +18,12 @@
 import * as Immutable from 'immutable';
 import { Action, ActionDispatcher, SEDispatcher, StatelessModel } from 'kombo';
 import { Observable } from 'rxjs';
-import { concatMap } from 'rxjs/operators';
+import { concatMap, map } from 'rxjs/operators';
 
 import { AppServices } from '../appServices';
 import { ajax$, ResponseType } from '../common/ajax';
 import { APIResponse as CorpusInfoResponse, CorpusInfoAPI } from '../common/api/kontext/corpusInfo';
-import { SystemMessageType, TileFrameProps } from '../common/types';
+import { SystemMessageType, TileFrameProps, SourceDetails } from '../common/types';
 import { ActionName, Actions } from './actions';
 
 
@@ -55,8 +55,7 @@ export interface WdglanceTilesState {
     datalessGroups:Immutable.Set<number>;
     tileResultFlags:Immutable.List<TileResultFlagRec>;
     tileProps:Immutable.List<TileFrameProps>;
-    modalBoxData:CorpusInfoResponse|null; // or other possible data types
-    modalBoxTitle:string;
+    modalBoxData:SourceDetails|null; // or other possible data types
 }
 
 
@@ -86,6 +85,7 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                         {
                             tileId: tile.tileId,
                             Component: tile.Component,
+                            SourceInfoComponent: tile.SourceInfoComponent,
                             label: tile.label,
                             supportsTweakMode: tile.supportsTweakMode,
                             supportsCurrQueryType: tile.supportsCurrQueryType,
@@ -138,15 +138,14 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                 newState.helpActiveTiles = newState.helpActiveTiles.remove(action.payload.tileId);
                 return newState;
             },
-            [ActionName.GetCorpusInfo]: (state, action:Actions.GetCorpusInfo) => {
+            [ActionName.GetSourceInfo]: (state, action:Actions.GetSourceInfo) => {
                 const newState = this.copyState(state);
                 newState.modalBoxData = null;
-                newState.modalBoxTitle = null;
                 newState.isModalVisible = true;
                 newState.isBusy = true;
                 return newState;
             },
-            [ActionName.GetCorpusInfoDone]: (state, action:Actions.GetCorpusInfoDone) => {
+            [ActionName.GetSourceInfoDone]: (state, action:Actions.GetSourceInfoDone) => {
                 const newState = this.copyState(state);
                 newState.isBusy = false;
                 if (action.error) {
@@ -154,11 +153,10 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
 
                 } else {
                     newState.modalBoxData = action.payload.data;
-                    newState.modalBoxTitle = action.payload.data.corpname;
                 }
                 return newState;
             },
-            [ActionName.CloseCorpusInfo]: (state, action:Actions.CloseCorpusInfo) => {
+            [ActionName.CloseSourceInfo]: (state, action:Actions.CloseSourceInfo) => {
                 const newState = this.copyState(state);
                 newState.modalBoxData = null;
                 newState.isModalVisible = false;
@@ -241,32 +239,50 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
 
     sideEffects(state:WdglanceTilesState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
-            case ActionName.GetCorpusInfo:
-                this.corpusInfoApi.call(
-                    {
-                        corpname: action.payload['corpusId'],
-                        format: 'json'
-                    }
-                ).subscribe(
-                    (data) => {
-                        dispatch<Actions.GetCorpusInfoDone>({
-                            name: ActionName.GetCorpusInfoDone,
-                            payload: {
-                                data: data
-                            }
-                        })
-                    },
-                    (error) => {
-                        this.appServices.showMessage(SystemMessageType.ERROR, error);
-                        dispatch<Actions.GetCorpusInfoDone>({
-                            name: ActionName.GetCorpusInfoDone,
-                            error: error,
-                            payload: {
-                                data: null
-                            }
-                        })
-                    }
-                );
+            case ActionName.GetSourceInfo:
+                const tile = state.tileProps.find(v => v.tileId === action.payload['tileId']);
+                if (tile && !tile.SourceInfoComponent) {
+                    this.corpusInfoApi.call(
+                        {
+                            tileId: action.payload['tileId'],
+                            corpname: action.payload['corpusId'],
+                            format: 'json'
+                        }
+                    ).pipe(
+                        map(
+                            v => ({
+                                tileId: v.tileId,
+                                title: this.appServices.translate('global__corpus') + ' ' + v.title,
+                                description: v.description,
+                                author: v.author,
+                                size: v.size,
+                                webURL: v.webURL,
+                                attrList: v.attrList,
+                                citationInfo: v.citationInfo,
+                                structList: v.structList
+                            })
+                        )
+                    ).subscribe(
+                        (data) => {
+                            dispatch<Actions.GetSourceInfoDone>({
+                                name: ActionName.GetSourceInfoDone,
+                                payload: {
+                                    data: data
+                                }
+                            })
+                        },
+                        (error) => {
+                            this.appServices.showMessage(SystemMessageType.ERROR, error);
+                            dispatch<Actions.GetSourceInfoDone>({
+                                name: ActionName.GetSourceInfoDone,
+                                error: error,
+                                payload: {
+                                    data: null
+                                }
+                            })
+                        }
+                    );
+                }
             break;
             case ActionName.ShowTileHelp:
                 if (!state.tilesHelpData.has(action.payload['tileId'])) {

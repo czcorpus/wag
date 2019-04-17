@@ -172,7 +172,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         render() {
             const areaWidth = this.props.widthFract > 2 && !this.props.isMobile ? '70%' : '100%';
             return (
-                <globComponents.TileWrapper isBusy={this.props.isBusy} error={this.props.error}
+                <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.data.size > 0}
                         sourceIdent={{corp: this.props.corpname}}>
                     <div className="GeoAreasTileView">

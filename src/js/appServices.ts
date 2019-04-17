@@ -137,4 +137,8 @@ export class AppServices {
     queryLemmaDbApi(q:string):Observable<LemmaDbResponse> {
         return this.lemmaDbApi.call({q: q});
     }
+
+    getISO639UILang():string {
+        return this.uiLang.split('-')[0];
+    }
 }

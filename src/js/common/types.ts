@@ -171,6 +171,8 @@ export interface TileFrameProps {
 
     Component:TileComponent;
 
+    SourceInfoComponent:SourceInfoComponent;
+
     label:string;
 
     supportsTweakMode:boolean;
@@ -207,6 +209,8 @@ export interface CoreTileComponentProps {
  */
 export type TileComponent = React.ComponentClass<CoreTileComponentProps>|React.SFC<CoreTileComponentProps>;
 
+export type SourceInfoComponent = React.ComponentClass<{data:{}}>|React.SFC<{}>
+
 /**
  * ITileProvider specifes an object which encapsulates an implementation
  * of a tile as required by wdglance initialization process. Based on
@@ -220,6 +224,8 @@ export interface ITileProvider {
     getIdent():number;
 
     getView():TileComponent;
+
+    getSourceInfoView():SourceInfoComponent|null;
 
     /**
      */
@@ -269,6 +275,7 @@ export namespace TileFactory {
  * is useful to share such API libraries.
  */
 export interface DataApi<T, U> {
+
     call(queryArgs:T):Observable<U>;
 }
 
@@ -344,4 +351,12 @@ export const importQueryPos = (s:string):QueryPoS => {
 export interface SearchLanguage {
     ident:string;
     label:string;
+}
+
+
+export interface SourceDetails {
+    tileId:number;
+    title:string;
+    description:string;
+    author:string;
 }

@@ -39,9 +39,9 @@ export enum ActionName {
     DisableAltViewMode = 'MAIN_DISABLE_ALT_VIEW_MODE',
     EnableTileTweakMode = 'MAIN_ENABLE_TILE_TWEAK_MODE',
     DisableTileTweakMode = 'MAIN_DISABLE_TILE_TWEAK_MODE',
-    GetCorpusInfo = 'MAIN_GET_CORPUS_INFO',
-    GetCorpusInfoDone = 'MAIN_GET_CORPUS_INFO_DONE',
-    CloseCorpusInfo = 'MAIN_CLOSE_CORPUS_INFO',
+    GetSourceInfo = 'MAIN_GET_SOURCE_INFO',
+    GetSourceInfoDone = 'MAIN_GET_SOURCE_INFO_DONE',
+    CloseSourceInfo = 'MAIN_CLOSE_SOURCE_INFO',
     ToggleGroupVisibility = 'MAIN_TOGGLE_GROUP_VISIBILITY',
     ToggleGroupHeader = 'MAIN_TOGGLE_GROUP_HEADER',
     ShowTileHelp = 'MAIN_SHOW_TILE_HELP',
@@ -179,22 +179,23 @@ export namespace Actions {
         name:ActionName.DisableTileTweakMode;
     }
 
-    export interface GetCorpusInfo extends Action<{
+    export interface GetSourceInfo extends Action<{
+        tileId:number;
         corpusId:string;
         subcorpusId?:string;
     }> {
-        name:ActionName.GetCorpusInfo;
+        name:ActionName.GetSourceInfo;
     }
 
-    export interface CloseCorpusInfo extends Action<{
+    export interface CloseSourceInfo extends Action<{
     }> {
-        name:ActionName.CloseCorpusInfo;
+        name:ActionName.CloseSourceInfo;
     }
 
-    export interface GetCorpusInfoDone extends Action<{
+    export interface GetSourceInfoDone extends Action<{
         data:APIResponse;
     }> {
-        name:ActionName.GetCorpusInfoDone;
+        name:ActionName.GetSourceInfoDone;
     }
 
     export interface ToggleGroupVisibility extends Action<{

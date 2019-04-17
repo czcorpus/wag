@@ -22,10 +22,10 @@ import { AppServices } from '../../appServices';
 import { QuerySelector } from '../../common/api/kontext/concordance';
 import { Line, ViewMode } from '../../common/api/abstract/concordance';
 
-import { Backlink, CorpSrchTileConf, ITileProvider, QueryType, TileComponent, TileFactory } from '../../common/types';
+import { Backlink, CorpSrchTileConf, ITileProvider, QueryType, TileComponent, TileFactory, DataApi, SourceInfoComponent } from '../../common/types';
 import { ConcordanceTileModel } from './model';
 import { init as viewInit } from './views';
-import { createApiInstance, createMapperInstance } from './apiFactory';
+import { createApiInstance, createMapperInstance, createSourceInfoApiInstance, createSourceInfoViewInstance } from './apiFactory';
 
 
 declare var require:any;
@@ -59,9 +59,13 @@ export class ConcordanceTile implements ITileProvider {
 
     private view:TileComponent;
 
+    private sourceInfoView:SourceInfoComponent;
+
     private readonly widthFract:number;
 
     private readonly label:string;
+
+    private readonly sourceInfoService:DataApi<{}, {}>;
 
     constructor({tileId, dispatcher, appServices, ut, mainForm, widthFract, waitForTiles, conf, lang2}:TileFactory.Args<ConcordanceTileConf>) {
         this.tileId = tileId;
@@ -71,11 +75,15 @@ export class ConcordanceTile implements ITileProvider {
         if (Array.isArray(waitForTiles) && waitForTiles.length > 1) {
             throw new Error('ConcordanceTile does not support waiting for multiple tiles. Only a single tile can be specified');
         }
+        this.sourceInfoService = createSourceInfoApiInstance(conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL));
+        this.sourceInfoView = createSourceInfoViewInstance(conf.apiType, dispatcher, ut);
+
         this.model = new ConcordanceTileModel({
             dispatcher: dispatcher,
             tileId: tileId,
             appServices: appServices,
             service: createApiInstance(conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            sourceInfoService: this.sourceInfoService,
             stateToArgMapper: createMapperInstance(conf.apiType),
             mainForm: mainForm,
             backlink: conf.backlink || null,
@@ -128,6 +136,10 @@ export class ConcordanceTile implements ITileProvider {
 
     getView():TileComponent {
         return this.view;
+    }
+
+    getSourceInfoView():SourceInfoComponent {
+        return this.sourceInfoView;
     }
 
     getLabel():string {

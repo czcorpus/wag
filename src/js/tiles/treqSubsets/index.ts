@@ -88,6 +88,10 @@ export class TreqSubsetsTile implements ITileProvider {
         return this.view;
     }
 
+    getSourceInfoView():null {
+        return null;
+    }
+
     /**
      */
     supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {

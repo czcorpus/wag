@@ -3,7 +3,9 @@
  * Copyright 2018 Institute of the Czech National Corpus,
  *                Faculty of Arts, Charles University
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * .pipe()
+
+ Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -63,6 +65,7 @@ export interface ConcordanceTileModelArgs {
     waitForTile:number;
     appServices:AppServices;
     service:DataApi<{}, ConcResponse>;
+    sourceInfoService:DataApi<{}, {}>;
     mainForm:WdglanceMainFormModel;
     initState:ConcordanceTileState;
     backlink:Backlink;
@@ -73,6 +76,8 @@ export interface ConcordanceTileModelArgs {
 export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
     private readonly service:DataApi<{}, ConcResponse>;
+
+    private readonly sourceInfoService:DataApi<{}, {}>;
 
     private readonly mainForm:WdglanceMainFormModel;
 
@@ -88,9 +93,10 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
     public static readonly CTX_SIZES = [3, 3, 8, 12];
 
-    constructor({dispatcher, tileId, appServices, service, mainForm, initState, waitForTile, backlink, stateToArgMapper}:ConcordanceTileModelArgs) {
+    constructor({dispatcher, tileId, appServices, service, sourceInfoService, mainForm, initState, waitForTile, backlink, stateToArgMapper}:ConcordanceTileModelArgs) {
         super(dispatcher, initState);
         this.service = service;
+        this.sourceInfoService = sourceInfoService;
         this.mainForm = mainForm;
         this.appServices = appServices;
         this.tileId = tileId;
@@ -284,6 +290,32 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 if (state.lines.size > 0) {
                     this.reloadData(state, dispatch, null);
                 }
+            break;
+            case GlobalActionName.GetSourceInfo:
+                if (action.payload['tileId'] === this.tileId && this.sourceInfoService) {
+                    this.sourceInfoService.call({
+                        tileId: this.tileId,
+                        uiLang: this.appServices.getISO639UILang()
+                    }).subscribe(
+                        (data) => {
+                            dispatch({
+                                name: GlobalActionName.GetSourceInfoDone,
+                                payload: {
+                                    data: data
+                                }
+                            });
+                        },
+                        (err) => {
+                            console.error(err);
+                            dispatch({
+                                name: GlobalActionName.GetSourceInfoDone,
+                                error: err
+
+                            });
+                        }
+                    );
+                }
+
             break;
         }
     }

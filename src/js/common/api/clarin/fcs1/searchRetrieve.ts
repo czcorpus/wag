@@ -184,6 +184,6 @@ export class FCS1SearchRetrieveAPI implements DataApi<FCS1Args, ConcResponse> {
                 }
             )
         );
-	}
+    }
 
 }

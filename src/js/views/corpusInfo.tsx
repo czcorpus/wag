@@ -75,13 +75,15 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         return (
             <table className="attrib-list">
+                <thead>
+                    <tr>
+                        <th colSpan={2} className="attrib-heading">
+                            {ut.translate('global__attributes') }
+                        </th>
+                    </tr>
+                </thead>
                 <tbody>
-                <tr>
-                    <th colSpan={2} className="attrib-heading">
-                        {ut.translate('global__attributes') }
-                    </th>
-                </tr>
-                {values}
+                    {values}
                 </tbody>
             </table>
         );
@@ -96,12 +98,15 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         return (
             <table className="struct-list">
+                <thead>
+                    <tr>
+                        <th colSpan={2} className="attrib-heading">{ut.translate('global__structures')}</th>
+                    </tr>
+                </thead>
                 <tbody>
-                <tr>
-                    <th colSpan={2} className="attrib-heading">{ut.translate('global__structures')}</th>
-                </tr>
-                {props.rows.map((row, i) =>
-                    <ItemAndNumRow key={i} brackets={true} label={row.name} value={row.size} />)}
+                    {props.rows.map((row, i) =>
+                        <ItemAndNumRow key={i} brackets={true} label={row.name} value={row.size} />)
+                    }
                 </tbody>
             </table>
         );
@@ -148,8 +153,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     const CorpusInfoBox:React.SFC<CorpusInfoBoxProps> = (props) => {
 
         const renderWebLink = () => {
-            if (props.data.web_url) {
-                return <a href={props.data.web_url} target="_blank">{props.data.web_url}</a>;
+            if (props.data.webURL) {
+                return <a href={props.data.webURL} target="_blank">{props.data.webURL}</a>;
 
             } else {
                 return '-';
@@ -157,7 +162,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         };
 
         return (
-            <div className="CorpusInfoBox">
+            <div className="CorpusInfoBox source-info-box">
                 <dl>
                     <dt>{ut.translate('global__description')}:</dt>
                     <dd>{props.data.description}</dd>
@@ -172,10 +177,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             <tbody>
                                 <tr>
                                     <td>
-                                        <AttributeList rows={props.data.attrlist} />
+                                        <AttributeList rows={props.data.attrList} />
                                     </td>
                                     <td style={{paddingLeft: '4em'}}>
-                                        <StructureList rows={props.data.structlist} />
+                                        <StructureList rows={props.data.structList} />
                                     </td>
                                 </tr>
                             </tbody>
@@ -187,7 +192,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     </dd>
                     <dt>{ut.translate('global__citation_info')}:</dt>
                     <dd className="references">
-                        <CorpusReference data={props.data.citation_info} />
+                        <CorpusReference data={props.data.citationInfo} />
                     </dd>
                 </dl>
             </div>

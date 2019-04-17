@@ -45,6 +45,7 @@ export interface GlobalComponents {
     TileWrapper:React.SFC<{
         isBusy:boolean;
         hasData:boolean;
+        tileId:number;
         sourceIdent:SourceInfo|Array<SourceInfo>;
         backlink?:BacklinkWithArgs<{}>|Array<BacklinkWithArgs<{}>>;
         htmlClass?:string;
@@ -144,15 +145,17 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>, resize$:Obse
     // --------------- <SourceLink /> -------------------------------------------
 
     const SourceLink:React.SFC<{
+        tileId:number;
         data:SourceInfo|Array<SourceInfo>;
         backlink:BacklinkWithArgs<{}>|Array<BacklinkWithArgs<{}>>;
 
     }> = (props) => {
 
         const handleClick = (corp:string, subcorp:string) => () => {
-            dispatcher.dispatch<Actions.GetCorpusInfo>({
-                name: ActionName.GetCorpusInfo,
+            dispatcher.dispatch<Actions.GetSourceInfo>({
+                name: ActionName.GetSourceInfo,
                 payload: {
+                    tileId: props.tileId,
                     corpusId: corp,
                     subcorpusId: subcorp
                 }
@@ -231,7 +234,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>, resize$:Obse
                             }
                         </div>
                     </div>
-                    {props.hasData ? <SourceLink data={props.sourceIdent} backlink={props.backlink} /> : null}
+                    {props.hasData ? <SourceLink data={props.sourceIdent} backlink={props.backlink} tileId={props.tileId} /> : null}
                 </div>
             );
         }

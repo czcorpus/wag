@@ -197,6 +197,10 @@
         top: 30%;
         left: 50%;
         transform: translate(-50%,-30%);
+
+        header span:first-letter {
+            text-transform: uppercase;
+        }
     }
 
     button.close {
@@ -264,7 +268,7 @@ corpus-details-box,
     }
 }
 
-.CorpusInfoBox {
+.source-info-box {
 
     ul {
         margin: 0;
@@ -287,18 +291,22 @@ corpus-details-box,
     }
 
     dl {
+
         dt {
             font-weight: bold;
         }
 
-        dd:not(:last-child) {
-            margin-bottom: 0.7em;
+        dt {
+            padding-bottom: 0.4em;
         }
-    }
 
-    table.attrib-list tr.item *,
-    table.struct-list tr.item * {
-        background-color: transparent;
+        dd {
+            margin-left: 1.2em;
+        }
+
+        dd:not(:last-child) {
+            margin-bottom: 0.9em;
+        }
     }
 
     table.attrib-list,
@@ -306,23 +314,23 @@ corpus-details-box,
         border-collapse: collapse;
     }
 
-    table.attrib-list tr:nth-child(2) th,
-    table.attrib-list tr:nth-child(2) td,
-    table.struct-list tr:nth-child(2) th,
-    table.struct-list tr:nth-child(2) td {
-        padding-top: 0.7em;
+    table.attrib-list thead th,
+    table.attrib-list thead td,
+    table.struct-list thead th,
+    table.struct-list thead td {
+        padding-bottom: 0.2em;
     }
 
-    table.attrib-list th,
-    table.struct-list th {
+    table.attrib-list tbody th,
+    table.struct-list tbody th {
         color: @color-logo-pink;
         padding: 0 1em;
         text-align: left;
         font-weight: normal;
     }
 
-    table.attrib-list th.attrib-heading,
-    table.struct-list th.attrib-heading {
+    table.attrib-list thead,
+    table.struct-list thead {
         background-color: transparent;
         border-color: @color-light-text;
         border-style: solid;

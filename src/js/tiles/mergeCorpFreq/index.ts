@@ -136,6 +136,10 @@ export class MergeCorpFreqTile implements ITileProvider {
         return this.view;
     }
 
+    getSourceInfoView():null {
+        return null;
+    }
+
     getLabel():string {
         return this.label;
     }
@@ -163,7 +167,6 @@ export class MergeCorpFreqTile implements ITileProvider {
     supportsAltView():boolean {
         return false;
     }
-
 }
 
 

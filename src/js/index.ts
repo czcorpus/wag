@@ -67,6 +67,7 @@ const mkAttachTile = (queryType:QueryType, lang1:string, lang2:string) =>
     data.push({
         tileId: tile.getIdent(),
         Component: tile.getView(),
+        SourceInfoComponent: tile.getSourceInfoView(),
         label: tile.getLabel(),
         supportsTweakMode: tile.supportsTweakMode(),
         supportsCurrQueryType: support,
@@ -74,7 +75,7 @@ const mkAttachTile = (queryType:QueryType, lang1:string, lang2:string) =>
         supportsAltView: tile.supportsAltView(),
         renderSize: [50, 50],
         widthFract: tile.getWidthFract(),
-        helpURL: helpURL,
+        helpURL: helpURL
     });
     if (!support) {
         tile.disable();
@@ -273,8 +274,7 @@ export const init = (mountElement:HTMLElement, config:ClientConf, userSession:Us
             ),
             tileProps: Immutable.List<TileFrameProps>(tiles),
             isModalVisible: false,
-            modalBoxData: null,
-            modalBoxTitle: null
+            modalBoxData: null
         },
         appServices,
         new CorpusInfoAPI(config.corpInfoApiUrl)

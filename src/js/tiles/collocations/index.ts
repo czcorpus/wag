@@ -123,6 +123,10 @@ export class CollocationsTile implements ITileProvider {
         return this.view;
     }
 
+    getSourceInfoView():null {
+        return null;
+    }
+
     supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {
         return qt === QueryType.SINGLE_QUERY || qt === QueryType.TRANSLAT_QUERY;
     }

@@ -16,10 +16,10 @@
  * limitations under the License.
  */
 import { Observable, of as rxOf } from 'rxjs';
-import { share } from 'rxjs/operators';
+import { share, map } from 'rxjs/operators';
 
 import { ajax$ } from '../../ajax';
-import { DataApi, HTTPHeaders } from '../../types';
+import { DataApi, HTTPHeaders, SourceDetails } from '../../types';
 
 
 
@@ -38,9 +38,24 @@ interface HTTPResponse {
     messages:Array<any>; // TODO
 }
 
-export type APIResponse = HTTPResponse;
+export interface APIResponse extends SourceDetails {
+    size:number;
+    webURL:string;
+    attrList:Array<{name:string, size:number}>;
+    citationInfo:{
+        article_ref:Array<string>;
+        default_ref:string;
+        other_bibliography:string;
+    };
+    structList:Array<{name:string; size:number}>;
+}
+
+export function isAPIResponse(v:SourceDetails):v is APIResponse {
+    return 'size' in v && 'attrList' in v && 'structList' in v && 'citationInfo' in v;
+}
 
 export interface QueryArgs {
+    tileId:number;
     corpname:string;
     format:'json';
 }
@@ -51,7 +66,7 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, APIResponse> {
 
     private readonly customHeaders:HTTPHeaders;
 
-    private readonly cache:{[corp:string]:HTTPResponse};
+    private readonly cache:{[corp:string]:APIResponse};
 
     constructor(apiURL:string, customHeaders?:HTTPHeaders) {
         this.apiURL = apiURL;
@@ -70,7 +85,22 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, APIResponse> {
                 args,
                 {headers: this.customHeaders}
 
-            ).pipe(share());
+            ).pipe(
+                share(),
+                map(
+                    (resp) => ({
+                        tileId: args.tileId,
+                        title: resp.corpname,
+                        description: resp.description,
+                        author: '', // TODO
+                        size: resp.size,
+                        webURL: resp.web_url,
+                        attrList: resp.attrlist,
+                        citationInfo: resp.citation_info,
+                        structList: resp.structlist
+                    })
+                )
+            );
 
             ans.subscribe(
                 (data) => {
