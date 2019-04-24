@@ -18,7 +18,7 @@
 import * as Immutable from 'immutable';
 
 import { AppServices } from '../../appServices';
-import { MultiBlockFreqDistribAPI } from '../../common/api/kontext/freqs';
+import { MultiBlockFreqDistribAPI, FreqSort } from '../../common/api/kontext/freqs';
 import { FreqDataBlock, SubqueryModeConf } from '../../common/models/freq';
 import { ITileProvider, LocalizedConfMsg, QueryType, TileComponent, TileConf, TileFactory } from '../../common/types';
 import { puid } from '../../common/util';
@@ -37,7 +37,7 @@ export interface FreqPieTileConf extends TileConf {
     fcrit:string|Array<string>;
     critLabels:LocalizedConfMsg|Array<LocalizedConfMsg>;
     flimit:number;
-    freqSort:string;
+    freqSort:FreqSort;
     fpage:number;
     fttIncludeEmpty:boolean;
     maxNumCategories:number;

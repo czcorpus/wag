@@ -16,6 +16,31 @@
  * limitations under the License.
  */
 import { Action } from 'kombo';
+import { CorpSrchTileConf } from '../../common/types';
+
+
+export interface TimeDistTileConf extends CorpSrchTileConf {
+
+    tileType:'TimeDistribTile';
+
+    apiType:string;
+
+    apiURL:string;
+
+    concApiURL?:string;
+
+    /**
+     * E.g. doc.pubyear
+     */
+    fcrit:string;
+
+    timeAxisLegend:string;
+
+    flimit:number;
+
+    posQueryGenerator:[string, string];
+}
+
 
 export enum ActionName {
     ChangeCmpWord = 'TIME_DISTRIB_CHANGE_CMP_WORD',

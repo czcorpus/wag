@@ -23,8 +23,10 @@ import { concatMap, map } from 'rxjs/operators';
 import { AppServices } from '../../appServices';
 import { ConcApi, QuerySelector, stateToArgs as concStateToArgs } from '../../common/api/kontext/concordance';
 import { ConcResponse, ViewMode } from '../../common/api/abstract/concordance';
-import { APIResponse, DataRow, FreqDistribAPI } from '../../common/api/kontext/freqs';
-import { GeneralSingleCritFreqBarModelState, stateToAPIArgs } from '../../common/models/freq';
+import { TimeDistribResponse } from '../../common/api/abstract/timeDistrib';
+import { DataRow } from '../../common/api/kontext/freqs';
+import { KontextTimeDistribApi } from '../../common/api/kontext/timeDistrib';
+import { GeneralSingleCritFreqBarModelState } from '../../common/models/freq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
 import { WdglanceMainFormModel, findCurrLemmaVariant } from '../../models/query';
 import { ConcLoadedPayload } from '../concordance/actions';
@@ -87,7 +89,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private static readonly MIN_DATA_ITEMS_TO_SHOW = 2;
 
-    private readonly api:FreqDistribAPI;
+    private readonly api:KontextTimeDistribApi;
 
     private readonly concApi:ConcApi|null;
 
@@ -101,7 +103,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private unfinishedChunks:Immutable.Map<string, boolean>; // subcname => done
 
-    constructor(dispatcher, initState:TimeDistribModelState, tileId:number, waitForTile:number, api:FreqDistribAPI,
+    constructor(dispatcher, initState:TimeDistribModelState, tileId:number, waitForTile:number, api:KontextTimeDistribApi,
                 concApi:ConcApi, appServices:AppServices, mainForm:WdglanceMainFormModel) {
         super(dispatcher, initState);
         this.tileId = tileId;
@@ -245,13 +247,13 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
     }
 
 
-    private getFreqs(response:Observable<[APIResponse, DataFetchArgs]>, seDispatch:SEDispatcher) {
+    private getFreqs(response:Observable<[TimeDistribResponse, DataFetchArgs]>, seDispatch:SEDispatcher) {
         response.subscribe(
             data => {
                 const [resp, args] = data;
                 const dataFull = resp.data.map<DataItemWithWCI>(v => {
                     return {
-                        datetime: v.name,
+                        datetime: v.datetime,
                         freq: v.freq,
                         norm: v.norm,
                         ipm: -1,
@@ -266,8 +268,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         subchartId: args.targetId,
                         isEmpty: dataFull.length === 0,
                         data: dataFull,
-                        subcname: resp.usesubcorp,
-                        concId: resp.concId,
+                        subcname: resp.subcorpName,
+                        concId: resp.concPersistenceID,
                         wordMainLabel: args.wordMainLabel
                     }
                 });
@@ -317,7 +319,11 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         ),
                         concatMap(args => callWithRequestId(
                             this.api,
-                            stateToAPIArgs<DataItemWithWCI>(state, args.concId, state.subcnames.get(0)),
+                            {
+                                corpName: state.corpname,
+                                subcorpName: state.subcnames.get(0),
+                                concPersistenceID: `~${args.concId}`
+                            },
                             args
                         ))
                     )
@@ -372,7 +378,11 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                             args.concId = concResp.concPersistenceID;
                             return callWithRequestId(
                                 this.api,
-                                stateToAPIArgs(state, args.concId, args.subcName),
+                                {
+                                    corpName: state.corpname,
+                                    subcorpName: args.subcName,
+                                    concPersistenceID: `~${args.concId}`
+                                },
                                 args
                             );
                         }

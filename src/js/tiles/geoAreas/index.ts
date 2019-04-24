@@ -19,7 +19,7 @@ import * as Immutable from 'immutable';
 import { ActionDispatcher } from 'kombo';
 
 import { AppServices } from '../../appServices';
-import { DataRow, FreqDistribAPI } from '../../common/api/kontext/freqs';
+import { DataRow, FreqDistribAPI, FreqSort } from '../../common/api/kontext/freqs';
 import { ITileProvider, QueryType, TileComponent, TileConf, TileFactory } from '../../common/types';
 import { GeoAreasModel } from './model';
 import { init as viewInit } from './views';
@@ -34,7 +34,7 @@ export interface GeoAreasTileConf extends TileConf {
     corpname:string;
     fcrit:string;
     flimit:number;
-    freqSort:string;
+    freqSort:FreqSort;
     fpage:number;
     fttIncludeEmpty:boolean;
     areaCodeMapping:{[name:string]:string};
