@@ -31,6 +31,7 @@ export interface WordListArgs {
 	wltype:'simple';
 	wlsort:'f';
 	include_nonwords:0;
+	format:'json';
 }
 
 export interface WordListResponse {

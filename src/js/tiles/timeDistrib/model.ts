@@ -322,7 +322,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                             {
                                 corpName: state.corpname,
                                 subcorpName: state.subcnames.get(0),
-                                concPersistenceID: `~${args.concId}`
+                                concIdent: `~${args.concId}`
                             },
                             args
                         ))
@@ -336,7 +336,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 return false;
             });
 
-        } else { // here we must create our own concordance(s)
+        } else { // here we must create our own concordance(s) if needed
             state.subcnames.toArray().map(subcname =>
                 lemmaVariant.pipe(
                     concatMap(
@@ -381,7 +381,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                 {
                                     corpName: state.corpname,
                                     subcorpName: args.subcName,
-                                    concPersistenceID: `~${args.concId}`
+                                    concIdent: `~${args.concId}`
                                 },
                                 args
                             );

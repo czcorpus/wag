@@ -25,16 +25,12 @@ import { HTTPHeaders } from '../../types';
 
 
 /**
- * This is a slightly optimized TimeDistribApi implementation custom
- * to KonText (and possibly NoSkE) where in case of an unambiguous
- * lemma we can search via single attribute 'wordList' which is much
- * faster than normal freq action or wordlist with multiple attributes.
+ * This is the main TimeDistrib API for KonText. It should work in any
+ * case.
  */
 export class KontextTimeDistribApi implements TimeDistribApi {
 
     private readonly freqApi:FreqDistribAPI;
-
-    private readonly wordListApi:WordListAPI;
 
     private readonly fcrit:string;
 
@@ -42,7 +38,6 @@ export class KontextTimeDistribApi implements TimeDistribApi {
 
     constructor(apiURL:string, customHeaders:HTTPHeaders, fcrit:string, flimit:number) {
         this.freqApi = new FreqDistribAPI(apiURL, customHeaders);
-        this.wordListApi = new WordListAPI(apiURL, customHeaders); // TODO modify url to match KonText's wordlist action
         this.fcrit = fcrit;
         this.flimit = flimit;
     }
@@ -51,7 +46,7 @@ export class KontextTimeDistribApi implements TimeDistribApi {
         return this.freqApi.call({
             corpname: queryArgs.corpName,
             usesubcorp: queryArgs.subcorpName,
-            q: queryArgs.concPersistenceID,
+            q: queryArgs.concIdent,
             fcrit: this.fcrit,
             flimit: this.flimit,
             freq_sort: FreqSort.REL,
@@ -63,7 +58,7 @@ export class KontextTimeDistribApi implements TimeDistribApi {
                 (response) => ({
                     corpName: queryArgs.corpName,
                     subcorpName: queryArgs.subcorpName,
-                    concPersistenceID: queryArgs.concPersistenceID,
+                    concPersistenceID: queryArgs.concIdent,
                     data: response.data.map(v => ({
                             datetime: v.name,
                             freq: v.freq,
