@@ -24,7 +24,7 @@ import { FreqPieTileConf } from './tiles/freqPie';
 import { GeoAreasTileConf } from './tiles/geoAreas';
 import { MergeCorpFreqTileConf } from './tiles/mergeCorpFreq';
 import { SyDTileConf } from './tiles/syd';
-import { TimeDistTileConf } from './tiles/timeDistrib';
+import { TimeDistTileConf } from './tiles/timeDistrib/common';
 import { TreqTileConf } from './tiles/treq';
 import { TreqSubsetsTileConf } from './tiles/treqSubsets';
 import { WordFreqTileConf } from './tiles/wordFreq';

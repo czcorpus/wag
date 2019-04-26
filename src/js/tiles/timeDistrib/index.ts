@@ -20,9 +20,10 @@ import { ActionDispatcher } from 'kombo';
 
 import { AppServices } from '../../appServices';
 import { ConcApi } from '../../common/api/kontext/concordance';
-import { FreqDistribAPI } from '../../common/api/kontext/freqs';
-import { CorpSrchTileConf, ITileProvider, QueryType, TileComponent, TileFactory } from '../../common/types';
-import { DataItemWithWCI } from './common';
+import { FreqSort } from '../../common/api/kontext/freqs';
+import { createApiInstance } from './apiFactory';
+import { ITileProvider, QueryType, TileComponent, TileFactory } from '../../common/types';
+import { TimeDistTileConf, DataItemWithWCI } from './common';
 import { TimeDistribModel } from './model';
 import { AlphaLevel } from './stat';
 import { init as viewInit } from './view';
@@ -30,26 +31,6 @@ import { init as viewInit } from './view';
 declare var require:(src:string)=>void;  // webpack
 require('./style.less');
 
-
-export interface TimeDistTileConf extends CorpSrchTileConf {
-
-    tileType:'TimeDistribTile';
-
-    apiURL:string;
-
-    concApiURL?:string;
-
-    /**
-     * E.g. doc.pubyear
-     */
-    fcrit:string;
-
-    timeAxisLegend:string;
-
-    flimit:number;
-
-    posQueryGenerator:[string, string];
-}
 
 /**
  * Important note: the tile works in two mutually exclusive
@@ -99,7 +80,7 @@ export class TimeDistTile implements ITileProvider {
                 fcrit: conf.fcrit,
                 timeAxisLegend: conf.timeAxisLegend,
                 flimit: conf.flimit,
-                freqSort: 'rel',
+                freqSort: FreqSort.REL,
                 fpage: 1,
                 fttIncludeEmpty: false,
                 fmaxitems: 100,
@@ -113,7 +94,11 @@ export class TimeDistTile implements ITileProvider {
             },
             tileId,
             waitForTiles[0] || -1,
-            new FreqDistribAPI(conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            createApiInstance(
+                conf.apiType,
+                conf,
+                appServices.getApiHeaders(conf.apiURL)
+            ),
             conf.concApiURL ? new ConcApi(conf.concApiURL, appServices.getApiHeaders(conf.apiURL)) : null,
             appServices,
             mainForm

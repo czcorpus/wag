@@ -21,7 +21,9 @@ import { map } from 'rxjs/operators';
 import { ajax$ } from '../../ajax';
 import { DataApi, HTTPHeaders } from '../../types';
 
-
+export enum FreqSort {
+    REL = 'rel'
+}
 
 export interface HTTPResponse {
     conc_persistence_op_id:string;
@@ -78,10 +80,10 @@ export interface BacklinkArgs {
     usesubcorp:string;
     q:string;
     fcrit:Array<string>;
-    flimit:string;
+    flimit:number;
     freq_sort:string;
-    fpage:string;
-    ftt_include_empty:string;
+    fpage:number;
+    ftt_include_empty:number;
 }
 
 
@@ -89,10 +91,10 @@ interface CoreQueryArgs {
     corpname:string;
     usesubcorp?:string;
     q:string;
-    flimit:string;
+    flimit:number;
     freq_sort:string;
-    fpage:string;
-    ftt_include_empty:string;
+    fpage:number;
+    ftt_include_empty:number;
     format:'json';
 }
 

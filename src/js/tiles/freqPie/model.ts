@@ -48,10 +48,10 @@ const stateToAPIArgs = (state:FreqPieModelState, concId:string):MultiCritQueryAr
     corpname: state.corpname,
     q: `~${concId ? concId : state.concId}`,
     fcrit: state.fcrit.toArray(),
-    flimit: state.flimit.toString(),
+    flimit: state.flimit,
     freq_sort: state.freqSort,
-    fpage: state.fpage.toString(),
-    ftt_include_empty: state.fttIncludeEmpty ? '1' : '0',
+    fpage: state.fpage,
+    ftt_include_empty: state.fttIncludeEmpty ? 1 : 0,
     format: 'json'
 });
 

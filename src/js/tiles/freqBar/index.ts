@@ -19,7 +19,7 @@ import * as Immutable from 'immutable';
 import { ActionDispatcher, ViewUtils } from 'kombo';
 
 import { AppServices } from '../../appServices';
-import { DataRow, MultiBlockFreqDistribAPI } from '../../common/api/kontext/freqs';
+import { DataRow, MultiBlockFreqDistribAPI, FreqSort } from '../../common/api/kontext/freqs';
 import { FreqDataBlock, SubqueryModeConf } from '../../common/models/freq';
 import {
     Backlink,
@@ -48,7 +48,7 @@ export interface FreqBarTileConf extends TileConf {
     fcrit:string|Array<string>;
     critLabels:LocalizedConfMsg|Array<LocalizedConfMsg>;
     flimit:number;
-    freqSort:string;
+    freqSort:FreqSort;
     fpage:number;
     fttIncludeEmpty:boolean;
     maxNumCategories:number;

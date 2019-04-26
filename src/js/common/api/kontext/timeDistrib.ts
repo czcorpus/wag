@@ -1,0 +1,76 @@
+/*
+ * Copyright 2019 Tomas Machalek <tomas.machalek@gmail.com>
+ * Copyright 2019 Institute of the Czech National Corpus,
+ *                Faculty of Arts, Charles University
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import { TimeDistribApi, TimeDistribArgs, TimeDistribResponse } from '../abstract/timeDistrib';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { FreqDistribAPI, FreqSort } from './freqs';
+import { WordListAPI } from './wordList';
+import { HTTPHeaders } from '../../types';
+
+
+/**
+ * This is a slightly optimized TimeDistribApi implementation custom
+ * to KonText (and possibly NoSkE) where in case of an unambiguous
+ * lemma we can search via single attribute 'wordList' which is much
+ * faster than normal freq action or wordlist with multiple attributes.
+ */
+export class KontextTimeDistribApi implements TimeDistribApi {
+
+    private readonly freqApi:FreqDistribAPI;
+
+    private readonly wordListApi:WordListAPI;
+
+    private readonly fcrit:string;
+
+    private readonly flimit:number;
+
+    constructor(apiURL:string, customHeaders:HTTPHeaders, fcrit:string, flimit:number) {
+        this.freqApi = new FreqDistribAPI(apiURL, customHeaders);
+        this.wordListApi = new WordListAPI(apiURL, customHeaders); // TODO modify url to match KonText's wordlist action
+        this.fcrit = fcrit;
+        this.flimit = flimit;
+    }
+
+    call(queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
+        return this.freqApi.call({
+            corpname: queryArgs.corpName,
+            usesubcorp: queryArgs.subcorpName,
+            q: queryArgs.concPersistenceID,
+            fcrit: this.fcrit,
+            flimit: this.flimit,
+            freq_sort: FreqSort.REL,
+            fpage: 1,
+            ftt_include_empty: 0,
+            format: 'json'
+        }).pipe(
+            map(
+                (response) => ({
+                    corpName: queryArgs.corpName,
+                    subcorpName: queryArgs.subcorpName,
+                    concPersistenceID: queryArgs.concPersistenceID,
+                    data: response.data.map(v => ({
+                            datetime: v.name,
+                            freq: v.freq,
+                            norm: v.norm
+                    }))
+                })
+            )
+        );
+    }
+}

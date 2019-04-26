@@ -17,7 +17,7 @@
  */
 import * as Immutable from 'immutable';
 
-import { BacklinkArgs, DataRow, MultiCritQueryArgs, SingleCritQueryArgs } from '../api/kontext/freqs';
+import { BacklinkArgs, DataRow, MultiCritQueryArgs, SingleCritQueryArgs, FreqSort } from '../api/kontext/freqs';
 import { Backlink, BacklinkWithArgs, HTTPMethod, LocalizedConfMsg } from '../types';
 
 
@@ -28,7 +28,7 @@ interface FreqBarModelStateBase {
     corpname:string;
     concId:string;
     flimit:number;
-    freqSort:string;
+    freqSort:FreqSort;
     fpage:number;
     fttIncludeEmpty:boolean;
     fmaxitems:number;
@@ -67,10 +67,10 @@ export function stateToAPIArgs<T>(state:GeneralSingleCritFreqBarModelState<T>|Ge
             usesubcorp: subcname,
             q: `~${concId ? concId : state.concId}`,
             fcrit: state.fcrit.toArray(),
-            flimit: state.flimit.toString(),
+            flimit: state.flimit,
             freq_sort: state.freqSort,
-            fpage: state.fpage.toString(),
-            ftt_include_empty: state.fttIncludeEmpty ? '1' : '0',
+            fpage: state.fpage,
+            ftt_include_empty: state.fttIncludeEmpty ? 1 : 0,
             format: 'json'
         } as MultiCritQueryArgs;
 
@@ -80,10 +80,10 @@ export function stateToAPIArgs<T>(state:GeneralSingleCritFreqBarModelState<T>|Ge
             usesubcorp: subcname,
             q: `~${concId ? concId : state.concId}`,
             fcrit: state.fcrit,
-            flimit: state.flimit.toString(),
+            flimit: state.flimit,
             freq_sort: state.freqSort,
-            fpage: state.fpage.toString(),
-            ftt_include_empty: state.fttIncludeEmpty ? '1' : '0',
+            fpage: state.fpage,
+            ftt_include_empty: state.fttIncludeEmpty ? 1 : 0,
             format: 'json'
         } as SingleCritQueryArgs;
     }
@@ -102,10 +102,10 @@ export const createBackLink = <T>(state:GeneralMultiCritFreqBarModelState<T>|Gen
                 usesubcorp: null,
                 q: `~${concId}`,
                 fcrit: isMultiCritState(state) ? state.fcrit.toArray() : [state.fcrit],
-                flimit: state.flimit.toFixed(),
+                flimit: state.flimit,
                 freq_sort: state.freqSort,
-                fpage: state.fpage.toFixed(),
-                ftt_include_empty: state.fttIncludeEmpty ? '1' : '0'
+                fpage: state.fpage,
+                ftt_include_empty: state.fttIncludeEmpty ? 1 : 0
             }
         } :
         null;

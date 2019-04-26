@@ -81,10 +81,10 @@ const sourceToAPIArgs = (src:ModelSourceArgs, concId:string):SingleCritQueryArgs
     corpname: src.corpname,
     q: `~${concId}`,
     fcrit: src.fcrit,
-    flimit: src.flimit.toString(),
+    flimit: src.flimit,
     freq_sort: src.freqSort,
-    fpage: src.fpage.toString(),
-    ftt_include_empty: src.fttIncludeEmpty ? '1' : '0',
+    fpage: src.fpage,
+    ftt_include_empty: src.fttIncludeEmpty ? 1 : 0,
     format: 'json'
 });
 
@@ -146,10 +146,10 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                     usesubcorp: null,
                     q: `~${concId}`,
                     fcrit: [source.fcrit],
-                    flimit: source.flimit.toFixed(),
+                    flimit: source.flimit,
                     freq_sort: source.freqSort,
-                    fpage: source.fpage.toFixed(),
-                    ftt_include_empty: source.fttIncludeEmpty ? '1' : '0'
+                    fpage: source.fpage,
+                    ftt_include_empty: source.fttIncludeEmpty ? 1 : 0
                 }
             } :
             null;
