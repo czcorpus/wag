@@ -20,7 +20,7 @@ import { Express, Request, Response } from 'express';
 import { ViewUtils } from 'kombo';
 import * as React from 'react';
 import { renderToString } from 'react-dom/server';
-import { Observable, forkJoin } from 'rxjs';
+import { Observable, forkJoin, of as rxOf } from 'rxjs';
 import { concatMap, map } from 'rxjs/operators';
 
 import { AppServices } from '../appServices';
@@ -119,7 +119,7 @@ const mainAction = (services:Services, answerMode:boolean, req:Request, res:Resp
             }
         ),
         services.toolbar.get(),
-        getLemmas(services.db, appServices, userConfig.query1)
+        getLemmas(services.db[userConfig.query1Lang], appServices, userConfig.query1)
     )
     .subscribe(
         (ans) => {
@@ -165,7 +165,22 @@ export const wdgRouter = (services:Services) => (app:Express) => {
 
     app.get('/get-lemmas/', (req, res, next) => {
         const [viewUtils, appServices] = createHelperServices(services, 'cs-CZ'); // TODO lang
-        getLemmas(services.db, appServices, req.query.q).subscribe(
+
+        new Observable<{lang:string}>((observer) => {
+            if (Object.keys(services.db).indexOf(req.query.lang) === -1) {
+                observer.error(
+                    newError(ErrorType.BAD_REQUEST, `Frequency database for [${req.query.lang}] not defined`));
+
+            } else {
+
+            }
+        }).pipe(
+            concatMap(
+                (conf) => {
+                    return getLemmas(services.db[conf.lang], appServices, req.query.q);
+                }
+            )
+        ).subscribe(
             (data) => {
                 res.setHeader('Content-Type', 'application/json');
                 res.send(JSON.stringify({result: data}));
@@ -175,7 +190,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                     message: err.message
                 });
             }
-        )
+        );
     })
 
     // Find words with similar frequency
@@ -197,13 +212,18 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             apiHeadersMapping: services.clientConf.apiHeaders || {}
         });
 
-        new Observable<{word:string; lemma:string; pos:QueryPoS; rng:number}>((observer) => {
+        new Observable<{lang:string; word:string; lemma:string; pos:QueryPoS; rng:number}>((observer) => {
             if (isNaN(parseInt(req.query.srchRange))) {
                 observer.error(
                     newError(ErrorType.BAD_REQUEST, `Invalid range provided, srchRange = ${req.query.srchRange}`));
 
+            } else if (Object.keys(services.db).indexOf(req.query.lang) === -1) {
+                observer.error(
+                    newError(ErrorType.BAD_REQUEST, `Frequency database for [${req.query.lang}] not defined`));
+
             } else {
                 observer.next({
+                    lang: req.query.lang,
                     word: req.query.word,
                     lemma: req.query.lemma,
                     pos: importQueryPos(req.query.pos),
@@ -214,7 +234,14 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         }).pipe(
             concatMap(
                 (data) => {
-                    return getSimilarFreqWords(services.db, appServices, data.lemma, data.pos, data.rng);
+                    return getSimilarFreqWords(
+                        services.db[data.lang],
+                        appServices,
+                        data.lang,
+                        data.lemma,
+                        data.pos,
+                        data.rng
+                    );
                 }
             ),
             map(

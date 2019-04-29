@@ -22,7 +22,7 @@ import { IToolbarProvider } from '../common/types';
 export interface Services {
     serverConf:ServerConf;
     clientConf:ClientStaticConf;
-    db:Database;
+    db:{[lang:string]:Database};
     toolbar:IToolbarProvider;
     translations:{[loc:string]:{[key:string]:string}};
 }

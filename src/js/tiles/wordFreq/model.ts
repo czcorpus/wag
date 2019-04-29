@@ -98,9 +98,12 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
                 const formState = this.mainForm.getState();
-                new Observable<LemmaVariant>((observer) => {
+                new Observable<{variant:LemmaVariant; lang:string}>((observer) => {
                     try {
-                        observer.next(findCurrLemmaVariant(formState.lemmas));
+                        observer.next({
+                            variant: findCurrLemmaVariant(formState.lemmas),
+                            lang: formState.targetLanguage
+                        });
                         observer.complete();
 
                     } catch(err) {
@@ -109,9 +112,10 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                 }).pipe(
                     concatMap(
                         (args) => this.api.call({
-                            word: args.word,
-                            lemma: args.lemma,
-                            pos: args.pos,
+                            lang: args.lang,
+                            word: args.variant.word,
+                            lemma: args.variant.lemma,
+                            pos: args.variant.pos,
                             srchRange: state.sfwRowRange
                         })
                     ),
