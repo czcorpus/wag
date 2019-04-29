@@ -381,3 +381,44 @@ corpus-details-box,
         }
     }
 }
+
+
+.LangSwitchToolbar {
+    color: @color-light-text;
+    text-align: right;
+    font-size: 0.9em;
+
+    ul {
+        list-style-type: none;
+        margin: 0;
+
+        li {
+            margin: 0;
+            padding: 0;
+            display: inline-block;
+
+            button {
+                border: none;
+                background-color: transparent;
+                cursor: pointer;
+                color: @color-light-text;
+                padding: 0 0.2em;
+            }
+
+            button:hover {
+                color: @color-logo-blue;
+            }
+
+            button.current {
+                text-decoration: none;
+                border-style: solid;
+                border-width: 0 0 1px 0;
+                border-color: @color-logo-blue;
+            }
+        }
+
+        li:not(:last-child):after {
+            content: '\00a0|\00a0'
+        }
+    }
+}

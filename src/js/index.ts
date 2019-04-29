@@ -214,7 +214,9 @@ export const init = (mountElement:HTMLElement, config:ClientConf, userSession:Us
         query2Lang: userSession.query2Lang || '',
         queryType: qType,
         lemmas: lemmas,
-        isAnswerMode: userSession.answerMode
+        isAnswerMode: userSession.answerMode,
+        uiLanguages: Immutable.List<{code:string; label:string}>(
+            Object.keys(userSession.uiLanguages).map(k => [k, userSession.uiLanguages[k]]))
     });
 
     const tiles:Array<TileFrameProps> = [];

@@ -20,8 +20,9 @@ import { Express, Request, Response } from 'express';
 import { ViewUtils } from 'kombo';
 import * as React from 'react';
 import { renderToString } from 'react-dom/server';
-import { Observable, forkJoin, of as rxOf } from 'rxjs';
+import { Observable, forkJoin} from 'rxjs';
 import { concatMap, map } from 'rxjs/operators';
+import * as Immutable from 'immutable';
 
 import { AppServices } from '../appServices';
 import { encodeArgs } from '../common/ajax';
@@ -38,7 +39,7 @@ import { getLemmas, getSimilarFreqWords } from './freqdb/freqdb';
 
 
 
-const renderResult = (services:Services, toolbarData:HostPageEnv, lemmas:Array<LemmaVariant>, userConfig:UserConf, view:React.SFC<LayoutProps>):string => {
+function renderResult(view:React.SFC<LayoutProps>, services:Services, toolbarData:HostPageEnv, lemmas:Array<LemmaVariant>, userConfig:UserConf, returnUrl:string):string {
     const appString = renderToString(
         React.createElement<LayoutProps>(
             view,
@@ -46,15 +47,17 @@ const renderResult = (services:Services, toolbarData:HostPageEnv, lemmas:Array<L
                 config: mkRuntimeClientConf(services.clientConf, userConfig.query1Lang),
                 userConfig: userConfig,
                 hostPageEnv: toolbarData,
-                lemmas: lemmas
+                lemmas: lemmas,
+                uiLanguages: Immutable.List<{code:string; label:string}>(Object.entries(userConfig.uiLanguages)),
+                uiLang: userConfig.uiLang,
+                returnUrl: returnUrl
             }
         )
     );
     return `<!DOCTYPE html>\n${appString}`;
-};
+}
 
-
-const createHelperServices = (services:Services, uiLang:string):[ViewUtils<GlobalComponents>, AppServices] => {
+function createHelperServices(services:Services, uiLang:string):[ViewUtils<GlobalComponents>, AppServices] {
     const viewUtils = new ViewUtils<GlobalComponents>({
         uiLang: uiLang,
         translations: services.translations,
@@ -76,11 +79,26 @@ const createHelperServices = (services:Services, uiLang:string):[ViewUtils<Globa
     ];
 }
 
+function mkReturnUrl(req:Request, rootUrl:string):string {
+    return rootUrl + req.path + '?' + encodeArgs(req.query);
+}
 
-const mainAction = (services:Services, answerMode:boolean, req:Request, res:Response, next:NextFunction) => {
+function getLangFromCookie(req:Request, cookieName:string, languages:{[code:string]:string}):string {
+    const ans = req.cookies[cookieName] || 'en-US';
+    if (languages.hasOwnProperty(ans)) {
+        return ans;
+
+    } else {
+        const srch = Object.keys(languages).find(k => k.split('-')[0] === ans.split('-')[0]);
+        return srch ? srch : 'en-US';
+    }
+}
+
+function mainAction(services:Services, answerMode:boolean, req:Request, res:Response, next:NextFunction) {
 
     const userConfig:UserConf = {
-        uiLang: 'cs-CZ',
+        uiLang: getLangFromCookie(req, services.serverConf.langCookie, services.serverConf.languages),
+        uiLanguages: services.serverConf.languages,
         query1Lang: req.query['lang1'] || 'cs',
         query2Lang: req.query['lang2'] || 'en',
         queryType: req.query['queryType'] || 'single',
@@ -104,7 +122,9 @@ const mainAction = (services:Services, answerMode:boolean, req:Request, res:Resp
         query2Lang: userConfig.query2Lang || '',
         queryType: userConfig.queryType as QueryType,
         lemmas: [],
-        isAnswerMode: answerMode
+        isAnswerMode: answerMode,
+        uiLanguages: Immutable.List<{code:string; label:string}>(
+            Object.keys(services.serverConf.languages).map(k => [k, services.serverConf.languages[k]]))
     });
     const view = viewInit(dispatcher, viewUtils, mainFormModel);
 
@@ -118,7 +138,7 @@ const mainAction = (services:Services, answerMode:boolean, req:Request, res:Resp
                 observer.complete();
             }
         ),
-        services.toolbar.get(),
+        services.toolbar.get(userConfig.uiLang, mkReturnUrl(req, services.clientConf.rootUrl), viewUtils),
         getLemmas(services.db[userConfig.query1Lang], appServices, userConfig.query1)
     )
     .subscribe(
@@ -144,22 +164,25 @@ const mainAction = (services:Services, answerMode:boolean, req:Request, res:Resp
                     }
                 }
             }
-            res.send(renderResult(services, toolbar, lemmas, userSession, view));
+            res.send(renderResult(view, services, toolbar, lemmas, userSession, mkReturnUrl(req, services.clientConf.rootUrl)));
         },
         (err) => {
             console.log(err);
             userConfig.error = String(err);
-            res.send(renderResult(services, emptyValue(), [], userConfig, view));
+            res.send(renderResult(view, services, emptyValue(), [], userConfig, mkReturnUrl(req, services.clientConf.rootUrl)));
         }
     );
-};
-
-
+}
 
 export const wdgRouter = (services:Services) => (app:Express) => {
 
     // host page generator with some React server rendering (testing phase)
     app.get('/', (req, res, next) => mainAction(services, false, req, res, next));
+
+    app.post('/set-ui-lang/', (req, res, next) => {
+        res.cookie(services.serverConf.langCookie, req.body.lang, {maxAge: 3600 * 24 * 365});
+        res.redirect(req.body.returnUrl);
+    });
 
     app.get('/search/', (req, res, next) => mainAction(services, true, req, res, next));
 

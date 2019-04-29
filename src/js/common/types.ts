@@ -17,6 +17,8 @@
  */
 import { ActionDispatcher, ViewUtils } from 'kombo';
 import { Observable } from 'rxjs';
+import * as React from 'react';
+import * as Immutable from 'immutable';
 
 import { AppServices } from '../appServices';
 import { WdglanceMainFormModel } from '../models/query';
@@ -282,15 +284,21 @@ export interface DataApi<T, U> {
 export type DbValueMapping = {[corp:string]:{[key:string]:LocalizedConfMsg}};
 
 
+export type ToolbarView = React.ComponentClass<{
+    languages:Immutable.List<{code:string; label:string}>;
+    uiLang:string;
+    returnUrl:string;
+}>;
+
 export interface HostPageEnv {
     styles:Array<string>;
     scripts:Array<string>;
-    html:string|null;
+    html:string|ToolbarView|null;
     toolbarHeight:string|null; // a CSS value
 }
 
 export interface IToolbarProvider {
-    get():Observable<HostPageEnv|null>;
+    get(uiLang:string, returnUrl:string, ut:ViewUtils<GlobalComponents>):Observable<HostPageEnv|null>;
 }
 
 export type HTTPHeaders = {[key:string]:string};

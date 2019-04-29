@@ -17,6 +17,7 @@
  */
 /// <reference path="../translations.d.ts" />
 import * as bodyParser from 'body-parser';
+import * as cookieParser from 'cookie-parser';
 import * as express from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -25,10 +26,10 @@ import * as translations from 'translations';
 
 import { ClientStaticConf, ServerConf } from '../conf';
 import { wdgRouter } from './routes';
-import { EmptyToolbar } from './toolbar/empty';
-import { UCNKToolbar } from './toolbar/ucnk';
+import { createToolbarInstance } from './toolbar/factory';
 
 const app = express();
+app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -38,7 +39,7 @@ const db = {};
 for (let d in serverConf.auxServices.wordDistribDb) {
 	db[d] = new sqlite3.Database(serverConf.auxServices.wordDistribDb[d]);
 }
-const toolbar = serverConf.toolbar ? new UCNKToolbar(serverConf.toolbar.url) : new EmptyToolbar();
+const toolbar = createToolbarInstance(serverConf.toolbar, serverConf.langCookie);
 
 wdgRouter({
     serverConf: serverConf,
