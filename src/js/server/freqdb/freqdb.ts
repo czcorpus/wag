@@ -113,7 +113,7 @@ const getNearFreqItems = (db:Database, appServices:AppServices, val:LemmaVariant
 }
 
 
-export const getSimilarFreqWords = (db:Database, appServices:AppServices, lemma:string, pos:QueryPoS, rng:number):Observable<Array<LemmaVariant>> => {
+export const getSimilarFreqWords = (db:Database, appServices:AppServices, lang:string, lemma:string, pos:QueryPoS, rng:number):Observable<Array<LemmaVariant>> => {
     return new Observable<LemmaVariant>((observer) => {
         db.get(
             'SELECT value, pos, `count` AS abs, arf FROM lemma WHERE value = ? AND pos = ?',

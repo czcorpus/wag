@@ -34,7 +34,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 const serverConf:ServerConf = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../conf/conf.json'), 'utf8'));
 const clientConf:ClientStaticConf = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../conf/wdglance.json'), 'utf8'));
-const db = new sqlite3.Database(serverConf.auxServices.wordDistribDb);
+const db = {};
+for (let d in serverConf.auxServices.wordDistribDb) {
+	db[d] = new sqlite3.Database(serverConf.auxServices.wordDistribDb[d]);
+}
 const toolbar = serverConf.toolbar ? new UCNKToolbar(serverConf.toolbar.url) : new EmptyToolbar();
 
 wdgRouter({

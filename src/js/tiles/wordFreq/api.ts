@@ -23,6 +23,7 @@ import { DataApi, HTTPHeaders, QueryPoS, LemmaVariant } from '../../common/types
 
 
 export interface RequestArgs {
+    lang:string;
     word:string;
     lemma:string;
     pos:QueryPoS;
@@ -65,6 +66,7 @@ export class FreqDbAPI implements DataApi<RequestArgs, Response> {
             'GET',
             this.apiURL,
             {
+                lang: args.lang,
                 lemma: args.lemma,
                 pos: args.pos,
                 srchRange: args.srchRange
