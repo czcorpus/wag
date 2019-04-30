@@ -18,7 +18,8 @@
 import * as Immutable from 'immutable';
 
 import { BacklinkArgs, DataRow, MultiCritQueryArgs, SingleCritQueryArgs, FreqSort } from '../api/kontext/freqs';
-import { Backlink, BacklinkWithArgs, HTTPMethod, LocalizedConfMsg } from '../types';
+import { HTTPMethod, LocalizedConfMsg } from '../types';
+import { Backlink, BacklinkWithArgs } from '../tile';
 
 
 

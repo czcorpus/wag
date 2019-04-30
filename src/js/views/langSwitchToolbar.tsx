@@ -20,12 +20,13 @@ import * as React from 'react';
 import * as Immutable from 'immutable';
 import { ViewUtils } from 'kombo';
 import { GlobalComponents } from './global';
+import { AvailableLanguage } from '../common/hostPage';
 
 
 export function init(ut:ViewUtils<GlobalComponents>) {
 
     class LangSwitchToolbar extends React.Component<{
-        languages:Immutable.List<{code:string; label:string}>;
+        languages:Immutable.List<AvailableLanguage>;
         uiLang:string;
         returnUrl:string;
     }> {

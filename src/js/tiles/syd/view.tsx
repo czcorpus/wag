@@ -18,7 +18,7 @@
 import { ActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 
-import { CoreTileComponentProps, TileComponent } from '../../common/types';
+import { CoreTileComponentProps, TileComponent } from '../../common/tile';
 import { GlobalComponents } from '../../views/global';
 import { SydModel, SydModelState } from './model';
 

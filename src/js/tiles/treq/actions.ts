@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { SubqueryPayload } from '../../common/types';
+import { SubqueryPayload } from '../../common/query';
 import { TreqResponse } from '../../common/api/treq';
 
 

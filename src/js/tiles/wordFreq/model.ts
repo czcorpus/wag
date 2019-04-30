@@ -26,7 +26,7 @@ import { DataLoadedPayload } from './actions';
 import { FreqDBRow, FreqDbAPI } from './api';
 import { posTable } from '../../server/freqdb/common';
 import { WdglanceMainFormModel, findCurrLemmaVariant } from '../../models/query';
-import { LemmaVariant } from '../../common/types';
+import { LemmaVariant } from '../../common/query';
 
 export interface FlevelDistribItem {
     rel:number;

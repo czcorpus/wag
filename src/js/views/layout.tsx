@@ -20,7 +20,8 @@ import { IActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
 import { resolve as urlResolve } from 'url';
 
-import { HostPageEnv, LemmaVariant } from '../common/types';
+import { HostPageEnv, AvailableLanguage } from '../common/hostPage';
+import { LemmaVariant } from '../common/query';
 import { ClientConf, UserConf } from '../conf';
 import { TileGroup } from '../layout';
 import { WdglanceMainFormModel } from '../models/query';
@@ -34,7 +35,7 @@ export interface LayoutProps {
     userConfig:UserConf;
     hostPageEnv:HostPageEnv;
     lemmas:Array<LemmaVariant>;
-    uiLanguages:Immutable.List<{code:string; label:string}>;
+    uiLanguages:Immutable.List<AvailableLanguage>;
     uiLang:string;
     returnUrl:string;
 }

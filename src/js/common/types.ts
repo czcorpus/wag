@@ -15,15 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ActionDispatcher, ViewUtils } from 'kombo';
 import { Observable } from 'rxjs';
-import * as React from 'react';
-import * as Immutable from 'immutable';
-
-import { AppServices } from '../appServices';
-import { WdglanceMainFormModel } from '../models/query';
-import { GlobalComponents } from '../views/global';
-import { Theme } from './theme';
 
 
 export type AnyInterface<T> = {
@@ -55,26 +47,6 @@ export enum HTTPMethod {
     PATCH = 'PATCH'
 }
 
-export interface ScreenProps {
-    isMobile:boolean;
-    innerWidth:number;
-    innerHeight:number;
-}
-
-export type LocalizedConfMsg = string|{[lang:string]:string};
-
-export interface Backlink {
-    url:string;
-    label:LocalizedConfMsg;
-    method?:HTTPMethod;
-}
-
-export interface BacklinkWithArgs<T> {
-    url:string;
-    label:LocalizedConfMsg;
-    args:AnyInterface<T>;
-    method:HTTPMethod;
-}
 
 export enum SystemMessageType {
     INFO = 'info',
@@ -87,188 +59,6 @@ export enum CorePosAttribute {
     LEMMA = 'lemma'
 }
 
-export enum QueryType {
-    SINGLE_QUERY = 'single',
-    CMP_QUERY = 'cmp',
-    TRANSLAT_QUERY = 'translat'
-}
-
-/**
- * A configuration for a tile
- * provided by hosting page
- */
-export interface TileConf {
-
-    /**
-     * An identifier as defined by tiles configuration interface
-     */
-    tileType:string;
-
-    /**
-     * An address providing a raw text or an HTML which will be
-     * used as a help for the tile. Please make sure only trusted
-     * sources are used here as the HTML is injected "as is" to
-     * the page.
-     */
-    helpURL:string;
-
-    /**
-     * An optional link to an application the specific tile
-     * represents (more or less). It is expected that the
-     * tile logic is able to pass proper arguments to the
-     * page.
-     */
-    backlink?:Backlink;
-
-    /**
-     * Normally, any tile configured in the "tiles" section
-     * will be active no matter whether it is also in the
-     * "layouts" section. This allows e.g. a hidden concordance
-     * tile to ask for a concordance used by multiple visible
-     * tiles (e.g. colloc, freqs.). To be able to keep possibly
-     * usable items in the "tiles" configuration file it is
-     * possible to disable them. I.e. in case a tile is disabled
-     * it cannot be put in the layout without Wdglance complying
-     * about invalid configuration.
-     *
-     */
-    isDisabled?:boolean;
-
-    /**
-     * In case a tile supports this (most of them does so) it can
-     * wait for a specific tile to finish its operation. Again,
-     * this is used mainly for 'concordance -> analysis' combinations.
-     */
-    dependsOn?:string|Array<string>;
-
-    /**
-     * A label used in the header of the tile
-     */
-    label?:LocalizedConfMsg;
-}
-
-/**
- * An extended version of the basic tile configuration
- * directly accessing a single (sub)corpus (typically via KonText API).
- */
-export interface CorpSrchTileConf extends TileConf {
-
-    corpname:string;
-
-    subcname?:string|Array<string>;
-
-    subcDesc?:string|{[lang:string]:string};
-}
-
-/**
- * Tile properties extracted from
- * configuration/tile object/etc.
- * and passed to a respective React
- * component when rendering tile
- * containers.
- */
-export interface TileFrameProps {
-
-    tileId:number;
-
-    Component:TileComponent;
-
-    SourceInfoComponent:SourceInfoComponent;
-
-    label:string;
-
-    supportsTweakMode:boolean;
-
-    supportsCurrQueryType:boolean;
-
-    supportsHelpView:boolean;
-
-    supportsAltView:boolean;
-
-    helpURL:string;
-
-    renderSize:[number, number];
-
-    /**
-     * standard mode width in CSS grid fr units
-     */
-    widthFract:number;
-}
-
-/**
- * This type specifies required tile component properties
- * core components expected them to have.
- */
-export interface CoreTileComponentProps {
-    tileId:number;
-    renderSize:[number, number];
-    isMobile:boolean;
-    widthFract:number;
-}
-
-/**
- * A general tile component.
- */
-export type TileComponent = React.ComponentClass<CoreTileComponentProps>|React.SFC<CoreTileComponentProps>;
-
-export type SourceInfoComponent = React.ComponentClass<{data:{}}>|React.SFC<{}>
-
-/**
- * ITileProvider specifes an object which encapsulates an implementation
- * of a tile as required by wdglance initialization process. Based on
- * values returned by these methods, wdglance will prepare all the properties
- * for React components and states for models.
- */
-export interface ITileProvider {
-
-    getLabel():string;
-
-    getIdent():number;
-
-    getView():TileComponent;
-
-    getSourceInfoView():SourceInfoComponent|null;
-
-    /**
-     */
-    supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean;
-
-    disable():void;
-
-    getWidthFract():number;
-
-    supportsTweakMode():boolean;
-
-    supportsHelpView():boolean;
-
-    supportsAltView():boolean;
-}
-
-/**
- * Each tile module must provide this factory
- * to allow wdglance create proper instance
- * of a respective tile.
- */
-export namespace TileFactory {
-
-    export interface Args<T> {
-        tileId:number;
-        dispatcher:ActionDispatcher;
-        ut:ViewUtils<GlobalComponents>;
-        theme:Theme,
-        appServices:AppServices;
-        mainForm:WdglanceMainFormModel;
-        lang1?:string;
-        lang2?:string;
-        waitForTiles?:Array<number>;
-        widthFract:number;
-        conf:T;
-    }
-
-    export interface TileFactory<T> {
-        (args:Args<T>):ITileProvider;
-    }
-}
 
 /**
  * A general data api. While in most cases
@@ -281,79 +71,14 @@ export interface DataApi<T, U> {
     call(queryArgs:T):Observable<U>;
 }
 
+
+export type LocalizedConfMsg = string|{[lang:string]:string};
+
+
 export type DbValueMapping = {[corp:string]:{[key:string]:LocalizedConfMsg}};
 
 
-export type ToolbarView = React.ComponentClass<{
-    languages:Immutable.List<{code:string; label:string}>;
-    uiLang:string;
-    returnUrl:string;
-}>;
-
-export interface HostPageEnv {
-    styles:Array<string>;
-    scripts:Array<string>;
-    html:string|ToolbarView|null;
-    toolbarHeight:string|null; // a CSS value
-}
-
-export interface IToolbarProvider {
-    get(uiLang:string, returnUrl:string, ut:ViewUtils<GlobalComponents>):Observable<HostPageEnv|null>;
-}
-
 export type HTTPHeaders = {[key:string]:string};
-
-export interface SubQueryItem {
-    value:string;
-    interactionId?:string;
-    color?:string;
-}
-
-export interface SubqueryPayload {
-    tileId:number;
-    subqueries:Array<SubQueryItem>;
-    lang1:string;
-    lang2:string;
-}
-
-export function isSubqueryPayload(payload:{}):payload is SubqueryPayload {
-    return Array.isArray(payload['subqueries']);
-}
-
-
-export interface LemmaVariant {
-    lemma:string;
-    word:string;
-    pos:QueryPoS;
-    posLabel:string;
-    abs:number;
-    ipm:number;
-    arf:number;
-    flevel:number;
-    isCurrent:boolean;
-}
-
-export enum QueryPoS {
-    NOUN = 'N',
-    ADJECTIVE = 'A',
-    PRONOUN = 'P',
-    NUMERAL = 'C',
-    VERB = 'V',
-    ADVERB = 'D',
-    PREPOSITION = 'R',
-    CONJUNCTION = 'J',
-    PARTICLE = 'T',
-    INTERJECTION = 'I',
-    PUNCTUATION = 'Z',
-    UNKNOWN = 'X'
-}
-
-export const importQueryPos = (s:string):QueryPoS => {
-    if (['n', 'a', 'p', 'c', 'v', 'd', 'r', 'j', 't', 'i', 'z', 'x'].indexOf(s.toLowerCase()) > -1) {
-        return s.toUpperCase() as QueryPoS;
-    }
-    throw new Error(`Invalid PoS value [${s}]`);
-};
 
 
 export interface SearchLanguage {

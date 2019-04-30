@@ -34,7 +34,7 @@ import { DataItemWithWCI, DataLoadedPayload, SubchartID } from './common';
 import { AlphaLevel, wilsonConfInterval } from './stat';
 import { Actions, ActionName } from './common';
 import { callWithRequestId } from '../../common/api/util';
-import { LemmaVariant } from '../../common/types';
+import { LemmaVariant } from '../../common/query';
 
 
 export const enum FreqFilterQuantity {

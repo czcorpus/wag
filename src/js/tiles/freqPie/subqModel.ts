@@ -24,7 +24,8 @@ import { ConcApi, QuerySelector, RequestArgs } from '../../common/api/kontext/co
 import { ConcResponse, ViewMode } from '../../common/api/abstract/concordance';
 import { APIBlockResponse, ApiDataBlock, MultiBlockFreqDistribAPI } from '../../common/api/kontext/freqs';
 import { stateToAPIArgs, SubqueryModeConf } from '../../common/models/freq';
-import { Backlink, isSubqueryPayload, SubqueryPayload } from '../../common/types';
+import { isSubqueryPayload, SubqueryPayload } from '../../common/query';
+import { Backlink } from '../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
 import { DataLoadedPayload } from './actions';
 import { FreqPieModel, FreqPieModelState } from './model';

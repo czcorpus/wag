@@ -19,7 +19,8 @@ import * as Immutable from 'immutable';
 import { ActionDispatcher } from 'kombo';
 
 import { AppServices } from '../../appServices';
-import { TileConf, ITileProvider, TileFactory, TileComponent, QueryType } from '../../common/types';
+import { QueryType } from '../../common/query';
+import { TileConf, ITileProvider, TileFactory, TileComponent } from '../../common/tile';
 import { ConcFilterModel } from './model';
 import { init as viewInit } from './view';
 import { ConcApi } from '../../common/api/kontext/concordance';

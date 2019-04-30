@@ -20,7 +20,10 @@ import { Bound, BoundWithProps, IActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
 
 import { Forms } from '../common/data';
-import { QueryType, SystemMessageType, TileFrameProps, LemmaVariant, SearchLanguage, SourceDetails } from '../common/types';
+import { SystemMessageType, SearchLanguage, SourceDetails } from '../common/types';
+import { AvailableLanguage } from '../common/hostPage';
+import { QueryType, LemmaVariant } from '../common/query';
+import { TileFrameProps } from '../common/tile';
 import { KeyCodes } from '../common/util';
 import { TileGroup } from '../layout';
 import { ActionName, Actions } from '../models/actions';
@@ -386,7 +389,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             isAnswerMode={false}
                             lemmas={Immutable.List<LemmaVariant>()}
                             errors={Immutable.List<Error>()}
-                            uiLanguages={Immutable.List<{code:string; label:string}>()} />
+                            uiLanguages={Immutable.List<AvailableLanguage>()} />
 
     // ------------- <HelpButton /> --------------------------------------
 

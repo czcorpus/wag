@@ -17,7 +17,8 @@
  */
 
 import { Observable } from 'rxjs';
-import { DataApi, LemmaVariant, HTTPMethod } from '../types';
+import { DataApi, HTTPMethod } from '../types';
+import { LemmaVariant } from '../query';
 import { ajax$ } from '../ajax';
 
 

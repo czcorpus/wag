@@ -21,7 +21,7 @@ import { Observable, Observer } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 
 import { AppServices } from '../../appServices';
-import { Backlink, BacklinkWithArgs, HTTPMethod, SystemMessageType } from '../../common/types';
+import { HTTPMethod, SystemMessageType } from '../../common/types';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
 import { ConcLoadedPayload } from '../concordance/actions';
 import {
@@ -36,7 +36,7 @@ import {
     SrchContextType,
 } from './common';
 import { KontextCollAPI } from './service';
-import { puid } from '../../common/util';
+import { Backlink, BacklinkWithArgs } from '../../common/tile';
 
 
 export interface CollocModelArgs {

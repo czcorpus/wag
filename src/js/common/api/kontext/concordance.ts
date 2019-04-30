@@ -19,9 +19,10 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { ajax$ } from '../../ajax';
-import { DataApi, HTTPHeaders, LemmaVariant } from '../../types';
+import { DataApi, HTTPHeaders } from '../../types';
+import { LemmaVariant } from '../../query';
 import { posQueryFactory } from './posQuery';
-import { ConcordanceMinState, IStateArgsMapper } from '../../models/concordance';
+import { IStateArgsMapper } from '../../models/concordance';
 import { Line, ConcResponse, ViewMode } from '../abstract/concordance';
 
 

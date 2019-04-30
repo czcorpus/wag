@@ -21,15 +21,9 @@ import { ActionDispatcher, ViewUtils } from 'kombo';
 import { AppServices } from '../../appServices';
 import { DataRow, MultiBlockFreqDistribAPI, FreqSort } from '../../common/api/kontext/freqs';
 import { FreqDataBlock, SubqueryModeConf } from '../../common/models/freq';
-import {
-    Backlink,
-    ITileProvider,
-    LocalizedConfMsg,
-    QueryType,
-    TileComponent,
-    TileConf,
-    TileFactory,
-} from '../../common/types';
+import { LocalizedConfMsg } from '../../common/types';
+import { QueryType } from '../../common/query';
+import { TileComponent, TileConf, TileFactory, Backlink, ITileProvider } from '../../common/tile';
 import { puid } from '../../common/util';
 import { GlobalComponents } from '../../views/global';
 import { factory as defaultModelFactory, FreqBarModel } from './model';

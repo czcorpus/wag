@@ -20,7 +20,7 @@ import { concatMap, reduce } from 'rxjs/operators';
 import { Database } from 'sqlite3';
 
 import { AppServices } from '../../appServices';
-import { importQueryPos, LemmaVariant, QueryPoS } from '../../common/types';
+import { importQueryPos, LemmaVariant, QueryPoS } from '../../common/query';
 import { posTable } from './common';
 
 

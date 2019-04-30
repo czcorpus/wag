@@ -18,7 +18,8 @@
 import * as Immutable from 'immutable';
 
 import { AppServices } from '../../appServices';
-import { ITileProvider, QueryType, TileComponent, TileConf, TileFactory } from '../../common/types';
+import { QueryType } from '../../common/query';
+import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../common/tile';
 import { FreqDBRow, FreqDbAPI } from './api';
 import { FlevelDistribItem, SummaryModel } from './model';
 import { init as viewInit } from './views';

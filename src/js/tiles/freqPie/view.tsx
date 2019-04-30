@@ -21,7 +21,7 @@ import * as React from 'react';
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer } from 'recharts';
 
 import { Theme } from '../../common/theme';
-import { CoreTileComponentProps, TileComponent } from '../../common/types';
+import { CoreTileComponentProps, TileComponent } from '../../common/tile';
 import { GlobalComponents } from '../../views/global';
 import { ActionName } from './actions';
 import { FreqPieDataRow, FreqPieModel, FreqPieModelState } from './model';
