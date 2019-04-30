@@ -22,7 +22,7 @@ import { MergeCorpFreqModel, MergeCorpFreqModelState} from './model';
 import {ResponsiveContainer, BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, Legend} from 'recharts';
 import { DataRow, BacklinkArgs } from '../../common/api/kontext/freqs';
 import { GlobalComponents } from '../../views/global';
-import { CoreTileComponentProps, TileComponent, BacklinkWithArgs } from '../../common/types';
+import { CoreTileComponentProps, TileComponent, BacklinkWithArgs } from '../../common/tile';
 import { Theme } from '../../common/theme';
 
 

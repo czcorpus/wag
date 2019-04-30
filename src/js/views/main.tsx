@@ -20,7 +20,8 @@ import { Bound, BoundWithProps, IActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
 
 import { Forms } from '../common/data';
-import { QueryType, SystemMessageType, TileFrameProps, LemmaVariant, SearchLanguage, SourceDetails, AvailableLanguage } from '../common/types';
+import { QueryType, SystemMessageType, LemmaVariant, SearchLanguage, SourceDetails, AvailableLanguage } from '../common/types';
+import { TileFrameProps } from '../common/tile';
 import { KeyCodes } from '../common/util';
 import { TileGroup } from '../layout';
 import { ActionName, Actions } from '../models/actions';

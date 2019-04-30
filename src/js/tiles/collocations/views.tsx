@@ -20,12 +20,12 @@ import { ActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 
 import { Theme } from '../../common/theme';
-import { CoreTileComponentProps, TileComponent } from '../../common/types';
+import { CoreTileComponentProps, TileComponent } from '../../common/tile';
 import { GlobalComponents } from '../../views/global';
 import { ActionName, Actions, DataRow, SrchContextType, DataHeading } from './common';
 import { CollocModel, CollocModelState } from './model';
 import { Actions as GlobalActions, ActionName as GlobalActionName } from '../../models/actions';
-import { init as wcloudViewInit, WordCloudItem } from '../../views/wordCloud/index';
+import { init as wcloudViewInit } from '../../views/wordCloud/index';
 
 
 export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:CollocModel):TileComponent {

@@ -19,7 +19,7 @@ import * as React from 'react';
 import { ActionDispatcher, ViewUtils, BoundWithProps } from 'kombo';
 import { GlobalComponents } from '../../views/global';
 import { Theme } from '../../common/theme';
-import { TileComponent, CoreTileComponentProps } from '../../common/types';
+import { TileComponent, CoreTileComponentProps } from '../../common/tile';
 import { ConcFilterModel, ConcFilterModelState } from './model';
 import { Line } from '../../common/api/abstract/concordance';
 

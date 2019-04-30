@@ -22,7 +22,8 @@ import { AppServices } from '../../appServices';
 import { QuerySelector } from '../../common/api/kontext/concordance';
 import { Line, ViewMode } from '../../common/api/abstract/concordance';
 
-import { Backlink, CorpSrchTileConf, ITileProvider, QueryType, TileComponent, TileFactory, DataApi, SourceInfoComponent } from '../../common/types';
+import { DataApi, QueryType } from '../../common/types';
+import { Backlink, CorpSrchTileConf, ITileProvider, TileComponent, TileFactory, SourceInfoComponent } from '../../common/tile';
 import { ConcordanceTileModel } from './model';
 import { init as viewInit } from './views';
 import { createApiInstance, createMapperInstance, createSourceInfoApiInstance, createSourceInfoViewInstance } from './apiFactory';

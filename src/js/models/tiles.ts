@@ -22,8 +22,9 @@ import { concatMap, map } from 'rxjs/operators';
 
 import { AppServices } from '../appServices';
 import { ajax$, ResponseType } from '../common/ajax';
-import { APIResponse as CorpusInfoResponse, CorpusInfoAPI } from '../common/api/kontext/corpusInfo';
-import { SystemMessageType, TileFrameProps, SourceDetails } from '../common/types';
+import { CorpusInfoAPI } from '../common/api/kontext/corpusInfo';
+import { SystemMessageType, SourceDetails } from '../common/types';
+import { TileFrameProps } from '../common/tile';
 import { ActionName, Actions } from './actions';
 
 

@@ -20,19 +20,12 @@ import { ActionDispatcher } from 'kombo';
 
 import { AppServices } from '../../appServices';
 import { BacklinkArgs } from '../../common/api/kontext/freqs';
-import {
-    BacklinkWithArgs,
-    CorePosAttribute,
-    ITileProvider,
-    QueryType,
-    TileComponent,
-    TileConf,
-    TileFactory,
-} from '../../common/types';
+import { CorePosAttribute, QueryType } from '../../common/types';
 import { CollocMetric, DataRow, SrchContextType } from './common';
 import { CollocModel } from './model';
 import { KontextCollAPI } from './service';
 import { init as viewInit } from './views';
+import { TileConf, BacklinkWithArgs, ITileProvider, TileComponent, TileFactory } from '../../common/tile';
 
 
 declare var require:(src:string)=>void;  // webpack

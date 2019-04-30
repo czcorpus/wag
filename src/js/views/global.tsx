@@ -21,7 +21,8 @@ import * as React from 'react';
 import { Observable } from 'rxjs';
 
 import { MultiDict } from '../common/data';
-import { BacklinkWithArgs, SystemMessageType, ScreenProps } from '../common/types';
+import { SystemMessageType, ScreenProps } from '../common/types';
+import { BacklinkWithArgs } from '../common/tile';
 import { KeyCodes } from '../common/util';
 import { ActionName, Actions } from '../models/actions';
 

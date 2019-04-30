@@ -15,7 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { DataApi, HTTPHeaders, SourceInfoComponent } from '../../common/types';
+import { DataApi, HTTPHeaders } from '../../common/types';
+import { SourceInfoComponent } from '../../common/tile';
 import { ConcResponse } from '../../common/api/abstract/concordance';
 import { ConcApi, stateToArgs as concStateToArgs } from '../../common/api/kontext/concordance';
 import { FCS1SearchRetrieveAPI, stateToArgs as fcsv1StateToArgs } from '../../common/api/clarin/fcs1/searchRetrieve';

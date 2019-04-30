@@ -19,7 +19,7 @@ import * as Immutable from 'immutable';
 import { ActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 
-import { CoreTileComponentProps, TileComponent } from '../../common/types';
+import { CoreTileComponentProps, TileComponent } from '../../common/tile';
 import { GlobalComponents } from '../../views/global';
 import { TreqTranslation } from '../../common/api/treq';
 import { TreqModel, TreqModelState } from './model';

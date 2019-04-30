@@ -23,7 +23,7 @@ import { throttleTime } from 'rxjs/operators';
 
 import { DataRow } from '../../../common/api/kontext/freqs';
 import { Theme } from '../../../common/theme';
-import { CoreTileComponentProps, TileComponent } from '../../../common/types';
+import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
 import { GlobalComponents } from '../../../views/global';
 import { ActionName, Actions } from '../actions';
 import { GeoAreasModel, GeoAreasModelState } from '../model';

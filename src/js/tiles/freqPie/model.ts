@@ -23,7 +23,7 @@ import { concatMap } from 'rxjs/operators';
 import { AppServices } from '../../appServices';
 import { BacklinkArgs, MultiBlockFreqDistribAPI, MultiCritQueryArgs, DataRow } from '../../common/api/kontext/freqs';
 import { createBackLink, FreqDataBlock, GeneralMultiCritFreqBarModelState } from '../../common/models/freq';
-import { Backlink, BacklinkWithArgs } from '../../common/types';
+import { Backlink, BacklinkWithArgs } from '../../common/tile';
 import { puid } from '../../common/util';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
 import { ConcLoadedPayload } from '../concordance/actions';

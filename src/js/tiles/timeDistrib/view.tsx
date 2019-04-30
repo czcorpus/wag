@@ -21,7 +21,7 @@ import * as Immutable from 'immutable';
 import { Area, AreaChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 import { Theme } from '../../common/theme';
-import { CoreTileComponentProps, TileComponent } from '../../common/types';
+import { CoreTileComponentProps, TileComponent } from '../../common/tile';
 import { GlobalComponents } from '../../views/global';
 import { DataItemWithWCI, ActionName, Actions } from './common';
 import { TimeDistribModel, TimeDistribModelState } from './model';

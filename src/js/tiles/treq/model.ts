@@ -19,7 +19,8 @@ import * as Immutable from 'immutable';
 import { Action, ActionDispatcher, SEDispatcher, StatelessModel } from 'kombo';
 import { map } from 'rxjs/operators';
 
-import { Backlink, BacklinkWithArgs, HTTPMethod } from '../../common/types';
+import { HTTPMethod } from '../../common/types';
+import { Backlink, BacklinkWithArgs } from '../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
 import { WdglanceMainFormModel } from '../../models/query';
 import { DataLoadedPayload } from './actions';

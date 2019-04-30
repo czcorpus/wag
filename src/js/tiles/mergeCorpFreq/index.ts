@@ -19,7 +19,8 @@ import * as Immutable from 'immutable';
 import { ActionDispatcher, ViewUtils } from 'kombo';
 
 import { FreqDistribAPI } from '../../common/api/kontext/freqs';
-import { Backlink, ITileProvider, QueryType, TileComponent, TileConf, TileFactory } from '../../common/types';
+import { QueryType } from '../../common/types';
+import { Backlink, ITileProvider, TileComponent, TileConf, TileFactory } from '../../common/tile';
 import { puid } from '../../common/util';
 import { GlobalComponents } from '../../views/global';
 import { MergeCorpFreqModel, ModelSourceArgs, SourceMappedDataRow } from './model';

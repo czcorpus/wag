@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { Action } from 'kombo';
-import { CorpSrchTileConf } from '../../common/types';
+import { CorpSrchTileConf } from '../../common/tile';
 
 
 export interface TimeDistTileConf extends CorpSrchTileConf {
