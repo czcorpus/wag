@@ -17,7 +17,7 @@
  */
 import { ServerConf, ClientStaticConf } from '../conf';
 import { Database } from 'sqlite3';
-import { IToolbarProvider } from '../common/types';
+import { IToolbarProvider } from '../common/hostPage';
 
 export interface Services {
     serverConf:ServerConf;

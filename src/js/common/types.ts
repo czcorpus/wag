@@ -15,12 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ViewUtils } from 'kombo';
 import { Observable } from 'rxjs';
-import * as React from 'react';
-import * as Immutable from 'immutable';
-
-import { GlobalComponents } from '../views/global';
 
 
 export type AnyInterface<T> = {
@@ -50,12 +45,6 @@ export enum HTTPMethod {
     OPTIONS = 'OPTIONS',
     TRACE = 'TRACE',
     PATCH = 'PATCH'
-}
-
-export interface ScreenProps {
-    isMobile:boolean;
-    innerWidth:number;
-    innerHeight:number;
 }
 
 
@@ -88,28 +77,6 @@ export type LocalizedConfMsg = string|{[lang:string]:string};
 
 export type DbValueMapping = {[corp:string]:{[key:string]:LocalizedConfMsg}};
 
-
-export interface AvailableLanguage {
-    code:string;
-    label:string;
-}
-
-export type ToolbarView = React.ComponentClass<{
-    languages:Immutable.List<AvailableLanguage>;
-    uiLang:string;
-    returnUrl:string;
-}>;
-
-export interface HostPageEnv {
-    styles:Array<string>;
-    scripts:Array<string>;
-    html:string|ToolbarView|null;
-    toolbarHeight:string|null; // a CSS value
-}
-
-export interface IToolbarProvider {
-    get(uiLang:string, returnUrl:string, ut:ViewUtils<GlobalComponents>):Observable<HostPageEnv|null>;
-}
 
 export type HTTPHeaders = {[key:string]:string};
 

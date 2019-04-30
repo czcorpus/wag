@@ -28,7 +28,7 @@ import { AppServices } from './appServices';
 import { encodeArgs } from './common/ajax';
 import { CorpusInfoAPI } from './common/api/kontext/corpusInfo';
 import { Theme } from './common/theme';
-import { ScreenProps, AvailableLanguage } from './common/types';
+import { AvailableLanguage, ScreenProps } from './common/hostPage';
 import { LemmaVariant, QueryType } from './common/query';
 import { ITileProvider, TileConf, TileFactory, TileFrameProps } from './common/tile';
 import { AnyTileConf, ClientConf, UserConf } from './conf';

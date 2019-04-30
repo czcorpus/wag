@@ -20,7 +20,7 @@ import * as React from 'react';
 import * as Immutable from 'immutable';
 import { ViewUtils } from 'kombo';
 import { GlobalComponents } from './global';
-import { AvailableLanguage } from '../common/types';
+import { AvailableLanguage } from '../common/hostPage';
 
 
 export function init(ut:ViewUtils<GlobalComponents>) {

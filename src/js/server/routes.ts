@@ -27,7 +27,7 @@ import * as Immutable from 'immutable';
 import { AppServices } from '../appServices';
 import { encodeArgs } from '../common/ajax';
 import { ErrorType, mapToStatusCode, newError } from '../common/errors';
-import { HostPageEnv, AvailableLanguage } from '../common/types';
+import { HostPageEnv, AvailableLanguage } from '../common/hostPage';
 import { QueryType, LemmaVariant, importQueryPos, QueryPoS } from '../common/query';
 import { mkRuntimeClientConf, UserConf } from '../conf';
 import { defaultFactory as mainFormFactory } from '../models/query';

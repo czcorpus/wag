@@ -18,7 +18,7 @@
 import * as request from 'request';
 import { Observable } from 'rxjs';
 
-import { HostPageEnv, IToolbarProvider } from '../../common/types';
+import { HostPageEnv, IToolbarProvider } from '../../common/hostPage';
 import { GlobalComponents } from '../../views/global';
 import { ViewUtils } from 'kombo';
 
