@@ -18,7 +18,8 @@
 import { Action } from 'kombo';
 
 import { APIResponse } from '../common/api/kontext/corpusInfo';
-import { QueryType, SystemMessageType, QueryPoS } from '../common/types';
+import { SystemMessageType } from '../common/types';
+import { QueryType, QueryPoS } from '../common/query';
 
 
 export enum ActionName {

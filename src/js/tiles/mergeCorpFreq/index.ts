@@ -19,7 +19,7 @@ import * as Immutable from 'immutable';
 import { ActionDispatcher, ViewUtils } from 'kombo';
 
 import { FreqDistribAPI } from '../../common/api/kontext/freqs';
-import { QueryType } from '../../common/types';
+import { QueryType } from '../../common/query';
 import { Backlink, ITileProvider, TileComponent, TileConf, TileFactory } from '../../common/tile';
 import { puid } from '../../common/util';
 import { GlobalComponents } from '../../views/global';

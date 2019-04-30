@@ -20,7 +20,8 @@ import { ActionDispatcher } from 'kombo';
 
 import { AppServices } from '../../appServices';
 import { BacklinkArgs } from '../../common/api/kontext/freqs';
-import { CorePosAttribute, QueryType } from '../../common/types';
+import { CorePosAttribute } from '../../common/types';
+import { QueryType } from '../../common/query';
 import { CollocMetric, DataRow, SrchContextType } from './common';
 import { CollocModel } from './model';
 import { KontextCollAPI } from './service';

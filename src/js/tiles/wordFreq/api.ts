@@ -19,7 +19,8 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { ajax$ } from '../../common/ajax';
-import { DataApi, HTTPHeaders, QueryPoS, LemmaVariant } from '../../common/types';
+import { DataApi, HTTPHeaders } from '../../common/types';
+import { QueryPoS, LemmaVariant } from '../../common/query';
 
 
 export interface RequestArgs {

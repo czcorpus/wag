@@ -20,7 +20,8 @@ import { Action, IActionDispatcher, SEDispatcher, StatelessModel } from 'kombo';
 
 import { AppServices } from '../appServices';
 import { Forms } from '../common/data';
-import { QueryType, SystemMessageType, LemmaVariant, SearchLanguage, AvailableLanguage } from '../common/types';
+import { SystemMessageType, SearchLanguage, AvailableLanguage } from '../common/types';
+import { QueryType, LemmaVariant } from '../common/query';
 import { ActionName, Actions } from './actions';
 
 

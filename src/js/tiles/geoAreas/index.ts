@@ -20,7 +20,7 @@ import { ActionDispatcher } from 'kombo';
 
 import { AppServices } from '../../appServices';
 import { DataRow, FreqDistribAPI, FreqSort } from '../../common/api/kontext/freqs';
-import { QueryType } from '../../common/types';
+import { QueryType } from '../../common/query';
 import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../common/tile';
 import { GeoAreasModel } from './model';
 import { init as viewInit } from './views';

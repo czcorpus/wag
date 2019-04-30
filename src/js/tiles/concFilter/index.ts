@@ -19,7 +19,7 @@ import * as Immutable from 'immutable';
 import { ActionDispatcher } from 'kombo';
 
 import { AppServices } from '../../appServices';
-import { QueryType } from '../../common/types';
+import { QueryType } from '../../common/query';
 import { TileConf, ITileProvider, TileFactory, TileComponent } from '../../common/tile';
 import { ConcFilterModel } from './model';
 import { init as viewInit } from './view';

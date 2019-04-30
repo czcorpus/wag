@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { QueryPoS } from '../../common/types';
+import { QueryPoS } from '../../common/query';
 
 
 export const posTable = {

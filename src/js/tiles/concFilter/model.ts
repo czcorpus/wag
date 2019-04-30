@@ -20,7 +20,7 @@ import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
 import * as Immutable from 'immutable';
 import { AppServices } from '../../appServices';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
-import { isSubqueryPayload, SubQueryItem } from '../../common/types';
+import { isSubqueryPayload, SubQueryItem } from '../../common/query';
 import { ConcApi, FilterRequestArgs, QuerySelector, PNFilter } from '../../common/api/kontext/concordance';
 import { Line, ViewMode, ConcResponse } from '../../common/api/abstract/concordance';
 import { Observable, merge } from 'rxjs';

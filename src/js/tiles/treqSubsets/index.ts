@@ -17,7 +17,7 @@
  */
 
 import * as Immutable from 'immutable';
-import { QueryType } from '../../common/types';
+import { QueryType } from '../../common/query';
 import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../common/tile';
 import { TreqSubsetModel, TranslationSubset } from './model';
 import { TreqAPI, TreqTranslation } from '../../common/api/treq';

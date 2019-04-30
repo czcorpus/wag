@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { Action } from 'kombo';
-import { SubqueryPayload } from '../../common/types';
+import { SubqueryPayload } from '../../common/query';
 
 
 export interface DataRow {

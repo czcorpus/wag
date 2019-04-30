@@ -15,7 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { DbValueMapping, HTTPHeaders, LocalizedConfMsg, QueryPoS } from './common/types';
+import { DbValueMapping, HTTPHeaders, LocalizedConfMsg } from './common/types';
+import { QueryPoS } from './common/query';
 import { CollocationsTileConf } from './tiles/collocations';
 import { ConcFilterTileConf } from './tiles/concFilter';
 import { ConcordanceTileConf } from './tiles/concordance';

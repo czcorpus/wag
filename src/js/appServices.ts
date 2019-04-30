@@ -18,7 +18,7 @@
 import { Observable } from 'rxjs';
 import { ITranslator } from 'kombo';
 
-import { DbValueMapping, HTTPHeaders, SystemMessageType, QueryPoS, LemmaVariant } from './common/types';
+import { DbValueMapping, HTTPHeaders, SystemMessageType } from './common/types';
 import { LemmaDbApi, LemmaDbResponse } from './common/api/lemma';
 import { SystemNotifications } from './notifications';
 

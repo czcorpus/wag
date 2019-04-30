@@ -20,7 +20,8 @@ import { IActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
 import { resolve as urlResolve } from 'url';
 
-import { HostPageEnv, LemmaVariant, AvailableLanguage } from '../common/types';
+import { HostPageEnv, AvailableLanguage } from '../common/types';
+import { LemmaVariant } from '../common/query';
 import { ClientConf, UserConf } from '../conf';
 import { TileGroup } from '../layout';
 import { WdglanceMainFormModel } from '../models/query';

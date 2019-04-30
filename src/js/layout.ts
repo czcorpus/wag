@@ -18,7 +18,7 @@
 import * as Immutable from 'immutable';
 
 import { AppServices } from './appServices';
-import { QueryType } from './common/types';
+import { QueryType } from './common/query';
 import { LayoutConfig, LayoutsConfig } from './conf';
 
 

@@ -25,7 +25,7 @@ import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../
 import { WdglanceMainFormModel } from '../../models/query';
 import { DataLoadedPayload } from './actions';
 import { callWithRequestId } from '../../common/api/util';
-import { isSubqueryPayload } from '../../common/types';
+import { isSubqueryPayload } from '../../common/query';
 
 
 export interface TranslationSubset {

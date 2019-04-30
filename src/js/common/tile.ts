@@ -16,7 +16,8 @@
  * limitations under the License.
  */
 
-import { HTTPMethod, AnyInterface, QueryType, LocalizedConfMsg } from './types';
+import { HTTPMethod, AnyInterface, LocalizedConfMsg } from './types';
+import { QueryType } from './query';
 import { ActionDispatcher, ViewUtils } from 'kombo';
 import { GlobalComponents } from '../views/global';
 import { Theme } from './theme';

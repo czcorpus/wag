@@ -70,12 +70,6 @@ export enum CorePosAttribute {
     LEMMA = 'lemma'
 }
 
-export enum QueryType {
-    SINGLE_QUERY = 'single',
-    CMP_QUERY = 'cmp',
-    TRANSLAT_QUERY = 'translat'
-}
-
 
 /**
  * A general data api. While in most cases
@@ -118,58 +112,6 @@ export interface IToolbarProvider {
 }
 
 export type HTTPHeaders = {[key:string]:string};
-
-export interface SubQueryItem {
-    value:string;
-    interactionId?:string;
-    color?:string;
-}
-
-export interface SubqueryPayload {
-    tileId:number;
-    subqueries:Array<SubQueryItem>;
-    lang1:string;
-    lang2:string;
-}
-
-export function isSubqueryPayload(payload:{}):payload is SubqueryPayload {
-    return Array.isArray(payload['subqueries']);
-}
-
-
-export interface LemmaVariant {
-    lemma:string;
-    word:string;
-    pos:QueryPoS;
-    posLabel:string;
-    abs:number;
-    ipm:number;
-    arf:number;
-    flevel:number;
-    isCurrent:boolean;
-}
-
-export enum QueryPoS {
-    NOUN = 'N',
-    ADJECTIVE = 'A',
-    PRONOUN = 'P',
-    NUMERAL = 'C',
-    VERB = 'V',
-    ADVERB = 'D',
-    PREPOSITION = 'R',
-    CONJUNCTION = 'J',
-    PARTICLE = 'T',
-    INTERJECTION = 'I',
-    PUNCTUATION = 'Z',
-    UNKNOWN = 'X'
-}
-
-export const importQueryPos = (s:string):QueryPoS => {
-    if (['n', 'a', 'p', 'c', 'v', 'd', 'r', 'j', 't', 'i', 'z', 'x'].indexOf(s.toLowerCase()) > -1) {
-        return s.toUpperCase() as QueryPoS;
-    }
-    throw new Error(`Invalid PoS value [${s}]`);
-};
 
 
 export interface SearchLanguage {
