@@ -20,7 +20,7 @@ import { Action, IActionDispatcher, SEDispatcher, StatelessModel } from 'kombo';
 
 import { AppServices } from '../appServices';
 import { Forms } from '../common/data';
-import { QueryType, SystemMessageType, LemmaVariant, SearchLanguage } from '../common/types';
+import { QueryType, SystemMessageType, LemmaVariant, SearchLanguage, AvailableLanguage } from '../common/types';
 import { ActionName, Actions } from './actions';
 
 
@@ -35,7 +35,7 @@ export interface WdglanceMainState {
     errors:Immutable.List<Error>;
     lemmas:Immutable.List<LemmaVariant>;
     isAnswerMode:boolean;
-    uiLanguages:Immutable.List<{code:string; label:string}>;
+    uiLanguages:Immutable.List<AvailableLanguage>;
 }
 
 export const findCurrLemmaVariant = (lemmas:Immutable.List<LemmaVariant>):LemmaVariant => {
@@ -195,7 +195,7 @@ export interface DefaultFactoryArgs {
     queryType:QueryType;
     lemmas:Array<LemmaVariant>;
     isAnswerMode:boolean;
-    uiLanguages:Immutable.List<{code:string; label:string}>;
+    uiLanguages:Immutable.List<AvailableLanguage>;
 }
 
 export const defaultFactory = ({dispatcher, appServices, query1, query1Lang, query2,

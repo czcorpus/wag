@@ -284,8 +284,13 @@ export interface DataApi<T, U> {
 export type DbValueMapping = {[corp:string]:{[key:string]:LocalizedConfMsg}};
 
 
+export interface AvailableLanguage {
+    code:string;
+    label:string;
+}
+
 export type ToolbarView = React.ComponentClass<{
-    languages:Immutable.List<{code:string; label:string}>;
+    languages:Immutable.List<AvailableLanguage>;
     uiLang:string;
     returnUrl:string;
 }>;

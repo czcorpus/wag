@@ -28,7 +28,7 @@ import { AppServices } from './appServices';
 import { encodeArgs } from './common/ajax';
 import { CorpusInfoAPI } from './common/api/kontext/corpusInfo';
 import { Theme } from './common/theme';
-import { ITileProvider, LemmaVariant, QueryType, TileConf, TileFactory, TileFrameProps, ScreenProps } from './common/types';
+import { ITileProvider, LemmaVariant, QueryType, TileConf, TileFactory, TileFrameProps, ScreenProps, AvailableLanguage } from './common/types';
 import { AnyTileConf, ClientConf, UserConf } from './conf';
 import { LayoutManager } from './layout';
 import { ActionName, Actions } from './models/actions';
@@ -215,7 +215,7 @@ export const init = (mountElement:HTMLElement, config:ClientConf, userSession:Us
         queryType: qType,
         lemmas: lemmas,
         isAnswerMode: userSession.answerMode,
-        uiLanguages: Immutable.List<{code:string; label:string}>(
+        uiLanguages: Immutable.List<AvailableLanguage>(
             Object.keys(userSession.uiLanguages).map(k => [k, userSession.uiLanguages[k]]))
     });
 

@@ -27,7 +27,7 @@ import * as Immutable from 'immutable';
 import { AppServices } from '../appServices';
 import { encodeArgs } from '../common/ajax';
 import { ErrorType, mapToStatusCode, newError } from '../common/errors';
-import { HostPageEnv, QueryType, LemmaVariant, importQueryPos, QueryPoS } from '../common/types';
+import { HostPageEnv, QueryType, LemmaVariant, importQueryPos, QueryPoS, AvailableLanguage } from '../common/types';
 import { mkRuntimeClientConf, UserConf } from '../conf';
 import { defaultFactory as mainFormFactory } from '../models/query';
 import { GlobalComponents } from '../views/global';
@@ -48,7 +48,7 @@ function renderResult(view:React.SFC<LayoutProps>, services:Services, toolbarDat
                 userConfig: userConfig,
                 hostPageEnv: toolbarData,
                 lemmas: lemmas,
-                uiLanguages: Immutable.List<{code:string; label:string}>(Object.entries(userConfig.uiLanguages)),
+                uiLanguages: Immutable.List<AvailableLanguage>(Object.entries(userConfig.uiLanguages)),
                 uiLang: userConfig.uiLang,
                 returnUrl: returnUrl
             }
@@ -123,7 +123,7 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
         queryType: userConfig.queryType as QueryType,
         lemmas: [],
         isAnswerMode: answerMode,
-        uiLanguages: Immutable.List<{code:string; label:string}>(
+        uiLanguages: Immutable.List<AvailableLanguage>(
             Object.keys(services.serverConf.languages).map(k => [k, services.serverConf.languages[k]]))
     });
     const view = viewInit(dispatcher, viewUtils, mainFormModel);
