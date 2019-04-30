@@ -34,6 +34,9 @@ export interface LayoutProps {
     userConfig:UserConf;
     hostPageEnv:HostPageEnv;
     lemmas:Array<LemmaVariant>;
+    uiLanguages:Immutable.List<{code:string; label:string}>;
+    uiLang:string;
+    returnUrl:string;
 }
 
 
@@ -49,6 +52,15 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 ${JSON.stringify(props.config)}, ${JSON.stringify(props.userConfig)}, ${JSON.stringify(props.lemmas)});`
         };
 
+        const renderToolbar = () => {
+            return typeof props.hostPageEnv.html === 'string' ?
+                <div style={{height: props.hostPageEnv.toolbarHeight ? props.hostPageEnv.toolbarHeight : 'auto'}}
+                                dangerouslySetInnerHTML={{__html: props.hostPageEnv.html}} /> :
+                <div style={{height: props.hostPageEnv.toolbarHeight ? props.hostPageEnv.toolbarHeight : 'auto'}}>
+                    <props.hostPageEnv.html languages={props.uiLanguages} uiLang={props.uiLang} returnUrl={props.returnUrl} />
+                </div>;
+        };
+
         return (
             <html>
                 <head>
@@ -60,11 +72,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                        <link key={style} rel="stylesheet" type="text/css" href={style} media="all"/> )}
                 </head>
                 <body>
-                    {props.hostPageEnv.html ?
-                        <div style={{height: props.hostPageEnv.toolbarHeight ? props.hostPageEnv.toolbarHeight : 'auto'}}
-                                dangerouslySetInnerHTML={{__html: props.hostPageEnv.html}} /> :
-                        null
-                    }
+                    {props.hostPageEnv.html ? renderToolbar() : null}
                     <header className="wdg-header">
                         <a href={props.config.hostUrl} title={ut.translate('global__wdglance_title')}>
                             <img src={ut.createStaticUrl('logo_cs.svg')} />

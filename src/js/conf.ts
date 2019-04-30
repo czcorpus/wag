@@ -49,6 +49,7 @@ export type AnyTileConf =
  * user specific information/input.
  */
 export interface UserConf {
+    uiLanguages:{[code:string]:string};
     uiLang:string;
     queryType:string;
 	query1Lang:string;
@@ -130,6 +131,12 @@ export interface ClientConf {
     error?:Error;
 }
 
+
+export interface ToolbarDef {
+    type:string;
+    url?:string;
+}
+
 /**
  * Server side app configuration.
  */
@@ -146,7 +153,6 @@ export interface ServerConf {
         wordDistribDb:{[lang:string]:string};
         similarFreqWordsMaxCtx:number;
     };
-    toolbar:{
-        url:string;
-    }
+    toolbar:ToolbarDef;
+    langCookie?:string;
 }

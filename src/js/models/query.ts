@@ -35,6 +35,7 @@ export interface WdglanceMainState {
     errors:Immutable.List<Error>;
     lemmas:Immutable.List<LemmaVariant>;
     isAnswerMode:boolean;
+    uiLanguages:Immutable.List<{code:string; label:string}>;
 }
 
 export const findCurrLemmaVariant = (lemmas:Immutable.List<LemmaVariant>):LemmaVariant => {
@@ -194,10 +195,11 @@ export interface DefaultFactoryArgs {
     queryType:QueryType;
     lemmas:Array<LemmaVariant>;
     isAnswerMode:boolean;
+    uiLanguages:Immutable.List<{code:string; label:string}>;
 }
 
 export const defaultFactory = ({dispatcher, appServices, query1, query1Lang, query2,
-            query2Lang, queryType, lemmas, isAnswerMode}:DefaultFactoryArgs) => {
+            query2Lang, queryType, lemmas, isAnswerMode, uiLanguages}:DefaultFactoryArgs) => {
 
     return new WdglanceMainFormModel(
         dispatcher,
@@ -220,7 +222,8 @@ export const defaultFactory = ({dispatcher, appServices, query1, query1Lang, que
             ]),
             errors: Immutable.List<Error>(),
             lemmas: Immutable.List<LemmaVariant>(lemmas),
-            isAnswerMode: isAnswerMode
+            isAnswerMode: isAnswerMode,
+            uiLanguages: uiLanguages
         }
     );
 };

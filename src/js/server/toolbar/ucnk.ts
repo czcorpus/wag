@@ -19,6 +19,8 @@ import * as request from 'request';
 import { Observable } from 'rxjs';
 
 import { HostPageEnv, IToolbarProvider } from '../../common/types';
+import { GlobalComponents } from '../../views/global';
+import { ViewUtils } from 'kombo';
 
 
 interface ToolbarResponse {
@@ -53,17 +55,26 @@ export class UCNKToolbar implements IToolbarProvider {
 
     private readonly url:string;
 
-    constructor(url:string) {
+    private readonly langCookie:string;
+
+    constructor(url:string, langCookie:string) {
         this.url = url;
+        this.langCookie = langCookie;
     }
 
-    get():Observable<HostPageEnv> {
+    get(uiLang:string, returnUrl:string, ut:ViewUtils<GlobalComponents>):Observable<HostPageEnv> {
         return new Observable<HostPageEnv>((observer) => {
             request
                 .get(
                     {
                         url: this.url,
-                        json: true
+                        json: true,
+                        qs: {
+                            continue: returnUrl
+                        },
+                        headers: {
+                            'Cookie': `${this.langCookie}=${uiLang.split('-')[0]}`
+                        }
                     },
                     (error, response, body:ToolbarResponse) => {
                         if (error) {

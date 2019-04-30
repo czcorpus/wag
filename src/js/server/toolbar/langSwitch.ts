@@ -18,22 +18,23 @@
 import { Observable, of as rxOf } from 'rxjs';
 
 import { HostPageEnv, IToolbarProvider } from '../../common/types';
-import { ViewUtils } from 'kombo';
 import { GlobalComponents } from '../../views/global';
+import { ViewUtils } from 'kombo';
+import { init as viewInit } from '../../views/langSwitchToolbar';
 
 
 
-export const emptyValue = ():HostPageEnv => {
-    return {
-        styles: [],
-        scripts: [],
-        html: null,
-        toolbarHeight: null
-    };
-}
 
-export class EmptyToolbar implements IToolbarProvider {
+
+export class LangSwitchToolbar implements IToolbarProvider {
+
     get(uiLang:string, returnUrl:string, ut:ViewUtils<GlobalComponents>):Observable<HostPageEnv> {
-        return rxOf(emptyValue());
+
+        return rxOf({
+            styles: [],
+            scripts: [],
+            html: viewInit(ut),
+            toolbarHeight: null
+        });
     }
 }

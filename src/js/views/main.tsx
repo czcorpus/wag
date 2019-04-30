@@ -385,7 +385,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             isMobile={false}
                             isAnswerMode={false}
                             lemmas={Immutable.List<LemmaVariant>()}
-                            errors={Immutable.List<Error>()} />
+                            errors={Immutable.List<Error>()}
+                            uiLanguages={Immutable.List<{code:string; label:string}>()} />
 
     // ------------- <HelpButton /> --------------------------------------
 
