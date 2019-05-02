@@ -81,7 +81,9 @@ function createHelperServices(services:Services, uiLang:string):[ViewUtils<Globa
 }
 
 function mkReturnUrl(req:Request, rootUrl:string):string {
-    return rootUrl + req.path + '?' + encodeArgs(req.query);
+    return rootUrl.replace(/\/$/, '') +
+        req.path +
+        (req.query && Object.keys(req.query).length > 0 ? '?' + encodeArgs(req.query) : '');
 }
 
 function getLangFromCookie(req:Request, cookieName:string, languages:{[code:string]:string}):string {
@@ -139,7 +141,7 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
                 observer.complete();
             }
         ),
-        services.toolbar.get(userConfig.uiLang, mkReturnUrl(req, services.clientConf.rootUrl), viewUtils),
+        services.toolbar.get(userConfig.uiLang, mkReturnUrl(req, services.clientConf.rootUrl), req.cookies, viewUtils),
         getLemmas(services.db[userConfig.query1Lang], appServices, userConfig.query1)
     )
     .subscribe(

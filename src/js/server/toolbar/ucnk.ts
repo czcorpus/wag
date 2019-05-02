@@ -55,26 +55,30 @@ export class UCNKToolbar implements IToolbarProvider {
 
     private readonly url:string;
 
-    private readonly langCookie:string;
+    private static readonly PASS_ARGS = [
+        'cnc_toolbar_sid',
+        'cnc_toolbar_at',
+        'cnc_toolbar_rmme',
+        'cnc_toolbar_lang'
+    ];
 
-    constructor(url:string, langCookie:string) {
+    constructor(url:string) {
         this.url = url;
-        this.langCookie = langCookie;
     }
 
-    get(uiLang:string, returnUrl:string, ut:ViewUtils<GlobalComponents>):Observable<HostPageEnv> {
+    get(uiLang:string, returnUrl:string, cookies:{[key:string]:string}, ut:ViewUtils<GlobalComponents>):Observable<HostPageEnv> {
         return new Observable<HostPageEnv>((observer) => {
+            const args = {continue: returnUrl};
+            UCNKToolbar.PASS_ARGS.forEach(arg => {
+                args[arg.substr('cnc_toolbar_'.length)] = cookies[arg] || '';
+            });
             request
                 .get(
                     {
                         url: this.url,
                         json: true,
-                        qs: {
-                            continue: returnUrl
-                        },
-                        headers: {
-                            'Cookie': `${this.langCookie}=${uiLang.split('-')[0]}`
-                        }
+                        qs: args,
+                        headers: {}
                     },
                     (error, response, body:ToolbarResponse) => {
                         if (error) {

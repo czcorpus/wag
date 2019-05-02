@@ -28,7 +28,7 @@ import { init as viewInit } from '../../views/langSwitchToolbar';
 
 export class LangSwitchToolbar implements IToolbarProvider {
 
-    get(uiLang:string, returnUrl:string, ut:ViewUtils<GlobalComponents>):Observable<HostPageEnv> {
+    get(uiLang:string, returnUrl:string, cookies:{[key:string]:string}, ut:ViewUtils<GlobalComponents>):Observable<HostPageEnv> {
 
         return rxOf({
             styles: [],

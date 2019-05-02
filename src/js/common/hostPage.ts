@@ -42,7 +42,15 @@ export interface HostPageEnv {
 }
 
 export interface IToolbarProvider {
-    get(uiLang:string, returnUrl:string, ut:ViewUtils<GlobalComponents>):Observable<HostPageEnv|null>;
+
+    /**
+     *
+     * @param uiLang Current language of the user interface
+     * @param returnUrl Current action address; this allows toolbar links/functions to leave wdglance and then return
+     * @param cookies Current cookies for wdglance
+     * @param ut view utils
+     */
+    get(uiLang:string, returnUrl:string, cookies:{[key:string]:string}, ut:ViewUtils<GlobalComponents>):Observable<HostPageEnv|null>;
 }
 
 
