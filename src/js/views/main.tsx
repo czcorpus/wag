@@ -521,43 +521,19 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // ------------- <InitialHelp /> --------------------------------------
 
     const InitialHelp:React.SFC<{
+        sections:Immutable.List<{label:string; html:string}>;
 
     }> = (props) => {
         return (
             <>
-                <section className="cnc-tile help">
-                    <header className="cnc-tile-header panel">
-                        {ut.translate('help__intro_tile_header')}
-                    </header>
-                    <div className="tile-body">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                    Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor
-                     in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident,
-                     sunt in culpa qui officia deserunt mollit anim id est laborum.
-                    </div>
-                </section>
-                <section className="cnc-tile help">
-                    <header className="cnc-tile-header panel">
-                        {ut.translate('help__help_tile_header')}
-                    </header>
-                    <div className="tile-body">
-                    Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae
-                    ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur
-                    aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum
-                    quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat
-                    voluptatem.
-                    </div>
-                </section>
-                <section className="cnc-tile help">
-                    <header className="cnc-tile-header panel">
-                        {ut.translate('help__tips_tile_header')}
-                    </header>
-                    <div className="tile-body">
-                        Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem
-                        vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla
-                        pariatur?"
-                        </div>
-                </section>
+                {props.sections.map((sect, i) => (
+                    <section key={`${sect}:${i}`} className="cnc-tile help">
+                        <header className="cnc-tile-header panel">
+                            {sect.label}
+                        </header>
+                        <div className="tile-body" dangerouslySetInnerHTML={{__html: sect.html}} />
+                    </section>
+                ))}
             </>
         );
     }
@@ -856,7 +832,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------------- <TilesSections /> -----------------------------
 
-    class TilesSections extends React.PureComponent<{layout:Immutable.List<TileGroup>} & WdglanceTilesState> {
+    class TilesSections extends React.PureComponent<{
+        layout:Immutable.List<TileGroup>;
+        homepageSections:Immutable.List<{label:string; html:string}>;
+
+    } & WdglanceTilesState> {
 
         constructor(props) {
             super(props);
@@ -896,7 +876,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             )) :
                             <NothingFoundBox />
                         ) :
-                        <section className="tiles"><InitialHelp /></section>
+                        <section className="tiles"><InitialHelp sections={this.props.homepageSections} /></section>
                     }
                     {this.props.isModalVisible ?
                         <globalComponents.ModalBox onCloseClick={this.handleCloseSourceInfo}
@@ -912,7 +892,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const BoundTilesSections = tilesModel ?
         BoundWithProps<any, any>(TilesSections, tilesModel) :   // TODO type issue
-        (props) => {
+        (props:{
+            layout:Immutable.List<TileGroup>;
+            homepageSections:Immutable.List<{label:string; html:string}>
+        }) => {
             return <TilesSections
                         isAnswerMode={false}
                         isBusy={false}
@@ -928,13 +911,15 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         tileResultFlags={Immutable.List<TileResultFlagRec>()}
                         tileProps={Immutable.List<TileFrameProps>()}
                         modalBoxData={null}
-                        layout={Immutable.List<TileGroup>()} />
+                        layout={props.layout}
+                        homepageSections={props.homepageSections} />
         }
 
     // ------------------ <WdglanceMain /> ------------------------------
 
     const WdglanceMain:React.SFC<{
         layout:Immutable.List<TileGroup>;
+        homepageSections:Immutable.List<{label:string; html:string}>;
         isMobile:boolean;
         isAnswerMode:boolean;
     }> = (props) => {
@@ -942,7 +927,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             <div className="WdglanceMain">
                 <WdglanceControlsBound isMobile={props.isMobile} isAnswerMode={props.isAnswerMode} />
                 <BoundMessagesBox />
-                <BoundTilesSections layout={props.layout} />
+                <BoundTilesSections layout={props.layout} homepageSections={props.homepageSections} />
             </div>
         );
     }

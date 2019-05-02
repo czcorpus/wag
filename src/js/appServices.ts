@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Observable } from 'rxjs';
+import { Observable, of as rxOf } from 'rxjs';
 import { ITranslator } from 'kombo';
 
 import { DbValueMapping, HTTPHeaders, SystemMessageType } from './common/types';
@@ -81,7 +81,7 @@ export class AppServices {
         return this.translator.translate(key, args);
     }
 
-    importExternalMessage(label:string|{[lang:string]:string}):string {
+    private importText<T>(label:string|{[lang:string]:T}):string|T {
         if (!label) {
             return '';
 
@@ -96,6 +96,15 @@ export class AppServices {
             }
         }
         return `?? ${label}`;
+    }
+
+    importExternalMessage(label:string|{[lang:string]:string}):string {
+        return this.importText<string>(label);
+    }
+
+    importExternalText(ident:string|{[lang:string]:string|{file:string}}, readResource:(path:string)=>Observable<string>):Observable<string> {
+        const ans = this.importText<string|{file:string}>(ident);
+        return typeof ans  === 'string' ? rxOf(ans) : readResource(ans.file);
     }
 
     formatDate(d: Date, timeFormat?: number): string {
@@ -140,5 +149,9 @@ export class AppServices {
 
     getISO639UILang():string {
         return this.uiLang.split('-')[0];
+    }
+
+    getUILang():string {
+        return this.uiLang;
     }
 }

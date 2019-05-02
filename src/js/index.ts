@@ -54,6 +54,7 @@ import {init as treqSubsetsInit, TreqSubsetsTileConf } from './tiles/treqSubsets
 import { init as summaryInit, WordFreqTileConf } from './tiles/wordFreq';
 import { GlobalComponents, init as globalCompInit } from './views/global';
 import { init as viewInit } from './views/main';
+import { string } from 'prop-types';
 
 declare var require:(src:string)=>void;  // webpack
 require('../css/index.less');
@@ -302,6 +303,7 @@ export const init = (mountElement:HTMLElement, config:ClientConf, userSession:Us
             component.WdglanceMain,
             {
                 layout: layoutManager.getLayout(qType),
+                homepageSections: Immutable.List<{label:string, html:string}>(config.homepage.tiles),
                 isMobile: appServices.isMobileMode(),
                 isAnswerMode: userSession.answerMode
             }

@@ -24,12 +24,13 @@ import { Observable, forkJoin} from 'rxjs';
 import { concatMap, map } from 'rxjs/operators';
 import * as Immutable from 'immutable';
 
+
 import { AppServices } from '../appServices';
 import { encodeArgs } from '../common/ajax';
 import { ErrorType, mapToStatusCode, newError } from '../common/errors';
 import { HostPageEnv, AvailableLanguage } from '../common/hostPage';
 import { QueryType, LemmaVariant, importQueryPos, QueryPoS } from '../common/query';
-import { mkRuntimeClientConf, UserConf } from '../conf';
+import { UserConf, ClientStaticConf, ClientConf, emptyClientConf } from '../conf';
 import { defaultFactory as mainFormFactory } from '../models/query';
 import { GlobalComponents } from '../views/global';
 import { init as viewInit, LayoutProps } from '../views/layout';
@@ -37,21 +38,63 @@ import { ServerSideActionDispatcher } from './core';
 import { emptyValue } from './toolbar/empty';
 import { Services } from './actionServices';
 import { getLemmas, getSimilarFreqWords } from './freqdb/freqdb';
+import { loadFile } from './files';
 
 
+function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, appServices:AppServices):Observable<ClientConf> {
+    return forkJoin(...conf.homepage.tiles.map(item =>
+        appServices.importExternalText(
+            item.contents,
+            loadFile
 
-function renderResult(view:React.SFC<LayoutProps>, services:Services, toolbarData:HostPageEnv, lemmas:Array<LemmaVariant>, userConfig:UserConf, returnUrl:string):string {
+        ).pipe(
+            map<string, {label:string; html: string}>(value => ({
+                label: appServices.importExternalMessage(item.label),
+                html: value
+            }))
+        )
+
+    )).pipe(
+        map((item:Array<{label:string; html: string}>) => ({
+            rootUrl: conf.rootUrl,
+            hostUrl: conf.hostUrl,
+            corpInfoApiUrl: conf.corpInfoApiUrl,
+            dbValuesMapping: conf.dbValuesMapping,
+            apiHeaders: conf.apiHeaders,
+            colors: conf.colors,
+            tiles: conf.tiles[lang],
+            layouts: conf.layouts,
+            homepage: {
+                tiles: item
+            }
+        }))
+    );
+}
+
+
+interface RenderResultArgs {
+    view:React.SFC<LayoutProps>;
+    services:Services;
+    toolbarData:HostPageEnv;
+    lemmas:Array<LemmaVariant>;
+    userConfig:UserConf;
+    clientConfig:ClientConf;
+    returnUrl:string;
+}
+
+function renderResult({view, services, toolbarData, lemmas, userConfig, clientConfig, returnUrl}:RenderResultArgs):string {
     const appString = renderToString(
         React.createElement<LayoutProps>(
             view,
             {
-                config: mkRuntimeClientConf(services.clientConf, userConfig.query1Lang),
+                config: clientConfig,
                 userConfig: userConfig,
                 hostPageEnv: toolbarData,
                 lemmas: lemmas,
                 uiLanguages: Immutable.List<AvailableLanguage>(Object.entries(userConfig.uiLanguages)),
                 uiLang: userConfig.uiLang,
-                returnUrl: returnUrl
+                returnUrl: returnUrl,
+                homepageTiles: Immutable.List<{label:string; html:string}>(clientConfig.homepage.tiles)
             }
         )
     );
@@ -142,11 +185,12 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
             }
         ),
         services.toolbar.get(userConfig.uiLang, mkReturnUrl(req, services.clientConf.rootUrl), req.cookies, viewUtils),
-        getLemmas(services.db[userConfig.query1Lang], appServices, userConfig.query1)
+        getLemmas(services.db[userConfig.query1Lang], appServices, userConfig.query1),
+        mkRuntimeClientConf(services.clientConf, userConfig.query1Lang, appServices)
     )
     .subscribe(
         (ans) => {
-            const [userSession, toolbar, lemmas] = ans;
+            const [userSession, toolbar, lemmas, clientConf] = ans;
             let currentFlagSolved = false;
             if (lemmas.length > 0) {
                 if (userSession.queryPos) {
@@ -167,12 +211,28 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
                     }
                 }
             }
-            res.send(renderResult(view, services, toolbar, lemmas, userSession, mkReturnUrl(req, services.clientConf.rootUrl)));
+            res.send(renderResult({
+                view: view,
+                services: services,
+                toolbarData: toolbar,
+                lemmas: lemmas,
+                userConfig: userSession,
+                clientConfig: clientConf,
+                returnUrl: mkReturnUrl(req, services.clientConf.rootUrl)
+            }));
         },
         (err) => {
             console.log(err);
             userConfig.error = String(err);
-            res.send(renderResult(view, services, emptyValue(), [], userConfig, mkReturnUrl(req, services.clientConf.rootUrl)));
+            res.send(renderResult({
+                view: view,
+                services: services,
+                toolbarData: emptyValue(),
+                lemmas: [],
+                userConfig: userConfig,
+                clientConfig: emptyClientConf(services.clientConf),
+                returnUrl: mkReturnUrl(req, services.clientConf.rootUrl)
+            }));
         }
     );
 }
