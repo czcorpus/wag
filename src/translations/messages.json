@@ -1,5 +1,6 @@
 {
     "en-US": {
+        "global__logo_file": "logo_en.svg",
         "global__wdglance_title": "Word At a Glance",
         "global__corpus": "corpus",
         "global__search": "Search",
@@ -57,6 +58,7 @@
 
     },
     "cs-CZ": {
+        "global__logo_file": "logo_cs.svg",
         "global__wdglance_title": "Slovo v kostce",
         "global__corpus": "korpus",
         "global__search": "Hledat",

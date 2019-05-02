@@ -76,7 +76,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     {props.hostPageEnv.html ? renderToolbar() : null}
                     <header className="wdg-header">
                         <a href={props.config.hostUrl} title={ut.translate('global__wdglance_title')}>
-                            <img src={ut.createStaticUrl('logo_cs.svg')} />
+                            <img src={ut.createStaticUrl(ut.translate('global__logo_file'))} />
                         </a>
                     </header>
                     <section className="wdglance-mount">
