@@ -39,7 +39,7 @@ const db = {};
 for (let d in serverConf.auxServices.wordDistribDb) {
 	db[d] = new sqlite3.Database(serverConf.auxServices.wordDistribDb[d]);
 }
-const toolbar = createToolbarInstance(serverConf.toolbar, serverConf.langCookie);
+const toolbar = createToolbarInstance(serverConf.toolbar);
 
 wdgRouter({
     serverConf: serverConf,

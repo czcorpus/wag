@@ -25,19 +25,19 @@ import { ToolbarDef } from '../../conf';
 
 export enum ToolbarType {
     EMPTY = 'empty',
-    REMOTE = 'remote',
+    UCNK = 'ucnk',
     LANG_SWITCH = 'langSwitch'
 }
 
-export function createToolbarInstance(conf:ToolbarDef, langCookie:string):IToolbarProvider {
+export function createToolbarInstance(conf:ToolbarDef):IToolbarProvider {
 
     switch (conf.type) {
         case ToolbarType.EMPTY:
             return new EmptyToolbar();
         case ToolbarType.LANG_SWITCH:
             return new LangSwitchToolbar();
-        case ToolbarType.REMOTE:
-            return new UCNKToolbar(conf.url, langCookie);
+        case ToolbarType.UCNK:
+            return new UCNKToolbar(conf.url);
         default:
             throw new Error(`Unknown toolbar type [${conf.type}]`);
     }

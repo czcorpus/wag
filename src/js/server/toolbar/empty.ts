@@ -33,7 +33,7 @@ export const emptyValue = ():HostPageEnv => {
 }
 
 export class EmptyToolbar implements IToolbarProvider {
-    get(uiLang:string, returnUrl:string, ut:ViewUtils<GlobalComponents>):Observable<HostPageEnv> {
+    get(uiLang:string, returnUrl:string, cookies:{[key:string]:string}, ut:ViewUtils<GlobalComponents>):Observable<HostPageEnv> {
         return rxOf(emptyValue());
     }
 }
