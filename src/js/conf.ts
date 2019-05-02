@@ -89,6 +89,15 @@ export interface LayoutsConfig {
     translat:Array<LayoutConfig|string>;
 }
 
+export interface HomePageTileConf {
+    label:{[lang:string]:string};
+    contents:{[lang:string]:string|{file:string}};
+}
+
+export interface HomepageConf {
+    tiles:Array<HomePageTileConf>;
+}
+
 /**
  * Client side app configuration as present in wdglance.json
  * configuration file.
@@ -99,21 +108,11 @@ export interface ClientStaticConf {
 	corpInfoApiUrl:string;
     dbValuesMapping:DbValueMapping;
     apiHeaders:{[urlPrefix:string]:HTTPHeaders};
+    homepage:HomepageConf;
     colors:ColorsConf;
     tiles:{[lang:string]:{[ident:string]:AnyTileConf}};
 	layouts:LayoutsConfig;
 }
-
-export const mkRuntimeClientConf = (conf:ClientStaticConf, lang:string):ClientConf => ({
-    rootUrl: conf.rootUrl,
-    hostUrl: conf.hostUrl,
-    corpInfoApiUrl: conf.corpInfoApiUrl,
-    dbValuesMapping: conf.dbValuesMapping,
-    apiHeaders: conf.apiHeaders,
-    colors: conf.colors,
-    tiles: conf.tiles[lang],
-    layouts: conf.layouts
-});
 
 /**
  * Client side app configuration as generated
@@ -125,11 +124,28 @@ export interface ClientConf {
 	hostUrl:string;
 	corpInfoApiUrl:string;
     dbValuesMapping:DbValueMapping;
-    apiHeaders:{[urlPrefix:string]:HTTPHeaders};
     colors:ColorsConf;
+    apiHeaders:{[urlPrefix:string]:HTTPHeaders};
+    homepage:{tiles:Array<{label:string; html:string}>};
     tiles:{[lang:string]:AnyTileConf};
     layouts:LayoutsConfig;
     error?:Error;
+}
+
+export function emptyClientConf(conf:ClientStaticConf):ClientConf {
+    return {
+        rootUrl: conf.rootUrl,
+        hostUrl: conf.hostUrl,
+        corpInfoApiUrl: conf.corpInfoApiUrl,
+        dbValuesMapping: conf.dbValuesMapping,
+        apiHeaders: conf.apiHeaders,
+        colors: conf.colors,
+        tiles: {},
+        layouts: conf.layouts,
+        homepage: {
+            tiles: []
+        }
+    };
 }
 
 

@@ -27,6 +27,7 @@ import { TileGroup } from '../layout';
 import { WdglanceMainFormModel } from '../models/query';
 import { GlobalComponents } from './global';
 import { init as mainViewInit } from './main';
+import { string } from 'prop-types';
 
 
 
@@ -36,6 +37,7 @@ export interface LayoutProps {
     hostPageEnv:HostPageEnv;
     lemmas:Array<LemmaVariant>;
     uiLanguages:Immutable.List<AvailableLanguage>;
+    homepageTiles:Immutable.List<{label:string; html:string}>;
     uiLang:string;
     returnUrl:string;
 }
@@ -80,7 +82,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         </a>
                     </header>
                     <section className="wdglance-mount">
-                        <mainViews.WdglanceMain layout={Immutable.List<TileGroup>()} isMobile={false} isAnswerMode={false} />
+                        <mainViews.WdglanceMain layout={Immutable.List<TileGroup>()} isMobile={false} isAnswerMode={false}
+                                        homepageSections={props.homepageTiles} />
                     </section>
                     {props.hostPageEnv.scripts.map(script =>
                         <script key={script} type="text/javascript" src={script}></script>
