@@ -110,8 +110,14 @@ export interface ClientStaticConf {
     apiHeaders:{[urlPrefix:string]:HTTPHeaders};
     homepage:HomepageConf;
     colors:ColorsConf;
-    tiles:{[lang:string]:{[ident:string]:AnyTileConf}};
-	layouts:{[lang:string]:LayoutsConfig};
+
+    // If string we expect this to be a fs path to another
+    // JSON file containing just the 'tiles' configuration
+    tiles:{[lang:string]:{[ident:string]:AnyTileConf}}|string;
+
+    // If string we expect this to be a fs path to another
+    // JSON file containing just the 'layout' configuration.
+	layouts:{[lang:string]:LayoutsConfig}|string;
 }
 
 /**

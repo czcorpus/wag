@@ -35,6 +35,14 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 const serverConf:ServerConf = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../conf/conf.json'), 'utf8'));
 const clientConf:ClientStaticConf = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../conf/wdglance.json'), 'utf8'));
+if (typeof clientConf.layouts === 'string') {
+	clientConf.layouts = JSON.parse(fs.readFileSync(clientConf.layouts, 'utf-8'));
+}
+if (typeof clientConf.tiles === 'string') {
+	clientConf.tiles = JSON.parse(fs.readFileSync(clientConf.tiles, 'utf-8'));
+}
+
+
 const db = {};
 for (let d in serverConf.auxServices.wordDistribDb) {
 	db[d] = new sqlite3.Database(serverConf.auxServices.wordDistribDb[d]);
