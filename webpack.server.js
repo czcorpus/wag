@@ -10,7 +10,7 @@ const mkpath = (p) => path.resolve(__dirname, '.', p);
 
 const SRC_PATH = mkpath('src');
 const DIST_PATH = mkpath('dist');
-const CONF = build.loadConf(mkpath('conf/conf.json'));
+const CONF = build.loadConf(mkpath('conf/server.json'));
 
 module.exports = (env) => ({
     mode: 'production',

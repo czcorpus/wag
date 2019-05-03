@@ -33,8 +33,11 @@ app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const serverConf:ServerConf = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../conf/conf.json'), 'utf8'));
-const clientConf:ClientStaticConf = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../conf/wdglance.json'), 'utf8'));
+const serverConf:ServerConf = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../conf/server.json'), 'utf8'));
+const clientConfPath = process.env.WDGLANCE_CONF ?
+	process.env.WDGLANCE_CONF :
+	path.resolve(__dirname, '../conf/wdglance.json');
+const clientConf:ClientStaticConf = JSON.parse(fs.readFileSync(clientConfPath, 'utf8'));
 if (typeof clientConf.layouts === 'string') {
 	clientConf.layouts = JSON.parse(fs.readFileSync(clientConf.layouts, 'utf-8'));
 }
