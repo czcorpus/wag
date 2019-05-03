@@ -64,6 +64,7 @@ function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, appServices:App
             colors: conf.colors,
             tiles: conf.tiles[lang],
             layouts: conf.layouts[lang],
+            resourceLanguages: conf.resourceLanguages,
             homepage: {
                 tiles: item
             }
@@ -170,7 +171,9 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
         lemmas: [],
         isAnswerMode: answerMode,
         uiLanguages: Immutable.List<AvailableLanguage>(
-            Object.keys(services.serverConf.languages).map(k => [k, services.serverConf.languages[k]]))
+            Object.keys(services.serverConf.languages).map(k => [k, services.serverConf.languages[k]])),
+        resourceLanguages: Immutable.List<{ident:string; label:string}>(
+            Object.keys(services.clientConf.resourceLanguages).map(k => ({ident: k, label: services.clientConf.resourceLanguages[k]})))
     });
     const view = viewInit(dispatcher, viewUtils, mainFormModel);
 

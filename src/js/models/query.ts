@@ -198,10 +198,11 @@ export interface DefaultFactoryArgs {
     lemmas:Array<LemmaVariant>;
     isAnswerMode:boolean;
     uiLanguages:Immutable.List<AvailableLanguage>;
+    resourceLanguages:Immutable.List<{ident:string; label:string}>;
 }
 
 export const defaultFactory = ({dispatcher, appServices, query1, query1Lang, query2,
-            query2Lang, queryType, lemmas, isAnswerMode, uiLanguages}:DefaultFactoryArgs) => {
+            query2Lang, queryType, lemmas, isAnswerMode, uiLanguages, resourceLanguages}:DefaultFactoryArgs) => {
 
     return new WdglanceMainFormModel(
         dispatcher,
@@ -217,11 +218,7 @@ export const defaultFactory = ({dispatcher, appServices, query1, query1Lang, que
             ]),
             targetLanguage: query1Lang,
             targetLanguage2: query2Lang,
-            availLanguages: Immutable.List<SearchLanguage>([ // TODO config based data here
-                {ident: 'cs', label: 'čeština'},
-                {ident: 'en', label: 'English'},
-                {ident: 'de', label: 'Deutsch'}
-            ]),
+            availLanguages: Immutable.List<SearchLanguage>(resourceLanguages),
             errors: Immutable.List<Error>(),
             lemmas: Immutable.List<LemmaVariant>(lemmas),
             isAnswerMode: isAnswerMode,

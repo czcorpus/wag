@@ -219,7 +219,9 @@ export const init = (mountElement:HTMLElement, config:ClientConf, userSession:Us
         lemmas: lemmas,
         isAnswerMode: userSession.answerMode,
         uiLanguages: Immutable.List<AvailableLanguage>(
-            Object.keys(userSession.uiLanguages).map(k => [k, userSession.uiLanguages[k]]))
+            Object.keys(userSession.uiLanguages).map(k => [k, userSession.uiLanguages[k]])),
+        resourceLanguages: Immutable.List<{ident:string; label:string}>(
+            Object.keys(config.resourceLanguages).map(k => ({ident: k, label: config.resourceLanguages[k]})))
     });
 
     const tiles:Array<TileFrameProps> = [];
