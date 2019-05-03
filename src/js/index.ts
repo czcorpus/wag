@@ -310,20 +310,18 @@ export const init = (mountElement:HTMLElement, config:ClientConf, userSession:Us
         ),
         mountElement,
         () => {
-            if (userSession.answerMode) {
-                if (lemmas.find(v => v.isCurrent) && !userSession.error) {
-                    dispatcher.dispatch({
-                        name: ActionName.RequestQueryResponse
-                    });
+            if (userSession.error) {
+                dispatcher.dispatch({
+                    name: ActionName.SetEmptyResult,
+                    payload: {
+                        error: userSession.error
+                    }
+                });
 
-                } else {
-                    dispatcher.dispatch({
-                        name: ActionName.SetEmptyResult,
-                        payload: {
-                            error: userSession.error
-                        }
-                    });
-                }
+            } else if (userSession.answerMode && lemmas.find(v => v.isCurrent)) {
+                dispatcher.dispatch({
+                    name: ActionName.RequestQueryResponse
+                });
             }
         }
     );

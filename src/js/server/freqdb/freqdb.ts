@@ -36,18 +36,23 @@ export const getLemmas = (db:Database, appServices:AppServices, word:string):Obs
                         observer.error(err);
 
                     } else {
-                        const pos = importQueryPos(row['pos']);
-                        observer.next({
-                            word: row['value'],
-                            lemma: row['lemma'],
-                            abs: row['abs'],
-                            ipm: -1,
-                            arf: row['arf'],
-                            pos: pos,
-                            posLabel: appServices.importExternalMessage(posTable[pos]),
-                            flevel: -1,
-                            isCurrent: false
-                        });
+                        try {
+                            const pos = importQueryPos(row['pos']);
+                            observer.next({
+                                word: row['value'],
+                                lemma: row['lemma'],
+                                abs: row['abs'],
+                                ipm: -1,
+                                arf: row['arf'],
+                                pos: pos,
+                                posLabel: appServices.importExternalMessage(posTable[pos]),
+                                flevel: -1,
+                                isCurrent: false
+                            });
+
+                        } catch (err) {
+                            observer.error(err);
+                        }
                     }
                 },
                 (err) => {

@@ -60,5 +60,7 @@ typings/
 # custom
 dist
 dist-server
-conf/conf.json
+conf/server.json
 conf/wdglance.json
+conf/layouts.json
+conf/tiles.json

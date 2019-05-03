@@ -63,7 +63,7 @@ function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, appServices:App
             apiHeaders: conf.apiHeaders,
             colors: conf.colors,
             tiles: conf.tiles[lang],
-            layouts: conf.layouts,
+            layouts: conf.layouts[lang],
             homepage: {
                 tiles: item
             }

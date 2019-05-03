@@ -110,8 +110,14 @@ export interface ClientStaticConf {
     apiHeaders:{[urlPrefix:string]:HTTPHeaders};
     homepage:HomepageConf;
     colors:ColorsConf;
-    tiles:{[lang:string]:{[ident:string]:AnyTileConf}};
-	layouts:LayoutsConfig;
+
+    // If string we expect this to be a fs path to another
+    // JSON file containing just the 'tiles' configuration
+    tiles:{[lang:string]:{[ident:string]:AnyTileConf}}|string;
+
+    // If string we expect this to be a fs path to another
+    // JSON file containing just the 'layout' configuration.
+	layouts:{[lang:string]:LayoutsConfig}|string;
 }
 
 /**
@@ -127,7 +133,7 @@ export interface ClientConf {
     colors:ColorsConf;
     apiHeaders:{[urlPrefix:string]:HTTPHeaders};
     homepage:{tiles:Array<{label:string; html:string}>};
-    tiles:{[lang:string]:AnyTileConf};
+    tiles:{[ident:string]:AnyTileConf};
     layouts:LayoutsConfig;
     error?:Error;
 }
@@ -141,7 +147,7 @@ export function emptyClientConf(conf:ClientStaticConf):ClientConf {
         apiHeaders: conf.apiHeaders,
         colors: conf.colors,
         tiles: {},
-        layouts: conf.layouts,
+        layouts: {single: [], cmp: [], translat: []},
         homepage: {
             tiles: []
         }
