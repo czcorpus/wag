@@ -237,7 +237,8 @@ export function init<T>(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponen
                             viewBox={`0 0 200 ${(200 / vboxAspectRatio).toFixed()}`}>
                         <g transform={wcloud.transform}>
                             {wcloud.rectangles.map((r, i) =>
-                                <Word key={`${r.x}:${r.y}:${r.w}:${r.h}`} color={colors(i)} rect={r}
+                                <Word key={`${r.x}:${r.y}:${r.w}:${r.h}`}
+                                        color={r.data && r.data.color ? r.data.color : colors(i)} rect={r}
                                     onMouseMove={this.handleMouseMove}
                                     onMouseOut={this.handleMouseOut}
                                     onMouseOver={this.handleMouseOver}
