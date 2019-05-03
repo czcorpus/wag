@@ -110,6 +110,7 @@ export interface ClientStaticConf {
     apiHeaders:{[urlPrefix:string]:HTTPHeaders};
     homepage:HomepageConf;
     colors:ColorsConf;
+    resourceLanguages:{[code:string]:string};
 
     // If string we expect this to be a fs path to another
     // JSON file containing just the 'tiles' configuration
@@ -135,6 +136,7 @@ export interface ClientConf {
     homepage:{tiles:Array<{label:string; html:string}>};
     tiles:{[ident:string]:AnyTileConf};
     layouts:LayoutsConfig;
+    resourceLanguages:{[code:string]:string};
     error?:Error;
 }
 
@@ -150,7 +152,8 @@ export function emptyClientConf(conf:ClientStaticConf):ClientConf {
         layouts: {single: [], cmp: [], translat: []},
         homepage: {
             tiles: []
-        }
+        },
+        resourceLanguages: conf.resourceLanguages
     };
 }
 
