@@ -39,6 +39,7 @@ import { emptyValue } from './toolbar/empty';
 import { Services } from './actionServices';
 import { getLemmas, getSimilarFreqWords } from './freqdb/freqdb';
 import { loadFile } from './files';
+import { HTTPAction } from './actions';
 
 
 function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, appServices:AppServices):Observable<ClientConf> {
@@ -243,16 +244,16 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
 export const wdgRouter = (services:Services) => (app:Express) => {
 
     // host page generator with some React server rendering (testing phase)
-    app.get('/', (req, res, next) => mainAction(services, false, req, res, next));
+    app.get(HTTPAction.MAIN, (req, res, next) => mainAction(services, false, req, res, next));
 
-    app.post('/set-ui-lang/', (req, res, next) => {
+    app.post(HTTPAction.SET_UI_LANG, (req, res, next) => {
         res.cookie(services.serverConf.langCookie, req.body.lang, {maxAge: 3600 * 24 * 365});
         res.redirect(req.body.returnUrl);
     });
 
-    app.get('/search/', (req, res, next) => mainAction(services, true, req, res, next));
+    app.get(HTTPAction.SEARCH, (req, res, next) => mainAction(services, true, req, res, next));
 
-    app.get('/get-lemmas/', (req, res, next) => {
+    app.get(HTTPAction.GET_LEMMAS, (req, res, next) => {
         const [viewUtils, appServices] = createHelperServices(services, 'cs-CZ'); // TODO lang
 
         new Observable<{lang:string}>((observer) => {
@@ -283,7 +284,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
     })
 
     // Find words with similar frequency
-    app.get('/similar-freq-words/', (req, res) => {
+    app.get(HTTPAction.SIMILAR_FREQ_WORDS, (req, res) => {
 
         const viewUtils = new ViewUtils<GlobalComponents>({
             uiLang: 'cs-CZ',

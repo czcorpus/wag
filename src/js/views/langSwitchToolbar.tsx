@@ -21,6 +21,7 @@ import * as Immutable from 'immutable';
 import { ViewUtils } from 'kombo';
 import { GlobalComponents } from './global';
 import { AvailableLanguage } from '../common/hostPage';
+import { HTTPAction } from '../server/actions';
 
 
 export function init(ut:ViewUtils<GlobalComponents>) {
@@ -34,7 +35,7 @@ export function init(ut:ViewUtils<GlobalComponents>) {
         render() {
             return (
                 <div className="LangSwitchToolbar">
-                    <form method="POST" action={ut.createActionUrl('set-ui-lang')}>
+                    <form method="POST" action={ut.createActionUrl(HTTPAction.SET_UI_LANG)}>
                         <input type="hidden" name="returnUrl" value={this.props.returnUrl} />
                         <ul>
                             {

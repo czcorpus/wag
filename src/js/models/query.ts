@@ -24,6 +24,7 @@ import { SystemMessageType, SearchLanguage } from '../common/types';
 import { AvailableLanguage } from '../common/hostPage';
 import { QueryType, LemmaVariant } from '../common/query';
 import { ActionName, Actions } from './actions';
+import { HTTPAction } from '../server/actions';
 
 
 export interface WdglanceMainState {
@@ -140,7 +141,7 @@ export class WdglanceMainFormModel extends StatelessModel<WdglanceMainState> {
         state.errors = state.errors.clear();
         this.validateQuery(state);
         if (state.errors.size === 0) { // we leave the page here, TODO: use some kind of routing
-            window.location.href = this.appServices.createActionUrl('search/', {
+            window.location.href = this.appServices.createActionUrl(HTTPAction.SEARCH, {
                 q1: state.query.value,
                 q2: state.queryType === QueryType.CMP_QUERY ? state.query2.value : undefined,
                 queryType: state.queryType,

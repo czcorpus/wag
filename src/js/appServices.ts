@@ -21,6 +21,7 @@ import { ITranslator } from 'kombo';
 import { DbValueMapping, HTTPHeaders, SystemMessageType } from './common/types';
 import { LemmaDbApi, LemmaDbResponse } from './common/api/lemma';
 import { SystemNotifications } from './notifications';
+import { HTTPAction } from './server/actions';
 
 
 declare var DocumentTouch;
@@ -70,7 +71,7 @@ export class AppServices {
         this.forcedMobileMode = false;
         this.dbValuesMapping = dbValuesMapping;
         this.apiHeadersMapping = apiHeadersMapping || {};
-        this.lemmaDbApi = new LemmaDbApi(actionUrlCreator('get-lemmas'));
+        this.lemmaDbApi = new LemmaDbApi(actionUrlCreator(HTTPAction.GET_LEMMAS));
     }
 
     showMessage(type:SystemMessageType, text:string|Error):void {
