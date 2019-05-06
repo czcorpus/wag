@@ -51,7 +51,8 @@
         "global__clarin_fcs_endpoint_label": "A Clarin Federated Content Search endpoint",
         "global__source_general_desc_label": "General characteristics",
         "global__source_desc_label": "Description",
-        "global__source_indices_label": "Available indices"
+        "global__source_indices_label": "Available indices",
+        "global__retry_reload": "retry"
 
     },
     "cs-CZ": {
@@ -106,6 +107,7 @@
         "global__clarin_fcs_endpoint_label": "Přístupový bod systému Clarin Federated Content Search",
         "global__source_general_desc_label": "Obecná charakteristika",
         "global__source_desc_label": "Popis",
-        "global__source_indices_label": "Dostupné indexy"
+        "global__source_indices_label": "Dostupné indexy",
+        "global__retry_reload": "zkusit znovu"
     }
 }

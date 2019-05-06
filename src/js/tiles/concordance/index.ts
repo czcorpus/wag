@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { ActionDispatcher } from 'kombo';
+import { ActionDispatcher, StatelessModel } from 'kombo';
 
 import { AppServices } from '../../appServices';
 import { QuerySelector } from '../../common/api/kontext/concordance';
@@ -69,11 +69,14 @@ export class ConcordanceTile implements ITileProvider {
 
     private readonly sourceInfoService:DataApi<{}, {}>;
 
+    private readonly blockingTiles:Array<number>;
+
     constructor({tileId, dispatcher, appServices, ut, mainForm, widthFract, waitForTiles, conf, lang2}:TileFactory.Args<ConcordanceTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.widthFract = widthFract;
         this.appServices = appServices;
+        this.blockingTiles = waitForTiles;
         if (Array.isArray(waitForTiles) && waitForTiles.length > 1) {
             throw new Error('ConcordanceTile does not support waiting for multiple tiles. Only a single tile can be specified');
         }
@@ -170,6 +173,14 @@ export class ConcordanceTile implements ITileProvider {
 
     supportsAltView():boolean {
         return false;
+    }
+
+    exposeModelForRetryOnError():StatelessModel<{}>|null {
+        return this.model;
+    }
+
+    getBlockingTiles():Array<number> {
+        return this.blockingTiles;
     }
 }
 

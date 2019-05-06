@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { ActionDispatcher, ViewUtils } from 'kombo';
+import { ActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
 
 import { FreqDistribAPI } from '../../common/api/kontext/freqs';
 import { QueryType } from '../../common/query';
@@ -89,12 +89,15 @@ export class MergeCorpFreqTile implements ITileProvider {
 
     private readonly widthFract:number;
 
+    private readonly blockingTiles:Array<number>;
+
     constructor({dispatcher, tileId, waitForTiles, ut,
                 theme, appServices, widthFract, conf}:TileFactory.Args<MergeCorpFreqTileConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
         this.label = appServices.importExternalMessage(conf.label);
+        this.blockingTiles = waitForTiles;
         this.model = new MergeCorpFreqModel(
             this.dispatcher,
             tileId,
@@ -167,6 +170,14 @@ export class MergeCorpFreqTile implements ITileProvider {
 
     supportsAltView():boolean {
         return false;
+    }
+
+    exposeModelForRetryOnError():StatelessModel<{}>|null {
+        return this.model;
+    }
+
+    getBlockingTiles():Array<number> {
+        return this.blockingTiles;
     }
 }
 

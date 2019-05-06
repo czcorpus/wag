@@ -57,7 +57,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             return (
                 <globalCompontents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.lines.size > 0}
-                        sourceIdent={{corp: this.props.corpName}}>
+                        sourceIdent={{corp: this.props.corpName}}
+                        supportsTileReload={this.props.supportsReloadOnError}>
                     <div className="CollocExamplesView">
                         <div className="sentences">
                             {this.props.lines.map((v, i) => <FilteredLine key={`${i}:${v.toknum}`} data={v} />)}

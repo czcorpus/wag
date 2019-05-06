@@ -121,7 +121,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
 
             return (
                 <globalComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
-                        hasData={this.props.data.size > 0} sourceIdent={{corp: this.props.corpname}}>
+                        hasData={this.props.data.size > 0} sourceIdent={{corp: this.props.corpname}}
+                        supportsTileReload={this.props.supportsReloadOnError}>
                     <div className={`WordFreqTileView${this.props.isMobile ? ' mobile' : ''}`}>
                         {!this.props.isMobile ?
                             <div className="chart">

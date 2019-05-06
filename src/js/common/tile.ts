@@ -18,7 +18,7 @@
 
 import { HTTPMethod, AnyInterface, LocalizedConfMsg } from './types';
 import { QueryType } from './query';
-import { ActionDispatcher, ViewUtils } from 'kombo';
+import { ActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
 import { GlobalComponents } from '../views/global';
 import { Theme } from './theme';
 import { AppServices } from '../appServices';
@@ -138,6 +138,8 @@ export interface TileFrameProps {
      * standard mode width in CSS grid fr units
      */
     widthFract:number;
+
+    supportsReloadOnError:boolean;
 }
 
 /**
@@ -149,6 +151,7 @@ export interface CoreTileComponentProps {
     renderSize:[number, number];
     isMobile:boolean;
     widthFract:number;
+    supportsReloadOnError:boolean;
 }
 
 /**
@@ -166,10 +169,22 @@ export type SourceInfoComponent = React.ComponentClass<{data:{}}>|React.SFC<{}>
  */
 export interface ITileProvider {
 
+    /**
+     * Return localized tile label.
+     */
     getLabel():string;
 
+    /**
+     * Return numeric identifier (automatically
+     * generated from string identifiers defined in
+     * the configuration and passed to the tile via
+     * factory method args).
+     */
     getIdent():number;
 
+    /**
+     * Get tile view (there must be always a single root view)
+     */
     getView():TileComponent;
 
     getSourceInfoView():SourceInfoComponent|null;
@@ -178,8 +193,16 @@ export interface ITileProvider {
      */
     supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean;
 
+    // TODO ??
     disable():void;
 
+    /**
+     * Get defined width in number of horizontal
+     * cells. This is determined by the configuration
+     * and applies even if the tiles are in mobile
+     * mode (i.e. in mobile mode where all the tiles are
+     * 1 cell wide you can still get num > 1).
+     */
     getWidthFract():number;
 
     supportsTweakMode():boolean;
@@ -187,6 +210,17 @@ export interface ITileProvider {
     supportsHelpView():boolean;
 
     supportsAltView():boolean;
+
+    /**
+     * If returned then the model will be available for
+     * possible manual tile reload in case of an error.
+     */
+    exposeModelForRetryOnError():StatelessModel<{}>|null;
+
+    /**
+     * Return a list of tiles this tile depends on
+     */
+    getBlockingTiles():Array<number>;
 }
 
 /**

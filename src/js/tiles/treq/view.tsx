@@ -107,7 +107,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                 <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
                             hasData={this.props.translations.size > 0}
                             sourceIdent={{corp: 'InterCorp'}}
-                            backlink={this.props.treqBackLink}>
+                            backlink={this.props.treqBackLink}
+                            supportsTileReload={this.props.supportsReloadOnError}>
                     {this.props.isAltViewMode ?
                         <TranslationsTable translations={this.props.translations} /> :
                         <globComponents.ResponsiveWrapper render={(width:number, height:number) => (

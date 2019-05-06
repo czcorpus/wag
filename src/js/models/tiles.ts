@@ -32,7 +32,8 @@ import { ActionName, Actions } from './actions';
 export enum TileResultFlag {
     PENDING = 0,
     EMPTY_RESULT = 1,
-    VALID_RESULT = 2
+    VALID_RESULT = 2,
+    ERROR = 3
 }
 
 export interface TileResultFlagRec {
@@ -94,7 +95,8 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                             supportsAltView: tile.supportsAltView,
                             renderSize: [action.payload.size[0] + tile.tileId, action.payload.size[1]],
                             widthFract: tile.widthFract,
-                            helpURL: tile.helpURL
+                            helpURL: tile.helpURL,
+                            supportsReloadOnError: tile.supportsReloadOnError
                         }
                     );
                     return newState;
@@ -202,7 +204,7 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                     newState.tileResultFlags = newState.tileResultFlags.set(srchIdx, {
                         tileId: curr.tileId,
                         groupId: curr.groupId,
-                        status: action.payload.isEmpty ? TileResultFlag.EMPTY_RESULT : TileResultFlag.VALID_RESULT
+                        status: this.inferResultFlag(action)
                     });
                 }
                 if (this.allTileStatusFlagsWritten(newState)) {
@@ -225,6 +227,16 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
 
     private allTileStatusFlagsWritten(state:WdglanceTilesState):boolean {
         return state.tileResultFlags.find(v => v.status === TileResultFlag.PENDING) === undefined;
+    }
+
+    private inferResultFlag(action:Actions.TileDataLoaded<{}>):TileResultFlag {
+        if (action.error) {
+            return TileResultFlag.ERROR;
+
+        } else if (action.payload.isEmpty) {
+            return TileResultFlag.EMPTY_RESULT;
+        }
+        return TileResultFlag.VALID_RESULT;
     }
 
     private findEmptyGroups(state:WdglanceTilesState):void {

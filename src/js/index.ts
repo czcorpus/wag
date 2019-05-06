@@ -54,6 +54,7 @@ import {init as treqSubsetsInit, TreqSubsetsTileConf } from './tiles/treqSubsets
 import { init as summaryInit, WordFreqTileConf } from './tiles/wordFreq';
 import { GlobalComponents, init as globalCompInit } from './views/global';
 import { init as viewInit } from './views/main';
+import { RetryTileLoad } from './models/retryLoad';
 
 declare var require:(src:string)=>void;  // webpack
 require('../css/index.less');
@@ -78,7 +79,8 @@ const mkAttachTile = (queryType:QueryType, lang1:string, lang2:string) =>
         supportsAltView: tile.supportsAltView(),
         renderSize: [50, 50],
         widthFract: tile.getWidthFract(),
-        helpURL: helpURL
+        helpURL: helpURL,
+        supportsReloadOnError: tile.exposeModelForRetryOnError() !== null
     });
     if (!support) {
         tile.disable();
@@ -234,6 +236,8 @@ export const init = (mountElement:HTMLElement, config:ClientConf, userSession:Us
     const layoutManager = new LayoutManager(config.layouts, tilesMap, appServices);
     const theme = new Theme(config.colors);
 
+    const retryLoadModel = new RetryTileLoad(dispatcher);
+
     const factory = mkTileFactory(
         dispatcher,
         viewUtils,
@@ -247,10 +251,16 @@ export const init = (mountElement:HTMLElement, config:ClientConf, userSession:Us
         tilesMap
     );
     Object.keys(config.tiles).forEach((ident, i) => {
+        const tile = factory(ident, config.tiles[ident]);
         attachTile(
             tiles,
-            factory(ident, config.tiles[ident]),
+            tile,
             appServices.importExternalMessage(config.tiles[ident].helpURL)
+        );
+        retryLoadModel.registerModel(
+            tilesMap[ident],
+            tile.exposeModelForRetryOnError(),
+            tile.getBlockingTiles()
         );
     });
 

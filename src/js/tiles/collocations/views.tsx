@@ -124,7 +124,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             return (
                 <globalCompontents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error} htmlClass="CollocTile"
                         hasData={this.props.data.size > 0} sourceIdent={{corp: this.props.corpname}}
-                        backlink={this.props.backlink}>
+                        backlink={this.props.backlink} supportsTileReload={this.props.supportsReloadOnError}>
                     {this.props.isTweakMode ?
                             <div className="tweak-box"><Controls tileId={this.props.tileId} value={this.props.ctxType} /></div> :
                         null

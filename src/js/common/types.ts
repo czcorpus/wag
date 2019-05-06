@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 import { Observable } from 'rxjs';
+import { Action } from 'kombo';
 
 
 export type AnyInterface<T> = {
@@ -92,4 +93,10 @@ export interface SourceDetails {
     title:string;
     description:string;
     author:string;
+}
+
+
+export interface TileError {
+    message:string;
+    retryAction:Action;
 }

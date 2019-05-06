@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { ActionDispatcher } from 'kombo';
+import { ActionDispatcher, StatelessModel } from 'kombo';
 
 import { AppServices } from '../../appServices';
 import { QueryType } from '../../common/query';
@@ -57,11 +57,14 @@ export class ConcFilterTile implements ITileProvider {
 
     private readonly label:string;
 
+    private readonly blockingTiles:Array<number>;
+
     constructor({tileId, waitForTiles, dispatcher, appServices, ut, widthFract, conf, theme}:TileFactory.Args<ConcFilterTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.widthFract = widthFract;
         this.appServices = appServices;
+        this.blockingTiles = waitForTiles;
         this.model = new ConcFilterModel(
             dispatcher,
             tileId,
@@ -125,6 +128,14 @@ export class ConcFilterTile implements ITileProvider {
 
     supportsAltView():boolean {
         return false;
+    }
+
+    exposeModelForRetryOnError():StatelessModel<{}>|null {
+        return this.model;
+    }
+
+    getBlockingTiles():Array<number> {
+        return this.blockingTiles;
     }
 }
 

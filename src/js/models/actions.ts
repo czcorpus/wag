@@ -27,6 +27,8 @@ export enum ActionName {
     ChangeQueryInput2 = 'MAIN_CHANGE_QUERY_INPUT2',
     ChangeCurrLemmaVariant = 'MAIN_CHANGE_CURR_LEMMA_VARIANT',
     RequestQueryResponse = 'MAIN_REQUEST_QUERY_RESPONSE',
+    RetryTileLoad = 'MAIN_RETRY_TILE_LOAD',
+    WakeSuspendedTiles = 'MAIN_WAKE_SUSPENDED_TILES',
     SetEmptyResult = 'MAIN_SET_EMPTY_RESULT',
     TileDataLoaded = 'MAIN_TILE_DATA_LOADED',
     ChangeTargetLanguage = 'MAIN_CHANGE_TARGET_LANGUAGE',
@@ -58,6 +60,16 @@ export namespace Actions {
     export interface RequestQueryResponse extends Action<{
     }> {
         name:ActionName.ChangeQueryInput;
+    }
+
+    export interface RetryTileLoad extends Action<{
+    }> {
+        name:ActionName.RetryTileLoad;
+    }
+
+    export interface WakeSuspendedTiles extends Action<{
+    }> {
+        name:ActionName.WakeSuspendedTiles;
     }
 
     export interface SetEmptyResult extends Action<{

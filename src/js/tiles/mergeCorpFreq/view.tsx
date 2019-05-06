@@ -70,7 +70,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                 <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.data.find(v => v.freq > 0) !== undefined}
                         sourceIdent={this.props.sources.groupBy(v => v.corpname).map(v => ({corp: v.first().corpname})).toArray()}
-                        backlink={backlinks}>
+                        backlink={backlinks}
+                        supportsTileReload={this.props.supportsReloadOnError}>
                     <div className="MergeCorpFreqBarTile">
                         <Chart data={this.props.data} size={[this.props.renderSize[0], 70 + this.props.data.size * this.props.pixelsPerItem]}
                                 barGap={this.props.barGap} />

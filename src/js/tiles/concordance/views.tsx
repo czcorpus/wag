@@ -179,7 +179,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                 <globalCompontents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.lines.size > 0}
                         sourceIdent={{corp: this.props.corpname, subcorp: this.props.subcDesc}}
-                        backlink={this.props.backlink}>
+                        backlink={this.props.backlink}
+                        supportsTileReload={this.props.supportsReloadOnError}>
                     <div className="ConcordanceTileView">
                         {this.props.isTweakMode ?
                             <div className="tweak-box"><Controls currPage={this.props.currPage} numPages={this.props.numPages}

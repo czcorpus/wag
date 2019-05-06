@@ -612,7 +612,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                         tileId={this.props.tile.tileId}
                                         renderSize={this.props.tile.renderSize}
                                         isMobile={this.props.isMobile}
-                                        widthFract={this.props.tile.widthFract} />
+                                        widthFract={this.props.tile.widthFract}
+                                        supportsReloadOnError={this.props.tile.supportsReloadOnError} />
                             </globalComponents.ErrorBoundary> :
                             null
                         }

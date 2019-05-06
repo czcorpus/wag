@@ -23,6 +23,7 @@ import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../commo
 import { FreqDBRow, FreqDbAPI } from './api';
 import { FlevelDistribItem, SummaryModel } from './model';
 import { init as viewInit } from './views';
+import { StatelessModel } from 'kombo';
 
 declare var require:(src:string)=>void;  // webpack
 require('./style.less');
@@ -132,6 +133,14 @@ export class WordFreqTile implements ITileProvider {
 
     supportsAltView():boolean {
         return false;
+    }
+
+    exposeModelForRetryOnError():StatelessModel<{}>|null {
+        return this.model;
+    }
+
+    getBlockingTiles():Array<number> {
+        return [];
     }
 }
 

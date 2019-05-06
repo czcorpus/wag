@@ -17,6 +17,7 @@
  */
 import { QueryType } from '../common/query';
 import { ITileProvider, TileComponent } from '../common/tile';
+import { isNullOrUndefined } from 'util';
 
 
 /**
@@ -71,5 +72,13 @@ export class EmptyTile implements ITileProvider {
 
     supportsAltView():boolean {
         return false;
+    }
+
+    exposeModelForRetryOnError():null {
+        return null;
+    }
+
+    getBlockingTiles():Array<number> {
+        return [];
     }
 }

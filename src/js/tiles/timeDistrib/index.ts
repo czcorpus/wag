@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { ActionDispatcher } from 'kombo';
+import { ActionDispatcher, StatelessModel } from 'kombo';
 
 import { AppServices } from '../../appServices';
 import { ConcApi } from '../../common/api/kontext/concordance';
@@ -64,11 +64,14 @@ export class TimeDistTile implements ITileProvider {
 
     private readonly label:string;
 
+    private readonly blockingTiles:Array<number>;
+
     constructor({dispatcher, tileId, waitForTiles, ut, theme, appServices, widthFract, mainForm, conf}:TileFactory.Args<TimeDistTileConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
         this.appServices = appServices;
+        this.blockingTiles = waitForTiles;
         this.model = new TimeDistribModel(
             dispatcher,
             {
@@ -146,6 +149,14 @@ export class TimeDistTile implements ITileProvider {
 
     supportsAltView():boolean {
         return false;
+    }
+
+    exposeModelForRetryOnError():StatelessModel<{}>|null {
+        return this.model;
+    }
+
+    getBlockingTiles():Array<number> {
+        return this.blockingTiles;
     }
 }
 

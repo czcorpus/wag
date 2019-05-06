@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { ActionDispatcher } from 'kombo';
+import { ActionDispatcher, StatelessModel } from 'kombo';
 
 import { AppServices } from '../../appServices';
 import { BacklinkArgs } from '../../common/api/kontext/freqs';
@@ -60,6 +60,8 @@ export class CollocationsTile implements ITileProvider {
 
     private readonly label:string;
 
+    private readonly blockingTiles:Array<number>;
+
     private view:TileComponent;
 
     constructor({tileId, dispatcher, appServices, ut, theme, waitForTiles, widthFract, conf}:TileFactory.Args<CollocationsTileConf>) {
@@ -67,6 +69,7 @@ export class CollocationsTile implements ITileProvider {
         this.dispatcher = dispatcher;
         this.appServices = appServices;
         this.widthFract = widthFract;
+        this.blockingTiles = waitForTiles;
         this.model = new CollocModel({
             dispatcher: dispatcher,
             tileId: tileId,
@@ -143,6 +146,14 @@ export class CollocationsTile implements ITileProvider {
 
     supportsAltView():boolean {
         return true;
+    }
+
+    exposeModelForRetryOnError():StatelessModel<{}>|null {
+        return this.model;
+    }
+
+    getBlockingTiles():Array<number> {
+        return this.blockingTiles;
     }
 }
 
