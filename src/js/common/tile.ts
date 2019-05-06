@@ -207,8 +207,6 @@ export interface ITileProvider {
 
     supportsTweakMode():boolean;
 
-    supportsHelpView():boolean;
-
     supportsAltView():boolean;
 
     /**

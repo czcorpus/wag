@@ -75,7 +75,7 @@ const mkAttachTile = (queryType:QueryType, lang1:string, lang2:string) =>
         label: tile.getLabel(),
         supportsTweakMode: tile.supportsTweakMode(),
         supportsCurrQueryType: support,
-        supportsHelpView: tile.supportsHelpView(),
+        supportsHelpView: !!helpURL,
         supportsAltView: tile.supportsAltView(),
         renderSize: [50, 50],
         widthFract: tile.getWidthFract(),
