@@ -27,6 +27,7 @@ import { puid } from '../../common/util';
 import { factory as defaultModelFactory, FreqPieDataRow, FreqPieModel } from './model';
 import { factory as subqModelFactory } from './subqModel';
 import { init as viewInit } from './view';
+import { StatelessModel } from 'kombo';
 
 declare var require:any;
 require('./style.less');
@@ -64,12 +65,15 @@ export class FreqPieTile implements ITileProvider {
 
     private readonly widthFract:number;
 
-    private view:TileComponent;
+    private readonly view:TileComponent;
+
+    private readonly blockingTiles:Array<number>;
 
     constructor({tileId, dispatcher, appServices, ut, theme, waitForTiles, widthFract, conf}:TileFactory.Args<FreqPieTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
+        this.blockingTiles = waitForTiles;
         this.label = this.appServices.importExternalMessage(conf.label);
         const criteria = typeof conf.fcrit === 'string' ? [conf.fcrit] : conf.fcrit;
         const labels = Array.isArray(conf.critLabels) ?
@@ -152,6 +156,14 @@ export class FreqPieTile implements ITileProvider {
 
     supportsAltView():boolean {
         return false;
+    }
+
+    exposeModelForRetryOnError():StatelessModel<{}>|null {
+        return this.model;
+    }
+
+    getBlockingTiles():Array<number> {
+        return this.blockingTiles;
     }
 }
 

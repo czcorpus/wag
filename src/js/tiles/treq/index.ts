@@ -23,6 +23,7 @@ import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../commo
 import { SearchPackages, TreqAPI, TreqTranslation } from '../../common/api/treq';
 import { TreqModel } from './model';
 import { init as viewInit } from './view';
+import { StatelessModel } from 'kombo';
 
 declare var require:any;
 require('./style.less');
@@ -119,6 +120,14 @@ export class TreqTile implements ITileProvider {
 
     supportsAltView():boolean {
         return true;
+    }
+
+    exposeModelForRetryOnError():StatelessModel<{}>|null {
+        return this.model;
+    }
+
+    getBlockingTiles():Array<number> {
+        return [];
     }
 }
 

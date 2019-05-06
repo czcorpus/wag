@@ -211,7 +211,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         render() {
             return <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
                             hasData={this.props.data.size > 0}
-                            sourceIdent={{corp: this.props.corpname, subcorp: this.props.subcDesc}}>
+                            sourceIdent={{corp: this.props.corpname, subcorp: this.props.subcDesc}}
+                            supportsTileReload={this.props.supportsReloadOnError}>
                     <div className="TimeDistribTile">
                         {this.props.isTweakMode ?
                             <div className="tweak-box"><TweakControls wordCmp={this.props.wordCmp} tileId={this.props.tileId} /></div> :

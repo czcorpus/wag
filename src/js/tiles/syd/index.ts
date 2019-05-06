@@ -23,6 +23,7 @@ import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../commo
 import { StrippedFreqResponse, SyDAPI } from './api';
 import { SydModel } from './model';
 import { init as viewInit } from './view';
+import { StatelessModel } from 'kombo';
 
 declare var require:any;
 require('./style.less');
@@ -54,10 +55,13 @@ export class SyDTile implements ITileProvider {
 
     private readonly label:string;
 
+    private readonly blockingTiles:Array<number>;
+
     constructor({dispatcher, tileId, waitForTiles, ut, mainForm, appServices, widthFract, conf}:TileFactory.Args<SyDTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
+        this.blockingTiles = waitForTiles;
         this.model = new SydModel(
             dispatcher,
             {
@@ -122,6 +126,14 @@ export class SyDTile implements ITileProvider {
 
     supportsAltView():boolean {
         return false;
+    }
+
+    exposeModelForRetryOnError():StatelessModel<{}>|null {
+        return this.model;
+    }
+
+    getBlockingTiles():Array<number> {
+        return this.blockingTiles;
     }
 }
 

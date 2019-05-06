@@ -49,6 +49,7 @@ export interface GlobalComponents {
         hasData:boolean;
         tileId:number;
         sourceIdent:SourceInfo|Array<SourceInfo>;
+        supportsTileReload:boolean;
         backlink?:BacklinkWithArgs<{}>|Array<BacklinkWithArgs<{}>>;
         htmlClass?:string;
         error?:string;
@@ -191,10 +192,30 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>, resize$:Obse
         );
     };
 
+    // --------------- <TileReloadControl /> -------------------------------------------
+
+    const TileReloadControl:React.SFC<{
+        tileId:number;
+
+    }> = (props) => {
+
+        const handleClick = () => {
+            dispatcher.dispatch({
+                name: ActionName.RetryTileLoad,
+                payload: {tileId: props.tileId}
+            });
+        };
+
+        return (
+            <p className="TileReloadControl">
+                <a onClick={handleClick}>{ut.translate('global__retry_reload')} {'\u21bb'}</a>
+            </p>
+        );
+    }
+
     // --------------- <TileWrapper /> -------------------------------------------
 
     const TileWrapper:GlobalComponents['TileWrapper'] = (props) => {
-
         if (props.isBusy && !props.hasData) {
             return <div className="TileWrapper"><AjaxLoader htmlClass="centered" /></div>;
 
@@ -207,6 +228,7 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>, resize$:Obse
                             {props.error}
                         </p>
                         <div />
+                        {props.supportsTileReload ? <TileReloadControl tileId={props.tileId} /> : null}
                     </div>
                 </div>
             );

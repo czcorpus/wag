@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { ActionDispatcher } from 'kombo';
+import { ActionDispatcher, StatelessModel } from 'kombo';
 
 import { AppServices } from '../../appServices';
 import { DataRow, FreqDistribAPI, FreqSort } from '../../common/api/kontext/freqs';
@@ -61,12 +61,15 @@ export class GeoAreasTile implements ITileProvider {
 
     private readonly widthFract:number;
 
+    private readonly blockingTiles:Array<number>;
+
     constructor({tileId, dispatcher, appServices, ut, theme, waitForTiles, widthFract, conf}:TileFactory.Args<GeoAreasTileConf>) {
         this.tileId = tileId;
         this.label = appServices.importExternalMessage(conf.label);
         this.dispatcher = dispatcher;
         this.appServices = appServices;
         this.widthFract = widthFract;
+        this.blockingTiles = waitForTiles;
         this.model = new GeoAreasModel(
             dispatcher,
             tileId,
@@ -136,6 +139,14 @@ export class GeoAreasTile implements ITileProvider {
 
     supportsAltView():boolean {
         return false;
+    }
+
+    exposeModelForRetryOnError():StatelessModel<{}>|null {
+        return this.model;
+    }
+
+    getBlockingTiles():Array<number> {
+        return this.blockingTiles;
     }
 }
 

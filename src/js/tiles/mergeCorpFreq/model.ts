@@ -66,6 +66,7 @@ export interface ModelSourceArgs {
 
 export interface SourceMappedDataRow extends DataRow {
     sourceId:string;
+    error?:Error;
     backlink:BacklinkWithArgs<BacklinkArgs>|null;
 }
 

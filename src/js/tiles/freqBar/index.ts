@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { ActionDispatcher, ViewUtils } from 'kombo';
+import { ActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
 
 import { AppServices } from '../../appServices';
 import { DataRow, MultiBlockFreqDistribAPI, FreqSort } from '../../common/api/kontext/freqs';
@@ -75,11 +75,14 @@ export class FreqBarTile implements ITileProvider {
 
     private readonly appServices:AppServices;
 
+    private readonly blockingTiles:Array<number>;
+
     constructor({dispatcher, tileId, waitForTiles, ut, theme, appServices, widthFract, conf}:TileFactory.Args<FreqBarTileConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
         this.appServices = appServices;
+        this.blockingTiles = waitForTiles;
         this.label = appServices.importExternalMessage(conf.label);
         const criteria = Immutable.List<string>(typeof conf.fcrit === 'string' ? [conf.fcrit] : conf.fcrit);
         const labels = Array.isArray(conf.critLabels) ?
@@ -157,6 +160,14 @@ export class FreqBarTile implements ITileProvider {
 
     supportsAltView():boolean {
         return false;
+    }
+
+    exposeModelForRetryOnError():StatelessModel<{}>|null {
+        return this.model;
+    }
+
+    getBlockingTiles():Array<number> {
+        return this.blockingTiles;
     }
 
 }

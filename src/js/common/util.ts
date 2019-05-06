@@ -39,7 +39,7 @@ export namespace KeyCodes {
 /**
  * pseudo uuid (aka good enough for the use)
  */
-export const puid = ():string => {
+export function puid():string {
     const ab = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     const len = ab.length;
     const ans = [];
@@ -55,4 +55,13 @@ export const puid = ():string => {
         x = Math.floor(x / len);
     }
     return ans.join('').substr(0, 14);
-};
+}
+
+
+export function repeat<T>(fn:()=>T, size:number):Array<T> {
+    const ans = [];
+    for (let i = 0; i < size; i += 1) {
+        ans.push(fn());
+    }
+    return ans;
+}

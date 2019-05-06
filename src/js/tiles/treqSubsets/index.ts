@@ -22,6 +22,7 @@ import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../commo
 import { TreqSubsetModel, TranslationSubset } from './model';
 import { TreqAPI, TreqTranslation } from '../../common/api/treq';
 import {init as viewInit} from './view';
+import { StatelessModel } from 'kombo';
 
 declare var require:any;
 require('./style.less');
@@ -46,9 +47,12 @@ export class TreqSubsetsTile implements ITileProvider {
 
     private readonly label:string;
 
+    private readonly blockingTiles:Array<number>;
+
     constructor({tileId, dispatcher, appServices, theme, ut, lang1, lang2, mainForm, widthFract, waitForTiles, conf}:TileFactory.Args<TreqSubsetsTileConf>) {
         this.tileId = tileId;
         this.widthFract = widthFract;
+        this.blockingTiles = waitForTiles;
         this.model = new TreqSubsetModel(
             dispatcher,
             {
@@ -119,6 +123,13 @@ export class TreqSubsetsTile implements ITileProvider {
         return true;
     }
 
+    exposeModelForRetryOnError():StatelessModel<{}>|null {
+        return this.model;
+    }
+
+    getBlockingTiles():Array<number> {
+        return this.blockingTiles;
+    }
 }
 
 

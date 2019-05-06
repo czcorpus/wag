@@ -174,7 +174,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             return (
                 <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.data.size > 0}
-                        sourceIdent={{corp: this.props.corpname}}>
+                        sourceIdent={{corp: this.props.corpname}}
+                        supportsTileReload={this.props.supportsReloadOnError}>
                     <div className="GeoAreasTileView">
                         <div className="flex-item" style={{width: areaWidth, height: '80%'}}>
                             <div style={{width: '100%', height: '100%', overflowX: 'auto'}} dangerouslySetInnerHTML={{__html: this.props.mapSVG}} />

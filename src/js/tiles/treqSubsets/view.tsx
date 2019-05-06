@@ -305,7 +305,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
             return (
                 <globalComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.subsets.flatMap(v => v.translations).size > 0}
-                        sourceIdent={{corp: 'InterCorp'}}>
+                        sourceIdent={{corp: 'InterCorp'}}
+                        supportsTileReload={this.props.supportsReloadOnError}>
                     <div className="TreqSubsetsView">
                         <div className="data">
                             {this.props.isAltViewMode ?
