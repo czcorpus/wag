@@ -38,33 +38,37 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         tileId:number;
 
     }> = (props) => {
-
+        console.log('paginator props: ', props);
         const handlePrevPage = () => {
-            dispatcher.dispatch<Actions.LoadPrevPage>({
-                name: ActionName.LoadPrevPage,
-                payload: {
-                    tileId: props.tileId
-                }
-            });
+            if (props.page > 1) {
+                dispatcher.dispatch<Actions.LoadPrevPage>({
+                    name: ActionName.LoadPrevPage,
+                    payload: {
+                        tileId: props.tileId
+                    }
+                });
+            }
         };
 
         const handleNextPage = () => {
-            dispatcher.dispatch<Actions.LoadNextPage>({
-                name: ActionName.LoadNextPage,
-                payload: {
-                    tileId: props.tileId
-                }
-            });
+            if (props.page < props.numPages) {
+                dispatcher.dispatch<Actions.LoadNextPage>({
+                    name: ActionName.LoadNextPage,
+                    payload: {
+                        tileId: props.tileId
+                    }
+                });
+            }
         };
 
         return (
             <span className="Paginator">
                 <a onClick={handlePrevPage} className={`${props.page === 1 ? 'disabled' : null}`}>
-                    <img className="arrow" src={ut.createStaticUrl('triangle_left.svg')} />
+                    <img className="arrow" src={ut.createStaticUrl(props.page === 1 ? 'triangle_left_gr.svg' : 'triangle_left.svg')} />
                 </a>
                 <input className="page" type="text" readOnly={true} value={props.page} />
                 <a onClick={handleNextPage} className={`${props.page === props.numPages ? 'disabled' : null}`}>
-                    <img className="arrow" src={ut.createStaticUrl('triangle_right.svg')} />
+                    <img className="arrow" src={ut.createStaticUrl(props.page === props.numPages ? 'triangle_right_gr.svg' : 'triangle_right.svg')} />
                 </a>
             </span>
         );
