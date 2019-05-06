@@ -54,7 +54,6 @@ import {init as treqSubsetsInit, TreqSubsetsTileConf } from './tiles/treqSubsets
 import { init as summaryInit, WordFreqTileConf } from './tiles/wordFreq';
 import { GlobalComponents, init as globalCompInit } from './views/global';
 import { init as viewInit } from './views/main';
-import { string } from 'prop-types';
 
 declare var require:(src:string)=>void;  // webpack
 require('../css/index.less');
@@ -320,10 +319,17 @@ export const init = (mountElement:HTMLElement, config:ClientConf, userSession:Us
                     }
                 });
 
-            } else if (userSession.answerMode && lemmas.find(v => v.isCurrent)) {
-                dispatcher.dispatch({
-                    name: ActionName.RequestQueryResponse
-                });
+            } else if (userSession.answerMode) {
+                if (lemmas.find(v => v.isCurrent)) {
+                    dispatcher.dispatch({
+                        name: ActionName.RequestQueryResponse
+                    });
+
+                } else {
+                    dispatcher.dispatch({
+                        name: ActionName.SetEmptyResult
+                    });
+                }
             }
         }
     );
