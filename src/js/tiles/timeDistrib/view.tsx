@@ -171,11 +171,12 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
         size:[number, number];
         timeAxisLegend:string;
         isPartial:boolean;
+        isSmallWidth:boolean;
 
     }> = React.memo((props) => {
         const data = mergeDataSets(props.data1, props.data2);
         return (
-            <ResponsiveContainer width="90%" height={props.size[1]}>
+            <ResponsiveContainer width={props.isSmallWidth ? '100%' : '90%'} height={props.size[1]}>
                 <AreaChart data={data}
                         margin={{top: 10, right: 30, left: 0, bottom: 0}}>
                     <CartesianGrid strokeDasharray="1 1"/>
@@ -221,7 +222,8 @@ export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>
                                 size={[this.props.renderSize[0], 300]}
                                 isPartial={this.props.isBusy}
                                 word={this.props.wordMainLabel}
-                                wordCmp={this.props.dataCmp.size > 0 ? this.props.wordCmp : ''} />
+                                wordCmp={this.props.dataCmp.size > 0 ? this.props.wordCmp : ''}
+                                isSmallWidth={this.props.isMobile || this.props.widthFract < 2} />
                     </div>
                     </globComponents.TileWrapper>
         }

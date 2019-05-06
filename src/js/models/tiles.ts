@@ -335,7 +335,7 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                 }
             break;
             case ActionName.SetEmptyResult:
-                if (action.payload['error']) {
+                if (action.payload && action.payload['error']) {
                     this.appServices.showMessage(SystemMessageType.ERROR, action.payload['error']);
                 }
             break;
