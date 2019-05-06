@@ -164,10 +164,6 @@ export class MergeCorpFreqTile implements ITileProvider {
         return false;
     }
 
-    supportsHelpView():boolean {
-        return true;
-    }
-
     supportsAltView():boolean {
         return false;
     }

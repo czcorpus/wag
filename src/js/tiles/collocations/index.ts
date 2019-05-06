@@ -140,10 +140,6 @@ export class CollocationsTile implements ITileProvider {
         return true;
     }
 
-    supportsHelpView():boolean {
-        return true;
-    }
-
     supportsAltView():boolean {
         return true;
     }

@@ -167,10 +167,6 @@ export class ConcordanceTile implements ITileProvider {
         return true;
     }
 
-    supportsHelpView():boolean {
-        return true;
-    }
-
     supportsAltView():boolean {
         return false;
     }
