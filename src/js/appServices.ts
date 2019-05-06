@@ -88,14 +88,21 @@ export class AppServices {
         } else if (typeof label === 'string') {
             return this.translate(label);
 
-        } else if (typeof label === 'object') {
+        } else if (typeof label === 'object' && Object.keys(label).length > 0) {
             for (let k in label) {
                 if (k === this.uiLang || k.split('-')[0] === this.uiLang) {
                     return label[k];
                 }
             }
+            if ('en-US' in label) {
+                return label['en-US'];
+
+            } else {
+                const k0 = Object.keys(label)[0];
+                return `?? (${k0}: ${label[k0]})`;
+            }
         }
-        return `?? ${label}`;
+        return '??';
     }
 
     importExternalMessage(label:string|{[lang:string]:string}):string {
