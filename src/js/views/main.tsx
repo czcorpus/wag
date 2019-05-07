@@ -115,7 +115,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         return (
             <select className={`QueryLangSelector${props.htmlClass ? ' ' + props.htmlClass : ''}`} onChange={changeHandler}
-                    value={props.value}>
+                    value={props.value}
+                    aria-label={ut.translate('global__aria_search_lang')}>
                 {props.availLanguages.map(v =>
                         <option key={v.ident} value={v.ident}>{v.label}</option>)}
             </select>
@@ -144,6 +145,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         };
 
         return <input type="text" className={`QueryInput${props.value.isValid ? '' : ' invalid'}`}
+                aria-label={ut.translate('global__aria_searched_word')}
                 onChange={handleInput} value={props.value.value}
                 onKeyDown={handleKeyDown} />;
     }
@@ -157,7 +159,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         return (
             <span className="SubmitButton">
-                <button className="cnc-button cnc-button-primary" type="button" onClick={props.onClick}>
+                <button className="cnc-button cnc-button-primary" type="button" onClick={props.onClick}
+                        aria-label={ut.translate('global__aria_search_btn')}>
                     {ut.translate('global__search')}
                 </button>
             </span>
@@ -174,6 +177,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     }> = (props) => {
         return <div className="QueryTypeSelector">
+            <nav>
             {props.avail.map((v, i) =>
                 <React.Fragment key={v[0]}>
                     {i > 0 && !props.isMobile ? <span className="separ"> | </span> : null}
@@ -185,6 +189,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     </span>
                 </React.Fragment>
             )}
+            </nav>
         </div>
     };
 
