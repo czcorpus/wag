@@ -217,7 +217,13 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
 
     const TileWrapper:GlobalComponents['TileWrapper'] = (props) => {
         if (props.isBusy && !props.hasData) {
-            return <div className="TileWrapper"><AjaxLoader htmlClass="centered" /></div>;
+            return (
+                <div className="TileWrapper">
+                    <p>
+                        <AjaxLoader htmlClass="centered" />
+                    </p>
+                </div>
+            );
 
         } else if (props.error) {
             return (

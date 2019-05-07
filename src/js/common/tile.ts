@@ -239,6 +239,7 @@ export namespace TileFactory {
         lang2?:string;
         waitForTiles?:Array<number>;
         widthFract:number;
+        isBusy:boolean;
         conf:T;
     }
 

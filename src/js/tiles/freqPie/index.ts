@@ -69,7 +69,7 @@ export class FreqPieTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({tileId, dispatcher, appServices, ut, theme, waitForTiles, widthFract, conf}:TileFactory.Args<FreqPieTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, theme, waitForTiles, widthFract, conf, isBusy}:TileFactory.Args<FreqPieTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
@@ -83,7 +83,7 @@ export class FreqPieTile implements ITileProvider {
         this.model = modelFact(
             dispatcher,
             {
-                isBusy: false,
+                isBusy: isBusy,
                 error: null,
                 blocks: Immutable.List<FreqDataBlock<FreqPieDataRow>>(criteria.map(v => ({
                     data: Immutable.List<FreqPieDataRow>(),

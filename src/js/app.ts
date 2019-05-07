@@ -114,7 +114,8 @@ const mkTileFactory = (
                 waitForTiles: importDependsOnList(conf.dependsOn).map(v => tileIdentMap[v]),
                 widthFract: layoutManager.getTileWidthFract(queryType, tileIdentMap[confName]),
                 theme: theme,
-                conf: conf
+                conf: conf,
+                isBusy: true
             });
         };
 

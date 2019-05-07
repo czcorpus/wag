@@ -16,21 +16,26 @@
  * limitations under the License.
  */
 import { Action, IActionDispatcher, IStatelessModel, StatefulModel } from 'kombo';
-import { BehaviorSubject, Observable, Subscription } from 'rxjs';
-import { scan, startWith } from 'rxjs/operators';
+import { BehaviorSubject, Observable, Subscription, Subject, of as rxOf } from 'rxjs';
+import { scan, startWith, flatMap } from 'rxjs/operators';
 
 
 
 export class ServerSideActionDispatcher implements IActionDispatcher {
 
-    private readonly actions:Observable<Action<{}>>;
+    private readonly inActions:Subject<Action | Observable<Action>>;
+
+    private readonly actions:Observable<Action>;
 
     constructor() {
-        this.actions = new Observable<Action<{}>>();
+        this.inActions = new Subject<Action  | Observable<Action>>();
+        this.actions = this.inActions.pipe(
+            flatMap(v => v instanceof Observable ? v : rxOf(v))
+        );
     }
 
     dispatch<T extends Action | Observable<Action>>(action: T): void {
-
+        this.inActions.next(action);
     }
 
     registerStatefulModel<T>(model: StatefulModel<T>): Subscription {
@@ -46,11 +51,7 @@ export class ServerSideActionDispatcher implements IActionDispatcher {
                     if (action !== null) {
                         model.wakeUp(action);
                         if (model.isActive()) {
-                            const newState = model.reduce(state, action);
-                            if (!action.isSideEffect) {
-                                // TODO ...
-                            }
-                            return newState;
+                            return model.reduce(state, action);
                         }
                     }
                     return state;

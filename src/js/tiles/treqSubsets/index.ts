@@ -49,7 +49,7 @@ export class TreqSubsetsTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({tileId, dispatcher, appServices, theme, ut, lang1, lang2, mainForm, widthFract, waitForTiles, conf}:TileFactory.Args<TreqSubsetsTileConf>) {
+    constructor({tileId, dispatcher, appServices, theme, ut, lang1, lang2, mainForm, widthFract, waitForTiles, conf, isBusy}:TileFactory.Args<TreqSubsetsTileConf>) {
         this.tileId = tileId;
         this.widthFract = widthFract;
         this.blockingTiles = waitForTiles;
@@ -58,7 +58,7 @@ export class TreqSubsetsTile implements ITileProvider {
             {
                 lang1: lang1,
                 lang2: lang2,
-                isBusy: false,
+                isBusy: isBusy,
                 isAltViewMode: false,
                 error: null,
                 subsets: Immutable.List<TranslationSubset>((conf.srchPackages[lang2] || []).map(v => ({

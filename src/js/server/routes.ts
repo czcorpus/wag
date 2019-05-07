@@ -42,6 +42,7 @@ import { HTTPAction } from './actions';
 import { createRootComponent } from '../app';
 import { WdglanceMainProps } from '../views/main';
 import { TileGroup } from '../layout';
+import { ActionName } from '../models/actions';
 
 
 function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, appServices:AppServices):Observable<ClientConf> {
@@ -224,6 +225,14 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
                 }
             }
             const view = viewInit(viewUtils);
+            // Here we're going to use the fact that (the current)
+            // server-side action dispatcher does not trigger side effects
+            // so our models just set 'busy' state and nothing else happens.
+            // The execution is synchronous here too.
+
+            dispatcher.dispatch({
+                name: ActionName.RequestQueryResponse
+            });
 
             res.send(renderResult({
                 view: view,

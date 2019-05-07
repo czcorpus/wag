@@ -63,7 +63,7 @@ export class WordFreqTile implements ITileProvider {
 
     private readonly view:TileComponent;
 
-    constructor({tileId, dispatcher, appServices, ut, mainForm, widthFract, conf}:TileFactory.Args<WordFreqTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, mainForm, widthFract, conf, isBusy}:TileFactory.Args<WordFreqTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
@@ -71,7 +71,7 @@ export class WordFreqTile implements ITileProvider {
         this.model = new SummaryModel(
             dispatcher,
             {
-                isBusy: false,
+                isBusy: isBusy,
                 error: null,
                 corpname: conf.corpname,
                 corpusSize: conf.corpusSize,
