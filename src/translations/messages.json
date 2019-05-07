@@ -58,7 +58,10 @@
         "global__img_alt_star_icon": "Star icon",
         "global__img_alt_star_icon_grey": "Star icon (grey)",
         "global__img_alt_question_mark": "Question mark icon",
-        "global__img_alt_alt_view": "Alternative view icon"
+        "global__img_alt_alt_view": "Alternative view icon",
+        "global__aria_searched_word": "Searched word",
+        "global__aria_search_lang": "Search language",
+        "global__aria_search_btn": "Search"
 
     },
     "cs-CZ": {
@@ -120,6 +123,9 @@
         "global__img_alt_star_icon": "Ikona hvězdičky",
         "global__img_alt_star_icon_grey": "Ikona hvězdičky (šedivá)",
         "global__img_alt_question_mark": "Ikona otazníku",
-        "global__img_alt_alt_view": "Ikona alternativního zobrazení"
+        "global__img_alt_alt_view": "Ikona alternativního zobrazení",
+        "global__aria_searched_word": "Hledané slovo",
+        "global__aria_search_lang": "Prohledávaný jazyk",
+        "global__aria_search_btn": "Vyhledat"
     }
 }
