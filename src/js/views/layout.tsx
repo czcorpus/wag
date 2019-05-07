@@ -27,7 +27,6 @@ import { TileGroup } from '../layout';
 import { WdglanceMainFormModel } from '../models/query';
 import { GlobalComponents } from './global';
 import { init as mainViewInit } from './main';
-import { string } from 'prop-types';
 
 
 
@@ -46,12 +45,12 @@ export interface LayoutProps {
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>,
         formModel:WdglanceMainFormModel):React.SFC<LayoutProps> {
 
-    const mainViews = mainViewInit(dispatcher, ut, formModel, null, null);
+    const WdglanceMain = mainViewInit(dispatcher, ut, formModel, null, null);
 
     const Layout:React.SFC<LayoutProps> = (props) => {
 
         const createScriptStr = () => {
-            return `indexPage.init(document.querySelector('.wdglance-mount'),
+            return `indexPage.initClient(document.querySelector('.wdglance-mount'),
                 ${JSON.stringify(props.config)}, ${JSON.stringify(props.userConfig)}, ${JSON.stringify(props.lemmas)});`
         };
 
@@ -82,7 +81,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         </a>
                     </header>
                     <section className="wdglance-mount">
-                        <mainViews.WdglanceMain layout={Immutable.List<TileGroup>()} isMobile={false} isAnswerMode={false}
+                        <WdglanceMain layout={Immutable.List<TileGroup>()} isMobile={false} isAnswerMode={false}
                                         homepageSections={props.homepageTiles} />
                     </section>
                     {props.hostPageEnv.scripts.map(script =>

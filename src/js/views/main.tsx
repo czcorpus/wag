@@ -36,6 +36,13 @@ import { GlobalComponents } from './global';
 import { isAPIResponse } from '../common/api/kontext/corpusInfo';
 
 
+export interface WdglanceMainProps {
+    layout:Immutable.List<TileGroup>;
+    homepageSections:Immutable.List<{label:string; html:string}>;
+    isMobile:boolean;
+    isAnswerMode:boolean;
+}
+
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, formModel:WdglanceMainFormModel, tilesModel:WdglanceTilesModel,
             messagesModel:MessagesModel) {
@@ -918,12 +925,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------------------ <WdglanceMain /> ------------------------------
 
-    const WdglanceMain:React.SFC<{
-        layout:Immutable.List<TileGroup>;
-        homepageSections:Immutable.List<{label:string; html:string}>;
-        isMobile:boolean;
-        isAnswerMode:boolean;
-    }> = (props) => {
+    const WdglanceMain:React.SFC<WdglanceMainProps> = (props) => {
         return (
             <div className="WdglanceMain">
                 <WdglanceControlsBound isMobile={props.isMobile} isAnswerMode={props.isAnswerMode} />
@@ -933,7 +935,5 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         );
     }
 
-    return {
-        WdglanceMain: WdglanceMain
-    };
+    return WdglanceMain;
 }

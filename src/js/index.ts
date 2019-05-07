@@ -32,10 +32,10 @@ import { AvailableLanguage, ScreenProps } from './common/hostPage';
 import { LemmaVariant, QueryType } from './common/query';
 import { ITileProvider, TileConf, TileFactory, TileFrameProps } from './common/tile';
 import { AnyTileConf, ClientConf, UserConf } from './conf';
-import { LayoutManager } from './layout';
+import { LayoutManager, TileGroup } from './layout';
 import { ActionName, Actions } from './models/actions';
 import { MessagesModel } from './models/messages';
-import { defaultFactory as wdglanceFormFactory, WdglanceMainFormModel } from './models/query';
+import { defaultFactory as mainFormFactory, WdglanceMainFormModel } from './models/query';
 import { TileResultFlag, TileResultFlagRec, WdglanceTilesModel } from './models/tiles';
 import { SystemNotifications } from './notifications';
 import { CollocationsTileConf, init as collocInit } from './tiles/collocations';
@@ -53,7 +53,7 @@ import { init as treqInit, TreqTileConf } from './tiles/treq';
 import {init as treqSubsetsInit, TreqSubsetsTileConf } from './tiles/treqSubsets';
 import { init as summaryInit, WordFreqTileConf } from './tiles/wordFreq';
 import { GlobalComponents, init as globalCompInit } from './views/global';
-import { init as viewInit } from './views/main';
+import { init as viewInit, WdglanceMainProps } from './views/main';
 import { RetryTileLoad } from './models/retryLoad';
 
 declare var require:(src:string)=>void;  // webpack
@@ -173,43 +173,24 @@ const mkTileFactory = (
 }
 
 
-export const init = (mountElement:HTMLElement, config:ClientConf, userSession:UserConf, lemmas:Array<LemmaVariant>) => {
+export interface InitIntArgs {
+    config:ClientConf;
+    userSession:UserConf;
+    lemmas:Array<LemmaVariant>;
+    appServices:AppServices;
+    dispatcher:ActionDispatcher;
+    onResize:Observable<ScreenProps>;
+    viewUtils:ViewUtils<GlobalComponents>;
+}
+
+
+export function createRootComponent({config, userSession, lemmas, appServices, dispatcher,
+    onResize, viewUtils}:InitIntArgs):[React.FunctionComponent<WdglanceMainProps>, Immutable.List<TileGroup>] {
 
     const qType = userSession.queryType as QueryType; // TODO validate
-    const uiLangSel = userSession.uiLang || 'en-US';
-    const dispatcher = new ActionDispatcher();
-    const viewUtils = new ViewUtils<GlobalComponents>({
-        uiLang: uiLangSel,
-        translations: translations,
-        staticUrlCreator: (path) => config.rootUrl + 'assets/' + path,
-        actionUrlCreator: (path, args) => config.hostUrl + path + (Object.keys(args || {}).length > 0 ? '?' + encodeArgs(args) : '')
-    });
-
-    const notifications = new SystemNotifications(dispatcher);
-    const appServices = new AppServices({
-        notifications: notifications,
-        uiLang: userSession.uiLang,
-        translator: viewUtils,
-        staticUrlCreator: viewUtils.createStaticUrl,
-        actionUrlCreator: viewUtils.createActionUrl,
-        dbValuesMapping: config.dbValuesMapping || {},
-        apiHeadersMapping: config.apiHeaders
-    });
-    //appServices.forceMobileMode(); // DEBUG
-
-    const windowResize$:Observable<ScreenProps> = fromEvent(window, 'resize')
-        .pipe(
-            debounceTime(500),
-            map(v => ({
-                isMobile: appServices.isMobileMode(),
-                innerWidth: window.innerWidth,
-                innerHeight: window.innerHeight
-            }))
-        );
-
-    const globalComponents = globalCompInit(dispatcher, viewUtils, windowResize$);
+    const globalComponents = globalCompInit(dispatcher, viewUtils, onResize);
     viewUtils.attachComponents(globalComponents);
-    const formModel = wdglanceFormFactory({
+    const formModel = mainFormFactory({
         dispatcher: dispatcher,
         appServices: appServices,
         query1: userSession.query1,
@@ -300,7 +281,7 @@ export const init = (mountElement:HTMLElement, config:ClientConf, userSession:Us
 
     const component = viewInit(dispatcher, viewUtils, formModel, tilesModel, messagesModel);
 
-    windowResize$.subscribe(
+    onResize.subscribe(
         (props) => {
             dispatcher.dispatch<Actions.SetScreenMode>({
                 name: ActionName.SetScreenMode,
@@ -309,11 +290,59 @@ export const init = (mountElement:HTMLElement, config:ClientConf, userSession:Us
         }
     );
 
-    ReactDOM.render(
+    return [component, layoutManager.getLayout(qType)];
+};
+
+
+export const initClient = (mountElement:HTMLElement, config:ClientConf, userSession:UserConf, lemmas:Array<LemmaVariant>) => {
+    const dispatcher = new ActionDispatcher();
+    const notifications = new SystemNotifications(dispatcher);
+    const uiLangSel = userSession.uiLang || 'en-US';
+    const viewUtils = new ViewUtils<GlobalComponents>({
+        uiLang: uiLangSel,
+        translations: translations,
+        staticUrlCreator: (path) => config.rootUrl + 'assets/' + path,
+        actionUrlCreator: (path, args) => config.hostUrl + path + (Object.keys(args || {}).length > 0 ? '?' + encodeArgs(args) : '')
+    });
+    const appServices = new AppServices({
+        notifications: notifications,
+        uiLang: userSession.uiLang,
+        translator: viewUtils,
+        staticUrlCreator: viewUtils.createStaticUrl,
+        actionUrlCreator: viewUtils.createActionUrl,
+        dbValuesMapping: config.dbValuesMapping || {},
+        apiHeadersMapping: config.apiHeaders
+    });
+    //appServices.forceMobileMode(); // DEBUG
+
+    const windowResize$:Observable<ScreenProps> = fromEvent(window, 'resize')
+    .pipe(
+        debounceTime(500),
+        map(v => ({
+            isMobile: appServices.isMobileMode(),
+            innerWidth: window.innerWidth,
+            innerHeight: window.innerHeight
+        }))
+    );
+
+    const [WdglanceMain, currLayout] = createRootComponent({
+        config: config,
+        userSession: userSession,
+        lemmas: lemmas,
+        appServices: appServices,
+        dispatcher: dispatcher,
+        onResize: windowResize$,
+        viewUtils: viewUtils
+    });
+
+
+
+
+    ReactDOM.hydrate(
         React.createElement(
-            component.WdglanceMain,
+            WdglanceMain,
             {
-                layout: layoutManager.getLayout(qType),
+                layout: currLayout,
                 homepageSections: Immutable.List<{label:string, html:string}>(config.homepage.tiles),
                 isMobile: appServices.isMobileMode(),
                 isAnswerMode: userSession.answerMode
@@ -343,4 +372,4 @@ export const init = (mountElement:HTMLElement, config:ClientConf, userSession:Us
             }
         }
     );
-};
+}
