@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { ActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
+import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 
 import { Theme } from '../../common/theme';
@@ -28,7 +28,7 @@ import { Actions as GlobalActions, ActionName as GlobalActionName } from '../../
 import { init as wcloudViewInit } from '../../views/wordCloud/index';
 
 
-export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:CollocModel):TileComponent {
+export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:CollocModel):TileComponent {
 
     const globalCompontents = ut.getComponents();
     const WordCloud = wcloudViewInit<DataRow>(dispatcher, ut, theme);

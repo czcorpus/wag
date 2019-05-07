@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { map } from 'rxjs/operators';
-import { StatelessModel, ActionDispatcher, Action, SEDispatcher } from 'kombo';
+import { StatelessModel, IActionDispatcher, Action, SEDispatcher } from 'kombo';
 import * as Immutable from 'immutable';
 import { AppServices } from '../../appServices';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
@@ -55,7 +55,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
 
     private waitingForTiles:Immutable.Map<number, string|Array<SubQueryItem>|null>;
 
-    constructor(dispatcher:ActionDispatcher, tileId:number, waitForTiles:Array<number>, appServices:AppServices, api:ConcApi, initState:ConcFilterModelState) {
+    constructor(dispatcher:IActionDispatcher, tileId:number, waitForTiles:Array<number>, appServices:AppServices, api:ConcApi, initState:ConcFilterModelState) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.api = api;

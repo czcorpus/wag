@@ -17,7 +17,7 @@
  */
 import * as Immutable from 'immutable';
 
-import { StatelessModel, ActionDispatcher, StatefulModel, Action } from 'kombo';
+import { StatelessModel, ActionDispatcher, StatefulModel, Action, IActionDispatcher } from 'kombo';
 import { ActionName} from '../models/actions';
 
 
@@ -41,9 +41,9 @@ interface RetryTileLoadState {
  */
 export class RetryTileLoad extends StatefulModel<RetryTileLoadState> {
 
-    private readonly reloadDispatcher:ActionDispatcher;
+    private readonly reloadDispatcher:IActionDispatcher;
 
-    constructor(dispatcher:ActionDispatcher) {
+    constructor(dispatcher:IActionDispatcher) {
         super(
             dispatcher,
             {

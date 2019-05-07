@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { Action, ActionDispatcher, SEDispatcher, StatelessModel } from 'kombo';
+import { Action, IActionDispatcher, SEDispatcher, StatelessModel } from 'kombo';
 import { Observable, Observer } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 
@@ -40,7 +40,7 @@ import { Backlink, BacklinkWithArgs } from '../../common/tile';
 
 
 export interface CollocModelArgs {
-    dispatcher:ActionDispatcher;
+    dispatcher:IActionDispatcher;
     tileId:number;
     appServices:AppServices;
     service:KontextCollAPI;

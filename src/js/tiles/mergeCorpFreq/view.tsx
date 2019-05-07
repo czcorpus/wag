@@ -17,16 +17,16 @@
  */
 import * as Immutable from 'immutable';
 import * as React from 'react';
-import {ActionDispatcher, ViewUtils, BoundWithProps} from 'kombo';
+import { IActionDispatcher, ViewUtils, BoundWithProps} from 'kombo';
 import { MergeCorpFreqModel, MergeCorpFreqModelState} from './model';
-import {ResponsiveContainer, BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, Legend} from 'recharts';
+import { ResponsiveContainer, BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, Legend } from 'recharts';
 import { DataRow, BacklinkArgs } from '../../common/api/kontext/freqs';
 import { GlobalComponents } from '../../views/global';
 import { CoreTileComponentProps, TileComponent, BacklinkWithArgs } from '../../common/tile';
 import { Theme } from '../../common/theme';
 
 
-export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:MergeCorpFreqModel):TileComponent {
+export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:MergeCorpFreqModel):TileComponent {
 
     const globComponents = ut.getComponents();
 

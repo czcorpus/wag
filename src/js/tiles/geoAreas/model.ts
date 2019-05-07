@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { Action, ActionDispatcher, SEDispatcher, StatelessModel } from 'kombo';
+import { Action, IActionDispatcher, SEDispatcher, StatelessModel } from 'kombo';
 import { forkJoin, Observable, Observer, of as rxOf } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 
@@ -85,7 +85,7 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
 
     private readonly api:FreqDistribAPI;
 
-    constructor(dispatcher:ActionDispatcher, tileId:number, waitForTile:number, appServices:AppServices, api:FreqDistribAPI, initState:GeoAreasModelState) {
+    constructor(dispatcher:IActionDispatcher, tileId:number, waitForTile:number, appServices:AppServices, api:FreqDistribAPI, initState:GeoAreasModelState) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.waitForTile = waitForTile;

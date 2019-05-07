@@ -18,7 +18,7 @@
 
 import { HTTPMethod, AnyInterface, LocalizedConfMsg } from './types';
 import { QueryType } from './query';
-import { ActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
+import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
 import { GlobalComponents } from '../views/global';
 import { Theme } from './theme';
 import { AppServices } from '../appServices';
@@ -230,7 +230,7 @@ export namespace TileFactory {
 
     export interface Args<T> {
         tileId:number;
-        dispatcher:ActionDispatcher;
+        dispatcher:IActionDispatcher;
         ut:ViewUtils<GlobalComponents>;
         theme:Theme,
         appServices:AppServices;

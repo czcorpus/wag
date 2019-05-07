@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { Action, ActionDispatcher, SEDispatcher, StatelessModel } from 'kombo';
+import { Action, IActionDispatcher, SEDispatcher, StatelessModel } from 'kombo';
 import { forkJoin, Observable, throwError } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -101,7 +101,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
 
     private readonly api:FreqDistribAPI;
 
-    constructor(dispatcher:ActionDispatcher, tileId:number, waitForTiles:Array<number>, appServices:AppServices,
+    constructor(dispatcher:IActionDispatcher, tileId:number, waitForTiles:Array<number>, appServices:AppServices,
                     api:FreqDistribAPI, initState:MergeCorpFreqModelState) {
         super(dispatcher, initState);
         this.tileId = tileId;

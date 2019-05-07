@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ActionDispatcher, ViewUtils } from 'kombo';
+import { IActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
 import * as Immutable from 'immutable';
 import { Theme } from '../../common/theme';
@@ -45,7 +45,7 @@ interface WordCloudState<T> {
 }
 
 
-export function init<T>(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme):React.ComponentClass<WordCloudProps<T>, {}> {
+export function init<T>(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme):React.ComponentClass<WordCloudProps<T>, {}> {
 
     // -------------------------- <Word /> -----------------------------------------
 

@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { ActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
+import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer } from 'recharts';
 
@@ -28,7 +28,7 @@ import { FreqPieDataRow, FreqPieModel, FreqPieModelState } from './model';
 import { FreqDataBlock } from '../../common/models/freq';
 
 
-export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:FreqPieModel):TileComponent {
+export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:FreqPieModel):TileComponent {
 
     const globalComponents = ut.getComponents();
     const catList = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];

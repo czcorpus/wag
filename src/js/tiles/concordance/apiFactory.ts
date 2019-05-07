@@ -23,7 +23,7 @@ import { FCS1SearchRetrieveAPI, stateToArgs as fcsv1StateToArgs } from '../../co
 import { FCS1ExplainAPI } from '../../common/api/clarin/fcs1/explain';
 import { IStateArgsMapper } from '../../common/models/concordance';
 import { init as fcs1Views } from '../../views/clarin/fcs1/explain';
-import { ViewUtils, ActionDispatcher } from 'kombo';
+import { ViewUtils, IActionDispatcher } from 'kombo';
 import { GlobalComponents } from '../../views/global';
 import { CoreApiGroup, supportedCoreApiGroups } from '../../common/api/coreGroups';
 
@@ -67,7 +67,7 @@ export function createApiInstance(apiIdent:string, apiURL:string, httpHeaders?:H
  }
 
 
- export function createSourceInfoViewInstance(apiIdent:string, dispatcher:ActionDispatcher, viewUtils:ViewUtils<GlobalComponents>):SourceInfoComponent {
+ export function createSourceInfoViewInstance(apiIdent:string, dispatcher:IActionDispatcher, viewUtils:ViewUtils<GlobalComponents>):SourceInfoComponent {
 
 	const views = fcs1Views(dispatcher, viewUtils);
 

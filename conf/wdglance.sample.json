@@ -221,7 +221,7 @@
 				"fcrit": ["sp.gender 0", "sp.edu_level 0", "sp.age_binary 0"],
 				"critLabels": [
 					{"cs-CZ": "Pohlaví", "en-US": "Sex"},
-					{"cs-CZ": "Vzdělání", "en-US": "Edication"},
+					{"cs-CZ": "Vzdělání", "en-US": "Education"},
 					{"cs-CZ": "Věk", "en-US": "Age"}
 				],
 				"flimit": 1,

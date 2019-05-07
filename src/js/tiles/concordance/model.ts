@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { Action, ActionDispatcher, SEDispatcher, StatelessModel } from 'kombo';
+import { Action, IActionDispatcher, SEDispatcher, StatelessModel } from 'kombo';
 import { Observable } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 import { AppServices } from '../../appServices';
@@ -61,7 +61,7 @@ export interface ConcordanceTileState extends ConcordanceMinState {
 
 
 export interface ConcordanceTileModelArgs {
-    dispatcher:ActionDispatcher;
+    dispatcher:IActionDispatcher;
     tileId:number;
     waitForTile:number;
     appServices:AppServices;

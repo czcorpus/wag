@@ -382,21 +382,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
     }
 
-    const WdglanceControlsBound = formModel ?
-            BoundWithProps<{isMobile:boolean; isAnswerMode:boolean}, WdglanceMainState>(WdglanceControls, formModel) :
-            (props) => <WdglanceControls
-                            query={Forms.newFormValue('', true)}
-                            query2={Forms.newFormValue('', false)}
-                            queryType={QueryType.SINGLE_QUERY}
-                            targetLanguage="cs" /* TODO */
-                            targetLanguage2="en"
-                            availLanguages={Immutable.List<SearchLanguage>()}
-                            availQueryTypes={Immutable.List<[QueryType, string]>()}
-                            isMobile={false}
-                            isAnswerMode={false}
-                            lemmas={Immutable.List<LemmaVariant>()}
-                            errors={Immutable.List<Error>()}
-                            uiLanguages={Immutable.List<AvailableLanguage>()} />
+    const WdglanceControlsBound = BoundWithProps<{isMobile:boolean; isAnswerMode:boolean}, WdglanceMainState>(WdglanceControls, formModel);
+
 
     // ------------- <HelpButton /> --------------------------------------
 
@@ -898,30 +885,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
     }
 
-    const BoundTilesSections = tilesModel ?
-        BoundWithProps<any, any>(TilesSections, tilesModel) :   // TODO type issue
-        (props:{
-            layout:Immutable.List<TileGroup>;
-            homepageSections:Immutable.List<{label:string; html:string}>
-        }) => {
-            return <TilesSections
-                        isAnswerMode={false}
-                        isBusy={false}
-                        isMobile={false}
-                        isModalVisible={false}
-                        tweakActiveTiles={Immutable.Set<number>()}
-                        helpActiveTiles={Immutable.Set<number>()}
-                        altViewActiveTiles={Immutable.Set<number>()}
-                        tilesHelpData={Immutable.Map<number, string>()}
-                        hiddenGroups={Immutable.Set<number>()}
-                        hiddenGroupsHeaders={Immutable.Set<number>()}
-                        datalessGroups={Immutable.Set<number>()}
-                        tileResultFlags={Immutable.List<TileResultFlagRec>()}
-                        tileProps={Immutable.List<TileFrameProps>()}
-                        modalBoxData={null}
-                        layout={props.layout}
-                        homepageSections={props.homepageSections} />
-        }
+    const BoundTilesSections = BoundWithProps<any, any>(TilesSections, tilesModel);
 
     // ------------------ <WdglanceMain /> ------------------------------
 

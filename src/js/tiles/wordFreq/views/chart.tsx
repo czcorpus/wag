@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { ActionDispatcher, ViewUtils } from 'kombo';
+import { IActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
 import { CartesianGrid, Dot, Label, Line, LineChart, XAxis, YAxis } from 'recharts';
 import { GlobalComponents } from '../../../views/global';
@@ -32,7 +32,7 @@ interface ChartFreqDistItem {
     color:string;
 }
 
-export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>):React.SFC<{
+export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>):React.SFC<{
     lemmaItems:Array<FreqDBRow>;
 }> {
 

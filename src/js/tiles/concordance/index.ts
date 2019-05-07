@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { ActionDispatcher, StatelessModel } from 'kombo';
+import { IActionDispatcher, StatelessModel } from 'kombo';
 
 import { AppServices } from '../../appServices';
 import { QuerySelector } from '../../common/api/kontext/concordance';
@@ -53,7 +53,7 @@ export class ConcordanceTile implements ITileProvider {
 
     private readonly tileId:number;
 
-    private readonly dispatcher:ActionDispatcher;
+    private readonly dispatcher:IActionDispatcher;
 
     private readonly model:ConcordanceTileModel;
 
