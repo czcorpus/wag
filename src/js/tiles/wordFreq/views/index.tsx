@@ -51,7 +51,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     }> = (props) => {
         return <span className="Stars">{[1, 2, 3, 4, 5, 6, 7].map(v =>
-                <img key={`${v}`} src={ut.createStaticUrl(`star${v <= props.freqBand ? '' : '_grey'}.svg`)} />)}</span>
+                <img key={`${v}`} src={ut.createStaticUrl(`star${v <= props.freqBand ? '' : '_grey'}.svg`)}
+                            alt={ut.translate(v <= props.freqBand ? 'global__img_alt_star_icon' : 'global__img_alt_star_icon_grey')} />)}</span>
     };
 
     // -------------------- <SimilarFreqWords /> -----------------------------------------------

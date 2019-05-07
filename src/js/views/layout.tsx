@@ -65,10 +65,11 @@ export function init(ut:ViewUtils<GlobalComponents>):React.SFC<LayoutProps> {
         };
 
         return (
-            <html>
+            <html lang={props.uiLang}>
                 <head>
                     <meta charSet="utf-8" />
                     <meta name="viewport" content="width=device-width, initial-scale=1" />
+                    <title>{ut.translate('global__wdglance_title')}</title>
                     <link href={`${urlResolve(props.config.hostUrl, 'dist/common.css')}`} rel="stylesheet" type="text/css" />
                     <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Droid+Sans+Mono%7CRoboto:100,400,400italic,700,700italic%7CRoboto+Condensed:400,700&amp;subset=latin,latin-ext" media="all" />
                     {props.hostPageEnv.styles.map(style =>
@@ -78,7 +79,7 @@ export function init(ut:ViewUtils<GlobalComponents>):React.SFC<LayoutProps> {
                     {props.hostPageEnv.html ? renderToolbar() : null}
                     <header className="wdg-header">
                         <a href={props.config.hostUrl} title={ut.translate('global__wdglance_title')}>
-                            <img src={ut.createStaticUrl(ut.translate('global__logo_file'))} />
+                            <img src={ut.createStaticUrl(ut.translate('global__logo_file'))} alt="logo" />
                         </a>
                     </header>
                     <section className="wdglance-mount">
