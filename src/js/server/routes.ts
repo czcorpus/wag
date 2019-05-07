@@ -36,7 +36,7 @@ import { init as viewInit, LayoutProps } from '../views/layout';
 import { ServerSideActionDispatcher } from './core';
 import { emptyValue } from './toolbar/empty';
 import { Services } from './actionServices';
-import { getLemmas, getSimilarFreqWords } from './freqdb/freqdb';
+import { getLemmas, getSimilarFreqWords, getWordForms } from './freqdb/freqdb';
 import { loadFile } from './files';
 import { HTTPAction } from './actions';
 import { createRootComponent } from '../app';
@@ -384,6 +384,59 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                     message: err.message
                 });
             }
-        )
+        );
+    });
+
+    app.get(HTTPAction.WORD_FORMS, (req, res) => {
+        const viewUtils = new ViewUtils<GlobalComponents>({
+            uiLang: 'cs-CZ',
+            translations: services.translations,
+            staticUrlCreator: (path) => services.clientConf.rootUrl + 'assets/' + path,
+            actionUrlCreator: (path, args) => services.clientConf.hostUrl + path + '?' + encodeArgs(args)
+        });
+        const appServices = new AppServices({
+            notifications: null, // TODO
+            uiLang: 'cs-CZ', // TODO
+            translator: viewUtils,
+            staticUrlCreator: viewUtils.createStaticUrl,
+            actionUrlCreator: viewUtils.createActionUrl,
+            dbValuesMapping: services.clientConf.dbValuesMapping || {},
+            apiHeadersMapping: services.clientConf.apiHeaders || {},
+            mobileModeTest: ()=>false
+        });
+
+        new Observable<{lang:string; word:string; lemma:string; pos:QueryPoS}>((observer) => {
+            if (Object.keys(services.db).indexOf(req.query.lang) === -1) {
+                observer.error(
+                    newError(ErrorType.BAD_REQUEST, `Frequency database for [${req.query.lang}] not defined`));
+            }
+            observer.next({
+                lang: req.query.lang,
+                word: req.query.word,
+                lemma: req.query.lemma,
+                pos: importQueryPos(req.query.pos)
+            });
+
+        }).pipe(
+            concatMap(
+                (args) => getWordForms(
+                    services.db[args.lang],
+                    appServices,
+                    args.lemma,
+                    args.pos
+                )
+            )
+
+        ).subscribe(
+            (data) => {
+                res.setHeader('Content-Type', 'application/json');
+                res.send(JSON.stringify({result: data}));
+            },
+            (err:Error) => {
+                res.status(mapToStatusCode(err.name)).send({
+                    message: err.message
+                });
+            }
+        );
     });
 }

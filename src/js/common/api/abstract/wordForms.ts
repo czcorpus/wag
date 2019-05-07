@@ -16,11 +16,32 @@
  * limitations under the License.
  */
 
-export enum HTTPAction {
-    MAIN = '/',
-    SET_UI_LANG = '/set-ui-lang/',
-    SEARCH = '/search/',
-    GET_LEMMAS = '/get-lemmas/',
-    SIMILAR_FREQ_WORDS = '/similar-freq-words/',
-    WORD_FORMS = '/word-forms/'
+import { QueryPoS } from '../../query';
+import { DataApi } from '../../types';
+
+
+export interface RequestArgs {
+    lang:string;
+    lemma:string;
+    pos:QueryPoS;
 }
+
+export interface RequestConcArgs {
+    corpName:string;
+    subcorpName?:string;
+    concPersistenceID:string;
+}
+
+
+export interface WordFormItem {
+    value:string;
+    freq:number;
+    ratio:number;
+}
+
+export interface Response {
+    forms:Array<WordFormItem>;
+}
+
+
+export type WordFormsApi = DataApi<RequestArgs|RequestConcArgs, Response>;

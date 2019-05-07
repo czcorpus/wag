@@ -75,8 +75,8 @@ export const getLemmas = (db:Database, appServices:AppServices, word:string):Obs
 };
 
 
-const exportRow = (row, appServices:AppServices, isCurrent:boolean):LemmaVariant => ({
-    word: '', // TODO different type here ?
+const exportRow = (row, appServices:AppServices, isCurrent:boolean, word:string=''):LemmaVariant => ({
+    word: word, // TODO different type here ?
     lemma: row['value'],
     abs: row['abs'],
     arf: row['arf'],
@@ -148,3 +148,34 @@ export const getSimilarFreqWords = (db:Database, appServices:AppServices, lang:s
         )
     );
 };
+
+
+export const getWordForms = (db:Database, appServices:AppServices, lemma:string, pos:QueryPoS):Observable<Array<LemmaVariant>> => {
+    return new Observable<LemmaVariant>((observer) => {
+        db.each(
+            'SELECT w.value AS value, w.pos, w.count AS abs FROM lemma AS m JOIN word AS w ON m.value = w.lemma WHERE m.value = ? AND m.pos = ?',
+            [lemma, pos],
+            (err, row) => {
+                if (err) {
+                    observer.error(err);
+
+                } else {
+                    observer.next(exportRow(row, appServices, true, row['value']));
+                }
+            },
+            (err) => {
+                if (err) {
+                    observer.error(err);
+
+                } else {
+                    observer.complete();
+                }
+            }
+        );
+    }).pipe(
+        reduce<LemmaVariant>(
+            (acc, curr) => acc.concat([curr]),
+            []
+        )
+    );
+}

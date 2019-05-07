@@ -17,6 +17,7 @@
  */
 
 export enum CoreApiGroup {
+	WDGLANCE = 'wdglance',
 	KONTEXT = 'kontext',
 	FCS_V1 = 'fcsv1'
 }

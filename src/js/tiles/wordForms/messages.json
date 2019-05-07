@@ -1,0 +1,17 @@
+{
+    "en-US": {
+        "wordforms__main_label": "Word forms",
+        "wordforms__item_ratio": "Percent of occurences",
+        "wordforms__table_th_form": "Word form",
+        "wordforms__table_th_abs": "Absolute frequency",
+        "wordforms__table_th_share": "Share between forms"
+    },
+    "cs-CZ": {
+        "wordforms__main_label": "Slovní tvary",
+        "wordforms__item_ratio": "procento výskytů",
+        "wordforms__table_th_form": "Slovní tvar",
+        "wordforms__table_th_abs": "Absolutní frekvence",
+        "wordforms__table_th_share": "Podíl z uvedených tvarů"
+
+    }
+}

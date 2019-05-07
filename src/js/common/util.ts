@@ -65,3 +65,20 @@ export function repeat<T>(fn:()=>T, size:number):Array<T> {
     }
     return ans;
 }
+
+
+export function calcPercentRatios<T, U>(values:Array<T>, get:(v:T)=>number, trans:(v:T, ratio:number)=>U):Array<U> {
+    const sum = values.reduce((acc, curr) => acc + get(curr), 0);
+    const mod = values
+        .map((v, i) => {
+            const ratio = Math.round(get(v) / sum * 1000) / 10;
+            return {
+                v: (rx:number) => trans(v, rx),
+                r: ratio
+            };
+        }).sort(
+            (x1, x2) => (x2.r - Math.floor(x2.r)) - (x1.r - Math.floor(x1.r))
+        );
+    const diff = Math.round((100 - mod.reduce((acc, curr) => acc + curr.r, 0)) * 10) / 10;
+    return mod.map((v, i) => i === 0 ? v.v(v.r + diff) : v.v(v.r));
+}

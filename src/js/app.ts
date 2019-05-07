@@ -31,7 +31,6 @@ import { ActionName, Actions } from './models/actions';
 import { MessagesModel } from './models/messages';
 import { defaultFactory as mainFormFactory, WdglanceMainFormModel } from './models/query';
 import { TileResultFlag, TileResultFlagRec, WdglanceTilesModel } from './models/tiles';
-import { SystemNotifications } from './notifications';
 import { CollocationsTileConf, init as collocInit } from './tiles/collocations';
 import { ConcFilterTileConf, init as concFilterInit } from './tiles/concFilter';
 import { ConcordanceTileConf, init as concInit } from './tiles/concordance';
@@ -44,8 +43,9 @@ import { init as sydInit, SyDTileConf } from './tiles/syd';
 import { init as timeDistInit } from './tiles/timeDistrib';
 import { TimeDistTileConf } from './tiles/timeDistrib/common';
 import { init as treqInit, TreqTileConf } from './tiles/treq';
-import {init as treqSubsetsInit, TreqSubsetsTileConf } from './tiles/treqSubsets';
+import { init as treqSubsetsInit, TreqSubsetsTileConf } from './tiles/treqSubsets';
 import { init as summaryInit, WordFreqTileConf } from './tiles/wordFreq';
+import { init as wordFormsInit, WordFormsTileConf } from './tiles/wordForms';
 import { GlobalComponents, init as globalCompInit } from './views/global';
 import { init as viewInit, WdglanceMainProps } from './views/main';
 import { RetryTileLoad } from './models/retryLoad';
@@ -148,8 +148,10 @@ const mkTileFactory = (
                 return applyFactory<GeoAreasTileConf>(geoAreasInit, conf);
             case 'ConcFilterTile':
                 return applyFactory<ConcFilterTileConf>(concFilterInit, conf);
+            case 'WordFormsTile':
+                return applyFactory<WordFormsTileConf>(wordFormsInit, conf);
             default:
-                return null;
+                throw new Error(`Tile factory error - unknown tile "${conf['tileType']}"`);
         }
 }
 
