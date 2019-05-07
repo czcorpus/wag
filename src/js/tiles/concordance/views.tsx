@@ -38,7 +38,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         tileId:number;
 
     }> = (props) => {
-        console.log('paginator props: ', props);
+
         const handlePrevPage = () => {
             if (props.page > 1) {
                 dispatcher.dispatch<Actions.LoadPrevPage>({
