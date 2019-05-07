@@ -23,9 +23,6 @@ import { LemmaDbApi, LemmaDbResponse } from './common/api/lemma';
 import { SystemNotifications } from './notifications';
 import { HTTPAction } from './server/actions';
 
-
-declare var DocumentTouch;
-
 /**
  *
  */
@@ -37,6 +34,7 @@ export interface AppServicesArgs {
     actionUrlCreator:(path: string)=>string;
     dbValuesMapping:DbValueMapping;
     apiHeadersMapping:{[urlPrefix:string]:HTTPHeaders};
+    mobileModeTest:()=>boolean;
 }
 
 /**
@@ -62,7 +60,9 @@ export class AppServices {
 
     private readonly lemmaDbApi:LemmaDbApi;
 
-    constructor({notifications, uiLang, translator, staticUrlCreator, actionUrlCreator, dbValuesMapping, apiHeadersMapping}:AppServicesArgs) {
+    private readonly mobileModeTest:()=>boolean;
+
+    constructor({notifications, uiLang, translator, staticUrlCreator, actionUrlCreator, dbValuesMapping, apiHeadersMapping, mobileModeTest}:AppServicesArgs) {
         this.notifications = notifications;
         this.uiLang = uiLang;
         this.translator = translator;
@@ -71,6 +71,7 @@ export class AppServices {
         this.forcedMobileMode = false;
         this.dbValuesMapping = dbValuesMapping;
         this.apiHeadersMapping = apiHeadersMapping || {};
+        this.mobileModeTest = mobileModeTest;
         this.lemmaDbApi = new LemmaDbApi(actionUrlCreator(HTTPAction.GET_LEMMAS));
     }
 
@@ -132,9 +133,7 @@ export class AppServices {
     }
 
     isMobileMode():boolean {
-        return this.forcedMobileMode ||
-            (window.matchMedia('screen and (max-width: 480px)').matches
-                && (('ontouchstart' in window) || window['DocumentTouch'] && document instanceof DocumentTouch));
+        return this.mobileModeTest() || this.forcedMobileMode;
     }
 
     translateDbValue(corpname:string, value:string):string {

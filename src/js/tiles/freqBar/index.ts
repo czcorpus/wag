@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { ActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
+import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
 
 import { AppServices } from '../../appServices';
 import { DataRow, MultiBlockFreqDistribAPI, FreqSort } from '../../common/api/kontext/freqs';
@@ -59,7 +59,7 @@ export interface FreqBarTileConf extends TileConf {
 
 export class FreqBarTile implements ITileProvider {
 
-    private readonly dispatcher:ActionDispatcher;
+    private readonly dispatcher:IActionDispatcher;
 
     private readonly ut:ViewUtils<GlobalComponents>;
 

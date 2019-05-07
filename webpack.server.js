@@ -1,6 +1,5 @@
 const path = require('path');
 const build = require('./build');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const nodeExternals = require('webpack-node-externals');
 
 // helper functions
@@ -48,6 +47,14 @@ module.exports = (env) => ({
                         }
                     }
                 ]
+            },
+            {
+                test: /\.css$/,
+                use: 'null-loader'
+            },
+            {
+                test: /\.less$/,
+                use: 'null-loader'
             }
         ]
     },

@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { ActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
+import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 import { fromEvent } from 'rxjs';
 import { throttleTime } from 'rxjs/operators';
@@ -39,7 +39,7 @@ const createSVGElement = (parent:Element, name:string, attrs:{[name:string]:stri
 }
 
 
-export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:GeoAreasModel):TileComponent {
+export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:GeoAreasModel):TileComponent {
 
     const globComponents = ut.getComponents();
 

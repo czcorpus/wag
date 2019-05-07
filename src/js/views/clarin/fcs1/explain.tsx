@@ -19,11 +19,11 @@
 import * as React from 'react';
 import * as Immutable from 'immutable';
 import { FCS1ExplainResponse } from '../../../common/api/clarin/fcs1/explain';
-import { ActionDispatcher, ViewUtils } from 'kombo';
+import { IActionDispatcher, ViewUtils } from 'kombo';
 import { GlobalComponents } from '../../global';
 
 
-export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>) {
+export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>) {
 
     // ------------------ <IndicesList /> ----------------------------
 

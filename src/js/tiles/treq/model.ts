@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { Action, ActionDispatcher, SEDispatcher, StatelessModel } from 'kombo';
+import { Action, IActionDispatcher, SEDispatcher, StatelessModel } from 'kombo';
 import { map } from 'rxjs/operators';
 
 import { HTTPMethod } from '../../common/types';
@@ -54,7 +54,7 @@ export class TreqModel extends StatelessModel<TreqModelState> {
 
     private readonly scaleColorGen:ColorScaleFunctionGenerator;
 
-    constructor(dispatcher:ActionDispatcher, initialState:TreqModelState, tileId:number, api:TreqAPI,
+    constructor(dispatcher:IActionDispatcher, initialState:TreqModelState, tileId:number, api:TreqAPI,
             backlink:Backlink, mainForm:WdglanceMainFormModel, scaleColorGen:ColorScaleFunctionGenerator) {
         super(dispatcher, initialState);
         this.api = api;

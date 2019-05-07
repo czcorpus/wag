@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { ActionDispatcher, StatelessModel } from 'kombo';
+import { IActionDispatcher, StatelessModel } from 'kombo';
 
 import { AppServices } from '../../appServices';
 import { ConcApi } from '../../common/api/kontext/concordance';
@@ -50,7 +50,7 @@ require('./style.less');
  */
 export class TimeDistTile implements ITileProvider {
 
-    private readonly dispatcher:ActionDispatcher;
+    private readonly dispatcher:IActionDispatcher;
 
     private readonly tileId:number;
 

@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { ActionDispatcher, StatelessModel } from 'kombo';
+import { IActionDispatcher, StatelessModel } from 'kombo';
 
 import { AppServices } from '../../appServices';
 import { BacklinkArgs } from '../../common/api/kontext/freqs';
@@ -50,7 +50,7 @@ export class CollocationsTile implements ITileProvider {
 
     private readonly tileId:number;
 
-    private readonly dispatcher:ActionDispatcher;
+    private readonly dispatcher:IActionDispatcher;
 
     private readonly appServices:AppServices;
 

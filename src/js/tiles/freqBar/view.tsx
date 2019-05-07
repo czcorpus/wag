@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { ActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
+import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
@@ -28,7 +28,7 @@ import { ActionName, Actions } from './actions';
 import { FreqBarModel, FreqBarModelState } from './model';
 
 
-export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:FreqBarModel):TileComponent {
+export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:FreqBarModel):TileComponent {
 
     const globComponents = ut.getComponents();
 

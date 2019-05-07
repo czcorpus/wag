@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { ActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
+import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
 
 import { FreqDistribAPI } from '../../common/api/kontext/freqs';
 import { QueryType } from '../../common/query';
@@ -75,7 +75,7 @@ export interface MergeCorpFreqTileConf extends TileConf {
  */
 export class MergeCorpFreqTile implements ITileProvider {
 
-    private readonly dispatcher:ActionDispatcher;
+    private readonly dispatcher:IActionDispatcher;
 
     private readonly ut:ViewUtils<GlobalComponents>;
 

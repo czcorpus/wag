@@ -31,7 +31,6 @@ import { ErrorType, mapToStatusCode, newError } from '../common/errors';
 import { HostPageEnv, AvailableLanguage } from '../common/hostPage';
 import { QueryType, LemmaVariant, importQueryPos, QueryPoS } from '../common/query';
 import { UserConf, ClientStaticConf, ClientConf, emptyClientConf } from '../conf';
-import { defaultFactory as mainFormFactory } from '../models/query';
 import { GlobalComponents } from '../views/global';
 import { init as viewInit, LayoutProps } from '../views/layout';
 import { ServerSideActionDispatcher } from './core';
@@ -40,6 +39,9 @@ import { Services } from './actionServices';
 import { getLemmas, getSimilarFreqWords } from './freqdb/freqdb';
 import { loadFile } from './files';
 import { HTTPAction } from './actions';
+import { createRootComponent } from '../app';
+import { WdglanceMainProps } from '../views/main';
+import { TileGroup } from '../layout';
 
 
 function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, appServices:AppServices):Observable<ClientConf> {
@@ -82,9 +84,15 @@ interface RenderResultArgs {
     userConfig:UserConf;
     clientConfig:ClientConf;
     returnUrl:string;
+    rootView:React.ComponentType<WdglanceMainProps>;
+    homepageSections:Immutable.List<{label:string; html:string}>;
+    layout:Immutable.List<TileGroup>;
+    isMobile:boolean;
+    isAnswerMode:boolean;
 }
 
-function renderResult({view, services, toolbarData, lemmas, userConfig, clientConfig, returnUrl}:RenderResultArgs):string {
+function renderResult({view, services, toolbarData, lemmas, userConfig, clientConfig, returnUrl,
+        rootView, layout, isMobile, isAnswerMode, homepageSections}:RenderResultArgs):string {
     const appString = renderToString(
         React.createElement<LayoutProps>(
             view,
@@ -96,7 +104,12 @@ function renderResult({view, services, toolbarData, lemmas, userConfig, clientCo
                 uiLanguages: Immutable.List<AvailableLanguage>(Object.entries(userConfig.uiLanguages)),
                 uiLang: userConfig.uiLang,
                 returnUrl: returnUrl,
-                homepageTiles: Immutable.List<{label:string; html:string}>(clientConfig.homepage.tiles)
+                homepageTiles: Immutable.List<{label:string; html:string}>(clientConfig.homepage.tiles),
+                RootComponent: rootView,
+                layout: layout,
+                homepageSections: homepageSections,
+                isMobile: isMobile,
+                isAnswerMode: isAnswerMode
             }
         )
     );
@@ -120,9 +133,10 @@ function createHelperServices(services:Services, uiLang:string):[ViewUtils<Globa
             staticUrlCreator: viewUtils.createStaticUrl,
             actionUrlCreator: viewUtils.createActionUrl,
             dbValuesMapping: services.clientConf.dbValuesMapping || {},
-            apiHeadersMapping: services.clientConf.apiHeaders || {}
+            apiHeadersMapping: services.clientConf.apiHeaders || {},
+            mobileModeTest: ()=>false
         })
-    ];
+    ]
 }
 
 function mkReturnUrl(req:Request, rootUrl:string):string {
@@ -158,25 +172,7 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
     };
 
     const dispatcher = new ServerSideActionDispatcher();
-
     const [viewUtils, appServices] = createHelperServices(services, userConfig.uiLang);
-
-    const mainFormModel = mainFormFactory({
-        dispatcher: dispatcher,
-        appServices: appServices,
-        query1: userConfig.query1,
-        query1Lang: userConfig.query1Lang || '',
-        query2: userConfig.query2,
-        query2Lang: userConfig.query2Lang || '',
-        queryType: userConfig.queryType as QueryType,
-        lemmas: [],
-        isAnswerMode: answerMode,
-        uiLanguages: Immutable.List<AvailableLanguage>(
-            Object.keys(services.serverConf.languages).map(k => [k, services.serverConf.languages[k]])),
-        resourceLanguages: Immutable.List<{ident:string; label:string}>(
-            Object.keys(services.clientConf.resourceLanguages).map(k => ({ident: k, label: services.clientConf.resourceLanguages[k]})))
-    });
-    const view = viewInit(dispatcher, viewUtils, mainFormModel);
 
     forkJoin(
         new Observable<UserConf>(
@@ -194,8 +190,20 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
     )
     .subscribe(
         (ans) => {
-            const [userSession, toolbar, lemmas, clientConf] = ans;
+            const [userSession, toolbar, lemmas, runtimeConf] = ans;
             let currentFlagSolved = false;
+
+            const [rootView, layout] = createRootComponent({
+                config: runtimeConf,
+                userSession: userConfig,
+                lemmas: lemmas,
+                appServices: appServices,
+                dispatcher: dispatcher,
+                onResize: new Observable((observer) => undefined),
+                viewUtils: viewUtils
+            });
+
+
             if (lemmas.length > 0) {
                 if (userSession.queryPos) {
                     const srchIdx = lemmas.findIndex(v => v.pos === userSession.queryPos && (v.lemma === userSession.lemma1 || !userSession.lemma1));
@@ -215,19 +223,27 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
                     }
                 }
             }
+            const view = viewInit(viewUtils);
+
             res.send(renderResult({
                 view: view,
                 services: services,
                 toolbarData: toolbar,
                 lemmas: lemmas,
                 userConfig: userSession,
-                clientConfig: clientConf,
-                returnUrl: mkReturnUrl(req, services.clientConf.rootUrl)
+                clientConfig: runtimeConf,
+                returnUrl: mkReturnUrl(req, services.clientConf.rootUrl),
+                rootView: rootView,
+                layout: layout,
+                homepageSections: Immutable.List<{label:string, html:string}>(runtimeConf.homepage.tiles),
+                isMobile: false, // TODO should we detect the mode on server too
+                isAnswerMode: answerMode
             }));
         },
         (err) => {
             console.log(err);
             userConfig.error = String(err);
+            const view = viewInit(viewUtils);
             res.send(renderResult({
                 view: view,
                 services: services,
@@ -235,7 +251,12 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
                 lemmas: [],
                 userConfig: userConfig,
                 clientConfig: emptyClientConf(services.clientConf),
-                returnUrl: mkReturnUrl(req, services.clientConf.rootUrl)
+                returnUrl: mkReturnUrl(req, services.clientConf.rootUrl),
+                rootView: null,
+                layout: Immutable.List(),
+                homepageSections: Immutable.List<{label:string, html:string}>(services.clientConf.homepage.tiles),
+                isMobile: false, // TODO should we detect the mode on server too
+                isAnswerMode: answerMode
             }));
         }
     );
@@ -299,7 +320,8 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             staticUrlCreator: viewUtils.createStaticUrl,
             actionUrlCreator: viewUtils.createActionUrl,
             dbValuesMapping: services.clientConf.dbValuesMapping || {},
-            apiHeadersMapping: services.clientConf.apiHeaders || {}
+            apiHeadersMapping: services.clientConf.apiHeaders || {},
+            mobileModeTest: ()=>false
         });
 
         new Observable<{lang:string; word:string; lemma:string; pos:QueryPoS; rng:number}>((observer) => {

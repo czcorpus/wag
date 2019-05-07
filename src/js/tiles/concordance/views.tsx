@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
+import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 
 import { Line, LineElement, ViewMode } from '../../common/api/abstract/concordance';
@@ -26,7 +26,7 @@ import { ConcordanceTileModel, ConcordanceTileState } from './model';
 
 
 
-export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:ConcordanceTileModel):TileComponent {
+export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, model:ConcordanceTileModel):TileComponent {
 
     const globalCompontents = ut.getComponents();
 

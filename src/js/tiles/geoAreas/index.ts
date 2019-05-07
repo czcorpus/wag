@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { ActionDispatcher, StatelessModel } from 'kombo';
+import { IActionDispatcher, StatelessModel } from 'kombo';
 
 import { AppServices } from '../../appServices';
 import { DataRow, FreqDistribAPI, FreqSort } from '../../common/api/kontext/freqs';
@@ -51,7 +51,7 @@ export class GeoAreasTile implements ITileProvider {
 
     private label:string;
 
-    private readonly dispatcher:ActionDispatcher;
+    private readonly dispatcher:IActionDispatcher;
 
     private readonly appServices:AppServices;
 

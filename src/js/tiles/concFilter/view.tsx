@@ -16,14 +16,14 @@
  * limitations under the License.
  */
 import * as React from 'react';
-import { ActionDispatcher, ViewUtils, BoundWithProps } from 'kombo';
+import { IActionDispatcher, ViewUtils, BoundWithProps } from 'kombo';
 import { GlobalComponents } from '../../views/global';
 import { Theme } from '../../common/theme';
 import { TileComponent, CoreTileComponentProps } from '../../common/tile';
 import { ConcFilterModel, ConcFilterModelState } from './model';
 import { Line } from '../../common/api/abstract/concordance';
 
-export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:ConcFilterModel):TileComponent {
+export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:ConcFilterModel):TileComponent {
 
     const globalCompontents = ut.getComponents();
 

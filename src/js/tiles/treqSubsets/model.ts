@@ -17,7 +17,7 @@
  */
 import * as Immutable from 'immutable';
 import {merge} from 'rxjs';
-import { Action, ActionDispatcher, SEDispatcher, StatelessModel } from 'kombo';
+import { Action, IActionDispatcher, SEDispatcher, StatelessModel } from 'kombo';
 
 import { TreqAPI, TreqTranslation, mkInterctionId } from '../../common/api/treq';
 import { stateToAPIArgs, TreqModelMinState } from '../../common/models/treq';
@@ -109,7 +109,7 @@ export class TreqSubsetModel extends StatelessModel<TreqSubsetsModelState> {
     private readonly waitForColorsTile:number;
 
 
-    constructor(dispatcher:ActionDispatcher, initialState:TreqSubsetsModelState, tileId:number, api:TreqAPI,
+    constructor(dispatcher:IActionDispatcher, initialState:TreqSubsetsModelState, tileId:number, api:TreqAPI,
             mainForm:WdglanceMainFormModel, waitForColorsTile:number) {
         super(dispatcher, initialState);
         this.api = api;

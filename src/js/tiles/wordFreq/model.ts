@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { Action, ActionDispatcher, SEDispatcher, StatelessModel } from 'kombo';
+import { Action, IActionDispatcher, SEDispatcher, StatelessModel } from 'kombo';
 import { Observable } from 'rxjs';
 import { map, concatMap } from 'rxjs/operators';
 
@@ -59,7 +59,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
 
     private readonly mainForm:WdglanceMainFormModel;
 
-    constructor(dispatcher:ActionDispatcher, initialState:SummaryModelState, tileId:number, api:FreqDbAPI,
+    constructor(dispatcher:IActionDispatcher, initialState:SummaryModelState, tileId:number, api:FreqDbAPI,
             mainForm:WdglanceMainFormModel, appServices:AppServices) {
         super(dispatcher, initialState);
         this.tileId = tileId;

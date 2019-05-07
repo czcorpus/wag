@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ActionDispatcher } from 'kombo';
+import { IActionDispatcher } from 'kombo';
 import { asyncScheduler, of as rxOf, Subject } from 'rxjs';
 import { delay, observeOn } from 'rxjs/operators';
 
@@ -48,7 +48,7 @@ export class SystemNotifications {
 
     private messageEvents:Subject<SystemMessage>;
 
-    constructor(dispatcher:ActionDispatcher) {
+    constructor(dispatcher:IActionDispatcher) {
         this.messageEvents = new Subject<SystemMessage>();
         this.messageEvents.pipe(observeOn(asyncScheduler)).subscribe(
             (data) => {

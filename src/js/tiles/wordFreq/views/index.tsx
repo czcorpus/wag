@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { ActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
+import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 
 import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
@@ -37,7 +37,7 @@ interface ChartFreqDistItem {
 }
 
 
-export function init(dispatcher:ActionDispatcher, ut:ViewUtils<GlobalComponents>, model:SummaryModel):TileComponent {
+export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, model:SummaryModel):TileComponent {
 
     const globalComponents = ut.getComponents();
     const Chart = chartViewInit(dispatcher, ut);

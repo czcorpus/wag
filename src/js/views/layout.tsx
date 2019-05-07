@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { IActionDispatcher, ViewUtils } from 'kombo';
+import { ViewUtils } from 'kombo';
 import * as React from 'react';
 import { resolve as urlResolve } from 'url';
 
@@ -24,10 +24,8 @@ import { HostPageEnv, AvailableLanguage } from '../common/hostPage';
 import { LemmaVariant } from '../common/query';
 import { ClientConf, UserConf } from '../conf';
 import { TileGroup } from '../layout';
-import { WdglanceMainFormModel } from '../models/query';
 import { GlobalComponents } from './global';
-import { init as mainViewInit } from './main';
-import { string } from 'prop-types';
+import { WdglanceMainProps } from './main';
 
 
 
@@ -40,18 +38,20 @@ export interface LayoutProps {
     homepageTiles:Immutable.List<{label:string; html:string}>;
     uiLang:string;
     returnUrl:string;
+    RootComponent:React.ComponentType<WdglanceMainProps>;
+    layout:Immutable.List<TileGroup>;
+    homepageSections:Immutable.List<{label:string; html:string}>;
+    isMobile:boolean;
+    isAnswerMode:boolean;
 }
 
 
-export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>,
-        formModel:WdglanceMainFormModel):React.SFC<LayoutProps> {
-
-    const mainViews = mainViewInit(dispatcher, ut, formModel, null, null);
+export function init(ut:ViewUtils<GlobalComponents>):React.SFC<LayoutProps> {
 
     const Layout:React.SFC<LayoutProps> = (props) => {
 
         const createScriptStr = () => {
-            return `indexPage.init(document.querySelector('.wdglance-mount'),
+            return `indexPage.initClient(document.querySelector('.wdglance-mount'),
                 ${JSON.stringify(props.config)}, ${JSON.stringify(props.userConfig)}, ${JSON.stringify(props.lemmas)});`
         };
 
@@ -82,8 +82,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         </a>
                     </header>
                     <section className="wdglance-mount">
-                        <mainViews.WdglanceMain layout={Immutable.List<TileGroup>()} isMobile={false} isAnswerMode={false}
-                                        homepageSections={props.homepageTiles} />
+                        <props.RootComponent
+                            layout={props.layout}
+                            homepageSections={props.homepageSections}
+                            isMobile={props.isMobile}
+                            isAnswerMode={props.isAnswerMode} />
                     </section>
                     {props.hostPageEnv.scripts.map(script =>
                         <script key={script} type="text/javascript" src={script}></script>

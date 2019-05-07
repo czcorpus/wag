@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { ActionDispatcher, ViewUtils } from 'kombo';
+import { ActionDispatcher, ViewUtils, IActionDispatcher } from 'kombo';
 import * as React from 'react';
 import { Observable } from 'rxjs';
 
@@ -74,7 +74,7 @@ export interface GlobalComponents {
     }>;
 }
 
-export function init(dispatcher:ActionDispatcher, ut:ViewUtils<{}>, resize$:Observable<ScreenProps>):GlobalComponents {
+export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Observable<ScreenProps>):GlobalComponents {
 
     // --------------- <AjaxLoader /> -------------------------------------------
 
