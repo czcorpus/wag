@@ -64,7 +64,7 @@ export class CollocationsTile implements ITileProvider {
 
     private view:TileComponent;
 
-    constructor({tileId, dispatcher, appServices, ut, theme, waitForTiles, widthFract, conf}:TileFactory.Args<CollocationsTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, theme, waitForTiles, widthFract, conf, isBusy}:TileFactory.Args<CollocationsTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.appServices = appServices;
@@ -78,7 +78,7 @@ export class CollocationsTile implements ITileProvider {
             service: new KontextCollAPI(conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             backlink: conf.backlink || null,
             initState: {
-                isBusy: false,
+                isBusy: isBusy,
                 isTweakMode: false,
                 isAltViewMode: false,
                 tileId: tileId,

@@ -66,7 +66,7 @@ export class TimeDistTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({dispatcher, tileId, waitForTiles, ut, theme, appServices, widthFract, mainForm, conf}:TileFactory.Args<TimeDistTileConf>) {
+    constructor({dispatcher, tileId, waitForTiles, ut, theme, appServices, widthFract, mainForm, conf, isBusy}:TileFactory.Args<TimeDistTileConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
@@ -75,7 +75,7 @@ export class TimeDistTile implements ITileProvider {
         this.model = new TimeDistribModel(
             dispatcher,
             {
-                isBusy: false,
+                isBusy: isBusy,
                 error: null,
                 corpname: conf.corpname,
                 subcnames: Immutable.List<string>(Array.isArray(conf.subcname) ? conf.subcname : [conf.subcname]),

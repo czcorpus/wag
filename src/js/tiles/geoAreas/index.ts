@@ -63,7 +63,7 @@ export class GeoAreasTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({tileId, dispatcher, appServices, ut, theme, waitForTiles, widthFract, conf}:TileFactory.Args<GeoAreasTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, theme, waitForTiles, widthFract, conf, isBusy}:TileFactory.Args<GeoAreasTileConf>) {
         this.tileId = tileId;
         this.label = appServices.importExternalMessage(conf.label);
         this.dispatcher = dispatcher;
@@ -77,7 +77,7 @@ export class GeoAreasTile implements ITileProvider {
             appServices,
             new FreqDistribAPI(conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             {
-                isBusy: false,
+                isBusy: isBusy,
                 error: null,
                 areaCodeMapping: Immutable.Map<string, string>(conf.areaCodeMapping),
                 mapSVG: '',

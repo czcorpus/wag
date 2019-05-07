@@ -54,14 +54,14 @@ export class TreqTile implements ITileProvider {
 
     private static readonly DEFAULT_MAX_NUM_LINES = 10;
 
-    constructor({tileId, dispatcher, appServices, ut, theme, lang1, lang2, mainForm, widthFract, conf}:TileFactory.Args<TreqTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, theme, lang1, lang2, mainForm, widthFract, conf, isBusy}:TileFactory.Args<TreqTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
         this.model = new TreqModel(
             dispatcher,
             {
-                isBusy: false,
+                isBusy: isBusy,
                 isAltViewMode: false,
                 error: null,
                 lang1: lang1,

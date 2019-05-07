@@ -57,7 +57,7 @@ export class SyDTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({dispatcher, tileId, waitForTiles, ut, mainForm, appServices, widthFract, conf}:TileFactory.Args<SyDTileConf>) {
+    constructor({dispatcher, tileId, waitForTiles, ut, mainForm, appServices, widthFract, conf, isBusy}:TileFactory.Args<SyDTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
@@ -65,7 +65,7 @@ export class SyDTile implements ITileProvider {
         this.model = new SydModel(
             dispatcher,
             {
-                isBusy: false,
+                isBusy: isBusy,
                 error: null,
                 procTime: -1,
                 corp1: conf.corp1,

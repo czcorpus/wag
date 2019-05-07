@@ -71,7 +71,7 @@ export class ConcordanceTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({tileId, dispatcher, appServices, ut, mainForm, widthFract, waitForTiles, conf, lang2}:TileFactory.Args<ConcordanceTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, mainForm, widthFract, waitForTiles, conf, lang2, isBusy}:TileFactory.Args<ConcordanceTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.widthFract = widthFract;
@@ -95,7 +95,7 @@ export class ConcordanceTile implements ITileProvider {
             waitForTile: Array.isArray(waitForTiles) ? waitForTiles[0] : waitForTiles,
             initState: {
                 tileId: tileId,
-                isBusy: false,
+                isBusy: isBusy,
                 error: null,
                 isTweakMode: false,
                 isMobile: appServices.isMobileMode(),
