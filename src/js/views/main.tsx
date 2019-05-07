@@ -416,8 +416,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             <span className="HelpButton">
                 <button type="button" onClick={handleClick} title={props.isHelpMode ? ut.translate('global__hide_tile_help') : ut.translate('global__show_tile_help')}>
                     {props.isHelpMode ?
-                        <img src={ut.createStaticUrl('question-mark_s.svg')}   /> :
-                        <img src={ut.createStaticUrl('question-mark.svg')}   />
+                        <img src={ut.createStaticUrl('question-mark_s.svg')} alt={ut.translate('global__img_alt_question_mark')} /> :
+                        <img src={ut.createStaticUrl('question-mark.svg')} alt={ut.translate('global__img_alt_question_mark')} />
                     }
                 </button>
             </span>
@@ -457,7 +457,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         return <span className="AltViewButton">
             <button type="button" onClick={handleClick} title={label}>
-                <img src={ut.createStaticUrl('brackets.svg')} />
+                <img src={ut.createStaticUrl('alt-view.svg')} alt={ut.translate('global__img_alt_alt_view')} />
             </button>
         </span>
     }
@@ -665,8 +665,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                     title={props.groupHidden ? ut.translate('global__click_to_show_group') : ut.translate('global__click_to_hide_group')}>
                             <span className={`triangle${props.groupHidden ? ' right' : ''}`}>
                                 {props.groupHidden ?
-                                    <img src={ut.createStaticUrl('triangle_w_right.svg')} /> :
-                                    <img src={ut.createStaticUrl('triangle_w_down.svg')} />
+                                    <img src={ut.createStaticUrl('triangle_w_right.svg')} alt={ut.translate('global__img_alt_triangle_w_right')} /> :
+                                    <img src={ut.createStaticUrl('triangle_w_down.svg')} alt={ut.translate('global__img_alt_triangle_w_down')} />
                                 }
                             </span>
                             <span className="switch">

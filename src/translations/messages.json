@@ -52,7 +52,13 @@
         "global__source_general_desc_label": "General characteristics",
         "global__source_desc_label": "Description",
         "global__source_indices_label": "Available indices",
-        "global__retry_reload": "retry"
+        "global__retry_reload": "retry",
+        "global__img_alt_triangle_w_right": "Triangle pointing right",
+        "global__img_alt_triangle_w_down": "Triangle pointing down",
+        "global__img_alt_star_icon": "Star icon",
+        "global__img_alt_star_icon_grey": "Star icon (grey)",
+        "global__img_alt_question_mark": "Question mark icon",
+        "global__img_alt_alt_view": "Alternative view icon"
 
     },
     "cs-CZ": {
@@ -108,6 +114,12 @@
         "global__source_general_desc_label": "Obecná charakteristika",
         "global__source_desc_label": "Popis",
         "global__source_indices_label": "Dostupné indexy",
-        "global__retry_reload": "zkusit znovu"
+        "global__retry_reload": "zkusit znovu",
+        "global__img_alt_triangle_w_right": "Trojúhelník mířící doprava",
+        "global__img_alt_triangle_w_down": "Trojúhelník mířící dolů",
+        "global__img_alt_star_icon": "Ikona hvězdičky",
+        "global__img_alt_star_icon_grey": "Ikona hvězdičky (šedivá)",
+        "global__img_alt_question_mark": "Ikona otazníku",
+        "global__img_alt_alt_view": "Ikona alternativního zobrazení"
     }
 }
