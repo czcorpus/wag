@@ -39,6 +39,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         data:Immutable.List<WordFormItem>;
 
     }> = (props) => {
+        const extFormatNum = (x:number, pos:number) => {
+            if (x < 10 ** -pos) {
+                return '~0';
+            }
+            return ut.formatNumber(x, pos);
+        };
         return (
             <table className="data">
                 <thead>
@@ -53,7 +59,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <tr key={`${i}:${row.value}`}>
                             <td>{row.value}</td>
                             <td className="num">{ut.formatNumber(row.freq)}</td>
-                            <td className="num">{ut.formatNumber(row.ratio, 1)}%</td>
+                            <td className="num">{extFormatNum(row.ratio, 1)}%</td>
                         </tr>
                     ))}
                 </tbody>
