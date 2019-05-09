@@ -125,7 +125,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         hasData={this.props.data.size > 0} sourceIdent={{corp: this.props.corpname}}
                         supportsTileReload={this.props.supportsReloadOnError}>
                     <div className={`WordFreqTileView${this.props.isMobile ? ' mobile' : ''}`}>
-                        {!this.props.isMobile ?
+                        {!this.props.isMobile && this.props.widthFract > 1 ?
                             <div className="chart">
                             <Chart lemmaItems={this.props.data.filter(v => v.isSearched).toArray()} />
                             </div> :

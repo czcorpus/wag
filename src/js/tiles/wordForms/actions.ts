@@ -16,11 +16,6 @@
  * limitations under the License.
  */
 
-export enum HTTPAction {
-    MAIN = '/',
-    SET_UI_LANG = '/set-ui-lang/',
-    SEARCH = '/search/',
-    GET_LEMMAS = '/get-lemmas/',
-    SIMILAR_FREQ_WORDS = '/similar-freq-words/',
-    WORD_FORMS = '/word-forms/'
+export interface DataLoadedPayload {
+    data:Array<any>;
 }

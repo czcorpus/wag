@@ -29,6 +29,7 @@ import { TimeDistTileConf } from './tiles/timeDistrib/common';
 import { TreqTileConf } from './tiles/treq';
 import { TreqSubsetsTileConf } from './tiles/treqSubsets';
 import { WordFreqTileConf } from './tiles/wordFreq';
+import { WordFormsTileConf } from './tiles/wordForms';
 
 
 export type AnyTileConf =
@@ -43,7 +44,8 @@ export type AnyTileConf =
     WordFreqTileConf |
     MergeCorpFreqTileConf |
     GeoAreasTileConf |
-    ConcFilterTileConf;
+    ConcFilterTileConf |
+    WordFormsTileConf;
 
 /**
  * A page configuration based on
