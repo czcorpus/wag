@@ -397,7 +397,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     sideEffects(state:TimeDistribModelState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
-            case GlobalActionName.RequestQueryResponse:
+            case GlobalActionName.RequestQueryResponse: {
                 const formState = this.mainForm.getState();
                 this.loadData(
                     state,
@@ -405,16 +405,19 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     SubchartID.MAIN,
                     rxOf(findCurrLemmaVariant(formState.lemmas))
                 );
+            }
             break;
-            case ActionName.SubmitCmpWord:
+            case ActionName.SubmitCmpWord: {
+                const formState = this.mainForm.getState();
                 return this.loadData(
                     state,
                     dispatch,
                     SubchartID.SECONDARY,
-                    this.appServices.queryLemmaDbApi(state.wordCmp).pipe(
+                    this.appServices.queryLemmaDbApi(formState.targetLanguage, state.wordCmp).pipe(
                         map(v => v.result[0])
                     )
                 );
+            }
             break;
         }
     }

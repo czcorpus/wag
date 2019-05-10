@@ -23,6 +23,7 @@ import { ajax$ } from '../ajax';
 
 
 export class LemmaDbRequestArgs {
+    lang:string;
     q:string;
 }
 
@@ -44,9 +45,7 @@ export class LemmaDbApi implements DataApi<LemmaDbRequestArgs, LemmaDbResponse> 
         return ajax$<LemmaDbResponse>(
             HTTPMethod.GET,
             this.url,
-            {
-                q: args.q
-            }
+            args
         );
     }
 }

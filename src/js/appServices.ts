@@ -150,8 +150,8 @@ export class AppServices {
         return {};
     }
 
-    queryLemmaDbApi(q:string):Observable<LemmaDbResponse> {
-        return this.lemmaDbApi.call({q: q});
+    queryLemmaDbApi(lang:string, q:string):Observable<LemmaDbResponse> {
+        return this.lemmaDbApi.call({lang: lang, q: q});
     }
 
     getISO639UILang():string {
