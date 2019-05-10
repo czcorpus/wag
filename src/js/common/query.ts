@@ -23,6 +23,12 @@ export enum QueryType {
     TRANSLAT_QUERY = 'translat'
 }
 
+export interface QueryTypeMenuItem {
+    type:QueryType;
+    label:string;
+    isEnabled:boolean;
+}
+
 export interface SubQueryItem {
     value:string;
     interactionId?:string;

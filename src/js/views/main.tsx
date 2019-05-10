@@ -22,7 +22,7 @@ import * as React from 'react';
 import { Forms } from '../common/data';
 import { SystemMessageType, SearchLanguage, SourceDetails } from '../common/types';
 import { AvailableLanguage } from '../common/hostPage';
-import { QueryType, LemmaVariant } from '../common/query';
+import { QueryType, LemmaVariant, QueryTypeMenuItem } from '../common/query';
 import { TileFrameProps } from '../common/tile';
 import { KeyCodes } from '../common/util';
 import { TileGroup } from '../layout';
@@ -170,7 +170,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // ------------------ <QueryTypeSelector /> ------------------------------
 
     const QueryTypeSelector:React.SFC<{
-        avail:Immutable.List<[QueryType, string]>;
+        menuItems:Immutable.List<QueryTypeMenuItem>;
         value:QueryType;
         isMobile:boolean;
         onChange:(v:QueryType)=>void;
@@ -178,13 +178,13 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     }> = (props) => {
         return <div className="QueryTypeSelector">
             <nav>
-            {props.avail.map((v, i) =>
-                <React.Fragment key={v[0]}>
+            {props.menuItems.filter(v => v.isEnabled).map((v, i) =>
+                <React.Fragment key={v.type}>
                     {i > 0 && !props.isMobile ? <span className="separ"> | </span> : null}
-                    <span className={`item${v[0] === props.value ? ' current' : ''}`}>
-                        <a onClick={(evt:React.MouseEvent<HTMLAnchorElement>) => props.onChange(v[0])}
-                                    aria-current={v[0] === props.value ? 'page' : null}>
-                            {v[1]}
+                    <span className={`item${v.type === props.value ? ' current' : ''}`}>
+                        <a onClick={(evt:React.MouseEvent<HTMLAnchorElement>) => props.onChange(v.type)}
+                                    aria-current={v.type === props.value ? 'page' : null}>
+                            {v.label}
                         </a>
                     </span>
                 </React.Fragment>
@@ -362,7 +362,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 <div className="WdglanceControls">
                     <form className="cnc-form">
                         <div>
-                            <QueryTypeSelector avail={this.props.availQueryTypes}
+                            <QueryTypeSelector menuItems={this.props.queryTypesMenuItems}
                                     value={this.props.queryType}
                                     onChange={this.handleQueryTypeChange}
                                     isMobile={this.props.isMobile} />

@@ -182,21 +182,6 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
     const qType = userSession.queryType as QueryType; // TODO validate
     const globalComponents = globalCompInit(dispatcher, viewUtils, onResize);
     viewUtils.attachComponents(globalComponents);
-    const formModel = mainFormFactory({
-        dispatcher: dispatcher,
-        appServices: appServices,
-        query1: userSession.query1,
-        query1Lang: userSession.query1Lang || 'cs',
-        query2: userSession.query2,
-        query2Lang: userSession.query2Lang || '',
-        queryType: qType,
-        lemmas: lemmas,
-        isAnswerMode: userSession.answerMode,
-        uiLanguages: Immutable.List<AvailableLanguage>(
-            Object.keys(userSession.uiLanguages).map(k => [k, userSession.uiLanguages[k]])),
-        resourceLanguages: Immutable.List<{ident:string; label:string}>(
-            Object.keys(config.resourceLanguages).map(k => ({ident: k, label: config.resourceLanguages[k]})))
-    });
 
     const tiles:Array<TileFrameProps> = [];
     const attachTile = mkAttachTile(
@@ -210,6 +195,23 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
     const theme = new Theme(config.colors);
 
     const retryLoadModel = new RetryTileLoad(dispatcher);
+
+    const formModel = mainFormFactory({
+        dispatcher: dispatcher,
+        appServices: appServices,
+        query1: userSession.query1,
+        query1Lang: userSession.query1Lang || 'cs',
+        query2: userSession.query2,
+        query2Lang: userSession.query2Lang || '',
+        queryType: qType,
+        lemmas: lemmas,
+        isAnswerMode: userSession.answerMode,
+        uiLanguages: Immutable.List<AvailableLanguage>(
+            Object.keys(userSession.uiLanguages).map(k => [k, userSession.uiLanguages[k]])),
+        resourceLanguages: Immutable.List<{ident:string; label:string}>(
+            Object.keys(config.resourceLanguages).map(k => ({ident: k, label: config.resourceLanguages[k]}))),
+        layout: layoutManager
+    });
 
     const factory = mkTileFactory(
         dispatcher,
