@@ -34,6 +34,8 @@ export interface WordFormsModelState {
     isAltViewMode:boolean;
     error:string;
     corpname:string;
+    roundToPos:number; // 0 to N
+    maxNumItems:number;
     data:Immutable.List<WordFormItem>;
 }
 
@@ -89,7 +91,8 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                         newState.data = Immutable.List<WordFormItem>();
 
                     } else {
-                        newState.data = Immutable.List<WordFormItem>(action.payload.data);
+                        newState.data = Immutable.List<WordFormItem>(
+                            action.payload.data.slice(0, newState.maxNumItems));
                     }
                     return newState;
                 }

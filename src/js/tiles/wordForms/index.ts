@@ -31,6 +31,7 @@ export interface WordFormsTileConf extends TileConf {
     apiType:string;
     apiURL:string;
     corpname:string;
+    maxNumItems:number;
 }
 
 
@@ -63,6 +64,8 @@ export class WordFormsTile implements ITileProvider {
                 isAltViewMode: false,
                 error: null,
                 corpname: conf.corpname,
+                roundToPos: 1,
+                maxNumItems: conf.maxNumItems,
                 data: Immutable.List<any>()
             },
             tileId,
