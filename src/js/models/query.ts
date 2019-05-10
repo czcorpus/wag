@@ -22,9 +22,10 @@ import { AppServices } from '../appServices';
 import { Forms } from '../common/data';
 import { SystemMessageType, SearchLanguage } from '../common/types';
 import { AvailableLanguage } from '../common/hostPage';
-import { QueryType, LemmaVariant } from '../common/query';
+import { QueryType, LemmaVariant, QueryTypeMenuItem } from '../common/query';
 import { ActionName, Actions } from './actions';
 import { HTTPAction } from '../server/actions';
+import { LayoutManager } from '../layout';
 
 
 export interface WdglanceMainState {
@@ -34,7 +35,7 @@ export interface WdglanceMainState {
     targetLanguage:string;
     targetLanguage2:string;
     availLanguages:Immutable.List<SearchLanguage>;
-    availQueryTypes:Immutable.List<[QueryType, string]>;
+    queryTypesMenuItems:Immutable.List<QueryTypeMenuItem>;
     errors:Immutable.List<Error>;
     lemmas:Immutable.List<LemmaVariant>;
     isAnswerMode:boolean;
@@ -200,10 +201,11 @@ export interface DefaultFactoryArgs {
     isAnswerMode:boolean;
     uiLanguages:Immutable.List<AvailableLanguage>;
     resourceLanguages:Immutable.List<{ident:string; label:string}>;
+    layout:LayoutManager;
 }
 
 export const defaultFactory = ({dispatcher, appServices, query1, query1Lang, query2,
-            query2Lang, queryType, lemmas, isAnswerMode, uiLanguages, resourceLanguages}:DefaultFactoryArgs) => {
+            query2Lang, queryType, lemmas, isAnswerMode, uiLanguages, resourceLanguages, layout}:DefaultFactoryArgs) => {
 
     return new WdglanceMainFormModel(
         dispatcher,
@@ -212,11 +214,7 @@ export const defaultFactory = ({dispatcher, appServices, query1, query1Lang, que
             query: Forms.newFormValue(query1 || '', true),
             query2: Forms.newFormValue(query2 || '', false),
             queryType: queryType,
-            availQueryTypes: Immutable.List<[QueryType, string]>([
-                [QueryType.SINGLE_QUERY, appServices.translate('global__single_word_sel')],
-                [QueryType.CMP_QUERY, appServices.translate('global__two_words_compare')],
-                [QueryType.TRANSLAT_QUERY, appServices.translate('global__word_translate')]
-            ]),
+            queryTypesMenuItems: layout.getQueryTypesMenuItems(),
             targetLanguage: query1Lang,
             targetLanguage2: query2Lang,
             availLanguages: Immutable.List<SearchLanguage>(resourceLanguages),

@@ -18,7 +18,7 @@
 import * as Immutable from 'immutable';
 
 import { AppServices } from './appServices';
-import { QueryType } from './common/query';
+import { QueryType, QueryTypeMenuItem } from './common/query';
 import { LayoutConfig, LayoutsConfig } from './conf';
 
 
@@ -52,6 +52,8 @@ export class LayoutManager {
     private readonly translatQueryLayout:Immutable.List<TileGroup>;
 
     private readonly translatQueryService:Immutable.List<number>;
+
+    private readonly queryTypes:Immutable.List<QueryTypeMenuItem>;
 
     constructor(layouts:LayoutsConfig, tileMap:{[ident:string]:number}, appServices:AppServices) {
 
@@ -98,6 +100,24 @@ export class LayoutManager {
         invalid.forEach(item => {
             console.error(`Invalid layout configuration for group ${item.group} at position ${item.idx}`);
         });
+
+        this.queryTypes = Immutable.List<QueryTypeMenuItem>([
+            {
+                type: QueryType.SINGLE_QUERY,
+                label: appServices.translate('global__single_word_sel'),
+                isEnabled: this.singleQueryLayout.size > 0
+            },
+            {
+                type: QueryType.CMP_QUERY,
+                label: appServices.translate('global__two_words_compare'),
+                isEnabled: this.cmpQueryLayout.size > 0
+            },
+            {
+                type: QueryType.TRANSLAT_QUERY,
+                label: appServices.translate('global__word_translate'),
+                isEnabled: this.translatQueryLayout.size > 0
+            }
+        ]);
     }
 
     /**
@@ -146,6 +166,10 @@ export class LayoutManager {
     isInCurrentLayout(queryType:QueryType, tileId:number):boolean {
         return this.getLayout(queryType).flatMap(v => v.tiles).find(v => v.tileId === tileId) !== undefined ||
             this.isServiceOf(queryType, tileId);
+    }
+
+    getQueryTypesMenuItems():Immutable.List<QueryTypeMenuItem> {
+        return this.queryTypes;
     }
 
 }
