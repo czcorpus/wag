@@ -64,3 +64,4 @@ conf/server.json
 conf/wdglance.json
 conf/layouts.json
 conf/tiles.json
+html/vendor/*/
