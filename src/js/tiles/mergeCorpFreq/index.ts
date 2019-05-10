@@ -106,6 +106,7 @@ export class MergeCorpFreqTile implements ITileProvider {
             new FreqDistribAPI(conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             {
                 isBusy: isBusy,
+                isAltViewMode: false,
                 error: null,
                 data: Immutable.List<SourceMappedDataRow>(),
                 sources: Immutable.List<ModelSourceArgs>(conf.sources.map(src => ({
@@ -165,7 +166,7 @@ export class MergeCorpFreqTile implements ITileProvider {
     }
 
     supportsAltView():boolean {
-        return false;
+        return true;
     }
 
     exposeModelForRetryOnError():StatelessModel<{}>|null {

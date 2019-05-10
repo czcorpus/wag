@@ -30,6 +30,34 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const globComponents = ut.getComponents();
 
+    // -------------- <TableView /> -------------------------------------
+
+    const TableView:React.SFC<{
+        data:Immutable.List<DataRow>;
+
+    }> = (props) => {
+        return (
+            <table className="data">
+                <thead>
+                    <tr>
+                        <th />
+                        <th>{ut.translate('mergeCorpFreq_abs_freq')}</th>
+                        <th>{ut.translate('mergeCorpFreq_rel_freq')}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {props.data.map((row, i) => (
+                        <tr key={`${i}:${row.name}`}>
+                            <td className="word">{row.name}</td>
+                            <td className="num">{ut.formatNumber(row.freq)}</td>
+                            <td className="num">{ut.formatNumber(row.ipm)}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        );
+    }
+
 
     // -------------------------- <Chart /> --------------------------------------
 
@@ -44,7 +72,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 <ResponsiveContainer width="90%" height={props.size[1] + 50}>
                     <BarChart data={props.data.toArray()} layout="vertical" barCategoryGap={props.barGap}>
                         <CartesianGrid />
-                        <Bar dataKey="ipm" fill={theme.barColor(0)} isAnimationActive={false} />
+                        <Bar dataKey="ipm" fill={theme.barColor(0)} isAnimationActive={false}
+                            name={ut.translate('mergeCorpFreq_rel_freq')} />
                         <XAxis type="number" />
                         <YAxis type="category" dataKey="name" width={120} />
                         <Legend />
@@ -73,8 +102,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         backlink={backlinks}
                         supportsTileReload={this.props.supportsReloadOnError}>
                     <div className="MergeCorpFreqBarTile">
-                        <Chart data={this.props.data} size={[this.props.renderSize[0], 70 + this.props.data.size * this.props.pixelsPerItem]}
-                                barGap={this.props.barGap} />
+                        {this.props.isAltViewMode ?
+                            <TableView data={this.props.data} /> :
+                            <Chart data={this.props.data} size={[this.props.renderSize[0], 70 + this.props.data.size * this.props.pixelsPerItem]}
+                                    barGap={this.props.barGap} />
+                        }
                     </div>
                 </globComponents.TileWrapper>
             );
