@@ -175,6 +175,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     }> = React.memo((props) => {
         const data = mergeDataSets(props.data1, props.data2);
+
         return (
             <ResponsiveContainer width={props.isSmallWidth ? '100%' : '90%'} height={props.size[1]}>
                 <AreaChart data={data}
@@ -193,7 +194,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             connectNulls={true} />
                     <Area type="linear"
                         dataKey="ipmInterval2"
-                        name={props.wordCmp ? ut.translate('timeDistrib__estimated_interval_for_{word}', {word: props.word}): undefined}
+                        name={props.wordCmp ? ut.translate('timeDistrib__estimated_interval_for_{word}', {word: props.wordCmp}): undefined}
                         stroke={props.isPartial ? '#dddddd' : theme.barColor(1)}
                         fill={props.isPartial ? '#eeeeee' : theme.barColor(1)}
                         strokeWidth={1}

@@ -138,7 +138,9 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         newData = Immutable.List<DataItemWithWCI>();
 
                     } else {
-                        newState.wordMainLabel = action.payload.wordMainLabel;
+                        if (action.payload.subchartId === SubchartID.MAIN) {
+                            newState.wordMainLabel = action.payload.wordMainLabel;
+                        }
                         newData = this.mergeChunks(
                             prevData,
                             Immutable.List<DataItemWithWCI>(action.payload.data),
