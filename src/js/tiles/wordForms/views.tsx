@@ -36,11 +36,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // -------------- <TableView /> -------------------------------------
 
     const TableView:React.SFC<{
+        roundToPos:number;
         data:Immutable.List<WordFormItem>;
 
     }> = (props) => {
         const extFormatNum = (x:number, pos:number) => {
-            if (x < 10 ** -pos) {
+            if (x < 10 ** -props.roundToPos) {
                 return '~0';
             }
             return ut.formatNumber(x, pos);
@@ -59,7 +60,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <tr key={`${i}:${row.value}`}>
                             <td>{row.value}</td>
                             <td className="num">{ut.formatNumber(row.freq)}</td>
-                            <td className="num">{extFormatNum(row.ratio, 1)}%</td>
+                            <td className="num">{extFormatNum(row.ratio, props.roundToPos)}%</td>
                         </tr>
                     ))}
                 </tbody>
@@ -74,7 +75,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             const dataTransform = (v:WordFormItem) => ({
                 text: v.value,
                 value: v.freq,
-                tooltip: [{label: ut.translate('wordforms__item_ratio'), value: `${ut.formatNumber(v.ratio, 1)}%`}],
+                tooltip: [{
+                    label: ut.translate('wordforms__item_ratio'),
+                    value: `${ut.formatNumber(v.ratio, this.props.roundToPos)}%`}],
                 interactionId: null
             });
 
@@ -83,7 +86,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         hasData={this.props.data.size > 0} sourceIdent={{corp: this.props.corpname}}
                         supportsTileReload={this.props.supportsReloadOnError}>
                     {this.props.isAltViewMode ?
-                            <TableView data={this.props.data} /> :
+                            <TableView data={this.props.data} roundToPos={this.props.roundToPos} /> :
                             <globalComponents.ResponsiveWrapper render={(width:number, height:number) => (
                                 <WordCloud width={width} height={height} data={this.props.data} isMobile={this.props.isMobile}
                                         style={this.props.isMobile ? {height: `${this.props.data.size * 30}px`} :
