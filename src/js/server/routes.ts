@@ -122,7 +122,9 @@ function createHelperServices(services:Services, uiLang:string):[ViewUtils<Globa
         uiLang: uiLang,
         translations: services.translations,
         staticUrlCreator: (path) => services.clientConf.rootUrl + 'assets/' + path,
-        actionUrlCreator: (path, args) => services.clientConf.hostUrl + path + '?' + encodeArgs(args)
+        actionUrlCreator: (path, args) => services.clientConf.hostUrl +
+                (path.substr(0, 1) === '/' ? path.substr(1) : path ) +
+                (Object.keys(args || {}).length > 0 ? '?' + encodeArgs(args) : '')
     });
 
     return [

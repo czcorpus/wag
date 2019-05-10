@@ -51,7 +51,9 @@ export const initClient = (mountElement:HTMLElement, config:ClientConf, userSess
         uiLang: uiLangSel,
         translations: translations,
         staticUrlCreator: (path) => config.rootUrl + 'assets/' + path,
-        actionUrlCreator: (path, args) => config.hostUrl + path + (Object.keys(args || {}).length > 0 ? '?' + encodeArgs(args) : '')
+        actionUrlCreator: (path, args) => config.hostUrl +
+                (path.substr(0, 1) === '/' ? path.substr(1) : path ) +
+                (Object.keys(args || {}).length > 0 ? '?' + encodeArgs(args) : '')
     });
     const appServices = new AppServices({
         notifications: notifications,
