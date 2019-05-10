@@ -292,7 +292,8 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                     newError(ErrorType.BAD_REQUEST, `Frequency database for [${req.query.lang}] not defined`));
 
             } else {
-
+                observer.next({lang: req.query.lang});
+                observer.complete();
             }
         }).pipe(
             concatMap(
