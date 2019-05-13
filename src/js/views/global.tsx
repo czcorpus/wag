@@ -69,6 +69,13 @@ export interface GlobalComponents {
         onChange:(idx:number)=>void;
     }>;
 
+    ImageWithMouseover:React.SFC<{
+        file:string;
+        alt:string;
+        file2?:string;
+        htmlClass?:string;
+    }>;
+
     ResponsiveWrapper:React.ComponentClass<{
         render:(width:number, height:number)=>React.ReactElement<{width:number, height:number} & {}>;
     }>;
@@ -360,7 +367,26 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
         );
     };
 
-    // ----------------------
+    // --------- <ImageWithMouseover /> ---------------------------------------------------------
+
+    const ImageWithMouseover:GlobalComponents['ImageWithMouseover'] = (props) => {
+
+        const [is2ndState, set2ndState] = React.useState(false);
+
+        let file2 = props.file2;
+        if (!file2) {
+            const items = props.file.split('.');
+            file2 = `${items.slice(0, items.length - 1).join('.')}_s.${items[items.length - 1]}`;
+        }
+
+        return (
+            <img src={ut.createStaticUrl(is2ndState ? file2 : props.file)}
+                    onMouseOver={()=>set2ndState(!is2ndState)}
+                    onMouseOut={()=>set2ndState(!is2ndState)} />
+        );
+    };
+
+    // --------- <ResponsiveWrapper /> ----------------------------------------------
 
     class ResponsiveWrapper extends React.Component<{
             render:(width:number, height:number)=>React.ReactElement<{width: number, height:number} & {}>;
@@ -416,6 +442,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
         ErrorBoundary: ErrorBoundary,
         ModalBox: ModalBox,
         HorizontalBlockSwitch: HorizontalBlockSwitch,
+        ImageWithMouseover: ImageWithMouseover,
         ResponsiveWrapper: ResponsiveWrapper
     };
 }

@@ -105,21 +105,33 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
             },
             [ActionName.EnableAltViewMode]: (state, action:Actions.EnableAltViewMode) => {
                 const newState = this.copyState(state);
+                if (newState.helpActiveTiles.has(action.payload.ident)) {
+                    newState.helpActiveTiles = newState.helpActiveTiles.remove(action.payload.ident);
+                }
                 newState.altViewActiveTiles = newState.altViewActiveTiles.add(action.payload.ident);
                 return newState;
             },
             [ActionName.DisableAltViewMode]: (state, action:Actions.DisableAltViewMode) => {
                 const newState = this.copyState(state);
+                if (newState.helpActiveTiles.has(action.payload.ident)) {
+                    newState.helpActiveTiles = newState.helpActiveTiles.remove(action.payload.ident);
+                }
                 newState.altViewActiveTiles = newState.altViewActiveTiles.remove(action.payload.ident);
                 return newState;
             },
             [ActionName.EnableTileTweakMode]: (state, action:Actions.EnableTileTweakMode) => {
                 const newState = this.copyState(state);
+                if (newState.helpActiveTiles.has(action.payload.ident)) {
+                    newState.helpActiveTiles = newState.helpActiveTiles.remove(action.payload.ident);
+                }
                 newState.tweakActiveTiles = newState.tweakActiveTiles.add(action.payload.ident);
                 return newState;
             },
             [ActionName.DisableTileTweakMode]: (state, action:Actions.DisableTileTweakMode) => {
                 const newState = this.copyState(state);
+                if (newState.helpActiveTiles.has(action.payload.ident)) {
+                    newState.helpActiveTiles = newState.helpActiveTiles.remove(action.payload.ident);
+                }
                 newState.tweakActiveTiles = newState.tweakActiveTiles.remove(action.payload.ident);
                 return newState;
             },
