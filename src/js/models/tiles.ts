@@ -47,17 +47,17 @@ export interface WdglanceTilesState {
     isAnswerMode:boolean;
     isBusy:boolean;
     isMobile:boolean;
-    isModalVisible:boolean;
+    activeSourceInfo:number|null;
+    sourceBoxData:SourceDetails|null; // or other possible data types
     altViewActiveTiles:Immutable.Set<number>;
     tweakActiveTiles:Immutable.Set<number>;
     helpActiveTiles:Immutable.Set<number>;
     tilesHelpData:Immutable.Map<number, string>; // raw html data loaded from a trusted resource
     hiddenGroups:Immutable.Set<number>;
-    hiddenGroupsHeaders:Immutable.Set<number>;
+    activeGroupHelp:number|null;
     datalessGroups:Immutable.Set<number>;
     tileResultFlags:Immutable.List<TileResultFlagRec>;
     tileProps:Immutable.List<TileFrameProps>;
-    modalBoxData:SourceDetails|null; // or other possible data types
 }
 
 
@@ -155,8 +155,8 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
             },
             [ActionName.GetSourceInfo]: (state, action:Actions.GetSourceInfo) => {
                 const newState = this.copyState(state);
-                newState.modalBoxData = null;
-                newState.isModalVisible = true;
+                newState.sourceBoxData = null;
+                newState.activeSourceInfo = action.payload.tileId;
                 newState.isBusy = true;
                 return newState;
             },
@@ -164,17 +164,17 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                 const newState = this.copyState(state);
                 newState.isBusy = false;
                 if (action.error) {
-                    newState.isModalVisible = false;
+                    newState.activeSourceInfo = null;
 
                 } else {
-                    newState.modalBoxData = action.payload.data;
+                    newState.sourceBoxData = action.payload.data;
                 }
                 return newState;
             },
             [ActionName.CloseSourceInfo]: (state, action:Actions.CloseSourceInfo) => {
                 const newState = this.copyState(state);
-                newState.modalBoxData = null;
-                newState.isModalVisible = false;
+                newState.sourceBoxData = null;
+                newState.activeSourceInfo = null;
                 return newState;
             },
             [ActionName.ToggleGroupVisibility]: (state, action:Actions.ToggleGroupVisibility) => {
@@ -188,14 +188,14 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
 
                 return newState;
             },
-            [ActionName.ToggleGroupHeader]: (state, action:Actions.ToggleGroupHeader) => {
+            [ActionName.ShowGroupHelp]: (state, action:Actions.ShowGroupHelp) => {
                 const newState = this.copyState(state);
-                if (newState.hiddenGroupsHeaders.contains(action.payload.groupIdx)) {
-                    newState.hiddenGroupsHeaders = newState.hiddenGroupsHeaders.remove(action.payload.groupIdx);
-
-                } else {
-                    newState.hiddenGroupsHeaders = newState.hiddenGroupsHeaders.add(action.payload.groupIdx);
-                }
+                newState.activeGroupHelp = action.payload.groupIdx;
+                return newState;
+            },
+            [ActionName.HideGroupHelp]: (state, action:Actions.HideGroupHelp) => {
+                const newState = this.copyState(state);
+                newState.activeGroupHelp = null;
                 return newState;
             },
             [ActionName.RequestQueryResponse]: (state, action) => {

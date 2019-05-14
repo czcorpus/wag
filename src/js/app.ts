@@ -250,11 +250,6 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
             altViewActiveTiles: Immutable.Set<number>(),
             tilesHelpData: Immutable.Map<number, string>(),
             hiddenGroups: Immutable.Set<number>(),
-            hiddenGroupsHeaders: Immutable.Set<number>(
-                appServices.isMobileMode() ?
-                    layoutManager.getLayout(qType).map((_, i) => i) :
-                    []
-            ),
             datalessGroups: Immutable.Set<number>(),
             tileResultFlags: layoutManager.getLayout(qType).reduce(
                 (acc, curr, i) => acc.concat(curr.tiles.map<TileResultFlagRec>(v => ({
@@ -265,8 +260,9 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
                 Immutable.List<TileResultFlagRec>()
             ),
             tileProps: Immutable.List<TileFrameProps>(tiles),
-            isModalVisible: false,
-            modalBoxData: null
+            sourceBoxData: null,
+            activeSourceInfo: null,
+            activeGroupHelp: null
         },
         appServices,
         new CorpusInfoAPI(config.corpInfoApiUrl)
