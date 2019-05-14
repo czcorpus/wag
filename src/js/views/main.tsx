@@ -420,9 +420,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         return (
             <span className="HelpButton bar-button">
                 <button type="button" onClick={handleClick} title={props.isHelpMode ? ut.translate('global__hide_tile_help') : ut.translate('global__show_tile_help')}>
-                    <globalComponents.ImageWithMouseover
-                        file={props.isHelpMode ? 'question-mark_s.svg' : 'question-mark.svg'}
-                        file2={props.isHelpMode ? 'question-mark.svg' : 'question-mark_s.svg'}
+                    <img src={ut.createStaticUrl(props.isHelpMode ? 'question-mark_s.svg' : 'question-mark.svg')}
                         alt={props.isHelpMode ? ut.translate('global__img_alt_question_mark') : ut.translate('global__img_alt_question_mark')} />
                 </button>
             </span>
@@ -460,14 +458,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 ut.translate('global__switch_to_default_view') :
                 ut.translate('global__switch_to_alt_view');
 
-        const getImage = () => props.isAltView ? 'alt-view_s.svg' : 'alt-view.svg';
-
-        const get2ndImage = () => props.isAltView ? 'alt-view.svg' : 'alt-view_s.svg';
-
         return (
             <span className="AltViewButton bar-button">
                 <button type="button" onClick={handleClick} title={label}>
-                    <globalComponents.ImageWithMouseover file={getImage()} file2={get2ndImage()} alt={ut.translate('global__img_alt_alt_view')} />
+                    <img src={ut.createStaticUrl(props.isAltView ? 'alt-view_s.svg' : 'alt-view.svg')}
+                            alt={ut.translate('global__img_alt_alt_view')} />
                 </button>
             </span>
         );
@@ -501,15 +496,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             }
         };
 
-        const getIcon = () => props.isExtended ? 'config-icon_s.svg' : 'config-icon.svg';
-        const getIcon2 = () => props.isExtended ? 'config-icon.svg' : 'config-icon_s.svg';
-        const getAlt = () => props.isExtended ? 'configuration icon (highlighted)' : 'configuration icon';
-
         return (
             <span className="TweakButton bar-button">
                 <button type="button" onClick={handleClick} title={props.isExtended ? ut.translate('global__reset_size') : ut.translate('global__tweak')}>
-                    <globalComponents.ImageWithMouseover
-                        file={getIcon()} file2={getIcon2()} alt={getAlt()} />
+                    <img src={ut.createStaticUrl(props.isExtended ? 'config-icon_s.svg' : 'config-icon.svg')}
+                        alt={props.isExtended ? 'configuration icon (highlighted)' : 'configuration icon'} />
                 </button>
             </span>
         );
