@@ -61,7 +61,8 @@
         "global__img_alt_alt_view": "Alternative view icon",
         "global__aria_searched_word": "Searched word",
         "global__aria_search_lang": "Search language",
-        "global__aria_search_btn": "Search"
+        "global__aria_search_btn": "Search",
+        "global__tile_group_help_label": "tile group description"
 
     },
     "cs-CZ": {
@@ -126,6 +127,7 @@
         "global__img_alt_alt_view": "Ikona alternativního zobrazení",
         "global__aria_searched_word": "Hledané slovo",
         "global__aria_search_lang": "Prohledávaný jazyk",
-        "global__aria_search_btn": "Vyhledat"
+        "global__aria_search_btn": "Vyhledat",
+        "global__tile_group_help_label": "popis skupiny dlaždic"
     }
 }

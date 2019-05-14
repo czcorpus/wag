@@ -46,7 +46,8 @@ export enum ActionName {
     GetSourceInfoDone = 'MAIN_GET_SOURCE_INFO_DONE',
     CloseSourceInfo = 'MAIN_CLOSE_SOURCE_INFO',
     ToggleGroupVisibility = 'MAIN_TOGGLE_GROUP_VISIBILITY',
-    ToggleGroupHeader = 'MAIN_TOGGLE_GROUP_HEADER',
+    ShowGroupHelp = 'MAIN_SHOW_GROUP_HELP',
+    HideGroupHelp = 'MAIN_HIDE_GROUP_HELP',
     ShowTileHelp = 'MAIN_SHOW_TILE_HELP',
     LoadTileHelpDone = 'MAIN_LOAD_TILE_HELP_DONE',
     HideTileHelp = 'MAIN_HIDE_TILE_HELP',
@@ -217,10 +218,15 @@ export namespace Actions {
         name:ActionName.ToggleGroupVisibility;
     }
 
-    export interface ToggleGroupHeader extends Action<{
+    export interface ShowGroupHelp extends Action<{
         groupIdx:number;
     }> {
-        name:ActionName.ToggleGroupHeader;
+        name:ActionName.ShowGroupHelp;
+    }
+
+    export interface HideGroupHelp extends Action<{
+    }> {
+        name:ActionName.HideGroupHelp;
     }
 
     export interface ShowTileHelp extends Action<{

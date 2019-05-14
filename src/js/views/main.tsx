@@ -420,9 +420,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         return (
             <span className="HelpButton bar-button">
                 <button type="button" onClick={handleClick} title={props.isHelpMode ? ut.translate('global__hide_tile_help') : ut.translate('global__show_tile_help')}>
-                    <globalComponents.ImageWithMouseover
-                        file={props.isHelpMode ? 'question-mark_s.svg' : 'question-mark.svg'}
-                        file2={props.isHelpMode ? 'question-mark.svg' : 'question-mark_s.svg'}
+                    <img src={ut.createStaticUrl(props.isHelpMode ? 'question-mark_s.svg' : 'question-mark.svg')}
                         alt={props.isHelpMode ? ut.translate('global__img_alt_question_mark') : ut.translate('global__img_alt_question_mark')} />
                 </button>
             </span>
@@ -460,14 +458,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 ut.translate('global__switch_to_default_view') :
                 ut.translate('global__switch_to_alt_view');
 
-        const getImage = () => props.isAltView ? 'alt-view_s.svg' : 'alt-view.svg';
-
-        const get2ndImage = () => props.isAltView ? 'alt-view.svg' : 'alt-view_s.svg';
-
         return (
             <span className="AltViewButton bar-button">
                 <button type="button" onClick={handleClick} title={label}>
-                    <globalComponents.ImageWithMouseover file={getImage()} file2={get2ndImage()} alt={ut.translate('global__img_alt_alt_view')} />
+                    <img src={ut.createStaticUrl(props.isAltView ? 'alt-view_s.svg' : 'alt-view.svg')}
+                            alt={ut.translate('global__img_alt_alt_view')} />
                 </button>
             </span>
         );
@@ -501,15 +496,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             }
         };
 
-        const getIcon = () => props.isExtended ? 'config-icon_s.svg' : 'config-icon.svg';
-        const getIcon2 = () => props.isExtended ? 'config-icon.svg' : 'config-icon_s.svg';
-        const getAlt = () => props.isExtended ? 'configuration icon (highlighted)' : 'configuration icon';
-
         return (
             <span className="TweakButton bar-button">
                 <button type="button" onClick={handleClick} title={props.isExtended ? ut.translate('global__reset_size') : ut.translate('global__tweak')}>
-                    <globalComponents.ImageWithMouseover
-                        file={getIcon()} file2={getIcon2()} alt={getAlt()} />
+                    <img src={ut.createStaticUrl(props.isExtended ? 'config-icon_s.svg' : 'config-icon.svg')}
+                        alt={props.isExtended ? 'configuration icon (highlighted)' : 'configuration icon'} />
                 </button>
             </span>
         );
@@ -652,7 +643,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         groupHidden:boolean;
         groupDisabled:boolean;
         group:TileGroup;
-        headerTextActive:boolean;
         clickHandler:()=>void;
         helpClickHandler:()=>void;
 
@@ -675,7 +665,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 {props.group.groupLabel}
                             </span>
                         </a>
-                        <a className={`help${props.headerTextActive ? ' active' : ''}`} onClick={()=>props.helpClickHandler()}>?</a>
+                        <a className="help" onClick={()=>props.helpClickHandler()}>?</a>
                     </span>
                 </h2>
             </div>
@@ -690,7 +680,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         idx:number;
         isHidden:boolean;
         hasData:boolean;
-        hasHeaderTextActive:boolean;
         isMobile:boolean;
         tileFrameProps:Immutable.List<TileFrameProps>;
         tilesHelpData:Immutable.Map<number, string>;
@@ -710,8 +699,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
 
         const handleGroupHeaderClick = ():void => {
-            dispatcher.dispatch<Actions.ToggleGroupHeader>({
-                name: ActionName.ToggleGroupHeader,
+            dispatcher.dispatch<Actions.ShowGroupHelp>({
+                name: ActionName.ShowGroupHelp,
                 payload: {
                     groupIdx: props.idx
                 }
@@ -765,13 +754,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             groupDisabled={!props.hasData}
                             groupHidden={props.isHidden}
                             group={props.data}
-                            headerTextActive={props.hasHeaderTextActive}
                             clickHandler={handleGroupClick}
                             helpClickHandler={handleGroupHeaderClick} />
-                    {props.hasHeaderTextActive ?
-                        <div className="description"><p>{props.data.groupDesc}</p></div> :
-                        null
-                    }
                 </header>
                 {renderResult()}
             </section>
@@ -838,19 +822,53 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         constructor(props) {
             super(props);
             this.handleCloseSourceInfo = this.handleCloseSourceInfo.bind(this);
+            this.handleCloseGroupHelp = this.handleCloseGroupHelp.bind(this);
         }
 
-        handleCloseSourceInfo() {
+        private handleCloseSourceInfo() {
             dispatcher.dispatch<Actions.CloseSourceInfo>({
                 name: ActionName.CloseSourceInfo
-            })
+            });
+        }
+
+        private handleCloseGroupHelp() {
+            dispatcher.dispatch<Actions.HideGroupHelp>({
+                name: ActionName.HideGroupHelp
+            });
+        }
+
+        private renderModal() {
+            if (this.props.activeSourceInfo !== null) {
+                return (
+                    <globalComponents.ModalBox onCloseClick={this.handleCloseSourceInfo}
+                            title={this.props.sourceBoxData ? this.props.sourceBoxData.title : ''}>
+                        <globalComponents.ErrorBoundary>
+                            <SourceInfo tileProps={this.props.tileProps} data={this.props.sourceBoxData} />
+                        </globalComponents.ErrorBoundary>
+                    </globalComponents.ModalBox>
+                );
+
+            } else if(this.props.activeGroupHelp !== null) {
+                const group = this.props.layout.get(this.props.activeGroupHelp);
+                return (
+                    <globalComponents.ModalBox onCloseClick={this.handleCloseGroupHelp}
+                            title={`${group.groupLabel} - ${ut.translate('global__tile_group_help_label')}`}>
+                        <globalComponents.ErrorBoundary>
+                            <div dangerouslySetInnerHTML={{__html: group.groupDesc}} />
+                        </globalComponents.ErrorBoundary>
+                    </globalComponents.ModalBox>
+                );
+
+            } else {
+                return null;
+            }
         }
 
         render() {
             return (
                 <section className="TilesSections">
                     <header className="status">
-                        {this.props.isBusy && !this.props.isModalVisible ?
+                        {this.props.isBusy && this.props.activeSourceInfo !== null ?
                             <globalComponents.AjaxLoader htmlClass="loader" /> : null}
                     </header>
                     {this.props.isAnswerMode ?
@@ -862,7 +880,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                     idx={groupIdx}
                                     isHidden={this.props.hiddenGroups.contains(groupIdx)}
                                     hasData={!this.props.datalessGroups.contains(groupIdx)}
-                                    hasHeaderTextActive={!this.props.hiddenGroupsHeaders.contains(groupIdx)}
                                     isMobile={this.props.isMobile}
                                     tileFrameProps={this.props.tileProps}
                                     tilesHelpData={this.props.tilesHelpData}
@@ -875,13 +892,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         ) :
                         <section className="tiles"><InitialHelp sections={this.props.homepageSections} /></section>
                     }
-                    {this.props.isModalVisible ?
-                        <globalComponents.ModalBox onCloseClick={this.handleCloseSourceInfo}
-                                title={this.props.modalBoxData ? this.props.modalBoxData.title : ''}>
-                            <globalComponents.ErrorBoundary>
-                                <SourceInfo tileProps={this.props.tileProps} data={this.props.modalBoxData} />
-                            </globalComponents.ErrorBoundary>
-                        </globalComponents.ModalBox> : null}
+                    {this.renderModal()}
                 </section>
             );
         }
