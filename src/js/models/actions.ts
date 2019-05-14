@@ -47,6 +47,7 @@ export enum ActionName {
     CloseSourceInfo = 'MAIN_CLOSE_SOURCE_INFO',
     ToggleGroupVisibility = 'MAIN_TOGGLE_GROUP_VISIBILITY',
     ShowGroupHelp = 'MAIN_SHOW_GROUP_HELP',
+    ShowGroupHelpDone = 'MAIN_SHOW_GROUP_HELP_DONE',
     HideGroupHelp = 'MAIN_HIDE_GROUP_HELP',
     ShowTileHelp = 'MAIN_SHOW_TILE_HELP',
     LoadTileHelpDone = 'MAIN_LOAD_TILE_HELP_DONE',
@@ -220,8 +221,16 @@ export namespace Actions {
 
     export interface ShowGroupHelp extends Action<{
         groupIdx:number;
+        url:string;
     }> {
         name:ActionName.ShowGroupHelp;
+    }
+
+    export interface ShowGroupHelpDone extends Action<{
+        groupIdx:number;
+        html:string;
+    }> {
+        name:ActionName.ShowGroupHelpDone;
     }
 
     export interface HideGroupHelp extends Action<{

@@ -54,7 +54,7 @@ export interface WdglanceTilesState {
     helpActiveTiles:Immutable.Set<number>;
     tilesHelpData:Immutable.Map<number, string>; // raw html data loaded from a trusted resource
     hiddenGroups:Immutable.Set<number>;
-    activeGroupHelp:number|null;
+    activeGroupHelp:{html:string; idx:number}|null|null;
     datalessGroups:Immutable.Set<number>;
     tileResultFlags:Immutable.List<TileResultFlagRec>;
     tileProps:Immutable.List<TileFrameProps>;
@@ -190,7 +190,19 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
             },
             [ActionName.ShowGroupHelp]: (state, action:Actions.ShowGroupHelp) => {
                 const newState = this.copyState(state);
-                newState.activeGroupHelp = action.payload.groupIdx;
+                newState.isBusy = true;
+                newState.activeGroupHelp = {html: '', idx: action.payload.groupIdx};
+                return newState;
+            },
+            [ActionName.ShowGroupHelpDone]: (state, action:Actions.ShowGroupHelpDone) => {
+                const newState = this.copyState(state);
+                newState.isBusy = false;
+                if (action.error) {
+                    newState.activeGroupHelp = null;
+
+                } else {
+                    newState.activeGroupHelp = {html: action.payload.html, idx: action.payload.groupIdx};
+                }
                 return newState;
             },
             [ActionName.HideGroupHelp]: (state, action:Actions.HideGroupHelp) => {
@@ -262,6 +274,18 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
         );
     }
 
+    private getTileProps(state:WdglanceTilesState, tileId:number):Observable<TileFrameProps> {
+        return new Observable<TileFrameProps>((observer) => {
+            if (state.tileProps.get(tileId)) {
+                observer.next(state.tileProps.get(tileId));
+                observer.complete();
+
+            } else {
+                observer.error(new Error('Missing help URL'));
+            }
+        });
+    }
+
     sideEffects(state:WdglanceTilesState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
             case ActionName.GetSourceInfo:
@@ -311,16 +335,15 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
             break;
             case ActionName.ShowTileHelp:
                 if (!state.tilesHelpData.has(action.payload['tileId'])) {
-                    new Observable<string>((observer) => {
-                        if (state.tileProps.get(action.payload['tileId']).helpURL) {
-                            observer.next(state.tileProps.get(action.payload['tileId']).helpURL);
-                            observer.complete();
-
-                        } else {
-                            observer.error(new Error('Missing help URL'));
-                        }
-
-                    }).pipe(
+                    this.getTileProps(state, action.payload['tileId']).pipe(
+                        map(
+                            (props) => {
+                                if (!props.helpURL) {
+                                    throw new Error('Missing help URL');
+                                }
+                                return props.helpURL;
+                            }
+                        ),
                         concatMap(
                             (url) => {
                                 return ajax$<string>(
@@ -357,6 +380,37 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                         }
                     );
                 }
+            break;
+            case ActionName.ShowGroupHelp:
+                ajax$<string>(
+                    'GET',
+                    action.payload['url'],
+                    {},
+                    {
+                        responseType: ResponseType.TEXT
+                    }
+                ).subscribe(
+                    (html) => {
+                        dispatch<Actions.ShowGroupHelpDone>({
+                            name: ActionName.ShowGroupHelpDone,
+                            payload: {
+                                html: html,
+                                groupIdx: action.payload['groupIdx']
+                            }
+                        });
+                    },
+                    (err) => {
+                        this.appServices.showMessage(SystemMessageType.ERROR, err);
+                        dispatch<Actions.ShowGroupHelpDone>({
+                            name: ActionName.ShowGroupHelpDone,
+                            error: err,
+                            payload: {
+                                html: null,
+                                groupIdx: -1
+                            }
+                        });
+                    }
+                );
             break;
             case ActionName.SetEmptyResult:
                 if (action.payload && action.payload['error']) {

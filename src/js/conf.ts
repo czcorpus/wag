@@ -80,7 +80,7 @@ export interface ColorsConf {
 
 export interface LayoutConfig {
     groupLabel:LocalizedConfMsg;
-    groupDesc:LocalizedConfMsg;
+    groupDescURL:LocalizedConfMsg;
     groupTemplate:any; // TODO unfinished concept
     tiles:Array<{tile:string; width:number}>;
 }

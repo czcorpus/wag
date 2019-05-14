@@ -702,6 +702,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             dispatcher.dispatch<Actions.ShowGroupHelp>({
                 name: ActionName.ShowGroupHelp,
                 payload: {
+                    url: props.data.groupDescURL,
                     groupIdx: props.idx
                 }
             });
@@ -849,12 +850,17 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 );
 
             } else if(this.props.activeGroupHelp !== null) {
-                const group = this.props.layout.get(this.props.activeGroupHelp);
+                const group = this.props.layout.get(this.props.activeGroupHelp.idx);
                 return (
                     <globalComponents.ModalBox onCloseClick={this.handleCloseGroupHelp}
                             title={`${group.groupLabel} - ${ut.translate('global__tile_group_help_label')}`}>
                         <globalComponents.ErrorBoundary>
-                            <div dangerouslySetInnerHTML={{__html: group.groupDesc}} />
+                            {this.props.isBusy ?
+                                <div style={{textAlign: 'center', minWidth: '10em', minHeight: '5em'}}>
+                                    <globalComponents.AjaxLoader htmlClass="loader" />
+                                </div> :
+                                <div dangerouslySetInnerHTML={{__html: this.props.activeGroupHelp.html}} />
+                            }
                         </globalComponents.ErrorBoundary>
                     </globalComponents.ModalBox>
                 );
@@ -867,10 +873,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         render() {
             return (
                 <section className="TilesSections">
-                    <header className="status">
-                        {this.props.isBusy && this.props.activeSourceInfo !== null ?
-                            <globalComponents.AjaxLoader htmlClass="loader" /> : null}
-                    </header>
                     {this.props.isAnswerMode ?
                         (this.props.datalessGroups.size < this.props.layout.size ?
                             this.props.layout.map((group, groupIdx) => (
