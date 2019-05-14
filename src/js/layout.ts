@@ -33,8 +33,7 @@ function itemIsServiceConf(v:string|LayoutConfig):v is string {
 
 export interface TileGroup {
     groupLabel:string;
-    groupDesc:string;
-    groupTemplate?:string;
+    groupDescURL:string;
     tiles:Immutable.List<{width:number; tileId:number}>;
 }
 
@@ -61,7 +60,7 @@ export class LayoutManager {
                 (layouts.single || []).filter(itemIsGroupConf).map<TileGroup>(group => {
                     return {
                         groupLabel: appServices.importExternalMessage(group.groupLabel),
-                        groupDesc: appServices.importExternalMessage(group.groupDesc),
+                        groupDescURL: appServices.importExternalMessage(group.groupDescURL),
                         tiles: Immutable.List<{width:number; tileId:number}>(
                                     group.tiles.map(v => ({tileId: tileMap[v.tile], width: v.width})))
                     }
@@ -74,7 +73,7 @@ export class LayoutManager {
             (layouts.cmp || []).filter(itemIsGroupConf).map<TileGroup>(group => {
                 return {
                     groupLabel: appServices.importExternalMessage(group.groupLabel),
-                    groupDesc: appServices.importExternalMessage(group.groupDesc),
+                    groupDescURL: appServices.importExternalMessage(group.groupDescURL),
                     tiles: Immutable.List<{width:number; tileId:number}>(
                                 group.tiles.map(v => ({tileId: tileMap[v.tile], width: v.width})))
                 }
@@ -87,7 +86,7 @@ export class LayoutManager {
             (layouts.translat || []).filter(itemIsGroupConf).map<TileGroup>(group => {
                 return {
                     groupLabel: appServices.importExternalMessage(group.groupLabel),
-                    groupDesc: appServices.importExternalMessage(group.groupDesc),
+                    groupDescURL: appServices.importExternalMessage(group.groupDescURL),
                     tiles: Immutable.List<{width:number; tileId:number}>(
                                 group.tiles.map(v => ({tileId: tileMap[v.tile], width: v.width})))
                 }
