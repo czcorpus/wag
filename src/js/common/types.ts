@@ -100,3 +100,10 @@ export interface TileError {
     message:string;
     retryAction:Action;
 }
+
+
+export interface IAsyncKeyValueStore {
+    get<T>(key:string):Observable<T>;
+    set(key:string, value:any):Observable<string>;
+    clearAll():Observable<number>;
+}

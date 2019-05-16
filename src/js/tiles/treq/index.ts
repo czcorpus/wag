@@ -54,7 +54,7 @@ export class TreqTile implements ITileProvider {
 
     private static readonly DEFAULT_MAX_NUM_LINES = 10;
 
-    constructor({tileId, dispatcher, appServices, ut, theme, lang1, lang2, mainForm, widthFract, conf, isBusy}:TileFactory.Args<TreqTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, theme, lang1, lang2, mainForm, widthFract, conf, isBusy, cache}:TileFactory.Args<TreqTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
@@ -73,7 +73,7 @@ export class TreqTile implements ITileProvider {
                 maxNumLines: conf.maxNumLines || TreqTile.DEFAULT_MAX_NUM_LINES
             },
             tileId,
-            new TreqAPI(conf.apiURL),
+            new TreqAPI(cache, conf.apiURL),
             conf.backlink || null,
             mainForm,
             theme.scaleColorIndexed

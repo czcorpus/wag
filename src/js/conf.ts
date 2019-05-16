@@ -110,6 +110,7 @@ export interface ClientStaticConf {
 	corpInfoApiUrl:string;
     dbValuesMapping:DbValueMapping;
     apiHeaders:{[urlPrefix:string]:HTTPHeaders};
+    reqCacheTTL:number;
     homepage:HomepageConf;
     colors:ColorsConf;
     resourceLanguages:{[code:string]:string};
@@ -134,6 +135,7 @@ export interface ClientConf {
 	corpInfoApiUrl:string;
     dbValuesMapping:DbValueMapping;
     colors:ColorsConf;
+    reqCacheTTL:number;
     apiHeaders:{[urlPrefix:string]:HTTPHeaders};
     homepage:{tiles:Array<{label:string; html:string}>};
     tiles:{[ident:string]:AnyTileConf};
@@ -147,8 +149,9 @@ export function emptyClientConf(conf:ClientStaticConf):ClientConf {
         rootUrl: conf.rootUrl,
         hostUrl: conf.hostUrl,
         corpInfoApiUrl: conf.corpInfoApiUrl,
-        dbValuesMapping: conf.dbValuesMapping,
         apiHeaders: conf.apiHeaders,
+        dbValuesMapping: conf.dbValuesMapping,
+        reqCacheTTL: conf.reqCacheTTL,
         colors: conf.colors,
         tiles: {},
         layouts: {single: [], cmp: [], translat: []},

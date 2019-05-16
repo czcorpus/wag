@@ -71,7 +71,7 @@ export class ConcordanceTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({tileId, dispatcher, appServices, ut, mainForm, widthFract, waitForTiles, conf, lang2, isBusy}:TileFactory.Args<ConcordanceTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, mainForm, widthFract, waitForTiles, conf, lang2, isBusy, cache}:TileFactory.Args<ConcordanceTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.widthFract = widthFract;
@@ -87,7 +87,7 @@ export class ConcordanceTile implements ITileProvider {
             dispatcher: dispatcher,
             tileId: tileId,
             appServices: appServices,
-            service: createApiInstance(conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            service: createApiInstance(cache, conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             sourceInfoService: this.sourceInfoService,
             stateToArgMapper: createMapperInstance(conf.apiType),
             mainForm: mainForm,

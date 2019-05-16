@@ -20,7 +20,7 @@ import { IActionDispatcher, StatelessModel } from 'kombo';
 
 import { AppServices } from '../../appServices';
 import { BacklinkArgs } from '../../common/api/kontext/freqs';
-import { CorePosAttribute } from '../../common/types';
+import { CorePosAttribute, IAsyncKeyValueStore } from '../../common/types';
 import { QueryType } from '../../common/query';
 import { CollocMetric, DataRow, SrchContextType } from './common';
 import { CollocModel } from './model';
@@ -64,7 +64,7 @@ export class CollocationsTile implements ITileProvider {
 
     private view:TileComponent;
 
-    constructor({tileId, dispatcher, appServices, ut, theme, waitForTiles, widthFract, conf, isBusy}:TileFactory.Args<CollocationsTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, theme, waitForTiles, widthFract, conf, isBusy, cache}:TileFactory.Args<CollocationsTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.appServices = appServices;
@@ -75,7 +75,7 @@ export class CollocationsTile implements ITileProvider {
             tileId: tileId,
             waitForTile: waitForTiles[0],
             appServices: appServices,
-            service: new KontextCollAPI(conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            service: new KontextCollAPI(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             backlink: conf.backlink || null,
             initState: {
                 isBusy: isBusy,

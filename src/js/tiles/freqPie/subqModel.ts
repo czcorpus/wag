@@ -40,10 +40,10 @@ export class SubqFreqPieModel extends FreqPieModel {
 
     constructor(dispatcher:IActionDispatcher, initState:FreqPieModelState,
             tileId:number, waitForTile:number, appServices:AppServices,
-            api:MultiBlockFreqDistribAPI, backlink:Backlink, subqConf:SubqueryModeConf) {
+            api:MultiBlockFreqDistribAPI, concApi:ConcApi, backlink:Backlink, subqConf:SubqueryModeConf) {
         super(dispatcher, initState, tileId, waitForTile, appServices, api, backlink);
         this.subqConf = subqConf;
-        this.concApi = new ConcApi(subqConf.concApiURL, appServices.getApiHeaders(subqConf.concApiURL));
+        this.concApi = concApi;
     }
 
     private loadFreq(state:FreqPieModelState, corp:string, query:string):Observable<APIBlockResponse> {
@@ -125,7 +125,8 @@ export class SubqFreqPieModel extends FreqPieModel {
 
 export const factory =
     (
-        subqConf:SubqueryModeConf
+        subqConf:SubqueryModeConf,
+        concApi:ConcApi
     ) =>
     (
         dispatcher:IActionDispatcher,
@@ -137,5 +138,5 @@ export const factory =
         backlink:Backlink
     ) => {
 
-    return new SubqFreqPieModel(dispatcher, initState, tileId, waitForTile, appServices, api, backlink, subqConf);
+    return new SubqFreqPieModel(dispatcher, initState, tileId, waitForTile, appServices, api, concApi, backlink, subqConf);
 };

@@ -20,8 +20,7 @@ import { TimeDistribApi, TimeDistribArgs, TimeDistribResponse } from '../abstrac
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { FreqDistribAPI, FreqSort } from './freqs';
-import { WordListAPI } from './wordList';
-import { HTTPHeaders } from '../../types';
+import { HTTPHeaders, IAsyncKeyValueStore } from '../../types';
 
 
 /**
@@ -36,8 +35,8 @@ export class KontextTimeDistribApi implements TimeDistribApi {
 
     private readonly flimit:number;
 
-    constructor(apiURL:string, customHeaders:HTTPHeaders, fcrit:string, flimit:number) {
-        this.freqApi = new FreqDistribAPI(apiURL, customHeaders);
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, customHeaders:HTTPHeaders, fcrit:string, flimit:number) {
+        this.freqApi = new FreqDistribAPI(cache, apiURL, customHeaders);
         this.fcrit = fcrit;
         this.flimit = flimit;
     }

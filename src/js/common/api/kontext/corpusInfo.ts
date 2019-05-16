@@ -15,11 +15,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Observable, of as rxOf } from 'rxjs';
+import { Observable } from 'rxjs';
 import { share, map } from 'rxjs/operators';
 
-import { ajax$ } from '../../ajax';
-import { DataApi, HTTPHeaders, SourceDetails } from '../../types';
+import { cachedAjax$ } from '../../ajax';
+import { DataApi, HTTPHeaders, SourceDetails, IAsyncKeyValueStore } from '../../types';
 
 
 
@@ -66,50 +66,36 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, APIResponse> {
 
     private readonly customHeaders:HTTPHeaders;
 
-    private readonly cache:{[corp:string]:APIResponse};
+    private readonly cache:IAsyncKeyValueStore;
 
-    constructor(apiURL:string, customHeaders?:HTTPHeaders) {
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, customHeaders?:HTTPHeaders) {
+        this.cache = cache;
         this.apiURL = apiURL;
         this.customHeaders = customHeaders || {};
-        this.cache = {};
     }
 
     call(args:QueryArgs):Observable<APIResponse> {
-        if (args.corpname in this.cache) {
-            return rxOf(this.cache[args.corpname]);
+        return cachedAjax$<HTTPResponse>(this.cache)(
+            'GET',
+            this.apiURL,
+            args,
+            {headers: this.customHeaders}
 
-        } else {
-            const ans = ajax$<HTTPResponse>(
-                'GET',
-                this.apiURL,
-                args,
-                {headers: this.customHeaders}
-
-            ).pipe(
-                share(),
-                map(
-                    (resp) => ({
-                        tileId: args.tileId,
-                        title: resp.corpname,
-                        description: resp.description,
-                        author: '', // TODO
-                        size: resp.size,
-                        webURL: resp.web_url,
-                        attrList: resp.attrlist,
-                        citationInfo: resp.citation_info,
-                        structList: resp.structlist
-                    })
-                )
-            );
-
-            ans.subscribe(
-                (data) => {
-                    this.cache[args.corpname] = data;
-                }
-            );
-
-            return ans;
-        }
-
+        ).pipe(
+            share(),
+            map(
+                (resp) => ({
+                    tileId: args.tileId,
+                    title: resp.corpname,
+                    description: resp.description,
+                    author: '', // TODO
+                    size: resp.size,
+                    webURL: resp.web_url,
+                    attrList: resp.attrlist,
+                    citationInfo: resp.citation_info,
+                    structList: resp.structlist
+                })
+            )
+        );
     }
 }

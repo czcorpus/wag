@@ -15,12 +15,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Observable } from 'rxjs';
+import { Observable, of as rxOf } from 'rxjs';
 import { ajax, AjaxResponse } from 'rxjs/ajax';
-import { map } from 'rxjs/operators';
+import { map, concatMap, tap } from 'rxjs/operators';
 
 import { MultiDict } from './data';
-import { HTTPHeaders } from './types';
+import { HTTPHeaders, IAsyncKeyValueStore } from './types';
 
 
 
@@ -138,7 +138,56 @@ const prepareAjax = (method:string, url:string, args:AjaxArgs, options?:AjaxOpti
 };
 
 
-export const ajax$ = <T>(method:string, url:string, args:AjaxArgs, options?:AjaxOptions):Observable<T> => {
+interface CachedValue<T> {
+    cached:boolean;
+    value:T;
+}
+
+
+function isCachedValue<T>(v:any):v is CachedValue<T> {
+    return v && typeof v === 'object' && 'cached' in v && 'value' in v;
+}
+
+
+export const cachedAjax$ = <T>(cache:IAsyncKeyValueStore) => (method:string, url:string, args:AjaxArgs, options?:AjaxOptions):Observable<T> => {
+    const key = url + (args instanceof MultiDict ? JSON.stringify(args.items()) : JSON.stringify(args));
+    return cache.get<T>(key).pipe(
+        concatMap(
+            (value) => {
+                if (value === undefined) {
+                    return ajax$<T>(method, url, args, options);
+
+                } else {
+                    return rxOf<{cached:boolean; value:T}>({cached: true, value: value});
+                }
+            }
+        ),
+        tap(
+            (v:T|CachedValue<T>) => {
+                if (!isCachedValue(v)) {
+                    cache.set(key, v).subscribe(
+                        () => undefined,
+                        (err) => console.log('error request caching ', err)
+                    )
+                }
+            }
+        ),
+        map(
+            (v:T|CachedValue<T>) => {
+                if (isCachedValue(v)) {
+                    return v.value;
+                }
+                return v;
+            }
+        )
+    );
+};
+
+
+export type AjaxCall<T> = (method:string, url:string, args:AjaxArgs, options?:AjaxOptions)=>Observable<T>;
+
+
+export const ajax$ = <T>(method:string, url:string, args:AjaxArgs, options?:AjaxOptions) => {
     const callArgs = prepareAjax(method, url, args, options);
     const headers:HTTPHeaders = {'Content-Type': callArgs.contentType};
     if (options && options.headers) {

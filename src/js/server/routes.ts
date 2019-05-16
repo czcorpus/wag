@@ -20,7 +20,7 @@ import { Express, Request, Response } from 'express';
 import { ViewUtils } from 'kombo';
 import * as React from 'react';
 import { renderToString } from 'react-dom/server';
-import { Observable, forkJoin} from 'rxjs';
+import { Observable, forkJoin, of as rxOf } from 'rxjs';
 import { concatMap, map } from 'rxjs/operators';
 import * as Immutable from 'immutable';
 
@@ -43,6 +43,7 @@ import { createRootComponent } from '../app';
 import { WdglanceMainProps } from '../views/main';
 import { TileGroup } from '../layout';
 import { ActionName } from '../models/actions';
+import { DummyCache } from '../cacheDb';
 
 
 function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, appServices:AppServices):Observable<ClientConf> {
@@ -63,8 +64,9 @@ function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, appServices:App
             rootUrl: conf.rootUrl,
             hostUrl: conf.hostUrl,
             corpInfoApiUrl: conf.corpInfoApiUrl,
-            dbValuesMapping: conf.dbValuesMapping,
             apiHeaders: conf.apiHeaders,
+            reqCacheTTL: conf.reqCacheTTL,
+            dbValuesMapping: conf.dbValuesMapping,
             colors: conf.colors,
             tiles: conf.tiles[lang],
             layouts: conf.layouts[lang],
@@ -203,7 +205,8 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
                 appServices: appServices,
                 dispatcher: dispatcher,
                 onResize: new Observable((observer) => undefined),
-                viewUtils: viewUtils
+                viewUtils: viewUtils,
+                cache: new DummyCache()
             });
 
 

@@ -18,26 +18,9 @@
 import { Observable, of as rxOf } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { ajax$ } from '../../ajax';
-import { DataApi } from '../../types';
-import { puid } from '../../util';
+import { cachedAjax$ } from '../../ajax';
+import { DataApi, IAsyncKeyValueStore } from '../../types';
 
-
-/*
-        multiw_flag = '1' if ' ' in lemma else '0'
-        lemma_flag = '0' if ' ' in lemma else '1'
-        groups = ','.join(groups)
-        return [('left', lang1), ('right', lang2), ('viceslovne', multiw_flag), ('regularni', '0'),
-                ('lemma', lemma_flag), ('aJeA', '1'), ('hledejKde', groups), ('hledejCo', lemma),
-                ('order', 'percDesc')]
-
-
-    def mk_page_args(lang1, lang2, groups, lemma):
-        multiw_flag = '1' if ' ' in lemma else '0'
-        lemma_flag = '0' if ' ' in lemma else '1'
-        return [('jazyk1', lang1), ('jazyk2', lang2), ('viceslovne', multiw_flag), ('regularni', '0'),
-                ('lemma', lemma_flag), ('caseInsen', '1'), ('hledejCo', lemma)] + [('hledejKde[]', g) for g in groups]
-*/
 
 export type SearchPackages = {[lang2:string]:Array<string>};
 
@@ -92,9 +75,12 @@ export const mkInterctionId = (word:string):string => {
 
 export class TreqAPI implements DataApi<RequestArgs, TreqResponse> {
 
-    private readonly apiURL;
+    private readonly cache:IAsyncKeyValueStore;
 
-    constructor(apiURL:string) {
+    private readonly apiURL:string;
+
+    constructor(cache:IAsyncKeyValueStore, apiURL:string) {
+        this.cache = cache;
         this.apiURL = apiURL;
     }
 
@@ -113,7 +99,7 @@ export class TreqAPI implements DataApi<RequestArgs, TreqResponse> {
     }
 
     call(args:RequestArgs):Observable<TreqResponse> {
-        return ajax$<HTTPResponse>(
+        return cachedAjax$<HTTPResponse>(this.cache)(
             'GET',
             this.apiURL,
             args

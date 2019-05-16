@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { DataApi, HTTPHeaders } from '../../common/types';
+import { DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../common/types';
 import { SourceInfoComponent } from '../../common/tile';
 import { ConcResponse } from '../../common/api/abstract/concordance';
 import { ConcApi, stateToArgs as concStateToArgs } from '../../common/api/kontext/concordance';
@@ -28,11 +28,11 @@ import { GlobalComponents } from '../../views/global';
 import { CoreApiGroup, supportedCoreApiGroups } from '../../common/api/coreGroups';
 
 
-export function createApiInstance(apiIdent:string, apiURL:string, httpHeaders?:HTTPHeaders):DataApi<{}, ConcResponse> {
+export function createApiInstance(cache:IAsyncKeyValueStore, apiIdent:string, apiURL:string, httpHeaders?:HTTPHeaders):DataApi<{}, ConcResponse> {
 
  	switch (apiIdent) {
  		case CoreApiGroup.KONTEXT:
- 			return new ConcApi(apiURL, httpHeaders);
+ 			return new ConcApi(cache, apiURL, httpHeaders);
  		case CoreApiGroup.FCS_V1:
  			return new FCS1SearchRetrieveAPI(apiURL, httpHeaders);
  		default:

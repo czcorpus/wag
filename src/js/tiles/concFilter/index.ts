@@ -59,7 +59,7 @@ export class ConcFilterTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({tileId, waitForTiles, dispatcher, appServices, ut, widthFract, conf, theme, isBusy}:TileFactory.Args<ConcFilterTileConf>) {
+    constructor({tileId, waitForTiles, dispatcher, appServices, ut, widthFract, conf, theme, isBusy, cache}:TileFactory.Args<ConcFilterTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.widthFract = widthFract;
@@ -70,7 +70,7 @@ export class ConcFilterTile implements ITileProvider {
             tileId,
             waitForTiles,
             appServices,
-            new ConcApi(conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            new ConcApi(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             {
                 isBusy: isBusy,
                 error: null,
