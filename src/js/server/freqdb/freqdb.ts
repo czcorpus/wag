@@ -25,12 +25,12 @@ import { posTable } from './common';
 
 
 
-export const getLemmas = (db:Database, appServices:AppServices, word:string):Observable<Array<LemmaVariant>> => {
+export const getLemmas = (db:Database, appServices:AppServices, word:string, minFreq:number):Observable<Array<LemmaVariant>> => {
     return new Observable<LemmaVariant>((observer) => {
         db.serialize(() => {
             db.each(
-                'SELECT value, lemma, pos, `count` AS abs, arf FROM word WHERE value = ? ORDER BY arf DESC',
-                [word.toLowerCase()],
+                'SELECT value, lemma, pos, `count` AS abs, arf FROM word WHERE value = ? AND abs >= ? ORDER BY arf DESC',
+                [word.toLowerCase(), minFreq],
                 (err, row) => {
                     if (err) {
                         observer.error(err);

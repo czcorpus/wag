@@ -47,8 +47,8 @@ if (typeof clientConf.tiles === 'string') {
 
 
 const db = {};
-for (let d in serverConf.auxServices.wordDistribDb) {
-	db[d] = new sqlite3.Database(serverConf.auxServices.wordDistribDb[d]);
+for (let d in serverConf.freqDB.databases) {
+	db[d] = new sqlite3.Database(serverConf.freqDB.databases[d]);
 }
 const toolbar = createToolbarInstance(serverConf.toolbar);
 

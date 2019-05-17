@@ -180,9 +180,10 @@ export interface ServerConf {
         port:number;
         urlRootPath:string;
     };
-    auxServices:{
-        wordDistribDb:{[lang:string]:string};
+    freqDB:{
+        databases:{[lang:string]:string};
         similarFreqWordsMaxCtx:number;
+        minLemmaFreq:number;
     };
     toolbar:ToolbarDef;
     langCookie?:string;
