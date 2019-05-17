@@ -51,6 +51,7 @@ import { init as viewInit, WdglanceMainProps } from './views/main';
 import { RetryTileLoad } from './models/retryLoad';
 import { IActionDispatcher, ViewUtils } from 'kombo';
 import { AppServices } from './appServices';
+import { IAsyncKeyValueStore } from './common/types';
 
 
 const mkAttachTile = (queryType:QueryType, lang1:string, lang2:string) =>
@@ -98,7 +99,8 @@ const mkTileFactory = (
     queryType:QueryType,
     lang1:string,
     lang2:string,
-    tileIdentMap:{[ident:string]:number}) => (
+    tileIdentMap:{[ident:string]:number},
+    cache:IAsyncKeyValueStore) => (
             confName:string,
             conf:AnyTileConf):ITileProvider|null => {
 
@@ -115,7 +117,8 @@ const mkTileFactory = (
                 widthFract: layoutManager.getTileWidthFract(queryType, tileIdentMap[confName]),
                 theme: theme,
                 conf: conf,
-                isBusy: true
+                isBusy: true,
+                cache: cache
             });
         };
 
@@ -173,11 +176,12 @@ export interface InitIntArgs {
     dispatcher:IActionDispatcher;
     onResize:Observable<ScreenProps>;
     viewUtils:ViewUtils<GlobalComponents>;
+    cache:IAsyncKeyValueStore;
 }
 
 
 export function createRootComponent({config, userSession, lemmas, appServices, dispatcher,
-    onResize, viewUtils}:InitIntArgs):[React.FunctionComponent<WdglanceMainProps>, Immutable.List<TileGroup>] {
+    onResize, viewUtils, cache}:InitIntArgs):[React.FunctionComponent<WdglanceMainProps>, Immutable.List<TileGroup>] {
 
     const qType = userSession.queryType as QueryType; // TODO validate
     const globalComponents = globalCompInit(dispatcher, viewUtils, onResize);
@@ -223,7 +227,8 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
         qType,
         userSession.query1Lang,
         userSession.query2Lang,
-        tilesMap
+        tilesMap,
+        cache
     );
     Object.keys(config.tiles).forEach((ident, i) => {
         const tile = factory(ident, config.tiles[ident]);
@@ -265,7 +270,7 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
             activeGroupHelp: null
         },
         appServices,
-        new CorpusInfoAPI(config.corpInfoApiUrl)
+        new CorpusInfoAPI(cache, config.corpInfoApiUrl)
     );
     const messagesModel = new MessagesModel(dispatcher, appServices);
 

@@ -20,7 +20,7 @@ import { map } from 'rxjs/operators';
 
 import { LemmaVariant } from '../../query';
 import { WordFormsApi, RequestConcArgs, Response } from '../abstract/wordForms';
-import { HTTPHeaders } from '../../types';
+import { HTTPHeaders, IAsyncKeyValueStore } from '../../types';
 import { FreqDistribAPI } from './freqs';
 
 
@@ -33,8 +33,8 @@ export class WordFormsAPI implements WordFormsApi {
 
     fapi:FreqDistribAPI;
 
-    constructor(apiURL:string, customHeaders?:HTTPHeaders) {
-        this.fapi = new FreqDistribAPI(apiURL, customHeaders);
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, customHeaders?:HTTPHeaders) {
+        this.fapi = new FreqDistribAPI(cache, apiURL, customHeaders);
     }
 
     /*

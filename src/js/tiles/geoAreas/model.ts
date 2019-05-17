@@ -21,12 +21,12 @@ import { forkJoin, Observable, Observer, of as rxOf } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 
 import { AppServices } from '../../appServices';
-import { ajax$, ResponseType } from '../../common/ajax';
 import { DataRow, FreqDistribAPI } from '../../common/api/kontext/freqs';
 import { GeneralSingleCritFreqBarModelState, stateToAPIArgs } from '../../common/models/freq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
 import { ConcLoadedPayload } from '../concordance/actions';
 import { ActionName, Actions, DataLoadedPayload } from './actions';
+import { DataApi } from '../../common/types';
 
 /*
 oral2013:
@@ -85,12 +85,16 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
 
     private readonly api:FreqDistribAPI;
 
-    constructor(dispatcher:IActionDispatcher, tileId:number, waitForTile:number, appServices:AppServices, api:FreqDistribAPI, initState:GeoAreasModelState) {
+    private readonly mapLoader:DataApi<string, string>;
+
+    constructor(dispatcher:IActionDispatcher, tileId:number, waitForTile:number, appServices:AppServices, api:FreqDistribAPI,
+            mapLoader:DataApi<string, string>, initState:GeoAreasModelState) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.waitForTile = waitForTile;
         this.appServices = appServices;
         this.api = api;
+        this.mapLoader = mapLoader;
         this.actionMatch = {
             [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
                 const newState = this.copyState(state);
@@ -141,17 +145,6 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
         }
     }
 
-    private loadMap():Observable<string> {
-        return ajax$<string>(
-            'GET',
-            this.appServices.createStaticUrl('mapCzech.inline.svg'),
-            {},
-            {
-                responseType: ResponseType.TEXT
-            }
-        );
-    }
-
     sideEffects(state:GeoAreasModelState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
@@ -171,7 +164,7 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                             }).pipe(
                                 concatMap(args => this.api.call(stateToAPIArgs(state, payload.data.concPersistenceID)))
                             ),
-                            state.mapSVG ? rxOf(null) : this.loadMap()
+                            state.mapSVG ? rxOf(null) : this.mapLoader.call('mapCzech.inline.svg')
                         )
                         .subscribe(
                             resp => {

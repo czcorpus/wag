@@ -92,7 +92,7 @@ export class MergeCorpFreqTile implements ITileProvider {
     private readonly blockingTiles:Array<number>;
 
     constructor({dispatcher, tileId, waitForTiles, ut,
-                theme, appServices, widthFract, conf, isBusy}:TileFactory.Args<MergeCorpFreqTileConf>) {
+                theme, appServices, widthFract, conf, isBusy, cache}:TileFactory.Args<MergeCorpFreqTileConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
@@ -103,7 +103,7 @@ export class MergeCorpFreqTile implements ITileProvider {
             tileId,
             waitForTiles,
             appServices,
-            new FreqDistribAPI(conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            new FreqDistribAPI(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             {
                 isBusy: isBusy,
                 isAltViewMode: false,

@@ -24,6 +24,7 @@ import { QueryType } from '../../common/query';
 import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../common/tile';
 import { GeoAreasModel } from './model';
 import { init as viewInit } from './views';
+import { MapLoader } from './mapLoader';
 
 
 declare var require:any;
@@ -63,7 +64,7 @@ export class GeoAreasTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({tileId, dispatcher, appServices, ut, theme, waitForTiles, widthFract, conf, isBusy}:TileFactory.Args<GeoAreasTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, theme, waitForTiles, widthFract, conf, isBusy, cache}:TileFactory.Args<GeoAreasTileConf>) {
         this.tileId = tileId;
         this.label = appServices.importExternalMessage(conf.label);
         this.dispatcher = dispatcher;
@@ -75,7 +76,8 @@ export class GeoAreasTile implements ITileProvider {
             tileId,
             waitForTiles[0],
             appServices,
-            new FreqDistribAPI(conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            new FreqDistribAPI(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            new MapLoader(cache, appServices),
             {
                 isBusy: isBusy,
                 error: null,

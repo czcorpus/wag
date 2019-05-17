@@ -28,7 +28,7 @@ import {
 import { ConcResponse, ViewMode } from '../../common/api/abstract/concordance';
 import { HTTPResponse as FreqsHTTPResponse } from '../../common/api/kontext/freqs';
 import { MultiDict } from '../../common/data';
-import { CorePosAttribute, DataApi, HTTPHeaders } from '../../common/types';
+import { CorePosAttribute, DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../common/types';
 import { callWithRequestId } from '../../common/api/util';
 
 
@@ -78,10 +78,10 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
 
     private readonly concApi:ConcApi;
 
-    constructor(apiURL:string, concApiURL:string, customHeaders?:HTTPHeaders) {
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, concApiURL:string, customHeaders?:HTTPHeaders) {
         this.apiURL = apiURL;
         this.customHeaders = customHeaders || {};
-        this.concApi = new ConcApi(concApiURL, this.customHeaders);
+        this.concApi = new ConcApi(cache, concApiURL, this.customHeaders);
     }
 
     call(args:RequestArgs):Observable<Response> {

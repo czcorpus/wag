@@ -48,10 +48,10 @@ export class SubqFreqBarModel extends FreqBarModel {
     private readonly concApi:ConcApi;
 
     constructor(dispatcher:IActionDispatcher, tileId:number, waitForTile:number, appServices:AppServices, api:MultiBlockFreqDistribAPI,
-            backlink:Backlink|null, initState:FreqBarModelState, subqConf:SubqueryModeConf) {
+            concApi:ConcApi, backlink:Backlink|null, initState:FreqBarModelState, subqConf:SubqueryModeConf) {
         super(dispatcher, tileId, waitForTile, appServices, api, backlink, initState);
         this.subqConf = subqConf;
-        this.concApi = new ConcApi(subqConf.concApiURL, appServices.getApiHeaders(subqConf.concApiURL));
+        this.concApi = concApi;
     }
 
 
@@ -125,7 +125,7 @@ export class SubqFreqBarModel extends FreqBarModel {
 
 export const factory =
     (
-        subqConf:SubqueryModeConf) =>
+        subqConf:SubqueryModeConf, concApi:ConcApi) =>
     (
         dispatcher:IActionDispatcher,
         tileId:number,
@@ -135,7 +135,7 @@ export const factory =
         backlink:Backlink|null,
         initState:FreqBarModelState) => {
 
-        return new SubqFreqBarModel(dispatcher, tileId, waitForTile, appServices, api, backlink,
-                initState, subqConf);
+        return new SubqFreqBarModel(dispatcher, tileId, waitForTile, appServices, api,
+                    concApi, backlink, initState, subqConf);
 
     };

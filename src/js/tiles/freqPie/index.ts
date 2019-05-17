@@ -28,6 +28,7 @@ import { factory as defaultModelFactory, FreqPieDataRow, FreqPieModel } from './
 import { factory as subqModelFactory } from './subqModel';
 import { init as viewInit } from './view';
 import { StatelessModel } from 'kombo';
+import { ConcApi } from '../../common/api/kontext/concordance';
 
 declare var require:any;
 require('./style.less');
@@ -69,7 +70,7 @@ export class FreqPieTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({tileId, dispatcher, appServices, ut, theme, waitForTiles, widthFract, conf, isBusy}:TileFactory.Args<FreqPieTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, theme, waitForTiles, widthFract, conf, isBusy, cache}:TileFactory.Args<FreqPieTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
@@ -79,7 +80,11 @@ export class FreqPieTile implements ITileProvider {
         const labels = Array.isArray(conf.critLabels) ?
             conf.critLabels.map(v => this.appServices.importExternalMessage(v)) :
             [this.appServices.importExternalMessage(conf.critLabels)];
-        const modelFact = conf.subqueryMode ? subqModelFactory(conf.subqueryMode) : defaultModelFactory;
+        const modelFact = conf.subqueryMode ?
+            subqModelFactory(
+                conf.subqueryMode,
+                new ConcApi(cache, conf.subqueryMode.concApiURL, appServices.getApiHeaders(conf.subqueryMode.concApiURL))) :
+            defaultModelFactory;
         this.model = modelFact(
             dispatcher,
             {
@@ -106,7 +111,7 @@ export class FreqPieTile implements ITileProvider {
             tileId,
             waitForTiles[0],
             appServices,
-            new MultiBlockFreqDistribAPI(conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            new MultiBlockFreqDistribAPI(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             conf.backlink || null
         );
         this.label = appServices.importExternalMessage(conf.label || 'freqpie__main_label');

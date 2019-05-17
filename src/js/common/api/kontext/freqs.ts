@@ -18,8 +18,8 @@
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { ajax$ } from '../../ajax';
-import { DataApi, HTTPHeaders } from '../../types';
+import { cachedAjax$ } from '../../ajax';
+import { DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../types';
 
 export enum FreqSort {
     REL = 'rel'
@@ -115,13 +115,16 @@ export class FreqDistribAPI implements DataApi<SingleCritQueryArgs, APIResponse>
 
     private readonly customHeaders:HTTPHeaders;
 
-    constructor(apiURL:string, customHeaders?:HTTPHeaders) {
+    private readonly cache:IAsyncKeyValueStore;
+
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, customHeaders?:HTTPHeaders) {
+        this.cache = cache;
         this.apiURL = apiURL;
         this.customHeaders = customHeaders || {};
     }
 
     call(args:SingleCritQueryArgs):Observable<APIResponse> {
-        return ajax$<HTTPResponse>(
+        return cachedAjax$<HTTPResponse>(this.cache)(
             'GET',
             this.apiURL,
             args,
@@ -158,13 +161,16 @@ export class MultiBlockFreqDistribAPI implements DataApi<MultiCritQueryArgs, API
 
     private readonly customHeaders:HTTPHeaders;
 
-    constructor(apiURL:string, customHeaders?:HTTPHeaders) {
+    private readonly cache:IAsyncKeyValueStore;
+
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, customHeaders?:HTTPHeaders) {
+        this.cache = cache;
         this.apiURL = apiURL;
         this.customHeaders = customHeaders || {};
     }
 
     call(args:MultiCritQueryArgs):Observable<APIBlockResponse> {
-        return ajax$<HTTPResponse>(
+        return cachedAjax$<HTTPResponse>(this.cache)(
             'GET',
             this.apiURL,
             args,

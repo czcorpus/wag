@@ -18,17 +18,17 @@
 
 import { WordFormsApi } from '../../common/api/abstract/wordForms';
 import { WordFormsAPI as WordFormsKontextApi } from '../../common/api/kontext/wordForms';
-import { HTTPHeaders } from '../../common/types';
+import { HTTPHeaders, IAsyncKeyValueStore } from '../../common/types';
 import { CoreApiGroup, supportedCoreApiGroups } from '../../common/api/coreGroups';
 import { WordFormsWdglanceAPI } from '../../common/api/wdglance/wordForms';
 
 
-export function createApiInstance(apiIdent:string, apiURL:string, httpHeaders?:HTTPHeaders):WordFormsApi {
+export function createApiInstance(apiIdent:string, cache:IAsyncKeyValueStore, apiURL:string, httpHeaders?:HTTPHeaders):WordFormsApi {
     switch (apiIdent) {
         case CoreApiGroup.WDGLANCE:
-            return new WordFormsWdglanceAPI(apiURL);
+            return new WordFormsWdglanceAPI(cache, apiURL);
         case CoreApiGroup.KONTEXT:
-            return new WordFormsKontextApi(apiURL, httpHeaders);
+            return new WordFormsKontextApi(cache, apiURL, httpHeaders);
         default:
  			throw new Error(`WordForms tile API "${apiIdent}" not found. Supported values are: ${supportedCoreApiGroups().join(', ')}`);
     }

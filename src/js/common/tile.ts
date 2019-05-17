@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { HTTPMethod, AnyInterface, LocalizedConfMsg } from './types';
+import { HTTPMethod, AnyInterface, LocalizedConfMsg, IAsyncKeyValueStore } from './types';
 import { QueryType } from './query';
 import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
 import { GlobalComponents } from '../views/global';
@@ -241,6 +241,7 @@ export namespace TileFactory {
         widthFract:number;
         isBusy:boolean;
         conf:T;
+        cache:IAsyncKeyValueStore;
     }
 
     export interface TileFactory<T> {

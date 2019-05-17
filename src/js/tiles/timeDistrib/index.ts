@@ -66,7 +66,7 @@ export class TimeDistTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({dispatcher, tileId, waitForTiles, ut, theme, appServices, widthFract, mainForm, conf, isBusy}:TileFactory.Args<TimeDistTileConf>) {
+    constructor({dispatcher, tileId, waitForTiles, ut, theme, appServices, widthFract, mainForm, conf, isBusy, cache}:TileFactory.Args<TimeDistTileConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
@@ -100,10 +100,11 @@ export class TimeDistTile implements ITileProvider {
             waitForTiles[0] || -1,
             createApiInstance(
                 conf.apiType,
+                cache,
                 conf,
                 appServices.getApiHeaders(conf.apiURL)
             ),
-            conf.concApiURL ? new ConcApi(conf.concApiURL, appServices.getApiHeaders(conf.apiURL)) : null,
+            conf.concApiURL ? new ConcApi(cache, conf.concApiURL, appServices.getApiHeaders(conf.apiURL)) : null,
             appServices,
             mainForm
         );

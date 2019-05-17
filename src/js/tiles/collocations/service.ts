@@ -18,8 +18,8 @@
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { ajax$ } from '../../common/ajax';
-import { DataApi, HTTPHeaders } from '../../common/types';
+import { cachedAjax$ } from '../../common/ajax';
+import { DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../common/types';
 import { CollApiArgs, DataHeading, DataRow } from './common';
 import { puid } from '../../common/util';
 
@@ -58,14 +58,17 @@ export class KontextCollAPI implements DataApi<CollApiArgs, CollApiResponse> {
 
     private readonly customHeaders:HTTPHeaders;
 
-    constructor(apiURL:string, customHeaders?:HTTPHeaders) {
+    private readonly cache:IAsyncKeyValueStore;
+
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, customHeaders?:HTTPHeaders) {
         this.apiURL = apiURL;
         this.customHeaders = customHeaders || {};
+        this.cache = cache;
     }
 
 
     call(queryArgs:CollApiArgs):Observable<CollApiResponse> {
-        return ajax$<HttpApiResponse>(
+        return cachedAjax$<HttpApiResponse>(this.cache)(
             'GET',
             this.apiURL,
             queryArgs,

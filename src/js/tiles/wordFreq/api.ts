@@ -18,8 +18,8 @@
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { ajax$ } from '../../common/ajax';
-import { DataApi, HTTPHeaders } from '../../common/types';
+import { cachedAjax$ } from '../../common/ajax';
+import { DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../common/types';
 import { QueryPoS, LemmaVariant } from '../../common/query';
 
 
@@ -57,13 +57,16 @@ export class FreqDbAPI implements DataApi<RequestArgs, Response> {
 
     private readonly customHeaders:HTTPHeaders;
 
-    constructor(apiURL:string, customHeaders?:HTTPHeaders) {
+    private readonly cache:IAsyncKeyValueStore;
+
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, customHeaders?:HTTPHeaders) {
+        this.cache = cache;
         this.apiURL = apiURL;
         this.customHeaders = customHeaders || {};
     }
 
     call(args:RequestArgs):Observable<Response> {
-        return ajax$<HTTPResponse>(
+        return cachedAjax$<HTTPResponse>(this.cache)(
             'GET',
             this.apiURL,
             {

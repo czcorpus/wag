@@ -57,7 +57,7 @@ export class SyDTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({dispatcher, tileId, waitForTiles, ut, mainForm, appServices, widthFract, conf, isBusy}:TileFactory.Args<SyDTileConf>) {
+    constructor({dispatcher, tileId, waitForTiles, ut, mainForm, appServices, widthFract, conf, isBusy, cache}:TileFactory.Args<SyDTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
@@ -82,7 +82,7 @@ export class SyDTile implements ITileProvider {
             waitForTiles[0],
             mainForm,
             appServices,
-            new SyDAPI(conf.apiURL, conf.concApiURL, appServices.getApiHeaders(conf.apiURL))
+            new SyDAPI(cache, conf.apiURL, conf.concApiURL, appServices.getApiHeaders(conf.apiURL))
         );
         this.label = appServices.importExternalMessage(conf.label || 'syd_main_label');
         this.view = viewInit(dispatcher, ut, this.model);

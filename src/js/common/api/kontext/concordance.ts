@@ -18,8 +18,8 @@
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { ajax$ } from '../../ajax';
-import { DataApi, HTTPHeaders } from '../../types';
+import { cachedAjax$ } from '../../ajax';
+import { DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../types';
 import { LemmaVariant } from '../../query';
 import { posQueryFactory } from './posQuery';
 import { IStateArgsMapper } from '../../models/concordance';
@@ -212,9 +212,12 @@ export class ConcApi implements DataApi<RequestArgs, ConcResponse> {
 
     private readonly customHeaders:HTTPHeaders;
 
-    constructor(apiURL:string, customHeaders?:HTTPHeaders) {
+    private readonly cache:IAsyncKeyValueStore;
+
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, customHeaders?:HTTPHeaders) {
         this.apiURL = apiURL;
         this.customHeaders = customHeaders || {};
+        this.cache = cache;
     }
 
     private mkViewURLVariant():string {
@@ -223,7 +226,7 @@ export class ConcApi implements DataApi<RequestArgs, ConcResponse> {
     }
 
     call(args:RequestArgs|PCRequestArgs|FilterRequestArgs):Observable<ConcResponse> {
-        return ajax$<HTTPResponse>(
+        return cachedAjax$<HTTPResponse>(this.cache)(
             'GET',
             args.q && /\/first$/.exec(this.apiURL) ? this.mkViewURLVariant() : this.apiURL,
             args,

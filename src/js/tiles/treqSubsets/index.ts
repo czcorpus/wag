@@ -49,7 +49,7 @@ export class TreqSubsetsTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({tileId, dispatcher, appServices, theme, ut, lang1, lang2, mainForm, widthFract, waitForTiles, conf, isBusy}:TileFactory.Args<TreqSubsetsTileConf>) {
+    constructor({tileId, dispatcher, appServices, theme, ut, lang1, lang2, mainForm, widthFract, waitForTiles, conf, isBusy, cache}:TileFactory.Args<TreqSubsetsTileConf>) {
         this.tileId = tileId;
         this.widthFract = widthFract;
         this.blockingTiles = waitForTiles;
@@ -73,7 +73,7 @@ export class TreqSubsetsTile implements ITileProvider {
                 colorMap: Immutable.Map<string, string>()
             },
             tileId,
-            new TreqAPI(conf.apiURL),
+            new TreqAPI(cache, conf.apiURL),
             mainForm,
             waitForTiles[0]
         );

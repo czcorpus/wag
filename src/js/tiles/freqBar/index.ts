@@ -29,6 +29,7 @@ import { GlobalComponents } from '../../views/global';
 import { factory as defaultModelFactory, FreqBarModel } from './model';
 import { factory as subqModelFactory } from './subqModel';
 import { init as viewInit } from './view';
+import { ConcApi } from '../../common/api/kontext/concordance';
 
 
 
@@ -77,7 +78,7 @@ export class FreqBarTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({dispatcher, tileId, waitForTiles, ut, theme, appServices, widthFract, conf, isBusy}:TileFactory.Args<FreqBarTileConf>) {
+    constructor({dispatcher, tileId, waitForTiles, ut, theme, appServices, widthFract, conf, isBusy, cache}:TileFactory.Args<FreqBarTileConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
@@ -89,13 +90,18 @@ export class FreqBarTile implements ITileProvider {
             conf.critLabels.map(v => this.appServices.importExternalMessage(v)) :
             [this.appServices.importExternalMessage(conf.critLabels)];
 
-        const modelFact = conf.subqueryMode ? subqModelFactory(conf.subqueryMode) : defaultModelFactory;
+        const modelFact = conf.subqueryMode ?
+                subqModelFactory(
+                    conf.subqueryMode,
+                    new ConcApi(cache, conf.subqueryMode.concApiURL, appServices.getApiHeaders(conf.subqueryMode.concApiURL))
+                ) :
+                defaultModelFactory;
         this.model = modelFact(
             this.dispatcher,
             tileId,
             waitForTiles[0],
             appServices,
-            new MultiBlockFreqDistribAPI(conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            new MultiBlockFreqDistribAPI(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             conf.backlink || null,
             {
                 isBusy: isBusy,

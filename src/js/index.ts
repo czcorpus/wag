@@ -33,6 +33,7 @@ import { ActionName } from './models/actions';
 import { SystemNotifications } from './notifications';
 import { GlobalComponents } from './views/global';
 import { createRootComponent } from './app';
+import { initStore } from './cacheDb';
 
 declare var DocumentTouch;
 declare var require:(src:string)=>void;  // webpack
@@ -85,7 +86,8 @@ export const initClient = (mountElement:HTMLElement, config:ClientConf, userSess
         appServices: appServices,
         dispatcher: dispatcher,
         onResize: windowResize$,
-        viewUtils: viewUtils
+        viewUtils: viewUtils,
+        cache: initStore('requests', config.reqCacheTTL)
     });
 
     ReactDOM.hydrate(
