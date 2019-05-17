@@ -190,7 +190,7 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
             }
         ),
         services.toolbar.get(userConfig.uiLang, mkReturnUrl(req, services.clientConf.rootUrl), req.cookies, viewUtils),
-        getLemmas(services.db[userConfig.query1Lang], appServices, userConfig.query1),
+        getLemmas(services.db[userConfig.query1Lang], appServices, userConfig.query1, services.serverConf.freqDB.minLemmaFreq),
         mkRuntimeClientConf(services.clientConf, userConfig.query1Lang, appServices)
     )
     .subscribe(
@@ -219,14 +219,7 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
                     currentFlagSolved = true; // even if we do not set anything (error detected on client)
                 }
                 if (!currentFlagSolved) {
-                    const numExact = lemmas.reduce((acc, curr) => curr.lemma === userSession.query1 ? acc + 1 : acc, 0);
-                    if (numExact > 0) {
-                        const exactMatchIdx = lemmas.findIndex(v => v.lemma === userSession.query1);
-                        lemmas[exactMatchIdx].isCurrent = true;
-
-                    } else {
-                        lemmas[0].isCurrent = true;
-                    }
+                    lemmas[0].isCurrent = true;
                 }
             }
             const view = viewInit(viewUtils);
@@ -303,7 +296,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         }).pipe(
             concatMap(
                 (conf) => {
-                    return getLemmas(services.db[conf.lang], appServices, req.query.q);
+                    return getLemmas(services.db[conf.lang], appServices, req.query.q, 1);
                 }
             )
         ).subscribe(
@@ -354,7 +347,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                     word: req.query.word,
                     lemma: req.query.lemma,
                     pos: importQueryPos(req.query.pos),
-                    rng: Math.min(req.query.srchRange, services.serverConf.auxServices.similarFreqWordsMaxCtx)
+                    rng: Math.min(req.query.srchRange, services.serverConf.freqDB.similarFreqWordsMaxCtx)
                 });
                 observer.complete();
             }

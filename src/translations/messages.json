@@ -62,7 +62,7 @@
         "global__aria_searched_word": "Searched word",
         "global__aria_search_lang": "Search language",
         "global__aria_search_btn": "Search",
-        "global__tile_group_help_label": "tile group description"
+        "global__tile_group_help_label": "result group description"
 
     },
     "cs-CZ": {
@@ -128,6 +128,6 @@
         "global__aria_searched_word": "Hledané slovo",
         "global__aria_search_lang": "Prohledávaný jazyk",
         "global__aria_search_btn": "Vyhledat",
-        "global__tile_group_help_label": "popis skupiny dlaždic"
+        "global__tile_group_help_label": "popis skupiny výsledků"
     }
 }
