@@ -35,7 +35,7 @@ interface CachedRecord<T> {
 export class DummyCache implements IAsyncKeyValueStore {
 
     get<T>(key:string):Observable<T> {
-        return undefined;
+        return rxOf(undefined);
     }
 
     set(key:string, value:any):Observable<string> {
