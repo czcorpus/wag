@@ -111,6 +111,7 @@ export interface ClientStaticConf {
     dbValuesMapping:DbValueMapping;
     apiHeaders:{[urlPrefix:string]:HTTPHeaders};
     reqCacheTTL:number;
+    onLoadInit?:Array<string>;
     homepage:HomepageConf;
     colors:ColorsConf;
     resourceLanguages:{[code:string]:string};
@@ -136,6 +137,7 @@ export interface ClientConf {
     dbValuesMapping:DbValueMapping;
     colors:ColorsConf;
     reqCacheTTL:number;
+    onLoadInit:Array<string>;
     apiHeaders:{[urlPrefix:string]:HTTPHeaders};
     homepage:{tiles:Array<{label:string; html:string}>};
     tiles:{[ident:string]:AnyTileConf};
@@ -152,6 +154,7 @@ export function emptyClientConf(conf:ClientStaticConf):ClientConf {
         apiHeaders: conf.apiHeaders,
         dbValuesMapping: conf.dbValuesMapping,
         reqCacheTTL: conf.reqCacheTTL,
+        onLoadInit: conf.onLoadInit,
         colors: conf.colors,
         tiles: {},
         layouts: {single: [], cmp: [], translat: []},

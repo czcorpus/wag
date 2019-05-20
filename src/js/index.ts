@@ -69,6 +69,17 @@ export const initClient = (mountElement:HTMLElement, config:ClientConf, userSess
     });
     //appServices.forceMobileMode(); // DEBUG
 
+    (config.onLoadInit || []).forEach(initFn => {
+        if (initFn in window) {
+            try {
+                window[initFn].init();
+
+            } catch (err) {
+                console.error(err);
+            }
+        }
+    })
+
     const windowResize$:Observable<ScreenProps> = fromEvent(window, 'resize')
     .pipe(
         debounceTime(500),
