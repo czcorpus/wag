@@ -67,8 +67,8 @@ export const getLemmas = (db:Database, appServices:AppServices, word:string, min
         })
 
     }).pipe(
-        reduce<LemmaVariant>(
-            (acc, curr) => acc.concat([curr]),
+        reduce(
+            (acc:Array<LemmaVariant>, curr) => acc.concat([curr]),
             []
         )
     )
@@ -142,8 +142,8 @@ export const getSimilarFreqWords = (db:Database, appServices:AppServices, lang:s
 
             )
         ),
-        reduce<LemmaVariant>(
-            (acc, curr) => acc.concat([curr]),
+        reduce(
+            (acc:Array<LemmaVariant>, curr) => acc.concat([curr]),
             []
         )
     );
@@ -176,8 +176,8 @@ export const getWordForms = (db:Database, appServices:AppServices, lemma:string,
             }
         );
     }).pipe(
-        reduce<LemmaVariant>(
-            (acc, curr) => acc.concat([curr]),
+        reduce(
+            (acc:Array<LemmaVariant>, curr) => acc.concat([curr]),
             []
         )
     );

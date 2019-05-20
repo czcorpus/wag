@@ -21,7 +21,7 @@ import { ViewUtils } from 'kombo';
 import * as React from 'react';
 import { renderToString } from 'react-dom/server';
 import { Observable, forkJoin, of as rxOf } from 'rxjs';
-import { concatMap, map } from 'rxjs/operators';
+import { concatMap, map, catchError } from 'rxjs/operators';
 import * as Immutable from 'immutable';
 
 
@@ -44,6 +44,7 @@ import { WdglanceMainProps } from '../views/main';
 import { TileGroup } from '../layout';
 import { ActionName } from '../models/actions';
 import { DummyCache } from '../cacheDb';
+import { ILogQueue } from './logging/abstract';
 
 
 function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, appServices:AppServices):Observable<ClientConf> {
@@ -161,6 +162,40 @@ function getLangFromCookie(req:Request, cookieName:string, languages:{[code:stri
     }
 }
 
+function logRequest(logging:ILogQueue, datetime:string, req:Request, userConfig:UserConf):Observable<number> {
+    return logging.put({
+        user_id: 1,
+        proc_time: -1,
+        date: datetime,
+        action: HTTPAction.SEARCH,
+        request: {
+            HTTP_X_FORWARDED_FOR: req.headers.forwarded,
+            HTTP_USER_AGENT: req.headers['user-agent'],
+            HTTP_REMOTE_ADDR: null,
+            REMOTE_ADDR: req.connection.remoteAddress
+        },
+        params: {
+            uiLang: userConfig.uiLang,
+            queryType: userConfig.queryType,
+            query1Lang: userConfig.query1Lang,
+            query2Lang: userConfig.query2Lang ? userConfig.query2Lang : null,
+            queryPos: userConfig.queryPos ? userConfig.queryPos : null,
+            query1: userConfig.query1,
+            query2: userConfig.query2 ? userConfig.query2 : null,
+            error: userConfig.error ? userConfig.error : null
+        },
+        pid: -1,
+        settings: {}
+    }).pipe(
+        catchError(
+            (err) => {
+                console.error(err);
+                return rxOf(0);
+            }
+        )
+    )
+}
+
 function mainAction(services:Services, answerMode:boolean, req:Request, res:Response, next:NextFunction) {
 
     const userConfig:UserConf = {
@@ -178,7 +213,6 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
 
     const dispatcher = new ServerSideActionDispatcher();
     const [viewUtils, appServices] = createHelperServices(services, userConfig.uiLang);
-
     forkJoin(
         new Observable<UserConf>(
             (observer) => {
@@ -191,7 +225,8 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
         ),
         services.toolbar.get(userConfig.uiLang, mkReturnUrl(req, services.clientConf.rootUrl), req.cookies, viewUtils),
         getLemmas(services.db[userConfig.query1Lang], appServices, userConfig.query1, services.serverConf.freqDB.minLemmaFreq),
-        mkRuntimeClientConf(services.clientConf, userConfig.query1Lang, appServices)
+        mkRuntimeClientConf(services.clientConf, userConfig.query1Lang, appServices),
+        logRequest(services.logging, appServices.getISODatetime(), req, userConfig)
     )
     .subscribe(
         (ans) => {

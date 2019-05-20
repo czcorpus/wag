@@ -161,4 +161,12 @@ export class AppServices {
     getUILang():string {
         return this.uiLang;
     }
+
+    getISODatetime():string {
+        const dat = new Date();
+        const lzv = (n:number) => n < 10 ? '0' + n : n.toFixed(0);
+        const [y, m, d, h, M, s] =
+            [dat.getFullYear(), dat.getMonth() + 1, dat.getDate(), dat.getHours(), dat.getMinutes(), dat.getSeconds()].map(lzv);
+        return `${y}-${m}-${d}T${h}:${M}:${s}`;
+    }
 }

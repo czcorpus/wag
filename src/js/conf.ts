@@ -168,6 +168,13 @@ export interface ToolbarDef {
     url?:string;
 }
 
+export interface LogQueueConf {
+    host:string;
+    port:number;
+    db:number;
+    key:string;
+}
+
 /**
  * Server side app configuration.
  */
@@ -185,6 +192,7 @@ export interface ServerConf {
         similarFreqWordsMaxCtx:number;
         minLemmaFreq:number;
     };
+    logQueue?:LogQueueConf;
     toolbar:ToolbarDef;
     langCookie?:string;
 }
