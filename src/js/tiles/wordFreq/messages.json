@@ -1,13 +1,12 @@
 {
     "en-US": {
-        "wordfreq_searched_form": "Entered form",
-        "wordfreq_abs_freq": "Absolute frequency",
+        "wordfreq_searched_form": "entered form",
+        "wordfreq_abs_freq": "absolute frequency",
         "wordfreq__pos": "part of speech",
-        "wordfreq__ipm": "Instances per million tokens",
+        "wordfreq__ipm": "instances per million tokens",
         "wordfreq__num_similarly_freq_words": "num. of similarly frequent words",
-        "wordfreq__words_with_nearest_freq": "Words with nearest frequency",
-        "wordfreq__freq_bands": "Frequency band",
-        "wordfreq__main_label": "Words with similar frequency"
+        "wordfreq__freq_bands": "wrequency band",
+        "wordfreq__main_label": "words with similar frequency"
     },
     "cs-CZ": {
         "wordfreq_searched_form": "zadaný tvar",
@@ -15,8 +14,7 @@
         "wordfreq__pos": "slovní druh",
         "wordfreq__ipm": "výskytů na milion tokenů",
         "wordfreq__num_similarly_freq_words": "počet slov s podobným výskytem",
-        "wordfreq__words_with_nearest_freq": "slova s nejbližší frekvencí",
         "wordfreq__freq_bands": "frekvenční pásmo",
-        "wordfreq__main_label": "slova s podobným výskytem"
+        "wordfreq__main_label": "slova s podobně častým výskytem"
     }
 }

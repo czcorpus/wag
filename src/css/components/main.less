@@ -221,6 +221,10 @@
         outline: none;
     }
 
+    button.close::-moz-focus-inner {
+        border: 0;
+    }
+
     header {
         display: flex;
         flex-direction: row;
@@ -270,8 +274,37 @@ corpus-details-box,
 
 .source-info-box {
 
-    ul {
-        margin: 0;
+    font-size: 1.1em;
+
+    ul.information-tab-sel {
+
+        list-style-type: none;
+        text-align: center;
+        margin-top: 0;
+        margin-bottom: 2.5em;
+        padding: 0;
+
+        li {
+            display: inline-block;
+            font-size: 1em;
+
+            a {
+                color: @color-default-text;
+                cursor: pointer;
+                margin: 0 0.6em;
+                text-decoration: none;
+            }
+
+            a.current {
+                border-color: @color-logo-blue;
+                border-style: solid;
+                border-width: 0 0 2px 0;
+            }
+
+            .separ {
+
+            }
+        }
     }
 
     h2 {
@@ -293,11 +326,9 @@ corpus-details-box,
     dl {
 
         dt {
-            font-weight: bold;
-        }
-
-        dt {
-            padding-bottom: 0.4em;
+            margin-bottom: 0.4em;
+            color: @color-light-text;
+            font-family: @condensed-font-family;
         }
 
         dd {
@@ -342,8 +373,7 @@ corpus-details-box,
     }
 
     table.structs-and-attrs {
-        margin: 0;
-        clear: both;
+        margin: 0 auto;
         border-collapse: separate;
         border: none;
 

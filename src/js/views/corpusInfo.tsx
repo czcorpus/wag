@@ -152,6 +152,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const CorpusInfoBox:React.SFC<CorpusInfoBoxProps> = (props) => {
 
+        const [state, setState] = React.useState({activeTab: 0});
+
         const renderWebLink = () => {
             if (props.data.webURL) {
                 return <a href={props.data.webURL} target="_blank">{props.data.webURL}</a>;
@@ -161,39 +163,63 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             }
         };
 
+        const handleTabClick = () => {
+            setState({activeTab: Math.abs(state.activeTab - 1)});
+        };
+
         return (
             <div className="CorpusInfoBox source-info-box">
+                <ul className="information-tab-sel">
+                    <li>
+                        <a className={state.activeTab === 0 ? 'current' : null}
+                                onClick={handleTabClick}>
+                            {ut.translate('global__corp_basic_info')}
+                        </a>
+                        <span className="separ">|</span>
+                    </li>
+                    <li>
+                        <a className={state.activeTab === 1 ? 'current' : null}
+                                onClick={handleTabClick}>
+                            {ut.translate('global__corp_metadata')}
+                        </a>
+                    </li>
+                </ul>
                 <dl>
-                    <dt>{ut.translate('global__description')}:</dt>
-                    <dd>{props.data.description}</dd>
-                    <dt>{ut.translate('global__size')}:</dt>
-                    <dd>{ut.formatNumber(props.data.size, 0)} {ut.translate('global__positions')}
-                    </dd>
-                    <dt>{ut.translate('global__website')}:</dt>
-                    <dd>{renderWebLink()}</dd>
-                    <dt>{ut.translate('global__corpus_info_metadata_heading')}:</dt>
-                    <dd>
-                        <table className="structs-and-attrs">
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <AttributeList rows={props.data.attrList} />
-                                    </td>
-                                    <td style={{paddingLeft: '4em'}}>
-                                        <StructureList rows={props.data.structList} />
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <p className="note">
-                        <strong>{ut.translate('global__corp_info_attrs_remark_label')}: </strong>
-                        {ut.translate('global__corp_info_attrs_remark_text')}
-                        </p>
-                    </dd>
-                    <dt>{ut.translate('global__citation_info')}:</dt>
-                    <dd className="references">
-                        <CorpusReference data={props.data.citationInfo} />
-                    </dd>
+                    {state.activeTab === 0 ?
+                        <dl>
+                            <dt>{ut.translate('global__corpus_name')}:</dt>
+                            <dd>{props.data.title}</dd>
+                            <dt>{ut.translate('global__description')}:</dt>
+                            <dd>{props.data.description}</dd>
+                            <dt>{ut.translate('global__size')}:</dt>
+                            <dd>{ut.formatNumber(props.data.size, 0)} {ut.translate('global__positions')}
+                            </dd>
+                            <dt>{ut.translate('global__website')}:</dt>
+                            <dd>{renderWebLink()}</dd>
+                            <dt>{ut.translate('global__citation_info')}:</dt>
+                            <dd className="references">
+                                <CorpusReference data={props.data.citationInfo} />
+                            </dd>
+                        </dl> :
+                        <div>
+                            <table className="structs-and-attrs">
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <AttributeList rows={props.data.attrList} />
+                                        </td>
+                                        <td style={{paddingLeft: '4em'}}>
+                                            <StructureList rows={props.data.structList} />
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <p className="note">
+                            <strong>{ut.translate('global__corp_info_attrs_remark_label')}: </strong>
+                            {ut.translate('global__corp_info_attrs_remark_text')}
+                            </p>
+                        </div>
+                    }
                 </dl>
             </div>
         );
