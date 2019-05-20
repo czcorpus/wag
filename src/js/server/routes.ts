@@ -67,6 +67,7 @@ function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, appServices:App
             corpInfoApiUrl: conf.corpInfoApiUrl,
             apiHeaders: conf.apiHeaders,
             reqCacheTTL: conf.reqCacheTTL,
+            onLoadInit: conf.onLoadInit,
             dbValuesMapping: conf.dbValuesMapping,
             colors: conf.colors,
             tiles: conf.tiles[lang],
