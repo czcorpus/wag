@@ -15,16 +15,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ServerConf, ClientStaticConf } from '../conf';
-import { Database } from 'sqlite3';
-import { IToolbarProvider } from '../common/hostPage';
-import { ILogQueue } from './logging/abstract';
 
-export interface Services {
-    serverConf:ServerConf;
-    clientConf:ClientStaticConf;
-    db:{[lang:string]:Database};
-    toolbar:IToolbarProvider;
-    translations:{[loc:string]:{[key:string]:string}};
-    logging:ILogQueue;
+import { Observable } from 'rxjs';
+import { ILogQueue, LogRecord } from './abstract';
+
+
+export class NullLogQueue implements ILogQueue {
+
+    put(value:LogRecord):Observable<number> {
+        return new Observable<number>(
+            (observer) => {
+                observer.next(0);
+                observer.complete();
+            }
+        );
+    }
 }

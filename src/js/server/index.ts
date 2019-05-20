@@ -27,6 +27,8 @@ import * as translations from 'translations';
 import { ClientStaticConf, ServerConf } from '../conf';
 import { wdgRouter } from './routes';
 import { createToolbarInstance } from './toolbar/factory';
+import { RedisLogQueue } from './logging/redisQueue';
+import { NullLogQueue } from './logging/nullQueue';
 
 const app = express();
 app.use(cookieParser());
@@ -57,7 +59,10 @@ wdgRouter({
     clientConf: clientConf,
     db: db,
     translations: translations,
-    toolbar: toolbar
+    toolbar: toolbar,
+    logging: serverConf.logQueue ?
+            new RedisLogQueue(serverConf.logQueue) :
+            new NullLogQueue()
 })(app);
 
 const server = app.listen(serverConf.port, serverConf.address, () => {
