@@ -644,7 +644,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         groupDisabled:boolean;
         group:TileGroup;
         clickHandler:()=>void;
-        helpClickHandler:()=>void;
+        helpClickHandler:(()=>void)|null;
 
     }> = (props) => {
 
@@ -665,7 +665,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 {props.group.groupLabel}
                             </span>
                         </a>
-                        <a className="help" onClick={()=>props.helpClickHandler()}>?</a>
+                        {props.helpClickHandler ?
+                            <a className="help" onClick={()=>props.helpClickHandler()}>?</a> :
+                            null
+                        }
                     </span>
                 </h2>
             </div>
@@ -756,7 +759,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             groupHidden={props.isHidden}
                             group={props.data}
                             clickHandler={handleGroupClick}
-                            helpClickHandler={handleGroupHeaderClick} />
+                            helpClickHandler={props.data.groupDescURL ? handleGroupHeaderClick : null} />
                 </header>
                 {renderResult()}
             </section>
