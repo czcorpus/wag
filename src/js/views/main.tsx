@@ -845,7 +845,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             if (this.props.activeSourceInfo !== null) {
                 return (
                     <globalComponents.ModalBox onCloseClick={this.handleCloseSourceInfo}
-                            title={this.props.sourceBoxData ? this.props.sourceBoxData.title : ''}>
+                            title={ut.translate('global__source_detail')}>
                         <globalComponents.ErrorBoundary>
                             <SourceInfo tileProps={this.props.tileProps} data={this.props.sourceBoxData} />
                         </globalComponents.ErrorBoundary>

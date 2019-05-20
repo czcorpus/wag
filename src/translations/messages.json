@@ -17,12 +17,13 @@
         "global__alt_loading": "Loading data",
         "global__failed_to_render_component": "Error - failed to render the component",
         "global__source": "Source",
+        "global__source_detail": "Source information",
         "global__more_info": "more detailed information",
-        "global__description": "Description",
+        "global__corpus_name": "corpus name",
+        "global__description": "description",
         "global__size": "size",
         "global__positions": "positions",
         "global__website": "website",
-        "global__corpus_info_metadata_heading": "Available metadata",
         "global__corp_info_attrs_remark_text": "čísla v tomto přehledu udávají počty různých atributů / struktur (tj. typů) v korpusu.",
         "global__structures": "Struktury",
         "global__attributes": "Atributy",
@@ -30,7 +31,7 @@
         "global__corpus_as_resource_{corpus}": "Corpus {corpus} as a language resource",
         "global__general_references": "General references",
         "global__references": "References",
-        "global__citation_info": "Citation information",
+        "global__citation_info": "citation information",
         "global__corp_info_attrs_remark_label": "Remark",
         "global__no_citation_info": "-",
         "global__view_mode_kwic": "KWIC",
@@ -62,7 +63,9 @@
         "global__aria_searched_word": "Searched word",
         "global__aria_search_lang": "Search language",
         "global__aria_search_btn": "Search",
-        "global__tile_group_help_label": "result group description"
+        "global__tile_group_help_label": "result group description",
+        "global__corp_basic_info": "Basic information",
+        "global__corp_metadata": "Structural information"
 
     },
     "cs-CZ": {
@@ -83,12 +86,13 @@
         "global__alt_loading": "Nahrávám data",
         "global__failed_to_render_component": "Chyba - nepodařilo se zobrazit komponentu",
         "global__source": "Zdroj",
+        "global__source_detail": "Informace o zdroji dat",
         "global__more_info": "podrobnější informace",
-        "global__description": "Popis",
+        "global__corpus_name": "název korpusu",
+        "global__description": "popis",
         "global__size": "velikost",
         "global__positions": "pozic",
         "global__website": "webová stránka",
-        "global__corpus_info_metadata_heading": "Dostupná metadata",
         "global__corp_info_attrs_remark_text": "figures listed denote a number of different attributes / structures (i.e. types) in the corpus.",
         "global__structures": "Structures",
         "global__attributes": "Attributes",
@@ -96,7 +100,7 @@
         "global__corpus_as_resource_{corpus}": "Korpus {corpus} jako zdroj dat",
         "global__general_references": "Obecné odkazy",
         "global__references": "Literatura",
-        "global__citation_info": "Citační informace",
+        "global__citation_info": "citační informace",
         "global__corp_info_attrs_remark_label": "Poznámka",
         "global__no_citation_info": "-",
         "global__view_mode_kwic": "KWIC",
@@ -128,6 +132,8 @@
         "global__aria_searched_word": "Hledané slovo",
         "global__aria_search_lang": "Prohledávaný jazyk",
         "global__aria_search_btn": "Vyhledat",
-        "global__tile_group_help_label": "popis skupiny výsledků"
+        "global__tile_group_help_label": "popis skupiny výsledků",
+        "global__corp_basic_info": "Základní informace",
+        "global__corp_metadata": "Informace o struktuře"
     }
 }
