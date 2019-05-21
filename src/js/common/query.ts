@@ -50,13 +50,39 @@ export function isSubqueryPayload(payload:{}):payload is SubqueryPayload {
 export interface LemmaVariant {
     lemma:string;
     word:string;
-    pos:QueryPoS;
-    posLabel:string;
+    pos:Array<{value:QueryPoS; label:string}>;
     abs:number;
     ipm:number;
     arf:number;
     flevel:number;
     isCurrent:boolean;
+}
+
+export function matchesPos(lv:LemmaVariant, pos:Array<QueryPoS>):boolean {
+    return lv.pos.length === pos.length &&
+        lv.pos.reduce((acc, curr) => acc && pos.indexOf(curr.value) > -1, true);
+}
+
+export function findMergeableLemmas(variants:Array<LemmaVariant>):Array<LemmaVariant> {
+    const mapping:{[key:string]:Array<{pos:{value:QueryPoS; label:string}; abs:number; form:string; arf:number}>} = {};
+    variants.forEach(item => {
+        if (!(item.lemma in mapping)) {
+            mapping[item.lemma] = [];
+        }
+        item.pos.forEach(p => {
+            mapping[item.lemma].push({pos: p, abs: item.abs, form: item.word, arf: item.arf});
+        });
+    });
+    return Object.keys(mapping).filter(lm => mapping[lm].length > 1).map(lm => ({
+        lemma: lm,
+        word: mapping[lm][0].form, // should be the same for all 0...n
+        pos: mapping[lm].map(v => v.pos),
+        abs: mapping[lm].reduce((acc, curr) => acc + curr.abs, 0),
+        ipm: -1,
+        arf: mapping[lm].reduce((acc, curr) => acc + curr.arf, 0),
+        flevel: -1,
+        isCurrent: false
+    }));
 }
 
 export enum QueryPoS {

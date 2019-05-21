@@ -114,14 +114,22 @@ export const getQuery = (args:AnyQuery):string => {
 
 const escapeVal = (v:string) => v.replace(/"/, '\\"');
 
+
+
 export const mkFullMatchQuery = (lvar:LemmaVariant, generator:[string, string]):string => {
     const fn = posQueryFactory(generator[1]);
-    return `[word="${escapeVal(lvar.word)}" & lemma="${escapeVal(lvar.lemma)}" & ${generator[0]}="${fn(lvar.pos)}"]`; // TODO escape stuff !!!
+    const posPart = lvar.pos.length > 0 ?
+        ' & (' + lvar.pos.map(v => `${generator[0]}="${fn(v.value)}"`).join(' | ') + ')' :
+        '';
+    return `[word="${escapeVal(lvar.word)}" & lemma="${escapeVal(lvar.lemma)}" ${posPart}]`; // TODO escape stuff !!!
 };
 
 export const mkLemmaMatchQuery = (lvar:LemmaVariant, generator:[string, string]):string => {
     const fn = posQueryFactory(generator[1]);
-    return `[lemma="${escapeVal(lvar.lemma)}" & ${generator[0]}="${fn(lvar.pos)}"]`; // TODO escape stuff !!!
+    const posPart = lvar.pos.length > 0 ?
+        ' & (' + lvar.pos.map(v => `${generator[0]}="${fn(v.value)}"`).join(' | ') + ')' :
+        '';
+    return `[lemma="${escapeVal(lvar.lemma)}" ${posPart}]`; // TODO escape stuff !!!
 };
 
 

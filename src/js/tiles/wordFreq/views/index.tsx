@@ -103,7 +103,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 <dt>lemma:</dt>
                 <dd><strong>{props.data.lemma}</strong></dd>
                 <dt>{ut.translate('wordfreq__pos')}:</dt>
-                <dd>{props.data.posLabel}</dd>
+                <dd>{props.data.pos.map(v => v.label).join(', ')}</dd>
                 <dt>{ut.translate('wordfreq__freq_bands')}:</dt>
                 <dd><Stars freqBand={Math.round(props.data.flevel)} /></dd>
                 <dt>{ut.translate('wordfreq__ipm')}:</dt>

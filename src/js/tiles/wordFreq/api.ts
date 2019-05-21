@@ -20,22 +20,22 @@ import { map } from 'rxjs/operators';
 
 import { cachedAjax$ } from '../../common/ajax';
 import { DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../common/types';
-import { QueryPoS, LemmaVariant } from '../../common/query';
+import { QueryPoS, LemmaVariant, matchesPos } from '../../common/query';
+import { MultiDict } from '../../common/data';
 
 
 export interface RequestArgs {
     lang:string;
     word:string;
     lemma:string;
-    pos:QueryPoS;
+    pos:Array<QueryPoS>;
     srchRange:number;
 }
 
 export interface FreqDBRow {
     word:string;
     lemma:string;
-    pos:string;
-    posLabel:string;
+    pos:Array<{value:QueryPoS; label:string}>;
     abs:number;
     ipm:number;
     arf:number;
@@ -69,26 +69,25 @@ export class FreqDbAPI implements DataApi<RequestArgs, Response> {
         return cachedAjax$<HTTPResponse>(this.cache)(
             'GET',
             this.apiURL,
-            {
-                lang: args.lang,
-                lemma: args.lemma,
-                pos: args.pos,
-                srchRange: args.srchRange
-            },
+            new MultiDict([
+                ['lang', args.lang],
+                ['lemma', args.lemma],
+                ...args.pos.map(p => ['pos', p] as [string, QueryPoS]),
+                ['srchRange', args.srchRange]
+            ]),
             {headers: this.customHeaders}
 
         ).pipe(
             map(data => ({
                 result: data.result.map(v => ({
-                    word: args.word,
+                    word: v.word,
                     lemma: v.lemma,
                     pos: v.pos,
-                    posLabel: v.pos,
                     abs: v.abs,
                     ipm: v.ipm,
                     arf: v.arf,
                     flevel: -1,
-                    isSearched: v.lemma === args.lemma && v.pos === args.pos ? true : false
+                    isSearched: v.lemma === args.lemma && matchesPos(v, args.pos) ? true : false
                 }))
             }))
         );

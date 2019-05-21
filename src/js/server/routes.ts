@@ -29,7 +29,7 @@ import { AppServices } from '../appServices';
 import { encodeArgs } from '../common/ajax';
 import { ErrorType, mapToStatusCode, newError } from '../common/errors';
 import { HostPageEnv, AvailableLanguage } from '../common/hostPage';
-import { QueryType, LemmaVariant, importQueryPos, QueryPoS } from '../common/query';
+import { QueryType, LemmaVariant, importQueryPos, QueryPoS, matchesPos, findMergeableLemmas } from '../common/query';
 import { UserConf, ClientStaticConf, ClientConf, emptyClientConf } from '../conf';
 import { GlobalComponents } from '../views/global';
 import { init as viewInit, LayoutProps } from '../views/layout';
@@ -206,9 +206,9 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
         query2Lang: req.query['lang2'] || 'en',
         queryType: req.query['queryType'] || 'single',
         queryPos: req.query['pos'],
-        lemma1: req.query['lemma1'] || '',
         query1: req.query['q1'] || '',
         query2: req.query['q2'] || '',
+        lemma1: req.query['lemma1'] || '',
         answerMode: answerMode
     };
 
@@ -233,11 +233,12 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
         (ans) => {
             const [userSession, toolbar, lemmas, runtimeConf] = ans;
             let currentFlagSolved = false;
+            const lemmasExtended = lemmas.concat(findMergeableLemmas(lemmas));
 
             const [rootView, layout] = createRootComponent({
                 config: runtimeConf,
                 userSession: userConfig,
-                lemmas: lemmas,
+                lemmas: lemmasExtended,
                 appServices: appServices,
                 dispatcher: dispatcher,
                 onResize: new Observable((observer) => undefined),
@@ -246,16 +247,16 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
             });
 
 
-            if (lemmas.length > 0) {
+            if (lemmasExtended.length > 0) {
                 if (userSession.queryPos) {
-                    const srchIdx = lemmas.findIndex(v => v.pos === userSession.queryPos && (v.lemma === userSession.lemma1 || !userSession.lemma1));
+                    const srchIdx = lemmasExtended.findIndex(v => matchesPos(v, userSession.queryPos) && (v.lemma === userSession.lemma1 || !userSession.lemma1));
                     if (srchIdx > -1) {
-                        lemmas[srchIdx].isCurrent = true;
+                        lemmasExtended[srchIdx].isCurrent = true;
                     }
                     currentFlagSolved = true; // even if we do not set anything (error detected on client)
                 }
                 if (!currentFlagSolved) {
-                    lemmas[0].isCurrent = true;
+                    lemmasExtended[0].isCurrent = true;
                 }
             }
             const view = viewInit(viewUtils);
@@ -272,7 +273,7 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
                 view: view,
                 services: services,
                 toolbarData: toolbar,
-                lemmas: lemmas,
+                lemmas: lemmasExtended,
                 userConfig: userSession,
                 clientConfig: runtimeConf,
                 returnUrl: mkReturnUrl(req, services.clientConf.rootUrl),
@@ -318,7 +319,8 @@ export const wdgRouter = (services:Services) => (app:Express) => {
     app.get(HTTPAction.SEARCH, (req, res, next) => mainAction(services, true, req, res, next));
 
     app.get(HTTPAction.GET_LEMMAS, (req, res, next) => {
-        const [viewUtils, appServices] = createHelperServices(services, 'cs-CZ'); // TODO lang
+        const [viewUtils, appServices] = createHelperServices(
+            services, getLangFromCookie(req, services.serverConf.langCookie, services.serverConf.languages));
 
         new Observable<{lang:string}>((observer) => {
             if (Object.keys(services.db).indexOf(req.query.lang) === -1) {
@@ -351,15 +353,18 @@ export const wdgRouter = (services:Services) => (app:Express) => {
     // Find words with similar frequency
     app.get(HTTPAction.SIMILAR_FREQ_WORDS, (req, res) => {
 
+        const pos:string|Array<string> = req.query.pos;
+        const uiLang = getLangFromCookie(req, services.serverConf.langCookie, services.serverConf.languages);
+
         const viewUtils = new ViewUtils<GlobalComponents>({
-            uiLang: 'cs-CZ',
+            uiLang: uiLang,
             translations: services.translations,
             staticUrlCreator: (path) => services.clientConf.rootUrl + 'assets/' + path,
             actionUrlCreator: (path, args) => services.clientConf.hostUrl + path + '?' + encodeArgs(args)
         });
         const appServices = new AppServices({
             notifications: null, // TODO
-            uiLang: 'cs-CZ', // TODO
+            uiLang: uiLang,
             translator: viewUtils,
             staticUrlCreator: viewUtils.createStaticUrl,
             actionUrlCreator: viewUtils.createActionUrl,
@@ -368,7 +373,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             mobileModeTest: ()=>false
         });
 
-        new Observable<{lang:string; word:string; lemma:string; pos:QueryPoS; rng:number}>((observer) => {
+        new Observable<{lang:string; word:string; lemma:string; pos:Array<QueryPoS>; rng:number}>((observer) => {
             if (isNaN(parseInt(req.query.srchRange))) {
                 observer.error(
                     newError(ErrorType.BAD_REQUEST, `Invalid range provided, srchRange = ${req.query.srchRange}`));
@@ -382,7 +387,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                     lang: req.query.lang,
                     word: req.query.word,
                     lemma: req.query.lemma,
-                    pos: importQueryPos(req.query.pos),
+                    pos: (Array.isArray(pos) ? pos : [pos]).map(importQueryPos),
                     rng: Math.min(req.query.srchRange, services.serverConf.freqDB.similarFreqWordsMaxCtx)
                 });
                 observer.complete();
@@ -393,7 +398,6 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                     return getSimilarFreqWords(
                         services.db[data.lang],
                         appServices,
-                        data.lang,
                         data.lemma,
                         data.pos,
                         data.rng
@@ -423,15 +427,16 @@ export const wdgRouter = (services:Services) => (app:Express) => {
     });
 
     app.get(HTTPAction.WORD_FORMS, (req, res) => {
+        const uiLang = getLangFromCookie(req, services.serverConf.langCookie, services.serverConf.languages);
         const viewUtils = new ViewUtils<GlobalComponents>({
-            uiLang: 'cs-CZ',
+            uiLang: uiLang,
             translations: services.translations,
             staticUrlCreator: (path) => services.clientConf.rootUrl + 'assets/' + path,
             actionUrlCreator: (path, args) => services.clientConf.hostUrl + path + '?' + encodeArgs(args)
         });
         const appServices = new AppServices({
             notifications: null, // TODO
-            uiLang: 'cs-CZ', // TODO
+            uiLang: uiLang,
             translator: viewUtils,
             staticUrlCreator: viewUtils.createStaticUrl,
             actionUrlCreator: viewUtils.createActionUrl,
