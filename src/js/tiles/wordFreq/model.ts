@@ -24,7 +24,6 @@ import { AppServices } from '../../appServices';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
 import { DataLoadedPayload } from './actions';
 import { FreqDBRow, FreqDbAPI } from './api';
-import { posTable } from '../../server/freqdb/common';
 import { WdglanceMainFormModel, findCurrLemmaVariant } from '../../models/query';
 import { LemmaVariant } from '../../common/query';
 
@@ -115,7 +114,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                             lang: args.lang,
                             word: args.variant.word,
                             lemma: args.variant.lemma,
-                            pos: args.variant.pos,
+                            pos: args.variant.pos.map(v => v.value),
                             srchRange: state.sfwRowRange
                         })
                     ),
@@ -123,10 +122,9 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                         (data) => ({
                             data: data.result.map(v => {
                                 return {
-                                    word: v.word,
+                                    word: v.isSearched ? formState.query.value : '',
                                     lemma: v.lemma,
                                     pos: v.pos,
-                                    posLabel: this.appServices.importExternalMessage(posTable[v.pos]),
                                     abs: v.abs,
                                     ipm: v.abs / state.corpusSize * 1e6,
                                     arf: v.arf,

@@ -21,6 +21,7 @@ import * as React from 'react';
 import { CartesianGrid, Dot, Label, Line, LineChart, XAxis, YAxis } from 'recharts';
 import { GlobalComponents } from '../../../views/global';
 import { FreqDBRow } from '../api';
+import { QueryPoS } from '../../../common/query';
 
 
 interface ChartFreqDistItem {
@@ -28,7 +29,7 @@ interface ChartFreqDistItem {
     flevel:number;
     abs:number;
     lemma:string;
-    pos:string;
+    pos:Array<{value:QueryPoS; label:string}>;
     color:string;
 }
 

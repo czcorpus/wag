@@ -57,7 +57,7 @@ export interface UserConf {
     queryType:string;
 	query1Lang:string;
     query2Lang:string;
-    queryPos?:QueryPoS;
+    queryPos:Array<QueryPoS>;
     query1:string;
     lemma1?:string;
     query2:string;

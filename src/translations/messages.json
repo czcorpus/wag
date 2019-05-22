@@ -65,7 +65,8 @@
         "global__aria_search_btn": "Search",
         "global__tile_group_help_label": "result group description",
         "global__corp_basic_info": "Basic information",
-        "global__corp_metadata": "Structural information"
+        "global__corp_metadata": "Structural information",
+        "global__expr_or": "OR"
 
     },
     "cs-CZ": {
@@ -134,6 +135,7 @@
         "global__aria_search_btn": "Vyhledat",
         "global__tile_group_help_label": "popis skupiny výsledků",
         "global__corp_basic_info": "Základní informace",
-        "global__corp_metadata": "Informace o struktuře"
+        "global__corp_metadata": "Informace o struktuře",
+        "global__expr_or": "NEBO"
     }
 }

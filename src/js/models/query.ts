@@ -22,7 +22,7 @@ import { AppServices } from '../appServices';
 import { Forms } from '../common/data';
 import { SystemMessageType, SearchLanguage } from '../common/types';
 import { AvailableLanguage } from '../common/hostPage';
-import { QueryType, LemmaVariant, QueryTypeMenuItem } from '../common/query';
+import { QueryType, LemmaVariant, QueryTypeMenuItem, matchesPos } from '../common/query';
 import { ActionName, Actions } from './actions';
 import { HTTPAction } from '../server/actions';
 import { LayoutManager } from '../layout';
@@ -47,8 +47,7 @@ export const findCurrLemmaVariant = (lemmas:Immutable.List<LemmaVariant>):LemmaV
     return srch ? srch : {
         lemma: undefined,
         word: undefined,
-        pos: undefined,
-        posLabel: '',
+        pos: [],
         abs: -1,
         ipm: -1,
         arf: -1,
@@ -87,12 +86,11 @@ export class WdglanceMainFormModel extends StatelessModel<WdglanceMainState> {
                     lemma: v.lemma,
                     word: v.word,
                     pos: v.pos,
-                    posLabel: v.posLabel,
                     abs: v.abs,
                     ipm: v.ipm,
                     arf: v.arf,
                     flevel: v.flevel,
-                    isCurrent: v.pos === action.payload.pos && v.word == action.payload.word &&
+                    isCurrent: matchesPos(v, action.payload.pos) && v.word == action.payload.word &&
                             v.lemma === action.payload.lemma ? true : false
                 })).toList();
                 return newState;
@@ -148,7 +146,7 @@ export class WdglanceMainFormModel extends StatelessModel<WdglanceMainState> {
                 queryType: state.queryType,
                 lang1: state.targetLanguage,
                 lang2: state.queryType === QueryType.TRANSLAT_QUERY ? state.targetLanguage2 : undefined,
-                pos: findCurrLemmaVariant(state.lemmas).pos,
+                pos: findCurrLemmaVariant(state.lemmas).pos.map(p => p.value),
                 lemma1: findCurrLemmaVariant(state.lemmas).lemma
             });
         }

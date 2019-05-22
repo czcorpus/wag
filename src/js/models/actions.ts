@@ -104,7 +104,7 @@ export namespace Actions {
     export interface ChangeCurrLemmaVariant extends Action<{
         word:string;
         lemma:string;
-        pos:QueryPoS;
+        pos:Array<QueryPoS>;
 
     }> {
         name:ActionName.ChangeCurrLemmaVariant;

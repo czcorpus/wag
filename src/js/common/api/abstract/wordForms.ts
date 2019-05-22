@@ -23,7 +23,7 @@ import { DataApi } from '../../types';
 export interface RequestArgs {
     lang:string;
     lemma:string;
-    pos:QueryPoS;
+    pos:Array<QueryPoS>;
 }
 
 export interface RequestConcArgs {

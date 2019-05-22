@@ -17,7 +17,6 @@
  */
 
 import { Observable } from 'rxjs';
-import { UserConf } from '../../conf';
 import { QueryPoS } from '../../common/query';
 
 /**
@@ -40,7 +39,7 @@ export interface LogRecord {
         queryType:string;
         query1Lang:string;
         query2Lang:string|null;
-        queryPos:QueryPoS|null;
+        queryPos:Array<QueryPoS>|null;
         query1:string|null;
         query2:string|null;
         error:string|null;

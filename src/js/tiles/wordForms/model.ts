@@ -188,7 +188,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                         {
                             lang: formState.targetLanguage,
                             lemma: variant.lemma,
-                            pos: variant.pos
+                            pos: variant.pos.map(v => v.value)
                         },
                         dispatch
                     );

@@ -44,8 +44,7 @@ export const getLemmas = (db:Database, appServices:AppServices, word:string, min
                                 abs: row['abs'],
                                 ipm: -1,
                                 arf: row['arf'],
-                                pos: pos,
-                                posLabel: appServices.importExternalMessage(posTable[pos]),
+                                pos: [{value: pos, label: appServices.importExternalMessage(posTable[pos])}],
                                 flevel: -1,
                                 isCurrent: false
                             });
@@ -68,24 +67,32 @@ export const getLemmas = (db:Database, appServices:AppServices, word:string, min
 
     }).pipe(
         reduce(
-            (acc:Array<LemmaVariant>, curr) => acc.concat([curr]),
+            (acc:Array<LemmaVariant>, curr:LemmaVariant) => acc.concat([curr]),
             []
         )
     )
 };
 
 
-const exportRow = (row, appServices:AppServices, isCurrent:boolean, word:string=''):LemmaVariant => ({
+const exportRow = (row:{[key:string]:any}, appServices:AppServices, isCurrent:boolean, word:string=''):LemmaVariant => ({
     word: word, // TODO different type here ?
     lemma: row['value'],
     abs: row['abs'],
     arf: row['arf'],
     ipm: -1,
     flevel: -1,
-    pos: row['pos'],
-    posLabel: appServices.importExternalMessage(posTable[row['pos']]),
+    pos: row['pos'].split(',').map((v:string) => ({value: v, label: appServices.importExternalMessage(posTable[v])})),
     isCurrent: isCurrent
 });
+
+
+const ntimesPlaceholder = (n:number):string => {
+    const ans = [];
+    for (let i = 0; i < n; i += 1) {
+        ans.push('?');
+    }
+    return ans.join(', ');
+}
 
 
 const getNearFreqItems = (db:Database, appServices:AppServices, val:LemmaVariant, whereSgn:number, limit:number):Observable<LemmaVariant> => {
@@ -94,9 +101,9 @@ const getNearFreqItems = (db:Database, appServices:AppServices, val:LemmaVariant
         db.each(
             'SELECT value, pos, arf, `count` AS abs ' +
             'FROM lemma ' +
-            (whereSgn > 0 ? 'WHERE arf >= ? AND value <> ? AND pos <> ? ORDER BY arf ASC' : 'WHERE arf < ? ORDER BY arf DESC') + ' ' +
+            (whereSgn > 0 ? `WHERE arf >= ? AND (value <> ? OR pos NOT IN (${ntimesPlaceholder(val.pos.length)})) ORDER BY arf ASC` : 'WHERE arf < ? ORDER BY arf DESC') + ' ' +
             'LIMIT ?',
-            whereSgn > 0 ? [val.arf, val.lemma, val.pos, limit] : [val.arf, limit],
+            whereSgn > 0 ? [val.arf, val.lemma, ...val.pos.map(v => v.value), limit] : [val.arf, limit],
             (err, row) => {
                 if (err) {
                     observer.error(err);
@@ -118,11 +125,11 @@ const getNearFreqItems = (db:Database, appServices:AppServices, val:LemmaVariant
 }
 
 
-export const getSimilarFreqWords = (db:Database, appServices:AppServices, lang:string, lemma:string, pos:QueryPoS, rng:number):Observable<Array<LemmaVariant>> => {
+export const getSimilarFreqWords = (db:Database, appServices:AppServices, lemma:string, pos:Array<QueryPoS>, rng:number):Observable<Array<LemmaVariant>> => {
     return new Observable<LemmaVariant>((observer) => {
         db.get(
-            'SELECT value, pos, `count` AS abs, arf FROM lemma WHERE value = ? AND pos = ?',
-            [lemma, pos],
+            `SELECT value, GROUP_CONCAT(pos) AS pos, SUM(\`count\`) AS abs, SUM(arf) AS arf FROM lemma WHERE value = ? AND pos IN (${ntimesPlaceholder(pos.length)}) GROUP BY value`,
+            [lemma, ...pos],
             (err, row) => {
                 if (err) {
                     observer.error(err);
@@ -143,7 +150,7 @@ export const getSimilarFreqWords = (db:Database, appServices:AppServices, lang:s
             )
         ),
         reduce(
-            (acc:Array<LemmaVariant>, curr) => acc.concat([curr]),
+            (acc:Array<LemmaVariant>, curr:LemmaVariant) => acc.concat([curr]),
             []
         )
     );
@@ -177,7 +184,7 @@ export const getWordForms = (db:Database, appServices:AppServices, lemma:string,
         );
     }).pipe(
         reduce(
-            (acc:Array<LemmaVariant>, curr) => acc.concat([curr]),
+            (acc:Array<LemmaVariant>, curr:LemmaVariant) => acc.concat([curr]),
             []
         )
     );

@@ -293,7 +293,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 payload: {
                     word: lemmaVar.word,
                     lemma: lemmaVar.lemma,
-                    pos: lemmaVar.pos
+                    pos: lemmaVar.pos.map(p => p.value)
                 }
             });
             dispatcher.dispatch<Actions.SubmitQuery>({
@@ -306,7 +306,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             if (curr) {
                 return (
                     <div className="LemmaSelector">
-                        {ut.translate('global__searching_by_pos')}:{'\u00a0'}<span className="curr">{curr.lemma} ({curr.posLabel})</span>
+                        {ut.translate('global__searching_by_pos')}:{'\u00a0'}
+                        <span className="curr">{curr.lemma} ({curr.pos.map(v => v.label).join(` ${ut.translate('global__expr_or')} `)})</span>
                         <br />
                         {props.lemmas.size > 1 ?
                             <div className="variants">
@@ -315,7 +316,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                     {props.lemmas.filter(v => !v.isCurrent).map((v, i) =>
                                         <li key={`${v.lemma}:${v.pos}:${i}`}>
                                             {i > 0 ? <span>, </span> : null}
-                                            <a onClick={mkHandleClick(v)}>{v.lemma} ({v.posLabel})</a>
+                                            <a onClick={mkHandleClick(v)}>{v.lemma} ({v.pos.map(v => v.label).join(` ${ut.translate('global__expr_or')} `)})</a>
                                         </li>
                                     )}
                                 </ul>
