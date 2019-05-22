@@ -157,14 +157,14 @@ export const getSimilarFreqWords = (db:Database, appServices:AppServices, lemma:
 };
 
 
-export const getWordForms = (db:Database, appServices:AppServices, lemma:string, pos:QueryPoS):Observable<Array<LemmaVariant>> => {
+export const getWordForms = (db:Database, appServices:AppServices, lemma:string, pos:Array<QueryPoS>):Observable<Array<LemmaVariant>> => {
     return new Observable<LemmaVariant>((observer) => {
         db.each(
             'SELECT w.value AS value, w.pos, w.count AS abs ' +
             'FROM lemma AS m ' +
             'JOIN word AS w ON m.value = w.lemma AND m.pos = w.pos ' +
-            'WHERE m.value = ? AND m.pos = ?',
-            [lemma, pos],
+            `WHERE m.value = ? AND m.pos IN (${ntimesPlaceholder(pos.length)})`,
+            [lemma, ...pos],
             (err, row) => {
                 if (err) {
                     observer.error(err);

@@ -445,7 +445,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             mobileModeTest: ()=>false
         });
 
-        new Observable<{lang:string; word:string; lemma:string; pos:QueryPoS}>((observer) => {
+        new Observable<{lang:string; word:string; lemma:string; pos:Array<QueryPoS>}>((observer) => {
             if (Object.keys(services.db).indexOf(req.query.lang) === -1) {
                 observer.error(
                     newError(ErrorType.BAD_REQUEST, `Frequency database for [${req.query.lang}] not defined`));
@@ -454,7 +454,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                 lang: req.query.lang,
                 word: req.query.word,
                 lemma: req.query.lemma,
-                pos: importQueryPos(req.query.pos)
+                pos: (Array.isArray(req.query.pos) ? req.query.pos : [req.query.pos]).map(importQueryPos)
             });
 
         }).pipe(
