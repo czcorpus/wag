@@ -233,7 +233,7 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
         (ans) => {
             const [userSession, toolbar, lemmas, runtimeConf] = ans;
             let currentFlagSolved = false;
-            const lemmasExtended = lemmas.concat(findMergeableLemmas(lemmas));
+            const lemmasExtended = findMergeableLemmas(lemmas);
 
             const [rootView, layout] = createRootComponent({
                 config: runtimeConf,
