@@ -63,6 +63,13 @@ export function matchesPos(lv:LemmaVariant, pos:Array<QueryPoS>):boolean {
         lv.pos.reduce((acc, curr) => acc && pos.indexOf(curr.value) > -1, true);
 }
 
+interface MergedLemmaVariant extends LemmaVariant {
+    minAbs:number;
+    maxAbs:number;
+}
+
+const MERGE_CANDIDATE_MIN_DIFF_RATIO = 100;
+
 export function findMergeableLemmas(variants:Array<LemmaVariant>):Array<LemmaVariant> {
     const mapping:{[key:string]:Array<{pos:{value:QueryPoS; label:string}; abs:number; form:string; arf:number}>} = {};
     variants.forEach(item => {
@@ -73,16 +80,29 @@ export function findMergeableLemmas(variants:Array<LemmaVariant>):Array<LemmaVar
             mapping[item.lemma].push({pos: p, abs: item.abs, form: item.word, arf: item.arf});
         });
     });
-    return Object.keys(mapping).filter(lm => mapping[lm].length > 1).map(lm => ({
+    const merged:Array<MergedLemmaVariant> = Object.keys(mapping).filter(lm => mapping[lm].length > 1).map(lm => ({
         lemma: lm,
         word: mapping[lm][0].form, // should be the same for all 0...n
         pos: mapping[lm].map(v => v.pos),
         abs: mapping[lm].reduce((acc, curr) => acc + curr.abs, 0),
+        minAbs: mapping[lm].reduce((acc, curr) => acc < curr.abs ? acc : curr.abs, mapping[lm][0].abs),
+        maxAbs: mapping[lm].reduce((acc, curr) => acc > curr.abs ? acc : curr.abs, mapping[lm][0].abs),
         ipm: -1,
         arf: mapping[lm].reduce((acc, curr) => acc + curr.arf, 0),
         flevel: -1,
         isCurrent: false
     }));
+
+    let ans = variants.concat([]);
+    merged.forEach(item => {
+        if (item.maxAbs / item.minAbs >= MERGE_CANDIDATE_MIN_DIFF_RATIO) {
+            ans.unshift(item);
+
+        } else {
+            ans.push(item);
+        }
+    })
+    return ans;
 }
 
 export enum QueryPoS {
