@@ -22,7 +22,7 @@ import { AppServices } from '../../appServices';
 import { QuerySelector } from '../../common/api/kontext/concordance';
 import { Line, ViewMode } from '../../common/api/abstract/concordance';
 
-import { DataApi } from '../../common/types';
+import { DataApi, LocalizedConfMsg } from '../../common/types';
 import { QueryType } from '../../common/query';
 import { Backlink, CorpSrchTileConf, ITileProvider, TileComponent, TileFactory, SourceInfoComponent } from '../../common/tile';
 import { ConcordanceTileModel } from './model';
@@ -44,6 +44,7 @@ export interface ConcordanceTileConf extends CorpSrchTileConf {
     posQueryGenerator:[string, string]; // a positional attribute name and a function to create a query value (e.g. ['tag', (v) => `${v}.+`])
     parallelLangMapping?:{[lang:string]:string};
     disableViewModes?:boolean;
+    metadataAttrs?:Array<{value:string; label:LocalizedConfMsg}>;
 }
 
 /**
@@ -122,6 +123,8 @@ export class ConcordanceTile implements ITileProvider {
                 attr_vmode: 'mouseover',
                 viewMode: conf.parallelLangMapping ? ViewMode.SENT : ViewMode.KWIC,
                 attrs: Immutable.List<string>(conf.posAttrs),
+                metadataAttrs: Immutable.List<{value:string; label:string}>(
+                    (conf.metadataAttrs || []).map(v => ({value: v.value, label: appServices.importExternalMessage(v.label)})) || []),
                 backlink: null,
                 posQueryGenerator: conf.posQueryGenerator,
                 disableViewModes: !!conf.disableViewModes

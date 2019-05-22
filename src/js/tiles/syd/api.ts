@@ -29,7 +29,7 @@ import { ConcResponse, ViewMode } from '../../common/api/abstract/concordance';
 import { HTTPResponse as FreqsHTTPResponse } from '../../common/api/kontext/freqs';
 import { MultiDict } from '../../common/data';
 import { CorePosAttribute, DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../common/types';
-import { callWithRequestId } from '../../common/api/util';
+import { callWithExtraVal } from '../../common/api/util';
 
 
 export interface RequestArgs {
@@ -103,7 +103,7 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
             format:'json'
         };
         setQuery(args1, args.word1);
-        const concQ1C1$ = callWithRequestId(this.concApi, args1, `${args.corp1}/${args.word1}`).pipe(share());
+        const concQ1C1$ = callWithExtraVal(this.concApi, args1, `${args.corp1}/${args.word1}`).pipe(share());
 
         // query 1, corp 2 ---------
 
@@ -121,7 +121,7 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
             format:'json'
         };
         setQuery(args2, args.word1);
-        const concQ1C2$ = callWithRequestId(this.concApi, args2, `${args.corp2}/${args.word1}`).pipe(share());
+        const concQ1C2$ = callWithExtraVal(this.concApi, args2, `${args.corp2}/${args.word1}`).pipe(share());
 
         // query 2, corp 1 ---------
 
@@ -139,7 +139,7 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
             format:'json'
         };
         setQuery(args3, args.word2);
-        const concQ2C1$ = callWithRequestId(this.concApi, args3, `${args.corp1}/${args.word2}`).pipe(share());
+        const concQ2C1$ = callWithExtraVal(this.concApi, args3, `${args.corp1}/${args.word2}`).pipe(share());
 
         // query 2, corp 2 ---------
 
@@ -157,7 +157,7 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
             format:'json'
         };
         setQuery(args4, args.word2);
-        const concQ2C2$ = callWithRequestId(this.concApi, args4, `${args.corp2}/${args.word2}`).pipe(share());
+        const concQ2C2$ = callWithExtraVal(this.concApi, args4, `${args.corp2}/${args.word2}`).pipe(share());
 
         const createRequests = (conc$:Observable<[ConcResponse, string]>, corpname:string, frcrits:Array<string>) => {
             return frcrits.map(

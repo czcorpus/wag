@@ -20,7 +20,7 @@ import { map } from 'rxjs/operators';
 
 import { DataApi } from '../types';
 
-export const callWithRequestId = <T, U, V>(api:DataApi<T, U>, args:T, reqId:V):Observable<[U, V]> => {
+export const callWithExtraVal = <T, U, V>(api:DataApi<T, U>, args:T, reqId:V):Observable<[U, V]> => {
     return api.call(args).pipe(
         map(v => [v, reqId] as [U, V])
     );

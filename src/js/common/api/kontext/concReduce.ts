@@ -20,7 +20,7 @@ import { map } from 'rxjs/operators';
 
 import { ajax$ } from '../../ajax';
 import { DataApi, HTTPHeaders } from '../../types';
-import { AnyQuery, getQuery, HTTPResponse } from './concordance';
+import { AnyQuery, getQuery, HTTPResponse, convertLines } from './concordance';
 import { ConcResponse } from '../abstract/concordance';
 
 
@@ -61,7 +61,7 @@ export class ConcReduceApi implements DataApi<RequestArgs, ApiResponse> {
             map(data => ({
                 concPersistenceID: data.conc_persistence_op_id,
                 messages: data.messages,
-                Lines: data.Lines,
+                lines: convertLines(data.Lines),
                 concsize: data.concsize,
                 rlines: args.rlines,
                 arf: data.result_arf,

@@ -22,7 +22,7 @@ import { map } from 'rxjs/operators';
 
 import { AppServices } from '../../appServices';
 import { APIResponse, BacklinkArgs, DataRow, FreqDistribAPI, SingleCritQueryArgs } from '../../common/api/kontext/freqs';
-import { callWithRequestId } from '../../common/api/util';
+import { callWithExtraVal } from '../../common/api/util';
 import { HTTPMethod } from '../../common/types';
 import { Backlink, BacklinkWithArgs } from '../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
@@ -178,7 +178,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
         const streams$ = state.sources.map<Observable<[APIResponse, string]>>(src => {
             const srchKey = this.waitingForTiles.findKey(v => v && v.corpname === src.corpname);
             return srchKey !== undefined ?
-                callWithRequestId(
+                callWithExtraVal(
                     this.api,
                     sourceToAPIArgs(src, this.waitingForTiles.get(srchKey).concId),
                     src.uuid

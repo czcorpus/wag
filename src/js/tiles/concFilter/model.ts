@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { map } from 'rxjs/operators';
-import { StatelessModel, IActionDispatcher, Action, SEDispatcher } from 'kombo';
+import { StatelessModel, IActionDispatcher, Action, SEDispatcher, ActionDispatcher } from 'kombo';
 import * as Immutable from 'immutable';
 import { AppServices } from '../../appServices';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
@@ -27,6 +27,7 @@ import { Observable, merge } from 'rxjs';
 import { isConcLoadedPayload } from '../concordance/actions';
 import { CollExamplesLoadedPayload } from './actions';
 import { DataLoadedPayload as CollDataLoadedPayload } from '../collocations/common';
+import { Actions, ActionName } from './actions';
 
 
 export interface ConcFilterModelState {
@@ -42,6 +43,8 @@ export interface ConcFilterModelState {
     itemsPerSrc:number;
     lines:Immutable.List<Line>;
     numPendingSources:number;
+    metadataAttrs:Immutable.List<{value:string; label:string}>;
+    visibleMetadataLine:number;
 }
 
 
@@ -96,10 +99,11 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                     const newState = this.copyState(state);
                     const line = state.lines.get(srchIdx);
                     newState.lines = newState.lines.set(srchIdx, {
-                        Left: line.Left,
-                        Kwic: line.Kwic,
-                        Right: line.Right,
-                        Align: line.Align,
+                        left: line.left,
+                        kwic: line.kwic,
+                        right: line.right,
+                        align: line.align,
+                        metadata: line.metadata || [],
                         toknum: line.toknum,
                         interactionId: line.interactionId,
                         isHighlighted: true
@@ -114,10 +118,11 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                     const newState = this.copyState(state);
                     const line = state.lines.get(srchIdx);
                     newState.lines = newState.lines.set(srchIdx, {
-                        Left: line.Left,
-                        Kwic: line.Kwic,
-                        Right: line.Right,
-                        Align: line.Align,
+                        left: line.left,
+                        kwic: line.kwic,
+                        right: line.right,
+                        align: line.align,
+                        metadata: line.metadata || [],
                         toknum: line.toknum,
                         interactionId: line.interactionId,
                         isHighlighted: false
@@ -135,6 +140,24 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                     return newState;
                 }
                 return state;
+            },
+            [GlobalActionName.TileAreaClicked]: (state, action:GlobalActions.TileAreaClicked) => {
+                if (action.payload.tileId === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.visibleMetadataLine = -1;
+                    return newState;
+                }
+                return state;
+            },
+            [ActionName.ShowLineMetadata]: (state, action:Actions.ShowLineMetadata) => {
+                const newState = this.copyState(state);
+                newState.visibleMetadataLine = action.payload.idx;
+                return newState;
+            },
+            [ActionName.HideLineMetadata]: (state, action:Actions.HideLineMetadata) => {
+                const newState = this.copyState(state);
+                newState.visibleMetadataLine = -1;
+                return newState;
             }
         };
     }
@@ -144,7 +167,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
         return queries.map(subq => {
             const args:FilterRequestArgs = {
                 queryselector: QuerySelector.CQL,
-                cql: `[lemma="${subq.value}"]`,            // TODO escape stuff
+                cql: `[lemma="${subq.value}"]`, // TODO escape stuff
                 corpname: state.corpName,
                 kwicleftctx: undefined,
                 kwicrightctx: undefined,
@@ -153,6 +176,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                 fromp: '1', // TODO choose randomly stuff??
                 attr_vmode: state.attrVmode,
                 attrs: state.posAttrs.join(','),
+                refs: state.metadataAttrs.map(v => '=' + v.value).join(','),
                 viewmode: state.viewMode,
                 shuffle: 1,
                 q: '~' + concId,
@@ -167,11 +191,15 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                 map(v => ({
                     concPersistenceID: v.concPersistenceID,
                     messages: v.messages,
-                    Lines: v.Lines.map(line => ({
-                        Left: line.Left,
-                        Kwic: line.Kwic,
-                        Right: line.Right,
-                        Align: line.Align,
+                    lines: v.lines.map(line => ({
+                        left: line.left,
+                        kwic: line.kwic,
+                        right: line.right,
+                        align: line.align,
+                        metadata: (line.metadata || []).map(item => ({
+                            value: item.value,
+                            label: state.metadataAttrs.find(v => v.value === item.label, null, {label: item.label, value: null}).label
+                        })),
                         toknum: line.toknum,
                         interactionId: subq.interactionId
                     })),
@@ -240,7 +268,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                                             payload: {
                                                 tileId: this.tileId,
                                                 isEmpty: false, // here we cannot assume final state
-                                                data: data.Lines.slice(0, state.itemsPerSrc),
+                                                data: data.lines.slice(0, state.itemsPerSrc),
                                             }
                                         });
                                     },

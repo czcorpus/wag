@@ -68,9 +68,9 @@ function importRecord(node:XMLNode, lineNum:number):Line {
     });
 
     return {
-        Left: line.left.map(v => ({'class': 'str', str: v})),
-        Kwic: line.kwic.map(v => ({'class': 'str', str: v})),
-        Right: line.right.map(v => ({'class': 'str', str: v})),
+        left: line.left.map(v => ({'class': 'str', str: v})),
+        kwic: line.kwic.map(v => ({'class': 'str', str: v})),
+        right: line.right.map(v => ({'class': 'str', str: v})),
         toknum: lineNum
     };
 }
@@ -99,7 +99,7 @@ function importResponse(root:XMLNode, query:string, corpName:string, subcorpName
         query: query,
         corpName: corpName,
         subcorpName: subcorpName,
-        Lines: [],
+        lines: [],
         concsize: -1,
         arf: -1,
         ipm: -1,
@@ -122,7 +122,7 @@ function importResponse(root:XMLNode, query:string, corpName:string, subcorpName
         }
 
         const recordsRootNode = respNode.findChild(v => v.name === 'sru:records');
-        ans.Lines = recordsRootNode.findAllChildren(v => v.name === 'sru:record').map(importRecord);
+        ans.lines = recordsRootNode.findAllChildren(v => v.name === 'sru:record').map(importRecord);
 
     } else {
         throw new Error('Unable to parse FCS response');

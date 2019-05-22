@@ -24,16 +24,17 @@ export interface LineElement {
 }
 
 export interface Line {
-    Left:Array<LineElement>;
-    Kwic:Array<LineElement>;
-    Right:Array<LineElement>;
-    Align?:Array<{
-        Left:Array<LineElement>;
-        Kwic:Array<LineElement>;
-        Right:Array<LineElement>;
+    left:Array<LineElement>;
+    kwic:Array<LineElement>;
+    right:Array<LineElement>;
+    align?:Array<{
+        left:Array<LineElement>;
+        kwic:Array<LineElement>;
+        right:Array<LineElement>;
         toknum:number;
     }>;
     toknum:number;
+    metadata?:Array<{value:string; label:string}>;
     interactionId?:string;
     isHighlighted?:boolean;
 }
@@ -42,7 +43,7 @@ export interface ConcResponse {
     query:string;
     corpName:string;
     subcorpName:string;
-    Lines:Array<Line>;
+    lines:Array<Line>;
     concsize:number;
     arf:number;
     ipm:number;
