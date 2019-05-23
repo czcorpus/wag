@@ -66,7 +66,7 @@
         "global__tile_group_help_label": "result group description",
         "global__corp_basic_info": "Basic information",
         "global__corp_metadata": "Structural information",
-        "global__click_to_query_word": "Click to view the word profile"
+        "global__click_to_query_word": "Click to view the word profile",
         "global__alt_expr_any": "any PoS"
     },
     "cs-CZ": {
@@ -136,7 +136,7 @@
         "global__tile_group_help_label": "popis skupiny výsledků",
         "global__corp_basic_info": "Základní informace",
         "global__corp_metadata": "Informace o struktuře",
-        "global__click_to_query_word": "Klikněte pro zobrazení profilu slova"
+        "global__click_to_query_word": "Klikněte pro zobrazení profilu slova",
         "global__alt_expr_any": "libovolný slov. druh"
     }
 }
