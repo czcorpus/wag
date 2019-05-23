@@ -54,7 +54,8 @@ export enum ActionName {
     HideTileHelp = 'MAIN_HIDE_TILE_HELP',
     SubqItemHighlighted = 'MAIN_SUBQ_ITEM_HIGHLIGHTED',
     SubqItemDehighlighted = 'MAIN_SUBQ_ITEM_DEHIGHLIGHTED',
-    SubqChanged = 'MAIN_SUBQ_CHANGED'
+    SubqChanged = 'MAIN_SUBQ_CHANGED',
+    TileAreaClicked = 'MAIN_TILE_AREA_CLICKED'
 }
 
 export namespace Actions {
@@ -279,5 +280,11 @@ export namespace Actions {
 
     }> {
         name:ActionName.SubqChanged;
+    }
+
+    export interface TileAreaClicked extends Action<{
+        tileId:number;
+    }> {
+        name:ActionName.TileAreaClicked;
     }
 }

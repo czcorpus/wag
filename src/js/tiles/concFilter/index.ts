@@ -25,6 +25,7 @@ import { ConcFilterModel } from './model';
 import { init as viewInit } from './view';
 import { ConcApi } from '../../common/api/kontext/concordance';
 import { Line, ViewMode } from '../../common/api/abstract/concordance';
+import { LocalizedConfMsg } from '../../common/types';
 
 
 declare var require:(src:string)=>void;  // webpack
@@ -36,6 +37,7 @@ export interface ConcFilterTileConf extends TileConf {
     apiURL:string;
     corpname:string;
     posAttrs:Array<string>;
+    metadataAttrs?:Array<{value:string; label:LocalizedConfMsg}>;
 }
 
 /**
@@ -83,7 +85,10 @@ export class ConcFilterTile implements ITileProvider {
                 viewMode: ViewMode.SENT,
                 attrVmode: 'mouseover',
                 itemsPerSrc: 1,
-                numPendingSources: 0
+                numPendingSources: 0,
+                visibleMetadataLine: -1,
+                metadataAttrs: Immutable.List<{value:string; label:string}>(
+                    (conf.metadataAttrs || []).map(v => ({value: v.value, label: appServices.importExternalMessage(v.label)})) || [])
             }
         );
         this.label = appServices.importExternalMessage(conf.label || 'collexamples__main_label');

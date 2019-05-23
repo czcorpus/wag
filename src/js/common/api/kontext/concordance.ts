@@ -23,7 +23,7 @@ import { DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../types';
 import { LemmaVariant } from '../../query';
 import { posQueryFactory } from './posQuery';
 import { IStateArgsMapper } from '../../models/concordance';
-import { Line, ConcResponse, ViewMode } from '../abstract/concordance';
+import { Line, ConcResponse, ViewMode, LineElement } from '../abstract/concordance';
 
 
 
@@ -61,6 +61,7 @@ export interface RequestArgs extends AnyQuery {
     attrs:string;
     viewmode:ViewMode;
     shuffle?:number;
+    refs?:string;
     q?:string; // here we modify an existing concordance
     format:'json';
 }
@@ -84,10 +85,26 @@ export interface PCRequestArgs extends RequestArgs {
     [parg:string]:string|number;
 }
 
+interface KontextLine {
+    Left:Array<LineElement>;
+    Kwic:Array<LineElement>;
+    Right:Array<LineElement>;
+    Align?:Array<{
+        Left:Array<LineElement>;
+        Kwic:Array<LineElement>;
+        Right:Array<LineElement>;
+        toknum:number;
+    }>;
+    toknum:number;
+    ref:Array<string>;
+    interactionId?:string;
+    isHighlighted?:boolean;
+}
+
 export interface HTTPResponse {
     conc_persistence_op_id:string;
     messages:Array<[string, string]>;
-    Lines:Array<Line>;
+    Lines:Array<KontextLine>;
     fullsize:number;
     concsize:number;
     result_arf:number;
@@ -199,6 +216,7 @@ export const stateToArgs:IStateArgsMapper<RequestArgs|PCRequestArgs> = (state, l
             fromp: state.loadPage.toFixed(),
             attr_vmode: state.attr_vmode,
             attrs: state.attrs.join(','),
+            refs: state.metadataAttrs.map(v => '=' + v.value).join(','),
             viewmode: state.viewMode,
             shuffle: state.shuffle ? 1 : undefined,
             format:'json'
@@ -211,6 +229,26 @@ export const stateToArgs:IStateArgsMapper<RequestArgs|PCRequestArgs> = (state, l
         }
         return ans;
     }
+}
+
+
+export function convertLines(lines:Array<KontextLine>, metadataAttrs?:Array<string>):Array<Line> {
+    return lines.map(line => ({
+        left: line.Left,
+        kwic: line.Kwic,
+        right: line.Right,
+        align: (line.Align || []).map(al => ({
+            left: al.Left,
+            kwic: al.Kwic,
+            right: al.Right,
+            toknum: al.toknum
+        })),
+        toknum: line.toknum,
+        metadata: (line.ref || []).map((v, i) => ({
+            value: v,
+            label: metadataAttrs ? metadataAttrs[i] : '--'
+        }))
+    }));
 }
 
 
@@ -244,7 +282,12 @@ export class ConcApi implements DataApi<RequestArgs, ConcResponse> {
             map(data => ({
                 concPersistenceID: data.conc_persistence_op_id,
                 messages: data.messages,
-                Lines: data.Lines,
+                lines: convertLines(
+                    data.Lines,
+                    args.refs ?
+                        args.refs.split(',').map(v => v.replace(/^=/, '')) :
+                        undefined
+                ),
                 concsize: data.concsize,
                 arf: data.result_arf,
                 ipm: data.result_relative_freq,

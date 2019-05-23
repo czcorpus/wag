@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { ActionDispatcher, ViewUtils, IActionDispatcher } from 'kombo';
+import { ViewUtils, IActionDispatcher } from 'kombo';
 import * as React from 'react';
 import { Observable } from 'rxjs';
 
@@ -223,6 +223,16 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
     // --------------- <TileWrapper /> -------------------------------------------
 
     const TileWrapper:GlobalComponents['TileWrapper'] = (props) => {
+
+        const handleAreaClick = () => {
+            dispatcher.dispatch<Actions.TileAreaClicked>({
+                name: ActionName.TileAreaClicked,
+                payload: {
+                    tileId: props.tileId
+                }
+            });
+        };
+
         if (props.isBusy && !props.hasData) {
             return (
                 <div className="TileWrapper">
@@ -255,7 +265,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                 htmlClasses.push('empty');
             }
             return (
-                <div className={htmlClasses.join(' ')}>
+                <div className={htmlClasses.join(' ')} onClick={handleAreaClick}>
                     <div className="loader-wrapper">{props.hasData && props.isBusy ? <TitleLoaderBar  /> : null}</div>
                     <div className="cnc-tile-body content">
                         <div>

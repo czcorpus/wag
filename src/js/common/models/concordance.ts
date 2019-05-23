@@ -37,6 +37,7 @@ export interface ConcordanceMinState {
     viewMode:ViewMode;
     concId:string|null;
     shuffle:boolean;
+    metadataAttrs:Immutable.List<{value:string; label:string}>;
     attrs:Immutable.List<string>;
     posQueryGenerator:[string, string];
 }

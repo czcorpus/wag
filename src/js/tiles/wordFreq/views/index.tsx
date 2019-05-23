@@ -82,7 +82,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 {props.data.map((word, i) => (
                     <React.Fragment key={`w:${word.lemma}:${word.pos}`}>
                     {i > 0 ? ', ' : ''}
-                    <a data-value={word.lemma} onClick={handleWordClick}>{word.lemma}</a>
+                    <a data-value={word.lemma} onClick={handleWordClick} title={ut.translate('global__click_to_query_word')}>{word.lemma}</a>
                     </React.Fragment>
                 ))}
                 </dd>

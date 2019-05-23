@@ -148,15 +148,15 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         return (
             <>
                 <tr className="Row">
-                    <td className="left">{props.data.Left.map((s, i) => <RowItem key={`${props.data.toknum}:L${i}`} data={s} />)}</td>
-                    <td className="kwic">{props.data.Kwic.map((s, i) => <RowItem key={`${props.data.toknum}:K${i}`} data={s} isKwic={true} />)}</td>
-                    <td className="right">{props.data.Right.map((s, i) => <RowItem key={`${props.data.toknum}:R${i}`} data={s} />)}</td>
+                    <td className="left">{props.data.left.map((s, i) => <RowItem key={`${props.data.toknum}:L${i}`} data={s} />)}</td>
+                    <td className="kwic">{props.data.kwic.map((s, i) => <RowItem key={`${props.data.toknum}:K${i}`} data={s} isKwic={true} />)}</td>
+                    <td className="right">{props.data.right.map((s, i) => <RowItem key={`${props.data.toknum}:R${i}`} data={s} />)}</td>
                 </tr>
                 {props.isParallel ?
                     <tr className="Row aligned">
-                        <td className="left">{props.data.Align[0].Left.map((s, i) => <RowItem key={`${props.data.Align[0].toknum}:L${i}`} data={s} />)}</td>
-                        <td className="kwic">{props.data.Align[0].Kwic.map((s, i) => <RowItem key={`${props.data.Align[0].toknum}:K${i}`} data={s} isKwic={true} />)}</td>
-                        <td className="right">{props.data.Align[0].Right.map((s, i) => <RowItem key={`${props.data.Align[0].toknum}:R${i}`} data={s} />)}</td>
+                        <td className="left">{props.data.align[0].left.map((s, i) => <RowItem key={`${props.data.align[0].toknum}:L${i}`} data={s} />)}</td>
+                        <td className="kwic">{props.data.align[0].kwic.map((s, i) => <RowItem key={`${props.data.align[0].toknum}:K${i}`} data={s} isKwic={true} />)}</td>
+                        <td className="right">{props.data.align[0].right.map((s, i) => <RowItem key={`${props.data.align[0].toknum}:R${i}`} data={s} />)}</td>
                     </tr> :
                     null
                 }

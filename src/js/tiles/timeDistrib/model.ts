@@ -33,7 +33,7 @@ import { ConcLoadedPayload } from '../concordance/actions';
 import { DataItemWithWCI, DataLoadedPayload, SubchartID } from './common';
 import { AlphaLevel, wilsonConfInterval } from './stat';
 import { Actions, ActionName } from './common';
-import { callWithRequestId } from '../../common/api/util';
+import { callWithExtraVal } from '../../common/api/util';
 import { LemmaVariant } from '../../common/query';
 
 
@@ -319,7 +319,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                 });
                             }
                         ),
-                        concatMap(args => callWithRequestId(
+                        concatMap(args => callWithExtraVal(
                             this.api,
                             {
                                 corpName: state.corpname,
@@ -342,7 +342,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             state.subcnames.toArray().map(subcname =>
                 lemmaVariant.pipe(
                     concatMap(
-                        (args:LemmaVariant) => callWithRequestId(
+                        (args:LemmaVariant) => callWithExtraVal(
                             this.concApi,
                             concStateToArgs(
                                 {
@@ -360,6 +360,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                     viewMode: ViewMode.KWIC,
                                     tileId: this.tileId,
                                     attrs: Immutable.List<string>(['word']),
+                                    metadataAttrs: Immutable.List<{value:string; label:string}>(),
                                     concId: null,
                                     posQueryGenerator: state.posQueryGenerator
                                 },
@@ -378,7 +379,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         (data) => {
                             const [concResp, args] = data;
                             args.concId = concResp.concPersistenceID;
-                            return callWithRequestId(
+                            return callWithExtraVal(
                                 this.api,
                                 {
                                     corpName: state.corpname,

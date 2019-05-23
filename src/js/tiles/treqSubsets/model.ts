@@ -24,7 +24,7 @@ import { stateToAPIArgs, TreqModelMinState } from '../../common/models/treq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
 import { WdglanceMainFormModel } from '../../models/query';
 import { DataLoadedPayload } from './actions';
-import { callWithRequestId } from '../../common/api/util';
+import { callWithExtraVal } from '../../common/api/util';
 import { isSubqueryPayload } from '../../common/query';
 
 
@@ -249,7 +249,7 @@ export class TreqSubsetModel extends StatelessModel<TreqSubsetsModelState> {
                     (action:Action) => {
                         if (action.name === GlobalActionName.TileDataLoaded && this.waitForColorsTile === action.payload['tileId']) {
                             merge(...state.subsets.map(subset =>
-                                callWithRequestId(this.api, stateToAPIArgs(state, this.mainForm.getState().query.value, subset.packages), subset.ident)
+                                callWithExtraVal(this.api, stateToAPIArgs(state, this.mainForm.getState().query.value, subset.packages), subset.ident)
                             ).toArray())
                             .subscribe(
                                 (resp) => {

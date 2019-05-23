@@ -16,7 +16,28 @@
  * limitations under the License.
  */
 import { Line } from '../../common/api/abstract/concordance';
+import { Action } from 'kombo';
 
 export interface CollExamplesLoadedPayload {
     data:Array<Line>;
+}
+
+export enum ActionName {
+    ShowLineMetadata = 'CONC_FILTER_SHOW_LINE_METADATA',
+    HideLineMetadata = 'CONC_FILTER_HIDE_LINE_METADATA'
+}
+
+export namespace Actions {
+
+    export interface ShowLineMetadata extends Action<{
+        idx:number;
+    }> {
+        name:ActionName.ShowLineMetadata;
+    }
+
+    export interface HideLineMetadata extends Action<{
+    }> {
+        name:ActionName.HideLineMetadata;
+    }
+
 }

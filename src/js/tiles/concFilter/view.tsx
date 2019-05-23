@@ -21,37 +21,105 @@ import { GlobalComponents } from '../../views/global';
 import { Theme } from '../../common/theme';
 import { TileComponent, CoreTileComponentProps } from '../../common/tile';
 import { ConcFilterModel, ConcFilterModelState } from './model';
-import { Line } from '../../common/api/abstract/concordance';
+import { Line, LineElement } from '../../common/api/abstract/concordance';
+import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
+import { ActionName, Actions } from './actions';
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:ConcFilterModel):TileComponent {
 
     const globalCompontents = ut.getComponents();
+
+    // ------------------ <LineMetadata /> --------------------------------------------
+
+    const LineMetadata:React.SFC<{
+        data:Array<{value:string; label:string}>;
+
+    }> = (props) => {
+
+        const handleClick = (e:React.MouseEvent) => {
+            e.stopPropagation();
+        };
+
+        return (
+            <div className="LineMetadata" onClick={handleClick}>
+                <table>
+                    <tbody>
+                        {props.data.map(v => <tr key={v.label}><th>{v.label}:</th><td>{v.value}</td></tr>)}
+                    </tbody>
+                </table>
+            </div>
+        )
+    }
 
 
     // ------------------ <FilteredLine /> --------------------------------------------
 
     const FilteredLine:React.SFC<{
         data:Line;
+        hasVisibleMetadata:boolean;
+        handleLineClick:(e:React.MouseEvent)=>void;
 
     }> = (props) => {
+
+        const handleWordClick = (e:React.MouseEvent<HTMLAnchorElement>) => {
+            const word = (e.target as Element).getAttribute('data-value');
+            dispatcher.dispatch<GlobalActions.ChangeQueryInput>({
+                name: GlobalActionName.ChangeQueryInput,
+                payload: {
+                    value: word
+                }
+            });
+            dispatcher.dispatch<GlobalActions.SubmitQuery>({
+                name: GlobalActionName.SubmitQuery
+            });
+        };
+
+        const mkColloc = (side:'L'|'R') => (e:LineElement, i:number) => e.class === 'coll' ?
+            <a key={`${props.data.toknum}:${side}${i}`} data-value={e.str} onClick={handleWordClick} className={e.class}
+                    title={ut.translate('global__click_to_query_word')}>{e.str}</a> :
+            <span key={`${props.data.toknum}:${side}${i}`} className={e.class}>{e.str}</span>;
+
         return (
-            <p className={`FilteredLine ${props.data.isHighlighted ? 'highlighted' : ''}`}>
-                {props.data.Left.map((v, i) => v.class ?
-                    <span key={`${props.data.toknum}:L${i}`} className={v.class}>{v.str}</span> :
-                    <span key={`${props.data.toknum}:L${i}`}>{v.str}</span>)
-                }
-                {props.data.Kwic.map((v, i) => <span className="kwic" key={`${props.data.toknum}:K${i}`}>{v.str}</span>)}
-                {props.data.Right.map((v, i) => v.class ?
-                    <span key={`${props.data.toknum}:R${i}`} className={v.class}>{v.str}</span> :
-                    <span key={`${props.data.toknum}:R${i}`}>{v.str}</span>)
-                }
-            </p>
+            <div className="FilteredLine">
+                {props.hasVisibleMetadata ? <LineMetadata data={props.data.metadata} /> : null}
+                <div className="flex">
+                    <a className="info-click" onClick={props.handleLineClick}><img src={ut.createStaticUrl('info-icon.svg')} /></a>
+                    <p className={props.data.isHighlighted ? 'highlighted' : ''}>
+                    {props.data.left.map(mkColloc('L'))}
+                    {props.data.kwic.map((v, i) => <span className="kwic" key={`${props.data.toknum}:K${i}`}>{v.str}</span>)}
+                    {props.data.right.map(mkColloc('R'))}
+                    </p>
+                </div>
+            </div>
         );
     };
 
     // ------------------ <CollocExamplesView /> --------------------------------------------
 
     class CollocExamplesView extends React.PureComponent<ConcFilterModelState & CoreTileComponentProps> {
+
+        constructor(props) {
+            super(props);
+        }
+
+        private handleLineClick(idx:number) {
+            return (e:React.MouseEvent) => {
+                if (this.props.visibleMetadataLine === idx) {
+                    dispatcher.dispatch<Actions.HideLineMetadata>({
+                        name: ActionName.HideLineMetadata
+                    });
+
+                } else {
+                    dispatcher.dispatch<Actions.ShowLineMetadata>({
+                        name: ActionName.ShowLineMetadata,
+                        payload: {
+                            idx: idx
+                        }
+                    });
+                }
+                e.stopPropagation();
+            }
+        }
 
         render() {
             return (
@@ -61,7 +129,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         supportsTileReload={this.props.supportsReloadOnError}>
                     <div className="CollocExamplesView">
                         <div className="sentences">
-                            {this.props.lines.map((v, i) => <FilteredLine key={`${i}:${v.toknum}`} data={v} />)}
+                            {this.props.lines.map((v, i) =>
+                                <FilteredLine key={`${i}:${v.toknum}`} data={v} hasVisibleMetadata={this.props.visibleMetadataLine === i}
+                                        handleLineClick={this.handleLineClick(i)} />)
+                            }
                         </div>
                     </div>
                 </globalCompontents.TileWrapper>

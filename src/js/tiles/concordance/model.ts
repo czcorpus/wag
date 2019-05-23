@@ -155,7 +155,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                         // debug:
                         action.payload.data.messages.forEach(msg => console.log(`${importMessageType(msg[0]).toUpperCase()}: conc - ${msg[1]}`));
 
-                        newState.lines = Immutable.List<Line>(action.payload.data.Lines);
+                        newState.lines = Immutable.List<Line>(action.payload.data.lines);
                         newState.concsize = action.payload.data.concsize; // TODO fullsize?
                         newState.resultARF = action.payload.data.arf;
                         newState.resultIPM = action.payload.data.ipm;
@@ -241,7 +241,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                     name: GlobalActionName.TileDataLoaded,
                     payload: {
                         tileId: this.tileId,
-                        isEmpty: data.Lines.length === 0,
+                        isEmpty: data.lines.length === 0,
                         data: data
                     }
                 });
