@@ -23,14 +23,21 @@ import { TreqSubsetModel, TranslationSubset } from './model';
 import { TreqAPI, TreqTranslation } from '../../common/api/treq';
 import {init as viewInit} from './view';
 import { StatelessModel } from 'kombo';
+import { LocalizedConfMsg } from '../../common/types';
 
 declare var require:any;
 require('./style.less');
 
 
+export interface PackageGroup {
+    label?:LocalizedConfMsg;
+    packages:Array<string>;
+}
+
+
 export interface TreqSubsetsTileConf extends TileConf {
     tileType:'TreqSubsetsTile';
-    srchPackages:{[lang:string]:Array<string>};
+    srchPackages:{[lang:string]:Array<PackageGroup>};
     apiURL:string;
 }
 
@@ -62,10 +69,10 @@ export class TreqSubsetsTile implements ITileProvider {
                 isAltViewMode: false,
                 error: null,
                 subsets: Immutable.List<TranslationSubset>((conf.srchPackages[lang2] || []).map(v => ({
-                    ident: v,
-                    label: v,
+                    ident: v.packages.join('|'),
+                    label: v.label ? appServices.importExternalMessage(v.label) : v.packages.join(', '),
                     translations: Immutable.List<TreqTranslation>(),
-                    packages: Immutable.List<string>([v]),
+                    packages: Immutable.List<PackageGroup>(v.packages),
                     isPending: false
                 }))),
                 highlightedRowIdx: -1,

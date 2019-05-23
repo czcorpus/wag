@@ -79,9 +79,11 @@ export const flipRowColMapper = <T>(subsets:Immutable.List<TranslationSubset>, m
             });
         }
 
+        const fitem = subsets.get(0).translations.get(i);
+        const variants = Immutable.Set(subsets.flatMap(subs => subs.translations.get(i).right));
         tmp.push({
             idx: i,
-            heading: subsets.get(0).translations.get(i).right,
+            heading: variants.size > 1 ? fitem.rightLc : fitem.right[0],
             cells: Immutable.List<MultiSrcTranslationCell>(row),
             color: subsets.get(0).translations.get(i).color
         });
@@ -145,8 +147,9 @@ export class TreqSubsetModel extends StatelessModel<TreqSubsetsModelState> {
                                 perc: tran.perc,
                                 left: tran.left,
                                 right: tran.right,
+                                rightLc: tran.rightLc,
                                 interactionId: tran.interactionId,
-                                color: newState.colorMap.get(tran.right, TreqSubsetModel.UNMATCHING_ITEM_COLOR)
+                                color: newState.colorMap.get(tran.rightLc, TreqSubsetModel.UNMATCHING_ITEM_COLOR)
                             })).toList(),
                             isPending: false
                         });
@@ -207,7 +210,7 @@ export class TreqSubsetModel extends StatelessModel<TreqSubsetsModelState> {
     private mkWordUnion(state:TreqSubsetsModelState):void {
         const allWords = state.subsets
             .flatMap(subset => subset.translations)
-            .groupBy(v => v.right)
+            .groupBy(v => v.rightLc)
             .toOrderedMap()
             .map(v => v.reduce((acc, curr) => acc + curr.perc, 0))
             .sort((v1, v2) => v2 - v1)
@@ -218,25 +221,27 @@ export class TreqSubsetModel extends StatelessModel<TreqSubsetsModelState> {
             label: subset.label,
             packages: subset.packages,
             translations: allWords.map(w => {
-                const srch = subset.translations.find(v => v.right === w);
+                const srch = subset.translations.find(v => v.rightLc === w);
                 if (srch) {
                     return {
                         freq: srch.freq,
                         perc: srch.perc,
                         left: srch.left,
                         right: srch.right,
+                        rightLc: srch.rightLc,
                         interactionId: srch.interactionId,
-                        color: state.colorMap.get(srch.right, TreqSubsetModel.UNMATCHING_ITEM_COLOR)
-                    }
+                        color: state.colorMap.get(srch.rightLc, TreqSubsetModel.UNMATCHING_ITEM_COLOR)
+                    };
                 }
                 return {
                     freq: 0,
                     perc: 0,
                     left: '',
-                    right: w,
-                    color: state.colorMap.get(w, TreqSubsetModel.UNMATCHING_ITEM_COLOR),
-                    interactionId: mkInterctionId(w)
-                }
+                    right: [w],
+                    rightLc: w.toLowerCase(),
+                    color: state.colorMap.get(w.toLowerCase(), TreqSubsetModel.UNMATCHING_ITEM_COLOR),
+                    interactionId: mkInterctionId(w.toLowerCase())
+                };
             }).toList(),
             isPending: false
         })).toList();
@@ -249,7 +254,15 @@ export class TreqSubsetModel extends StatelessModel<TreqSubsetsModelState> {
                     (action:Action) => {
                         if (action.name === GlobalActionName.TileDataLoaded && this.waitForColorsTile === action.payload['tileId']) {
                             merge(...state.subsets.map(subset =>
-                                callWithExtraVal(this.api, stateToAPIArgs(state, this.mainForm.getState().query.value, subset.packages), subset.ident)
+                                callWithExtraVal(
+                                    this.api,
+                                    stateToAPIArgs(
+                                        state,
+                                        this.mainForm.getState().query.value,
+                                        subset.packages
+                                    ),
+                                    subset.ident
+                                )
                             ).toArray())
                             .subscribe(
                                 (resp) => {
