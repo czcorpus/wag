@@ -54,7 +54,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             {props.translations.map((translation, i) => (
                                 <tr key={`${translation['righ']}:${i}`}>
                                     <td className="translation">
-                                        {translation.right}
+                                        {translation.rightLc}
                                     </td>
                                     <td className="num">
                                         {ut.formatNumber(translation.perc, 1)}%
@@ -90,11 +90,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         render() {
             const dataTransform = (t:TreqTranslation) => ({
-                text: t.right,
+                text: t.right.length > 1 ? t.rightLc : t.right[0],
                 value: t.perc,
                 tooltip: [
                     {label: ut.translate('treq__abs_freq'), value: t.freq},
-                    {label: ut.translate('treq__rel_freq'), value: t.perc, round: 1}
+                    {label: ut.translate('treq__rel_freq'), value: ut.formatNumber(t.perc, 1), round: 1},
+                    {label: ut.translate('treq__found_variants'), value: t.right.join(', ')}
                 ],
                 interactionId: t.interactionId,
                 color: t.color

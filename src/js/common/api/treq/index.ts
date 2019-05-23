@@ -54,7 +54,8 @@ export interface TreqTranslation {
     freq:number;
     perc:number;
     left:string;
-    right:string;
+    rightLc:string;
+    right:Array<string>;
     interactionId:string;
     color?:string;
 }
@@ -95,19 +96,24 @@ export class TreqAPI implements DataApi<RequestArgs, TreqResponse> {
     private mergeByLowercase(lines:Array<TreqTranslation>):Array<TreqTranslation> {
         return Object.values<TreqTranslation>(lines.reduce(
             (acc, curr) => {
-                const key = curr.right.toLowerCase();
-                if (!(key in acc)) {
-                    acc[key] = {
+                if (!(curr.rightLc in acc)) {
+                    acc[curr.rightLc] = {
                         freq: curr.freq,
                         perc: curr.perc,
                         left: curr.left,
-                        right: key,
-                        interactionId: mkInterctionId(key)
+                        right: curr.right,
+                        rightLc: curr.rightLc,
+                        interactionId: mkInterctionId(curr.rightLc)
                     };
 
                 } else {
-                    acc[key].freq += curr.freq;
-                    acc[key].perc += curr.perc;
+                    acc[curr.rightLc].freq += curr.freq;
+                    acc[curr.rightLc].perc += curr.perc;
+                    curr.right.forEach(variant => {
+                        if (acc[curr.rightLc].right.indexOf(variant) === -1) {
+                            acc[curr.rightLc].right.push(variant);
+                        }
+                    });
                 }
                 return acc;
             },
@@ -129,7 +135,8 @@ export class TreqAPI implements DataApi<RequestArgs, TreqResponse> {
                         freq: parseInt(v.freq),
                         perc: parseFloat(v.perc),
                         left: v.left,
-                        right: v.righ,
+                        rightLc: v.righ.toLowerCase(),
+                        right: [v.righ],
                         interactionId: ''
                     }))).slice(0, 10)
                 })
