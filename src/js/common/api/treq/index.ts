@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Observable, of as rxOf } from 'rxjs';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { cachedAjax$ } from '../../ajax';
@@ -64,9 +64,16 @@ export interface TreqResponse {
     lines:Array<TreqTranslation>;
 }
 
+interface HTTPResponseLine {
+    freq:string;
+    perc:string;
+    left:string;
+    righ:string;
+}
+
 interface HTTPResponse {
     sum:number;
-    lines:Array<{freq:string; perc:string; left:string; righ:string;}>;
+    lines:Array<HTTPResponseLine>;
 }
 
 export const mkInterctionId = (word:string):string => {
@@ -84,6 +91,30 @@ export class TreqAPI implements DataApi<RequestArgs, TreqResponse> {
         this.apiURL = apiURL;
     }
 
+
+    private mergeByLowercase(lines:Array<TreqTranslation>):Array<TreqTranslation> {
+        return Object.values<TreqTranslation>(lines.reduce(
+            (acc, curr) => {
+                const key = curr.right.toLowerCase();
+                if (!(key in acc)) {
+                    acc[key] = {
+                        freq: curr.freq,
+                        perc: curr.perc,
+                        left: curr.left,
+                        right: key,
+                        interactionId: mkInterctionId(key)
+                    };
+
+                } else {
+                    acc[key].freq += curr.freq;
+                    acc[key].perc += curr.perc;
+                }
+                return acc;
+            },
+            {}
+        )).sort((x1, x2) => x2.perc - x1.perc);
+    }
+
     call(args:RequestArgs):Observable<TreqResponse> {
         return cachedAjax$<HTTPResponse>(this.cache)(
             'GET',
@@ -94,13 +125,13 @@ export class TreqAPI implements DataApi<RequestArgs, TreqResponse> {
             map(
                 resp => ({
                     sum: resp.sum,
-                    lines: resp.lines.map(v => ({
+                    lines: this.mergeByLowercase(resp.lines.map(v => ({
                         freq: parseInt(v.freq),
                         perc: parseFloat(v.perc),
                         left: v.left,
                         right: v.righ,
-                        interactionId: mkInterctionId(v.righ)
-                    })).slice(0, 10)
+                        interactionId: ''
+                    }))).slice(0, 10)
                 })
             )
         );
