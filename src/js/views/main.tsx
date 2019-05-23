@@ -299,7 +299,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             dispatcher.dispatch<Actions.SubmitQuery>({
                 name: ActionName.SubmitQuery
             });
-        }
+        };
+
+        const mkAltLabel = (v:LemmaVariant) => v.pos.length > 1 ? ut.translate('global__alt_expr_any') : v.pos[0].label;
 
         if (props.lemmas.size > 0) {
             const curr = props.lemmas.find(v => v.isCurrent == true);
@@ -307,7 +309,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 return (
                     <div className="LemmaSelector">
                         {ut.translate('global__searching_by_pos')}:{'\u00a0'}
-                        <span className="curr">{curr.lemma} ({curr.pos.map(v => v.label).join(` ${ut.translate('global__expr_or')} `)})</span>
+                        <span className="curr">{curr.lemma} ({mkAltLabel(curr)})</span>
                         <br />
                         {props.lemmas.size > 1 ?
                             <div className="variants">
@@ -316,7 +318,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                     {props.lemmas.filter(v => !v.isCurrent).map((v, i) =>
                                         <li key={`${v.lemma}:${v.pos}:${i}`}>
                                             {i > 0 ? <span>, </span> : null}
-                                            <a onClick={mkHandleClick(v)}>{v.lemma} ({v.pos.map(v => v.label).join(` ${ut.translate('global__expr_or')} `)})</a>
+                                            <a onClick={mkHandleClick(v)}>{v.lemma} ({mkAltLabel(v)})</a>
                                         </li>
                                     )}
                                 </ul>
