@@ -249,7 +249,15 @@ export class TreqSubsetModel extends StatelessModel<TreqSubsetsModelState> {
                     (action:Action) => {
                         if (action.name === GlobalActionName.TileDataLoaded && this.waitForColorsTile === action.payload['tileId']) {
                             merge(...state.subsets.map(subset =>
-                                callWithExtraVal(this.api, stateToAPIArgs(state, this.mainForm.getState().query.value, subset.packages), subset.ident)
+                                callWithExtraVal(
+                                    this.api,
+                                    stateToAPIArgs(
+                                        state,
+                                        this.mainForm.getState().query.value,
+                                        subset.packages
+                                    ),
+                                    subset.ident
+                                )
                             ).toArray())
                             .subscribe(
                                 (resp) => {
