@@ -16,22 +16,31 @@
  * limitations under the License.
  */
 
-import { SourceInfoComponent } from '../../common/tile';
-import { init as fcs1Views } from '../../views/clarin/fcs1/explain';
-import { ViewUtils, IActionDispatcher } from 'kombo';
-import { GlobalComponents } from '../../views/global';
-import { CoreApiGroup } from '../../common/api/coreGroups';
+import { SpeechLines, ExpandArgs, Expand } from './modelDomain';
+import { Action } from 'kombo';
 
 
-export function createSourceInfoViewInstance(apiIdent:string, dispatcher:IActionDispatcher, viewUtils:ViewUtils<GlobalComponents>):SourceInfoComponent {
+export interface SpeechDataPayload {
+    tokenNum:number;
+    data:SpeechLines|null;
+    expandRightArgs:ExpandArgs|null;
+    expandLeftArgs:ExpandArgs|null;
+}
 
-	const views = fcs1Views(dispatcher, viewUtils);
 
-	switch (apiIdent) {
-		case CoreApiGroup.FCS_V1:
-			return views.ExplainView;
-		default:
-			return null;
-	}
+export enum ActionName {
+    ExpandSpeech = 'SPEECH_EXPAND_SPEECH',
+    ExpandSpeechDone = 'SPEECH_EXPAND_SPEECH_DONE'
+}
 
- }
+
+export namespace Actions {
+
+    export interface ExpandSpeech extends Action<{
+        tileId:number;
+        position:Expand;
+    }> {
+        name:ActionName.ExpandSpeech;
+    }
+
+}

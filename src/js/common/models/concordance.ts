@@ -32,8 +32,9 @@ export interface ConcordanceMinState {
     kwicLeftCtx:number;
     kwicRightCtx:number;
     pageSize:number;
+    currPage:number;
     loadPage:number; // the one we are going to load
-    attr_vmode:'mouseover';
+    attr_vmode:'mouseover'|'direct';
     viewMode:ViewMode;
     concId:string|null;
     shuffle:boolean;

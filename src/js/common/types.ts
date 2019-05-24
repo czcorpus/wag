@@ -107,3 +107,5 @@ export interface IAsyncKeyValueStore {
     set(key:string, value:any):Observable<string>;
     clearAll():Observable<number>;
 }
+
+export type RGBAColor = [number, number, number, number];
