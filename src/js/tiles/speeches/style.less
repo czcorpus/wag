@@ -1,0 +1,86 @@
+@import '../../../css/shared.less';
+
+.SpeechesTile {
+
+    table.speeches {
+
+        border-spacing: 0 0.9em;
+
+        tr.speech {
+            line-height: 1.2em;
+
+            th {
+                font-weight: normal;
+                text-align: right;
+                white-space: nowrap;
+                vertical-align: middle;
+            }
+
+            td {
+                vertical-align: middle;
+            }
+
+            .speaker {
+                border: 1px solid @color-light-text;
+                border-radius: @default-border-radius;
+                display: inline-block;
+                vertical-align: middle;
+                font-size: 0.8em;
+                font-weight: normal;
+                padding: 0.05em 0.7em;
+            }
+
+            .speech-text {
+                display: block;
+                margin-left: 1em;
+
+                span.play-audio {
+
+                    padding-left: 1em;
+
+                    img {
+                        width: 1.2em;
+                        vertical-align: middle;
+                        cursor: pointer;
+                    }
+
+                    img:hover {
+                        text-decoration: underline;
+                    }
+                }
+            }
+
+            .speech-text.focus {
+                background-color: #FFFFFF;
+            }
+
+            .plus {
+                font-weight: bold;
+                font-size: 110%;
+            }
+
+            .overlap {
+                float: right;
+                width: 1em;
+            }
+        }
+
+        tr.expand {
+
+            th {
+                text-align: right;
+                padding-right: 0.2em;
+
+                a {
+                    width: 3em;
+                    display: inline-block;
+
+                    img {
+                        width: 1.4em;
+                    }
+                }
+            }
+        }
+    }
+
+}

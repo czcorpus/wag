@@ -27,7 +27,9 @@ import { QueryType } from '../../common/query';
 import { Backlink, CorpSrchTileConf, ITileProvider, TileComponent, TileFactory, SourceInfoComponent } from '../../common/tile';
 import { ConcordanceTileModel } from './model';
 import { init as viewInit } from './views';
-import { createApiInstance, createMapperInstance, createSourceInfoApiInstance, createSourceInfoViewInstance } from './apiFactory';
+import { createApiInstance, createMapperInstance, createSourceInfoApiInstance } from '../../common/api/factory/concordance';
+import { createSourceInfoViewInstance } from './apiFactory';
+
 
 
 declare var require:any;

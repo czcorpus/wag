@@ -242,7 +242,10 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                     payload: {
                         tileId: this.tileId,
                         isEmpty: data.lines.length === 0,
-                        data: data
+                        data: data,
+                        subqueries: data.lines.map(v => ({value: `${v.toknum}`, interactionId: v.interactionId})),
+                        lang1: null,
+                        lang2: null
                     }
                 });
             },
@@ -254,7 +257,10 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                     payload: {
                         tileId: this.tileId,
                         isEmpty: true,
-                        data: null
+                        data: null,
+                        subqueries: [],
+                        lang1: null,
+                        lang2: null
                     }
                 });
             }

@@ -18,6 +18,7 @@
 import { Action } from 'kombo';
 
 import { ConcResponse, ViewMode } from '../../common/api/abstract/concordance';
+import { SubqueryPayload } from '../../common/query';
 
 
 
@@ -30,7 +31,7 @@ export enum ActionName {
 }
 
 
-export interface ConcLoadedPayload {
+export interface ConcLoadedPayload extends SubqueryPayload {
     data:ConcResponse;
 }
 

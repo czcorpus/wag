@@ -355,6 +355,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                     kwicRightCtx: 1,
                                     pageSize: 10,
                                     loadPage: 1,
+                                    currPage: 1,
                                     shuffle: false,
                                     attr_vmode: 'mouseover',
                                     viewMode: ViewMode.KWIC,
