@@ -42,11 +42,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         return (
             <div className="LineMetadata" onClick={handleClick}>
-                <table>
-                    <tbody>
-                        {props.data.map(v => <tr key={v.label}><th>{v.label}:</th><td>{v.value}</td></tr>)}
-                    </tbody>
-                </table>
+                <dl>
+                    {props.data.map(v => <React.Fragment key={v.label}><dt>{v.label}:</dt><dd>{v.value}</dd></React.Fragment>)}
+                </dl>
             </div>
         )
     }
@@ -81,10 +79,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         return (
             <div className="FilteredLine">
-                {props.hasVisibleMetadata ? <LineMetadata data={props.data.metadata} /> : null}
-                <div className="flex">
-                    <a className="info-click" onClick={props.handleLineClick}><img src={ut.createStaticUrl('info-icon.svg')} /></a>
-                    <p className={props.data.isHighlighted ? 'highlighted' : ''}>
+                <div className={`flex${props.data.isHighlighted ? ' highlighted' : ''}`}>
+                    <div>
+                        {props.hasVisibleMetadata ? <LineMetadata data={props.data.metadata} /> : null}
+                        <a className="info-click" onClick={props.handleLineClick}><img src={ut.createStaticUrl('info-icon.svg')} /></a>
+                    </div>
+                    <p>
                     {props.data.left.map(mkColloc('L'))}
                     {props.data.kwic.map((v, i) => <span className="kwic" key={`${props.data.toknum}:K${i}`}>{v.str}</span>)}
                     {props.data.right.map(mkColloc('R'))}
