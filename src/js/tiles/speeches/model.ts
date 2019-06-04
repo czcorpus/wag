@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { StatelessModel, IActionDispatcher, SEDispatcher, Action } from 'kombo';
-import { map } from 'rxjs/operators';
+import * as Immutable from 'immutable';
 
 import { WdglanceMainFormModel } from '../../models/query';
 import { AppServices } from '../../appServices';
@@ -25,7 +25,7 @@ import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../
 import { SpeechDataPayload } from './actions';
 import { isSubqueryPayload } from '../../common/query';
 import { SpeechesApi, SpeechReqArgs } from './api';
-import { SpeechesModelState, getSpeechesDetail, Expand } from './modelDomain';
+import { SpeechesModelState, extractSpeeches, Expand } from './modelDomain';
 import { DataApi } from '../../common/types';
 import { ActionName, Actions } from './actions';
 
@@ -72,6 +72,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                 newState.isBusy = true;
                 newState.error = null;
                 newState.concId = null;
+                newState.tokenIdx = 0;
                 return newState;
             },
             [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<SpeechDataPayload>) => {
@@ -83,7 +84,9 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
 
                     } else {
                         newState.data = action.payload.data;
-                        newState.tokenNum = action.payload.tokenNum;
+                        if (action.payload.availableTokens) {
+                            newState.availTokens = Immutable.List<number>(action.payload.availableTokens);
+                        }
                         if (action.payload.expandLeftArgs) {
                             newState.expandLeftArgs = newState.expandLeftArgs.push({
                                 leftCtx: action.payload.expandLeftArgs.leftCtx,
@@ -107,10 +110,36 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                 }
                 return state;
             },
+            [GlobalActionName.EnableTileTweakMode]: (state, action:GlobalActions.EnableTileTweakMode) => {
+                if (action.payload.ident === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.isTweakMode = true;
+                    return newState;
+                }
+                return state;
+            },
+            [GlobalActionName.DisableTileTweakMode]: (state, action:GlobalActions.DisableTileTweakMode) => {
+                if (action.payload.ident === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.isTweakMode = false;
+                    return newState;
+                }
+                return state;
+            },
             [ActionName.ExpandSpeech]: (state, action:Actions.ExpandSpeech) => {
                 if (action.payload.tileId === this.tileId) {
                     const newState = this.copyState(state);
                     newState.isBusy = true;
+                    return newState;
+                }
+                return state;
+            },
+            [ActionName.LoadAnotherSpeech]: (state, action:Actions.LoadAnotherSpeech) => {
+                if (action.payload.tileId === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.isBusy = true;
+                    newState.speakerColorsAttachments = newState.speakerColorsAttachments.clear();
+                    newState.tokenIdx = (newState.tokenIdx + 1) % newState.availTokens.size;
                     return newState;
                 }
                 return state;
@@ -151,17 +180,17 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
         return args;
     }
 
-    private reloadData(state:SpeechesModelState, dispatch:SEDispatcher, pos:number, expand?:Expand):void {
-        this.api.call(this.createArgs(state, pos, expand))
+    private reloadData(state:SpeechesModelState, dispatch:SEDispatcher, tokens:Array<number>, expand?:Expand):void {
+        this.api.call(this.createArgs(state, (tokens || state.availTokens.toArray())[state.tokenIdx], expand))
         .subscribe(
             (data) => {
                 dispatch<GlobalActions.TileDataLoaded<SpeechDataPayload>>({
                     name: GlobalActionName.TileDataLoaded,
                     payload: {
                         tileId: this.tileId,
-                        tokenNum: pos,
+                        availableTokens: tokens,
                         isEmpty: data.content.length === 0,
-                        data: getSpeechesDetail(state, data.content),
+                        data: extractSpeeches(state, data.content),
                         expandLeftArgs: data.expand_left_args ?
                             {
                                 leftCtx: data.expand_left_args.detail_left_ctx,
@@ -184,7 +213,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                     error: err,
                     payload: {
                         tileId: this.tileId,
-                        tokenNum: -1,
+                        availableTokens: [],
                         isEmpty: true,
                         data: null,
                         expandLeftArgs: null,
@@ -204,7 +233,11 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                         (action) => {
                             if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
                                 if (isSubqueryPayload(action.payload)) {
-                                    this.reloadData(state, dispatch, parseInt(action.payload.subqueries[0].value)); // TODO selection other than hardcoded 0
+                                    this.reloadData(
+                                        state,
+                                        dispatch,
+                                        action.payload.subqueries.map(v => parseInt(v.value))
+                                    );
 
                                 } else {
                                     this.reloadData(state, dispatch, null);
@@ -220,7 +253,12 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
             break;
             case ActionName.ExpandSpeech:
                 if (action.payload['tileId'] === this.tileId) {
-                    this.reloadData(state, dispatch, state.tokenNum, action.payload['position']);
+                    this.reloadData(state, dispatch, null, action.payload['position']);
+                }
+            break;
+            case ActionName.LoadAnotherSpeech:
+                if (action.payload['tileId'] === this.tileId) {
+                    this.reloadData(state, dispatch, null, Expand.RELOAD);
                 }
             break;
         }

@@ -20,6 +20,7 @@ import * as Immutable from 'immutable';
 import { QuerySelector} from '../api/kontext/concordance';
 import { ViewMode } from '../api/abstract/concordance';
 import { LemmaVariant } from '../query';
+import { LocalizedConfMsg } from '../types';
 
 
 export interface ConcordanceMinState {

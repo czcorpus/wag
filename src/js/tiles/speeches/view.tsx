@@ -24,7 +24,7 @@ import { CoreTileComponentProps, TileComponent } from '../../common/tile';
 import { Theme } from '../../common/theme';
 import { Speech, SpeechesModelState, Expand } from './modelDomain';
 import { RGBAColor } from '../../common/types';
-import { ActionName } from './actions';
+import { ActionName, Actions } from './actions';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:SpeechesModel):TileComponent {
@@ -195,16 +195,42 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         );
     };
 
+
+    // -------------------------- <LoadNext /> --------------------------------------
+
+    const LoadNext:React.SFC<{
+        tileId:number;
+
+    }> = (props) => {
+
+        const handleClick = () => {
+            dispatcher.dispatch<Actions.LoadAnotherSpeech>({
+                name: ActionName.LoadAnotherSpeech,
+                payload: {
+                    tileId: props.tileId
+                }
+            });
+        };
+
+        return (
+            <div className="tweak-box">
+                <a onClick={handleClick} title={ut.translate('speeches__load_different_sp_button')}>
+                    <img src={ut.createStaticUrl('triangle_right.svg')} alt={ut.translate('speeches__load_different_sp_button')} />
+                </a>
+            </div>
+        );
+    };
+
     // ------------------------- <SpeechView /> -------------------------------
 
     const SpeechView:React.SFC<{
         tileId:number;
+        isTweakMode:boolean;
         data:Array<Array<Speech>>;
         hasExpandLeft:boolean;
         hasExpandRight:boolean;
 
     }> = (props) => {
-
         const renderSpeechLines = () => {
             return (props.data || []).map((item, i) => {
                 if (item.length === 1) {
@@ -223,9 +249,16 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             <div>
                 <table className="speeches">
                     <tbody>
+                        <tr className="next">
+                            <th>
+                                {props.isTweakMode ?
+                                    <LoadNext tileId={props.tileId} /> : null}
+                            </th>
+                            <td />
+                        </tr>
                         <tr className="expand">
                             <th>
-                                {props.hasExpandLeft ?
+                                {props.hasExpandLeft && props.isTweakMode  ?
                                     <ExpandSpeechesButton tileId={props.tileId} position={Expand.TOP} />
                                 : null}
                             </th>
@@ -234,7 +267,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         {renderSpeechLines()}
                         <tr className="expand">
                             <th>
-                                {props.hasExpandRight ?
+                                {props.hasExpandRight && props.isTweakMode ?
                                     <ExpandSpeechesButton tileId={props.tileId} position={Expand.BOTTOM} />
                                 : null}
                             </th>
@@ -246,7 +279,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         );
     }
 
-
     // -------------------------- <SpeechesTile /> --------------------------------------
 
     class SpeechesTile extends React.PureComponent<SpeechesModelState & CoreTileComponentProps> {
@@ -254,12 +286,14 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         render() {
             return (
                 <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
-                        hasData={this.props.data.length > 0} sourceIdent={{corp: null}} backlink={null}
+                        hasData={this.props.data.length > 0}
+                        sourceIdent={{corp: this.props.corpname, subcorp: this.props.subcDesc}}
+                        backlink={null}
                         supportsTileReload={this.props.supportsReloadOnError}>
                     <div className="SpeechesTile">
                        <SpeechView data={this.props.data} hasExpandLeft={!!this.props.expandLeftArgs.get(-1)}
                                 hasExpandRight={!!this.props.expandRightArgs.get(-1)}
-                                tileId={this.props.tileId} />
+                                tileId={this.props.tileId} isTweakMode={this.props.isTweakMode} />
                     </div>
                 </globComponents.TileWrapper>
             );

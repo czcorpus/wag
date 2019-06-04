@@ -23,7 +23,7 @@ import { ITileProvider, TileComponent, TileConf, TileFactory, SourceInfoComponen
 import { SpeechesModel } from './model';
 import { init as viewInit } from './view';
 import { createSourceInfoApiInstance } from '../../common/api/factory/concordance';
-import { DataApi, RGBAColor } from '../../common/types';
+import { DataApi, RGBAColor, LocalizedConfMsg } from '../../common/types';
 import { SpeechesApi } from './api';
 import { ExpandArgs } from './modelDomain';
 
@@ -37,6 +37,7 @@ export interface SpeechesTileConf extends TileConf {
     apiType:string;
     apiURL:string;
     corpname:string;
+    subcDesc:LocalizedConfMsg;
     speakerIdAttr:[string, string];
     speechSegment:[string, string];
     speechAttrs:Array<string>;
@@ -97,6 +98,7 @@ export class SpeechesTile implements ITileProvider {
                 isMobile: appServices.isMobileMode(),
                 error: null,
                 corpname: conf.corpname,
+                subcDesc: conf.subcDesc ? appServices.importExternalMessage(conf.subcDesc) : '',
                 concId: null,
                 speakerIdAttr: [conf.speakerIdAttr[0], conf.speakerIdAttr[1]],
                 speechSegment: [conf.speechSegment[0], conf.speechSegment[1]],
@@ -110,7 +112,8 @@ export class SpeechesTile implements ITileProvider {
                 expandLeftArgs: Immutable.List<ExpandArgs>(),
                 expandRightArgs: Immutable.List<ExpandArgs>(),
                 data: [],
-                tokenNum: -1
+                availTokens: Immutable.List<number>(),
+                tokenIdx: 0
             }
         });
         this.view = viewInit(dispatcher, ut, theme, this.model);
@@ -147,7 +150,7 @@ export class SpeechesTile implements ITileProvider {
     }
 
     supportsTweakMode():boolean {
-        return false;
+        return true;
     }
 
     supportsAltView():boolean {

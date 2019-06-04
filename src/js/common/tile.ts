@@ -102,7 +102,7 @@ export interface CorpSrchTileConf extends TileConf {
 
     subcname?:string|Array<string>;
 
-    subcDesc?:string|{[lang:string]:string};
+    subcDesc?:LocalizedConfMsg;
 }
 
 /**
