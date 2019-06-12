@@ -55,8 +55,10 @@ export interface SpeechesModelState {
     isMobile:boolean;
     error:string;
     corpname:string;
+    subcDesc:string;
     concId:string;
-    tokenNum:number;
+    availTokens:Immutable.List<number>;
+    tokenIdx:number;
     data:SpeechLines;
     expandLeftArgs:Immutable.List<ExpandArgs>;
     expandRightArgs:Immutable.List<ExpandArgs>;
@@ -152,7 +154,7 @@ function mergeOverlaps(state:SpeechesModelState, speeches:Array<Speech>):SpeechL
 }
 
 
-export function getSpeechesDetail(state:SpeechesModelState, concDetail:ConcDetailText):SpeechLines {
+export function extractSpeeches(state:SpeechesModelState, concDetail:ConcDetailText):SpeechLines {
     let currSpeech:Speech = createNewSpeech(state, '\u2026', null, {});
     let prevSpeech:Speech = null;
     const tmp:Array<Speech> = [];

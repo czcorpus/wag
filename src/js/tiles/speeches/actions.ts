@@ -21,7 +21,7 @@ import { Action } from 'kombo';
 
 
 export interface SpeechDataPayload {
-    tokenNum:number;
+    availableTokens:Array<number>;
     data:SpeechLines|null;
     expandRightArgs:ExpandArgs|null;
     expandLeftArgs:ExpandArgs|null;
@@ -30,7 +30,7 @@ export interface SpeechDataPayload {
 
 export enum ActionName {
     ExpandSpeech = 'SPEECH_EXPAND_SPEECH',
-    ExpandSpeechDone = 'SPEECH_EXPAND_SPEECH_DONE'
+    LoadAnotherSpeech = 'SPEECH_LOAD_ANOTHER_SPEECH'
 }
 
 
@@ -43,4 +43,8 @@ export namespace Actions {
         name:ActionName.ExpandSpeech;
     }
 
+    export interface LoadAnotherSpeech extends Action<{
+        tileId:number;
+    }> {
+    }
 }
