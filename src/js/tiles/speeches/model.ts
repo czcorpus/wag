@@ -20,14 +20,15 @@ import * as Immutable from 'immutable';
 
 import { WdglanceMainFormModel } from '../../models/query';
 import { AppServices } from '../../appServices';
-import { Backlink } from '../../common/tile';
+import { Backlink, BacklinkWithArgs } from '../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
 import { SpeechDataPayload } from './actions';
 import { isSubqueryPayload } from '../../common/query';
 import { SpeechesApi, SpeechReqArgs } from './api';
-import { SpeechesModelState, extractSpeeches, Expand } from './modelDomain';
-import { DataApi } from '../../common/types';
+import { SpeechesModelState, extractSpeeches, Expand, BacklinkArgs } from './modelDomain';
+import { DataApi, HTTPMethod } from '../../common/types';
 import { ActionName, Actions } from './actions';
+import { isConcLoadedPayload } from '../concordance/actions';
 
 
 
@@ -83,6 +84,9 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                         newState.error = action.error.message;
 
                     } else {
+                        if (action.payload.concId !== null) {
+                            newState.concId = action.payload.concId;
+                        }
                         newState.data = action.payload.data;
                         if (action.payload.availableTokens) {
                             newState.availTokens = Immutable.List<number>(action.payload.availableTokens);
@@ -105,6 +109,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                         } else {
                             newState.expandRightArgs = newState.expandRightArgs.push(null);
                         }
+                        newState.backlink = this.createBackLink(newState);
                     }
                     return newState;
                 }
@@ -180,7 +185,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
         return args;
     }
 
-    private reloadData(state:SpeechesModelState, dispatch:SEDispatcher, tokens:Array<number>, expand?:Expand):void {
+    private reloadData(state:SpeechesModelState, dispatch:SEDispatcher, tokens:Array<number>|null, concId:string|null, expand?:Expand):void {
         this.api.call(this.createArgs(state, (tokens || state.availTokens.toArray())[state.tokenIdx], expand))
         .subscribe(
             (data) => {
@@ -188,6 +193,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                     name: GlobalActionName.TileDataLoaded,
                     payload: {
                         tileId: this.tileId,
+                        concId: concId,
                         availableTokens: tokens,
                         isEmpty: data.content.length === 0,
                         data: extractSpeeches(state, data.content),
@@ -213,6 +219,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                     error: err,
                     payload: {
                         tileId: this.tileId,
+                        concId: null,
                         availableTokens: [],
                         isEmpty: true,
                         data: null,
@@ -224,6 +231,21 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
         );
     }
 
+    private createBackLink(state:SpeechesModelState):BacklinkWithArgs<BacklinkArgs> {
+        return this.backlink ?
+            {
+                url: this.backlink.url,
+                method: this.backlink.method || HTTPMethod.GET,
+                label: this.backlink.label,
+                args: {
+                    corpname: state.corpname,
+                    usesubcorp: state.subcname,
+                    q: `~${state.concId}`
+                }
+            } :
+            null;
+    }
+
 
     sideEffects(state:SpeechesModelState, action:Action, dispatch:SEDispatcher):void {
         switch(action.name) {
@@ -231,34 +253,38 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                 if (this.waitForTile) {
                     this.suspend(
                         (action) => {
-                            if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
+                            const payload = action.payload;
+                            if (action.name === GlobalActionName.TileDataLoaded && isConcLoadedPayload(payload) &&
+                                    action.payload['tileId'] === this.waitForTile) {
                                 if (isSubqueryPayload(action.payload)) {
                                     this.reloadData(
                                         state,
                                         dispatch,
-                                        action.payload.subqueries.map(v => parseInt(v.value))
+                                        action.payload.subqueries.map(v => parseInt(v.value)),
+                                        payload.data.concPersistenceID
                                     );
 
                                 } else {
-                                    this.reloadData(state, dispatch, null);
+                                    this.reloadData(state, dispatch, null, null);
                                 }
                                 return true;
                             }
                             return false;
                         }
                     );
+
                 } else {
-                    this.reloadData(state, dispatch, null);
+                    this.reloadData(state, dispatch, null, null);
                 }
             break;
             case ActionName.ExpandSpeech:
                 if (action.payload['tileId'] === this.tileId) {
-                    this.reloadData(state, dispatch, null, action.payload['position']);
+                    this.reloadData(state, dispatch, null, null, action.payload['position']);
                 }
             break;
             case ActionName.LoadAnotherSpeech:
                 if (action.payload['tileId'] === this.tileId) {
-                    this.reloadData(state, dispatch, null, Expand.RELOAD);
+                    this.reloadData(state, dispatch, null, null, Expand.RELOAD);
                 }
             break;
         }

@@ -22,6 +22,7 @@ import { Action } from 'kombo';
 
 export interface SpeechDataPayload {
     availableTokens:Array<number>;
+    concId:string|null;
     data:SpeechLines|null;
     expandRightArgs:ExpandArgs|null;
     expandLeftArgs:ExpandArgs|null;

@@ -282,13 +282,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // -------------------------- <SpeechesTile /> --------------------------------------
 
     class SpeechesTile extends React.PureComponent<SpeechesModelState & CoreTileComponentProps> {
-
         render() {
             return (
                 <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.data.length > 0}
                         sourceIdent={{corp: this.props.corpname, subcorp: this.props.subcDesc}}
-                        backlink={null}
+                        backlink={this.props.backlink}
                         supportsTileReload={this.props.supportsReloadOnError}>
                     <div className="SpeechesTile">
                        <SpeechView data={this.props.data} hasExpandLeft={!!this.props.expandLeftArgs.get(-1)}

@@ -17,6 +17,7 @@
  */
 import * as Immutable from 'immutable';
 import { RGBAColor } from '../../common/types';
+import { BacklinkWithArgs } from '../../common/tile';
 
 
 export type ConcDetailText = Array<{str:string; class:string}>;
@@ -37,6 +38,12 @@ export interface ExpandArgs {
     pos?:number;
 }
 
+export interface BacklinkArgs {
+    corpname:string;
+    usesubcorp:string;
+    q:string;
+}
+
 
 /**
  * Note: A single speech line contains an array of
@@ -55,6 +62,7 @@ export interface SpeechesModelState {
     isMobile:boolean;
     error:string;
     corpname:string;
+    subcname:string;
     subcDesc:string;
     concId:string;
     availTokens:Immutable.List<number>;
@@ -71,6 +79,7 @@ export interface SpeechesModelState {
     wideCtxGlobals:Immutable.List<[string, string]>;
     speakerColorsAttachments:Immutable.Map<string, RGBAColor>;
     spkOverlapMode:'full'|'simple';
+    backlink:BacklinkWithArgs<BacklinkArgs>;
 }
 
 
