@@ -19,7 +19,7 @@ import * as Immutable from 'immutable';
 import { StatelessModel } from 'kombo';
 
 import { QueryType } from '../../common/query';
-import { ITileProvider, TileComponent, TileConf, TileFactory, SourceInfoComponent } from '../../common/tile';
+import { ITileProvider, TileComponent, TileConf, TileFactory, SourceInfoComponent, Backlink } from '../../common/tile';
 import { SpeechesModel } from './model';
 import { init as viewInit } from './view';
 import { createSourceInfoApiInstance } from '../../common/api/factory/concordance';
@@ -37,12 +37,14 @@ export interface SpeechesTileConf extends TileConf {
     apiType:string;
     apiURL:string;
     corpname:string;
+    subcname?:string;
     subcDesc:LocalizedConfMsg;
     speakerIdAttr:[string, string];
     speechSegment:[string, string];
     speechAttrs:Array<string>;
     speechOverlapAttr:[string, string];
     speechOverlapVal:string;
+    backlink?:Backlink,
 }
 
 const BASE_COLOR_SCHEME = [
@@ -98,6 +100,7 @@ export class SpeechesTile implements ITileProvider {
                 isMobile: appServices.isMobileMode(),
                 error: null,
                 corpname: conf.corpname,
+                subcname: conf.subcname,
                 subcDesc: conf.subcDesc ? appServices.importExternalMessage(conf.subcDesc) : '',
                 concId: null,
                 speakerIdAttr: [conf.speakerIdAttr[0], conf.speakerIdAttr[1]],
@@ -113,7 +116,8 @@ export class SpeechesTile implements ITileProvider {
                 expandRightArgs: Immutable.List<ExpandArgs>(),
                 data: [],
                 availTokens: Immutable.List<number>(),
-                tokenIdx: 0
+                tokenIdx: 0,
+                backlink: null
             }
         });
         this.view = viewInit(dispatcher, ut, theme, this.model);
