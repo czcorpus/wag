@@ -144,6 +144,8 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                     const newState = this.copyState(state);
                     newState.isBusy = true;
                     newState.speakerColorsAttachments = newState.speakerColorsAttachments.clear();
+                    newState.expandLeftArgs = newState.expandLeftArgs.clear();
+                    newState.expandRightArgs = newState.expandRightArgs.clear();
                     newState.tokenIdx = (newState.tokenIdx + 1) % newState.availTokens.size;
                     return newState;
                 }
