@@ -31,6 +31,7 @@ import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../
 import { findCurrLemmaVariant, WdglanceMainFormModel } from '../../models/query';
 import { importMessageType } from '../../notifications';
 import { ActionName, Actions, ConcLoadedPayload } from './actions';
+import { normalizeTypography } from '../../common/models/concordance/normalize';
 
 
 
@@ -155,7 +156,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                         // debug:
                         action.payload.data.messages.forEach(msg => console.log(`${importMessageType(msg[0]).toUpperCase()}: conc - ${msg[1]}`));
 
-                        newState.lines = Immutable.List<Line>(action.payload.data.lines);
+                        newState.lines = Immutable.List<Line>(normalizeTypography(action.payload.data.lines));
                         newState.concsize = action.payload.data.concsize; // TODO fullsize?
                         newState.resultARF = action.payload.data.arf;
                         newState.resultIPM = action.payload.data.ipm;

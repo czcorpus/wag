@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { map } from 'rxjs/operators';
-import { StatelessModel, IActionDispatcher, Action, SEDispatcher, ActionDispatcher } from 'kombo';
+import { StatelessModel, IActionDispatcher, Action, SEDispatcher } from 'kombo';
 import * as Immutable from 'immutable';
 import { AppServices } from '../../appServices';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
@@ -28,6 +28,7 @@ import { isConcLoadedPayload } from '../concordance/actions';
 import { CollExamplesLoadedPayload } from './actions';
 import { DataLoadedPayload as CollDataLoadedPayload } from '../collocations/common';
 import { Actions, ActionName } from './actions';
+import { normalizeTypography } from '../../common/models/concordance/normalize';
 
 
 export interface ConcFilterModelState {
@@ -268,7 +269,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                                             payload: {
                                                 tileId: this.tileId,
                                                 isEmpty: false, // here we cannot assume final state
-                                                data: data.lines.slice(0, state.itemsPerSrc),
+                                                data: normalizeTypography(data.lines.slice(0, state.itemsPerSrc))
                                             }
                                         });
                                     },
