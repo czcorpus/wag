@@ -29,6 +29,7 @@ import { SpeechesModelState, extractSpeeches, Expand, BacklinkArgs } from './mod
 import { DataApi, HTTPMethod } from '../../common/types';
 import { ActionName, Actions } from './actions';
 import { isConcLoadedPayload } from '../concordance/actions';
+import { normalizeConcDetailTypography } from '../../common/models/concordance/normalize';
 
 
 
@@ -198,7 +199,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                         concId: concId,
                         availableTokens: tokens,
                         isEmpty: data.content.length === 0,
-                        data: extractSpeeches(state, data.content),
+                        data: extractSpeeches(state, normalizeConcDetailTypography(data.content)),
                         expandLeftArgs: data.expand_left_args ?
                             {
                                 leftCtx: data.expand_left_args.detail_left_ctx,

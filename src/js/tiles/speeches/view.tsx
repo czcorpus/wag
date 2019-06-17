@@ -117,7 +117,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             <div className="speech-text">
                 <span style={{color: props.bulletColor}}>{'\u25cf\u00a0'}</span>
                 {props.data.map((item, i) => {
-                    return <span key={i} className={item.class ? item.class : null}>{item.str + ' '}</span>;
+                    return <span key={i} className={item.class ? item.class : null}>{item.str}</span>;
                 })}
             </div>
         );
