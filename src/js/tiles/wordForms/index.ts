@@ -24,6 +24,7 @@ import { WordFormsModel } from './model';
 import { QueryType } from '../../common/query';
 import { init as viewInit } from './views';
 import { createApiInstance } from './apiFactory';
+import { AlphaLevel } from '../timeDistrib/stat';
 
 
 export interface WordFormsTileConf extends TileConf {
@@ -31,7 +32,8 @@ export interface WordFormsTileConf extends TileConf {
     apiType:string;
     apiURL:string;
     corpname:string;
-    maxNumItems:number;
+    corpusSize:number;
+    freqFilterAlphaLevel:AlphaLevel;
 }
 
 
@@ -65,7 +67,8 @@ export class WordFormsTile implements ITileProvider {
                 error: null,
                 corpname: conf.corpname,
                 roundToPos: 1,
-                maxNumItems: conf.maxNumItems,
+                corpusSize: conf.corpusSize,
+                freqFilterAlphaLevel: conf.freqFilterAlphaLevel,
                 data: Immutable.List<any>()
             },
             tileId,

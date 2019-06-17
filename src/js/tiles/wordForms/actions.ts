@@ -15,7 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { WordFormItem } from '../../common/api/abstract/wordForms';
 
 export interface DataLoadedPayload {
-    data:Array<any>;
+    data:Array<WordFormItem>;
 }
