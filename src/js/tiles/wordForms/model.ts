@@ -25,6 +25,7 @@ import { DataLoadedPayload } from './actions';
 import { WdglanceMainFormModel, findCurrLemmaVariant } from '../../models/query';
 import { ConcLoadedPayload } from '../concordance/actions';
 import { calcPercentRatios } from '../../common/util';
+import { AlphaLevel, wilsonConfInterval } from '../timeDistrib/stat';
 
 
 
@@ -35,8 +36,32 @@ export interface WordFormsModelState {
     error:string;
     corpname:string;
     roundToPos:number; // 0 to N
-    maxNumItems:number;
+    corpusSize:number;
+    freqFilterAlphaLevel:AlphaLevel;
     data:Immutable.List<WordFormItem>;
+}
+
+/**
+ * We take in the consideration:
+ * 1) absolute term frequency
+ * 2) term ratio among other terms
+ * For each item we check whether the lower end of a respective
+ * Wilson score interval is non-zero (after rounding).
+ */
+function filterRareVariants(items:Immutable.List<WordFormItem>, corpSize:number, alpha:AlphaLevel):Immutable.List<WordFormItem> {
+    const total = items.reduce(
+        (acc, curr) => {
+            return acc + curr.freq;
+        },
+        0
+    );
+    return items.filter(
+        (value) => {
+            const left = wilsonConfInterval(value.freq, total, alpha)[0] * 100;
+            const abs = wilsonConfInterval(value.freq, corpSize, alpha)[0] * corpSize;
+            return Math.round(left) > 0 && Math.round(abs) > 0;
+        }
+    ).toList();
 }
 
 
@@ -91,8 +116,11 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                         newState.data = Immutable.List<WordFormItem>();
 
                     } else {
-                        newState.data = Immutable.List<WordFormItem>(
-                            action.payload.data.slice(0, newState.maxNumItems));
+                        newState.data = filterRareVariants(
+                            Immutable.List<WordFormItem>(action.payload.data),
+                            state.corpusSize,
+                            state.freqFilterAlphaLevel
+                        );
                     }
                     return newState;
                 }
