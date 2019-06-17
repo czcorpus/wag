@@ -18,6 +18,15 @@
 
 import { LineElement, Line } from '../../api/abstract/concordance';
 
+/**
+ * This module provides a way how to normalize typography of
+ * concordance texts where between each two adjacent tokens there
+ * is a whitespace.
+ *
+ * The functions below preserve additional structure and structural
+ * attribute information.
+ */
+
 // TODO other possible characters should be added as we encounter
 // them during testing/beta-release
 function isLeftSpaceEater(s:string):boolean {
@@ -28,6 +37,20 @@ function isLeftSpaceEater(s:string):boolean {
 // them during testing/beta-release
 function isRightSpaceEater(s:string):boolean {
     return /[\(„]$/.exec(s) !== null;
+}
+
+function lastTextElement(elmList:Array<LineElement>):LineElement {
+    const tmp = elmList.filter(e => e.class !== 'strc' && e.class !== 'attr');
+    return tmp.length > 0 ? tmp[tmp.length - 1] : {'class': '', str: ''};
+}
+
+function firstTextElement(elmList:Array<LineElement>):LineElement {
+    const tmp = elmList.filter(e => e.class !== 'strc' && e.class !== 'attr');
+    return tmp.length > 0 ? tmp[0] : {'class': '', str: ''};
+}
+
+function hasTextElements(elmList:Array<LineElement>):boolean {
+    return elmList.filter(e => e.class !== 'strc' && e.class !== 'attr').length > 0;
 }
 
 function normalizeStringTypography(str:string):string {
@@ -48,17 +71,23 @@ function normalizeStringTypography(str:string):string {
     ).join('');
 }
 
-function normalizeLineChunkTypography(line:Array<LineElement>):Array<LineElement> {
-    return line
+function normalizeLineChunkTypography(line:Array<LineElement>, removeNonText:boolean):Array<LineElement> {
+
+    const isText = (elm:LineElement) => elm.str !== '' && elm.class !== 'strc' && elm.class !== 'attr';
+
+    const tmp = line
         .map(elm => ({
             'class': elm.class,
             str: normalizeStringTypography(elm.str),
             mouseover: elm.mouseover
         }))
-        .filter(s => s.str !== '' && s.class !== 'strc' && s.class !== 'attr')
+        .filter(
+            removeNonText ? isText : s => s.str !== ''
+        )
         .reduce(
             (acc:Array<LineElement>, curr) => {
-                if (acc.length === 0 || isLeftSpaceEater(curr.str) || isRightSpaceEater(acc[acc.length - 1].str)) {
+                if (acc.length === 0 || isLeftSpaceEater(curr.str) ||
+                        isRightSpaceEater(lastTextElement(acc).str)) {
                     return acc.concat([curr]);
 
                 } else {
@@ -67,21 +96,23 @@ function normalizeLineChunkTypography(line:Array<LineElement>):Array<LineElement
             },
             []
         );
+    return tmp;
 }
 
-
 function normalizeLineTypography(line:Line):{left:Array<LineElement>; kwic:Array<LineElement>; right:Array<LineElement>} {
-    const left = normalizeLineChunkTypography(line.left);
-    const kwic = normalizeLineChunkTypography(line.kwic);
-    const right = normalizeLineChunkTypography(line.right);
+    const left = normalizeLineChunkTypography(line.left, true);
+    const kwic = normalizeLineChunkTypography(line.kwic, true);
+    const right = normalizeLineChunkTypography(line.right, true);
     const ans = {left: left, kwic: [], right: []};
-    if (!(kwic.length > 0 && isLeftSpaceEater(kwic[0].str)) && !(left.length > 0 && isRightSpaceEater(left[left.length - 1].str))) {
+    if (!(hasTextElements(kwic) && isLeftSpaceEater(firstTextElement(kwic).str)) && !(hasTextElements(left) &&
+                isRightSpaceEater(lastTextElement(left).str))) {
         ans.kwic = [{'class': '', str: ' '}].concat(kwic);
 
     } else {
         ans.kwic = kwic;
     }
-    if (!(right.length > 0 && isLeftSpaceEater(right[0].str)) && !(kwic.length > 0 && isRightSpaceEater(kwic[kwic.length - 1].str))) {
+    if (!(hasTextElements(right) && isLeftSpaceEater(firstTextElement(right).str)) && !(hasTextElements(kwic) &&
+                isRightSpaceEater(lastTextElement(kwic).str))) {
         ans.right = [{'class': '', str: ' '}].concat(right);
 
     } else {
@@ -90,7 +121,24 @@ function normalizeLineTypography(line:Line):{left:Array<LineElement>; kwic:Array
     return ans;
 }
 
+/**
+ * Normalize a typography of a single text line element while preserving
+ * structural information and structural attributes. This is suitable
+ * e.g. for kwic details/speeches etc.
+ *
+ * @param line
+ */
+export function normalizeConcDetailTypography(line:Array<LineElement>):Array<LineElement> {
+    return normalizeLineChunkTypography(line, false);
+}
 
+/**
+ * Normalize a typography for a whole concordance chunk, including possible
+ * aligned corpora data. This function strips any structural information which
+ * means only pure text, collocations and kwics are preserved.
+ *
+ * @param lines
+ */
 export function normalizeTypography(lines:Array<Line>):Array<Line> {
     return lines.map(
         line => {

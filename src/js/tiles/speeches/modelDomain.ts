@@ -18,9 +18,10 @@
 import * as Immutable from 'immutable';
 import { RGBAColor } from '../../common/types';
 import { BacklinkWithArgs } from '../../common/tile';
+import { LineElement } from '../../common/api/abstract/concordance';
 
 
-export type ConcDetailText = Array<{str:string; class:string}>;
+export type ConcDetailText = Array<LineElement>;
 
 
 export interface Speech {
