@@ -137,18 +137,20 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             color: color2str(calcTextColorFromBg(props.speech.colorCode))
         };
         return (
-            <tr key={`speech-${props.idx}`} className="speech">
-                <th>
-                    <strong className="speaker" title={exportMetadata(props.speech.metadata)}
+            <>
+                <dt className="speaker">
+                    <strong title={exportMetadata(props.speech.metadata)}
                             style={style}>
                         {props.speech.speakerId}
                     </strong>
-                </th>
-                <td className="text">
-                    <SpeechText data={props.speech.text} key={props.idx}
-                            bulletColor={color2str(props.speech.colorCode)} />
-                </td>
-            </tr>
+                </dt>
+                <dd className="speech">
+                    <div className="text">
+                        <SpeechText data={props.speech.text} key={props.idx}
+                                bulletColor={color2str(props.speech.colorCode)} />
+                    </div>
+                </dd>
+            </>
         );
     };
 
@@ -182,16 +184,18 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         };
 
         return (
-            <tr key={`speech-${props.idx}`} className="speech">
-                <th>
+            <>
+                <dt className="speaker">
                     {renderOverlappingSpeakersLabel()}
-                </th>
-                <td className="text overlapping-block">
-                    {props.speeches.map((speech, i) => <SpeechText data={speech.text}
-                                key={`${props.idx}:${i}`}
-                                bulletColor={color2str(speech.colorCode)} />)}
-                </td>
-            </tr>
+                </dt>
+                <dd className="speech overlapping-block">
+                    <div className="text">
+                        {props.speeches.map((speech, i) => <SpeechText data={speech.text}
+                                    key={`${props.idx}:${i}`}
+                                    bulletColor={color2str(speech.colorCode)} />)}
+                    </div>
+                </dd>
+            </>
         );
     };
 
@@ -213,11 +217,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         };
 
         return (
-            <div className="tweak-box">
-                <a onClick={handleClick} title={ut.translate('speeches__load_different_sp_button')}>
-                    <img src={ut.createStaticUrl('triangle_right.svg')} alt={ut.translate('speeches__load_different_sp_button')} />
-                </a>
-            </div>
+            <a onClick={handleClick} title={ut.translate('speeches__load_different_sp_button')}>
+                <img src={ut.createStaticUrl('triangle_right.svg')} alt={ut.translate('speeches__load_different_sp_button')} />
+            </a>
         );
     };
 
@@ -247,34 +249,27 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         return (
             <div>
-                <table className="speeches">
-                    <tbody>
-                        <tr className="next">
-                            <th>
-                                {props.isTweakMode ?
-                                    <LoadNext tileId={props.tileId} /> : null}
-                            </th>
-                            <td />
-                        </tr>
-                        <tr className="expand">
-                            <th>
-                                {props.hasExpandLeft && props.isTweakMode  ?
-                                    <ExpandSpeechesButton tileId={props.tileId} position={Expand.TOP} />
-                                : null}
-                            </th>
-                            <td />
-                        </tr>
-                        {renderSpeechLines()}
-                        <tr className="expand">
-                            <th>
-                                {props.hasExpandRight && props.isTweakMode ?
-                                    <ExpandSpeechesButton tileId={props.tileId} position={Expand.BOTTOM} />
-                                : null}
-                            </th>
-                            <td />
-                        </tr>
-                    </tbody>
-                </table>
+                <div className="navig">
+                    <div className="expand">
+                        {props.hasExpandLeft && props.isTweakMode  ?
+                            <ExpandSpeechesButton tileId={props.tileId} position={Expand.TOP} />
+                        : null}
+                    </div>
+                    <div className="next">
+                            {props.isTweakMode ?
+                                <LoadNext tileId={props.tileId} /> : null}
+                    </div>
+                </div>
+                <dl className="speeches">
+                    {renderSpeechLines()}
+                </dl>
+                <div className="navig">
+                    <div className="expand">
+                        {props.hasExpandRight && props.isTweakMode ?
+                            <ExpandSpeechesButton tileId={props.tileId} position={Expand.BOTTOM} />
+                        : null}
+                    </div>
+                </div>
             </div>
         );
     }
