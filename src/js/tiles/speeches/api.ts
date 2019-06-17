@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { Observable } from 'rxjs';
+import { Observable, of as rxOf } from 'rxjs';
 import { DataApi, IAsyncKeyValueStore, HTTPHeaders, HTTPMethod } from '../../common/types';
 import { cachedAjax$ } from '../../common/ajax';
 import { ConcDetailText } from './modelDomain';
@@ -63,13 +63,25 @@ export class SpeechesApi implements DataApi<SpeechReqArgs, SpeechResponse> {
     }
 
     call(args:SpeechReqArgs):Observable<SpeechResponse> {
-        return cachedAjax$<SpeechResponse>(this.cache)(
-            HTTPMethod.GET,
-            this.apiUrl,
-            args,
-            {
-                headers: this.headers
-            }
-        );
+        if (args.pos !== undefined) {
+            return cachedAjax$<SpeechResponse>(this.cache)(
+                HTTPMethod.GET,
+                this.apiUrl,
+                args,
+                {
+                    headers: this.headers
+                }
+            );
+
+        } else {
+            return rxOf({
+                pos: args.pos,
+                content: [],
+                expand_right_args: null,
+                expand_left_args: null,
+                widectx_globals: [],
+                messages: []
+            });
+        }
     }
 }
