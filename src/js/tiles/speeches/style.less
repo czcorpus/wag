@@ -2,25 +2,19 @@
 
 .SpeechesTile {
 
-    table.speeches {
+    dl.speeches dd, dl.speeches dt {
+        margin: 0;
+    }
 
-        border-spacing: 0 0.9em;
+    .speeches {
 
-        tr.speech {
-            line-height: 1.2em;
+        border-spacing: 0;
 
-            th {
-                font-weight: normal;
-                text-align: right;
-                white-space: nowrap;
-                vertical-align: middle;
-            }
+        .speaker {
 
-            td {
-                vertical-align: middle;
-            }
 
-            .speaker {
+            text-align: left;
+            strong {
                 border: 1px solid @color-light-text;
                 border-radius: @default-border-radius;
                 display: inline-block;
@@ -29,25 +23,19 @@
                 font-weight: normal;
                 padding: 0.05em 0.7em;
             }
+        }
+
+        dt.speaker:not(:first-of-type) {
+            margin-top: 1.2em;
+        }
+
+        .speech {
+            margin-top: 0.3em;
+            line-height: 1.2em;
+            margin-left: 0.7em;
 
             .speech-text {
                 display: block;
-                margin-left: 1em;
-
-                span.play-audio {
-
-                    padding-left: 1em;
-
-                    img {
-                        width: 1.2em;
-                        vertical-align: middle;
-                        cursor: pointer;
-                    }
-
-                    img:hover {
-                        text-decoration: underline;
-                    }
-                }
             }
 
             .speech-text.focus {
@@ -69,42 +57,51 @@
                 font-weight: bold;
             }
         }
+    }
 
-        tr.expand {
 
-            th {
-                text-align: right;
-                padding-right: 0.2em;
+    tr.expand {
 
-                a {
-                    width: 3em;
-                    display: inline-block;
-                    cursor: pointer;
+        th {
+            text-align: right;
+            padding-right: 0.2em;
 
-                    img {
-                        width: 1.4em;
-                    }
-                }
-            }
-        }
+            a {
+                width: 3em;
+                display: inline-block;
+                cursor: pointer;
 
-        tr.next {
-
-            th {
-                text-align: right;
-                padding-right: 0.2em;
-
-                a {
-                    width: 2em;
-                    display: inline-block;
-                    cursor: pointer;
-
-                    img {
-                        width: 1.1em;
-                    }
+                img {
+                    width: 1.4em;
                 }
             }
         }
     }
 
+    .navig {
+
+        display: flex;
+        align-content: flex-end;
+
+        .next, .expand {
+
+            margin-right: 2em;
+
+            a {
+                display: block;
+                cursor: pointer;
+
+                img {
+                    width: 1.2em;
+                    display: block;
+                }
+            }
+        }
+
+        .expand a img {
+            position: relative;
+            top: 0.15em;
+            width: 1.6em;
+        }
+    }
 }
