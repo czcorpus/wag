@@ -79,14 +79,16 @@ const mkAttachTile = (queryType:QueryType, lang1:string, lang2:string) =>
 };
 
 
-const importDependsOnList = (d:string|Array<string>):Array<string> => {
-    if (!d) {
-        return [];
-
-    } else if (typeof d === 'string') {
-        return [d];
-    }
-    return d;
+const importDependentTilesList = (...d:Array<string|Array<string>>):Array<string> => {
+    const items = {};
+    d.forEach(chunk => {
+        if (chunk) {
+            (typeof chunk === 'string' ? [chunk] : chunk).forEach(val => {
+                items[val] = true;
+            })
+        }
+    });
+    return Object.keys(items);
 };
 
 
@@ -114,7 +116,8 @@ const mkTileFactory = (
                 appServices: appServices,
                 lang1: lang1,
                 lang2: lang2,
-                waitForTiles: importDependsOnList(conf.dependsOn).map(v => tileIdentMap[v]),
+                waitForTiles: importDependentTilesList(conf.waitFor, conf.readSubqFrom).map(v => tileIdentMap[v]),
+                subqSourceTiles: importDependentTilesList(conf.readSubqFrom).map(v => tileIdentMap[v]),
                 widthFract: layoutManager.getTileWidthFract(queryType, tileIdentMap[confName]),
                 theme: theme,
                 conf: conf,

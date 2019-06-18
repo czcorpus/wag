@@ -39,11 +39,11 @@ require('./style.less');
  * 1) depending on a concordance tile
  *   - in such case the concordance (subc)corpus must be
  *     the same as the (sub)corpus this tile works with
- *   - the 'dependsOn' conf value must be set
+ *   - the 'waitFor' conf value must be set
  *   - the 'subcname' should have only one value (others are ignored)
  *
  * 2) independent - creating its own concordances, using possibly multiple subcorpora
- *   - the 'dependsOn' cannot be present in the confir
+ *   - the 'waitFor' cannot be present in the config
  *   - the 'subcname' can have any number of items
  *     - the tile queries all the subcorpora and then merges all the data
  *

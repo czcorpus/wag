@@ -84,7 +84,23 @@ export interface TileConf {
      * wait for a specific tile to finish its operation. Again,
      * this is used mainly for 'concordance -> analysis' combinations.
      */
-    dependsOn?:string|Array<string>;
+    waitFor?:string|Array<string>;
+
+    /**
+     * In case we depend on multiple tiles and some of them are
+     * just kind of hidden dependencies (i.e. we want to wait them
+     * to complate but we don't need their subquery args) this can
+     * be used to distinguish the two dependency types.
+     *
+     * Please note that this value is not used directly by WdG but
+     * it is rather provided for tile model to provide more information
+     * about inter-tile dependencies. I.e. it is perfectly doable to
+     * define a subquery producing tile as a dependency via 'waitFor'.
+     * But in more complex situations when we need some tiles to just
+     * wait for and some to also provide subqueries the model may not
+     * have enough information to distinguish between the two.
+     */
+    readSubqFrom?:string|Array<string>;
 
     /**
      * A label used in the header of the tile
@@ -229,18 +245,42 @@ export interface ITileProvider {
 export namespace TileFactory {
 
     export interface Args<T> {
+
         tileId:number;
+
         dispatcher:IActionDispatcher;
+
         ut:ViewUtils<GlobalComponents>;
+
         theme:Theme,
+
         appServices:AppServices;
+
         mainForm:WdglanceMainFormModel;
+
         lang1?:string;
+
         lang2?:string;
+
+        /**
+         * Tiles we need to wait for
+         */
         waitForTiles?:Array<number>;
+
+        /**
+         * Tiles we want data from (via sub-query).
+         * This may or may not intersect with waitForTiles -
+         * the application ensures that the tile waits for
+         * both 'waitForTiles' and 'subqSourceTiles'.
+         */
+        subqSourceTiles?:Array<number>;
+
         widthFract:number;
+
         isBusy:boolean;
+
         conf:T;
+
         cache:IAsyncKeyValueStore;
     }
 
