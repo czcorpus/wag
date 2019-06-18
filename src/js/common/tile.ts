@@ -84,7 +84,7 @@ export interface TileConf {
      * wait for a specific tile to finish its operation. Again,
      * this is used mainly for 'concordance -> analysis' combinations.
      */
-    dependsOn?:string|Array<string>;
+    waitFor?:string|Array<string>;
 
     /**
      * In case we depend on multiple tiles and some of them are
@@ -92,10 +92,15 @@ export interface TileConf {
      * to complate but we don't need their subquery args) this can
      * be used to distinguish the two dependency types.
      *
-     * In case this is defined as empty by admin, all the "dependsOn"
-     * content is used here (if any).
+     * Please note that this value is not used directly by WdG but
+     * it is rather provided for tile model to provide more information
+     * about inter-tile dependencies. I.e. it is perfectly doable to
+     * define a subquery producing tile as a dependency via 'waitFor'.
+     * But in more complex situations when we need some tiles to just
+     * wait for and some to also provide subqueries the model may not
+     * have enough information to distinguish between the two.
      */
-    subqSourceTiles?:string|Array<string>;
+    readSubqFrom?:string|Array<string>;
 
     /**
      * A label used in the header of the tile

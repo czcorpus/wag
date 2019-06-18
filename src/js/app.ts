@@ -79,7 +79,7 @@ const mkAttachTile = (queryType:QueryType, lang1:string, lang2:string) =>
 };
 
 
-const importDependsOnList = (...d:Array<string|Array<string>>):Array<string> => {
+const importDependentTilesList = (...d:Array<string|Array<string>>):Array<string> => {
     const items = {};
     d.forEach(chunk => {
         if (chunk) {
@@ -116,8 +116,8 @@ const mkTileFactory = (
                 appServices: appServices,
                 lang1: lang1,
                 lang2: lang2,
-                waitForTiles: importDependsOnList(conf.dependsOn, conf.subqSourceTiles).map(v => tileIdentMap[v]),
-                subqSourceTiles: importDependsOnList(conf.subqSourceTiles).map(v => tileIdentMap[v]),
+                waitForTiles: importDependentTilesList(conf.waitFor, conf.readSubqFrom).map(v => tileIdentMap[v]),
+                subqSourceTiles: importDependentTilesList(conf.readSubqFrom).map(v => tileIdentMap[v]),
                 widthFract: layoutManager.getTileWidthFract(queryType, tileIdentMap[confName]),
                 theme: theme,
                 conf: conf,
