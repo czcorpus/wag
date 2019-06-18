@@ -43,7 +43,6 @@ export interface ConcFilterModelState {
     viewMode:ViewMode;
     itemsPerSrc:number;
     lines:Immutable.List<Line>;
-    numPendingSources:number;
     metadataAttrs:Immutable.List<{value:string; label:string}>;
     visibleMetadataLine:number;
 }
@@ -59,15 +58,23 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
 
     private waitingForTiles:Immutable.Map<number, string|Array<SubQueryItem>|null>;
 
-    constructor(dispatcher:IActionDispatcher, tileId:number, waitForTiles:Array<number>, appServices:AppServices, api:ConcApi, initState:ConcFilterModelState) {
+    private subqSourceTiles:Immutable.Set<number>;
+
+    private numPendingSources:number;
+
+    constructor(dispatcher:IActionDispatcher, tileId:number, waitForTiles:Array<number>, subqSourceTiles:Array<number>,
+                appServices:AppServices, api:ConcApi, initState:ConcFilterModelState) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.api = api;
         this.waitingForTiles = Immutable.Map<number, string|Array<SubQueryItem>|null>(waitForTiles.map(v => [v, null]));
+        this.subqSourceTiles = Immutable.Set<number>(subqSourceTiles);
+        this.numPendingSources = 0; // this cannot be part of the state (see occurrences in the 'suspend' fn)
         this.appServices = appServices;
         this.actionMatch = {
             [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse)  => {
                 this.waitingForTiles = this.waitingForTiles.map(v => null).toMap();
+                this.numPendingSources = 0;
                 const newState = this.copyState(state);
                 newState.isBusy = true;
                 newState.error = null;
@@ -77,20 +84,13 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
             [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<CollExamplesLoadedPayload|CollDataLoadedPayload>) => {
                 if (action.payload.tileId === this.tileId) {
                     const newState = this.copyState(state);
-                    newState.numPendingSources -= 1;
-                    if (newState.numPendingSources <= 0) {
+                    this.numPendingSources -= 1;
+                    if (this.numPendingSources <= 0) {
                         newState.isBusy = false;
                     }
                     newState.lines = newState.lines.concat(action.payload.data).toList();
                     return newState;
 
-                } else if (action.name === GlobalActionName.TileDataLoaded && this.waitingForTiles.has(action.payload.tileId)) {
-                    const payload = action.payload;
-                    const newState = this.copyState(state);
-                    if (isSubqueryPayload(payload)) {
-                        newState.numPendingSources = payload.subqueries.length;
-                    }
-                    return newState;
                 }
                 return state;
             },
@@ -237,6 +237,10 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                             const basicPayload = (action as GlobalActions.TileDataLoaded<{}>).payload;
                             const payload = action.payload;
 
+                            if (this.subqSourceTiles.contains(basicPayload.tileId) && isSubqueryPayload(payload)) {
+                                this.numPendingSources += payload.subqueries.length;
+                            }
+
                             if (isConcLoadedPayload(payload) && this.waitingForTiles.get(basicPayload.tileId) === null) {
                                 this.waitingForTiles = this.waitingForTiles.set(
                                     basicPayload.tileId,
@@ -296,9 +300,10 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                                             });
                                         }
                                     }
-                                )
+                                );
                                 return true;
                             }
+
                         }
                         return false;
                     }

@@ -61,7 +61,7 @@ export class ConcFilterTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({tileId, waitForTiles, dispatcher, appServices, ut, widthFract, conf, theme, isBusy, cache}:TileFactory.Args<ConcFilterTileConf>) {
+    constructor({tileId, waitForTiles, subqSourceTiles, dispatcher, appServices, ut, widthFract, conf, theme, isBusy, cache}:TileFactory.Args<ConcFilterTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.widthFract = widthFract;
@@ -71,6 +71,7 @@ export class ConcFilterTile implements ITileProvider {
             dispatcher,
             tileId,
             waitForTiles,
+            subqSourceTiles,
             appServices,
             new ConcApi(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             {
@@ -85,7 +86,6 @@ export class ConcFilterTile implements ITileProvider {
                 viewMode: ViewMode.SENT,
                 attrVmode: 'mouseover',
                 itemsPerSrc: 1,
-                numPendingSources: 0,
                 visibleMetadataLine: -1,
                 metadataAttrs: Immutable.List<{value:string; label:string}>(
                     (conf.metadataAttrs || []).map(v => ({value: v.value, label: appServices.importExternalMessage(v.label)})) || [])
