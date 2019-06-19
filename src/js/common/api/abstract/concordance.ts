@@ -42,6 +42,7 @@ export interface Line {
 export interface ConcResponse {
     query:string;
     corpName:string;
+    primaryCorp?:string;
     subcorpName:string;
     lines:Array<Line>;
     concsize:number;

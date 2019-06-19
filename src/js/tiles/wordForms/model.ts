@@ -55,6 +55,7 @@ function filterRareVariants(items:Immutable.List<WordFormItem>, corpSize:number,
         },
         0
     );
+
     return items.filter(
         (value) => {
             const left = wilsonConfInterval(value.freq, total, alpha)[0] * 100;
