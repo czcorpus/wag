@@ -55,6 +55,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     const FilteredLine:React.SFC<{
         data:Line;
         hasVisibleMetadata:boolean;
+        isParallel:boolean;
         handleLineClick:(e:React.MouseEvent)=>void;
 
     }> = (props) => {
@@ -81,14 +82,29 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             <div className="FilteredLine">
                 <div className={`flex${props.data.isHighlighted ? ' highlighted' : ''}`}>
                     <div>
-                        {props.hasVisibleMetadata ? <LineMetadata data={props.data.metadata} /> : null}
-                        <a className="info-click" onClick={props.handleLineClick}><img src={ut.createStaticUrl('info-icon.svg')} /></a>
+                        {props.data.metadata.length > 0 ?
+                            <>
+                                {props.hasVisibleMetadata ? <LineMetadata data={props.data.metadata} /> : null}
+                                <a className="info-click" onClick={props.handleLineClick}><img src={ut.createStaticUrl('info-icon.svg')} /></a>
+                            </>
+                            : null
+                        }
                     </div>
-                    <p>
-                    {props.data.left.map(mkColloc('L'))}
-                    {props.data.kwic.map((v, i) => <span className="kwic" key={`${props.data.toknum}:K${i}`}>{v.str}</span>)}
-                    {props.data.right.map(mkColloc('R'))}
-                    </p>
+                    <div>
+                        <p>
+                        {props.data.left.map(mkColloc('L'))}
+                        {props.data.kwic.map((v, i) => <span className="kwic" key={`${props.data.toknum}:K${i}`}>{v.str}</span>)}
+                        {props.data.right.map(mkColloc('R'))}
+                        </p>
+                        {props.isParallel ?
+                            <p className="aligned">
+                            {props.data.align[0].left.map(mkColloc('L'))}
+                            {props.data.align[0].kwic.map((v, i) => <span className="kwic" key={`${props.data.toknum}:K${i}`}>{v.str}</span>)}
+                            {props.data.align[0].right.map(mkColloc('R'))}
+                            </p> :
+                            null
+                        }
+                    </div>
                 </div>
             </div>
         );
@@ -131,7 +147,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <div className="sentences">
                             {this.props.lines.map((v, i) =>
                                 <FilteredLine key={`${i}:${v.toknum}`} data={v} hasVisibleMetadata={this.props.visibleMetadataLine === i}
-                                        handleLineClick={this.handleLineClick(i)} />)
+                                        handleLineClick={this.handleLineClick(i)}
+                                        isParallel={!!this.props.otherCorpname} />)
                             }
                         </div>
                     </div>

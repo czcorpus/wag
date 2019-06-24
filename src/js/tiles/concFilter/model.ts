@@ -15,13 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { map } from 'rxjs/operators';
+import { map, concatMap } from 'rxjs/operators';
 import { StatelessModel, IActionDispatcher, Action, SEDispatcher } from 'kombo';
 import * as Immutable from 'immutable';
+
 import { AppServices } from '../../appServices';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
 import { isSubqueryPayload, SubQueryItem } from '../../common/query';
-import { ConcApi, FilterRequestArgs, QuerySelector, PNFilter } from '../../common/api/kontext/concordance';
+import { ConcApi, FilterRequestArgs, QuerySelector, PNFilter, FilterPCRequestArgs } from '../../common/api/kontext/concordance';
 import { Line, ViewMode, ConcResponse } from '../../common/api/abstract/concordance';
 import { Observable, merge } from 'rxjs';
 import { isConcLoadedPayload } from '../concordance/actions';
@@ -29,6 +30,7 @@ import { CollExamplesLoadedPayload } from './actions';
 import { DataLoadedPayload as CollDataLoadedPayload } from '../collocations/common';
 import { Actions, ActionName } from './actions';
 import { normalizeTypography } from '../../common/models/concordance/normalize';
+import { ISwitchMainCorpApi } from '../../common/api/abstract/switchMainCorp';
 
 
 export interface ConcFilterModelState {
@@ -38,6 +40,7 @@ export interface ConcFilterModelState {
     widthFract:number;
     error:string;
     corpName:string;
+    otherCorpname:string|null;
     posAttrs:Immutable.List<string>;
     attrVmode:'mouseover';
     viewMode:ViewMode;
@@ -52,6 +55,8 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
 
     private readonly api:ConcApi;
 
+    private readonly switchMainCorpApi:ISwitchMainCorpApi;
+
     private readonly appServices:AppServices;
 
     private readonly tileId:number;
@@ -63,10 +68,11 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
     private numPendingSources:number;
 
     constructor(dispatcher:IActionDispatcher, tileId:number, waitForTiles:Array<number>, subqSourceTiles:Array<number>,
-                appServices:AppServices, api:ConcApi, initState:ConcFilterModelState) {
+                appServices:AppServices, api:ConcApi, switchMainCorpApi:ISwitchMainCorpApi, initState:ConcFilterModelState) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.api = api;
+        this.switchMainCorpApi = switchMainCorpApi;
         this.waitingForTiles = Immutable.Map<number, string|Array<SubQueryItem>|null>(waitForTiles.map(v => [v, null]));
         this.subqSourceTiles = Immutable.Set<number>(subqSourceTiles);
         this.numPendingSources = 0; // this cannot be part of the state (see occurrences in the 'suspend' fn)
@@ -163,10 +169,35 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
         };
     }
 
+    private mkConcArgs(state:ConcFilterModelState, subq:SubQueryItem, concId:string):FilterRequestArgs|FilterPCRequestArgs {
+        if (state.otherCorpname) {
+            return {
+                queryselector: QuerySelector.CQL,
+                cql: `[lemma="${subq.value}"]`, // TODO escape stuff
+                corpname: state.corpName,
+                maincorp: state.otherCorpname, // we need to filter using the 2nd language
+                align: state.otherCorpname,
+                kwicleftctx: undefined,
+                kwicrightctx: undefined,
+                async: '0',
+                pagesize: '5',
+                fromp: '1', // TODO choose randomly stuff??
+                attr_vmode: state.attrVmode,
+                attrs: state.posAttrs.join(','),
+                refs: state.metadataAttrs.map(v => '=' + v.value).join(','),
+                viewmode: state.viewMode,
+                shuffle: 1,
+                q: '~' + concId,
+                format: 'json',
+                pnfilter: PNFilter.POS,
+                filfl: 'f',
+                filfpos: 0,
+                filtpos: 0,
+                inclkwic: 1
+            };
 
-    private loadFreqs(state:ConcFilterModelState, concId:string, queries:Array<SubQueryItem>):Array<Observable<ConcResponse>> {
-        return queries.map(subq => {
-            const args:FilterRequestArgs = {
+        } else {
+            return {
                 queryselector: QuerySelector.CQL,
                 cql: `[lemma="${subq.value}"]`, // TODO escape stuff
                 corpname: state.corpName,
@@ -188,6 +219,12 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                 filtpos: 3,
                 inclkwic: 0
             };
+        }
+    }
+
+    private loadFreqs(state:ConcFilterModelState, concId:string, queries:Array<SubQueryItem>):Array<Observable<ConcResponse>> {
+        return queries.map(subq => {
+            const args = this.mkConcArgs(state, subq, concId);
             return this.api.call(args).pipe(
                 map(v => ({
                     concPersistenceID: v.concPersistenceID,
@@ -209,7 +246,9 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                     ipm: v.ipm,
                     query: v.query,
                     corpName: v.corpName,
-                    subcorpName: v.subcorpName
+                    subcorpName: v.subcorpName,
+                    align: state.otherCorpname, // TODO not always needed
+                    maincorp: state.otherCorpname, // TODO not always needed
                 }))
             );
         });
@@ -266,7 +305,18 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                                     }
                                 });
 
-                                merge(...this.loadFreqs(state, conc, subq)).subscribe(
+                                this.switchMainCorpApi.call({
+                                    concPersistenceID: conc,
+                                    corpname: state.corpName,
+                                    align: state.otherCorpname,
+                                    maincorp: state.otherCorpname
+
+                                }).pipe(
+                                    concatMap(
+                                        (resp) => merge(...this.loadFreqs(state, resp.concPersistenceID, subq))
+                                    )
+
+                                ).subscribe(
                                     (data) => {
                                         seDispatch<GlobalActions.TileDataLoaded<CollExamplesLoadedPayload>>({
                                             name: GlobalActionName.TileDataLoaded,

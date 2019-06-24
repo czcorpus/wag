@@ -17,6 +17,7 @@
  */
 import * as Immutable from 'immutable';
 import { IActionDispatcher, StatelessModel } from 'kombo';
+import { Observable, of as rxOf } from 'rxjs';
 
 import { AppServices } from '../../appServices';
 import { QueryType } from '../../common/query';
@@ -26,6 +27,8 @@ import { init as viewInit } from './view';
 import { ConcApi } from '../../common/api/kontext/concordance';
 import { Line, ViewMode } from '../../common/api/abstract/concordance';
 import { LocalizedConfMsg } from '../../common/types';
+import { SwitchMainCorpApi } from '../../common/api/kontext/switchMainCorp';
+import { ISwitchMainCorpApi, SwitchMainCorpResponse } from '../../common/api/abstract/switchMainCorp';
 
 
 declare var require:(src:string)=>void;  // webpack
@@ -35,9 +38,19 @@ require('./style.less');
 export interface ConcFilterTileConf extends TileConf {
     tileType:'ConcFilterTile';
     apiURL:string;
+    switchMainCorpApiURL?:string;
     corpname:string;
+    parallelLangMapping?:{[lang:string]:string};
     posAttrs:Array<string>;
     metadataAttrs?:Array<{value:string; label:LocalizedConfMsg}>;
+}
+
+
+class EmptyMainCorpSwitch implements ISwitchMainCorpApi {
+
+    call(args:{concPersistenceID}):Observable<SwitchMainCorpResponse> {
+        return rxOf({concPersistenceID: args.concPersistenceID});
+    }
 }
 
 /**
@@ -61,7 +74,8 @@ export class ConcFilterTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({tileId, waitForTiles, subqSourceTiles, dispatcher, appServices, ut, widthFract, conf, theme, isBusy, cache}:TileFactory.Args<ConcFilterTileConf>) {
+    constructor({tileId, waitForTiles, subqSourceTiles, dispatcher, appServices, ut, widthFract, conf, theme,
+            isBusy, cache, lang2}:TileFactory.Args<ConcFilterTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.widthFract = widthFract;
@@ -74,6 +88,9 @@ export class ConcFilterTile implements ITileProvider {
             subqSourceTiles,
             appServices,
             new ConcApi(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            conf.switchMainCorpApiURL ?
+                new SwitchMainCorpApi(conf.switchMainCorpApiURL, appServices.getApiHeaders(conf.apiURL)) :
+                new EmptyMainCorpSwitch(),
             {
                 isBusy: isBusy,
                 error: null,
@@ -81,6 +98,7 @@ export class ConcFilterTile implements ITileProvider {
                 isMobile: appServices.isMobileMode(),
                 widthFract: widthFract,
                 corpName: conf.corpname,
+                otherCorpname: conf.parallelLangMapping ? conf.parallelLangMapping[lang2] : null,
                 posAttrs: Immutable.List<string>(conf.posAttrs),
                 lines: Immutable.List<Line>(),
                 viewMode: ViewMode.SENT,

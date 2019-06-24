@@ -85,6 +85,17 @@ export interface PCRequestArgs extends RequestArgs {
     [parg:string]:string|number;
 }
 
+export interface FilterPCRequestArgs extends RequestArgs {
+    pnfilter:PNFilter;
+    filfl:'f';
+    filfpos:number;
+    filtpos:number;
+    inclkwic:number;
+    maincorp:string;
+    align:string;
+    [parg:string]:string|number;
+}
+
 interface KontextLine {
     Left:Array<LineElement>;
     Kwic:Array<LineElement>;
