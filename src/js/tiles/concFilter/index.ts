@@ -89,7 +89,7 @@ export class ConcFilterTile implements ITileProvider {
             appServices,
             new ConcApi(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             conf.switchMainCorpApiURL ?
-                new SwitchMainCorpApi(conf.switchMainCorpApiURL, appServices.getApiHeaders(conf.apiURL)) :
+                new SwitchMainCorpApi(conf.switchMainCorpApiURL, appServices.getApiHeaders(conf.switchMainCorpApiURL)) :
                 new EmptyMainCorpSwitch(),
             {
                 isBusy: isBusy,

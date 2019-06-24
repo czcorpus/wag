@@ -19,7 +19,7 @@
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { HTTPHeaders, HTTPMethod } from '../../types';
-import { ajax$ } from '../../ajax';
+import { ajax$, encodeArgs } from '../../ajax';
 import { ISwitchMainCorpApi, SwitchMainCorpResponse } from '../abstract/switchMainCorp';
 
 
@@ -49,15 +49,16 @@ export class SwitchMainCorpApi implements ISwitchMainCorpApi {
     call(args:SwitchMainCorpArgs):Observable<SwitchMainCorpResponse> {
 
         return ajax$<HTTPResponse>(
-            HTTPMethod.GET, // TODO should be POST (but we gotta fix KonText first)
-            this.apiURL,
-            {
-                corpname: args.corpname,
-                maincorp: args.maincorp,
-                align: args.align,
-                q: '~' + args.concPersistenceID,
-                format:'json'
-            },
+            HTTPMethod.POST,
+            this.apiURL + '?' +
+                encodeArgs({
+                    corpname: args.corpname,
+                    maincorp: args.maincorp,
+                    align: args.align,
+                    q: '~' + args.concPersistenceID,
+                    format:'json'
+                }),
+            {},
             {headers: this.customHeaders}
 
         ).pipe(
