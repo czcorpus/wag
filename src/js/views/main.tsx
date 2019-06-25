@@ -132,6 +132,13 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         onEnter:()=>void;
     }> = (props) => {
 
+        const ref = React.useRef(null);
+        React.useEffect(() => {
+            if (ref.current !== null) {
+                ref.current.focus();
+            }
+        });
+
         const handleInput = (evt:React.ChangeEvent<HTMLInputElement>) => {
             props.onContentChange(evt.target.value);
         };
@@ -144,7 +151,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             }
         };
 
-        return <input type="text" className={`QueryInput${props.value.isValid ? '' : ' invalid'}`}
+        return <input type="text" ref={ref} className={`QueryInput${props.value.isValid ? '' : ' invalid'}`}
                 aria-label={ut.translate('global__aria_searched_word')}
                 onChange={handleInput} value={props.value.value}
                 onKeyDown={handleKeyDown} />;
