@@ -94,6 +94,7 @@ export class TimeDistTile implements ITileProvider {
                 posQueryGenerator: conf.posQueryGenerator,
                 isTweakMode: false,
                 wordMainLabel: '',
+                wordCmpInput: '',
                 wordCmp: ''
             },
             tileId,

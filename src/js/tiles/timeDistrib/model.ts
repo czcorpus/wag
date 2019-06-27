@@ -63,6 +63,7 @@ export interface TimeDistribModelState extends GeneralSingleCritFreqBarModelStat
     isTweakMode:boolean;
     dataCmp:Immutable.List<DataItemWithWCI>;
     wordCmp:string;
+    wordCmpInput:string;
     wordMainLabel:string; // a copy from mainform state used to attach a legend
 }
 
@@ -86,8 +87,6 @@ interface DataFetchArgs {
  *
  */
 export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
-
-    private static readonly MIN_DATA_ITEMS_TO_SHOW = 2;
 
     private readonly api:KontextTimeDistribApi;
 
@@ -134,9 +133,6 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         newState.error = action.error.message;
                         newState.isBusy = false;
 
-                    } else if (action.payload.data.length < TimeDistribModel.MIN_DATA_ITEMS_TO_SHOW && !this.hasUnfinishedCHunks(action.payload.subchartId)) {
-                        newData = Immutable.List<DataItemWithWCI>();
-
                     } else {
                         if (action.payload.subchartId === SubchartID.MAIN) {
                             newState.wordMainLabel = action.payload.wordMainLabel;
@@ -146,9 +142,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                             Immutable.List<DataItemWithWCI>(action.payload.data),
                             state.alphaLevel
                         );
-
                         this.unfinishedChunks = this.unfinishedChunks.set(this.mkChunkId(action.payload.subcname, action.payload.subchartId), false);
-                        if (!this.hasUnfinishedCHunks(action.payload.subchartId)) {
+                        if (!this.hasUnfinishedChunks(action.payload.subchartId)) {
                             newState.isBusy = false;
                         }
                     }
@@ -176,7 +171,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             [ActionName.ChangeCmpWord]: (state, action:Actions.ChangeCmpWord) => {
                 if (action.payload.tileId === this.tileId) {
                     const newState = this.copyState(state);
-                    newState.wordCmp = action.payload.value;
+                    newState.wordCmpInput = action.payload.value;
                     return newState;
                 }
                 return state;
@@ -186,6 +181,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 if (action.payload.tileId === this.tileId) {
                     const newState = this.copyState(state);
                     newState.isBusy = true;
+                    newState.wordCmp = newState.wordCmpInput;
                     newState.dataCmp = newState.dataCmp.clear();
                     return newState;
                 }
@@ -215,7 +211,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         return this.unfinishedChunks.map((v, k) => (subchartId && k.startsWith(subchartId) || !subchartId) ? mapFn(v, k) : v).toMap();
     }
 
-    private hasUnfinishedCHunks(subchartId:SubchartID):boolean {
+    private hasUnfinishedChunks(subchartId:SubchartID):boolean {
+        console.log('this.unfinishedChunk: ', subchartId, this.unfinishedChunks.toJS());
         return this.unfinishedChunks.filter((v, k) => k.startsWith(subchartId)).includes(true);
     }
 
@@ -253,6 +250,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         response.subscribe(
             data => {
                 const [resp, args] = data;
+
                 const dataFull = resp.data.map<DataItemWithWCI>(v => {
                     return {
                         datetime: v.datetime,

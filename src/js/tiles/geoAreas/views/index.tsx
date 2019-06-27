@@ -144,8 +144,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 payload: {
                                     areaIdx: i,
                                     tileId: tileId,
-                                    tooltipX: Math.max(e.pageX + 20, 0),
-                                    tooltipY: Math.max(e.pageY - 50, 0)
+                                    tooltipX: e.pageX,
+                                    tooltipY: e.pageY
                                 }
                             });
                         });

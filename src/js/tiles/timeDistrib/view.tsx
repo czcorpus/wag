@@ -27,6 +27,9 @@ import { DataItemWithWCI, ActionName, Actions } from './common';
 import { TimeDistribModel, TimeDistribModelState } from './model';
 import { KeyCodes } from '../../common/util';
 
+
+const MIN_DATA_ITEMS_TO_SHOW = 2;
+
 interface MultiChartItem {
     datetime:string;
     ipmInterval1:[number, number];
@@ -211,12 +214,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     class TimeDistribTile extends React.PureComponent<TimeDistribModelState & CoreTileComponentProps> {
         render() {
             return <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
-                            hasData={this.props.data.size > 0}
+                            hasData={this.props.data.size > MIN_DATA_ITEMS_TO_SHOW}
                             sourceIdent={{corp: this.props.corpname, subcorp: this.props.subcDesc}}
                             supportsTileReload={this.props.supportsReloadOnError}>
                     <div className="TimeDistribTile">
                         {this.props.isTweakMode ?
-                            <div className="tweak-box"><TweakControls wordCmp={this.props.wordCmp} tileId={this.props.tileId} /></div> :
+                            <div className="tweak-box"><TweakControls wordCmp={this.props.wordCmpInput} tileId={this.props.tileId} /></div> :
                             null
                         }
                         <Chart data1={this.props.data} data2={this.props.dataCmp}
