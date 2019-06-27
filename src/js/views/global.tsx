@@ -459,20 +459,16 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
     const ElementTooltip:GlobalComponents['ElementTooltip'] = (props) => {
 
         const ref = React.useRef(null);
-        React.useEffect(() => {
-            if (ref.current !== null) {
-                ref.current.focus();
-            }
-        });
 
         const calcXPos = () =>
-            ref.current ? Math.max(0, props.x - ref.current.getBoundingClientRect().width - 25) : props.x;
+            ref.current ? Math.max(0, props.x - ref.current.getBoundingClientRect().width - 20) : props.x;
 
         const calcYPos = () =>
-            ref.current ? props.y + ref.current.getBoundingClientRect().height + 5 : props.y;
+            ref.current ? props.y +  10 : props.y;
 
-        const style = {
+        const style:React.CSSProperties = {
             display: props.visible ? 'block' : 'none',
+            visibility: ref.current ? 'visible' : 'hidden',
             top: calcYPos(),
             left: calcXPos()
         };

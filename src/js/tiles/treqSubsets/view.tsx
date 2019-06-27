@@ -215,8 +215,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         handleMouseMove(e:React.MouseEvent) {
             this.setState({
                 tooltipVisible: true,
-                tooltipX: Math.max(e.pageX + 20, 0),
-                tooltipY: Math.max(e.pageY - 50, 0),
+                tooltipX: e.pageX,
+                tooltipY: e.pageY,
                 tooltipValues: this.state.tooltipValues
             });
         }

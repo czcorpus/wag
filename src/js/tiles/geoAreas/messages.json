@@ -5,7 +5,7 @@
         "geolocations__swipe_horizontally_to_view_map": "Swipe a finger horizontally to scroll the map",
         "geolocations__table_heading_area": "Area",
         "geolocations__table_heading_ipm": "Instances per million tokens",
-        "geolocations__table_heading_abs": "Absolute frequency within the corpus"
+        "geolocations__table_heading_abs": "Absolute frequency"
     },
     "cs-CZ": {
         "geolocations__main_label": "Geografické oblasti",
@@ -13,6 +13,6 @@
         "geolocations__swipe_horizontally_to_view_map": "Pro posun mapy potáhněte prstem horizontálně",
         "geolocations__table_heading_area": "Oblast",
         "geolocations__table_heading_ipm": "Výskytů na milion tokenů",
-        "geolocations__table_heading_abs": "Absolutních výskytů v korpusu"
+        "geolocations__table_heading_abs": "Absolutních výskytů"
     }
 }
