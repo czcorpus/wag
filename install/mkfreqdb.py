@@ -70,6 +70,8 @@ def get_lemma_total(rows):
 def get_lemma_arf(rows):
     return sum(row[4] for row in rows)
 
+def is_stop_word(w):
+    return w is None or re.match(r'^[\d\.,\:;\!\?%\$\[\]=\*\-\+\(\)\{\}/\|"\'_<>"&#@~\^§]+$', w)
 
 def run(db, pos_imp):
     create_tables(db)
@@ -78,6 +80,8 @@ def run(db, pos_imp):
     curr_lemma = None
     words = []
     for item in [x for x in cur.fetchall()] + [(None, None, None, None, None)]:
+        if is_stop_word(item[1]):
+            continue
         if curr_lemma is None or item[1] != curr_lemma[1] or (item[1] == curr_lemma[1] and item[2] != curr_lemma[2]):
             if len(words) > 0:
                 try:
