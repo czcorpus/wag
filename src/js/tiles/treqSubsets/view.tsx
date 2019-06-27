@@ -20,12 +20,9 @@ import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 
 import { CoreTileComponentProps, TileComponent } from '../../common/tile';
-import { GlobalComponents } from '../../views/global';
+import { GlobalComponents, TooltipValues } from '../../views/global';
 import { TreqSubsetModel, TreqSubsetsModelState, TranslationSubset, flipRowColMapper } from './model';
 import { Theme } from '../../common/theme';
-
-
-type TooltipValues = {[key:string]:number|string}|null;
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:TreqSubsetModel):TileComponent {
@@ -81,62 +78,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             </svg>
 
         )
-    }
-
-    // -------------------- <TableTooltip /> ----------------------------------------------
-
-    class TableTooltip extends React.Component<{
-        x:number;
-        y:number;
-        visible:boolean;
-        values:TooltipValues;
-
-    }> {
-
-        private ref:React.RefObject<HTMLDivElement>;
-
-        constructor(props) {
-            super(props);
-            this.ref = React.createRef();
-        }
-
-        private calcXPos():number {
-            return this.ref.current ? Math.max(0, this.props.x - this.ref.current.getBoundingClientRect().width - 25) : this.props.x;
-        }
-
-        private calcYPos():number {
-            return this.ref.current ? this.props.y + this.ref.current.getBoundingClientRect().height + 5 : this.props.y;
-        }
-
-        render() {
-
-            const style = {
-                display: this.props.visible ? 'block' : 'none',
-                top: this.calcYPos(),
-                left: this.calcXPos()
-            };
-
-            return (
-                <div className="wdg-tooltip" ref={this.ref} style={style}>
-                    <table>
-                        <tbody>
-                            {Object.keys(this.props.values || {}).map(label => {
-                                const v = this.props.values[label];
-                                return (
-                                    <tr key={label}>
-                                    <th>{label}:</th>
-                                    {typeof v === 'number' ?
-                                        <td className="num">{ut.formatNumber(v, 1)}</td> :
-                                        <td>{v}</td>
-                                    }
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
-                </div>
-            );
-        }
     }
 
     // ---------------------- <ChartLikeTable /> ------------------------------------------
@@ -283,7 +224,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         render() {
             return (
                 <div className="ChartLikeTable">
-                    <TableTooltip x={this.state.tooltipX} y={this.state.tooltipY} visible={this.state.tooltipVisible}
+                    <globalComponents.ElementTooltip x={this.state.tooltipX} y={this.state.tooltipY} visible={this.state.tooltipVisible}
                             values={this.state.tooltipValues} />
                     <ChartLikeTable
                         subsets={this.props.subsets}

@@ -83,7 +83,7 @@ export class GeoAreasTile implements ITileProvider {
                 error: null,
                 areaCodeMapping: Immutable.Map<string, string>(conf.areaCodeMapping),
                 mapSVG: '',
-                highlightedTableRow: -1,
+                tooltipArea: null,
                 data: Immutable.List<DataRow>(),
                 corpname: conf.corpname,
                 concId: null,
@@ -94,7 +94,8 @@ export class GeoAreasTile implements ITileProvider {
                 fttIncludeEmpty: conf.fttIncludeEmpty,
                 fmaxitems: 100,
                 areaDiscFillColor: conf.areaDiscFillColor,
-                areaDiscTextColor: conf.areaDiscTextColor
+                areaDiscTextColor: conf.areaDiscTextColor,
+                isAltViewMode: false
             }
         );
         this.label = appServices.importExternalMessage(conf.label || 'geolocations__main_label');
@@ -136,7 +137,7 @@ export class GeoAreasTile implements ITileProvider {
     }
 
     supportsAltView():boolean {
-        return false;
+        return true;
     }
 
     exposeModelForRetryOnError():StatelessModel<{}>|null {
