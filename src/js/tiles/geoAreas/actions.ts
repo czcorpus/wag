@@ -22,8 +22,8 @@ import { DataRow } from '../../common/api/kontext/freqs';
 
 
 export enum ActionName {
-    SetHighlightedTableRow = 'GEO_AREAS_SET_HIGHLIGHTED_TABLE_ROW',
-    ClearHighlightedTableRow = 'GEO_AREAS_CLEAR_HIGHLIGHTED_TABLE_ROW'
+    ShowAreaTooltip = 'GEO_AREAS_SHOW_AREA_TOOLTIP',
+    HideAreaTooltip = 'GEO_AREAS_HIDE_AREA_TOOLTIP'
 }
 
 export interface DataLoadedPayload {
@@ -34,18 +34,20 @@ export interface DataLoadedPayload {
 
 export namespace Actions {
 
-    export interface SetHighlightedTableRow extends Action<{
-        areaName:string;
+    export interface ShowAreaTooltip extends Action<{
         tileId:number;
+        areaIdx:number;
+        tooltipX:number;
+        tooltipY:number;
 
     }> {
-        name: ActionName.SetHighlightedTableRow;
+        name: ActionName.ShowAreaTooltip;
     }
 
-    export interface ClearHighlightedTableRow extends Action<{
+    export interface HideAreaTooltip extends Action<{
         tileId:number;
 
     }> {
-        name: ActionName.ClearHighlightedTableRow;
+        name: ActionName.HideAreaTooltip;
     }
 }

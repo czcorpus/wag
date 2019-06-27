@@ -27,6 +27,7 @@ import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../
 import { ConcLoadedPayload } from '../concordance/actions';
 import { ActionName, Actions, DataLoadedPayload } from './actions';
 import { DataApi } from '../../common/types';
+import { TooltipValues } from '../../views/global';
 
 /*
 oral2013:
@@ -68,10 +69,11 @@ ORAL_V1:
 
 export interface GeoAreasModelState extends GeneralSingleCritFreqBarModelState {
     areaCodeMapping:Immutable.Map<string, string>;
-    highlightedTableRow:number;
+    tooltipArea:{tooltipX:number; tooltipY:number, data:TooltipValues}|null;
     mapSVG:string;
     areaDiscFillColor:string;
     areaDiscTextColor:string;
+    isAltViewMode:boolean;
 }
 
 
@@ -126,18 +128,44 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                 }
                 return state;
             },
-            [ActionName.SetHighlightedTableRow]: (state, action:Actions.SetHighlightedTableRow) => {
-                if (action.payload.tileId === this.tileId) {
+            [GlobalActionName.EnableAltViewMode]: (state, action:GlobalActions.EnableAltViewMode) => {
+                if (action.payload.ident === this.tileId) {
                     const newState = this.copyState(state);
-                    newState.highlightedTableRow = newState.data.findIndex(v => v.name === action.payload.areaName);
+                    newState.isAltViewMode = true;
                     return newState;
                 }
                 return state;
             },
-            [ActionName.ClearHighlightedTableRow]: (state, action:Actions.ClearHighlightedTableRow) => {
+            [GlobalActionName.DisableAltViewMode]: (state, action:GlobalActions.DisableAltViewMode) => {
+                if (action.payload.ident === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.isAltViewMode = false;
+                    return newState;
+                }
+                return state;
+            },
+            [ActionName.ShowAreaTooltip]: (state, action:Actions.ShowAreaTooltip) => {
                 if (action.payload.tileId === this.tileId) {
                     const newState = this.copyState(state);
-                    newState.highlightedTableRow = -1;
+                    const data = newState.data.get(action.payload.areaIdx);
+
+                    newState.tooltipArea = {
+                        tooltipX: action.payload.tooltipX,
+                        tooltipY: action.payload.tooltipY,
+                        data: {
+                            [this.appServices.translate('geolocations__table_heading_area')]: data.name,
+                            [this.appServices.translate('geolocations__table_heading_ipm')]: data.ipm,
+                            [this.appServices.translate('geolocations__table_heading_abs')]: data.freq
+                        }
+                    };
+                    return newState;
+                }
+                return state;
+            },
+            [ActionName.HideAreaTooltip]: (state, action:Actions.HideAreaTooltip) => {
+                if (action.payload.tileId === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.tooltipArea = null;
                     return newState;
                 }
                 return state;

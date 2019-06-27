@@ -32,6 +32,8 @@ export interface SourceInfo {
     subcorp?:string;
 }
 
+export type TooltipValues = {[key:string]:number|string}|null;
+
 export interface GlobalComponents {
 
     AjaxLoader:React.SFC<{
@@ -78,6 +80,13 @@ export interface GlobalComponents {
 
     ResponsiveWrapper:React.ComponentClass<{
         render:(width:number, height:number)=>React.ReactElement<{width:number, height:number} & {}>;
+    }>;
+
+    ElementTooltip:React.SFC<{
+        x:number;
+        y:number;
+        visible:boolean;
+        values:TooltipValues;
     }>;
 }
 
@@ -443,6 +452,53 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
 
     };
 
+
+    // -------------------- <ElementTooltip /> ----------------------------------------------
+
+
+    const ElementTooltip:GlobalComponents['ElementTooltip'] = (props) => {
+
+        const ref = React.useRef(null);
+        React.useEffect(() => {
+            if (ref.current !== null) {
+                ref.current.focus();
+            }
+        });
+
+        const calcXPos = () =>
+            ref.current ? Math.max(0, props.x - ref.current.getBoundingClientRect().width - 25) : props.x;
+
+        const calcYPos = () =>
+            ref.current ? props.y + ref.current.getBoundingClientRect().height + 5 : props.y;
+
+        const style = {
+            display: props.visible ? 'block' : 'none',
+            top: calcYPos(),
+            left: calcXPos()
+        };
+
+        return (
+            <div className="wdg-tooltip" ref={ref} style={style}>
+                <table>
+                    <tbody>
+                        {Object.keys(props.values || {}).map(label => {
+                            const v = props.values[label];
+                            return (
+                                <tr key={label}>
+                                <th>{label}:</th>
+                                {typeof v === 'number' ?
+                                    <td className="num">{ut.formatNumber(v, 1)}</td> :
+                                    <td>{v}</td>
+                                }
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
+            </div>
+        );
+    }
+
     // ===================
 
     return {
@@ -453,6 +509,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
         ModalBox: ModalBox,
         HorizontalBlockSwitch: HorizontalBlockSwitch,
         ImageWithMouseover: ImageWithMouseover,
-        ResponsiveWrapper: ResponsiveWrapper
+        ResponsiveWrapper: ResponsiveWrapper,
+        ElementTooltip: ElementTooltip
     };
 }

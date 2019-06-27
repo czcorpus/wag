@@ -19,7 +19,6 @@ import * as Immutable from 'immutable';
 import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 import { fromEvent } from 'rxjs';
-import { throttleTime } from 'rxjs/operators';
 
 import { DataRow } from '../../../common/api/kontext/freqs';
 import { Theme } from '../../../common/theme';
@@ -47,7 +46,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const DataTable:React.SFC<{
         rows:Immutable.List<DataRow>;
-        highlightedRow:number;
 
     }> = (props) => {
 
@@ -55,14 +53,14 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             <table className="DataTable data cnc-table">
                 <thead>
                     <tr>
-                        <th>area</th>
-                        <th>ipm</th>
-                        <th>abs</th>
+                        <th>{ut.translate('geolocations__table_heading_area')}</th>
+                        <th>{ut.translate('geolocations__table_heading_ipm')}</th>
+                        <th>{ut.translate('geolocations__table_heading_abs')}</th>
                     </tr>
                 </thead>
                 <tbody>
                     {props.rows.map((row, i) => (
-                        <tr key={row.name} className={props.highlightedRow === i ? 'highlighted' : null}>
+                        <tr key={row.name}>
                             <td>{row.name}</td>
                             <td className="num">{row.ipm}</td>
                             <td className="num">{row.freq}</td>
@@ -93,12 +91,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             }
         });
         // insert data
-        props.data.forEach(v => {
+        props.data.forEach((v, i) => {
             const ident = props.areaCodeMapping.get(v.name);
             if (ident) {
                 const elm = document.getElementById(`${ident}-g`);
                 if (elm) {
-                    const ellipse = createSVGElement(
+                    createSVGElement(
                         elm,
                         'ellipse',
                         {
@@ -113,28 +111,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             'opacity': '0.8'
                         }
                     );
-                    fromEvent(ellipse, 'mouseover')
-                        .pipe(throttleTime(200))
-                        .subscribe(() => {
-                            dispatcher.dispatch<Actions.SetHighlightedTableRow>({
-                                name: ActionName.SetHighlightedTableRow,
-                                payload: {
-                                    areaName: v.name,
-                                    tileId: tileId
-                                }
-                            });
-                        });
-                    fromEvent(ellipse, 'mouseout')
-                        .pipe(throttleTime(200))
-                        .subscribe(() => {
-                            dispatcher.dispatch<Actions.ClearHighlightedTableRow>({
-                                name: ActionName.ClearHighlightedTableRow,
-                                payload: {
-                                    tileId: tileId
-                                }
-                            });
-                        });
-
                     const text = createSVGElement(
                         elm,
                         'text',
@@ -148,6 +124,42 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     );
                     text.style.cssText = 'opacity: 1';
                     text.textContent = ut.formatNumber(v.ipm, v.ipm >= 100 ? 0 : 1);
+                    const ellipse = createSVGElement(
+                        elm,
+                        'ellipse',
+                        {
+                            'rx': mkSize(v.ipm).toFixed(1),
+                            'ry': (mkSize(v.ipm) / 1.5).toFixed(1),
+                            'cx': '0',
+                            'cy': '0',
+                            'fill': 'white',
+                            'pointer-events': 'fill',
+                            'opacity': '0'
+                        }
+                    );
+                    fromEvent(ellipse, 'mousemove')
+                        .subscribe((e:MouseEvent) => {
+                            dispatcher.dispatch<Actions.ShowAreaTooltip>({
+                                name: ActionName.ShowAreaTooltip,
+                                payload: {
+                                    areaIdx: i,
+                                    tileId: tileId,
+                                    tooltipX: Math.max(e.pageX + 20, 0),
+                                    tooltipY: Math.max(e.pageY - 50, 0)
+                                }
+                            });
+                        });
+                    fromEvent(ellipse, 'mouseout')
+                        .subscribe(() => {
+                            dispatcher.dispatch<Actions.HideAreaTooltip>({
+                                name: ActionName.HideAreaTooltip,
+                                payload: {
+                                    tileId: tileId
+                                }
+                            });
+                        });
+
+
                 }
             }
         });
@@ -163,8 +175,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             }
         }
 
-        componentDidUpdate() {
-            if (this.props.data.size > 0) {
+        componentDidUpdate(prevProps) {
+            if (this.props.data.size > 0 && (prevProps.data !== this.props.data || prevProps.isAltViewMode !== this.props.isAltViewMode ||
+                        prevProps.renderSize !== this.props.renderSize)) {
                 drawLabels(this.props, this.props.tileId, this.props.areaDiscTextColor, this.props.areaDiscFillColor);
             }
         }
@@ -177,13 +190,19 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         sourceIdent={{corp: this.props.corpname}}
                         supportsTileReload={this.props.supportsReloadOnError}>
                     <div className="GeoAreasTileView">
-                        <div className="flex-item" style={{width: areaWidth, height: '80%'}}>
-                            <div style={{width: '100%', height: '100%', overflowX: 'auto'}} dangerouslySetInnerHTML={{__html: this.props.mapSVG}} />
-                            <p className="legend">{ut.translate('geolocations__ipm_map_legend')}</p>
-                        </div>
-                        {this.props.widthFract > 2 && !this.props.isMobile ?
-                            <DataTable rows={this.props.data} highlightedRow={this.props.highlightedTableRow} /> :
-                            null
+                        {this.props.isAltViewMode ?
+                            <DataTable rows={this.props.data} /> :
+                            <div className="flex-item" style={{width: areaWidth, height: '80%'}}>
+                                <div style={{width: '100%', height: '100%', overflowX: 'auto'}} dangerouslySetInnerHTML={{__html: this.props.mapSVG}} />
+                                <p className="legend">{ut.translate('geolocations__ipm_map_legend')}</p>
+
+                                {this.props.tooltipArea !== null ?
+                                    <globComponents.ElementTooltip
+                                        x={this.props.tooltipArea.tooltipX}
+                                        y={this.props.tooltipArea.tooltipY}
+                                        visible={true}
+                                        values={this.props.tooltipArea.data} /> : null}
+                            </div>
                         }
                     </div>
                 </globComponents.TileWrapper>
