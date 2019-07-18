@@ -26,10 +26,11 @@ import { SpeechDataPayload } from './actions';
 import { isSubqueryPayload } from '../../common/query';
 import { SpeechesApi, SpeechReqArgs } from './api';
 import { SpeechesModelState, extractSpeeches, Expand, BacklinkArgs } from './modelDomain';
-import { DataApi, HTTPMethod } from '../../common/types';
+import { DataApi, HTTPMethod, SystemMessageType } from '../../common/types';
 import { ActionName, Actions } from './actions';
 import { isConcLoadedPayload } from '../concordance/actions';
 import { normalizeConcDetailTypography } from '../../common/models/concordance/normalize';
+import { IAudioUrlGenerator } from '../../common/api/abstract/audio';
 
 
 
@@ -43,6 +44,7 @@ export interface SpeechesModelArgs {
     mainForm:WdglanceMainFormModel;
     initState:SpeechesModelState;
     backlink:Backlink;
+    audioLinkGenerator:IAudioUrlGenerator;
 }
 
 
@@ -60,7 +62,10 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
 
     private readonly waitForTile:number;
 
-    constructor({dispatcher, tileId, appServices, api, sourceInfoService, initState, waitForTile, backlink}:SpeechesModelArgs) {
+    private readonly audioLinkGenerator:IAudioUrlGenerator|null;
+
+    constructor({dispatcher, tileId, appServices, api, sourceInfoService, initState, waitForTile, backlink,
+                audioLinkGenerator}:SpeechesModelArgs) {
         super(dispatcher, initState);
         this.api = api;
         this.sourceInfoService = sourceInfoService;
@@ -68,6 +73,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
         this.tileId = tileId;
         this.backlink = backlink;
         this.waitForTile = waitForTile;
+        this.audioLinkGenerator = audioLinkGenerator;
         this.actionMatch = {
             [GlobalActionName.RequestQueryResponse]: (state, action) => {
                 const newState = this.copyState(state);
@@ -151,6 +157,42 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                     return newState;
                 }
                 return state;
+            },
+            [ActionName.ClickAudioPlayer]: (state, action:Actions.ClickAudioPlayer) => {
+                if (action.payload.tileId === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.playback = {
+                        segments: Immutable.List<string>(action.payload.segments),
+                        currLineIdx: newState.playback ? newState.playback.currLineIdx : null,
+                        newLineIdx: action.payload.lineIdx,
+                        currPlaybackSession: newState.playback ? newState.playback.currPlaybackSession : null,
+                        newPlaybackSession: null
+                    };
+                    return newState;
+                }
+                return state;
+            },
+            [ActionName.AudioPlayerStarted]: (state, action:Actions.AudioPlayerStarted) => {
+                if (action.payload.tileId === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.playback = {
+                        segments: newState.playback.segments,
+                        currLineIdx: newState.playback.newLineIdx,
+                        newLineIdx: null,
+                        currPlaybackSession: action.payload.playbackSession,
+                        newPlaybackSession: null
+                    };
+                    return newState;
+                }
+                return state;
+            },
+            [ActionName.AudioPlayerStopped]: (state, action:Actions.AudioPlayerStopped) => {
+                if (action.payload.tileId === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.playback = null;
+                    return newState;
+                }
+                return state;
             }
         };
     }
@@ -163,7 +205,11 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
             ctxattrs: 'word',
             corpname: state.corpname,
             pos: pos,
-            structs: `${state.speakerIdAttr[0]}.${state.speakerIdAttr[1]},${state.speechOverlapAttr[0]}.${state.speechOverlapAttr[1]}`,
+            structs: [
+                state.speakerIdAttr[0] + '.' + state.speakerIdAttr[1],
+                state.speechOverlapAttr[0] + '.' + state.speechOverlapAttr[1],
+                state.speechSegment[0] + '.' + state.speechSegment[1]
+            ].join(','),
             format: 'json'
         };
 
@@ -288,6 +334,65 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
             case ActionName.LoadAnotherSpeech:
                 if (action.payload['tileId'] === this.tileId) {
                     this.reloadData(state, dispatch, null, null, Expand.RELOAD);
+                }
+            break;
+            case ActionName.ClickAudioPlayer:
+                const player = this.appServices.getAudioPlayer();
+                if (state.playback && state.playback.currPlaybackSession) {
+                    player.stop(state.playback.currPlaybackSession);
+                }
+                if (state.playback.currLineIdx !== state.playback.newLineIdx) {
+                    player
+                        .play(state.playback.segments.map(v => this.audioLinkGenerator.createUrl(state.corpname, v)).toArray())
+                        .subscribe(
+                            (data) => {
+                                if (data.isPlaying && data.idx === 0) {
+                                    dispatch<Actions.AudioPlayerStarted>({
+                                        name: ActionName.AudioPlayerStarted,
+                                        payload: {
+                                            tileId: action.payload['tileId'],
+                                            playbackSession: data.sessionId
+                                        }
+                                    });
+                                } else if (!data.isPlaying && data.idx === data.total - 1) {
+                                    dispatch<Actions.AudioPlayerStopped>({
+                                        name: ActionName.AudioPlayerStopped,
+                                        payload: {
+                                            tileId: action.payload['tileId'],
+                                            lineIdx: state.playback.currLineIdx
+                                        }
+                                    });
+                                }
+                            },
+                            (err) => {
+                                dispatch<Actions.AudioPlayerStopped>({
+                                    name: ActionName.AudioPlayerStopped,
+                                    payload: {
+                                        tileId: action.payload['tileId'],
+                                        lineIdx: action.payload['lineIdx']
+                                    }
+                                });
+                                this.appServices.showMessage(SystemMessageType.ERROR, err);
+                            },
+                            () => {
+                                dispatch<Actions.AudioPlayerStopped>({
+                                    name: ActionName.AudioPlayerStopped,
+                                    payload: {
+                                        tileId: action.payload['tileId'],
+                                        lineIdx: action.payload['lineIdx']
+                                    }
+                                });
+                            }
+                        );
+
+                } else {
+                    dispatch<Actions.AudioPlayerStopped>({
+                        name: ActionName.AudioPlayerStopped,
+                        payload: {
+                            tileId: action.payload['tileId'],
+                            lineIdx: state.playback.currLineIdx
+                        }
+                    });
                 }
             break;
         }

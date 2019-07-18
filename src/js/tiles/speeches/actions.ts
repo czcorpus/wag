@@ -31,7 +31,10 @@ export interface SpeechDataPayload {
 
 export enum ActionName {
     ExpandSpeech = 'SPEECH_EXPAND_SPEECH',
-    LoadAnotherSpeech = 'SPEECH_LOAD_ANOTHER_SPEECH'
+    LoadAnotherSpeech = 'SPEECH_LOAD_ANOTHER_SPEECH',
+    ClickAudioPlayer = 'SPEECH_CLICK_AUDIO_PLAYER',
+    AudioPlayerStarted = 'SPEECH_AUDIO_PLAYER_STARTED',
+    AudioPlayerStopped = 'SPEECH_AUDIO_PLAYER_STOPPED',
 }
 
 
@@ -48,4 +51,20 @@ export namespace Actions {
         tileId:number;
     }> {
     }
+
+    export interface ClickAudioPlayer extends Action<{
+        tileId:number;
+        lineIdx:number;
+        segments:Array<string>;
+    }> {}
+
+    export interface AudioPlayerStarted extends Action<{
+        tileId:number;
+        playbackSession:string;
+    }> {}
+
+    export interface AudioPlayerStopped extends Action<{
+        tileId:number;
+        lineIdx:number;
+    }> {}
 }

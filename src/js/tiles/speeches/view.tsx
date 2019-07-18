@@ -27,6 +27,7 @@ import { RGBAColor } from '../../common/types';
 import { ActionName, Actions } from './actions';
 
 
+
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:SpeechesModel):TileComponent {
 
     const globComponents = ut.getComponents();
@@ -127,8 +128,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // ------------------------- <TRSingleSpeech /> ---------------------------
 
     const TRSingleSpeech:React.SFC<{
+        tileId:number;
         idx:number;
         speech:Speech;
+        isPlaying:boolean;
 
     }> = (props) => {
 
@@ -143,6 +146,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             style={style}>
                         {props.speech.speakerId}
                     </strong>
+                    <PlayerIcon tileId={props.tileId} lineIdx={props.idx} isPlaying={props.isPlaying}
+                            segments={props.speech.segments.toArray()} />
                 </dt>
                 <dd className="speech">
                     <div className="text">
@@ -157,8 +162,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // ------------------------- <TROverlappingSpeeches /> ---------------------------
 
     const TROverlappingSpeeches:React.SFC<{
+        tileId:number;
         idx:number;
         speeches:Array<Speech>;
+        isPlaying:boolean;
 
     }> = (props) => {
 
@@ -187,6 +194,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             <>
                 <dt className="speaker">
                     {renderOverlappingSpeakersLabel()}
+                    <PlayerIcon tileId={props.tileId} lineIdx={props.idx} isPlaying={props.isPlaying}
+                            segments={props.speeches.reduce((acc, curr) => acc.concat(curr.segments.toArray()), [])} />
                 </dt>
                 <dd className="speech overlapping-block">
                     <div className="text">
@@ -223,6 +232,34 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         );
     };
 
+    // ------------------------- <PlayerIcon /> -------------------------------
+
+    const PlayerIcon:React.SFC<{
+        tileId:number;
+        lineIdx:number;
+        isPlaying:boolean;
+        segments:Array<string>;
+
+    }> = (props) => {
+
+        const handleClick = () => {
+            dispatcher.dispatch<Actions.ClickAudioPlayer>({
+                name: ActionName.ClickAudioPlayer,
+                payload: {
+                    tileId: props.tileId,
+                    lineIdx: props.lineIdx,
+                    segments: props.segments
+                }
+            });
+        };
+
+        return (
+            <a className="PlayerIcon" onClick={handleClick}>
+                <img src={ut.createStaticUrl(props.isPlaying ? 'audio-3w.svg' : 'audio-0w.svg')} />
+            </a>
+        )
+    }
+
     // ------------------------- <SpeechView /> -------------------------------
 
     const SpeechView:React.SFC<{
@@ -231,15 +268,18 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         data:Array<Array<Speech>>;
         hasExpandLeft:boolean;
         hasExpandRight:boolean;
+        playingLineIdx:number;
 
     }> = (props) => {
         const renderSpeechLines = () => {
             return (props.data || []).map((item, i) => {
                 if (item.length === 1) {
-                    return <TRSingleSpeech key={`sp-line-${i}`} speech={item[0]} idx={i} />;
+                    return <TRSingleSpeech key={`sp-line-${i}`} tileId={props.tileId}
+                                speech={item[0]} idx={i} isPlaying={props.playingLineIdx === i} />;
 
                 } else if (item.length > 1) {
-                    return <TROverlappingSpeeches key={`sp-line-${i}`} speeches={item} idx={i} />;
+                    return <TROverlappingSpeeches key={`sp-line-${i}`} tileId={props.tileId} speeches={item}
+                                idx={i} isPlaying={props.playingLineIdx === i} />;
 
                 } else {
                     return null;
@@ -287,7 +327,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <div className="SpeechesTile">
                        <SpeechView data={this.props.data} hasExpandLeft={!!this.props.expandLeftArgs.get(-1)}
                                 hasExpandRight={!!this.props.expandRightArgs.get(-1)}
-                                tileId={this.props.tileId} isTweakMode={this.props.isTweakMode} />
+                                tileId={this.props.tileId} isTweakMode={this.props.isTweakMode}
+                                playingLineIdx={this.props.playback ? this.props.playback.currLineIdx : -1} />
                     </div>
                 </globComponents.TileWrapper>
             );

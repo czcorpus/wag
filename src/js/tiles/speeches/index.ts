@@ -26,6 +26,7 @@ import { createSourceInfoApiInstance } from '../../common/api/factory/concordanc
 import { DataApi, RGBAColor, LocalizedConfMsg } from '../../common/types';
 import { SpeechesApi } from './api';
 import { ExpandArgs } from './modelDomain';
+import { createAudioUrlGeneratorInstance } from './impl';
 
 
 declare var require:(src:string)=>void;  // webpack
@@ -45,6 +46,7 @@ export interface SpeechesTileConf extends TileConf {
     speechOverlapAttr:[string, string];
     speechOverlapVal:string;
     backlink?:Backlink,
+    audioPlaybackUrl?:string;
 }
 
 const BASE_COLOR_SCHEME = [
@@ -94,6 +96,9 @@ export class SpeechesTile implements ITileProvider {
             mainForm: mainForm,
             backlink: conf.backlink || null,
             waitForTile: Array.isArray(waitForTiles) ? waitForTiles[0] : waitForTiles,
+            audioLinkGenerator: conf.audioPlaybackUrl ?
+                    createAudioUrlGeneratorInstance(conf.apiType, conf.audioPlaybackUrl) :
+                    null,
             initState: {
                 isBusy: isBusy,
                 isTweakMode: false,
@@ -117,7 +122,8 @@ export class SpeechesTile implements ITileProvider {
                 data: [],
                 availTokens: Immutable.List<number>(),
                 tokenIdx: 0,
-                backlink: null
+                backlink: null,
+                playback: null
             }
         });
         this.view = viewInit(dispatcher, ut, theme, this.model);
