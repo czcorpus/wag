@@ -16,10 +16,20 @@
  * limitations under the License.
  */
 
-import { of as rxOf, Observable, Subscription } from 'rxjs';
+import { of as rxOf, Observable } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
-import 'soundmanager2';
 import { puid } from './util';
+
+let soundManager:any;
+if (typeof window === 'undefined') {
+    soundManager = {
+        setup:() => {}
+    };
+
+} else {
+    soundManager = require('soundmanager2').soundManager;
+}
+
 
 
 export enum AudioPlayerStatus {
