@@ -343,7 +343,11 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                 }
                 if (state.playback.currLineIdx !== state.playback.newLineIdx) {
                     player
-                        .play(state.playback.segments.map(v => this.audioLinkGenerator.createUrl(state.corpname, v)).toArray())
+                        .play(
+                            state.playback.segments
+                                .groupBy(val => val) // solving multiple speaking people at the same time
+                                .map(v => v.get(0))
+                                .map(v => this.audioLinkGenerator.createUrl(state.corpname, v)).toArray())
                         .subscribe(
                             (data) => {
                                 if (data.isPlaying && data.idx === 0) {
