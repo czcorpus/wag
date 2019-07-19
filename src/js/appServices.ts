@@ -22,6 +22,7 @@ import { DbValueMapping, HTTPHeaders, SystemMessageType } from './common/types';
 import { LemmaDbApi, LemmaDbResponse } from './common/api/lemma';
 import { SystemNotifications } from './notifications';
 import { HTTPAction } from './server/actions';
+import { AudioPlayer } from './common/audioPlayer';
 
 /**
  *
@@ -62,6 +63,8 @@ export class AppServices {
 
     private readonly mobileModeTest:()=>boolean;
 
+    private readonly audioPlayer:AudioPlayer;
+
     constructor({notifications, uiLang, translator, staticUrlCreator, actionUrlCreator, dbValuesMapping, apiHeadersMapping, mobileModeTest}:AppServicesArgs) {
         this.notifications = notifications;
         this.uiLang = uiLang;
@@ -73,6 +76,7 @@ export class AppServices {
         this.apiHeadersMapping = apiHeadersMapping || {};
         this.mobileModeTest = mobileModeTest;
         this.lemmaDbApi = new LemmaDbApi(actionUrlCreator(HTTPAction.GET_LEMMAS));
+        this.audioPlayer = new AudioPlayer();
     }
 
     showMessage(type:SystemMessageType, text:string|Error):void {
@@ -168,5 +172,9 @@ export class AppServices {
         const [y, m, d, h, M, s] =
             [dat.getFullYear(), dat.getMonth() + 1, dat.getDate(), dat.getHours(), dat.getMinutes(), dat.getSeconds()].map(lzv);
         return `${y}-${m}-${d}T${h}:${M}:${s}`;
+    }
+
+    getAudioPlayer():AudioPlayer {
+        return this.audioPlayer;
     }
 }

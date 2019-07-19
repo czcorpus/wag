@@ -212,7 +212,6 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
     }
 
     private hasUnfinishedChunks(subchartId:SubchartID):boolean {
-        console.log('this.unfinishedChunk: ', subchartId, this.unfinishedChunks.toJS());
         return this.unfinishedChunks.filter((v, k) => k.startsWith(subchartId)).includes(true);
     }
 

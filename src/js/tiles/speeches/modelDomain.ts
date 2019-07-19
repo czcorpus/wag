@@ -81,6 +81,13 @@ export interface SpeechesModelState {
     speakerColorsAttachments:Immutable.Map<string, RGBAColor>;
     spkOverlapMode:'full'|'simple';
     backlink:BacklinkWithArgs<BacklinkArgs>;
+    playback:{
+        currLineIdx:number;
+        newLineIdx:number;
+        segments:Immutable.List<string>;
+        newPlaybackSession:string|null;
+        currPlaybackSession:string|null;
+    }|null;
 }
 
 
