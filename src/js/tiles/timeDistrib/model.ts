@@ -67,9 +67,6 @@ export interface TimeDistribModelState extends GeneralSingleCritFreqBarModelStat
     wordMainLabel:string; // a copy from mainform state used to attach a legend
 }
 
-interface ConcResponseWithTarget extends ConcResponse {
-    subchartId:SubchartID;
-}
 
 const roundFloat = (v:number):number => Math.round(v * 100) / 100;
 
@@ -179,6 +176,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             },
             [ActionName.SubmitCmpWord]: (state, action:Actions.SubmitCmpWord) => {
                 if (action.payload.tileId === this.tileId) {
+                    this.unfinishedChunks = this.mapChunkStatusOf(v => true).toMap();
                     const newState = this.copyState(state);
                     newState.isBusy = true;
                     newState.wordCmp = newState.wordCmpInput;
@@ -259,7 +257,6 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         ipmInterval: [-1, -1]
                     };
                 });
-
                 seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
                     name: GlobalActionName.TileDataLoaded,
                     payload: {
@@ -288,6 +285,43 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     },
                     error: error
                 });
+            }
+        );
+    }
+
+    private loadConcordance(state:TimeDistribModelState, lemmaVariant:LemmaVariant, subcname:string,
+            target:SubchartID):Observable<[ConcResponse, DataFetchArgs]> {
+        return callWithExtraVal(
+            this.concApi,
+            concStateToArgs(
+                {
+                    querySelector: QuerySelector.CQL,
+                    corpname: state.corpname,
+                    otherCorpname: undefined,
+                    subcname: subcname,
+                    subcDesc: null,
+                    kwicLeftCtx: -1,
+                    kwicRightCtx: 1,
+                    pageSize: 10,
+                    loadPage: 1,
+                    currPage: 1,
+                    shuffle: false,
+                    attr_vmode: 'mouseover',
+                    viewMode: ViewMode.KWIC,
+                    tileId: this.tileId,
+                    attrs: Immutable.List<string>(['word']),
+                    metadataAttrs: Immutable.List<{value:string; label:string}>(),
+                    concId: null,
+                    posQueryGenerator: state.posQueryGenerator
+                },
+                lemmaVariant,
+                null
+            ),
+            {
+                concId: null,
+                subcName: subcname,
+                wordMainLabel: lemmaVariant.lemma,
+                targetId: target
             }
         );
     }
@@ -326,10 +360,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                             args
                         ))
                     )
-                    this.getFreqs(
-                        ans,
-                        dispatch
-                    );
+                    this.getFreqs(ans, dispatch);
                     return true;
                 }
                 return false;
@@ -338,54 +369,56 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         } else { // here we must create our own concordance(s) if needed
             state.subcnames.toArray().map(subcname =>
                 lemmaVariant.pipe(
-                    concatMap(
-                        (args:LemmaVariant) => callWithExtraVal(
-                            this.concApi,
-                            concStateToArgs(
-                                {
-                                    querySelector: QuerySelector.CQL,
-                                    corpname: state.corpname,
-                                    otherCorpname: undefined,
-                                    subcname: subcname,
-                                    subcDesc: null,
-                                    kwicLeftCtx: -1,
-                                    kwicRightCtx: 1,
-                                    pageSize: 10,
-                                    loadPage: 1,
-                                    currPage: 1,
-                                    shuffle: false,
-                                    attr_vmode: 'mouseover',
-                                    viewMode: ViewMode.KWIC,
-                                    tileId: this.tileId,
-                                    attrs: Immutable.List<string>(['word']),
-                                    metadataAttrs: Immutable.List<{value:string; label:string}>(),
-                                    concId: null,
-                                    posQueryGenerator: state.posQueryGenerator
-                                },
-                                args,
-                                null
-                            ),
+                    concatMap((lv:LemmaVariant) => {
+                        if (lv) {
+                            return this.loadConcordance(state, lv, subcname, target);
+                        }
+                        return rxOf<[ConcResponse, DataFetchArgs]>([
+                            {
+                                query: '',
+                                corpName: state.corpname,
+                                subcorpName: subcname,
+                                lines: [],
+                                concsize: 0,
+                                arf: 0,
+                                ipm: 0,
+                                messages: [],
+                                concPersistenceID: null
+                            },
                             {
                                 concId: null,
                                 subcName: subcname,
-                                wordMainLabel: args.lemma,
+                                wordMainLabel: '',
                                 targetId: target
                             }
-                        )
-                    ),
+                        ]);
+                    }),
                     concatMap(
                         (data) => {
                             const [concResp, args] = data;
                             args.concId = concResp.concPersistenceID;
-                            return callWithExtraVal(
-                                this.api,
-                                {
-                                    corpName: state.corpname,
-                                    subcorpName: args.subcName,
-                                    concIdent: `~${args.concId}`
-                                },
-                                args
-                            );
+                            if (args.concId) {
+                                return callWithExtraVal(
+                                    this.api,
+                                    {
+                                        corpName: state.corpname,
+                                        subcorpName: args.subcName,
+                                        concIdent: `~${args.concId}`
+                                    },
+                                    args
+                                );
+
+                            } else {
+                                return rxOf<[TimeDistribResponse, DataFetchArgs]>([
+                                    {
+                                        corpName: state.corpname,
+                                        subcorpName: args.subcName,
+                                        concPersistenceID: null,
+                                        data: []
+                                    },
+                                    args
+                                ])
+                            }
                         }
                     )
                 )
