@@ -84,7 +84,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <div>
                         {props.data.metadata.length > 0 ?
                             <>
-                                {props.hasVisibleMetadata ? <LineMetadata data={props.data.metadata} /> : null}
                                 <a className="info-click" onClick={props.handleLineClick}><img src={ut.createStaticUrl('info-icon.svg')} /></a>
                             </>
                             : null
@@ -104,6 +103,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             </p> :
                             null
                         }
+                        {props.hasVisibleMetadata ? <LineMetadata data={props.data.metadata} /> : null}
                     </div>
                 </div>
             </div>
