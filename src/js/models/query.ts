@@ -20,9 +20,9 @@ import { Action, IActionDispatcher, SEDispatcher, StatelessModel } from 'kombo';
 
 import { AppServices } from '../appServices';
 import { Forms } from '../common/data';
-import { SystemMessageType, SearchLanguage } from '../common/types';
+import { SystemMessageType } from '../common/types';
 import { AvailableLanguage } from '../common/hostPage';
-import { QueryType, LemmaVariant, QueryTypeMenuItem, matchesPos } from '../common/query';
+import { QueryType, LemmaVariant, QueryTypeMenuItem, matchesPos, SearchLanguage } from '../common/query';
 import { ActionName, Actions } from './actions';
 import { HTTPAction } from '../server/actions';
 import { LayoutManager } from '../layout';
@@ -198,12 +198,12 @@ export interface DefaultFactoryArgs {
     lemmas:Array<LemmaVariant>;
     isAnswerMode:boolean;
     uiLanguages:Immutable.List<AvailableLanguage>;
-    resourceLanguages:Immutable.List<{ident:string; label:string}>;
+    searchLanguages:Immutable.List<SearchLanguage>;
     layout:LayoutManager;
 }
 
 export const defaultFactory = ({dispatcher, appServices, query1, query1Lang, query2,
-            query2Lang, queryType, lemmas, isAnswerMode, uiLanguages, resourceLanguages, layout}:DefaultFactoryArgs) => {
+            query2Lang, queryType, lemmas, isAnswerMode, uiLanguages, searchLanguages, layout}:DefaultFactoryArgs) => {
 
     return new WdglanceMainFormModel(
         dispatcher,
@@ -215,7 +215,7 @@ export const defaultFactory = ({dispatcher, appServices, query1, query1Lang, que
             queryTypesMenuItems: layout.getQueryTypesMenuItems(),
             targetLanguage: query1Lang,
             targetLanguage2: query2Lang,
-            availLanguages: Immutable.List<SearchLanguage>(resourceLanguages),
+            availLanguages: Immutable.List<SearchLanguage>(searchLanguages),
             errors: Immutable.List<Error>(),
             lemmas: Immutable.List<LemmaVariant>(lemmas),
             isAnswerMode: isAnswerMode,

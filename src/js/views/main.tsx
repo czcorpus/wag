@@ -20,16 +20,15 @@ import { Bound, BoundWithProps, IActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
 
 import { Forms } from '../common/data';
-import { SystemMessageType, SearchLanguage, SourceDetails } from '../common/types';
-import { AvailableLanguage } from '../common/hostPage';
-import { QueryType, LemmaVariant, QueryTypeMenuItem } from '../common/query';
+import { SystemMessageType, SourceDetails } from '../common/types';
+import { QueryType, LemmaVariant, QueryTypeMenuItem, SearchLanguage } from '../common/query';
 import { TileFrameProps } from '../common/tile';
 import { KeyCodes } from '../common/util';
 import { TileGroup } from '../layout';
 import { ActionName, Actions } from '../models/actions';
 import { MessagesModel, MessagesState } from '../models/messages';
 import { WdglanceMainFormModel, WdglanceMainState } from '../models/query';
-import { TileResultFlagRec, WdglanceTilesModel, WdglanceTilesState } from '../models/tiles';
+import { WdglanceTilesModel, WdglanceTilesState } from '../models/tiles';
 import { SystemMessage } from '../notifications';
 import { init as corpusInfoViewInit } from './corpusInfo';
 import { GlobalComponents } from './global';
@@ -105,6 +104,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         value:string;
         availLanguages:Immutable.List<SearchLanguage>;
         htmlClass?:string;
+        queryType:QueryType;
         onChange:(v:string)=>void;
 
     }> = (props) => {
@@ -117,8 +117,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             <select className={`QueryLangSelector${props.htmlClass ? ' ' + props.htmlClass : ''}`} onChange={changeHandler}
                     value={props.value}
                     aria-label={ut.translate('global__aria_search_lang')}>
-                {props.availLanguages.map(v =>
-                        <option key={v.ident} value={v.ident}>{v.label}</option>)}
+                {props.availLanguages.filter(v => v.queryTypes.indexOf(props.queryType) > -1).map(v =>
+                        <option key={v.code} value={v.code}>{v.label}</option>)}
             </select>
         );
     };
@@ -251,7 +251,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 return (
                     <>
                         <QueryLangSelector value={props.targetLanguage} availLanguages={props.availLanguages}
-                                onChange={handleTargetLanguageChange(true)} />
+                                onChange={handleTargetLanguageChange(true)} queryType={QueryType.SINGLE_QUERY} />
                         <QueryInput value={props.query} onEnter={props.onEnterKey}
                                 onContentChange={handleQueryInput1} />
                     </>
@@ -260,7 +260,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 return (
                     <>
                         <QueryLangSelector value={props.targetLanguage} availLanguages={props.availLanguages}
-                                onChange={handleTargetLanguageChange(true)} />
+                                onChange={handleTargetLanguageChange(true)} queryType={QueryType.CMP_QUERY} />
                         <div className="input-group">
                             <QueryInput value={props.query} onEnter={props.onEnterKey}
                                 onContentChange={handleQueryInput1} />
@@ -274,13 +274,13 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 return (
                     <>
                         <QueryLangSelector value={props.targetLanguage} availLanguages={props.availLanguages}
-                                onChange={handleTargetLanguageChange(true)} />
+                                onChange={handleTargetLanguageChange(true)} queryType={QueryType.TRANSLAT_QUERY} />
                         <QueryInput value={props.query} onEnter={props.onEnterKey}
                                 onContentChange={handleQueryInput1} />
                         <span className="arrow">{'\u21E8'}</span>
                         <QueryLangSelector value={props.targetLanguage2} availLanguages={props.availLanguages}
                                 htmlClass="secondary"
-                                onChange={handleTargetLanguageChange(false)} />
+                                onChange={handleTargetLanguageChange(false)} queryType={QueryType.TRANSLAT_QUERY} />
                     </>
                 );
 

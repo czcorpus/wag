@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { DbValueMapping, HTTPHeaders, LocalizedConfMsg } from './common/types';
-import { QueryPoS } from './common/query';
+import { QueryPoS, QueryType, SearchLanguage } from './common/query';
 import { CollocationsTileConf } from './tiles/collocations';
 import { ConcFilterTileConf } from './tiles/concFilter';
 import { ConcordanceTileConf } from './tiles/concordance';
@@ -116,7 +116,7 @@ export interface ClientStaticConf {
     onLoadInit?:Array<string>;
     homepage:HomepageConf;
     colors:ColorsConf;
-    resourceLanguages:{[code:string]:string};
+    searchLanguages:{[code:string]:string};
 
     // If string we expect this to be a fs path to another
     // JSON file containing just the 'tiles' configuration
@@ -144,7 +144,7 @@ export interface ClientConf {
     homepage:{tiles:Array<{label:string; html:string}>};
     tiles:{[ident:string]:AnyTileConf};
     layouts:LayoutsConfig;
-    resourceLanguages:{[code:string]:string};
+    searchLanguages:Array<SearchLanguage>;
     error?:Error;
 }
 
@@ -163,8 +163,30 @@ export function emptyClientConf(conf:ClientStaticConf):ClientConf {
         homepage: {
             tiles: []
         },
-        resourceLanguages: conf.resourceLanguages
+        searchLanguages: Object.keys(conf.searchLanguages).map(k => ({
+            code: k,
+            label: conf.searchLanguages[k],
+            queryTypes: []
+        }))
     };
+}
+
+export function getSupportedQueryTypes(conf:ClientStaticConf, lang:string):Array<QueryType> {
+    if (typeof conf.layouts === 'string') {
+        return [];
+    }
+    const layout = conf.layouts[lang] || {single: [], translat: [], cmp: []};
+    const ans:Array<QueryType> = [];
+    if (Array.isArray(layout.single) && layout.single.length > 0) {
+        ans.push(QueryType.SINGLE_QUERY);
+    }
+    if (Array.isArray(layout.translat) && layout.translat.length > 0) {
+        ans.push(QueryType.TRANSLAT_QUERY);
+    }
+    if (Array.isArray(layout.cmp) && layout.cmp.length > 0) {
+        ans.push(QueryType.CMP_QUERY);
+    }
+    return ans;
 }
 
 
