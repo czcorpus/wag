@@ -23,7 +23,7 @@ import { Observable } from 'rxjs';
 import { CorpusInfoAPI } from './common/api/kontext/corpusInfo';
 import { Theme } from './common/theme';
 import { AvailableLanguage, ScreenProps } from './common/hostPage';
-import { LemmaVariant, QueryType } from './common/query';
+import { LemmaVariant, QueryType, SearchLanguage } from './common/query';
 import { ITileProvider, TileConf, TileFactory, TileFrameProps } from './common/tile';
 import { AnyTileConf, ClientConf, UserConf } from './conf';
 import { LayoutManager, TileGroup } from './layout';
@@ -218,8 +218,7 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
         isAnswerMode: userSession.answerMode,
         uiLanguages: Immutable.List<AvailableLanguage>(
             Object.keys(userSession.uiLanguages).map(k => [k, userSession.uiLanguages[k]])),
-        resourceLanguages: Immutable.List<{ident:string; label:string}>(
-            Object.keys(config.resourceLanguages).map(k => ({ident: k, label: config.resourceLanguages[k]}))),
+        searchLanguages: Immutable.List<SearchLanguage>(config.searchLanguages),
         layout: layoutManager
     });
 

@@ -82,12 +82,6 @@ export type DbValueMapping = {[corp:string]:{[key:string]:LocalizedConfMsg}};
 export type HTTPHeaders = {[key:string]:string};
 
 
-export interface SearchLanguage {
-    ident:string;
-    label:string;
-}
-
-
 export interface SourceDetails {
     tileId:number;
     title:string;

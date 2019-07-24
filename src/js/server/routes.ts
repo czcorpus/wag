@@ -30,7 +30,7 @@ import { encodeArgs } from '../common/ajax';
 import { ErrorType, mapToStatusCode, newError } from '../common/errors';
 import { HostPageEnv, AvailableLanguage } from '../common/hostPage';
 import { QueryType, LemmaVariant, importQueryPos, QueryPoS, matchesPos, findMergeableLemmas } from '../common/query';
-import { UserConf, ClientStaticConf, ClientConf, emptyClientConf } from '../conf';
+import { UserConf, ClientStaticConf, ClientConf, emptyClientConf, getSupportedQueryTypes } from '../conf';
 import { GlobalComponents } from '../views/global';
 import { init as viewInit, LayoutProps } from '../views/layout';
 import { ServerSideActionDispatcher } from './core';
@@ -72,7 +72,11 @@ function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, appServices:App
             colors: conf.colors,
             tiles: conf.tiles[lang],
             layouts: conf.layouts[lang],
-            resourceLanguages: conf.resourceLanguages,
+            searchLanguages: Object.keys(conf.searchLanguages).map(k => ({
+                code: k,
+                label: conf.searchLanguages[k],
+                queryTypes: getSupportedQueryTypes(conf, k)
+            })),
             homepage: {
                 tiles: item
             }

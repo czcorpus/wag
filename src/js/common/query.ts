@@ -23,6 +23,12 @@ export enum QueryType {
     TRANSLAT_QUERY = 'translat'
 }
 
+export interface SearchLanguage {
+    code:string;
+    label:string;
+    queryTypes:Array<QueryType>;
+}
+
 export interface QueryTypeMenuItem {
     type:QueryType;
     label:string;
