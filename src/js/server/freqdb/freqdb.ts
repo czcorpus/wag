@@ -101,7 +101,9 @@ const getNearFreqItems = (db:Database, appServices:AppServices, val:LemmaVariant
         db.each(
             'SELECT value, pos, arf, `count` AS abs ' +
             'FROM lemma ' +
-            (whereSgn > 0 ? `WHERE is_pname = 0 AND arf >= ? AND (value <> ? OR pos NOT IN (${ntimesPlaceholder(val.pos.length)})) ORDER BY arf ASC` : 'WHERE arf < ? ORDER BY arf DESC') + ' ' +
+            (whereSgn > 0 ?
+                `WHERE is_pname = 0 AND arf >= ? AND (value <> ? OR pos NOT IN (${ntimesPlaceholder(val.pos.length)})) ORDER BY arf ASC` :
+                'WHERE is_pname = 0 AND arf < ? ORDER BY arf DESC') + ' ' +
             'LIMIT ?',
             whereSgn > 0 ? [val.arf, val.lemma, ...val.pos.map(v => v.value), limit] : [val.arf, limit],
             (err, row) => {
