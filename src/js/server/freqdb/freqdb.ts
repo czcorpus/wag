@@ -101,7 +101,7 @@ const getNearFreqItems = (db:Database, appServices:AppServices, val:LemmaVariant
         db.each(
             'SELECT value, pos, arf, `count` AS abs ' +
             'FROM lemma ' +
-            (whereSgn > 0 ? `WHERE arf >= ? AND (value <> ? OR pos NOT IN (${ntimesPlaceholder(val.pos.length)})) ORDER BY arf ASC` : 'WHERE arf < ? ORDER BY arf DESC') + ' ' +
+            (whereSgn > 0 ? `WHERE is_pname = 0 AND arf >= ? AND (value <> ? OR pos NOT IN (${ntimesPlaceholder(val.pos.length)})) ORDER BY arf ASC` : 'WHERE arf < ? ORDER BY arf DESC') + ' ' +
             'LIMIT ?',
             whereSgn > 0 ? [val.arf, val.lemma, ...val.pos.map(v => v.value), limit] : [val.arf, limit],
             (err, row) => {
@@ -128,7 +128,9 @@ const getNearFreqItems = (db:Database, appServices:AppServices, val:LemmaVariant
 export const getSimilarFreqWords = (db:Database, appServices:AppServices, lemma:string, pos:Array<QueryPoS>, rng:number):Observable<Array<LemmaVariant>> => {
     return new Observable<LemmaVariant>((observer) => {
         db.get(
-            `SELECT value, GROUP_CONCAT(pos) AS pos, SUM(\`count\`) AS abs, SUM(arf) AS arf FROM lemma WHERE value = ? AND pos IN (${ntimesPlaceholder(pos.length)}) GROUP BY value`,
+            `SELECT value, GROUP_CONCAT(pos) AS pos, SUM(\`count\`) AS abs, SUM(arf) AS arf
+             FROM lemma
+             WHERE value = ? AND pos IN (${ntimesPlaceholder(pos.length)}) GROUP BY value`,
             [lemma, ...pos],
             (err, row) => {
                 if (err) {
