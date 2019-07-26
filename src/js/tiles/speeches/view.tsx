@@ -22,7 +22,7 @@ import { SpeechesModel } from './model';
 import { GlobalComponents } from '../../views/global';
 import { CoreTileComponentProps, TileComponent } from '../../common/tile';
 import { Theme } from '../../common/theme';
-import { Speech, SpeechesModelState, Expand } from './modelDomain';
+import { Speech, SpeechesModelState, Expand, SpeechLine, Segment } from './modelDomain';
 import { RGBAColor } from '../../common/types';
 import { ActionName, Actions } from './actions';
 
@@ -111,12 +111,14 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     const SpeechText:React.SFC<{
         bulletColor:string;
         data:Array<{class:string; str:string}>;
+        isIncomplete:boolean;
 
     }> = (props) => {
 
         return (
             <div className="speech-text">
                 <span style={{color: props.bulletColor}}>{'\u25cf\u00a0'}</span>
+                {props.isIncomplete ? '\u2026\u00a0' : null}
                 {props.data.map((item, i) => {
                     return <span key={i} className={item.class ? item.class : null}>{item.str}</span>;
                 })}
@@ -134,7 +136,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         isPlaying:boolean;
 
     }> = (props) => {
-
         const style = {
             backgroundColor: color2str(props.speech.colorCode),
             color: color2str(calcTextColorFromBg(props.speech.colorCode))
@@ -144,15 +145,19 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 <dt className="speaker">
                     <strong title={exportMetadata(props.speech.metadata)}
                             style={style}>
-                        {props.speech.speakerId}
+                        {props.speech.speakerId ? props.speech.speakerId : '\u2026'}
                     </strong>
-                    <PlayerIcon tileId={props.tileId} lineIdx={props.idx} isPlaying={props.isPlaying}
-                            segments={props.speech.segments.toArray()} />
+                    {props.speech.segments.size > 0 ?
+                        <PlayerIcon tileId={props.tileId} lineIdx={props.idx} isPlaying={props.isPlaying}
+                                segments={props.speech.segments.toArray()} /> :
+                        null
+                    }
                 </dt>
                 <dd className="speech">
                     <div className="text">
                         <SpeechText data={props.speech.text} key={props.idx}
-                                bulletColor={color2str(props.speech.colorCode)} />
+                                bulletColor={color2str(props.speech.colorCode)}
+                                isIncomplete={!props.speech.speakerId} />
                     </div>
                 </dd>
             </>
@@ -201,7 +206,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <div className="text">
                         {props.speeches.map((speech, i) => <SpeechText data={speech.text}
                                     key={`${props.idx}:${i}`}
-                                    bulletColor={color2str(speech.colorCode)} />)}
+                                    bulletColor={color2str(speech.colorCode)}
+                                    isIncomplete={!speech.speakerId} />)}
                     </div>
                 </dd>
             </>
@@ -238,7 +244,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         tileId:number;
         lineIdx:number;
         isPlaying:boolean;
-        segments:Array<string>;
+        segments:Array<Segment>;
 
     }> = (props) => {
 
@@ -265,7 +271,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     const SpeechView:React.SFC<{
         tileId:number;
         isTweakMode:boolean;
-        data:Array<Array<Speech>>;
+        data:Array<SpeechLine>;
         hasExpandLeft:boolean;
         hasExpandRight:boolean;
         playingLineIdx:number;
@@ -287,6 +293,15 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             });
         };
 
+        const handlePlayAllClick = () => {
+            dispatcher.dispatch<Actions.ClickAudioPlayAll>({
+                name: ActionName.ClickAudioPlayAll,
+                payload: {
+                    tileId: props.tileId
+                }
+            });
+        };
+
         return (
             <div>
                 <div className="navig">
@@ -299,6 +314,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             {props.isTweakMode ?
                                 <LoadNext tileId={props.tileId} /> : null}
                     </div>
+                </div>
+                <div>
+                    <a className="play-all" onClick={handlePlayAllClick}>
+                        {ut.translate('speeches__play_all_btn')}
+                    </a>
                 </div>
                 <dl className="speeches">
                     {renderSpeechLines()}

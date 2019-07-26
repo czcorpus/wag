@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { SpeechLines, ExpandArgs, Expand } from './modelDomain';
+import { SpeechLines, ExpandArgs, Expand, Segment } from './modelDomain';
 import { Action } from 'kombo';
 
 
@@ -35,6 +35,8 @@ export enum ActionName {
     ClickAudioPlayer = 'SPEECH_CLICK_AUDIO_PLAYER',
     AudioPlayerStarted = 'SPEECH_AUDIO_PLAYER_STARTED',
     AudioPlayerStopped = 'SPEECH_AUDIO_PLAYER_STOPPED',
+    ClickAudioPlayAll = 'SPEECH_CLICK_AUDIO_PLAY_ALL',
+    PlayedLineChanged = 'SPEECH_PLAYED_LINE_CHANGED'
 }
 
 
@@ -55,7 +57,11 @@ export namespace Actions {
     export interface ClickAudioPlayer extends Action<{
         tileId:number;
         lineIdx:number;
-        segments:Array<string>;
+        segments:Array<Segment>;
+    }> {}
+
+    export interface ClickAudioPlayAll extends Action<{
+        tileId:number;
     }> {}
 
     export interface AudioPlayerStarted extends Action<{
@@ -64,6 +70,10 @@ export namespace Actions {
     }> {}
 
     export interface AudioPlayerStopped extends Action<{
+        tileId:number;
+    }> {}
+
+    export interface PlayedLineChanged extends Action<{
         tileId:number;
         lineIdx:number;
     }> {}

@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { StatelessModel, IActionDispatcher, SEDispatcher, Action } from 'kombo';
+import { StatelessModel, IActionDispatcher, SEDispatcher, Action, ActionDispatcher } from 'kombo';
 import * as Immutable from 'immutable';
 
 import { WdglanceMainFormModel } from '../../models/query';
@@ -25,12 +25,13 @@ import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../
 import { SpeechDataPayload } from './actions';
 import { isSubqueryPayload } from '../../common/query';
 import { SpeechesApi, SpeechReqArgs } from './api';
-import { SpeechesModelState, extractSpeeches, Expand, BacklinkArgs } from './modelDomain';
+import { SpeechesModelState, extractSpeeches, Expand, BacklinkArgs, Segment, PlayableSegment } from './modelDomain';
 import { DataApi, HTTPMethod, SystemMessageType } from '../../common/types';
 import { ActionName, Actions } from './actions';
 import { isConcLoadedPayload } from '../concordance/actions';
 import { normalizeConcDetailTypography } from '../../common/models/concordance/normalize';
 import { IAudioUrlGenerator } from '../../common/api/abstract/audio';
+import { AudioPlayer } from '../../common/audioPlayer';
 
 
 
@@ -162,9 +163,30 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                 if (action.payload.tileId === this.tileId) {
                     const newState = this.copyState(state);
                     newState.playback = {
-                        segments: Immutable.List<string>(action.payload.segments),
+                        segments: Immutable.List<Segment>(action.payload.segments),
                         currLineIdx: newState.playback ? newState.playback.currLineIdx : null,
                         newLineIdx: action.payload.lineIdx,
+                        currPlaybackSession: newState.playback ? newState.playback.currPlaybackSession : null,
+                        newPlaybackSession: null
+                    };
+                    return newState;
+                }
+                return state;
+            },
+            [ActionName.ClickAudioPlayAll]: (state, action:Actions.ClickAudioPlayAll) => {
+                if (action.payload.tileId === this.tileId) {
+                    const newState = this.copyState(state);
+                    const segments = state.data.reduce(
+                        (acc, curr) => acc.concat(curr),
+                        []
+                    ).reduce(
+                        (acc, curr) => acc.concat(curr.segments),
+                        Immutable.List<Segment>()
+                    ).toList();
+                    newState.playback = {
+                        segments: segments,
+                        currLineIdx: newState.playback ? newState.playback.currLineIdx : null,
+                        newLineIdx: segments.get(0).lineIdx,
                         currPlaybackSession: newState.playback ? newState.playback.currPlaybackSession : null,
                         newPlaybackSession: null
                     };
@@ -193,8 +215,34 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                     return newState;
                 }
                 return state;
+            },
+            [ActionName.PlayedLineChanged]: (state, action:Actions.PlayedLineChanged) => {
+                if (action.payload.tileId === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.playback = {
+                        currLineIdx: action.payload.lineIdx,
+                        newLineIdx: null,
+                        segments: newState.playback.segments,
+                        newPlaybackSession: newState.playback.newPlaybackSession,
+                        currPlaybackSession: newState.playback.currPlaybackSession
+                    };
+                    return newState;
+                }
+                return state;
             }
         };
+    }
+
+    private normalizeSegments(segments:Immutable.List<Segment>, corpname:string):Array<PlayableSegment> {
+        return segments
+            .groupBy(val => val) // solving multiple speaking people at the same time
+            .map(v => v.get(0))
+            .map(v => ({
+                lineIdx: v.lineIdx,
+                url: this.audioLinkGenerator.createUrl(corpname, v.value)
+
+            }))
+            .toArray();
     }
 
     private createArgs(state:SpeechesModelState, pos:number, expand:Expand):SpeechReqArgs {
@@ -295,6 +343,65 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
             null;
     }
 
+    private playSegments(state:SpeechesModelState, player:AudioPlayer, dispatch:SEDispatcher):void {
+        player
+            .play(this.normalizeSegments(state.playback.segments, state.corpname))
+            .subscribe(
+                (data) => {
+                    if (data.isPlaying && data.idx === 0) {
+                        dispatch<Actions.AudioPlayerStarted>({
+                            name: ActionName.AudioPlayerStarted,
+                            payload: {
+                                tileId: this.tileId,
+                                playbackSession: data.sessionId
+                            }
+                        });
+                    } else if (!data.isPlaying && data.idx === data.total - 1) {
+                        dispatch<Actions.AudioPlayerStopped>({
+                            name: ActionName.AudioPlayerStopped,
+                            payload: {
+                                tileId: this.tileId
+                            }
+                        });
+
+                    } else if (data.isPlaying && data.item.lineIdx != state.playback.currLineIdx) {
+                        dispatch<Actions.PlayedLineChanged>({
+                            name: ActionName.PlayedLineChanged,
+                            payload: {
+                                tileId: this.tileId,
+                                lineIdx: data.item.lineIdx
+                            }
+                        });
+                    }
+                },
+                (err) => {
+                    dispatch<Actions.AudioPlayerStopped>({
+                        name: ActionName.AudioPlayerStopped,
+                        payload: {
+                            tileId: this.tileId
+                        }
+                    });
+                    this.appServices.showMessage(SystemMessageType.ERROR, err);
+                },
+                () => {
+                    dispatch<Actions.AudioPlayerStopped>({
+                        name: ActionName.AudioPlayerStopped,
+                        payload: {
+                            tileId: this.tileId
+                        }
+                    });
+                }
+            );
+    }
+
+    private dispatchPlayStop(dispatch:SEDispatcher):void {
+        dispatch<Actions.AudioPlayerStopped>({
+            name: ActionName.AudioPlayerStopped,
+            payload: {
+                tileId: this.tileId
+            }
+        });
+    }
 
     sideEffects(state:SpeechesModelState, action:Action, dispatch:SEDispatcher):void {
         switch(action.name) {
@@ -328,75 +435,35 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
             break;
             case ActionName.ExpandSpeech:
                 if (action.payload['tileId'] === this.tileId) {
+                    if (state.playback !== null) {
+                        this.appServices.getAudioPlayer().stop(state.playback.currPlaybackSession);
+                        this.dispatchPlayStop(dispatch);
+                    }
                     this.reloadData(state, dispatch, null, null, action.payload['position']);
                 }
             break;
             case ActionName.LoadAnotherSpeech:
                 if (action.payload['tileId'] === this.tileId) {
+                    if (state.playback !== null) {
+                        this.appServices.getAudioPlayer().stop(state.playback.currPlaybackSession);
+                        this.dispatchPlayStop(dispatch);
+                    }
                     this.reloadData(state, dispatch, null, null, Expand.RELOAD);
                 }
             break;
             case ActionName.ClickAudioPlayer:
-                const player = this.appServices.getAudioPlayer();
-                if (state.playback && state.playback.currPlaybackSession) {
-                    player.stop(state.playback.currPlaybackSession);
-                }
-                if (state.playback.currLineIdx !== state.playback.newLineIdx) {
-                    player
-                        .play(
-                            state.playback.segments
-                                .groupBy(val => val) // solving multiple speaking people at the same time
-                                .map(v => v.get(0))
-                                .map(v => this.audioLinkGenerator.createUrl(state.corpname, v)).toArray())
-                        .subscribe(
-                            (data) => {
-                                if (data.isPlaying && data.idx === 0) {
-                                    dispatch<Actions.AudioPlayerStarted>({
-                                        name: ActionName.AudioPlayerStarted,
-                                        payload: {
-                                            tileId: action.payload['tileId'],
-                                            playbackSession: data.sessionId
-                                        }
-                                    });
-                                } else if (!data.isPlaying && data.idx === data.total - 1) {
-                                    dispatch<Actions.AudioPlayerStopped>({
-                                        name: ActionName.AudioPlayerStopped,
-                                        payload: {
-                                            tileId: action.payload['tileId'],
-                                            lineIdx: state.playback.currLineIdx
-                                        }
-                                    });
-                                }
-                            },
-                            (err) => {
-                                dispatch<Actions.AudioPlayerStopped>({
-                                    name: ActionName.AudioPlayerStopped,
-                                    payload: {
-                                        tileId: action.payload['tileId'],
-                                        lineIdx: action.payload['lineIdx']
-                                    }
-                                });
-                                this.appServices.showMessage(SystemMessageType.ERROR, err);
-                            },
-                            () => {
-                                dispatch<Actions.AudioPlayerStopped>({
-                                    name: ActionName.AudioPlayerStopped,
-                                    payload: {
-                                        tileId: action.payload['tileId'],
-                                        lineIdx: action.payload['lineIdx']
-                                    }
-                                });
-                            }
-                        );
+            case ActionName.ClickAudioPlayAll:
+                if (action.payload['tileId'] === this.tileId) {
+                    const player = this.appServices.getAudioPlayer();
+                    if (state.playback && state.playback.currPlaybackSession) {
+                        player.stop(state.playback.currPlaybackSession);
+                    }
+                    if (state.playback.currLineIdx !== state.playback.newLineIdx) {
+                        this.playSegments(state, player, dispatch);
 
-                } else {
-                    dispatch<Actions.AudioPlayerStopped>({
-                        name: ActionName.AudioPlayerStopped,
-                        payload: {
-                            tileId: action.payload['tileId'],
-                            lineIdx: state.playback.currLineIdx
-                        }
-                    });
+                    } else {
+                        this.dispatchPlayStop(dispatch);
+                    }
                 }
             break;
         }
