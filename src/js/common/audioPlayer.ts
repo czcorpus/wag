@@ -39,17 +39,18 @@ export enum AudioPlayerStatus {
     ERROR = 'error'
 }
 
-export interface ChunkPlayback {
+export interface ChunkPlayback<T> {
     sessionId:string;
     idx:number;
     total:number;
     isPlaying:boolean;
+    item:T;
 }
 
-interface ItemToPlay {
-    path:string;
+interface ItemToPlay<T> {
     idx:number;
     total:number;
+    item:T;
 }
 
 /**
@@ -73,19 +74,19 @@ export class AudioPlayer {
         });
     }
 
-    play(items:Array<string>):Observable<ChunkPlayback> {
+    play<T extends {url:string}>(items:Array<T>):Observable<ChunkPlayback<T>> {
         const sessionId = `playback:${puid()}`;
-        const itemsToPlay:Array<ItemToPlay> = items.map((v, i) => ({
-            path: v,
+        const itemsToPlay:Array<ItemToPlay<T>> = items.map((v, i) => ({
             idx: i,
-            total: items.length
+            total: items.length,
+            item: v
         }));
         return rxOf(...itemsToPlay).pipe(
             concatMap(
-                (item) => new Observable<ChunkPlayback>((observer) => {
+                (item) => new Observable<ChunkPlayback<T>>((observer) => {
                     this.soundManager.createSound({
                         id: sessionId,
-                        url: item.path,
+                        url: item.item.url,
                         autoLoad: true,
                         autoPlay: false,
                         volume: 100,
@@ -98,7 +99,8 @@ export class AudioPlayer {
                                 sessionId: sessionId,
                                 isPlaying: true,
                                 idx: item.idx,
-                                total: item.total
+                                total: item.total,
+                                item: item.item
                             });
                         },
                         onfinish: () => {
@@ -108,7 +110,8 @@ export class AudioPlayer {
                                 sessionId: sessionId,
                                 isPlaying: false,
                                 idx: item.idx,
-                                total: item.total
+                                total: item.total,
+                                item: item.item
                             });
                             observer.complete();
                         },

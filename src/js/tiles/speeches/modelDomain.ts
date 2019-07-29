@@ -24,10 +24,20 @@ import { LineElement } from '../../common/api/abstract/concordance';
 export type ConcDetailText = Array<LineElement>;
 
 
+export interface Segment {
+    lineIdx:number;
+    value:string;
+}
+
+export interface PlayableSegment {
+    lineIdx:number;
+    url:string;
+}
+
 export interface Speech {
     text:ConcDetailText;
     speakerId:string;
-    segments:Immutable.List<string>;
+    segments:Immutable.List<Segment>;
     colorCode:RGBAColor;
     metadata:Immutable.Map<string, string>;
 }
@@ -84,7 +94,7 @@ export interface SpeechesModelState {
     playback:{
         currLineIdx:number;
         newLineIdx:number;
-        segments:Immutable.List<string>;
+        segments:Immutable.List<Segment>;
         newPlaybackSession:string|null;
         currPlaybackSession:string|null;
     }|null;
@@ -124,7 +134,7 @@ function createNewSpeech(state:SpeechesModelState, speakerId:string, colorCode:R
     return {
         text: [],
         speakerId: speakerId,
-        segments: Immutable.List<string>(),
+        segments: Immutable.List<Segment>(),
         metadata: importedMetadata,
         colorCode: colorCode
     };
@@ -172,7 +182,7 @@ function mergeOverlaps(state:SpeechesModelState, speeches:Array<Speech>):SpeechL
 
 
 export function extractSpeeches(state:SpeechesModelState, concDetail:ConcDetailText):SpeechLines {
-    let currSpeech:Speech = createNewSpeech(state, '\u2026', null, {});
+    let currSpeech:Speech = createNewSpeech(state, null, null, {});
     let prevSpeech:Speech = null;
     const tmp:Array<Speech> = [];
 
@@ -198,7 +208,10 @@ export function extractSpeeches(state:SpeechesModelState, concDetail:ConcDetailT
             if (item.str.indexOf(`<${state.speechSegment[0]}`) > -1) {
                 const attrs = parseTag(state.speechSegment[0], item.str);
                 if (attrs) {
-                    currSpeech.segments = currSpeech.segments.push(attrs[state.speechSegment[1]]);
+                    currSpeech.segments = currSpeech.segments.push({
+                        lineIdx: -1,
+                        value: attrs[state.speechSegment[1]]
+                    });
                 }
 
             }
@@ -228,5 +241,11 @@ export function extractSpeeches(state:SpeechesModelState, concDetail:ConcDetailT
     if (currSpeech.text.length > 0) {
         tmp.push(currSpeech);
     }
-    return mergeOverlaps(state, tmp);
+    return mergeOverlaps(state, tmp).map((v, i) => v.map(sp =>  ({
+        colorCode: sp.colorCode,
+        metadata: sp.metadata,
+        segments: sp.segments.map(seg => ({value: seg.value, lineIdx: i})).toList(),
+        speakerId: sp.speakerId,
+        text: sp.text
+    })));
 }
