@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { Action, SEDispatcher, StatelessModel } from 'kombo';
+import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { Observable, Observer, of as rxOf } from 'rxjs';
 import { concatMap, map } from 'rxjs/operators';
 
@@ -99,7 +99,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private unfinishedChunks:Immutable.Map<string, boolean>; // subcname => done
 
-    constructor(dispatcher, initState:TimeDistribModelState, tileId:number, waitForTile:number, api:KontextTimeDistribApi,
+    constructor(dispatcher:IActionQueue, initState:TimeDistribModelState, tileId:number, waitForTile:number, api:KontextTimeDistribApi,
                 concApi:ConcApi, appServices:AppServices, mainForm:WdglanceMainFormModel) {
         super(dispatcher, initState);
         this.tileId = tileId;

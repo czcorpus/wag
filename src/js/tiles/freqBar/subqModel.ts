@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Action, IActionDispatcher, SEDispatcher } from 'kombo';
+import { Action, SEDispatcher, IActionQueue } from 'kombo';
 import { forkJoin, Observable } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 
@@ -47,7 +47,7 @@ export class SubqFreqBarModel extends FreqBarModel {
 
     private readonly concApi:ConcApi;
 
-    constructor(dispatcher:IActionDispatcher, tileId:number, waitForTile:number, appServices:AppServices, api:MultiBlockFreqDistribAPI,
+    constructor(dispatcher:IActionQueue, tileId:number, waitForTile:number, appServices:AppServices, api:MultiBlockFreqDistribAPI,
             concApi:ConcApi, backlink:Backlink|null, initState:FreqBarModelState, subqConf:SubqueryModeConf) {
         super(dispatcher, tileId, waitForTile, appServices, api, backlink, initState);
         this.subqConf = subqConf;
@@ -127,7 +127,7 @@ export const factory =
     (
         subqConf:SubqueryModeConf, concApi:ConcApi) =>
     (
-        dispatcher:IActionDispatcher,
+        dispatcher:IActionQueue,
         tileId:number,
         waitForTile:number,
         appServices:AppServices,

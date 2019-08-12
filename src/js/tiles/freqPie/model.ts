@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { Action, IActionDispatcher, SEDispatcher, StatelessModel } from 'kombo';
+import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { Observable, Observer } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 
@@ -68,7 +68,7 @@ export class FreqPieModel extends StatelessModel<FreqPieModelState> {
 
     private readonly backlink:Backlink;
 
-    constructor(dispatcher:IActionDispatcher, initState:FreqPieModelState, tileId:number, waitForTile:number, appServices:AppServices, api:MultiBlockFreqDistribAPI,
+    constructor(dispatcher:IActionQueue, initState:FreqPieModelState, tileId:number, waitForTile:number, appServices:AppServices, api:MultiBlockFreqDistribAPI,
                 backlink:Backlink) {
         super(dispatcher, initState);
         this.tileId = tileId;
@@ -210,7 +210,7 @@ export class FreqPieModel extends StatelessModel<FreqPieModelState> {
 }
 
 export const factory = (
-        dispatcher:IActionDispatcher,
+        dispatcher:IActionQueue,
         initState:FreqPieModelState,
         tileId:number,
         waitForTile:number,

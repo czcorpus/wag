@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { IActionDispatcher, StatelessModel } from 'kombo';
+import { StatelessModel, IActionQueue } from 'kombo';
 
 import { AppServices } from '../appServices';
 import { SystemMessage } from '../notifications';
@@ -33,7 +33,7 @@ export class MessagesModel extends StatelessModel<MessagesState> {
 
     private readonly appServices:AppServices;
 
-    constructor(dispatcher:IActionDispatcher, appServices:AppServices) {
+    constructor(dispatcher:IActionQueue, appServices:AppServices) {
         super(
             dispatcher,
             {

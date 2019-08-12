@@ -15,13 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Action, IActionDispatcher, IStatelessModel, StatefulModel } from 'kombo';
+import { Action, IStatelessModel, StatefulModel, IFullActionControl, SEDispatcher } from 'kombo';
 import { BehaviorSubject, Observable, Subscription, Subject, of as rxOf } from 'rxjs';
 import { scan, startWith, flatMap } from 'rxjs/operators';
 
 
 
-export class ServerSideActionDispatcher implements IActionDispatcher {
+export class ServerSideActionDispatcher implements IFullActionControl {
 
     private readonly inActions:Subject<Action | Observable<Action>>;
 
@@ -40,6 +40,10 @@ export class ServerSideActionDispatcher implements IActionDispatcher {
 
     registerStatefulModel<T>(model: StatefulModel<T>): Subscription {
         return this.actions.subscribe(model.onAction.bind(model));
+    }
+
+    registerActionListener(fn: (action: Action, dispatch: SEDispatcher) => void): Subscription {
+        return this.actions.subscribe((a:Action) => fn(a, seAction => this.inActions.next(seAction)));
     }
 
     registerModel<T>(model: IStatelessModel<T>, initialState: T): BehaviorSubject<T> {
