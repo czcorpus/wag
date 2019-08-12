@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { StatelessModel, IActionDispatcher, SEDispatcher, Action, ActionDispatcher } from 'kombo';
+import { StatelessModel, SEDispatcher, Action, IActionQueue } from 'kombo';
 import * as Immutable from 'immutable';
 
 import { WdglanceMainFormModel } from '../../models/query';
@@ -36,7 +36,7 @@ import { AudioPlayer } from '../../common/audioPlayer';
 
 
 export interface SpeechesModelArgs {
-    dispatcher:IActionDispatcher;
+    dispatcher:IActionQueue;
     tileId:number;
     waitForTile:number;
     appServices:AppServices;

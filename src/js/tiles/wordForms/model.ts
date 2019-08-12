@@ -18,7 +18,7 @@
 import * as Immutable from 'immutable';
 import { map } from 'rxjs/operators';
 
-import { StatelessModel, IActionDispatcher, Action, SEDispatcher } from 'kombo';
+import { StatelessModel, Action, SEDispatcher, IActionQueue } from 'kombo';
 import { WordFormItem, WordFormsApi, RequestConcArgs, RequestArgs } from '../../common/api/abstract/wordForms';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
 import { DataLoadedPayload } from './actions';
@@ -76,7 +76,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
 
     private readonly waitForTile:number|null;
 
-    constructor(dispatcher:IActionDispatcher, initialState:WordFormsModelState, tileId:number, api:WordFormsApi, mainForm:WdglanceMainFormModel, waitForTile:number|null) {
+    constructor(dispatcher:IActionQueue, initialState:WordFormsModelState, tileId:number, api:WordFormsApi, mainForm:WdglanceMainFormModel, waitForTile:number|null) {
         super(dispatcher, initialState);
         this.tileId = tileId;
         this.api = api;

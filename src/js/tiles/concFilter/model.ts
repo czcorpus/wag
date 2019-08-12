@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { map, concatMap } from 'rxjs/operators';
-import { StatelessModel, IActionDispatcher, Action, SEDispatcher } from 'kombo';
+import { StatelessModel, Action, SEDispatcher, IActionQueue } from 'kombo';
 import * as Immutable from 'immutable';
 
 import { AppServices } from '../../appServices';
@@ -67,7 +67,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
 
     private numPendingSources:number;
 
-    constructor(dispatcher:IActionDispatcher, tileId:number, waitForTiles:Array<number>, subqSourceTiles:Array<number>,
+    constructor(dispatcher:IActionQueue, tileId:number, waitForTiles:Array<number>, subqSourceTiles:Array<number>,
                 appServices:AppServices, api:ConcApi, switchMainCorpApi:ISwitchMainCorpApi, initState:ConcFilterModelState) {
         super(dispatcher, initState);
         this.tileId = tileId;

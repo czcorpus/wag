@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { Action, IActionDispatcher, SEDispatcher, StatelessModel } from 'kombo';
+import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 
 import { AppServices } from '../../appServices';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
@@ -69,7 +69,7 @@ export class SydModel extends StatelessModel<SydModelState> {
 
     private readonly appServices:AppServices;
 
-    constructor(dispatcher:IActionDispatcher, initialState:SydModelState, tileId:number, waitForTile:number, mainForm:WdglanceMainFormModel,
+    constructor(dispatcher:IActionQueue, initialState:SydModelState, tileId:number, waitForTile:number, mainForm:WdglanceMainFormModel,
                 appServices:AppServices, api:SyDAPI) {
         super(dispatcher, initialState);
         this.tileId = tileId;

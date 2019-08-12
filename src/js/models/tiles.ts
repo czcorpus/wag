@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { Action, IActionDispatcher, SEDispatcher, StatelessModel } from 'kombo';
+import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { Observable } from 'rxjs';
 import { concatMap, map } from 'rxjs/operators';
 
@@ -67,7 +67,7 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
 
     private readonly corpusInfoApi:CorpusInfoAPI;
 
-    constructor(dispatcher:IActionDispatcher, initialState:WdglanceTilesState, appServices:AppServices, corpusInfoApi:CorpusInfoAPI) {
+    constructor(dispatcher:IActionQueue, initialState:WdglanceTilesState, appServices:AppServices, corpusInfoApi:CorpusInfoAPI) {
         super(dispatcher, initialState);
         this.appServices = appServices;
         this.corpusInfoApi = corpusInfoApi;

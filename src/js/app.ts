@@ -50,7 +50,7 @@ import { init as speechesInit, SpeechesTileConf } from './tiles/speeches';
 import { GlobalComponents, init as globalCompInit } from './views/global';
 import { init as viewInit, WdglanceMainProps } from './views/main';
 import { RetryTileLoad } from './models/retryLoad';
-import { IActionDispatcher, ViewUtils } from 'kombo';
+import { ViewUtils, IFullActionControl } from 'kombo';
 import { AppServices } from './appServices';
 import { IAsyncKeyValueStore } from './common/types';
 
@@ -93,7 +93,7 @@ const importDependentTilesList = (...d:Array<string|Array<string>>):Array<string
 
 
 const mkTileFactory = (
-    dispatcher:IActionDispatcher,
+    dispatcher:IFullActionControl,
     viewUtils:ViewUtils<GlobalComponents>,
     mainForm:WdglanceMainFormModel,
     appServices:AppServices,
@@ -179,7 +179,7 @@ export interface InitIntArgs {
     userSession:UserConf;
     lemmas:Array<LemmaVariant>;
     appServices:AppServices;
-    dispatcher:IActionDispatcher;
+    dispatcher:IFullActionControl;
     onResize:Observable<ScreenProps>;
     viewUtils:ViewUtils<GlobalComponents>;
     cache:IAsyncKeyValueStore;
