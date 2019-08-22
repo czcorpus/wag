@@ -56,7 +56,7 @@
     "express": "^4.17.1",
     "immutable": "^3.8.2",
     "ioredis": "^4.11.2",
-    "kombo": "^0.5.2",
+    "kombo": "^0.51.1",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "recharts": "^1.6.2",
