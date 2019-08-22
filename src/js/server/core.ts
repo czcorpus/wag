@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Action, IStatelessModel, StatefulModel, IFullActionControl, SEDispatcher } from 'kombo';
+import { Action, IStatelessModel, StatefulModel, IFullActionControl, SEDispatcher, IActionCapturer } from 'kombo';
 import { BehaviorSubject, Observable, Subscription, Subject, of as rxOf } from 'rxjs';
 import { scan, startWith, flatMap } from 'rxjs/operators';
 
@@ -64,5 +64,9 @@ export class ServerSideActionDispatcher implements IFullActionControl {
             )
         ).subscribe(state$);
         return state$;
+    }
+
+    captureAction(actionName: string, capturer: IActionCapturer): void {
+        // TODO
     }
 }

@@ -144,7 +144,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <tr className="absrel bottom-grouped">
                         <th />
                         {props.subsets.map((v, i) =>
-                            <React.Fragment key={`A:${v.label}`}><th>abs</th><th className="separ">rel</th></React.Fragment>)}
+                            <React.Fragment key={`A:${v.label}`}><th>abs.</th><th className="separ">rel.</th></React.Fragment>)}
                     </tr>
                     <tr className="separ"><td colSpan={props.subsets.size * 2} /></tr>
                 </thead>
@@ -154,8 +154,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             <th className="word">{row.heading}</th>
                             {row.cells.map((v, j) => (
                                 <React.Fragment key={`cell:${row.idx}:${j}`}>
-                                    <td>{v.perc}</td>
-                                    <td>{v.abs}</td>
+                                    <td>{ut.formatNumber(v.perc, 1)}</td>
+                                    <td>{ut.formatNumber(v.abs, 1)}</td>
                                 </React.Fragment>
                             ))}
                         </tr>
