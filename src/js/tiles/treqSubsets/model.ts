@@ -26,6 +26,7 @@ import { WdglanceMainFormModel } from '../../models/query';
 import { DataLoadedPayload } from './actions';
 import { callWithExtraVal } from '../../common/api/util';
 import { isSubqueryPayload } from '../../common/query';
+import { isCollocSubqueryPayload } from '../../common/api/abstract/collocations';
 
 
 export interface TranslationSubset {
@@ -163,7 +164,10 @@ export class TreqSubsetModel extends StatelessModel<TreqSubsetsModelState> {
                 } else if (action.payload.tileId === this.waitForColorsTile) {
                         const payload = action.payload;
                         const newState = this.copyState(state);
-                        if (isSubqueryPayload(payload)) {
+                        if (isCollocSubqueryPayload(payload)) {
+                            newState.colorMap = Immutable.Map<string, string>(payload.subqueries.map(sq => [sq.value.value, sq.color]));
+
+                        } else if (isSubqueryPayload(payload)) {
                             newState.colorMap = Immutable.Map<string, string>(payload.subqueries.map(sq => [sq.value, sq.color]));
                         }
                         return newState;
