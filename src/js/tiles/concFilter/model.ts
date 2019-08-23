@@ -22,7 +22,7 @@ import * as Immutable from 'immutable';
 import { AppServices } from '../../appServices';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
 import { isSubqueryPayload, SubQueryItem } from '../../common/query';
-import { ConcApi, FilterRequestArgs, QuerySelector, PNFilter, FilterPCRequestArgs } from '../../common/api/kontext/concordance';
+import { ConcApi, FilterRequestArgs, QuerySelector, PNFilter, FilterPCRequestArgs, QuickFilterRequestArgs } from '../../common/api/kontext/concordance';
 import { Line, ViewMode, ConcResponse } from '../../common/api/abstract/concordance';
 import { Observable, merge } from 'rxjs';
 import { isConcLoadedPayload } from '../concordance/actions';
@@ -31,6 +31,7 @@ import { DataLoadedPayload as CollDataLoadedPayload } from '../collocations/comm
 import { Actions, ActionName } from './actions';
 import { normalizeTypography } from '../../common/models/concordance/normalize';
 import { ISwitchMainCorpApi } from '../../common/api/abstract/switchMainCorp';
+import { isCollocSubqueryPayload, CollocSubqueryValue } from '../../common/api/abstract/collocations';
 
 
 export interface ConcFilterModelState {
@@ -61,7 +62,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
 
     private readonly tileId:number;
 
-    private waitingForTiles:Immutable.Map<number, string|Array<SubQueryItem>|null>;
+    private waitingForTiles:Immutable.Map<number, string|Array<SubQueryItem<CollocSubqueryValue>>|null>;
 
     private subqSourceTiles:Immutable.Set<number>;
 
@@ -73,7 +74,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
         this.tileId = tileId;
         this.api = api;
         this.switchMainCorpApi = switchMainCorpApi;
-        this.waitingForTiles = Immutable.Map<number, string|Array<SubQueryItem>|null>(waitForTiles.map(v => [v, null]));
+        this.waitingForTiles = Immutable.Map<number, string|Array<SubQueryItem<CollocSubqueryValue>>|null>(waitForTiles.map(v => [v, null]));
         this.subqSourceTiles = Immutable.Set<number>(subqSourceTiles);
         this.numPendingSources = 0; // this cannot be part of the state (see occurrences in the 'suspend' fn)
         this.appServices = appServices;
@@ -169,11 +170,10 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
         };
     }
 
-    private mkConcArgs(state:ConcFilterModelState, subq:SubQueryItem, concId:string):FilterRequestArgs|FilterPCRequestArgs {
+    private mkConcArgs(state:ConcFilterModelState, subq:SubQueryItem<CollocSubqueryValue>, concId:string):FilterRequestArgs|FilterPCRequestArgs|QuickFilterRequestArgs {
         if (state.otherCorpname) {
             return {
                 queryselector: QuerySelector.CQL,
-                cql: `[lemma="${subq.value}"]`, // TODO escape stuff
                 corpname: state.corpName,
                 maincorp: state.otherCorpname, // we need to filter using the 2nd language
                 align: state.otherCorpname,
@@ -188,18 +188,13 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                 viewmode: state.viewMode,
                 shuffle: 1,
                 q: '~' + concId,
+                q2: `P${subq.value.context[0]} ${subq.value.context[1]} 1 [lemma="${subq.value.value}"]`,
                 format: 'json',
-                pnfilter: PNFilter.POS,
-                filfl: 'f',
-                filfpos: 0,
-                filtpos: 0,
-                inclkwic: 1
             };
 
         } else {
             return {
                 queryselector: QuerySelector.CQL,
-                cql: `[lemma="${subq.value}"]`, // TODO escape stuff
                 corpname: state.corpName,
                 kwicleftctx: undefined,
                 kwicrightctx: undefined,
@@ -212,17 +207,13 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                 viewmode: state.viewMode,
                 shuffle: 1,
                 q: '~' + concId,
-                format: 'json',
-                pnfilter: PNFilter.POS,
-                filfl: 'f',
-                filfpos: -3,
-                filtpos: 3,
-                inclkwic: 0
+                q2: `P${subq.value.context[0]} ${subq.value.context[1]} 1 [lemma="${subq.value.value}"]`,
+                format: 'json'
             };
         }
     }
 
-    private loadFreqs(state:ConcFilterModelState, concId:string, queries:Array<SubQueryItem>):Array<Observable<ConcResponse>> {
+    private loadFreqs(state:ConcFilterModelState, concId:string, queries:Array<SubQueryItem<CollocSubqueryValue>>):Array<Observable<ConcResponse>> {
         return queries.map(subq => {
             const args = this.mkConcArgs(state, subq, concId);
             return this.api.call(args).pipe(
@@ -286,7 +277,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                                     payload.data.concPersistenceID
                                 );
 
-                            } else if (isSubqueryPayload(payload) && this.waitingForTiles.get(basicPayload.tileId) === null) {
+                            } else if (isCollocSubqueryPayload(payload) && this.waitingForTiles.get(basicPayload.tileId) === null) {
                                 this.waitingForTiles = this.waitingForTiles.set(
                                     basicPayload.tileId,
                                     payload.subqueries
@@ -295,7 +286,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
 
                             if (!this.waitingForTiles.findKey(v => v === null)) {
                                 let conc:string;
-                                let subq:Array<SubQueryItem>;
+                                let subq:Array<SubQueryItem<CollocSubqueryValue>>;
                                 this.waitingForTiles.forEach((v, k) => {
                                     if (typeof v === 'string') {
                                         conc = v;

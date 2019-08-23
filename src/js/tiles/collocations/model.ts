@@ -266,7 +266,13 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                         heading: data.collHeadings,
                         data: data.data,
                         concId: data.concId,
-                        subqueries: data.data.map(v => ({value: v.str, interactionId: v.interactionId})),
+                        subqueries: data.data.map(v => ({
+                            value: {
+                                value: v.str,
+                                context: ctxToRange(state.ctxType, state.ctxSize)
+                            },
+                            interactionId: v.interactionId
+                        })),
                         lang1: null,
                         lang2: null
                     }

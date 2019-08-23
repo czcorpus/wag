@@ -35,15 +35,15 @@ export interface QueryTypeMenuItem {
     isEnabled:boolean;
 }
 
-export interface SubQueryItem {
-    value:string;
+export interface SubQueryItem<T=string> {
+    value:T;
     interactionId?:string;
     color?:string;
 }
 
-export interface SubqueryPayload {
+export interface SubqueryPayload<T=string> {
     tileId:number;
-    subqueries:Array<SubQueryItem>;
+    subqueries:Array<SubQueryItem<T>>;
     lang1:string;
     lang2:string;
 }
@@ -51,7 +51,6 @@ export interface SubqueryPayload {
 export function isSubqueryPayload(payload:{}):payload is SubqueryPayload {
     return Array.isArray(payload['subqueries']);
 }
-
 
 export interface LemmaVariant {
     lemma:string;
