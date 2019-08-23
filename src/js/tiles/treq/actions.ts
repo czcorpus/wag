@@ -17,10 +17,11 @@
  */
 import { SubqueryPayload } from '../../common/query';
 import { TreqResponse } from '../../common/api/treq';
+import { CollocSubqueryValue } from '../../common/api/abstract/collocations';
 
 
 
-export interface DataLoadedPayload extends SubqueryPayload {
+export interface DataLoadedPayload extends SubqueryPayload<CollocSubqueryValue> {
     query:string;
     data:TreqResponse;
 }

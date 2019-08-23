@@ -147,7 +147,10 @@ export class TreqModel extends StatelessModel<TreqModelState> {
                                     isEmpty: data.lines.length === 0,
                                     query: this.mainForm.getState().query.value,
                                     subqueries: data.lines.map(v => ({
-                                        value: v.rightLc,
+                                        value: {
+                                            value: v.rightLc,
+                                            context: [0, 0]
+                                        },
                                         interactionId: v.interactionId,
                                         color: v.color
                                     })),
