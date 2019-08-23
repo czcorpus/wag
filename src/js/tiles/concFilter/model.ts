@@ -22,7 +22,7 @@ import * as Immutable from 'immutable';
 import { AppServices } from '../../appServices';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
 import { isSubqueryPayload, SubQueryItem } from '../../common/query';
-import { ConcApi, FilterRequestArgs, QuerySelector, PNFilter, FilterPCRequestArgs, QuickFilterRequestArgs } from '../../common/api/kontext/concordance';
+import { ConcApi, FilterRequestArgs, QuerySelector, FilterPCRequestArgs, QuickFilterRequestArgs } from '../../common/api/kontext/concordance';
 import { Line, ViewMode, ConcResponse } from '../../common/api/abstract/concordance';
 import { Observable, merge } from 'rxjs';
 import { isConcLoadedPayload } from '../concordance/actions';
@@ -171,6 +171,12 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
     }
 
     private mkConcArgs(state:ConcFilterModelState, subq:SubQueryItem<CollocSubqueryValue>, concId:string):FilterRequestArgs|FilterPCRequestArgs|QuickFilterRequestArgs {
+
+        const mkContextFilter = (ctx:[number, number], val:string):string =>
+            ctx[0] === 0 && ctx[1] === 0 ?
+                `p0 0>0 0 [lemma="${val}"]` :
+                `P${subq.value.context[0]} ${subq.value.context[1]} 1 [lemma="${subq.value.value}"]`;
+
         if (state.otherCorpname) {
             return {
                 queryselector: QuerySelector.CQL,
@@ -188,7 +194,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                 viewmode: state.viewMode,
                 shuffle: 1,
                 q: '~' + concId,
-                q2: `P${subq.value.context[0]} ${subq.value.context[1]} 1 [lemma="${subq.value.value}"]`,
+                q2: mkContextFilter(subq.value.context, subq.value.value),
                 format: 'json',
             };
 
@@ -207,7 +213,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                 viewmode: state.viewMode,
                 shuffle: 1,
                 q: '~' + concId,
-                q2: `P${subq.value.context[0]} ${subq.value.context[1]} 1 [lemma="${subq.value.value}"]`,
+                q2: mkContextFilter(subq.value.context, subq.value.value),
                 format: 'json'
             };
         }
@@ -271,17 +277,18 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                                 this.numPendingSources += payload.subqueries.length;
                             }
 
-                            if (isConcLoadedPayload(payload) && this.waitingForTiles.get(basicPayload.tileId) === null) {
+                            if (isCollocSubqueryPayload(payload) && this.waitingForTiles.get(basicPayload.tileId) === null) {
+                                this.waitingForTiles = this.waitingForTiles.set(
+                                    basicPayload.tileId,
+                                    payload.subqueries
+                                );
+
+                            } else if (isConcLoadedPayload(payload) && this.waitingForTiles.get(basicPayload.tileId) === null) {
                                 this.waitingForTiles = this.waitingForTiles.set(
                                     basicPayload.tileId,
                                     payload.data.concPersistenceID
                                 );
 
-                            } else if (isCollocSubqueryPayload(payload) && this.waitingForTiles.get(basicPayload.tileId) === null) {
-                                this.waitingForTiles = this.waitingForTiles.set(
-                                    basicPayload.tileId,
-                                    payload.subqueries
-                                );
                             }
 
                             if (!this.waitingForTiles.findKey(v => v === null)) {

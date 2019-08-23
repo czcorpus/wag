@@ -32,6 +32,7 @@ import { findCurrLemmaVariant, WdglanceMainFormModel } from '../../models/query'
 import { importMessageType } from '../../notifications';
 import { ActionName, Actions, ConcLoadedPayload } from './actions';
 import { normalizeTypography } from '../../common/models/concordance/normalize';
+import { isCollocSubqueryPayload } from '../../common/api/abstract/collocations';
 
 
 
@@ -274,10 +275,15 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 if (this.waitForTile) {
                     this.suspend(
                         (action) => {
-                            if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile &&
-                                    isSubqueryPayload(action.payload)) {
-                                const cql = `[word="${action.payload.subqueries.map(v => v.value).join('|')}"]`; // TODO escape
-                                this.reloadData(state, dispatch, cql);
+                            if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
+                                if (isCollocSubqueryPayload(action.payload)) {
+                                    const cql = `[word="${action.payload.subqueries.map(v => v.value.value).join('|')}"]`; // TODO escape
+                                    this.reloadData(state, dispatch, cql);
+
+                                } else if (isSubqueryPayload(action.payload)) {
+                                    const cql = `[word="${action.payload.subqueries.map(v => v.value).join('|')}"]`; // TODO escape
+                                    this.reloadData(state, dispatch, cql);
+                                }
                                 return true;
                             }
                             return false;
