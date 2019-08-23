@@ -19,14 +19,15 @@ import * as Immutable from 'immutable';
 
 import { AppServices } from './appServices';
 import { QueryType, QueryTypeMenuItem } from './common/query';
-import { LayoutConfig, LayoutsConfig } from './conf';
+import { GroupLayoutConfig, LayoutsConfig } from './conf';
+import { string } from 'prop-types';
 
 
-function itemIsGroupConf(v:string|LayoutConfig):v is LayoutConfig {
+function itemIsGroupConf(v:string|GroupLayoutConfig):v is GroupLayoutConfig {
     return typeof v === 'object' && v['groupLabel'] !== undefined;
 }
 
-function itemIsServiceConf(v:string|LayoutConfig):v is string {
+function itemIsServiceConf(v:string|GroupLayoutConfig):v is string {
     return typeof v === 'string';
 }
 
@@ -54,10 +55,12 @@ export class LayoutManager {
 
     private readonly queryTypes:Immutable.List<QueryTypeMenuItem>;
 
+    private readonly translatTargetLanguages:Immutable.List<[string, string]>;
+
     constructor(layouts:LayoutsConfig, tileMap:{[ident:string]:number}, appServices:AppServices) {
 
         this.singleQueryLayout = Immutable.List<TileGroup>(
-                (layouts.single || []).filter(itemIsGroupConf).map<TileGroup>(group => {
+                (layouts.single.groups || []).filter(itemIsGroupConf).map<TileGroup>(group => {
                     return {
                         groupLabel: appServices.importExternalMessage(group.groupLabel),
                         groupDescURL: appServices.importExternalMessage(group.groupDescURL),
@@ -66,11 +69,11 @@ export class LayoutManager {
                     }
                 }));
         this.singleQueryService = Immutable.List<number>(
-            (layouts.single || []).filter(itemIsServiceConf).map(v => tileMap[v])
+            (layouts.single.groups || []).filter(itemIsServiceConf).map(v => tileMap[v])
         );
 
         this.cmpQueryLayout = Immutable.List<TileGroup>(
-            (layouts.cmp || []).filter(itemIsGroupConf).map<TileGroup>(group => {
+            (layouts.cmp.groups || []).filter(itemIsGroupConf).map<TileGroup>(group => {
                 return {
                     groupLabel: appServices.importExternalMessage(group.groupLabel),
                     groupDescURL: appServices.importExternalMessage(group.groupDescURL),
@@ -79,11 +82,11 @@ export class LayoutManager {
                 }
             }));
         this.cmpQueryService = Immutable.List<number>(
-                (layouts.cmp || []).filter(itemIsServiceConf).map(v => tileMap[v])
+                (layouts.cmp.groups || []).filter(itemIsServiceConf).map(v => tileMap[v])
             );
 
         this.translatQueryLayout = Immutable.List<TileGroup>(
-            (layouts.translat || []).filter(itemIsGroupConf).map<TileGroup>(group => {
+            (layouts.translat.groups || []).filter(itemIsGroupConf).map<TileGroup>(group => {
                 return {
                     groupLabel: appServices.importExternalMessage(group.groupLabel),
                     groupDescURL: appServices.importExternalMessage(group.groupDescURL),
@@ -92,8 +95,9 @@ export class LayoutManager {
                 }
             }));
         this.translatQueryService = Immutable.List<number>(
-                (layouts.translat || []).filter(itemIsServiceConf).map(v => tileMap[v])
+                (layouts.translat.groups || []).filter(itemIsServiceConf).map(v => tileMap[v])
             );
+        this.translatTargetLanguages = Immutable.List<[string, string]>((layouts.translat.targetLanguages || []).map(c => [c, appServices.getLanguageName(c)])).toList();
 
         const invalid = this.validateLayouts();
         invalid.forEach(item => {
@@ -144,6 +148,14 @@ export class LayoutManager {
         }
     }
 
+    getTargetLanguages():Immutable.Map<QueryType, Immutable.List<[string, string]>> {
+        return Immutable.Map<QueryType, Immutable.List<[string, string]>>([
+            [QueryType.SINGLE_QUERY, Immutable.List<[string, string]>()],
+            [QueryType.CMP_QUERY, Immutable.List<[string, string]>()],
+            [QueryType.TRANSLAT_QUERY, this.translatTargetLanguages]
+        ]);
+    }
+
     getTileWidthFract(queryType:QueryType, tileId:number):number|null {
         const srch = this.getLayout(queryType).flatMap(v => v.tiles).find(v => v.tileId === tileId);
         return srch ? srch.width : null;
@@ -166,6 +178,8 @@ export class LayoutManager {
         return this.getLayout(queryType).flatMap(v => v.tiles).find(v => v.tileId === tileId) !== undefined ||
             this.isServiceOf(queryType, tileId);
     }
+
+
 
     getQueryTypesMenuItems():Immutable.List<QueryTypeMenuItem> {
         return this.queryTypes;

@@ -17,12 +17,14 @@
  */
 import { Observable, of as rxOf } from 'rxjs';
 import { ITranslator } from 'kombo';
+import * as Immutable from 'immutable';
 
 import { DbValueMapping, HTTPHeaders, SystemMessageType } from './common/types';
 import { LemmaDbApi, LemmaDbResponse } from './common/api/lemma';
 import { SystemNotifications } from './notifications';
 import { HTTPAction } from './server/actions';
 import { AudioPlayer } from './common/audioPlayer';
+import { SearchLanguage } from './common/query';
 
 /**
  *
@@ -30,6 +32,7 @@ import { AudioPlayer } from './common/audioPlayer';
 export interface AppServicesArgs {
     notifications:SystemNotifications;
     uiLang:string;
+    searchLanguages:Array<[string, string]>;
     translator:ITranslator;
     staticUrlCreator:(path:string)=>string;
     actionUrlCreator:(path: string)=>string;
@@ -65,9 +68,13 @@ export class AppServices {
 
     private readonly audioPlayer:AudioPlayer;
 
-    constructor({notifications, uiLang, translator, staticUrlCreator, actionUrlCreator, dbValuesMapping, apiHeadersMapping, mobileModeTest}:AppServicesArgs) {
+    private readonly languageNames:Immutable.Map<string, string>;
+
+    constructor({notifications, uiLang, searchLanguages: searchedLanguages, translator, staticUrlCreator, actionUrlCreator, dbValuesMapping,
+            apiHeadersMapping, mobileModeTest}:AppServicesArgs) {
         this.notifications = notifications;
         this.uiLang = uiLang;
+        this.languageNames = Immutable.Map<string, string>(searchedLanguages);
         this.translator = translator;
         this.staticUrlCreator = staticUrlCreator;
         this.actionUrlCreator = actionUrlCreator;
@@ -83,8 +90,12 @@ export class AppServices {
         this.notifications.showMessage(type, text);
     }
 
-    translate(key: string, args?: {[key: string]: string;}): string {
+    translate(key:string, args?:{[key: string]:string;}): string {
         return this.translator.translate(key, args);
+    }
+
+    getLanguageName(langCode:string):string {
+        return this.languageNames.get(langCode.split('-')[0], '??');
     }
 
     private importText<T>(label:string|{[lang:string]:T}):string|T {

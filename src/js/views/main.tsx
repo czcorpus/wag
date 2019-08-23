@@ -102,13 +102,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const QueryLangSelector:React.SFC<{
         value:string;
-        availLanguages:Immutable.List<SearchLanguage>;
+        searchLanguages:Immutable.List<SearchLanguage>;
         htmlClass?:string;
         queryType:QueryType;
         onChange:(v:string)=>void;
 
     }> = (props) => {
-
         const changeHandler = (evt:React.ChangeEvent<HTMLSelectElement>) => {
             props.onChange(evt.target.value);
         }
@@ -117,8 +116,31 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             <select className={`QueryLangSelector${props.htmlClass ? ' ' + props.htmlClass : ''}`} onChange={changeHandler}
                     value={props.value}
                     aria-label={ut.translate('global__aria_search_lang')}>
-                {props.availLanguages.filter(v => v.queryTypes.indexOf(props.queryType) > -1).map(v =>
+                {props.searchLanguages.filter(v => v.queryTypes.indexOf(props.queryType) > -1).map(v =>
                         <option key={v.code} value={v.code}>{v.label}</option>)}
+            </select>
+        );
+    };
+
+    // ------------------ <QueryLang2Selector /> ------------------------------
+
+    const QueryLang2Selector:React.SFC<{
+        value:string;
+        targetLanguages:Immutable.List<[string, string]>;
+        htmlClass?:string;
+        queryType:QueryType;
+        onChange:(v:string)=>void;
+
+    }> = (props) => {
+        const changeHandler = (evt:React.ChangeEvent<HTMLSelectElement>) => {
+            props.onChange(evt.target.value);
+        }
+
+        return (
+            <select className={`QueryLangSelector${props.htmlClass ? ' ' + props.htmlClass : ''}`} onChange={changeHandler}
+                    value={props.value}
+                    aria-label={ut.translate('global__aria_search_lang')}>
+                {props.targetLanguages.map(v => <option key={v[0]} value={v[0]}>{v[1]}</option>)}
             </select>
         );
     };
@@ -206,9 +228,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         query:Forms.Input;
         query2:Forms.Input;
         queryType:QueryType;
-        targetLanguage:string;
-        targetLanguage2:string;
-        availLanguages:Immutable.List<SearchLanguage>;
+        queryLanguage:string;
+        queryLanguage2:string;
+        searchLanguages:Immutable.List<SearchLanguage>;
+        targetLanguages:Immutable.List<[string, string]>;
         onEnterKey:()=>void;
 
     }> = (props) => {
@@ -235,8 +258,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             dispatcher.dispatch<Actions.ChangeTargetLanguage>({
                 name: ActionName.ChangeTargetLanguage,
                 payload: {
-                    lang1: primary ? lang : props.targetLanguage,
-                    lang2: primary ? props.targetLanguage2 : lang,
+                    lang1: primary ? lang : props.queryLanguage,
+                    lang2: primary ? props.queryLanguage2 : lang,
                     queryType: props.queryType,
                     q1: props.query.value,
                     q2: props.query2.value
@@ -250,7 +273,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             case QueryType.SINGLE_QUERY:
                 return (
                     <>
-                        <QueryLangSelector value={props.targetLanguage} availLanguages={props.availLanguages}
+                        <QueryLangSelector value={props.queryLanguage} searchLanguages={props.searchLanguages}
                                 onChange={handleTargetLanguageChange(true)} queryType={QueryType.SINGLE_QUERY} />
                         <QueryInput value={props.query} onEnter={props.onEnterKey}
                                 onContentChange={handleQueryInput1} />
@@ -259,7 +282,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             case QueryType.CMP_QUERY:
                 return (
                     <>
-                        <QueryLangSelector value={props.targetLanguage} availLanguages={props.availLanguages}
+                        <QueryLangSelector value={props.queryLanguage} searchLanguages={props.searchLanguages}
                                 onChange={handleTargetLanguageChange(true)} queryType={QueryType.CMP_QUERY} />
                         <div className="input-group">
                             <QueryInput value={props.query} onEnter={props.onEnterKey}
@@ -273,12 +296,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             case QueryType.TRANSLAT_QUERY:
                 return (
                     <>
-                        <QueryLangSelector value={props.targetLanguage} availLanguages={props.availLanguages}
+                        <QueryLangSelector value={props.queryLanguage} searchLanguages={props.searchLanguages}
                                 onChange={handleTargetLanguageChange(true)} queryType={QueryType.TRANSLAT_QUERY} />
                         <QueryInput value={props.query} onEnter={props.onEnterKey}
                                 onContentChange={handleQueryInput1} />
                         <span className="arrow">{'\u21E8'}</span>
-                        <QueryLangSelector value={props.targetLanguage2} availLanguages={props.availLanguages}
+                        <QueryLang2Selector value={props.queryLanguage2} targetLanguages={props.targetLanguages}
                                 htmlClass="secondary"
                                 onChange={handleTargetLanguageChange(false)} queryType={QueryType.TRANSLAT_QUERY} />
                     </>
@@ -359,8 +382,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 name: ActionName.ChangeQueryType,
                 payload: {
                     queryType: qt,
-                    lang1: this.props.targetLanguage,
-                    lang2: this.props.targetLanguage2,
+                    lang1: this.props.queryLanguage,
+                    lang2: this.props.queryLanguage2,
                     q1: this.props.query.value,
                     q2: this.props.query2.value
                 }
@@ -378,12 +401,14 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                     isMobile={this.props.isMobile} />
                         </div>
                         <div className="main">
-                            <QueryFields query={this.props.query}
+                            <QueryFields
+                                    query={this.props.query}
                                     query2={this.props.query2}
                                     queryType={this.props.queryType}
-                                    targetLanguage={this.props.targetLanguage}
-                                    targetLanguage2={this.props.targetLanguage2}
-                                    availLanguages={this.props.availLanguages}
+                                    queryLanguage={this.props.queryLanguage}
+                                    queryLanguage2={this.props.queryLanguage2}
+                                    searchLanguages={this.props.searchLanguages}
+                                    targetLanguages={this.props.targetLanguages.get(this.props.queryType)}
                                     onEnterKey={this.handleSubmit} />
                             <SubmitButton onClick={this.handleSubmit} />
                         </div>

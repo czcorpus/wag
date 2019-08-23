@@ -151,8 +151,8 @@ export class TreqModel extends StatelessModel<TreqModelState> {
                                         interactionId: v.interactionId,
                                         color: v.color
                                     })),
-                                    lang1: this.mainForm.getState().targetLanguage,
-                                    lang2: this.mainForm.getState().targetLanguage2,
+                                    lang1: this.mainForm.getState().queryLanguage,
+                                    lang2: this.mainForm.getState().queryLanguage2,
                                     data: data
                                 }
                             });
@@ -165,8 +165,8 @@ export class TreqModel extends StatelessModel<TreqModelState> {
                                     isEmpty: true,
                                     query: this.mainForm.getState().query.value,
                                     subqueries: [],
-                                    lang1: this.mainForm.getState().targetLanguage,
-                                    lang2: this.mainForm.getState().targetLanguage2,
+                                    lang1: this.mainForm.getState().queryLanguage,
+                                    lang2: this.mainForm.getState().queryLanguage2,
                                     data: {lines: [], sum: -1}
                                 },
                                 error: error
