@@ -32,9 +32,10 @@ export interface WdglanceMainState {
     query:Forms.Input;
     query2:Forms.Input;
     queryType:QueryType;
-    targetLanguage:string;
-    targetLanguage2:string;
-    availLanguages:Immutable.List<SearchLanguage>;
+    queryLanguage:string;
+    queryLanguage2:string;
+    searchLanguages:Immutable.List<SearchLanguage>;
+    targetLanguages:Immutable.Map<QueryType, Immutable.List<[string, string]>>;
     queryTypesMenuItems:Immutable.List<QueryTypeMenuItem>;
     errors:Immutable.List<Error>;
     lemmas:Immutable.List<LemmaVariant>;
@@ -97,9 +98,9 @@ export class WdglanceMainFormModel extends StatelessModel<WdglanceMainState> {
             },
             [ActionName.ChangeTargetLanguage]: (state, action:Actions.ChangeTargetLanguage) => {
                 const newState = this.copyState(state);
-                const prevLang2 = newState.targetLanguage2;
-                newState.targetLanguage = action.payload.lang1;
-                newState.targetLanguage2 = action.payload.lang2;
+                const prevLang2 = newState.queryLanguage2;
+                newState.queryLanguage = action.payload.lang1;
+                newState.queryLanguage2 = action.payload.lang2;
                 newState.queryType = action.payload.queryType;
                 if (newState.isAnswerMode && newState.queryType === QueryType.TRANSLAT_QUERY &&
                             prevLang2 !== action.payload.lang2) {
@@ -144,8 +145,8 @@ export class WdglanceMainFormModel extends StatelessModel<WdglanceMainState> {
                 q1: state.query.value,
                 q2: state.queryType === QueryType.CMP_QUERY ? state.query2.value : undefined,
                 queryType: state.queryType,
-                lang1: state.targetLanguage,
-                lang2: state.queryType === QueryType.TRANSLAT_QUERY ? state.targetLanguage2 : undefined,
+                lang1: state.queryLanguage,
+                lang2: state.queryType === QueryType.TRANSLAT_QUERY ? state.queryLanguage2 : undefined,
                 pos: findCurrLemmaVariant(state.lemmas).pos.map(p => p.value),
                 lemma1: findCurrLemmaVariant(state.lemmas).lemma
             });
@@ -177,7 +178,7 @@ export class WdglanceMainFormModel extends StatelessModel<WdglanceMainState> {
             state.query2 = Forms.updateFormInput(state.query2, {isValid: false});
             state.errors = state.errors.push(new Error(this.appServices.translate('global__2nd_query_contains_unsupported_chars')));
 
-        } else if (state.queryType === QueryType.TRANSLAT_QUERY && state.targetLanguage === state.targetLanguage2) {
+        } else if (state.queryType === QueryType.TRANSLAT_QUERY && state.queryLanguage === state.queryLanguage2) {
             state.errors = state.errors.push(new Error(this.appServices.translate('global__src_and_dst_langs_must_be_different')));
 
         } else {
@@ -213,9 +214,10 @@ export const defaultFactory = ({dispatcher, appServices, query1, query1Lang, que
             query2: Forms.newFormValue(query2 || '', false),
             queryType: queryType,
             queryTypesMenuItems: layout.getQueryTypesMenuItems(),
-            targetLanguage: query1Lang,
-            targetLanguage2: query2Lang,
-            availLanguages: Immutable.List<SearchLanguage>(searchLanguages),
+            queryLanguage: query1Lang,
+            queryLanguage2: query2Lang,
+            searchLanguages: Immutable.List<SearchLanguage>(searchLanguages),
+            targetLanguages: layout.getTargetLanguages(),
             errors: Immutable.List<Error>(),
             lemmas: Immutable.List<LemmaVariant>(lemmas),
             isAnswerMode: isAnswerMode,

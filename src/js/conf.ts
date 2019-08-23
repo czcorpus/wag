@@ -80,7 +80,7 @@ export interface ColorsConf {
 }
 
 
-export interface LayoutConfig {
+export interface GroupLayoutConfig {
     groupLabel:LocalizedConfMsg;
     groupDescURL:LocalizedConfMsg;
     groupTemplate:any; // TODO unfinished concept
@@ -88,9 +88,16 @@ export interface LayoutConfig {
 }
 
 export interface LayoutsConfig {
-    single:Array<LayoutConfig|string>;
-    cmp:Array<LayoutConfig|string>;
-    translat:Array<LayoutConfig|string>;
+    single:{
+        groups:Array<GroupLayoutConfig|string>;
+    };
+    cmp:{
+        groups:Array<GroupLayoutConfig|string>;
+    };
+    translat:{
+        groups:Array<GroupLayoutConfig|string>;
+        targetLanguages:Array<string>;
+    };
 }
 
 export interface HomePageTileConf {
@@ -148,6 +155,21 @@ export interface ClientConf {
     error?:Error;
 }
 
+function emptyLayoutConf():LayoutsConfig {
+    return {
+        single: {
+            groups: []
+        },
+        cmp: {
+            groups: []
+        },
+        translat: {
+            groups: [],
+            targetLanguages: []
+        }
+    };
+}
+
 export function emptyClientConf(conf:ClientStaticConf):ClientConf {
     return {
         rootUrl: conf.rootUrl,
@@ -159,7 +181,7 @@ export function emptyClientConf(conf:ClientStaticConf):ClientConf {
         onLoadInit: conf.onLoadInit,
         colors: conf.colors,
         tiles: {},
-        layouts: {single: [], cmp: [], translat: []},
+        layouts: emptyLayoutConf(),
         homepage: {
             tiles: []
         },
@@ -175,15 +197,15 @@ export function getSupportedQueryTypes(conf:ClientStaticConf, lang:string):Array
     if (typeof conf.layouts === 'string') {
         return [];
     }
-    const layout = conf.layouts[lang] || {single: [], translat: [], cmp: []};
+    const layout = conf.layouts[lang] || emptyLayoutConf();
     const ans:Array<QueryType> = [];
-    if (Array.isArray(layout.single) && layout.single.length > 0) {
+    if (layout.single && Array.isArray(layout.single.groups) && layout.single.groups.length > 0) {
         ans.push(QueryType.SINGLE_QUERY);
     }
-    if (Array.isArray(layout.translat) && layout.translat.length > 0) {
+    if (layout.translat && Array.isArray(layout.translat.groups) && layout.translat.groups.length > 0) {
         ans.push(QueryType.TRANSLAT_QUERY);
     }
-    if (Array.isArray(layout.cmp) && layout.cmp.length > 0) {
+    if (layout.cmp && Array.isArray(layout.cmp.groups) && layout.cmp.groups.length > 0) {
         ans.push(QueryType.CMP_QUERY);
     }
     return ans;

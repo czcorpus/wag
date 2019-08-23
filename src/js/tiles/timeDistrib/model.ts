@@ -447,7 +447,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     state,
                     dispatch,
                     SubchartID.SECONDARY,
-                    this.appServices.queryLemmaDbApi(formState.targetLanguage, state.wordCmp).pipe(
+                    this.appServices.queryLemmaDbApi(formState.queryLanguage, state.wordCmp).pipe(
                         map(v => v.result[0])
                     )
                 );

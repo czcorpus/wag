@@ -101,7 +101,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                     try {
                         observer.next({
                             variant: findCurrLemmaVariant(formState.lemmas),
-                            lang: formState.targetLanguage
+                            lang: formState.queryLanguage
                         });
                         observer.complete();
 

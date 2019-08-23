@@ -215,7 +215,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                     const variant = findCurrLemmaVariant(formState.lemmas);
                     this.fetchWordForms(
                         {
-                            lang: formState.targetLanguage,
+                            lang: formState.queryLanguage,
                             lemma: variant.lemma,
                             pos: variant.pos.map(v => v.value)
                         },
