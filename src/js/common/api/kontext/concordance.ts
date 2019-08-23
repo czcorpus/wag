@@ -66,6 +66,10 @@ export interface RequestArgs extends AnyQuery {
     format:'json';
 }
 
+export interface QuickFilterRequestArgs extends RequestArgs {
+    q2:string;
+}
+
 export enum PNFilter {
     POS = 'p',
     NEG = 'n'

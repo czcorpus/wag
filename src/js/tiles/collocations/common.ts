@@ -17,6 +17,7 @@
  */
 import { Action } from 'kombo';
 import { SubqueryPayload } from '../../common/query';
+import { CollocSubqueryPayload, CollocSubqueryValue } from '../../common/api/abstract/collocations';
 
 
 export interface DataRow {
@@ -72,7 +73,7 @@ export enum ActionName {
 }
 
 
-export interface DataLoadedPayload extends SubqueryPayload {
+export interface DataLoadedPayload extends SubqueryPayload<CollocSubqueryValue> {
     data:Array<DataRow>;
     heading:DataHeading;
     concId:string;
