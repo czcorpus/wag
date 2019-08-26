@@ -200,7 +200,6 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
         userSession.query2Lang
     );
     const tilesMap = attachNumericTileIdents(config.tiles);
-    console.log('tiles map: ', tilesMap);
     const layoutManager = new LayoutManager(config.layouts, tilesMap, appServices);
     const theme = new Theme(config.colors);
 
