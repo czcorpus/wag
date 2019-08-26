@@ -33,6 +33,7 @@ export interface TreqTileConf extends TileConf {
     apiURL:string;
     srchPackages:SearchPackages;
     maxNumLines?:number;
+    minItemFreq?:number;
 }
 
 /**
@@ -54,6 +55,8 @@ export class TreqTile implements ITileProvider {
 
     private static readonly DEFAULT_MAX_NUM_LINES = 10;
 
+    private static readonly DEFAULT_MIN_ITEM_FREQ = 1;
+
     constructor({tileId, dispatcher, appServices, ut, theme, lang1, lang2, mainForm, widthFract, conf, isBusy, cache}:TileFactory.Args<TreqTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
@@ -70,7 +73,8 @@ export class TreqTile implements ITileProvider {
                 translations: Immutable.List<TreqTranslation>(),
                 sum: 0,
                 treqBackLink: null,
-                maxNumLines: conf.maxNumLines || TreqTile.DEFAULT_MAX_NUM_LINES
+                maxNumLines: conf.maxNumLines || TreqTile.DEFAULT_MAX_NUM_LINES,
+                minItemFreq: conf.minItemFreq || TreqTile.DEFAULT_MIN_ITEM_FREQ
             },
             tileId,
             new TreqAPI(cache, conf.apiURL),
