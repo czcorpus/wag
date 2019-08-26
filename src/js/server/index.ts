@@ -24,7 +24,7 @@ import * as path from 'path';
 import * as sqlite3 from 'sqlite3';
 import * as translations from 'translations';
 
-import { ClientStaticConf, ServerConf } from '../conf';
+import { ClientStaticConf, ServerConf, emptyClientConf } from '../conf';
 import { wdgRouter } from './routes';
 import { createToolbarInstance } from './toolbar/factory';
 import { RedisLogQueue } from './logging/redisQueue';
@@ -35,16 +35,27 @@ app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const serverConf:ServerConf = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../conf/server.json'), 'utf8'));
+function parseJsonConfig<T>(confPath:string):T {
+    try {
+        console.log(`Loading configuration ${confPath}`);
+        return JSON.parse(fs.readFileSync(confPath, 'utf8')) as T;
+
+    } catch (e) {
+        throw new Error(`Failed to parse configuration ${path.basename(confPath)}: ${e}`)
+    }
+}
+
+const serverConf:ServerConf = parseJsonConfig(path.resolve(__dirname, '../conf/server.json'));
 const clientConfPath = process.env.WDGLANCE_CONF ?
 	process.env.WDGLANCE_CONF :
-	path.resolve(__dirname, '../conf/wdglance.json');
-const clientConf:ClientStaticConf = JSON.parse(fs.readFileSync(clientConfPath, 'utf8'));
+    path.resolve(__dirname, '../conf/wdglance.json');
+
+const clientConf:ClientStaticConf = parseJsonConfig(clientConfPath);
 if (typeof clientConf.layouts === 'string') {
-	clientConf.layouts = JSON.parse(fs.readFileSync(clientConf.layouts, 'utf-8'));
+	clientConf.layouts = parseJsonConfig(clientConf.layouts);
 }
 if (typeof clientConf.tiles === 'string') {
-	clientConf.tiles = JSON.parse(fs.readFileSync(clientConf.tiles, 'utf-8'));
+	clientConf.tiles = parseJsonConfig(clientConf.tiles);
 }
 
 

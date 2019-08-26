@@ -155,7 +155,7 @@ export interface ClientConf {
     error?:Error;
 }
 
-function emptyLayoutConf():LayoutsConfig {
+export function emptyLayoutConf():LayoutsConfig {
     return {
         single: {
             groups: []
