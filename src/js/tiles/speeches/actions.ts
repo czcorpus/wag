@@ -21,6 +21,8 @@ import { Action } from 'kombo';
 
 
 export interface SpeechDataPayload {
+    tileId:number;
+    isEmpty:boolean;
     availableTokens:Array<number>;
     concId:string|null;
     data:SpeechLines|null;
