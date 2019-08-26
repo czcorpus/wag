@@ -47,6 +47,7 @@ export interface SpeechesTileConf extends TileConf {
     speechOverlapVal:string;
     backlink?:Backlink,
     audioPlaybackUrl?:string;
+    maxNumSpeeches?:number;
 }
 
 const BASE_COLOR_SCHEME = [
@@ -79,6 +80,8 @@ export class SpeechesTile implements ITileProvider {
     private readonly blockingTiles:Array<number>;
 
     private readonly sourceInfoService:DataApi<{}, {}>;
+
+    private static readonly DEFAULT_MAX_NUM_SPEECHES = 8;
 
     constructor({dispatcher, tileId, waitForTiles, ut,
                 theme, appServices, widthFract, mainForm, conf, isBusy, cache}:TileFactory.Args<SpeechesTileConf>) {
@@ -123,7 +126,8 @@ export class SpeechesTile implements ITileProvider {
                 availTokens: Immutable.List<number>(),
                 tokenIdx: 0,
                 backlink: null,
-                playback: null
+                playback: null,
+                maxNumSpeeches: conf.maxNumSpeeches || SpeechesTile.DEFAULT_MAX_NUM_SPEECHES
             }
         });
         this.view = viewInit(dispatcher, ut, theme, this.model);

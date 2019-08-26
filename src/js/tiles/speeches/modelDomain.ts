@@ -91,6 +91,7 @@ export interface SpeechesModelState {
     speakerColorsAttachments:Immutable.Map<string, RGBAColor>;
     spkOverlapMode:'full'|'simple';
     backlink:BacklinkWithArgs<BacklinkArgs>;
+    maxNumSpeeches:number;
     playback:{
         currLineIdx:number;
         newLineIdx:number;
@@ -178,6 +179,35 @@ function mergeOverlaps(state:SpeechesModelState, speeches:Array<Speech>):SpeechL
         prevSpeech = item;
     });
     return ans;
+}
+
+/**
+ * Return speech index where KWIC is located.
+ */
+function detectKwicSpeech(data:Array<Array<Speech>>):number {
+    return (data || [])
+        .reduce(
+            (acc, speechChunks, lineIdx) => speechChunks
+                .reduce<ConcDetailText>((acc, speech) => acc.concat(speech.text), [])
+                .find(x => x.class === 'coll') ?  lineIdx : acc,
+            -1
+        );
+}
+
+
+export function normalizeSpeechesRange(data:Array<Array<Speech>>, maxNumSpeeches:number):Array<Array<Speech>> {
+    const kwicLine = detectKwicSpeech(data);
+    let lft = 0;
+    let rgt = data.length;
+    while (rgt - lft > maxNumSpeeches) {
+        if (kwicLine - lft > rgt - kwicLine) {
+            lft += 1;
+
+        } else {
+            rgt -= 1;
+        }
+    }
+    return data.slice(lft, rgt);
 }
 
 

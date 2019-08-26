@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 import { StatelessModel, SEDispatcher, Action, IActionQueue } from 'kombo';
+import { map } from 'rxjs/operators';
 import * as Immutable from 'immutable';
 
 import { WdglanceMainFormModel } from '../../models/query';
@@ -24,8 +25,8 @@ import { Backlink, BacklinkWithArgs } from '../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
 import { SpeechDataPayload } from './actions';
 import { isSubqueryPayload } from '../../common/query';
-import { SpeechesApi, SpeechReqArgs } from './api';
-import { SpeechesModelState, extractSpeeches, Expand, BacklinkArgs, Segment, PlayableSegment } from './modelDomain';
+import { SpeechesApi, SpeechReqArgs, SpeechResponse } from './api';
+import { SpeechesModelState, extractSpeeches, Expand, BacklinkArgs, Segment, PlayableSegment, normalizeSpeechesRange } from './modelDomain';
 import { DataApi, HTTPMethod, SystemMessageType } from '../../common/types';
 import { ActionName, Actions } from './actions';
 import { isConcLoadedPayload } from '../concordance/actions';
@@ -283,49 +284,60 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
     }
 
     private reloadData(state:SpeechesModelState, dispatch:SEDispatcher, tokens:Array<number>|null, concId:string|null, expand?:Expand):void {
-        this.api.call(this.createArgs(state, (tokens || state.availTokens.toArray())[state.tokenIdx], expand))
-        .subscribe(
-            (data) => {
-                dispatch<GlobalActions.TileDataLoaded<SpeechDataPayload>>({
-                    name: GlobalActionName.TileDataLoaded,
-                    payload: {
-                        tileId: this.tileId,
-                        concId: concId,
-                        availableTokens: tokens,
-                        isEmpty: data.content.length === 0,
-                        data: extractSpeeches(state, normalizeConcDetailTypography(data.content)),
-                        expandLeftArgs: data.expand_left_args ?
-                            {
-                                leftCtx: data.expand_left_args.detail_left_ctx,
-                                rightCtx: data.expand_left_args.detail_right_ctx,
-                                pos: data.expand_left_args.pos
-                            } : null,
-                        expandRightArgs: data.expand_right_args ?
-                            {
-                                leftCtx: data.expand_right_args.detail_left_ctx,
-                                rightCtx: data.expand_right_args.detail_right_ctx,
-                                pos: data.expand_right_args.pos
-                            } : null
+        this.api
+            .call(this.createArgs(state, (tokens || state.availTokens.toArray())[state.tokenIdx], expand))
+            .pipe(
+                map<SpeechResponse, SpeechDataPayload>(
+                    (resp) => {
+                        const data = normalizeSpeechesRange(
+                            extractSpeeches(state, normalizeConcDetailTypography(resp.content)),
+                            state.maxNumSpeeches);
+                        return {
+                            tileId: this.tileId,
+                            concId: concId,
+                            availableTokens: tokens,
+                            isEmpty: resp.content.length === 0,
+                            data: data,
+                            expandLeftArgs: resp.expand_left_args ?
+                                {
+                                    leftCtx: resp.expand_left_args.detail_left_ctx,
+                                    rightCtx: resp.expand_left_args.detail_right_ctx,
+                                    pos: resp.expand_left_args.pos
+                                } : null,
+                            expandRightArgs: resp.expand_right_args ?
+                                {
+                                    leftCtx: resp.expand_right_args.detail_left_ctx,
+                                    rightCtx: resp.expand_right_args.detail_right_ctx,
+                                    pos: resp.expand_right_args.pos
+                                } : null
+                        };
                     }
-                });
-            },
-            (err) => {
-                console.error(err);
-                dispatch<GlobalActions.TileDataLoaded<SpeechDataPayload>>({
-                    name: GlobalActionName.TileDataLoaded,
-                    error: err,
-                    payload: {
-                        tileId: this.tileId,
-                        concId: null,
-                        availableTokens: [],
-                        isEmpty: true,
-                        data: null,
-                        expandLeftArgs: null,
-                        expandRightArgs: null
-                    }
-                });
-            }
-        );
+                )
+            )
+            .subscribe(
+                (payload) => {
+                    dispatch<GlobalActions.TileDataLoaded<SpeechDataPayload>>({
+                        name: GlobalActionName.TileDataLoaded,
+                        payload: payload
+                    });
+                },
+                (err) => {
+                    console.error(err);
+                    dispatch<GlobalActions.TileDataLoaded<SpeechDataPayload>>({
+                        name: GlobalActionName.TileDataLoaded,
+                        error: err,
+                        payload: {
+                            tileId: this.tileId,
+                            concId: null,
+                            availableTokens: [],
+                            isEmpty: true,
+                            data: null,
+                            expandLeftArgs: null,
+                            expandRightArgs: null
+                        }
+                    });
+                }
+            );
     }
 
     private createBackLink(state:SpeechesModelState):BacklinkWithArgs<BacklinkArgs> {

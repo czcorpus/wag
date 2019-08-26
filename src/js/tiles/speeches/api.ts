@@ -36,7 +36,7 @@ export interface SpeechReqArgs {
     format:'json';
 }
 
-interface SpeechResponse {
+export interface SpeechResponse {
     pos:number;
     content:ConcDetailText;
     expand_right_args:{detail_left_ctx:number; detail_right_ctx:number; pos:number}|null;
