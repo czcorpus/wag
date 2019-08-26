@@ -22,6 +22,7 @@ import { RequestArgs, PageArgs } from '../api/treq';
 export interface TreqModelMinState {
     lang1:string;
     lang2:string;
+    minItemFreq:number;
 }
 
 

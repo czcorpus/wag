@@ -122,10 +122,13 @@ export class TreqModel extends StatelessModel<TreqModelState> {
                 this.api.call(stateToAPIArgs(state, this.mainForm.getState().query.value, state.searchPackages))
                     .pipe(
                         map(item => {
-                            const lines = item.lines.slice(0, state.maxNumLines);
+                            const lines = item.lines
+                                .filter(x => x.freq >= state.minItemFreq)
+                                .slice(0, state.maxNumLines);
+                            const sum = lines.reduce((acc, curr) => acc + curr.freq, 0);
                             const colors = this.scaleColorGen(0, lines.length)
                             return {
-                                sum: item.sum,
+                                sum: sum,
                                 lines: lines.map((line, i) => ({
                                     freq: line.freq,
                                     perc: line.perc,

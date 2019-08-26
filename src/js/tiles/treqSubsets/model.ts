@@ -143,7 +143,7 @@ export class TreqSubsetModel extends StatelessModel<TreqSubsetsModelState> {
                             ident: val.ident,
                             label: val.label,
                             packages: val.packages,
-                            translations: Immutable.List<TreqTranslation>(action.payload.data.lines).map(tran => ({
+                            translations: Immutable.List<TreqTranslation>(action.payload.lines).map(tran => ({
                                 freq: tran.freq,
                                 perc: tran.perc,
                                 left: tran.left,
@@ -271,13 +271,16 @@ export class TreqSubsetModel extends StatelessModel<TreqSubsetsModelState> {
                             .subscribe(
                                 (resp) => {
                                     const [data, reqId] = resp;
+                                    const lines = data.lines.filter(v => v.freq >= state.minItemFreq);
+                                    const sum = data.lines.reduce((acc, curr) => acc + curr.freq, 0);
                                     dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
                                         name: GlobalActionName.TileDataLoaded,
                                         payload: {
                                             tileId: this.tileId,
                                             isEmpty: data.lines.length === 0,
                                             query: this.mainForm.getState().query.value,
-                                            data: data,
+                                            lines: lines,
+                                            sum: sum,
                                             subsetId: reqId
                                         }
                                     });
@@ -289,7 +292,8 @@ export class TreqSubsetModel extends StatelessModel<TreqSubsetsModelState> {
                                             tileId: this.tileId,
                                             isEmpty: true,
                                             query: this.mainForm.getState().query.value,
-                                            data: {lines: [], sum: -1},
+                                            lines: [],
+                                            sum: -1,
                                             subsetId: null
                                         },
                                         error: error

@@ -39,6 +39,7 @@ export interface TreqSubsetsTileConf extends TileConf {
     tileType:'TreqSubsetsTile';
     srchPackages:{[lang:string]:Array<PackageGroup>};
     apiURL:string;
+    minItemFreq?:number;
 }
 
 
@@ -55,6 +56,8 @@ export class TreqSubsetsTile implements ITileProvider {
     private readonly label:string;
 
     private readonly blockingTiles:Array<number>;
+
+    private static readonly DEFAULT_MIN_ITEM_FREQ = 1;
 
     constructor({tileId, dispatcher, appServices, theme, ut, lang1, lang2, mainForm, widthFract, waitForTiles, conf, isBusy, cache}:TileFactory.Args<TreqSubsetsTileConf>) {
         this.tileId = tileId;
@@ -77,7 +80,8 @@ export class TreqSubsetsTile implements ITileProvider {
                 }))),
                 highlightedRowIdx: -1,
                 maxNumLines: 12,
-                colorMap: Immutable.Map<string, string>()
+                colorMap: Immutable.Map<string, string>(),
+                minItemFreq: conf.minItemFreq || TreqSubsetsTile.DEFAULT_MIN_ITEM_FREQ
             },
             tileId,
             new TreqAPI(cache, conf.apiURL),

@@ -154,8 +154,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             <th className="word">{row.heading}</th>
                             {row.cells.map((v, j) => (
                                 <React.Fragment key={`cell:${row.idx}:${j}`}>
-                                    <td>{ut.formatNumber(v.perc, 1)}</td>
                                     <td>{ut.formatNumber(v.abs, 1)}</td>
+                                    <td>{ut.formatNumber(v.perc, 1)}</td>
                                 </React.Fragment>
                             ))}
                         </tr>
