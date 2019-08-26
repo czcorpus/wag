@@ -16,11 +16,12 @@
  * limitations under the License.
  */
 
-import { TreqResponse } from '../../common/api/treq';
+import { TreqResponse, TreqTranslation } from '../../common/api/treq';
 
 
 export interface DataLoadedPayload {
     query:string;
-    data:TreqResponse;
+    lines:Array<TreqTranslation>;
+    sum:number;
     subsetId:string|null;
 }
