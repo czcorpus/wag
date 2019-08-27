@@ -85,7 +85,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             <li className="SystemMessage">
                 <div className={`wrapper cnc-msgbox ${classType}`}>
                     <div className="flex">
-                        <globalComponents.MessageStatusIcon statusType={props.type} isInline={true} />
+                        <globalComponents.MessageStatusIcon statusType={props.type} isInline={false} />
                         <p>{props.text}</p>
                         <div className="close">
                             <a onClick={handleCloseClick}>
