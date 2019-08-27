@@ -209,7 +209,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             <nav>
             {props.menuItems.filter(v => v.isEnabled).map((v, i) =>
                 <React.Fragment key={v.type}>
-                    {i > 0 && !props.isMobile ? <span className="separ"> | </span> : null}
+                    {i > 0 && <span className="separ"> | </span>}
                     <span className={`item${v.type === props.value ? ' current' : ''}`}>
                         <a onClick={(evt:React.MouseEvent<HTMLAnchorElement>) => props.onChange(v.type)}
                                     aria-current={v.type === props.value ? 'page' : null}>
