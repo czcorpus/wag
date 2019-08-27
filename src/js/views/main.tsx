@@ -150,7 +150,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const QueryInput:React.SFC<{
         value:Forms.Input;
-        isAnswerMode:boolean;
         wantsFocus:boolean;
         onContentChange:(s:string)=>void;
         onEnter:()=>void;
@@ -158,7 +157,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         const ref = React.useRef(null);
         React.useEffect(() => {
-            if (ref.current !== null && props.wantsFocus && !props.isAnswerMode) {
+            if (ref.current !== null && props.wantsFocus) {
                 ref.current.focus();
             }
         });
@@ -227,10 +226,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // ------------------ <QueryFields /> ------------------------------
 
     const QueryFields:React.SFC<{
-        isAnswerMode:boolean;
         query:Forms.Input;
         query2:Forms.Input;
         queryType:QueryType;
+        wantsFocus:boolean;
         queryLanguage:string;
         queryLanguage2:string;
         searchLanguages:Immutable.List<SearchLanguage>;
@@ -238,7 +237,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         onEnterKey:()=>void;
 
     }> = (props) => {
-
         const handleQueryInput1 = (s:string):void => {
             dispatcher.dispatch<Actions.ChangeQueryInput>({
                 name: ActionName.ChangeQueryInput,
@@ -279,7 +277,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <QueryLangSelector value={props.queryLanguage} searchLanguages={props.searchLanguages}
                                 onChange={handleTargetLanguageChange(true)} queryType={QueryType.SINGLE_QUERY} />
                         <QueryInput value={props.query} onEnter={props.onEnterKey}
-                                onContentChange={handleQueryInput1} wantsFocus={true} isAnswerMode={props.isAnswerMode} />
+                                onContentChange={handleQueryInput1} wantsFocus={props.wantsFocus} />
                     </>
                 );
             case QueryType.CMP_QUERY:
@@ -289,10 +287,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 onChange={handleTargetLanguageChange(true)} queryType={QueryType.CMP_QUERY} />
                         <div className="input-group">
                             <QueryInput value={props.query} onEnter={props.onEnterKey}
-                                onContentChange={handleQueryInput1} wantsFocus={true} isAnswerMode={props.isAnswerMode} />
+                                onContentChange={handleQueryInput1} wantsFocus={props.wantsFocus && props.query.value === ''} />
                             <br />
                             <QueryInput value={props.query2} onEnter={props.onEnterKey}
-                                onContentChange={handleQueryInput2} wantsFocus={false} isAnswerMode={props.isAnswerMode} />
+                                onContentChange={handleQueryInput2} wantsFocus={props.wantsFocus && props.query.value !== ''} />
                         </div>
                     </>
                 );
@@ -306,7 +304,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 htmlClass="secondary"
                                 onChange={handleTargetLanguageChange(false)} queryType={QueryType.TRANSLAT_QUERY} />
                         <QueryInput value={props.query} onEnter={props.onEnterKey}
-                                onContentChange={handleQueryInput1} wantsFocus={true} isAnswerMode={props.isAnswerMode} />
+                                onContentChange={handleQueryInput1} wantsFocus={props.wantsFocus} />
                     </>
                 );
 
@@ -405,7 +403,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         </div>
                         <div className="main">
                             <QueryFields
-                                    isAnswerMode={this.props.isAnswerMode}
+                                    wantsFocus={!this.props.isAnswerMode || this.props.initialQueryType !== this.props.queryType}
                                     query={this.props.query}
                                     query2={this.props.query2}
                                     queryType={this.props.queryType}

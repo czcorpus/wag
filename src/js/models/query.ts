@@ -31,6 +31,7 @@ import { LayoutManager } from '../layout';
 export interface QueryFormModelState {
     query:Forms.Input;
     query2:Forms.Input;
+    initialQueryType:QueryType;
     queryType:QueryType;
     queryLanguage:string;
     queryLanguage2:string;
@@ -213,6 +214,7 @@ export const defaultFactory = ({dispatcher, appServices, query1, query1Lang, que
             query: Forms.newFormValue(query1 || '', true),
             query2: Forms.newFormValue(query2 || '', false),
             queryType: queryType,
+            initialQueryType: queryType,
             queryTypesMenuItems: layout.getQueryTypesMenuItems(),
             queryLanguage: query1Lang,
             queryLanguage2: query2Lang,
