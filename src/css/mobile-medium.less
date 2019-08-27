@@ -36,8 +36,8 @@
             span.item {
                 display: block;
                 margin-left: 0;
-                padding-top: 0.2em;
-                padding-bottom: 0.2em;
+                padding-top: 0.1em;
+                padding-bottom: 0.1em;
 
                 a:not(:first-child) {
                     margin: 0;
@@ -50,7 +50,11 @@
             }
 
             .item.current a:after {
-                content: "\00a0\00a0\25C0";
+                content: "\00a0\25AA";
+            }
+
+            .item.current a:before {
+                content: "\25AA\00a0";
             }
 
             span.separ {
@@ -106,8 +110,13 @@
                         color: #FFFFFF;
                     }
 
+                    .help {
+                        margin-left: auto;
+                    }
+
                 }
             }
+
         }
 
         section.group {

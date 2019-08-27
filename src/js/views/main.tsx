@@ -299,7 +299,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <>
                         <QueryLangSelector value={props.queryLanguage} searchLanguages={props.searchLanguages}
                                 onChange={handleTargetLanguageChange(true)} queryType={QueryType.TRANSLAT_QUERY} />
-                        <span className="arrow">{'\u2B95'}</span>
+                        <span className="arrow">{'\u25B6'}</span>
                         <QueryLang2Selector value={props.queryLanguage2} targetLanguages={props.targetLanguages}
                                 htmlClass="secondary"
                                 onChange={handleTargetLanguageChange(false)} queryType={QueryType.TRANSLAT_QUERY} />
@@ -543,12 +543,29 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         );
     };
 
+    // ------------- <InitialHelpTile /> --------------------------------------
+
+    const InitialHelpTile:React.SFC<{html:string}> = (props) => {
+
+        const ref = React.useRef(null);
+        React.useEffect(() => {
+            if (ref.current !== null) {
+                ref.current.querySelectorAll('a').forEach(((elm:HTMLAnchorElement) => {
+                    elm.target = '_blank';
+                }))
+            }
+        });
+
+        return <div className="tile-body text" dangerouslySetInnerHTML={{__html: props.html}} ref={ref} />;
+    };
+
     // ------------- <InitialHelp /> --------------------------------------
 
     const InitialHelp:React.SFC<{
         sections:Immutable.List<{label:string; html:string}>;
 
     }> = (props) => {
+
         return (
             <>
                 {props.sections.map((sect, i) => (
@@ -556,7 +573,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <header className="cnc-tile-header panel">
                             {sect.label}
                         </header>
-                        <div className="tile-body" dangerouslySetInnerHTML={{__html: sect.html}} />
+                        <InitialHelpTile html={sect.html} />
                     </section>
                 ))}
             </>
@@ -626,7 +643,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         </div>
                     </header>
                     {this.props.helpHTML ?
-                        <div className="provider"><div className="cnc-tile-body" dangerouslySetInnerHTML={{__html: this.props.helpHTML}} /></div> :
+                        <div className="provider"><div className="cnc-tile-body text" dangerouslySetInnerHTML={{__html: this.props.helpHTML}} /></div> :
                         null
                     }
                     <div className={`provider${!!this.props.helpHTML ? ' hidden' : ''}`} ref={this.ref}>
