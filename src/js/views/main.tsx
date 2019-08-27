@@ -756,10 +756,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             <div className="provider">
                                 <div className="TileWrapper empty">
                                     <div className="cnc-tile-body content">
-                                        <p className="msg">
-                                            <globalComponents.MessageStatusIcon statusType={SystemMessageType.WARNING} isInline={true} />
-                                            {ut.translate('global__not_enought_data_for_group')}
-                                        </p>
+                                        <div className="empty-group">
+                                            <globalComponents.MessageStatusIcon statusType={SystemMessageType.WARNING} isInline={false} />
+                                            <p className="msg">
+                                                {ut.translate('global__not_enought_data_for_group')}
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

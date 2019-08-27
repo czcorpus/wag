@@ -112,7 +112,7 @@
         "global__show_tile_help": "Ukázat nápovědu k dlaždici",
         "global__hide_tile_help": "Schovat nápovědu k dlaždici",
         "global__failed_to_obtain_required_data": "Nepodařilo se získat data potřebná k výpočtu.",
-        "global__not_enought_data_for_group": "Pro zobrazení výsledků v této skupině není dostatek dat",
+        "global__not_enought_data_for_group": "Pro zobrazení výsledků v této části není dostatek dat",
         "global__func_not_avail": "Funkce zde není k dispozici",
         "global__multiple_words_for_query": "Alternativy",
         "global__searching_by_pos": "Zobrazuji výsledky pro",
