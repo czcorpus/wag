@@ -298,12 +298,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <>
                         <QueryLangSelector value={props.queryLanguage} searchLanguages={props.searchLanguages}
                                 onChange={handleTargetLanguageChange(true)} queryType={QueryType.TRANSLAT_QUERY} />
-                        <QueryInput value={props.query} onEnter={props.onEnterKey}
-                                onContentChange={handleQueryInput1} />
-                        <span className="arrow">{'\u21E8'}</span>
+                        <span className="arrow">{'\u2B95'}</span>
                         <QueryLang2Selector value={props.queryLanguage2} targetLanguages={props.targetLanguages}
                                 htmlClass="secondary"
                                 onChange={handleTargetLanguageChange(false)} queryType={QueryType.TRANSLAT_QUERY} />
+                        <QueryInput value={props.query} onEnter={props.onEnterKey}
+                                onContentChange={handleQueryInput1} />
                     </>
                 );
 
