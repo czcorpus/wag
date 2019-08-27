@@ -139,8 +139,7 @@ section.TilesSections {
 
     .TileGroupButton {
 
-        white-space: nowrap;
-        width: 40%;
+        width: 25em;
 
         > * {
             vertical-align: middle;
@@ -158,11 +157,19 @@ section.TilesSections {
 
             .flex {
                 display: flex;
-                flex-wrap: wrap;
                 align-items: center;
+                justify-content: flex-start;
 
                 > * {
-                    margin: 0.2em 0.3em;
+                    margin: 0.2em 0;
+                }
+
+                > *:first-child {
+                    margin-left: 0.4em;
+                }
+
+                > *:last-child {
+                    margin-right: 0.4em;
                 }
 
                 a {
@@ -174,40 +181,34 @@ section.TilesSections {
                     color: @color-logo-blue-shining;
                 }
 
+                .triangle {
+                    display: inline-block;
+                    width: 1em;
+
+                    img {
+                        width: 0.65em;
+                        vertical-align: middle;
+                        position: relative;
+                        margin-top: -0.2em;
+                    }
+                }
+
+                .triangle.right img {
+                    width: 0.5em;
+                }
+
                 .switch-common {
 
-                    flex-grow: 1;
-
-                    .triangle {
-                        display: inline-block;
-                        width: 1em;
-                        padding-left: 0.1em;
-                        padding-right: 0.25em;
-
-                        img {
-                            width: 0.65em;
-                            vertical-align: middle;
-                            position: relative;
-                            margin-top: -0.2em;
-                        }
-                    }
-
-                    .triangle.right img {
-                        width: 0.5em;
-                    }
-
-                    .switch {
-                        padding-left: 0;
-                    }
+                    flex-grow: 2;
+                    margin-left: 0.4em;
                 }
 
                 .help {
                     border-style: solid;
                     border-color: #FFFFFF;
                     border-width: 0 0 0 1px;
-                    padding-left: 0.6em;
-                    padding-right: 0.6em;
-                    font-size: 0.8em;
+                    padding-left: 0.3em;
+                    font-size: 1.1em;
                 }
             }
         }

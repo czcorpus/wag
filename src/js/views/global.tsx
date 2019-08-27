@@ -62,6 +62,7 @@ export interface GlobalComponents {
     ModalBox:React.ComponentClass<{
         onCloseClick?:()=>void;
         title:string;
+        tileClass?:string;
     }>;
 
     HorizontalBlockSwitch:React.SFC<{
@@ -330,7 +331,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
 
     // --------------- <ModalBox /> -------------------------------------------
 
-    class ModalBox extends React.PureComponent<{onCloseClick:()=>void; title:string}> {
+    class ModalBox extends React.PureComponent<{onCloseClick:()=>void; title:string; tileClass?:string}> {
 
         private ref:React.RefObject<HTMLButtonElement>;
 
@@ -353,6 +354,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
         }
 
         render() {
+            const tileClasses = `content cnc-tile-body${this.props.tileClass ? ' ' + this.props.tileClass : ''}`;
+
             return (
                 <div id="modal-overlay">
                     <div className="box cnc-tile">
@@ -365,7 +368,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                                 <img src={ut.createStaticUrl('close-icon.svg')} alt="close icon" />
                             </button>
                         </header>
-                        <div className="content cnc-tile-body">
+                        <div className={tileClasses}>
                             {this.props.children}
                         </div>
                     </div>

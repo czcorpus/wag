@@ -707,14 +707,14 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             <div className={`TileGroupButton${props.groupDisabled ? ' disabled' : ''}`}>
                 <h2>
                     <span className="flex">
-                        <a className="switch-common" onClick={props.groupDisabled ? null : ()=>props.clickHandler()}
-                                    title={props.groupHidden ? ut.translate('global__click_to_show_group') : ut.translate('global__click_to_hide_group')}>
-                            <span className={`triangle${props.groupHidden ? ' right' : ''}`}>
+                    <span className={`triangle${props.groupHidden ? ' right' : ''}`}>
                                 {props.groupHidden ?
                                     <img src={ut.createStaticUrl('triangle_w_right.svg')} alt={ut.translate('global__img_alt_triangle_w_right')} /> :
                                     <img src={ut.createStaticUrl('triangle_w_down.svg')} alt={ut.translate('global__img_alt_triangle_w_down')} />
                                 }
                             </span>
+                        <a className="switch-common" onClick={props.groupDisabled ? null : ()=>props.clickHandler()}
+                                    title={props.groupHidden ? ut.translate('global__click_to_show_group') : ut.translate('global__click_to_hide_group')}>
                             <span className="switch">
                                 {props.group.groupLabel}
                             </span>
@@ -912,7 +912,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 const group = this.props.layout.get(this.props.activeGroupHelp.idx);
                 return (
                     <globalComponents.ModalBox onCloseClick={this.handleCloseGroupHelp}
-                            title={`${group.groupLabel} - ${ut.translate('global__tile_group_help_label')}`}>
+                            title={`${group.groupLabel} - ${ut.translate('global__tile_group_help_label')}`}
+                            tileClass="text">
                         <globalComponents.ErrorBoundary>
                             {this.props.isBusy ?
                                 <div style={{textAlign: 'center', minWidth: '10em', minHeight: '5em'}}>
