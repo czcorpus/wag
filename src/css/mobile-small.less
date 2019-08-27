@@ -1,0 +1,100 @@
+@import './shared.less';
+
+@media screen and (max-width: @media-small-screen) {
+
+    body {
+        margin: 0;
+        padding: 0;
+
+        .wdglance-mount {
+            padding: 0 0.3em 0 0.3em;
+        }
+    }
+
+    section.TilesSections section.tiles .app-output .panel h2 {
+        font-size: 1.1em;
+    }
+
+    .WdglanceControls {
+        padding: 0;
+        margin-bottom: 2em;
+
+        .QueryTypeSelector {
+            margin-top: 0.2em;
+        }
+    }
+
+    section.TilesSections {
+        padding: 0;
+
+        .TileGroupButton {
+
+            width: 100%;
+
+            > * {
+                vertical-align: middle;
+            }
+
+            h2 {
+                display: block;
+                font-size: 1.1em;
+
+                .flex {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+
+
+                    a:hover {
+                        color: #FFFFFF;
+                    }
+
+                }
+            }
+        }
+
+        section.group {
+
+            > header {
+                display: block;
+
+                .description {
+                    margin-top: 0.7em;
+                    margin-left: 0;
+                }
+            }
+        }
+    }
+
+    .WdglanceControls {
+
+        .main {
+
+            .SubmitButton button {
+                padding: 0.5em 1.5em 0.5em 1.5em;
+            }
+        }
+    }
+
+    #modal-overlay {
+        background-color: hsla(0,0%,8%,.7);
+
+        .box {
+            height: calc(100vh - 2em);
+            width: calc(100vw - 1em);
+            margin: 0 auto;
+
+            .content {
+                overflow: auto;
+            }
+        }
+
+        button.close {
+
+            img {
+                width: 1.8em;
+
+            }
+        }
+    }
+}

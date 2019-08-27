@@ -209,7 +209,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             <nav>
             {props.menuItems.filter(v => v.isEnabled).map((v, i) =>
                 <React.Fragment key={v.type}>
-                    {i > 0 && !props.isMobile ? <span className="separ"> | </span> : null}
+                    {i > 0 && <span className="separ"> | </span>}
                     <span className={`item${v.type === props.value ? ' current' : ''}`}>
                         <a onClick={(evt:React.MouseEvent<HTMLAnchorElement>) => props.onChange(v.type)}
                                     aria-current={v.type === props.value ? 'page' : null}>
@@ -298,12 +298,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <>
                         <QueryLangSelector value={props.queryLanguage} searchLanguages={props.searchLanguages}
                                 onChange={handleTargetLanguageChange(true)} queryType={QueryType.TRANSLAT_QUERY} />
-                        <QueryInput value={props.query} onEnter={props.onEnterKey}
-                                onContentChange={handleQueryInput1} />
-                        <span className="arrow">{'\u21E8'}</span>
+                        <span className="arrow">{'\u2B95'}</span>
                         <QueryLang2Selector value={props.queryLanguage2} targetLanguages={props.targetLanguages}
                                 htmlClass="secondary"
                                 onChange={handleTargetLanguageChange(false)} queryType={QueryType.TRANSLAT_QUERY} />
+                        <QueryInput value={props.query} onEnter={props.onEnterKey}
+                                onContentChange={handleQueryInput1} />
                     </>
                 );
 

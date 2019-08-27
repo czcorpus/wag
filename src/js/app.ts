@@ -16,6 +16,11 @@
  * limitations under the License.
  */
 
+/*
+ * The module contains core initialization for both
+ * server and client applications
+ */
+
 import * as React from 'react';
 import * as Immutable from 'immutable';
 import { Observable } from 'rxjs';

@@ -15,23 +15,12 @@
 
     .WdglanceControls {
 
-        text-align: left;
-
         .main {
-            display: initial;
-            text-align: left;
+            flex-wrap: wrap;
 
             > * {
-                display: inline-block;
-                padding: 0.3em;
-            }
-
-
-            > .SubmitButton {
-                margin-left: 0;
-                margin-top: 0.7em;
-                display: block;
-                padding: 0;
+                margin-top: 0.3em;
+                margin-bottom: 0.3em;
             }
         }
 
@@ -47,8 +36,8 @@
             span.item {
                 display: block;
                 margin-left: 0;
-                padding-top: 0.3em;
-                padding-bottom: 0.3em;
+                padding-top: 0.2em;
+                padding-bottom: 0.2em;
 
                 a:not(:first-child) {
                     margin: 0;
@@ -96,7 +85,7 @@
         }
 
         .TileGroupButton {
-
+            width: auto;
             min-width: 60%;
 
             > * {
@@ -128,95 +117,6 @@
                 .description {
                     margin-top: 0.7em;
                 }
-            }
-        }
-    }
-}
-
-
-@media screen and (max-width: @media-small-screen) {
-
-    body {
-        margin: 0;
-        padding: 0;
-
-        .wdglance-mount {
-            padding: 0 0.3em 0 0.3em;
-        }
-    }
-
-    .WdglanceControls {
-        padding: 0;
-        margin-bottom: 2em;
-
-        .QueryTypeSelector {
-            margin-top: 0.2em;
-        }
-    }
-
-    section.TilesSections {
-        padding: 0;
-
-        .TileGroupButton {
-
-            width: 100%;
-
-            > * {
-                vertical-align: middle;
-            }
-
-            h2 {
-                display: block;
-
-                .flex {
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-
-
-                    a:hover {
-                        color: #FFFFFF;
-                    }
-
-                }
-            }
-        }
-
-        section.group {
-
-            > header {
-                display: block;
-
-                .description {
-                    margin-top: 0.7em;
-                    margin-left: 0;
-                }
-            }
-        }
-    }
-
-    .WdglanceControls .main .SubmitButton button {
-        padding: 0.5em 1.5em 0.5em 1.5em;
-    }
-
-    #modal-overlay {
-        background-color: hsla(0,0%,8%,.7);
-
-        .box {
-            height: calc(100vh - 2em);
-            width: calc(100vw - 1em);
-            margin: 0 auto;
-
-            .content {
-                overflow: auto;
-            }
-        }
-
-        button.close {
-
-            img {
-                width: 1.8em;
-
             }
         }
     }
