@@ -34,7 +34,7 @@ import { AnyTileConf, ClientConf, UserConf } from './conf';
 import { LayoutManager, TileGroup } from './layout';
 import { ActionName, Actions } from './models/actions';
 import { MessagesModel } from './models/messages';
-import { defaultFactory as mainFormFactory, WdglanceMainFormModel } from './models/query';
+import { defaultFactory as mainFormFactory, QueryFormModel } from './models/query';
 import { TileResultFlag, TileResultFlagRec, WdglanceTilesModel } from './models/tiles';
 import { CollocationsTileConf, init as collocInit } from './tiles/collocations';
 import { ConcFilterTileConf, init as concFilterInit } from './tiles/concFilter';
@@ -100,7 +100,7 @@ const importDependentTilesList = (...d:Array<string|Array<string>>):Array<string
 const mkTileFactory = (
     dispatcher:IFullActionControl,
     viewUtils:ViewUtils<GlobalComponents>,
-    mainForm:WdglanceMainFormModel,
+    mainForm:QueryFormModel,
     appServices:AppServices,
     theme:Theme,
     layoutManager:LayoutManager,

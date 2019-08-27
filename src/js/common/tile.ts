@@ -22,7 +22,7 @@ import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
 import { GlobalComponents } from '../views/global';
 import { Theme } from './theme';
 import { AppServices } from '../appServices';
-import { WdglanceMainFormModel } from '../models/query';
+import { QueryFormModel } from '../models/query';
 
 
 export interface Backlink {
@@ -256,7 +256,7 @@ export namespace TileFactory {
 
         appServices:AppServices;
 
-        mainForm:WdglanceMainFormModel;
+        mainForm:QueryFormModel;
 
         lang1?:string;
 

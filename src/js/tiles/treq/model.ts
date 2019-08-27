@@ -22,7 +22,7 @@ import { map } from 'rxjs/operators';
 import { HTTPMethod } from '../../common/types';
 import { Backlink, BacklinkWithArgs } from '../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
-import { WdglanceMainFormModel } from '../../models/query';
+import { QueryFormModel } from '../../models/query';
 import { DataLoadedPayload } from './actions';
 import { PageArgs, TreqAPI, TreqTranslation } from '../../common/api/treq';
 import { TreqModelMinState, stateToPageArgs, stateToAPIArgs } from '../../common/models/treq';
@@ -48,14 +48,14 @@ export class TreqModel extends StatelessModel<TreqModelState> {
 
     private readonly api:TreqAPI;
 
-    private readonly mainForm:WdglanceMainFormModel;
+    private readonly mainForm:QueryFormModel;
 
     private readonly backlink:Backlink;
 
     private readonly scaleColorGen:ColorScaleFunctionGenerator;
 
     constructor(dispatcher:IActionQueue, initialState:TreqModelState, tileId:number, api:TreqAPI,
-            backlink:Backlink, mainForm:WdglanceMainFormModel, scaleColorGen:ColorScaleFunctionGenerator) {
+            backlink:Backlink, mainForm:QueryFormModel, scaleColorGen:ColorScaleFunctionGenerator) {
         super(dispatcher, initialState);
         this.api = api;
         this.backlink = backlink;

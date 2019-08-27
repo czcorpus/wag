@@ -28,7 +28,7 @@ import { HTTPMethod, SystemMessageType, DataApi } from '../../common/types';
 import { isSubqueryPayload } from '../../common/query';
 import { Backlink, BacklinkWithArgs } from '../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
-import { findCurrLemmaVariant, WdglanceMainFormModel } from '../../models/query';
+import { findCurrLemmaVariant, QueryFormModel } from '../../models/query';
 import { importMessageType } from '../../notifications';
 import { ActionName, Actions, ConcLoadedPayload } from './actions';
 import { normalizeTypography } from '../../common/models/concordance/normalize';
@@ -69,7 +69,7 @@ export interface ConcordanceTileModelArgs {
     appServices:AppServices;
     service:DataApi<{}, ConcResponse>;
     sourceInfoService:DataApi<{}, {}>;
-    mainForm:WdglanceMainFormModel;
+    mainForm:QueryFormModel;
     initState:ConcordanceTileState;
     backlink:Backlink;
     stateToArgMapper:IStateArgsMapper<{}>;
@@ -82,7 +82,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
     private readonly sourceInfoService:DataApi<{}, {}>;
 
-    private readonly mainForm:WdglanceMainFormModel;
+    private readonly mainForm:QueryFormModel;
 
     private readonly appServices:AppServices;
 

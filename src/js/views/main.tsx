@@ -27,7 +27,7 @@ import { KeyCodes } from '../common/util';
 import { TileGroup } from '../layout';
 import { ActionName, Actions } from '../models/actions';
 import { MessagesModel, MessagesState } from '../models/messages';
-import { WdglanceMainFormModel, WdglanceMainState } from '../models/query';
+import { QueryFormModel, QueryFormModelState } from '../models/query';
 import { WdglanceTilesModel, WdglanceTilesState } from '../models/tiles';
 import { SystemMessage } from '../notifications';
 import { init as corpusInfoViewInit } from './corpusInfo';
@@ -43,7 +43,7 @@ export interface WdglanceMainProps {
 }
 
 
-export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, formModel:WdglanceMainFormModel, tilesModel:WdglanceTilesModel,
+export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, formModel:QueryFormModel, tilesModel:WdglanceTilesModel,
             messagesModel:MessagesModel) {
 
     const globalComponents = ut.getComponents();
@@ -150,13 +150,15 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const QueryInput:React.SFC<{
         value:Forms.Input;
+        isAnswerMode:boolean;
+        wantsFocus:boolean;
         onContentChange:(s:string)=>void;
         onEnter:()=>void;
     }> = (props) => {
 
         const ref = React.useRef(null);
         React.useEffect(() => {
-            if (ref.current !== null) {
+            if (ref.current !== null && props.wantsFocus && !props.isAnswerMode) {
                 ref.current.focus();
             }
         });
@@ -167,7 +169,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         const handleKeyDown = (evt:React.KeyboardEvent):void => {
             if (evt.keyCode === KeyCodes.ENTER) {
-            props.onEnter();
+                props.onEnter();
                 evt.stopPropagation();
                 evt.preventDefault();
             }
@@ -225,6 +227,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // ------------------ <QueryFields /> ------------------------------
 
     const QueryFields:React.SFC<{
+        isAnswerMode:boolean;
         query:Forms.Input;
         query2:Forms.Input;
         queryType:QueryType;
@@ -276,7 +279,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <QueryLangSelector value={props.queryLanguage} searchLanguages={props.searchLanguages}
                                 onChange={handleTargetLanguageChange(true)} queryType={QueryType.SINGLE_QUERY} />
                         <QueryInput value={props.query} onEnter={props.onEnterKey}
-                                onContentChange={handleQueryInput1} />
+                                onContentChange={handleQueryInput1} wantsFocus={true} isAnswerMode={props.isAnswerMode} />
                     </>
                 );
             case QueryType.CMP_QUERY:
@@ -286,10 +289,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 onChange={handleTargetLanguageChange(true)} queryType={QueryType.CMP_QUERY} />
                         <div className="input-group">
                             <QueryInput value={props.query} onEnter={props.onEnterKey}
-                                onContentChange={handleQueryInput1} />
+                                onContentChange={handleQueryInput1} wantsFocus={true} isAnswerMode={props.isAnswerMode} />
                             <br />
                             <QueryInput value={props.query2} onEnter={props.onEnterKey}
-                                onContentChange={handleQueryInput2} />
+                                onContentChange={handleQueryInput2} wantsFocus={false} isAnswerMode={props.isAnswerMode} />
                         </div>
                     </>
                 );
@@ -303,7 +306,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 htmlClass="secondary"
                                 onChange={handleTargetLanguageChange(false)} queryType={QueryType.TRANSLAT_QUERY} />
                         <QueryInput value={props.query} onEnter={props.onEnterKey}
-                                onContentChange={handleQueryInput1} />
+                                onContentChange={handleQueryInput1} wantsFocus={true} isAnswerMode={props.isAnswerMode} />
                     </>
                 );
 
@@ -364,7 +367,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------------------ <WdglanceControls /> ------------------------------
 
-    class WdglanceControls extends React.PureComponent<WdglanceMainState & {isMobile:boolean; isAnswerMode:boolean}> {
+    class WdglanceControls extends React.PureComponent<QueryFormModelState & {isMobile:boolean; isAnswerMode:boolean}> {
 
         constructor(props) {
             super(props);
@@ -402,6 +405,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         </div>
                         <div className="main">
                             <QueryFields
+                                    isAnswerMode={this.props.isAnswerMode}
                                     query={this.props.query}
                                     query2={this.props.query2}
                                     queryType={this.props.queryType}
@@ -422,7 +426,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
     }
 
-    const WdglanceControlsBound = BoundWithProps<{isMobile:boolean; isAnswerMode:boolean}, WdglanceMainState>(WdglanceControls, formModel);
+    const WdglanceControlsBound = BoundWithProps<{isMobile:boolean; isAnswerMode:boolean}, QueryFormModelState>(WdglanceControls, formModel);
 
 
     // ------------- <HelpButton /> --------------------------------------

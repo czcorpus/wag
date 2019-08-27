@@ -28,7 +28,7 @@ import { DataRow } from '../../common/api/kontext/freqs';
 import { KontextTimeDistribApi } from '../../common/api/kontext/timeDistrib';
 import { GeneralSingleCritFreqBarModelState } from '../../common/models/freq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
-import { WdglanceMainFormModel, findCurrLemmaVariant } from '../../models/query';
+import { QueryFormModel, findCurrLemmaVariant } from '../../models/query';
 import { ConcLoadedPayload } from '../concordance/actions';
 import { DataItemWithWCI, DataLoadedPayload, SubchartID } from './common';
 import { AlphaLevel, wilsonConfInterval } from './stat';
@@ -95,12 +95,12 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private readonly waitForTile:number;
 
-    private readonly mainForm:WdglanceMainFormModel;
+    private readonly mainForm:QueryFormModel;
 
     private unfinishedChunks:Immutable.Map<string, boolean>; // subcname => done
 
     constructor(dispatcher:IActionQueue, initState:TimeDistribModelState, tileId:number, waitForTile:number, api:KontextTimeDistribApi,
-                concApi:ConcApi, appServices:AppServices, mainForm:WdglanceMainFormModel) {
+                concApi:ConcApi, appServices:AppServices, mainForm:QueryFormModel) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.api = api;
