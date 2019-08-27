@@ -31,6 +31,29 @@ body {
 	line-height: 1.6;
 }
 
+.tile-body.text {
+
+	em {
+		color: @color-logo-pink;
+	}
+
+	a {
+		color: @color-logo-blue;
+	}
+
+	a:hover {
+		text-decoration: none;
+	}
+
+	img {
+		width: 1em;
+		display: inline-block;
+		margin-left: 0em;
+		margin-right: 0.1em;
+	}
+
+}
+
 // -------
 
 .cnc-tile {
@@ -180,7 +203,7 @@ a.cnc-button.cnc-button:hover {
 
 // ------
 
-@media screen and (max-width: @media-small-screen) {
+@media screen and (max-width: @media-medium-screen) {
 
 	body {
 		> header.wdg-header {
@@ -195,9 +218,20 @@ a.cnc-button.cnc-button:hover {
 				text-decoration: none;
 
 				img {
-					width: 20em;
+					width: 18em;
 				}
 			}
 		}
+	}
+
+	.tile-body.text {
+		max-width: 50em;
+	}
+}
+
+@media screen and (max-width: @media-small-screen) {
+
+	body > header.wdg-header a img {
+		width: 15em;
 	}
 }
