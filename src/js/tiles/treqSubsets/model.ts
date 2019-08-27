@@ -22,7 +22,7 @@ import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { TreqAPI, TreqTranslation, mkInterctionId } from '../../common/api/treq';
 import { stateToAPIArgs, TreqModelMinState } from '../../common/models/treq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
-import { WdglanceMainFormModel } from '../../models/query';
+import { QueryFormModel } from '../../models/query';
 import { DataLoadedPayload } from './actions';
 import { callWithExtraVal } from '../../common/api/util';
 import { isSubqueryPayload } from '../../common/query';
@@ -107,13 +107,13 @@ export class TreqSubsetModel extends StatelessModel<TreqSubsetsModelState> {
 
     private readonly api:TreqAPI;
 
-    private readonly mainForm:WdglanceMainFormModel;
+    private readonly mainForm:QueryFormModel;
 
     private readonly waitForColorsTile:number;
 
 
     constructor(dispatcher:IActionQueue, initialState:TreqSubsetsModelState, tileId:number, api:TreqAPI,
-            mainForm:WdglanceMainFormModel, waitForColorsTile:number) {
+            mainForm:QueryFormModel, waitForColorsTile:number) {
         super(dispatcher, initialState);
         this.api = api;
         this.tileId = tileId;

@@ -20,7 +20,7 @@ import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 
 import { AppServices } from '../../appServices';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
-import { WdglanceMainFormModel } from '../../models/query';
+import { QueryFormModel } from '../../models/query';
 import { DataLoadedPayload } from './actions';
 import { RequestArgs, StrippedFreqResponse, SyDAPI } from './api';
 
@@ -63,13 +63,13 @@ export class SydModel extends StatelessModel<SydModelState> {
 
     private readonly waitForTile:number;
 
-    private readonly mainForm:WdglanceMainFormModel;
+    private readonly mainForm:QueryFormModel;
 
     private readonly api:SyDAPI;
 
     private readonly appServices:AppServices;
 
-    constructor(dispatcher:IActionQueue, initialState:SydModelState, tileId:number, waitForTile:number, mainForm:WdglanceMainFormModel,
+    constructor(dispatcher:IActionQueue, initialState:SydModelState, tileId:number, waitForTile:number, mainForm:QueryFormModel,
                 appServices:AppServices, api:SyDAPI) {
         super(dispatcher, initialState);
         this.tileId = tileId;

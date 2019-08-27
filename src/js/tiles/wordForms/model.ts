@@ -22,7 +22,7 @@ import { StatelessModel, Action, SEDispatcher, IActionQueue } from 'kombo';
 import { WordFormItem, WordFormsApi, RequestConcArgs, RequestArgs } from '../../common/api/abstract/wordForms';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
 import { DataLoadedPayload } from './actions';
-import { WdglanceMainFormModel, findCurrLemmaVariant } from '../../models/query';
+import { QueryFormModel, findCurrLemmaVariant } from '../../models/query';
 import { ConcLoadedPayload } from '../concordance/actions';
 import { calcPercentRatios } from '../../common/util';
 import { AlphaLevel, wilsonConfInterval } from '../timeDistrib/stat';
@@ -72,11 +72,11 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
 
     private readonly api:WordFormsApi;
 
-    private readonly mainForm:WdglanceMainFormModel;
+    private readonly mainForm:QueryFormModel;
 
     private readonly waitForTile:number|null;
 
-    constructor(dispatcher:IActionQueue, initialState:WordFormsModelState, tileId:number, api:WordFormsApi, mainForm:WdglanceMainFormModel, waitForTile:number|null) {
+    constructor(dispatcher:IActionQueue, initialState:WordFormsModelState, tileId:number, api:WordFormsApi, mainForm:QueryFormModel, waitForTile:number|null) {
         super(dispatcher, initialState);
         this.tileId = tileId;
         this.api = api;

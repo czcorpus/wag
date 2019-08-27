@@ -24,7 +24,7 @@ import { AppServices } from '../../appServices';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
 import { DataLoadedPayload } from './actions';
 import { FreqDBRow, FreqDbAPI } from './api';
-import { WdglanceMainFormModel, findCurrLemmaVariant } from '../../models/query';
+import { QueryFormModel, findCurrLemmaVariant } from '../../models/query';
 import { LemmaVariant } from '../../common/query';
 
 export interface FlevelDistribItem {
@@ -56,10 +56,10 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
 
     private readonly tileId:number;
 
-    private readonly mainForm:WdglanceMainFormModel;
+    private readonly mainForm:QueryFormModel;
 
     constructor(dispatcher:IActionQueue, initialState:SummaryModelState, tileId:number, api:FreqDbAPI,
-            mainForm:WdglanceMainFormModel, appServices:AppServices) {
+            mainForm:QueryFormModel, appServices:AppServices) {
         super(dispatcher, initialState);
         this.tileId = tileId;
         this.api = api;
