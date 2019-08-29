@@ -6,6 +6,7 @@ Collect miscellaneous information about a word (word pair) using corpus-based to
 
 Supported resources:
  - KonText
+ - [Treq](https://treq.korpus.cz/)
  - Clarin FCS Core 1
  
 Planned resources:
