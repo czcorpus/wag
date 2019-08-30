@@ -21,7 +21,7 @@ import { Observable, Observer, of as rxOf } from 'rxjs';
 import { concatMap, map } from 'rxjs/operators';
 
 import { AppServices } from '../../appServices';
-import { ConcApi, QuerySelector, stateToArgs as concStateToArgs } from '../../common/api/kontext/concordance';
+import { ConcApi, QuerySelector, stateToArgs as concStateToArgs, mkLemmaMatchQuery } from '../../common/api/kontext/concordance';
 import { ConcResponse, ViewMode } from '../../common/api/abstract/concordance';
 import { TimeDistribResponse } from '../../common/api/abstract/timeDistrib';
 import { DataRow } from '../../common/api/kontext/freqs';
@@ -35,6 +35,8 @@ import { AlphaLevel, wilsonConfInterval } from './stat';
 import { Actions, ActionName } from './common';
 import { callWithExtraVal } from '../../common/api/util';
 import { LemmaVariant } from '../../common/query';
+import { Backlink, BacklinkWithArgs } from '../../common/tile';
+import { HTTPMethod } from '../../common/types';
 
 
 export const enum FreqFilterQuantity {
@@ -54,6 +56,15 @@ export const enum Dimension {
     SECOND = 2
 }
 
+
+export interface BacklinkArgs {
+    corpname:string;
+    usesubcorp:string;
+    q?:string;
+    cql?:string;
+    queryselector?:'cqlrow';
+}
+
 export interface TimeDistribModelState extends GeneralSingleCritFreqBarModelState<DataItemWithWCI> {
     subcnames:Immutable.List<string>;
     subcDesc:string;
@@ -65,6 +76,7 @@ export interface TimeDistribModelState extends GeneralSingleCritFreqBarModelStat
     wordCmp:string;
     wordCmpInput:string;
     wordMainLabel:string; // a copy from mainform state used to attach a legend
+    backlink:BacklinkWithArgs<BacklinkArgs>;
 }
 
 
@@ -73,11 +85,35 @@ const roundFloat = (v:number):number => Math.round(v * 100) / 100;
 const calcIPM = (v:DataRow|DataItemWithWCI, domainSize:number) => Math.round(v.freq / domainSize * 1e6 * 100) / 100;
 
 
-interface DataFetchArgs {
-    concId:string;
+interface DataFetchArgsOwn {
     subcName:string;
     wordMainLabel:string;
     targetId:SubchartID;
+    concId:string;
+    origQuery:string;
+}
+
+function isDataFetchArgsOwn(v:DataFetchArgsOwn|DataFetchArgsForeignConc): v is DataFetchArgsOwn {
+    return v['origQuery'] !== undefined;
+}
+
+interface DataFetchArgsForeignConc {
+    subcName:string;
+    wordMainLabel:string;
+    targetId:SubchartID;
+    concId:string;
+}
+
+export interface TimeDistribModelArgs {
+    dispatcher:IActionQueue;
+    initState:TimeDistribModelState;
+    tileId:number;
+    waitForTile:number;
+    api:KontextTimeDistribApi;
+    concApi:ConcApi;
+    appServices:AppServices;
+    mainForm:QueryFormModel;
+    backlink:Backlink;
 }
 
 /**
@@ -97,10 +133,12 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private readonly mainForm:QueryFormModel;
 
+    private readonly backlink:Backlink;
+
     private unfinishedChunks:Immutable.Map<string, boolean>; // subcname => done
 
-    constructor(dispatcher:IActionQueue, initState:TimeDistribModelState, tileId:number, waitForTile:number, api:KontextTimeDistribApi,
-                concApi:ConcApi, appServices:AppServices, mainForm:QueryFormModel) {
+    constructor({dispatcher, initState, tileId, waitForTile, api,
+                concApi, appServices, mainForm, backlink}) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.api = api;
@@ -108,8 +146,10 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         this.waitForTile = waitForTile;
         this.appServices = appServices;
         this.mainForm = mainForm;
+        this.backlink = backlink;
         this.unfinishedChunks = Immutable.Map<string, boolean>(initState.subcnames.flatMap(
                 v => Immutable.List([[this.mkChunkId(v, SubchartID.MAIN), false], [this.mkChunkId(v, SubchartID.SECONDARY), false]])));
+
         this.actionMatch = {
             [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
                 this.unfinishedChunks = this.mapChunkStatusOf(v => true).toMap();
@@ -145,6 +185,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         }
                     }
                     this.setDataOf(newState, action.payload.subchartId, newData);
+                    newState.backlink = this.createBackLink(newState, action.payload.concId, action.payload.origQuery);
                     return newState;
                 }
                 return state;
@@ -186,6 +227,28 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 return state;
             }
         };
+    }
+
+    private createBackLink(state:TimeDistribModelState, concId:string, origQuery:string):BacklinkWithArgs<BacklinkArgs> {
+        return this.backlink ?
+            {
+                url: this.backlink.url,
+                method: this.backlink.method || HTTPMethod.GET,
+                label: this.backlink.label,
+                args: origQuery ?
+                    {
+                        corpname: state.corpname,
+                        usesubcorp: this.backlink.subcname,
+                        cql: origQuery,
+                        queryselector: 'cqlrow'
+                    } :
+                    {
+                        corpname: state.corpname,
+                        usesubcorp: this.backlink.subcname,
+                        q: `~${concId}`
+                    }
+            } :
+            null;
     }
 
     private mkChunkId(subcname:string, subchartId:SubchartID):string {
@@ -243,7 +306,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
     }
 
 
-    private getFreqs(response:Observable<[TimeDistribResponse, DataFetchArgs]>, seDispatch:SEDispatcher) {
+    private getFreqs(response:Observable<[TimeDistribResponse, DataFetchArgsOwn|DataFetchArgsForeignConc]>, seDispatch:SEDispatcher) {
         response.subscribe(
             data => {
                 const [resp, args] = data;
@@ -257,6 +320,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         ipmInterval: [-1, -1]
                     };
                 });
+
                 seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
                     name: GlobalActionName.TileDataLoaded,
                     payload: {
@@ -266,6 +330,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         data: dataFull,
                         subcname: resp.subcorpName,
                         concId: resp.concPersistenceID,
+                        origQuery: isDataFetchArgsOwn(args) ? args.origQuery : '',
                         wordMainLabel: args.wordMainLabel
                     }
                 });
@@ -281,6 +346,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         data: null,
                         subcname: null,
                         concId: null,
+                        origQuery: null,
                         wordMainLabel: null
                     },
                     error: error
@@ -290,7 +356,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
     }
 
     private loadConcordance(state:TimeDistribModelState, lemmaVariant:LemmaVariant, subcname:string,
-            target:SubchartID):Observable<[ConcResponse, DataFetchArgs]> {
+            target:SubchartID):Observable<[ConcResponse, DataFetchArgsOwn]> {
         return callWithExtraVal(
             this.concApi,
             concStateToArgs(
@@ -321,7 +387,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 concId: null,
                 subcName: subcname,
                 wordMainLabel: lemmaVariant.lemma,
-                targetId: target
+                targetId: target,
+                origQuery: mkLemmaMatchQuery(lemmaVariant, state.posQueryGenerator)
             }
         );
     }
@@ -334,7 +401,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     const ans = lemmaVariant.pipe(
                         concatMap(
                             (lv) => {
-                                return new Observable((observer:Observer<DataFetchArgs>) => {
+                                return new Observable((observer:Observer<DataFetchArgsForeignConc>) => {
                                     if (action.error) {
                                         observer.error(new Error(this.appServices.translate('global__failed_to_obtain_required_data')));
 
@@ -373,7 +440,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         if (lv) {
                             return this.loadConcordance(state, lv, subcname, target);
                         }
-                        return rxOf<[ConcResponse, DataFetchArgs]>([
+                        return rxOf<[ConcResponse, DataFetchArgsOwn]>([
                             {
                                 query: '',
                                 corpName: state.corpname,
@@ -389,7 +456,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                 concId: null,
                                 subcName: subcname,
                                 wordMainLabel: '',
-                                targetId: target
+                                targetId: target,
+                                origQuery: ''
                             }
                         ]);
                     }),
@@ -409,7 +477,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                 );
 
                             } else {
-                                return rxOf<[TimeDistribResponse, DataFetchArgs]>([
+                                return rxOf<[TimeDistribResponse, DataFetchArgsOwn]>([
                                     {
                                         corpName: state.corpname,
                                         subcorpName: args.subcName,
@@ -417,7 +485,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                         data: []
                                     },
                                     args
-                                ])
+                                ]);
                             }
                         }
                     )

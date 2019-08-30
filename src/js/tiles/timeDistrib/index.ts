@@ -18,7 +18,6 @@
 import * as Immutable from 'immutable';
 import { IActionDispatcher, StatelessModel } from 'kombo';
 
-import { AppServices } from '../../appServices';
 import { ConcApi } from '../../common/api/kontext/concordance';
 import { FreqSort } from '../../common/api/kontext/freqs';
 import { createApiInstance } from './apiFactory';
@@ -58,8 +57,6 @@ export class TimeDistTile implements ITileProvider {
 
     private readonly widthFract:number;
 
-    private readonly appServices:AppServices;
-
     private readonly view:TileComponent;
 
     private readonly label:string;
@@ -70,11 +67,10 @@ export class TimeDistTile implements ITileProvider {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
-        this.appServices = appServices;
         this.blockingTiles = waitForTiles;
-        this.model = new TimeDistribModel(
-            dispatcher,
-            {
+        this.model = new TimeDistribModel({
+            dispatcher: dispatcher,
+            initState: {
                 isBusy: isBusy,
                 error: null,
                 corpname: conf.corpname,
@@ -97,18 +93,19 @@ export class TimeDistTile implements ITileProvider {
                 wordCmpInput: '',
                 wordCmp: ''
             },
-            tileId,
-            waitForTiles[0] || -1,
-            createApiInstance(
+            tileId: tileId,
+            waitForTile: waitForTiles[0] || -1,
+            api: createApiInstance(
                 conf.apiType,
                 cache,
                 conf,
                 appServices.getApiHeaders(conf.apiURL)
             ),
-            conf.concApiURL ? new ConcApi(cache, conf.concApiURL, appServices.getApiHeaders(conf.apiURL)) : null,
-            appServices,
-            mainForm
-        );
+            concApi: conf.concApiURL ? new ConcApi(cache, conf.concApiURL, appServices.getApiHeaders(conf.apiURL)) : null,
+            appServices: appServices,
+            mainForm: mainForm,
+            backlink: conf.backlink
+        });
         this.label = appServices.importExternalMessage(conf.label || 'timeDistrib__main_label');
         this.view = viewInit(this.dispatcher, ut, theme, this.model);
     }

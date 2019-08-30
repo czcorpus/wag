@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { Action } from 'kombo';
-import { CorpSrchTileConf } from '../../common/tile';
+import { CorpSrchTileConf, Backlink } from '../../common/tile';
 
 
 export interface TimeDistTileConf extends CorpSrchTileConf {
@@ -39,6 +39,8 @@ export interface TimeDistTileConf extends CorpSrchTileConf {
     flimit:number;
 
     posQueryGenerator:[string, string];
+
+    backlink?:Backlink;
 }
 
 
@@ -58,6 +60,7 @@ export interface DataItemWithWCI {
 export interface DataLoadedPayload {
     data:Array<DataItemWithWCI>;
     concId:string;
+    origQuery:string; // in case we generate our own concordance (and not reusing one from a different tile)
     subchartId:SubchartID;
     subcname:string;
     wordMainLabel:string;
