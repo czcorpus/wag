@@ -259,7 +259,18 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                     payload: {
                         tileId: this.tileId,
                         isEmpty: true,
-                        data: null,
+                        data: {
+                            query: '',
+                            corpName: state.corpname,
+                            primaryCorp: '',
+                            subcorpName: state.subcname,
+                            lines: [],
+                            concsize: 0,
+                            arf: 0,
+                            ipm: 0,
+                            messages: [],
+                            concPersistenceID: ''
+                        },
                         subqueries: [],
                         lang1: null,
                         lang2: null

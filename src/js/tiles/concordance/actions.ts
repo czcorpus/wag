@@ -37,7 +37,7 @@ export interface ConcLoadedPayload extends SubqueryPayload {
 
 export function isConcLoadedPayload(p:any):p is ConcLoadedPayload {
     const x = (p as ConcLoadedPayload).data;
-    return x && !!x.concPersistenceID
+    return x && x.concPersistenceID !== undefined;
 }
 
 export namespace Actions {
