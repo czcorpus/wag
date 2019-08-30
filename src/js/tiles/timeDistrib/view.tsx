@@ -210,36 +210,38 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------- <TimeDistribTile /> ------------------------------------------------------
 
-    class TimeDistribTile extends React.PureComponent<TimeDistribModelState & CoreTileComponentProps> {
-        render() {
-            return <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
-                            hasData={this.props.data.size >= MIN_DATA_ITEMS_TO_SHOW}
-                            sourceIdent={{corp: this.props.corpname, subcorp: this.props.subcDesc}}
-                            supportsTileReload={this.props.supportsReloadOnError}>
-                    <div className="TimeDistribTile">
-                        {this.props.isTweakMode ?
-                            <div className="tweak-box">
-                                <TweakControls wordCmp={this.props.wordCmpInput} tileId={this.props.tileId} />
-                            </div> :
-                            null
-                        }
-                        {this.props.wordCmp && this.props.dataCmp.size < MIN_DATA_ITEMS_TO_SHOW && !this.props.isBusy ?
-                            <p className="message" style={{color: theme.barColor(1)}}>
-                                {ut.translate('timeDistrib__no_data_found_for_{word}', {word: this.props.wordCmp})}
-                            </p> :
-                            ''
-                        }
-                        <Chart data1={this.props.data} data2={this.props.dataCmp}
-                                timeAxisLegend={this.props.timeAxisLegend}
-                                size={[this.props.renderSize[0], 300]}
-                                isPartial={this.props.isBusy}
-                                word={this.props.wordMainLabel}
-                                wordCmp={this.props.wordCmp}
-                                isSmallWidth={this.props.isMobile || this.props.widthFract < 2} />
-                    </div>
-                    </globComponents.TileWrapper>
-        }
-    }
+    const TimeDistribTile:React.SFC<TimeDistribModelState & CoreTileComponentProps> = (props) => {
+
+        return (
+            <globComponents.TileWrapper tileId={props.tileId} isBusy={props.isBusy} error={props.error}
+                        hasData={props.data.size >= MIN_DATA_ITEMS_TO_SHOW}
+                        sourceIdent={{corp: props.corpname, subcorp: props.subcDesc}}
+                        supportsTileReload={props.supportsReloadOnError}
+                        backlink={props.backlink}>
+                <div className="TimeDistribTile">
+                    {props.isTweakMode ?
+                        <div className="tweak-box">
+                            <TweakControls wordCmp={props.wordCmpInput} tileId={props.tileId} />
+                        </div> :
+                        null
+                    }
+                    {props.wordCmp && props.dataCmp.size < MIN_DATA_ITEMS_TO_SHOW && !props.isBusy ?
+                        <p className="message" style={{color: theme.barColor(1)}}>
+                            {ut.translate('timeDistrib__no_data_found_for_{word}', {word: props.wordCmp})}
+                        </p> :
+                        ''
+                    }
+                    <Chart data1={props.data} data2={props.dataCmp}
+                            timeAxisLegend={props.timeAxisLegend}
+                            size={[props.renderSize[0], 300]}
+                            isPartial={props.isBusy}
+                            word={props.wordMainLabel}
+                            wordCmp={props.wordCmp}
+                            isSmallWidth={props.isMobile || props.widthFract < 2} />
+                </div>
+            </globComponents.TileWrapper>
+        );
+    };
 
 
     return BoundWithProps(TimeDistribTile, model);

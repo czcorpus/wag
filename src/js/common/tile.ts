@@ -29,6 +29,7 @@ export interface Backlink {
     url:string;
     label:LocalizedConfMsg;
     method?:HTTPMethod;
+    subcname?:string; // in case a special subc. is needed for backlink
 }
 
 export interface BacklinkWithArgs<T> {
