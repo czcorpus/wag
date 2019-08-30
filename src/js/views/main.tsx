@@ -771,11 +771,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <section className="tiles">
                         <section className="cnc-tile app-output" style={{gridColumn: 'span 3'}}>
                             <div className="provider">
-                                <div className="TileWrapper empty">
-                                    <div className="cnc-tile-body content">
-                                        <div className="empty-group">
+                                <div className="TileWrapper">
+                                    <div className="cnc-tile-body content empty">
+                                        <div className="message">
                                             <globalComponents.MessageStatusIcon statusType={SystemMessageType.WARNING} isInline={false} />
-                                            <p className="msg">
+                                            <p>
                                                 {ut.translate('global__not_enought_data_for_group')}
                                             </p>
                                         </div>
