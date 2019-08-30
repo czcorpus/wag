@@ -81,6 +81,26 @@ body {
 	text-decoration: underline;
 }
 
+.cnc-tile-body.error .message,
+.cnc-tile-body.empty .message {
+	display: flex;
+	align-items: center;
+	align-content: center;
+
+	p {
+		font-size: 1.2em;
+	}
+
+	.MessageStatusIcon {
+		margin-right: 0.7em;
+
+		img {
+			width: 1.5em;
+			display: block;
+		}
+	}
+}
+
 .cnc-tile-header {
 	padding: .625em 1.25em;
 	border-bottom: .1em solid rgba(0,0,0, 0.1);

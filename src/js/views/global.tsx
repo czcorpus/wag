@@ -255,11 +255,13 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
         } else if (props.error) {
             return (
                 <div className="TileWrapper">
-                    <div className="cnc-tile-body content">
-                        <p>
-                            <MessageStatusIcon statusType={SystemMessageType.ERROR} isInline={true} />
-                            {props.error}
-                        </p>
+                    <div className="cnc-tile-body content error">
+                        <div className="message">
+                            <MessageStatusIcon statusType={SystemMessageType.ERROR} isInline={false} />
+                            <p>
+                                {props.error}
+                            </p>
+                        </div>
                         <div />
                         {props.supportsTileReload ? <TileReloadControl tileId={props.tileId} /> : null}
                     </div>
@@ -277,15 +279,17 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
             return (
                 <div className={htmlClasses.join(' ')} onClick={handleAreaClick}>
                     <div className="loader-wrapper">{props.hasData && props.isBusy ? <TitleLoaderBar  /> : null}</div>
-                    <div className="cnc-tile-body content">
+                    <div className={`cnc-tile-body content${props.hasData ? '' : ' empty'}`}>
                         <div>
                             {props.hasData ?
                                 props.children :
                                 <>
-                                    <p className="msg">
-                                        <MessageStatusIcon statusType={SystemMessageType.WARNING} isInline={true} />
-                                        {ut.translate('global__not_enough_data_to_show_result')}
-                                    </p>
+                                    <div className="message">
+                                        <MessageStatusIcon statusType={SystemMessageType.WARNING} isInline={false} />
+                                        <p>
+                                            {ut.translate('global__not_enough_data_to_show_result')}
+                                        </p>
+                                    </div>
                                     <div />
                                 </>
                             }
@@ -314,11 +318,13 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
         render() {
             if (this.state.error) {
                 return (
-                    <div className="cnc-tile-body">
-                        <p>
-                        <MessageStatusIcon statusType={SystemMessageType.ERROR} isInline={true} />
-                            {ut.translate('global__failed_to_render_component')}
-                        </p>
+                    <div className="cnc-tile-body error">
+                        <div className="message">
+                            <MessageStatusIcon statusType={SystemMessageType.ERROR} isInline={false} />
+                            <p>
+                                {ut.translate('global__failed_to_render_component')}
+                            </p>
+                        </div>
                         <div />
                     </div>
                 );
