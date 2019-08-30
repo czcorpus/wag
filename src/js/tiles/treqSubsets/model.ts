@@ -22,7 +22,7 @@ import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { TreqAPI, TreqTranslation, mkInterctionId } from '../../common/api/treq';
 import { stateToAPIArgs, TreqModelMinState } from '../../common/models/treq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
-import { QueryFormModel } from '../../models/query';
+import { QueryFormModel, findCurrLemmaVariant } from '../../models/query';
 import { DataLoadedPayload } from './actions';
 import { callWithExtraVal } from '../../common/api/util';
 import { isSubqueryPayload } from '../../common/query';
@@ -256,13 +256,14 @@ export class TreqSubsetModel extends StatelessModel<TreqSubsetsModelState> {
             case GlobalActionName.RequestQueryResponse:
                 this.suspend(
                     (action:Action) => {
+                        const srchLemma = findCurrLemmaVariant(this.mainForm.getState().lemmas);
                         if (action.name === GlobalActionName.TileDataLoaded && this.waitForColorsTile === action.payload['tileId']) {
                             merge(...state.subsets.map(subset =>
                                 callWithExtraVal(
                                     this.api,
                                     stateToAPIArgs(
                                         state,
-                                        this.mainForm.getState().query.value,
+                                        srchLemma.lemma,
                                         subset.packages
                                     ),
                                     subset.ident

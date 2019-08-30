@@ -91,11 +91,18 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
             [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<CollExamplesLoadedPayload|CollDataLoadedPayload>) => {
                 if (action.payload.tileId === this.tileId) {
                     const newState = this.copyState(state);
-                    this.numPendingSources -= 1;
-                    if (this.numPendingSources <= 0) {
+                    if (action.error) {
+                        newState.lines = newState.lines.clear();
                         newState.isBusy = false;
+                        newState.error = action.error.message;
+
+                    } else {
+                        this.numPendingSources -= 1;
+                        if (this.numPendingSources <= 0) {
+                            newState.isBusy = false;
+                        }
+                        newState.lines = newState.lines.concat(action.payload.data).toList();
                     }
-                    newState.lines = newState.lines.concat(action.payload.data).toList();
                     return newState;
 
                 }
@@ -259,6 +266,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                     (action:Action) => {
                         if (action.name === GlobalActionName.TileDataLoaded && this.waitingForTiles.has(action.payload['tileId'])) {
                             if (action.error) {
+                                this.waitingForTiles = this.waitingForTiles.map(v => null).toMap();
                                 seDispatch<GlobalActions.TileDataLoaded<CollExamplesLoadedPayload>>({
                                     name: GlobalActionName.TileDataLoaded,
                                     payload: {
@@ -272,7 +280,6 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                             }
                             const basicPayload = (action as GlobalActions.TileDataLoaded<{}>).payload;
                             const payload = action.payload;
-
                             if (this.subqSourceTiles.contains(basicPayload.tileId) && isSubqueryPayload(payload)) {
                                 this.numPendingSources += payload.subqueries.length;
                             }
@@ -290,7 +297,6 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                                 );
 
                             }
-
                             if (!this.waitingForTiles.findKey(v => v === null)) {
                                 let conc:string;
                                 let subq:Array<SubQueryItem<CollocSubqueryValue>>;
@@ -302,7 +308,6 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                                         subq = v;
                                     }
                                 });
-
                                 this.switchMainCorpApi.call({
                                     concPersistenceID: conc,
                                     corpname: state.corpName,

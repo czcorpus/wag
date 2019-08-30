@@ -22,7 +22,7 @@ import { map } from 'rxjs/operators';
 import { HTTPMethod } from '../../common/types';
 import { Backlink, BacklinkWithArgs } from '../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
-import { QueryFormModel } from '../../models/query';
+import { QueryFormModel, findCurrLemmaVariant } from '../../models/query';
 import { DataLoadedPayload } from './actions';
 import { PageArgs, TreqAPI, TreqTranslation } from '../../common/api/treq';
 import { TreqModelMinState, stateToPageArgs, stateToAPIArgs } from '../../common/models/treq';
@@ -119,7 +119,8 @@ export class TreqModel extends StatelessModel<TreqModelState> {
     sideEffects(state:TreqModelState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
-                this.api.call(stateToAPIArgs(state, this.mainForm.getState().query.value, state.searchPackages))
+                const srchLemma = findCurrLemmaVariant(this.mainForm.getState().lemmas);
+                this.api.call(stateToAPIArgs(state, srchLemma.lemma, state.searchPackages))
                     .pipe(
                         map(item => {
                             const lines = item.lines
