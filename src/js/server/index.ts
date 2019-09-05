@@ -24,7 +24,7 @@ import * as path from 'path';
 import * as sqlite3 from 'sqlite3';
 import * as translations from 'translations';
 
-import { ClientStaticConf, ServerConf, emptyClientConf } from '../conf';
+import { ClientStaticConf, ServerConf } from '../conf';
 import { wdgRouter } from './routes';
 import { createToolbarInstance } from './toolbar/factory';
 import { RedisLogQueue } from './logging/redisQueue';
@@ -45,7 +45,9 @@ function parseJsonConfig<T>(confPath:string):T {
     }
 }
 
-const serverConf:ServerConf = parseJsonConfig(path.resolve(__dirname, '../conf/server.json'));
+const serverConf:ServerConf = process.env.SERVER_CONF ?
+        parseJsonConfig(process.env.SERVER_CONF) :
+        parseJsonConfig(path.resolve(__dirname, '../conf/server.json'));
 const clientConfPath = process.env.WDGLANCE_CONF ?
 	process.env.WDGLANCE_CONF :
     path.resolve(__dirname, '../conf/wdglance.json');
