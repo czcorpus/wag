@@ -233,7 +233,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         return (
             <a onClick={handleClick} title={ut.translate('speeches__load_different_sp_button')}>
-                <img src={ut.createStaticUrl('triangle_right.svg')} alt={ut.translate('speeches__load_different_sp_button')} />
+                <img src={ut.createStaticUrl('next.svg')} style={{width: '1.8em'}} alt={ut.translate('speeches__load_different_sp_button')} />
             </a>
         );
     };
@@ -305,31 +305,19 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         return (
             <div>
                 <div className="navig">
-                    <div className="expand">
-                        {props.hasExpandLeft && props.isTweakMode  ?
-                            <ExpandSpeechesButton tileId={props.tileId} position={Expand.TOP} />
-                        : null}
-                    </div>
                     <div className="next">
                             {props.isTweakMode ?
                                 <LoadNext tileId={props.tileId} /> : null}
                     </div>
                 </div>
-                <div>
-                    <a className="play-all" onClick={handlePlayAllClick}>
+                <div className="play-all">
+                    <a onClick={handlePlayAllClick}>
                         {ut.translate('speeches__play_all_btn')}
                     </a>
                 </div>
                 <dl className="speeches">
                     {renderSpeechLines()}
                 </dl>
-                <div className="navig">
-                    <div className="expand">
-                        {props.hasExpandRight && props.isTweakMode ?
-                            <ExpandSpeechesButton tileId={props.tileId} position={Expand.BOTTOM} />
-                        : null}
-                    </div>
-                </div>
             </div>
         );
     }
