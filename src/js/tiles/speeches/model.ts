@@ -236,7 +236,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
 
     private normalizeSegments(segments:Immutable.List<Segment>, corpname:string):Array<PlayableSegment> {
         return segments
-            .groupBy(val => val) // solving multiple speaking people at the same time
+            .groupBy(seg => seg.value) // solving multiple speaking people at the same time
             .map(v => v.get(0))
             .map(v => ({
                 lineIdx: v.lineIdx,
