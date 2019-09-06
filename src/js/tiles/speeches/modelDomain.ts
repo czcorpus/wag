@@ -207,7 +207,18 @@ export function normalizeSpeechesRange(data:Array<Array<Speech>>, maxNumSpeeches
             rgt -= 1;
         }
     }
-    return data.slice(lft, rgt);
+    return data.slice(lft, rgt).map((speechLines, lineIdx) => {
+        return speechLines.map(speech => ({
+            text: speech.text,
+            speakerId: speech.speakerId,
+            segments: speech.segments.map(segment => ({
+                lineIdx: lineIdx,
+                value: segment.value
+            })).toList(),
+            colorCode: speech.colorCode,
+            metadata: speech.metadata
+        }))
+    });
 }
 
 
