@@ -32,6 +32,8 @@ export interface RequestArgs {
     srchRange:number;
 }
 
+export type FreqBand = 1|2|3|4|5;
+
 export interface FreqDBRow {
     word:string;
     lemma:string;
@@ -39,7 +41,7 @@ export interface FreqDBRow {
     abs:number;
     ipm:number;
     arf:number;
-    flevel:number;
+    flevel:FreqBand|null;
     isSearched:boolean;
 }
 
@@ -86,7 +88,7 @@ export class FreqDbAPI implements DataApi<RequestArgs, Response> {
                     abs: v.abs,
                     ipm: v.ipm,
                     arf: v.arf,
-                    flevel: -1,
+                    flevel: null,
                     isSearched: v.lemma === args.lemma && matchesPos(v, args.pos) ? true : false
                 }))
             }))

@@ -33,6 +33,7 @@ import { SystemMessage } from '../notifications';
 import { init as corpusInfoViewInit } from './corpusInfo';
 import { GlobalComponents } from './global';
 import { isAPIResponse } from '../common/api/kontext/corpusInfo';
+import { Action } from 'rxjs/internal/scheduler/Action';
 
 
 export interface WdglanceMainProps {
@@ -431,34 +432,23 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const HelpButton:React.SFC<{
         tileId:number;
-        isHelpMode:boolean;
 
     }> = (props) => {
 
         const handleClick = () => {
-            if (props.isHelpMode) {
-                dispatcher.dispatch<Actions.HideTileHelp>({
-                    name: ActionName.HideTileHelp,
-                    payload: {
-                        tileId: props.tileId
-                    }
-                });
-
-            } else {
-                dispatcher.dispatch<Actions.ShowTileHelp>({
-                    name: ActionName.ShowTileHelp,
-                    payload: {
-                        tileId: props.tileId
-                    }
-                });
-            }
+            dispatcher.dispatch<Actions.ShowTileHelp>({
+                name: ActionName.ShowTileHelp,
+                payload: {
+                    tileId: props.tileId
+                }
+            });
         }
 
         return (
             <span className="HelpButton bar-button">
-                <button type="button" onClick={handleClick} title={props.isHelpMode ? ut.translate('global__hide_tile_help') : ut.translate('global__show_tile_help')}>
-                    <img src={ut.createStaticUrl(props.isHelpMode ? 'question-mark_s.svg' : 'question-mark.svg')}
-                        alt={props.isHelpMode ? ut.translate('global__img_alt_question_mark') : ut.translate('global__img_alt_question_mark')} />
+                <button type="button" onClick={handleClick} title={ut.translate('global__show_tile_help')}>
+                    <img src={ut.createStaticUrl('question-mark.svg')}
+                        alt={ut.translate('global__img_alt_question_mark')} />
                 </button>
             </span>
         );
@@ -585,7 +575,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     class TileContainer extends React.Component<{
         isTweakMode:boolean;
-        helpHTML:string;
         isMobile:boolean;
         isAltViewMode:boolean;
         helpURL:string;
@@ -637,16 +626,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             null
                         }
                         {this.props.tile.supportsHelpView ?
-                            <HelpButton tileId={this.props.tile.tileId} isHelpMode={!!this.props.helpHTML} /> :
+                            <HelpButton tileId={this.props.tile.tileId} /> :
                             null
                         }
                         </div>
                     </header>
-                    {this.props.helpHTML ?
-                        <div className="provider"><div className="cnc-tile-body text" dangerouslySetInnerHTML={{__html: this.props.helpHTML}} /></div> :
-                        null
-                    }
-                    <div className={`provider${!!this.props.helpHTML ? ' hidden' : ''}`} ref={this.ref}>
+                    <div className="provider" ref={this.ref}>
                         {this.props.tile.Component ?
                             <globalComponents.ErrorBoundary>
                                 <this.props.tile.Component
@@ -739,8 +724,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         hasData:boolean;
         isMobile:boolean;
         tileFrameProps:Immutable.List<TileFrameProps>;
-        tilesHelpData:Immutable.Map<number, string>;
-        helpActiveTiles:Immutable.Set<number>;
         tweakActiveTiles:Immutable.Set<number>;
         altViewActiveTiles:Immutable.Set<number>;
 
@@ -797,7 +780,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         .filter(v => v.supportsCurrQueryType)
                         .map(tile => <TileContainer key={`tile:${tile.tileId}`} tile={tile}
                                             isMobile={props.isMobile}
-                                            helpHTML={props.helpActiveTiles.contains(tile.tileId) ? props.tilesHelpData.get(tile.tileId) : null}
                                             helpURL={tile.helpURL}
                                             isTweakMode={props.tweakActiveTiles.contains(tile.tileId)}
                                             isAltViewMode={props.altViewActiveTiles.contains(tile.tileId)} />)
@@ -871,6 +853,16 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         );
     };
 
+    // -------------------- <WithinModalAjaxLoader /> ---------------------
+
+    const WithinModalAjaxLoader:React.SFC<{}> = (props) => {
+        return (
+            <div style={{textAlign: 'center', minWidth: '10em', minHeight: '5em'}}>
+                <globalComponents.AjaxLoader htmlClass="loader" />
+            </div>
+        );
+    };
+
     // -------------------- <TilesSections /> -----------------------------
 
     class TilesSections extends React.PureComponent<{
@@ -883,6 +875,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             super(props);
             this.handleCloseSourceInfo = this.handleCloseSourceInfo.bind(this);
             this.handleCloseGroupHelp = this.handleCloseGroupHelp.bind(this);
+            this.handleCloseTileHelp = this.handleCloseTileHelp.bind(this);
         }
 
         private handleCloseSourceInfo() {
@@ -897,29 +890,50 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             });
         }
 
+        private handleCloseTileHelp() {
+            dispatcher.dispatch<Actions.HideTileHelp>({
+                name: ActionName.HideTileHelp
+            });
+        }
+
         private renderModal() {
             if (this.props.activeSourceInfo !== null) {
                 return (
                     <globalComponents.ModalBox onCloseClick={this.handleCloseSourceInfo}
                             title={ut.translate('global__source_detail')}>
                         <globalComponents.ErrorBoundary>
-                            <SourceInfo tileProps={this.props.tileProps} data={this.props.sourceBoxData} />
+                            {this.props.isBusy ?
+                                <WithinModalAjaxLoader /> :
+                                <SourceInfo tileProps={this.props.tileProps} data={this.props.activeSourceInfo} />
+                            }
                         </globalComponents.ErrorBoundary>
                     </globalComponents.ModalBox>
                 );
 
-            } else if(this.props.activeGroupHelp !== null) {
+            } else if (this.props.activeGroupHelp !== null) {
                 const group = this.props.layout.get(this.props.activeGroupHelp.idx);
                 return (
                     <globalComponents.ModalBox onCloseClick={this.handleCloseGroupHelp}
-                            title={`${group.groupLabel} - ${ut.translate('global__tile_group_help_label')}`}
+                            title={group.groupLabel}
                             tileClass="text">
                         <globalComponents.ErrorBoundary>
                             {this.props.isBusy ?
-                                <div style={{textAlign: 'center', minWidth: '10em', minHeight: '5em'}}>
-                                    <globalComponents.AjaxLoader htmlClass="loader" />
-                                </div> :
+                                <WithinModalAjaxLoader /> :
                                 <div dangerouslySetInnerHTML={{__html: this.props.activeGroupHelp.html}} />
+                            }
+                        </globalComponents.ErrorBoundary>
+                    </globalComponents.ModalBox>
+                );
+
+            } else if (this.props.activeTileHelp !== null) {
+                return (
+                    <globalComponents.ModalBox onCloseClick={this.handleCloseTileHelp}
+                            title={this.props.tileProps.get(this.props.activeTileHelp.ident).label}
+                            tileClass="text">
+                        <globalComponents.ErrorBoundary>
+                            {this.props.isBusy ?
+                                <WithinModalAjaxLoader /> :
+                                <div dangerouslySetInnerHTML={{__html: this.props.activeTileHelp.html}} />
                             }
                         </globalComponents.ErrorBoundary>
                     </globalComponents.ModalBox>
@@ -944,8 +958,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                     hasData={!this.props.datalessGroups.contains(groupIdx)}
                                     isMobile={this.props.isMobile}
                                     tileFrameProps={this.props.tileProps}
-                                    tilesHelpData={this.props.tilesHelpData}
-                                    helpActiveTiles={this.props.helpActiveTiles}
                                     tweakActiveTiles={this.props.tweakActiveTiles}
                                     altViewActiveTiles={this.props.altViewActiveTiles} />
 

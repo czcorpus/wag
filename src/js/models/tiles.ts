@@ -47,14 +47,12 @@ export interface WdglanceTilesState {
     isAnswerMode:boolean;
     isBusy:boolean;
     isMobile:boolean;
-    activeSourceInfo:number|null;
-    sourceBoxData:SourceDetails|null; // or other possible data types
     altViewActiveTiles:Immutable.Set<number>;
     tweakActiveTiles:Immutable.Set<number>;
-    helpActiveTiles:Immutable.Set<number>;
-    tilesHelpData:Immutable.Map<number, string>; // raw html data loaded from a trusted resource
     hiddenGroups:Immutable.Set<number>;
-    activeGroupHelp:{html:string; idx:number}|null|null;
+    activeSourceInfo:SourceDetails|null;
+    activeGroupHelp:{html:string; idx:number}|null;
+    activeTileHelp:{html:string; ident:number}|null;
     datalessGroups:Immutable.Set<number>;
     tileResultFlags:Immutable.List<TileResultFlagRec>;
     tileProps:Immutable.List<TileFrameProps>;
@@ -105,58 +103,54 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
             },
             [ActionName.EnableAltViewMode]: (state, action:Actions.EnableAltViewMode) => {
                 const newState = this.copyState(state);
-                if (newState.helpActiveTiles.has(action.payload.ident)) {
-                    newState.helpActiveTiles = newState.helpActiveTiles.remove(action.payload.ident);
-                }
                 newState.altViewActiveTiles = newState.altViewActiveTiles.add(action.payload.ident);
                 return newState;
             },
             [ActionName.DisableAltViewMode]: (state, action:Actions.DisableAltViewMode) => {
                 const newState = this.copyState(state);
-                if (newState.helpActiveTiles.has(action.payload.ident)) {
-                    newState.helpActiveTiles = newState.helpActiveTiles.remove(action.payload.ident);
-                }
                 newState.altViewActiveTiles = newState.altViewActiveTiles.remove(action.payload.ident);
                 return newState;
             },
             [ActionName.EnableTileTweakMode]: (state, action:Actions.EnableTileTweakMode) => {
                 const newState = this.copyState(state);
-                if (newState.helpActiveTiles.has(action.payload.ident)) {
-                    newState.helpActiveTiles = newState.helpActiveTiles.remove(action.payload.ident);
-                }
                 newState.tweakActiveTiles = newState.tweakActiveTiles.add(action.payload.ident);
                 return newState;
             },
             [ActionName.DisableTileTweakMode]: (state, action:Actions.DisableTileTweakMode) => {
                 const newState = this.copyState(state);
-                if (newState.helpActiveTiles.has(action.payload.ident)) {
-                    newState.helpActiveTiles = newState.helpActiveTiles.remove(action.payload.ident);
-                }
                 newState.tweakActiveTiles = newState.tweakActiveTiles.remove(action.payload.ident);
                 return newState;
             },
             [ActionName.ShowTileHelp]: (state, action:Actions.ShowTileHelp) => {
                 const newState = this.copyState(state);
-                if (newState.tilesHelpData.has(action.payload.tileId)) {
-                    newState.helpActiveTiles = newState.helpActiveTiles.add(action.payload.tileId);
-                }
+                newState.activeTileHelp = {ident: action.payload.tileId, html: null};
+                newState.isBusy = true;
                 return newState;
             },
             [ActionName.LoadTileHelpDone]: (state, action:Actions.LoadTileHelpDone) => {
                 const newState = this.copyState(state);
-                newState.tilesHelpData = newState.tilesHelpData.set(action.payload.tileId, action.payload.html);
-                newState.helpActiveTiles = newState.helpActiveTiles.add(action.payload.tileId);
+                newState.isBusy = false;
+                if (action.error) {
+                    newState.activeTileHelp = null;
+
+                } else {
+                    newState.activeTileHelp = {ident: action.payload.tileId, html: action.payload.html};
+                }
                 return newState;
             },
             [ActionName.HideTileHelp]: (state, action:Actions.HideTileHelp) => {
                 const newState = this.copyState(state);
-                newState.helpActiveTiles = newState.helpActiveTiles.remove(action.payload.tileId);
+                newState.activeTileHelp = null;
                 return newState;
             },
             [ActionName.GetSourceInfo]: (state, action:Actions.GetSourceInfo) => {
                 const newState = this.copyState(state);
-                newState.sourceBoxData = null;
-                newState.activeSourceInfo = action.payload.tileId;
+                newState.activeSourceInfo = {
+                    tileId: action.payload.tileId,
+                    title: null,
+                    description: null,
+                    author: null
+                };
                 newState.isBusy = true;
                 return newState;
             },
@@ -164,16 +158,15 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                 const newState = this.copyState(state);
                 newState.isBusy = false;
                 if (action.error) {
-                    newState.activeSourceInfo = null;
+                    newState.activeSourceInfo =null;
 
                 } else {
-                    newState.sourceBoxData = action.payload.data;
+                    newState.activeSourceInfo = action.payload.data;
                 }
                 return newState;
             },
             [ActionName.CloseSourceInfo]: (state, action:Actions.CloseSourceInfo) => {
                 const newState = this.copyState(state);
-                newState.sourceBoxData = null;
                 newState.activeSourceInfo = null;
                 return newState;
             },
@@ -334,52 +327,50 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                 }
             break;
             case ActionName.ShowTileHelp:
-                if (!state.tilesHelpData.has(action.payload['tileId'])) {
-                    this.getTileProps(state, action.payload['tileId']).pipe(
-                        map(
-                            (props) => {
-                                if (!props.helpURL) {
-                                    throw new Error('Missing help URL');
-                                }
-                                return props.helpURL;
+                this.getTileProps(state, action.payload['tileId']).pipe(
+                    map(
+                        (props) => {
+                            if (!props.helpURL) {
+                                throw new Error('Missing help URL');
                             }
-                        ),
-                        concatMap(
-                            (url) => {
-                                return ajax$<string>(
-                                    'GET',
-                                    url,
-                                    {},
-                                    {
-                                        responseType: ResponseType.TEXT
-                                    }
-                                );
-                            }
-                        )
-
-                    ).subscribe(
-                        (html) => {
-                            dispatch<Actions.LoadTileHelpDone>({
-                                name: ActionName.LoadTileHelpDone,
-                                payload: {
-                                    tileId: action.payload['tileId'],
-                                    html: html
-                                }
-                            });
-                        },
-                        (err) => {
-                            this.appServices.showMessage(SystemMessageType.ERROR, err);
-                            dispatch<Actions.LoadTileHelpDone>({
-                                name: ActionName.LoadTileHelpDone,
-                                error: err,
-                                payload: {
-                                    tileId: action.payload['tileId'],
-                                    html: null
-                                }
-                            });
+                            return props.helpURL;
                         }
-                    );
-                }
+                    ),
+                    concatMap(
+                        (url) => {
+                            return ajax$<string>(
+                                'GET',
+                                url,
+                                {},
+                                {
+                                    responseType: ResponseType.TEXT
+                                }
+                            );
+                        }
+                    )
+
+                ).subscribe(
+                    (html) => {
+                        dispatch<Actions.LoadTileHelpDone>({
+                            name: ActionName.LoadTileHelpDone,
+                            payload: {
+                                tileId: action.payload['tileId'],
+                                html: html
+                            }
+                        });
+                    },
+                    (err) => {
+                        this.appServices.showMessage(SystemMessageType.ERROR, err);
+                        dispatch<Actions.LoadTileHelpDone>({
+                            name: ActionName.LoadTileHelpDone,
+                            error: err,
+                            payload: {
+                                tileId: action.payload['tileId'],
+                                html: null
+                            }
+                        });
+                    }
+                );
             break;
             case ActionName.ShowGroupHelp:
                 ajax$<string>(

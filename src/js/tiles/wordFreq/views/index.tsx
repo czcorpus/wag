@@ -50,7 +50,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         freqBand:number;
 
     }> = (props) => {
-        return <span className="Stars">{[1, 2, 3, 4, 5, 6, 7].map(v =>
+        return <span className="Stars">{[1, 2, 3, 4, 5].map(v =>
                 <img key={`${v}`} src={ut.createStaticUrl(`star${v <= props.freqBand ? '' : '_grey'}.svg`)}
                             alt={ut.translate(v <= props.freqBand ? 'global__img_alt_star_icon' : 'global__img_alt_star_icon_grey')} />)}</span>
     };
@@ -105,7 +105,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 <dt>{ut.translate('wordfreq__pos')}:</dt>
                 <dd>{props.data.pos.map(v => v.label).join(', ')}</dd>
                 <dt>{ut.translate('wordfreq__freq_bands')}:</dt>
-                <dd><Stars freqBand={Math.round(props.data.flevel)} /></dd>
+                <dd><Stars freqBand={props.data.flevel} /></dd>
                 <dt>{ut.translate('wordfreq__ipm')}:</dt>
                 <dd>{ut.formatNumber(props.data.ipm, 2)}</dd>
             </>
