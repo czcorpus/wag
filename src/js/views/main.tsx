@@ -912,7 +912,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 const group = this.props.layout.get(this.props.activeGroupHelp.idx);
                 return (
                     <globalComponents.ModalBox onCloseClick={this.handleCloseGroupHelp}
-                            title={`${group.groupLabel} - ${ut.translate('global__tile_group_help_label')}`}
+                            title={group.groupLabel}
                             tileClass="text">
                         <globalComponents.ErrorBoundary>
                             {this.props.isBusy ?
