@@ -23,7 +23,7 @@ import { map, concatMap } from 'rxjs/operators';
 import { AppServices } from '../../appServices';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
 import { DataLoadedPayload } from './actions';
-import { FreqDBRow, FreqDbAPI } from './api';
+import { FreqDBRow, FreqDbAPI, FreqBand } from './api';
 import { QueryFormModel, findCurrLemmaVariant } from '../../models/query';
 import { LemmaVariant } from '../../common/query';
 
@@ -45,6 +45,14 @@ export interface SummaryModelState {
     data:Immutable.List<FreqDBRow>;
     sfwRowRange:number;
     flevelDistrb:Immutable.List<FlevelDistribItem>;
+}
+
+const calcFreqBand = (ipm:number):FreqBand => {
+    if (ipm < 0.1) return 1;
+    if (ipm < 1) return 2;
+    if (ipm < 10) return 3;
+    if (ipm < 100) return 4;
+    return 5;
 }
 
 
@@ -128,7 +136,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                                     abs: v.abs,
                                     ipm: v.abs / state.corpusSize * 1e6,
                                     arf: v.arf,
-                                    flevel: Math.log(v.abs / state.corpusSize * 1e9) / Math.log(10),
+                                    flevel: calcFreqBand(v.abs / state.corpusSize * 1e6),
                                     isSearched: v.isSearched
                                 }
                             })
