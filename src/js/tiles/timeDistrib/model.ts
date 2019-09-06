@@ -220,7 +220,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     this.unfinishedChunks = this.mapChunkStatusOf(v => true).toMap();
                     const newState = this.copyState(state);
                     newState.isBusy = true;
-                    newState.wordCmp = newState.wordCmpInput;
+                    newState.wordCmp = newState.wordCmpInput.trim();
                     newState.dataCmp = newState.dataCmp.clear();
                     return newState;
                 }
