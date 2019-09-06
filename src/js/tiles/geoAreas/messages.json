@@ -1,7 +1,7 @@
 {
     "en-US": {
         "geolocations__main_label": "Geographic areas",
-        "geolocations__ipm_map_legend": "Number of occurrences per million tokens",
+        "geolocations__ipm_map_legend": "Number of occurrences per million words (ipm)",
         "geolocations__swipe_horizontally_to_view_map": "Swipe a finger horizontally to scroll the map",
         "geolocations__table_heading_area": "Area",
         "geolocations__table_heading_ipm": "Instances per million tokens",
@@ -9,7 +9,7 @@
     },
     "cs-CZ": {
         "geolocations__main_label": "Geografické oblasti",
-        "geolocations__ipm_map_legend": "Počty výskytů na milion tokenů",
+        "geolocations__ipm_map_legend": "Počty výskytů na milion tokenů (ipm)",
         "geolocations__swipe_horizontally_to_view_map": "Pro posun mapy potáhněte prstem horizontálně",
         "geolocations__table_heading_area": "Oblast",
         "geolocations__table_heading_ipm": "Výskytů na milion tokenů",

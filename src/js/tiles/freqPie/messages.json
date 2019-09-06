@@ -4,13 +4,15 @@
         "freqpie__indicator_auth_sex": "author sex",
         "freqpie__indicator_speaker_sex": "speaker sex",
         "freqpie__indicator_speaker_education": "speaker education",
-        "freqpie__other_chart_item": "other"
+        "freqpie__other_chart_item": "other",
+        "freqpie__rel_freq": "instances per million words (ipm)"
     },
     "cs-CZ": {
         "freqpie__main_label": "Frekvenční distribuce",
         "freqpie__indicator_auth_sex": "pohlaví autora",
         "freqpie__indicator_speaker_sex": "pohlaví mluvčího",
         "freqpie__indicator_speaker_educattion": "vzdělání mluvčího",
-        "freqpie__other_chart_item": "ostatní"
+        "freqpie__other_chart_item": "ostatní",
+        "freqpie__rel_freq": "výskyty na milon slov (ipm)"
     }
 }

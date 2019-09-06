@@ -3,7 +3,7 @@
         "wordfreq_searched_form": "entered form",
         "wordfreq_abs_freq": "absolute frequency",
         "wordfreq__pos": "part of speech",
-        "wordfreq__ipm": "instances per million tokens",
+        "wordfreq__ipm": "occurrences per million words",
         "wordfreq__num_similarly_freq_words": "num. of similarly frequent words",
         "wordfreq__freq_bands": "wrequency band",
         "wordfreq__main_label": "words with similar frequency"
@@ -12,7 +12,7 @@
         "wordfreq_searched_form": "zadaný tvar",
         "wordfreq_abs_freq": "absolutní frekvence",
         "wordfreq__pos": "slovní druh",
-        "wordfreq__ipm": "výskytů na milion tokenů",
+        "wordfreq__ipm": "kolikrát v milionu slov",
         "wordfreq__num_similarly_freq_words": "počet slov s podobným výskytem",
         "wordfreq__freq_bands": "frekvenční pásmo",
         "wordfreq__main_label": "slova s podobně častým výskytem"
