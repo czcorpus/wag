@@ -370,7 +370,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                             <button className="close"
                                     ref={this.ref}
                                     onClick={this.props.onCloseClick}
-                                    onKeyDown={this.handleKey}>
+                                    onKeyDown={this.handleKey}
+                                    title={ut.translate('global__close_modal')}>
                                 <img src={ut.createStaticUrl('close-icon.svg')} alt="close icon" />
                             </button>
                         </header>

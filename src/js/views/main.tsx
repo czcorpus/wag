@@ -919,7 +919,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <globalComponents.ErrorBoundary>
                             {this.props.isBusy ?
                                 <WithinModalAjaxLoader /> :
-                                <div dangerouslySetInnerHTML={{__html: this.props.activeGroupHelp.html}} />
+                                <div className="raw-html" dangerouslySetInnerHTML={{__html: this.props.activeGroupHelp.html}} />
                             }
                         </globalComponents.ErrorBoundary>
                     </globalComponents.ModalBox>
@@ -933,7 +933,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <globalComponents.ErrorBoundary>
                             {this.props.isBusy ?
                                 <WithinModalAjaxLoader /> :
-                                <div dangerouslySetInnerHTML={{__html: this.props.activeTileHelp.html}} />
+                                <div className="raw-html" dangerouslySetInnerHTML={{__html: this.props.activeTileHelp.html}} />
                             }
                         </globalComponents.ErrorBoundary>
                     </globalComponents.ModalBox>
