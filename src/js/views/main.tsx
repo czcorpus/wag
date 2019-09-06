@@ -863,6 +863,37 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         );
     };
 
+    // -------------------- <ModalHelpContent /> --------------------------
+
+    const ModalHelpContent:React.SFC<{
+        isBusy:boolean;
+        title:string;
+        html:string;
+        onClose:()=>void;
+
+    }> = (props) => {
+        const ref = React.useRef(null);
+        React.useEffect(() => {
+            if (ref.current !== null) {
+                ref.current.querySelectorAll('a').forEach(((elm:HTMLAnchorElement) => {
+                    elm.target = '_blank';
+                }))
+            }
+        });
+
+        return (
+            <globalComponents.ModalBox onCloseClick={props.onClose}
+                    title={props.title} tileClass="text">
+                <globalComponents.ErrorBoundary>
+                    {props.isBusy ?
+                        <WithinModalAjaxLoader /> :
+                        <div className="raw-html" ref={ref} dangerouslySetInnerHTML={{__html: props.html}} />
+                    }
+                </globalComponents.ErrorBoundary>
+            </globalComponents.ModalBox>
+        );
+    };
+
     // -------------------- <TilesSections /> -----------------------------
 
     class TilesSections extends React.PureComponent<{
@@ -912,32 +943,15 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
             } else if (this.props.activeGroupHelp !== null) {
                 const group = this.props.layout.get(this.props.activeGroupHelp.idx);
-                return (
-                    <globalComponents.ModalBox onCloseClick={this.handleCloseGroupHelp}
-                            title={group.groupLabel}
-                            tileClass="text">
-                        <globalComponents.ErrorBoundary>
-                            {this.props.isBusy ?
-                                <WithinModalAjaxLoader /> :
-                                <div dangerouslySetInnerHTML={{__html: this.props.activeGroupHelp.html}} />
-                            }
-                        </globalComponents.ErrorBoundary>
-                    </globalComponents.ModalBox>
-                );
+                return <ModalHelpContent onClose={this.handleCloseGroupHelp} title={group.groupLabel}
+                            html={this.props.activeGroupHelp.html}
+                            isBusy={this.props.isBusy} />;
 
             } else if (this.props.activeTileHelp !== null) {
-                return (
-                    <globalComponents.ModalBox onCloseClick={this.handleCloseTileHelp}
+                return <ModalHelpContent onClose={this.handleCloseTileHelp}
                             title={this.props.tileProps.get(this.props.activeTileHelp.ident).label}
-                            tileClass="text">
-                        <globalComponents.ErrorBoundary>
-                            {this.props.isBusy ?
-                                <WithinModalAjaxLoader /> :
-                                <div dangerouslySetInnerHTML={{__html: this.props.activeTileHelp.html}} />
-                            }
-                        </globalComponents.ErrorBoundary>
-                    </globalComponents.ModalBox>
-                );
+                            html={this.props.activeTileHelp.html}
+                            isBusy={this.props.isBusy} />;
 
             } else {
                 return null;

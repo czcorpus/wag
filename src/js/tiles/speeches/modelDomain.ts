@@ -148,7 +148,7 @@ function isOverlap(state:SpeechesModelState, s1:Speech, s2:Speech):boolean {
         const flag2 = s2.metadata.get(state.speechOverlapAttr[1]);
         if (flag1 === flag2
                 && flag2 === state.speechOverlapVal
-                && s1.segments.get(0) === s2.segments.get(0)) {
+                && s1.segments.get(0).value === s2.segments.get(0).value) {
             return true;
         }
     }
@@ -207,7 +207,18 @@ export function normalizeSpeechesRange(data:Array<Array<Speech>>, maxNumSpeeches
             rgt -= 1;
         }
     }
-    return data.slice(lft, rgt);
+    return data.slice(lft, rgt).map((speechLines, lineIdx) => {
+        return speechLines.map(speech => ({
+            text: speech.text,
+            speakerId: speech.speakerId,
+            segments: speech.segments.map(segment => ({
+                lineIdx: lineIdx,
+                value: segment.value
+            })).toList(),
+            colorCode: speech.colorCode,
+            metadata: speech.metadata
+        }))
+    });
 }
 
 

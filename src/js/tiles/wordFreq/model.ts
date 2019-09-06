@@ -48,10 +48,10 @@ export interface SummaryModelState {
 }
 
 const calcFreqBand = (ipm:number):FreqBand => {
-    if (ipm < 0.1) return 1;
-    if (ipm < 1) return 2;
-    if (ipm < 10) return 3;
-    if (ipm < 100) return 4;
+    if (ipm < 1) return 1;
+    if (ipm < 10) return 2;
+    if (ipm < 100) return 3;
+    if (ipm < 1000) return 4;
     return 5;
 }
 
