@@ -111,7 +111,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         label={renderCustomizedLabel}
                         outerRadius={props.radius}
                         fill="#8884d8"
-                        isAnimationActive={false}>
+                        isAnimationActive={false}
+                        name={ut.translate('freqBar__rel_freq')}>
                     {props.data.map((entry, index) => <Cell key={`cell-${entry.name}`} fill={props.palette(entry, index)}/>)}
                 </Pie>
                 <Legend verticalAlign="bottom" height={36}/>
