@@ -252,6 +252,7 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
             tile.getBlockingTiles()
         );
     });
+    //console.log('tiles map: ', tilesMap);
 
     const tilesModel = new WdglanceTilesModel(
         dispatcher,
@@ -260,9 +261,7 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
             isBusy: false,
             isMobile: appServices.isMobileMode(),
             tweakActiveTiles: Immutable.Set<number>(),
-            helpActiveTiles: Immutable.Set<number>(),
             altViewActiveTiles: Immutable.Set<number>(),
-            tilesHelpData: Immutable.Map<number, string>(),
             hiddenGroups: Immutable.Set<number>(),
             datalessGroups: Immutable.Set<number>(),
             tileResultFlags: layoutManager.getLayout(qType).reduce(
@@ -274,9 +273,9 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
                 Immutable.List<TileResultFlagRec>()
             ),
             tileProps: Immutable.List<TileFrameProps>(tiles),
-            sourceBoxData: null,
             activeSourceInfo: null,
-            activeGroupHelp: null
+            activeGroupHelp: null,
+            activeTileHelp: null
         },
         appServices,
         new CorpusInfoAPI(cache, config.corpInfoApiUrl)
