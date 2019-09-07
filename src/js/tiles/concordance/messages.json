@@ -2,7 +2,7 @@
     "en-US": {
         "concordance__main_label": "Concordance",
         "concordance__num_matching_items": "Number of matching items",
-        "concordance__ipm": "Instances per million tokens",
+        "concordance__ipm": "Occurrences per million words (ipm)",
         "concordance__arf": "Average reduced frequency",
         "concordance__view_options": "View options",
         "concordance__page": "Page",
@@ -11,7 +11,7 @@
     "cs-CZ": {
         "concordance__main_label": "Konkordance",
         "concordance__num_matching_items": "Počet vyhovujících výsledků",
-        "concordance__ipm": "Výskytů na milion tokenů",
+        "concordance__ipm": "Výskytů na milion slov (ipm)",
         "concordance__arf": "Průměrná redukovaná četnost",
         "concordance__view_options": "Možnosti zobrazení",
         "concordance__page": "Strana",
