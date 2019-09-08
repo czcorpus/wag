@@ -546,7 +546,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             }
         });
 
-        return <div className="tile-body text" dangerouslySetInnerHTML={{__html: props.html}} ref={ref} />;
+        return (
+            <div className="tile-body text">
+                <div className="raw-html" dangerouslySetInnerHTML={{__html: props.html}} ref={ref} />
+            </div>
+        );
     };
 
     // ------------- <InitialHelp /> --------------------------------------
