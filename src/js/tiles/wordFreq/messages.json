@@ -5,7 +5,7 @@
         "wordfreq__pos": "part of speech",
         "wordfreq__ipm": "occurrences per million words",
         "wordfreq__num_similarly_freq_words": "num. of similarly frequent words",
-        "wordfreq__freq_bands": "wrequency band",
+        "wordfreq__freq_bands": "frequency band",
         "wordfreq__main_label": "words with similar frequency"
     },
     "cs-CZ": {
