@@ -28,6 +28,7 @@ import { puid } from '../../common/util';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
 import { ConcLoadedPayload } from '../concordance/actions';
 import { ActionName, Actions, DataLoadedPayload } from './actions';
+import { callWithExtraVal } from '../../common/api/util';
 
 
 
@@ -76,35 +77,32 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState> {
             [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<DataLoadedPayload>) => {
                 if (action.payload.tileId === this.tileId) {
                     const newState = this.copyState(state);
-                    newState.isBusy = false;
                     if (action.error) {
                         newState.blocks = Immutable.List<FreqDataBlock<DataRow>>(state.fcrit.map((_, i) => ({
                             data: Immutable.List<FreqDataBlock<DataRow>>(),
                             ident: puid(),
-                            label: action.payload.blockLabels ? action.payload.blockLabels[i] : state.critLabels.get(i)
+                            label: action.payload.blockLabel ? action.payload.blockLabel : state.critLabels.get(i)
                         })));
                         newState.error = action.error.message;
-
-                    } else if (action.payload.blocks.length === 0) {
-                        newState.blocks = Immutable.List<FreqDataBlock<DataRow>>(state.fcrit.map((_, i) => ({
-                            data: Immutable.List<FreqDataBlock<DataRow>>(),
-                            ident: puid(),
-                            label: state.critLabels.get(i)
-                        })));
-                        newState.backlink = createBackLink(newState, this.backlink, action.payload.concId);
+                        newState.isBusy = false;
 
                     } else {
-                        newState.blocks = Immutable.List<FreqDataBlock<DataRow>>(action.payload.blocks.map((block, i) => {
-                            return {
-                                data: Immutable.List<FreqDataBlock<DataRow>>(block.data.map(v => ({
-                                    name: this.appServices.translateDbValue(state.corpname, v.name),
-                                    freq: v.freq,
-                                    ipm: v.ipm
-                                }))),
+                        newState.blocks = newState.blocks.set(
+                            action.payload.critIdx,
+                            {
+                                data: action.payload.block ?
+                                    Immutable.List<DataRow>(action.payload.block.data.map(v => ({
+                                        name: this.appServices.translateDbValue(state.corpname, v.name),
+                                        freq: v.freq,
+                                        ipm: v.ipm
+                                    }))) : null,
                                 ident: puid(),
-                                label: action.payload.blockLabels ? action.payload.blockLabels[i] : state.critLabels.get(i)
-                            };
-                        }));
+                                label: this.appServices.importExternalMessage(
+                                    action.payload.blockLabel ? action.payload.blockLabel : state.critLabels.get(action.payload.critIdx)),
+                                isReady: true
+                            }
+                        );
+                        newState.isBusy = newState.blocks.some(v => !v.isReady);
                         newState.backlink = createBackLink(newState, this.backlink, action.payload.concId);
                     }
                     return newState;
@@ -120,30 +118,33 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState> {
                 this.suspend((action:Action) => {
                     if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
                         const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
-                        new Observable((observer:Observer<{}>) => {
+                        new Observable((observer:Observer<number>) => {
                             if (action.error) {
                                 observer.error(new Error(this.appServices.translate('global__failed_to_obtain_required_data')));
 
                             } else {
-                                observer.next({});
+                                state.fcrit.keySeq().forEach(critIdx => observer.next(critIdx));
                                 observer.complete();
                             }
                         }).pipe(
-                            concatMap(args => this.api.call(stateToAPIArgs(state, payload.data.concPersistenceID)))
+                            concatMap(critIdx => callWithExtraVal(
+                                    this.api,
+                                    stateToAPIArgs(state, payload.data.concPersistenceID, critIdx),
+                                    critIdx
+                            ))
                         )
                         .subscribe(
-                            resp => {
+                            ([resp, critIdx]) => {
                                 dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
                                     name: GlobalActionName.TileDataLoaded,
                                     payload: {
                                         tileId: this.tileId,
                                         isEmpty: resp.blocks.every(v => v.data.length === 0),
-                                        blocks: resp.blocks.map(block => {
-                                            return {
-                                                data: block.data.sort((x1, x2) => x2.ipm - x1.ipm).slice(0, state.maxNumCategories),
-                                            }
-                                        }),
-                                        concId: resp.concId
+                                        block: resp.blocks.length > 0 ?
+                                            {data: resp.blocks[0].data.sort((x1, x2) => x2.ipm - x1.ipm).slice(0, state.maxNumCategories)} :
+                                            null,
+                                        concId: resp.concId,
+                                        critIdx: critIdx
                                     }
                                 });
                             },
@@ -153,8 +154,9 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState> {
                                     payload: {
                                         tileId: this.tileId,
                                         isEmpty: true,
-                                        blocks: null,
-                                        concId: null
+                                        block: null,
+                                        concId: null,
+                                        critIdx: null
                                     },
                                     error: error
                                 });

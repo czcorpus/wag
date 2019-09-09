@@ -108,7 +108,8 @@ export class FreqBarTile implements ITileProvider {
                 error: null,
                 blocks: Immutable.List<FreqDataBlock<DataRow>>(criteria.map(v => ({
                     data: Immutable.List<DataRow>(),
-                    ident: puid()
+                    ident: puid(),
+                    isReady: false
                 }))),
                 activeBlock: 0,
                 corpname: conf.corpname,

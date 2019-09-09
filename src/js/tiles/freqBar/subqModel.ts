@@ -29,6 +29,7 @@ import { Backlink } from '../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
 import { DataLoadedPayload } from './actions';
 import { FreqBarModel, FreqBarModelState } from './model';
+import { callWithExtraVal } from '../../common/api/util';
 
 
 /**
@@ -55,7 +56,7 @@ export class SubqFreqBarModel extends FreqBarModel {
     }
 
 
-    private loadFreq(state:FreqBarModelState, corp:string, query:string):Observable<APIBlockResponse> {
+    private loadFreq(state:FreqBarModelState, corp:string, query:string):Observable<[APIBlockResponse, string]> {
         return this.concApi.call({
             corpname: corp,
             kwicleftctx: '-1',
@@ -72,7 +73,11 @@ export class SubqFreqBarModel extends FreqBarModel {
             format:'json'
         } as RequestArgs)
         .pipe(
-            concatMap((v:ConcResponse) => this.api.call(stateToAPIArgs(state, v.concPersistenceID)))
+            concatMap((v:ConcResponse) => callWithExtraVal(
+                this.api,
+                stateToAPIArgs(state, v.concPersistenceID),
+                query
+            ))
         );
     }
 
@@ -94,21 +99,23 @@ export class SubqFreqBarModel extends FreqBarModel {
                             )
                         ).subscribe(
                             (data) => {
-                                const combined:Array<ApiDataBlock> = data.map(item => item.blocks[0]);
-                                dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                    name: GlobalActionName.TileDataLoaded,
-                                    payload: {
-                                        tileId: this.tileId,
-                                        isEmpty: combined.every(v => v.data.length === 0),
-                                        blocks: combined.map(block => {
-                                            return {
-                                                data: block.data.sort(((x1, x2) => x1.name.localeCompare(x2.name))).slice(0, state.maxNumCategories),
+                                data
+                                    .map<[ApiDataBlock, string]>(([item, subq]) => [item.blocks[0], subq])
+                                    .forEach(([block, subq], critIdx) => {
+                                        dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                            name: GlobalActionName.TileDataLoaded,
+                                            payload: {
+                                                tileId: this.tileId,
+                                                isEmpty: block !== undefined,
+                                                block: {
+                                                        data: block.data.sort(((x1, x2) => x1.name.localeCompare(x2.name))).slice(0, state.maxNumCategories),
+                                                },
+                                                blockLabel: subq,
+                                                concId: null, // TODO do we need this?
+                                                critIdx: critIdx
                                             }
-                                        }),
-                                        blockLabels: subqueries.map(v => v.value),
-                                        concId: null // TODO do we need this?
-                                    }
-                                });
+                                        });
+                                    });
                             },
                             (err) => {
                                 console.log('err: ', err);

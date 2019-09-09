@@ -48,6 +48,7 @@ export interface FreqDataBlock<T> {
     data:Immutable.List<T>;
     ident:string;
     label:string;
+    isReady:boolean;
 }
 
 export interface GeneralMultiCritFreqBarModelState<T=DataRow> extends FreqBarModelStateBase {
@@ -58,16 +59,16 @@ export interface GeneralMultiCritFreqBarModelState<T=DataRow> extends FreqBarMod
 
 
 
-export function stateToAPIArgs<T>(state:GeneralSingleCritFreqBarModelState<T>, concId:string, subcname?:string):SingleCritQueryArgs;
-export function stateToAPIArgs<T>(state:GeneralMultiCritFreqBarModelState<T>, concId:string, subcname?:string):MultiCritQueryArgs;
-export function stateToAPIArgs<T>(state:GeneralSingleCritFreqBarModelState<T>|GeneralMultiCritFreqBarModelState<T>, concId:string, subcname?:string) {
+export function stateToAPIArgs<T>(state:GeneralSingleCritFreqBarModelState<T>, concId:string, critIdx?:number, subcname?:string):SingleCritQueryArgs;
+export function stateToAPIArgs<T>(state:GeneralMultiCritFreqBarModelState<T>, concId:string, critIdx?:number, subcname?:string):MultiCritQueryArgs;
+export function stateToAPIArgs<T>(state:GeneralSingleCritFreqBarModelState<T>|GeneralMultiCritFreqBarModelState<T>, concId:string, critIdx:number, subcname:string) {
 
     if (isMultiCritState(state)) {
         return {
             corpname: state.corpname,
             usesubcorp: subcname,
             q: `~${concId ? concId : state.concId}`,
-            fcrit: state.fcrit.toArray(),
+            fcrit: critIdx !== undefined ? state.fcrit.get(critIdx) : state.fcrit.toArray(),
             flimit: state.flimit,
             freq_sort: state.freqSort,
             fpage: state.fpage,
