@@ -27,10 +27,16 @@ import { posTable } from './common';
 
 export const getLemmas = (db:Database, appServices:AppServices, word:string, minFreq:number):Observable<Array<LemmaVariant>> => {
     return new Observable<LemmaVariant>((observer) => {
+        const srchWord = word.toLowerCase();
         db.serialize(() => {
             db.each(
-                'SELECT value, lemma, pos, `count` AS abs, arf FROM word WHERE value = ? AND abs >= ? ORDER BY arf DESC',
-                [word.toLowerCase(), minFreq],
+                'SELECT w.value, w.lemma, w.pos, m.`count` AS abs, m.arf ' +
+                'FROM word AS w ' +
+                'JOIN lemma AS m ON (w.lemma = m.value AND w.pos = m.pos) ' +
+                'WHERE (w.value = ? OR w.lemma = ?) AND m.count >= ? ' +
+                'GROUP BY w.lemma, w.pos ' +
+                'ORDER BY m.arf DESC',
+                [srchWord, srchWord, minFreq],
                 (err, row) => {
                     if (err) {
                         observer.error(err);
@@ -39,7 +45,7 @@ export const getLemmas = (db:Database, appServices:AppServices, word:string, min
                         try {
                             const pos = importQueryPos(row['pos']);
                             observer.next({
-                                word: row['value'],
+                                word: srchWord,
                                 lemma: row['lemma'],
                                 abs: row['abs'],
                                 ipm: -1,
