@@ -122,7 +122,8 @@ export class FreqBarTile implements ITileProvider {
                 fttIncludeEmpty: conf.fttIncludeEmpty,
                 maxNumCategories: conf.maxNumCategories,
                 fmaxitems: 100,
-                backlink: null
+                backlink: null,
+                subqSyncPalette: false
             }
         );
         this.label = appServices.importExternalMessage(conf.label || 'freqBar__main_label');

@@ -36,6 +36,7 @@ export interface FreqBarModelState extends GeneralMultiCritFreqBarModelState<Dat
     maxNumCategories:number;
     activeBlock:number;
     backlink:BacklinkWithArgs<BacklinkArgs>;
+    subqSyncPalette:boolean;
 }
 
 

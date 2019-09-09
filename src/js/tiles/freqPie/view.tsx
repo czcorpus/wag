@@ -24,28 +24,24 @@ import { Theme } from '../../common/theme';
 import { CoreTileComponentProps, TileComponent } from '../../common/tile';
 import { GlobalComponents } from '../../views/global';
 import { ActionName } from './actions';
-import { FreqPieDataRow, FreqPieModel, FreqPieModelState } from './model';
 import { FreqDataBlock } from '../../common/models/freq';
+import { DataRow } from '../../common/api/kontext/freqs';
+import { FreqBarModel, FreqBarModelState } from '../freqBar/model';
 
 
-export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:FreqPieModel):TileComponent {
+export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:FreqBarModel):TileComponent {
 
     const globalComponents = ut.getComponents();
     const catList = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
     const colorPalette = theme.categoryPalette(catList);
 
-    const createColorMapping = (blocks:Immutable.List<FreqDataBlock<FreqPieDataRow>>):{[v:string]:string} => {
+    const createColorMapping = (blocks:Immutable.List<FreqDataBlock<DataRow>>):{[v:string]:string} => {
         const ans = {};
         let i = 0;
         blocks.flatMap(block => block.data).forEach(item => {
-            if (item.isTheRest) {
-                ans[item.name] = theme.categoryOtherColor();
-
-            } else {
-                if (ans[item.name] === undefined) {
-                    ans[item.name] = colorPalette(`${i % catList.length}`);
-                    i += 1;
-                }
+            if (ans[item.name] === undefined) {
+                ans[item.name] = colorPalette(`${i % catList.length}`);
+                i += 1;
             }
         });
         return ans;
@@ -81,15 +77,14 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // ------- <Chart /> ---------------------------------------------------
 
     const Chart:React.SFC<{
-        data:Immutable.List<FreqPieDataRow>;
+        data:Immutable.List<DataRow>;
         width:string;
         height:number;
         radius:number;
         isMobile:boolean;
-        palette:(item:FreqPieDataRow, i:number)=>string;
+        palette:(item:DataRow, i:number)=>string;
 
     }> = (props) => {
-
         const renderCustomizedLabel = ({cx, cy, midAngle, innerRadius, outerRadius, percent, index}) => {
             const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
             const x  = cx + radius * Math.cos(-midAngle * Math.PI / 180);
@@ -97,7 +92,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
             return (
                 <text x={x} y={y} fill="white" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central">
-                    {`${(percent).toFixed(1)}%`}
+                    {`${(percent * 100).toFixed(1)}%`}
                 </text>
             );
         };
@@ -106,7 +101,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             <ChartWrapper isMobile={props.isMobile} width={props.width} height={props.height}>
                 <Pie
                         data={props.data.toArray()}
-                        dataKey="percent"
+                        dataKey="ipm"
                         labelLine={false}
                         label={renderCustomizedLabel}
                         outerRadius={props.radius}
@@ -122,7 +117,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------- <FreqPieTileView /> ---------------------------------------------------
 
-    class FreqPieTileView extends React.PureComponent<FreqPieModelState & CoreTileComponentProps> {
+    class FreqPieTileView extends React.PureComponent<FreqBarModelState & CoreTileComponentProps> {
 
         private chartsRef:React.RefObject<HTMLDivElement>;
 
@@ -152,10 +147,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         render() {
             const chartsViewBoxWidth = this.props.isMobile ? '100%' : `${100 / this.props.blocks.size}%`;
 
-            let paletteFn:(item:FreqPieDataRow, i:number)=>string;
-            if (this.props.useConsistentPalette) {
+            let paletteFn:(item:DataRow, i:number)=>string;
+            if (this.props.subqSyncPalette) {
                 const mapping = createColorMapping(this.props.blocks);
-                paletteFn = (item:FreqPieDataRow, i:number) => mapping[item.name];
+                paletteFn = (item:DataRow, i:number) => mapping[item.name];
 
             } else {
                 paletteFn = (_, i:number) => colorPalette(`${i}`);

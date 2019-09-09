@@ -18,14 +18,14 @@
 import * as Immutable from 'immutable';
 
 import { AppServices } from '../../appServices';
-import { MultiBlockFreqDistribAPI, FreqSort } from '../../common/api/kontext/freqs';
+import { MultiBlockFreqDistribAPI, FreqSort, DataRow } from '../../common/api/kontext/freqs';
 import { FreqDataBlock, SubqueryModeConf } from '../../common/models/freq';
 import { LocalizedConfMsg } from '../../common/types';
 import { QueryType } from '../../common/query';
 import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../common/tile';
 import { puid } from '../../common/util';
-import { factory as defaultModelFactory, FreqPieDataRow, FreqPieModel } from './model';
-import { factory as subqModelFactory } from './subqModel';
+import { factory as defaultModelFactory, FreqBarModel } from '../freqBar/model';
+import { factory as subqModelFactory } from '../freqBar/subqModel';
 import { init as viewInit } from './view';
 import { StatelessModel } from 'kombo';
 import { ConcApi } from '../../common/api/kontext/concordance';
@@ -62,7 +62,7 @@ export class FreqPieTile implements ITileProvider {
 
     private readonly appServices:AppServices;
 
-    private readonly model:FreqPieModel;
+    private readonly model:FreqBarModel;
 
     private readonly widthFract:number;
 
@@ -87,11 +87,16 @@ export class FreqPieTile implements ITileProvider {
             defaultModelFactory;
         this.model = modelFact(
             dispatcher,
+            tileId,
+            waitForTiles[0],
+            appServices,
+            new MultiBlockFreqDistribAPI(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            conf.backlink || null,
             {
                 isBusy: isBusy,
                 error: null,
-                blocks: Immutable.List<FreqDataBlock<FreqPieDataRow>>(criteria.map(v => ({
-                    data: Immutable.List<FreqPieDataRow>(),
+                blocks: Immutable.List<FreqDataBlock<DataRow>>(criteria.map(v => ({
+                    data: Immutable.List<DataRow>(),
                     ident: puid()
                 }))),
                 activeBlock: 0,
@@ -106,13 +111,8 @@ export class FreqPieTile implements ITileProvider {
                 fmaxitems: 100,
                 backlink: null,
                 maxNumCategories: conf.maxNumCategories,
-                useConsistentPalette: !!conf.subqueryMode
-            },
-            tileId,
-            waitForTiles[0],
-            appServices,
-            new MultiBlockFreqDistribAPI(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
-            conf.backlink || null
+                subqSyncPalette: !!conf.subqueryMode
+            }
         );
         this.label = appServices.importExternalMessage(conf.label || 'freqpie__main_label');
         this.view = viewInit(
