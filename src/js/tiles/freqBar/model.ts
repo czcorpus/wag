@@ -39,6 +39,17 @@ export interface FreqBarModelState extends GeneralMultiCritFreqBarModelState<Dat
     subqSyncPalette:boolean;
 }
 
+export interface FreqBarModelArgs {
+    dispatcher:IActionQueue;
+    tileId:number;
+    waitForTiles:Array<number>;
+    subqSourceTiles:Array<number>;
+    appServices:AppServices;
+    api:MultiBlockFreqDistribAPI;
+    backlink:Backlink|null;
+    initState:FreqBarModelState;
+}
+
 
 export class FreqBarModel extends StatelessModel<FreqBarModelState> {
 
@@ -48,15 +59,17 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState> {
 
     protected readonly tileId:number;
 
-    protected readonly waitForTile:number;
+    protected waitForTiles:Immutable.Map<number, boolean>;
+
+    protected subqSourceTiles:Immutable.Set<number>;
 
     private readonly backlink:Backlink|null;
 
-    constructor(dispatcher:IActionQueue, tileId:number, waitForTile:number, appServices:AppServices, api:MultiBlockFreqDistribAPI,
-                backlink:Backlink|null, initState:FreqBarModelState) {
+    constructor({dispatcher, tileId, waitForTiles, subqSourceTiles, appServices, api, backlink, initState}) {
         super(dispatcher, initState);
         this.tileId = tileId;
-        this.waitForTile = waitForTile;
+        this.waitForTiles = Immutable.Map<number, boolean>(waitForTiles.map(v => [v, false]));
+        this.subqSourceTiles = Immutable.Set<number>(subqSourceTiles);
         this.appServices = appServices;
         this.api = api;
         this.backlink = backlink;
@@ -82,7 +95,8 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState> {
                         newState.blocks = Immutable.List<FreqDataBlock<DataRow>>(state.fcrit.map((_, i) => ({
                             data: Immutable.List<FreqDataBlock<DataRow>>(),
                             ident: puid(),
-                            label: action.payload.blockLabel ? action.payload.blockLabel : state.critLabels.get(i)
+                            label: action.payload.blockLabel ? action.payload.blockLabel : state.critLabels.get(i),
+                            isReady: true
                         })));
                         newState.error = action.error.message;
                         newState.isBusy = false;
@@ -116,9 +130,11 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState> {
     sideEffects(state:FreqBarModelState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
+                this.waitForTiles = this.waitForTiles.map(_ => true).toMap();
                 this.suspend((action:Action) => {
-                    if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
+                    if (action.name === GlobalActionName.TileDataLoaded && this.waitForTiles.has(action.payload['tileId'])) {
                         const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
+                        this.waitForTiles = this.waitForTiles.set(payload.tileId, false);
                         new Observable((observer:Observer<number>) => {
                             if (action.error) {
                                 observer.error(new Error(this.appServices.translate('global__failed_to_obtain_required_data')));
@@ -163,7 +179,7 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState> {
                                 });
                             }
                         );
-                        return true;
+                        return !this.waitForTiles.contains(true);
                     }
                     return false;
                 });
@@ -175,11 +191,21 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState> {
 export const factory = (
     dispatcher:IActionQueue,
     tileId:number,
-    waitForTile:number,
+    waitForTiles:Array<number>,
+    subqSourceTiles:Array<number>,
     appServices:AppServices,
     api:MultiBlockFreqDistribAPI,
     backlink:Backlink|null,
     initState:FreqBarModelState) => {
 
-    return new FreqBarModel(dispatcher, tileId, waitForTile, appServices, api, backlink, initState);
+    return new FreqBarModel({
+        dispatcher,
+        tileId,
+        waitForTiles,
+        subqSourceTiles,
+        appServices,
+        api,
+        backlink,
+        initState
+    });
 }

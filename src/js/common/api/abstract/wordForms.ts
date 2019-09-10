@@ -37,6 +37,7 @@ export interface WordFormItem {
     value:string;
     freq:number;
     ratio:number;
+    interactionId?:string;
 }
 
 export interface Response {

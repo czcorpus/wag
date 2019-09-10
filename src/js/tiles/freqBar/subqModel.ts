@@ -16,20 +16,43 @@
  * limitations under the License.
  */
 import { Action, SEDispatcher, IActionQueue } from 'kombo';
-import { forkJoin, Observable } from 'rxjs';
-import { concatMap } from 'rxjs/operators';
+import { Observable, merge } from 'rxjs';
+import { concatMap, map } from 'rxjs/operators';
+import * as Immutable from 'immutable';
 
 import { AppServices } from '../../appServices';
 import { ConcApi, QuerySelector, RequestArgs } from '../../common/api/kontext/concordance';
 import { ViewMode, ConcResponse } from '../../common/api/abstract/concordance';
-import { APIBlockResponse, ApiDataBlock, MultiBlockFreqDistribAPI } from '../../common/api/kontext/freqs';
-import { stateToAPIArgs, SubqueryModeConf } from '../../common/models/freq';
-import { isSubqueryPayload, SubqueryPayload } from '../../common/query';
+import { APIBlockResponse, MultiBlockFreqDistribAPI, DataRow } from '../../common/api/kontext/freqs';
+import { stateToAPIArgs, SubqueryModeConf, FreqDataBlock } from '../../common/models/freq';
+import { isSubqueryPayload, SubqueryPayload, SubQueryItem } from '../../common/query';
 import { Backlink } from '../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
-import { DataLoadedPayload } from './actions';
+import { DataLoadedPayload, ActionName, Actions } from './actions';
 import { FreqBarModel, FreqBarModelState } from './model';
 import { callWithExtraVal } from '../../common/api/util';
+import { puid } from '../../common/util';
+
+
+export class SubqFreqBarModelArgs {
+    dispatcher:IActionQueue;
+    tileId:number;
+    waitForTiles:Array<number>;
+    appServices:AppServices;
+    api:MultiBlockFreqDistribAPI;
+    concApi:ConcApi;
+    backlink:Backlink|null;
+    initState:FreqBarModelState;
+    subqConf:SubqueryModeConf;
+    subqSourceTiles:Array<number>;
+}
+
+
+interface FreqLoadResult {
+    resp: APIBlockResponse;
+    query:string;
+    critIdx:number
+}
 
 
 /**
@@ -48,15 +71,31 @@ export class SubqFreqBarModel extends FreqBarModel {
 
     private readonly concApi:ConcApi;
 
-    constructor(dispatcher:IActionQueue, tileId:number, waitForTile:number, appServices:AppServices, api:MultiBlockFreqDistribAPI,
-            concApi:ConcApi, backlink:Backlink|null, initState:FreqBarModelState, subqConf:SubqueryModeConf) {
-        super(dispatcher, tileId, waitForTile, appServices, api, backlink, initState);
+    constructor({dispatcher, tileId, waitForTiles, subqSourceTiles, appServices, api, concApi, backlink, initState, subqConf}:SubqFreqBarModelArgs) {
+        super({dispatcher, tileId, waitForTiles, subqSourceTiles, appServices, api, backlink, initState});
         this.subqConf = subqConf;
         this.concApi = concApi;
+        const superFn = this.actionMatch[GlobalActionName.TileDataLoaded];
+        this.actionMatch[GlobalActionName.TileDataLoaded] = (state, action:GlobalActions.TileDataLoaded<DataLoadedPayload>) => {
+            const superState = superFn(state, action);
+            if (action.payload && isSubqueryPayload(action.payload) && this.subqSourceTiles.has(action.payload.tileId)) {
+                const newState = this.copyState(superState);
+                newState.blocks = Immutable.List<FreqDataBlock<DataRow>>(
+                    action.payload.subqueries.slice(0, this.subqConf.maxNumSubqueries).map(subq => ({
+                        data: Immutable.List<DataRow>(),
+                        ident: puid(),
+                        label: subq.value,
+                        isReady: false
+                    }))
+                );
+                return newState;
+            }
+            return superState;
+        };
     }
 
 
-    private loadFreq(state:FreqBarModelState, corp:string, query:string):Observable<[APIBlockResponse, string]> {
+    private loadFreq(state:FreqBarModelState, corp:string, phrase:string, critIdx:number):Observable<FreqLoadResult> {
         return this.concApi.call({
             corpname: corp,
             kwicleftctx: '-1',
@@ -68,60 +107,75 @@ export class SubqFreqBarModel extends FreqBarModel {
             attrs: 'word',
             viewmode: ViewMode.KWIC,
             shuffle: 0,
-            queryselector: QuerySelector.LEMMA, // TODO ??
-            lemma: query, // TODO
+            queryselector: QuerySelector.PHRASE,
+            phrase: phrase,
             format:'json'
         } as RequestArgs)
         .pipe(
             concatMap((v:ConcResponse) => callWithExtraVal(
                 this.api,
-                stateToAPIArgs(state, v.concPersistenceID),
-                query
-            ))
+                stateToAPIArgs(state, v.concPersistenceID, 0), // in subq-mode we accept only a single crit.
+                phrase
+            )),
+            map(v => ({
+                resp: v[0],
+                query: v[1],
+                critIdx: critIdx
+            }))
         );
     }
 
     sideEffects(state:FreqBarModelState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
+                this.waitForTiles = this.waitForTiles.map(_ => true).toMap();
                 this.suspend((action:Action) => {
-                    if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile
+                    if (action.name === GlobalActionName.TileDataLoaded && this.subqSourceTiles.contains(action.payload['tileId'])
                             && isSubqueryPayload(action.payload)) {
                         const payload:SubqueryPayload = action.payload;
-                        const subqueries = payload.subqueries.slice(0, this.subqConf.maxNumSubqueries);
-                        forkJoin(
-                            subqueries.map(
-                                subq => this.loadFreq(
-                                    state,
-                                    this.subqConf.langMapping[payload.lang2],
-                                    subq.value
-                                )
-                            )
+                        this.waitForTiles = this.waitForTiles.set(payload.tileId, false);
+                        const subqueries:Array<{critIdx:number; v:SubQueryItem<string>}> = payload.subqueries
+                                .slice(0, this.subqConf.maxNumSubqueries)
+                                .map((v, i) => ({critIdx: i, v: v}));
+
+                        merge(...subqueries.map(
+                            subq => this.loadFreq(state, state.corpname, subq.v.value, subq.critIdx))
+
                         ).subscribe(
-                            (data) => {
-                                data
-                                    .map<[ApiDataBlock, string]>(([item, subq]) => [item.blocks[0], subq])
-                                    .forEach(([block, subq], critIdx) => {
-                                        dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                            name: GlobalActionName.TileDataLoaded,
-                                            payload: {
-                                                tileId: this.tileId,
-                                                isEmpty: block !== undefined,
-                                                block: {
-                                                        data: block.data.sort(((x1, x2) => x1.name.localeCompare(x2.name))).slice(0, state.maxNumCategories),
-                                                },
-                                                blockLabel: subq,
-                                                concId: null, // TODO do we need this?
-                                                critIdx: critIdx
-                                            }
-                                        });
+                            (data:FreqLoadResult) => {
+                                    const block = data.resp.blocks[0];
+                                    dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                        name: GlobalActionName.TileDataLoaded,
+                                        payload: {
+                                            tileId: this.tileId,
+                                            isEmpty: !block,
+                                            block: {
+                                                data: block ?
+                                                        block.data.sort(((x1, x2) => x1.freq - x2.freq)).slice(0, state.maxNumCategories) :
+                                                        null
+                                            },
+                                            blockLabel: data.query,
+                                            concId: null, // TODO do we need this?
+                                            critIdx: data.critIdx
+                                        }
                                     });
                             },
                             (err) => {
+                                dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                    name: GlobalActionName.TileDataLoaded,
+                                    payload: {
+                                        tileId: this.tileId,
+                                        isEmpty: true,
+                                        block: null,
+                                        blockLabel: null,
+                                        concId: null,
+                                        critIdx: null
+                                    }
+                                });
                                 console.log('err: ', err);
                             }
                         );
-                        return true;
+                        return !this.waitForTiles.contains(true);
                     }
                     return false;
                 });
@@ -131,18 +185,28 @@ export class SubqFreqBarModel extends FreqBarModel {
 }
 
 export const factory =
-    (
-        subqConf:SubqueryModeConf, concApi:ConcApi) =>
+    (subqConf:SubqueryModeConf, concApi:ConcApi) =>
     (
         dispatcher:IActionQueue,
         tileId:number,
-        waitForTile:number,
+        waitForTiles:Array<number>,
+        subqSourceTiles:Array<number>,
         appServices:AppServices,
         api:MultiBlockFreqDistribAPI,
         backlink:Backlink|null,
-        initState:FreqBarModelState) => {
-
-        return new SubqFreqBarModel(dispatcher, tileId, waitForTile, appServices, api,
-                    concApi, backlink, initState, subqConf);
+        initState:FreqBarModelState
+    ) => {
+        return new SubqFreqBarModel({
+            dispatcher: dispatcher,
+            tileId: tileId,
+            waitForTiles: waitForTiles,
+            appServices: appServices,
+            api: api,
+            concApi: concApi,
+            backlink: backlink,
+            initState: initState,
+            subqConf: subqConf,
+            subqSourceTiles: subqSourceTiles
+        });
 
     };
