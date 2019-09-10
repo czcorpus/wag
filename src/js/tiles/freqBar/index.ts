@@ -78,7 +78,7 @@ export class FreqBarTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({dispatcher, tileId, waitForTiles, ut, theme, appServices, widthFract, conf, isBusy, cache}:TileFactory.Args<FreqBarTileConf>) {
+    constructor({dispatcher, tileId, waitForTiles, subqSourceTiles, ut, theme, appServices, widthFract, conf, isBusy, cache}:TileFactory.Args<FreqBarTileConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
@@ -99,7 +99,8 @@ export class FreqBarTile implements ITileProvider {
         this.model = modelFact(
             this.dispatcher,
             tileId,
-            waitForTiles[0],
+            waitForTiles,
+            subqSourceTiles,
             appServices,
             new MultiBlockFreqDistribAPI(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             conf.backlink || null,
@@ -108,7 +109,8 @@ export class FreqBarTile implements ITileProvider {
                 error: null,
                 blocks: Immutable.List<FreqDataBlock<DataRow>>(criteria.map(v => ({
                     data: Immutable.List<DataRow>(),
-                    ident: puid()
+                    ident: puid(),
+                    isReady: false
                 }))),
                 activeBlock: 0,
                 corpname: conf.corpname,
@@ -121,7 +123,8 @@ export class FreqBarTile implements ITileProvider {
                 fttIncludeEmpty: conf.fttIncludeEmpty,
                 maxNumCategories: conf.maxNumCategories,
                 fmaxitems: 100,
-                backlink: null
+                backlink: null,
+                subqSyncPalette: false
             }
         );
         this.label = appServices.importExternalMessage(conf.label || 'freqBar__main_label');

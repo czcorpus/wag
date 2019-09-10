@@ -27,9 +27,10 @@ export enum ActionName {
 }
 
 export interface DataLoadedPayload {
-    blocks:Array<ApiDataBlock>;
-    blockLabels?:Array<LocalizedConfMsg>;
+    block:ApiDataBlock;
+    blockLabel?:LocalizedConfMsg;
     concId:string;
+    critIdx:number;
 }
 
 export namespace Actions {

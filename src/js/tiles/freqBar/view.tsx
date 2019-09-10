@@ -121,25 +121,24 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         render() {
             const chartsViewBoxWidth = this.props.isMobile ? '100%' : `${100 / this.props.blocks.size}%`;
-
             return (
                 <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
-                        hasData={this.props.blocks.find(v => v.data.size > 0) !== undefined}
+                        hasData={this.props.blocks.find(v => v.isReady) !== undefined}
                         sourceIdent={{corp: this.props.corpname}}
                         backlink={this.props.backlink}
                         supportsTileReload={this.props.supportsReloadOnError}>
                     <div className="FreqBarTile">
-                        <div className="charts" ref={this.chartsRef} onScroll={this.handleScroll}>
-                            {this.props.blocks.map(block => {
+                        <div className={`charts${this.props.isBusy ? ' incomplete' : ''}`} ref={this.chartsRef} onScroll={this.handleScroll}>
+                            {this.props.blocks.filter(block => block.isReady).map(block => {
                                 const chartWidth = this.props.isMobile ? (this.props.renderSize[0] * 0.9).toFixed() : "90%";
-                                return (
+                                return  (
                                     <div key={block.ident} style={{width: chartsViewBoxWidth, height: "100%"}}>
                                         <h3>{block.label}</h3>
                                         <Chart data={block.data} width={chartWidth} height={70 + block.data.size * 40}
                                                 isMobile={this.props.isMobile} />
                                     </div>
                                 );
-                            })}
+                                })}
                         </div>
                         {this.props.isMobile && this.props.blocks.size > 1 ?
                             <globComponents.HorizontalBlockSwitch htmlClass="ChartSwitch"

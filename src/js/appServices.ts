@@ -158,7 +158,7 @@ export class AppServices {
     getApiHeaders(apiUrl:string):HTTPHeaders {
         const prefixes = Object.keys(this.apiHeadersMapping);
         for (let i = 0; i < prefixes.length; i += 1) {
-            if (apiUrl.indexOf(prefixes[i]) === 0) {
+            if (apiUrl && apiUrl.indexOf(prefixes[i]) === 0) {
                 return this.apiHeadersMapping[prefixes[i]];
             }
         }

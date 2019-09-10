@@ -22,6 +22,7 @@ import { LemmaVariant } from '../../query';
 import { WordFormsApi, RequestConcArgs, Response } from '../abstract/wordForms';
 import { HTTPHeaders, IAsyncKeyValueStore } from '../../types';
 import { FreqDistribAPI } from './freqs';
+import { puid } from '../../util';
 
 
 export interface HTTPResponse {
@@ -72,7 +73,8 @@ ml: 0
                         forms: item.data.map(v => ({
                             value: v.name,
                             freq: v.freq,
-                            ratio: v.freq / total
+                            ratio: v.freq / total,
+                            interactionId: puid()
                         }))
                     };
                 }

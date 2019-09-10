@@ -26,6 +26,7 @@ import { QueryFormModel, findCurrLemmaVariant } from '../../models/query';
 import { ConcLoadedPayload } from '../concordance/actions';
 import { calcPercentRatios } from '../../common/util';
 import { AlphaLevel, wilsonConfInterval } from '../timeDistrib/stat';
+import { AjaxTimeoutError } from 'rxjs/ajax';
 
 
 
@@ -139,7 +140,8 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                     (item, ratio) => ({
                         value: item.value,
                         freq: item.freq,
-                        ratio: ratio
+                        ratio: ratio,
+                        interactionId: item.interactionId
                     })
                 );
                 return {
@@ -154,7 +156,13 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                     payload: {
                         tileId: this.tileId,
                         isEmpty: false,
-                        data: data.forms
+                        data: data.forms,
+                        subqueries: data.forms.map(v => ({
+                            value: v.value,
+                            interactionId: v.interactionId
+                        })),
+                        lang1: null,
+                        lang2: null
                     }
                 });
             },
@@ -166,7 +174,10 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                     payload: {
                         tileId: this.tileId,
                         isEmpty: true,
-                        data: []
+                        data: [],
+                        subqueries: [],
+                        lang1: null,
+                        lang2: null
                     }
                 });
             }
@@ -189,7 +200,10 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                                         payload: {
                                             tileId: this.tileId,
                                             isEmpty: true,
-                                            data: []
+                                            data: [],
+                                            subqueries: [],
+                                            lang1: null,
+                                            lang2: null
                                         }
                                     });
 

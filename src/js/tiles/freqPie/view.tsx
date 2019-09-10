@@ -24,28 +24,24 @@ import { Theme } from '../../common/theme';
 import { CoreTileComponentProps, TileComponent } from '../../common/tile';
 import { GlobalComponents } from '../../views/global';
 import { ActionName } from './actions';
-import { FreqPieDataRow, FreqPieModel, FreqPieModelState } from './model';
 import { FreqDataBlock } from '../../common/models/freq';
+import { DataRow } from '../../common/api/kontext/freqs';
+import { FreqBarModel, FreqBarModelState } from '../freqBar/model';
 
 
-export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:FreqPieModel):TileComponent {
+export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:FreqBarModel):TileComponent {
 
     const globalComponents = ut.getComponents();
     const catList = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
     const colorPalette = theme.categoryPalette(catList);
 
-    const createColorMapping = (blocks:Immutable.List<FreqDataBlock<FreqPieDataRow>>):{[v:string]:string} => {
+    const createColorMapping = (blocks:Immutable.List<FreqDataBlock<DataRow>>):{[v:string]:string} => {
         const ans = {};
         let i = 0;
         blocks.flatMap(block => block.data).forEach(item => {
-            if (item.isTheRest) {
-                ans[item.name] = theme.categoryOtherColor();
-
-            } else {
-                if (ans[item.name] === undefined) {
-                    ans[item.name] = colorPalette(`${i % catList.length}`);
-                    i += 1;
-                }
+            if (ans[item.name] === undefined) {
+                ans[item.name] = colorPalette(`${i % catList.length}`);
+                i += 1;
             }
         });
         return ans;
@@ -81,15 +77,14 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // ------- <Chart /> ---------------------------------------------------
 
     const Chart:React.SFC<{
-        data:Immutable.List<FreqPieDataRow>;
+        data:Immutable.List<DataRow>;
         width:string;
         height:number;
         radius:number;
         isMobile:boolean;
-        palette:(item:FreqPieDataRow, i:number)=>string;
+        palette:(item:DataRow, i:number)=>string;
 
     }> = (props) => {
-
         const renderCustomizedLabel = ({cx, cy, midAngle, innerRadius, outerRadius, percent, index}) => {
             const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
             const x  = cx + radius * Math.cos(-midAngle * Math.PI / 180);
@@ -97,7 +92,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
             return (
                 <text x={x} y={y} fill="white" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central">
-                    {`${(percent).toFixed(1)}%`}
+                    {`${(percent * 100).toFixed(1)}%`}
                 </text>
             );
         };
@@ -106,7 +101,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             <ChartWrapper isMobile={props.isMobile} width={props.width} height={props.height}>
                 <Pie
                         data={props.data.toArray()}
-                        dataKey="percent"
+                        dataKey="ipm"
                         labelLine={false}
                         label={renderCustomizedLabel}
                         outerRadius={props.radius}
@@ -122,76 +117,68 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------- <FreqPieTileView /> ---------------------------------------------------
 
-    class FreqPieTileView extends React.PureComponent<FreqPieModelState & CoreTileComponentProps> {
+    const FreqPieTileView:React.SFC<FreqBarModelState & CoreTileComponentProps> = (props) => {
 
-        private chartsRef:React.RefObject<HTMLDivElement>;
+        const chartsRef:React.RefObject<HTMLDivElement> = React.useRef(null);
 
-        constructor(props) {
-            super(props);
-            this.chartsRef = React.createRef();
-            this.handleScroll = this.handleScroll.bind(this);
-            this.handleDotClick = this.handleDotClick.bind(this);
-        }
 
-        private handleScroll():void {
+        const handleScroll = () => {
             dispatcher.dispatch({
                 name: ActionName.SetActiveBlock,
                 payload: {
-                    idx: Math.round(this.chartsRef.current.scrollLeft / this.props.renderSize[0]),
-                    tileId: this.props.tileId
+                    idx: Math.round(chartsRef.current.scrollLeft / props.renderSize[0]),
+                    tileId: props.tileId
                 }
             });
+        };
+
+        const handleDotClick = (idx:number) => {
+            if (chartsRef.current && props.isMobile) {
+                chartsRef.current.scrollLeft = Math.round(props.renderSize[0] * 0.95 * idx);
+            }
+        };
+
+        const chartsViewBoxWidth = props.isMobile ? '100%' : `${100 / props.blocks.size}%`;
+
+        let paletteFn:(item:DataRow, i:number)=>string;
+        if (props.subqSyncPalette) {
+            const mapping = createColorMapping(props.blocks);
+            paletteFn = (item:DataRow, i:number) => mapping[item.name];
+
+        } else {
+            paletteFn = (_, i:number) => colorPalette(`${i}`);
         }
 
-        private handleDotClick(idx:number) {
-            if (this.chartsRef.current && this.props.isMobile) {
-                this.chartsRef.current.scrollLeft = Math.round(this.props.renderSize[0] * 0.95 * idx);
-            }
-        }
-
-        render() {
-            const chartsViewBoxWidth = this.props.isMobile ? '100%' : `${100 / this.props.blocks.size}%`;
-
-            let paletteFn:(item:FreqPieDataRow, i:number)=>string;
-            if (this.props.useConsistentPalette) {
-                const mapping = createColorMapping(this.props.blocks);
-                paletteFn = (item:FreqPieDataRow, i:number) => mapping[item.name];
-
-            } else {
-                paletteFn = (_, i:number) => colorPalette(`${i}`);
-            }
-
-            return (
-                <globalComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
-                        hasData={this.props.blocks.find(v => v.data.size > 0) !== undefined}
-                        sourceIdent={{corp: this.props.corpname}}
-                        backlink={this.props.backlink}
-                        supportsTileReload={this.props.supportsReloadOnError}>
-                    <div className="FreqPieTileView">
-                        <div className="charts" ref={this.chartsRef} onScroll={this.handleScroll}>
-                            {this.props.blocks.map(block => {
-                                const chartWidth = this.props.isMobile ? (this.props.renderSize[0] * 0.95).toFixed() : "90%";
-                                return (
-                                    <div key={block.ident} style={{width: chartsViewBoxWidth, height: "100%"}}>
-                                        <h3>{block.label}</h3>
-                                        <Chart data={block.data} width={chartWidth} height={300}
-                                                radius={Math.min(this.props.renderSize[0], 90)}
-                                                isMobile={this.props.isMobile}
-                                                palette={paletteFn} />
-                                    </div>
-                                );
-                            })}
-                        </div>
-                        {this.props.isMobile && this.props.blocks.size > 1 ?
-                            <globalComponents.HorizontalBlockSwitch blockIndices={this.props.blocks.map((_, i) => i).toList()}
-                                    currentIdx={this.props.activeBlock}
-                                    onChange={this.handleDotClick} /> :
-                            null
-                        }
+        return (
+            <globalComponents.TileWrapper tileId={props.tileId} isBusy={props.isBusy} error={props.error}
+                    hasData={props.blocks.find(v => v.isReady && v.data.size > 0) !== undefined}
+                    sourceIdent={{corp: props.corpname}}
+                    backlink={props.backlink}
+                    supportsTileReload={props.supportsReloadOnError}>
+                <div className="FreqPieTileView">
+                    <div className="charts" ref={chartsRef} onScroll={handleScroll}>
+                        {props.blocks.map(block => {
+                            const chartWidth = props.isMobile ? (props.renderSize[0] * 0.95).toFixed() : "90%";
+                            return (
+                                <div key={block.ident} style={{width: chartsViewBoxWidth, height: "100%"}}>
+                                    <h3>{block.label}</h3>
+                                    <Chart data={block.data} width={chartWidth} height={300}
+                                            radius={Math.min(props.renderSize[0], 90)}
+                                            isMobile={props.isMobile}
+                                            palette={paletteFn} />
+                                </div>
+                            );
+                        })}
                     </div>
-                </globalComponents.TileWrapper>
-            );
-        }
+                    {props.isMobile && props.blocks.size > 1 ?
+                        <globalComponents.HorizontalBlockSwitch blockIndices={props.blocks.map((_, i) => i).toList()}
+                                currentIdx={props.activeBlock}
+                                onChange={handleDotClick} /> :
+                        null
+                    }
+                </div>
+            </globalComponents.TileWrapper>
+        );
     }
 
     return BoundWithProps(FreqPieTileView, model);
