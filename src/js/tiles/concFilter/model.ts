@@ -283,12 +283,19 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                             if (this.subqSourceTiles.contains(basicPayload.tileId) && isSubqueryPayload(payload)) {
                                 this.numPendingSources += payload.subqueries.length;
                             }
+                            if (this.subqSourceTiles.contains(basicPayload.tileId) && this.waitingForTiles.get(basicPayload.tileId) === null) {
+                                if (isCollocSubqueryPayload(payload)) {
+                                    this.waitingForTiles = this.waitingForTiles.set(
+                                        basicPayload.tileId,
+                                        payload.subqueries
+                                    );
 
-                            if (isCollocSubqueryPayload(payload) && this.waitingForTiles.get(basicPayload.tileId) === null) {
-                                this.waitingForTiles = this.waitingForTiles.set(
-                                    basicPayload.tileId,
-                                    payload.subqueries
-                                );
+                                } else {
+                                    this.waitingForTiles = this.waitingForTiles.set(
+                                        basicPayload.tileId,
+                                        []
+                                    );
+                                }
 
                             } else if (isConcLoadedPayload(payload) && this.waitingForTiles.get(basicPayload.tileId) === null) {
                                 this.waitingForTiles = this.waitingForTiles.set(
