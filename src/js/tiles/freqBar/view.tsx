@@ -134,8 +134,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 return  (
                                     <div key={block.ident} style={{width: chartsViewBoxWidth, height: "100%"}}>
                                         <h3>{block.label}</h3>
-                                        <Chart data={block.data} width={chartWidth} height={70 + block.data.size * 40}
-                                                isMobile={this.props.isMobile} />
+                                        {block.data.size > 0 ?
+                                            <Chart data={block.data} width={chartWidth} height={70 + block.data.size * 40}
+                                                    isMobile={this.props.isMobile} /> :
+                                            <p className="note" style={{textAlign: 'center'}}>No result</p>
+                                        }
                                     </div>
                                 );
                                 })}
