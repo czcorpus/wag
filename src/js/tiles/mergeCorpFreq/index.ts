@@ -53,7 +53,7 @@ export interface MergeCorpFreqTileConf extends TileConf {
           * the query 'house' the value will be 'house')
           * by something more specific (e.g. 'social media')
           */
-        valuePlaceholder?:string;
+        valuePlaceholder?:{[lang:string]:string};
         backlink?:Backlink;
 
         /**

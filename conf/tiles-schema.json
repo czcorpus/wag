@@ -1,5 +1,54 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": {
+        "additionalProperties": {
+            "anyOf": [
+                {
+                    "$ref": "#/definitions/CollocationsTileConf"
+                },
+                {
+                    "$ref": "#/definitions/ConcFilterTileConf"
+                },
+                {
+                    "$ref": "#/definitions/ConcordanceTileConf"
+                },
+                {
+                    "$ref": "#/definitions/FreqBarTileConf"
+                },
+                {
+                    "$ref": "#/definitions/FreqPieTileConf"
+                },
+                {
+                    "$ref": "#/definitions/GeoAreasTileConf"
+                },
+                {
+                    "$ref": "#/definitions/MergeCorpFreqTileConf"
+                },
+                {
+                    "$ref": "#/definitions/SyDTileConf"
+                },
+                {
+                    "$ref": "#/definitions/TimeDistTileConf"
+                },
+                {
+                    "$ref": "#/definitions/TreqTileConf"
+                },
+                {
+                    "$ref": "#/definitions/TreqSubsetsTileConf"
+                },
+                {
+                    "$ref": "#/definitions/WordFreqTileConf"
+                },
+                {
+                    "$ref": "#/definitions/WordFormsTileConf"
+                },
+                {
+                    "$ref": "#/definitions/SpeechesTileConf"
+                }
+            ]
+        },
+        "type": "object"
+    },
     "definitions": {
         "AlphaLevel": {
             "enum": [
@@ -213,39 +262,6 @@
                 "minLocalFreq",
                 "rangeSize",
                 "tileType"
-            ],
-            "type": "object"
-        },
-        "ColorsConf": {
-            "description": "This specifies a 'theming' for\nJavaScript generated stuff\n(mainly chart colors).",
-            "properties": {
-                "bar": {
-                    "items": {
-                        "type": "string"
-                    },
-                    "type": "array"
-                },
-                "category": {
-                    "items": {
-                        "type": "string"
-                    },
-                    "type": "array"
-                },
-                "categoryOther": {
-                    "type": "string"
-                },
-                "scale": {
-                    "items": {
-                        "type": "string"
-                    },
-                    "type": "array"
-                }
-            },
-            "required": [
-                "bar",
-                "category",
-                "categoryOther",
-                "scale"
             ],
             "type": "object"
         },
@@ -985,62 +1001,6 @@
             ],
             "type": "object"
         },
-        "GroupLayoutConfig": {
-            "properties": {
-                "groupDescURL": {
-                    "anyOf": [
-                        {
-                            "additionalProperties": {
-                                "type": "string"
-                            },
-                            "type": "object"
-                        },
-                        {
-                            "type": "string"
-                        }
-                    ]
-                },
-                "groupLabel": {
-                    "anyOf": [
-                        {
-                            "additionalProperties": {
-                                "type": "string"
-                            },
-                            "type": "object"
-                        },
-                        {
-                            "type": "string"
-                        }
-                    ]
-                },
-                "groupTemplate": {
-                },
-                "tiles": {
-                    "items": {
-                        "properties": {
-                            "tile": {
-                                "type": "string"
-                            },
-                            "width": {
-                                "type": "number"
-                            }
-                        },
-                        "required": [
-                            "tile",
-                            "width"
-                        ],
-                        "type": "object"
-                    },
-                    "type": "array"
-                }
-            },
-            "required": [
-                "groupDescURL",
-                "groupLabel",
-                "tiles"
-            ],
-            "type": "object"
-        },
         "HTTPMethod": {
             "enum": [
                 "CONNECT",
@@ -1054,194 +1014,6 @@
                 "TRACE"
             ],
             "type": "string"
-        },
-        "HomePageTileConf": {
-            "properties": {
-                "contents": {
-                    "additionalProperties": {
-                        "anyOf": [
-                            {
-                                "properties": {
-                                    "file": {
-                                        "type": "string"
-                                    }
-                                },
-                                "required": [
-                                    "file"
-                                ],
-                                "type": "object"
-                            },
-                            {
-                                "type": "string"
-                            }
-                        ]
-                    },
-                    "type": "object"
-                },
-                "label": {
-                    "additionalProperties": {
-                        "type": "string"
-                    },
-                    "type": "object"
-                }
-            },
-            "required": [
-                "contents",
-                "label"
-            ],
-            "type": "object"
-        },
-        "HomepageConf": {
-            "properties": {
-                "tiles": {
-                    "items": {
-                        "$ref": "#/definitions/HomePageTileConf"
-                    },
-                    "type": "array"
-                }
-            },
-            "required": [
-                "tiles"
-            ],
-            "type": "object"
-        },
-        "LanguageAnyTileConf": {
-            "additionalProperties": {
-                "additionalProperties": {
-                    "anyOf": [
-                        {
-                            "$ref": "#/definitions/CollocationsTileConf"
-                        },
-                        {
-                            "$ref": "#/definitions/ConcFilterTileConf"
-                        },
-                        {
-                            "$ref": "#/definitions/ConcordanceTileConf"
-                        },
-                        {
-                            "$ref": "#/definitions/FreqBarTileConf"
-                        },
-                        {
-                            "$ref": "#/definitions/FreqPieTileConf"
-                        },
-                        {
-                            "$ref": "#/definitions/GeoAreasTileConf"
-                        },
-                        {
-                            "$ref": "#/definitions/MergeCorpFreqTileConf"
-                        },
-                        {
-                            "$ref": "#/definitions/SyDTileConf"
-                        },
-                        {
-                            "$ref": "#/definitions/TimeDistTileConf"
-                        },
-                        {
-                            "$ref": "#/definitions/TreqTileConf"
-                        },
-                        {
-                            "$ref": "#/definitions/TreqSubsetsTileConf"
-                        },
-                        {
-                            "$ref": "#/definitions/WordFreqTileConf"
-                        },
-                        {
-                            "$ref": "#/definitions/WordFormsTileConf"
-                        },
-                        {
-                            "$ref": "#/definitions/SpeechesTileConf"
-                        }
-                    ]
-                },
-                "type": "object"
-            },
-            "type": "object"
-        },
-        "LanguageLayoutsConfig": {
-            "additionalProperties": {
-                "$ref": "#/definitions/LayoutsConfig"
-            },
-            "type": "object"
-        },
-        "LayoutsConfig": {
-            "properties": {
-                "cmp": {
-                    "properties": {
-                        "groups": {
-                            "items": {
-                                "anyOf": [
-                                    {
-                                        "$ref": "#/definitions/GroupLayoutConfig"
-                                    },
-                                    {
-                                        "type": "string"
-                                    }
-                                ]
-                            },
-                            "type": "array"
-                        }
-                    },
-                    "required": [
-                        "groups"
-                    ],
-                    "type": "object"
-                },
-                "single": {
-                    "properties": {
-                        "groups": {
-                            "items": {
-                                "anyOf": [
-                                    {
-                                        "$ref": "#/definitions/GroupLayoutConfig"
-                                    },
-                                    {
-                                        "type": "string"
-                                    }
-                                ]
-                            },
-                            "type": "array"
-                        }
-                    },
-                    "required": [
-                        "groups"
-                    ],
-                    "type": "object"
-                },
-                "translat": {
-                    "properties": {
-                        "groups": {
-                            "items": {
-                                "anyOf": [
-                                    {
-                                        "$ref": "#/definitions/GroupLayoutConfig"
-                                    },
-                                    {
-                                        "type": "string"
-                                    }
-                                ]
-                            },
-                            "type": "array"
-                        },
-                        "targetLanguages": {
-                            "items": {
-                                "type": "string"
-                            },
-                            "type": "array"
-                        }
-                    },
-                    "required": [
-                        "groups",
-                        "targetLanguages"
-                    ],
-                    "type": "object"
-                }
-            },
-            "required": [
-                "cmp",
-                "single",
-                "translat"
-            ],
-            "type": "object"
         },
         "MergeCorpFreqTileConf": {
             "properties": {
@@ -2235,100 +2007,6 @@
             "type": "object"
         }
     },
-    "description": "Client side app configuration as present in wdglance.json\nconfiguration file.",
-    "properties": {
-        "apiHeaders": {
-            "additionalProperties": {
-                "additionalProperties": {
-                    "type": "string"
-                },
-                "type": "object"
-            },
-            "type": "object"
-        },
-        "colors": {
-            "$ref": "#/definitions/ColorsConf"
-        },
-        "corpInfoApiUrl": {
-            "type": "string"
-        },
-        "dbValuesMapping": {
-            "additionalProperties": {
-                "additionalProperties": {
-                    "anyOf": [
-                        {
-                            "additionalProperties": {
-                                "type": "string"
-                            },
-                            "type": "object"
-                        },
-                        {
-                            "type": "string"
-                        }
-                    ]
-                },
-                "type": "object"
-            },
-            "type": "object"
-        },
-        "homepage": {
-            "$ref": "#/definitions/HomepageConf"
-        },
-        "hostUrl": {
-            "type": "string"
-        },
-        "layouts": {
-            "anyOf": [
-                {
-                    "$ref": "#/definitions/LanguageLayoutsConfig"
-                },
-                {
-                    "type": "string"
-                }
-            ]
-        },
-        "onLoadInit": {
-            "items": {
-                "type": "string"
-            },
-            "type": "array"
-        },
-        "reqCacheTTL": {
-            "type": "number"
-        },
-        "rootUrl": {
-            "type": "string"
-        },
-        "searchLanguages": {
-            "additionalProperties": {
-                "type": "string"
-            },
-            "type": "object"
-        },
-        "tiles": {
-            "anyOf": [
-                {
-                    "$ref": "#/definitions/LanguageAnyTileConf"
-                },
-                {
-                    "type": "string"
-                }
-            ]
-        }
-    },
-    "required": [
-        "apiHeaders",
-        "colors",
-        "corpInfoApiUrl",
-        "dbValuesMapping",
-        "homepage",
-        "hostUrl",
-        "layouts",
-        "reqCacheTTL",
-        "rootUrl",
-        "searchLanguages",
-        "tiles"
-    ],
     "type": "object"
 }
 
