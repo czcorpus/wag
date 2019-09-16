@@ -83,7 +83,7 @@ export interface ColorsConf {
 export interface GroupLayoutConfig {
     groupLabel:LocalizedConfMsg;
     groupDescURL:LocalizedConfMsg;
-    groupTemplate:any; // TODO unfinished concept
+    groupTemplate?:any; // TODO unfinished concept
     tiles:Array<{tile:string; width:number}>;
 }
 
@@ -127,12 +127,19 @@ export interface ClientStaticConf {
 
     // If string we expect this to be a fs path to another
     // JSON file containing just the 'tiles' configuration
-    tiles:{[lang:string]:{[ident:string]:AnyTileConf}}|string;
+    tiles:LanguageAnyTileConf|string;
 
     // If string we expect this to be a fs path to another
     // JSON file containing just the 'layout' configuration.
-	layouts:{[lang:string]:LayoutsConfig}|string;
+	layouts:LanguageLayoutsConfig|string;
 }
+
+/**
+ * These types are necessary to create config schemata
+ * using Makefile for tiles and layouts only
+ */
+export interface LanguageLayoutsConfig {[lang:string]:LayoutsConfig};
+export interface LanguageAnyTileConf {[lang:string]:{[ident:string]:AnyTileConf}};
 
 /**
  * Client side app configuration as generated

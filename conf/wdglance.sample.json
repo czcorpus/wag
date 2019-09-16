@@ -7,81 +7,181 @@
 			"X-Api-Token": "123456"
 		}
 	},
-	"layouts": {
-		"single": {
-			"groups": [
-				{
-					"groupLabel": "Souhrnné informace",
-					"groupDesc": "Souhrnné informace",
-					"tiles": [
-							{"tile": "WordFreq", "width": 2},
-							{"tile": "RootTypeDist", "width": 1}
-					]
+	"reqCacheTTL": 0,
+	"searchLanguages":{
+		"cs": "Čeština",
+		"en": "English"
+	},
+	"homepage": {
+		"tiles": [
+			{
+				"label": {
+					"cs-CZ": "Co je Slovo v kostce?",
+					"en-US": "What is Word at a Glance?"
 				},
+				"contents": {
+					"cs-CZ": {"file": "/opt/wdglance/data/empty.html"},
+					"en-US": {"file": "/opt/wdglance/data/empty.html"}
+				}
+			},
+			{
+				"label": {
+					"cs-CZ": "Jak využívat Slovo v kostce?",
+					"en-US": "Notes"
+				},
+				"contents": {
+					"cs-CZ": {"file": "/opt/wdglance/data/empty.html"},
+					"en-US": {"file": "/opt/wdglance/data/empty.html"}
+				}
+			},
+			{
+				"label": {
+					"cs-CZ": "Další zdroje",
+					"en-US": "Other information"
+				},
+				"contents": {
+					"cs-CZ": {"file": "/opt/wdglance/data/empty.html"},
+					"en-US": {"file": "/opt/wdglance/data/empty.html"}
+				}
+			}
+		]
+	},
+	"layouts": {
+		"cs": {
+			"single": {
+				"groups": [
+					{
+						"groupLabel": "Současný psaný jazyk",
+						"groupDescURL": {
+							"cs-CZ": "/wdg/static/vendor/ucnk/groups-help/single/freqProfile.cs.html",
+							"en-US": "/wdg/static/vendor/ucnk/groups-help/single/freqProfile.en.html"
+						},
+						"__tiles": [
+							{"tile": "WordFreq", "width": 1},
+							{"tile": "RootTypeDist", "width": 1},
+							{"tile": "WordFormsMain", "width": 1},
+							{"tile": "CollocationsSynchronic", "width": 1},
+							{"tile": "CollocExamplesSynchronic", "width": 2},
+							{"tile": "TimeDistLemmaSynchronic", "width": 3}
+						],
+						"tiles": [
+							{"tile": "WordFreq", "width": 1},
+							{"tile": "RootTypeDist", "width": 1},
+							{"tile": "WordFormsMain", "width": 1},
+							{"tile": "SpeakerPropFreqs", "width": 2},
+							{"tile": "ConcordanceSynchronic", "width": 3},
+							{"tile": "TimeDistLemmaSynchronic", "width": 3},
+							{"tile": "CollocationsSynchronic", "width": 1},
+							{"tile": "CollocExamplesSynchronic", "width": 2}
+						]
+					},
+					{
+						"groupLabel": "Současný mluvený jazyk",
+						"groupDescURL": "Tato část obsahuje data získaná z tzv. mluvených korpusů, které obsahují přepisy rozhovorů mezi rodilými mluvčími češtiny",
+						"tiles": [
+							{"tile": "SpeakerArea", "width": 2},
+							{"tile": "SpeechesOral", "width": 1}
+						]
+					},
+					"ConcordanceSpoken",
+					"ConcordanceSpokenWithSound"
+				]
+			},
+			"cmp": {
+				"groups": [
+					{
+						"groupLabel": "Data ze SyDu",
+						"groupDescURL": "V této části zatím funguje jen testování proveditelnosti",
+						"tiles": [
+								{"tile": "SyDTile", "width": 3}
+						]
+					}
+				]
+			},
+			"translat": {
+				"targetLanguages": ["en"],
+				"groups": [
+					{
+						"groupLabel": "Překlad z korpusových dat",
+						"groupDescURL": "/wdg/static/vendor/ucnk/groups-help/translat/main.cs.html",
+						"tiles": [
+							{"tile": "Treq", "width": 1},
+							{"tile": "TreqSubsets", "width": 2},
+							{"tile": "TranslationExamples", "width": 3}
+						]
+					},
+					"ConcordanceParallel"
+				]
+			}
+		},
+		"en": {
+			"__single": [
 				{
 					"groupLabel": "Současný psaný jazyk",
-					"groupDesc": "Tato část poskytuje přehled o vyhledaném slově v psané jazyce. Jedná se zejména o beletrii, publicistiku, odbornou literaturu apod. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-					"groupTemplate": null,
+					"groupDescURL": "Tato část poskytuje přehled o vyhledaném slově v psané jazyce. Jedná se zejména o beletrii, publicistiku, odbornou literaturu apod.",
 					"tiles": [
-						{"tile": "CollocationsSynchronic", "width": 1},
-						{"tile": "CollocExamplesSynchronic", "width": 2},
-						{"tile": "TimeDistLemmaSynchronic", "width": 2}
-					]
-				},
-				{
-					"groupLabel": "Současný mluvený jazyk",
-					"groupDesc": "Tato část obsahuje data získaná z tzv. mluvených korpusů, které obsahují přepisy rozhovorů mezi rodilými mluvčími češtiny",
-					"tiles": [
-							{"tile": "SpeakerRegion", "width": 3},
-							{"tile": "SpeakerSocio", "width": 3},
-							{"tile": "ConcordanceSpoken", "width": 2}
-					]
-				},
-				"ConcordanceSynchronic"
-			]
-		},
-		"cmp": {
-			"groups": [
-				{
-					"groupLabel": "Data ze SyDu",
-					"groupDesc": "V této části zatím funguje jen testování proveditelnosti",
-					"tiles": [
-							{"tile": "SyDTile", "width": 3}
+						{"tile": "ConcordanceSynchronicEN", "width": 3},
+						{"tile": "TimeDistTileConf", "width": 2}
 					]
 				}
-			]
-		},
-		"translat": {
-			"targetLanguages": ["en", "de"],
-			"groups": [
-				{
-					"groupLabel": "Překlad z korpusových dat",
-					"groupDesc": "Tato část obsahuje výsledky získané z tzv. paralelního korpusu, který je tvořen dvěma obsahově stejnými korpusy v různých jazycích. Současně je doplněn informacemi o tom, která věta (či věty) v jednom jazyce odpovídá které větě (či větám) v druhém jazyce. Na základě toho je možné odvodit též přibližný překlad jednotlivých slov.",
-					"tiles": [
-						{"tile": "Treq", "width": 1},
-						{"tile": "TreqSubsets", "width": 2},
-						{"tile": "ConcordanceParallel", "width": 3}
-					]
-				}
-			]
+			],
+			"single": {
+				"groups": []
+			},
+			"cmp": {
+				"groups": []
+			},
+			"translat": {
+				"targetLanguages": [],
+				"groups": []
+			}
+		}
 	},
 	"tiles": {
 		"cs": {
 			"WordFreq": {
 				"tileType": "WordFreqTile",
-				"label": {"cs-CZ": "Frekvenční informace", "en-US": "Frequency information"},
-				"apiURL": "http://portal.korpus.test/wdg/similar-freq-words",
-				"helpURL": "http://portal.korpus.test/wdg/static/help/czcorpus/missing.html",
+				"label": {
+					"cs-CZ": "Souhrn",
+					"en-US": "summary"
+				},
+				"apiURL": "/wdg/similar-freq-words",
+				"helpURL": "/wdg/static/vendor/ucnk/tiles-help/single/WordFreqProfile.cs.html",
 				"corpname": "syn2015",
 				"corpusSize": 120748715,
-				"sfwRowRange": 7
+				"sfwRowRange": 7,
+				
+				"fcrit": "anything",
+				"flimit": 100,
+				"fpage": 1,
+				"freqSort": "anything",
+				"fttIncludeEmpty": false
+			},
+			"WordFormsMain": {
+				"tileType": "WordFormsTile",
+				"__waitFor": "ConcordanceSynchronic",
+				"label": {
+					"cs-CZ": "Tvary",
+					"en-US": "Forms"
+				},
+				"apiType": "wdglance",
+				"apiURL": "/wdg/word-forms/",
+				"corpname": "syn2015",
+				"maxNumItems": 10,
+				"corpusSize": 120748715,
+				"freqFilterAlphaLevel": "0.05",
+	
+				"helpURL": "anything"
 			},
 			"RootTypeDist": {
 				"tileType": "MergeCorpFreqTile",
-				"apiURL": "http://kontext.korpus.test/kontext-api/freqs",
-				"dependsOn": ["ConcordanceSynchronic", "ConcordanceSpoken"],
+				"apiURL": "/kontext/freqs",
+				"waitFor": [
+					"ConcordanceSynchronic",
+					"ConcordanceSpoken"
+				],
 				"label": "Zastoupení podle použití",
-				"pixelsPerItem": 40,
+				"pixelsPerItem": 80,
 				"sources": [
 					{
 						"corpname": "syn2015",
@@ -90,170 +190,395 @@
 						"flimit": 1,
 						"freqSort": "freq",
 						"fpage": 1,
-						"fttIncludeEmpty": false,
-						"backlink": {
-							"url": "http://kontext.korpus.test/kontext-api/freqs",
-							"label": "typy textů v syn2015 (KonText)"
-						}
+						"fttIncludeEmpty": false
 					},
 					{
 						"corpname": "oral_v1",
 						"corpusSize": 3285508,
-						"valuePlaceholder": {"cs-CZ": "Mluvený jazyk", "en-US": "Spoken language"},
+						"valuePlaceholder": {
+							"cs-CZ": "Mluvený jazyk",
+							"en-US": "Spoken language"
+						},
 						"fcrit": "lemma/ie 0<0",
 						"flimit": 1,
 						"freqSort": "freq",
 						"fpage": 1,
-						"fttIncludeEmpty": false,
-						"backlink": {
-							"url": "http://kontext.korpus.test/kontext-api/freqs",
-							"label": "výsledky v oral_v1 (KonText)"
-						}
+						"fttIncludeEmpty": false
 					}
-				]
+				],
+	
+				"helpURL": "anything"
 			},
 			"ConcordanceSynchronic": {
 				"tileType": "ConcordanceTile",
-				"apiURL": "http://kontext.korpus.test/kontext-api/first",
-				"helpURL": "http://portal.korpus.test/wdg/static/help/czcorpus/missing.html",
+				"apiURL": "/kontext/first",
+				"apiType": "kontext",
 				"backlink": {
-					"url": "http://kontext.korpus.test/kontext-api/view",
-					"label": "See in KonText"
+					"label": "KonText",
+					"url": "/kontext/view"
 				},
+				"helpURL": "/wdg/static/help/czcorpus/missing.html",
 				"corpname": "syn2015",
-				"posAttrs": ["word", "lemma", "tag"],
-				"pageSize": 20,
-				"posQueryGenerator": ["pos", "directPos"]
-			},
-			"ConcordanceSpoken": {
-				"tileType": "ConcordanceTile",
-				"apiURL": "http://kontext.korpus.test/kontext-api/first",
-				"corpname": "oral_v1",
-				"posAttrs": ["word"],
-				"pageSize": 20,
-				"posQueryGenerator": ["pos", "directPos"]
-			},
-			"SrcLangSynchronic": {
-				"tileType": "FreqPieTile",
-				"label": {"cs-CZ": "Zdrojový jazyk", "en-US": "Source language"},
-				"helpURL": "http://portal.korpus.test/wdg/static/help/czcorpus/missing.html",
-				"dependsOn": "ConcordanceSynchronic",
-				"apiURL": "http://kontext.korpus.test/kontext-api/freqs",
-				"corpname": "syn2015",
-				"fcrit": ["doc.srclang 0", "doc.medium 0"],
-				"flimit": 1,
-				"freqSort": "rel",
-				"fpage": 1,
-				"fttIncludeEmpty": false,
-				"maxNumCategories": 4,
-				"backlink": {
-					"url": "http://kontext.korpus.test/kontext-api/freqs",
-					"label": "Hi, this is cool"
-				}
-			},
-			"MediaTypesSynchronic": {
-				"tileType": "FreqBarTile",
-				"label": "freqBar__indicator_medium",
-				"dependsOn": "ConcordanceSynchronic",
-				"apiURL": "http://kontext.korpus.test/kontext-api/freqs",
-				"corpname": "syn2015",
-				"fcrit": "doc.medium 0",
-				"flimit": 1,
-				"freqSort": "rel",
-				"fpage": 1,
-				"fttIncludeEmpty": false,
-				"isDisabled": true
+				"posAttrs": [
+					"word",
+					"lemma",
+					"tag"
+				],
+				"pageSize": 15,
+				"posQueryGenerator": [
+					"pos",
+					"directPos"
+				],
+				"metadataAttrs": [
+					{
+						"value": "doc.author",
+						"label": "Autor"
+					},
+					{
+						"value": "doc.title",
+						"label": "Název"
+					},
+					{
+						"value": "doc.biblio",
+						"label": "Bibliografický záznam"
+					}
+				]
 			},
 			"TimeDistLemmaSynchronic": {
 				"tileType": "TimeDistribTile",
-				"apiURL": "http://kontext.korpus.test/kontext-api/freqs",
-				"concApiURL": "http://kontext.korpus.test/kontext-api/first",
-				"corpname": "intercorp_v11_cs",
-				"subcname": ["3b8e34554c", "6036050398"],
-				"fcrit": "text.pubDateYear 0",
+				"apiType": "kontext",
+				"apiURL": "/kontext/freqs",
+				"concApiURL": "/kontext/first",
+				"concMaxSize": 10000,
+				"corpname": "syn2015",
+				"subcname": [
+					"b113926136"
+				],
+				"fcrit": "doc.pubyear 0",
 				"flimit": 1,
-				"minFreq": 1,
-				"posQueryGenerator": ["tag", "ppTagset"]
+				"timeAxisLegend": "AHOJ",
+				"posQueryGenerator": [
+					"tag",
+					"ppTagset"
+				],
+				"backlink": {
+					"url": "/kontext/first",
+					"label": "view in KonText",
+					"subcname": "b113926136"
+				},
+	
+				"helpURL": "anything"
 			},
 			"CollocationsSynchronic": {
 				"tileType": "CollocTile",
-				"dependsOn": "ConcordanceSynchronic",
-				"apiURL": "http://kontext.korpus.test/kontext-api/collx",
+				"waitFor": "ConcordanceSynchronic",
+				"apiURL": "/kontext/collx",
 				"corpname": "syn2015",
-				"minFreq": 10,
-				"minLocalFreq": 3,
+				"minFreq": 5,
+				"minLocalFreq": 5,
 				"rangeSize": 3,
-				"backlink": {
-					"url": "http://kontext.korpus.test/kontext-api/collx",
-					"label": "výsledky v KonText"
-				}
+	
+				"helpURL": "anything"
 			},
 			"CollocExamplesSynchronic": {
 				"tileType": "ConcFilterTile",
-				"label": {"cs-CZ": "Ukázky kolokací"},
-				"dependsOn": ["ConcordanceSynchronic", "CollocationsSynchronic"],
-				"apiURL": "http://kontext.korpus.test/kontext-api/filter",
+				"label": {
+					"cs-CZ": "Ukázky kolokací"
+				},
+				"waitFor": "ConcordanceSynchronic",
+				"readSubqFrom": "CollocationsSynchronic",
+				"apiURL": "/kontext/quick_filter",
 				"corpname": "syn2015",
-				"posAttrs": ["word"]
+				"posAttrs": [
+					"word"
+				],
+	
+				"helpURL": "anything"
 			},
 			"AuthSexSynchronic": {
 				"tileType": "FreqPieTile",
 				"label": "freqpie__indicator_auth_sex",
-				"dependsOn": "ConcordanceSynchronic",
-				"apiURL": "http://kontext.korpus.test/kontext-api/freqs",
+				"waitFor": "ConcordanceSynchronic",
+				"apiURL": "/kontext/freqs",
 				"corpname": "syn2015",
-				"fcrit": "doc.authsex 0",
-				"flimit": 1,
-				"freqSort": "rel",
-				"fpage": 1,
-				"fttIncludeEmpty": false,
-				"isDisabled": true
-			},
-			"SyDTile": {
-				"tileType": "SyDTile",
-				"apiURL": "http://kontext.korpus.test/kontext-api/freqs",
-				"concApiURL": "http://kontext.korpus.test/kontext-api/first",
-				"corp1": "syn2015",
-				"corp1Fcrit": ["word/i 0<0", "tag/ 0<0", "doc.id 0"],
-				"corp2": "oral_v1",
-				"corp2Fcrit": ["word/i 0<0", "doc.id 0", "sp.nickname 0", "sp.gender 0", "sp.age_binary 0", "sp.edu_level 0", "sp.reg_childhood 0"]
-			},
-			"SpeakerSocio": {
-				"tileType": "FreqBarTile",
-				"label": {"cs-CZ": "Sociodemografické údaje", "en-US": "Sociodemographic stuff"},
-				"dependsOn": "ConcordanceSpoken",
-				"apiURL": "http://kontext.korpus.test/kontext-api/freqs",
-				"corpname": "oral_v1",
-				"fcrit": ["sp.gender 0", "sp.edu_level 0", "sp.age_binary 0"],
-				"critLabels": [
-					{"cs-CZ": "Pohlaví", "en-US": "Sex"},
-					{"cs-CZ": "Vzdělání", "en-US": "Education"},
-					{"cs-CZ": "Věk", "en-US": "Age"}
+				"fcrit": [
+					"doc.authsex 0",
+					"doc.transsex 0"
 				],
 				"flimit": 1,
 				"freqSort": "rel",
 				"fpage": 1,
 				"fttIncludeEmpty": false,
-				"backlink": {
-					"url": "http://kontext.korpus.test/kontext-api/freqs",
-					"label": "výsledky v oral_v1 (KonText)"
-				},
-				"isDisabled": false
+				"isDisabled": true,
+				"maxNumCategories": 10,
+	
+				"helpURL": "anything",
+				"critLabels": "anything"
 			},
-			"SpeakerRegion": {
+			"Treq": {
+				"tileType": "TreqTile",
+				"apiURL": "/treq/api.php",
+				"backlink": {
+					"url": "http://treq.korpus.cz",
+					"label": "Treq",
+					"method": "POST"
+				},
+				"srchPackages": {
+					"en": [
+						"SYNDICATE",
+						"CORE",
+						"EUROPARL",
+						"PRESSEUROP",
+						"SUBTITLES"
+					],
+					"de": [
+						"SYNDICATE",
+						"CORE"
+					]
+				},
+	
+				"helpURL": "anything"
+			},
+			"TranslationExamples": {
+				"tileType": "ConcFilterTile",
+				"label": {
+					"cs-CZ": "Ukázky použití překladu"
+				},
+				"waitFor": "ConcordanceParallel",
+				"readSubqFrom": "Treq",
+				"apiURL": "/kontext/quick_filter",
+				"switchMainCorpApiURL": "/kontext/switch_main_corp",
+				"corpname": "intercorp_v11_cs",
+				"maincorp": "intercorp_v11_en",
+				"posAttrs": [
+					"word"
+				],
+				"parallelLangMapping": {
+					"en": "intercorp_v11_en"
+				},
+	
+				"helpURL": "anything"
+			},
+			"TreqSubsets": {
+				"tileType": "TreqSubsetsTile",
+				"waitFor": "Treq",
+				"apiURL": "/treq/api.php",
+				"backlink": {
+					"url": "http://treq.korpus.cz",
+					"label": "Treq",
+					"method": "POST"
+				},
+				"srchPackages": {
+					"en": [
+						{
+							"label": {
+								"cs-CZ": "Publicistika"
+							},
+							"packages": [
+								"SYNDICATE",
+								"PRESSEUROP"
+							]
+						},
+						{
+							"label": {
+								"cs-CZ": "Beletrie"
+							},
+							"packages": [
+								"CORE"
+							]
+						},
+						{
+							"label": {
+								"cs-CZ": "Parlamentní debaty"
+							},
+							"packages": [
+								"EUROPARL"
+							]
+						},
+						{
+							"label": {
+								"cs-CZ": "Evropská legislativa"
+							},
+							"packages": [
+								"ACQUIS"
+							]
+						},
+						{
+							"label": {
+								"cs-CZ": "Filmové titulky"
+							},
+							"packages": [
+								"SUBTITLES"
+							]
+						}
+					],
+					"de": [
+						{
+							"packages": [
+								"SYNDICATE"
+							]
+						},
+						{
+							"packages": [
+								"CORE"
+							]
+						}
+					]
+				},
+	
+				"helpURL": "anything"
+			},
+			"TargetPackagesDist": {
+				"tileType": "FreqPieTile",
+				"label": {
+					"cs-CZ": "Zastoupení balíčků v nejvýznamnějších překladech"
+				},
+				"helpURL": "/wdg/static/help/czcorpus/missing.html",
+				"waitFor": "Treq",
+				"apiURL": "/kontext/freqs",
+				"corpname": null,
+				"fcrit": [
+					"text.group 0"
+				],
+				"critLabels": "foo and bar",
+				"flimit": 1,
+				"freqSort": "rel",
+				"fpage": 1,
+				"fttIncludeEmpty": false,
+				"maxNumCategories": 4,
+				"subqueryMode": {
+					"maxNumSubqueries": 3,
+					"concApiURL": "/kontext/first",
+					"langMapping": {
+						"en": "intercorp_v11_en"
+					}
+				}
+			},
+			"ConcordanceParallel": {
+				"tileType": "ConcordanceTile",
+				"waitFor": "Treq",
+				"apiType": "kontext",
+				"apiURL": "/kontext/first",
+				"corpname": "intercorp_v11_cs",
+				"maincorp": "intercorp_v11_en",
+				"parallelLangMapping": {
+					"en": "intercorp_v11_en"
+				},
+				"subcDesc": "foo and bar",
+				"posAttrs": [
+					"word"
+				],
+				"pageSize": 5,
+				"posQueryGenerator": [
+					"tag",
+					"ppTagset"
+				],
+	
+				"helpURL": "anything"
+			},
+			"SyDTile": {
+				"tileType": "SyDTile",
+				"apiURL": "/kontext/freqs",
+				"concApiURL": "/kontext/first",
+				"corp1": "syn2015",
+				"corp1Fcrit": [
+					"word/i 0<0",
+					"tag/ 0<0",
+					"doc.id 0"
+				],
+				"corp2": "oral_v1",
+				"corp2Fcrit": [
+					"word/i 0<0",
+					"doc.id 0",
+					"sp.nickname 0",
+					"sp.gender 0",
+					"sp.age_binary 0",
+					"sp.edu_level 0",
+					"sp.reg_childhood 0"
+				],
+	
+				"helpURL": "anything"
+			},
+			"ConcordanceSpoken": {
+				"tileType": "ConcordanceTile",
+				"apiURL": "/kontext/first",
+				"apiType": "kontext",
+				"corpname": "oral_v1",
+				"posAttrs": [
+					"word"
+				],
+				"pageSize": 10,
+				"posQueryGenerator": [
+					"pos",
+					"directPos"
+				],
+	
+				"helpURL": "anything"
+			},
+			"ConcordanceSpokenWithSound": {
+				"tileType": "ConcordanceTile",
+				"apiURL": "/kontext/first",
+				"apiType": "kontext",
+				"corpname": "oral_v1",
+				"subcname": "e59886c121",
+				"posAttrs": [
+					"word"
+				],
+				"pageSize": 10,
+				"posQueryGenerator": [
+					"pos",
+					"directPos"
+				],
+	
+				"helpURL": "anything"
+			},
+			"SpeakerMisc": {
+				"tileType": "FreqPieTile",
+				"label": "freqpie__indicator_speaker_sex",
+				"waitFor": "ConcordanceSpoken",
+				"apiURL": "/kontext/freqs",
+				"corpname": "oral_v1",
+				"fcrit": [
+					"sp.gender 0",
+					"sp.edu_level 0",
+					"sp.age_binary 0"
+				],
+				"critLabels": [
+					{
+						"cs-CZ": "Pohlaví",
+						"en-US": "Sex"
+					},
+					{
+						"cs-CZ": "Vzdělání",
+						"en-US": "Edication"
+					},
+					{
+						"cs-CZ": "Věk",
+						"en-US": "Age"
+					}
+				],
+				"flimit": 1,
+				"freqSort": "rel",
+				"fpage": 1,
+				"fttIncludeEmpty": false,
+				"maxNumCategories": 4,
+	
+				"helpURL": "anything"
+			},
+			"SpeakerArea": {
 				"tileType": "GeoAreasTile",
-				"label": "geolocations__main_label",
-				"dependsOn": "ConcordanceSpoken",
-				"apiURL": "http://kontext.korpus.test/kontext-api/freqs",
-				"helpURL": "http://portal.korpus.test/wdg/static/help/czcorpus/geoAreasTile.cs.html",
+				"label": {
+					"cs-CZ": "Nářeční oblasti",
+					"en-US": "Dialect areas"
+				},
+				"waitFor": "ConcordanceSpoken",
+				"apiURL": "/kontext/freqs",
 				"corpname": "oral_v1",
 				"fcrit": "sp.reg_childhood 0",
 				"flimit": 1,
 				"freqSort": "rel",
 				"fpage": 1,
 				"fttIncludeEmpty": false,
-				"areaDiscFillColor": "#EA670C",
-				"areaDiscTextColor": "#FFFFFF",
 				"areaCodeMapping": {
 					"středočeská": "naSTR",
 					"severovýchodočeská": "naSVC",
@@ -267,159 +592,120 @@
 					"pohraničí moravské": "naMPO",
 					"zahraničí": "naFRG",
 					"neznámé": "naUNK"
-				}
-			},
-			"Treq": {
-				"tileType": "TreqTile",
-				"label": "Překlady z aplikace Treq",
-				"apiURL": "http://portal.korpus.test/treq/api.php",
-				"backlinkURL": "http://treq.korpus.cz",
-				"srchPackages": {
-					"en": ["SYNDICATE", "CORE", "EUROPARL", "PRESSEUROP", "SUBTITLES"],
-					"de": ["SYNDICATE", "CORE"]
-				}
-			},
-			"TreqSubsets": {
-				"tileType": "TreqSubsetsTile",
-				"dependsOn": "Treq",
-				"label": {"cs-CZ": "Překlady podle datových balíčků"},
-				"apiURL": "http://portal.korpus.test/treq/api.php",
-				"srchPackages": {
-					"en": ["SYNDICATE", "CORE", "EUROPARL", "PRESSEUROP", "SUBTITLES"],
-					"de": ["SYNDICATE", "CORE"]
-				}
-			},
-			"ConcordanceParallel": {
-				"tileType": "ConcordanceTile",
-				"dependsOn": "Treq",
-				"apiURL": "http://kontext.korpus.test/kontext-api/first",
-				"helpURL": "http://portal.korpus.test/wdg/static/help/czcorpus/missing.html",
-				"backlink": {
-					"url": "http://kontext.korpus.test/kontext-api/view",
-					"label": "See in KonText"
 				},
-				"corpname": "intercorp_v11_cs",
-				"parallelLangMapping": {
-					"en": "intercorp_v11_en"
-				},
-				"posAttrs": ["word", "lemma", "tag"],
-				"pageSize": 12,
+				
+				"helpURL": "anything",
+				"areaDiscFillColor": "DodgerBlue",
+				"areaDiscTextColor": "black"
+			},
+			"SpeechesOral": {
+				"tileType": "SpeechesTile",
+				"waitFor": "ConcordanceSpokenWithSound",
 				"label": {
-					"cs-CZ": "Paralelní konkordance",
-					"en-US": "Parallel concordance"
+					"cs-CZ": "Promluvy",
+					"en-US": "Speeches"
 				},
-				"posQueryGenerator": ["tag", "ppTagset"]
+				"apiType": "kontext",
+				"apiURL": "/kontext/widectx",
+				"corpname": "oral_v1",
+				"subcDesc": "some fucking subcorpus description",
+				"speakerIdAttr": ["sp", "nickname"],
+				"speechSegment": ["seg", "soundfile"],
+				"speechOverlapAttr": ["sp", "overlap"],
+				"speechOverlapVal": "ano",
+				"audioPlaybackUrl": "/kontext/audio",
+	
+				"speechAttrs": [],
+				"helpURL": "anything"
 			},
-			"IntercorpPackage": {
-				"tileType": "FreqPieTile",
-				"label": {"cs-CZ": "Zastoupení balíčků pro nejvýznamnější překlady", "en-US": "Ratios of packages for most relevant translations"},
-				"dependsOn": "Treq",
-				"apiURL": "http://kontext.korpus.test/kontext-api/freqs",
-				"helpURL": "http://portal.korpus.test/wdg/static/help/czcorpus/geoAreasTile.cs.html",
-				"corpname": null,
-				"fcrit": ["text.group 0"],
-				"critLabels": [],
+			"SpeakerPropFreqs": {
+				"tileType": "FreqBarTile",
+				"label": {
+				  "cs-CZ": "Frekvence slova podle mluvčích (sociodemografické údaje)",
+				  "en-US": "Word frequency according to speakers (sociodemographic data)"
+				},
+				"waitFor": "ConcordanceSpoken",
+				"apiURL": "/kontext/freqs",
+				"helpURL": "/wdg/static/vendor/ucnk/tiles-help/single/SpeakerPropFreqs.cs.html",
+				"corpname": "oral_v1",
+				"fcrit": [
+				  "sp.gender 0",
+				  "sp.edu_level 0"
+				],
+				"critLabels": [
+				  {
+					"cs-CZ": "Pohlaví",
+					"en-US": "Sex"
+				  },
+				  {
+					"cs-CZ": "Vzdělání",
+					"en-US": "Education"
+				  }
+				],
 				"flimit": 1,
 				"freqSort": "rel",
 				"fpage": 1,
 				"fttIncludeEmpty": false,
-				"maxNumCategories": 4,
-				"subqueryMode": {
-						"maxNumSubqueries": 3,
-						"concApiURL": "http://kontext.korpus.test/kontext-api/first",
-						"langMapping": {
-								"en": "intercorp_v11_en",
-								"de": "intercorp_v11_de"
-						}
+				"maxNumCategories": 5,
+				"backlink": {
+				  "url": "/kontext/freqs",
+				  "label": "frekv. distribuce v KonTextu"
 				}
 			}
 		},
 		"en": {
-			"ConcordanceSynchronicEn": {
-				"tileType": "ConcordanceTile",
-				"apiURL": "http://kontext.korpus.test/kontext-api/first",
+			"WordFreq": {
+				"tileType": "WordFreqTile",
+				"label": {
+					"cs-CZ": "Souhrn",
+					"en-US": "summary"
+				},
+				"apiURL": "/wdg/similar-freq-words",
+				"helpURL": "/wdg/static/help/czcorpus/missing.html",
 				"corpname": "intercorp_v11_en",
-				"posAttrs": ["word", "lemma", "tag"]
-			},
-			"TTDistTileConf": {
-				"tileType": "FreqBarTile",
-				"apiURL": "http://kontext.korpus.test/kontext-api/freqs",
-				"corpname": "intercorp_v11_en",
-				"dependsOn": "ConcordanceSynchronicEn",
-				"fcrit": "text.txtype 0",
-				"flimit": 1,
-				"freqSort": "rel",
+				"corpusSize": 154423032,
+				"sfwRowRange": 7,
+	
+				"fcrit": "anything",
+				"flimit": 100,
 				"fpage": 1,
+				"freqSort": "anything",
 				"fttIncludeEmpty": false
 			},
-			"TimeDistTileConf": {
-				"tileType": "TimeDistribTile",
-				"apiURL": "http://kontext.korpus.test/kontext-api/freqct",
-				"dependsOn": "ConcordanceSynchronicEn",
-				"corpname": "intercorp_v11_en",
-				"distProperty": "lemma",
-				"timeProperty": "text.pubDateYear"
-			},
-			"CollocationsTileConf": {
-				"tileType": "CollocTile",
-				"apiURL": "http://kontext.korpus.test/kontext-api/collx",
-				"corpname": "intercorp_v11_en",
-				"dependsOn": "ConcordanceSynchronicEn",
-				"backlink": {
-					"url": "http://kontext.korpus.test/kontext-api/collx",
-					"label": "výsledky v KonText"
-				}
-			},
-			"TreqTileConf": {
-				"tileType": "TreqTile",
-				"apiURL": "http://portal.korpus.test/treq/api.php",
-				"backlinkURL": "http://treq.korpus.cz",
-				"srchPackages": {
-					"cs": ["SYNDICATE", "CORE"],
-					"de": ["SYNDICATE", "CORE"]
-				}
-			}
-		},
-		"de": {
-			"ConcordanceSynchronicDe": {
+			"ConcordanceSynchronicEN": {
 				"tileType": "ConcordanceTile",
-				"apiURL": "http://kontext.korpus.test/kontext-api/first",
-				"corpname": "intercorp_v11_de",
-				"posAttrs": ["word", "lemma", "tag"]
+				"apiType": "kontext",
+				"apiURL": "/kontext/first",
+				"corpname": "intercorp_v11_en",
+				"posAttrs": [
+					"word",
+					"lemma",
+					"tag"
+				],
+				"pageSize": 20,
+				"posQueryGenerator": [
+					"tag",
+					"pennTreebank"
+				],
+	
+				"helpURL": "anything"
 			},
-			"TTDistTileConf": {
-				"tileType": "FreqBarTile",
-				"apiURL": "http://kontext.korpus.test/kontext-api/freqs",
-				"corpname": "intercorp_v11_de",
-				"dependsOn": "ConcordanceSynchronicDe",
-				"fcrit": "text.txtype 0",
-				"flimit": 1,
-				"freqSort": "rel",
-				"fpage": 1,
-				"fttIncludeEmpty": false
-			},
-			"TimeDistTileConf": {
+			"TimeDistStuff": {
 				"tileType": "TimeDistribTile",
-				"apiURL": "http://kontext.korpus.test/kontext-api/freqct",
-				"corpname": "intercorp_v11_de",
-				"dependsOn": "ConcordanceSynchronicDe",
-				"distProperty": "lemma",
-				"timeProperty": "text.pubDateYear"
-			},
-			"CollocationsTileConf": {
-				"tileType": "CollocTile",
-				"apiURL": "http://kontext.korpus.test/kontext-api/collx",
-				"corpname": "intercorp_v11_de",
-				"dependsOn": "ConcordanceSynchronicDe"
-			},
-			"TreqTileConf": {
-				"tileType": "TreqTile",
-				"apiURL": "http://portal.korpus.test/treq/api.php",
-				"backlinkURL": "http://treq.korpus.cz",
-				"srchPackages": {
-					"cs": ["SYNDICATE", "CORE"],
-					"en": ["SYNDICATE", "CORE"]
-				}
+				"apiType": "kontext",
+				"apiURL": "/kontext/freqs",
+				"waitFor": "ConcordanceSynchronicEN",
+				"corpname": "intercorp_v11_en",
+				"distProperty": "word",
+				"fcrit": "text.pubDateYear 0",
+				"flimit": 1,
+				"timeAxisLegend": "Year",
+				"posQueryGenerator": [
+					"tag",
+					"pennTreebank"
+				],
+	
+				"helpURL": "anything"
 			}
 		}
 	},

@@ -40,7 +40,7 @@ export interface CollocationsTileConf extends TileConf {
     minFreq:number;
     minLocalFreq:number;
     rangeSize:number;
-    backlink:BacklinkWithArgs<BacklinkArgs>;
+    backlink?:BacklinkWithArgs<BacklinkArgs>;
 }
 
 /**

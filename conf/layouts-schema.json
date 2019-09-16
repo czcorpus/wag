@@ -1,0 +1,146 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": {
+        "$ref": "#/definitions/LayoutsConfig"
+    },
+    "definitions": {
+        "GroupLayoutConfig": {
+            "properties": {
+                "groupDescURL": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                },
+                "groupLabel": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                },
+                "groupTemplate": {
+                },
+                "tiles": {
+                    "items": {
+                        "properties": {
+                            "tile": {
+                                "type": "string"
+                            },
+                            "width": {
+                                "type": "number"
+                            }
+                        },
+                        "required": [
+                            "tile",
+                            "width"
+                        ],
+                        "type": "object"
+                    },
+                    "type": "array"
+                }
+            },
+            "required": [
+                "groupDescURL",
+                "groupLabel",
+                "tiles"
+            ],
+            "type": "object"
+        },
+        "LayoutsConfig": {
+            "properties": {
+                "cmp": {
+                    "properties": {
+                        "groups": {
+                            "items": {
+                                "anyOf": [
+                                    {
+                                        "$ref": "#/definitions/GroupLayoutConfig"
+                                    },
+                                    {
+                                        "type": "string"
+                                    }
+                                ]
+                            },
+                            "type": "array"
+                        }
+                    },
+                    "required": [
+                        "groups"
+                    ],
+                    "type": "object"
+                },
+                "single": {
+                    "properties": {
+                        "groups": {
+                            "items": {
+                                "anyOf": [
+                                    {
+                                        "$ref": "#/definitions/GroupLayoutConfig"
+                                    },
+                                    {
+                                        "type": "string"
+                                    }
+                                ]
+                            },
+                            "type": "array"
+                        }
+                    },
+                    "required": [
+                        "groups"
+                    ],
+                    "type": "object"
+                },
+                "translat": {
+                    "properties": {
+                        "groups": {
+                            "items": {
+                                "anyOf": [
+                                    {
+                                        "$ref": "#/definitions/GroupLayoutConfig"
+                                    },
+                                    {
+                                        "type": "string"
+                                    }
+                                ]
+                            },
+                            "type": "array"
+                        },
+                        "targetLanguages": {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        }
+                    },
+                    "required": [
+                        "groups",
+                        "targetLanguages"
+                    ],
+                    "type": "object"
+                }
+            },
+            "required": [
+                "cmp",
+                "single",
+                "translat"
+            ],
+            "type": "object"
+        }
+    },
+    "type": "object"
+}
+
