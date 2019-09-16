@@ -1161,6 +1161,7 @@
             "additionalProperties": {
                 "$ref": "#/definitions/LayoutsConfig"
             },
+            "description": "These types are necessary to create config schemata\nusing Makefile for tiles and layouts only",
             "type": "object"
         },
         "LayoutsConfig": {
@@ -1323,11 +1324,18 @@
                                 "type": "boolean"
                             },
                             "valuePlaceholder": {
-                                "additionalProperties": {
-                                    "type": "string"
-                                },
-                                "description": "In case 'fcrit' describes a positional\nattribute we have to replace ann actual\nvalue returned by freq. distrib. function\n(which is equal to our query: e.g. for\nthe query 'house' the value will be 'house')\nby something more specific (e.g. 'social media')",
-                                "type": "object"
+                                "anyOf": [
+                                    {
+                                        "additionalProperties": {
+                                            "type": "string"
+                                        },
+                                        "type": "object"
+                                    },
+                                    {
+                                        "type": "string"
+                                    }
+                                ],
+                                "description": "In case 'fcrit' describes a positional\nattribute we have to replace ann actual\nvalue returned by freq. distrib. function\n(which is equal to our query: e.g. for\nthe query 'house' the value will be 'house')\nby something more specific (e.g. 'social media')"
                             }
                         },
                         "required": [
