@@ -218,6 +218,16 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
     };
 
     const dispatcher = new ServerSideActionDispatcher();
+    dispatcher.registerActionListener((action, dispatch) => {
+        if (req['session'].views) {req['session'].views++;} else {req['session'].views=1}
+        console.log(
+            req['session'].views,
+            req['session'].id,
+            req.method,
+            req.route.path,
+            req.query,
+        );
+    })
     const [viewUtils, appServices] = createHelperServices(services, userConfig.uiLang);
     forkJoin(
         new Observable<UserConf>(
