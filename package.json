@@ -54,6 +54,7 @@
     "cookie-parser": "^1.4.4",
     "d3": "^5.11.0",
     "express": "^4.17.1",
+    "express-session": "^1.16.2",
     "immutable": "^3.8.2",
     "ioredis": "^4.14.0",
     "kombo": "^0.51.2",
