@@ -15,7 +15,7 @@ configtest :
 	nodejs node_modules/ajv-cli/index.js -s ./conf/wdglance-schema.json -d ./conf/wdglance.json
 
 	$(eval LAYOUTS_PATH=$(shell node -pe 'JSON.parse(fs.readFileSync("conf/wdglance.json", "utf8")).layouts'))
-	nodejs node_modules/ajv-cli/index.js -s ./conf/layouts-schema.json -d $(LAYOUTS_PATH)
+	$(if $(wildcard $(LAYOUTS_PATH)), nodejs node_modules/ajv-cli/index.js -s ./conf/layouts-schema.json -d $(LAYOUTS_PATH),)
 
 	$(eval TILES_PATH=$(shell node -pe 'JSON.parse(fs.readFileSync("conf/wdglance.json", "utf8")).tiles'))
-	nodejs node_modules/ajv-cli/index.js -s ./conf/tiles-schema.json -d $(TILES_PATH)
+	$(if $(wildcard $(TILES_PATH)), nodejs node_modules/ajv-cli/index.js -s ./conf/tiles-schema.json -d $(TILES_PATH),)

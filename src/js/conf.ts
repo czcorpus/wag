@@ -134,6 +134,10 @@ export interface ClientStaticConf {
 	layouts:LanguageLayoutsConfig|string;
 }
 
+/**
+ * These types are necessary to create config schemata
+ * using Makefile for tiles and layouts only
+ */
 export interface LanguageLayoutsConfig {[lang:string]:LayoutsConfig};
 export interface LanguageAnyTileConf {[lang:string]:{[ident:string]:AnyTileConf}};
 
