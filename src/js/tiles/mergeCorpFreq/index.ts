@@ -25,6 +25,7 @@ import { puid } from '../../common/util';
 import { GlobalComponents } from '../../views/global';
 import { MergeCorpFreqModel, ModelSourceArgs, SourceMappedDataRow } from './model';
 import { init as viewInit } from './view';
+import { LocalizedConfMsg } from '../../common/types';
 
 
 declare var require:(src:string)=>void;  // webpack
@@ -53,7 +54,7 @@ export interface MergeCorpFreqTileConf extends TileConf {
           * the query 'house' the value will be 'house')
           * by something more specific (e.g. 'social media')
           */
-        valuePlaceholder?:{[lang:string]:string};
+        valuePlaceholder?:LocalizedConfMsg;
         backlink?:Backlink;
 
         /**

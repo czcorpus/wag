@@ -1,4 +1,5 @@
 {
+	"$schema": "./wdglance-schema.json",
 	"rootUrl": "http://portal.korpus.test/wdg/",
 	"hostUrl": "http://portal.korpus.test/wdg/",
 	"corpInfoApiUrl": "http://kontext.korpus.test/kontext-api/corpora/ajax_get_corp_details",
@@ -150,7 +151,7 @@
 				"corpname": "syn2015",
 				"corpusSize": 120748715,
 				"sfwRowRange": 7,
-				
+
 				"fcrit": "anything",
 				"flimit": 100,
 				"fpage": 1,
@@ -170,7 +171,7 @@
 				"maxNumItems": 10,
 				"corpusSize": 120748715,
 				"freqFilterAlphaLevel": "0.05",
-	
+
 				"helpURL": "anything"
 			},
 			"RootTypeDist": {
@@ -206,7 +207,7 @@
 						"fttIncludeEmpty": false
 					}
 				],
-	
+
 				"helpURL": "anything"
 			},
 			"ConcordanceSynchronic": {
@@ -266,7 +267,7 @@
 					"label": "view in KonText",
 					"subcname": "b113926136"
 				},
-	
+
 				"helpURL": "anything"
 			},
 			"CollocationsSynchronic": {
@@ -277,7 +278,7 @@
 				"minFreq": 5,
 				"minLocalFreq": 5,
 				"rangeSize": 3,
-	
+
 				"helpURL": "anything"
 			},
 			"CollocExamplesSynchronic": {
@@ -292,7 +293,7 @@
 				"posAttrs": [
 					"word"
 				],
-	
+
 				"helpURL": "anything"
 			},
 			"AuthSexSynchronic": {
@@ -311,7 +312,7 @@
 				"fttIncludeEmpty": false,
 				"isDisabled": true,
 				"maxNumCategories": 10,
-	
+
 				"helpURL": "anything",
 				"critLabels": "anything"
 			},
@@ -336,7 +337,7 @@
 						"CORE"
 					]
 				},
-	
+
 				"helpURL": "anything"
 			},
 			"TranslationExamples": {
@@ -356,7 +357,7 @@
 				"parallelLangMapping": {
 					"en": "intercorp_v11_en"
 				},
-	
+
 				"helpURL": "anything"
 			},
 			"TreqSubsets": {
@@ -425,7 +426,7 @@
 						}
 					]
 				},
-	
+
 				"helpURL": "anything"
 			},
 			"TargetPackagesDist": {
@@ -473,7 +474,7 @@
 					"tag",
 					"ppTagset"
 				],
-	
+
 				"helpURL": "anything"
 			},
 			"SyDTile": {
@@ -496,7 +497,7 @@
 					"sp.edu_level 0",
 					"sp.reg_childhood 0"
 				],
-	
+
 				"helpURL": "anything"
 			},
 			"ConcordanceSpoken": {
@@ -512,7 +513,7 @@
 					"pos",
 					"directPos"
 				],
-	
+
 				"helpURL": "anything"
 			},
 			"ConcordanceSpokenWithSound": {
@@ -529,7 +530,7 @@
 					"pos",
 					"directPos"
 				],
-	
+
 				"helpURL": "anything"
 			},
 			"SpeakerMisc": {
@@ -562,7 +563,7 @@
 				"fpage": 1,
 				"fttIncludeEmpty": false,
 				"maxNumCategories": 4,
-	
+
 				"helpURL": "anything"
 			},
 			"SpeakerArea": {
@@ -593,7 +594,7 @@
 					"zahraničí": "naFRG",
 					"neznámé": "naUNK"
 				},
-				
+
 				"helpURL": "anything",
 				"areaDiscFillColor": "DodgerBlue",
 				"areaDiscTextColor": "black"
@@ -614,7 +615,7 @@
 				"speechOverlapAttr": ["sp", "overlap"],
 				"speechOverlapVal": "ano",
 				"audioPlaybackUrl": "/kontext/audio",
-	
+
 				"speechAttrs": [],
 				"helpURL": "anything"
 			},
@@ -665,7 +666,7 @@
 				"corpname": "intercorp_v11_en",
 				"corpusSize": 154423032,
 				"sfwRowRange": 7,
-	
+
 				"fcrit": "anything",
 				"flimit": 100,
 				"fpage": 1,
@@ -687,7 +688,7 @@
 					"tag",
 					"pennTreebank"
 				],
-	
+
 				"helpURL": "anything"
 			},
 			"TimeDistStuff": {
@@ -704,7 +705,7 @@
 					"tag",
 					"pennTreebank"
 				],
-	
+
 				"helpURL": "anything"
 			}
 		}

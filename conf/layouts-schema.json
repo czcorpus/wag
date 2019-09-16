@@ -141,6 +141,7 @@
             "type": "object"
         }
     },
+    "description": "These types are necessary to create config schemata\nusing Makefile for tiles and layouts only",
     "type": "object"
 }
 
