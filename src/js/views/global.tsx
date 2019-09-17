@@ -378,6 +378,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                         <div className={tileClasses}>
                             {this.props.children}
                         </div>
+                        <footer><div className="fcontent" /></footer>
                     </div>
                 </div>
             );

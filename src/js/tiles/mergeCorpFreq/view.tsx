@@ -66,7 +66,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         size:[number, number];
         barGap:number;
     }> = (props) => {
-
         return (
             <div className="Chart">
                 <ResponsiveContainer width="90%" height={props.size[1] + 50}>
