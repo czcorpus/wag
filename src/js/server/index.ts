@@ -39,7 +39,7 @@ app.use(session({
     secret: 'keyboard cat',
     resave: false,
     saveUninitialized: true
-}))
+}));
 
 function parseJsonConfig<T>(confPath:string):T {
     try {

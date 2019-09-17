@@ -23,6 +23,7 @@ import { renderToString } from 'react-dom/server';
 import { Observable, forkJoin, of as rxOf } from 'rxjs';
 import { concatMap, map, catchError } from 'rxjs/operators';
 import * as Immutable from 'immutable';
+import * as fs from 'fs';
 
 
 import { AppServices } from '../appServices';
@@ -218,16 +219,20 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
     };
 
     const dispatcher = new ServerSideActionDispatcher();
-    dispatcher.registerActionListener((action, dispatch) => {
-        if (req['session'].views) {req['session'].views++;} else {req['session'].views=1}
-        console.log(
-            req['session'].views,
-            req['session'].id,
-            req.method,
-            req.route.path,
-            req.query,
-        );
-    })
+    
+    if (services.serverConf.requestTraceFile) {
+        dispatcher.registerActionListener((action, dispatch) => {
+            if (req['session'].views) {req['session'].views++;} else {req['session'].views=1}
+            const data = [req['session'].views, req['session'].id, req.method, req.route.path, JSON.stringify(req.query)];
+            fs.appendFile(
+                services.serverConf.requestTraceFile,
+                data.join('\t') + '\n',
+                err => {if (err) {throw(err);}}
+            );
+            console.log(...data);
+        });
+    }
+
     const [viewUtils, appServices] = createHelperServices(services, userConfig.uiLang);
     forkJoin(
         new Observable<UserConf>(
