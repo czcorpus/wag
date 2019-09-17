@@ -22,5 +22,6 @@ export enum HTTPAction {
     SEARCH = '/search/',
     GET_LEMMAS = '/get-lemmas/',
     SIMILAR_FREQ_WORDS = '/similar-freq-words/',
-    WORD_FORMS = '/word-forms/'
+    WORD_FORMS = '/word-forms/',
+    TELEMETRY = '/telemetry/'
 }

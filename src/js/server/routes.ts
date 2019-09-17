@@ -219,20 +219,6 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
     };
 
     const dispatcher = new ServerSideActionDispatcher();
-    
-    if (services.serverConf.requestTraceFile) {
-        dispatcher.registerActionListener((action, dispatch) => {
-            if (req['session'].views) {req['session'].views++;} else {req['session'].views=1}
-            const data = [req['session'].views, req['session'].id, req.method, req.route.path, JSON.stringify(req.query)];
-            fs.appendFile(
-                services.serverConf.requestTraceFile,
-                data.join('\t') + '\n',
-                err => {if (err) {throw(err);}}
-            );
-            console.log(...data);
-        });
-    }
-
     const [viewUtils, appServices] = createHelperServices(services, userConfig.uiLang);
     forkJoin(
         new Observable<UserConf>(
@@ -327,6 +313,18 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
 }
 
 export const wdgRouter = (services:Services) => (app:Express) => {
+    app.post(HTTPAction.TELEMETRY, (req, res, next) => {
+        if (services.serverConf.requestTraceFile) {
+            if (req['session'].views) {req['session'].views++;} else {req['session'].views=1}
+            const data = [req.body, req['session'].views, req['session'].id];
+            fs.appendFile(
+                services.serverConf.requestTraceFile,
+                data.join('\t') + '\n',
+                err => {if (err) {throw(err);}}
+            );
+            console.log(...data);
+        }
+    });
 
     // host page generator with some React server rendering (testing phase)
     app.get(HTTPAction.MAIN, (req, res, next) => mainAction(services, false, req, res, next));

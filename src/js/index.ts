@@ -25,7 +25,7 @@ import { debounceTime, map } from 'rxjs/operators';
 import * as translations from 'translations';
 
 import { AppServices } from './appServices';
-import { encodeArgs } from './common/ajax';
+import { encodeArgs, ajax$ } from './common/ajax';
 import { ScreenProps } from './common/hostPage';
 import { LemmaVariant } from './common/query';
 import { ClientConf, UserConf } from './conf';
@@ -34,6 +34,8 @@ import { SystemNotifications } from './notifications';
 import { GlobalComponents } from './views/global';
 import { createRootComponent } from './app';
 import { initStore } from './cacheDb';
+import { HTTPMethod } from './common/types';
+import { HTTPAction } from './server/actions';
 
 declare var DocumentTouch;
 declare var require:(src:string)=>void;  // webpack
@@ -70,6 +72,16 @@ export const initClient = (mountElement:HTMLElement, config:ClientConf, userSess
                 && (('ontouchstart' in window) || window['DocumentTouch'] && document instanceof DocumentTouch)
     });
     //appServices.forceMobileMode(); // DEBUG
+
+    dispatcher.registerActionListener((action, dispatcher) => {
+        const data = {actionName: action.name, payload: action.payload, timestamp: Date.now()};
+        ajax$(
+            HTTPMethod.POST,
+            appServices.createActionUrl(HTTPAction.TELEMETRY),
+            data,
+            {contentType: 'application/json'}
+        ).subscribe({next: console.log, complete: () => console.log('Telemetry sent')});
+    });
 
     (config.onLoadInit || []).forEach(initFn => {
         if (initFn in window) {
