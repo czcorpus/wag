@@ -88,13 +88,13 @@ export interface GroupLayoutConfig {
 }
 
 export interface LayoutsConfig {
-    single:{
+    single?:{
         groups:Array<GroupLayoutConfig|string>;
     };
-    cmp:{
+    cmp?:{
         groups:Array<GroupLayoutConfig|string>;
     };
-    translat:{
+    translat?:{
         groups:Array<GroupLayoutConfig|string>;
         targetLanguages:Array<string>;
     };
