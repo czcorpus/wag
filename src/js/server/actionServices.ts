@@ -24,6 +24,7 @@ export interface Services {
     serverConf:ServerConf;
     clientConf:ClientStaticConf;
     db:{[lang:string]:Database};
+    telemetryDB:Database;
     toolbar:IToolbarProvider;
     translations:{[loc:string]:{[key:string]:string}};
     logging:ILogQueue;

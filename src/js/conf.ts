@@ -249,7 +249,7 @@ export interface ServerConf {
         minLemmaFreq:number;
     };
     logQueue?:LogQueueConf;
-    requestTraceFile?:string;
     toolbar:ToolbarDef;
     langCookie?:string;
+    telemetryDB?:string;
 }

@@ -23,7 +23,6 @@ import { renderToString } from 'react-dom/server';
 import { Observable, forkJoin, of as rxOf } from 'rxjs';
 import { concatMap, map, catchError } from 'rxjs/operators';
 import * as Immutable from 'immutable';
-import * as fs from 'fs';
 
 
 import { AppServices } from '../appServices';
@@ -313,17 +312,25 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
 }
 
 export const wdgRouter = (services:Services) => (app:Express) => {
+    // endpoint to receive client telemetry
     app.post(HTTPAction.TELEMETRY, (req, res, next) => {
-        if (services.serverConf.requestTraceFile) {
-            if (req['session'].views) {req['session'].views++;} else {req['session'].views=1}
-            const data = [req.body, req['session'].views, req['session'].id];
-            fs.appendFile(
-                services.serverConf.requestTraceFile,
-                data.join('\t') + '\n',
-                err => {if (err) {throw(err);}}
-            );
-            console.log(...data);
-        }
+        new Observable(observer => {
+            if (services.telemetryDB) {
+                const data = [req['session'].id, req.body['timestamp'], req.body['actionName'], JSON.stringify(req.body['payload'])];
+                services.telemetryDB.each(
+                    'INSERT INTO telemetry (session, timestamp, action, payload) values (?, ?, ?, ?)',
+                    data
+                );
+                console.log(data);
+                observer.complete();
+            } else {
+                observer.error('Missing telemetry database.');
+            }
+        }).subscribe(
+            (value) => res.send({saved: true}),
+            (err) => res.send({saved: false, message: err}),
+            () => res.send({saved: true}),
+        );
     });
 
     // host page generator with some React server rendering (testing phase)
