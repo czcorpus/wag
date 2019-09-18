@@ -24,6 +24,5 @@
         },
         "similarFreqWordsMaxCtx": 10,
         "minLemmaFreq": 2
-    },
-    "requestTraceFile": "/opt/wdglance/requests.txt"
+    }
 }

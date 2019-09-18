@@ -73,14 +73,22 @@ export const initClient = (mountElement:HTMLElement, config:ClientConf, userSess
     });
     //appServices.forceMobileMode(); // DEBUG
 
+    // telemetry capture
     dispatcher.registerActionListener((action, dispatcher) => {
-        const data = {actionName: action.name, payload: action.payload, timestamp: Date.now()};
+        const payload = {...action.payload};
+        if ('data' in payload) {delete payload['data'];}
+
+        const telemetryData = {timestamp: Date.now(), actionName: action.name, payload: payload};
         ajax$(
             HTTPMethod.POST,
             appServices.createActionUrl(HTTPAction.TELEMETRY),
-            data,
+            telemetryData,
             {contentType: 'application/json'}
-        ).subscribe({next: console.log, complete: () => console.log('Telemetry sent')});
+        ).subscribe({
+            error: console.log,
+            next: console.log,
+            complete: () => console.log('Telemetry transfer finished')
+        });
     });
 
     (config.onLoadInit || []).forEach(initFn => {

@@ -77,6 +77,7 @@ wdgRouter({
     serverConf: serverConf,
     clientConf: clientConf,
     db: db,
+    telemetryDB: serverConf.telemetryDB ? new sqlite3.Database(serverConf.telemetryDB) : null,
     translations: translations,
     toolbar: toolbar,
     logging: serverConf.logQueue ?

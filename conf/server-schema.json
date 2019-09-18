@@ -96,10 +96,10 @@
         "port": {
             "type": "number"
         },
-        "requestTraceFile": {
+        "staticFilesUrl": {
             "type": "string"
         },
-        "staticFilesUrl": {
+        "telemetryDB": {
             "type": "string"
         },
         "toolbar": {
