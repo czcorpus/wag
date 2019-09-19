@@ -34,8 +34,6 @@ export interface TimeDistTileConf extends CorpSrchTileConf {
      */
     fcrit:string;
 
-    timeAxisLegend:string;
-
     flimit:number;
 
     posQueryGenerator:[string, string];

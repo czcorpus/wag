@@ -42,7 +42,6 @@ export interface SpeechesTileConf extends TileConf {
     subcDesc:LocalizedConfMsg;
     speakerIdAttr:[string, string];
     speechSegment:[string, string];
-    speechAttrs:Array<string>;
     speechOverlapAttr:[string, string];
     speechOverlapVal:string;
     backlink?:Backlink,
@@ -51,16 +50,16 @@ export interface SpeechesTileConf extends TileConf {
 }
 
 const BASE_COLOR_SCHEME = [
-    [31, 119, 180, 0.9],
-    [255, 127, 14, 0.9],
-    [44, 160, 44, 0.9],
-    [214, 39, 40, 0.9],
+    [ 31, 119, 180, 0.9],
+    [255, 127,  14, 0.9],
+    [ 44, 160,  44, 0.9],
+    [214,  39,  40, 0.9],
     [148, 103, 189, 0.9],
-    [140, 86, 75, 0.9],
+    [140,  86,  75, 0.9],
     [227, 119, 194, 0.9],
     [127, 127, 127, 0.9],
-    [188, 189, 34, 0.9],
-    [23, 190, 207, 0.9]
+    [188, 189,  34, 0.9],
+    [ 23, 190, 207, 0.9]
 ];
 
 
@@ -115,7 +114,6 @@ export class SpeechesTile implements ITileProvider {
                 speechSegment: [conf.speechSegment[0], conf.speechSegment[1]],
                 speechOverlapAttr: [conf.speechOverlapAttr[0], conf.speechOverlapAttr[1]],
                 speechOverlapVal: conf.speechOverlapVal,
-                speechAttrs: Immutable.List<string>(conf.speechAttrs),
                 speakerColors: Immutable.List<RGBAColor>(BASE_COLOR_SCHEME),
                 wideCtxGlobals: Immutable.List<[string, string]>(),
                 speakerColorsAttachments: Immutable.Map<string, RGBAColor>(),

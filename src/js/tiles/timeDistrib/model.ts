@@ -68,7 +68,6 @@ export interface BacklinkArgs {
 export interface TimeDistribModelState extends GeneralSingleCritFreqBarModelState<DataItemWithWCI> {
     subcnames:Immutable.List<string>;
     subcDesc:string;
-    timeAxisLegend:string;
     alphaLevel:AlphaLevel;
     posQueryGenerator:[string, string];
     isTweakMode:boolean;

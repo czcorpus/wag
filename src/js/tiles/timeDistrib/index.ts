@@ -78,7 +78,6 @@ export class TimeDistTile implements ITileProvider {
                 subcDesc: appServices.importExternalMessage(conf.subcDesc),
                 concId: null,
                 fcrit: conf.fcrit,
-                timeAxisLegend: conf.timeAxisLegend,
                 flimit: conf.flimit,
                 freqSort: FreqSort.REL,
                 fpage: 1,

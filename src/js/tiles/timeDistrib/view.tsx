@@ -142,7 +142,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const ChartLegend:React.SFC<{
         rcData:{payload:Array<{color:string; payload:{stroke:string; fill:string; name:string}}>};
-        timeAxisLegend:string;
         metric:string;
 
     }> = (props) => {
@@ -172,7 +171,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         data1:Immutable.List<DataItemWithWCI>;
         data2:Immutable.List<DataItemWithWCI>;
         size:[number, number];
-        timeAxisLegend:string;
         isPartial:boolean;
         isSmallWidth:boolean;
 
@@ -202,7 +200,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         strokeWidth={1}
                         isAnimationActive={false}
                         connectNulls={true} />
-                    <Legend content={(props) => <ChartLegend metric={ut.translate('timeDistrib__ipm_human')} timeAxisLegend={props.timeAxisLegend} rcData={props} />} />
+                    <Legend content={(props) => <ChartLegend metric={ut.translate('timeDistrib__ipm_human')} rcData={props} />} />
                 </AreaChart>
             </ResponsiveContainer>
         );
@@ -232,7 +230,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         ''
                     }
                     <Chart data1={props.data} data2={props.dataCmp}
-                            timeAxisLegend={props.timeAxisLegend}
                             size={[props.renderSize[0], 300]}
                             isPartial={props.isBusy}
                             word={props.wordMainLabel}
