@@ -1,12 +1,13 @@
-# Word At a Glance (wdglance)
+# Word At a Glance (WaG)
 
 Collect miscellaneous information about a word (word pair) using corpus-based tools and databases.
 
-## Supported resources
+## Currently supported resources/services
 
  - KonText
  - [Treq](https://treq.korpus.cz/)
  - Clarin FCS Core 1
+ - Datamuse API
  
 ## Planned resources
 
