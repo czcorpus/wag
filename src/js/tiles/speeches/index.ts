@@ -39,7 +39,7 @@ export interface SpeechesTileConf extends TileConf {
     apiURL:string;
     corpname:string;
     subcname?:string;
-    subcDesc:LocalizedConfMsg;
+    subcDesc?:LocalizedConfMsg;
     speakerIdAttr:[string, string];
     speechSegment:[string, string];
     speechOverlapAttr:[string, string];

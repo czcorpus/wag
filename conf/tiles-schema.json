@@ -1425,7 +1425,6 @@
                 "speechOverlapAttr",
                 "speechOverlapVal",
                 "speechSegment",
-                "subcDesc",
                 "tileType"
             ],
             "type": "object"
