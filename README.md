@@ -4,14 +4,14 @@ Collect miscellaneous information about a word (word pair) using corpus-based to
 
 ## Currently supported resources/services
 
- - KonText
+ - [KonText](https://github.com/czcorpus/kontext)
  - [Treq](https://treq.korpus.cz/)
- - Clarin FCS Core 1
- - Datamuse API
+ - [Clarin FCS Core 1](https://www.clarin.eu/content/federated-content-search-clarin-fcs)
+ - [Datamuse API](https://www.datamuse.com/)
  
 ## Planned resources
 
-  - NoSketchEngine
+  - NoSketchEngine, ElasticSearch
 
 ## Requirements
 
