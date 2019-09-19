@@ -840,6 +840,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             if (!tile) {
                 throw new Error('Unable to get tile for loaded source info data');
             }
+
             if (tile.SourceInfoComponent) {
                 return <div><tile.SourceInfoComponent data={props.data} /></div>
 
