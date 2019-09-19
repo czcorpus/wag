@@ -15,6 +15,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+//
+// This module contains a customized toolbar as needed
+// by CNC integration guidelines. For general use, please
+// look at the 'langSwitch' toolbar.
+
 import * as request from 'request';
 import { Observable } from 'rxjs';
 
@@ -62,13 +68,18 @@ export class UCNKToolbar implements IToolbarProvider {
         'cnc_toolbar_lang'
     ];
 
+    private static readonly TOOLBAR_APP_IDENT = 'wag';
+
     constructor(url:string) {
         this.url = url;
     }
 
     get(uiLang:string, returnUrl:string, cookies:{[key:string]:string}, ut:ViewUtils<GlobalComponents>):Observable<HostPageEnv> {
         return new Observable<HostPageEnv>((observer) => {
-            const args = {continue: returnUrl};
+            const args = {
+                continue: returnUrl,
+                current: UCNKToolbar.TOOLBAR_APP_IDENT
+            };
             UCNKToolbar.PASS_ARGS.forEach(arg => {
                 args[arg.substr('cnc_toolbar_'.length)] = cookies[arg] || '';
             });
