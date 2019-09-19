@@ -56,7 +56,7 @@ export interface TileConf {
      * sources are used here as the HTML is injected "as is" to
      * the page.
      */
-    helpURL:string;
+    helpURL?:LocalizedConfMsg;
 
     /**
      * An optional link to an application the specific tile
@@ -147,7 +147,7 @@ export interface TileFrameProps {
 
     supportsAltView:boolean;
 
-    helpURL:string;
+    helpURL?:string;
 
     renderSize:[number, number];
 
