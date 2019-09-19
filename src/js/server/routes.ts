@@ -79,7 +79,8 @@ function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, appServices:App
             })),
             homepage: {
                 tiles: item
-            }
+            },
+            telemetry: conf.telemetry
         }))
     );
 }
@@ -316,18 +317,21 @@ export const wdgRouter = (services:Services) => (app:Express) => {
     app.post(HTTPAction.TELEMETRY, (req, res, next) => {
         new Observable(observer => {
             if (services.telemetryDB) {
-                const data = [req['session'].id, req.body['timestamp'], req.body['actionName'], JSON.stringify(req.body['payload'])];
-                services.telemetryDB.each(
-                    'INSERT INTO telemetry (session, timestamp, action, payload) values (?, ?, ?, ?)',
-                    data
+                const statement = services.telemetryDB.prepare(
+                    'INSERT INTO telemetry (session, timestamp, action, payload) values (?, ?, ?, ?)'
                 );
-                console.log(data);
+
+                req.body['telemetry'].forEach(action => {
+                        const data = [req['session'].id, action.timestamp, action.actionName, JSON.stringify(action.payload)];
+                        statement.run(data);
+                    }
+                );
                 observer.complete();
             } else {
                 observer.error('Missing telemetry database.');
             }
         }).subscribe(
-            (value) => res.send({saved: true}),
+            (next) => res.send({saved: true, message: next}),
             (err) => res.send({saved: false, message: err}),
             () => res.send({saved: true}),
         );

@@ -74,22 +74,46 @@ export const initClient = (mountElement:HTMLElement, config:ClientConf, userSess
     //appServices.forceMobileMode(); // DEBUG
 
     // telemetry capture
-    dispatcher.registerActionListener((action, dispatcher) => {
-        const payload = {...action.payload};
-        if ('data' in payload) {delete payload['data'];}
+    if (config.telemetry && Math.random() < config.telemetry.participationProbability) {
+        console.log('Telemetry capture is on');
+        let telemetryBuffer = Immutable.List([]);
+        let telemetryTimeout = null;
+        const sendTelemetry = () => {
+            ajax$(
+                HTTPMethod.POST,
+                appServices.createActionUrl(HTTPAction.TELEMETRY),
+                {telemetry: telemetryBuffer.toArray()},
+                {contentType: 'application/json'}
+            ).subscribe({
+                error: console.log,
+                next: null,
+                complete: () => console.log('Telemetry sent')
+            });
+            telemetryBuffer = telemetryBuffer.clear();
+        }
+        
+        dispatcher.registerActionListener((action, dispatcher) => {
+            if (telemetryTimeout) {
+                window.clearTimeout(telemetryTimeout);
+            }
 
-        const telemetryData = {timestamp: Date.now(), actionName: action.name, payload: payload};
-        ajax$(
-            HTTPMethod.POST,
-            appServices.createActionUrl(HTTPAction.TELEMETRY),
-            telemetryData,
-            {contentType: 'application/json'}
-        ).subscribe({
-            error: console.log,
-            next: console.log,
-            complete: () => console.log('Telemetry transfer finished')
+            const payload = {...action.payload};
+            if ('data' in payload) {delete payload['data'];}
+            if ('mapSVG' in payload) {delete payload['mapSVG'];}
+
+            const telemetryData = {timestamp: Date.now(), actionName: action.name, payload: payload};
+            telemetryBuffer = telemetryBuffer.push(telemetryData);
+            
+            if (telemetryBuffer.size >= config.telemetry.batchLimit) {
+                sendTelemetry();
+            } else {
+                telemetryTimeout = window.setTimeout(sendTelemetry, config.telemetry.timeLimit);
+            }
         });
-    });
+        window.onbeforeunload = sendTelemetry;
+    } else {
+        console.log('Telemetry capture is on');
+    }
 
     (config.onLoadInit || []).forEach(initFn => {
         if (initFn in window) {
