@@ -31,6 +31,7 @@ import { TreqSubsetsTileConf } from './tiles/treqSubsets';
 import { WordFreqTileConf } from './tiles/wordFreq';
 import { WordFormsTileConf } from './tiles/wordForms';
 import { SpeechesTileConf } from './tiles/speeches';
+import { DatamuseTileConf } from './tiles/datamuse';
 
 
 export type AnyTileConf =
@@ -47,7 +48,8 @@ export type AnyTileConf =
     GeoAreasTileConf |
     ConcFilterTileConf |
     WordFormsTileConf |
-    SpeechesTileConf;
+    SpeechesTileConf |
+    DatamuseTileConf;
 
 /**
  * A page configuration based on

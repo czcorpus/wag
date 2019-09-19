@@ -52,6 +52,7 @@ import { init as treqSubsetsInit, TreqSubsetsTileConf } from './tiles/treqSubset
 import { init as summaryInit, WordFreqTileConf } from './tiles/wordFreq';
 import { init as wordFormsInit, WordFormsTileConf } from './tiles/wordForms';
 import { init as speechesInit, SpeechesTileConf } from './tiles/speeches';
+import { init as datamuseInit, DatamuseTileConf } from './tiles/datamuse';
 import { GlobalComponents, init as globalCompInit } from './views/global';
 import { init as viewInit, WdglanceMainProps } from './views/main';
 import { RetryTileLoad } from './models/retryLoad';
@@ -164,6 +165,8 @@ const mkTileFactory = (
                 return applyFactory<WordFormsTileConf>(wordFormsInit, conf);
             case 'SpeechesTile':
                 return applyFactory<SpeechesTileConf>(speechesInit, conf);
+            case 'DatamuseTile':
+                return applyFactory<DatamuseTileConf>(datamuseInit, conf);
             default:
                 throw new Error(`Tile factory error - unknown tile "${conf['tileType']}"`);
         }
