@@ -133,11 +133,6 @@
                     "type": "object"
                 }
             },
-            "required": [
-                "cmp",
-                "single",
-                "translat"
-            ],
             "type": "object"
         }
     },

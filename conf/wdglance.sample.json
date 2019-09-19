@@ -257,7 +257,6 @@
 				],
 				"fcrit": "doc.pubyear 0",
 				"flimit": 1,
-				"timeAxisLegend": "AHOJ",
 				"posQueryGenerator": [
 					"tag",
 					"ppTagset"
@@ -700,7 +699,6 @@
 				"distProperty": "word",
 				"fcrit": "text.pubDateYear 0",
 				"flimit": 1,
-				"timeAxisLegend": "Year",
 				"posQueryGenerator": [
 					"tag",
 					"pennTreebank"

@@ -34,11 +34,6 @@ export interface WordFreqTileConf extends TileConf {
     apiURL:string;
     corpname:string;
     corpusSize:number;
-    fcrit:string;
-    flimit:number;
-    freqSort:string;
-    fpage:number;
-    fttIncludeEmpty:boolean;
     sfwRowRange:number;
     flevelDistrib?:Array<FlevelDistribItem>;
 }
@@ -75,11 +70,6 @@ export class WordFreqTile implements ITileProvider {
                 error: null,
                 corpname: conf.corpname,
                 corpusSize: conf.corpusSize,
-                fcrit: conf.fcrit,
-                flimit: conf.flimit,
-                fpage: conf.fpage,
-                freqSort: conf.freqSort,
-                includeEmpty: conf.fttIncludeEmpty,
                 data: Immutable.List<FreqDBRow>(),
                 sfwRowRange: conf.sfwRowRange,
                 flevelDistrb: Immutable.List<FlevelDistribItem>(

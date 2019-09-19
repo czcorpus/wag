@@ -85,7 +85,6 @@ export interface SpeechesModelState {
     speechSegment:[string, string];
     speechOverlapAttr:[string, string];
     speechOverlapVal:string;
-    speechAttrs:Immutable.List<string>;
     speakerColors:Immutable.List<RGBAColor>;
     wideCtxGlobals:Immutable.List<[string, string]>;
     speakerColorsAttachments:Immutable.Map<string, RGBAColor>;

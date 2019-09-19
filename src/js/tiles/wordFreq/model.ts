@@ -37,11 +37,6 @@ export interface SummaryModelState {
     error:string;
     corpname:string;
     corpusSize:number;
-    fcrit:string;
-    flimit:number;
-    fpage:number;
-    freqSort:string;
-    includeEmpty:boolean;
     data:Immutable.List<FreqDBRow>;
     sfwRowRange:number;
     flevelDistrb:Immutable.List<FlevelDistribItem>;

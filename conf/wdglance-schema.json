@@ -9,48 +9,6 @@
             ],
             "type": "string"
         },
-        "AnyInterface<BacklinkArgs>": {
-            "properties": {
-                "corpname": {
-                    "type": "string"
-                },
-                "fcrit": {
-                    "items": {
-                        "type": "string"
-                    },
-                    "type": "array"
-                },
-                "flimit": {
-                    "type": "number"
-                },
-                "fpage": {
-                    "type": "number"
-                },
-                "freq_sort": {
-                    "type": "string"
-                },
-                "ftt_include_empty": {
-                    "type": "number"
-                },
-                "q": {
-                    "type": "string"
-                },
-                "usesubcorp": {
-                    "type": "string"
-                }
-            },
-            "required": [
-                "corpname",
-                "fcrit",
-                "flimit",
-                "fpage",
-                "freq_sort",
-                "ftt_include_empty",
-                "q",
-                "usesubcorp"
-            ],
-            "type": "object"
-        },
         "Backlink": {
             "properties": {
                 "label": {
@@ -93,12 +51,19 @@
             ],
             "type": "object"
         },
-        "BacklinkWithArgs<BacklinkArgs>": {
+        "CollocationsTileConf": {
             "properties": {
-                "args": {
-                    "$ref": "#/definitions/AnyInterface<BacklinkArgs>"
+                "apiURL": {
+                    "type": "string"
                 },
-                "label": {
+                "backlink": {
+                    "$ref": "#/definitions/Backlink",
+                    "description": "An optional link to an application the specific tile\nrepresents (more or less). It is expected that the\ntile logic is able to pass proper arguments to the\npage."
+                },
+                "corpname": {
+                    "type": "string"
+                },
+                "helpURL": {
                     "anyOf": [
                         {
                             "additionalProperties": {
@@ -109,38 +74,8 @@
                         {
                             "type": "string"
                         }
-                    ]
-                },
-                "method": {
-                    "$ref": "#/definitions/HTTPMethod"
-                },
-                "url": {
-                    "type": "string"
-                }
-            },
-            "required": [
-                "args",
-                "label",
-                "method",
-                "url"
-            ],
-            "type": "object"
-        },
-        "CollocationsTileConf": {
-            "properties": {
-                "apiURL": {
-                    "type": "string"
-                },
-                "backlink": {
-                    "$ref": "#/definitions/BacklinkWithArgs<BacklinkArgs>",
-                    "description": "An optional link to an application the specific tile\nrepresents (more or less). It is expected that the\ntile logic is able to pass proper arguments to the\npage."
-                },
-                "corpname": {
-                    "type": "string"
-                },
-                "helpURL": {
-                    "description": "An address providing a raw text or an HTML which will be\nused as a help for the tile. Please make sure only trusted\nsources are used here as the HTML is injected \"as is\" to\nthe page.",
-                    "type": "string"
+                    ],
+                    "description": "An address providing a raw text or an HTML which will be\nused as a help for the tile. Please make sure only trusted\nsources are used here as the HTML is injected \"as is\" to\nthe page."
                 },
                 "isDisabled": {
                     "description": "Normally, any tile configured in the \"tiles\" section\nwill be active no matter whether it is also in the\n\"layouts\" section. This allows e.g. a hidden concordance\ntile to ask for a concordance used by multiple visible\ntiles (e.g. colloc, freqs.). To be able to keep possibly\nusable items in the \"tiles\" configuration file it is\npossible to disable them. I.e. in case a tile is disabled\nit cannot be put in the layout without Wdglance complying\nabout invalid configuration.",
@@ -208,7 +143,6 @@
             "required": [
                 "apiURL",
                 "corpname",
-                "helpURL",
                 "minFreq",
                 "minLocalFreq",
                 "rangeSize",
@@ -262,8 +196,18 @@
                     "type": "string"
                 },
                 "helpURL": {
-                    "description": "An address providing a raw text or an HTML which will be\nused as a help for the tile. Please make sure only trusted\nsources are used here as the HTML is injected \"as is\" to\nthe page.",
-                    "type": "string"
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "An address providing a raw text or an HTML which will be\nused as a help for the tile. Please make sure only trusted\nsources are used here as the HTML is injected \"as is\" to\nthe page."
                 },
                 "isDisabled": {
                     "description": "Normally, any tile configured in the \"tiles\" section\nwill be active no matter whether it is also in the\n\"layouts\" section. This allows e.g. a hidden concordance\ntile to ask for a concordance used by multiple visible\ntiles (e.g. colloc, freqs.). To be able to keep possibly\nusable items in the \"tiles\" configuration file it is\npossible to disable them. I.e. in case a tile is disabled\nit cannot be put in the layout without Wdglance complying\nabout invalid configuration.",
@@ -365,7 +309,6 @@
             "required": [
                 "apiURL",
                 "corpname",
-                "helpURL",
                 "posAttrs",
                 "tileType"
             ],
@@ -390,8 +333,18 @@
                     "type": "boolean"
                 },
                 "helpURL": {
-                    "description": "An address providing a raw text or an HTML which will be\nused as a help for the tile. Please make sure only trusted\nsources are used here as the HTML is injected \"as is\" to\nthe page.",
-                    "type": "string"
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "An address providing a raw text or an HTML which will be\nused as a help for the tile. Please make sure only trusted\nsources are used here as the HTML is injected \"as is\" to\nthe page."
                 },
                 "isDisabled": {
                     "description": "Normally, any tile configured in the \"tiles\" section\nwill be active no matter whether it is also in the\n\"layouts\" section. This allows e.g. a hidden concordance\ntile to ask for a concordance used by multiple visible\ntiles (e.g. colloc, freqs.). To be able to keep possibly\nusable items in the \"tiles\" configuration file it is\npossible to disable them. I.e. in case a tile is disabled\nit cannot be put in the layout without Wdglance complying\nabout invalid configuration.",
@@ -542,7 +495,6 @@
                 "apiType",
                 "apiURL",
                 "corpname",
-                "helpURL",
                 "pageSize",
                 "posAttrs",
                 "posQueryGenerator",
@@ -638,8 +590,18 @@
                     "type": "boolean"
                 },
                 "helpURL": {
-                    "description": "An address providing a raw text or an HTML which will be\nused as a help for the tile. Please make sure only trusted\nsources are used here as the HTML is injected \"as is\" to\nthe page.",
-                    "type": "string"
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "An address providing a raw text or an HTML which will be\nused as a help for the tile. Please make sure only trusted\nsources are used here as the HTML is injected \"as is\" to\nthe page."
                 },
                 "isDisabled": {
                     "description": "Normally, any tile configured in the \"tiles\" section\nwill be active no matter whether it is also in the\n\"layouts\" section. This allows e.g. a hidden concordance\ntile to ask for a concordance used by multiple visible\ntiles (e.g. colloc, freqs.). To be able to keep possibly\nusable items in the \"tiles\" configuration file it is\npossible to disable them. I.e. in case a tile is disabled\nit cannot be put in the layout without Wdglance complying\nabout invalid configuration.",
@@ -711,7 +673,6 @@
                 "fpage",
                 "freqSort",
                 "fttIncludeEmpty",
-                "helpURL",
                 "maxNumCategories",
                 "tileType"
             ],
@@ -790,8 +751,18 @@
                     "type": "boolean"
                 },
                 "helpURL": {
-                    "description": "An address providing a raw text or an HTML which will be\nused as a help for the tile. Please make sure only trusted\nsources are used here as the HTML is injected \"as is\" to\nthe page.",
-                    "type": "string"
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "An address providing a raw text or an HTML which will be\nused as a help for the tile. Please make sure only trusted\nsources are used here as the HTML is injected \"as is\" to\nthe page."
                 },
                 "isDisabled": {
                     "description": "Normally, any tile configured in the \"tiles\" section\nwill be active no matter whether it is also in the\n\"layouts\" section. This allows e.g. a hidden concordance\ntile to ask for a concordance used by multiple visible\ntiles (e.g. colloc, freqs.). To be able to keep possibly\nusable items in the \"tiles\" configuration file it is\npossible to disable them. I.e. in case a tile is disabled\nit cannot be put in the layout without Wdglance complying\nabout invalid configuration.",
@@ -863,7 +834,6 @@
                 "fpage",
                 "freqSort",
                 "fttIncludeEmpty",
-                "helpURL",
                 "maxNumCategories",
                 "tileType"
             ],
@@ -912,8 +882,18 @@
                     "type": "boolean"
                 },
                 "helpURL": {
-                    "description": "An address providing a raw text or an HTML which will be\nused as a help for the tile. Please make sure only trusted\nsources are used here as the HTML is injected \"as is\" to\nthe page.",
-                    "type": "string"
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "An address providing a raw text or an HTML which will be\nused as a help for the tile. Please make sure only trusted\nsources are used here as the HTML is injected \"as is\" to\nthe page."
                 },
                 "isDisabled": {
                     "description": "Normally, any tile configured in the \"tiles\" section\nwill be active no matter whether it is also in the\n\"layouts\" section. This allows e.g. a hidden concordance\ntile to ask for a concordance used by multiple visible\ntiles (e.g. colloc, freqs.). To be able to keep possibly\nusable items in the \"tiles\" configuration file it is\npossible to disable them. I.e. in case a tile is disabled\nit cannot be put in the layout without Wdglance complying\nabout invalid configuration.",
@@ -980,7 +960,6 @@
                 "fpage",
                 "freqSort",
                 "fttIncludeEmpty",
-                "helpURL",
                 "tileType"
             ],
             "type": "object"
@@ -1040,20 +1019,6 @@
                 "tiles"
             ],
             "type": "object"
-        },
-        "HTTPMethod": {
-            "enum": [
-                "CONNECT",
-                "DELETE",
-                "GET",
-                "HEAD",
-                "OPTIONS",
-                "PATCH",
-                "POST",
-                "PUT",
-                "TRACE"
-            ],
-            "type": "string"
         },
         "HomePageTileConf": {
             "properties": {
@@ -1237,11 +1202,6 @@
                     "type": "object"
                 }
             },
-            "required": [
-                "cmp",
-                "single",
-                "translat"
-            ],
             "type": "object"
         },
         "MergeCorpFreqTileConf": {
@@ -1254,8 +1214,18 @@
                     "description": "An optional link to an application the specific tile\nrepresents (more or less). It is expected that the\ntile logic is able to pass proper arguments to the\npage."
                 },
                 "helpURL": {
-                    "description": "An address providing a raw text or an HTML which will be\nused as a help for the tile. Please make sure only trusted\nsources are used here as the HTML is injected \"as is\" to\nthe page.",
-                    "type": "string"
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "An address providing a raw text or an HTML which will be\nused as a help for the tile. Please make sure only trusted\nsources are used here as the HTML is injected \"as is\" to\nthe page."
                 },
                 "isDisabled": {
                     "description": "Normally, any tile configured in the \"tiles\" section\nwill be active no matter whether it is also in the\n\"layouts\" section. This allows e.g. a hidden concordance\ntile to ask for a concordance used by multiple visible\ntiles (e.g. colloc, freqs.). To be able to keep possibly\nusable items in the \"tiles\" configuration file it is\npossible to disable them. I.e. in case a tile is disabled\nit cannot be put in the layout without Wdglance complying\nabout invalid configuration.",
@@ -1375,7 +1345,6 @@
             },
             "required": [
                 "apiURL",
-                "helpURL",
                 "sources",
                 "tileType"
             ],
@@ -1427,8 +1396,18 @@
                     "type": "string"
                 },
                 "helpURL": {
-                    "description": "An address providing a raw text or an HTML which will be\nused as a help for the tile. Please make sure only trusted\nsources are used here as the HTML is injected \"as is\" to\nthe page.",
-                    "type": "string"
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "An address providing a raw text or an HTML which will be\nused as a help for the tile. Please make sure only trusted\nsources are used here as the HTML is injected \"as is\" to\nthe page."
                 },
                 "isDisabled": {
                     "description": "Normally, any tile configured in the \"tiles\" section\nwill be active no matter whether it is also in the\n\"layouts\" section. This allows e.g. a hidden concordance\ntile to ask for a concordance used by multiple visible\ntiles (e.g. colloc, freqs.). To be able to keep possibly\nusable items in the \"tiles\" configuration file it is\npossible to disable them. I.e. in case a tile is disabled\nit cannot be put in the layout without Wdglance complying\nabout invalid configuration.",
@@ -1485,12 +1464,6 @@
                         }
                     ],
                     "minItems": 2,
-                    "type": "array"
-                },
-                "speechAttrs": {
-                    "items": {
-                        "type": "string"
-                    },
                     "type": "array"
                 },
                 "speechOverlapAttr": {
@@ -1582,9 +1555,7 @@
                 "apiType",
                 "apiURL",
                 "corpname",
-                "helpURL",
                 "speakerIdAttr",
-                "speechAttrs",
                 "speechOverlapAttr",
                 "speechOverlapVal",
                 "speechSegment",
@@ -1647,8 +1618,18 @@
                     "type": "array"
                 },
                 "helpURL": {
-                    "description": "An address providing a raw text or an HTML which will be\nused as a help for the tile. Please make sure only trusted\nsources are used here as the HTML is injected \"as is\" to\nthe page.",
-                    "type": "string"
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "An address providing a raw text or an HTML which will be\nused as a help for the tile. Please make sure only trusted\nsources are used here as the HTML is injected \"as is\" to\nthe page."
                 },
                 "isDisabled": {
                     "description": "Normally, any tile configured in the \"tiles\" section\nwill be active no matter whether it is also in the\n\"layouts\" section. This allows e.g. a hidden concordance\ntile to ask for a concordance used by multiple visible\ntiles (e.g. colloc, freqs.). To be able to keep possibly\nusable items in the \"tiles\" configuration file it is\npossible to disable them. I.e. in case a tile is disabled\nit cannot be put in the layout without Wdglance complying\nabout invalid configuration.",
@@ -1711,7 +1692,6 @@
                 "corp1Fcrit",
                 "corp2",
                 "corp2Fcrit",
-                "helpURL",
                 "tileType"
             ],
             "type": "object"
@@ -1742,8 +1722,18 @@
                     "type": "number"
                 },
                 "helpURL": {
-                    "description": "An address providing a raw text or an HTML which will be\nused as a help for the tile. Please make sure only trusted\nsources are used here as the HTML is injected \"as is\" to\nthe page.",
-                    "type": "string"
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "An address providing a raw text or an HTML which will be\nused as a help for the tile. Please make sure only trusted\nsources are used here as the HTML is injected \"as is\" to\nthe page."
                 },
                 "isDisabled": {
                     "description": "Normally, any tile configured in the \"tiles\" section\nwill be active no matter whether it is also in the\n\"layouts\" section. This allows e.g. a hidden concordance\ntile to ask for a concordance used by multiple visible\ntiles (e.g. colloc, freqs.). To be able to keep possibly\nusable items in the \"tiles\" configuration file it is\npossible to disable them. I.e. in case a tile is disabled\nit cannot be put in the layout without Wdglance complying\nabout invalid configuration.",
@@ -1832,9 +1822,6 @@
                     ],
                     "type": "string"
                 },
-                "timeAxisLegend": {
-                    "type": "string"
-                },
                 "waitFor": {
                     "anyOf": [
                         {
@@ -1856,10 +1843,8 @@
                 "corpname",
                 "fcrit",
                 "flimit",
-                "helpURL",
                 "posQueryGenerator",
-                "tileType",
-                "timeAxisLegend"
+                "tileType"
             ],
             "type": "object"
         },
@@ -1873,8 +1858,18 @@
                     "description": "An optional link to an application the specific tile\nrepresents (more or less). It is expected that the\ntile logic is able to pass proper arguments to the\npage."
                 },
                 "helpURL": {
-                    "description": "An address providing a raw text or an HTML which will be\nused as a help for the tile. Please make sure only trusted\nsources are used here as the HTML is injected \"as is\" to\nthe page.",
-                    "type": "string"
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "An address providing a raw text or an HTML which will be\nused as a help for the tile. Please make sure only trusted\nsources are used here as the HTML is injected \"as is\" to\nthe page."
                 },
                 "isDisabled": {
                     "description": "Normally, any tile configured in the \"tiles\" section\nwill be active no matter whether it is also in the\n\"layouts\" section. This allows e.g. a hidden concordance\ntile to ask for a concordance used by multiple visible\ntiles (e.g. colloc, freqs.). To be able to keep possibly\nusable items in the \"tiles\" configuration file it is\npossible to disable them. I.e. in case a tile is disabled\nit cannot be put in the layout without Wdglance complying\nabout invalid configuration.",
@@ -1944,7 +1939,6 @@
             },
             "required": [
                 "apiURL",
-                "helpURL",
                 "srchPackages",
                 "tileType"
             ],
@@ -1960,8 +1954,18 @@
                     "description": "An optional link to an application the specific tile\nrepresents (more or less). It is expected that the\ntile logic is able to pass proper arguments to the\npage."
                 },
                 "helpURL": {
-                    "description": "An address providing a raw text or an HTML which will be\nused as a help for the tile. Please make sure only trusted\nsources are used here as the HTML is injected \"as is\" to\nthe page.",
-                    "type": "string"
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "An address providing a raw text or an HTML which will be\nused as a help for the tile. Please make sure only trusted\nsources are used here as the HTML is injected \"as is\" to\nthe page."
                 },
                 "isDisabled": {
                     "description": "Normally, any tile configured in the \"tiles\" section\nwill be active no matter whether it is also in the\n\"layouts\" section. This allows e.g. a hidden concordance\ntile to ask for a concordance used by multiple visible\ntiles (e.g. colloc, freqs.). To be able to keep possibly\nusable items in the \"tiles\" configuration file it is\npossible to disable them. I.e. in case a tile is disabled\nit cannot be put in the layout without Wdglance complying\nabout invalid configuration.",
@@ -2034,7 +2038,6 @@
             },
             "required": [
                 "apiURL",
-                "helpURL",
                 "srchPackages",
                 "tileType"
             ],
@@ -2062,8 +2065,18 @@
                     "$ref": "#/definitions/AlphaLevel"
                 },
                 "helpURL": {
-                    "description": "An address providing a raw text or an HTML which will be\nused as a help for the tile. Please make sure only trusted\nsources are used here as the HTML is injected \"as is\" to\nthe page.",
-                    "type": "string"
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "An address providing a raw text or an HTML which will be\nused as a help for the tile. Please make sure only trusted\nsources are used here as the HTML is injected \"as is\" to\nthe page."
                 },
                 "isDisabled": {
                     "description": "Normally, any tile configured in the \"tiles\" section\nwill be active no matter whether it is also in the\n\"layouts\" section. This allows e.g. a hidden concordance\ntile to ask for a concordance used by multiple visible\ntiles (e.g. colloc, freqs.). To be able to keep possibly\nusable items in the \"tiles\" configuration file it is\npossible to disable them. I.e. in case a tile is disabled\nit cannot be put in the layout without Wdglance complying\nabout invalid configuration.",
@@ -2125,7 +2138,6 @@
                 "corpname",
                 "corpusSize",
                 "freqFilterAlphaLevel",
-                "helpURL",
                 "tileType"
             ],
             "type": "object"
@@ -2145,30 +2157,25 @@
                 "corpusSize": {
                     "type": "number"
                 },
-                "fcrit": {
-                    "type": "string"
-                },
                 "flevelDistrib": {
                     "items": {
                         "$ref": "#/definitions/FlevelDistribItem"
                     },
                     "type": "array"
                 },
-                "flimit": {
-                    "type": "number"
-                },
-                "fpage": {
-                    "type": "number"
-                },
-                "freqSort": {
-                    "type": "string"
-                },
-                "fttIncludeEmpty": {
-                    "type": "boolean"
-                },
                 "helpURL": {
-                    "description": "An address providing a raw text or an HTML which will be\nused as a help for the tile. Please make sure only trusted\nsources are used here as the HTML is injected \"as is\" to\nthe page.",
-                    "type": "string"
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "An address providing a raw text or an HTML which will be\nused as a help for the tile. Please make sure only trusted\nsources are used here as the HTML is injected \"as is\" to\nthe page."
                 },
                 "isDisabled": {
                     "description": "Normally, any tile configured in the \"tiles\" section\nwill be active no matter whether it is also in the\n\"layouts\" section. This allows e.g. a hidden concordance\ntile to ask for a concordance used by multiple visible\ntiles (e.g. colloc, freqs.). To be able to keep possibly\nusable items in the \"tiles\" configuration file it is\npossible to disable them. I.e. in case a tile is disabled\nit cannot be put in the layout without Wdglance complying\nabout invalid configuration.",
@@ -2231,12 +2238,6 @@
                 "apiURL",
                 "corpname",
                 "corpusSize",
-                "fcrit",
-                "flimit",
-                "fpage",
-                "freqSort",
-                "fttIncludeEmpty",
-                "helpURL",
                 "sfwRowRange",
                 "tileType"
             ],
