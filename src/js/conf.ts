@@ -133,7 +133,13 @@ export interface ClientStaticConf {
 
     // If string we expect this to be a fs path to another
     // JSON file containing just the 'layout' configuration.
-	layouts:LanguageLayoutsConfig|string;
+    layouts:LanguageLayoutsConfig|string;
+    
+    telemetry?:{
+        timeLimit:number; //miliseconds
+        batchLimit:number;
+        participationProbability:number;
+    };
 }
 
 /**
@@ -162,6 +168,11 @@ export interface ClientConf {
     layouts:LayoutsConfig;
     searchLanguages:Array<SearchLanguage>;
     error?:Error;
+    telemetry?:{
+        timeLimit:number; //miliseconds
+        batchLimit:number;
+        participationProbability:number;
+    };
 }
 
 export function emptyLayoutConf():LayoutsConfig {
