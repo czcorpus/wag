@@ -147,15 +147,17 @@ export function normalizeTypography(lines:Array<Line>):Array<Line> {
                 left: tline.left,
                 kwic: tline.kwic,
                 right: tline.right,
-                align: line.align.map(aLine => {
-                    const taLine = normalizeLineTypography(aLine);
-                    return {
-                        left: taLine.left,
-                        kwic: taLine.kwic,
-                        right: taLine.right,
-                        toknum: aLine.toknum
-                    };
-                }),
+                align: line.align ?
+                    line.align.map(aLine => {
+                        const taLine = normalizeLineTypography(aLine);
+                        return {
+                            left: taLine.left,
+                            kwic: taLine.kwic,
+                            right: taLine.right,
+                            toknum: aLine.toknum
+                        };
+                    }) :
+                    [],
                 toknum: line.toknum,
                 metadata: line.metadata ? line.metadata.slice() :  line.metadata,
                 interactionId: line.interactionId,
