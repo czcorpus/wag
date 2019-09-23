@@ -20,8 +20,9 @@ import * as Immutable from 'immutable';
 import { ActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { fromEvent, Observable } from 'rxjs';
-import { debounceTime, map } from 'rxjs/operators';
+import { fromEvent, Observable, interval, empty, of as rxOf } from 'rxjs';
+import { debounceTime, map, switchMap, concatMap, take, bufferWhen } from 'rxjs/operators';
+import { isSubqueryPayload } from './common/query';
 import * as translations from 'translations';
 
 import { AppServices } from './appServices';
@@ -34,7 +35,7 @@ import { SystemNotifications } from './notifications';
 import { GlobalComponents } from './views/global';
 import { createRootComponent } from './app';
 import { initStore } from './cacheDb';
-import { HTTPMethod } from './common/types';
+import { HTTPMethod, TelemetryAction } from './common/types';
 import { HTTPAction } from './server/actions';
 
 declare var DocumentTouch;
@@ -73,48 +74,6 @@ export const initClient = (mountElement:HTMLElement, config:ClientConf, userSess
     });
     //appServices.forceMobileMode(); // DEBUG
 
-    // telemetry capture
-    if (config.telemetry && Math.random() < config.telemetry.participationProbability) {
-        console.log('Telemetry capture is on');
-        let telemetryBuffer = Immutable.List([]);
-        let telemetryTimeout = null;
-        const sendTelemetry = () => {
-            ajax$(
-                HTTPMethod.POST,
-                appServices.createActionUrl(HTTPAction.TELEMETRY),
-                {telemetry: telemetryBuffer.toArray()},
-                {contentType: 'application/json'}
-            ).subscribe({
-                error: console.log,
-                next: null,
-                complete: () => console.log('Telemetry sent')
-            });
-            telemetryBuffer = telemetryBuffer.clear();
-        }
-        
-        dispatcher.registerActionListener((action, dispatcher) => {
-            if (telemetryTimeout) {
-                window.clearTimeout(telemetryTimeout);
-            }
-
-            const payload = {...action.payload};
-            if ('data' in payload) {delete payload['data'];}
-            if ('mapSVG' in payload) {delete payload['mapSVG'];}
-
-            const telemetryData = {timestamp: Date.now(), actionName: action.name, payload: payload};
-            telemetryBuffer = telemetryBuffer.push(telemetryData);
-            
-            if (telemetryBuffer.size >= config.telemetry.batchLimit) {
-                sendTelemetry();
-            } else {
-                telemetryTimeout = window.setTimeout(sendTelemetry, config.telemetry.timeLimit);
-            }
-        });
-        window.onbeforeunload = sendTelemetry;
-    } else {
-        console.log('Telemetry capture is on');
-    }
-
     (config.onLoadInit || []).forEach(initFn => {
         if (initFn in window) {
             try {
@@ -136,7 +95,7 @@ export const initClient = (mountElement:HTMLElement, config:ClientConf, userSess
         }))
     );
 
-    const [WdglanceMain, currLayout] = createRootComponent({
+    const [WdglanceMain, currLayout, tileMap] = createRootComponent({
         config: config,
         userSession: userSession,
         lemmas: lemmas,
@@ -146,6 +105,41 @@ export const initClient = (mountElement:HTMLElement, config:ClientConf, userSess
         viewUtils: viewUtils,
         cache: initStore('requests', config.reqCacheTTL)
     });
+
+    // telemetry capture
+    if (config.telemetry && Math.random() < config.telemetry.participationProbability) {
+        new Observable<TelemetryAction>((observer) => {
+            dispatcher.registerActionListener((action, _) => {
+                const payload = action.payload || {};
+                observer.next({
+                    timestamp: Date.now(),
+                    actionName: action.name,
+                    isSubquery: isSubqueryPayload(payload) as boolean,
+                    tileName: (Object.entries(tileMap).find(x => x[1] === payload['tileId']) || [null])[0]
+                });
+            });
+        }).pipe(
+            bufferWhen(
+                () => rxOf(1, 1.2, 1.5, 1.6, 1.8, 2.0, 2.3, 2.6, 3, 4.0).pipe(
+                    switchMap(v => interval(config.telemetry.sendIntervalSecs * 1000 * v)),
+                    take(1)
+                )
+            ),
+            concatMap(
+                (data) => {
+                    return data.length > 0 ?
+                        ajax$(
+                            HTTPMethod.POST,
+                            appServices.createActionUrl(HTTPAction.TELEMETRY),
+                            {telemetry: data.filter(x => typeof x !== 'number')},
+                            {contentType: 'application/json'}
+                        ) :
+                        empty();
+                }
+            )
+        ).subscribe();
+    }
+
 
     ReactDOM.hydrate(
         React.createElement(

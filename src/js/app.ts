@@ -57,7 +57,7 @@ import { init as viewInit, WdglanceMainProps } from './views/main';
 import { RetryTileLoad } from './models/retryLoad';
 import { ViewUtils, IFullActionControl } from 'kombo';
 import { AppServices } from './appServices';
-import { IAsyncKeyValueStore } from './common/types';
+import { IAsyncKeyValueStore, TileIdentMap } from './common/types';
 
 
 const mkAttachTile = (queryType:QueryType, lang1:string, lang2:string) =>
@@ -170,7 +170,7 @@ const mkTileFactory = (
 }
 
 
-const attachNumericTileIdents = (config:{[ident:string]:AnyTileConf}):{[ident:string]:number} => {
+const attachNumericTileIdents = (config:{[ident:string]:AnyTileConf}):TileIdentMap => {
     const ans = {};
     Object.keys(config).forEach((k, i) => {
         ans[k] = i;
@@ -192,7 +192,7 @@ export interface InitIntArgs {
 
 
 export function createRootComponent({config, userSession, lemmas, appServices, dispatcher,
-    onResize, viewUtils, cache}:InitIntArgs):[React.FunctionComponent<WdglanceMainProps>, Immutable.List<TileGroup>] {
+    onResize, viewUtils, cache}:InitIntArgs):[React.FunctionComponent<WdglanceMainProps>, Immutable.List<TileGroup>, TileIdentMap] {
 
     const qType = userSession.queryType as QueryType; // TODO validate
     const globalComponents = globalCompInit(dispatcher, viewUtils, onResize);
@@ -293,5 +293,5 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
         }
     );
 
-    return [component, layoutManager.getLayout(qType)];
+    return [component, layoutManager.getLayout(qType), tilesMap];
 }

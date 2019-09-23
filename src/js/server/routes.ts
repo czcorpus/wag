@@ -45,6 +45,7 @@ import { TileGroup } from '../layout';
 import { ActionName } from '../models/actions';
 import { DummyCache } from '../cacheDb';
 import { ILogQueue } from './logging/abstract';
+import { TelemetryAction } from '../common/types';
 
 
 function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, appServices:AppServices):Observable<ClientConf> {
@@ -241,7 +242,7 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
             let currentFlagSolved = false;
             const lemmasExtended = findMergeableLemmas(lemmas);
 
-            const [rootView, layout] = createRootComponent({
+            const [rootView, layout, _] = createRootComponent({
                 config: runtimeConf,
                 userSession: userConfig,
                 lemmas: lemmasExtended,
@@ -312,27 +313,31 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
     );
 }
 
+
 export const wdgRouter = (services:Services) => (app:Express) => {
     // endpoint to receive client telemetry
     app.post(HTTPAction.TELEMETRY, (req, res, next) => {
-        new Observable(observer => {
-            if (services.telemetryDB) {
-                const statement = services.telemetryDB.prepare(
-                    'INSERT INTO telemetry (session, timestamp, action, payload) values (?, ?, ?, ?)'
-                );
+        const statement = services.telemetryDB.prepare(
+            'INSERT INTO telemetry (session, timestamp, action, tile_name, is_subquery) values (?, ?, ?, ?, ?)'
+        );
+        rxOf(...(services.telemetryDB ? req.body['telemetry'] as Array<TelemetryAction> : [])).pipe(
+            concatMap(
+                action => new Observable(observer => {
+                    const data = [req['session'].id, action.timestamp, action.actionName, action.tileName, action.isSubquery ? 1 : 0];
+                    statement.run(data, (err:Error, res) => {
+                        if (err) {
+                            observer.error();
 
-                req.body['telemetry'].forEach(action => {
-                        const data = [req['session'].id, action.timestamp, action.actionName, JSON.stringify(action.payload)];
-                        statement.run(data);
-                    }
-                );
-                observer.complete();
-            } else {
-                observer.error('Missing telemetry database.');
-            }
-        }).subscribe(
-            (next) => res.send({saved: true, message: next}),
-            (err) => res.send({saved: false, message: err}),
+                        } else {
+                            observer.next(res);
+                            observer.complete();
+                        }
+                    });
+                })
+            )
+        ).subscribe(
+            () => undefined,
+            (err) => res.status(500).send({saved: false, message: err}),
             () => res.send({saved: true}),
         );
     });

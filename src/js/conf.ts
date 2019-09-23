@@ -132,10 +132,9 @@ export interface ClientStaticConf {
     // If string we expect this to be a fs path to another
     // JSON file containing just the 'layout' configuration.
     layouts:LanguageLayoutsConfig|string;
-    
+
     telemetry?:{
-        timeLimit:number; //miliseconds
-        batchLimit:number;
+        sendIntervalSecs:number;
         participationProbability:number;
     };
 }
@@ -167,8 +166,7 @@ export interface ClientConf {
     searchLanguages:Array<SearchLanguage>;
     error?:Error;
     telemetry?:{
-        timeLimit:number; //miliseconds
-        batchLimit:number;
+        sendIntervalSecs:number;
         participationProbability:number;
     };
 }

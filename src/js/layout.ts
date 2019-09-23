@@ -21,6 +21,7 @@ import { AppServices } from './appServices';
 import { QueryType, QueryTypeMenuItem } from './common/query';
 import { GroupLayoutConfig, LayoutsConfig } from './conf';
 import { string } from 'prop-types';
+import { TileIdentMap } from './common/types';
 
 
 function itemIsGroupConf(v:string|GroupLayoutConfig):v is GroupLayoutConfig {
@@ -57,8 +58,7 @@ export class LayoutManager {
 
     private readonly translatTargetLanguages:Immutable.List<[string, string]>;
 
-    constructor(layouts:LayoutsConfig, tileMap:{[ident:string]:number}, appServices:AppServices) {
-
+    constructor(layouts:LayoutsConfig, tileMap:TileIdentMap, appServices:AppServices) {
         this.singleQueryLayout = Immutable.List<TileGroup>(
                 (layouts.single.groups || []).filter(itemIsGroupConf).map<TileGroup>(group => {
                     return {
