@@ -133,7 +133,12 @@ export interface ClientStaticConf {
 
     // If string we expect this to be a fs path to another
     // JSON file containing just the 'layout' configuration.
-	layouts:LanguageLayoutsConfig|string;
+    layouts:LanguageLayoutsConfig|string;
+
+    telemetry?:{
+        sendIntervalSecs:number;
+        participationProbability:number;
+    };
 }
 
 /**
@@ -162,6 +167,10 @@ export interface ClientConf {
     layouts:LayoutsConfig;
     searchLanguages:Array<SearchLanguage>;
     error?:Error;
+    telemetry?:{
+        sendIntervalSecs:number;
+        participationProbability:number;
+    };
 }
 
 export function emptyLayoutConf():LayoutsConfig {
@@ -253,4 +262,5 @@ export interface ServerConf {
     logQueue?:LogQueueConf;
     toolbar:ToolbarDef;
     langCookie?:string;
+    telemetryDB?:string;
 }

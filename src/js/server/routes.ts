@@ -45,6 +45,7 @@ import { TileGroup } from '../layout';
 import { ActionName } from '../models/actions';
 import { DummyCache } from '../cacheDb';
 import { ILogQueue } from './logging/abstract';
+import { TelemetryAction } from '../common/types';
 
 
 function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, appServices:AppServices):Observable<ClientConf> {
@@ -79,7 +80,8 @@ function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, appServices:App
             })),
             homepage: {
                 tiles: item
-            }
+            },
+            telemetry: conf.telemetry
         }))
     );
 }
@@ -240,7 +242,7 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
             let currentFlagSolved = false;
             const lemmasExtended = findMergeableLemmas(lemmas);
 
-            const [rootView, layout] = createRootComponent({
+            const [rootView, layout, _] = createRootComponent({
                 config: runtimeConf,
                 userSession: userConfig,
                 lemmas: lemmasExtended,
@@ -311,7 +313,34 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
     );
 }
 
+
 export const wdgRouter = (services:Services) => (app:Express) => {
+    // endpoint to receive client telemetry
+    app.post(HTTPAction.TELEMETRY, (req, res, next) => {
+        const statement = services.telemetryDB.prepare(
+            'INSERT INTO telemetry (session, timestamp, action, tile_name, is_subquery) values (?, ?, ?, ?, ?)'
+        );
+        rxOf(...(services.telemetryDB ? req.body['telemetry'] as Array<TelemetryAction> : [])).pipe(
+            concatMap(
+                action => new Observable(observer => {
+                    const data = [req['session'].id, action.timestamp, action.actionName, action.tileName, action.isSubquery ? 1 : 0];
+                    statement.run(data, (err:Error, res) => {
+                        if (err) {
+                            observer.error();
+
+                        } else {
+                            observer.next(res);
+                            observer.complete();
+                        }
+                    });
+                })
+            )
+        ).subscribe(
+            () => undefined,
+            (err) => res.status(500).send({saved: false, message: err}),
+            () => res.send({saved: true}),
+        );
+    });
 
     // host page generator with some React server rendering (testing phase)
     app.get(HTTPAction.MAIN, (req, res, next) => mainAction(services, false, req, res, next));

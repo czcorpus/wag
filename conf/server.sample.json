@@ -1,18 +1,28 @@
 {
+    "$schema": "./server-schema.json",
     "address": "localhost",
     "port": 3000,
     "staticFilesUrl": "/wdg/assets/",
     "theme": "default.less",
+    "langCookie": "wdg_ui_lang",
     "languages": {
         "en-US": "English",
         "cs-CZ": "Čeština"
+    },
+    "toolbar": {
+        "type": "langSwitch",
+        "url": "https://www.korpus.cz/toolbar/toolbar"
     },
     "develServer": {
         "port": 9001,
         "urlRootPath": "/wdg/"
     },
-    "auxServices": {
-        "wordDistribDb": "/var/www/work/wdglance/syn2015.db",
-        "similarFreqWordsMaxCtx": [-50, 50]
+    "freqDB": {
+        "databases": {
+            "cs": "/opt/wdglance/data/syn2015-arf.v3.db",
+            "en": "/opt/wdglance/data/intercorp_v11_wdg.db"
+        },
+        "similarFreqWordsMaxCtx": 10,
+        "minLemmaFreq": 2
     }
 }

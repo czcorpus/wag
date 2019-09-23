@@ -2402,6 +2402,25 @@
             },
             "type": "object"
         },
+        "telemetry": {
+            "properties": {
+                "batchLimit": {
+                    "type": "number"
+                },
+                "participationProbability": {
+                    "type": "number"
+                },
+                "timeLimit": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "batchLimit",
+                "participationProbability",
+                "timeLimit"
+            ],
+            "type": "object"
+        },
         "tiles": {
             "anyOf": [
                 {

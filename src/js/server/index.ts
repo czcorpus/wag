@@ -19,6 +19,7 @@
 import * as bodyParser from 'body-parser';
 import * as cookieParser from 'cookie-parser';
 import * as express from 'express';
+import * as session from 'express-session';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as sqlite3 from 'sqlite3';
@@ -34,6 +35,11 @@ const app = express();
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(session({
+    secret: 'keyboard cat',
+    resave: false,
+    saveUninitialized: true
+}));
 
 function parseJsonConfig<T>(confPath:string):T {
     try {
@@ -71,6 +77,7 @@ wdgRouter({
     serverConf: serverConf,
     clientConf: clientConf,
     db: db,
+    telemetryDB: serverConf.telemetryDB ? new sqlite3.Database(serverConf.telemetryDB) : null,
     translations: translations,
     toolbar: toolbar,
     logging: serverConf.logQueue ?

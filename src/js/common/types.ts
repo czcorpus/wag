@@ -103,3 +103,14 @@ export interface IAsyncKeyValueStore {
 }
 
 export type RGBAColor = [number, number, number, number];
+
+
+export interface TelemetryAction {
+    timestamp:number;
+    actionName:string;
+    tileName:string;
+    isSubquery:boolean;
+}
+
+
+export type TileIdentMap = {[ident:string]:number};

@@ -1,0 +1,120 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "definitions": {
+        "LogQueueConf": {
+            "properties": {
+                "db": {
+                    "type": "number"
+                },
+                "host": {
+                    "type": "string"
+                },
+                "key": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "db",
+                "host",
+                "key",
+                "port"
+            ],
+            "type": "object"
+        },
+        "ToolbarDef": {
+            "properties": {
+                "type": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "type"
+            ],
+            "type": "object"
+        }
+    },
+    "description": "Server side app configuration.",
+    "properties": {
+        "address": {
+            "type": "string"
+        },
+        "develServer": {
+            "properties": {
+                "port": {
+                    "type": "number"
+                },
+                "urlRootPath": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "port",
+                "urlRootPath"
+            ],
+            "type": "object"
+        },
+        "freqDB": {
+            "properties": {
+                "databases": {
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "type": "object"
+                },
+                "minLemmaFreq": {
+                    "type": "number"
+                },
+                "similarFreqWordsMaxCtx": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "databases",
+                "minLemmaFreq",
+                "similarFreqWordsMaxCtx"
+            ],
+            "type": "object"
+        },
+        "langCookie": {
+            "type": "string"
+        },
+        "languages": {
+            "additionalProperties": {
+                "type": "string"
+            },
+            "type": "object"
+        },
+        "logQueue": {
+            "$ref": "#/definitions/LogQueueConf"
+        },
+        "port": {
+            "type": "number"
+        },
+        "staticFilesUrl": {
+            "type": "string"
+        },
+        "telemetryDB": {
+            "type": "string"
+        },
+        "toolbar": {
+            "$ref": "#/definitions/ToolbarDef"
+        }
+    },
+    "required": [
+        "address",
+        "develServer",
+        "freqDB",
+        "languages",
+        "port",
+        "staticFilesUrl",
+        "toolbar"
+    ],
+    "type": "object"
+}
+

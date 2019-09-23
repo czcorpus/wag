@@ -20,12 +20,13 @@ import * as Immutable from 'immutable';
 import { ActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { fromEvent, Observable } from 'rxjs';
-import { debounceTime, map } from 'rxjs/operators';
+import { fromEvent, Observable, interval, empty, of as rxOf } from 'rxjs';
+import { debounceTime, map, switchMap, concatMap, take, bufferWhen } from 'rxjs/operators';
+import { isSubqueryPayload } from './common/query';
 import * as translations from 'translations';
 
 import { AppServices } from './appServices';
-import { encodeArgs } from './common/ajax';
+import { encodeArgs, ajax$ } from './common/ajax';
 import { ScreenProps } from './common/hostPage';
 import { LemmaVariant } from './common/query';
 import { ClientConf, UserConf } from './conf';
@@ -34,6 +35,8 @@ import { SystemNotifications } from './notifications';
 import { GlobalComponents } from './views/global';
 import { createRootComponent } from './app';
 import { initStore } from './cacheDb';
+import { HTTPMethod, TelemetryAction } from './common/types';
+import { HTTPAction } from './server/actions';
 
 declare var DocumentTouch;
 declare var require:(src:string)=>void;  // webpack
@@ -92,7 +95,7 @@ export const initClient = (mountElement:HTMLElement, config:ClientConf, userSess
         }))
     );
 
-    const [WdglanceMain, currLayout] = createRootComponent({
+    const [WdglanceMain, currLayout, tileMap] = createRootComponent({
         config: config,
         userSession: userSession,
         lemmas: lemmas,
@@ -102,6 +105,41 @@ export const initClient = (mountElement:HTMLElement, config:ClientConf, userSess
         viewUtils: viewUtils,
         cache: initStore('requests', config.reqCacheTTL)
     });
+
+    // telemetry capture
+    if (config.telemetry && Math.random() < config.telemetry.participationProbability) {
+        new Observable<TelemetryAction>((observer) => {
+            dispatcher.registerActionListener((action, _) => {
+                const payload = action.payload || {};
+                observer.next({
+                    timestamp: Date.now(),
+                    actionName: action.name,
+                    isSubquery: isSubqueryPayload(payload) as boolean,
+                    tileName: (Object.entries(tileMap).find(x => x[1] === payload['tileId']) || [null])[0]
+                });
+            });
+        }).pipe(
+            bufferWhen(
+                () => rxOf(1, 1.2, 1.5, 1.6, 1.8, 2.0, 2.3, 2.6, 3, 4.0).pipe(
+                    switchMap(v => interval(config.telemetry.sendIntervalSecs * 1000 * v)),
+                    take(1)
+                )
+            ),
+            concatMap(
+                (data) => {
+                    return data.length > 0 ?
+                        ajax$(
+                            HTTPMethod.POST,
+                            appServices.createActionUrl(HTTPAction.TELEMETRY),
+                            {telemetry: data.filter(x => typeof x !== 'number')},
+                            {contentType: 'application/json'}
+                        ) :
+                        empty();
+                }
+            )
+        ).subscribe();
+    }
+
 
     ReactDOM.hydrate(
         React.createElement(
