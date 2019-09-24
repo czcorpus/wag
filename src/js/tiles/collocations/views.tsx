@@ -22,10 +22,12 @@ import * as React from 'react';
 import { Theme } from '../../common/theme';
 import { CoreTileComponentProps, TileComponent } from '../../common/tile';
 import { GlobalComponents } from '../../views/global';
-import { ActionName, Actions, DataRow, SrchContextType, DataHeading } from './common';
-import { CollocModel, CollocModelState } from './model';
+import { ActionName, Actions } from './common';
+import { CollocModel } from './model';
 import { Actions as GlobalActions, ActionName as GlobalActionName } from '../../models/actions';
 import { init as wcloudViewInit } from '../../views/wordCloud/index';
+import { SrchContextType, DataRow, DataHeading } from '../../common/api/abstract/collocations';
+import { CollocModelState } from '../../common/models/collocations/collocations';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:CollocModel):TileComponent {
@@ -113,7 +115,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
 
         render() {
-            const sortItemIdx = this.props.heading.findIndex(v => v.ident === this.props.csortfn);
+            const sortItemIdx = this.props.heading.findIndex(v => v.ident === this.props.sortByMetric);
             const dataTransform = (v:DataRow) => ({
                 text: v.str,
                 value: sortItemIdx > 0 ? v.stats[sortItemIdx - 1] : v.freq, // abs attr is not in the stats array (=> -1)
@@ -126,7 +128,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         hasData={this.props.data.size > 0} sourceIdent={{corp: this.props.corpname}}
                         backlink={this.props.backlink} supportsTileReload={this.props.supportsReloadOnError}>
                     {this.props.isTweakMode ?
-                            <div className="tweak-box"><Controls tileId={this.props.tileId} value={this.props.ctxType} /></div> :
+                            <div className="tweak-box"><Controls tileId={this.props.tileId} value={this.props.srchRangeType} /></div> :
                         null
                     }
                     <div className="boxes">

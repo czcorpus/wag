@@ -24,90 +24,28 @@ import { AppServices } from '../../appServices';
 import { HTTPMethod, SystemMessageType } from '../../common/types';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
 import { ConcLoadedPayload } from '../concordance/actions';
-import {
-    ActionName,
-    Actions,
-    CollApiArgs,
-    CollocMetric,
-    CoreCollRequestArgs,
-    DataHeading,
-    DataLoadedPayload,
-    DataRow,
-    SrchContextType,
-} from './common';
-import { KontextCollAPI } from './service';
+import { ActionName, Actions, DataLoadedPayload } from './common';
 import { Backlink, BacklinkWithArgs } from '../../common/tile';
+import { DataRow, CollocationApi } from '../../common/api/abstract/collocations';
+import { CollocModelState, ctxToRange } from '../../common/models/collocations/collocations';
+import { CoreCollRequestArgs } from '../../common/api/kontext/collocations';
 
 
 export interface CollocModelArgs {
     dispatcher:IActionQueue;
     tileId:number;
     appServices:AppServices;
-    service:KontextCollAPI;
+    service:CollocationApi<{}>;
     initState:CollocModelState;
     waitForTile:number;
     backlink:Backlink;
-}
-
-export interface CollocModelState {
-    isBusy:boolean;
-    tileId:number;
-    isTweakMode:boolean;
-    isAltViewMode:boolean;
-    error:string|null;
-    widthFract:number;
-    corpname:string;
-    concId:string;
-    cattr:string;
-    ctxSize:number;
-    ctxType:SrchContextType;
-    cminfreq:number;
-    cminbgr:number;
-    cbgrfns:Array<CollocMetric>;
-    csortfn:CollocMetric;
-    data:Immutable.List<DataRow>;
-    heading:DataHeading;
-    citemsperpage:number;
-    backlink:BacklinkWithArgs<CoreCollRequestArgs>;
-}
-
-
-const ctxToRange = (ctxType:SrchContextType, range:number):[number, number] => {
-    switch (ctxType) {
-        case SrchContextType.BOTH:
-            return [-1 * range, range];
-        case SrchContextType.LEFT:
-            return [-1 * range, 0];
-        case SrchContextType.RIGHT:
-            return [0, range];
-        default:
-            throw new Error('unknown ctxType ' + ctxType);
-    }
-};
-
-
-export const stateToArgs = (state:CollocModelState, concId:string):CollApiArgs => {
-    const [cfromw, ctow] = ctxToRange(state.ctxType, state.ctxSize);
-    return {
-        corpname: state.corpname,
-        q: `~${concId ? concId : state.concId}`,
-        cattr: state.cattr,
-        cfromw: cfromw,
-        ctow: ctow,
-        cminfreq: state.cminfreq,
-        cminbgr: state.cminbgr,
-        cbgrfns: state.cbgrfns,
-        csortfn: state.csortfn,
-        citemsperpage: state.citemsperpage,
-        format: 'json'
-    };
 }
 
 
 export class CollocModel extends StatelessModel<CollocModelState> {
 
 
-    private readonly service:KontextCollAPI;
+    private readonly service:CollocationApi<{}>;
 
     private readonly appServices:AppServices;
 
@@ -202,7 +140,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                 if (action.payload.tileId === this.tileId) {
                     const newState = this.copyState(state);
                     newState.isBusy = true;
-                    newState.ctxType = action.payload.ctxType;
+                    newState.srchRangeType = action.payload.ctxType;
                     return newState;
 
                 }
@@ -212,7 +150,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
     }
 
     private createBackLink(state:CollocModelState, action:GlobalActions.TileDataLoaded<DataLoadedPayload>):BacklinkWithArgs<CoreCollRequestArgs> {
-        const [cfromw, ctow] = ctxToRange(state.ctxType, state.ctxSize);
+        const [cfromw, ctow] = ctxToRange(state.srchRangeType, state.srchRange);
         return this.backlink ?
             {
                 url: this.backlink.url,
@@ -221,13 +159,13 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                 args: {
                     corpname: state.corpname,
                     q: `~${action.payload.concId}`,
-                    cattr: state.cattr,
+                    cattr: state.tokenAttr,
                     cfromw: cfromw,
                     ctow: ctow,
-                    cminfreq: state.cminfreq,
-                    cminbgr: state.cminbgr,
-                    cbgrfns: state.cbgrfns,
-                    csortfn: state.csortfn,
+                    cminfreq: state.minAbsFreq,
+                    cminbgr: state.minLocalAbsFreq,
+                    cbgrfns: state.appliedMetrics,
+                    csortfn: state.sortByMetric,
                     citemsperpage: state.citemsperpage
                 }
             } :
@@ -235,12 +173,12 @@ export class CollocModel extends StatelessModel<CollocModelState> {
     }
 
     private requestData(state:CollocModelState, concId:string, prevActionErr:Error|null, seDispatch:SEDispatcher):void {
-        new Observable((observer:Observer<CollApiArgs>) => {
+        new Observable((observer:Observer<{}>) => {
             if (prevActionErr) {
                 observer.error(prevActionErr);
 
             } else {
-                observer.next(stateToArgs(state, concId));
+                observer.next(this.service.stateToArgs(state, concId));
                 observer.complete();
             }
         })
@@ -258,7 +196,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                         subqueries: data.data.map(v => ({
                             value: {
                                 value: v.str,
-                                context: ctxToRange(state.ctxType, state.ctxSize)
+                                context: ctxToRange(state.srchRangeType, state.srchRange)
                             },
                             interactionId: v.interactionId
                         })),

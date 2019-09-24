@@ -17,22 +17,8 @@
  */
 import { Action } from 'kombo';
 import { SubqueryPayload } from '../../common/query';
-import { CollocSubqueryPayload, CollocSubqueryValue } from '../../common/api/abstract/collocations';
+import { CollocSubqueryValue, DataRow, DataHeading, SrchContextType } from '../../common/api/abstract/collocations';
 
-
-export interface DataRow {
-    str:string;
-    stats:Array<number>;
-    freq:number;
-    nfilter:[string, string];
-    pfilter:[string, string];
-    interactionId:string;
-}
-
-export type DataHeading = Array<{
-    label:string;
-    ident:string;
-}>;
 
 export enum CollocMetric {
     T_SCORE = 't',
@@ -43,29 +29,6 @@ export enum CollocMetric {
     LOG_DICE = 'd',
     MI_LOG_F = 'p',
     REL_FREQ = 'f'
-}
-
-export interface CoreCollRequestArgs {
-    corpname:string;
-    q:string;
-    cattr:string;
-    cfromw:number;
-    ctow:number;
-    cminfreq:number;
-    cminbgr:number;
-    cbgrfns:Array<string>;
-    csortfn:string;
-    citemsperpage:number;
-}
-
-export interface CollApiArgs extends CoreCollRequestArgs {
-    format:'json';
-}
-
-export enum SrchContextType {
-    LEFT = 'lft',
-    RIGHT = 'rgt',
-    BOTH = 'both'
 }
 
 export enum ActionName {

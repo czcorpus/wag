@@ -19,14 +19,14 @@ import * as Immutable from 'immutable';
 import { IActionDispatcher, StatelessModel } from 'kombo';
 
 import { AppServices } from '../../appServices';
-import { BacklinkArgs } from '../../common/api/kontext/freqs';
 import { CorePosAttribute } from '../../common/types';
 import { QueryType } from '../../common/query';
-import { CollocMetric, DataRow, SrchContextType } from './common';
+import { CollocMetric } from './common';
 import { CollocModel } from './model';
-import { KontextCollAPI } from './service';
 import { init as viewInit } from './views';
 import { TileConf, ITileProvider, TileComponent, TileFactory, Backlink } from '../../common/tile';
+import { SrchContextType, DataRow } from '../../common/api/abstract/collocations';
+import { createCollApiInstance } from './apiFactory';
 
 
 declare var require:(src:string)=>void;  // webpack
@@ -36,6 +36,7 @@ require('./style.less');
 export interface CollocationsTileConf extends TileConf {
     tileType:'CollocTile';
     apiURL:string;
+    apiType:string;
     corpname:string;
     minFreq:number;
     minLocalFreq:number;
@@ -75,7 +76,7 @@ export class CollocationsTile implements ITileProvider {
             tileId: tileId,
             waitForTile: waitForTiles[0],
             appServices: appServices,
-            service: new KontextCollAPI(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            service: createCollApiInstance(conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL), cache),
             backlink: conf.backlink || null,
             initState: {
                 isBusy: isBusy,
@@ -86,13 +87,13 @@ export class CollocationsTile implements ITileProvider {
                 error: null,
                 corpname: conf.corpname,
                 concId: null,
-                cattr: CorePosAttribute.LEMMA,
-                ctxSize: conf.rangeSize,
-                ctxType: SrchContextType.BOTH,
-                cminfreq: conf.minFreq,
-                cminbgr: conf.minLocalFreq,
-                cbgrfns: [CollocMetric.LOG_DICE, CollocMetric.MI, CollocMetric.T_SCORE],
-                csortfn: CollocMetric.LOG_DICE,
+                tokenAttr: CorePosAttribute.LEMMA,
+                srchRange: conf.rangeSize,
+                srchRangeType: SrchContextType.BOTH,
+                minAbsFreq: conf.minFreq,
+                minLocalAbsFreq: conf.minLocalFreq,
+                appliedMetrics: [CollocMetric.LOG_DICE, CollocMetric.MI, CollocMetric.T_SCORE],
+                sortByMetric: CollocMetric.LOG_DICE,
                 data: Immutable.List<DataRow>(),
                 heading: [],
                 citemsperpage: 10,
