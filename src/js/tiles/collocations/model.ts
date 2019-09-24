@@ -24,109 +24,28 @@ import { AppServices } from '../../appServices';
 import { HTTPMethod, SystemMessageType } from '../../common/types';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
 import { ConcLoadedPayload } from '../concordance/actions';
-import { ActionName, Actions, CollApiArgs, CollocMetric, CoreCollRequestArgs, DataLoadedPayload } from './common';
-import { KontextCollAPI } from './service';
+import { ActionName, Actions, DataLoadedPayload } from './common';
 import { Backlink, BacklinkWithArgs } from '../../common/tile';
-import { DataHeading, DataRow, SrchContextType } from '../../common/api/abstract/collocations';
+import { DataRow, CollocationApi } from '../../common/api/abstract/collocations';
+import { CollocModelState, ctxToRange } from '../../common/models/collocations/collocations';
+import { CoreCollRequestArgs } from '../../common/api/kontext/collocations';
 
 
 export interface CollocModelArgs {
     dispatcher:IActionQueue;
     tileId:number;
     appServices:AppServices;
-    service:KontextCollAPI;
+    service:CollocationApi<{}>;
     initState:CollocModelState;
     waitForTile:number;
     backlink:Backlink;
-}
-
-export interface CollocModelState {
-    isBusy:boolean;
-    tileId:number;
-    isTweakMode:boolean;
-    isAltViewMode:boolean;
-    error:string|null;
-    widthFract:number;
-    corpname:string;
-    concId:string;
-
-    /**
-     * A positional attribute used to analyze the text
-     */
-    tokenAttr:string;
-
-    /**
-     * KWIC search range (-a, +a)
-     */
-    srchRange:number;
-
-    /**
-     * KWIC search range type: (-a, 0), (-a, a), (0, a)
-     */
-    srchRangeType:SrchContextType;
-
-    /**
-     * Min. required absolute freq. of a term
-     * (i.e. not only within searched context)
-     */
-    minAbsFreq:number;
-
-    /**
-     * Min. required absolute freq. of a term
-     * when looking only in the searched context
-     */
-    minLocalAbsFreq:number;
-
-    appliedMetrics:Array<CollocMetric>; // TODO generalize
-
-    sortByMetric:CollocMetric;
-
-    data:Immutable.List<DataRow>;
-
-    heading:DataHeading;
-
-    citemsperpage:number;
-
-    backlink:BacklinkWithArgs<CoreCollRequestArgs>;
-}
-
-
-const ctxToRange = (ctxType:SrchContextType, range:number):[number, number] => {
-    switch (ctxType) {
-        case SrchContextType.BOTH:
-            return [-1 * range, range];
-        case SrchContextType.LEFT:
-            return [-1 * range, 0];
-        case SrchContextType.RIGHT:
-            return [0, range];
-        default:
-            throw new Error('unknown ctxType ' + ctxType);
-    }
-};
-
-
-export const stateToArgs = (state:CollocModelState, concId:string):CollApiArgs => {
-    const [cfromw, ctow] = ctxToRange(state.srchRangeType, state.srchRange);
-    return {
-        corpname: state.corpname,
-        q: `~${concId ? concId : state.concId}`,
-        cattr: state.tokenAttr,
-        cfromw: cfromw,
-        ctow: ctow,
-        cminfreq: state.minAbsFreq,
-        cminbgr: state.minLocalAbsFreq,
-        cbgrfns: state.appliedMetrics,
-        csortfn: state.sortByMetric,
-        citemsperpage: state.citemsperpage,
-        format: 'json'
-    };
 }
 
 
 export class CollocModel extends StatelessModel<CollocModelState> {
 
 
-    private readonly service:KontextCollAPI;
+    private readonly service:CollocationApi<{}>;
 
     private readonly appServices:AppServices;
 
@@ -254,12 +173,12 @@ export class CollocModel extends StatelessModel<CollocModelState> {
     }
 
     private requestData(state:CollocModelState, concId:string, prevActionErr:Error|null, seDispatch:SEDispatcher):void {
-        new Observable((observer:Observer<CollApiArgs>) => {
+        new Observable((observer:Observer<{}>) => {
             if (prevActionErr) {
                 observer.error(prevActionErr);
 
             } else {
-                observer.next(stateToArgs(state, concId));
+                observer.next(this.service.stateToArgs(state, concId));
                 observer.complete();
             }
         })

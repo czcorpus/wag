@@ -17,6 +17,8 @@
  */
 
 import { SubqueryPayload, isSubqueryPayload } from '../../query';
+import { DataApi } from '../../types';
+import { CollocModelState } from '../../models/collocations/collocations';
 
 
 // Sub-query related types
@@ -62,4 +64,11 @@ export enum SrchContextType {
     LEFT = 'lft',
     RIGHT = 'rgt',
     BOTH = 'both'
+}
+
+
+export interface CollocationApi<T> extends DataApi<T, CollApiResponse> {
+
+    stateToArgs(state:CollocModelState, concId:string):T;
+
 }

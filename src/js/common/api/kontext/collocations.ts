@@ -18,11 +18,11 @@
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { cachedAjax$ } from '../../common/ajax';
-import { DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../common/types';
-import { CollApiArgs } from './common';
-import { puid } from '../../common/util';
-import { CollApiResponse } from '../../common/api/abstract/collocations';
+import { cachedAjax$ } from '../../../common/ajax';
+import { DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../../common/types';
+import { puid } from '../../../common/util';
+import { CollApiResponse, CollocationApi } from '../abstract/collocations';
+import { CollocModelState, ctxToRange } from '../../models/collocations/collocations';
 
 
 
@@ -47,7 +47,25 @@ interface HttpApiResponse {
 }
 
 
-export class KontextCollAPI implements DataApi<CollApiArgs, CollApiResponse> {
+export interface CoreCollRequestArgs {
+    corpname:string;
+    q:string;
+    cattr:string;
+    cfromw:number;
+    ctow:number;
+    cminfreq:number;
+    cminbgr:number;
+    cbgrfns:Array<string>;
+    csortfn:string;
+    citemsperpage:number;
+}
+
+export interface CollApiArgs extends CoreCollRequestArgs {
+    format:'json';
+}
+
+
+export class KontextCollAPI implements CollocationApi<CollApiArgs> {
 
     private readonly apiURL:string;
 
@@ -59,6 +77,23 @@ export class KontextCollAPI implements DataApi<CollApiArgs, CollApiResponse> {
         this.apiURL = apiURL;
         this.customHeaders = customHeaders || {};
         this.cache = cache;
+    }
+
+    stateToArgs(state:CollocModelState, concId:string):CollApiArgs {
+        const [cfromw, ctow] = ctxToRange(state.srchRangeType, state.srchRange);
+        return {
+            corpname: state.corpname,
+            q: `~${concId ? concId : state.concId}`,
+            cattr: state.tokenAttr,
+            cfromw: cfromw,
+            ctow: ctow,
+            cminfreq: state.minAbsFreq,
+            cminbgr: state.minLocalAbsFreq,
+            cbgrfns: state.appliedMetrics,
+            csortfn: state.sortByMetric,
+            citemsperpage: state.citemsperpage,
+            format: 'json'
+        };
     }
 
 

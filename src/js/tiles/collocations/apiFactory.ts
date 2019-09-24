@@ -16,13 +16,19 @@
  * limitations under the License.
  */
 
-export enum CoreApiGroup {
-	WDGLANCE = 'wdglance',
-	KONTEXT = 'kontext',
-	FCS_V1 = 'fcsv1',
-	LCC = 'lcc'
-}
+import { IAsyncKeyValueStore, HTTPHeaders } from "../../common/types";
+import { CoreApiGroup } from "../../common/api/coreGroups";
+import { KontextCollAPI } from "../../common/api/kontext/collocations";
+import { CollocationApi } from "../../common/api/abstract/collocations";
 
-export function supportedCoreApiGroups() {
-	return Object.keys(CoreApiGroup).map(k => CoreApiGroup[k]);
-}
+export function createCollApiInstance(apiIdent:string, apiURL:string, apiHeaders:HTTPHeaders, cache:IAsyncKeyValueStore):CollocationApi<{}> {
+
+	switch (apiIdent) {
+		case CoreApiGroup.KONTEXT:
+            return new KontextCollAPI(cache, apiURL, apiHeaders);
+        case CoreApiGroup.LCC:
+		default:
+			throw new Error(`Unknown API type "${apiIdent}"`);
+	}
+
+ }

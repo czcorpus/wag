@@ -31,23 +31,6 @@ export enum CollocMetric {
     REL_FREQ = 'f'
 }
 
-export interface CoreCollRequestArgs {
-    corpname:string;
-    q:string;
-    cattr:string;
-    cfromw:number;
-    ctow:number;
-    cminfreq:number;
-    cminbgr:number;
-    cbgrfns:Array<string>;
-    csortfn:string;
-    citemsperpage:number;
-}
-
-export interface CollApiArgs extends CoreCollRequestArgs {
-    format:'json';
-}
-
 export enum ActionName {
     SetSrchContextType = 'COLLOCATIONS_SET_SRCH_CONTEXT_TYPE'
 }
