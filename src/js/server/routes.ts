@@ -21,7 +21,7 @@ import { ViewUtils } from 'kombo';
 import * as React from 'react';
 import { renderToString } from 'react-dom/server';
 import { Observable, forkJoin, of as rxOf } from 'rxjs';
-import { concatMap, map, catchError } from 'rxjs/operators';
+import { concatMap, map, catchError, reduce, tap } from 'rxjs/operators';
 import * as Immutable from 'immutable';
 
 
@@ -317,9 +317,11 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
 export const wdgRouter = (services:Services) => (app:Express) => {
     // endpoint to receive client telemetry
     app.post(HTTPAction.TELEMETRY, (req, res, next) => {
+        const t1 = new Date().getTime();
         const statement = services.telemetryDB.prepare(
             'INSERT INTO telemetry (session, timestamp, action, tile_name, is_subquery) values (?, ?, ?, ?, ?)'
         );
+        services.telemetryDB.run('BEGIN TRANSACTION');
         rxOf(...(services.telemetryDB ? req.body['telemetry'] as Array<TelemetryAction> : [])).pipe(
             concatMap(
                 action => new Observable(observer => {
@@ -334,11 +336,20 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                         }
                     });
                 })
+            ),
+            reduce(
+                (acc, curr) => acc + 1,
+                0
+            ),
+            tap(
+                () => services.telemetryDB.run('COMMIT')
             )
         ).subscribe(
-            () => undefined,
-            (err) => res.status(500).send({saved: false, message: err}),
-            () => res.send({saved: true}),
+            (total) => {
+                const t2 = new Date().getTime() - t1;
+                res.send({saved: true, procTimePerItem: t2 / total});
+            },
+            (err) => res.status(500).send({saved: false, message: err})
         );
     });
 
