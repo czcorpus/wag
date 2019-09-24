@@ -26,7 +26,6 @@ import { QueryFormModel, findCurrLemmaVariant } from '../../models/query';
 import { ConcLoadedPayload } from '../concordance/actions';
 import { calcPercentRatios } from '../../common/util';
 import { AlphaLevel, wilsonConfInterval } from '../timeDistrib/stat';
-import { AjaxTimeoutError } from 'rxjs/ajax';
 
 
 

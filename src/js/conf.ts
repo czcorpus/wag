@@ -32,6 +32,7 @@ import { WordFreqTileConf } from './tiles/wordFreq';
 import { WordFormsTileConf } from './tiles/wordForms';
 import { SpeechesTileConf } from './tiles/speeches';
 import { DatamuseTileConf } from './tiles/datamuse';
+import { HtmlTileConf } from './tiles/html';
 
 
 export type AnyTileConf =
@@ -49,7 +50,8 @@ export type AnyTileConf =
     ConcFilterTileConf |
     WordFormsTileConf |
     SpeechesTileConf |
-    DatamuseTileConf;
+    DatamuseTileConf |
+    HtmlTileConf;
 
 /**
  * A page configuration based on

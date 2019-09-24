@@ -53,6 +53,7 @@ import { init as summaryInit, WordFreqTileConf } from './tiles/wordFreq';
 import { init as wordFormsInit, WordFormsTileConf } from './tiles/wordForms';
 import { init as speechesInit, SpeechesTileConf } from './tiles/speeches';
 import { init as datamuseInit, DatamuseTileConf } from './tiles/datamuse';
+import { init as htmlInit, HtmlTileConf } from './tiles/html';
 import { GlobalComponents, init as globalCompInit } from './views/global';
 import { init as viewInit, WdglanceMainProps } from './views/main';
 import { RetryTileLoad } from './models/retryLoad';
@@ -167,6 +168,8 @@ const mkTileFactory = (
                 return applyFactory<SpeechesTileConf>(speechesInit, conf);
             case 'DatamuseTile':
                 return applyFactory<DatamuseTileConf>(datamuseInit, conf);
+            case 'HtmlTile':
+                return applyFactory<HtmlTileConf>(htmlInit, conf);
             default:
                 throw new Error(`Tile factory error - unknown tile "${conf['tileType']}"`);
         }

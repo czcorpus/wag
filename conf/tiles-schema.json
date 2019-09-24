@@ -47,6 +47,9 @@
                 },
                 {
                     "$ref": "#/definitions/DatamuseTileConf"
+                },
+                {
+                    "$ref": "#/definitions/HtmlTileConf"
                 }
             ]
         },
@@ -1066,6 +1069,109 @@
                 "fpage",
                 "freqSort",
                 "fttIncludeEmpty",
+                "tileType"
+            ],
+            "type": "object"
+        },
+        "HtmlApiType": {
+            "enum": [
+                "raw",
+                "wiktionary"
+            ],
+            "type": "string"
+        },
+        "HtmlTileConf": {
+            "properties": {
+                "apiType": {
+                    "$ref": "#/definitions/HtmlApiType"
+                },
+                "apiURL": {
+                    "type": "string"
+                },
+                "args": {
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "type": "object"
+                },
+                "backlink": {
+                    "$ref": "#/definitions/Backlink",
+                    "description": "An optional link to an application the specific tile\nrepresents (more or less). It is expected that the\ntile logic is able to pass proper arguments to the\npage."
+                },
+                "helpURL": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "An address providing a raw text or an HTML which will be\nused as a help for the tile. Please make sure only trusted\nsources are used here as the HTML is injected \"as is\" to\nthe page."
+                },
+                "isDisabled": {
+                    "description": "Normally, any tile configured in the \"tiles\" section\nwill be active no matter whether it is also in the\n\"layouts\" section. This allows e.g. a hidden concordance\ntile to ask for a concordance used by multiple visible\ntiles (e.g. colloc, freqs.). To be able to keep possibly\nusable items in the \"tiles\" configuration file it is\npossible to disable them. I.e. in case a tile is disabled\nit cannot be put in the layout without Wdglance complying\nabout invalid configuration.",
+                    "type": "boolean"
+                },
+                "label": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "A label used in the header of the tile"
+                },
+                "lemmaArg": {
+                    "type": "string"
+                },
+                "readSubqFrom": {
+                    "anyOf": [
+                        {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "In case we depend on multiple tiles and some of them are\njust kind of hidden dependencies (i.e. we want to wait them\nto complate but we don't need their subquery args) this can\nbe used to distinguish the two dependency types.\n\nPlease note that this value is not used directly by WdG but\nit is rather provided for tile model to provide more information\nabout inter-tile dependencies. I.e. it is perfectly doable to\ndefine a subquery producing tile as a dependency via 'waitFor'.\nBut in more complex situations when we need some tiles to just\nwait for and some to also provide subqueries the model may not\nhave enough information to distinguish between the two."
+                },
+                "tileType": {
+                    "description": "An identifier as defined by tiles configuration interface",
+                    "enum": [
+                        "HtmlTile"
+                    ],
+                    "type": "string"
+                },
+                "waitFor": {
+                    "anyOf": [
+                        {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "In case a tile supports this (most of them does so) it can\nwait for a specific tile to finish its operation. Again,\nthis is used mainly for 'concordance -> analysis' combinations."
+                }
+            },
+            "required": [
+                "apiType",
+                "apiURL",
                 "tileType"
             ],
             "type": "object"
