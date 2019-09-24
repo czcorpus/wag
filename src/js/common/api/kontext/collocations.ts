@@ -19,7 +19,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { cachedAjax$ } from '../../../common/ajax';
-import { DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../../common/types';
+import { HTTPHeaders, IAsyncKeyValueStore } from '../../../common/types';
 import { puid } from '../../../common/util';
 import { CollApiResponse, CollocationApi } from '../abstract/collocations';
 import { CollocModelState, ctxToRange } from '../../models/collocations/collocations';

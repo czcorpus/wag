@@ -29,6 +29,8 @@ import { Backlink, BacklinkWithArgs } from '../../common/tile';
 import { DataRow, CollocationApi } from '../../common/api/abstract/collocations';
 import { CollocModelState, ctxToRange } from '../../common/models/collocations/collocations';
 import { CoreCollRequestArgs } from '../../common/api/kontext/collocations';
+import { QueryFormModel, findCurrLemmaVariant } from '../../models/query';
+import { LemmaVariant } from '../../common/query';
 
 
 export interface CollocModelArgs {
@@ -38,6 +40,7 @@ export interface CollocModelArgs {
     service:CollocationApi<{}>;
     initState:CollocModelState;
     waitForTile:number;
+    mainForm:QueryFormModel;
     backlink:Backlink;
 }
 
@@ -53,6 +56,8 @@ export class CollocModel extends StatelessModel<CollocModelState> {
 
     private readonly waitForTile:number;
 
+    private readonly mainForm:QueryFormModel;
+
     private readonly measureMap = {
         't': 'T-score',
         'm': 'MI',
@@ -66,13 +71,14 @@ export class CollocModel extends StatelessModel<CollocModelState> {
 
     private readonly backlink:Backlink;
 
-    constructor({dispatcher, tileId, waitForTile, appServices, service, initState, backlink}:CollocModelArgs) {
+    constructor({dispatcher, tileId, waitForTile, appServices, service, initState, backlink, mainForm}:CollocModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.waitForTile = waitForTile;
         this.appServices = appServices;
         this.service = service;
         this.backlink = backlink;
+        this.mainForm = mainForm;
         this.actionMatch = {
             [GlobalActionName.EnableTileTweakMode]: (state, action:GlobalActions.EnableTileTweakMode) => {
                 if (action.payload.ident === this.tileId) {
@@ -172,13 +178,13 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             null;
     }
 
-    private requestData(state:CollocModelState, concId:string, prevActionErr:Error|null, seDispatch:SEDispatcher):void {
+    private requestData(state:CollocModelState, dataSpec:LemmaVariant|string, prevActionErr:Error|null, seDispatch:SEDispatcher):void {
         new Observable((observer:Observer<{}>) => {
             if (prevActionErr) {
                 observer.error(prevActionErr);
 
             } else {
-                observer.next(this.service.stateToArgs(state, concId));
+                observer.next(this.service.stateToArgs(state, dataSpec));
                 observer.complete();
             }
         })
@@ -228,33 +234,40 @@ export class CollocModel extends StatelessModel<CollocModelState> {
     sideEffects(state:CollocModelState, action:Action, seDispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
-                this.suspend(
-                    (action:Action) => {
-                        if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
-                            const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
-                            if (action.error) {
-                                seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                    name: GlobalActionName.TileDataLoaded,
-                                    payload: {
-                                        tileId: this.tileId,
-                                        isEmpty: true,
-                                        data: [],
-                                        heading: null,
-                                        concId: null,
-                                        subqueries: [],
-                                        lang1: null,
-                                        lang2: null
-                                    },
-                                    error: new Error(this.appServices.translate('global__failed_to_obtain_required_data')),
-                                });
+                if (this.waitForTile) {
+                    this.suspend(
+                        (action:Action) => {
+                            if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
+                                const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
+                                if (action.error) {
+                                    seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                        name: GlobalActionName.TileDataLoaded,
+                                        payload: {
+                                            tileId: this.tileId,
+                                            isEmpty: true,
+                                            data: [],
+                                            heading: null,
+                                            concId: null,
+                                            subqueries: [],
+                                            lang1: null,
+                                            lang2: null
+                                        },
+                                        error: new Error(this.appServices.translate('global__failed_to_obtain_required_data')),
+                                    });
+                                    return true;
+                                }
+                                this.requestData(state, payload.data.concPersistenceID, action.error, seDispatch);
                                 return true;
                             }
-                            this.requestData(state, payload.data.concPersistenceID, action.error, seDispatch);
-                            return true;
+                            return false;
                         }
-                        return false;
-                    }
-                );
+                    );
+
+                } else {
+                    const formState = this.mainForm.getState();
+                    const variant = findCurrLemmaVariant(formState.lemmas);
+                    this.requestData(state, variant, null, seDispatch);
+                }
             break;
             case ActionName.SetSrchContextType:
                 this.requestData(state, state.concId, null, seDispatch);

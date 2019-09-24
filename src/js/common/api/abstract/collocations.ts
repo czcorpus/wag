@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { SubqueryPayload, isSubqueryPayload } from '../../query';
+import { SubqueryPayload, isSubqueryPayload, LemmaVariant } from '../../query';
 import { DataApi } from '../../types';
 import { CollocModelState } from '../../models/collocations/collocations';
 
@@ -69,6 +69,9 @@ export enum SrchContextType {
 
 export interface CollocationApi<T> extends DataApi<T, CollApiResponse> {
 
-    stateToArgs(state:CollocModelState, concId:string):T;
+    /**
+     * @param dataSpec is either an ID of an existing concordance or a query
+     */
+    stateToArgs(state:CollocModelState, dataSpec:LemmaVariant|string):T;
 
 }

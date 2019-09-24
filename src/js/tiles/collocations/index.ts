@@ -41,6 +41,7 @@ export interface CollocationsTileConf extends TileConf {
     minFreq:number;
     minLocalFreq:number;
     rangeSize:number;
+    maxItems?:number;
     backlink?:Backlink;
 }
 
@@ -65,7 +66,7 @@ export class CollocationsTile implements ITileProvider {
 
     private view:TileComponent;
 
-    constructor({tileId, dispatcher, appServices, ut, theme, waitForTiles, widthFract, conf, isBusy, cache}:TileFactory.Args<CollocationsTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, theme, waitForTiles, widthFract, conf, isBusy, mainForm, cache}:TileFactory.Args<CollocationsTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.appServices = appServices;
@@ -78,6 +79,7 @@ export class CollocationsTile implements ITileProvider {
             appServices: appServices,
             service: createCollApiInstance(conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL), cache),
             backlink: conf.backlink || null,
+            mainForm: mainForm,
             initState: {
                 isBusy: isBusy,
                 isTweakMode: false,
@@ -96,7 +98,7 @@ export class CollocationsTile implements ITileProvider {
                 sortByMetric: CollocMetric.LOG_DICE,
                 data: Immutable.List<DataRow>(),
                 heading: [],
-                citemsperpage: 10,
+                citemsperpage: conf.maxItems ? conf.maxItems : 10,
                 backlink: null
             }
         });
