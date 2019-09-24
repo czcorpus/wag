@@ -19,6 +19,8 @@
 import { SubqueryPayload, isSubqueryPayload } from '../../query';
 
 
+// Sub-query related types
+
 export interface CollocSubqueryValue {
     value:string;
     context:[number, number];
@@ -30,4 +32,34 @@ export type CollocSubqueryPayload = SubqueryPayload<CollocSubqueryValue>;
 export function isCollocSubqueryPayload(payload:{}):payload is CollocSubqueryPayload {
     return isSubqueryPayload(payload) && payload.subqueries.length > 0 &&
             payload.subqueries[0].value['context'] !== undefined;
+}
+
+
+// API related types
+
+export type DataHeading = Array<{
+    label:string;
+    ident:string;
+}>;
+
+
+export interface DataRow {
+    str:string;
+    stats:Array<number>;
+    freq:number;
+    nfilter:[string, string];
+    pfilter:[string, string];
+    interactionId:string;
+}
+
+export interface CollApiResponse {
+    concId:string;
+    collHeadings:DataHeading;
+    data:Array<DataRow>;
+}
+
+export enum SrchContextType {
+    LEFT = 'lft',
+    RIGHT = 'rgt',
+    BOTH = 'both'
 }

@@ -19,14 +19,14 @@ import * as Immutable from 'immutable';
 import { IActionDispatcher, StatelessModel } from 'kombo';
 
 import { AppServices } from '../../appServices';
-import { BacklinkArgs } from '../../common/api/kontext/freqs';
 import { CorePosAttribute } from '../../common/types';
 import { QueryType } from '../../common/query';
-import { CollocMetric, DataRow, SrchContextType } from './common';
+import { CollocMetric } from './common';
 import { CollocModel } from './model';
 import { KontextCollAPI } from './service';
 import { init as viewInit } from './views';
 import { TileConf, ITileProvider, TileComponent, TileFactory, Backlink } from '../../common/tile';
+import { SrchContextType, DataRow } from '../../common/api/abstract/collocations';
 
 
 declare var require:(src:string)=>void;  // webpack

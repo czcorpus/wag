@@ -20,8 +20,9 @@ import { map } from 'rxjs/operators';
 
 import { cachedAjax$ } from '../../common/ajax';
 import { DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../common/types';
-import { CollApiArgs, DataHeading, DataRow } from './common';
+import { CollApiArgs } from './common';
 import { puid } from '../../common/util';
+import { CollApiResponse } from '../../common/api/abstract/collocations';
 
 
 
@@ -43,12 +44,6 @@ interface HttpApiResponse {
     conc_persistence_op_id:string;
     Head:ResponseDataHeading;
     Items:Array<ResponseDataRow>;
-}
-
-export interface CollApiResponse {
-    concId:string;
-    collHeadings:DataHeading;
-    data:Array<DataRow>;
 }
 
 

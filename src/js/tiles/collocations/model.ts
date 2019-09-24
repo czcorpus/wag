@@ -24,19 +24,10 @@ import { AppServices } from '../../appServices';
 import { HTTPMethod, SystemMessageType } from '../../common/types';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
 import { ConcLoadedPayload } from '../concordance/actions';
-import {
-    ActionName,
-    Actions,
-    CollApiArgs,
-    CollocMetric,
-    CoreCollRequestArgs,
-    DataHeading,
-    DataLoadedPayload,
-    DataRow,
-    SrchContextType,
-} from './common';
+import { ActionName, Actions, CollApiArgs, CollocMetric, CoreCollRequestArgs, DataLoadedPayload } from './common';
 import { KontextCollAPI } from './service';
 import { Backlink, BacklinkWithArgs } from '../../common/tile';
+import { DataHeading, DataRow, SrchContextType } from '../../common/api/abstract/collocations';
 
 
 export interface CollocModelArgs {
