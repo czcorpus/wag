@@ -114,7 +114,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
 
         render() {
-            const sortItemIdx = this.props.heading.findIndex(v => v.ident === this.props.csortfn);
+            const sortItemIdx = this.props.heading.findIndex(v => v.ident === this.props.sortByMetric);
             const dataTransform = (v:DataRow) => ({
                 text: v.str,
                 value: sortItemIdx > 0 ? v.stats[sortItemIdx - 1] : v.freq, // abs attr is not in the stats array (=> -1)
@@ -127,7 +127,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         hasData={this.props.data.size > 0} sourceIdent={{corp: this.props.corpname}}
                         backlink={this.props.backlink} supportsTileReload={this.props.supportsReloadOnError}>
                     {this.props.isTweakMode ?
-                            <div className="tweak-box"><Controls tileId={this.props.tileId} value={this.props.ctxType} /></div> :
+                            <div className="tweak-box"><Controls tileId={this.props.tileId} value={this.props.srchRangeType} /></div> :
                         null
                     }
                     <div className="boxes">
