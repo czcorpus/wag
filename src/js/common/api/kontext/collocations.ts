@@ -96,6 +96,9 @@ export class KontextCollAPI implements CollocationApi<CollApiArgs> {
         };
     }
 
+    supportsLeftRightContext():boolean {
+        return true;
+    }
 
     call(queryArgs:CollApiArgs):Observable<CollApiResponse> {
         return cachedAjax$<HttpApiResponse>(this.cache)(

@@ -66,6 +66,9 @@ export class LccCollAPI implements CollocationApi<CollRequestArgs> {
         };
     }
 
+    supportsLeftRightContext():boolean {
+        return false;
+    }
 
     call(queryArgs:CollRequestArgs):Observable<CollApiResponse> {
         return cachedAjax$<HttpApiResponse>(this.cache)(
