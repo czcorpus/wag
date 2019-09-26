@@ -25,7 +25,7 @@ import { CollocMetric } from './common';
 import { CollocModel } from './model';
 import { init as viewInit } from './views';
 import { TileConf, ITileProvider, TileComponent, TileFactory, Backlink } from '../../common/tile';
-import { SrchContextType, DataRow } from '../../common/api/abstract/collocations';
+import { SrchContextType, DataRow, CollocationApi } from '../../common/api/abstract/collocations';
 import { createCollApiInstance } from './apiFactory';
 
 
@@ -66,18 +66,21 @@ export class CollocationsTile implements ITileProvider {
 
     private view:TileComponent;
 
+    private readonly api:CollocationApi<{}>;
+
     constructor({tileId, dispatcher, appServices, ut, theme, waitForTiles, widthFract, conf, isBusy, mainForm, cache}:TileFactory.Args<CollocationsTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.appServices = appServices;
         this.widthFract = widthFract;
         this.blockingTiles = waitForTiles;
+        this.api = createCollApiInstance(conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL), cache);
         this.model = new CollocModel({
             dispatcher: dispatcher,
             tileId: tileId,
             waitForTile: waitForTiles[0],
             appServices: appServices,
-            service: createCollApiInstance(conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL), cache),
+            service: this.api,
             backlink: conf.backlink || null,
             mainForm: mainForm,
             initState: {
@@ -140,7 +143,7 @@ export class CollocationsTile implements ITileProvider {
     }
 
     supportsTweakMode():boolean {
-        return true;
+        return this.api.supportsLeftRightContext();
     }
 
     supportsAltView():boolean {

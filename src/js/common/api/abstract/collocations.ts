@@ -74,4 +74,6 @@ export interface CollocationApi<T> extends DataApi<T, CollApiResponse> {
      */
     stateToArgs(state:CollocModelState, dataSpec:LemmaVariant|string):T;
 
+    supportsLeftRightContext():boolean;
+
 }
