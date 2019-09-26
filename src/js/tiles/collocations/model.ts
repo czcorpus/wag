@@ -270,7 +270,9 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                 }
             break;
             case ActionName.SetSrchContextType:
-                this.requestData(state, state.concId, null, seDispatch);
+                if (action.payload['tileId'] === this.tileId) {
+                    this.requestData(state, state.concId, null, seDispatch);
+                }
             break;
         }
     }
