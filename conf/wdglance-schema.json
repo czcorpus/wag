@@ -1216,6 +1216,9 @@
                 "lemmaArg": {
                     "type": "string"
                 },
+                "maxTileHeight": {
+                    "type": "string"
+                },
                 "readSubqFrom": {
                     "anyOf": [
                         {

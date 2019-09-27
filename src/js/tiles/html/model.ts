@@ -31,6 +31,7 @@ export interface HtmlModelArgs {
     tileId:number;
     appServices:AppServices;
     service:RawHtmlAPI|WiktionaryHtmlAPI;
+    maxTileHeight:string;
     initState:HtmlModelState;
     mainForm:QueryFormModel;
 }
@@ -55,8 +56,11 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
 
     private readonly tileId:number;
 
-    constructor({dispatcher, tileId, appServices, service, initState, mainForm}:HtmlModelArgs) {
+    readonly maxTileHeight:string;
+
+    constructor({dispatcher, tileId, appServices, service, maxTileHeight, initState, mainForm}:HtmlModelArgs) {
         super(dispatcher, initState);
+        this.maxTileHeight = maxTileHeight;
         this.tileId = tileId;
         this.appServices = appServices;
         this.service = service;
