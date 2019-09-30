@@ -108,6 +108,9 @@
         },
         "CollocationsTileConf": {
             "properties": {
+                "apiType": {
+                    "type": "string"
+                },
                 "apiURL": {
                     "type": "string"
                 },
@@ -149,6 +152,9 @@
                         }
                     ],
                     "description": "A label used in the header of the tile"
+                },
+                "maxItems": {
+                    "type": "number"
                 },
                 "minFreq": {
                     "type": "number"
@@ -196,6 +202,7 @@
                 }
             },
             "required": [
+                "apiType",
                 "apiURL",
                 "corpname",
                 "minFreq",
