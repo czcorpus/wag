@@ -1,4 +1,4 @@
-.PHONY: production devel devel-server configtest configschemata
+.PHONY: production devel devel-server configtest configtest-samples configschemata
 production :
 	nodejs node_modules/webpack/bin/webpack.js --config webpack.prod.js
 devel :
@@ -21,3 +21,7 @@ configtest :
 
 	$(eval TILES_PATH=$(shell node -pe 'JSON.parse(fs.readFileSync("conf/wdglance.json", "utf8")).tiles'))
 	$(if $(wildcard $(TILES_PATH)), nodejs node_modules/ajv-cli/index.js -s ./conf/tiles-schema.json -d $(TILES_PATH),)
+
+configtest-samples :
+	nodejs node_modules/ajv-cli/index.js -s ./conf/server-schema.json -d ./conf/server.sample.json
+	nodejs node_modules/ajv-cli/index.js -s ./conf/wdglance-schema.json -d ./conf/wdglance.sample.json
