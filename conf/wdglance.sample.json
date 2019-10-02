@@ -273,6 +273,7 @@
 				"tileType": "CollocTile",
 				"waitFor": "ConcordanceSynchronic",
 				"apiURL": "/kontext/collx",
+				"apiType": "kontext",
 				"corpname": "syn2015",
 				"minFreq": 5,
 				"minLocalFreq": 5,
