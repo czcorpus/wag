@@ -17,54 +17,7 @@
  */
 import { DbValueMapping, HTTPHeaders, LocalizedConfMsg } from './common/types';
 import { QueryPoS, QueryType, SearchLanguage } from './common/query';
-import { CollocationsTileConf } from './tiles/collocations';
-import { ConcFilterTileConf } from './tiles/concFilter';
-import { ConcordanceTileConf } from './tiles/concordance';
-import { FreqBarTileConf } from './tiles/freqBar';
-import { FreqPieTileConf } from './tiles/freqPie';
-import { GeoAreasTileConf } from './tiles/geoAreas';
-import { MergeCorpFreqTileConf } from './tiles/mergeCorpFreq';
-import { SyDTileConf } from './tiles/syd';
-import { TimeDistTileConf } from './tiles/timeDistrib/common';
-import { TreqTileConf } from './tiles/treq';
-import { TreqSubsetsTileConf } from './tiles/treqSubsets';
-import { WordFreqTileConf } from './tiles/wordFreq';
-import { WordFormsTileConf } from './tiles/wordForms';
-import { SpeechesTileConf } from './tiles/speeches';
-import { DatamuseTileConf } from './tiles/datamuse';
-import { HtmlTileConf } from './tiles/html';
-
-
-export type CoreTileConf =
-    ConcordanceTileConf |
-    FreqBarTileConf |
-    TreqTileConf |
-    TreqSubsetsTileConf |
-    SyDTileConf |
-    FreqPieTileConf |
-    TimeDistTileConf |
-    CollocationsTileConf |
-    WordFreqTileConf |
-    MergeCorpFreqTileConf |
-    GeoAreasTileConf |
-    ConcFilterTileConf |
-    WordFormsTileConf |
-    SpeechesTileConf |
-    DatamuseTileConf |
-    HtmlTileConf;
-
-export interface ExternalTileConf {
-    tileType:string;
-    tileSrc:string;
-    helpURL?:string;
-    isDisabled?:boolean;
-}
-
-export function isExternalTileConf(tconf:AnyTileConf):tconf is ExternalTileConf {
-    return typeof tconf['tileType'] === 'string' && typeof tconf['tileSrc'] === 'string';
-}
-
-export type AnyTileConf = CoreTileConf | ExternalTileConf;
+import { TileConf } from './common/tile';
 
 /**
  * A page configuration based on
@@ -161,7 +114,7 @@ export interface ClientStaticConf {
  * using Makefile for tiles and layouts only
  */
 export interface LanguageLayoutsConfig {[lang:string]:LayoutsConfig};
-export interface LanguageAnyTileConf {[lang:string]:{[ident:string]:AnyTileConf}};
+export interface LanguageAnyTileConf {[lang:string]:{[ident:string]:TileConf}};
 
 /**
  * Client side app configuration as generated
@@ -178,7 +131,7 @@ export interface ClientConf {
     onLoadInit:Array<string>;
     apiHeaders:{[urlPrefix:string]:HTTPHeaders};
     homepage:{tiles:Array<{label:string; html:string}>};
-    tiles:{[ident:string]:AnyTileConf};
+    tiles:{[ident:string]:TileConf};
     layouts:LayoutsConfig;
     searchLanguages:Array<SearchLanguage>;
     error?:Error;

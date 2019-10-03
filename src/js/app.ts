@@ -28,8 +28,8 @@ import { CorpusInfoAPI } from './common/api/kontext/corpusInfo';
 import { Theme } from './common/theme';
 import { AvailableLanguage, ScreenProps } from './common/hostPage';
 import { LemmaVariant, QueryType, SearchLanguage } from './common/query';
-import { ITileProvider, TileFrameProps } from './common/tile';
-import { AnyTileConf, ClientConf, UserConf } from './conf';
+import { ITileProvider, TileFrameProps, TileConf } from './common/tile';
+import { ClientConf, UserConf } from './conf';
 import { LayoutManager, TileGroup } from './layout';
 import { ActionName, Actions } from './models/actions';
 import { MessagesModel } from './models/messages';
@@ -40,7 +40,8 @@ import { init as viewInit, WdglanceMainProps } from './views/main';
 import { RetryTileLoad } from './models/retryLoad';
 import { ViewUtils, IFullActionControl } from 'kombo';
 import { AppServices } from './appServices';
-import { IAsyncKeyValueStore, TileIdentMap } from './common/types';
+import { IAsyncKeyValueStore } from './common/types';
+import { mkTileFactory } from './tileLoader';
 
 
 const mkAttachTile = (queryType:QueryType, lang1:string, lang2:string) =>
@@ -66,7 +67,7 @@ const mkAttachTile = (queryType:QueryType, lang1:string, lang2:string) =>
     }
 };
 
-const attachNumericTileIdents = (config:{[ident:string]:AnyTileConf}):{[ident:string]:number} => {
+const attachNumericTileIdents = (config:{[ident:string]:TileConf}):{[ident:string]:number} => {
     const ans = {};
     Object.keys(config).forEach((k, i) => {
         ans[k] = i;
