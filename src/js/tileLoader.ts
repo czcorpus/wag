@@ -25,7 +25,7 @@ import { Theme } from './common/theme';
 import { LayoutManager } from './layout';
 import { QueryType } from './common/query';
 import { IAsyncKeyValueStore } from './common/types';
-import { EmptyTile } from './tiles/empty';
+import { EmptyTile } from './tiles/core/empty';
 
 declare var require:any;
 
@@ -46,14 +46,24 @@ const importDependentTilesList = (...d:Array<string|Array<string>>):Array<string
     return Object.keys(items);
 };
 
-const modContext = require.context('./tiles/', true, /index.ts$/); // this is rewritten by Webpack in the target code
-const tileFactories:{[tileType:string]:TileFactory.TileFactory<{}>} = {};
-(modContext.keys().map(modContext) as Array<DynamicTileModule>).forEach(m => {
-    if (tileFactories[m.TILE_TYPE]) {
-        throw new Error(`Tile type name collision. Value ${m.TILE_TYPE} cannot be used`);
-    }
-    tileFactories[m.TILE_TYPE] = m.init;
-});
+type TileFactoryMap = {[tileType:string]:TileFactory.TileFactory<{}>};
+
+const tileFactories:TileFactoryMap = {};
+
+const applyContext = (ctx:any, tfMap:TileFactoryMap) => {
+    (ctx.keys().map(ctx) as Array<DynamicTileModule>).forEach(m => {
+        if (tfMap[m.TILE_TYPE]) {
+            throw new Error(`Tile type name collision. Value ${m.TILE_TYPE} cannot be used`);
+        }
+        tfMap[m.TILE_TYPE] = m.init;
+    });
+};
+
+// note: the 'require.context' is replaced by actual modules
+// found during the build process by Webpack.
+applyContext(require.context('./tiles/core', true, /index.ts$/), tileFactories);
+applyContext(require.context('./tiles/custom', true, /index.ts$/), tileFactories);
+
 
 export const mkTileFactory = (
     dispatcher:IFullActionControl,

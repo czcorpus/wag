@@ -1,0 +1,100 @@
+@import '../../../../css/shared.less';
+
+.CollocExamplesView {
+
+    .sentences {
+
+        .FilteredLine {
+            padding-left: 0.7em;
+
+            .LineMetadata {
+                max-width: 30em;
+                position: absolute;
+                padding: 1em;
+                background-color: #FFFFFF;
+                margin-left: 0em;
+                border-radius: .25em;
+                box-shadow: .05em .05em .15em .05em rgba(0,0,0, 0.2);
+
+                dl {
+                    margin: 0;
+                    padding: 0;
+
+                    dd {
+                        margin-left: .7em;
+                        padding-left: 0;
+
+                    }
+
+                    dt:not(:first-child) {
+                        margin-top: 0.7em;
+                    }
+
+                    dt {
+                        font-weight: bold;
+                        margin-left: 0;
+                        margin-bottom: 0.2em;
+                        padding-left: 0;
+                    }
+                }
+            }
+
+            a.info-click {
+                cursor: pointer;
+                display: inline-block;
+                margin-right: 0.7em;
+                vertical-align: middle;
+
+                img {
+                    display: block;
+                    margin: 0;
+                    width: 1em;
+                }
+            }
+
+            .flex {
+                padding: 0.4em 0.4em;
+                margin: 0;
+                display: flex;
+                align-items: center;
+            }
+
+            .flex.highlighted {
+                background-color: @color-data-highlight-row;
+            }
+        }
+
+        .FilteredLine:nth-child(odd) {
+            .flex {
+                background-color: @color-whitelike-blue;
+            }
+
+            .flex.highlighted {
+                background-color: @color-data-highlight-row;
+            }
+        }
+
+        p {
+            margin: 0;
+            padding: 0;
+
+            .kwic {
+                color: @color-logo-pink;
+            }
+
+            .coll {
+                color: @color-logo-pink;
+                font-style: italic;
+            }
+
+            a.coll {
+                text-decoration: underline;
+                cursor: pointer;
+            }
+        }
+
+        p.aligned {
+            margin-top: 0.7em;
+        }
+    }
+}

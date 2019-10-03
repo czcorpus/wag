@@ -1,0 +1,140 @@
+@import '../../../../css/shared.less';
+
+
+.ConcordanceTileView {
+
+    overflow: hidden;
+
+    dl.summary {
+        margin-top: 0.7em;
+        margin-bottom: 1em;
+
+        dt, dd {
+            display: inline-block;
+            margin: 0;
+        }
+
+        dt {
+            font-family: @condensed-font-family;
+            color: @color-light-text;
+        }
+
+        dd {
+            font-weight: bold;
+            margin-left: 0.3em;
+            color: @color-light-text;
+        }
+
+        dd:not(:last-child)::after {
+            content: " | ";
+            font-weight: normal;
+        }
+
+        dt:not(:first-child) {
+            margin-left: 0.3em;
+        }
+    }
+
+    table.conc-lines {
+        font-family: @condensed-font-family;
+        display: inline-block;
+    }
+
+    table.conc-lines.sent {
+        display: block;
+
+        tr {
+
+            display: block;
+            padding-left: 0.3em;
+
+            td.left,
+            td.right,
+            td.kwic {
+                display: inline-block;
+            }
+        }
+    }
+
+    table.conc-lines.sent.aligned {
+        tr.Row:nth-child(4n+1), tr.Row:nth-child(4n+2) {
+            background-color: #eff9fe;
+        }
+
+        tr.Row:nth-child(4n+2), tr.Row:nth-child(4n) {
+            margin-bottom: 0.1em;
+        }
+    }
+
+    table.conc-lines {
+        border-spacing: 0;
+
+        tr.Row {
+            white-space: nowrap;
+
+            td {
+                padding-top: 0.2em;
+                padding-bottom: 0.2em;
+            }
+
+            td.left {
+                text-align: right;
+            }
+
+            td.right {
+                text-align: left;
+            }
+
+            td.kwic {
+                padding-left: 0.7em;
+                padding-right: 0.7em;
+                text-align: center;
+                color: @color-logo-pink;
+            }
+        }
+    }
+
+    table.conc-lines:not(.sent) {
+        tr.Row:nth-child(2n) {
+            background-color: #eff9fe;
+        }
+    }
+
+    .Controls {
+
+        margin-bottom: 0.7em;
+
+        fieldset {
+            border: none;
+        }
+
+        label {
+            margin-right: 0.7em;
+            display: inline-block;
+        }
+
+        .Paginator {
+
+            a {
+                cursor: pointer;
+            }
+
+            a.disabled {
+                cursor: default;
+            }
+
+            .arrow {
+                width: 1em;
+                display: inline-block;
+                vertical-align: middle;
+            }
+
+            input.page {
+                width: 3em;
+                margin-left: 0.3em;
+                margin-right: 0.3em;
+            }
+        }
+
+    }
+}

@@ -1,0 +1,31 @@
+@import '../../../../css/shared.less';
+
+.CollocTile {
+
+    .boxes {
+        display: flex;
+        align-items: stretch;
+        justify-content: space-between;
+        flex-direction: row;
+
+        > .chart {
+            min-width: 50%;
+        }
+    }
+}
+
+
+@media screen and (max-width: @media-medium-screen) {
+
+    .CollocTile {
+
+        .boxes {
+
+            > .chart {
+                min-width: initial;
+                width: 100%;
+            }
+        }
+    }
+
+}
