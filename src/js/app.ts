@@ -23,13 +23,13 @@
 
 import * as React from 'react';
 import * as Immutable from 'immutable';
-import { Observable } from 'rxjs';
+import { Observable, of as rxOf } from 'rxjs';
 
 import { CorpusInfoAPI } from './common/api/kontext/corpusInfo';
 import { Theme } from './common/theme';
 import { AvailableLanguage, ScreenProps } from './common/hostPage';
 import { LemmaVariant, QueryType, SearchLanguage } from './common/query';
-import { ITileProvider, TileConf, TileFactory, TileFrameProps } from './common/tile';
+import { ITileProvider, TileConf, TileFactory, TileFrameProps, isTileConf } from './common/tile';
 import { AnyTileConf, ClientConf, UserConf } from './conf';
 import { LayoutManager, TileGroup } from './layout';
 import { ActionName, Actions } from './models/actions';
@@ -59,7 +59,25 @@ import { RetryTileLoad } from './models/retryLoad';
 import { ViewUtils, IFullActionControl } from 'kombo';
 import { AppServices } from './appServices';
 import { IAsyncKeyValueStore } from './common/types';
+import { mergeMap, map, concatMap } from 'rxjs/operators';
 
+export interface DynamicTileModule {
+    init:TileFactory.TileFactory<{}>;
+}
+
+const loadDynamicTile = (path:string) => {
+    return new Observable<DynamicTileModule>((observer) => {
+        import(path).then(
+            (module:DynamicTileModule) => {
+                observer.next(module);
+                observer.complete();
+            },
+            (err) => {
+                observer.error(err);
+            }
+        )
+    })
+}
 
 const mkAttachTile = (queryType:QueryType, lang1:string, lang2:string) =>
     (data:Array<TileFrameProps>, tile:ITileProvider, helpURL:string):void => {
@@ -111,10 +129,10 @@ const mkTileFactory = (
     tileIdentMap:{[ident:string]:number},
     cache:IAsyncKeyValueStore) => (
             confName:string,
-            conf:AnyTileConf):ITileProvider|null => {
+            conf:AnyTileConf):Observable<ITileProvider|null> => {
 
         const applyFactory = <T extends TileConf>(initFn:TileFactory.TileFactory<T>, conf:T) => {
-            return initFn({
+            return rxOf(initFn({
                 tileId: tileIdentMap[confName],
                 dispatcher: dispatcher,
                 ut: viewUtils,
@@ -129,11 +147,11 @@ const mkTileFactory = (
                 conf: conf,
                 isBusy: true,
                 cache: cache
-            });
+            }));
         };
 
         if (conf.isDisabled || !layoutManager.isInCurrentLayout(queryType, tileIdentMap[confName])) {
-            return new EmptyTile(tileIdentMap[confName]);
+            return rxOf(new EmptyTile(tileIdentMap[confName]));
         }
 
         switch (conf.tileType) {
@@ -168,7 +186,16 @@ const mkTileFactory = (
             case 'DatamuseTile':
                 return applyFactory<DatamuseTileConf>(datamuseInit, conf);
             default:
-                throw new Error(`Tile factory error - unknown tile "${conf['tileType']}"`);
+                if (isTileConf(conf)) {
+                    return loadDynamicTile(conf.tileType).pipe(
+                        concatMap(
+                            (initFn) => applyFactory<{}>(initFn, conf)
+                        )
+                    );
+                    
+                } else {
+                    throw new Error(`Tile factory error - unknown tile "${conf['tileType']}"`);
+                }
         }
 }
 
@@ -242,19 +269,25 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
         tilesMap,
         cache
     );
-    Object.keys(config.tiles).forEach((ident, i) => {
-        const tile = factory(ident, config.tiles[ident]);
-        attachTile(
-            tiles,
-            tile,
-            appServices.importExternalMessage(config.tiles[ident].helpURL)
-        );
-        retryLoadModel.registerModel(
-            tilesMap[ident],
-            tile.exposeModelForRetryOnError(),
-            tile.getBlockingTiles()
-        );
-    });
+    rxOf(...Object.keys(config.tiles)).pipe(
+        mergeMap(
+            (ident, i) => factory(ident, config.tiles[ident])
+        ),
+        map(
+            (tile) => {
+                attachTile(
+                    tiles,
+                    tile,
+                    appServices.importExternalMessage(config.tiles[tile.getIdent()].helpURL)
+                );
+                retryLoadModel.registerModel(
+                    tilesMap[tile.getIdent()],
+                    tile.exposeModelForRetryOnError(),
+                    tile.getBlockingTiles()
+                );
+            }
+        )
+    );
     //console.log('tiles map: ', tilesMap);
 
     const tilesModel = new WdglanceTilesModel(

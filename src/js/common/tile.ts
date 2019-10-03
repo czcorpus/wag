@@ -39,6 +39,10 @@ export interface BacklinkWithArgs<T> {
     method:HTTPMethod;
 }
 
+export function isTileConf(tconf:any):tconf is TileConf {
+    return typeof tconf['tileType'] === 'string';
+}
+
 /**
  * A configuration for a tile
  * provided by hosting page
