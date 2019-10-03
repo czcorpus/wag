@@ -135,15 +135,16 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
         tilesMap,
         cache
     );
+
     Object.keys(config.tiles).forEach(tileId => {
         const tile = factory(tileId, config.tiles[tileId]);
         attachTile(
             tiles,
             tile,
-            appServices.importExternalMessage(config.tiles[tile.getIdent()].helpURL)
+            appServices.importExternalMessage(config.tiles[tileId].helpURL)
         );
         retryLoadModel.registerModel(
-            tilesMap[tile.getIdent()],
+            tilesMap[tileId],
             tile.exposeModelForRetryOnError(),
             tile.getBlockingTiles()
         );
