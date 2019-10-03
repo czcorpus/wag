@@ -37,7 +37,6 @@ require('./style.less');
 
 
 export interface ConcordanceTileConf extends CorpSrchTileConf {
-    tileType:'ConcordanceTile';
     apiURL:string;
     apiType:string;
     backlink?:Backlink;
@@ -184,5 +183,7 @@ export class ConcordanceTile implements ITileProvider {
         return this.blockingTiles;
     }
 }
+
+export const TILE_TYPE = 'ConcordanceTile';
 
 export const init:TileFactory.TileFactory<ConcordanceTileConf> = (args) => new ConcordanceTile(args);

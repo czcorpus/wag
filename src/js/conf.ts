@@ -35,7 +35,7 @@ import { DatamuseTileConf } from './tiles/datamuse';
 import { HtmlTileConf } from './tiles/html';
 
 
-export type AnyTileConf =
+export type CoreTileConf =
     ConcordanceTileConf |
     FreqBarTileConf |
     TreqTileConf |
@@ -52,6 +52,19 @@ export type AnyTileConf =
     SpeechesTileConf |
     DatamuseTileConf |
     HtmlTileConf;
+
+export interface ExternalTileConf {
+    tileType:string;
+    tileSrc:string;
+    helpURL?:string;
+    isDisabled?:boolean;
+}
+
+export function isExternalTileConf(tconf:AnyTileConf):tconf is ExternalTileConf {
+    return typeof tconf['tileType'] === 'string' && typeof tconf['tileSrc'] === 'string';
+}
+
+export type AnyTileConf = CoreTileConf | ExternalTileConf;
 
 /**
  * A page configuration based on

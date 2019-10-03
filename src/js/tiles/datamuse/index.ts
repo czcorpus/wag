@@ -17,7 +17,6 @@
  */
 import * as Immutable from 'immutable';
 import { IActionDispatcher, StatelessModel } from 'kombo';
-import { Observable, of as rxOf } from 'rxjs';
 
 import { TileConf, ITileProvider, TileFactory, TileComponent } from '../../common/tile';
 import { DatamuseModel } from './model';
@@ -33,7 +32,6 @@ require('./style.less');
 
 
 export interface DatamuseTileConf extends TileConf {
-    tileType:'DatamuseTile';
     apiURL:string;
     maxResultItems:number;
 }
@@ -135,5 +133,6 @@ export class DatamuseTile implements ITileProvider {
     }
 }
 
+export const TILE_TYPE = 'DatamuseTile';
 
 export const init:TileFactory.TileFactory<DatamuseTileConf> = (args) => new DatamuseTile(args);

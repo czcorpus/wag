@@ -35,7 +35,6 @@ require('./style.less');
 
 
 export interface FreqPieTileConf extends TileConf {
-    tileType:'FreqPieTile';
     apiURL:string;
     corpname:string|null; // null can be used in case subqueryMode is enabled
     fcrit:string|Array<string>;
@@ -169,5 +168,6 @@ export class FreqPieTile implements ITileProvider {
     }
 }
 
+export const TILE_TYPE = 'FreqPieTile';
 
 export const init:TileFactory.TileFactory<FreqPieTileConf> = (args) => new FreqPieTile(args);

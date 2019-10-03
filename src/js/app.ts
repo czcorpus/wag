@@ -20,40 +20,21 @@
  * The module contains core initialization for both
  * server and client applications
  */
-
 import * as React from 'react';
 import * as Immutable from 'immutable';
-import { Observable } from 'rxjs';
+import { Observable, of as rxOf } from 'rxjs';
 
 import { CorpusInfoAPI } from './common/api/kontext/corpusInfo';
 import { Theme } from './common/theme';
 import { AvailableLanguage, ScreenProps } from './common/hostPage';
 import { LemmaVariant, QueryType, SearchLanguage } from './common/query';
-import { ITileProvider, TileConf, TileFactory, TileFrameProps } from './common/tile';
+import { ITileProvider, TileFrameProps } from './common/tile';
 import { AnyTileConf, ClientConf, UserConf } from './conf';
 import { LayoutManager, TileGroup } from './layout';
 import { ActionName, Actions } from './models/actions';
 import { MessagesModel } from './models/messages';
-import { defaultFactory as mainFormFactory, QueryFormModel } from './models/query';
+import { defaultFactory as mainFormFactory } from './models/query';
 import { TileResultFlag, TileResultFlagRec, WdglanceTilesModel } from './models/tiles';
-import { CollocationsTileConf, init as collocInit } from './tiles/collocations';
-import { ConcFilterTileConf, init as concFilterInit } from './tiles/concFilter';
-import { ConcordanceTileConf, init as concInit } from './tiles/concordance';
-import { EmptyTile } from './tiles/empty';
-import { FreqBarTileConf, init as freqInit } from './tiles/freqBar';
-import { FreqPieTileConf, init as freqPieInit } from './tiles/freqPie';
-import { GeoAreasTileConf, init as geoAreasInit } from './tiles/geoAreas';
-import { init as MergeCorpFreqInit, MergeCorpFreqTileConf } from './tiles/mergeCorpFreq';
-import { init as sydInit, SyDTileConf } from './tiles/syd';
-import { init as timeDistInit } from './tiles/timeDistrib';
-import { TimeDistTileConf } from './tiles/timeDistrib/common';
-import { init as treqInit, TreqTileConf } from './tiles/treq';
-import { init as treqSubsetsInit, TreqSubsetsTileConf } from './tiles/treqSubsets';
-import { init as summaryInit, WordFreqTileConf } from './tiles/wordFreq';
-import { init as wordFormsInit, WordFormsTileConf } from './tiles/wordForms';
-import { init as speechesInit, SpeechesTileConf } from './tiles/speeches';
-import { init as datamuseInit, DatamuseTileConf } from './tiles/datamuse';
-import { init as htmlInit, HtmlTileConf } from './tiles/html';
 import { GlobalComponents, init as globalCompInit } from './views/global';
 import { init as viewInit, WdglanceMainProps } from './views/main';
 import { RetryTileLoad } from './models/retryLoad';
@@ -85,98 +66,7 @@ const mkAttachTile = (queryType:QueryType, lang1:string, lang2:string) =>
     }
 };
 
-
-const importDependentTilesList = (...d:Array<string|Array<string>>):Array<string> => {
-    const items = {};
-    d.forEach(chunk => {
-        if (chunk) {
-            (typeof chunk === 'string' ? [chunk] : chunk).forEach(val => {
-                items[val] = true;
-            })
-        }
-    });
-    return Object.keys(items);
-};
-
-
-const mkTileFactory = (
-    dispatcher:IFullActionControl,
-    viewUtils:ViewUtils<GlobalComponents>,
-    mainForm:QueryFormModel,
-    appServices:AppServices,
-    theme:Theme,
-    layoutManager:LayoutManager,
-    queryType:QueryType,
-    lang1:string,
-    lang2:string,
-    tileIdentMap:{[ident:string]:number},
-    cache:IAsyncKeyValueStore) => (
-            confName:string,
-            conf:AnyTileConf):ITileProvider|null => {
-
-        const applyFactory = <T extends TileConf>(initFn:TileFactory.TileFactory<T>, conf:T) => {
-            return initFn({
-                tileId: tileIdentMap[confName],
-                dispatcher: dispatcher,
-                ut: viewUtils,
-                mainForm: mainForm,
-                appServices: appServices,
-                lang1: lang1,
-                lang2: lang2,
-                waitForTiles: importDependentTilesList(conf.waitFor, conf.readSubqFrom).map(v => tileIdentMap[v]),
-                subqSourceTiles: importDependentTilesList(conf.readSubqFrom).map(v => tileIdentMap[v]),
-                widthFract: layoutManager.getTileWidthFract(queryType, tileIdentMap[confName]),
-                theme: theme,
-                conf: conf,
-                isBusy: true,
-                cache: cache
-            });
-        };
-
-        if (conf.isDisabled || !layoutManager.isInCurrentLayout(queryType, tileIdentMap[confName])) {
-            return new EmptyTile(tileIdentMap[confName]);
-        }
-
-        switch (conf.tileType) {
-            case 'ConcordanceTile':
-                return applyFactory<ConcordanceTileConf>(concInit, conf);
-            case 'FreqBarTile':
-                return applyFactory<FreqBarTileConf>(freqInit, conf);
-            case 'TimeDistribTile':
-                return applyFactory<TimeDistTileConf>(timeDistInit, conf);
-            case 'CollocTile':
-                return applyFactory<CollocationsTileConf>(collocInit, conf);
-            case 'TreqTile':
-                return applyFactory<TreqTileConf>(treqInit, conf);
-            case 'TreqSubsetsTile':
-                return applyFactory<TreqSubsetsTileConf>(treqSubsetsInit, conf);
-            case 'SyDTile':
-                return applyFactory<SyDTileConf>(sydInit, conf);
-            case 'FreqPieTile':
-                return applyFactory<FreqPieTileConf>(freqPieInit, conf);
-            case 'MergeCorpFreqTile':
-                return applyFactory<MergeCorpFreqTileConf>(MergeCorpFreqInit, conf);
-            case 'WordFreqTile':
-                return applyFactory<WordFreqTileConf>(summaryInit, conf);
-            case 'GeoAreasTile':
-                return applyFactory<GeoAreasTileConf>(geoAreasInit, conf);
-            case 'ConcFilterTile':
-                return applyFactory<ConcFilterTileConf>(concFilterInit, conf);
-            case 'WordFormsTile':
-                return applyFactory<WordFormsTileConf>(wordFormsInit, conf);
-            case 'SpeechesTile':
-                return applyFactory<SpeechesTileConf>(speechesInit, conf);
-            case 'DatamuseTile':
-                return applyFactory<DatamuseTileConf>(datamuseInit, conf);
-            case 'HtmlTile':
-                return applyFactory<HtmlTileConf>(htmlInit, conf);
-            default:
-                throw new Error(`Tile factory error - unknown tile "${conf['tileType']}"`);
-        }
-}
-
-
-const attachNumericTileIdents = (config:{[ident:string]:AnyTileConf}):TileIdentMap => {
+const attachNumericTileIdents = (config:{[ident:string]:AnyTileConf}):{[ident:string]:number} => {
     const ans = {};
     Object.keys(config).forEach((k, i) => {
         ans[k] = i;
@@ -245,15 +135,15 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
         tilesMap,
         cache
     );
-    Object.keys(config.tiles).forEach((ident, i) => {
-        const tile = factory(ident, config.tiles[ident]);
+    Object.keys(config.tiles).forEach(tileId => {
+        const tile = factory(tileId, config.tiles[tileId]);
         attachTile(
             tiles,
             tile,
-            appServices.importExternalMessage(config.tiles[ident].helpURL)
+            appServices.importExternalMessage(config.tiles[tile.getIdent()].helpURL)
         );
         retryLoadModel.registerModel(
-            tilesMap[ident],
+            tilesMap[tile.getIdent()],
             tile.exposeModelForRetryOnError(),
             tile.getBlockingTiles()
         );

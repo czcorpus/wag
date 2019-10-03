@@ -34,7 +34,6 @@ require('./style.less');
 
 
 export interface SpeechesTileConf extends TileConf {
-    tileType:'SpeechesTile';
     apiType:string;
     apiURL:string;
     corpname:string;
@@ -177,5 +176,7 @@ export class SpeechesTile implements ITileProvider {
         return this.blockingTiles;
     }
 }
+
+export const TILE_TYPE = 'SpeechesTile';
 
 export const init:TileFactory.TileFactory<SpeechesTileConf>  = (args) => new SpeechesTile(args);

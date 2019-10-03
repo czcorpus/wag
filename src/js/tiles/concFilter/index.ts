@@ -36,7 +36,6 @@ require('./style.less');
 
 
 export interface ConcFilterTileConf extends TileConf {
-    tileType:'ConcFilterTile';
     apiURL:string;
     switchMainCorpApiURL?:string;
     corpname:string;
@@ -158,5 +157,6 @@ export class ConcFilterTile implements ITileProvider {
     }
 }
 
+export const TILE_TYPE = 'ConcFilterTile';
 
 export const init:TileFactory.TileFactory<ConcFilterTileConf> = (args) => new ConcFilterTile(args);

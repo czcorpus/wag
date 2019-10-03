@@ -34,7 +34,6 @@ require('./style.less');
 
 
 export interface CollocationsTileConf extends TileConf {
-    tileType:'CollocTile';
     apiURL:string;
     apiType:string;
     corpname:string;
@@ -159,5 +158,6 @@ export class CollocationsTile implements ITileProvider {
     }
 }
 
+export const TILE_TYPE = 'CollocTile';
 
 export const init:TileFactory.TileFactory<CollocationsTileConf> = (args) => new CollocationsTile(args);

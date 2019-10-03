@@ -42,7 +42,6 @@ export interface GeoAreasTileConf extends TileConf {
     areaCodeMapping:{[name:string]:string};
     areaDiscFillColor:string;
     areaDiscTextColor:string;
-    tileType:'GeoAreasTile';
 }
 
 
@@ -148,5 +147,7 @@ export class GeoAreasTile implements ITileProvider {
         return this.blockingTiles;
     }
 }
+
+export const TILE_TYPE = 'GeoAreasTile';
 
 export const init:TileFactory.TileFactory<GeoAreasTileConf>  = (args) => new GeoAreasTile(args);

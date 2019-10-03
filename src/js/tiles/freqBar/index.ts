@@ -37,7 +37,6 @@ declare var require:(src:string)=>void;  // webpack
 require('./style.less');
 
 export interface FreqBarTileConf extends TileConf {
-    tileType:'FreqBarTile';
     apiURL:string;
     corpname:string|null; // null can be used in case subqueryMode is enabled
     fcrit:string|Array<string>;
@@ -177,5 +176,6 @@ export class FreqBarTile implements ITileProvider {
 
 }
 
+export const TILE_TYPE = 'FreqBarTile';
 
 export const init:TileFactory.TileFactory<FreqBarTileConf>  = (args) => new FreqBarTile(args);

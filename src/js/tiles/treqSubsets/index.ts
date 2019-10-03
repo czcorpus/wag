@@ -36,7 +36,6 @@ export interface PackageGroup {
 
 
 export interface TreqSubsetsTileConf extends TileConf {
-    tileType:'TreqSubsetsTile';
     srchPackages:{[lang:string]:Array<PackageGroup>};
     apiURL:string;
     minItemFreq?:number;
@@ -139,5 +138,6 @@ export class TreqSubsetsTile implements ITileProvider {
     }
 }
 
+export const TILE_TYPE = 'TreqSubsetsTile';
 
 export const init:TileFactory.TileFactory<TreqSubsetsTileConf> = (args) => new TreqSubsetsTile(args);

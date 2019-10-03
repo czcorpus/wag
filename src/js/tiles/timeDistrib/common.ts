@@ -21,8 +21,6 @@ import { CorpSrchTileConf, Backlink } from '../../common/tile';
 
 export interface TimeDistTileConf extends CorpSrchTileConf {
 
-    tileType:'TimeDistribTile';
-
     apiType:string;
 
     apiURL:string;

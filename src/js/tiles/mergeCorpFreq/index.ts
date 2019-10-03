@@ -33,7 +33,6 @@ require('./style.less');
 
 
 export interface MergeCorpFreqTileConf extends TileConf {
-    tileType:'MergeCorpFreqTile';
     apiURL:string;
     pixelsPerItem?:number;
     sources:Array<{
@@ -179,5 +178,6 @@ export class MergeCorpFreqTile implements ITileProvider {
     }
 }
 
+export const TILE_TYPE = 'MergeCorpFreqTile';
 
 export const init:TileFactory.TileFactory<MergeCorpFreqTileConf>  = (args) => new MergeCorpFreqTile(args);

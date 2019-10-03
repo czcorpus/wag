@@ -154,5 +154,6 @@ export class TimeDistTile implements ITileProvider {
     }
 }
 
+export const TILE_TYPE = 'TimeDistribTile';
 
 export const init:TileFactory.TileFactory<TimeDistTileConf>  = (args) => new TimeDistTile(args);

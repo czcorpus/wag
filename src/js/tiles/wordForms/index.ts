@@ -28,7 +28,6 @@ import { AlphaLevel } from '../timeDistrib/stat';
 
 
 export interface WordFormsTileConf extends TileConf {
-    tileType:'WordFormsTile';
     apiType:string;
     apiURL:string;
     corpname:string;
@@ -126,5 +125,6 @@ export class WordFormsTile implements ITileProvider {
 
 }
 
+export const TILE_TYPE = 'WordFormsTile';
 
 export const init:TileFactory.TileFactory<WordFormsTileConf> = (args) => new WordFormsTile(args);

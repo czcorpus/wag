@@ -29,7 +29,6 @@ declare var require:any;
 require('./style.less');
 
 export interface TreqTileConf extends TileConf {
-    tileType:'TreqTile';
     apiURL:string;
     srchPackages:SearchPackages;
     maxNumLines?:number;
@@ -131,5 +130,6 @@ export class TreqTile implements ITileProvider {
     }
 }
 
+export const TILE_TYPE = 'TreqTile';
 
 export const init:TileFactory.TileFactory<TreqTileConf> = (args) => new TreqTile(args);

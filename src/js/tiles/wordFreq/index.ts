@@ -30,7 +30,6 @@ require('./style.less');
 
 
 export interface WordFreqTileConf extends TileConf {
-    tileType:'WordFreqTile';
     apiURL:string;
     corpname:string;
     corpusSize:number;
@@ -130,5 +129,6 @@ export class WordFreqTile implements ITileProvider {
     }
 }
 
+export const TILE_TYPE = 'WordFreqTile';
 
 export const init:TileFactory.TileFactory<WordFreqTileConf> = (args) => new WordFreqTile(args);

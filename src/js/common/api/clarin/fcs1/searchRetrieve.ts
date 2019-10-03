@@ -137,8 +137,8 @@ export const stateToArgs:IStateArgsMapper<FCS1Args> = (state, lvar, otherLangCql
     return {
         operation: 'searchRetrieve',
         query: lvar.lemma,
-        recordPacking:'xml',
-        recordSchema:'http://clarin.eu/fcs/resource',
+        recordPacking: 'xml',
+        recordSchema: 'http://clarin.eu/fcs/resource',
         startRecord: state.pageSize * (state.loadPage - 1) + 1,
         maximumRecords: state.pageSize ? state.pageSize : undefined,
         'x-cmd-context': state.corpname ? state.corpname : undefined
