@@ -1,0 +1,12 @@
+{
+    "en-US": {
+        "docTile__main_label": "Matching documents",
+        "docTile__rel_freq": "instances per million words (ipm)",
+        "docTile__abs_freq": "absolute frequency"
+    },
+    "cs-CZ": {
+        "docTile__main_label": "Odpovídající dokumenty",
+        "docTile__rel_freq": "výskyty na milon slov (ipm)",
+        "docTile__abs_freq": "absolutní frekvence"
+    }
+}
