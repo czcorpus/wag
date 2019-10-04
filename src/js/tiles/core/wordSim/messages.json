@@ -1,0 +1,12 @@
+{
+    "en-US": {
+        "wordsim__main_label": "Datamuse",
+        "wordsim__sounds_like_op": "Sounds like",
+        "wordsim__means_like_op": "Means like"
+    },
+    "cs-CZ": {
+        "wordsim__main_label": "Datamuse",
+        "wordsim__sounds_like_op": "Zní jako",
+        "wordsim__means_like_op": "Znamená jako"
+    }
+}

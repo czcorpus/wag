@@ -19,13 +19,13 @@ import { Observable } from 'rxjs';
 import { cachedAjax$ } from '../../../common/ajax';
 import { DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../../common/types';
 
-export interface DatamuseWord {
+export interface WordSimWord {
     word:string;
     score:number;
     tags:Array<string>;
 }
 
-export type DatamuseMLApiResponse = Array<DatamuseWord>;
+export type DatamuseMLApiResponse = Array<WordSimWord>;
 
 
 export interface DatamuseMLApiArgs {

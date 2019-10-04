@@ -16,13 +16,13 @@
  * limitations under the License.
  */
 
- import { DatamuseWord } from './api';
+ import { WordSimWord } from './api';
 import { Action } from 'kombo';
 
 
 export interface DataLoadedPayload {
     tileId:number;
-    words:Array<DatamuseWord>;
+    words:Array<WordSimWord>;
 }
 
 export enum OperationMode {
@@ -32,7 +32,7 @@ export enum OperationMode {
 
 
 export enum ActionName {
-    SetOperationMode = 'DATAMUSE_SET_OPERATION_MODE'
+    SetOperationMode = 'WORDSIM_SET_OPERATION_MODE'
 }
 
 export namespace Actions {

@@ -26,7 +26,7 @@ import { CollocModel } from './model';
 import { init as viewInit } from './views';
 import { TileConf, ITileProvider, TileComponent, TileFactory, Backlink } from '../../../common/tile';
 import { CollocationApi, SrchContextType, DataRow } from '../../../common/api/abstract/collocations';
-import { createCollApiInstance } from '../../collocations/apiFactory';
+import { createCollApiInstance } from './apiFactory';
 
 
 declare var require:(src:string)=>void;  // webpack

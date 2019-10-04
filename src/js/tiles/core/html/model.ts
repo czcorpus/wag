@@ -18,12 +18,12 @@
 import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { tap } from 'rxjs/operators';
 
-import { AppServices } from '../../appServices';
-import { SystemMessageType } from '../../common/types';
-import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
+import { AppServices } from '../../../appServices';
+import { SystemMessageType } from '../../../common/types';
+import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { DataLoadedPayload } from './common';
 import { RawHtmlAPI, WiktionaryHtmlAPI } from './service';
-import { QueryFormModel, findCurrLemmaVariant } from '../../models/query';
+import { QueryFormModel, findCurrLemmaVariant } from '../../../models/query';
 
 
 export interface HtmlModelArgs {
