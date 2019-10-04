@@ -16,13 +16,8 @@
  * limitations under the License.
  */
 import { Action } from 'kombo';
-<<<<<<< HEAD:src/js/tiles/collocations/common.ts
-import { SubqueryPayload } from '../../common/query';
-import { CollocSubqueryValue, DataRow, DataHeading, SrchContextType } from '../../common/api/abstract/collocations';
-=======
+import { DataRow, DataHeading, SrchContextType, CollocSubqueryValue } from '../../../common/api/abstract/collocations';
 import { SubqueryPayload } from '../../../common/query';
-import { CollocSubqueryPayload, CollocSubqueryValue } from '../../../common/api/abstract/collocations';
->>>>>>> Use two folders for tiles - core and custom:src/js/tiles/core/collocations/common.ts
 
 
 export enum CollocMetric {

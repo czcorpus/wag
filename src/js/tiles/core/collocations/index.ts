@@ -18,26 +18,15 @@
 import * as Immutable from 'immutable';
 import { IActionDispatcher, StatelessModel } from 'kombo';
 
-<<<<<<< HEAD:src/js/tiles/collocations/index.ts
-import { AppServices } from '../../appServices';
-import { CorePosAttribute } from '../../common/types';
-import { QueryType } from '../../common/query';
-import { CollocMetric } from './common';
-=======
 import { AppServices } from '../../../appServices';
 import { CorePosAttribute } from '../../../common/types';
 import { QueryType } from '../../../common/query';
-import { CollocMetric, DataRow, SrchContextType } from './common';
->>>>>>> Use two folders for tiles - core and custom:src/js/tiles/core/collocations/index.ts
+import { CollocMetric } from './common';
 import { CollocModel } from './model';
 import { init as viewInit } from './views';
-<<<<<<< HEAD:src/js/tiles/collocations/index.ts
-import { TileConf, ITileProvider, TileComponent, TileFactory, Backlink } from '../../common/tile';
-import { SrchContextType, DataRow, CollocationApi } from '../../common/api/abstract/collocations';
-import { createCollApiInstance } from './apiFactory';
-=======
 import { TileConf, ITileProvider, TileComponent, TileFactory, Backlink } from '../../../common/tile';
->>>>>>> Use two folders for tiles - core and custom:src/js/tiles/core/collocations/index.ts
+import { CollocationApi, SrchContextType, DataRow } from '../../../common/api/abstract/collocations';
+import { createCollApiInstance } from '../../collocations/apiFactory';
 
 
 declare var require:(src:string)=>void;  // webpack

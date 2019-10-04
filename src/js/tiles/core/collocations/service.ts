@@ -20,8 +20,9 @@ import { map } from 'rxjs/operators';
 
 import { cachedAjax$ } from '../../../common/ajax';
 import { DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../../common/types';
-import { CollApiArgs, DataHeading, DataRow } from './common';
 import { puid } from '../../../common/util';
+import { DataHeading, DataRow } from '../../../common/api/abstract/collocations';
+import { CollApiArgs } from '../../../common/api/kontext/collocations';
 
 
 

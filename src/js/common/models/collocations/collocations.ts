@@ -17,8 +17,8 @@
  */
 import * as Immutable from 'immutable';
 import { SrchContextType, DataRow, DataHeading } from '../../api/abstract/collocations';
-import { CollocMetric } from '../../../tiles/collocations/common';
 import { BacklinkWithArgs } from '../../tile';
+import { CollocMetric } from '../../../tiles/core/collocations/common';
 
 
 export function ctxToRange(ctxType:SrchContextType, range:number):[number, number] {
