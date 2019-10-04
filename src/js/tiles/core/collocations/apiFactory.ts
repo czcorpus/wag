@@ -16,11 +16,11 @@
  * limitations under the License.
  */
 
-import { IAsyncKeyValueStore, HTTPHeaders } from '../../common/types';
-import { CoreApiGroup } from '../../common/api/coreGroups';
-import { KontextCollAPI } from '../../common/api/kontext/collocations';
-import { CollocationApi } from '../../common/api/abstract/collocations';
-import { LccCollAPI } from '../../common/api/lcc/cooccurrences';
+import { IAsyncKeyValueStore, HTTPHeaders } from '../../../common/types';
+import { CoreApiGroup } from '../../../common/api/coreGroups';
+import { KontextCollAPI } from '../../../common/api/kontext/collocations';
+import { CollocationApi } from '../../../common/api/abstract/collocations';
+import { LccCollAPI } from '../../../common/api/lcc/cooccurrences';
 
 
 export function createCollApiInstance(apiIdent:string, apiURL:string, apiHeaders:HTTPHeaders, cache:IAsyncKeyValueStore):CollocationApi<{}> {
@@ -31,7 +31,7 @@ export function createCollApiInstance(apiIdent:string, apiURL:string, apiHeaders
         case CoreApiGroup.LCC:
 			return new LccCollAPI(cache, apiURL, apiHeaders);
 		default:
-			throw new Error(`Unknown API type "${apiIdent}"`);
+			throw new Error(`API type "${apiIdent}" not supported for collocations.`);
 	}
 
  }

@@ -16,32 +16,19 @@
  * limitations under the License.
  */
 
- import { DatamuseWord } from './api';
-import { Action } from 'kombo';
+import { IAsyncKeyValueStore, HTTPHeaders } from '../../../common/types';
+import { CoreApiGroup } from '../../../common/api/coreGroups';
+import { DatamuseMLApi } from '../../../common/api/datamuse/wordSim';
+import { WordSimApi } from '../../../common/api/abstract/wordSim';
 
 
-export interface DataLoadedPayload {
-    tileId:number;
-    words:Array<DatamuseWord>;
-}
+export function createWordSimApiInstance(apiIdent:string, apiURL:string, apiHeaders:HTTPHeaders, cache:IAsyncKeyValueStore):WordSimApi<{}> {
 
-export enum OperationMode {
-    MeansLike = 'ml',
-    SoundsLike = 'sl'
-}
+	switch (apiIdent) {
+        case CoreApiGroup.DATAMUSE:
+			return new DatamuseMLApi(cache, apiURL, apiHeaders);
+		default:
+			throw new Error(`API type "${apiIdent}" not supported for wordSim`);
+	}
 
-
-export enum ActionName {
-    SetOperationMode = 'DATAMUSE_SET_OPERATION_MODE'
-}
-
-export namespace Actions {
-
-    export interface SetOperationMode extends Action<{
-        tileId:number;
-        value:OperationMode;
-    }> {
-        name: ActionName.SetOperationMode;
-    }
-
-}
+ }

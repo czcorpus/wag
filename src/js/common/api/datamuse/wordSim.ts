@@ -16,16 +16,13 @@
  * limitations under the License.
  */
 import { Observable } from 'rxjs';
-import { cachedAjax$ } from '../../../common/ajax';
-import { DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../../common/types';
+import { cachedAjax$ } from '../../ajax';
+import { DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../types';
+import { WordSimApiResponse, WordSimWord } from '../abstract/wordSim';
+import { map } from 'rxjs/operators';
 
-export interface DatamuseWord {
-    word:string;
-    score:number;
-    tags:Array<string>;
-}
 
-export type DatamuseMLApiResponse = Array<DatamuseWord>;
+type DatamuseMLApiResponse = Array<WordSimWord>;
 
 
 export interface DatamuseMLApiArgs {
@@ -41,7 +38,7 @@ export interface DatamuseSLApiArgs {
 export type DatamuseApiArgs = DatamuseMLApiArgs | DatamuseSLApiArgs;
 
 
-export class DatamuseMLApi implements DataApi<DatamuseApiArgs, DatamuseMLApiResponse> {
+export class DatamuseMLApi implements DataApi<DatamuseApiArgs, WordSimApiResponse> {
 
     private readonly apiURL:string;
 
@@ -56,13 +53,15 @@ export class DatamuseMLApi implements DataApi<DatamuseApiArgs, DatamuseMLApiResp
     }
 
 
-    call(queryArgs:DatamuseApiArgs):Observable<DatamuseMLApiResponse> {
+    call(queryArgs:DatamuseApiArgs):Observable<WordSimApiResponse> {
         return cachedAjax$<DatamuseMLApiResponse>(this.cache)(
             'GET',
             this.apiURL,
             queryArgs,
             {headers: this.customHeaders}
 
+        ).pipe(
+            map(resp => ({words: resp}))
         );
     }
 

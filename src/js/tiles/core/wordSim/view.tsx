@@ -20,18 +20,18 @@ import { IActionDispatcher, ViewUtils, BoundWithProps } from 'kombo';
 import { GlobalComponents } from '../../../views/global';
 import { Theme } from '../../../common/theme';
 import { TileComponent, CoreTileComponentProps } from '../../../common/tile';
-import { DatamuseModel, DatamuseModelState } from './model';
+import { WordSimModel, WordSimModelState } from './model';
 import { init as wcloudViewInit } from '../../../views/wordCloud/index';
-import { DatamuseWord } from './api';
 import { OperationMode, ActionName } from './actions';
 import { SourceDetails } from '../../../common/types';
+import { WordSimWord } from '../../../common/api/abstract/wordSim';
 
 
-export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:DatamuseModel):[TileComponent, React.SFC]  {
+export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:WordSimModel):[TileComponent, React.SFC]  {
 
     const globalCompontents = ut.getComponents();
 
-    const WordCloud = wcloudViewInit<DatamuseWord>(dispatcher, ut, theme);
+    const WordCloud = wcloudViewInit<WordSimWord>(dispatcher, ut, theme);
 
 
     // ------------------ <SourceInfo /> --------------------------------------------
@@ -72,18 +72,18 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         return (
             <form className="Controls cnc-form tile-tweak">
                 <select value={props.operationMode} onChange={handleOperationModeChange}>
-                    <option value={OperationMode.MeansLike}>{ut.translate('datamuse__means_like_op')}</option>
-                    <option value={OperationMode.SoundsLike}>{ut.translate('datamuse__sounds_like_op')}</option>
+                    <option value={OperationMode.MeansLike}>{ut.translate('wordsim__means_like_op')}</option>
+                    <option value={OperationMode.SoundsLike}>{ut.translate('wordsim__sounds_like_op')}</option>
                 </select>
             </form>
         );
     }
 
-    // ------------------ <DatamuseView /> --------------------------------------------
+    // ------------------ <WordSimView /> --------------------------------------------
 
-    const DatamuseView:React.SFC<DatamuseModelState & CoreTileComponentProps> = (props) => {
+    const WordSimView:React.SFC<WordSimModelState & CoreTileComponentProps> = (props) => {
 
-        const dataTransform = (v:DatamuseWord) => ({
+        const dataTransform = (v:WordSimWord) => ({
             text: v.word,
             value: v.score,
             tooltip: [{label: 'score', value: v.score, round: 1}],
@@ -95,7 +95,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     hasData={props.data.size > 0}
                     sourceIdent={{corp: "datamuse.com"}}
                     supportsTileReload={props.supportsReloadOnError}>
-                <div className="DatamuseView">
+                <div className="WordSimView">
                     {props.isTweakMode ? <Controls tileId={props.tileId} operationMode={props.operationMode} /> : null }
                     <globalCompontents.ResponsiveWrapper render={(width:number, height:number) => (
                         <WordCloud width={width} height={height} data={props.data} isMobile={props.isMobile}
@@ -110,7 +110,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     }
 
     return [
-        BoundWithProps<CoreTileComponentProps, DatamuseModelState>(DatamuseView, model),
+        BoundWithProps<CoreTileComponentProps, WordSimModelState>(WordSimView, model),
         SourceInfo
     ];
 

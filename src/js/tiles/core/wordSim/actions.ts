@@ -16,34 +16,32 @@
  * limitations under the License.
  */
 
-export enum CoreApiGroup {
+import { Action } from 'kombo';
+import { WordSimWord } from '../../../common/api/abstract/wordSim';
 
-	/**
-	 * Embedded API functions
-	 */
-	WDGLANCE = 'wdglance',
 
-	/**
-	 * KonText API
-	 */
-	KONTEXT = 'kontext',
-
-	/**
-	 * Clarin FCS Core 1 functions
-	 */
-	FCS_V1 = 'fcsv1',
-
-	/**
-	 * Leipzig Corpora Collection
-	 */
-	LCC = 'lcc',
-
-	/**
-	 * Datamuse.com API
-	 */
-	DATAMUSE = 'datamuse'
+export interface DataLoadedPayload {
+    tileId:number;
+    words:Array<WordSimWord>;
 }
 
-export function supportedCoreApiGroups() {
-	return Object.keys(CoreApiGroup).map(k => CoreApiGroup[k]);
+export enum OperationMode {
+    MeansLike = 'ml',
+    SoundsLike = 'sl'
+}
+
+
+export enum ActionName {
+    SetOperationMode = 'WORDSIM_SET_OPERATION_MODE'
+}
+
+export namespace Actions {
+
+    export interface SetOperationMode extends Action<{
+        tileId:number;
+        value:OperationMode;
+    }> {
+        name: ActionName.SetOperationMode;
+    }
+
 }

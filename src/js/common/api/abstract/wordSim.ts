@@ -16,34 +16,17 @@
  * limitations under the License.
  */
 
-export enum CoreApiGroup {
+import { DataApi } from '../../types';
 
-	/**
-	 * Embedded API functions
-	 */
-	WDGLANCE = 'wdglance',
 
-	/**
-	 * KonText API
-	 */
-	KONTEXT = 'kontext',
-
-	/**
-	 * Clarin FCS Core 1 functions
-	 */
-	FCS_V1 = 'fcsv1',
-
-	/**
-	 * Leipzig Corpora Collection
-	 */
-	LCC = 'lcc',
-
-	/**
-	 * Datamuse.com API
-	 */
-	DATAMUSE = 'datamuse'
+export interface WordSimWord {
+    word:string;
+    score:number;
+    tags:Array<string>;
 }
 
-export function supportedCoreApiGroups() {
-	return Object.keys(CoreApiGroup).map(k => CoreApiGroup[k]);
+export interface WordSimApiResponse {
+    words:Array<WordSimWord>;
 }
+
+export type WordSimApi<T> = DataApi<T, WordSimApiResponse>;

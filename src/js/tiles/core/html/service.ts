@@ -18,8 +18,8 @@
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { cachedAjax$, ResponseType } from '../../common/ajax';
-import { DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../common/types';
+import { cachedAjax$, ResponseType } from '../../../common/ajax';
+import { DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../../common/types';
 import { HtmlApiArgs } from './common';
 
 

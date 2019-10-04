@@ -21,32 +21,33 @@ import * as Immutable from 'immutable';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { DataLoadedPayload, OperationMode } from './actions';
 import { ActionName, Actions } from './actions';
-import { DatamuseMLApi, DatamuseWord, DatamuseApiArgs } from './api';
+import { DatamuseApiArgs } from '../../../common/api/datamuse/wordSim';
 import { QueryFormModel, findCurrLemmaVariant } from '../../../models/query';
+import { WordSimApi, WordSimWord } from '../../../common/api/abstract/wordSim';
 
 
 
-export interface DatamuseModelState {
+export interface WordSimModelState {
     isBusy:boolean;
     isTweakMode:boolean;
     isMobile:boolean;
     isAltViewMode:boolean;
     error:string;
     maxResultItems:number;
-    data:Immutable.List<DatamuseWord>;
+    data:Immutable.List<WordSimWord>;
     operationMode:OperationMode;
 }
 
 
-export class DatamuseModel extends StatelessModel<DatamuseModelState> {
+export class WordSimModel extends StatelessModel<WordSimModelState> {
 
     private readonly tileId:number;
 
-    private readonly api:DatamuseMLApi;
+    private readonly api:WordSimApi<{}>;
 
     private readonly mainForm:QueryFormModel;
 
-    constructor(dispatcher:IActionDispatcher, initState:DatamuseModelState, tileId:number, api:DatamuseMLApi, mainForm:QueryFormModel) {
+    constructor(dispatcher:IActionDispatcher, initState:WordSimModelState, tileId:number, api:WordSimApi<{}>, mainForm:QueryFormModel) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.api = api;
@@ -96,10 +97,10 @@ export class DatamuseModel extends StatelessModel<DatamuseModelState> {
                     const newState = this.copyState(state);
                     newState.isBusy = false;
                     if (action.error) {
-                        newState.data = Immutable.List<DatamuseWord>();
+                        newState.data = Immutable.List<WordSimWord>();
 
                     } else {
-                        newState.data = Immutable.List<DatamuseWord>(action.payload.words);
+                        newState.data = Immutable.List<WordSimWord>(action.payload.words);
                     }
                     return newState;
                 }
@@ -110,7 +111,7 @@ export class DatamuseModel extends StatelessModel<DatamuseModelState> {
                     const newState = this.copyState(state);
                     newState.isBusy = true;
                     newState.operationMode = action.payload.value;
-                    newState.data = Immutable.List<DatamuseWord>();
+                    newState.data = Immutable.List<WordSimWord>();
                     return newState;
                 }
                 return state;
@@ -118,7 +119,7 @@ export class DatamuseModel extends StatelessModel<DatamuseModelState> {
         }
     }
 
-    private mkApiArgs(state:DatamuseModelState, query:string):DatamuseApiArgs {
+    private mkApiArgs(state:WordSimModelState, query:string):DatamuseApiArgs {
         switch (state.operationMode) {
             case OperationMode.MeansLike:
                 return {ml: query, max: state.maxResultItems};
@@ -127,7 +128,7 @@ export class DatamuseModel extends StatelessModel<DatamuseModelState> {
         }
     }
 
-    sideEffects(state:DatamuseModelState, action:Action, seDispatch:SEDispatcher):void {
+    sideEffects(state:WordSimModelState, action:Action, seDispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
             case ActionName.SetOperationMode:
@@ -141,7 +142,7 @@ export class DatamuseModel extends StatelessModel<DatamuseModelState> {
                             name: GlobalActionName.TileDataLoaded,
                             payload: {
                                 tileId: this.tileId,
-                                words: data
+                                words: data.words
                             }
                         });
 
