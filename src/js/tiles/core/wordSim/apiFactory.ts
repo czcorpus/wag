@@ -18,20 +18,17 @@
 
 import { IAsyncKeyValueStore, HTTPHeaders } from '../../../common/types';
 import { CoreApiGroup } from '../../../common/api/coreGroups';
-import { KontextCollAPI } from '../../../common/api/kontext/collocations';
-import { CollocationApi } from '../../../common/api/abstract/collocations';
-import { LccCollAPI } from '../../../common/api/lcc/cooccurrences';
+import { DatamuseMLApi } from '../../../common/api/datamuse/wordSim';
+import { WordSimApi } from '../../../common/api/abstract/wordSim';
 
 
-export function createCollApiInstance(apiIdent:string, apiURL:string, apiHeaders:HTTPHeaders, cache:IAsyncKeyValueStore):CollocationApi<{}> {
+export function createWordSimApiInstance(apiIdent:string, apiURL:string, apiHeaders:HTTPHeaders, cache:IAsyncKeyValueStore):WordSimApi<{}> {
 
 	switch (apiIdent) {
-		case CoreApiGroup.KONTEXT:
-            return new KontextCollAPI(cache, apiURL, apiHeaders);
-        case CoreApiGroup.LCC:
-			return new LccCollAPI(cache, apiURL, apiHeaders);
+        case CoreApiGroup.DATAMUSE:
+			return new DatamuseMLApi(cache, apiURL, apiHeaders);
 		default:
-			throw new Error(`API type "${apiIdent}" not supported for collocations.`);
+			throw new Error(`API type "${apiIdent}" not supported for wordSim`);
 	}
 
  }

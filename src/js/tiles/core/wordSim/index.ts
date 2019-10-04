@@ -23,16 +23,17 @@ import { WordSimModel } from './model';
 import { AppServices } from '../../../appServices';
 import { init as viewInit } from './view';
 import { QueryType } from '../../../common/query';
-import { DatamuseMLApi } from './api';
 import { OperationMode } from './actions';
+import { createWordSimApiInstance } from './apiFactory';
 
 
 declare var require:(src:string)=>void;  // webpack
 require('./style.less');
 
 
-export interface DatamuseTileConf extends TileConf {
+export interface WordSimTileConf extends TileConf {
     apiURL:string;
+    apiType:string;
     maxResultItems:number;
 }
 
@@ -40,7 +41,7 @@ export interface DatamuseTileConf extends TileConf {
 /**
  *
  */
-export class DatamuseTile implements ITileProvider {
+export class WordSimTile implements ITileProvider {
 
     private readonly tileId:number;
 
@@ -61,7 +62,7 @@ export class DatamuseTile implements ITileProvider {
     private readonly widthFract:number;
 
     constructor({tileId, waitForTiles, subqSourceTiles, dispatcher, appServices, ut, widthFract, conf, theme,
-            isBusy, cache, lang2, mainForm}:TileFactory.Args<DatamuseTileConf>) {
+            isBusy, cache, lang2, mainForm}:TileFactory.Args<WordSimTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.appServices = appServices;
@@ -81,7 +82,7 @@ export class DatamuseTile implements ITileProvider {
                 operationMode: OperationMode.MeansLike
             },
             tileId,
-            new DatamuseMLApi(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            createWordSimApiInstance(conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL), cache),
             mainForm
         );
         [this.view, this.srcInfoView] = viewInit(dispatcher, ut, theme, this.model);
@@ -133,6 +134,6 @@ export class DatamuseTile implements ITileProvider {
     }
 }
 
-export const TILE_TYPE = 'DatamuseTile';
+export const TILE_TYPE = 'WordSimTile';
 
-export const init:TileFactory.TileFactory<DatamuseTileConf> = (args) => new DatamuseTile(args);
+export const init:TileFactory.TileFactory<WordSimTileConf> = (args) => new WordSimTile(args);

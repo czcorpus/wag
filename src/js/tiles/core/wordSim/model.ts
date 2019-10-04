@@ -21,8 +21,9 @@ import * as Immutable from 'immutable';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { DataLoadedPayload, OperationMode } from './actions';
 import { ActionName, Actions } from './actions';
-import { DatamuseMLApi, WordSimWord, DatamuseApiArgs } from './api';
+import { DatamuseApiArgs } from '../../../common/api/datamuse/wordSim';
 import { QueryFormModel, findCurrLemmaVariant } from '../../../models/query';
+import { WordSimApi, WordSimWord } from '../../../common/api/abstract/wordSim';
 
 
 
@@ -42,11 +43,11 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
 
     private readonly tileId:number;
 
-    private readonly api:DatamuseMLApi;
+    private readonly api:WordSimApi<{}>;
 
     private readonly mainForm:QueryFormModel;
 
-    constructor(dispatcher:IActionDispatcher, initState:WordSimModelState, tileId:number, api:DatamuseMLApi, mainForm:QueryFormModel) {
+    constructor(dispatcher:IActionDispatcher, initState:WordSimModelState, tileId:number, api:WordSimApi<{}>, mainForm:QueryFormModel) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.api = api;
@@ -141,7 +142,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                             name: GlobalActionName.TileDataLoaded,
                             payload: {
                                 tileId: this.tileId,
-                                words: data
+                                words: data.words
                             }
                         });
 

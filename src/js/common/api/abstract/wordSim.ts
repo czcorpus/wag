@@ -16,32 +16,17 @@
  * limitations under the License.
  */
 
-import { Action } from 'kombo';
-import { WordSimWord } from '../../../common/api/abstract/wordSim';
+import { DataApi } from '../../types';
 
 
-export interface DataLoadedPayload {
-    tileId:number;
+export interface WordSimWord {
+    word:string;
+    score:number;
+    tags:Array<string>;
+}
+
+export interface WordSimApiResponse {
     words:Array<WordSimWord>;
 }
 
-export enum OperationMode {
-    MeansLike = 'ml',
-    SoundsLike = 'sl'
-}
-
-
-export enum ActionName {
-    SetOperationMode = 'WORDSIM_SET_OPERATION_MODE'
-}
-
-export namespace Actions {
-
-    export interface SetOperationMode extends Action<{
-        tileId:number;
-        value:OperationMode;
-    }> {
-        name: ActionName.SetOperationMode;
-    }
-
-}
+export type WordSimApi<T> = DataApi<T, WordSimApiResponse>;

@@ -22,9 +22,9 @@ import { Theme } from '../../../common/theme';
 import { TileComponent, CoreTileComponentProps } from '../../../common/tile';
 import { WordSimModel, WordSimModelState } from './model';
 import { init as wcloudViewInit } from '../../../views/wordCloud/index';
-import { WordSimWord } from './api';
 import { OperationMode, ActionName } from './actions';
 import { SourceDetails } from '../../../common/types';
+import { WordSimWord } from '../../../common/api/abstract/wordSim';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:WordSimModel):[TileComponent, React.SFC]  {
