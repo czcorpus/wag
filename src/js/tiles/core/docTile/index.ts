@@ -45,6 +45,7 @@ export interface DocTileConf extends TileConf {
     fpage:number;
     fttIncludeEmpty:boolean;
     maxNumCategories:number;
+    maxNumCategoriesPerPage:number;
     backlink?:Backlink;
 
     // if defined, then we wait for some other
@@ -104,6 +105,7 @@ export class DocTile implements ITileProvider {
                     ident: puid(),
                     isReady: false
                 }))),
+                blockPage: Immutable.Map<string, number>({}),
                 activeBlock: 0,
                 corpname: conf.corpname,
                 concId: null,
@@ -114,6 +116,7 @@ export class DocTile implements ITileProvider {
                 fpage: conf.fpage,
                 fttIncludeEmpty: conf.fttIncludeEmpty,
                 maxNumCategories: conf.maxNumCategories,
+                maxNumCategoriesPerPage: conf.maxNumCategoriesPerPage,
                 fmaxitems: 100,
                 backlink: null,
                 subqSyncPalette: false
@@ -152,7 +155,7 @@ export class DocTile implements ITileProvider {
     }
 
     supportsTweakMode():boolean {
-        return false;
+        return true;
     }
 
     supportsAltView():boolean {

@@ -34,9 +34,11 @@ import { callWithExtraVal } from '../../../common/api/util';
 
 export interface DocModelState extends GeneralMultiCritFreqBarModelState<DataRow> {
     maxNumCategories:number;
+    maxNumCategoriesPerPage:number;
     activeBlock:number;
     backlink:BacklinkWithArgs<BacklinkArgs>;
     subqSyncPalette:boolean;
+    blockPage:Immutable.Map<string, number>;
 }
 
 export interface DocModelArgs {
@@ -88,6 +90,30 @@ export class DocModel extends StatelessModel<DocModelState> {
                 }
                 return state;
             },
+            [ActionName.NextPage]: (state, action:Actions.NextPage) => {
+                if (action.payload.tileId === this.tileId) {
+                    const newState = this.copyState(state);
+                    const page = newState.blockPage.get(action.payload.blockId);
+                    
+                    page * newState.maxNumCategoriesPerPage >= newState.blocks.find(v => v.ident === action.payload.blockId).data.size ?
+                        null :
+                        newState.blockPage = newState.blockPage.set(action.payload.blockId, page+1);
+                    
+                    return newState;
+                }
+                return state;
+            },
+            [ActionName.PreviousPage]: (state, action:Actions.PreviousPage) => {
+                if (action.payload.tileId === this.tileId) {
+                    const newState = this.copyState(state);
+                    const page = newState.blockPage.get(action.payload.blockId);
+
+                    page === 1 ? null : newState.blockPage = newState.blockPage.set(action.payload.blockId, page-1);
+
+                    return newState;
+                }
+                return state;
+            },
             [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<DataLoadedPayload>) => {
                 if (action.payload.tileId === this.tileId) {
                     const newState = this.copyState(state);
@@ -102,6 +128,7 @@ export class DocModel extends StatelessModel<DocModelState> {
                         newState.isBusy = false;
 
                     } else {
+                        const blockId = puid();
                         newState.blocks = newState.blocks.set(
                             action.payload.critIdx,
                             {
@@ -111,12 +138,13 @@ export class DocModel extends StatelessModel<DocModelState> {
                                         freq: v.freq,
                                         ipm: v.ipm
                                     }))) : null,
-                                ident: puid(),
+                                ident: blockId,
                                 label: this.appServices.importExternalMessage(
                                     action.payload.blockLabel ? action.payload.blockLabel : state.critLabels.get(action.payload.critIdx)),
                                 isReady: true
                             }
                         );
+                        newState.blockPage = newState.blockPage.set(blockId, 1);
                         newState.isBusy = newState.blocks.some(v => !v.isReady);
                         newState.backlink = createBackLink(newState, this.backlink, action.payload.concId);
                     }

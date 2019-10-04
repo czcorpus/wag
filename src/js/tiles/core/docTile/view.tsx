@@ -36,25 +36,32 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const TableView:React.SFC<{
         data:Immutable.List<DataRow>;
-
+        from:number;
+        to:number;
     }> = (props) => {
         return (
             <table className="data">
                 <thead>
                     <tr>
                         <th />
-                        <th>{ut.translate('docTile_abs_freq')}</th>
-                        <th>{ut.translate('docTile_rel_freq')}</th>
+                        <th />
+                        <th>{ut.translate('docTile__abs_freq')}</th>
+                        <th>{ut.translate('docTile__rel_freq')}</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {props.data.map((row, i) => (
-                        <tr key={`${i}:${row.name}`}>
-                            <td className="word">{row.name}</td>
-                            <td className="num">{ut.formatNumber(row.freq)}</td>
-                            <td className="num">{ut.formatNumber(row.ipm)}</td>
-                        </tr>
-                    ))}
+                    {props.data.map((row, i) => {
+                        if (i >= props.from && i < props.to) {
+                            return <tr key={`${i}:${row.name}`}>
+                                <td>{i+1}</td>
+                                <td className="word">{row.name}</td>
+                                <td className="num">{ut.formatNumber(row.freq)}</td>
+                                <td className="num">{ut.formatNumber(row.ipm)}</td>
+                            </tr>
+                        } else {
+                            return null
+                        }
+                    })}
                 </tbody>
             </table>
         );
@@ -89,6 +96,26 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             }
         }
 
+        private handleNextPage(blockId: string):void {
+            dispatcher.dispatch<Actions.NextPage>({
+                name: ActionName.NextPage,
+                payload: {
+                    tileId: this.props.tileId,
+                    blockId: blockId
+                }
+            });
+        }
+
+        private handlePreviousPage(blockId: string):void {
+            dispatcher.dispatch<Actions.PreviousPage>({
+                name: ActionName.PreviousPage,
+                payload: {
+                    tileId: this.props.tileId,
+                    blockId: blockId
+                }
+            });
+        }
+
         render() {
             const chartsViewBoxWidth = this.props.isMobile ? '100%' : `${100 / this.props.blocks.size}%`;
             return (
@@ -104,12 +131,17 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                     <div key={block.ident} style={{width: chartsViewBoxWidth, height: "100%"}}>
                                         <h3>{block.label}</h3>
                                         {block.data.size > 0 ?
-                                            <TableView data={block.data}/> :
+                                            <TableView
+                                                data={block.data}
+                                                from={(this.props.blockPage.get(block.ident)-1)*this.props.maxNumCategoriesPerPage}
+                                                to={this.props.blockPage.get(block.ident)*this.props.maxNumCategoriesPerPage} />:
                                             <p className="note" style={{textAlign: 'center'}}>No result</p>
                                         }
+                                        <a style={{float: 'left'}} onClick={()=>this.handlePreviousPage(block.ident)}>previous</a>
+                                        <a style={{float: 'right'}} onClick={()=>this.handleNextPage(block.ident)}>next</a>
                                     </div>
                                 );
-                                })}
+                            })}
                         </div>
                         {this.props.isMobile && this.props.blocks.size > 1 ?
                             <globComponents.HorizontalBlockSwitch

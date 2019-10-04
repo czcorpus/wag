@@ -23,7 +23,9 @@ import { LocalizedConfMsg } from '../../../common/types';
 
 
 export enum ActionName {
-    SetActiveBlock = 'TT_DISTRIB_SET_ACTIVE_BLOCK'
+    SetActiveBlock = 'DOC_TILE_SET_ACTIVE_BLOCK',
+    NextPage = 'DOC_TILE_NEXT_PAGE',
+    PreviousPage = 'DOC_TILE_PREVIOUS_PAGE',
 }
 
 export interface DataLoadedPayload {
@@ -40,5 +42,19 @@ export namespace Actions {
         tileId:number;
     }> {
         name: ActionName.SetActiveBlock;
+    }
+
+    export interface NextPage extends Action<{
+        tileId:number;
+        blockId:string;
+    }> {
+        name: ActionName.NextPage;
+    }
+
+    export interface PreviousPage extends Action<{
+        tileId:number;
+        blockId:string;
+    }> {
+        name: ActionName.PreviousPage;
     }
 }
