@@ -2,6 +2,7 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "additionalProperties": {
         "additionalProperties": {
+<<<<<<< HEAD
             "anyOf": [
                 {
                     "$ref": "#/definitions/CollocationsTileConf"
@@ -52,18 +53,13 @@
                     "$ref": "#/definitions/HtmlTileConf"
                 }
             ]
+=======
+            "$ref": "#/definitions/TileConf"
+>>>>>>> Handle tile loading errors, add info, update schemata
         },
         "type": "object"
     },
     "definitions": {
-        "AlphaLevel": {
-            "enum": [
-                "0.01",
-                "0.05",
-                "0.1"
-            ],
-            "type": "string"
-        },
         "Backlink": {
             "properties": {
                 "label": {
@@ -106,6 +102,7 @@
             ],
             "type": "object"
         },
+<<<<<<< HEAD
         "CollocationsTileConf": {
             "properties": {
                 "apiType": {
@@ -344,22 +341,14 @@
             "type": "object"
         },
         "ConcordanceTileConf": {
+=======
+        "TileConf": {
+            "description": "A configuration for a tile\nprovided by hosting page",
+>>>>>>> Handle tile loading errors, add info, update schemata
             "properties": {
-                "apiType": {
-                    "type": "string"
-                },
-                "apiURL": {
-                    "type": "string"
-                },
                 "backlink": {
                     "$ref": "#/definitions/Backlink",
                     "description": "An optional link to an application the specific tile\nrepresents (more or less). It is expected that the\ntile logic is able to pass proper arguments to the\npage."
-                },
-                "corpname": {
-                    "type": "string"
-                },
-                "disableViewModes": {
-                    "type": "boolean"
                 },
                 "helpURL": {
                     "anyOf": [
@@ -393,71 +382,6 @@
                     ],
                     "description": "A label used in the header of the tile"
                 },
-                "metadataAttrs": {
-                    "items": {
-                        "properties": {
-                            "label": {
-                                "anyOf": [
-                                    {
-                                        "additionalProperties": {
-                                            "type": "string"
-                                        },
-                                        "type": "object"
-                                    },
-                                    {
-                                        "type": "string"
-                                    }
-                                ]
-                            },
-                            "value": {
-                                "type": "string"
-                            }
-                        },
-                        "required": [
-                            "label",
-                            "value"
-                        ],
-                        "type": "object"
-                    },
-                    "type": "array"
-                },
-                "pageSize": {
-                    "type": "number"
-                },
-                "parallelLangMapping": {
-                    "additionalProperties": {
-                        "type": "string"
-                    },
-                    "type": "object"
-                },
-                "posAttrs": {
-                    "items": {
-                        "type": "string"
-                    },
-                    "type": "array"
-                },
-                "posQueryGenerator": {
-                    "additionalItems": {
-                        "anyOf": [
-                            {
-                                "type": "string"
-                            },
-                            {
-                                "type": "string"
-                            }
-                        ]
-                    },
-                    "items": [
-                        {
-                            "type": "string"
-                        },
-                        {
-                            "type": "string"
-                        }
-                    ],
-                    "minItems": 2,
-                    "type": "array"
-                },
                 "readSubqFrom": {
                     "anyOf": [
                         {
@@ -472,34 +396,9 @@
                     ],
                     "description": "In case we depend on multiple tiles and some of them are\njust kind of hidden dependencies (i.e. we want to wait them\nto complate but we don't need their subquery args) this can\nbe used to distinguish the two dependency types.\n\nPlease note that this value is not used directly by WdG but\nit is rather provided for tile model to provide more information\nabout inter-tile dependencies. I.e. it is perfectly doable to\ndefine a subquery producing tile as a dependency via 'waitFor'.\nBut in more complex situations when we need some tiles to just\nwait for and some to also provide subqueries the model may not\nhave enough information to distinguish between the two."
                 },
-                "subcDesc": {
-                    "anyOf": [
-                        {
-                            "additionalProperties": {
-                                "type": "string"
-                            },
-                            "type": "object"
-                        },
-                        {
-                            "type": "string"
-                        }
-                    ]
-                },
-                "subcname": {
-                    "anyOf": [
-                        {
-                            "items": {
-                                "type": "string"
-                            },
-                            "type": "array"
-                        },
-                        {
-                            "type": "string"
-                        }
-                    ]
-                },
                 "tileType": {
                     "description": "An identifier as defined by tiles configuration interface",
+<<<<<<< HEAD
                     "enum": [
                         "ConcordanceTile"
                     ],
@@ -2198,6 +2097,8 @@
                     "enum": [
                         "WordFreqTile"
                     ],
+=======
+>>>>>>> Handle tile loading errors, add info, update schemata
                     "type": "string"
                 },
                 "waitFor": {
@@ -2216,10 +2117,6 @@
                 }
             },
             "required": [
-                "apiURL",
-                "corpname",
-                "corpusSize",
-                "sfwRowRange",
                 "tileType"
             ],
             "type": "object"

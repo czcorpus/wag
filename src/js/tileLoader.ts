@@ -61,8 +61,8 @@ const applyContext = (ctx:any, tfMap:TileFactoryMap) => {
 
 // note: the 'require.context' is replaced by actual modules
 // found during the build process by Webpack.
-applyContext(require.context('./tiles/core', true, /index.ts$/), tileFactories);
-applyContext(require.context('./tiles/custom', true, /index.ts$/), tileFactories);
+applyContext(require.context('./tiles/core', true, /\/index.ts$/), tileFactories);
+applyContext(require.context('./tiles/custom', true, /\/index.ts$/), tileFactories);
 
 
 export const mkTileFactory = (
@@ -85,8 +85,11 @@ export const mkTileFactory = (
 
         } else {
             const initFn = tileFactories[conf.tileType];
-            if (typeof initFn !== 'function') {
-                throw new Error(`Invalid tile init type. Expected 'function', got '${typeof initFn}'.`)
+            if (typeof initFn === 'undefined') {
+                throw new Error(`Cannot invoke tile init() for ${confName} - type ${conf.tileType} not found. Check your src/js/tiles/custom directory.`);
+
+            } else if (typeof initFn !== 'function') {
+                throw new Error(`Cannot invoke tile init() for ${confName} (type ${conf.tileType}). Expected type [function], got [${typeof initFn}].`)
             }
             return initFn({
                 tileId: tileIdentMap[confName],

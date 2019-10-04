@@ -1,14 +1,6 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "definitions": {
-        "AlphaLevel": {
-            "enum": [
-                "0.01",
-                "0.05",
-                "0.1"
-            ],
-            "type": "string"
-        },
         "Backlink": {
             "properties": {
                 "label": {
@@ -51,22 +43,50 @@
             ],
             "type": "object"
         },
-        "CollocationsTileConf": {
+        "ColorsConf": {
+            "description": "This specifies a 'theming' for\nJavaScript generated stuff\n(mainly chart colors).",
             "properties": {
+<<<<<<< HEAD
                 "apiType": {
                     "type": "string"
                 },
                 "apiURL": {
                     "type": "string"
+=======
+                "bar": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+>>>>>>> Handle tile loading errors, add info, update schemata
                 },
-                "backlink": {
-                    "$ref": "#/definitions/Backlink",
-                    "description": "An optional link to an application the specific tile\nrepresents (more or less). It is expected that the\ntile logic is able to pass proper arguments to the\npage."
+                "category": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
                 },
-                "corpname": {
+                "categoryOther": {
                     "type": "string"
                 },
-                "helpURL": {
+                "scale": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                }
+            },
+            "required": [
+                "bar",
+                "category",
+                "categoryOther",
+                "scale"
+            ],
+            "type": "object"
+        },
+        "GroupLayoutConfig": {
+            "properties": {
+                "groupDescURL": {
                     "anyOf": [
                         {
                             "additionalProperties": {
@@ -77,14 +97,9 @@
                         {
                             "type": "string"
                         }
-                    ],
-                    "description": "An address providing a raw text or an HTML which will be\nused as a help for the tile. Please make sure only trusted\nsources are used here as the HTML is injected \"as is\" to\nthe page."
+                    ]
                 },
-                "isDisabled": {
-                    "description": "Normally, any tile configured in the \"tiles\" section\nwill be active no matter whether it is also in the\n\"layouts\" section. This allows e.g. a hidden concordance\ntile to ask for a concordance used by multiple visible\ntiles (e.g. colloc, freqs.). To be able to keep possibly\nusable items in the \"tiles\" configuration file it is\npossible to disable them. I.e. in case a tile is disabled\nit cannot be put in the layout without Wdglance complying\nabout invalid configuration.",
-                    "type": "boolean"
-                },
-                "label": {
+                "groupLabel": {
                     "anyOf": [
                         {
                             "additionalProperties": {
@@ -95,6 +110,7 @@
                         {
                             "type": "string"
                         }
+<<<<<<< HEAD
                     ],
                     "description": "A label used in the header of the tile"
                 },
@@ -123,30 +139,33 @@
                         }
                     ],
                     "description": "In case we depend on multiple tiles and some of them are\njust kind of hidden dependencies (i.e. we want to wait them\nto complate but we don't need their subquery args) this can\nbe used to distinguish the two dependency types.\n\nPlease note that this value is not used directly by WdG but\nit is rather provided for tile model to provide more information\nabout inter-tile dependencies. I.e. it is perfectly doable to\ndefine a subquery producing tile as a dependency via 'waitFor'.\nBut in more complex situations when we need some tiles to just\nwait for and some to also provide subqueries the model may not\nhave enough information to distinguish between the two."
+=======
+                    ]
+>>>>>>> Handle tile loading errors, add info, update schemata
                 },
-                "tileType": {
-                    "description": "An identifier as defined by tiles configuration interface",
-                    "enum": [
-                        "CollocTile"
-                    ],
-                    "type": "string"
+                "groupTemplate": {
                 },
-                "waitFor": {
-                    "anyOf": [
-                        {
-                            "items": {
+                "tiles": {
+                    "items": {
+                        "properties": {
+                            "tile": {
                                 "type": "string"
                             },
-                            "type": "array"
+                            "width": {
+                                "type": "number"
+                            }
                         },
-                        {
-                            "type": "string"
-                        }
-                    ],
-                    "description": "In case a tile supports this (most of them does so) it can\nwait for a specific tile to finish its operation. Again,\nthis is used mainly for 'concordance -> analysis' combinations."
+                        "required": [
+                            "tile",
+                            "width"
+                        ],
+                        "type": "object"
+                    },
+                    "type": "array"
                 }
             },
             "required": [
+<<<<<<< HEAD
                 "apiType",
                 "apiURL",
                 "corpname",
@@ -154,51 +173,162 @@
                 "minLocalFreq",
                 "rangeSize",
                 "tileType"
+=======
+                "groupLabel",
+                "tiles"
+>>>>>>> Handle tile loading errors, add info, update schemata
             ],
             "type": "object"
         },
-        "ColorsConf": {
-            "description": "This specifies a 'theming' for\nJavaScript generated stuff\n(mainly chart colors).",
+        "HomePageTileConf": {
             "properties": {
-                "bar": {
-                    "items": {
+                "contents": {
+                    "additionalProperties": {
+                        "anyOf": [
+                            {
+                                "properties": {
+                                    "file": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "file"
+                                ],
+                                "type": "object"
+                            },
+                            {
+                                "type": "string"
+                            }
+                        ]
+                    },
+                    "type": "object"
+                },
+                "label": {
+                    "additionalProperties": {
                         "type": "string"
                     },
-                    "type": "array"
-                },
-                "category": {
+                    "type": "object"
+                }
+            },
+            "required": [
+                "contents",
+                "label"
+            ],
+            "type": "object"
+        },
+        "HomepageConf": {
+            "properties": {
+                "tiles": {
                     "items": {
-                        "type": "string"
-                    },
-                    "type": "array"
-                },
-                "categoryOther": {
-                    "type": "string"
-                },
-                "scale": {
-                    "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/HomePageTileConf"
                     },
                     "type": "array"
                 }
             },
             "required": [
-                "bar",
-                "category",
-                "categoryOther",
-                "scale"
+                "tiles"
             ],
             "type": "object"
         },
-        "ConcFilterTileConf": {
-            "properties": {
-                "apiURL": {
-                    "type": "string"
+        "LanguageAnyTileConf": {
+            "additionalProperties": {
+                "additionalProperties": {
+                    "$ref": "#/definitions/TileConf"
                 },
+                "type": "object"
+            },
+            "type": "object"
+        },
+        "LanguageLayoutsConfig": {
+            "additionalProperties": {
+                "$ref": "#/definitions/LayoutsConfig"
+            },
+            "description": "These types are necessary to create config schemata\nusing Makefile for tiles and layouts only",
+            "type": "object"
+        },
+        "LayoutsConfig": {
+            "properties": {
+                "cmp": {
+                    "properties": {
+                        "groups": {
+                            "items": {
+                                "anyOf": [
+                                    {
+                                        "$ref": "#/definitions/GroupLayoutConfig"
+                                    },
+                                    {
+                                        "type": "string"
+                                    }
+                                ]
+                            },
+                            "type": "array"
+                        }
+                    },
+                    "required": [
+                        "groups"
+                    ],
+                    "type": "object"
+                },
+                "single": {
+                    "properties": {
+                        "groups": {
+                            "items": {
+                                "anyOf": [
+                                    {
+                                        "$ref": "#/definitions/GroupLayoutConfig"
+                                    },
+                                    {
+                                        "type": "string"
+                                    }
+                                ]
+                            },
+                            "type": "array"
+                        }
+                    },
+                    "required": [
+                        "groups"
+                    ],
+                    "type": "object"
+                },
+                "translat": {
+                    "properties": {
+                        "groups": {
+                            "items": {
+                                "anyOf": [
+                                    {
+                                        "$ref": "#/definitions/GroupLayoutConfig"
+                                    },
+                                    {
+                                        "type": "string"
+                                    }
+                                ]
+                            },
+                            "type": "array"
+                        },
+                        "targetLanguages": {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        }
+                    },
+                    "required": [
+                        "groups",
+                        "targetLanguages"
+                    ],
+                    "type": "object"
+                }
+            },
+            "type": "object"
+        },
+        "TileConf": {
+            "description": "A configuration for a tile\nprovided by hosting page",
+            "properties": {
                 "backlink": {
                     "$ref": "#/definitions/Backlink",
                     "description": "An optional link to an application the specific tile\nrepresents (more or less). It is expected that the\ntile logic is able to pass proper arguments to the\npage."
                 },
+<<<<<<< HEAD
                 "corpname": {
                     "type": "string"
                 },
@@ -2367,6 +2497,8 @@
                     },
                     "type": "array"
                 },
+=======
+>>>>>>> Handle tile loading errors, add info, update schemata
                 "helpURL": {
                     "anyOf": [
                         {
@@ -2413,14 +2545,8 @@
                     ],
                     "description": "In case we depend on multiple tiles and some of them are\njust kind of hidden dependencies (i.e. we want to wait them\nto complate but we don't need their subquery args) this can\nbe used to distinguish the two dependency types.\n\nPlease note that this value is not used directly by WdG but\nit is rather provided for tile model to provide more information\nabout inter-tile dependencies. I.e. it is perfectly doable to\ndefine a subquery producing tile as a dependency via 'waitFor'.\nBut in more complex situations when we need some tiles to just\nwait for and some to also provide subqueries the model may not\nhave enough information to distinguish between the two."
                 },
-                "sfwRowRange": {
-                    "type": "number"
-                },
                 "tileType": {
                     "description": "An identifier as defined by tiles configuration interface",
-                    "enum": [
-                        "WordFreqTile"
-                    ],
                     "type": "string"
                 },
                 "waitFor": {
@@ -2439,10 +2565,6 @@
                 }
             },
             "required": [
-                "apiURL",
-                "corpname",
-                "corpusSize",
-                "sfwRowRange",
                 "tileType"
             ],
             "type": "object"
