@@ -142,8 +142,8 @@ export class SpeechesTile implements ITileProvider {
         return this.view;
     }
 
-    getSourceInfoView():SourceInfoComponent|null {
-        return null; // TODO
+    getSourceInfo():[null, null] {
+        return [null, null];
     }
 
     /**

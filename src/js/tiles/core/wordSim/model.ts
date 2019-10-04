@@ -19,24 +19,11 @@
 import { StatelessModel, IActionDispatcher, Action, SEDispatcher } from 'kombo';
 import * as Immutable from 'immutable';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
-import { DataLoadedPayload, OperationMode } from './actions';
+import { DataLoadedPayload } from './actions';
 import { ActionName, Actions } from './actions';
-import { DatamuseApiArgs } from '../../../common/api/datamuse/wordSim';
 import { QueryFormModel, findCurrLemmaVariant } from '../../../models/query';
 import { WordSimApi, WordSimWord } from '../../../common/api/abstract/wordSim';
-
-
-
-export interface WordSimModelState {
-    isBusy:boolean;
-    isTweakMode:boolean;
-    isMobile:boolean;
-    isAltViewMode:boolean;
-    error:string;
-    maxResultItems:number;
-    data:Immutable.List<WordSimWord>;
-    operationMode:OperationMode;
-}
+import { WordSimModelState } from '../../../common/models/wordSim';
 
 
 export class WordSimModel extends StatelessModel<WordSimModelState> {
@@ -98,6 +85,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                     newState.isBusy = false;
                     if (action.error) {
                         newState.data = Immutable.List<WordSimWord>();
+                        newState.error = action.error.message;
 
                     } else {
                         newState.data = Immutable.List<WordSimWord>(action.payload.words);
@@ -119,22 +107,13 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
         }
     }
 
-    private mkApiArgs(state:WordSimModelState, query:string):DatamuseApiArgs {
-        switch (state.operationMode) {
-            case OperationMode.MeansLike:
-                return {ml: query, max: state.maxResultItems};
-            case OperationMode.SoundsLike:
-                return {sl: query, max: state.maxResultItems};
-        }
-    }
-
     sideEffects(state:WordSimModelState, action:Action, seDispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
             case ActionName.SetOperationMode:
                 const formState = this.mainForm.getState();
                 this.api.call(
-                    this.mkApiArgs(state, findCurrLemmaVariant(formState.lemmas).lemma)
+                    this.api.stateToArgs(state, findCurrLemmaVariant(formState.lemmas).lemma)
 
                 ).subscribe(
                     (data) => {
@@ -150,6 +129,10 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                     (err) => {
                         seDispatch<Action<DataLoadedPayload>>({
                             name: GlobalActionName.TileDataLoaded,
+                            payload: {
+                                tileId: this.tileId,
+                                words: []
+                            },
                             error: err
                         })
                     }

@@ -17,9 +17,10 @@
  */
 import { Observable } from 'rxjs';
 import { cachedAjax$ } from '../../ajax';
-import { DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../types';
-import { WordSimApiResponse, WordSimWord } from '../abstract/wordSim';
+import { HTTPHeaders, IAsyncKeyValueStore, SourceDetails } from '../../types';
+import { WordSimApiResponse, WordSimWord, WordSimApi } from '../abstract/wordSim';
 import { map } from 'rxjs/operators';
+import { WordSimModelState, OperationMode } from '../../models/wordSim';
 
 
 type DatamuseMLApiResponse = Array<WordSimWord>;
@@ -38,7 +39,7 @@ export interface DatamuseSLApiArgs {
 export type DatamuseApiArgs = DatamuseMLApiArgs | DatamuseSLApiArgs;
 
 
-export class DatamuseMLApi implements DataApi<DatamuseApiArgs, WordSimApiResponse> {
+export class DatamuseMLApi implements WordSimApi<DatamuseMLApiArgs|DatamuseSLApiArgs> {
 
     private readonly apiURL:string;
 
@@ -52,6 +53,31 @@ export class DatamuseMLApi implements DataApi<DatamuseApiArgs, WordSimApiRespons
         this.cache = cache;
     }
 
+    stateToArgs(state:WordSimModelState, query:string):DatamuseMLApiArgs|DatamuseSLApiArgs {
+        switch (state.operationMode) {
+            case OperationMode.MeansLike:
+                return {ml: query, max: state.maxResultItems};
+            case OperationMode.SoundsLike:
+                return {sl: query, max: state.maxResultItems};
+        }
+    }
+
+    supportsTweaking():boolean {
+        return true;
+    }
+
+    getSourceDescription(tileId:number):SourceDetails {
+        return {
+            tileId: tileId,
+            title: 'Datamuse.com',
+            description: 'The Datamuse API is a word-finding query engine for developers. ' +
+                         'You can use it in your apps to find words that match a given set of constraints ' +
+                         'and that are likely in a given context. You can specify a wide variety of constraints ' +
+                         'on meaning, spelling, sound, and vocabulary in your queries, in any combination.',
+            author: 'Datamuse.com',
+            href: 'https://www.datamuse.com'
+        };
+    }
 
     call(queryArgs:DatamuseApiArgs):Observable<WordSimApiResponse> {
         return cachedAjax$<DatamuseMLApiResponse>(this.cache)(

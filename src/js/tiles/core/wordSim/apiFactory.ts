@@ -20,13 +20,15 @@ import { IAsyncKeyValueStore, HTTPHeaders } from '../../../common/types';
 import { CoreApiGroup } from '../../../common/api/coreGroups';
 import { DatamuseMLApi } from '../../../common/api/datamuse/wordSim';
 import { WordSimApi } from '../../../common/api/abstract/wordSim';
+import { LccCoocSimApi } from '../../../common/api/lcc/wordSim';
 
 
 export function createWordSimApiInstance(apiIdent:string, apiURL:string, apiHeaders:HTTPHeaders, cache:IAsyncKeyValueStore):WordSimApi<{}> {
-
 	switch (apiIdent) {
         case CoreApiGroup.DATAMUSE:
 			return new DatamuseMLApi(cache, apiURL, apiHeaders);
+		case CoreApiGroup.LCC:
+			return new LccCoocSimApi(cache, apiURL, apiHeaders);
 		default:
 			throw new Error(`API type "${apiIdent}" not supported for wordSim`);
 	}

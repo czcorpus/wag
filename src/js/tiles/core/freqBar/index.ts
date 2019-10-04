@@ -138,8 +138,8 @@ export class FreqBarTile implements ITileProvider {
         return this.view;
     }
 
-    getSourceInfoView():null {
-        return null;
+    getSourceInfo():[null, null] {
+        return [null, null];
     }
 
     getLabel():string {

@@ -96,8 +96,8 @@ export class WordFreqTile implements ITileProvider {
         return this.view;
     }
 
-    getSourceInfoView():null {
-        return null;
+    getSourceInfo():[null, null] {
+        return [null, null];
     }
 
     supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {

@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { HTTPMethod, AnyInterface, LocalizedConfMsg, IAsyncKeyValueStore } from './types';
+import { HTTPMethod, AnyInterface, LocalizedConfMsg, IAsyncKeyValueStore, SourceDetails } from './types';
 import { QueryType } from './query';
 import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
 import { GlobalComponents } from '../views/global';
@@ -137,6 +137,8 @@ export interface TileFrameProps {
 
     SourceInfoComponent:SourceInfoComponent;
 
+    sourceInfoData:SourceDetails;
+
     label:string;
 
     supportsTweakMode:boolean;
@@ -204,7 +206,7 @@ export interface ITileProvider {
      */
     getView():TileComponent;
 
-    getSourceInfoView():SourceInfoComponent|null;
+    getSourceInfo():[SourceInfoComponent|null, SourceDetails|null];
 
     /**
      */
