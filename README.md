@@ -16,8 +16,8 @@ using miscellaneous online lingustic tools, corpora and databases.
  - [Datamuse API](https://www.datamuse.com/)
  - [REST API of the Leipzig Corpora Collection](http://api.corpora.uni-leipzig.de/ws/swagger-ui.html) (LCC)
 
-|               | WaG    | KonText | NoSkE  | Treq   | Clarin FCS | Datamuse   | ElasticSearch | LCC
-------------------------------------------------------------------------------------------------------------
+|               | WaG    | KonText | NoSkE  | Treq   | Clarin FCS | Datamuse   | ElasticSearch | LCC   |
+----------------|--------|---------|--------|--------|------------|------------|-------------|---------|
 | collocations  |        | :star:  |        |        |            |            |             | :star:  |
 | concFilter    |        | :star:  |        |        |            |            |             |         |
 | concordance   |        | :star:  |        |        | :star:     |            |             | :construction: |
@@ -32,7 +32,7 @@ using miscellaneous online lingustic tools, corpora and databases.
 | treqSubsets   |        |         |        | :star: |            |            |             |         |
 | wordForms     | :star: | :star:  |        |        |            |            |             |         |
 | wordFreq      | :star: | :star:  |        |        |            |            |             |         |
-| wordSim       | :construction:       |         |        |        |            | :star:     |             |         |
+| wordSim       | :construction:       |         |        |        |  :star:     |          | :construction: | 
 
 ## Planned resources
 
