@@ -1,0 +1,74 @@
+@import '../../../../css/shared.less';
+
+.TreqSubsetsView {
+
+    .data {
+        overflow-x: auto;
+        overflow-y: hidden;
+    }
+
+    .ChartLikeTable {
+
+        table.ChartLikeTable {
+
+            border-spacing: 0;
+            border-collapse: collapse;
+
+            td {
+                border: 1px solid #aaaaaa;
+                padding: 0;
+
+                svg {
+                    padding: 0;
+                }
+            }
+
+            th.word {
+                text-align: right;
+                padding-right: 0.7em;
+                padding-left: 0.7em;
+                font-weight: normal;
+            }
+
+            th.package {
+                padding-bottom: 0.7em;
+            }
+
+            tr.highlighted {
+                background-color: @color-data-highlight-row;
+            }
+
+            .SimpleBar {
+                .bar {
+                    position: absolute;
+                    margin-top: 5px;
+                    margin-bottom: 5px;
+                }
+
+                table.grid {
+                    border-spacing: 0;
+                    border-collapse: collapse;
+
+                    td {
+                        border-style: solid;
+                        border-color: #f2f2f2;
+                        border-width:  0 1px 0 1px;
+                    }
+                }
+            }
+        }
+    }
+
+    table.AltViewTable {
+
+        th.word {
+            text-align: right;
+            padding-right: 0.7em;
+            font-weight: normal;
+        }
+
+        td {
+            text-align: right;
+        }
+    }
+}

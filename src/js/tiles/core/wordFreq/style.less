@@ -1,0 +1,76 @@
+@import '../../../../css/shared.less';
+
+.WordFreqTileView.mobile {
+    flex-direction: column;
+
+    > div.cell h3 {
+        margin-top: 1em;
+    }
+}
+
+.WordFreqTileView {
+
+    .chart {
+        float: right;
+        width: 340px;
+        margin-right: 2em;
+    }
+
+    > div.cell:not(:last-child) {
+        margin-bottom: 1.7em;
+    }
+
+    .NearestFreqWords {
+        border-spacing: 0;
+    }
+
+    .Stars {
+        display: block;
+        white-space: nowrap;
+
+        img {
+            width: 1em;
+        }
+    }
+
+    dl.info {
+
+        dt {
+            margin-bottom: 0.4em;
+            color: @color-light-text;
+            font-family: @condensed-font-family;
+        }
+
+        dd {
+            font-size: 1.5em;
+            margin-left: 1em;
+        }
+
+        dd:not(:last-child) {
+            margin-bottom: 0.7em;
+        }
+
+        dd.word-list {
+            font-size: 1.3em;
+            a {
+                color: @color-default-text;
+                cursor: pointer;
+                text-decoration: none;
+            }
+
+            a:hover {
+                color: @color-logo-blue;
+                text-decoration: underline;
+            }
+        }
+    }
+
+}
+
+.FreqLevelCustomTooltip {
+    padding: 0.7em;
+    background-color: #FFFFFF;
+    border-radius: 2px;
+    border: 1px solid @color-light-grey;
+
+}
