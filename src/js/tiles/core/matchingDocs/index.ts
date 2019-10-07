@@ -19,26 +19,27 @@ import * as Immutable from 'immutable';
 import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
 
 import { AppServices } from '../../../appServices';
-import { DataRow, MultiBlockFreqDistribAPI, FreqSort } from '../../../common/api/kontext/freqs';
-import { FreqDataBlock, SubqueryModeConf } from '../../../common/models/freq';
-import { LocalizedConfMsg } from '../../../common/types';
+import { FreqSort } from '../../../common/api/kontext/freqs';
+import { SubqueryModeConf } from '../../../common/models/freq';
 import { QueryType } from '../../../common/query';
 import { TileComponent, TileConf, TileFactory, Backlink, ITileProvider } from '../../../common/tile';
-import { puid } from '../../../common/util';
 import { GlobalComponents } from '../../../views/global';
 import { factory as defaultModelFactory, DocModel } from './model';
 import { init as viewInit } from './view';
+import { createMatchingDocsApiInstance } from './apiFactory';
+import { DataRow } from '../../../common/api/abstract/matchingDocs';
 
 
 
 declare var require:(src:string)=>void;  // webpack
 require('./style.less');
 
-export interface DocTileConf extends TileConf {
+export interface MatchingDocsTileConf extends TileConf {
     apiURL:string;
+    apiType:string;
     corpname:string|null; // null can be used in case subqueryMode is enabled
-    fcrit:string|Array<string>;
-    critLabels:LocalizedConfMsg|Array<LocalizedConfMsg>;
+    subcname:string|null;
+    srchAttrs:string|Array<string>;
     flimit:number;
     freqSort:FreqSort;
     fpage:number;
@@ -56,7 +57,7 @@ export interface DocTileConf extends TileConf {
 }
 
 
-export class DocTile implements ITileProvider {
+export class MatchingDocsTile implements ITileProvider {
 
     private readonly dispatcher:IActionDispatcher;
 
@@ -76,16 +77,12 @@ export class DocTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({dispatcher, tileId, waitForTiles, subqSourceTiles, ut, theme, appServices, widthFract, conf, isBusy, cache}:TileFactory.Args<DocTileConf>) {
+    constructor({dispatcher, tileId, waitForTiles, subqSourceTiles, ut, theme, appServices, widthFract, conf, isBusy, cache}:TileFactory.Args<MatchingDocsTileConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
         this.appServices = appServices;
         this.blockingTiles = waitForTiles;
-        const criteria = Immutable.List<string>(typeof conf.fcrit === 'string' ? [conf.fcrit] : conf.fcrit);
-        const labels = Array.isArray(conf.critLabels) ?
-            conf.critLabels.map(v => this.appServices.importExternalMessage(v)) :
-            [this.appServices.importExternalMessage(conf.critLabels)];
 
         const modelFact = defaultModelFactory;
         this.model = modelFact(
@@ -94,34 +91,24 @@ export class DocTile implements ITileProvider {
             waitForTiles,
             subqSourceTiles,
             appServices,
-            new MultiBlockFreqDistribAPI(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            createMatchingDocsApiInstance(conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL), cache),
             conf.backlink || null,
             {
                 isBusy: isBusy,
                 error: null,
-                blocks: Immutable.List<FreqDataBlock<DataRow>>(criteria.map(v => ({
-                    data: Immutable.List<DataRow>(),
-                    ident: puid(),
-                    isReady: false
-                }))),
-                blockPage: Immutable.Map<string, number>({}),
-                activeBlock: 0,
+                data: Immutable.List<DataRow>(),
                 corpname: conf.corpname,
+                subcname: conf.subcname,
                 concId: null,
-                fcrit: criteria,
-                critLabels: Immutable.List<string>(labels),
-                flimit: conf.flimit,
-                freqSort: conf.freqSort,
-                fpage: conf.fpage,
-                fttIncludeEmpty: conf.fttIncludeEmpty,
+                srchAttrs: Immutable.List<string>(typeof conf.srchAttrs === 'string' ? [conf.srchAttrs] : conf.srchAttrs),
+                currPage: conf.fpage,
                 maxNumCategories: conf.maxNumCategories,
                 maxNumCategoriesPerPage: conf.maxNumCategoriesPerPage,
-                fmaxitems: 100,
                 backlink: null,
                 subqSyncPalette: false
             }
         );
-        this.label = appServices.importExternalMessage(conf.label || 'docTile__main_label');
+        this.label = appServices.importExternalMessage(conf.label || 'matchingDocsTile__main_label');
         this.view = viewInit(this.dispatcher, ut, theme, this.model);
     }
 
@@ -171,6 +158,6 @@ export class DocTile implements ITileProvider {
 
 }
 
-export const TILE_TYPE = 'DocTile';
+export const TILE_TYPE = 'MatchingDocsTile';
 
-export const init:TileFactory.TileFactory<DocTileConf>  = (args) => new DocTile(args);
+export const init:TileFactory.TileFactory<MatchingDocsTileConf>  = (args) => new MatchingDocsTile(args);
