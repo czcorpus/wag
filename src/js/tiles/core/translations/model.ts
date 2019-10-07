@@ -24,22 +24,13 @@ import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { QueryFormModel, findCurrLemmaVariant } from '../../../models/query';
 import { DataLoadedPayload } from './actions';
-import { PageArgs, TreqAPI, TreqTranslation } from '../../../common/api/treq';
-import { TreqModelMinState, stateToPageArgs, stateToAPIArgs } from '../../../common/models/treq';
+import { PageArgs, TreqAPI } from '../../../common/api/treq';
 import { ColorScaleFunctionGenerator } from '../../../common/theme';
+import { WordTranslation } from '../../../common/api/abstract/translations';
+import { TranslationsModelState } from '../../../common/models/translations';
 
 
-
-export interface TreqModelState extends TreqModelMinState {
-    isBusy:boolean;
-    isAltViewMode:boolean;
-    error:string;
-    searchPackages:Immutable.List<string>;
-    translations:Immutable.List<TreqTranslation>;
-    sum:number;
-    treqBackLink:BacklinkWithArgs<PageArgs>|null;
-    maxNumLines:number;
-}
+export type TreqModelState = TranslationsModelState<PageArgs>;
 
 
 export class TreqModel extends StatelessModel<TreqModelState> {
@@ -74,13 +65,12 @@ export class TreqModel extends StatelessModel<TreqModelState> {
                     const newState = this.copyState(state);
                     newState.isBusy = false;
                     if (action.error) {
-                        newState.translations = Immutable.List<TreqTranslation>();
+                        newState.translations = Immutable.List<WordTranslation>();
                         newState.error = action.error.message;
 
                     } else {
-                        newState.translations = Immutable.List<TreqTranslation>(action.payload.data.lines);
-                        newState.sum = action.payload.data.sum;
-                        newState.treqBackLink = this.makeBacklink(state, action.payload.query);
+                        newState.translations = Immutable.List<WordTranslation>(action.payload.data.translations);
+                        newState.backLink = this.makeBacklink(state, action.payload.query);
                     }
                     return newState;
                 }
@@ -111,7 +101,7 @@ export class TreqModel extends StatelessModel<TreqModelState> {
                 url: this.backlink.url,
                 label: this.backlink.label,
                 method: this.backlink.method || HTTPMethod.GET,
-                args: stateToPageArgs(state, query, state.searchPackages)
+                args: this.api.stateToPageArgs(state, query)
             } :
             null;
     }
@@ -120,26 +110,22 @@ export class TreqModel extends StatelessModel<TreqModelState> {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
                 const srchLemma = findCurrLemmaVariant(this.mainForm.getState().lemmas);
-                this.api.call(stateToAPIArgs(state, srchLemma.lemma, state.searchPackages))
+                this.api.call(this.api.stateToArgs(state, srchLemma.lemma))
                     .pipe(
                         map(item => {
-                            const lines = item.lines
+                            const lines = item.translations
                                 .filter(x => x.freq >= state.minItemFreq)
                                 .slice(0, state.maxNumLines);
-                            const sum = lines.reduce((acc, curr) => acc + curr.freq, 0);
                             const colors = this.scaleColorGen(0, lines.length)
-                            return {
-                                sum: sum,
-                                lines: lines.map((line, i) => ({
+                            return lines.map((line, i) => ({
                                     freq: line.freq,
-                                    perc: line.perc,
-                                    left: line.left,
-                                    right: line.right,
-                                    rightLc: line.rightLc,
+                                    score: line.score,
+                                    word: line.word,
+                                    translations: line.translations,
+                                    firstTranslatLc: line.firstTranslatLc,
                                     interactionId: line.interactionId,
                                     color: colors(i)
-                                }))
-                            };
+                            }));
                         })
                     )
                     .subscribe(
@@ -148,11 +134,11 @@ export class TreqModel extends StatelessModel<TreqModelState> {
                                 name: GlobalActionName.TileDataLoaded,
                                 payload: {
                                     tileId: this.tileId,
-                                    isEmpty: data.lines.length === 0,
+                                    isEmpty: data.length === 0,
                                     query: this.mainForm.getState().query.value,
-                                    subqueries: data.lines.map(v => ({
+                                    subqueries: data.map(v => ({
                                         value: {
-                                            value: v.rightLc,
+                                            value: v.firstTranslatLc,
                                             context: [0, 0]
                                         },
                                         interactionId: v.interactionId,
@@ -160,7 +146,7 @@ export class TreqModel extends StatelessModel<TreqModelState> {
                                     })),
                                     lang1: this.mainForm.getState().queryLanguage,
                                     lang2: this.mainForm.getState().queryLanguage2,
-                                    data: data
+                                    data: {translations: data}
                                 }
                             });
                         },
@@ -174,7 +160,7 @@ export class TreqModel extends StatelessModel<TreqModelState> {
                                     subqueries: [],
                                     lang1: this.mainForm.getState().queryLanguage,
                                     lang2: this.mainForm.getState().queryLanguage2,
-                                    data: {lines: [], sum: -1}
+                                    data: {translations: []}
                                 },
                                 error: error
                             });

@@ -17,9 +17,12 @@
  */
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import * as Immutable from 'immutable';
 
 import { cachedAjax$ } from '../../ajax';
-import { DataApi, IAsyncKeyValueStore } from '../../types';
+import { IAsyncKeyValueStore } from '../../types';
+import { WordTranslation, TranslationAPI, TranslationResponse, TranslationSubsetsAPI } from '../abstract/translations';
+import { TranslationsModelState, TranslationsSubsetsModelState } from '../../models/translations';
 
 
 export type SearchPackages = {[lang2:string]:Array<string>};
@@ -49,22 +52,6 @@ export interface PageArgs {
     'hledejKde[]':Array<string>;
 }
 
-
-export interface TreqTranslation {
-    freq:number;
-    perc:number;
-    left:string;
-    rightLc:string;
-    right:Array<string>;
-    interactionId:string;
-    color?:string;
-}
-
-export interface TreqResponse {
-    sum:number;
-    lines:Array<TreqTranslation>;
-}
-
 interface HTTPResponseLine {
     freq:string;
     perc:string;
@@ -81,7 +68,8 @@ export const mkInterctionId = (word:string):string => {
     return `treqInteractionKey:${word}`;
 };
 
-export class TreqAPI implements DataApi<RequestArgs, TreqResponse> {
+
+class TreqAPICaller {
 
     private readonly cache:IAsyncKeyValueStore;
 
@@ -92,36 +80,35 @@ export class TreqAPI implements DataApi<RequestArgs, TreqResponse> {
         this.apiURL = apiURL;
     }
 
-
-    private mergeByLowercase(lines:Array<TreqTranslation>):Array<TreqTranslation> {
-        return Object.values<TreqTranslation>(lines.reduce(
+    private mergeByLowercase(lines:Array<WordTranslation>):Array<WordTranslation> {
+        return Object.values<WordTranslation>(lines.reduce(
             (acc, curr) => {
-                if (!(curr.rightLc in acc)) {
-                    acc[curr.rightLc] = {
+                if (!(curr.firstTranslatLc in acc)) {
+                    acc[curr.firstTranslatLc] = {
                         freq: curr.freq,
-                        perc: curr.perc,
-                        left: curr.left,
-                        right: curr.right,
-                        rightLc: curr.rightLc,
-                        interactionId: mkInterctionId(curr.rightLc)
+                        score: curr.score,
+                        left: curr.word,
+                        translations: curr.translations,
+                        firstTranslatLc: curr.firstTranslatLc,
+                        interactionId: mkInterctionId(curr.firstTranslatLc)
                     };
 
                 } else {
-                    acc[curr.rightLc].freq += curr.freq;
-                    acc[curr.rightLc].perc += curr.perc;
-                    curr.right.forEach(variant => {
-                        if (acc[curr.rightLc].right.indexOf(variant) === -1) {
-                            acc[curr.rightLc].right.push(variant);
+                    acc[curr.firstTranslatLc].freq += curr.freq;
+                    acc[curr.firstTranslatLc].score += curr.score;
+                    curr.translations.forEach(variant => {
+                        if (acc[curr.firstTranslatLc].translations.indexOf(variant) === -1) {
+                            acc[curr.firstTranslatLc].translations.push(variant);
                         }
                     });
                 }
                 return acc;
             },
             {}
-        )).sort((x1, x2) => x2.perc - x1.perc);
+        )).sort((x1, x2) => x2.score - x1.score);
     }
 
-    call(args:RequestArgs):Observable<TreqResponse> {
+    call(args:RequestArgs):Observable<TranslationResponse> {
         return cachedAjax$<HTTPResponse>(this.cache)(
             'GET',
             this.apiURL,
@@ -130,17 +117,75 @@ export class TreqAPI implements DataApi<RequestArgs, TreqResponse> {
         ).pipe(
             map(
                 resp => ({
-                    sum: resp.sum,
-                    lines: this.mergeByLowercase(resp.lines.map(v => ({
+                    translations: this.mergeByLowercase(resp.lines.map(v => ({
                         freq: parseInt(v.freq),
-                        perc: parseFloat(v.perc),
-                        left: v.left,
-                        rightLc: v.righ.toLowerCase(),
-                        right: [v.righ],
+                        score: parseFloat(v.perc),
+                        word: v.left,
+                        firstTranslatLc: v.righ.toLowerCase(),
+                        translations: [v.righ],
                         interactionId: ''
                     }))).slice(0, 10)
                 })
             )
         );
     }
+}
+
+
+export class TreqAPI extends TreqAPICaller implements TranslationAPI<RequestArgs, PageArgs> {
+
+    constructor(cache:IAsyncKeyValueStore, apiURL:string) {
+        super(cache, apiURL);
+    }
+
+    stateToArgs(state:TranslationsModelState<PageArgs>, query:string):RequestArgs {
+        return {
+            left: state.lang1,
+            right: state.lang2,
+            viceslovne: '0',
+            regularni: '0',
+            lemma: '1',
+            aJeA: '1',
+            hledejKde: state.searchPackages.join(','),
+            hledejCo: query,
+            order: 'percDesc',
+            api: 'true'
+        };
+    }
+
+
+    stateToPageArgs(state:TranslationsModelState<PageArgs>, query:string):PageArgs {
+        return {
+            jazyk1: state.lang1,
+            jazyk2: state.lang2,
+            viceslovne: '0',
+            regularni: '0',
+            lemma: '1',
+            caseInsen: '1',
+            hledejCo: query,
+            'hledejKde[]': state.searchPackages.toArray()
+        };
+    }
+}
+
+
+
+export class TreqSubsetsAPI extends TreqAPICaller implements TranslationSubsetsAPI<RequestArgs> {
+
+
+    stateToArgs(state:TranslationsSubsetsModelState, query:string, packages:Immutable.List<string>):RequestArgs {
+        return {
+            left: state.lang1,
+            right: state.lang2,
+            viceslovne: '0',
+            regularni: '0',
+            lemma: '1',
+            aJeA: '1',
+            hledejKde: packages.join(','),
+            hledejCo: query,
+            order: 'percDesc',
+            api: 'true'
+        };
+    }
+
 }

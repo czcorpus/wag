@@ -21,21 +21,21 @@ import * as React from 'react';
 
 import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
 import { GlobalComponents } from '../../../views/global';
-import { TreqTranslation } from '../../../common/api/treq';
 import { TreqModel, TreqModelState } from './model';
 import { init as wordCloudViewInit } from '../../../views/wordCloud';
 import { Theme } from '../../../common/theme';
+import { WordTranslation } from '../../../common/api/abstract/translations';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:TreqModel):TileComponent {
 
     const globComponents = ut.getComponents();
-    const WordCloud = wordCloudViewInit<TreqTranslation>(dispatcher, ut, theme);
+    const WordCloud = wordCloudViewInit<WordTranslation>(dispatcher, ut, theme);
 
     // -----
 
     const TranslationsTable:React.SFC<{
-        translations:Immutable.List<TreqTranslation>;
+        translations:Immutable.List<WordTranslation>;
 
     }> = (props) => {
 
@@ -54,10 +54,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             {props.translations.map((translation, i) => (
                                 <tr key={`${translation['righ']}:${i}`}>
                                     <td className="translation">
-                                        {translation.rightLc}
+                                        {translation.firstTranslatLc}
                                     </td>
                                     <td className="num">
-                                        {ut.formatNumber(translation.perc, 1)}%
+                                        {ut.formatNumber(translation.score, 1)}%
                                     </td>
                                     <td className="num">
                                         {ut.formatNumber(translation.freq, 0)}
@@ -89,13 +89,13 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     class TreqTileView extends React.PureComponent<TreqModelState & CoreTileComponentProps> {
 
         render() {
-            const dataTransform = (t:TreqTranslation) => ({
-                text: t.right.length > 1 ? t.rightLc : t.right[0],
-                value: t.perc,
+            const dataTransform = (t:WordTranslation) => ({
+                text: t.translations.length > 1 ? t.firstTranslatLc : t.translations[0],
+                value: t.score,
                 tooltip: [
                     {label: ut.translate('treq__abs_freq'), value: t.freq},
-                    {label: ut.translate('treq__rel_freq'), value: ut.formatNumber(t.perc, 1), round: 1},
-                    {label: ut.translate('treq__found_variants'), value: t.right.join(', ')}
+                    {label: ut.translate('treq__rel_freq'), value: ut.formatNumber(t.score, 1), round: 1},
+                    {label: ut.translate('treq__found_variants'), value: t.translations.join(', ')}
                 ],
                 interactionId: t.interactionId,
                 color: t.color
@@ -108,7 +108,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
                             hasData={this.props.translations.size > 0}
                             sourceIdent={{corp: 'InterCorp'}}
-                            backlink={this.props.treqBackLink}
+                            backlink={this.props.backLink}
                             supportsTileReload={this.props.supportsReloadOnError}>
                     {this.props.isAltViewMode ?
                         <TranslationsTable translations={this.props.translations} /> :
