@@ -44,9 +44,9 @@ export class KontextMatchingDocsAPI implements MatchingDocsAPI<SingleCritQueryAr
             q: `~${query}`,
             fcrit: state.srchAttrs.get(0), // TODO check list.size > 1 => e.g. show a warning
             flimit: 1, // TODO
-            freq_sort: 'rel',
-            fpage: state.currPage,
-            ftt_include_empty: 1,
+            freq_sort: 'rel', // TODO
+            fpage: 1, // TODO
+            ftt_include_empty: 0, // TODO
             format: 'json'
         };
     }

@@ -42,7 +42,7 @@ export interface DocModelArgs {
 }
 
 
-export class DocModel extends StatelessModel<MatchingDocsModelState> {
+export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState> {
 
     protected api:MatchingDocsAPI<{}>;
 
@@ -183,7 +183,7 @@ export const factory = (
     backlink:Backlink|null,
     initState:MatchingDocsModelState) => {
 
-    return new DocModel({
+    return new MatchingDocsModel({
         dispatcher,
         tileId,
         waitForTiles,

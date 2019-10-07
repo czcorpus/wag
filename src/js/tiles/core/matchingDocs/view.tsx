@@ -23,12 +23,12 @@ import { Theme } from '../../../common/theme';
 import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
 import { GlobalComponents } from '../../../views/global';
 import { ActionName, Actions } from './actions';
-import { DocModel } from './model';
+import { MatchingDocsModel } from './model';
 import { MatchingDocsModelState } from '../../../common/models/matchingDocs';
 import { DataRow } from '../../../common/api/abstract/matchingDocs';
 
 
-export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:DocModel):TileComponent {
+export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:MatchingDocsModel):TileComponent {
 
     const globComponents = ut.getComponents();
 
@@ -46,7 +46,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <tr>
                         <th />
                         <th />
-                        <th>{ut.translate('matchingDocsTile__rel_freq')}</th>
+                        <th>{ut.translate('matchingDocs__score')}</th>
                     </tr>
                 </thead>
                 <tbody>

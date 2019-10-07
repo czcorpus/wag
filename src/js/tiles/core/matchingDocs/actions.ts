@@ -21,9 +21,8 @@ import { DataRow } from '../../../common/api/abstract/matchingDocs';
 
 
 export enum ActionName {
-    SetActiveBlock = 'DOC_TILE_SET_ACTIVE_BLOCK',
-    NextPage = 'DOC_TILE_NEXT_PAGE',
-    PreviousPage = 'DOC_TILE_PREVIOUS_PAGE',
+    NextPage = 'MATCHING_DOCS_TILE_NEXT_PAGE',
+    PreviousPage = 'MATCHING_DOCS_PREVIOUS_PAGE',
 }
 
 export interface DataLoadedPayload {

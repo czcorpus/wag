@@ -16,10 +16,20 @@
 */
 
 import { BacklinkWithArgs } from '../../tile';
-import { BacklinkArgs } from '../../api/kontext/freqs';
 import * as Immutable from 'immutable';
 import { DataRow } from '../../api/abstract/matchingDocs';
 
+
+export interface BacklinkArgs {
+    corpname:string;
+    usesubcorp:string;
+    q:string;
+    fcrit:Array<string>;
+    flimit:number;
+    freq_sort:string;
+    fpage:number;
+    ftt_include_empty:number;
+}
 
 export interface MatchingDocsModelState {
     isBusy:boolean;
