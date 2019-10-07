@@ -92,10 +92,8 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
         const additionalArgs = {}
         if (state.lemmaArg) {additionalArgs[state.lemmaArg] = variant}
 
-        this.service.call({...state.args, ...additionalArgs}).pipe(tap(ob => console.log(ob))).subscribe(
+        this.service.call({...state.args, ...additionalArgs}).subscribe(
             (data) => {
-                console.log('Received: ', data);
-
                 seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
                     name: GlobalActionName.TileDataLoaded,
                     payload: {
@@ -116,9 +114,6 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
                     },
                     error: err
                 });
-            },
-            () => {
-                console.log('Download complete');
             }
         );
     }

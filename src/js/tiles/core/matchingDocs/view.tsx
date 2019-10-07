@@ -33,6 +33,46 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     const globComponents = ut.getComponents();
 
 
+    // ------------------ <Paginator /> --------------------------------------------
+
+    const Paginator:React.SFC<{
+        page:number;
+        numPages:number;
+        tileId:number;
+
+    }> = (props) => {
+
+        const handleNextPage = () => {
+            dispatcher.dispatch<Actions.NextPage>({
+                name: ActionName.NextPage,
+                payload: {
+                    tileId: props.tileId
+                }
+            });
+        }
+
+        const handlePreviousPage = () => {
+            dispatcher.dispatch<Actions.PreviousPage>({
+                name: ActionName.PreviousPage,
+                payload: {
+                    tileId: props.tileId
+                }
+            });
+        }
+
+        return (
+            <span className="Paginator">
+                <a onClick={handlePreviousPage} className={`${props.page === 1 ? 'disabled' : null}`}>
+                    <img className="arrow" src={ut.createStaticUrl(props.page === 1 ? 'triangle_left_gr.svg' : 'triangle_left.svg')} />
+                </a>
+                <input className="page" type="text" readOnly={true} value={`${props.page} / ${props.numPages}`} />
+                <a onClick={handleNextPage} className={`${props.page === props.numPages ? 'disabled' : null}`}>
+                    <img className="arrow" src={ut.createStaticUrl(props.page === props.numPages ? 'triangle_right_gr.svg' : 'triangle_right.svg')} />
+                </a>
+            </span>
+        );
+    };
+
     // -------------------------- <TableView /> --------------------------------------
 
     const TableView:React.SFC<{
@@ -53,9 +93,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     {props.data.map((row, i) => {
                         if (i >= props.from && i < props.to) {
                             return <tr key={`${i}:${row.name}`}>
-                                <td>{i+1}</td>
-                                <td className="word">{row.name}</td>
-                                <td className="num">{ut.formatNumber(row.score)}</td>
+                                <td className="row_num">{i+1}</td>
+                                <td className="document">{row.name}</td>
+                                <td className="num score">{ut.formatNumber(row.score)}</td>
                             </tr>
                         } else {
                             return null
@@ -74,24 +114,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             super(props);
         }
 
-        private handleNextPage():void {
-            dispatcher.dispatch<Actions.NextPage>({
-                name: ActionName.NextPage,
-                payload: {
-                    tileId: this.props.tileId
-                }
-            });
-        }
-
-        private handlePreviousPage():void {
-            dispatcher.dispatch<Actions.PreviousPage>({
-                name: ActionName.PreviousPage,
-                payload: {
-                    tileId: this.props.tileId
-                }
-            });
-        }
-
         render() {
             return (
                 <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
@@ -100,18 +122,21 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         backlink={this.props.backlink}
                         supportsTileReload={this.props.supportsReloadOnError}>
                     <div className="MatchingDocsTile">
+                        {this.props.isTweakMode ?
+                            <Paginator
+                                page={this.props.currPage}
+                                numPages={this.props.numPages}
+                                tileId={this.props.tileId} />
+                            : null
+                        }
                         <div className="tables">
-                                <div>
-                                    {this.props.data.size > 0 ?
-                                        <TableView
-                                            data={this.props.data}
-                                            from={(this.props.currPage - 1) * this.props.maxNumCategoriesPerPage}
-                                            to={this.props.currPage * this.props.maxNumCategoriesPerPage} />:
-                                        <p className="note" style={{textAlign: 'center'}}>No result</p>
-                                    }
-                                    <a style={{float: 'left'}} onClick={()=>this.handlePreviousPage()}>previous</a>
-                                    <a style={{float: 'right'}} onClick={()=>this.handleNextPage()}>next</a>
-                                </div>
+                            {this.props.data.size > 0 ?
+                                <TableView
+                                    data={this.props.data}
+                                    from={(this.props.currPage - 1) * this.props.maxNumCategoriesPerPage}
+                                    to={this.props.currPage * this.props.maxNumCategoriesPerPage} />:
+                                <p className="note" style={{textAlign: 'center'}}>No result</p>
+                            }
                         </div>
                     </div>
                 </globComponents.TileWrapper>

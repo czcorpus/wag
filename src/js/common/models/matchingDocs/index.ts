@@ -33,6 +33,7 @@ export interface BacklinkArgs {
 
 export interface MatchingDocsModelState {
     isBusy:boolean;
+    isTweakMode: boolean;
     error:string;
     corpname:string;
     subcname:string;
@@ -40,6 +41,7 @@ export interface MatchingDocsModelState {
     maxNumCategories:number;
     maxNumCategoriesPerPage:number;
     currPage:number;
+    numPages:number;
     backlink:BacklinkWithArgs<BacklinkArgs>;
     subqSyncPalette:boolean;
     srchAttrs:Immutable.List<string>;

@@ -30,7 +30,7 @@ import { MatchingDocsModelState } from '../../../common/models/matchingDocs';
 import { MatchingDocsAPI, DataRow } from '../../../common/api/abstract/matchingDocs';
 
 
-export interface DocModelArgs {
+export interface MatchingDocsModelArgs {
     dispatcher:IActionQueue;
     tileId:number;
     waitForTiles:Array<number>;
@@ -71,11 +71,27 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState> {
                 newState.error = null;
                 return newState;
             },
+            [GlobalActionName.EnableTileTweakMode]: (state, action:GlobalActions.EnableTileTweakMode) => {
+                if (action.payload.ident === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.isTweakMode = true;
+                    return newState;
+                }
+                return state;
+            },
+            [GlobalActionName.DisableTileTweakMode]: (state, action:GlobalActions.DisableTileTweakMode) => {
+                if (action.payload.ident === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.isTweakMode = false;
+                    return newState;
+                }
+                return state;
+            },
             [ActionName.NextPage]: (state, action:Actions.NextPage) => {
                 if (action.payload.tileId === this.tileId) {
                     const newState = this.copyState(state);
-                    if (newState.currPage * newState.maxNumCategoriesPerPage < newState.data.size) {
-                        newState.currPage += 1;
+                    if (newState.currPage < newState.numPages) {
+                        newState.currPage++;
                     }
                     return newState;
                 }
@@ -85,7 +101,7 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState> {
                 if (action.payload.tileId === this.tileId) {
                     const newState = this.copyState(state);
                     if (newState.currPage > 1) {
-                        newState.currPage -= 1;
+                        newState.currPage--;
                     }
                     return newState;
                 }
@@ -101,10 +117,11 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState> {
 
                     } else {
                         newState.data = Immutable.List<DataRow>(action.payload.data.map(v => ({
-                                        name: this.appServices.translateDbValue(state.corpname, v.name),
-                                        score: v.score
-                                    })));
+                            name: this.appServices.translateDbValue(state.corpname, v.name),
+                            score: v.score
+                        })));
                         newState.currPage = 1;
+                        newState.numPages = Math.ceil(newState.data.size/newState.maxNumCategoriesPerPage);
                         newState.isBusy = false;
                     }
                     return newState;
@@ -132,9 +149,9 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState> {
                             }
                         }).pipe(
                             concatMap(critIdx => callWithExtraVal(
-                                    this.api,
-                                    this.api.stateToArgs(state, payload.data.concPersistenceID),
-                                    critIdx
+                                this.api,
+                                this.api.stateToArgs(state, payload.data.concPersistenceID),
+                                critIdx
                             ))
                         )
                         .subscribe(
