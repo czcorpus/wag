@@ -32,7 +32,7 @@ using miscellaneous online lingustic tools, corpora and databases.
 | treqSubsets   |           |         |        | :star: |            |            |             |         |
 | wordForms     | :star:    | :star:  |        |        |            |            |             |         |
 | wordFreq      | :star:    | :star:  |        |        |            |            |             |         |
-| wordSim       | :construction: |    |        |        |            |  :star:    |             | :construction: | 
+| wordSim       | :construction: |    |        |        |            |  :star:    |             | :star: | 
 
 ## Planned resources
 
