@@ -32,8 +32,7 @@ import { WdglanceTilesModel, WdglanceTilesState } from '../models/tiles';
 import { SystemMessage } from '../notifications';
 import { init as corpusInfoViewInit } from './corpusInfo';
 import { GlobalComponents } from './global';
-import { isAPIResponse } from '../common/api/kontext/corpusInfo';
-import { Action } from 'rxjs/internal/scheduler/Action';
+import { isAPIResponse as isCorpusBasedResponse } from '../common/api/kontext/corpusInfo'; // TODO generalize
 
 
 export interface WdglanceMainProps {
@@ -842,9 +841,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             }
 
             if (tile.SourceInfoComponent) {
-                return <div><tile.SourceInfoComponent data={props.data} /></div>
+                return <div><tile.SourceInfoComponent data={props.data} /></div>;
 
-            } else if (isAPIResponse(props.data)) {
+            } else if (tile.sourceInfoData) {
+                return <div><globalComponents.SourceInfoBox data={tile.sourceInfoData} /></div>;
+
+            } else if (isCorpusBasedResponse(props.data)) {
                 return <CorpusInfo data={props.data} />;
 
             } else {

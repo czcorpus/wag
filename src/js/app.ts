@@ -48,10 +48,12 @@ const mkAttachTile = (queryType:QueryType, lang1:string, lang2:string) =>
     (data:Array<TileFrameProps>, tile:ITileProvider, helpURL:string):void => {
 
     const support = tile.supportsQueryType(queryType, lang1, lang2);
+    const [sourceInfoComponent, sourceInfoData] = tile.getSourceInfo();
     data.push({
         tileId: tile.getIdent(),
         Component: tile.getView(),
-        SourceInfoComponent: tile.getSourceInfoView(),
+        SourceInfoComponent: sourceInfoComponent,
+        sourceInfoData: sourceInfoData,
         label: tile.getLabel(),
         supportsTweakMode: tile.supportsTweakMode(),
         supportsCurrQueryType: support,

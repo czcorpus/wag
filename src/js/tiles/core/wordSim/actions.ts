@@ -18,16 +18,12 @@
 
 import { Action } from 'kombo';
 import { WordSimWord } from '../../../common/api/abstract/wordSim';
+import { OperationMode } from '../../../common/models/wordSim';
 
 
 export interface DataLoadedPayload {
     tileId:number;
     words:Array<WordSimWord>;
-}
-
-export enum OperationMode {
-    MeansLike = 'ml',
-    SoundsLike = 'sl'
 }
 
 

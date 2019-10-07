@@ -47,8 +47,8 @@ export class EmptyTile implements ITileProvider {
         return null;
     }
 
-    getSourceInfoView():null {
-        return null;
+    getSourceInfo():[null, null] {
+        return [null, null];
     }
 
     supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {

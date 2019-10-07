@@ -147,8 +147,8 @@ export class ConcordanceTile implements ITileProvider {
         return this.view;
     }
 
-    getSourceInfoView():SourceInfoComponent {
-        return this.sourceInfoView;
+    getSourceInfo():[null, null] {
+        return [null, null];
     }
 
     getLabel():string {

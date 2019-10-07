@@ -87,6 +87,7 @@ export interface SourceDetails {
     title:string;
     description:string;
     author:string;
+    href?:string;
 }
 
 

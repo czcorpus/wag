@@ -103,8 +103,8 @@ export class TreqSubsetsTile implements ITileProvider {
         return this.view;
     }
 
-    getSourceInfoView():null {
-        return null;
+    getSourceInfo():[null, null] {
+        return [null, null];
     }
 
     /**

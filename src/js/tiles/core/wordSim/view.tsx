@@ -20,36 +20,19 @@ import { IActionDispatcher, ViewUtils, BoundWithProps } from 'kombo';
 import { GlobalComponents } from '../../../views/global';
 import { Theme } from '../../../common/theme';
 import { TileComponent, CoreTileComponentProps } from '../../../common/tile';
-import { WordSimModel, WordSimModelState } from './model';
+import { WordSimModel } from './model';
 import { init as wcloudViewInit } from '../../../views/wordCloud/index';
-import { OperationMode, ActionName } from './actions';
-import { SourceDetails } from '../../../common/types';
+import { ActionName } from './actions';
 import { WordSimWord } from '../../../common/api/abstract/wordSim';
+import { OperationMode, WordSimModelState } from '../../../common/models/wordSim';
 
 
-export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:WordSimModel):[TileComponent, React.SFC]  {
+export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:WordSimModel):TileComponent  {
 
     const globalCompontents = ut.getComponents();
 
     const WordCloud = wcloudViewInit<WordSimWord>(dispatcher, ut, theme);
 
-
-    // ------------------ <SourceInfo /> --------------------------------------------
-
-    const SourceInfo:React.SFC<{
-        data:SourceDetails;
-
-    }> = (props) => {
-        return (
-            <div>
-                <h2>Datamuse.com</h2>
-                <p><a href="https://www.datamuse.com/api/" target="_blank">The Datamuse API</a> is a word-finding query engine for developers.
-                    You can use it in your apps to find words that
-                    match a given set of constraints and that are likely in a given context. You can specify a wide variety of constraints
-                    on meaning, spelling, sound, and vocabulary in your queries, in any combination.</p>
-            </div>
-        );
-    };
 
     // ------------------ <Controls /> --------------------------------------------
 
@@ -93,7 +76,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         return (
             <globalCompontents.TileWrapper tileId={props.tileId} isBusy={props.isBusy} error={props.error}
                     hasData={props.data.size > 0}
-                    sourceIdent={{corp: "datamuse.com"}}
+                    sourceIdent={{corp: null}}
                     supportsTileReload={props.supportsReloadOnError}>
                 <div className="WordSimView">
                     {props.isTweakMode ? <Controls tileId={props.tileId} operationMode={props.operationMode} /> : null }
@@ -109,10 +92,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         );
     }
 
-    return [
-        BoundWithProps<CoreTileComponentProps, WordSimModelState>(WordSimView, model),
-        SourceInfo
-    ];
+    return BoundWithProps<CoreTileComponentProps, WordSimModelState>(WordSimView, model);
 
 }
 

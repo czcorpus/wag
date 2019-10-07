@@ -90,8 +90,8 @@ export class WordFormsTile implements ITileProvider {
         return this.view;
     }
 
-    getSourceInfoView():SourceInfoComponent|null {
-        return null;
+    getSourceInfo():[null, null] {
+        return [null, null];
     }
 
     supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {

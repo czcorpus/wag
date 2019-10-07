@@ -23,8 +23,10 @@ import { WordSimModel } from './model';
 import { AppServices } from '../../../appServices';
 import { init as viewInit } from './view';
 import { QueryType } from '../../../common/query';
-import { OperationMode } from './actions';
 import { createWordSimApiInstance } from './apiFactory';
+import { OperationMode } from '../../../common/models/wordSim';
+import { WordSimApi } from '../../../common/api/abstract/wordSim';
+import { SourceDetails } from '../../../common/types';
 
 
 declare var require:(src:string)=>void;  // webpack
@@ -35,6 +37,8 @@ export interface WordSimTileConf extends TileConf {
     apiURL:string;
     apiType:string;
     maxResultItems:number;
+    minScore?:number;
+    corpname?:string;
 }
 
 
@@ -61,6 +65,8 @@ export class WordSimTile implements ITileProvider {
 
     private readonly widthFract:number;
 
+    private readonly api:WordSimApi<{}>;
+
     constructor({tileId, waitForTiles, subqSourceTiles, dispatcher, appServices, ut, widthFract, conf, theme,
             isBusy, cache, lang2, mainForm}:TileFactory.Args<WordSimTileConf>) {
         this.tileId = tileId;
@@ -69,6 +75,7 @@ export class WordSimTile implements ITileProvider {
         this.blockingTiles = waitForTiles;
         this.widthFract = widthFract;
         this.label = appServices.importExternalMessage(conf.label || 'wordsim__main_label');
+        this.api = createWordSimApiInstance(conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL), cache);
         this.model = new WordSimModel(
             dispatcher,
             {
@@ -79,13 +86,15 @@ export class WordSimTile implements ITileProvider {
                 isTweakMode: false,
                 data: Immutable.List<any>(),
                 maxResultItems: conf.maxResultItems,
-                operationMode: OperationMode.MeansLike
+                operationMode: OperationMode.MeansLike,
+                corpus: conf.corpname || '',
+                minScore: conf.minScore || 0
             },
             tileId,
-            createWordSimApiInstance(conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL), cache),
+            this.api,
             mainForm
         );
-        [this.view, this.srcInfoView] = viewInit(dispatcher, ut, theme, this.model);
+        this.view = viewInit(dispatcher, ut, theme, this.model);
     }
 
 
@@ -101,8 +110,8 @@ export class WordSimTile implements ITileProvider {
         return this.view;
     }
 
-    getSourceInfoView():React.SFC {
-        return this.srcInfoView;
+    getSourceInfo():[React.SFC, SourceDetails] {
+        return [this.srcInfoView, this.api.getSourceDescription(this.tileId)];
     }
 
     supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {
@@ -118,7 +127,7 @@ export class WordSimTile implements ITileProvider {
     }
 
     supportsTweakMode():boolean {
-        return true;
+        return this.api.supportsTweaking();
     }
 
     supportsAltView():boolean {

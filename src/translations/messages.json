@@ -66,7 +66,8 @@
         "global__corp_metadata": "Structural information",
         "global__click_to_query_word": "Click to view the word profile",
         "global__alt_expr_any": "any PoS",
-        "global__close_modal": "Close the window"
+        "global__close_modal": "Close the window",
+        "global__click_for_details": "Click for details"
     },
     "cs-CZ": {
         "global__logo_file": "logo_cs.svg",
@@ -135,6 +136,7 @@
         "global__corp_metadata": "Informace o struktuře",
         "global__click_to_query_word": "Klikněte pro zobrazení profilu slova",
         "global__alt_expr_any": "libovolný slov. druh",
-        "global__close_modal": "Zavřít okno"
+        "global__close_modal": "Zavřít okno",
+        "global__click_for_details": "Klikněte pro podrobné informace"
     }
 }

@@ -86,6 +86,7 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                             tileId: tile.tileId,
                             Component: tile.Component,
                             SourceInfoComponent: tile.SourceInfoComponent,
+                            sourceInfoData: tile.sourceInfoData,
                             label: tile.label,
                             supportsTweakMode: tile.supportsTweakMode,
                             supportsCurrQueryType: tile.supportsCurrQueryType,
@@ -158,7 +159,7 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                 const newState = this.copyState(state);
                 newState.isBusy = false;
                 if (action.error) {
-                    newState.activeSourceInfo =null;
+                    newState.activeSourceInfo = null;
 
                 } else {
                     newState.activeSourceInfo = action.payload.data;
@@ -283,7 +284,7 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
         switch (action.name) {
             case ActionName.GetSourceInfo:
                 const tile = state.tileProps.find(v => v.tileId === action.payload['tileId']);
-                if (tile && !tile.SourceInfoComponent) {
+                if (tile && !tile.sourceInfoData) {
                     this.corpusInfoApi.call(
                         {
                             tileId: action.payload['tileId'],

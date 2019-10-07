@@ -21,7 +21,7 @@ import * as React from 'react';
 import { Observable } from 'rxjs';
 
 import { MultiDict } from '../common/data';
-import { SystemMessageType } from '../common/types';
+import { SystemMessageType, SourceDetails } from '../common/types';
 import { ScreenProps } from '../common/hostPage';
 import { BacklinkWithArgs } from '../common/tile';
 import { KeyCodes } from '../common/util';
@@ -88,6 +88,10 @@ export interface GlobalComponents {
         y:number;
         visible:boolean;
         values:TooltipValues;
+    }>;
+
+    SourceInfoBox:React.SFC<{
+        data:SourceDetails;
     }>;
 }
 
@@ -188,8 +192,17 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                 {(Array.isArray(props.data) ? props.data : [props.data]).map((item, i) =>
                     <React.Fragment key={`${item.corp}:${item.subcorp}`}>
                         {i > 0 ? <span> + </span> : null}
-                        <a onClick={handleClick(item.corp, item.subcorp)}>{item.corp}</a>
-                        {item.subcorp ? <span> / {item.subcorp}</span> : null}
+                        {item.corp ?
+                            <>
+                            <a onClick={handleClick(item.corp, item.subcorp)}>
+                                {item.corp}
+                            </a>
+                            {item.subcorp ? <span> / {item.subcorp}</span> : null}
+                            </> :
+                            <a onClick={handleClick(item.corp, item.subcorp)}>
+                                {ut.translate('global__click_for_details')}
+                            </a>
+                        }
                     </React.Fragment>
                 )}
                 {props.backlink ?
@@ -205,6 +218,21 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                     </> :
                     null
                 }
+            </div>
+        );
+    };
+
+    // ------------------ <SourceInfoBox /> --------------------------------------------
+
+    const SourceInfoBox:React.SFC<{
+        data:SourceDetails;
+
+    }> = (props) => {
+        return (
+            <div>
+                <h2>{props.data.title}</h2>
+                {props.data.href ? <p><a href={props.data.href}>{props.data.href}</a></p> : null}
+                <p>{props.data.description}</p>
             </div>
         );
     };
@@ -517,6 +545,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
         HorizontalBlockSwitch: HorizontalBlockSwitch,
         ImageWithMouseover: ImageWithMouseover,
         ResponsiveWrapper: ResponsiveWrapper,
-        ElementTooltip: ElementTooltip
+        ElementTooltip: ElementTooltip,
+        SourceInfoBox: SourceInfoBox
     };
 }
