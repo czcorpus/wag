@@ -35,7 +35,6 @@ declare var require:(src:string)=>void;  // webpack
 require('./style.less');
 
 export interface DocTileConf extends TileConf {
-    tileType:'DocTile';
     apiURL:string;
     corpname:string|null; // null can be used in case subqueryMode is enabled
     fcrit:string|Array<string>;
@@ -172,5 +171,6 @@ export class DocTile implements ITileProvider {
 
 }
 
+export const TILE_TYPE = 'DocTile';
 
 export const init:TileFactory.TileFactory<DocTileConf>  = (args) => new DocTile(args);
