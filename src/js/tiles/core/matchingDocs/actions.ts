@@ -16,9 +16,7 @@
  * limitations under the License.
  */
 import { Action } from 'kombo';
-
-import { ApiDataBlock } from '../../../common/api/kontext/freqs';
-import { LocalizedConfMsg } from '../../../common/types';
+import { DataRow } from '../../../common/api/abstract/matchingDocs';
 
 
 
@@ -29,31 +27,20 @@ export enum ActionName {
 }
 
 export interface DataLoadedPayload {
-    block:ApiDataBlock;
-    blockLabel?:LocalizedConfMsg;
+    data:Array<DataRow>;
     concId:string;
-    critIdx:number;
 }
 
 export namespace Actions {
 
-    export interface SetActiveBlock extends Action<{
-        idx:number;
-        tileId:number;
-    }> {
-        name: ActionName.SetActiveBlock;
-    }
-
     export interface NextPage extends Action<{
         tileId:number;
-        blockId:string;
     }> {
         name: ActionName.NextPage;
     }
 
     export interface PreviousPage extends Action<{
         tileId:number;
-        blockId:string;
     }> {
         name: ActionName.PreviousPage;
     }

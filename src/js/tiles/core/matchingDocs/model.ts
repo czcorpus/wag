@@ -21,25 +21,14 @@ import { Observable, Observer } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 
 import { AppServices } from '../../../appServices';
-import { BacklinkArgs, DataRow, MultiBlockFreqDistribAPI } from '../../../common/api/kontext/freqs';
-import { createBackLink, FreqDataBlock, GeneralMultiCritFreqBarModelState, stateToAPIArgs } from '../../../common/models/freq';
-import { Backlink, BacklinkWithArgs } from '../../../common/tile';
-import { puid } from '../../../common/util';
+import { Backlink } from '../../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { ConcLoadedPayload } from '../concordance/actions';
 import { ActionName, Actions, DataLoadedPayload } from './actions';
 import { callWithExtraVal } from '../../../common/api/util';
+import { MatchingDocsModelState } from '../../../common/models/matchingDocs';
+import { MatchingDocsAPI, DataRow } from '../../../common/api/abstract/matchingDocs';
 
-
-
-export interface DocModelState extends GeneralMultiCritFreqBarModelState<DataRow> {
-    maxNumCategories:number;
-    maxNumCategoriesPerPage:number;
-    activeBlock:number;
-    backlink:BacklinkWithArgs<BacklinkArgs>;
-    subqSyncPalette:boolean;
-    blockPage:Immutable.Map<string, number>;
-}
 
 export interface DocModelArgs {
     dispatcher:IActionQueue;
@@ -47,15 +36,15 @@ export interface DocModelArgs {
     waitForTiles:Array<number>;
     subqSourceTiles:Array<number>;
     appServices:AppServices;
-    api:MultiBlockFreqDistribAPI;
+    api:MatchingDocsAPI<{}>;
     backlink:Backlink|null;
-    initState:DocModelState;
+    initState:MatchingDocsModelState;
 }
 
 
-export class DocModel extends StatelessModel<DocModelState> {
+export class DocModel extends StatelessModel<MatchingDocsModelState> {
 
-    protected api:MultiBlockFreqDistribAPI;
+    protected api:MatchingDocsAPI<{}>;
 
     protected readonly appServices:AppServices;
 
@@ -82,23 +71,12 @@ export class DocModel extends StatelessModel<DocModelState> {
                 newState.error = null;
                 return newState;
             },
-            [ActionName.SetActiveBlock]: (state, action:Actions.SetActiveBlock) => {
-                if (action.payload.tileId === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.activeBlock = action.payload.idx;
-                    return newState;
-                }
-                return state;
-            },
             [ActionName.NextPage]: (state, action:Actions.NextPage) => {
                 if (action.payload.tileId === this.tileId) {
                     const newState = this.copyState(state);
-                    const page = newState.blockPage.get(action.payload.blockId);
-                    
-                    page * newState.maxNumCategoriesPerPage >= newState.blocks.find(v => v.ident === action.payload.blockId).data.size ?
-                        null :
-                        newState.blockPage = newState.blockPage.set(action.payload.blockId, page+1);
-                    
+                    if (newState.currPage * newState.maxNumCategoriesPerPage < newState.data.size) {
+                        newState.currPage += 1;
+                    }
                     return newState;
                 }
                 return state;
@@ -106,10 +84,9 @@ export class DocModel extends StatelessModel<DocModelState> {
             [ActionName.PreviousPage]: (state, action:Actions.PreviousPage) => {
                 if (action.payload.tileId === this.tileId) {
                     const newState = this.copyState(state);
-                    const page = newState.blockPage.get(action.payload.blockId);
-
-                    page === 1 ? null : newState.blockPage = newState.blockPage.set(action.payload.blockId, page-1);
-
+                    if (newState.currPage > 1) {
+                        newState.currPage -= 1;
+                    }
                     return newState;
                 }
                 return state;
@@ -118,35 +95,17 @@ export class DocModel extends StatelessModel<DocModelState> {
                 if (action.payload.tileId === this.tileId) {
                     const newState = this.copyState(state);
                     if (action.error) {
-                        newState.blocks = Immutable.List<FreqDataBlock<DataRow>>(state.fcrit.map((_, i) => ({
-                            data: Immutable.List<FreqDataBlock<DataRow>>(),
-                            ident: puid(),
-                            label: action.payload.blockLabel ? action.payload.blockLabel : state.critLabels.get(i),
-                            isReady: true
-                        })));
+                        newState.data = Immutable.List<DataRow>();
                         newState.error = action.error.message;
                         newState.isBusy = false;
 
                     } else {
-                        const blockId = puid();
-                        newState.blocks = newState.blocks.set(
-                            action.payload.critIdx,
-                            {
-                                data: action.payload.block ?
-                                    Immutable.List<DataRow>(action.payload.block.data.map(v => ({
+                        newState.data = Immutable.List<DataRow>(action.payload.data.map(v => ({
                                         name: this.appServices.translateDbValue(state.corpname, v.name),
-                                        freq: v.freq,
-                                        ipm: v.ipm
-                                    }))) : null,
-                                ident: blockId,
-                                label: this.appServices.importExternalMessage(
-                                    action.payload.blockLabel ? action.payload.blockLabel : state.critLabels.get(action.payload.critIdx)),
-                                isReady: true
-                            }
-                        );
-                        newState.blockPage = newState.blockPage.set(blockId, 1);
-                        newState.isBusy = newState.blocks.some(v => !v.isReady);
-                        newState.backlink = createBackLink(newState, this.backlink, action.payload.concId);
+                                        score: v.score
+                                    })));
+                        newState.currPage = 1;
+                        newState.isBusy = false;
                     }
                     return newState;
                 }
@@ -155,7 +114,7 @@ export class DocModel extends StatelessModel<DocModelState> {
         }
     }
 
-    sideEffects(state:DocModelState, action:Action, dispatch:SEDispatcher):void {
+    sideEffects(state:MatchingDocsModelState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
                 this.waitForTiles = this.waitForTiles.map(_ => true).toMap();
@@ -168,13 +127,13 @@ export class DocModel extends StatelessModel<DocModelState> {
                                 observer.error(new Error(this.appServices.translate('global__failed_to_obtain_required_data')));
 
                             } else {
-                                state.fcrit.keySeq().forEach(critIdx => observer.next(critIdx));
+                                state.srchAttrs.keySeq().forEach(critIdx => observer.next(critIdx));
                                 observer.complete();
                             }
                         }).pipe(
                             concatMap(critIdx => callWithExtraVal(
                                     this.api,
-                                    stateToAPIArgs(state, payload.data.concPersistenceID, critIdx),
+                                    this.api.stateToArgs(state, payload.data.concPersistenceID),
                                     critIdx
                             ))
                         )
@@ -184,12 +143,11 @@ export class DocModel extends StatelessModel<DocModelState> {
                                     name: GlobalActionName.TileDataLoaded,
                                     payload: {
                                         tileId: this.tileId,
-                                        isEmpty: resp.blocks.every(v => v.data.length === 0),
-                                        block: resp.blocks.length > 0 ?
-                                            {data: resp.blocks[0].data.sort((x1, x2) => x2.ipm - x1.ipm).slice(0, state.maxNumCategories)} :
+                                        isEmpty: resp.data.length === 0,
+                                        data: resp.data.length > 0 ?
+                                            resp.data.sort((x1, x2) => x2.score - x1.score).slice(0, state.maxNumCategories) :
                                             null,
-                                        concId: resp.concId,
-                                        critIdx: critIdx
+                                        concId: resp.concId
                                     }
                                 });
                             },
@@ -199,9 +157,8 @@ export class DocModel extends StatelessModel<DocModelState> {
                                     payload: {
                                         tileId: this.tileId,
                                         isEmpty: true,
-                                        block: null,
                                         concId: null,
-                                        critIdx: null
+                                        data: null
                                     },
                                     error: error
                                 });
@@ -222,9 +179,9 @@ export const factory = (
     waitForTiles:Array<number>,
     subqSourceTiles:Array<number>,
     appServices:AppServices,
-    api:MultiBlockFreqDistribAPI,
+    api:MatchingDocsAPI<{}>,
     backlink:Backlink|null,
-    initState:DocModelState) => {
+    initState:MatchingDocsModelState) => {
 
     return new DocModel({
         dispatcher,
