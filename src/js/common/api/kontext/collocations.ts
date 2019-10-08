@@ -22,7 +22,7 @@ import { cachedAjax$ } from '../../../common/ajax';
 import { HTTPHeaders, IAsyncKeyValueStore } from '../../../common/types';
 import { puid } from '../../../common/util';
 import { CollApiResponse, CollocationApi } from '../abstract/collocations';
-import { CollocModelState, ctxToRange } from '../../models/collocations/collocations';
+import { CollocModelState, ctxToRange } from '../../models/collocations';
 
 
 

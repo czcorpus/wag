@@ -18,7 +18,7 @@
 
 import { SubqueryPayload, isSubqueryPayload, LemmaVariant } from '../../query';
 import { DataApi } from '../../types';
-import { CollocModelState } from '../../models/collocations/collocations';
+import { CollocModelState } from '../../models/collocations';
 
 
 // Sub-query related types

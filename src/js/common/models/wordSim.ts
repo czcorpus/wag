@@ -16,13 +16,17 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { WordSimWord } from '../../api/abstract/wordSim';
+import { WordSimWord } from '../api/abstract/wordSim';
 
 export enum OperationMode {
     MeansLike = 'ml',
     SoundsLike = 'sl'
 }
 
+/**
+ * WordSimModelState is a state for 'word similarity' core tile (and
+ * derived tiles).
+ */
 export interface WordSimModelState {
     isBusy:boolean;
     isTweakMode:boolean;

@@ -15,9 +15,9 @@
 * limitations under the License.
 */
 
-import { BacklinkWithArgs } from '../../tile';
+import { BacklinkWithArgs } from '../tile';
 import * as Immutable from 'immutable';
-import { DataRow } from '../../api/abstract/matchingDocs';
+import { DataRow } from '../api/abstract/matchingDocs';
 
 
 export interface KontextFreqBacklinkArgs {

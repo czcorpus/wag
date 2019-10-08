@@ -27,7 +27,7 @@ import { ConcLoadedPayload } from '../concordance/actions';
 import { ActionName, Actions, DataLoadedPayload } from './common';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { DataRow, CollocationApi } from '../../../common/api/abstract/collocations';
-import { CollocModelState, ctxToRange } from '../../../common/models/collocations/collocations';
+import { CollocModelState, ctxToRange } from '../../../common/models/collocations';
 import { CoreCollRequestArgs } from '../../../common/api/kontext/collocations';
 import { QueryFormModel, findCurrLemmaVariant } from '../../../models/query';
 import { LemmaVariant } from '../../../common/query';
