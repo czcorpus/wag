@@ -1,4 +1,4 @@
-# Word At a Glance (WaG)
+# Word at a Glance (WaG)
 
 Obtain and compile information about:
 
