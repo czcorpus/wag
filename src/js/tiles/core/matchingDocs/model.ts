@@ -21,7 +21,6 @@ import { Observable, Observer } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 
 import { AppServices } from '../../../appServices';
-import { Backlink } from '../../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { ConcLoadedPayload } from '../concordance/actions';
 import { ActionName, Actions, DataLoadedPayload } from './actions';
@@ -29,17 +28,6 @@ import { callWithExtraVal } from '../../../common/api/util';
 import { MatchingDocsModelState } from '../../../common/models/matchingDocs';
 import { MatchingDocsAPI, DataRow } from '../../../common/api/abstract/matchingDocs';
 
-
-export interface MatchingDocsModelArgs {
-    dispatcher:IActionQueue;
-    tileId:number;
-    waitForTiles:Array<number>;
-    subqSourceTiles:Array<number>;
-    appServices:AppServices;
-    api:MatchingDocsAPI<{}>;
-    backlink:Backlink|null;
-    initState:MatchingDocsModelState;
-}
 
 
 export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState> {
@@ -54,16 +42,13 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState> {
 
     protected subqSourceTiles:Immutable.Set<number>;
 
-    private readonly backlink:Backlink|null;
-
-    constructor({dispatcher, tileId, waitForTiles, subqSourceTiles, appServices, api, backlink, initState}) {
+    constructor({dispatcher, tileId, waitForTiles, subqSourceTiles, appServices, api, initState}) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.waitForTiles = Immutable.Map<number, boolean>(waitForTiles.map(v => [v, false]));
         this.subqSourceTiles = Immutable.Set<number>(subqSourceTiles);
         this.appServices = appServices;
         this.api = api;
-        this.backlink = backlink;
         this.actionMatch = {
             [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
                 const newState = this.copyState(state);
@@ -114,7 +99,7 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState> {
                         newState.data = Immutable.List<DataRow>();
                         newState.error = action.error.message;
                         newState.isBusy = false;
-
+                        newState.backlink = action.payload.backlink;
                     } else {
                         newState.data = Immutable.List<DataRow>(action.payload.data.map(v => ({
                             name: this.appServices.translateDbValue(state.corpname, v.name),
@@ -123,6 +108,7 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState> {
                         newState.currPage = 1;
                         newState.numPages = Math.ceil(newState.data.size/newState.maxNumCategoriesPerPage);
                         newState.isBusy = false;
+                        newState.backlink = action.payload.backlink;
                     }
                     return newState;
                 }
@@ -164,7 +150,8 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState> {
                                         data: resp.data.length > 0 ?
                                             resp.data.sort((x1, x2) => x2.score - x1.score).slice(0, state.maxNumCategories) :
                                             null,
-                                        concId: resp.concId
+                                        concId: resp.concId,
+                                        backlink: this.api.stateToBacklink(state, payload.data.concPersistenceID)
                                     }
                                 });
                             },
@@ -175,7 +162,8 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState> {
                                         tileId: this.tileId,
                                         isEmpty: true,
                                         concId: null,
-                                        data: null
+                                        data: null,
+                                        backlink: null
                                     },
                                     error: error
                                 });
@@ -197,7 +185,6 @@ export const factory = (
     subqSourceTiles:Array<number>,
     appServices:AppServices,
     api:MatchingDocsAPI<{}>,
-    backlink:Backlink|null,
     initState:MatchingDocsModelState) => {
 
     return new MatchingDocsModel({
@@ -207,7 +194,6 @@ export const factory = (
         subqSourceTiles,
         appServices,
         api,
-        backlink,
         initState
     });
 }

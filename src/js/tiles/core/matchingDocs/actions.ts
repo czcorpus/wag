@@ -17,6 +17,7 @@
  */
 import { Action } from 'kombo';
 import { DataRow } from '../../../common/api/abstract/matchingDocs';
+import { BacklinkWithArgs } from '../../../common/tile';
 
 
 
@@ -27,6 +28,7 @@ export enum ActionName {
 
 export interface DataLoadedPayload {
     data:Array<DataRow>;
+    backlink:BacklinkWithArgs<{}>|null;
     concId:string;
 }
 

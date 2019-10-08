@@ -21,13 +21,12 @@ import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
 import { AppServices } from '../../../appServices';
 import { SubqueryModeConf } from '../../../common/models/freq';
 import { QueryType } from '../../../common/query';
-import { TileComponent, TileConf, TileFactory, Backlink, ITileProvider, BacklinkWithArgs } from '../../../common/tile';
+import { TileComponent, TileConf, TileFactory, ITileProvider } from '../../../common/tile';
 import { GlobalComponents } from '../../../views/global';
 import { factory as defaultModelFactory, MatchingDocsModel } from './model';
 import { init as viewInit } from './view';
 import { createMatchingDocsApiInstance } from './apiFactory';
 import { DataRow } from '../../../common/api/abstract/matchingDocs';
-import { BacklinkArgs } from '../../../common/models/matchingDocs';
 
 
 
@@ -42,7 +41,6 @@ export interface MatchingDocsTileConf extends TileConf {
     srchAttrs:string|Array<string>;
     maxNumCategories:number;
     maxNumCategoriesPerPage:number;
-    backlink?:Backlink|BacklinkWithArgs<BacklinkArgs>;
 
     // if defined, then we wait for some other
     // tile which produces payload extended
@@ -88,7 +86,6 @@ export class MatchingDocsTile implements ITileProvider {
             subqSourceTiles,
             appServices,
             createMatchingDocsApiInstance(conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL), cache),
-            conf.backlink || null,
             {
                 isBusy: isBusy,
                 isTweakMode: false,

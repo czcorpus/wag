@@ -20,7 +20,7 @@ import * as Immutable from 'immutable';
 import { DataRow } from '../../api/abstract/matchingDocs';
 
 
-export interface BacklinkArgs {
+export interface KontextFreqBacklinkArgs {
     corpname:string;
     usesubcorp:string;
     q:string;
@@ -42,7 +42,7 @@ export interface MatchingDocsModelState {
     maxNumCategoriesPerPage:number;
     currPage:number;
     numPages:number;
-    backlink:BacklinkWithArgs<BacklinkArgs>;
+    backlink:BacklinkWithArgs<{}>|null;
     subqSyncPalette:boolean;
     srchAttrs:Immutable.List<string>;
     data:Immutable.List<DataRow>;

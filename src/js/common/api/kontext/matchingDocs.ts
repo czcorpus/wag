@@ -14,13 +14,14 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-import { MatchingDocsModelState } from '../../models/matchingDocs';
+import { MatchingDocsModelState, KontextFreqBacklinkArgs } from '../../models/matchingDocs';
 import { MatchingDocsAPI, APIResponse } from '../abstract/matchingDocs';
 import { cachedAjax$ } from '../../ajax';
 import { Observable } from 'rxjs';
-import { HTTPHeaders, IAsyncKeyValueStore } from '../../types';
+import { HTTPHeaders, IAsyncKeyValueStore, HTTPMethod } from '../../types';
 import { map } from 'rxjs/operators';
 import { SingleCritQueryArgs, HTTPResponse } from './freqs';
+import { BacklinkWithArgs } from '../../tile';
 
 
 export class KontextMatchingDocsAPI implements MatchingDocsAPI<SingleCritQueryArgs> {
@@ -35,6 +36,24 @@ export class KontextMatchingDocsAPI implements MatchingDocsAPI<SingleCritQueryAr
         this.cache = cache;
         this.apiURL = apiURL;
         this.customHeaders = customHeaders || {};
+    }
+
+    stateToBacklink(state:MatchingDocsModelState, query:string):BacklinkWithArgs<KontextFreqBacklinkArgs> {
+        return {
+            url: this.apiURL,
+			label: "frekv. distribuce v KonTextu",
+			method: HTTPMethod.GET,
+            args: {
+                corpname: state.corpname,
+                usesubcorp: state.subcname,
+                q: `~${query}`,
+                fcrit: [state.srchAttrs.get(0)],
+                flimit: 1,
+                freq_sort: "rel",
+                fpage: 1,
+                ftt_include_empty: 0
+            }
+        };
     }
 
     stateToArgs(state:MatchingDocsModelState, query:string):SingleCritQueryArgs {
