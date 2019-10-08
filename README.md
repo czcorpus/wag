@@ -28,7 +28,7 @@ using miscellaneous online lingustic tools, corpora and databases.
 | mergeCorpFreq |           | :star:  |        |        |            |            |             |         |
 | speeches      |           | :star:  |        |        |            |            |             |         |
 | timeDistrib   |           | :star:  |        |        |            |            |             |         |
-| treq          |           |         |        | :star: |            |            |             |         |
+| translations  |           |         |        | :star: |            |            |             |         |
 | treqSubsets   |           |         |        | :star: |            |            |             |         |
 | wordForms     | :star:    | :star:  |        |        |            |            |             |         |
 | wordFreq      | :star:    | :star:  |        |        |            |            |             |         |
