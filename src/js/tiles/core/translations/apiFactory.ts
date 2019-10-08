@@ -15,13 +15,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { SubqueryPayload } from '../../../common/query';
-import { TreqResponse } from '../../../common/api/treq';
-import { CollocSubqueryValue } from '../../../common/api/abstract/collocations';
+
+import { HTTPHeaders, IAsyncKeyValueStore } from '../../../common/types';
+import { TranslationAPI } from '../../../common/api/abstract/translations';
+import { TreqAPI } from '../../../common/api/treq';
+import { CoreApiGroup } from '../../../common/api/coreGroups';
 
 
+export function createInstance(apiIdent:string, apiURL:string, apiHeaders:HTTPHeaders, cache:IAsyncKeyValueStore):TranslationAPI<{}, {}> {
+	switch (apiIdent) {
+        case CoreApiGroup.TREQ:
+			return new TreqAPI(cache, apiURL);
+		default:
+			throw new Error(`API type "${apiIdent}" not supported for wordSim`);
+	}
 
-export interface DataLoadedPayload extends SubqueryPayload<CollocSubqueryValue> {
-    query:string;
-    data:TreqResponse;
-}
+ }

@@ -19,14 +19,9 @@
 export enum CoreApiGroup {
 
 	/**
-	 * Embedded API functions
+	 * Datamuse.com API
 	 */
-	WDGLANCE = 'wdglance',
-
-	/**
-	 * KonText API
-	 */
-	KONTEXT = 'kontext',
+	DATAMUSE = 'datamuse',
 
 	/**
 	 * Clarin FCS Core 1 functions
@@ -34,14 +29,24 @@ export enum CoreApiGroup {
 	FCS_V1 = 'fcsv1',
 
 	/**
+	 * KonText API
+	 */
+	KONTEXT = 'kontext',
+
+	/**
 	 * Leipzig Corpora Collection
 	 */
 	LCC = 'lcc',
 
 	/**
-	 * Datamuse.com API
+	 * Treq (CNC app)
 	 */
-	DATAMUSE = 'datamuse'
+	TREQ = 'treq',
+
+	/**
+	 * Embedded API functions
+	 */
+	WDGLANCE = 'wdglance',
 }
 
 export function supportedCoreApiGroups() {

@@ -19,34 +19,16 @@ import * as Immutable from 'immutable';
 import {merge} from 'rxjs';
 import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 
-import { TreqAPI, TreqTranslation, mkInterctionId } from '../../../common/api/treq';
-import { stateToAPIArgs, TreqModelMinState } from '../../../common/models/treq';
+import { TreqAPI, mkInterctionId, TreqSubsetsAPI } from '../../../common/api/treq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { QueryFormModel, findCurrLemmaVariant } from '../../../models/query';
 import { DataLoadedPayload } from './actions';
 import { callWithExtraVal } from '../../../common/api/util';
 import { isSubqueryPayload } from '../../../common/query';
 import { isCollocSubqueryPayload } from '../../../common/api/abstract/collocations';
+import { WordTranslation } from '../../../common/api/abstract/translations';
+import { TranslationSubset, TranslationsSubsetsModelState } from '../../../common/models/translations';
 
-
-export interface TranslationSubset {
-    ident:string;
-    label:string;
-    packages:Immutable.List<string>;
-    translations:Immutable.List<TreqTranslation>;
-    isPending:boolean;
-}
-
-
-export interface TreqSubsetsModelState extends TreqModelMinState {
-    isBusy:boolean;
-    error:string;
-    isAltViewMode:boolean;
-    subsets:Immutable.List<TranslationSubset>;
-    highlightedRowIdx:number;
-    maxNumLines:number;
-    colorMap:Immutable.Map<string, string>;
-}
 
 
 export interface MultiSrcTranslationRow {
@@ -76,15 +58,15 @@ export const flipRowColMapper = <T>(subsets:Immutable.List<TranslationSubset>, m
             const t = subsets.get(j).translations.get(i);
             row.push({
                 abs: t.freq,
-                perc: t.perc
+                perc: t.score
             });
         }
 
         const fitem = subsets.get(0).translations.get(i);
-        const variants = Immutable.Set(subsets.flatMap(subs => subs.translations.get(i).right));
+        const variants = Immutable.Set(subsets.flatMap(subs => subs.translations.get(i).translations));
         tmp.push({
             idx: i,
-            heading: variants.size > 1 ? fitem.rightLc : fitem.right[0],
+            heading: variants.size > 1 ? fitem.firstTranslatLc : fitem.translations[0],
             cells: Immutable.List<MultiSrcTranslationCell>(row),
             color: subsets.get(0).translations.get(i).color
         });
@@ -98,21 +80,21 @@ export const flipRowColMapper = <T>(subsets:Immutable.List<TranslationSubset>, m
 };
 
 
-export class TreqSubsetModel extends StatelessModel<TreqSubsetsModelState> {
+export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelState> {
 
 
     public static readonly UNMATCHING_ITEM_COLOR = '#878787';
 
     private readonly tileId:number;
 
-    private readonly api:TreqAPI;
+    private readonly api:TreqSubsetsAPI;
 
     private readonly mainForm:QueryFormModel;
 
     private readonly waitForColorsTile:number;
 
 
-    constructor(dispatcher:IActionQueue, initialState:TreqSubsetsModelState, tileId:number, api:TreqAPI,
+    constructor(dispatcher:IActionQueue, initialState:TranslationsSubsetsModelState, tileId:number, api:TreqSubsetsAPI,
             mainForm:QueryFormModel, waitForColorsTile:number) {
         super(dispatcher, initialState);
         this.api = api;
@@ -143,14 +125,14 @@ export class TreqSubsetModel extends StatelessModel<TreqSubsetsModelState> {
                             ident: val.ident,
                             label: val.label,
                             packages: val.packages,
-                            translations: Immutable.List<TreqTranslation>(action.payload.lines).map(tran => ({
+                            translations: Immutable.List<WordTranslation>(action.payload.lines).map(tran => ({
                                 freq: tran.freq,
-                                perc: tran.perc,
-                                left: tran.left,
-                                right: tran.right,
-                                rightLc: tran.rightLc,
+                                score: tran.score,
+                                word: tran.word,
+                                translations: tran.translations,
+                                firstTranslatLc: tran.firstTranslatLc,
                                 interactionId: tran.interactionId,
-                                color: newState.colorMap.get(tran.rightLc, TreqSubsetModel.UNMATCHING_ITEM_COLOR)
+                                color: newState.colorMap.get(tran.firstTranslatLc, TreqSubsetModel.UNMATCHING_ITEM_COLOR)
                             })).toList(),
                             isPending: false
                         });
@@ -211,12 +193,12 @@ export class TreqSubsetModel extends StatelessModel<TreqSubsetsModelState> {
         };
     }
 
-    private mkWordUnion(state:TreqSubsetsModelState):void {
+    private mkWordUnion(state:TranslationsSubsetsModelState):void {
         const allWords = state.subsets
             .flatMap(subset => subset.translations)
-            .groupBy(v => v.rightLc)
+            .groupBy(v => v.firstTranslatLc)
             .toOrderedMap()
-            .map(v => v.reduce((acc, curr) => acc + curr.perc, 0))
+            .map(v => v.reduce((acc, curr) => acc + curr.score, 0))
             .sort((v1, v2) => v2 - v1)
             .keySeq();
 
@@ -225,24 +207,24 @@ export class TreqSubsetModel extends StatelessModel<TreqSubsetsModelState> {
             label: subset.label,
             packages: subset.packages,
             translations: allWords.map(w => {
-                const srch = subset.translations.find(v => v.rightLc === w);
+                const srch = subset.translations.find(v => v.firstTranslatLc === w);
                 if (srch) {
                     return {
                         freq: srch.freq,
-                        perc: srch.perc,
-                        left: srch.left,
-                        right: srch.right,
-                        rightLc: srch.rightLc,
+                        score: srch.score,
+                        word: srch.word,
+                        translations: srch.translations,
+                        firstTranslatLc: srch.firstTranslatLc,
                         interactionId: srch.interactionId,
-                        color: state.colorMap.get(srch.rightLc, TreqSubsetModel.UNMATCHING_ITEM_COLOR)
+                        color: state.colorMap.get(srch.firstTranslatLc, TreqSubsetModel.UNMATCHING_ITEM_COLOR)
                     };
                 }
                 return {
                     freq: 0,
-                    perc: 0,
-                    left: '',
-                    right: [w],
-                    rightLc: w.toLowerCase(),
+                    score: 0,
+                    word: '',
+                    translations: [w],
+                    firstTranslatLc: w.toLowerCase(),
                     color: state.colorMap.get(w.toLowerCase(), TreqSubsetModel.UNMATCHING_ITEM_COLOR),
                     interactionId: mkInterctionId(w.toLowerCase())
                 };
@@ -251,7 +233,7 @@ export class TreqSubsetModel extends StatelessModel<TreqSubsetsModelState> {
         })).toList();
     }
 
-    sideEffects(state:TreqSubsetsModelState, action:Action, dispatch:SEDispatcher):void {
+    sideEffects(state:TranslationsSubsetsModelState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
                 this.suspend(
@@ -261,7 +243,7 @@ export class TreqSubsetModel extends StatelessModel<TreqSubsetsModelState> {
                             merge(...state.subsets.map(subset =>
                                 callWithExtraVal(
                                     this.api,
-                                    stateToAPIArgs(
+                                    this.api.stateToArgs(
                                         state,
                                         srchLemma.lemma,
                                         subset.packages
@@ -272,13 +254,13 @@ export class TreqSubsetModel extends StatelessModel<TreqSubsetsModelState> {
                             .subscribe(
                                 (resp) => {
                                     const [data, reqId] = resp;
-                                    const lines = data.lines.filter(v => v.freq >= state.minItemFreq);
-                                    const sum = data.lines.reduce((acc, curr) => acc + curr.freq, 0);
+                                    const lines = data.translations.filter(v => v.freq >= state.minItemFreq);
+                                    const sum = data.translations.reduce((acc, curr) => acc + curr.freq, 0);
                                     dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
                                         name: GlobalActionName.TileDataLoaded,
                                         payload: {
                                             tileId: this.tileId,
-                                            isEmpty: data.lines.length === 0,
+                                            isEmpty: data.translations.length === 0,
                                             query: this.mainForm.getState().query.value,
                                             lines: lines,
                                             sum: sum,

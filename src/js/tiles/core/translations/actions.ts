@@ -15,13 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { SubqueryPayload } from '../../../common/query';
+import { CollocSubqueryValue } from '../../../common/api/abstract/collocations';
+import { TranslationResponse } from '../../../common/api/abstract/translations';
 
-import { WordTranslation } from '../../../common/api/abstract/translations';
 
 
-export interface DataLoadedPayload {
+export interface DataLoadedPayload extends SubqueryPayload<CollocSubqueryValue> {
     query:string;
-    lines:Array<WordTranslation>;
-    sum:number;
-    subsetId:string|null;
+    data:TranslationResponse;
 }

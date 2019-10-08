@@ -20,15 +20,16 @@ import * as Immutable from 'immutable';
 import { AppServices } from '../../../appServices';
 import { QueryType } from '../../../common/query';
 import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../../common/tile';
-import { SearchPackages, TreqAPI, TreqTranslation } from '../../../common/api/treq';
+import { SearchPackages, TreqAPI } from '../../../common/api/treq';
 import { TreqModel } from './model';
 import { init as viewInit } from './view';
 import { StatelessModel } from 'kombo';
+import { WordTranslation } from '../../../common/api/abstract/translations';
 
 declare var require:any;
 require('./style.less');
 
-export interface TreqTileConf extends TileConf {
+export interface TranslationsTileConf extends TileConf {
     apiURL:string;
     srchPackages:SearchPackages;
     maxNumLines?:number;
@@ -38,7 +39,7 @@ export interface TreqTileConf extends TileConf {
 /**
  *
  */
-export class TreqTile implements ITileProvider {
+export class TranslationsTile implements ITileProvider {
 
     private readonly tileId:number;
 
@@ -56,7 +57,7 @@ export class TreqTile implements ITileProvider {
 
     private static readonly DEFAULT_MIN_ITEM_FREQ = 1;
 
-    constructor({tileId, dispatcher, appServices, ut, theme, lang1, lang2, mainForm, widthFract, conf, isBusy, cache}:TileFactory.Args<TreqTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, theme, lang1, lang2, mainForm, widthFract, conf, isBusy, cache}:TileFactory.Args<TranslationsTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
@@ -69,11 +70,10 @@ export class TreqTile implements ITileProvider {
                 lang1: lang1,
                 lang2: lang2,
                 searchPackages: Immutable.List<string>(conf.srchPackages[lang2] || []),
-                translations: Immutable.List<TreqTranslation>(),
-                sum: 0,
-                treqBackLink: null,
-                maxNumLines: conf.maxNumLines || TreqTile.DEFAULT_MAX_NUM_LINES,
-                minItemFreq: conf.minItemFreq || TreqTile.DEFAULT_MIN_ITEM_FREQ
+                translations: Immutable.List<WordTranslation>(),
+                backLink: null,
+                maxNumLines: conf.maxNumLines || TranslationsTile.DEFAULT_MAX_NUM_LINES,
+                minItemFreq: conf.minItemFreq || TranslationsTile.DEFAULT_MIN_ITEM_FREQ
             },
             tileId,
             new TreqAPI(cache, conf.apiURL),
@@ -130,6 +130,6 @@ export class TreqTile implements ITileProvider {
     }
 }
 
-export const TILE_TYPE = 'TreqTile';
+export const TILE_TYPE = 'TranslationsTile';
 
-export const init:TileFactory.TileFactory<TreqTileConf> = (args) => new TreqTile(args);
+export const init:TileFactory.TileFactory<TranslationsTileConf> = (args) => new TranslationsTile(args);

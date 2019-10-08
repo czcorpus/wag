@@ -19,11 +19,13 @@
 import * as Immutable from 'immutable';
 import { QueryType } from '../../../common/query';
 import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../../common/tile';
-import { TreqSubsetModel, TranslationSubset } from './model';
-import { TreqAPI, TreqTranslation } from '../../../common/api/treq';
+import { TreqSubsetModel } from './model';
+import { TreqAPI, TreqSubsetsAPI } from '../../../common/api/treq';
 import {init as viewInit} from './view';
 import { StatelessModel } from 'kombo';
 import { LocalizedConfMsg } from '../../../common/types';
+import { WordTranslation } from '../../../common/api/abstract/translations';
+import { TranslationSubset } from '../../../common/models/translations';
 
 declare var require:any;
 require('./style.less');
@@ -73,7 +75,7 @@ export class TreqSubsetsTile implements ITileProvider {
                 subsets: Immutable.List<TranslationSubset>((conf.srchPackages[lang2] || []).map(v => ({
                     ident: v.packages.join('|'),
                     label: v.label ? appServices.importExternalMessage(v.label) : v.packages.join(', '),
-                    translations: Immutable.List<TreqTranslation>(),
+                    translations: Immutable.List<WordTranslation>(),
                     packages: Immutable.List<PackageGroup>(v.packages),
                     isPending: false
                 }))),
@@ -83,7 +85,7 @@ export class TreqSubsetsTile implements ITileProvider {
                 minItemFreq: conf.minItemFreq || TreqSubsetsTile.DEFAULT_MIN_ITEM_FREQ
             },
             tileId,
-            new TreqAPI(cache, conf.apiURL),
+            new TreqSubsetsAPI(cache, conf.apiURL),
             mainForm,
             waitForTiles[0]
         );

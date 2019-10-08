@@ -21,8 +21,9 @@ import * as React from 'react';
 
 import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
 import { GlobalComponents, TooltipValues } from '../../../views/global';
-import { TreqSubsetModel, TreqSubsetsModelState, TranslationSubset, flipRowColMapper } from './model';
+import { TreqSubsetModel, flipRowColMapper } from './model';
 import { Theme } from '../../../common/theme';
+import { TranslationSubset, TranslationsSubsetsModelState } from '../../../common/models/translations';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:TreqSubsetModel):TileComponent {
@@ -240,7 +241,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // --------------------- <TreqSubsetsView /> ----------------------------
 
-    class TreqSubsetsView extends React.PureComponent<TreqSubsetsModelState & CoreTileComponentProps> {
+    class TreqSubsetsView extends React.PureComponent<TranslationsSubsetsModelState & CoreTileComponentProps> {
 
         render() {
             return (
