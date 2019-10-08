@@ -17,6 +17,7 @@
 
 import { DataApi } from '../../types';
 import { MatchingDocsModelState } from '../../models/matchingDocs';
+import { BacklinkWithArgs } from '../../tile';
 
 
 export interface DataRow {
@@ -33,6 +34,8 @@ export interface APIResponse {
 }
 
 export interface MatchingDocsAPI<T> extends DataApi<T, APIResponse> {
+
+    stateToBacklink(state:MatchingDocsModelState, query:string):BacklinkWithArgs<{}>|null;
 
     stateToArgs(state:MatchingDocsModelState, query:string):T;
 }

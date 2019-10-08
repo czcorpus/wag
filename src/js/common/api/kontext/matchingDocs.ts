@@ -14,13 +14,14 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-import { MatchingDocsModelState } from '../../models/matchingDocs';
+import { MatchingDocsModelState, KontextFreqBacklinkArgs } from '../../models/matchingDocs';
 import { MatchingDocsAPI, APIResponse } from '../abstract/matchingDocs';
 import { cachedAjax$ } from '../../ajax';
 import { Observable } from 'rxjs';
-import { HTTPHeaders, IAsyncKeyValueStore } from '../../types';
+import { HTTPHeaders, IAsyncKeyValueStore, HTTPMethod } from '../../types';
 import { map } from 'rxjs/operators';
 import { SingleCritQueryArgs, HTTPResponse } from './freqs';
+import { BacklinkWithArgs } from '../../tile';
 
 
 export class KontextMatchingDocsAPI implements MatchingDocsAPI<SingleCritQueryArgs> {
@@ -37,16 +38,37 @@ export class KontextMatchingDocsAPI implements MatchingDocsAPI<SingleCritQueryAr
         this.customHeaders = customHeaders || {};
     }
 
+    stateToBacklink(state:MatchingDocsModelState, query:string):BacklinkWithArgs<KontextFreqBacklinkArgs> {
+        return {
+            url: this.apiURL,
+			label: "frekv. distribuce v KonTextu",
+			method: HTTPMethod.GET,
+            args: {
+                corpname: state.corpname,
+                usesubcorp: state.subcname,
+                q: `~${query}`,
+                fcrit: [state.srchAttrs.get(0)],
+                flimit: 1,
+                freq_sort: "rel",
+                fpage: 1,
+                ftt_include_empty: 0
+            }
+        };
+    }
+
     stateToArgs(state:MatchingDocsModelState, query:string):SingleCritQueryArgs {
+        if (state.srchAttrs.size > 1) {
+            console.warn('MatchingDocsTile: Kontext API will take only first item from `srchAttrs` config!');            
+        }
         return {
             corpname: state.corpname,
             usesubcorp: state.subcname,
             q: `~${query}`,
-            fcrit: state.srchAttrs.get(0), // TODO check list.size > 1 => e.g. show a warning
+            fcrit: state.srchAttrs.get(0),
             flimit: 1, // TODO
-            freq_sort: 'rel',
-            fpage: state.currPage,
-            ftt_include_empty: 1,
+            freq_sort: 'rel', // TODO
+            fpage: 1, // TODO
+            ftt_include_empty: 0, // TODO
             format: 'json'
         };
     }

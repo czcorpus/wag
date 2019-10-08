@@ -21,7 +21,6 @@ import { Observable, Observer } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 
 import { AppServices } from '../../../appServices';
-import { Backlink } from '../../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { ConcLoadedPayload } from '../concordance/actions';
 import { ActionName, Actions, DataLoadedPayload } from './actions';
@@ -30,19 +29,8 @@ import { MatchingDocsModelState } from '../../../common/models/matchingDocs';
 import { MatchingDocsAPI, DataRow } from '../../../common/api/abstract/matchingDocs';
 
 
-export interface DocModelArgs {
-    dispatcher:IActionQueue;
-    tileId:number;
-    waitForTiles:Array<number>;
-    subqSourceTiles:Array<number>;
-    appServices:AppServices;
-    api:MatchingDocsAPI<{}>;
-    backlink:Backlink|null;
-    initState:MatchingDocsModelState;
-}
 
-
-export class DocModel extends StatelessModel<MatchingDocsModelState> {
+export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState> {
 
     protected api:MatchingDocsAPI<{}>;
 
@@ -54,16 +42,13 @@ export class DocModel extends StatelessModel<MatchingDocsModelState> {
 
     protected subqSourceTiles:Immutable.Set<number>;
 
-    private readonly backlink:Backlink|null;
-
-    constructor({dispatcher, tileId, waitForTiles, subqSourceTiles, appServices, api, backlink, initState}) {
+    constructor({dispatcher, tileId, waitForTiles, subqSourceTiles, appServices, api, initState}) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.waitForTiles = Immutable.Map<number, boolean>(waitForTiles.map(v => [v, false]));
         this.subqSourceTiles = Immutable.Set<number>(subqSourceTiles);
         this.appServices = appServices;
         this.api = api;
-        this.backlink = backlink;
         this.actionMatch = {
             [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
                 const newState = this.copyState(state);
@@ -71,11 +56,27 @@ export class DocModel extends StatelessModel<MatchingDocsModelState> {
                 newState.error = null;
                 return newState;
             },
+            [GlobalActionName.EnableTileTweakMode]: (state, action:GlobalActions.EnableTileTweakMode) => {
+                if (action.payload.ident === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.isTweakMode = true;
+                    return newState;
+                }
+                return state;
+            },
+            [GlobalActionName.DisableTileTweakMode]: (state, action:GlobalActions.DisableTileTweakMode) => {
+                if (action.payload.ident === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.isTweakMode = false;
+                    return newState;
+                }
+                return state;
+            },
             [ActionName.NextPage]: (state, action:Actions.NextPage) => {
                 if (action.payload.tileId === this.tileId) {
                     const newState = this.copyState(state);
-                    if (newState.currPage * newState.maxNumCategoriesPerPage < newState.data.size) {
-                        newState.currPage += 1;
+                    if (newState.currPage < newState.numPages) {
+                        newState.currPage++;
                     }
                     return newState;
                 }
@@ -85,7 +86,7 @@ export class DocModel extends StatelessModel<MatchingDocsModelState> {
                 if (action.payload.tileId === this.tileId) {
                     const newState = this.copyState(state);
                     if (newState.currPage > 1) {
-                        newState.currPage -= 1;
+                        newState.currPage--;
                     }
                     return newState;
                 }
@@ -98,14 +99,16 @@ export class DocModel extends StatelessModel<MatchingDocsModelState> {
                         newState.data = Immutable.List<DataRow>();
                         newState.error = action.error.message;
                         newState.isBusy = false;
-
+                        newState.backlink = action.payload.backlink;
                     } else {
                         newState.data = Immutable.List<DataRow>(action.payload.data.map(v => ({
-                                        name: this.appServices.translateDbValue(state.corpname, v.name),
-                                        score: v.score
-                                    })));
+                            name: this.appServices.translateDbValue(state.corpname, v.name),
+                            score: v.score
+                        })));
                         newState.currPage = 1;
+                        newState.numPages = Math.ceil(newState.data.size/newState.maxNumCategoriesPerPage);
                         newState.isBusy = false;
+                        newState.backlink = action.payload.backlink;
                     }
                     return newState;
                 }
@@ -132,9 +135,9 @@ export class DocModel extends StatelessModel<MatchingDocsModelState> {
                             }
                         }).pipe(
                             concatMap(critIdx => callWithExtraVal(
-                                    this.api,
-                                    this.api.stateToArgs(state, payload.data.concPersistenceID),
-                                    critIdx
+                                this.api,
+                                this.api.stateToArgs(state, payload.data.concPersistenceID),
+                                critIdx
                             ))
                         )
                         .subscribe(
@@ -147,7 +150,8 @@ export class DocModel extends StatelessModel<MatchingDocsModelState> {
                                         data: resp.data.length > 0 ?
                                             resp.data.sort((x1, x2) => x2.score - x1.score).slice(0, state.maxNumCategories) :
                                             null,
-                                        concId: resp.concId
+                                        concId: resp.concId,
+                                        backlink: this.api.stateToBacklink(state, payload.data.concPersistenceID)
                                     }
                                 });
                             },
@@ -158,7 +162,8 @@ export class DocModel extends StatelessModel<MatchingDocsModelState> {
                                         tileId: this.tileId,
                                         isEmpty: true,
                                         concId: null,
-                                        data: null
+                                        data: null,
+                                        backlink: null
                                     },
                                     error: error
                                 });
@@ -180,17 +185,15 @@ export const factory = (
     subqSourceTiles:Array<number>,
     appServices:AppServices,
     api:MatchingDocsAPI<{}>,
-    backlink:Backlink|null,
     initState:MatchingDocsModelState) => {
 
-    return new DocModel({
+    return new MatchingDocsModel({
         dispatcher,
         tileId,
         waitForTiles,
         subqSourceTiles,
         appServices,
         api,
-        backlink,
         initState
     });
 }

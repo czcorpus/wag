@@ -19,12 +19,11 @@ import * as Immutable from 'immutable';
 import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
 
 import { AppServices } from '../../../appServices';
-import { FreqSort } from '../../../common/api/kontext/freqs';
 import { SubqueryModeConf } from '../../../common/models/freq';
 import { QueryType } from '../../../common/query';
-import { TileComponent, TileConf, TileFactory, Backlink, ITileProvider } from '../../../common/tile';
+import { TileComponent, TileConf, TileFactory, ITileProvider } from '../../../common/tile';
 import { GlobalComponents } from '../../../views/global';
-import { factory as defaultModelFactory, DocModel } from './model';
+import { factory as defaultModelFactory, MatchingDocsModel } from './model';
 import { init as viewInit } from './view';
 import { createMatchingDocsApiInstance } from './apiFactory';
 import { DataRow } from '../../../common/api/abstract/matchingDocs';
@@ -40,13 +39,8 @@ export interface MatchingDocsTileConf extends TileConf {
     corpname:string|null; // null can be used in case subqueryMode is enabled
     subcname:string|null;
     srchAttrs:string|Array<string>;
-    flimit:number;
-    freqSort:FreqSort;
-    fpage:number;
-    fttIncludeEmpty:boolean;
     maxNumCategories:number;
     maxNumCategoriesPerPage:number;
-    backlink?:Backlink;
 
     // if defined, then we wait for some other
     // tile which produces payload extended
@@ -63,7 +57,7 @@ export class MatchingDocsTile implements ITileProvider {
 
     private readonly ut:ViewUtils<GlobalComponents>;
 
-    private readonly model:DocModel;
+    private readonly model:MatchingDocsModel;
 
     private readonly tileId:number;
 
@@ -92,23 +86,24 @@ export class MatchingDocsTile implements ITileProvider {
             subqSourceTiles,
             appServices,
             createMatchingDocsApiInstance(conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL), cache),
-            conf.backlink || null,
             {
                 isBusy: isBusy,
+                isTweakMode: false,
                 error: null,
                 data: Immutable.List<DataRow>(),
                 corpname: conf.corpname,
                 subcname: conf.subcname,
                 concId: null,
                 srchAttrs: Immutable.List<string>(typeof conf.srchAttrs === 'string' ? [conf.srchAttrs] : conf.srchAttrs),
-                currPage: conf.fpage,
+                currPage: null,
+                numPages: null,
                 maxNumCategories: conf.maxNumCategories,
                 maxNumCategoriesPerPage: conf.maxNumCategoriesPerPage,
                 backlink: null,
                 subqSyncPalette: false
             }
         );
-        this.label = appServices.importExternalMessage(conf.label || 'matchingDocsTile__main_label');
+        this.label = appServices.importExternalMessage(conf.label || 'matchingDocs__main_label');
         this.view = viewInit(this.dispatcher, ut, theme, this.model);
     }
 

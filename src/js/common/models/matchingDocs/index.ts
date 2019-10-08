@@ -16,13 +16,24 @@
 */
 
 import { BacklinkWithArgs } from '../../tile';
-import { BacklinkArgs } from '../../api/kontext/freqs';
 import * as Immutable from 'immutable';
 import { DataRow } from '../../api/abstract/matchingDocs';
 
 
+export interface KontextFreqBacklinkArgs {
+    corpname:string;
+    usesubcorp:string;
+    q:string;
+    fcrit:Array<string>;
+    flimit:number;
+    freq_sort:string;
+    fpage:number;
+    ftt_include_empty:number;
+}
+
 export interface MatchingDocsModelState {
     isBusy:boolean;
+    isTweakMode: boolean;
     error:string;
     corpname:string;
     subcname:string;
@@ -30,7 +41,8 @@ export interface MatchingDocsModelState {
     maxNumCategories:number;
     maxNumCategoriesPerPage:number;
     currPage:number;
-    backlink:BacklinkWithArgs<BacklinkArgs>;
+    numPages:number;
+    backlink:BacklinkWithArgs<{}>|null;
     subqSyncPalette:boolean;
     srchAttrs:Immutable.List<string>;
     data:Immutable.List<DataRow>;
