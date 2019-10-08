@@ -15,7 +15,8 @@
 * limitations under the License.
 */
 
-import { DataApi } from '../../types';
+import { Observable } from 'rxjs';
+import { DataApi, SourceDetails } from '../../types';
 import { MatchingDocsModelState } from '../../models/matchingDocs';
 import { BacklinkWithArgs } from '../../tile';
 
@@ -38,4 +39,6 @@ export interface MatchingDocsAPI<T> extends DataApi<T, APIResponse> {
     stateToBacklink(state:MatchingDocsModelState, query:string):BacklinkWithArgs<{}>|null;
 
     stateToArgs(state:MatchingDocsModelState, query:string):T;
+
+    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<SourceDetails>;
 }

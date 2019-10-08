@@ -113,8 +113,8 @@ export class HtmlTile implements ITileProvider {
         return this.view;
     }
 
-    getSourceInfo():[null, null] {
-        return [null, null];
+    getSourceInfoComponent():null {
+        return null;
     }
 
     supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {

@@ -20,7 +20,7 @@ import * as Immutable from 'immutable';
 import { QueryType } from '../../../common/query';
 import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../../common/tile';
 import { TreqSubsetModel } from './model';
-import { TreqAPI, TreqSubsetsAPI } from '../../../common/api/treq';
+import { TreqSubsetsAPI } from '../../../common/api/treq';
 import {init as viewInit} from './view';
 import { StatelessModel } from 'kombo';
 import { LocalizedConfMsg } from '../../../common/types';
@@ -64,9 +64,10 @@ export class TreqSubsetsTile implements ITileProvider {
         this.tileId = tileId;
         this.widthFract = widthFract;
         this.blockingTiles = waitForTiles;
-        this.model = new TreqSubsetModel(
+        this.model = new TreqSubsetModel({
             dispatcher,
-            {
+            appServices,
+            initialState: {
                 lang1: lang1,
                 lang2: lang2,
                 isBusy: isBusy,
@@ -85,10 +86,10 @@ export class TreqSubsetsTile implements ITileProvider {
                 minItemFreq: conf.minItemFreq || TreqSubsetsTile.DEFAULT_MIN_ITEM_FREQ
             },
             tileId,
-            new TreqSubsetsAPI(cache, conf.apiURL),
+            api: new TreqSubsetsAPI(cache, conf.apiURL),
             mainForm,
-            waitForTiles[0]
-        );
+            waitForColorsTile: waitForTiles[0]
+        });
         this.label = appServices.importExternalMessage(conf.label || 'treqsubsets__main_label');
         this.view = viewInit(dispatcher, ut, theme, this.model);
     }
@@ -105,8 +106,8 @@ export class TreqSubsetsTile implements ITileProvider {
         return this.view;
     }
 
-    getSourceInfo():[null, null] {
-        return [null, null];
+    getSourceInfoComponent():null {
+        return null;
     }
 
     /**

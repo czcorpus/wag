@@ -22,12 +22,12 @@ import { AppServices } from '../../../appServices';
 import { QuerySelector } from '../../../common/api/kontext/concordance';
 import { Line, ViewMode } from '../../../common/api/abstract/concordance';
 
-import { DataApi, LocalizedConfMsg } from '../../../common/types';
+import { LocalizedConfMsg } from '../../../common/types';
 import { QueryType } from '../../../common/query';
 import { Backlink, CorpSrchTileConf, ITileProvider, TileComponent, TileFactory, SourceInfoComponent } from '../../../common/tile';
 import { ConcordanceTileModel } from './model';
 import { init as viewInit } from './views';
-import { createApiInstance, createMapperInstance, createSourceInfoApiInstance } from '../../../common/api/factory/concordance';
+import { createApiInstance } from '../../../common/api/factory/concordance';
 import { createSourceInfoViewInstance } from './apiFactory';
 
 
@@ -69,8 +69,6 @@ export class ConcordanceTile implements ITileProvider {
 
     private readonly label:string;
 
-    private readonly sourceInfoService:DataApi<{}, {}>;
-
     private readonly blockingTiles:Array<number>;
 
     constructor({tileId, dispatcher, appServices, ut, mainForm, widthFract, waitForTiles, conf, lang2, isBusy, cache}:TileFactory.Args<ConcordanceTileConf>) {
@@ -82,7 +80,6 @@ export class ConcordanceTile implements ITileProvider {
         if (Array.isArray(waitForTiles) && waitForTiles.length > 1) {
             throw new Error('ConcordanceTile does not support waiting for multiple tiles. Only a single tile can be specified');
         }
-        this.sourceInfoService = createSourceInfoApiInstance(conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL));
         this.sourceInfoView = createSourceInfoViewInstance(conf.apiType, dispatcher, ut);
 
         this.model = new ConcordanceTileModel({
@@ -90,8 +87,6 @@ export class ConcordanceTile implements ITileProvider {
             tileId: tileId,
             appServices: appServices,
             service: createApiInstance(cache, conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
-            sourceInfoService: this.sourceInfoService,
-            stateToArgMapper: createMapperInstance(conf.apiType),
             mainForm: mainForm,
             backlink: conf.backlink || null,
             waitForTile: Array.isArray(waitForTiles) ? waitForTiles[0] : waitForTiles,
@@ -147,8 +142,8 @@ export class ConcordanceTile implements ITileProvider {
         return this.view;
     }
 
-    getSourceInfo():[null, null] {
-        return [null, null];
+    getSourceInfoComponent():null {
+        return null;
     }
 
     getLabel():string {

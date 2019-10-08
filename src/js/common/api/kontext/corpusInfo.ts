@@ -20,6 +20,8 @@ import { share, map } from 'rxjs/operators';
 
 import { cachedAjax$ } from '../../ajax';
 import { DataApi, HTTPHeaders, SourceDetails, IAsyncKeyValueStore } from '../../types';
+import { AppServices } from '../../../appServices';
+import { parse } from 'querystring';
 
 
 
@@ -77,7 +79,7 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, APIResponse> {
     call(args:QueryArgs):Observable<APIResponse> {
         return cachedAjax$<HTTPResponse>(this.cache)(
             'GET',
-            this.apiURL,
+            this.apiURL + '/corpora/ajax_get_corp_details',
             args,
             {headers: this.customHeaders}
 

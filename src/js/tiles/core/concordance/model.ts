@@ -22,9 +22,9 @@ import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { Observable } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 import { AppServices } from '../../../appServices';
-import { Line, ConcResponse } from '../../../common/api/abstract/concordance';
-import { ConcordanceMinState, IStateArgsMapper } from '../../../common/models/concordance';
-import { HTTPMethod, SystemMessageType, DataApi } from '../../../common/types';
+import { Line, IConcordanceApi } from '../../../common/api/abstract/concordance';
+import { ConcordanceMinState } from '../../../common/models/concordance';
+import { HTTPMethod, SystemMessageType } from '../../../common/types';
 import { isSubqueryPayload } from '../../../common/query';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
@@ -67,20 +67,16 @@ export interface ConcordanceTileModelArgs {
     tileId:number;
     waitForTile:number;
     appServices:AppServices;
-    service:DataApi<{}, ConcResponse>;
-    sourceInfoService:DataApi<{}, {}>;
+    service:IConcordanceApi<{}>;
     mainForm:QueryFormModel;
     initState:ConcordanceTileState;
     backlink:Backlink;
-    stateToArgMapper:IStateArgsMapper<{}>;
 }
 
 
 export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
-    private readonly service:DataApi<{}, ConcResponse>;
-
-    private readonly sourceInfoService:DataApi<{}, {}>;
+    private readonly service:IConcordanceApi<{}>;
 
     private readonly mainForm:QueryFormModel;
 
@@ -92,20 +88,16 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
     private readonly waitForTile:number;
 
-    private readonly stateToArgMapper:IStateArgsMapper<{}>;
-
     public static readonly CTX_SIZES = [3, 3, 8, 12];
 
-    constructor({dispatcher, tileId, appServices, service, sourceInfoService, mainForm, initState, waitForTile, backlink, stateToArgMapper}:ConcordanceTileModelArgs) {
+    constructor({dispatcher, tileId, appServices, service, mainForm, initState, waitForTile, backlink}:ConcordanceTileModelArgs) {
         super(dispatcher, initState);
         this.service = service;
-        this.sourceInfoService = sourceInfoService;
         this.mainForm = mainForm;
         this.appServices = appServices;
         this.tileId = tileId;
         this.backlink = backlink;
         this.waitForTile = waitForTile;
-        this.stateToArgMapper = stateToArgMapper;
         this.actionMatch = {
             [GlobalActionName.SetScreenMode]: (state, action:GlobalActions.SetScreenMode) => {
                 if (action.payload.isMobile !== state.isMobile) {
@@ -227,7 +219,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
         const formState = this.mainForm.getState();
         new Observable<{}>((observer) => {
             try {
-                observer.next(this.stateToArgMapper(state, state.concId ? null : findCurrLemmaVariant(formState.lemmas), otherLangCql));
+                observer.next(this.service.stateToArgs(state, state.concId ? null : findCurrLemmaVariant(formState.lemmas), otherLangCql));
                 observer.complete();
 
             } catch (e) {
@@ -317,11 +309,9 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 }
             break;
             case GlobalActionName.GetSourceInfo:
-                if (action.payload['tileId'] === this.tileId && this.sourceInfoService) {
-                    this.sourceInfoService.call({
-                        tileId: this.tileId,
-                        uiLang: this.appServices.getISO639UILang()
-                    }).subscribe(
+                if (action.payload['tileId'] === this.tileId) {
+                    this.service.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), state.corpname)
+                    .subscribe(
                         (data) => {
                             dispatch({
                                 name: GlobalActionName.GetSourceInfoDone,
@@ -340,7 +330,6 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                         }
                     );
                 }
-
             break;
         }
     }

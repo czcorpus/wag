@@ -86,7 +86,7 @@ export class ConcFilterTile implements ITileProvider {
             waitForTiles,
             subqSourceTiles,
             appServices,
-            new ConcApi(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            new ConcApi(true, cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             conf.switchMainCorpApiURL ?
                 new SwitchMainCorpApi(conf.switchMainCorpApiURL, appServices.getApiHeaders(conf.switchMainCorpApiURL)) :
                 new EmptyMainCorpSwitch(),
@@ -124,8 +124,8 @@ export class ConcFilterTile implements ITileProvider {
         return this.view;
     }
 
-    getSourceInfo():[null, null] {
-        return [null, null];
+    getSourceInfoComponent():null {
+        return null;
     }
 
     supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {

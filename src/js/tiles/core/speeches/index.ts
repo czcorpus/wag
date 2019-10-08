@@ -77,8 +77,6 @@ export class SpeechesTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    private readonly sourceInfoService:DataApi<{}, {}>;
-
     private static readonly DEFAULT_MAX_NUM_SPEECHES = 8;
 
     constructor({dispatcher, tileId, waitForTiles, ut,
@@ -86,14 +84,12 @@ export class SpeechesTile implements ITileProvider {
         this.tileId = tileId;
         this.widthFract = widthFract;
         this.label = appServices.importExternalMessage(conf.label);
-        this.sourceInfoService = createSourceInfoApiInstance(conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL));
         this.blockingTiles = waitForTiles;
         this.model = new SpeechesModel({
             dispatcher: dispatcher,
             tileId: tileId,
             appServices: appServices,
             api: new SpeechesApi(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
-            sourceInfoService: this.sourceInfoService,
             mainForm: mainForm,
             backlink: conf.backlink || null,
             waitForTile: Array.isArray(waitForTiles) ? waitForTiles[0] : waitForTiles,
@@ -142,8 +138,8 @@ export class SpeechesTile implements ITileProvider {
         return this.view;
     }
 
-    getSourceInfo():[null, null] {
-        return [null, null];
+    getSourceInfoComponent():null {
+        return null;
     }
 
     /**

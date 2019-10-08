@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Observable } from 'rxjs';
+import { Observable, of as rxOf } from 'rxjs';
 import { cachedAjax$ } from '../../ajax';
 import { HTTPHeaders, IAsyncKeyValueStore, SourceDetails } from '../../types';
 import { WordSimApiResponse, WordSimApi } from '../abstract/wordSim';
@@ -67,14 +67,14 @@ export class LccCoocSimApi implements WordSimApi<LccCoocSimApiArgs> {
         return false;
     }
 
-    getSourceDescription(tileId:number):SourceDetails {
-        return {
+    getSourceDescription(tileId:number):Observable<SourceDetails> {
+        return rxOf({
             tileId: tileId,
             title: 'REST API of the Leipzig Corpora Collection / Projekt Deutscher Wortschatz',
             description: '',
             author: 'Deutscher Wortschatz',
             href: 'http://wortschatz.uni-leipzig.de/en'
-        };
+        });
     }
 
     call(queryArgs:LccCoocSimApiArgs):Observable<WordSimApiResponse> {

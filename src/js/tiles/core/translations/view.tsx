@@ -21,13 +21,13 @@ import * as React from 'react';
 
 import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
 import { GlobalComponents } from '../../../views/global';
-import { TreqModel, TreqModelState } from './model';
+import { TranslationsModel, GeneralTranslationsModelState } from './model';
 import { init as wordCloudViewInit } from '../../../views/wordCloud';
 import { Theme } from '../../../common/theme';
 import { WordTranslation } from '../../../common/api/abstract/translations';
 
 
-export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:TreqModel):TileComponent {
+export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:TranslationsModel):TileComponent {
 
     const globComponents = ut.getComponents();
     const WordCloud = wordCloudViewInit<WordTranslation>(dispatcher, ut, theme);
@@ -86,7 +86,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // --------------- <TreqTileView /> -----------------------------------
 
-    class TreqTileView extends React.PureComponent<TreqModelState & CoreTileComponentProps> {
+    class TreqTileView extends React.PureComponent<GeneralTranslationsModelState & CoreTileComponentProps> {
 
         render() {
             const dataTransform = (t:WordTranslation) => ({

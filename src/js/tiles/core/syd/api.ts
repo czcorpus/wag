@@ -81,7 +81,7 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
     constructor(cache:IAsyncKeyValueStore, apiURL:string, concApiURL:string, customHeaders?:HTTPHeaders) {
         this.apiURL = apiURL;
         this.customHeaders = customHeaders || {};
-        this.concApi = new ConcApi(cache, concApiURL, this.customHeaders);
+        this.concApi = new ConcApi(false, cache, concApiURL, this.customHeaders);
     }
 
     call(args:RequestArgs):Observable<Response> {

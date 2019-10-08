@@ -107,6 +107,8 @@ export interface TileConf {
      * A label used in the header of the tile
      */
     label?:LocalizedConfMsg;
+
+    srcInfoURL?:string;
 }
 
 /**
@@ -136,8 +138,6 @@ export interface TileFrameProps {
     Component:TileComponent;
 
     SourceInfoComponent:SourceInfoComponent;
-
-    sourceInfoData:SourceDetails;
 
     label:string;
 
@@ -206,7 +206,7 @@ export interface ITileProvider {
      */
     getView():TileComponent;
 
-    getSourceInfo():[SourceInfoComponent|null, SourceDetails|null];
+    getSourceInfoComponent():SourceInfoComponent|null;
 
     /**
      */

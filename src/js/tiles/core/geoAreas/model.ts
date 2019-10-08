@@ -226,6 +226,29 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                     return false;
                 });
             break;
+            case GlobalActionName.GetSourceInfo:
+                if (action.payload['tileId'] === this.tileId) {
+                    this.api.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), state.corpname)
+                    .subscribe(
+                        (data) => {
+                            dispatch({
+                                name: GlobalActionName.GetSourceInfoDone,
+                                payload: {
+                                    data: data
+                                }
+                            });
+                        },
+                        (err) => {
+                            console.error(err);
+                            dispatch({
+                                name: GlobalActionName.GetSourceInfoDone,
+                                error: err
+
+                            });
+                        }
+                    );
+                }
+            break;
         }
     }
 

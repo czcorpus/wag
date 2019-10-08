@@ -17,8 +17,9 @@
  */
 
 import { SubqueryPayload, isSubqueryPayload, LemmaVariant } from '../../query';
-import { DataApi } from '../../types';
+import { DataApi, SourceDetails } from '../../types';
 import { CollocModelState } from '../../models/collocations';
+import { Observable } from 'rxjs';
 
 
 // Sub-query related types
@@ -75,5 +76,7 @@ export interface CollocationApi<T> extends DataApi<T, CollApiResponse> {
     stateToArgs(state:CollocModelState, dataSpec:LemmaVariant|string):T;
 
     supportsLeftRightContext():boolean;
+
+    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<SourceDetails>;
 
 }

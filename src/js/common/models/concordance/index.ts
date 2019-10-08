@@ -19,7 +19,6 @@ import * as Immutable from 'immutable';
 
 import { QuerySelector} from '../../api/kontext/concordance';
 import { ViewMode } from '../../api/abstract/concordance';
-import { LemmaVariant } from '../../query';
 
 
 export interface ConcordanceMinState {
@@ -41,10 +40,4 @@ export interface ConcordanceMinState {
     metadataAttrs:Immutable.List<{value:string; label:string}>;
     attrs:Immutable.List<string>;
     posQueryGenerator:[string, string];
-}
-
-
-
-export interface IStateArgsMapper<T> {
-    (state:ConcordanceMinState, lvar:LemmaVariant|null, otherLangCql:string|null):T;
 }

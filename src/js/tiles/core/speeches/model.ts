@@ -27,7 +27,7 @@ import { SpeechDataPayload } from './actions';
 import { isSubqueryPayload } from '../../../common/query';
 import { SpeechesApi, SpeechReqArgs, SpeechResponse } from './api';
 import { SpeechesModelState, extractSpeeches, Expand, BacklinkArgs, Segment, PlayableSegment, normalizeSpeechesRange } from './modelDomain';
-import { DataApi, HTTPMethod, SystemMessageType } from '../../../common/types';
+import { HTTPMethod, SystemMessageType } from '../../../common/types';
 import { ActionName, Actions } from './actions';
 import { isConcLoadedPayload } from '../concordance/actions';
 import { normalizeConcDetailTypography } from '../../../common/models/concordance/normalize';
@@ -42,7 +42,6 @@ export interface SpeechesModelArgs {
     waitForTile:number;
     appServices:AppServices;
     api:SpeechesApi;
-    sourceInfoService:DataApi<{}, {}>;
     mainForm:QueryFormModel;
     initState:SpeechesModelState;
     backlink:Backlink;
@@ -54,8 +53,6 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
 
     private readonly api:SpeechesApi;
 
-    private readonly sourceInfoService:DataApi<{}, {}>;
-
     private readonly appServices:AppServices;
 
     private readonly tileId:number;
@@ -66,11 +63,10 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
 
     private readonly audioLinkGenerator:IAudioUrlGenerator|null;
 
-    constructor({dispatcher, tileId, appServices, api, sourceInfoService, initState, waitForTile, backlink,
+    constructor({dispatcher, tileId, appServices, api, initState, waitForTile, backlink,
                 audioLinkGenerator}:SpeechesModelArgs) {
         super(dispatcher, initState);
         this.api = api;
-        this.sourceInfoService = sourceInfoService;
         this.appServices = appServices;
         this.tileId = tileId;
         this.backlink = backlink;
@@ -476,6 +472,29 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                     } else {
                         this.dispatchPlayStop(dispatch);
                     }
+                }
+            break;
+            case GlobalActionName.GetSourceInfo:
+                if (action.payload['tileId'] === this.tileId) {
+                    this.api.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), action.payload['corpusId'])
+                    .subscribe(
+                        (data) => {
+                            dispatch({
+                                name: GlobalActionName.GetSourceInfoDone,
+                                payload: {
+                                    data: data
+                                }
+                            });
+                        },
+                        (err) => {
+                            console.error(err);
+                            dispatch({
+                                name: GlobalActionName.GetSourceInfoDone,
+                                error: err
+
+                            });
+                        }
+                    );
                 }
             break;
         }

@@ -53,7 +53,7 @@ export class ConcReduceApi implements DataApi<RequestArgs, ApiResponse> {
     call(args:RequestArgs):Observable<ApiResponse> {
         return ajax$<HTTPResponse>(
             'GET',
-            this.apiURL,
+            this.apiURL + '/reduce',
             args,
             {headers: this.customHeaders}
 

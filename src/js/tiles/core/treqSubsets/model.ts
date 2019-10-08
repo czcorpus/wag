@@ -28,6 +28,7 @@ import { isSubqueryPayload } from '../../../common/query';
 import { isCollocSubqueryPayload } from '../../../common/api/abstract/collocations';
 import { WordTranslation } from '../../../common/api/abstract/translations';
 import { TranslationSubset, TranslationsSubsetsModelState } from '../../../common/models/translations';
+import { AppServices } from '../../../appServices';
 
 
 
@@ -80,6 +81,17 @@ export const flipRowColMapper = <T>(subsets:Immutable.List<TranslationSubset>, m
 };
 
 
+export interface TreqSubsetModelArgs {
+    dispatcher:IActionQueue;
+    appServices:AppServices;
+    initialState:TranslationsSubsetsModelState;
+    tileId:number;
+    api:TreqSubsetsAPI;
+    mainForm:QueryFormModel;
+    waitForColorsTile:number;
+}
+
+
 export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelState> {
 
 
@@ -93,14 +105,16 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
 
     private readonly waitForColorsTile:number;
 
+    private readonly appServices:AppServices;
 
-    constructor(dispatcher:IActionQueue, initialState:TranslationsSubsetsModelState, tileId:number, api:TreqSubsetsAPI,
-            mainForm:QueryFormModel, waitForColorsTile:number) {
+
+    constructor({dispatcher, appServices, initialState, tileId, api, mainForm, waitForColorsTile}:TreqSubsetModelArgs) {
         super(dispatcher, initialState);
         this.api = api;
         this.tileId = tileId;
         this.mainForm = mainForm;
         this.waitForColorsTile = waitForColorsTile;
+        this.appServices = appServices;
         this.actionMatch = {
             [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
                 const newState = this.copyState(state);
@@ -289,6 +303,29 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
                         return false;
                     }
                 );
+            break;
+            case GlobalActionName.GetSourceInfo:
+                if (action.payload['tileId'] === this.tileId) {
+                    this.api.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), action.payload['corpusId'])
+                    .subscribe(
+                        (data) => {
+                            dispatch({
+                                name: GlobalActionName.GetSourceInfoDone,
+                                payload: {
+                                    data: data
+                                }
+                            });
+                        },
+                        (err) => {
+                            console.error(err);
+                            dispatch({
+                                name: GlobalActionName.GetSourceInfoDone,
+                                error: err
+
+                            });
+                        }
+                    );
+                }
             break;
         }
     }

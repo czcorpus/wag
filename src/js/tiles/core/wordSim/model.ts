@@ -140,17 +140,25 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
             break;
             case GlobalActionName.GetSourceInfo:
                 if (action.payload['tileId'] === this.tileId) {
-                    seDispatch({
-                        name: GlobalActionName.GetSourceInfoDone,
-                        payload: {
-                            data: {
-                                tileId: this.tileId,
-                                title: null,
-                                description: null,
-                                author: null
-                            }
+                    this.api.getSourceDescription(this.tileId).subscribe(
+                        (data) => {
+                            seDispatch({
+                                name: GlobalActionName.GetSourceInfoDone,
+                                payload: {
+                                    data: data
+                                }
+                            });
+                        },
+                        (err) => {
+                            seDispatch({
+                                name: GlobalActionName.GetSourceInfoDone,
+                                payload: {
+                                    data: null
+                                },
+                                error: err
+                            });
                         }
-                    });
+                    );
                 }
             break;
         }

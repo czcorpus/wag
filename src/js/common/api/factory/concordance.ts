@@ -16,39 +16,23 @@
  * limitations under the License.
  */
 import { DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../types';
-import { ConcResponse } from '../../api/abstract/concordance';
-import { ConcApi, stateToArgs as concStateToArgs } from '../../api/kontext/concordance';
-import { FCS1SearchRetrieveAPI, stateToArgs as fcsv1StateToArgs } from '../../api/clarin/fcs1/searchRetrieve';
+import { IConcordanceApi } from '../../api/abstract/concordance';
+import { ConcApi } from '../../api/kontext/concordance';
+import { FCS1SearchRetrieveAPI } from '../../api/clarin/fcs1/searchRetrieve';
 import { FCS1ExplainAPI } from '../../api/clarin/fcs1/explain';
-import { IStateArgsMapper } from '../../models/concordance';
 import { CoreApiGroup, supportedCoreApiGroups } from '../../api/coreGroups';
 
 
-export function createApiInstance(cache:IAsyncKeyValueStore, apiIdent:string, apiURL:string, httpHeaders?:HTTPHeaders):DataApi<{}, ConcResponse> {
+export function createApiInstance(cache:IAsyncKeyValueStore, apiIdent:string, apiURL:string, httpHeaders?:HTTPHeaders):IConcordanceApi<{}> {
 
  	switch (apiIdent) {
  		case CoreApiGroup.KONTEXT:
- 			return new ConcApi(cache, apiURL, httpHeaders);
+ 			return new ConcApi(false, cache, apiURL, httpHeaders);
  		case CoreApiGroup.FCS_V1:
  			return new FCS1SearchRetrieveAPI(apiURL, httpHeaders);
  		default:
  			throw new Error(`Concordance tile API "${apiIdent}" not found. Supported values are: ${supportedCoreApiGroups().join(', ')}`);
  	}
-
- }
-
-
- export function createMapperInstance(apiIdent:string):IStateArgsMapper<{}> {
-
-	switch (apiIdent) {
-		case CoreApiGroup.KONTEXT:
-			return concStateToArgs;
-		case CoreApiGroup.FCS_V1:
-			return fcsv1StateToArgs;
-		default:
-			throw new Error(`Concordance tile API "${apiIdent}" not found. Supported values are: ${supportedCoreApiGroups().join(', ')}`);
-
-	}
  }
 
 

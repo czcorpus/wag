@@ -16,8 +16,9 @@
  * limitations under the License.
  */
 
+import { Observable } from 'rxjs';
 import * as Immutable from 'immutable';
-import { DataApi } from '../../types';
+import { DataApi, SourceDetails } from '../../types';
 import { TranslationsModelState, TranslationsSubsetsModelState } from '../../models/translations';
 
 
@@ -42,6 +43,8 @@ export interface TranslationAPI<T, U> extends DataApi<T, TranslationResponse> {
     stateToArgs(state:TranslationsModelState<U>, query:string):T;
 
     stateToPageArgs(state:TranslationsModelState<U>, query:string):U;
+
+    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<SourceDetails>;
 }
 
 

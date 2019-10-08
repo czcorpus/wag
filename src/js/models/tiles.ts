@@ -63,12 +63,9 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
 
     private readonly appServices:AppServices;
 
-    private readonly corpusInfoApi:CorpusInfoAPI;
-
-    constructor(dispatcher:IActionQueue, initialState:WdglanceTilesState, appServices:AppServices, corpusInfoApi:CorpusInfoAPI) {
+    constructor(dispatcher:IActionQueue, initialState:WdglanceTilesState, appServices:AppServices) {
         super(dispatcher, initialState);
         this.appServices = appServices;
-        this.corpusInfoApi = corpusInfoApi;
         this.actionMatch = {
             [ActionName.SetScreenMode]: (state, action:Actions.SetScreenMode) => {
                 const newState = this.copyState(state);
@@ -86,7 +83,6 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                             tileId: tile.tileId,
                             Component: tile.Component,
                             SourceInfoComponent: tile.SourceInfoComponent,
-                            sourceInfoData: tile.sourceInfoData,
                             label: tile.label,
                             supportsTweakMode: tile.supportsTweakMode,
                             supportsCurrQueryType: tile.supportsCurrQueryType,
@@ -282,51 +278,6 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
 
     sideEffects(state:WdglanceTilesState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
-            case ActionName.GetSourceInfo:
-                const tile = state.tileProps.find(v => v.tileId === action.payload['tileId']);
-                if (tile && !tile.sourceInfoData) {
-                    this.corpusInfoApi.call(
-                        {
-                            tileId: action.payload['tileId'],
-                            corpname: action.payload['corpusId'],
-                            format: 'json'
-                        }
-                    ).pipe(
-                        map(
-                            v => ({
-                                tileId: v.tileId,
-                                title: this.appServices.translate('global__corpus') + ' ' + v.title,
-                                description: v.description,
-                                author: v.author,
-                                size: v.size,
-                                webURL: v.webURL,
-                                attrList: v.attrList,
-                                citationInfo: v.citationInfo,
-                                structList: v.structList
-                            })
-                        )
-                    ).subscribe(
-                        (data) => {
-                            dispatch<Actions.GetSourceInfoDone>({
-                                name: ActionName.GetSourceInfoDone,
-                                payload: {
-                                    data: data
-                                }
-                            })
-                        },
-                        (error) => {
-                            this.appServices.showMessage(SystemMessageType.ERROR, error);
-                            dispatch<Actions.GetSourceInfoDone>({
-                                name: ActionName.GetSourceInfoDone,
-                                error: error,
-                                payload: {
-                                    data: null
-                                }
-                            })
-                        }
-                    );
-                }
-            break;
             case ActionName.ShowTileHelp:
                 this.getTileProps(state, action.payload['tileId']).pipe(
                     map(
@@ -349,7 +300,6 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                             );
                         }
                     )
-
                 ).subscribe(
                     (html) => {
                         dispatch<Actions.LoadTileHelpDone>({

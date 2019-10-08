@@ -843,14 +843,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             if (tile.SourceInfoComponent) {
                 return <div><tile.SourceInfoComponent data={props.data} /></div>;
 
-            } else if (tile.sourceInfoData) {
-                return <div><globalComponents.SourceInfoBox data={tile.sourceInfoData} /></div>;
-
             } else if (isCorpusBasedResponse(props.data)) {
                 return <CorpusInfo data={props.data} />;
 
             } else {
-                throw new Error('Unsupported source info view/data');
+                return <globalComponents.SourceInfoBox data={props.data} />;
             }
         }
         return (

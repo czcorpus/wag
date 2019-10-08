@@ -21,6 +21,7 @@ import { Observable } from 'rxjs';
 import { HTTPHeaders, IAsyncKeyValueStore, HTTPMethod } from '../../types';
 import { map } from 'rxjs/operators';
 import { SingleCritQueryArgs, HTTPResponse } from './freqs';
+import { CorpusInfoAPI, APIResponse as CorpusInfoApiResponse } from './corpusInfo';
 import { BacklinkWithArgs } from '../../tile';
 
 
@@ -32,10 +33,13 @@ export class KontextMatchingDocsAPI implements MatchingDocsAPI<SingleCritQueryAr
 
     private readonly cache:IAsyncKeyValueStore;
 
+    private readonly srcInfoService:CorpusInfoAPI;
+
     constructor(cache:IAsyncKeyValueStore, apiURL:string, customHeaders?:HTTPHeaders) {
         this.cache = cache;
         this.apiURL = apiURL;
         this.customHeaders = customHeaders || {};
+        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, customHeaders);
     }
 
     stateToBacklink(state:MatchingDocsModelState, query:string):BacklinkWithArgs<KontextFreqBacklinkArgs> {
@@ -58,7 +62,7 @@ export class KontextMatchingDocsAPI implements MatchingDocsAPI<SingleCritQueryAr
 
     stateToArgs(state:MatchingDocsModelState, query:string):SingleCritQueryArgs {
         if (state.srchAttrs.size > 1) {
-            console.warn('MatchingDocsTile: Kontext API will take only first item from `srchAttrs` config!');            
+            console.warn('MatchingDocsTile: Kontext API will take only first item from `srchAttrs` config!');
         }
         return {
             corpname: state.corpname,
@@ -73,10 +77,18 @@ export class KontextMatchingDocsAPI implements MatchingDocsAPI<SingleCritQueryAr
         };
     }
 
+    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<CorpusInfoApiResponse> {
+        return this.srcInfoService.call({
+            tileId: tileId,
+            corpname: corpname,
+            format: 'json'
+        });
+    }
+
     call(args:SingleCritQueryArgs):Observable<APIResponse> {
         return cachedAjax$<HTTPResponse>(this.cache)(
             'GET',
-            this.apiURL,
+            this.apiURL + '/freqs',
             args,
             {headers: this.customHeaders}
 

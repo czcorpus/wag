@@ -100,7 +100,7 @@ export class TimeDistTile implements ITileProvider {
                 conf,
                 appServices.getApiHeaders(conf.apiURL)
             ),
-            concApi: conf.concApiURL ? new ConcApi(cache, conf.concApiURL, appServices.getApiHeaders(conf.apiURL)) : null,
+            concApi: conf.concApiURL ? new ConcApi(false, cache, conf.concApiURL, appServices.getApiHeaders(conf.apiURL)) : null,
             appServices: appServices,
             mainForm: mainForm,
             backlink: conf.backlink
@@ -117,8 +117,8 @@ export class TimeDistTile implements ITileProvider {
         return this.view;
     }
 
-    getSourceInfo():[null, null] {
-        return [null, null];
+    getSourceInfoComponent():null {
+        return null;
     }
 
     getLabel():string {

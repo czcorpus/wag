@@ -22,9 +22,7 @@
  */
 import * as React from 'react';
 import * as Immutable from 'immutable';
-import { Observable, of as rxOf } from 'rxjs';
-
-import { CorpusInfoAPI } from './common/api/kontext/corpusInfo';
+import { Observable } from 'rxjs';
 import { Theme } from './common/theme';
 import { AvailableLanguage, ScreenProps } from './common/hostPage';
 import { LemmaVariant, QueryType, SearchLanguage } from './common/query';
@@ -48,12 +46,10 @@ const mkAttachTile = (queryType:QueryType, lang1:string, lang2:string) =>
     (data:Array<TileFrameProps>, tile:ITileProvider, helpURL:string):void => {
 
     const support = tile.supportsQueryType(queryType, lang1, lang2);
-    const [sourceInfoComponent, sourceInfoData] = tile.getSourceInfo();
     data.push({
         tileId: tile.getIdent(),
         Component: tile.getView(),
-        SourceInfoComponent: sourceInfoComponent,
-        sourceInfoData: sourceInfoData,
+        SourceInfoComponent: tile.getSourceInfoComponent(),
         label: tile.getLabel(),
         supportsTweakMode: tile.supportsTweakMode(),
         supportsCurrQueryType: support,
@@ -177,8 +173,7 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
             activeGroupHelp: null,
             activeTileHelp: null
         },
-        appServices,
-        new CorpusInfoAPI(cache, config.corpInfoApiUrl)
+        appServices
     );
     const messagesModel = new MessagesModel(dispatcher, appServices);
 

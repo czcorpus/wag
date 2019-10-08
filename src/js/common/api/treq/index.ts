@@ -15,12 +15,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Observable } from 'rxjs';
+import { Observable, of as rxOf } from 'rxjs';
 import { map } from 'rxjs/operators';
 import * as Immutable from 'immutable';
 
 import { cachedAjax$ } from '../../ajax';
-import { IAsyncKeyValueStore } from '../../types';
+import { IAsyncKeyValueStore, SourceDetails } from '../../types';
 import { WordTranslation, TranslationAPI, TranslationResponse, TranslationSubsetsAPI } from '../abstract/translations';
 import { TranslationsModelState, TranslationsSubsetsModelState } from '../../models/translations';
 
@@ -78,6 +78,16 @@ class TreqAPICaller {
     constructor(cache:IAsyncKeyValueStore, apiURL:string) {
         this.cache = cache;
         this.apiURL = apiURL;
+    }
+
+    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<SourceDetails> {
+        return rxOf({
+            tileId: tileId,
+            title: 'InterCorp',
+            description: '',
+            author: 'Czech National Corpus',
+            href: 'https://wiki.korpus.cz/doku.php/cnk:intercorp'
+        });
     }
 
     private mergeByLowercase(lines:Array<WordTranslation>):Array<WordTranslation> {

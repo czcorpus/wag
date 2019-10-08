@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+import { Observable } from 'rxjs';
 import { DataApi, SourceDetails } from '../../types';
 import { WordSimModelState } from '../../models/wordSim';
 
@@ -35,5 +36,5 @@ export interface WordSimApi<T> extends DataApi<T, WordSimApiResponse> {
 
     supportsTweaking():boolean;
 
-    getSourceDescription(tileId:number):SourceDetails;
+    getSourceDescription(tileId:number):Observable<SourceDetails>;
 }

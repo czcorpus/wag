@@ -16,6 +16,11 @@
  * limitations under the License.
  */
 
+import { ConcordanceMinState } from '../../models/concordance';
+import { LemmaVariant } from '../../query';
+import { DataApi, SourceDetails } from '../../types';
+import { Observable } from 'rxjs';
+
 
 export interface LineElement {
     'class':string;
@@ -56,4 +61,13 @@ export enum ViewMode {
     KWIC = 'kwic',
     SENT = 'sen',
     ALIGN = 'align'
+}
+
+
+export interface IConcordanceApi<T> extends DataApi<T, ConcResponse> {
+
+    stateToArgs(state:ConcordanceMinState, lvar:LemmaVariant|null, otherLangCql:string|null):T;
+
+    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<SourceDetails>;
+
 }
