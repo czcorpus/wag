@@ -38,7 +38,8 @@ export interface MatchingDocsTileConf extends TileConf {
     apiType:string;
     corpname:string|null; // null can be used in case subqueryMode is enabled
     subcname:string|null;
-    srchAttrs:string|Array<string>;
+    displayAttrs:string|Array<string>;
+    srchAttrs?:string|Array<string>;
     maxNumCategories:number;
     maxNumCategoriesPerPage:number;
 
@@ -94,7 +95,8 @@ export class MatchingDocsTile implements ITileProvider {
                 corpname: conf.corpname,
                 subcname: conf.subcname,
                 concId: null,
-                srchAttrs: Immutable.List<string>(typeof conf.srchAttrs === 'string' ? [conf.srchAttrs] : conf.srchAttrs),
+                displayAttrs: Immutable.List<string>(typeof conf.displayAttrs === 'string' ? [conf.displayAttrs] : conf.displayAttrs),
+                srchAttrs: conf.srchAttrs ? Immutable.List<string>(typeof conf.srchAttrs === 'string' ? [conf.srchAttrs] : conf.srchAttrs) : null,
                 currPage: null,
                 numPages: null,
                 maxNumCategories: conf.maxNumCategories,

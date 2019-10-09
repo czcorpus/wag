@@ -130,7 +130,7 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState> {
                                 observer.error(new Error(this.appServices.translate('global__failed_to_obtain_required_data')));
 
                             } else {
-                                state.srchAttrs.keySeq().forEach(critIdx => observer.next(critIdx));
+                                state.displayAttrs.keySeq().forEach(critIdx => observer.next(critIdx));
                                 observer.complete();
                             }
                         }).pipe(

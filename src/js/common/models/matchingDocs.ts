@@ -44,6 +44,7 @@ export interface MatchingDocsModelState {
     numPages:number;
     backlink:BacklinkWithArgs<{}>|null;
     subqSyncPalette:boolean;
-    srchAttrs:Immutable.List<string>;
+    displayAttrs:Immutable.List<string>;
+    srchAttrs:Immutable.List<string>|null;
     data:Immutable.List<DataRow>;
 }
