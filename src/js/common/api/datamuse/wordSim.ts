@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Observable } from 'rxjs';
+import { Observable, of as rxOf } from 'rxjs';
 import { cachedAjax$ } from '../../ajax';
 import { HTTPHeaders, IAsyncKeyValueStore, SourceDetails } from '../../types';
 import { WordSimApiResponse, WordSimWord, WordSimApi } from '../abstract/wordSim';
@@ -66,8 +66,8 @@ export class DatamuseMLApi implements WordSimApi<DatamuseMLApiArgs|DatamuseSLApi
         return true;
     }
 
-    getSourceDescription(tileId:number):SourceDetails {
-        return {
+    getSourceDescription(tileId:number):Observable<SourceDetails> {
+        return rxOf({
             tileId: tileId,
             title: 'Datamuse.com',
             description: 'The Datamuse API is a word-finding query engine for developers. ' +
@@ -76,7 +76,7 @@ export class DatamuseMLApi implements WordSimApi<DatamuseMLApiArgs|DatamuseSLApi
                          'on meaning, spelling, sound, and vocabulary in your queries, in any combination.',
             author: 'Datamuse.com',
             href: 'https://www.datamuse.com'
-        };
+        });
     }
 
     call(queryArgs:DatamuseApiArgs):Observable<WordSimApiResponse> {

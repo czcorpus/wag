@@ -19,11 +19,12 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { cachedAjax$ } from '../../ajax';
-import { DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../types';
+import { HTTPHeaders, IAsyncKeyValueStore } from '../../types';
 import { LemmaVariant } from '../../query';
 import { posQueryFactory } from './posQuery';
-import { IStateArgsMapper } from '../../models/concordance';
-import { Line, ConcResponse, ViewMode, LineElement } from '../abstract/concordance';
+import { Line, ConcResponse, ViewMode, LineElement, IConcordanceApi } from '../abstract/concordance';
+import { ConcordanceMinState } from '../../models/concordance';
+import { CorpusInfoAPI, APIResponse as CorpusInfoApiResponse } from './corpusInfo';
 
 
 
@@ -188,63 +189,7 @@ export const setQuery = (args:AnyQuery, q:string):void => {
 }
 
 
-export const stateToArgs:IStateArgsMapper<RequestArgs|PCRequestArgs> = (state, lvar, otherLangCql) => {
-    if (state.otherCorpname) {
-        const ans:PCRequestArgs = {
-            corpname: state.corpname,
-            maincorp: state.corpname,
-            align: state.otherCorpname,
-            usesubcorp: state.subcname,
-            queryselector: state.querySelector,
-            kwicleftctx: (-1 * state.kwicLeftCtx).toFixed(),
-            kwicrightctx: state.kwicRightCtx.toFixed(),
-            async: '0',
-            pagesize: state.pageSize.toFixed(),
-            fromp: state.loadPage.toFixed(),
-            attr_vmode: state.attr_vmode,
-            attrs: state.attrs.join(','),
-            viewmode: state.viewMode,
-            shuffle: state.shuffle ? 1 : undefined,
-            format:'json'
-        };
-        ans[`pcq_pos_neg_${state.otherCorpname}`] = PCQValue.POS;
-        ans[`include_empty_${state.otherCorpname}`] = '0';
-        ans[`queryselector_${state.otherCorpname}`] = 'cqlrow';
-        ans[`cql_${state.otherCorpname}`] = otherLangCql || '';
-        if (lvar) {
-            setQuery(ans, mkLemmaMatchQuery(lvar, state.posQueryGenerator));
 
-        } else {
-            ans.q = `~${state.concId}`;
-        }
-        return ans;
-
-    } else {
-        const ans:RequestArgs = {
-            corpname: state.corpname,
-            usesubcorp: state.subcname,
-            queryselector: state.querySelector,
-            kwicleftctx: (-1 * state.kwicLeftCtx).toFixed(),
-            kwicrightctx: state.kwicRightCtx.toFixed(),
-            async: '0',
-            pagesize: state.pageSize.toFixed(),
-            fromp: state.loadPage.toFixed(),
-            attr_vmode: state.attr_vmode,
-            attrs: state.attrs.join(','),
-            refs: state.metadataAttrs.map(v => '=' + v.value).join(','),
-            viewmode: state.viewMode,
-            shuffle: state.shuffle ? 1 : undefined,
-            format:'json'
-        };
-        if (lvar) {
-            setQuery(ans, mkLemmaMatchQuery(lvar, state.posQueryGenerator));
-
-        } else {
-            ans.q = `~${state.concId}`;
-        }
-        return ans;
-    }
-}
 
 
 export function convertLines(lines:Array<KontextLine>, metadataAttrs?:Array<string>):Array<Line> {
@@ -267,7 +212,7 @@ export function convertLines(lines:Array<KontextLine>, metadataAttrs?:Array<stri
 }
 
 
-export class ConcApi implements DataApi<RequestArgs, ConcResponse> {
+export class ConcApi implements IConcordanceApi<RequestArgs> {
 
     private readonly apiURL:string;
 
@@ -275,21 +220,95 @@ export class ConcApi implements DataApi<RequestArgs, ConcResponse> {
 
     private readonly cache:IAsyncKeyValueStore;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, customHeaders?:HTTPHeaders) {
+    private readonly srcInfoService:CorpusInfoAPI;
+
+    private readonly isFilterMode:boolean;
+
+    constructor(filterMode:boolean, cache:IAsyncKeyValueStore, apiURL:string, customHeaders?:HTTPHeaders) {
+        this.isFilterMode = filterMode;
         this.apiURL = apiURL;
         this.customHeaders = customHeaders || {};
         this.cache = cache;
+        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, customHeaders);
     }
 
-    private mkViewURLVariant():string {
-        const parsed = this.apiURL.split('/');
-        return parsed.slice(0, parsed.length - 1).concat(['view']).join('/');
+    stateToArgs(state:ConcordanceMinState, lvar:LemmaVariant, otherLangCql:string):RequestArgs {
+        if (state.otherCorpname) {
+            const ans:PCRequestArgs = {
+                corpname: state.corpname,
+                maincorp: state.corpname,
+                align: state.otherCorpname,
+                usesubcorp: state.subcname,
+                queryselector: state.querySelector,
+                kwicleftctx: (-1 * state.kwicLeftCtx).toFixed(),
+                kwicrightctx: state.kwicRightCtx.toFixed(),
+                async: '0',
+                pagesize: state.pageSize.toFixed(),
+                fromp: state.loadPage.toFixed(),
+                attr_vmode: state.attr_vmode,
+                attrs: state.attrs.join(','),
+                viewmode: state.viewMode,
+                shuffle: state.shuffle ? 1 : undefined,
+                format:'json'
+            };
+            ans[`pcq_pos_neg_${state.otherCorpname}`] = PCQValue.POS;
+            ans[`include_empty_${state.otherCorpname}`] = '0';
+            ans[`queryselector_${state.otherCorpname}`] = 'cqlrow';
+            ans[`cql_${state.otherCorpname}`] = otherLangCql || '';
+            if (lvar) {
+                setQuery(ans, mkLemmaMatchQuery(lvar, state.posQueryGenerator));
+
+            } else {
+                ans.q = `~${state.concId}`;
+            }
+            return ans;
+
+        } else {
+            const ans:RequestArgs = {
+                corpname: state.corpname,
+                usesubcorp: state.subcname,
+                queryselector: state.querySelector,
+                kwicleftctx: (-1 * state.kwicLeftCtx).toFixed(),
+                kwicrightctx: state.kwicRightCtx.toFixed(),
+                async: '0',
+                pagesize: state.pageSize.toFixed(),
+                fromp: state.loadPage.toFixed(),
+                attr_vmode: state.attr_vmode,
+                attrs: state.attrs.join(','),
+                refs: state.metadataAttrs.map(v => '=' + v.value).join(','),
+                viewmode: state.viewMode,
+                shuffle: state.shuffle ? 1 : undefined,
+                format:'json'
+            };
+            if (lvar) {
+                setQuery(ans, mkLemmaMatchQuery(lvar, state.posQueryGenerator));
+
+            } else {
+                ans.q = `~${state.concId}`;
+            }
+            return ans;
+        }
+    }
+
+    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<CorpusInfoApiResponse> {
+        return this.srcInfoService.call({
+            tileId: tileId,
+            corpname: corpname,
+            format: 'json'
+        });
+    }
+
+    private createActionUrl(args:RequestArgs|PCRequestArgs|FilterRequestArgs):string {
+        if (this.isFilterMode) {
+            return this.apiURL + '/quick_filter';
+        }
+        return this.apiURL + '/' + (args.q ? 'view' : 'first');
     }
 
     call(args:RequestArgs|PCRequestArgs|FilterRequestArgs):Observable<ConcResponse> {
         return cachedAjax$<HTTPResponse>(this.cache)(
             'GET',
-            args.q && /\/first$/.exec(this.apiURL) ? this.mkViewURLVariant() : this.apiURL,
+            this.createActionUrl(args),
             args,
             {headers: this.customHeaders}
 

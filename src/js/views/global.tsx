@@ -231,7 +231,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
         return (
             <div>
                 <h2>{props.data.title}</h2>
-                {props.data.href ? <p><a href={props.data.href}>{props.data.href}</a></p> : null}
+                {props.data.href ? <p><a href={props.data.href} target="_blank">{props.data.href}</a></p> : null}
                 <p>{props.data.description}</p>
             </div>
         );

@@ -15,14 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Observable } from 'rxjs';
+import { Observable, of as rxOf } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { cachedAjax$ } from '../../../common/ajax';
-import { HTTPHeaders, IAsyncKeyValueStore } from '../../../common/types';
+import { HTTPHeaders, IAsyncKeyValueStore, SourceDetails } from '../../../common/types';
 import { puid } from '../../../common/util';
 import { CollApiResponse, CollocationApi } from '../abstract/collocations';
-import { CollocModelState } from '../../models/collocations/collocations';
+import { CollocModelState } from '../../models/collocations';
 import { LemmaVariant } from '../../query';
 
 
@@ -68,6 +68,16 @@ export class LccCollAPI implements CollocationApi<CollRequestArgs> {
 
     supportsLeftRightContext():boolean {
         return false;
+    }
+
+    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<SourceDetails> {
+        return rxOf({
+            tileId: tileId,
+            title: 'Leipzig Corpora Collection',
+            description: '',
+            author: 'Leipzig University',
+            href: 'http://wortschatz.uni-leipzig.de/en'
+        });
     }
 
     call(queryArgs:CollRequestArgs):Observable<CollApiResponse> {

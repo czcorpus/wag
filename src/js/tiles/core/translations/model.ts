@@ -24,20 +24,32 @@ import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { QueryFormModel, findCurrLemmaVariant } from '../../../models/query';
 import { DataLoadedPayload } from './actions';
-import { PageArgs, TreqAPI } from '../../../common/api/treq';
 import { ColorScaleFunctionGenerator } from '../../../common/theme';
-import { WordTranslation } from '../../../common/api/abstract/translations';
+import { WordTranslation, TranslationAPI } from '../../../common/api/abstract/translations';
 import { TranslationsModelState } from '../../../common/models/translations';
+import { AppServices } from '../../../appServices';
 
 
-export type TreqModelState = TranslationsModelState<PageArgs>;
+export type GeneralTranslationsModelState = TranslationsModelState<{}>;
 
 
-export class TreqModel extends StatelessModel<TreqModelState> {
+export interface TranslationModelArgs {
+    dispatcher:IActionQueue;
+    appServices:AppServices;
+    initialState:GeneralTranslationsModelState;
+    tileId:number;
+    api:TranslationAPI<{}, {}>;
+    backlink:Backlink;
+    mainForm:QueryFormModel;
+    scaleColorGen:ColorScaleFunctionGenerator;
+}
+
+
+export class TranslationsModel extends StatelessModel<GeneralTranslationsModelState> {
 
     private readonly tileId:number;
 
-    private readonly api:TreqAPI;
+    private readonly api:TranslationAPI<{}, {}>;
 
     private readonly mainForm:QueryFormModel;
 
@@ -45,14 +57,17 @@ export class TreqModel extends StatelessModel<TreqModelState> {
 
     private readonly scaleColorGen:ColorScaleFunctionGenerator;
 
-    constructor(dispatcher:IActionQueue, initialState:TreqModelState, tileId:number, api:TreqAPI,
-            backlink:Backlink, mainForm:QueryFormModel, scaleColorGen:ColorScaleFunctionGenerator) {
+    private readonly appServices:AppServices;
+
+    constructor({dispatcher, appServices, initialState, tileId, api, backlink, mainForm,
+                scaleColorGen}:TranslationModelArgs) {
         super(dispatcher, initialState);
         this.api = api;
         this.backlink = backlink;
         this.mainForm = mainForm;
         this.tileId = tileId;
         this.scaleColorGen = scaleColorGen;
+        this.appServices = appServices;
         this.actionMatch = {
             [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
                 const newState = this.copyState(state);
@@ -95,7 +110,7 @@ export class TreqModel extends StatelessModel<TreqModelState> {
         }
     }
 
-    private makeBacklink(state:TreqModelState, query:string):BacklinkWithArgs<PageArgs> {
+    private makeBacklink(state:GeneralTranslationsModelState, query:string):BacklinkWithArgs<{}> {
         return this.backlink ?
             {
                 url: this.backlink.url,
@@ -106,7 +121,7 @@ export class TreqModel extends StatelessModel<TreqModelState> {
             null;
     }
 
-    sideEffects(state:TreqModelState, action:Action, dispatch:SEDispatcher):void {
+    sideEffects(state:GeneralTranslationsModelState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
                 const srchLemma = findCurrLemmaVariant(this.mainForm.getState().lemmas);
@@ -167,6 +182,29 @@ export class TreqModel extends StatelessModel<TreqModelState> {
                             console.log(error);
                         }
                     );
+            break;
+            case GlobalActionName.GetSourceInfo:
+                if (action.payload['tileId'] === this.tileId) {
+                    this.api.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), action.payload['corpusId'])
+                    .subscribe(
+                        (data) => {
+                            dispatch({
+                                name: GlobalActionName.GetSourceInfoDone,
+                                payload: {
+                                    data: data
+                                }
+                            });
+                        },
+                        (err) => {
+                            console.error(err);
+                            dispatch({
+                                name: GlobalActionName.GetSourceInfoDone,
+                                error: err
+
+                            });
+                        }
+                    );
+                }
             break;
         }
     }

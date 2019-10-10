@@ -55,7 +55,7 @@ export class WordListAPI implements DataApi<WordListArgs, WordListResponse> {
 
 		return ajax$<WordListResponse>(
 			HTTPMethod.GET,
-			this.url,
+			this.url + '/wordlist',
 			args,
 			{headers: this.customHeaders}
 		);

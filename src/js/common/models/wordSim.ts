@@ -15,26 +15,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import * as Immutable from 'immutable';
+import { WordSimWord } from '../api/abstract/wordSim';
 
-import { Observable } from 'rxjs';
-import { DataApi, SourceDetails } from '../../types';
-import { WordSimModelState } from '../../models/wordSim';
-
-
-export interface WordSimWord {
-    word:string;
-    score:number;
+export enum OperationMode {
+    MeansLike = 'ml',
+    SoundsLike = 'sl'
 }
 
-export interface WordSimApiResponse {
-    words:Array<WordSimWord>;
-}
-
-export interface WordSimApi<T> extends DataApi<T, WordSimApiResponse> {
-
-    stateToArgs(state:WordSimModelState, query:string):T;
-
-    supportsTweaking():boolean;
-
-    getSourceDescription(tileId:number):Observable<SourceDetails>;
+/**
+ * WordSimModelState is a state for 'word similarity' core tile (and
+ * derived tiles).
+ */
+export interface WordSimModelState {
+    isBusy:boolean;
+    isTweakMode:boolean;
+    isMobile:boolean;
+    isAltViewMode:boolean;
+    error:string;
+    maxResultItems:number;
+    minScore:number;
+    data:Immutable.List<WordSimWord>;
+    operationMode:OperationMode;
+    corpus:string;
 }

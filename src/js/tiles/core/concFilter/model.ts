@@ -369,6 +369,29 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                     }
                 );
             break;
+            case GlobalActionName.GetSourceInfo:
+                if (action.payload['tileId'] === this.tileId) {
+                    this.api.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), state.corpName)
+                    .subscribe(
+                        (data) => {
+                            seDispatch({
+                                name: GlobalActionName.GetSourceInfoDone,
+                                payload: {
+                                    data: data
+                                }
+                            });
+                        },
+                        (err) => {
+                            console.error(err);
+                            seDispatch({
+                                name: GlobalActionName.GetSourceInfoDone,
+                                error: err
+
+                            });
+                        }
+                    );
+                }
+            break;
         }
     }
 

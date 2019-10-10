@@ -20,6 +20,7 @@ import { Observable, of as rxOf } from 'rxjs';
 import { DataApi, IAsyncKeyValueStore, HTTPHeaders, HTTPMethod } from '../../../common/types';
 import { cachedAjax$ } from '../../../common/ajax';
 import { ConcDetailText } from './modelDomain';
+import { CorpusInfoAPI, APIResponse as CorpusInfoApiResponse } from '../../../common/api/kontext/corpusInfo';
 
 
 
@@ -56,17 +57,28 @@ export class SpeechesApi implements DataApi<SpeechReqArgs, SpeechResponse> {
 
     private readonly headers:HTTPHeaders;
 
+    private readonly srcInfoService:CorpusInfoAPI;
+
     constructor(cache:IAsyncKeyValueStore, apiUrl:string, headers:HTTPHeaders) {
         this.cache = cache;
         this.apiUrl = apiUrl;
         this.headers = headers;
+        this.srcInfoService = new CorpusInfoAPI(cache, apiUrl, headers);
+    }
+
+    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<CorpusInfoApiResponse> {
+        return this.srcInfoService.call({
+            tileId: tileId,
+            corpname: corpname,
+            format: 'json'
+        });
     }
 
     call(args:SpeechReqArgs):Observable<SpeechResponse> {
         if (args.pos !== undefined) {
             return cachedAjax$<SpeechResponse>(this.cache)(
                 HTTPMethod.GET,
-                this.apiUrl,
+                this.apiUrl + '/widectx',
                 args,
                 {
                     headers: this.headers

@@ -23,7 +23,7 @@ import { CollocationApi } from '../../../common/api/abstract/collocations';
 import { LccCollAPI } from '../../../common/api/lcc/cooccurrences';
 
 
-export function createCollApiInstance(apiIdent:string, apiURL:string, apiHeaders:HTTPHeaders, cache:IAsyncKeyValueStore):CollocationApi<{}> {
+export function createInstance(apiIdent:string, apiURL:string, apiHeaders:HTTPHeaders, cache:IAsyncKeyValueStore):CollocationApi<{}> {
 
 	switch (apiIdent) {
 		case CoreApiGroup.KONTEXT:

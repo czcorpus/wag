@@ -19,10 +19,13 @@
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { DataApi, HTTPMethod, HTTPHeaders } from '../../../types';
-import { ConcResponse, Line } from '../../../../common/api/abstract/concordance';
+import { ConcResponse, Line, IConcordanceApi } from '../../../../common/api/abstract/concordance';
 import { XMLParser, XMLNode } from '../../../xml';
-import { IStateArgsMapper } from '../../../models/concordance';
+import { ConcordanceMinState } from '../../../models/concordance';
 import { ajax$, ResponseType } from '../../../ajax';
+import { LemmaVariant } from '../../../query';
+import { ConcApi } from '../../kontext/concordance';
+import { FCS1ExplainAPI, FCS1ExplainResponse } from './explain';
 
 
 /**
@@ -133,22 +136,7 @@ function importResponse(root:XMLNode, query:string, corpName:string, subcorpName
 /**
  *
  */
-export const stateToArgs:IStateArgsMapper<FCS1Args> = (state, lvar, otherLangCql) => {
-    return {
-        operation: 'searchRetrieve',
-        query: lvar.lemma,
-        recordPacking: 'xml',
-        recordSchema: 'http://clarin.eu/fcs/resource',
-        startRecord: state.pageSize * (state.loadPage - 1) + 1,
-        maximumRecords: state.pageSize ? state.pageSize : undefined,
-        'x-cmd-context': state.corpname ? state.corpname : undefined
-    };
-}
-
-/**
- *
- */
-export class FCS1SearchRetrieveAPI implements DataApi<FCS1Args, ConcResponse> {
+export class FCS1SearchRetrieveAPI implements IConcordanceApi<FCS1Args> {
 
     private readonly url:string;
 
@@ -156,10 +144,33 @@ export class FCS1SearchRetrieveAPI implements DataApi<FCS1Args, ConcResponse> {
 
     private readonly customHeaders:HTTPHeaders;
 
+    private readonly srcInfoApi:FCS1ExplainAPI;
+
     constructor(url:string, customHeaders?:HTTPHeaders) {
         this.url = url;
         this.customHeaders = customHeaders || {};
         this.parser = new XMLParser();
+        this.srcInfoApi = new FCS1ExplainAPI(url, this.customHeaders);
+    }
+
+    stateToArgs(state:ConcordanceMinState, lvar:LemmaVariant, otherLangCql:string):FCS1Args {
+        return {
+            operation: 'searchRetrieve',
+            query: lvar.lemma,
+            recordPacking: 'xml',
+            recordSchema: 'http://clarin.eu/fcs/resource',
+            startRecord: state.pageSize * (state.loadPage - 1) + 1,
+            maximumRecords: state.pageSize ? state.pageSize : undefined,
+            'x-cmd-context': state.corpname ? state.corpname : undefined
+        };
+    }
+
+    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<FCS1ExplainResponse> {
+        return this.srcInfoApi.call({
+            tileId: tileId,
+            uiLang: uiLang,
+            'x-fcs-endpoint-description': 'true' // TODO
+        });
     }
 
 	call(args:FCS1Args):Observable<ConcResponse> {

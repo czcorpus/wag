@@ -1,6 +1,6 @@
 /*
- * Copyright 2019 Tomas Machalek <tomas.machalek@gmail.com>
- * Copyright 2019 Institute of the Czech National Corpus,
+ * Copyright 2018 Tomas Machalek <tomas.machalek@gmail.com>
+ * Copyright 2018 Institute of the Czech National Corpus,
  *                Faculty of Arts, Charles University
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,23 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
-import { WordSimWord } from '../../api/abstract/wordSim';
 
-export enum OperationMode {
-    MeansLike = 'ml',
-    SoundsLike = 'sl'
-}
+import { CorpusInfoAPI } from './corpusInfo';
 
-export interface WordSimModelState {
-    isBusy:boolean;
-    isTweakMode:boolean;
-    isMobile:boolean;
-    isAltViewMode:boolean;
-    error:string;
-    maxResultItems:number;
-    minScore:number;
-    data:Immutable.List<WordSimWord>;
-    operationMode:OperationMode;
-    corpus:string;
+export class KontextApiBase {
+
+    private readonly srcInfoService:CorpusInfoAPI;
 }

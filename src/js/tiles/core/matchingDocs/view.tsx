@@ -123,10 +123,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         supportsTileReload={this.props.supportsReloadOnError}>
                     <div className="MatchingDocsTile">
                         {this.props.isTweakMode ?
-                            <Paginator
-                                page={this.props.currPage}
-                                numPages={this.props.numPages}
-                                tileId={this.props.tileId} />
+                            <form className="cnc-form tile-tweak">
+                                <Paginator
+                                    page={this.props.currPage}
+                                    numPages={this.props.numPages}
+                                    tileId={this.props.tileId} />
+                            </form>
                             : null
                         }
                         <div className="tables">

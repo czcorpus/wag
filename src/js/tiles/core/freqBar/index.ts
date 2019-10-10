@@ -92,7 +92,7 @@ export class FreqBarTile implements ITileProvider {
         const modelFact = conf.subqueryMode ?
                 subqModelFactory(
                     conf.subqueryMode,
-                    new ConcApi(cache, conf.subqueryMode.concApiURL, appServices.getApiHeaders(conf.subqueryMode.concApiURL))
+                    new ConcApi(false, cache, conf.subqueryMode.concApiURL, appServices.getApiHeaders(conf.subqueryMode.concApiURL))
                 ) :
                 defaultModelFactory;
         this.model = modelFact(
@@ -138,8 +138,8 @@ export class FreqBarTile implements ITileProvider {
         return this.view;
     }
 
-    getSourceInfo():[null, null] {
-        return [null, null];
+    getSourceInfoComponent():null {
+        return null;
     }
 
     getLabel():string {

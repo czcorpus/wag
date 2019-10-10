@@ -20,6 +20,7 @@ import { map } from 'rxjs/operators';
 
 import { cachedAjax$ } from '../../ajax';
 import { DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../types';
+import { CorpusInfoAPI, APIResponse as CorpusInfoApiResponse } from './corpusInfo';
 
 export enum FreqSort {
     REL = 'rel'
@@ -117,16 +118,27 @@ export class FreqDistribAPI implements DataApi<SingleCritQueryArgs, APIResponse>
 
     private readonly cache:IAsyncKeyValueStore;
 
+    private readonly srcInfoService:CorpusInfoAPI;
+
     constructor(cache:IAsyncKeyValueStore, apiURL:string, customHeaders?:HTTPHeaders) {
         this.cache = cache;
         this.apiURL = apiURL;
         this.customHeaders = customHeaders || {};
+        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, customHeaders);
+    }
+
+    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<CorpusInfoApiResponse> {
+        return this.srcInfoService.call({
+            tileId: tileId,
+            corpname: corpname,
+            format: 'json'
+        });
     }
 
     call(args:SingleCritQueryArgs):Observable<APIResponse> {
         return cachedAjax$<HTTPResponse>(this.cache)(
             'GET',
-            this.apiURL,
+            this.apiURL + '/freqs',
             args,
             {headers: this.customHeaders}
 
@@ -163,16 +175,27 @@ export class MultiBlockFreqDistribAPI implements DataApi<MultiCritQueryArgs, API
 
     private readonly cache:IAsyncKeyValueStore;
 
+    private readonly srcInfoService:CorpusInfoAPI;
+
     constructor(cache:IAsyncKeyValueStore, apiURL:string, customHeaders?:HTTPHeaders) {
         this.cache = cache;
         this.apiURL = apiURL;
         this.customHeaders = customHeaders || {};
+        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, customHeaders);
+    }
+
+    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<CorpusInfoApiResponse> {
+        return this.srcInfoService.call({
+            tileId: tileId,
+            corpname: corpname,
+            format: 'json'
+        });
     }
 
     call(args:MultiCritQueryArgs):Observable<APIBlockResponse> {
         return cachedAjax$<HTTPResponse>(this.cache)(
             'GET',
-            this.apiURL,
+            this.apiURL + '/freqs',
             args,
             {headers: this.customHeaders}
 

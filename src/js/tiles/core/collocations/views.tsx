@@ -27,7 +27,7 @@ import { CollocModel } from './model';
 import { Actions as GlobalActions, ActionName as GlobalActionName } from '../../../models/actions';
 import { init as wcloudViewInit } from '../../../views/wordCloud/index';
 import { DataRow, SrchContextType, DataHeading } from '../../../common/api/abstract/collocations';
-import { CollocModelState } from '../../../common/models/collocations/collocations';
+import { CollocModelState } from '../../../common/models/collocations';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:CollocModel):TileComponent {

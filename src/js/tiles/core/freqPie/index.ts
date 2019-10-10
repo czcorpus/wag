@@ -82,7 +82,7 @@ export class FreqPieTile implements ITileProvider {
         const modelFact = conf.subqueryMode ?
             subqModelFactory(
                 conf.subqueryMode,
-                new ConcApi(cache, conf.subqueryMode.concApiURL, appServices.getApiHeaders(conf.subqueryMode.concApiURL))) :
+                new ConcApi(false, cache, conf.subqueryMode.concApiURL, appServices.getApiHeaders(conf.subqueryMode.concApiURL))) :
             defaultModelFactory;
         this.model = modelFact(
             dispatcher,
@@ -135,8 +135,8 @@ export class FreqPieTile implements ITileProvider {
         return this.view;
     }
 
-    getSourceInfo():[null, null] {
-        return [null, null];
+    getSourceInfoComponent():null {
+        return null;
     }
 
     supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {

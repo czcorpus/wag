@@ -21,7 +21,7 @@ import { Observable, Observer, of as rxOf } from 'rxjs';
 import { concatMap, map } from 'rxjs/operators';
 
 import { AppServices } from '../../../appServices';
-import { ConcApi, QuerySelector, stateToArgs as concStateToArgs, mkLemmaMatchQuery } from '../../../common/api/kontext/concordance';
+import { ConcApi, QuerySelector, mkLemmaMatchQuery } from '../../../common/api/kontext/concordance';
 import { ConcResponse, ViewMode } from '../../../common/api/abstract/concordance';
 import { TimeDistribResponse } from '../../../common/api/abstract/timeDistrib';
 import { DataRow } from '../../../common/api/kontext/freqs';
@@ -358,7 +358,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             target:SubchartID):Observable<[ConcResponse, DataFetchArgsOwn]> {
         return callWithExtraVal(
             this.concApi,
-            concStateToArgs(
+            this.concApi.stateToArgs(
                 {
                     querySelector: QuerySelector.CQL,
                     corpname: state.corpname,
@@ -510,7 +510,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             break;
             case ActionName.SubmitCmpWord: {
                 const formState = this.mainForm.getState();
-                return this.loadData(
+                this.loadData(
                     state,
                     dispatch,
                     SubchartID.SECONDARY,
@@ -519,6 +519,29 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     )
                 );
             }
+            break;
+            case GlobalActionName.GetSourceInfo:
+                if (action.payload['tileId'] === this.tileId) {
+                    this.api.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), action.payload['corpusId'])
+                    .subscribe(
+                        (data) => {
+                            dispatch({
+                                name: GlobalActionName.GetSourceInfoDone,
+                                payload: {
+                                    data: data
+                                }
+                            });
+                        },
+                        (err) => {
+                            console.error(err);
+                            dispatch({
+                                name: GlobalActionName.GetSourceInfoDone,
+                                error: err
+
+                            });
+                        }
+                    );
+                }
             break;
         }
     }

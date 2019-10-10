@@ -19,10 +19,11 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { cachedAjax$ } from '../../../common/ajax';
-import { HTTPHeaders, IAsyncKeyValueStore } from '../../../common/types';
+import { HTTPHeaders, IAsyncKeyValueStore, SourceDetails } from '../../../common/types';
 import { puid } from '../../../common/util';
 import { CollApiResponse, CollocationApi } from '../abstract/collocations';
-import { CollocModelState, ctxToRange } from '../../models/collocations/collocations';
+import { CollocModelState, ctxToRange } from '../../models/collocations';
+import { CorpusInfoAPI } from './corpusInfo';
 
 
 
@@ -73,10 +74,13 @@ export class KontextCollAPI implements CollocationApi<CollApiArgs> {
 
     private readonly cache:IAsyncKeyValueStore;
 
+    private readonly srcInfoService:CorpusInfoAPI;
+
     constructor(cache:IAsyncKeyValueStore, apiURL:string, customHeaders?:HTTPHeaders) {
         this.apiURL = apiURL;
         this.customHeaders = customHeaders || {};
         this.cache = cache;
+        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, customHeaders);
     }
 
     stateToArgs(state:CollocModelState, concId:string):CollApiArgs {
@@ -100,10 +104,18 @@ export class KontextCollAPI implements CollocationApi<CollApiArgs> {
         return true;
     }
 
+    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<SourceDetails> {
+        return this.srcInfoService.call({
+            tileId: tileId,
+            corpname: corpname,
+            format: 'json'
+        });
+    }
+
     call(queryArgs:CollApiArgs):Observable<CollApiResponse> {
         return cachedAjax$<HttpApiResponse>(this.cache)(
             'GET',
-            this.apiURL,
+            this.apiURL + '/collx',
             queryArgs,
             {headers: this.customHeaders}
 

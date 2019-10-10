@@ -27,7 +27,7 @@ import { ConcLoadedPayload } from '../concordance/actions';
 import { ActionName, Actions, DataLoadedPayload } from './common';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { DataRow, CollocationApi } from '../../../common/api/abstract/collocations';
-import { CollocModelState, ctxToRange } from '../../../common/models/collocations/collocations';
+import { CollocModelState, ctxToRange } from '../../../common/models/collocations';
 import { CoreCollRequestArgs } from '../../../common/api/kontext/collocations';
 import { QueryFormModel, findCurrLemmaVariant } from '../../../models/query';
 import { LemmaVariant } from '../../../common/query';
@@ -272,6 +272,29 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             case ActionName.SetSrchContextType:
                 if (action.payload['tileId'] === this.tileId) {
                     this.requestData(state, state.concId, null, seDispatch);
+                }
+            break;
+            case GlobalActionName.GetSourceInfo:
+                if (action.payload['tileId'] === this.tileId) {
+                    this.service.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), state.corpname)
+                    .subscribe(
+                        (data) => {
+                            seDispatch({
+                                name: GlobalActionName.GetSourceInfoDone,
+                                payload: {
+                                    data: data
+                                }
+                            });
+                        },
+                        (err) => {
+                            console.error(err);
+                            seDispatch({
+                                name: GlobalActionName.GetSourceInfoDone,
+                                error: err
+
+                            });
+                        }
+                    );
                 }
             break;
         }

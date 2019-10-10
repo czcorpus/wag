@@ -20,17 +20,19 @@ import * as Immutable from 'immutable';
 import { AppServices } from '../../../appServices';
 import { QueryType } from '../../../common/query';
 import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../../common/tile';
-import { SearchPackages, TreqAPI } from '../../../common/api/treq';
-import { TreqModel } from './model';
+import { SearchPackages } from '../../../common/api/treq';
+import { TranslationsModel } from './model';
 import { init as viewInit } from './view';
 import { StatelessModel } from 'kombo';
 import { WordTranslation } from '../../../common/api/abstract/translations';
+import { createInstance as createApiInstance } from './apiFactory';
 
 declare var require:any;
 require('./style.less');
 
 export interface TranslationsTileConf extends TileConf {
     apiURL:string;
+    apiType:string;
     srchPackages:SearchPackages;
     maxNumLines?:number;
     minItemFreq?:number;
@@ -45,7 +47,7 @@ export class TranslationsTile implements ITileProvider {
 
     private readonly appServices:AppServices;
 
-    private readonly model:TreqModel;
+    private readonly model:TranslationsModel;
 
     private readonly view:TileComponent;
 
@@ -61,9 +63,10 @@ export class TranslationsTile implements ITileProvider {
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
-        this.model = new TreqModel(
+        this.model = new TranslationsModel({
             dispatcher,
-            {
+            appServices,
+            initialState: {
                 isBusy: isBusy,
                 isAltViewMode: false,
                 error: null,
@@ -76,11 +79,11 @@ export class TranslationsTile implements ITileProvider {
                 minItemFreq: conf.minItemFreq || TranslationsTile.DEFAULT_MIN_ITEM_FREQ
             },
             tileId,
-            new TreqAPI(cache, conf.apiURL),
-            conf.backlink || null,
+            api: createApiInstance(conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.srcInfoURL), cache),
+            backlink: conf.backlink || null,
             mainForm,
-            theme.scaleColorIndexed
-        );
+            scaleColorGen: theme.scaleColorIndexed
+        });
         this.label = appServices.importExternalMessage(conf.label || 'treq__main_label');
         this.view = viewInit(dispatcher, ut, theme, this.model);
     }
@@ -97,8 +100,8 @@ export class TranslationsTile implements ITileProvider {
         return this.view;
     }
 
-    getSourceInfo():[null, null] {
-        return [null, null];
+    getSourceInfoComponent():null {
+        return null;
     }
 
     supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {

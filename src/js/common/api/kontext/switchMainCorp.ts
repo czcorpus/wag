@@ -50,7 +50,7 @@ export class SwitchMainCorpApi implements ISwitchMainCorpApi {
 
         return ajax$<HTTPResponse>(
             HTTPMethod.POST,
-            this.apiURL + '?' +
+            this.apiURL + '/ajax_switch_corpus?' +
                 encodeArgs({
                     corpname: args.corpname,
                     maincorp: args.maincorp,

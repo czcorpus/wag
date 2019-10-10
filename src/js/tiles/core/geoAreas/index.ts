@@ -113,8 +113,8 @@ export class GeoAreasTile implements ITileProvider {
         return this.view;
     }
 
-    getSourceInfo():[null, null] {
-        return [null, null];
+    getSourceInfoComponent():null {
+        return null;
     }
 
     /**

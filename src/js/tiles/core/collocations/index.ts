@@ -26,7 +26,7 @@ import { CollocModel } from './model';
 import { init as viewInit } from './views';
 import { TileConf, ITileProvider, TileComponent, TileFactory, Backlink } from '../../../common/tile';
 import { CollocationApi, SrchContextType, DataRow } from '../../../common/api/abstract/collocations';
-import { createCollApiInstance } from './apiFactory';
+import { createInstance } from './apiFactory';
 
 
 declare var require:(src:string)=>void;  // webpack
@@ -73,7 +73,7 @@ export class CollocationsTile implements ITileProvider {
         this.appServices = appServices;
         this.widthFract = widthFract;
         this.blockingTiles = waitForTiles;
-        this.api = createCollApiInstance(conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL), cache);
+        this.api = createInstance(conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL), cache);
         this.model = new CollocModel({
             dispatcher: dispatcher,
             tileId: tileId,
@@ -125,8 +125,8 @@ export class CollocationsTile implements ITileProvider {
         return this.view;
     }
 
-    getSourceInfo():[null, null] {
-        return [null, null];
+    getSourceInfoComponent():null {
+        return null;
     }
 
     supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {

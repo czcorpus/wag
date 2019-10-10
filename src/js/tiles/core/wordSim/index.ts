@@ -110,8 +110,8 @@ export class WordSimTile implements ITileProvider {
         return this.view;
     }
 
-    getSourceInfo():[React.SFC, SourceDetails] {
-        return [this.srcInfoView, this.api.getSourceDescription(this.tileId)];
+    getSourceInfoComponent():React.SFC {
+        return this.srcInfoView;
     }
 
     supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {
