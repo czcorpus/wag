@@ -20,12 +20,15 @@ import { IAsyncKeyValueStore, HTTPHeaders } from '../../../common/types';
 import { CoreApiGroup } from '../../../common/api/coreGroups';
 import { KontextMatchingDocsAPI } from '../../../common/api/kontext/matchingDocs';
 import { MatchingDocsAPI } from '../../../common/api/abstract/matchingDocs';
+import { ElasticsearchMatchingDocsAPI } from '../../../common/api/elasticsearch/matchingDocs';
 
 
 export function createMatchingDocsApiInstance(apiIdent:string, apiURL:string, apiHeaders:HTTPHeaders, cache:IAsyncKeyValueStore):MatchingDocsAPI<{}> {
 	switch (apiIdent) {
         case CoreApiGroup.KONTEXT:
 			return new KontextMatchingDocsAPI(cache, apiURL, apiHeaders);
+		case CoreApiGroup.ELASTICSEARCH:
+			return new ElasticsearchMatchingDocsAPI(cache, apiURL, apiHeaders);
 		default:
 			throw new Error(`API type "${apiIdent}" not supported for matchingDocs`);
 	}

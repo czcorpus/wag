@@ -74,10 +74,11 @@ export class KontextMatchingDocsAPI implements MatchingDocsAPI<SingleCritQueryAr
             usesubcorp: state.subcname,
             q: `~${query}`,
             fcrit: state.displayAttrs.get(0),
-            flimit: 1, // TODO
-            freq_sort: 'rel', // TODO
-            fpage: 1, // TODO
-            ftt_include_empty: 0, // TODO
+            flimit: 1,
+            freq_sort: 'rel',
+            fpage: 1,
+            pagesize: state.maxNumCategories,
+            ftt_include_empty: 0,
             format: 'json'
         };
     }
@@ -96,17 +97,12 @@ export class KontextMatchingDocsAPI implements MatchingDocsAPI<SingleCritQueryAr
             this.apiURL + '/freqs',
             args,
             {headers: this.customHeaders}
-
         ).pipe(
             map<HTTPResponse, APIResponse>(resp => ({
                 data: resp.Blocks[0].Items.map(v => ({
                         name: v.Word.map(v => v.n).join(' '),
                         score: v.rel
-                })),
-                concId: resp.conc_persistence_op_id,
-                corpname: args.corpname,
-                usesubcorp: args.usesubcorp || null,
-                concsize: resp.concsize
+                }))
             }))
         );
     }

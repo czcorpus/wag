@@ -91,6 +91,7 @@ export interface BacklinkArgs {
 interface CoreQueryArgs {
     corpname:string;
     usesubcorp?:string;
+    pagesize?:number;
     q:string;
     flimit:number;
     freq_sort:string;

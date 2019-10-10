@@ -37,7 +37,6 @@ export interface MatchingDocsModelState {
     error:string;
     corpname:string;
     subcname:string;
-    concId:string;
     maxNumCategories:number;
     maxNumCategoriesPerPage:number;
     currPage:number;
@@ -45,6 +44,6 @@ export interface MatchingDocsModelState {
     backlink:BacklinkWithArgs<{}>|null;
     subqSyncPalette:boolean;
     displayAttrs:Immutable.List<string>;
-    srchAttrs:Immutable.List<string>|null;
+    searchAttrs:Immutable.List<string>|null;
     data:Immutable.List<DataRow>;
 }

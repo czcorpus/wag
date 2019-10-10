@@ -36,10 +36,10 @@ require('./style.less');
 export interface MatchingDocsTileConf extends TileConf {
     apiURL:string;
     apiType:string;
-    corpname:string|null; // null can be used in case subqueryMode is enabled
-    subcname:string|null;
+    corpname?:string; // null can be used in case subqueryMode is enabled
+    subcname?:string;
     displayAttrs:string|Array<string>;
-    srchAttrs?:string|Array<string>;
+    searchAttrs?:string|Array<string>;
     maxNumCategories:number;
     maxNumCategoriesPerPage:number;
 
@@ -72,7 +72,7 @@ export class MatchingDocsTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({dispatcher, tileId, waitForTiles, subqSourceTiles, ut, theme, appServices, widthFract, conf, isBusy, cache}:TileFactory.Args<MatchingDocsTileConf>) {
+    constructor({dispatcher, tileId, waitForTiles, subqSourceTiles, ut, theme, appServices, widthFract, conf, isBusy, cache, mainForm}:TileFactory.Args<MatchingDocsTileConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
@@ -94,16 +94,16 @@ export class MatchingDocsTile implements ITileProvider {
                 data: Immutable.List<DataRow>(),
                 corpname: conf.corpname,
                 subcname: conf.subcname,
-                concId: null,
                 displayAttrs: Immutable.List<string>(typeof conf.displayAttrs === 'string' ? [conf.displayAttrs] : conf.displayAttrs),
-                srchAttrs: conf.srchAttrs ? Immutable.List<string>(typeof conf.srchAttrs === 'string' ? [conf.srchAttrs] : conf.srchAttrs) : null,
+                searchAttrs: conf.searchAttrs ? Immutable.List<string>(typeof conf.searchAttrs === 'string' ? [conf.searchAttrs] : conf.searchAttrs) : null,
                 currPage: null,
                 numPages: null,
                 maxNumCategories: conf.maxNumCategories,
                 maxNumCategoriesPerPage: conf.maxNumCategoriesPerPage,
                 backlink: null,
                 subqSyncPalette: false
-            }
+            },
+            mainForm
         );
         this.label = appServices.importExternalMessage(conf.label || 'matchingDocs__main_label');
         this.view = viewInit(this.dispatcher, ut, theme, this.model);
