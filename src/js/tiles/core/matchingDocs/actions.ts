@@ -29,7 +29,6 @@ export enum ActionName {
 export interface DataLoadedPayload {
     data:Array<DataRow>;
     backlink:BacklinkWithArgs<{}>|null;
-    concId:string;
 }
 
 export namespace Actions {

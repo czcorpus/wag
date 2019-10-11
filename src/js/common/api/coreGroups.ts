@@ -47,6 +47,11 @@ export enum CoreApiGroup {
 	 * Embedded API functions
 	 */
 	WDGLANCE = 'wdglance',
+
+	/**
+	 * Elasticsearch API
+	 */
+	ELASTICSEARCH = 'elasticsearch',
 }
 
 export function supportedCoreApiGroups() {

@@ -118,7 +118,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             return (
                 <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.data.size > 0}
-                        sourceIdent={{corp: this.props.corpname}}
+                        sourceIdent={this.props.corpname ? {corp: this.props.corpname} : null}
                         backlink={this.props.backlink}
                         supportsTileReload={this.props.supportsReloadOnError}>
                     <div className="MatchingDocsTile">

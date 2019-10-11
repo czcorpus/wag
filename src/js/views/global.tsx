@@ -50,7 +50,7 @@ export interface GlobalComponents {
         isBusy:boolean;
         hasData:boolean;
         tileId:number;
-        sourceIdent:SourceInfo|Array<SourceInfo>;
+        sourceIdent?:SourceInfo|Array<SourceInfo>;
         supportsTileReload:boolean;
         backlink?:BacklinkWithArgs<{}>|Array<BacklinkWithArgs<{}>>;
         htmlClass?:string;
@@ -188,23 +188,26 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
 
         return (
             <div className="source">
-                {ut.translate('global__source')}:{'\u00a0'}
-                {(Array.isArray(props.data) ? props.data : [props.data]).map((item, i) =>
-                    <React.Fragment key={`${item.corp}:${item.subcorp}`}>
-                        {i > 0 ? <span> + </span> : null}
-                        {item.corp ?
-                            <>
-                            <a onClick={handleClick(item.corp, item.subcorp)}>
-                                {item.corp}
-                            </a>
-                            {item.subcorp ? <span> / {item.subcorp}</span> : null}
-                            </> :
-                            <a onClick={handleClick(item.corp, item.subcorp)}>
-                                {ut.translate('global__click_for_details')}
-                            </a>
-                        }
-                    </React.Fragment>
-                )}
+                {props.data ? ut.translate('global__source') + ':\u00a0' : null}
+                {props.data ?
+                    (Array.isArray(props.data) ? props.data : [props.data]).map((item, i) =>
+                        <React.Fragment key={`${item.corp}:${item.subcorp}`}>
+                            {i > 0 ? <span> + </span> : null}
+                            {item.corp ?
+                                <>
+                                <a onClick={handleClick(item.corp, item.subcorp)}>
+                                    {item.corp}
+                                </a>
+                                {item.subcorp ? <span> / {item.subcorp}</span> : null}
+                                </> :
+                                <a onClick={handleClick(item.corp, item.subcorp)}>
+                                    {ut.translate('global__click_for_details')}
+                                </a>
+                            }
+                        </React.Fragment>
+                    ) :
+                    null
+                }
                 {props.backlink ?
                     <>
                     ,{'\u00a0'}
@@ -323,7 +326,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                             }
                         </div>
                     </div>
-                    {props.hasData ? <SourceLink data={props.sourceIdent} backlink={props.backlink} tileId={props.tileId} /> : null}
+                    {props.hasData && (props.sourceIdent || props.backlink) ? <SourceLink data={props.sourceIdent} backlink={props.backlink} tileId={props.tileId} /> : null}
                 </div>
             );
         }

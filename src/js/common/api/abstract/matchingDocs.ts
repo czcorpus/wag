@@ -27,10 +27,6 @@ export interface DataRow {
 }
 
 export interface APIResponse {
-    concId:string;
-    corpname:string;
-    concsize:number;
-    usesubcorp:string|null;
     data:Array<DataRow>;
 }
 

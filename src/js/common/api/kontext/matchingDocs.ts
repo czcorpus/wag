@@ -51,7 +51,7 @@ export class KontextMatchingDocsAPI implements MatchingDocsAPI<SingleCritQueryAr
                 corpname: state.corpname,
                 usesubcorp: state.subcname,
                 q: `~${query}`,
-                fcrit: [state.srchAttrs.get(0)],
+                fcrit: [state.displayAttrs.get(0)],
                 flimit: 1,
                 freq_sort: "rel",
                 fpage: 1,
@@ -61,18 +61,19 @@ export class KontextMatchingDocsAPI implements MatchingDocsAPI<SingleCritQueryAr
     }
 
     stateToArgs(state:MatchingDocsModelState, query:string):SingleCritQueryArgs {
-        if (state.srchAttrs.size > 1) {
-            console.warn('MatchingDocsTile: Kontext API will take only first item from `srchAttrs` config!');
+        if (state.displayAttrs.size > 1) {
+            console.warn('MatchingDocsTile: Kontext API will take only first item from `displayAttrs` config!');            
         }
         return {
             corpname: state.corpname,
             usesubcorp: state.subcname,
             q: `~${query}`,
-            fcrit: state.srchAttrs.get(0),
-            flimit: 1, // TODO
-            freq_sort: 'rel', // TODO
-            fpage: 1, // TODO
-            ftt_include_empty: 0, // TODO
+            fcrit: state.displayAttrs.get(0),
+            flimit: 1,
+            freq_sort: 'rel',
+            fpage: 1,
+            pagesize: state.maxNumCategories,
+            ftt_include_empty: 0,
             format: 'json'
         };
     }
@@ -91,17 +92,12 @@ export class KontextMatchingDocsAPI implements MatchingDocsAPI<SingleCritQueryAr
             this.apiURL + '/freqs',
             args,
             {headers: this.customHeaders}
-
         ).pipe(
             map<HTTPResponse, APIResponse>(resp => ({
                 data: resp.Blocks[0].Items.map(v => ({
                         name: v.Word.map(v => v.n).join(' '),
                         score: v.rel
-                })),
-                concId: resp.conc_persistence_op_id,
-                corpname: args.corpname,
-                usesubcorp: args.usesubcorp || null,
-                concsize: resp.concsize
+                }))
             }))
         );
     }

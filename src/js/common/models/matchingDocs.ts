@@ -37,13 +37,13 @@ export interface MatchingDocsModelState {
     error:string;
     corpname:string;
     subcname:string;
-    concId:string;
     maxNumCategories:number;
     maxNumCategoriesPerPage:number;
     currPage:number;
     numPages:number;
     backlink:BacklinkWithArgs<{}>|null;
     subqSyncPalette:boolean;
-    srchAttrs:Immutable.List<string>;
+    displayAttrs:Immutable.List<string>;
+    searchAttrs:Immutable.List<string>|null;
     data:Immutable.List<DataRow>;
 }

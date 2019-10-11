@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
-import { tap } from 'rxjs/operators';
 
 import { AppServices } from '../../../appServices';
 import { SystemMessageType } from '../../../common/types';

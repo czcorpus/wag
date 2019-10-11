@@ -41,7 +41,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             return (
                 <div style={{maxHeight: model.maxTileHeight}}>
                     <globalCompontents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error} htmlClass="HtmlTile"
-                            hasData={Boolean(this.props.data)} sourceIdent={{corp: null}}
+                            hasData={Boolean(this.props.data)} sourceIdent={null}
                             supportsTileReload={this.props.supportsReloadOnError} >
                         <div className="htmlFrame" dangerouslySetInnerHTML={{__html: this.props.data}} />
                     </globalCompontents.TileWrapper>
