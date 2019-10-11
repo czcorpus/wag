@@ -35,9 +35,6 @@ using miscellaneous online lingustic tools, corpora and databases.
 | wordFreq          | :star:    | :star:  |        |        |            |            |             |         |
 | wordSim           | :construction: |    |        |        |            |  :star:    |             | :star: | 
 
-## Planned resources
-
-  - NoSketchEngine, ElasticSearch
 
 ## Requirements
 
