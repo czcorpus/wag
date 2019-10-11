@@ -20,6 +20,7 @@ import { cachedAjax$ } from '../../ajax';
 import { Observable } from 'rxjs';
 import { HTTPHeaders, IAsyncKeyValueStore } from '../../types';
 import { map } from 'rxjs/operators';
+import { APIResponse as CorpusInfoApiResponse } from '../kontext/corpusInfo';
 import * as Immutable from 'immutable';
 
 
@@ -80,6 +81,10 @@ export class ElasticsearchMatchingDocsAPI implements MatchingDocsAPI<Elasticsear
             sort: '_score:desc',
             size: state.maxNumCategories
         }
+    }
+
+    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<CorpusInfoApiResponse> {  // TODO elasticsearch source info
+        return null;
     }
 
     call(args:ElasticsearchQueryArgs):Observable<APIResponse> {

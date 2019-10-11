@@ -61,13 +61,8 @@ export class KontextMatchingDocsAPI implements MatchingDocsAPI<SingleCritQueryAr
     }
 
     stateToArgs(state:MatchingDocsModelState, query:string):SingleCritQueryArgs {
-<<<<<<< HEAD
-        if (state.srchAttrs.size > 1) {
-            console.warn('MatchingDocsTile: Kontext API will take only first item from `srchAttrs` config!');
-=======
         if (state.displayAttrs.size > 1) {
             console.warn('MatchingDocsTile: Kontext API will take only first item from `displayAttrs` config!');            
->>>>>>> srch and display attrs
         }
         return {
             corpname: state.corpname,
