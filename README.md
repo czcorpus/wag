@@ -16,23 +16,24 @@ using miscellaneous online lingustic tools, corpora and databases.
  - [Datamuse API](https://www.datamuse.com/)
  - [REST API of the Leipzig Corpora Collection](http://api.corpora.uni-leipzig.de/ws/swagger-ui.html) (LCC)
 
-|               | WaG       | KonText | NoSkE  | Treq   | Clarin FCS | Datamuse   | ElasticSearch | LCC   |
-----------------|-----------|---------|--------|--------|------------|------------|-------------|---------|
-| collocations  |           | :star:  |        |        |            |            |             | :star:  |
-| concFilter    |           | :star:  |        |        |            |            |             |         |
-| concordance   |           | :star:  |        |        | :star:     |            |             | :construction: |
-| freqBar       |           | :star:  |        |        |            |            |             |         |
-| freqPie       |           | :star:  |        |        |            |            |             |         |
-| geoAreas      |           | :star:  |        |        |            |            |             |         |
-| html          |           | :star:  | :star: |        |            |            |             |         |
-| mergeCorpFreq |           | :star:  |        |        |            |            |             |         |
-| speeches      |           | :star:  |        |        |            |            |             |         |
-| timeDistrib   |           | :star:  |        |        |            |            |             |         |
-| translations  |           |         |        | :star: |            |            |             |         |
-| treqSubsets   |           |         |        | :star: |            |            |             |         |
-| wordForms     | :star:    | :star:  |        |        |            |            |             |         |
-| wordFreq      | :star:    | :star:  |        |        |            |            |             |         |
-| wordSim       | :construction: |    |        |        |            |  :star:    |             | :star: | 
+|                   | WaG       | KonText | NoSkE  | Treq   | Clarin FCS | Datamuse   | ElasticSearch | LCC   |
+--------------------|-----------|---------|--------|--------|------------|------------|-------------|---------|
+| collocations      |           | :star:  |        |        |            |            |             | :star:  |
+| concFilter        |           | :star:  |        |        |            |            |             |         |
+| concordance       |           | :star:  |        |        | :star:     |            |             | :construction: |
+| freqBar           |           | :star:  |        |        |            |            |             |         |
+| freqPie           |           | :star:  |        |        |            |            |             |         |
+| geoAreas          |           | :star:  |        |        |            |            |             |         |
+| html              |           | :star:  | :star: |        |            |            |             |         |
+| matchingDocuments |           | :star:  |        |        |            |            | :star:      |         |
+| mergeCorpFreq     |           | :star:  |        |        |            |            |             |         |
+| speeches          |           | :star:  |        |        |            |            |             |         |
+| timeDistrib       |           | :star:  |        |        |            |            |             |         |
+| translations      |           |         |        | :star: |            |            |             |         |
+| treqSubsets       |           |         |        | :star: |            |            |             |         |
+| wordForms         | :star:    | :star:  |        |        |            |            |             |         |
+| wordFreq          | :star:    | :star:  |        |        |            |            |             |         |
+| wordSim           | :construction: |    |        |        |            |  :star:    |             | :star: | 
 
 ## Planned resources
 
