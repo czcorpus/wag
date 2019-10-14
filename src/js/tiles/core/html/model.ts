@@ -45,6 +45,7 @@ export interface HtmlModelState {
     args:{[key:string]:string};
     lemmaArg:string;
     styles:string;
+    stylesPath:string;
 }
 
 

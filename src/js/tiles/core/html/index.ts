@@ -40,6 +40,7 @@ export interface HtmlTileConf extends TileConf {
     args?:{[key:string]:string};
     lemmaArg?:string;
     styles?:string;
+    stylesPath?:string;
 }
 
 /**
@@ -91,7 +92,8 @@ export class HtmlTile implements ITileProvider {
                 data: null,
                 args: conf.args,
                 lemmaArg: conf.lemmaArg,
-                styles: conf.styles
+                styles: conf.styles,
+                stylesPath: conf.stylesPath,
             }
         });
         this.label = appServices.importExternalMessage(conf.label || 'html__main_label');
