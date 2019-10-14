@@ -23,6 +23,7 @@ import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../
 import { DataLoadedPayload } from './common';
 import { RawHtmlAPI, WiktionaryHtmlAPI } from './service';
 import { QueryFormModel, findCurrLemmaVariant } from '../../../models/query';
+import * as sanitizeHtml from 'sanitize-html';
 
 
 export interface HtmlModelArgs {
@@ -78,7 +79,9 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
                     if (action.error) {
                         newState.error = action.error.message;
                     } else {
-                        newState.data = action.payload.data;
+                        newState.data = sanitizeHtml(action.payload.data, {
+                            allowedTags: sanitizeHtml.defaults.allowedTags.concat([ 'img' ])
+                        });
                     }
                     return newState;
                 }
