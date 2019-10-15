@@ -206,7 +206,7 @@ function logRequest(logging:ILogQueue, datetime:string, req:Request, userConfig:
 function mainAction(services:Services, answerMode:boolean, req:Request, res:Response, next:NextFunction) {
     // this just ensures backward compatibility
     if (req.url.includes('q1=') || req.url.includes('q2=')) {
-        res.redirect(mkReturnUrl(req, services.clientConf.rootUrl).replace('q1=', 'q=').replace('q2=', 'q='));
+        res.redirect(mkReturnUrl(req, services.clientConf.rootUrl).replace('q1=', 'q=').replace('q2=', 'q='), 301);
         return;
     }    
 
