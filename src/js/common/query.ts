@@ -75,6 +75,12 @@ interface MergedLemmaVariant extends LemmaVariant {
 
 const MERGE_CANDIDATE_MIN_DIFF_RATIO = 100;
 
+/**
+ * Freq. database returns a list of LemmaVariant instances with 'pos' array of size 1,
+ * i.e. items with the same 'lemma' and 'word' are separate LemmaVariant instances.
+ * For further processing we have to merge those items into a single LemmaVariant instance
+ * with pos = [all the individual PoS values].
+ */
 export function findMergeableLemmas(variants:Array<LemmaVariant>):Array<LemmaVariant> {
     const mapping:{[key:string]:Array<{pos:{value:QueryPoS; label:string}; abs:number; form:string; arf:number}>} = {};
     variants.forEach(item => {
@@ -106,7 +112,7 @@ export function findMergeableLemmas(variants:Array<LemmaVariant>):Array<LemmaVar
         } else {
             ans.push(item);
         }
-    })
+    });
     return ans;
 }
 
