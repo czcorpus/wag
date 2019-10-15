@@ -30,9 +30,8 @@ export interface UserConf {
 	query1Lang:string;
     query2Lang:string;
     queryPos:Array<QueryPoS>;
-    query1:string;
+    query:Array<string>;
     lemma1?:string;
-    query2:string;
     answerMode:boolean;
     error?:string;
 }

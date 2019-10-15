@@ -108,9 +108,9 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
     const formModel = mainFormFactory({
         dispatcher: dispatcher,
         appServices: appServices,
-        query1: userSession.query1,
+        query1: userSession.query[0],
         query1Lang: userSession.query1Lang || 'cs',
-        query2: userSession.query2,
+        query2: userSession.query[1],
         query2Lang: userSession.query2Lang || '',
         queryType: qType,
         lemmas: lemmas,

@@ -188,8 +188,7 @@ function logRequest(logging:ILogQueue, datetime:string, req:Request, userConfig:
             query1Lang: userConfig.query1Lang,
             query2Lang: userConfig.query2Lang ? userConfig.query2Lang : null,
             queryPos: userConfig.queryPos ? userConfig.queryPos : null,
-            query1: userConfig.query1,
-            query2: userConfig.query2 ? userConfig.query2 : null,
+            query: userConfig.query,
             error: userConfig.error ? userConfig.error : null
         },
         pid: -1,
@@ -205,6 +204,11 @@ function logRequest(logging:ILogQueue, datetime:string, req:Request, userConfig:
 }
 
 function mainAction(services:Services, answerMode:boolean, req:Request, res:Response, next:NextFunction) {
+    // this just ensures backward compatibility
+    if (req.url.includes('q1=') || req.url.includes('q2=')) {
+        res.redirect(mkReturnUrl(req, services.clientConf.rootUrl).replace('q1=', 'q=').replace('q2=', 'q='));
+        return;
+    }    
 
     const userConfig:UserConf = {
         uiLang: getLangFromCookie(req, services.serverConf.langCookie, services.serverConf.languages),
@@ -213,8 +217,7 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
         query2Lang: req.query['lang2'] || 'en',
         queryType: req.query['queryType'] || 'single',
         queryPos: req.query['pos'],
-        query1: req.query['q1'] || '',
-        query2: req.query['q2'] || '',
+        query: (typeof req.query['q'] === 'string' ? [req.query['q']] : req.query['q']) || [],
         lemma1: req.query['lemma1'] || '',
         answerMode: answerMode
     };
@@ -232,7 +235,7 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
             }
         ),
         services.toolbar.get(userConfig.uiLang, mkReturnUrl(req, services.clientConf.rootUrl), req.cookies, viewUtils),
-        getLemmas(services.db[userConfig.query1Lang], appServices, userConfig.query1, services.serverConf.freqDB.minLemmaFreq),
+        getLemmas(services.db[userConfig.query1Lang], appServices, userConfig.query[0], services.serverConf.freqDB.minLemmaFreq),
         mkRuntimeClientConf(services.clientConf, userConfig.query1Lang, appServices),
         logRequest(services.logging, appServices.getISODatetime(), req, userConfig)
     )
