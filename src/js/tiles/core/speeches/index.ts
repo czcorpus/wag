@@ -171,6 +171,10 @@ export class SpeechesTile implements ITileProvider {
     getBlockingTiles():Array<number> {
         return this.blockingTiles;
     }
+
+    supportsNonDictQueries():boolean {
+        return false;
+    }
 }
 
 export const TILE_TYPE = 'SpeechesTile';

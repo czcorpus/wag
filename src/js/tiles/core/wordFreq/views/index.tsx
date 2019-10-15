@@ -27,16 +27,6 @@ import { FreqDBRow } from '../api';
 import { init as chartViewInit } from './chart';
 
 
-interface ChartFreqDistItem {
-    ipm:number;
-    flevel:number;
-    abs:number;
-    lemma:string;
-    pos:string;
-    color:string;
-}
-
-
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, model:SummaryModel):TileComponent {
 
     const globalComponents = ut.getComponents();
@@ -95,22 +85,28 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     const SrchWordInfo:React.SFC<{
         data:FreqDBRow;
 
-    }> = (props) => {
-        return (
-            <>
-                <dt>{ut.translate('wordfreq_searched_form')}:</dt>
-                <dd>{props.data.word}</dd>
-                <dt>lemma:</dt>
-                <dd><strong>{props.data.lemma}</strong></dd>
-                <dt>{ut.translate('wordfreq__pos')}:</dt>
-                <dd>{props.data.pos.map(v => v.label).join(', ')}</dd>
-                <dt>{ut.translate('wordfreq__freq_bands')}:</dt>
-                <dd><Stars freqBand={props.data.flevel} /></dd>
-                <dt>{ut.translate('wordfreq__ipm')}:</dt>
-                <dd>{ut.formatNumber(props.data.ipm, 2)}</dd>
-            </>
-        );
-    };
+    }> = (props) => (
+        <>
+            <dt>{ut.translate('wordfreq_searched_form')}:</dt>
+            <dd>{props.data.word}</dd>
+            {props.data.pos.length > 0 ?
+                <>
+                    <dt>lemma:</dt>
+                    <dd><strong>{props.data.lemma}</strong></dd>
+                    <dt>{ut.translate('wordfreq__pos')}:</dt>
+                    <dd>{props.data.pos.map(v => v.label).join(', ')}</dd>
+                    <dt>{ut.translate('wordfreq__freq_bands')}:</dt>
+                    <dd><Stars freqBand={props.data.flevel} /></dd>
+                    <dt>{ut.translate('wordfreq__ipm')}:</dt>
+                    <dd>{ut.formatNumber(props.data.ipm, 2)}</dd>
+                </> :
+                <>
+                    <dt>{ut.translate('wordfreq__note')}:</dt>
+                    <dd>{ut.translate('wordfreq__not_in_dict')}</dd>
+                </>
+            }
+        </>
+    );
 
 
     // -------------------- <WordFreqTileView /> -----------------------------------------------
@@ -119,7 +115,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         render() {
             const srchWord = this.props.data.find(v => v.isSearched);
-
+            const similarFreqWords = this.props.data.filter(v => !v.isSearched).toList();
             return (
                 <globalComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.data.size > 0} sourceIdent={{corp: this.props.corpname}}
@@ -133,7 +129,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         }
                         <dl className="info">
                             {srchWord ? <SrchWordInfo data={srchWord} /> : null}
-                            <SimilarFreqWords data={this.props.data.filter(v => !v.isSearched).toList()} />
+                            {similarFreqWords.size > 0 ? <SimilarFreqWords data={similarFreqWords} /> : null}
                         </dl>
                     </div>
                 </globalComponents.TileWrapper>

@@ -208,7 +208,7 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
     if (req.url.includes('q1=') || req.url.includes('q2=')) {
         res.redirect(mkReturnUrl(req, services.clientConf.rootUrl).replace('q1=', 'q=').replace('q2=', 'q='));
         return;
-    }    
+    }
 
     const userConfig:UserConf = {
         uiLang: getLangFromCookie(req, services.serverConf.langCookie, services.serverConf.languages),
@@ -235,7 +235,9 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
             }
         ),
         services.toolbar.get(userConfig.uiLang, mkReturnUrl(req, services.clientConf.rootUrl), req.cookies, viewUtils),
-        getLemmas(services.db[userConfig.query1Lang], appServices, userConfig.query[0], services.serverConf.freqDB.minLemmaFreq),
+        answerMode ?
+            getLemmas(services.db[userConfig.query1Lang], appServices, userConfig.query[0], services.serverConf.freqDB.minLemmaFreq) :
+            rxOf([]),
         mkRuntimeClientConf(services.clientConf, userConfig.query1Lang, appServices),
         logRequest(services.logging, appServices.getISODatetime(), req, userConfig)
     )
@@ -243,7 +245,19 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
         (ans) => {
             const [userSession, toolbar, lemmas, runtimeConf] = ans;
             let currentFlagSolved = false;
-            const lemmasExtended = findMergeableLemmas(lemmas);
+            const lemmasExtended = lemmas.length > 0 ?
+                    findMergeableLemmas(lemmas) :
+                    [{
+                        lemma: null,
+                        word: userConfig.query[0],
+                        pos: [],
+                        abs: 0,
+                        ipm: 0,
+                        arf: 0,
+                        flevel: 0,
+                        isCurrent: true,
+                        isNonDict: true
+                    }];
 
             const [rootView, layout, _] = createRootComponent({
                 config: runtimeConf,

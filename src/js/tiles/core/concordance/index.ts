@@ -177,6 +177,10 @@ export class ConcordanceTile implements ITileProvider {
     getBlockingTiles():Array<number> {
         return this.blockingTiles;
     }
+
+    supportsNonDictQueries():boolean {
+        return true;
+    }
 }
 
 export const TILE_TYPE = 'ConcordanceTile';

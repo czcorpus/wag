@@ -131,6 +131,10 @@ export class TranslationsTile implements ITileProvider {
     getBlockingTiles():Array<number> {
         return [];
     }
+
+    supportsNonDictQueries():boolean {
+        return true;
+    }
 }
 
 export const TILE_TYPE = 'TranslationsTile';

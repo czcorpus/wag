@@ -77,4 +77,8 @@ export class EmptyTile implements ITileProvider {
     getBlockingTiles():Array<number> {
         return [];
     }
+
+    supportsNonDictQueries():boolean {
+        return true;
+    }
 }

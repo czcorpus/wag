@@ -143,7 +143,7 @@ export interface TileFrameProps {
 
     supportsTweakMode:boolean;
 
-    supportsCurrQueryType:boolean;
+    supportsCurrQuery:boolean;
 
     supportsHelpView:boolean;
 
@@ -238,6 +238,8 @@ export interface ITileProvider {
      * Return a list of tiles this tile depends on
      */
     getBlockingTiles():Array<number>;
+
+    supportsNonDictQueries():boolean;
 }
 
 /**

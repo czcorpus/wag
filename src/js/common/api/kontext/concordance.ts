@@ -147,24 +147,26 @@ export const getQuery = (args:AnyQuery):string => {
 
 const escapeVal = (v:string) => v.replace(/"/, '\\"');
 
-
-
-export const mkFullMatchQuery = (lvar:LemmaVariant, generator:[string, string]):string => {
-    const fn = posQueryFactory(generator[1]);
-    const posPart = lvar.pos.length > 0 ?
-        ' & (' + lvar.pos.map(v => `${generator[0]}="${fn(v.value)}"`).join(' | ') + ')' :
-        '';
-    return `[word="${escapeVal(lvar.word)}" & lemma="${escapeVal(lvar.lemma)}" ${posPart}]`; // TODO escape stuff !!!
-};
-
-export const mkLemmaMatchQuery = (lvar:LemmaVariant, generator:[string, string]):string => {
+function mkLemmaMatchQuery(lvar:LemmaVariant, generator:[string, string]):string {
     const fn = posQueryFactory(generator[1]);
     const posPart = lvar.pos.length > 0 ?
         ' & (' + lvar.pos.map(v => `${generator[0]}="${fn(v.value)}"`).join(' | ') + ')' :
         '';
     return `[lemma="${escapeVal(lvar.lemma)}" ${posPart}]`; // TODO escape stuff !!!
-};
+}
 
+function mkWordMatchQuery(lvar:LemmaVariant):string {
+    return `[word="${escapeVal(lvar.word)}"]`;
+}
+
+export function mkMatchQuery(lvar:LemmaVariant, generator:[string, string]):string {
+    if (lvar.pos.length > 0) {
+        return mkLemmaMatchQuery(lvar, generator);
+
+    } else if (lvar.word) {
+        return mkWordMatchQuery(lvar);
+    }
+}
 
 export const setQuery = (args:AnyQuery, q:string):void => {
     switch (args.queryselector) {
@@ -256,7 +258,7 @@ export class ConcApi implements IConcordanceApi<RequestArgs> {
             ans[`queryselector_${state.otherCorpname}`] = 'cqlrow';
             ans[`cql_${state.otherCorpname}`] = otherLangCql || '';
             if (lvar) {
-                setQuery(ans, mkLemmaMatchQuery(lvar, state.posQueryGenerator));
+                setQuery(ans, mkMatchQuery(lvar, state.posQueryGenerator));
 
             } else {
                 ans.q = `~${state.concId}`;
@@ -281,7 +283,7 @@ export class ConcApi implements IConcordanceApi<RequestArgs> {
                 format:'json'
             };
             if (lvar) {
-                setQuery(ans, mkLemmaMatchQuery(lvar, state.posQueryGenerator));
+                setQuery(ans, mkMatchQuery(lvar, state.posQueryGenerator));
 
             } else {
                 ans.q = `~${state.concId}`;

@@ -25,7 +25,7 @@ import * as Immutable from 'immutable';
 import { Observable } from 'rxjs';
 import { Theme } from './common/theme';
 import { AvailableLanguage, ScreenProps } from './common/hostPage';
-import { LemmaVariant, QueryType, SearchLanguage } from './common/query';
+import { LemmaVariant, QueryType, SearchLanguage, testIsDictQuery } from './common/query';
 import { ITileProvider, TileFrameProps, TileConf } from './common/tile';
 import { ClientConf, UserConf } from './conf';
 import { LayoutManager, TileGroup } from './layout';
@@ -42,17 +42,16 @@ import { IAsyncKeyValueStore, TileIdentMap } from './common/types';
 import { mkTileFactory } from './tileLoader';
 
 
-const mkAttachTile = (queryType:QueryType, lang1:string, lang2:string) =>
+const mkAttachTile = (queryType:QueryType, isDictQuery:boolean, lang1:string, lang2:string) =>
     (data:Array<TileFrameProps>, tile:ITileProvider, helpURL:string):void => {
-
-    const support = tile.supportsQueryType(queryType, lang1, lang2);
+    const support = tile.supportsQueryType(queryType, lang1, lang2) && (isDictQuery || tile.supportsNonDictQueries());
     data.push({
         tileId: tile.getIdent(),
         Component: tile.getView(),
         SourceInfoComponent: tile.getSourceInfoComponent(),
         label: tile.getLabel(),
         supportsTweakMode: tile.supportsTweakMode(),
-        supportsCurrQueryType: support,
+        supportsCurrQuery: support,
         supportsHelpView: !!helpURL,
         supportsAltView: tile.supportsAltView(),
         renderSize: [50, 50],
@@ -90,12 +89,14 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
     onResize, viewUtils, cache}:InitIntArgs):[React.FunctionComponent<WdglanceMainProps>, Immutable.List<TileGroup>, TileIdentMap] {
 
     const qType = userSession.queryType as QueryType; // TODO validate
+    const isDictQuery = testIsDictQuery(lemmas);
     const globalComponents = globalCompInit(dispatcher, viewUtils, onResize);
     viewUtils.attachComponents(globalComponents);
 
     const tiles:Array<TileFrameProps> = [];
     const attachTile = mkAttachTile(
         qType,
+        isDictQuery,
         userSession.query1Lang,
         userSession.query2Lang
     );
@@ -142,13 +143,18 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
             tile,
             appServices.importExternalMessage(config.tiles[tileId].helpURL)
         );
+        const model = tile.exposeModelForRetryOnError();
         retryLoadModel.registerModel(
             tilesMap[tileId],
-            tile.exposeModelForRetryOnError(),
+            model,
             tile.getBlockingTiles()
         );
+        if (!isDictQuery && !tile.supportsNonDictQueries()) {
+            model.suspend(() => false);
+        }
+
     });
-    //console.log('tiles map: ', tilesMap);
+    // console.log('tiles map: ', tilesMap);
 
     const tilesModel = new WdglanceTilesModel(
         dispatcher,
@@ -165,13 +171,15 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
                     tileId: v.tileId,
                     groupId: i,
                     status: TileResultFlag.PENDING,
+                    canBeAmbiguousResult: false
                 }))).toList(),
                 Immutable.List<TileResultFlagRec>()
             ),
             tileProps: Immutable.List<TileFrameProps>(tiles),
             activeSourceInfo: null,
             activeGroupHelp: null,
-            activeTileHelp: null
+            activeTileHelp: null,
+            showAmbiguousResultHelp: false
         },
         appServices
     );

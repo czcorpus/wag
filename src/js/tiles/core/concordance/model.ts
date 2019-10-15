@@ -236,6 +236,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                     payload: {
                         tileId: this.tileId,
                         isEmpty: data.lines.length === 0,
+                        canBeAmbiguousResult: true,
                         data: data,
                         subqueries: data.lines.map(v => ({value: `${v.toknum}`, interactionId: v.interactionId})),
                         lang1: null,

@@ -40,6 +40,7 @@ export interface TileResultFlagRec {
     tileId:number;
     groupId:number;
     status:TileResultFlag;
+    canBeAmbiguousResult:boolean;
 }
 
 
@@ -53,6 +54,7 @@ export interface WdglanceTilesState {
     activeSourceInfo:SourceDetails|null;
     activeGroupHelp:{html:string; idx:number}|null;
     activeTileHelp:{html:string; ident:number}|null;
+    showAmbiguousResultHelp:boolean;
     datalessGroups:Immutable.Set<number>;
     tileResultFlags:Immutable.List<TileResultFlagRec>;
     tileProps:Immutable.List<TileFrameProps>;
@@ -85,7 +87,7 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                             SourceInfoComponent: tile.SourceInfoComponent,
                             label: tile.label,
                             supportsTweakMode: tile.supportsTweakMode,
-                            supportsCurrQueryType: tile.supportsCurrQueryType,
+                            supportsCurrQuery: tile.supportsCurrQuery,
                             supportsHelpView: tile.supportsHelpView,
                             supportsAltView: tile.supportsAltView,
                             renderSize: [action.payload.size[0] + tile.tileId, action.payload.size[1]],
@@ -205,7 +207,8 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                 newState.tileResultFlags = newState.tileResultFlags.map(v => ({
                     tileId: v.tileId,
                     groupId: v.groupId,
-                    status: TileResultFlag.PENDING
+                    status: TileResultFlag.PENDING,
+                    canBeAmbiguousResult: false
                 })).toList();
                 newState.datalessGroups = newState.datalessGroups.clear();
                 return newState;
@@ -218,7 +221,8 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                     newState.tileResultFlags = newState.tileResultFlags.set(srchIdx, {
                         tileId: curr.tileId,
                         groupId: curr.groupId,
-                        status: this.inferResultFlag(action)
+                        status: this.inferResultFlag(action),
+                        canBeAmbiguousResult: action.payload.canBeAmbiguousResult
                     });
                 }
                 if (this.allTileStatusFlagsWritten(newState)) {
@@ -231,9 +235,20 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                 newState.tileResultFlags = newState.tileResultFlags.map(v => ({
                     tileId: v.tileId,
                     groupId: v.groupId,
-                    status: TileResultFlag.EMPTY_RESULT
+                    status: TileResultFlag.EMPTY_RESULT,
+                    canBeAmbiguousResult: false
                 })).toList();
                 this.findEmptyGroups(newState);
+                return newState;
+            },
+            [ActionName.ShowAmbiguousResultHelp]: (state, action) => {
+                const newState = this.copyState(state);
+                newState.showAmbiguousResultHelp = true;
+                return newState;
+            },
+            [ActionName.HideAmbiguousResultHelp]: (state, action) => {
+                const newState = this.copyState(state);
+                newState.showAmbiguousResultHelp = false;
                 return newState;
             }
         };

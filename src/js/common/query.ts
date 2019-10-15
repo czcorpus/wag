@@ -61,6 +61,14 @@ export interface LemmaVariant {
     arf:number;
     flevel:number;
     isCurrent:boolean;
+    isNonDict?:boolean;
+}
+
+export function testIsDictQuery(lemmas:Array<LemmaVariant>|LemmaVariant):boolean {
+    if (Array.isArray(lemmas)) {
+        return lemmas.length > 1 || !lemmas[0].isNonDict;
+    }
+    return !lemmas.isNonDict;
 }
 
 export function matchesPos(lv:LemmaVariant, pos:Array<QueryPoS>):boolean {

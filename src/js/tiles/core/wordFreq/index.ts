@@ -127,6 +127,10 @@ export class WordFreqTile implements ITileProvider {
     getBlockingTiles():Array<number> {
         return [];
     }
+
+    supportsNonDictQueries():boolean {
+        return true;
+    }
 }
 
 export const TILE_TYPE = 'WordFreqTile';

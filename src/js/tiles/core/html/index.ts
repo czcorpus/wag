@@ -144,6 +144,10 @@ export class HtmlTile implements ITileProvider {
     getBlockingTiles():Array<number> {
         return [];
     }
+
+    supportsNonDictQueries():boolean {
+        return false;
+    }
 }
 
 export const TILE_TYPE = 'HtmlTile';

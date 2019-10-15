@@ -55,7 +55,9 @@ export enum ActionName {
     SubqItemHighlighted = 'MAIN_SUBQ_ITEM_HIGHLIGHTED',
     SubqItemDehighlighted = 'MAIN_SUBQ_ITEM_DEHIGHLIGHTED',
     SubqChanged = 'MAIN_SUBQ_CHANGED',
-    TileAreaClicked = 'MAIN_TILE_AREA_CLICKED'
+    TileAreaClicked = 'MAIN_TILE_AREA_CLICKED',
+    ShowAmbiguousResultHelp = 'MAIN_SHOW_AMBIGUOUS_TILE_HELP',
+    HideAmbiguousResultHelp = 'MAIN_HIDE_AMBIGUOUS_TILE_HELP'
 }
 
 export namespace Actions {
@@ -85,6 +87,7 @@ export namespace Actions {
     export interface TileDataLoaded<T> extends Action<{
         tileId:number;
         isEmpty:boolean;
+        canBeAmbiguousResult?:boolean;
 
     } & T> {
         name: ActionName.TileDataLoaded;
@@ -286,5 +289,15 @@ export namespace Actions {
         tileId:number;
     }> {
         name:ActionName.TileAreaClicked;
+    }
+
+    export interface ShowAmbiguousResultHelp extends Action<{
+    }> {
+        name:ActionName.ShowAmbiguousResultHelp;
+    }
+
+    export interface HideAmbiguousResultHelp extends Action<{
+    }> {
+        name:ActionName.HideAmbiguousResultHelp;
     }
 }
