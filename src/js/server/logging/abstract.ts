@@ -40,8 +40,7 @@ export interface LogRecord {
         query1Lang:string;
         query2Lang:string|null;
         queryPos:Array<QueryPoS>|null;
-        query1:string|null;
-        query2:string|null;
+        query:Array<string>|null;
         error:string|null;
    };
    pid:number;
