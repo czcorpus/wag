@@ -28,7 +28,7 @@ import { TileGroup } from '../layout';
 import { ActionName, Actions } from '../models/actions';
 import { MessagesModel, MessagesState } from '../models/messages';
 import { QueryFormModel, QueryFormModelState } from '../models/query';
-import { WdglanceTilesModel, WdglanceTilesState } from '../models/tiles';
+import { WdglanceTilesModel, WdglanceTilesState, TileResultFlagRec } from '../models/tiles';
 import { SystemMessage } from '../notifications';
 import { init as corpusInfoViewInit } from './corpusInfo';
 import { GlobalComponents } from './global';
@@ -332,7 +332,15 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             });
         };
 
-        const mkAltLabel = (v:LemmaVariant) => v.pos.length > 1 ? ut.translate('global__alt_expr_any') : v.pos[0].label;
+        const mkAltLabel = (v:LemmaVariant) => {
+            if (v.pos.length > 1) {
+                return ut.translate('global__alt_expr_any');
+
+            } else if (v.pos.length === 1) {
+                return v.pos[0].label;
+            }
+            return ut.translate('global__alt_expr_nondict');
+        };
 
         if (props.lemmas.size > 0) {
             const curr = props.lemmas.find(v => v.isCurrent == true);
@@ -340,7 +348,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 return (
                     <div className="LemmaSelector">
                         {ut.translate('global__searching_by_pos')}:{'\u00a0'}
-                        <span className="curr">{curr.lemma} ({mkAltLabel(curr)})</span>
+                        <span className="curr">{curr.isNonDict ? curr.word : curr.lemma} ({mkAltLabel(curr)})</span>
                         <br />
                         {props.lemmas.size > 1 ?
                             <div className="variants">
@@ -532,6 +540,26 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         );
     };
 
+    // ------------- <AmbiguousResultWarning /> -------------------------------
+
+    const AmbiguousResultWarning:React.SFC<{
+    }> = (props) => {
+
+        const handleClick = (evt:React.MouseEvent<HTMLButtonElement>) => {
+            dispatcher.dispatch({
+                name: ActionName.ShowAmbiguousResultHelp
+            });
+        };
+
+        return (
+            <span className="bar-button">
+                <button type="button" onClick={handleClick} title={ut.translate('global__not_using_lemmatized_query_title')}>
+                    <globalComponents.MessageStatusIcon statusType={SystemMessageType.WARNING} />
+                </button>
+            </span>
+        );
+    };
+
     // ------------- <InitialHelpTile /> --------------------------------------
 
     const InitialHelpTile:React.SFC<{html:string}> = (props) => {
@@ -582,6 +610,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         isAltViewMode:boolean;
         helpURL:string;
         tile:TileFrameProps;
+        supportsCurrQuery:boolean;
+        tileResultFlag:TileResultFlagRec;
     }, {}> {
 
         private ref:React.RefObject<HTMLDivElement>;
@@ -620,6 +650,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <header className="cnc-tile-header panel">
                         <h2>{this.props.tile.label}</h2>
                         <div className="window-buttons">
+                        {this.props.tileResultFlag && this.props.tileResultFlag.canBeAmbiguousResult ?
+                            <AmbiguousResultWarning /> :
+                            null
+                        }
                         {this.props.tile.supportsAltView ?
                             <AltViewButton tileId={this.props.tile.tileId} isAltView={this.props.isAltViewMode} />  :
                             null
@@ -635,17 +669,27 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         </div>
                     </header>
                     <div className="provider" ref={this.ref}>
-                        {this.props.tile.Component ?
-                            <globalComponents.ErrorBoundary>
+                        <globalComponents.ErrorBoundary>
+                            {this.props.supportsCurrQuery ?
                                 <this.props.tile.Component
                                         tileId={this.props.tile.tileId}
                                         renderSize={this.props.tile.renderSize}
                                         isMobile={this.props.isMobile}
                                         widthFract={this.props.tile.widthFract}
-                                        supportsReloadOnError={this.props.tile.supportsReloadOnError} />
-                            </globalComponents.ErrorBoundary> :
-                            null
-                        }
+                                        supportsReloadOnError={this.props.tile.supportsReloadOnError} /> :
+                                <div className="TileWrapper empty">
+                                    <div className="loader-wrapper"></div>
+                                    <div className="cnc-tile-body content empty">
+                                        <div className="message">
+                                            <globalComponents.MessageStatusIcon statusType={SystemMessageType.WARNING} isInline={false} />
+                                            <p>
+                                                {ut.translate('global__query_not_supported')}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </globalComponents.ErrorBoundary>
                     </div>
                 </section>
             );
@@ -729,6 +773,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         tileFrameProps:Immutable.List<TileFrameProps>;
         tweakActiveTiles:Immutable.Set<number>;
         altViewActiveTiles:Immutable.Set<number>;
+        tileResultFlags:Immutable.List<TileResultFlagRec>;
 
     }> = (props) => {
 
@@ -780,12 +825,13 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <section className="tiles">
                     {props.data.tiles
                         .map(v => props.tileFrameProps.get(v.tileId))
-                        .filter(v => v.supportsCurrQueryType)
                         .map(tile => <TileContainer key={`tile:${tile.tileId}`} tile={tile}
                                             isMobile={props.isMobile}
                                             helpURL={tile.helpURL}
                                             isTweakMode={props.tweakActiveTiles.contains(tile.tileId)}
-                                            isAltViewMode={props.altViewActiveTiles.contains(tile.tileId)} />)
+                                            isAltViewMode={props.altViewActiveTiles.contains(tile.tileId)}
+                                            supportsCurrQuery={tile.supportsCurrQuery}
+                                            tileResultFlag={props.tileResultFlags.get(tile.tileId)} />)
                     }
                     </section>
                 );
@@ -911,6 +957,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             this.handleCloseSourceInfo = this.handleCloseSourceInfo.bind(this);
             this.handleCloseGroupHelp = this.handleCloseGroupHelp.bind(this);
             this.handleCloseTileHelp = this.handleCloseTileHelp.bind(this);
+            this.handleAmbiguousResultHelp = this.handleAmbiguousResultHelp.bind(this);
         }
 
         private handleCloseSourceInfo() {
@@ -928,6 +975,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         private handleCloseTileHelp() {
             dispatcher.dispatch<Actions.HideTileHelp>({
                 name: ActionName.HideTileHelp
+            });
+        }
+
+        private handleAmbiguousResultHelp() {
+            dispatcher.dispatch<Actions.HideAmbiguousResultHelp>({
+                name: ActionName.HideAmbiguousResultHelp
             });
         }
 
@@ -957,6 +1010,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             html={this.props.activeTileHelp.html}
                             isBusy={this.props.isBusy} />;
 
+            } else if (this.props.showAmbiguousResultHelp) {
+                return <ModalHelpContent onClose={this.handleAmbiguousResultHelp}
+                            title={ut.translate('global__not_using_lemmatized_query_title')}
+                            html={'<p>' + ut.translate('global__not_using_lemmatized_query_msg') + '</p>'}
+                            isBusy={this.props.isBusy} />;
+
             } else {
                 return null;
             }
@@ -977,7 +1036,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                     isMobile={this.props.isMobile}
                                     tileFrameProps={this.props.tileProps}
                                     tweakActiveTiles={this.props.tweakActiveTiles}
-                                    altViewActiveTiles={this.props.altViewActiveTiles} />
+                                    altViewActiveTiles={this.props.altViewActiveTiles}
+                                    tileResultFlags={this.props.tileResultFlags} />
 
                             )) :
                             <NothingFoundBox />

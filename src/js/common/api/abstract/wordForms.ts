@@ -26,6 +26,10 @@ export interface RequestArgs {
     pos:Array<QueryPoS>;
 }
 
+export function isRequestArgs(v:RequestArgs|RequestConcArgs):v is RequestArgs {
+    return typeof v['lang'] === 'string' && typeof v['lemma'] === 'string' && Array.isArray(v['pos']);
+}
+
 export interface RequestConcArgs {
     corpName:string;
     subcorpName?:string;

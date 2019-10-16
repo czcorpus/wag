@@ -123,6 +123,10 @@ export class WordFormsTile implements ITileProvider {
         return this.waitForTiles;
     }
 
+    supportsNonDictQueries():boolean {
+        return false;
+    }
+
 }
 
 export const TILE_TYPE = 'WordFormsTile';

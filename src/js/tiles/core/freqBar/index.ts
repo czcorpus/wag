@@ -174,6 +174,10 @@ export class FreqBarTile implements ITileProvider {
         return this.blockingTiles;
     }
 
+    supportsNonDictQueries():boolean {
+        return false;
+    }
+
 }
 
 export const TILE_TYPE = 'FreqBarTile';

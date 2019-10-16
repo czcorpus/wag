@@ -42,6 +42,7 @@
         "global__show_tile_help": "Show tile help",
         "global__failed_to_obtain_required_data": "Failed to obtain data required for the calculation.",
         "global__not_enought_data_for_group": "Not enough data to display any result in this section",
+        "global__query_not_supported": "Cannot provide result for this query",
         "global__func_not_avail": "Function not available in this case",
         "global__multiple_words_for_query": "Alternatives",
         "global__searching_by_pos": "Showing results for",
@@ -66,8 +67,11 @@
         "global__corp_metadata": "Structural information",
         "global__click_to_query_word": "Click to view the word profile",
         "global__alt_expr_any": "any PoS",
+        "global__alt_expr_nondict": "non lemmatized",
         "global__close_modal": "Close the window",
-        "global__click_for_details": "Click for details"
+        "global__click_for_details": "Click for details",
+        "global__not_using_lemmatized_query_title": "Not using a lemmatized query",
+        "global__not_using_lemmatized_query_msg": "The tile does not have a lemmatized version of the query (e.g. 'went' -> 'go'). The search is performed using exact word form match."
     },
     "cs-CZ": {
         "global__logo_file": "logo_cs.svg",
@@ -112,6 +116,7 @@
         "global__show_tile_help": "Ukázat nápovědu k dlaždici",
         "global__failed_to_obtain_required_data": "Nepodařilo se získat data potřebná k výpočtu.",
         "global__not_enought_data_for_group": "Pro zobrazení výsledků v této části není dostatek dat",
+        "global__query_not_supported": "Pro tento dotaz nelze poskytnout žádný výsledek.",
         "global__func_not_avail": "Funkce zde není k dispozici",
         "global__multiple_words_for_query": "Alternativy",
         "global__searching_by_pos": "Zobrazuji výsledky pro",
@@ -136,7 +141,10 @@
         "global__corp_metadata": "Informace o struktuře",
         "global__click_to_query_word": "Klikněte pro zobrazení profilu slova",
         "global__alt_expr_any": "libovolný slov. druh",
+        "global__alt_expr_nondict": "nelematizováno",
         "global__close_modal": "Zavřít okno",
-        "global__click_for_details": "Klikněte pro podrobné informace"
+        "global__click_for_details": "Klikněte pro podrobné informace",
+        "global__not_using_lemmatized_query_title": "Hledání nevyužívá lemmatizovanou verzi dotazu",
+        "global__not_using_lemmatized_query_msg": "Dlaždice nemá k dispozici lemmatizovanou verzi dotazu (např. 'šla' -> 'jít') a hledá pouze podle přesné shody zadaného slovního tvaru. Možná homonyma tedy nejsou rozlišena."
     }
 }

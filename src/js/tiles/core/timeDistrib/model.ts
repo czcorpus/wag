@@ -21,7 +21,7 @@ import { Observable, Observer, of as rxOf } from 'rxjs';
 import { concatMap, map } from 'rxjs/operators';
 
 import { AppServices } from '../../../appServices';
-import { ConcApi, QuerySelector, mkLemmaMatchQuery } from '../../../common/api/kontext/concordance';
+import { ConcApi, QuerySelector, mkMatchQuery } from '../../../common/api/kontext/concordance';
 import { ConcResponse, ViewMode } from '../../../common/api/abstract/concordance';
 import { TimeDistribResponse } from '../../../common/api/abstract/timeDistrib';
 import { DataRow } from '../../../common/api/kontext/freqs';
@@ -387,7 +387,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 subcName: subcname,
                 wordMainLabel: lemmaVariant.lemma,
                 targetId: target,
-                origQuery: mkLemmaMatchQuery(lemmaVariant, state.posQueryGenerator)
+                origQuery: mkMatchQuery(lemmaVariant, state.posQueryGenerator)
             }
         );
     }

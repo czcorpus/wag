@@ -130,6 +130,10 @@ export class SyDTile implements ITileProvider {
     getBlockingTiles():Array<number> {
         return this.blockingTiles;
     }
+
+    supportsNonDictQueries():boolean {
+        return true;
+    }
 }
 
 export const TILE_TYPE = 'SyDTile';

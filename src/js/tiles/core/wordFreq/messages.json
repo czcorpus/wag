@@ -6,7 +6,9 @@
         "wordfreq__ipm": "occurrences per million words",
         "wordfreq__num_similarly_freq_words": "num. of similarly frequent words",
         "wordfreq__freq_bands": "frequency band",
-        "wordfreq__main_label": "words with similar frequency"
+        "wordfreq__main_label": "words with similar frequency",
+        "wordfreq__note": "note",
+        "wordfreq__not_in_dict": "No information about the word."
     },
     "cs-CZ": {
         "wordfreq_searched_form": "zadaný tvar",
@@ -15,6 +17,8 @@
         "wordfreq__ipm": "kolikrát v milionu slov",
         "wordfreq__num_similarly_freq_words": "počet slov s podobným výskytem",
         "wordfreq__freq_bands": "frekvenční pásmo",
-        "wordfreq__main_label": "slova s podobně častým výskytem"
+        "wordfreq__main_label": "slova s podobně častým výskytem",
+        "wordfreq__note": "poznámka",
+        "wordfreq__not_in_dict": "Ke slovu nejsou k dispozici žádné informace."
     }
 }

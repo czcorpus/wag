@@ -17,7 +17,7 @@
  */
 import * as Immutable from 'immutable';
 import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
-import { Observable } from 'rxjs';
+import { Observable, of as rxOf } from 'rxjs';
 import { map, concatMap } from 'rxjs/operators';
 
 import { AppServices } from '../../../appServices';
@@ -25,7 +25,7 @@ import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../
 import { DataLoadedPayload } from './actions';
 import { FreqDBRow, FreqDbAPI, FreqBand } from './api';
 import { QueryFormModel, findCurrLemmaVariant } from '../../../models/query';
-import { LemmaVariant } from '../../../common/query';
+import { LemmaVariant, testIsDictQuery } from '../../../common/query';
 
 export interface FlevelDistribItem {
     rel:number;
@@ -113,13 +113,26 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                     }
                 }).pipe(
                     concatMap(
-                        (args) => this.api.call({
-                            lang: args.lang,
-                            word: args.variant.word,
-                            lemma: args.variant.lemma,
-                            pos: args.variant.pos.map(v => v.value),
-                            srchRange: state.sfwRowRange
-                        })
+                        (args) => testIsDictQuery(args.variant) ?
+                            this.api.call({
+                                lang: args.lang,
+                                word: args.variant.word,
+                                lemma: args.variant.lemma,
+                                pos: args.variant.pos.map(v => v.value),
+                                srchRange: state.sfwRowRange
+                            }) :
+                            rxOf({
+                                result: [{
+                                    word: args.variant.word,
+                                    lemma: '?',
+                                    pos: [],
+                                    abs: 0,
+                                    ipm: 0,
+                                    arf: 0,
+                                    flevel: -1,
+                                    isSearched: true
+                                }]
+                            })
                     ),
                     map(
                         (data) => ({
