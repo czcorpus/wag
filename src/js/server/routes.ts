@@ -217,7 +217,7 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
         query2Lang: req.query['lang2'] || 'en',
         queryType: req.query['queryType'] || 'single',
         queryPos: req.query['pos'],
-        query: (typeof req.query['q'] === 'string' ? [req.query['q']] : req.query['q']) || [],
+        query: (typeof req.query['q'] === 'string' ? [req.query['q']] : req.query['q']) || [''],
         lemma1: req.query['lemma1'] || '',
         answerMode: answerMode
     };
