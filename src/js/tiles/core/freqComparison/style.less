@@ -1,0 +1,31 @@
+@import '../../../../css/shared.less';
+
+.FreqComparisonTile {
+
+    min-height: 15em;
+
+    .charts {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        overflow-y: hidden;
+
+        > *:not(:last-child) {
+            box-sizing: border-box;
+            margin-right: 10px;
+        }
+
+        h3 {
+            margin: 0 0 1.5em 0;
+            text-align: center;
+            font-weight: normal;
+        }
+    }
+
+    .charts.incomplete {
+        justify-content: flex-start;
+    }
+}
