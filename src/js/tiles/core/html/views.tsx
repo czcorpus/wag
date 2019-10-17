@@ -43,6 +43,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <globalCompontents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error} htmlClass="HtmlTile"
                             hasData={Boolean(this.props.data)} sourceIdent={null}
                             supportsTileReload={this.props.supportsReloadOnError} >
+                        {this.props.stylesPath ? <link rel="stylesheet" href={this.props.stylesPath}/> : null}
+                        {this.props.styles ? <style>{this.props.styles}</style> : null}
                         <div className="htmlFrame" dangerouslySetInnerHTML={{__html: this.props.data}} />
                     </globalCompontents.TileWrapper>
                 </div>
