@@ -125,9 +125,9 @@ export class LayoutManager {
             }
         ]);
         this.multiWordQuerySupport = Immutable.Map<QueryType, boolean>({
-            [QueryType.SINGLE_QUERY]: layouts.single.allowMultiWordQuery,
-            [QueryType.CMP_QUERY]: layouts.cmp.allowMultiWordQuery,
-            [QueryType.TRANSLAT_QUERY]: layouts.translat.allowMultiWordQuery
+            [QueryType.SINGLE_QUERY]: !!layouts.single.allowMultiWordQuery,
+            [QueryType.CMP_QUERY]: !!layouts.cmp.allowMultiWordQuery,
+            [QueryType.TRANSLAT_QUERY]: !!layouts.translat.allowMultiWordQuery
         })
     }
 
