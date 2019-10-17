@@ -20,10 +20,15 @@ import { map } from 'rxjs/operators';
 
 import { cachedAjax$, ResponseType } from '../../../common/ajax';
 import { DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../../common/types';
-import { HtmlApiArgs } from './common';
+import { HtmlApiArgs, WiktionaryApiArgs, HtmlModelState } from './common';
 
 
-export class RawHtmlAPI implements DataApi<HtmlApiArgs, string> {
+export interface GeneralHtmlAPI<T> extends DataApi<T, string> {
+    stateToArgs(state:HtmlModelState, query:string):T;
+}
+
+
+export class RawHtmlAPI implements GeneralHtmlAPI<HtmlApiArgs> {
 
     private readonly apiURL:string;
 
@@ -37,6 +42,13 @@ export class RawHtmlAPI implements DataApi<HtmlApiArgs, string> {
         this.cache = cache;
     }
 
+    stateToArgs(state:HtmlModelState, query:string):HtmlApiArgs {
+        const args = {...state.args};
+        if (state.lemmaArg) {
+            args[state.lemmaArg] = query;
+        }
+        return args;
+    }
 
     call(queryArgs:HtmlApiArgs):Observable<string> {
         return cachedAjax$<string>(this.cache)(
@@ -50,12 +62,40 @@ export class RawHtmlAPI implements DataApi<HtmlApiArgs, string> {
 }
 
 
-export class WiktionaryHtmlAPI extends RawHtmlAPI {
+export class WiktionaryHtmlAPI implements GeneralHtmlAPI<WiktionaryApiArgs>  {
 
-    call(queryArgs:HtmlApiArgs):Observable<string> {
-        return super.call(queryArgs).pipe(map(
-            data => data.split('čeština</span></h2>', 2)[1].split('<h2>', 1)[0]
-        ))
+    private readonly apiURL:string;
+
+    private readonly customHeaders:HTTPHeaders;
+
+    private readonly cache:IAsyncKeyValueStore;
+
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, customHeaders?:HTTPHeaders) {
+        this.apiURL = apiURL;
+        this.customHeaders = customHeaders || {};
+        this.cache = cache;
+    }
+
+    stateToArgs(state:HtmlModelState, query:string):WiktionaryApiArgs {
+        return {
+            title: query,
+            action: 'render'
+        }
+    }
+
+    call(queryArgs:WiktionaryApiArgs):Observable<string> {
+        return cachedAjax$<string>(this.cache)(
+            'GET',
+            this.apiURL,
+            queryArgs,
+            {headers: this.customHeaders, responseType: ResponseType.TEXT}
+
+        ).pipe(
+            map(data => data.indexOf('čeština</span></h2>') > -1 ?
+                    data.split('čeština</span></h2>', 2)[1].split('<h2>', 1)[0] :
+                    data
+            )
+        );
     }
 
 }

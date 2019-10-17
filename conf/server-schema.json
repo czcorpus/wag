@@ -59,6 +59,9 @@
             ],
             "type": "object"
         },
+        "distFilesUrl": {
+            "type": "string"
+        },
         "freqDB": {
             "properties": {
                 "databases": {
@@ -109,6 +112,7 @@
     "required": [
         "address",
         "develServer",
+        "distFilesUrl",
         "freqDB",
         "languages",
         "port",

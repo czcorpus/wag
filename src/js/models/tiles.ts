@@ -83,6 +83,7 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                         srchId,
                         {
                             tileId: tile.tileId,
+                            tileName: tile.tileName,
                             Component: tile.Component,
                             SourceInfoComponent: tile.SourceInfoComponent,
                             label: tile.label,

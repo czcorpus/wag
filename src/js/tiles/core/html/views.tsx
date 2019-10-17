@@ -21,7 +21,8 @@ import * as React from 'react';
 import { Theme } from '../../../common/theme';
 import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
 import { GlobalComponents } from '../../../views/global';
-import { HtmlModel, HtmlModelState } from './model';
+import { HtmlModel } from './model';
+import { HtmlModelState } from './common';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:HtmlModel):TileComponent {
@@ -40,11 +41,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
             return (
                 <div style={{maxHeight: model.maxTileHeight}}>
-                    <globalCompontents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error} htmlClass="HtmlTile"
-                            hasData={Boolean(this.props.data)} sourceIdent={null}
-                            supportsTileReload={this.props.supportsReloadOnError} >
-                        {this.props.stylesPath ? <link rel="stylesheet" href={this.props.stylesPath}/> : null}
-                        {this.props.styles ? <style>{this.props.styles}</style> : null}
+                    <globalCompontents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy}
+                            error={this.props.error} htmlClass={`HtmlTile${this.props.tileName}`} hasData={Boolean(this.props.data)}
+                            sourceIdent={null} supportsTileReload={this.props.supportsReloadOnError} >
                         <div className="htmlFrame" dangerouslySetInnerHTML={{__html: this.props.data}} />
                     </globalCompontents.TileWrapper>
                 </div>

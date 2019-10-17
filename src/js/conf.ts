@@ -97,6 +97,9 @@ export interface ClientStaticConf {
     colors:ColorsConf;
     searchLanguages:{[code:string]:string};
 
+    // A list of URLs used to style specific content (e.g. HTML tiles)
+    externalStyles?:Array<string>;
+
     // If string we expect this to be a fs path to another
     // JSON file containing just the 'tiles' configuration
     tiles:LanguageAnyTileConf|string;
@@ -136,6 +139,7 @@ export interface ClientConf {
     tiles:{[ident:string]:TileConf};
     layouts:LayoutsConfig;
     searchLanguages:Array<SearchLanguage>;
+    externalStyles:Array<string>;
     error?:Error;
     telemetry?:{
         sendIntervalSecs:number;
@@ -177,7 +181,8 @@ export function emptyClientConf(conf:ClientStaticConf):ClientConf {
             code: k,
             label: conf.searchLanguages[k],
             queryTypes: []
-        }))
+        })),
+        externalStyles: []
     };
 }
 
@@ -218,7 +223,8 @@ export interface LogQueueConf {
 export interface ServerConf {
     address:string;
     port:number;
-    staticFilesUrl:string;
+    staticFilesUrl:string; // static (= non-compiled) stuff path (images etc.)
+    distFilesUrl:string; // this ensures Webpack to resolve dynamic imports properly
     languages:{[code:string]:string};
     develServer:{
         port:number;

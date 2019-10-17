@@ -78,6 +78,7 @@ function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, appServices:App
                 label: conf.searchLanguages[k],
                 queryTypes: getSupportedQueryTypes(conf, k)
             })),
+            externalStyles: conf.externalStyles || [],
             homepage: {
                 tiles: item
             },

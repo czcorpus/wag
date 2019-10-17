@@ -20,10 +20,11 @@ import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { AppServices } from '../../../appServices';
 import { SystemMessageType } from '../../../common/types';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
-import { DataLoadedPayload } from './common';
-import { RawHtmlAPI, WiktionaryHtmlAPI } from './service';
+import { DataLoadedPayload, HtmlModelState } from './common';
+import { RawHtmlAPI, WiktionaryHtmlAPI, GeneralHtmlAPI } from './service';
 import { QueryFormModel, findCurrLemmaVariant } from '../../../models/query';
-import * as sanitizeHtml from 'sanitize-html';
+import { Observable, of as rxOf } from 'rxjs';
+import { concatMap } from 'rxjs/operators';
 
 
 export interface HtmlModelArgs {
@@ -36,23 +37,12 @@ export interface HtmlModelArgs {
     mainForm:QueryFormModel;
 }
 
-export interface HtmlModelState {
-    isBusy:boolean;
-    tileId:number;
-    error:string|null;
-    widthFract:number;
-    data:string|null;
-    args:{[key:string]:string};
-    lemmaArg:string;
-    styles:string;
-    stylesPath:string;
-}
-
 
 export class HtmlModel extends StatelessModel<HtmlModelState> {
+
     private readonly mainForm:QueryFormModel;
 
-    private readonly service:RawHtmlAPI|WiktionaryHtmlAPI;
+    private readonly service:GeneralHtmlAPI<{}>;
 
     private readonly appServices:AppServices;
 
@@ -80,10 +70,9 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
                     newState.isBusy = false;
                     if (action.error) {
                         newState.error = action.error.message;
+
                     } else {
-                        newState.data = sanitizeHtml(action.payload.data, {
-                            allowedTags: sanitizeHtml.defaults.allowedTags.concat([ 'img' ])
-                        });
+                        newState.data = action.payload.data;
                     }
                     return newState;
                 }
@@ -93,10 +82,25 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
     }
 
     private requestData(state:HtmlModelState, variant:string, seDispatch:SEDispatcher):void {
-        const additionalArgs = {}
-        if (state.lemmaArg) {additionalArgs[state.lemmaArg] = variant}
-
-        this.service.call({...state.args, ...additionalArgs}).subscribe(
+        this.service.call(this.service.stateToArgs(state, variant)).pipe(
+            concatMap(
+                (ans:string) => {
+                    return state.sanitizeHTML ? new Observable<any>((observer) => {
+                        import(/* webpackChunkName: "sanitize-html" */ 'sanitize-html').then(
+                            (sanitizeHtml) => {
+                                observer.next(sanitizeHtml['default'](ans, {
+                                    allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img'])
+                                }));
+                                observer.complete();
+                            },
+                            (err) => {
+                                observer.error(err);
+                            }
+                        )
+                    }) : rxOf(ans);
+                }
+            )
+        ).subscribe(
             (data) => {
                 seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
                     name: GlobalActionName.TileDataLoaded,
