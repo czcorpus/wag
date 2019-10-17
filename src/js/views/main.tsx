@@ -160,7 +160,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             if (ref.current !== null && props.wantsFocus) {
                 ref.current.focus();
             }
-        });
+        }, []);
 
         const handleInput = (evt:React.ChangeEvent<HTMLInputElement>) => {
             props.onContentChange(evt.target.value);

@@ -112,7 +112,7 @@ export class WordFormsTile implements ITileProvider {
         return true;
     }
 
-    exposeModelForRetryOnError():StatelessModel<{}>|null {
+    exposeModel():StatelessModel<{}>|null {
         return this.model;
     }
 

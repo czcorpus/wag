@@ -57,7 +57,7 @@ const mkAttachTile = (queryType:QueryType, isDictQuery:boolean, lang1:string, la
         renderSize: [50, 50],
         widthFract: tile.getWidthFract(),
         helpURL: helpURL,
-        supportsReloadOnError: tile.exposeModelForRetryOnError() !== null
+        supportsReloadOnError: tile.exposeModel() !== null // TODO this inference is debatable
     });
     if (!support) {
         tile.disable();
@@ -143,7 +143,7 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
             tile,
             appServices.importExternalMessage(config.tiles[tileId].helpURL)
         );
-        const model = tile.exposeModelForRetryOnError();
+        const model = tile.exposeModel();
         retryLoadModel.registerModel(
             tilesMap[tileId],
             model,

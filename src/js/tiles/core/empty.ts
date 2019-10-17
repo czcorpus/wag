@@ -70,7 +70,7 @@ export class EmptyTile implements ITileProvider {
         return false;
     }
 
-    exposeModelForRetryOnError():null {
+    exposeModel():null {
         return null;
     }
 

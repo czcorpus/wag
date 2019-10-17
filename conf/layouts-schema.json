@@ -63,6 +63,9 @@
             "properties": {
                 "cmp": {
                     "properties": {
+                        "allowMultiWordQuery": {
+                            "type": "boolean"
+                        },
                         "groups": {
                             "items": {
                                 "anyOf": [
@@ -84,6 +87,9 @@
                 },
                 "single": {
                     "properties": {
+                        "allowMultiWordQuery": {
+                            "type": "boolean"
+                        },
                         "groups": {
                             "items": {
                                 "anyOf": [
@@ -105,6 +111,9 @@
                 },
                 "translat": {
                     "properties": {
+                        "allowMultiWordQuery": {
+                            "type": "boolean"
+                        },
                         "groups": {
                             "items": {
                                 "anyOf": [

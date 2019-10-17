@@ -149,7 +149,7 @@ export class CollocationsTile implements ITileProvider {
         return true;
     }
 
-    exposeModelForRetryOnError():StatelessModel<{}>|null {
+    exposeModel():StatelessModel<{}>|null {
         return this.model;
     }
 

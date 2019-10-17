@@ -139,7 +139,7 @@ export class GeoAreasTile implements ITileProvider {
         return true;
     }
 
-    exposeModelForRetryOnError():StatelessModel<{}>|null {
+    exposeModel():StatelessModel<{}>|null {
         return this.model;
     }
 

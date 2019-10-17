@@ -59,13 +59,16 @@ export interface GroupLayoutConfig {
 export interface LayoutsConfig {
     single?:{
         groups:Array<GroupLayoutConfig|string>;
+        allowMultiWordQuery?:boolean;
     };
     cmp?:{
         groups:Array<GroupLayoutConfig|string>;
+        allowMultiWordQuery?:boolean;
     };
     translat?:{
         groups:Array<GroupLayoutConfig|string>;
         targetLanguages:Array<string>;
+        allowMultiWordQuery?:boolean;
     };
 }
 

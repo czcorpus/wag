@@ -58,7 +58,10 @@ export class LayoutManager {
 
     private readonly translatTargetLanguages:Immutable.List<[string, string]>;
 
+    private readonly multiWordQuerySupport:Immutable.Map<QueryType, boolean>;
+
     constructor(layouts:LayoutsConfig, tileMap:TileIdentMap, appServices:AppServices) {
+        // single
         this.singleQueryLayout = Immutable.List<TileGroup>(
                 (layouts.single.groups || []).filter(itemIsGroupConf).map<TileGroup>(group => {
                     return {
@@ -71,7 +74,7 @@ export class LayoutManager {
         this.singleQueryService = Immutable.List<number>(
             (layouts.single.groups || []).filter(itemIsServiceConf).map(v => tileMap[v])
         );
-
+        // cmp
         this.cmpQueryLayout = Immutable.List<TileGroup>(
             (layouts.cmp.groups || []).filter(itemIsGroupConf).map<TileGroup>(group => {
                 return {
@@ -84,7 +87,7 @@ export class LayoutManager {
         this.cmpQueryService = Immutable.List<number>(
                 (layouts.cmp.groups || []).filter(itemIsServiceConf).map(v => tileMap[v])
             );
-
+        // translat
         this.translatQueryLayout = Immutable.List<TileGroup>(
             (layouts.translat.groups || []).filter(itemIsGroupConf).map<TileGroup>(group => {
                 return {
@@ -121,6 +124,11 @@ export class LayoutManager {
                 isEnabled: this.translatQueryLayout.size > 0
             }
         ]);
+        this.multiWordQuerySupport = Immutable.Map<QueryType, boolean>({
+            [QueryType.SINGLE_QUERY]: !!layouts.single.allowMultiWordQuery,
+            [QueryType.CMP_QUERY]: !!layouts.cmp.allowMultiWordQuery,
+            [QueryType.TRANSLAT_QUERY]: !!layouts.translat.allowMultiWordQuery
+        })
     }
 
     /**
@@ -159,6 +167,10 @@ export class LayoutManager {
     getTileWidthFract(queryType:QueryType, tileId:number):number|null {
         const srch = this.getLayout(queryType).flatMap(v => v.tiles).find(v => v.tileId === tileId);
         return srch ? srch.width : null;
+    }
+
+    getMultiWordQuerySupport():Immutable.Map<QueryType, boolean> {
+        return this.multiWordQuerySupport;
     }
 
     private isServiceOf(queryType:QueryType, tileId:number):boolean {

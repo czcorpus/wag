@@ -232,7 +232,7 @@ export interface ITileProvider {
      * If returned then the model will be available for
      * possible manual tile reload in case of an error.
      */
-    exposeModelForRetryOnError():StatelessModel<{}>|null;
+    exposeModel():StatelessModel<{}>|null;
 
     /**
      * Return a list of tiles this tile depends on

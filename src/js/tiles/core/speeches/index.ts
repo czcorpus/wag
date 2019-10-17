@@ -164,7 +164,7 @@ export class SpeechesTile implements ITileProvider {
         return false;
     }
 
-    exposeModelForRetryOnError():StatelessModel<{}>|null {
+    exposeModel():StatelessModel<{}>|null {
         return this.model;
     }
 
