@@ -169,7 +169,7 @@ export class MergeCorpFreqTile implements ITileProvider {
         return true;
     }
 
-    exposeModelForRetryOnError():StatelessModel<{}>|null {
+    exposeModel():StatelessModel<{}>|null {
         return this.model;
     }
 

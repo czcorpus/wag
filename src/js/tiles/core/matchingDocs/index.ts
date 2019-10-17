@@ -145,7 +145,7 @@ export class MatchingDocsTile implements ITileProvider {
         return false;
     }
 
-    exposeModelForRetryOnError():StatelessModel<{}>|null {
+    exposeModel():StatelessModel<{}>|null {
         return this.model;
     }
 
