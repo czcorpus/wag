@@ -22,10 +22,11 @@ import { StatelessModel, Action, SEDispatcher, IActionQueue } from 'kombo';
 import { WordFormItem, WordFormsApi, RequestConcArgs, RequestArgs } from '../../../common/api/abstract/wordForms';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { DataLoadedPayload } from './actions';
-import { QueryFormModel, findCurrLemmaVariant } from '../../../models/query';
+import { findCurrLemmaVariant } from '../../../models/query';
 import { ConcLoadedPayload } from '../concordance/actions';
 import { calcPercentRatios } from '../../../common/util';
 import { AlphaLevel, wilsonConfInterval } from '../timeDistrib/stat';
+import { RecognizedQueries } from '../../../common/query';
 
 
 
@@ -66,21 +67,35 @@ function filterRareVariants(items:Immutable.List<WordFormItem>, corpSize:number,
 }
 
 
+export interface WordFormsModelArgs {
+    dispatcher:IActionQueue;
+    initialState:WordFormsModelState;
+    tileId:number;
+    api:WordFormsApi;
+    queries:RecognizedQueries;
+    queryLang:string;
+    waitForTile:number|null;
+}
+
+
 export class WordFormsModel extends StatelessModel<WordFormsModelState> {
 
     private readonly tileId:number;
 
     private readonly api:WordFormsApi;
 
-    private readonly mainForm:QueryFormModel;
+    private readonly queries:RecognizedQueries;
+
+    private readonly queryLang:string;
 
     private readonly waitForTile:number|null;
 
-    constructor(dispatcher:IActionQueue, initialState:WordFormsModelState, tileId:number, api:WordFormsApi, mainForm:QueryFormModel, waitForTile:number|null) {
+    constructor({dispatcher, initialState, tileId, api, queries, queryLang, waitForTile}:WordFormsModelArgs) {
         super(dispatcher, initialState);
         this.tileId = tileId;
         this.api = api;
-        this.mainForm = mainForm;
+        this.queries = queries;
+        this.queryLang = queryLang;
         this.waitForTile = waitForTile;
         this.actionMatch = {
             [GlobalActionName.EnableAltViewMode]: (state, action:GlobalActions.EnableAltViewMode) => {
@@ -224,11 +239,10 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                     );
 
                 } else {
-                    const formState = this.mainForm.getState();
-                    const variant = findCurrLemmaVariant(formState.lemmas);
+                    const variant = findCurrLemmaVariant(this.queries.get(0));
                     this.fetchWordForms(
                         {
-                            lang: formState.queryLanguage,
+                            lang: this.queryLang,
                             lemma: variant.lemma,
                             pos: variant.pos.map(v => v.value)
                         },

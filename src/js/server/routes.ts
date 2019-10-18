@@ -22,14 +22,14 @@ import * as React from 'react';
 import { renderToString } from 'react-dom/server';
 import { Observable, forkJoin, of as rxOf } from 'rxjs';
 import { concatMap, map, catchError, reduce, tap } from 'rxjs/operators';
-import * as Immutable from 'immutable';
+import { List } from 'immutable';
 
 
 import { AppServices } from '../appServices';
 import { encodeArgs } from '../common/ajax';
 import { ErrorType, mapToStatusCode, newError } from '../common/errors';
 import { HostPageEnv, AvailableLanguage } from '../common/hostPage';
-import { QueryType, LemmaVariant, importQueryPos, QueryPoS, matchesPos, findMergeableLemmas } from '../common/query';
+import { QueryType, LemmaVariant, importQueryPos, QueryPoS, matchesPos, findMergeableLemmas, RecognizedQueries } from '../common/query';
 import { UserConf, ClientStaticConf, ClientConf, emptyClientConf, getSupportedQueryTypes, emptyLayoutConf, getQueryTypeFreqDb } from '../conf';
 import { GlobalComponents } from '../views/global';
 import { init as viewInit, LayoutProps } from '../views/layout';
@@ -92,13 +92,13 @@ interface RenderResultArgs {
     view:React.SFC<LayoutProps>;
     services:Services;
     toolbarData:HostPageEnv;
-    lemmas:Array<LemmaVariant>;
+    lemmas:RecognizedQueries;
     userConfig:UserConf;
     clientConfig:ClientConf;
     returnUrl:string;
     rootView:React.ComponentType<WdglanceMainProps>;
-    homepageSections:Immutable.List<{label:string; html:string}>;
-    layout:Immutable.List<TileGroup>;
+    homepageSections:List<{label:string; html:string}>;
+    layout:List<TileGroup>;
     isMobile:boolean;
     isAnswerMode:boolean;
 }
@@ -113,10 +113,10 @@ function renderResult({view, services, toolbarData, lemmas, userConfig, clientCo
                 userConfig: userConfig,
                 hostPageEnv: toolbarData,
                 lemmas: lemmas,
-                uiLanguages: Immutable.List<AvailableLanguage>(Object.entries(userConfig.uiLanguages)),
+                uiLanguages: List<AvailableLanguage>(Object.entries(userConfig.uiLanguages)),
                 uiLang: userConfig.uiLang,
                 returnUrl: returnUrl,
-                homepageTiles: Immutable.List<{label:string; html:string}>(clientConfig.homepage.tiles),
+                homepageTiles: List<{label:string; html:string}>(clientConfig.homepage.tiles),
                 RootComponent: rootView,
                 layout: layout,
                 homepageSections: homepageSections,
@@ -188,8 +188,8 @@ function logRequest(logging:ILogQueue, datetime:string, req:Request, userConfig:
             queryType: userConfig.queryType,
             query1Lang: userConfig.query1Lang,
             query2Lang: userConfig.query2Lang ? userConfig.query2Lang : null,
-            queryPos: userConfig.queryPos ? userConfig.queryPos : null,
-            query: userConfig.query,
+            queryPos: userConfig.queryPos ? userConfig.queryPos.map(v => v.join(',')) : null,
+            query: userConfig.queries,
             error: userConfig.error ? userConfig.error : null
         },
         pid: -1,
@@ -202,6 +202,25 @@ function logRequest(logging:ILogQueue, datetime:string, req:Request, userConfig:
             }
         )
     )
+}
+
+function fetchReqArgArray<T extends string>(req:Request, arg:string, minLen:number):Array<T> {
+
+    const mkEmpty = (len:number) => {
+        const ans = [];
+        for (let i = 0; i < len; i += 1) {
+            ans.push('');
+        }
+        return ans;
+    }
+
+    if (Array.isArray(req.query[arg])) {
+        return req.query[arg].concat(mkEmpty(minLen - req.query[arg].length));
+
+    } else if (req.query[arg]) {
+        return [req.query[arg]].concat(mkEmpty(minLen - 1));
+    }
+    return mkEmpty(minLen);
 }
 
 function mainAction(services:Services, answerMode:boolean, req:Request, res:Response, next:NextFunction) {
@@ -217,16 +236,16 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
         query1Lang: req.query['lang1'] || 'cs',
         query2Lang: req.query['lang2'] || 'en',
         queryType: req.query['queryType'] || 'single',
-        queryPos: req.query['pos'],
-        query: (typeof req.query['q'] === 'string' ? [req.query['q']] : req.query['q']) || [''],
-        lemma1: req.query['lemma1'] || '',
+        queryPos: fetchReqArgArray(req, 'pos', 2).map(v => v.split(',') as Array<QueryPoS>),
+        queries: fetchReqArgArray(req, 'q', 2),
+        lemma: fetchReqArgArray(req, 'lemma', 2),
         answerMode: answerMode
     };
-
     const dispatcher = new ServerSideActionDispatcher();
     const [viewUtils, appServices] = createHelperServices(services, userConfig.uiLang);
-    forkJoin(
-        new Observable<UserConf>(
+
+    forkJoin({
+        userConf: new Observable<UserConf>(
             (observer) => {
                 if (userConfig.queryType === QueryType.TRANSLAT_QUERY && userConfig.query1Lang === userConfig.query2Lang) {
                     userConfig.error = appServices.translate('global__src_and_dst_langs_must_be_different');
@@ -235,26 +254,54 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
                 observer.complete();
             }
         ),
-        services.toolbar.get(userConfig.uiLang, mkReturnUrl(req, services.clientConf.rootUrl), req.cookies, viewUtils),
-        answerMode ?
-            getLemmas(
-                services.db.getDatabase(userConfig.queryType, userConfig.query1Lang),
-                appServices,
-                userConfig.query[0],
-                getQueryTypeFreqDb(services.serverConf, userConfig.queryType).minLemmaFreq) :
-            rxOf([]),
-        mkRuntimeClientConf(services.clientConf, userConfig.query1Lang, appServices),
-        logRequest(services.logging, appServices.getISODatetime(), req, userConfig)
-    )
-    .subscribe(
+        hostPageEnv: services.toolbar.get(userConfig.uiLang, mkReturnUrl(req, services.clientConf.rootUrl), req.cookies, viewUtils),
+        runtimeConf: mkRuntimeClientConf(services.clientConf, userConfig.query1Lang, appServices),
+        logReq: logRequest(services.logging, appServices.getISODatetime(), req, userConfig),
+        lemmasEachQuery: rxOf(...userConfig.queries
+                .map(query => answerMode ?
+                    getLemmas(
+                        services.db.getDatabase(userConfig.queryType, userConfig.query1Lang),
+                        appServices,
+                        query,
+                        getQueryTypeFreqDb(services.serverConf, userConfig.queryType).minLemmaFreq
+                    ) :
+                    rxOf<Array<LemmaVariant>>([])
+
+                )).pipe(
+                    concatMap(v => v),
+                    reduce((acc:Array<Array<LemmaVariant>>, curr) => acc.concat([curr]), [])
+
+                )
+    }).subscribe(
         (ans) => {
-            const [userSession, toolbar, lemmas, runtimeConf] = ans;
-            let currentFlagSolved = false;
-            const lemmasExtended = lemmas.length > 0 ?
-                    findMergeableLemmas(lemmas) :
-                    [{
+            const lemmasExtended = List<List<LemmaVariant>>(ans.lemmasEachQuery.map((lemmas, queryIdx) => {
+                let mergedLemmas = findMergeableLemmas(lemmas);
+                if (mergedLemmas.size > 0) {
+                    let matchIdx = 0;
+                    if (ans.userConf.queryPos[queryIdx]) {
+                        const srchIdx = mergedLemmas.findIndex(
+                            v => matchesPos(v, ans.userConf.queryPos[queryIdx]) && (v.lemma === ans.userConf.lemma[0] || !ans.userConf.lemma[0]));
+                        if (srchIdx >= 0) {
+                            matchIdx = srchIdx;
+                        }
+                    }
+                    const v = mergedLemmas.get(matchIdx);
+                    mergedLemmas = mergedLemmas.set(queryIdx, {
+                        lemma: v.lemma,
+                        word: v.word,
+                        pos: v.pos.concat([]),
+                        abs: v.abs,
+                        ipm: v.ipm,
+                        arf: v.arf,
+                        flevel: v.flevel,
+                        isCurrent: true,
+                        isNonDict: v.isNonDict
+                    });
+
+                } else {
+                    mergedLemmas = List([{
                         lemma: null,
-                        word: userConfig.query[0],
+                        word: userConfig.queries[queryIdx],
                         pos: [],
                         abs: 0,
                         ipm: 0,
@@ -262,10 +309,13 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
                         flevel: 0,
                         isCurrent: true,
                         isNonDict: true
-                    }];
+                    }]);
+                }
+                return mergedLemmas;
+            }));
 
             const [rootView, layout, _] = createRootComponent({
-                config: runtimeConf,
+                config: ans.runtimeConf,
                 userSession: userConfig,
                 lemmas: lemmasExtended,
                 appServices: appServices,
@@ -275,19 +325,6 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
                 cache: new DummyCache()
             });
 
-
-            if (lemmasExtended.length > 0) {
-                if (userSession.queryPos) {
-                    const srchIdx = lemmasExtended.findIndex(v => matchesPos(v, userSession.queryPos) && (v.lemma === userSession.lemma1 || !userSession.lemma1));
-                    if (srchIdx > -1) {
-                        lemmasExtended[srchIdx].isCurrent = true;
-                    }
-                    currentFlagSolved = true; // even if we do not set anything (error detected on client)
-                }
-                if (!currentFlagSolved) {
-                    lemmasExtended[0].isCurrent = true;
-                }
-            }
             const view = viewInit(viewUtils);
             // Here we're going to use the fact that (the current)
             // server-side action dispatcher does not trigger side effects
@@ -301,14 +338,14 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
             res.send(renderResult({
                 view: view,
                 services: services,
-                toolbarData: toolbar,
+                toolbarData: ans.hostPageEnv,
                 lemmas: lemmasExtended,
-                userConfig: userSession,
-                clientConfig: runtimeConf,
+                userConfig: ans.userConf,
+                clientConfig: ans.runtimeConf,
                 returnUrl: mkReturnUrl(req, services.clientConf.rootUrl),
                 rootView: rootView,
                 layout: layout,
-                homepageSections: Immutable.List<{label:string, html:string}>(runtimeConf.homepage.tiles),
+                homepageSections: List<{label:string, html:string}>(ans.runtimeConf.homepage.tiles),
                 isMobile: false, // TODO should we detect the mode on server too
                 isAnswerMode: answerMode
             }));
@@ -321,13 +358,13 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
                 view: view,
                 services: services,
                 toolbarData: emptyValue(),
-                lemmas: [],
+                lemmas: List<List<LemmaVariant>>(),
                 userConfig: userConfig,
                 clientConfig: emptyClientConf(services.clientConf),
                 returnUrl: mkReturnUrl(req, services.clientConf.rootUrl),
                 rootView: null,
-                layout: Immutable.List(),
-                homepageSections: Immutable.List<{label:string, html:string}>(services.clientConf.homepage.tiles),
+                layout: List(),
+                homepageSections: List<{label:string, html:string}>(services.clientConf.homepage.tiles),
                 isMobile: false, // TODO should we detect the mode on server too
                 isAnswerMode: answerMode
             }));
@@ -388,7 +425,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
     // Find words with similar frequency
     app.get(HTTPAction.SIMILAR_FREQ_WORDS, (req, res) => {
 
-        const pos:string|Array<string> = req.query.pos;
+        const pos:Array<string> = req.query.pos.split(',');
         const uiLang = getLangFromCookie(req, services.serverConf.langCookie, services.serverConf.languages);
 
         const viewUtils = new ViewUtils<GlobalComponents>({
@@ -423,7 +460,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                     lang: req.query.lang,
                     word: req.query.word,
                     lemma: req.query.lemma,
-                    pos: (Array.isArray(pos) ? pos : [pos]).map(importQueryPos),
+                    pos: pos.map(importQueryPos),
                     rng: Math.min(
                         req.query.srchRange,
                         services.serverConf.freqDB.single ?

@@ -25,10 +25,10 @@ import { AppServices } from '../../../appServices';
 import { Line, IConcordanceApi } from '../../../common/api/abstract/concordance';
 import { ConcordanceMinState } from '../../../common/models/concordance';
 import { HTTPMethod, SystemMessageType } from '../../../common/types';
-import { isSubqueryPayload } from '../../../common/query';
+import { isSubqueryPayload, RecognizedQueries } from '../../../common/query';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
-import { findCurrLemmaVariant, QueryFormModel } from '../../../models/query';
+import { findCurrLemmaVariant } from '../../../models/query';
 import { importMessageType } from '../../../notifications';
 import { ActionName, Actions, ConcLoadedPayload } from './actions';
 import { normalizeTypography } from '../../../common/models/concordance/normalize';
@@ -68,7 +68,7 @@ export interface ConcordanceTileModelArgs {
     waitForTile:number;
     appServices:AppServices;
     service:IConcordanceApi<{}>;
-    mainForm:QueryFormModel;
+    queries:RecognizedQueries;
     initState:ConcordanceTileState;
     backlink:Backlink;
 }
@@ -78,7 +78,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
     private readonly service:IConcordanceApi<{}>;
 
-    private readonly mainForm:QueryFormModel;
+    private readonly queries:RecognizedQueries;
 
     private readonly appServices:AppServices;
 
@@ -90,10 +90,10 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
     public static readonly CTX_SIZES = [3, 3, 8, 12];
 
-    constructor({dispatcher, tileId, appServices, service, mainForm, initState, waitForTile, backlink}:ConcordanceTileModelArgs) {
+    constructor({dispatcher, tileId, appServices, service, queries, initState, waitForTile, backlink}:ConcordanceTileModelArgs) {
         super(dispatcher, initState);
         this.service = service;
-        this.mainForm = mainForm;
+        this.queries = queries;
         this.appServices = appServices;
         this.tileId = tileId;
         this.backlink = backlink;
@@ -216,10 +216,9 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
     }
 
     private reloadData(state:ConcordanceTileState, dispatch:SEDispatcher, otherLangCql:string):void {
-        const formState = this.mainForm.getState();
         new Observable<{}>((observer) => {
             try {
-                observer.next(this.service.stateToArgs(state, state.concId ? null : findCurrLemmaVariant(formState.lemmas), otherLangCql));
+                observer.next(this.service.stateToArgs(state, state.concId ? null : findCurrLemmaVariant(this.queries.get(0)), otherLangCql));
                 observer.complete();
 
             } catch (e) {

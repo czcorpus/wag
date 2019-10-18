@@ -80,7 +80,7 @@ export class SpeechesTile implements ITileProvider {
     private static readonly DEFAULT_MAX_NUM_SPEECHES = 8;
 
     constructor({dispatcher, tileId, waitForTiles, ut,
-                theme, appServices, widthFract, mainForm, conf, isBusy, cache}:TileFactory.Args<SpeechesTileConf>) {
+                theme, appServices, widthFract, queries, conf, isBusy, cache}:TileFactory.Args<SpeechesTileConf>) {
         this.tileId = tileId;
         this.widthFract = widthFract;
         this.label = appServices.importExternalMessage(conf.label);
@@ -90,7 +90,6 @@ export class SpeechesTile implements ITileProvider {
             tileId: tileId,
             appServices: appServices,
             api: new SpeechesApi(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
-            mainForm: mainForm,
             backlink: conf.backlink || null,
             waitForTile: Array.isArray(waitForTiles) ? waitForTiles[0] : waitForTiles,
             audioLinkGenerator: conf.audioPlaybackUrl ?

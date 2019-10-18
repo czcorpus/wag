@@ -26,12 +26,12 @@ import { TileConf } from './common/tile';
 export interface UserConf {
     uiLanguages:{[code:string]:string};
     uiLang:string;
+    queries:Array<string>;
+    queryPos:Array<Array<QueryPoS>>;
+    lemma?:Array<string>;
     queryType:QueryType;
 	query1Lang:string;
     query2Lang:string;
-    queryPos:Array<QueryPoS>;
-    query:Array<string>;
-    lemma1?:string;
     answerMode:boolean;
     error?:string;
 }

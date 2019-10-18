@@ -67,7 +67,7 @@ export class CollocationsTile implements ITileProvider {
 
     private readonly api:CollocationApi<{}>;
 
-    constructor({tileId, dispatcher, appServices, ut, theme, waitForTiles, widthFract, conf, isBusy, mainForm, cache}:TileFactory.Args<CollocationsTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, theme, waitForTiles, widthFract, conf, isBusy, queries, cache}:TileFactory.Args<CollocationsTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.appServices = appServices;
@@ -81,7 +81,7 @@ export class CollocationsTile implements ITileProvider {
             appServices: appServices,
             service: this.api,
             backlink: conf.backlink || null,
-            mainForm: mainForm,
+            queries: queries,
             initState: {
                 isBusy: isBusy,
                 isTweakMode: false,

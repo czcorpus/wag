@@ -48,6 +48,10 @@ export class MultiDict<T={}> implements IMultiDict {
         }
     }
 
+    static isMultiDict(v:any):v is MultiDict {
+        return typeof v === 'object' && v['_data'] !== undefined;
+    }
+
     size():number {
         let ans = 0;
         for (let p in this._data) {

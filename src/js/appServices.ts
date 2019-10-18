@@ -25,6 +25,7 @@ import { SystemNotifications } from './notifications';
 import { HTTPAction } from './server/actions';
 import { AudioPlayer } from './common/audioPlayer';
 import { SearchLanguage } from './common/query';
+import { MultiDict } from './common/data';
 
 /**
  *
@@ -58,7 +59,7 @@ export class AppServices {
 
     private readonly staticUrlCreator:(path:string) => string;
 
-    private readonly actionUrlCreator:(path: string, args?:{[k:string]:string|Array<string>}|Array<[string, string]>) => string;
+    private readonly actionUrlCreator:(path: string, args?:{[k:string]:string|Array<string>}|Array<[string, string]>|MultiDict) => string;
 
     private readonly apiHeadersMapping:{[urlPrefix:string]:HTTPHeaders};
 
@@ -139,7 +140,7 @@ export class AppServices {
         return this.staticUrlCreator(path);
     }
 
-    createActionUrl(path:string, args?:{[k:string]:string|Array<string>}|Array<[string, string]>):string {
+    createActionUrl(path:string, args?:{[k:string]:string|Array<string>}|Array<[string, string]>|MultiDict):string {
         return this.actionUrlCreator(path, args);
     }
 

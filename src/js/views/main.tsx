@@ -223,33 +223,70 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         </div>
     };
 
+    // ------------------ <AddCmpQueryField /> ------------------------------
+
+    const AddCmpQueryField:React.SFC<{
+    }> = (_) => {
+
+        const handleClick = () => {
+            dispatcher.dispatch<Actions.AddCmpQueryInput>({
+                name: ActionName.AddCmpQueryInput
+            })
+        };
+
+        return (
+            <div className="AddCmpQueryField">
+                <button type="button" onClick={handleClick} title={ut.translate('global__add_query_field')}>+</button>
+            </div>
+        );
+    }
+
+    // ------------------ <RemoveCmpQueryField /> ------------------------------
+
+    const RemoveCmpQueryField:React.SFC<{
+        queryIdx:number;
+
+    }> = (props) => {
+
+        const handleClick = () => {
+            dispatcher.dispatch<Actions.RemoveCmpQueryInput>({
+                name: ActionName.RemoveCmpQueryInput,
+                payload: {
+                    queryIdx: props.queryIdx
+                }
+            });
+        };
+
+        return (
+            <span className="RemoveCmpQueryField">
+                <button type="button" onClick={handleClick} title={ut.translate('global__remove_query_field')}>
+                    <globalComponents.ImageWithMouseover
+                        file={'close-icon.svg'} alt={ut.translate('global__remove_query_field')} />
+                </button>
+            </span>
+        );
+    }
+
     // ------------------ <QueryFields /> ------------------------------
 
     const QueryFields:React.SFC<{
-        query:Forms.Input;
-        query2:Forms.Input;
+        queries:Immutable.List<Forms.Input>;
         queryType:QueryType;
         wantsFocus:boolean;
         queryLanguage:string;
         queryLanguage2:string;
         searchLanguages:Immutable.List<SearchLanguage>;
         targetLanguages:Immutable.List<[string, string]>;
+        maxCmpQueries:number;
         onEnterKey:()=>void;
 
     }> = (props) => {
-        const handleQueryInput1 = (s:string):void => {
+
+        const handleQueryInput = (idx:number) => (s:string):void => {
             dispatcher.dispatch<Actions.ChangeQueryInput>({
                 name: ActionName.ChangeQueryInput,
                 payload: {
-                    value: s
-                }
-            });
-        };
-
-        const handleQueryInput2 = (s:string):void => {
-            dispatcher.dispatch<Actions.ChangeQueryInput2>({
-                name: ActionName.ChangeQueryInput2,
-                payload: {
+                    queryIdx: idx,
                     value: s
                 }
             });
@@ -262,8 +299,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     lang1: primary ? lang : props.queryLanguage,
                     lang2: primary ? props.queryLanguage2 : lang,
                     queryType: props.queryType,
-                    q1: props.query.value,
-                    q2: props.query2.value
+                    queries: props.queries.map(v => v.value).toArray()
                 }
             });
         };
@@ -276,8 +312,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <>
                         <QueryLangSelector value={props.queryLanguage} searchLanguages={props.searchLanguages}
                                 onChange={handleTargetLanguageChange(true)} queryType={QueryType.SINGLE_QUERY} />
-                        <QueryInput value={props.query} onEnter={props.onEnterKey}
-                                onContentChange={handleQueryInput1} wantsFocus={props.wantsFocus} />
+                        <span className="input-row">
+                            <QueryInput value={props.queries.get(0)} onEnter={props.onEnterKey}
+                                    onContentChange={handleQueryInput(0)} wantsFocus={props.wantsFocus} />
+                        </span>
                     </>
                 );
             case QueryType.CMP_QUERY:
@@ -286,11 +324,15 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <QueryLangSelector value={props.queryLanguage} searchLanguages={props.searchLanguages}
                                 onChange={handleTargetLanguageChange(true)} queryType={QueryType.CMP_QUERY} />
                         <div className="input-group">
-                            <QueryInput value={props.query} onEnter={props.onEnterKey}
-                                onContentChange={handleQueryInput1} wantsFocus={props.wantsFocus && props.query.value === ''} />
-                            <br />
-                            <QueryInput value={props.query2} onEnter={props.onEnterKey}
-                                onContentChange={handleQueryInput2} wantsFocus={props.wantsFocus && props.query.value !== ''} />
+                            {props.queries.map((query, queryIdx) => (
+                                <span className="input-row" key={`query:${queryIdx}`}>
+                                    <QueryInput value={query} onEnter={props.onEnterKey}
+                                        onContentChange={handleQueryInput(queryIdx)} wantsFocus={props.wantsFocus && query.value === ''} />
+                                    {queryIdx > 0 && props.queries.size > 2 ? <RemoveCmpQueryField queryIdx={queryIdx} /> : null}
+                                    <br />
+                                </span>
+                            ))}
+                            {props.queries.size < props.maxCmpQueries ? <AddCmpQueryField /> : null}
                         </div>
                     </>
                 );
@@ -303,8 +345,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <QueryLang2Selector value={props.queryLanguage2} targetLanguages={props.targetLanguages}
                                 htmlClass="secondary"
                                 onChange={handleTargetLanguageChange(false)} queryType={QueryType.TRANSLAT_QUERY} />
-                        <QueryInput value={props.query} onEnter={props.onEnterKey}
-                                onContentChange={handleQueryInput1} wantsFocus={props.wantsFocus} />
+                        <span className="input-row">
+                            <QueryInput value={props.queries.get(0)} onEnter={props.onEnterKey}
+                                    onContentChange={handleQueryInput(0)} wantsFocus={props.wantsFocus} />
+                        </span>
                     </>
                 );
 
@@ -314,6 +358,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // --------------- <LemmaSelector /> -------------------------------------------
 
     const LemmaSelector:React.SFC<{
+        queryIdx:number;
         lemmas:Immutable.List<LemmaVariant>;
 
     }> = (props) => {
@@ -322,13 +367,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             dispatcher.dispatch<Actions.ChangeCurrLemmaVariant>({
                 name: ActionName.ChangeCurrLemmaVariant,
                 payload: {
+                    queryIdx: props.queryIdx,
                     word: lemmaVar.word,
                     lemma: lemmaVar.lemma,
                     pos: lemmaVar.pos.map(p => p.value)
                 }
-            });
-            dispatcher.dispatch<Actions.SubmitQuery>({
-                name: ActionName.SubmitQuery
             });
         };
 
@@ -393,8 +436,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     queryType: qt,
                     lang1: this.props.queryLanguage,
                     lang2: this.props.queryLanguage2,
-                    q1: this.props.query.value,
-                    q2: this.props.query2.value
+                    queries: this.props.queries.map(v => v.value).toArray(),
                 }
             });
         };
@@ -412,19 +454,19 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <div className="main">
                             <QueryFields
                                     wantsFocus={!this.props.isAnswerMode || this.props.initialQueryType !== this.props.queryType}
-                                    query={this.props.query}
-                                    query2={this.props.query2}
+                                    queries={this.props.queries}
                                     queryType={this.props.queryType}
                                     queryLanguage={this.props.queryLanguage}
                                     queryLanguage2={this.props.queryLanguage2}
                                     searchLanguages={this.props.searchLanguages}
                                     targetLanguages={this.props.targetLanguages.get(this.props.queryType)}
-                                    onEnterKey={this.handleSubmit} />
+                                    onEnterKey={this.handleSubmit}
+                                    maxCmpQueries={this.props.maxCmpQueries} />
                             <SubmitButton onClick={this.handleSubmit} />
                         </div>
                     </form>
                     {this.props.isAnswerMode ?
-                        <LemmaSelector lemmas={this.props.lemmas} /> :
+                        <LemmaSelector lemmas={this.props.lemmas.get(0)} queryIdx={0} /> :
                         null
                     }
                 </div>

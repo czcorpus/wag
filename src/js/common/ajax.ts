@@ -55,7 +55,7 @@ export type AjaxArgs = MultiDict|{[key:string]:any}|string;
 const exportValue = (v) => v === null || v === undefined ? '' : encodeURIComponent(v);
 
 
-export const encodeArgs = (obj:{}):string => {
+export function encodeArgs(obj:{}):string {
     const ans = [];
     let p; // ES5 issue
     for (p in obj) {
@@ -72,16 +72,16 @@ export const encodeArgs = (obj:{}):string => {
         }
     }
     return ans.join('&');
-};
+}
 
-const encodeURLParameters = (params:MultiDict):string => {
+export function encodeURLParameters(params:MultiDict|Array<[string, any]>):string {
     function exportValue(v) {
         return v === null || v === undefined ? '' : encodeURIComponent(v);
     }
-    return params.items().filter(v => v[0] !== undefined).map((item) => {
+    return (MultiDict.isMultiDict(params) ? params.items() : params).filter(v => v[0] !== undefined).map((item) => {
         return encodeURIComponent(item[0]) + '=' + exportValue(item[1]);
     }).join('&');
-};
+}
 
 const prepareAjax = (method:string, url:string, args:AjaxArgs, options?:AjaxOptions):AjaxRequestProps => {
     if (options === undefined) {

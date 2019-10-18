@@ -21,7 +21,7 @@ import * as React from 'react';
 import { resolve as urlResolve } from 'url';
 
 import { HostPageEnv, AvailableLanguage } from '../common/hostPage';
-import { LemmaVariant } from '../common/query';
+import { RecognizedQueries } from '../common/query';
 import { ClientConf, UserConf } from '../conf';
 import { TileGroup } from '../layout';
 import { GlobalComponents } from './global';
@@ -33,7 +33,7 @@ export interface LayoutProps {
     config:ClientConf;
     userConfig:UserConf;
     hostPageEnv:HostPageEnv;
-    lemmas:Array<LemmaVariant>;
+    lemmas:RecognizedQueries;
     uiLanguages:Immutable.List<AvailableLanguage>;
     homepageTiles:Immutable.List<{label:string; html:string}>;
     uiLang:string;

@@ -57,7 +57,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             dispatcher.dispatch<GlobalActions.ChangeQueryInput>({
                 name: GlobalActionName.ChangeQueryInput,
                 payload: {
-                    value: word
+                    value: word,
+                    queryIdx: 0
                 }
             });
             dispatcher.dispatch<GlobalActions.SubmitQuery>({

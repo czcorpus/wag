@@ -24,8 +24,8 @@ import { AppServices } from '../../../appServices';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { DataLoadedPayload } from './actions';
 import { FreqDBRow, FreqDbAPI, FreqBand } from './api';
-import { QueryFormModel, findCurrLemmaVariant } from '../../../models/query';
-import { LemmaVariant, testIsDictQuery } from '../../../common/query';
+import { findCurrLemmaVariant } from '../../../models/query';
+import { LemmaVariant, testIsDictQuery, RecognizedQueries } from '../../../common/query';
 
 export interface FlevelDistribItem {
     rel:number;
@@ -50,6 +50,16 @@ const calcFreqBand = (ipm:number):FreqBand => {
     return 5;
 }
 
+export interface SummaryModelArgs {
+    dispatcher:IActionQueue;
+    initialState:SummaryModelState;
+    tileId:number;
+    api:FreqDbAPI;
+    appServices:AppServices;
+    queries:RecognizedQueries;
+    queryLang:string;
+}
+
 
 export class SummaryModel extends StatelessModel<SummaryModelState> {
 
@@ -59,15 +69,17 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
 
     private readonly tileId:number;
 
-    private readonly mainForm:QueryFormModel;
+    private readonly queries:RecognizedQueries;
 
-    constructor(dispatcher:IActionQueue, initialState:SummaryModelState, tileId:number, api:FreqDbAPI,
-            mainForm:QueryFormModel, appServices:AppServices) {
+    private readonly queryLang:string;
+
+    constructor({dispatcher, initialState, tileId, api, appServices, queries, queryLang}) {
         super(dispatcher, initialState);
         this.tileId = tileId;
         this.api = api;
         this.appServices = appServices;
-        this.mainForm = mainForm;
+        this.queries = queries;
+        this.queryLang = queryLang;
         this.actionMatch = {
             [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
                 const newState = this.copyState(state);
@@ -99,12 +111,11 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
     sideEffects(state:SummaryModelState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
-                const formState = this.mainForm.getState();
                 new Observable<{variant:LemmaVariant; lang:string}>((observer) => {
                     try {
                         observer.next({
-                            variant: findCurrLemmaVariant(formState.lemmas),
-                            lang: formState.queryLanguage
+                            variant: findCurrLemmaVariant(this.queries.get(0)),
+                            lang: this.queryLang
                         });
                         observer.complete();
 
@@ -138,7 +149,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                         (data) => ({
                             data: data.result.map(v => {
                                 return {
-                                    word: v.isSearched ? formState.query.value : '',
+                                    word: v.isSearched ? findCurrLemmaVariant(this.queries.get(0)).word : '',
                                     lemma: v.lemma,
                                     pos: v.pos,
                                     abs: v.abs,

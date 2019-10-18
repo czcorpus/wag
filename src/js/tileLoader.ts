@@ -19,11 +19,10 @@
 import { TileFactory, ITileProvider, TileConf } from './common/tile';
 import { IFullActionControl, ViewUtils } from 'kombo';
 import { GlobalComponents } from './views/global';
-import { QueryFormModel } from './models/query';
 import { AppServices } from './appServices';
 import { Theme } from './common/theme';
 import { LayoutManager } from './layout';
-import { QueryType } from './common/query';
+import { QueryType, RecognizedQueries } from './common/query';
 import { IAsyncKeyValueStore } from './common/types';
 import { EmptyTile } from './tiles/core/empty';
 
@@ -68,7 +67,7 @@ applyContext(require.context('./tiles/custom', true, /\/index.ts$/), tileFactori
 export const mkTileFactory = (
     dispatcher:IFullActionControl,
     viewUtils:ViewUtils<GlobalComponents>,
-    mainForm:QueryFormModel,
+    queries:RecognizedQueries,
     appServices:AppServices,
     theme:Theme,
     layoutManager:LayoutManager,
@@ -95,7 +94,7 @@ export const mkTileFactory = (
                 tileId: tileIdentMap[confName],
                 dispatcher: dispatcher,
                 ut: viewUtils,
-                mainForm: mainForm,
+                queries: queries,
                 appServices: appServices,
                 lang1: lang1,
                 lang2: lang2,

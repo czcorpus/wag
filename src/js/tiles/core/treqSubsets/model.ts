@@ -19,12 +19,12 @@ import * as Immutable from 'immutable';
 import {merge} from 'rxjs';
 import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 
-import { TreqAPI, mkInterctionId, TreqSubsetsAPI } from '../../../common/api/treq';
+import { mkInterctionId, TreqSubsetsAPI } from '../../../common/api/treq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
-import { QueryFormModel, findCurrLemmaVariant } from '../../../models/query';
+import { findCurrLemmaVariant } from '../../../models/query';
 import { DataLoadedPayload } from './actions';
 import { callWithExtraVal } from '../../../common/api/util';
-import { isSubqueryPayload } from '../../../common/query';
+import { isSubqueryPayload, RecognizedQueries } from '../../../common/query';
 import { isCollocSubqueryPayload } from '../../../common/api/abstract/collocations';
 import { WordTranslation } from '../../../common/api/abstract/translations';
 import { TranslationSubset, TranslationsSubsetsModelState } from '../../../common/models/translations';
@@ -87,7 +87,7 @@ export interface TreqSubsetModelArgs {
     initialState:TranslationsSubsetsModelState;
     tileId:number;
     api:TreqSubsetsAPI;
-    mainForm:QueryFormModel;
+    queries:RecognizedQueries;
     waitForColorsTile:number;
 }
 
@@ -101,18 +101,18 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
 
     private readonly api:TreqSubsetsAPI;
 
-    private readonly mainForm:QueryFormModel;
+    private readonly queries:RecognizedQueries;
 
     private readonly waitForColorsTile:number;
 
     private readonly appServices:AppServices;
 
 
-    constructor({dispatcher, appServices, initialState, tileId, api, mainForm, waitForColorsTile}:TreqSubsetModelArgs) {
+    constructor({dispatcher, appServices, initialState, tileId, api, queries, waitForColorsTile}:TreqSubsetModelArgs) {
         super(dispatcher, initialState);
         this.api = api;
         this.tileId = tileId;
-        this.mainForm = mainForm;
+        this.queries = queries;
         this.waitForColorsTile = waitForColorsTile;
         this.appServices = appServices;
         this.actionMatch = {
@@ -252,7 +252,7 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
             case GlobalActionName.RequestQueryResponse:
                 this.suspend(
                     (action:Action) => {
-                        const srchLemma = findCurrLemmaVariant(this.mainForm.getState().lemmas);
+                        const srchLemma = findCurrLemmaVariant(this.queries.get(0));
                         if (action.name === GlobalActionName.TileDataLoaded && this.waitForColorsTile === action.payload['tileId']) {
                             merge(...state.subsets.map(subset =>
                                 callWithExtraVal(
@@ -275,7 +275,7 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
                                         payload: {
                                             tileId: this.tileId,
                                             isEmpty: data.translations.length === 0,
-                                            query: this.mainForm.getState().query.value,
+                                            query: srchLemma.word, // TODO give up
                                             lines: lines,
                                             sum: sum,
                                             subsetId: reqId
@@ -288,7 +288,7 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
                                         payload: {
                                             tileId: this.tileId,
                                             isEmpty: true,
-                                            query: this.mainForm.getState().query.value,
+                                            query: findCurrLemmaVariant(this.queries.get(0)).word,
                                             lines: [],
                                             sum: -1,
                                             subsetId: null

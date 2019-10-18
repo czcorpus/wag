@@ -19,7 +19,6 @@ import { StatelessModel, SEDispatcher, Action, IActionQueue } from 'kombo';
 import { map } from 'rxjs/operators';
 import * as Immutable from 'immutable';
 
-import { QueryFormModel } from '../../../models/query';
 import { AppServices } from '../../../appServices';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
@@ -42,7 +41,6 @@ export interface SpeechesModelArgs {
     waitForTile:number;
     appServices:AppServices;
     api:SpeechesApi;
-    mainForm:QueryFormModel;
     initState:SpeechesModelState;
     backlink:Backlink;
     audioLinkGenerator:IAudioUrlGenerator;

@@ -37,23 +37,23 @@ export class WordDatabases {
         Object.entries(conf.single.databases || {}).forEach(([lang, path]:[string, string]) => {
             if (!uniqDb[path]) {
                 uniqDb[path] = new Database(path);
-                console.log(`Initialized frequency database ${path}`);
-                this.single[lang] = uniqDb[path];
             }
+            this.single[lang] = uniqDb[path];
+            console.log(`Initialized 'single' mode frequency database ${path}`);
         });
         Object.entries(conf.cmp.databases || {}).forEach(([lang, path]:[string, string]) => {
             if (!uniqDb[path]) {
                 uniqDb[path] = new Database(path);
-                console.log(`Initialized frequency database ${path}`);
-                this.cmp[lang] = uniqDb[path];
             }
+            this.cmp[lang] = uniqDb[path];
+            console.log(`Initialized 'cmp' mode frequency database ${path}`);
         });
         Object.entries(conf.translat.databases || {}).forEach(([lang, path]:[string, string]) => {
             if (!uniqDb[path]) {
                 uniqDb[path] = new Database(path);
-                console.log(`Initialized frequency database ${path}`);
-                this.translat[lang] = uniqDb[path];
             }
+            this.translat[lang] = uniqDb[path];
+            console.log(`Initialized 'translat' frequency database ${path}`);
         });
     }
 

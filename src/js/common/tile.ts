@@ -16,13 +16,12 @@
  * limitations under the License.
  */
 
-import { HTTPMethod, AnyInterface, LocalizedConfMsg, IAsyncKeyValueStore, SourceDetails } from './types';
-import { QueryType } from './query';
+import { HTTPMethod, AnyInterface, LocalizedConfMsg, IAsyncKeyValueStore } from './types';
+import { QueryType, RecognizedQueries } from './query';
 import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
 import { GlobalComponents } from '../views/global';
 import { Theme } from './theme';
 import { AppServices } from '../appServices';
-import { QueryFormModel } from '../models/query';
 
 
 export interface Backlink {
@@ -264,7 +263,7 @@ export namespace TileFactory {
 
         appServices:AppServices;
 
-        mainForm:QueryFormModel;
+        queries:RecognizedQueries;
 
         lang1?:string;
 

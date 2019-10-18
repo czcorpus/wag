@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
+import { Action, SEDispatcher, StatelessModel, IActionQueue, IActionDispatcher } from 'kombo';
 import { Observable, Observer } from 'rxjs';
 import { flatMap } from 'rxjs/operators';
 
@@ -26,12 +26,25 @@ import { ConcLoadedPayload } from '../concordance/actions';
 import { ActionName, Actions, DataLoadedPayload } from './actions';
 import { MatchingDocsModelState } from '../../../common/models/matchingDocs';
 import { MatchingDocsAPI, DataRow } from '../../../common/api/abstract/matchingDocs';
-import { findCurrLemmaVariant, QueryFormModel } from '../../../models/query';
+import { findCurrLemmaVariant } from '../../../models/query';
+import { RecognizedQueries } from '../../../common/query';
 
+
+export interface MatchingDocsModelArgs {
+    dispatcher:IActionQueue;
+    tileId:number;
+    waitForTiles:Array<number>;
+    subqSourceTiles:Array<number>;
+    appServices:AppServices;
+    api:MatchingDocsAPI<{}>;
+    initState:MatchingDocsModelState;
+    queries:RecognizedQueries;
+}
 
 
 export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState> {
-    private readonly mainForm:QueryFormModel;
+
+    private readonly queries:RecognizedQueries;
 
     protected api:MatchingDocsAPI<{}>;
 
@@ -43,14 +56,14 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState> {
 
     protected subqSourceTiles:Immutable.Set<number>;
 
-    constructor({dispatcher, tileId, waitForTiles, subqSourceTiles, appServices, api, initState, mainForm}) {
+    constructor({dispatcher, tileId, waitForTiles, subqSourceTiles, appServices, api, initState, queries}:MatchingDocsModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.waitForTiles = Immutable.Map<number, boolean>(waitForTiles.map(v => [v, false]));
         this.subqSourceTiles = Immutable.Set<number>(subqSourceTiles);
         this.appServices = appServices;
         this.api = api;
-        this.mainForm = mainForm;
+        this.queries = queries;
         this.actionMatch = {
             [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
                 const newState = this.copyState(state);
@@ -165,10 +178,9 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState> {
                         }
                         return false;
                     });
-                } else {
-                    const formState = this.mainForm.getState();
-                    const variant = findCurrLemmaVariant(formState.lemmas)
 
+                } else {
+                    const variant = findCurrLemmaVariant(this.queries.get(0));
                     this.api.call(this.api.stateToArgs(state, variant.word))
                     .subscribe(
                         (resp) => {
@@ -222,26 +234,4 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState> {
             break;
         }
     }
-}
-
-export const factory = (
-    dispatcher:IActionQueue,
-    tileId:number,
-    waitForTiles:Array<number>,
-    subqSourceTiles:Array<number>,
-    appServices:AppServices,
-    api:MatchingDocsAPI<{}>,
-    initState:MatchingDocsModelState,
-    mainForm:QueryFormModel) => {
-
-    return new MatchingDocsModel({
-        dispatcher,
-        tileId,
-        waitForTiles,
-        subqSourceTiles,
-        appServices,
-        api,
-        initState,
-        mainForm
-    });
 }

@@ -22,9 +22,10 @@ import { SystemMessageType } from '../../../common/types';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { DataLoadedPayload, HtmlModelState } from './common';
 import { RawHtmlAPI, WiktionaryHtmlAPI, GeneralHtmlAPI } from './service';
-import { QueryFormModel, findCurrLemmaVariant } from '../../../models/query';
+import { findCurrLemmaVariant } from '../../../models/query';
 import { Observable, of as rxOf } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
+import { RecognizedQueries } from '../../../common/query';
 
 
 export interface HtmlModelArgs {
@@ -34,13 +35,13 @@ export interface HtmlModelArgs {
     service:RawHtmlAPI|WiktionaryHtmlAPI;
     maxTileHeight:string;
     initState:HtmlModelState;
-    mainForm:QueryFormModel;
+    queries:RecognizedQueries;
 }
 
 
 export class HtmlModel extends StatelessModel<HtmlModelState> {
 
-    private readonly mainForm:QueryFormModel;
+    private readonly queries:RecognizedQueries;
 
     private readonly service:GeneralHtmlAPI<{}>;
 
@@ -50,13 +51,13 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
 
     readonly maxTileHeight:string;
 
-    constructor({dispatcher, tileId, appServices, service, maxTileHeight, initState, mainForm}:HtmlModelArgs) {
+    constructor({dispatcher, tileId, appServices, service, maxTileHeight, initState, queries}:HtmlModelArgs) {
         super(dispatcher, initState);
         this.maxTileHeight = maxTileHeight;
         this.tileId = tileId;
         this.appServices = appServices;
         this.service = service;
-        this.mainForm = mainForm;
+        this.queries = queries;
         this.actionMatch = {
             [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse)  => {
                 const newState = this.copyState(state);
@@ -129,8 +130,7 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
     sideEffects(state:HtmlModelState, action:Action, seDispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
-                const formState = this.mainForm.getState();
-                const variant = findCurrLemmaVariant(formState.lemmas);
+                const variant = findCurrLemmaVariant(this.queries.get(0));
                 this.requestData(state, variant.lemma, seDispatch);
             break;
         }
