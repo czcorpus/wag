@@ -45,6 +45,7 @@ export interface FreqComparisonTileConf extends TileConf {
     fpage:number;
     fttIncludeEmpty:boolean;
     maxNumCategories:number;
+    colors?:Array<string>;
     backlink?:Backlink;
 }
 
@@ -109,7 +110,7 @@ export class FreqComparisonTile implements ITileProvider {
                 maxNumCategories: conf.maxNumCategories,
                 fmaxitems: 100,
                 backlink: null,
-                subqSyncPalette: false
+                colors: conf.colors ? conf.colors : ["#8addff", "#f26e43"]
             },
             mainForm
         );

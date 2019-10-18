@@ -84,10 +84,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         width:string|number;
         height:string|number;
         isMobile:boolean;
-
+        colors:Array<string>;
     }> = (props) => {
-        const COLORS = ['#8addff', '#f26e43', '#70b3cf', '#3a78eb'];
-
         const processedData = processData(props.data);
         const maxLabelWidth = processedData.max((v1, v2) => v1.name.length - v2.name.length).name.length;
         return (
@@ -95,10 +93,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 <ChartWrapper data={props.data} isMobile={props.isMobile} width={props.width} height={props.height}>
                     <CartesianGrid />
                     {props.data.groupBy(x => x.word).keySeq().map((word, index) => 
-                        <Bar key={word} dataKey={word} isAnimationActive={false} name={word} stackId='a' fill={COLORS[index]} />
+                        <Bar key={word} dataKey={word} isAnimationActive={false} name={word} stackId='a' fill={props.colors[index % props.colors.length]} />
                     )};
-                    <XAxis type="number" unit="%" />
-                    <YAxis type="category" dataKey="name" width={Math.max(60, maxLabelWidth * 8)} />
+                    <XAxis type="number" unit="%" interval={0} />
+                    <YAxis type="category" dataKey="name" width={Math.max(60, maxLabelWidth * 8)} interval={0} />
                     <Legend />
                     <Tooltip cursor={false} isAnimationActive={false} formatter={(value, name, props) => `${value}% (${props.payload[`${name}_abs`]})`} />
                 </ChartWrapper>
@@ -151,8 +149,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                     <div key={block.ident} style={{width: chartsViewBoxWidth, height: "100%"}}>
                                         <h3>{block.label}</h3>
                                         {block.data.size > 0 ?
-                                            <Chart data={block.data} width={chartWidth} height={70 + block.data.size * 20}
-                                                    isMobile={this.props.isMobile} /> :
+                                            <Chart data={block.data} width={chartWidth} height={70 + block.data.size * 15}
+                                                    isMobile={this.props.isMobile} colors={this.props.colors} /> :
                                             <p className="note" style={{textAlign: 'center'}}>No result</p>
                                         }
                                     </div>

@@ -35,7 +35,7 @@ export interface FreqComparisonModelState extends GeneralMultiCritFreqComparison
     maxNumCategories:number;
     activeBlock:number;
     backlink:BacklinkWithArgs<BacklinkArgs>;
-    subqSyncPalette:boolean;
+    colors:Array<string>;
 }
 
 export interface FreqComparisonModelArgs {
