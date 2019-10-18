@@ -135,6 +135,8 @@ export interface TileFrameProps {
 
     tileId:number;
 
+    tileName:string; // a name used in the config to identify the instance
+
     Component:TileComponent;
 
     SourceInfoComponent:SourceInfoComponent;
@@ -167,6 +169,7 @@ export interface TileFrameProps {
  */
 export interface CoreTileComponentProps {
     tileId:number;
+    tileName:string;
     renderSize:[number, number];
     isMobile:boolean;
     widthFract:number;

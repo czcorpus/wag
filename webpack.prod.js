@@ -22,6 +22,7 @@ module.exports = (env) => ({
     output: {
         filename: '[name].js',
         path: path.resolve(__dirname, 'dist'),
+        publicPath: CONF.distFilesUrl || '',
         libraryTarget: 'var',
         library: '[name]Page'
     },
@@ -112,7 +113,7 @@ module.exports = (env) => ({
     },
     optimization: {
         splitChunks: {
-            chunks: 'all',
+            chunks: (chunk) => chunk.name !== 'sanitize-html',
             name: 'common'
         },
         minimizer: [

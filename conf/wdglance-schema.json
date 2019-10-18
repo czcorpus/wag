@@ -398,6 +398,12 @@
             },
             "type": "object"
         },
+        "externalStyles": {
+            "items": {
+                "type": "string"
+            },
+            "type": "array"
+        },
         "homepage": {
             "$ref": "#/definitions/HomepageConf"
         },

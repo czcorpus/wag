@@ -30,7 +30,7 @@ import { encodeArgs } from '../common/ajax';
 import { ErrorType, mapToStatusCode, newError } from '../common/errors';
 import { HostPageEnv, AvailableLanguage } from '../common/hostPage';
 import { QueryType, LemmaVariant, importQueryPos, QueryPoS, matchesPos, findMergeableLemmas } from '../common/query';
-import { UserConf, ClientStaticConf, ClientConf, emptyClientConf, getSupportedQueryTypes, emptyLayoutConf } from '../conf';
+import { UserConf, ClientStaticConf, ClientConf, emptyClientConf, getSupportedQueryTypes, emptyLayoutConf, getQueryTypeFreqDb } from '../conf';
 import { GlobalComponents } from '../views/global';
 import { init as viewInit, LayoutProps } from '../views/layout';
 import { ServerSideActionDispatcher } from './core';
@@ -78,6 +78,7 @@ function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, appServices:App
                 label: conf.searchLanguages[k],
                 queryTypes: getSupportedQueryTypes(conf, k)
             })),
+            externalStyles: conf.externalStyles || [],
             homepage: {
                 tiles: item
             },
@@ -236,7 +237,11 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
         ),
         services.toolbar.get(userConfig.uiLang, mkReturnUrl(req, services.clientConf.rootUrl), req.cookies, viewUtils),
         answerMode ?
-            getLemmas(services.db[userConfig.query1Lang], appServices, userConfig.query[0], services.serverConf.freqDB.minLemmaFreq) :
+            getLemmas(
+                services.db.getDatabase(userConfig.queryType, userConfig.query1Lang),
+                appServices,
+                userConfig.query[0],
+                getQueryTypeFreqDb(services.serverConf, userConfig.queryType).minLemmaFreq) :
             rxOf([]),
         mkRuntimeClientConf(services.clientConf, userConfig.query1Lang, appServices),
         logRequest(services.logging, appServices.getISODatetime(), req, userConfig)
@@ -380,38 +385,6 @@ export const wdgRouter = (services:Services) => (app:Express) => {
 
     app.get(HTTPAction.SEARCH, (req, res, next) => mainAction(services, true, req, res, next));
 
-    app.get(HTTPAction.GET_LEMMAS, (req, res, next) => {
-        const [viewUtils, appServices] = createHelperServices(
-            services, getLangFromCookie(req, services.serverConf.langCookie, services.serverConf.languages));
-
-        new Observable<{lang:string}>((observer) => {
-            if (Object.keys(services.db).indexOf(req.query.lang) === -1) {
-                observer.error(
-                    newError(ErrorType.BAD_REQUEST, `Frequency database for [${req.query.lang}] not defined`));
-
-            } else {
-                observer.next({lang: req.query.lang});
-                observer.complete();
-            }
-        }).pipe(
-            concatMap(
-                (conf) => {
-                    return getLemmas(services.db[conf.lang], appServices, req.query.q, 1);
-                }
-            )
-        ).subscribe(
-            (data) => {
-                res.setHeader('Content-Type', 'application/json');
-                res.send(JSON.stringify({result: data}));
-            },
-            (err:Error) => {
-                res.status(mapToStatusCode(err.name)).send({
-                    message: err.message
-                });
-            }
-        );
-    })
-
     // Find words with similar frequency
     app.get(HTTPAction.SIMILAR_FREQ_WORDS, (req, res) => {
 
@@ -441,7 +414,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                 observer.error(
                     newError(ErrorType.BAD_REQUEST, `Invalid range provided, srchRange = ${req.query.srchRange}`));
 
-            } else if (Object.keys(services.db).indexOf(req.query.lang) === -1) {
+            } else if (services.db.getDatabase(QueryType.SINGLE_QUERY, req.query.lang) === undefined) {
                 observer.error(
                     newError(ErrorType.BAD_REQUEST, `Frequency database for [${req.query.lang}] not defined`));
 
@@ -451,7 +424,12 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                     word: req.query.word,
                     lemma: req.query.lemma,
                     pos: (Array.isArray(pos) ? pos : [pos]).map(importQueryPos),
-                    rng: Math.min(req.query.srchRange, services.serverConf.freqDB.similarFreqWordsMaxCtx)
+                    rng: Math.min(
+                        req.query.srchRange,
+                        services.serverConf.freqDB.single ?
+                            services.serverConf.freqDB.single.similarFreqWordsMaxCtx :
+                            0
+                    )
                 });
                 observer.complete();
             }
@@ -459,7 +437,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             concatMap(
                 (data) => {
                     return getSimilarFreqWords(
-                        services.db[data.lang],
+                        services.db.getDatabase(QueryType.SINGLE_QUERY, data.lang),
                         appServices,
                         data.lemma,
                         data.pos,
@@ -510,7 +488,8 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         });
 
         new Observable<{lang:string; word:string; lemma:string; pos:Array<QueryPoS>}>((observer) => {
-            if (Object.keys(services.db).indexOf(req.query.lang) === -1) {
+            const freqDb = services.db.getDatabase(QueryType.SINGLE_QUERY, req.query.lang);
+            if (freqDb === undefined) {
                 observer.error(
                     newError(ErrorType.BAD_REQUEST, `Frequency database for [${req.query.lang}] not defined`));
             }
@@ -524,7 +503,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         }).pipe(
             concatMap(
                 (args) => getWordForms(
-                    services.db[args.lang],
+                    services.db.getDatabase(QueryType.SINGLE_QUERY, args.lang),
                     appServices,
                     args.lemma,
                     args.pos

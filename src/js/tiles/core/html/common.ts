@@ -16,8 +16,24 @@
  * limitations under the License.
  */
 
- 
+export interface HtmlModelState {
+    isBusy:boolean;
+    tileId:number;
+    error:string|null;
+    widthFract:number;
+    data:string|null;
+    args:{[key:string]:string};
+    lemmaArg:string;
+    sanitizeHTML:boolean;
+}
+
+
 export type HtmlApiArgs = {[key:string]:string};
+
+export interface WiktionaryApiArgs {
+    title:string;
+    action:'render';
+}
 
 
 export interface DataLoadedPayload {

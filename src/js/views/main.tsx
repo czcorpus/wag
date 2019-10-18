@@ -673,6 +673,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             {this.props.supportsCurrQuery ?
                                 <this.props.tile.Component
                                         tileId={this.props.tile.tileId}
+                                        tileName={this.props.tile.tileName}
                                         renderSize={this.props.tile.renderSize}
                                         isMobile={this.props.isMobile}
                                         widthFract={this.props.tile.widthFract}

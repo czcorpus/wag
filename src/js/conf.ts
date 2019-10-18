@@ -26,7 +26,7 @@ import { TileConf } from './common/tile';
 export interface UserConf {
     uiLanguages:{[code:string]:string};
     uiLang:string;
-    queryType:string;
+    queryType:QueryType;
 	query1Lang:string;
     query2Lang:string;
     queryPos:Array<QueryPoS>;
@@ -97,6 +97,9 @@ export interface ClientStaticConf {
     colors:ColorsConf;
     searchLanguages:{[code:string]:string};
 
+    // A list of URLs used to style specific content (e.g. HTML tiles)
+    externalStyles?:Array<string>;
+
     // If string we expect this to be a fs path to another
     // JSON file containing just the 'tiles' configuration
     tiles:LanguageAnyTileConf|string;
@@ -136,6 +139,7 @@ export interface ClientConf {
     tiles:{[ident:string]:TileConf};
     layouts:LayoutsConfig;
     searchLanguages:Array<SearchLanguage>;
+    externalStyles:Array<string>;
     error?:Error;
     telemetry?:{
         sendIntervalSecs:number;
@@ -177,7 +181,8 @@ export function emptyClientConf(conf:ClientStaticConf):ClientConf {
             code: k,
             label: conf.searchLanguages[k],
             queryTypes: []
-        }))
+        })),
+        externalStyles: []
     };
 }
 
@@ -212,25 +217,50 @@ export interface LogQueueConf {
     key:string;
 }
 
+export interface QueryModeWordDb {
+    minLemmaFreq:number;
+    databases:{[lang:string]:string};
+};
+
+export interface SingleModeWordDb extends QueryModeWordDb {
+    similarFreqWordsMaxCtx:number;
+}
+
+export interface WordFreqDbConf {
+    single?:SingleModeWordDb;
+    cmp?:QueryModeWordDb;
+    translat?:QueryModeWordDb;
+}
+
 /**
  * Server side app configuration.
  */
 export interface ServerConf {
     address:string;
     port:number;
-    staticFilesUrl:string;
+    staticFilesUrl:string; // static (= non-compiled) stuff path (images etc.)
+    distFilesUrl:string; // this ensures Webpack to resolve dynamic imports properly
     languages:{[code:string]:string};
     develServer:{
         port:number;
         urlRootPath:string;
     };
-    freqDB:{
-        databases:{[lang:string]:string};
-        similarFreqWordsMaxCtx:number;
-        minLemmaFreq:number;
-    };
+    freqDB:WordFreqDbConf;
     logQueue?:LogQueueConf;
     toolbar:ToolbarDef;
     langCookie?:string;
     telemetryDB?:string;
+}
+
+export function getQueryTypeFreqDb(conf:ServerConf, queryType:QueryType):QueryModeWordDb {
+    switch (queryType) {
+        case QueryType.SINGLE_QUERY:
+            return conf.freqDB.single || {minLemmaFreq: 0, databases: {}, similarFreqWordsMaxCtx: 0};
+        case QueryType.CMP_QUERY:
+            return conf.freqDB.cmp || {minLemmaFreq: 0, databases: {}};
+        case QueryType.TRANSLAT_QUERY:
+            return conf.freqDB.translat || {minLemmaFreq: 0, databases: {}};
+        default:
+            throw new Error(`Unknown query type ${queryType}`);
+    }
 }

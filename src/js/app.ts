@@ -43,10 +43,11 @@ import { mkTileFactory } from './tileLoader';
 
 
 const mkAttachTile = (queryType:QueryType, isDictQuery:boolean, lang1:string, lang2:string) =>
-    (data:Array<TileFrameProps>, tile:ITileProvider, helpURL:string):void => {
+    (data:Array<TileFrameProps>, tileName:string, tile:ITileProvider, helpURL:string):void => {
     const support = tile.supportsQueryType(queryType, lang1, lang2) && (isDictQuery || tile.supportsNonDictQueries());
     data.push({
         tileId: tile.getIdent(),
+        tileName: tileName,
         Component: tile.getView(),
         SourceInfoComponent: tile.getSourceInfoComponent(),
         label: tile.getLabel(),
@@ -94,12 +95,6 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
     viewUtils.attachComponents(globalComponents);
 
     const tiles:Array<TileFrameProps> = [];
-    const attachTile = mkAttachTile(
-        qType,
-        isDictQuery,
-        userSession.query1Lang,
-        userSession.query2Lang
-    );
     const tilesMap = attachNumericTileIdents(config.tiles);
     const layoutManager = new LayoutManager(config.layouts, tilesMap, appServices);
     const theme = new Theme(config.colors);
@@ -136,10 +131,17 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
         cache
     );
 
+    const attachTile = mkAttachTile(
+        qType,
+        isDictQuery,
+        userSession.query1Lang,
+        userSession.query2Lang
+    );
     Object.keys(config.tiles).forEach(tileId => {
         const tile = factory(tileId, config.tiles[tileId]);
         attachTile(
             tiles,
+            tileId,
             tile,
             appServices.importExternalMessage(config.tiles[tileId].helpURL)
         );
