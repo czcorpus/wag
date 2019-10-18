@@ -25,11 +25,12 @@ import * as path from 'path';
 import * as sqlite3 from 'sqlite3';
 import * as translations from 'translations';
 
-import { ClientStaticConf, ServerConf } from '../conf';
+import { ClientStaticConf, ServerConf, WordFreqDbConf } from '../conf';
 import { wdgRouter } from './routes';
 import { createToolbarInstance } from './toolbar/factory';
 import { RedisLogQueue } from './logging/redisQueue';
 import { NullLogQueue } from './logging/nullQueue';
+import { WordDatabases } from './actionServices';
 
 const app = express();
 app.use(cookieParser());
@@ -66,11 +67,8 @@ if (typeof clientConf.tiles === 'string') {
 	clientConf.tiles = parseJsonConfig(clientConf.tiles);
 }
 
+const db:WordDatabases = new WordDatabases(serverConf.freqDB);
 
-const db = {};
-for (let d in serverConf.freqDB.databases) {
-	db[d] = new sqlite3.Database(serverConf.freqDB.databases[d]);
-}
 const toolbar = createToolbarInstance(serverConf.toolbar);
 
 wdgRouter({

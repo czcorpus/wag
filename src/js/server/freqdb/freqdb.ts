@@ -28,48 +28,53 @@ import { posTable } from './common';
 export const getLemmas = (db:Database, appServices:AppServices, word:string, minFreq:number):Observable<Array<LemmaVariant>> => {
     return new Observable<LemmaVariant>((observer) => {
         const srchWord = word.toLowerCase();
-        db.serialize(() => {
-            db.each(
-                'SELECT w.value, w.lemma, w.pos, m.`count` AS abs, m.arf ' +
-                'FROM word AS w ' +
-                'JOIN lemma AS m ON (w.lemma = m.value AND w.pos = m.pos) ' +
-                'WHERE (w.value = ? OR w.lemma = ?) AND m.count >= ? ' +
-                'GROUP BY w.lemma, w.pos ' +
-                'ORDER BY m.arf DESC',
-                [srchWord, srchWord, minFreq],
-                (err, row) => {
-                    if (err) {
-                        observer.error(err);
-
-                    } else {
-                        try {
-                            const pos = importQueryPos(row['pos']);
-                            observer.next({
-                                word: srchWord,
-                                lemma: row['lemma'],
-                                abs: row['abs'],
-                                ipm: -1,
-                                arf: row['arf'],
-                                pos: [{value: pos, label: appServices.importExternalMessage(posTable[pos])}],
-                                flevel: -1,
-                                isCurrent: false
-                            });
-
-                        } catch (err) {
+        if(db) {
+            db.serialize(() => {
+                db.each(
+                    'SELECT w.value, w.lemma, w.pos, m.`count` AS abs, m.arf ' +
+                    'FROM word AS w ' +
+                    'JOIN lemma AS m ON (w.lemma = m.value AND w.pos = m.pos) ' +
+                    'WHERE (w.value = ? OR w.lemma = ?) AND m.count >= ? ' +
+                    'GROUP BY w.lemma, w.pos ' +
+                    'ORDER BY m.arf DESC',
+                    [srchWord, srchWord, minFreq],
+                    (err, row) => {
+                        if (err) {
                             observer.error(err);
+
+                        } else {
+                            try {
+                                const pos = importQueryPos(row['pos']);
+                                observer.next({
+                                    word: srchWord,
+                                    lemma: row['lemma'],
+                                    abs: row['abs'],
+                                    ipm: -1,
+                                    arf: row['arf'],
+                                    pos: [{value: pos, label: appServices.importExternalMessage(posTable[pos])}],
+                                    flevel: -1,
+                                    isCurrent: false
+                                });
+
+                            } catch (err) {
+                                observer.error(err);
+                            }
+                        }
+                    },
+                    (err) => {
+                        if (err) {
+                            observer.error(err);
+
+                        } else {
+                            observer.complete();
                         }
                     }
-                },
-                (err) => {
-                    if (err) {
-                        observer.error(err);
+                );
+            });
 
-                    } else {
-                        observer.complete();
-                    }
-                }
-            );
-        })
+        } else {
+            observer.complete();
+        }
 
     }).pipe(
         reduce(

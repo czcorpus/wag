@@ -24,6 +24,46 @@
             ],
             "type": "object"
         },
+        "QueryModeWordDb": {
+            "properties": {
+                "databases": {
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "type": "object"
+                },
+                "minLemmaFreq": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "databases",
+                "minLemmaFreq"
+            ],
+            "type": "object"
+        },
+        "SingleModeWordDb": {
+            "properties": {
+                "databases": {
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "type": "object"
+                },
+                "minLemmaFreq": {
+                    "type": "number"
+                },
+                "similarFreqWordsMaxCtx": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "databases",
+                "minLemmaFreq",
+                "similarFreqWordsMaxCtx"
+            ],
+            "type": "object"
+        },
         "ToolbarDef": {
             "properties": {
                 "type": {
@@ -36,6 +76,20 @@
             "required": [
                 "type"
             ],
+            "type": "object"
+        },
+        "WordFreqDbConf": {
+            "properties": {
+                "cmp": {
+                    "$ref": "#/definitions/QueryModeWordDb"
+                },
+                "single": {
+                    "$ref": "#/definitions/SingleModeWordDb"
+                },
+                "translat": {
+                    "$ref": "#/definitions/QueryModeWordDb"
+                }
+            },
             "type": "object"
         }
     },
@@ -63,26 +117,7 @@
             "type": "string"
         },
         "freqDB": {
-            "properties": {
-                "databases": {
-                    "additionalProperties": {
-                        "type": "string"
-                    },
-                    "type": "object"
-                },
-                "minLemmaFreq": {
-                    "type": "number"
-                },
-                "similarFreqWordsMaxCtx": {
-                    "type": "number"
-                }
-            },
-            "required": [
-                "databases",
-                "minLemmaFreq",
-                "similarFreqWordsMaxCtx"
-            ],
-            "type": "object"
+            "$ref": "#/definitions/WordFreqDbConf"
         },
         "langCookie": {
             "type": "string"

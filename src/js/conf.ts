@@ -26,7 +26,7 @@ import { TileConf } from './common/tile';
 export interface UserConf {
     uiLanguages:{[code:string]:string};
     uiLang:string;
-    queryType:string;
+    queryType:QueryType;
 	query1Lang:string;
     query2Lang:string;
     queryPos:Array<QueryPoS>;
@@ -217,6 +217,21 @@ export interface LogQueueConf {
     key:string;
 }
 
+export interface QueryModeWordDb {
+    minLemmaFreq:number;
+    databases:{[lang:string]:string};
+};
+
+export interface SingleModeWordDb extends QueryModeWordDb {
+    similarFreqWordsMaxCtx:number;
+}
+
+export interface WordFreqDbConf {
+    single?:SingleModeWordDb;
+    cmp?:QueryModeWordDb;
+    translat?:QueryModeWordDb;
+}
+
 /**
  * Server side app configuration.
  */
@@ -230,13 +245,22 @@ export interface ServerConf {
         port:number;
         urlRootPath:string;
     };
-    freqDB:{
-        databases:{[lang:string]:string};
-        similarFreqWordsMaxCtx:number;
-        minLemmaFreq:number;
-    };
+    freqDB:WordFreqDbConf;
     logQueue?:LogQueueConf;
     toolbar:ToolbarDef;
     langCookie?:string;
     telemetryDB?:string;
+}
+
+export function getQueryTypeFreqDb(conf:ServerConf, queryType:QueryType):QueryModeWordDb {
+    switch (queryType) {
+        case QueryType.SINGLE_QUERY:
+            return conf.freqDB.single || {minLemmaFreq: 0, databases: {}, similarFreqWordsMaxCtx: 0};
+        case QueryType.CMP_QUERY:
+            return conf.freqDB.cmp || {minLemmaFreq: 0, databases: {}};
+        case QueryType.TRANSLAT_QUERY:
+            return conf.freqDB.translat || {minLemmaFreq: 0, databases: {}};
+        default:
+            throw new Error(`Unknown query type ${queryType}`);
+    }
 }
