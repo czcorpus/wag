@@ -18,11 +18,27 @@
         "urlRootPath": "/wdg/"
     },
     "freqDB": {
-        "databases": {
-            "cs": "/opt/wdglance/data/syn2015-arf.v3.db",
-            "en": "/opt/wdglance/data/intercorp_v11_wdg.db"
+        "single": {
+            "minLemmaFreq": 2,
+            "similarFreqWordsMaxCtx": 10,
+            "databases": {
+                "cs": "/path/to/databases/czech-words.db",
+                "en": "/path/to/databases/eng-words.db"
+            }
         },
-        "similarFreqWordsMaxCtx": 10,
-        "minLemmaFreq": 2
+        "cmp": {
+            "minLemmaFreq": 2,
+            "databases": {
+                "cs": "/path/to/databases/czech-words.db",
+                "en": "/path/to/databases/eng-words.db"
+            }
+        },
+        "translat": {
+            "minLemmaFreq": 2,
+            "databases": {
+                "cs": "/path/to/databases/czech-words.db",
+                "en": "/path/to/databases/eng-words.db"
+            }
+        }
     }
 }

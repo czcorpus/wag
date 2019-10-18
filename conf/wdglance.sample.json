@@ -13,6 +13,7 @@
 		"cs": "Čeština",
 		"en": "English"
 	},
+	"externalStyles": ["https://portal.korpus.test/external-stuff/style1.css"],
 	"homepage": {
 		"tiles": [
 			{
@@ -89,6 +90,7 @@
 				]
 			},
 			"cmp": {
+				"allowMultiWordQuery": true,
 				"groups": [
 					{
 						"groupLabel": "Data ze SyDu",
