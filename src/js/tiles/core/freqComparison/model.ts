@@ -32,7 +32,6 @@ import { QueryFormModel } from '../../../models/query';
 
 
 export interface FreqComparisonModelState extends GeneralMultiCritFreqComparisonModelState<DataRow> {
-    maxNumCategories:number;
     activeBlock:number;
     backlink:BacklinkWithArgs<BacklinkArgs>;
     colors:Array<string>;
@@ -42,7 +41,6 @@ export interface FreqComparisonModelArgs {
     dispatcher:IActionQueue;
     tileId:number;
     waitForTiles:Array<number>;
-    subqSourceTiles:Array<number>;
     appServices:AppServices;
     api:FreqComparisonAPI;
     backlink:Backlink|null;
@@ -61,15 +59,12 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
 
     protected waitForTiles:Immutable.Map<number, boolean>;
 
-    protected subqSourceTiles:Immutable.Set<number>;
-
     private readonly backlink:Backlink|null;
 
-    constructor({dispatcher, tileId, waitForTiles, subqSourceTiles, appServices, api, backlink, initState, mainForm}) {
+    constructor({dispatcher, tileId, waitForTiles, appServices, api, backlink, initState, mainForm}) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.waitForTiles = Immutable.Map<number, boolean>(waitForTiles.map(v => [v, false]));
-        this.subqSourceTiles = Immutable.Set<number>(subqSourceTiles);
         this.appServices = appServices;
         this.api = api;
         this.backlink = backlink;
@@ -153,7 +148,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                                 tileId: this.tileId,
                                 isEmpty: resp.blocks.every(v => v.data.length === 0),
                                 block: resp.blocks.length > 0 ?
-                                    {data: resp.blocks[0].data.sort((x1, x2) => x2.ipm - x1.ipm).slice(0, state.maxNumCategories)} :
+                                    {data: resp.blocks[0].data.sort((x1, x2) => x2.ipm - x1.ipm).slice(0, state.fmaxitems)} :
                                     null,
                                 concId: resp.concId,
                                 critIdx: critIdx,
@@ -208,7 +203,6 @@ export const factory = (
     dispatcher:IActionQueue,
     tileId:number,
     waitForTiles:Array<number>,
-    subqSourceTiles:Array<number>,
     appServices:AppServices,
     api:FreqComparisonAPI,
     backlink:Backlink|null,
@@ -219,7 +213,6 @@ export const factory = (
         dispatcher,
         tileId,
         waitForTiles,
-        subqSourceTiles,
         appServices,
         api,
         backlink,

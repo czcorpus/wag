@@ -18,14 +18,11 @@
 import { Observable } from 'rxjs';
 import { map, flatMap } from 'rxjs/operators';
 
-import { cachedAjax$, ajax$ } from '../../ajax';
-import { DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../types';
+import { cachedAjax$ } from '../../ajax';
+import { HTTPHeaders, IAsyncKeyValueStore } from '../../types';
 import { CorpusInfoAPI, APIResponse as CorpusInfoApiResponse } from './corpusInfo';
-import { ConcApi, QuerySelector } from './concordance'
+import { ConcApi, QuerySelector } from './concordance';
 import { ViewMode } from '../abstract/concordance';
-import { LemmaVariant } from '../../query';
-import { List } from 'immutable';
-import { WordFormsAPI } from './wordForms';
 
 export enum FreqSort {
     REL = 'rel'
@@ -102,11 +99,11 @@ export interface MultiCritQueryArgs extends CoreQueryArgs {
     fcrit:Array<string>;
 }
 
-export interface LvarDataApi<T, U> {
+export interface WordDataApi<T, U> {
     call(queryArgs:T, word:string):Observable<U>;
 }
 
-export class FreqComparisonAPI implements LvarDataApi<MultiCritQueryArgs, APIBlockResponse> {
+export class FreqComparisonAPI implements WordDataApi<MultiCritQueryArgs, APIBlockResponse> {
 
     private readonly apiURL:string;
 

@@ -17,7 +17,7 @@
  */
 import * as Immutable from 'immutable';
 
-import { DataRow, MultiCritQueryArgs, SingleCritQueryArgs, FreqSort } from '../api/kontext/freqs';
+import { DataRow, MultiCritQueryArgs, FreqSort } from '../api/kontext/freqs';
 import { LocalizedConfMsg } from '../types';
 
 
@@ -32,15 +32,6 @@ interface FreqComparisonStateBase {
     fpage:number;
     fttIncludeEmpty:boolean;
     fmaxitems:number;
-}
-
-export interface GeneralSingleCritFreqComparisonModelState<T=DataRow> extends FreqComparisonStateBase {
-    fcrit:string;
-    data:Immutable.List<T>;
-}
-
-function isMultiCritState<T>(state:GeneralSingleCritFreqComparisonModelState<T>|GeneralMultiCritFreqComparisonModelState<T>): state is GeneralMultiCritFreqComparisonModelState<T> {
-    return (<GeneralMultiCritFreqComparisonModelState<T>>state).blocks !== undefined;
 }
 
 export interface FreqComparisonDataBlock<T> {
@@ -58,34 +49,16 @@ export interface GeneralMultiCritFreqComparisonModelState<T=DataRow> extends Fre
 
 
 
-export function stateToAPIArgs<T>(state:GeneralSingleCritFreqComparisonModelState<T>, concId:string, critIdx?:number, subcname?:string):SingleCritQueryArgs;
-export function stateToAPIArgs<T>(state:GeneralMultiCritFreqComparisonModelState<T>, concId:string, critIdx?:number, subcname?:string):MultiCritQueryArgs;
-export function stateToAPIArgs<T>(state:GeneralSingleCritFreqComparisonModelState<T>|GeneralMultiCritFreqComparisonModelState<T>, concId:string, critIdx:number, subcname:string) {
-
-    if (isMultiCritState(state)) {
-        return {
-            corpname: state.corpname,
-            usesubcorp: subcname,
-            q: `~${concId ? concId : state.concId}`,
-            fcrit: critIdx !== undefined ? state.fcrit.get(critIdx) : state.fcrit.toArray(),
-            flimit: state.flimit,
-            freq_sort: state.freqSort,
-            fpage: state.fpage,
-            ftt_include_empty: state.fttIncludeEmpty ? 1 : 0,
-            format: 'json'
-        } as MultiCritQueryArgs;
-
-    } else {
-        return {
-            corpname: state.corpname,
-            usesubcorp: subcname,
-            q: `~${concId ? concId : state.concId}`,
-            fcrit: state.fcrit,
-            flimit: state.flimit,
-            freq_sort: state.freqSort,
-            fpage: state.fpage,
-            ftt_include_empty: state.fttIncludeEmpty ? 1 : 0,
-            format: 'json'
-        } as SingleCritQueryArgs;
-    }
+export function stateToAPIArgs<T>(state:GeneralMultiCritFreqComparisonModelState<T>, concId:string, critIdx?:number, subcname?:string):MultiCritQueryArgs {
+    return {
+        corpname: state.corpname,
+        usesubcorp: subcname,
+        q: `~${concId ? concId : state.concId}`,
+        fcrit: critIdx !== undefined ? state.fcrit.get(critIdx) : state.fcrit.toArray(),
+        flimit: state.flimit,
+        freq_sort: state.freqSort,
+        fpage: state.fpage,
+        ftt_include_empty: state.fttIncludeEmpty ? 1 : 0,
+        format: 'json'
+    } as MultiCritQueryArgs;
 };

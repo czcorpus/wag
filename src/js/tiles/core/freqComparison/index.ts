@@ -44,7 +44,6 @@ export interface FreqComparisonTileConf extends TileConf {
     freqSort:FreqSort;
     fpage:number;
     fttIncludeEmpty:boolean;
-    maxNumCategories:number;
     colors?:Array<string>;
     backlink?:Backlink;
 }
@@ -70,7 +69,7 @@ export class FreqComparisonTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({dispatcher, tileId, waitForTiles, subqSourceTiles, ut, theme, appServices, widthFract, conf, isBusy, cache, mainForm}:TileFactory.Args<FreqComparisonTileConf>) {
+    constructor({dispatcher, tileId, waitForTiles, ut, theme, appServices, widthFract, conf, isBusy, cache, mainForm}:TileFactory.Args<FreqComparisonTileConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
@@ -86,7 +85,6 @@ export class FreqComparisonTile implements ITileProvider {
             this.dispatcher,
             tileId,
             waitForTiles,
-            subqSourceTiles,
             appServices,
             new FreqComparisonAPI(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             conf.backlink || null,
@@ -107,7 +105,6 @@ export class FreqComparisonTile implements ITileProvider {
                 freqSort: conf.freqSort,
                 fpage: conf.fpage,
                 fttIncludeEmpty: conf.fttIncludeEmpty,
-                maxNumCategories: conf.maxNumCategories,
                 fmaxitems: 100,
                 backlink: null,
                 colors: conf.colors ? conf.colors : ["#8addff", "#f26e43"]
