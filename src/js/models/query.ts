@@ -79,7 +79,7 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
                 newState.errors = newState.errors.clear();
                 newState.queries = newState.queries.set(
                     action.payload.queryIdx,
-                    Forms.updateFormInput(newState.queries.get(action.payload.queryIdx), {value: action.payload.value})
+                    Forms.updateFormInput(newState.queries.get(action.payload.queryIdx), {value: action.payload.value, isValid: true})
                 );
                 return newState;
             },
@@ -232,14 +232,19 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
     }
 
     validateQuery(state:QueryFormModelState):void {
-        this.validateNthQuery(state, 0);
-        if (state.queryType === QueryType.CMP_QUERY) {
-            state.queries.slice(1).forEach((_, idx) => {
+        if (state.queryType === QueryType.SINGLE_QUERY) {
+            this.validateNthQuery(state, 0);
+
+        } else if (state.queryType === QueryType.CMP_QUERY) {
+            state.queries.forEach((_, idx) => {
                 this.validateNthQuery(state, idx);
             });
 
-        } else if (state.queryType === QueryType.TRANSLAT_QUERY && state.queryLanguage === state.queryLanguage2) {
-            state.errors = state.errors.push(new Error(this.appServices.translate('global__src_and_dst_langs_must_be_different')));
+        } else if (state.queryType === QueryType.TRANSLAT_QUERY) {
+            this.validateNthQuery(state, 0);
+            if (state.queryLanguage === state.queryLanguage2) {
+                state.errors = state.errors.push(new Error(this.appServices.translate('global__src_and_dst_langs_must_be_different')));
+            }
         }
     }
 
