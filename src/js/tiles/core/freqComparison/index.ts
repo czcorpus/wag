@@ -44,6 +44,7 @@ export interface FreqComparisonTileConf extends TileConf {
     freqSort:FreqSort;
     fpage:number;
     fttIncludeEmpty:boolean;
+    maxChartsPerLine?:number;
     colors?:Array<string>;
     backlink?:Backlink;
 }
@@ -107,6 +108,7 @@ export class FreqComparisonTile implements ITileProvider {
                 fttIncludeEmpty: conf.fttIncludeEmpty,
                 fmaxitems: 100,
                 backlink: null,
+                maxChartsPerLine: conf.maxChartsPerLine ? conf.maxChartsPerLine : 3,
                 colors: conf.colors ? conf.colors : ["#8addff", "#f26e43"]
             },
             mainForm

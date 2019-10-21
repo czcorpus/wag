@@ -34,6 +34,7 @@ import { QueryFormModel } from '../../../models/query';
 export interface FreqComparisonModelState extends GeneralMultiCritFreqComparisonModelState<DataRow> {
     activeBlock:number;
     backlink:BacklinkWithArgs<BacklinkArgs>;
+    maxChartsPerLine:number;
     colors:Array<string>;
 }
 
