@@ -79,7 +79,7 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
                 newState.errors = newState.errors.clear();
                 newState.queries = newState.queries.set(
                     action.payload.queryIdx,
-                    Forms.updateFormInput(newState.queries.get(action.payload.queryIdx), {value: action.payload.value})
+                    Forms.updateFormInput(newState.queries.get(action.payload.queryIdx), {value: action.payload.value, isValid: true})
                 );
                 return newState;
             },
