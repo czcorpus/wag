@@ -32,12 +32,25 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const globComponents = ut.getComponents();
 
-    const processData = (data:Immutable.List<DataRow>) => {
+    const processData = (data:Immutable.List<DataRow>, words:Immutable.List<string>) => {
         return data.groupBy(x => x.name).map((values, name) => {
             const totalFreq = values.reduce((acc, curr) => acc + curr.freq, 0)
             let wordData = {}
-            values.forEach(item => {wordData[item.word] = (100*item.freq/totalFreq).toFixed(2)});
-            values.forEach(item => {wordData[`${item.word}_abs`] = item.freq;});
+
+            // calculate percentage from frequency
+            values.forEach(item => {
+                wordData[item.word] = (100*item.freq/totalFreq).toFixed(2);
+                wordData[`${item.word}_abs`] = item.freq;
+            });
+            
+            // add also words with no data
+            words.forEach(word => {
+                if (!Object.keys(wordData).includes(word)) {
+                    wordData[word] = 0;
+                    wordData[`${word}_abs`] = 0;
+                }
+            });
+
             return {
                 name: name,
                 ...wordData
@@ -49,6 +62,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const ChartWrapper:React.SFC<{
         data:Immutable.List<DataRow>;
+        words:Immutable.List<string>;
         width:string|number;
         height:string|number;
         isMobile:boolean;
@@ -56,7 +70,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     }> = (props) => {
         if (props.isMobile) {
             return (
-                <BarChart data={processData(props.data).toArray()}
+                <BarChart data={processData(props.data, props.words).toArray()}
                         width={typeof props.width === 'string' ? parseInt(props.width) : props.width}
                         height={typeof props.height === 'string' ? parseInt(props.height) : props.height}
                         layout="vertical"
@@ -68,7 +82,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         } else {
             return (
                 <ResponsiveContainer width={props.width} height={props.height}>
-                    <BarChart data={processData(props.data).toArray()} layout="vertical">
+                    <BarChart data={processData(props.data, props.words).toArray()} layout="vertical">
                         {props.children}
                     </BarChart>
                 </ResponsiveContainer>
@@ -81,18 +95,19 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const Chart:React.SFC<{
         data:Immutable.List<DataRow>;
+        words:Immutable.List<string>;
         width:string|number;
         height:string|number;
         isMobile:boolean;
         colors:Array<string>;
     }> = (props) => {
-        const processedData = processData(props.data);
+        const processedData = processData(props.data, props.words);
         const maxLabelWidth = processedData.max((v1, v2) => v1.name.length - v2.name.length).name.length;
         return (
             <div className="Chart">
-                <ChartWrapper data={props.data} isMobile={props.isMobile} width={props.width} height={props.height}>
+                <ChartWrapper data={props.data} words={props.words} isMobile={props.isMobile} width={props.width} height={props.height}>
                     <CartesianGrid />
-                    {props.data.groupBy(x => x.word).keySeq().map((word, index) => 
+                    {props.words.map((word, index) => 
                         <Bar key={word} dataKey={word} isAnimationActive={false} name={word} stackId='a' fill={props.colors[index % props.colors.length]} />
                     )};
                     <XAxis type="number" unit="%" ticks={[0, 25, 50, 75, 100]} domain={[0, 100]} interval={0} />
@@ -134,11 +149,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
 
         render() {
-            if (this.props.maxChartsPerLine) {
-                var chartsViewBoxWidth = this.props.isMobile ? '100%' : `${95 / Math.min(this.props.blocks.size, this.props.maxChartsPerLine)}%`;
-            } else {
-                var chartsViewBoxWidth = this.props.isMobile ? '100%' : `${95 / this.props.blocks.size}%`;
-            }
+            const chartsViewBoxWidth = this.props.isMobile ? '100%' : `${95 / Math.min(this.props.blocks.size, this.props.maxChartsPerLine)}%`;
             return (
                 <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.blocks.find(v => v.isReady) !== undefined}
@@ -153,7 +164,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                     <div key={block.ident} style={{width: chartsViewBoxWidth, flexGrow: 1, height: "100%"}}>
                                         <h3>{block.label}</h3>
                                         {block.data.size > 0 ?
-                                            <Chart data={block.data} width={chartWidth} height={70 + block.data.groupBy(x => x.name).size * 25}
+                                            <Chart data={block.data} words={block.words} width={chartWidth} height={70 + block.data.groupBy(x => x.name).size * 25}
                                                     isMobile={this.props.isMobile} colors={this.props.colors} /> :
                                             <p className="note" style={{textAlign: 'center'}}>No result</p>
                                         }

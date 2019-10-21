@@ -35,6 +35,7 @@ interface FreqComparisonStateBase {
 
 export interface FreqComparisonDataBlock<T> {
     data:Immutable.List<T>;
+    words:Immutable.List<string>;
     ident:string;
     label:string;
     isReady:boolean;

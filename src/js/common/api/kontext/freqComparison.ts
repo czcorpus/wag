@@ -135,8 +135,8 @@ export class FreqComparisonAPI implements WordDataApi<MultiCritQueryArgs, APIBlo
     call(args:MultiCritQueryArgs, lemma:LemmaVariant):Observable<APIBlockResponse> {
         return this.concApi.call({
             corpname: args.corpname,
-            queryselector: QuerySelector.WORD,
-            word: lemma.word,
+            queryselector: QuerySelector.CQL,
+            cql: lemma.word.split(' ').map(part => `[word="${part}"]`).join(''),
             kwicleftctx: '0',
             kwicrightctx: '0',
             async: '0',

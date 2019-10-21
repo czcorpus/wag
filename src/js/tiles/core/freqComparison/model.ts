@@ -92,31 +92,37 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                     if (action.error) {
                         newState.blocks = Immutable.List<FreqComparisonDataBlock<DataRow>>(state.fcrit.map((_, i) => ({
                             data: Immutable.List<FreqComparisonDataBlock<DataRow>>(),
+                            words: Immutable.List<string>(),
                             ident: puid(),
                             label: action.payload.blockLabel ? action.payload.blockLabel : state.critLabels.get(i),
-                            isReady: true
+                            isReady: false
                         })));
                         newState.error = action.error.message;
                         newState.isBusy = false;
 
-                    } else {                        
+                    } else {
+                        const newData = action.payload.block.data ? newState.blocks.get(action.payload.critIdx).data.concat(
+                            Immutable.List<DataRow>(action.payload.block.data.map(v => ({
+                                name: this.appServices.translateDbValue(state.corpname, v.name),
+                                freq: v.freq,
+                                ipm: v.ipm,
+                                word: action.payload.lemma.word
+                            })))).toList() : newState.blocks.get(action.payload.critIdx).data;
+                        const newWords = newState.blocks.get(action.payload.critIdx).words.push(action.payload.lemma.word);
+
                         newState.blocks = newState.blocks.set(
                             action.payload.critIdx,
                             {
-                                data: newState.blocks.get(action.payload.critIdx).data.concat(
-                                        Immutable.List<DataRow>(action.payload.block.data.map(v => ({
-                                            name: this.appServices.translateDbValue(state.corpname, v.name),
-                                            freq: v.freq,
-                                            ipm: v.ipm,
-                                            word: action.payload.lemma.word
-                                        })))).toList(),
+                                data: newData,
+                                words: newWords,
                                 ident: puid(),
                                 label: this.appServices.importExternalMessage(
                                     action.payload.blockLabel ? action.payload.blockLabel : state.critLabels.get(action.payload.critIdx)),
-                                isReady: true
+                                isReady: newWords.size === this.lemmas.size
                             }
                         );
-                        newState.isBusy = newState.blocks.some(v => !v.isReady);
+                        
+                        newState.isBusy = !newState.blocks.some(v => v.isReady);
                         newState.backlink = null;
                     }
                     return newState;
@@ -131,7 +137,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
             case GlobalActionName.RequestQueryResponse:
                 new Observable((observer:Observer<[number, LemmaVariant]>) => {
                     state.fcrit.keySeq().forEach(critIdx => {
-                        this.lemmas.forEach(lemma => {
+                        this.lemmas.forEach(lemma => {                            
                             observer.next([critIdx, findCurrLemmaVariant(lemma)]);
                         });
                     });
@@ -147,9 +153,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                             payload: {
                                 tileId: this.tileId,
                                 isEmpty: resp.blocks.every(v => v.data.length === 0),
-                                block: resp.blocks.length > 0 ?
-                                    {data: resp.blocks[0].data.sort((x1, x2) => x2.ipm - x1.ipm).slice(0, state.fmaxitems)} :
-                                    null,
+                                block: {data: resp.blocks[0].data.sort((x1, x2) => x2.ipm - x1.ipm).slice(0, state.fmaxitems)},
                                 critIdx: critIdx,
                                 lemma: lemma
                             }
