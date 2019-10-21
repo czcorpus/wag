@@ -87,7 +87,7 @@ export interface TreqSubsetModelArgs {
     initialState:TranslationsSubsetsModelState;
     tileId:number;
     api:TreqSubsetsAPI;
-    queries:RecognizedQueries;
+    lemmas:RecognizedQueries;
     waitForColorsTile:number;
 }
 
@@ -101,18 +101,18 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
 
     private readonly api:TreqSubsetsAPI;
 
-    private readonly queries:RecognizedQueries;
+    private readonly lemmas:RecognizedQueries;
 
     private readonly waitForColorsTile:number;
 
     private readonly appServices:AppServices;
 
 
-    constructor({dispatcher, appServices, initialState, tileId, api, queries, waitForColorsTile}:TreqSubsetModelArgs) {
+    constructor({dispatcher, appServices, initialState, tileId, api, lemmas, waitForColorsTile}:TreqSubsetModelArgs) {
         super(dispatcher, initialState);
         this.api = api;
         this.tileId = tileId;
-        this.queries = queries;
+        this.lemmas = lemmas;
         this.waitForColorsTile = waitForColorsTile;
         this.appServices = appServices;
         this.actionMatch = {
@@ -252,7 +252,7 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
             case GlobalActionName.RequestQueryResponse:
                 this.suspend(
                     (action:Action) => {
-                        const srchLemma = findCurrLemmaVariant(this.queries.get(0));
+                        const srchLemma = findCurrLemmaVariant(this.lemmas.get(0));
                         if (action.name === GlobalActionName.TileDataLoaded && this.waitForColorsTile === action.payload['tileId']) {
                             merge(...state.subsets.map(subset =>
                                 callWithExtraVal(
@@ -288,7 +288,7 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
                                         payload: {
                                             tileId: this.tileId,
                                             isEmpty: true,
-                                            query: findCurrLemmaVariant(this.queries.get(0)).word,
+                                            query: findCurrLemmaVariant(this.lemmas.get(0)).word,
                                             lines: [],
                                             sum: -1,
                                             subsetId: null

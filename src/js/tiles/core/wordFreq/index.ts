@@ -57,7 +57,7 @@ export class WordFreqTile implements ITileProvider {
 
     private readonly view:TileComponent;
 
-    constructor({tileId, dispatcher, appServices, ut, queries, lang1, widthFract, conf, isBusy, cache}:TileFactory.Args<WordFreqTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, lemmas, lang1, widthFract, conf, isBusy, cache}:TileFactory.Args<WordFreqTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
@@ -77,7 +77,7 @@ export class WordFreqTile implements ITileProvider {
             },
             tileId,
             api: new FreqDbAPI(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
-            queries,
+            lemmas,
             queryLang: lang1,
             appServices
         });

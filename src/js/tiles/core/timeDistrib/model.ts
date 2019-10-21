@@ -111,7 +111,7 @@ export interface TimeDistribModelArgs {
     api:KontextTimeDistribApi;
     concApi:ConcApi;
     appServices:AppServices;
-    queries:RecognizedQueries;
+    lemmas:RecognizedQueries;
     backlink:Backlink;
     queryLang:string;
 }
@@ -131,7 +131,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private readonly waitForTile:number;
 
-    private readonly queries:RecognizedQueries;
+    private readonly lemmas:RecognizedQueries;
 
     private readonly queryLang:string;
 
@@ -140,14 +140,14 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
     private unfinishedChunks:Immutable.Map<string, boolean>; // subcname => done
 
     constructor({dispatcher, initState, tileId, waitForTile, api,
-                concApi, appServices, queries, queryLang, backlink}) {
+                concApi, appServices, lemmas, queryLang, backlink}) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.api = api;
         this.concApi = concApi;
         this.waitForTile = waitForTile;
         this.appServices = appServices;
-        this.queries = queries;
+        this.lemmas = lemmas;
         this.queryLang = queryLang;
         this.backlink = backlink;
         this.unfinishedChunks = Immutable.Map<string, boolean>(initState.subcnames.flatMap(
@@ -507,7 +507,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     state,
                     dispatch,
                     SubchartID.MAIN,
-                    rxOf(findCurrLemmaVariant(this.queries.get(0)))
+                    rxOf(findCurrLemmaVariant(this.lemmas.get(0)))
                 );
             }
             break;

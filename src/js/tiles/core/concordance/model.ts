@@ -68,7 +68,7 @@ export interface ConcordanceTileModelArgs {
     waitForTile:number;
     appServices:AppServices;
     service:IConcordanceApi<{}>;
-    queries:RecognizedQueries;
+    lemmas:RecognizedQueries;
     initState:ConcordanceTileState;
     backlink:Backlink;
 }
@@ -78,7 +78,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
     private readonly service:IConcordanceApi<{}>;
 
-    private readonly queries:RecognizedQueries;
+    private readonly lemmas:RecognizedQueries;
 
     private readonly appServices:AppServices;
 
@@ -90,10 +90,10 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
     public static readonly CTX_SIZES = [3, 3, 8, 12];
 
-    constructor({dispatcher, tileId, appServices, service, queries, initState, waitForTile, backlink}:ConcordanceTileModelArgs) {
+    constructor({dispatcher, tileId, appServices, service, lemmas, initState, waitForTile, backlink}:ConcordanceTileModelArgs) {
         super(dispatcher, initState);
         this.service = service;
-        this.queries = queries;
+        this.lemmas = lemmas;
         this.appServices = appServices;
         this.tileId = tileId;
         this.backlink = backlink;
@@ -218,7 +218,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
     private reloadData(state:ConcordanceTileState, dispatch:SEDispatcher, otherLangCql:string):void {
         new Observable<{}>((observer) => {
             try {
-                observer.next(this.service.stateToArgs(state, state.concId ? null : findCurrLemmaVariant(this.queries.get(0)), otherLangCql));
+                observer.next(this.service.stateToArgs(state, state.concId ? null : findCurrLemmaVariant(this.lemmas.get(0)), otherLangCql));
                 observer.complete();
 
             } catch (e) {

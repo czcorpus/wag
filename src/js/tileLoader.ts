@@ -67,7 +67,7 @@ applyContext(require.context('./tiles/custom', true, /\/index.ts$/), tileFactori
 export const mkTileFactory = (
     dispatcher:IFullActionControl,
     viewUtils:ViewUtils<GlobalComponents>,
-    queries:RecognizedQueries,
+    lemmas:RecognizedQueries,
     appServices:AppServices,
     theme:Theme,
     layoutManager:LayoutManager,
@@ -94,7 +94,7 @@ export const mkTileFactory = (
                 tileId: tileIdentMap[confName],
                 dispatcher: dispatcher,
                 ut: viewUtils,
-                queries: queries,
+                lemmas: lemmas,
                 appServices: appServices,
                 lang1: lang1,
                 lang2: lang2,
