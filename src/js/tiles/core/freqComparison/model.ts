@@ -27,7 +27,8 @@ import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { puid } from '../../../common/util';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { ActionName, Actions, DataLoadedPayload } from './actions';
-import { QueryFormModel } from '../../../models/query';
+import { findCurrLemmaVariant } from '../../../models/query';
+import { RecognizedQueries, LemmaVariant } from '../../../common/query';
 
 
 
@@ -50,7 +51,7 @@ export interface FreqComparisonModelArgs {
 
 
 export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState> {
-    private readonly mainForm:QueryFormModel;
+    private readonly lemmas:RecognizedQueries;
 
     protected api:FreqComparisonAPI;
 
@@ -62,14 +63,14 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
 
     private readonly backlink:Backlink|null;
 
-    constructor({dispatcher, tileId, waitForTiles, appServices, api, backlink, initState, mainForm}) {
+    constructor({dispatcher, tileId, waitForTiles, appServices, api, backlink, initState, lemmas}) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.waitForTiles = Immutable.Map<number, boolean>(waitForTiles.map(v => [v, false]));
         this.appServices = appServices;
         this.api = api;
         this.backlink = backlink;
-        this.mainForm = mainForm;
+        this.lemmas = lemmas;
         this.actionMatch = {
             [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
                 const newState = this.copyState(state);
@@ -97,20 +98,18 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                         })));
                         newState.error = action.error.message;
                         newState.isBusy = false;
-                        
+
                     } else {                        
                         newState.blocks = newState.blocks.set(
                             action.payload.critIdx,
                             {
-                                data: action.payload.block ?
-                                    newState.blocks.get(action.payload.critIdx).data.concat(
+                                data: newState.blocks.get(action.payload.critIdx).data.concat(
                                         Immutable.List<DataRow>(action.payload.block.data.map(v => ({
                                             name: this.appServices.translateDbValue(state.corpname, v.name),
                                             freq: v.freq,
                                             ipm: v.ipm,
-                                            word: action.payload.word
-                                        })))
-                                    ).toList() : newState.blocks.get(action.payload.critIdx).data,
+                                            word: action.payload.lemma.word
+                                        })))).toList(),
                                 ident: puid(),
                                 label: this.appServices.importExternalMessage(
                                     action.payload.blockLabel ? action.payload.blockLabel : state.critLabels.get(action.payload.critIdx)),
@@ -130,19 +129,19 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
     sideEffects(state:FreqComparisonModelState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
-                new Observable((observer:Observer<[number, string]>) => {
-                    const mainFormState = this.mainForm.getState();
+                new Observable((observer:Observer<[number, LemmaVariant]>) => {
                     state.fcrit.keySeq().forEach(critIdx => {
-                        observer.next([critIdx, mainFormState.query.value]);
-                        observer.next([critIdx, mainFormState.query2.value]);
+                        this.lemmas.forEach(lemma => {
+                            observer.next([critIdx, findCurrLemmaVariant(lemma)]);
+                        });
                     });
                 }).pipe(
-                    concatMap(([critIdx, word]) => 
-                        this.api.call(stateToAPIArgs(state, 'empty', critIdx), word).pipe(map(v => [v, critIdx, word] as [APIBlockResponse, number, string]))
+                    concatMap(([critIdx, lemma]) => 
+                        this.api.call(stateToAPIArgs(state, critIdx), lemma).pipe(map(v => [v, critIdx, lemma] as [APIBlockResponse, number, LemmaVariant]))
                     )
                 )
                 .subscribe(
-                    ([resp, critIdx, word]) => {
+                    ([resp, critIdx, lemma]) => {
                         dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
                             name: GlobalActionName.TileDataLoaded,
                             payload: {
@@ -151,9 +150,8 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                                 block: resp.blocks.length > 0 ?
                                     {data: resp.blocks[0].data.sort((x1, x2) => x2.ipm - x1.ipm).slice(0, state.fmaxitems)} :
                                     null,
-                                concId: resp.concId,
                                 critIdx: critIdx,
-                                word: word
+                                lemma: lemma
                             }
                         });
                     },
@@ -164,9 +162,8 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                                 tileId: this.tileId,
                                 isEmpty: true,
                                 block: null,
-                                concId: null,
                                 critIdx: null,
-                                word: null
+                                lemma: null
                             },
                             error: error
                         });
@@ -208,7 +205,7 @@ export const factory = (
     api:FreqComparisonAPI,
     backlink:Backlink|null,
     initState:FreqComparisonModelState,
-    mainForm:QueryFormModel) => {
+    lemmas:RecognizedQueries) => {
 
     return new FreqComparisonModel({
         dispatcher,
@@ -218,6 +215,6 @@ export const factory = (
         api,
         backlink,
         initState,
-        mainForm
+        lemmas
     });
 }

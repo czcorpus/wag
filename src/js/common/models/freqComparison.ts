@@ -26,7 +26,6 @@ interface FreqComparisonStateBase {
     isBusy:boolean;
     error:string;
     corpname:string;
-    concId:string;
     flimit:number;
     freqSort:FreqSort;
     fpage:number;
@@ -49,11 +48,10 @@ export interface GeneralMultiCritFreqComparisonModelState<T=DataRow> extends Fre
 
 
 
-export function stateToAPIArgs<T>(state:GeneralMultiCritFreqComparisonModelState<T>, concId:string, critIdx?:number, subcname?:string):MultiCritQueryArgs {
+export function stateToAPIArgs<T>(state:GeneralMultiCritFreqComparisonModelState<T>, critIdx?:number, subcname?:string):MultiCritQueryArgs {
     return {
         corpname: state.corpname,
         usesubcorp: subcname,
-        q: `~${concId ? concId : state.concId}`,
         fcrit: critIdx !== undefined ? state.fcrit.get(critIdx) : state.fcrit.toArray(),
         flimit: state.flimit,
         freq_sort: state.freqSort,

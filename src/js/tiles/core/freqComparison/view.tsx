@@ -95,7 +95,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     {props.data.groupBy(x => x.word).keySeq().map((word, index) => 
                         <Bar key={word} dataKey={word} isAnimationActive={false} name={word} stackId='a' fill={props.colors[index % props.colors.length]} />
                     )};
-                    <XAxis type="number" unit="%" interval={0} />
+                    <XAxis type="number" unit="%" ticks={[0, 25, 50, 75, 100]} domain={[0, 100]} interval={0} />
                     <YAxis type="category" dataKey="name" width={Math.max(60, maxLabelWidth * 8)} interval={0} />
                     <Legend />
                     <Tooltip cursor={false} isAnimationActive={false} formatter={(value, name, props) => `${value}% (${props.payload[`${name}_abs`]})`} />
@@ -153,13 +153,13 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                     <div key={block.ident} style={{width: chartsViewBoxWidth, flexGrow: 1, height: "100%"}}>
                                         <h3>{block.label}</h3>
                                         {block.data.size > 0 ?
-                                            <Chart data={block.data} width={chartWidth} height={70 + block.data.size * 15}
+                                            <Chart data={block.data} width={chartWidth} height={70 + block.data.groupBy(x => x.name).size * 25}
                                                     isMobile={this.props.isMobile} colors={this.props.colors} /> :
                                             <p className="note" style={{textAlign: 'center'}}>No result</p>
                                         }
                                     </div>
                                 );
-                                })}
+                            })}
                         </div>
                         {this.props.isMobile && this.props.blocks.size > 1 ?
                             <globComponents.HorizontalBlockSwitch htmlClass="ChartSwitch"

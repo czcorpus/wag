@@ -23,6 +23,7 @@ import { HTTPHeaders, IAsyncKeyValueStore } from '../../types';
 import { CorpusInfoAPI, APIResponse as CorpusInfoApiResponse } from './corpusInfo';
 import { ConcApi, QuerySelector } from './concordance';
 import { ViewMode } from '../abstract/concordance';
+import { LemmaVariant } from '../../query';
 
 export enum FreqSort {
     REL = 'rel'
@@ -100,7 +101,7 @@ export interface MultiCritQueryArgs extends CoreQueryArgs {
 }
 
 export interface WordDataApi<T, U> {
-    call(queryArgs:T, word:string):Observable<U>;
+    call(queryArgs:T, lemma:LemmaVariant):Observable<U>;
 }
 
 export class FreqComparisonAPI implements WordDataApi<MultiCritQueryArgs, APIBlockResponse> {
@@ -131,11 +132,11 @@ export class FreqComparisonAPI implements WordDataApi<MultiCritQueryArgs, APIBlo
         });
     }
 
-    call(args:MultiCritQueryArgs, word:string):Observable<APIBlockResponse> {
+    call(args:MultiCritQueryArgs, lemma:LemmaVariant):Observable<APIBlockResponse> {
         return this.concApi.call({
             corpname: args.corpname,
             queryselector: QuerySelector.WORD,
-            word: word,
+            word: lemma.word,
             kwicleftctx: '0',
             kwicrightctx: '0',
             async: '0',
@@ -165,7 +166,7 @@ export class FreqComparisonAPI implements WordDataApi<MultiCritQueryArgs, APIBlo
                                     ipm: v.rel,
                                     norm: v.norm,
                                     order: i,
-                                    word: word
+                                    word: lemma.word
                                 }))
                         })),
                         concId: resp.conc_persistence_op_id,

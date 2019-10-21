@@ -37,7 +37,7 @@ require('./style.less');
 
 export interface FreqComparisonTileConf extends TileConf {
     apiURL:string;
-    corpname:string|null; // null can be used in case subqueryMode is enabled
+    corpname:string;
     fcrit:string|Array<string>;
     critLabels:LocalizedConfMsg|Array<LocalizedConfMsg>;
     flimit:number;
@@ -70,7 +70,7 @@ export class FreqComparisonTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({dispatcher, tileId, waitForTiles, ut, theme, appServices, widthFract, conf, isBusy, cache, mainForm}:TileFactory.Args<FreqComparisonTileConf>) {
+    constructor({dispatcher, tileId, waitForTiles, ut, theme, appServices, widthFract, conf, isBusy, cache, lemmas}:TileFactory.Args<FreqComparisonTileConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
@@ -99,7 +99,6 @@ export class FreqComparisonTile implements ITileProvider {
                 }))),
                 activeBlock: 0,
                 corpname: conf.corpname,
-                concId: null,
                 fcrit: criteria,
                 critLabels: Immutable.List<string>(labels),
                 flimit: conf.flimit,
@@ -111,7 +110,7 @@ export class FreqComparisonTile implements ITileProvider {
                 maxChartsPerLine: conf.maxChartsPerLine ? conf.maxChartsPerLine : 3,
                 colors: conf.colors ? conf.colors : ["#8addff", "#f26e43"]
             },
-            mainForm
+            lemmas
         );
         this.label = appServices.importExternalMessage(conf.label || 'freqComparison__main_label');
         this.view = viewInit(this.dispatcher, ut, theme, this.model);

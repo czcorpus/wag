@@ -19,6 +19,7 @@ import { Action } from 'kombo';
 
 import { ApiDataBlock } from '../../../common/api/kontext/freqComparison';
 import { LocalizedConfMsg } from '../../../common/types';
+import { LemmaVariant } from '../../../common/query';
 
 
 
@@ -29,9 +30,8 @@ export enum ActionName {
 export interface DataLoadedPayload {
     block:ApiDataBlock;
     blockLabel?:LocalizedConfMsg;
-    concId:string;
     critIdx:number;
-    word:string;
+    lemma:LemmaVariant;
 }
 
 export namespace Actions {
