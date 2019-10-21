@@ -280,13 +280,13 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
                     let matchIdx = 0;
                     if (ans.userConf.queryPos[queryIdx]) {
                         const srchIdx = mergedLemmas.findIndex(
-                            v => matchesPos(v, ans.userConf.queryPos[queryIdx]) && (v.lemma === ans.userConf.lemma[0] || !ans.userConf.lemma[0]));
+                            v => matchesPos(v, ans.userConf.queryPos[queryIdx]) && (v.lemma === ans.userConf.lemma[queryIdx] || !ans.userConf.lemma[queryIdx]));
                         if (srchIdx >= 0) {
                             matchIdx = srchIdx;
                         }
                     }
                     const v = mergedLemmas.get(matchIdx);
-                    mergedLemmas = mergedLemmas.set(queryIdx, {
+                    mergedLemmas = mergedLemmas.set(matchIdx, {
                         lemma: v.lemma,
                         word: v.word,
                         pos: v.pos.concat([]),
@@ -313,7 +313,6 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
                 }
                 return mergedLemmas;
             }));
-
             const [rootView, layout, _] = createRootComponent({
                 config: ans.runtimeConf,
                 userSession: userConfig,
