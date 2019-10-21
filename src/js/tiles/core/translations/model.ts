@@ -41,7 +41,7 @@ export interface TranslationModelArgs {
     tileId:number;
     api:TranslationAPI<{}, {}>;
     backlink:Backlink;
-    queries:RecognizedQueries;
+    lemmas:RecognizedQueries;
     scaleColorGen:ColorScaleFunctionGenerator;
 }
 
@@ -52,7 +52,7 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
 
     private readonly api:TranslationAPI<{}, {}>;
 
-    private readonly queries:RecognizedQueries;
+    private readonly lemmas:RecognizedQueries;
 
     private readonly backlink:Backlink;
 
@@ -60,12 +60,12 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
 
     private readonly appServices:AppServices;
 
-    constructor({dispatcher, appServices, initialState, tileId, api, backlink, queries,
+    constructor({dispatcher, appServices, initialState, tileId, api, backlink, lemmas,
                 scaleColorGen}:TranslationModelArgs) {
         super(dispatcher, initialState);
         this.api = api;
         this.backlink = backlink;
-        this.queries = queries;
+        this.lemmas = lemmas;
         this.tileId = tileId;
         this.scaleColorGen = scaleColorGen;
         this.appServices = appServices;
@@ -125,7 +125,7 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
     sideEffects(state:GeneralTranslationsModelState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
-                const srchLemma = findCurrLemmaVariant(this.queries.get(0));
+                const srchLemma = findCurrLemmaVariant(this.lemmas.get(0));
                 this.api.call(this.api.stateToArgs(state, srchLemma.lemma))
                     .pipe(
                         map(item => {
@@ -151,7 +151,7 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
                                 payload: {
                                     tileId: this.tileId,
                                     isEmpty: data.length === 0,
-                                    query: findCurrLemmaVariant(this.queries.get(0)).lemma, // TODO switch to word and give up dict support
+                                    query: findCurrLemmaVariant(this.lemmas.get(0)).lemma, // TODO switch to word and give up dict support
                                     subqueries: data.map(v => ({
                                         value: {
                                             value: v.firstTranslatLc,
@@ -172,7 +172,7 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
                                 payload: {
                                     tileId: this.tileId,
                                     isEmpty: true,
-                                    query: findCurrLemmaVariant(this.queries.get(0)).lemma, // TODO switch to word and give up dict support
+                                    query: findCurrLemmaVariant(this.lemmas.get(0)).lemma, // TODO switch to word and give up dict support
                                     subqueries: [],
                                     lang1: state.lang1,
                                     lang2: state.lang2,

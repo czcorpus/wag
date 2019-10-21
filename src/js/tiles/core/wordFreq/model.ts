@@ -56,7 +56,7 @@ export interface SummaryModelArgs {
     tileId:number;
     api:FreqDbAPI;
     appServices:AppServices;
-    queries:RecognizedQueries;
+    lemmas:RecognizedQueries;
     queryLang:string;
 }
 
@@ -69,16 +69,16 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
 
     private readonly tileId:number;
 
-    private readonly queries:RecognizedQueries;
+    private readonly lemmas:RecognizedQueries;
 
     private readonly queryLang:string;
 
-    constructor({dispatcher, initialState, tileId, api, appServices, queries, queryLang}) {
+    constructor({dispatcher, initialState, tileId, api, appServices, lemmas, queryLang}) {
         super(dispatcher, initialState);
         this.tileId = tileId;
         this.api = api;
         this.appServices = appServices;
-        this.queries = queries;
+        this.lemmas = lemmas;
         this.queryLang = queryLang;
         this.actionMatch = {
             [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
@@ -114,7 +114,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                 new Observable<{variant:LemmaVariant; lang:string}>((observer) => {
                     try {
                         observer.next({
-                            variant: findCurrLemmaVariant(this.queries.get(0)),
+                            variant: findCurrLemmaVariant(this.lemmas.get(0)),
                             lang: this.queryLang
                         });
                         observer.complete();
@@ -149,7 +149,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                         (data) => ({
                             data: data.result.map(v => {
                                 return {
-                                    word: v.isSearched ? findCurrLemmaVariant(this.queries.get(0)).word : '',
+                                    word: v.isSearched ? findCurrLemmaVariant(this.lemmas.get(0)).word : '',
                                     lemma: v.lemma,
                                     pos: v.pos,
                                     abs: v.abs,

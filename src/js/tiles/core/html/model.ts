@@ -35,13 +35,13 @@ export interface HtmlModelArgs {
     service:RawHtmlAPI|WiktionaryHtmlAPI;
     maxTileHeight:string;
     initState:HtmlModelState;
-    queries:RecognizedQueries;
+    lemmas:RecognizedQueries;
 }
 
 
 export class HtmlModel extends StatelessModel<HtmlModelState> {
 
-    private readonly queries:RecognizedQueries;
+    private readonly lemmas:RecognizedQueries;
 
     private readonly service:GeneralHtmlAPI<{}>;
 
@@ -51,13 +51,13 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
 
     readonly maxTileHeight:string;
 
-    constructor({dispatcher, tileId, appServices, service, maxTileHeight, initState, queries}:HtmlModelArgs) {
+    constructor({dispatcher, tileId, appServices, service, maxTileHeight, initState, lemmas}:HtmlModelArgs) {
         super(dispatcher, initState);
         this.maxTileHeight = maxTileHeight;
         this.tileId = tileId;
         this.appServices = appServices;
         this.service = service;
-        this.queries = queries;
+        this.lemmas = lemmas;
         this.actionMatch = {
             [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse)  => {
                 const newState = this.copyState(state);
@@ -130,7 +130,7 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
     sideEffects(state:HtmlModelState, action:Action, seDispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
-                const variant = findCurrLemmaVariant(this.queries.get(0));
+                const variant = findCurrLemmaVariant(this.lemmas.get(0));
                 this.requestData(state, variant.lemma, seDispatch);
             break;
         }

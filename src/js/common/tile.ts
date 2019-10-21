@@ -263,7 +263,7 @@ export namespace TileFactory {
 
         appServices:AppServices;
 
-        queries:RecognizedQueries;
+        lemmas:RecognizedQueries;
 
         lang1?:string;
 

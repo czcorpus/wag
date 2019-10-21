@@ -40,7 +40,7 @@ export interface CollocModelArgs {
     service:CollocationApi<{}>;
     initState:CollocModelState;
     waitForTile:number;
-    queries:RecognizedQueries;
+    lemmas:RecognizedQueries;
     backlink:Backlink;
 }
 
@@ -56,7 +56,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
 
     private readonly waitForTile:number;
 
-    private readonly queries:RecognizedQueries;
+    private readonly lemmas:RecognizedQueries;
 
     private readonly measureMap = {
         't': 'T-score',
@@ -71,14 +71,14 @@ export class CollocModel extends StatelessModel<CollocModelState> {
 
     private readonly backlink:Backlink;
 
-    constructor({dispatcher, tileId, waitForTile, appServices, service, initState, backlink, queries}:CollocModelArgs) {
+    constructor({dispatcher, tileId, waitForTile, appServices, service, initState, backlink, lemmas}:CollocModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.waitForTile = waitForTile;
         this.appServices = appServices;
         this.service = service;
         this.backlink = backlink;
-        this.queries = queries;
+        this.lemmas = lemmas;
         this.actionMatch = {
             [GlobalActionName.EnableTileTweakMode]: (state, action:GlobalActions.EnableTileTweakMode) => {
                 if (action.payload.ident === this.tileId) {
@@ -264,7 +264,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                     );
 
                 } else {
-                    const variant = findCurrLemmaVariant(this.queries.get(0));
+                    const variant = findCurrLemmaVariant(this.lemmas.get(0));
                     this.requestData(state, variant, null, seDispatch);
                 }
             break;

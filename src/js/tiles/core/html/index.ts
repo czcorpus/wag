@@ -61,7 +61,7 @@ export class HtmlTile implements ITileProvider {
 
     private view:TileComponent;
 
-    constructor({tileId, dispatcher, appServices, ut, theme, widthFract, conf, isBusy, cache, queries}:TileFactory.Args<HtmlTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, theme, widthFract, conf, isBusy, cache, lemmas}:TileFactory.Args<HtmlTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.appServices = appServices;
@@ -81,7 +81,7 @@ export class HtmlTile implements ITileProvider {
             tileId: tileId,
             appServices: appServices,
             service: new ServiceClass(cache, conf.apiURL),
-            queries: queries,
+            lemmas: lemmas,
             maxTileHeight: conf.maxTileHeight,
             initState: {
                 isBusy: isBusy,

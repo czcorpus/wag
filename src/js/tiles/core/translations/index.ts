@@ -59,7 +59,7 @@ export class TranslationsTile implements ITileProvider {
 
     private static readonly DEFAULT_MIN_ITEM_FREQ = 1;
 
-    constructor({tileId, dispatcher, appServices, ut, theme, lang1, lang2, queries, widthFract, conf, isBusy, cache}:TileFactory.Args<TranslationsTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, theme, lang1, lang2, lemmas, widthFract, conf, isBusy, cache}:TileFactory.Args<TranslationsTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
@@ -81,7 +81,7 @@ export class TranslationsTile implements ITileProvider {
             tileId,
             api: createApiInstance(conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.srcInfoURL), cache),
             backlink: conf.backlink || null,
-            queries,
+            lemmas,
             scaleColorGen: theme.scaleColorIndexed
         });
         this.label = appServices.importExternalMessage(conf.label || 'treq__main_label');

@@ -32,7 +32,7 @@ export interface WordSimModelArgs {
     initState:WordSimModelState;
     tileId:number;
     api:WordSimApi<{}>;
-    queries:RecognizedQueries;
+    lemmas:RecognizedQueries;
 }
 
 
@@ -42,13 +42,13 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
 
     private readonly api:WordSimApi<{}>;
 
-    private readonly queries:RecognizedQueries;
+    private readonly lemmas:RecognizedQueries;
 
-    constructor({dispatcher, initState, tileId, api, queries}:WordSimModelArgs) {
+    constructor({dispatcher, initState, tileId, api, lemmas}:WordSimModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.api = api;
-        this.queries = queries;
+        this.lemmas = lemmas;
 
         this.actionMatch = {
             [GlobalActionName.EnableTileTweakMode]: (state, action:GlobalActions.EnableTileTweakMode) => {
@@ -122,7 +122,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
             case GlobalActionName.RequestQueryResponse:
             case ActionName.SetOperationMode:
                 this.api.call(
-                    this.api.stateToArgs(state, findCurrLemmaVariant(this.queries.get(0)).lemma)
+                    this.api.stateToArgs(state, findCurrLemmaVariant(this.lemmas.get(0)).lemma)
 
                 ).subscribe(
                     (data) => {
