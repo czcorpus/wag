@@ -52,15 +52,15 @@ export class WordFormsTile implements ITileProvider {
 
     private readonly waitForTiles:Array<number>;
 
-    constructor({tileId, dispatcher, appServices, ut, mainForm, widthFract, conf, isBusy, waitForTiles, theme, cache}:TileFactory.Args<WordFormsTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, queries, lang1, widthFract, conf, isBusy, waitForTiles, theme, cache}:TileFactory.Args<WordFormsTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
         this.waitForTiles = waitForTiles;
         this.label = this.appServices.importExternalMessage(conf.label || 'wordforms__main_label');
-        this.model = new WordFormsModel(
+        this.model = new WordFormsModel({
             dispatcher,
-            {
+            initialState: {
                 isBusy: isBusy,
                 isAltViewMode: false,
                 error: null,
@@ -71,10 +71,11 @@ export class WordFormsTile implements ITileProvider {
                 data: Immutable.List<any>()
             },
             tileId,
-            createApiInstance(conf.apiType, cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
-            mainForm,
-            waitForTiles.length > 0 ? waitForTiles[0] : null
-        );
+            api: createApiInstance(conf.apiType, cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            queries,
+            queryLang: lang1,
+            waitForTile: waitForTiles.length > 0 ? waitForTiles[0] : null
+        });
         this.view = viewInit(dispatcher, ut, theme, this.model);
     }
 

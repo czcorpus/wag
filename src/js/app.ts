@@ -25,7 +25,7 @@ import * as Immutable from 'immutable';
 import { Observable } from 'rxjs';
 import { Theme } from './common/theme';
 import { AvailableLanguage, ScreenProps } from './common/hostPage';
-import { LemmaVariant, QueryType, SearchLanguage, testIsDictQuery } from './common/query';
+import { QueryType, SearchLanguage, testIsDictQuery, RecognizedQueries } from './common/query';
 import { ITileProvider, TileFrameProps, TileConf } from './common/tile';
 import { ClientConf, UserConf } from './conf';
 import { LayoutManager, TileGroup } from './layout';
@@ -44,25 +44,25 @@ import { mkTileFactory } from './tileLoader';
 
 const mkAttachTile = (queryType:QueryType, isDictQuery:boolean, lang1:string, lang2:string) =>
     (data:Array<TileFrameProps>, tileName:string, tile:ITileProvider, helpURL:string):void => {
-    const support = tile.supportsQueryType(queryType, lang1, lang2) && (isDictQuery || tile.supportsNonDictQueries());
-    data.push({
-        tileId: tile.getIdent(),
-        tileName: tileName,
-        Component: tile.getView(),
-        SourceInfoComponent: tile.getSourceInfoComponent(),
-        label: tile.getLabel(),
-        supportsTweakMode: tile.supportsTweakMode(),
-        supportsCurrQuery: support,
-        supportsHelpView: !!helpURL,
-        supportsAltView: tile.supportsAltView(),
-        renderSize: [50, 50],
-        widthFract: tile.getWidthFract(),
-        helpURL: helpURL,
-        supportsReloadOnError: tile.exposeModel() !== null // TODO this inference is debatable
-    });
-    if (!support) {
-        tile.disable();
-    }
+        const support = tile.supportsQueryType(queryType, lang1, lang2) && (isDictQuery || tile.supportsNonDictQueries());
+        data.push({
+            tileId: tile.getIdent(),
+            tileName: tileName,
+            Component: tile.getView(),
+            SourceInfoComponent: tile.getSourceInfoComponent(),
+            label: tile.getLabel(),
+            supportsTweakMode: tile.supportsTweakMode(),
+            supportsCurrQuery: support,
+            supportsHelpView: !!helpURL,
+            supportsAltView: tile.supportsAltView(),
+            renderSize: [50, 50],
+            widthFract: tile.getWidthFract(),
+            helpURL: helpURL,
+            supportsReloadOnError: tile.exposeModel() !== null // TODO this inference is debatable
+        });
+        if (!support) {
+            tile.disable();
+        }
 };
 
 const attachNumericTileIdents = (config:{[ident:string]:TileConf}):{[ident:string]:number} => {
@@ -77,7 +77,7 @@ const attachNumericTileIdents = (config:{[ident:string]:TileConf}):{[ident:strin
 export interface InitIntArgs {
     config:ClientConf;
     userSession:UserConf;
-    lemmas:Array<LemmaVariant>;
+    lemmas:RecognizedQueries;
     appServices:AppServices;
     dispatcher:IFullActionControl;
     onResize:Observable<ScreenProps>;
@@ -90,7 +90,9 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
     onResize, viewUtils, cache}:InitIntArgs):[React.FunctionComponent<WdglanceMainProps>, Immutable.List<TileGroup>, TileIdentMap] {
 
     const qType = userSession.queryType as QueryType; // TODO validate
-    const isDictQuery = testIsDictQuery(lemmas);
+    const isDictQuery = userSession.queryType === QueryType.CMP_QUERY ?
+            lemmas.every(lvList => testIsDictQuery(lvList)) :
+            testIsDictQuery(lemmas.get(0));
     const globalComponents = globalCompInit(dispatcher, viewUtils, onResize);
     viewUtils.attachComponents(globalComponents);
 
@@ -104,9 +106,7 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
     const formModel = mainFormFactory({
         dispatcher: dispatcher,
         appServices: appServices,
-        query1: userSession.query[0],
         query1Lang: userSession.query1Lang || 'cs',
-        query2: userSession.query[1],
         query2Lang: userSession.query2Lang || '',
         queryType: qType,
         lemmas: lemmas,
@@ -114,13 +114,14 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
         uiLanguages: Immutable.List<AvailableLanguage>(
             Object.keys(userSession.uiLanguages).map(k => [k, userSession.uiLanguages[k]])),
         searchLanguages: Immutable.List<SearchLanguage>(config.searchLanguages),
-        layout: layoutManager
+        layout: layoutManager,
+        maxCmpQueries: 10
     });
 
     const factory = mkTileFactory(
         dispatcher,
         viewUtils,
-        formModel,
+        lemmas,
         appServices,
         theme,
         layoutManager,

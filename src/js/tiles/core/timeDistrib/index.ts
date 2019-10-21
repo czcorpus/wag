@@ -63,7 +63,7 @@ export class TimeDistTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({dispatcher, tileId, waitForTiles, ut, theme, appServices, widthFract, mainForm, conf, isBusy, cache}:TileFactory.Args<TimeDistTileConf>) {
+    constructor({dispatcher, tileId, waitForTiles, ut, theme, appServices, widthFract, queries, lang1, conf, isBusy, cache}:TileFactory.Args<TimeDistTileConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
@@ -102,7 +102,8 @@ export class TimeDistTile implements ITileProvider {
             ),
             concApi: conf.concApiURL ? new ConcApi(false, cache, conf.concApiURL, appServices.getApiHeaders(conf.apiURL)) : null,
             appServices: appServices,
-            mainForm: mainForm,
+            queries: queries,
+            queryLang: lang1,
             backlink: conf.backlink
         });
         this.label = appServices.importExternalMessage(conf.label || 'timeDistrib__main_label');

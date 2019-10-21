@@ -21,9 +21,19 @@ import * as Immutable from 'immutable';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { DataLoadedPayload } from './actions';
 import { ActionName, Actions } from './actions';
-import { QueryFormModel, findCurrLemmaVariant } from '../../../models/query';
+import { findCurrLemmaVariant } from '../../../models/query';
 import { WordSimApi, WordSimWord } from '../../../common/api/abstract/wordSim';
 import { WordSimModelState } from '../../../common/models/wordSim';
+import { RecognizedQueries } from '../../../common/query';
+
+
+export interface WordSimModelArgs {
+    dispatcher:IActionDispatcher;
+    initState:WordSimModelState;
+    tileId:number;
+    api:WordSimApi<{}>;
+    queries:RecognizedQueries;
+}
 
 
 export class WordSimModel extends StatelessModel<WordSimModelState> {
@@ -32,13 +42,13 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
 
     private readonly api:WordSimApi<{}>;
 
-    private readonly mainForm:QueryFormModel;
+    private readonly queries:RecognizedQueries;
 
-    constructor(dispatcher:IActionDispatcher, initState:WordSimModelState, tileId:number, api:WordSimApi<{}>, mainForm:QueryFormModel) {
+    constructor({dispatcher, initState, tileId, api, queries}:WordSimModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.api = api;
-        this.mainForm = mainForm;
+        this.queries = queries;
 
         this.actionMatch = {
             [GlobalActionName.EnableTileTweakMode]: (state, action:GlobalActions.EnableTileTweakMode) => {
@@ -111,9 +121,8 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
             case ActionName.SetOperationMode:
-                const formState = this.mainForm.getState();
                 this.api.call(
-                    this.api.stateToArgs(state, findCurrLemmaVariant(formState.lemmas).lemma)
+                    this.api.stateToArgs(state, findCurrLemmaVariant(this.queries.get(0)).lemma)
 
                 ).subscribe(
                     (data) => {

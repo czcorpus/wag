@@ -22,9 +22,9 @@ import { BacklinkWithArgs } from '../tile';
 
 
 interface TranslationsModelCoreState {
+    minItemFreq:number;
     lang1:string;
     lang2:string;
-    minItemFreq:number;
 }
 
 

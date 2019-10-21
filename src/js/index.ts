@@ -26,7 +26,7 @@ import { isSubqueryPayload } from './common/query';
 import * as translations from 'translations';
 
 import { AppServices } from './appServices';
-import { encodeArgs, ajax$ } from './common/ajax';
+import { encodeArgs, ajax$, encodeURLParameters } from './common/ajax';
 import { ScreenProps } from './common/hostPage';
 import { LemmaVariant } from './common/query';
 import { ClientConf, UserConf } from './conf';
@@ -37,6 +37,7 @@ import { createRootComponent } from './app';
 import { initStore } from './cacheDb';
 import { HTTPMethod, TelemetryAction } from './common/types';
 import { HTTPAction } from './server/actions';
+import { MultiDict } from './common/data';
 
 declare var DocumentTouch;
 declare var require:(src:string)=>void;  // webpack
@@ -48,7 +49,7 @@ require('../css/mobile-small.less');
 require('theme.less');
 
 
-export const initClient = (mountElement:HTMLElement, config:ClientConf, userSession:UserConf, lemmas:Array<LemmaVariant>) => {
+export const initClient = (mountElement:HTMLElement, config:ClientConf, userSession:UserConf, lemmas:Array<Array<LemmaVariant>>) => {
     const dispatcher = new ActionDispatcher();
     const notifications = new SystemNotifications(dispatcher);
     const uiLangSel = userSession.uiLang || 'en-US';
@@ -56,9 +57,13 @@ export const initClient = (mountElement:HTMLElement, config:ClientConf, userSess
         uiLang: uiLangSel,
         translations: translations,
         staticUrlCreator: (path) => config.rootUrl + 'assets/' + path,
-        actionUrlCreator: (path, args) => config.hostUrl +
-                (path.substr(0, 1) === '/' ? path.substr(1) : path ) +
-                (Object.keys(args || {}).length > 0 ? '?' + encodeArgs(args) : '')
+        actionUrlCreator: (path, args) => {
+                const argsStr = Array.isArray(args) || MultiDict.isMultiDict(args) ?
+                        encodeURLParameters(args) : encodeArgs(args);
+                return config.hostUrl + (path.substr(0, 1) === '/' ? path.substr(1) : path ) +
+                        (argsStr.length > 0 ? '?' + argsStr : '');
+        }
+
     });
     const appServices = new AppServices({
         notifications: notifications,
@@ -98,7 +103,7 @@ export const initClient = (mountElement:HTMLElement, config:ClientConf, userSess
     const [WdglanceMain, currLayout, tileMap] = createRootComponent({
         config: config,
         userSession: userSession,
-        lemmas: lemmas,
+        lemmas: Immutable.List<Immutable.List<LemmaVariant>>(lemmas.map(v => Immutable.List(v))),
         appServices: appServices,
         dispatcher: dispatcher,
         onResize: windowResize$,
@@ -162,7 +167,7 @@ export const initClient = (mountElement:HTMLElement, config:ClientConf, userSess
                 });
 
             } else if (userSession.answerMode) {
-                if (lemmas.find(v => v.isCurrent)) {
+                if (lemmas[0].find(v => v.isCurrent)) {
                     dispatcher.dispatch({
                         name: ActionName.RequestQueryResponse
                     });

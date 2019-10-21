@@ -59,7 +59,7 @@ export class TranslationsTile implements ITileProvider {
 
     private static readonly DEFAULT_MIN_ITEM_FREQ = 1;
 
-    constructor({tileId, dispatcher, appServices, ut, theme, lang1, lang2, mainForm, widthFract, conf, isBusy, cache}:TileFactory.Args<TranslationsTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, theme, lang1, lang2, queries, widthFract, conf, isBusy, cache}:TileFactory.Args<TranslationsTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
@@ -70,18 +70,18 @@ export class TranslationsTile implements ITileProvider {
                 isBusy: isBusy,
                 isAltViewMode: false,
                 error: null,
-                lang1: lang1,
-                lang2: lang2,
                 searchPackages: Immutable.List<string>(conf.srchPackages[lang2] || []),
                 translations: Immutable.List<WordTranslation>(),
                 backLink: null,
                 maxNumLines: conf.maxNumLines || TranslationsTile.DEFAULT_MAX_NUM_LINES,
-                minItemFreq: conf.minItemFreq || TranslationsTile.DEFAULT_MIN_ITEM_FREQ
+                minItemFreq: conf.minItemFreq || TranslationsTile.DEFAULT_MIN_ITEM_FREQ,
+                lang1: lang1,
+                lang2: lang2
             },
             tileId,
             api: createApiInstance(conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.srcInfoURL), cache),
             backlink: conf.backlink || null,
-            mainForm,
+            queries,
             scaleColorGen: theme.scaleColorIndexed
         });
         this.label = appServices.importExternalMessage(conf.label || 'treq__main_label');

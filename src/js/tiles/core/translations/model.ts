@@ -22,12 +22,13 @@ import { map } from 'rxjs/operators';
 import { HTTPMethod } from '../../../common/types';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
-import { QueryFormModel, findCurrLemmaVariant } from '../../../models/query';
+import { findCurrLemmaVariant } from '../../../models/query';
 import { DataLoadedPayload } from './actions';
 import { ColorScaleFunctionGenerator } from '../../../common/theme';
 import { WordTranslation, TranslationAPI } from '../../../common/api/abstract/translations';
 import { TranslationsModelState } from '../../../common/models/translations';
 import { AppServices } from '../../../appServices';
+import { RecognizedQueries } from '../../../common/query';
 
 
 export type GeneralTranslationsModelState = TranslationsModelState<{}>;
@@ -40,7 +41,7 @@ export interface TranslationModelArgs {
     tileId:number;
     api:TranslationAPI<{}, {}>;
     backlink:Backlink;
-    mainForm:QueryFormModel;
+    queries:RecognizedQueries;
     scaleColorGen:ColorScaleFunctionGenerator;
 }
 
@@ -51,7 +52,7 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
 
     private readonly api:TranslationAPI<{}, {}>;
 
-    private readonly mainForm:QueryFormModel;
+    private readonly queries:RecognizedQueries;
 
     private readonly backlink:Backlink;
 
@@ -59,12 +60,12 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
 
     private readonly appServices:AppServices;
 
-    constructor({dispatcher, appServices, initialState, tileId, api, backlink, mainForm,
+    constructor({dispatcher, appServices, initialState, tileId, api, backlink, queries,
                 scaleColorGen}:TranslationModelArgs) {
         super(dispatcher, initialState);
         this.api = api;
         this.backlink = backlink;
-        this.mainForm = mainForm;
+        this.queries = queries;
         this.tileId = tileId;
         this.scaleColorGen = scaleColorGen;
         this.appServices = appServices;
@@ -124,7 +125,7 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
     sideEffects(state:GeneralTranslationsModelState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
-                const srchLemma = findCurrLemmaVariant(this.mainForm.getState().lemmas);
+                const srchLemma = findCurrLemmaVariant(this.queries.get(0));
                 this.api.call(this.api.stateToArgs(state, srchLemma.lemma))
                     .pipe(
                         map(item => {
@@ -150,7 +151,7 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
                                 payload: {
                                     tileId: this.tileId,
                                     isEmpty: data.length === 0,
-                                    query: this.mainForm.getState().query.value,
+                                    query: findCurrLemmaVariant(this.queries.get(0)).lemma, // TODO switch to word and give up dict support
                                     subqueries: data.map(v => ({
                                         value: {
                                             value: v.firstTranslatLc,
@@ -159,8 +160,8 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
                                         interactionId: v.interactionId,
                                         color: v.color
                                     })),
-                                    lang1: this.mainForm.getState().queryLanguage,
-                                    lang2: this.mainForm.getState().queryLanguage2,
+                                    lang1: state.lang1,
+                                    lang2: state.lang2,
                                     data: {translations: data}
                                 }
                             });
@@ -171,10 +172,10 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
                                 payload: {
                                     tileId: this.tileId,
                                     isEmpty: true,
-                                    query: this.mainForm.getState().query.value,
+                                    query: findCurrLemmaVariant(this.queries.get(0)).lemma, // TODO switch to word and give up dict support
                                     subqueries: [],
-                                    lang1: this.mainForm.getState().queryLanguage,
-                                    lang2: this.mainForm.getState().queryLanguage2,
+                                    lang1: state.lang1,
+                                    lang2: state.lang2,
                                     data: {translations: []}
                                 },
                                 error: error

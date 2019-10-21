@@ -24,7 +24,6 @@ import { QueryType, QueryPoS } from '../common/query';
 
 export enum ActionName {
     ChangeQueryInput = 'MAIN_CHANGE_QUERY_INPUT',
-    ChangeQueryInput2 = 'MAIN_CHANGE_QUERY_INPUT2',
     ChangeCurrLemmaVariant = 'MAIN_CHANGE_CURR_LEMMA_VARIANT',
     RequestQueryResponse = 'MAIN_REQUEST_QUERY_RESPONSE',
     RetryTileLoad = 'MAIN_RETRY_TILE_LOAD',
@@ -57,14 +56,16 @@ export enum ActionName {
     SubqChanged = 'MAIN_SUBQ_CHANGED',
     TileAreaClicked = 'MAIN_TILE_AREA_CLICKED',
     ShowAmbiguousResultHelp = 'MAIN_SHOW_AMBIGUOUS_TILE_HELP',
-    HideAmbiguousResultHelp = 'MAIN_HIDE_AMBIGUOUS_TILE_HELP'
+    HideAmbiguousResultHelp = 'MAIN_HIDE_AMBIGUOUS_TILE_HELP',
+    AddCmpQueryInput = 'MAIN_ADD_CMP_QUERY_INPUT',
+    RemoveCmpQueryInput = 'MAIN_REMOVE_CMP_QUERY_INPUT'
 }
 
 export namespace Actions {
 
     export interface RequestQueryResponse extends Action<{
     }> {
-        name:ActionName.ChangeQueryInput;
+        name:ActionName.RequestQueryResponse;
     }
 
     export interface RetryTileLoad extends Action<{
@@ -78,7 +79,7 @@ export namespace Actions {
     }
 
     export interface SetEmptyResult extends Action<{
-        error?:string;
+        error?:string;AddCmpQueryField
 
     }> {
         name:ActionName.SetEmptyResult;
@@ -95,17 +96,13 @@ export namespace Actions {
 
     export interface ChangeQueryInput extends Action<{
         value:string;
+        queryIdx:number;
     }> {
         name:ActionName.ChangeQueryInput;
     }
 
-    export interface ChangeQueryInput2 extends Action<{
-        value:string;
-    }> {
-        name:ActionName.ChangeQueryInput2;
-    }
-
     export interface ChangeCurrLemmaVariant extends Action<{
+        queryIdx:number;
         word:string;
         lemma:string;
         pos:Array<QueryPoS>;
@@ -120,8 +117,7 @@ export namespace Actions {
         lang1:string;
         lang2:string;
         queryType:QueryType;
-        q1:string;
-        q2:string;
+        queries:Array<string>;
     }> {
         name:ActionName.ChangeTargetLanguage;
     }
@@ -132,8 +128,7 @@ export namespace Actions {
         queryType:QueryType;
         lang1:string;
         lang2:string;
-        q1:string;
-        q2:string;
+        queries:Array<string>;
     }> {
         name:ActionName.ChangeQueryType;
     }
@@ -299,5 +294,16 @@ export namespace Actions {
     export interface HideAmbiguousResultHelp extends Action<{
     }> {
         name:ActionName.HideAmbiguousResultHelp;
+    }
+
+    export interface AddCmpQueryInput extends Action<{
+    }> {
+        name:ActionName.AddCmpQueryInput;
+    }
+
+    export interface RemoveCmpQueryInput extends Action<{
+        queryIdx:number;
+    }> {
+        name:ActionName.RemoveCmpQueryInput;
     }
 }

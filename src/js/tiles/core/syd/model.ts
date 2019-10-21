@@ -20,9 +20,9 @@ import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 
 import { AppServices } from '../../../appServices';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
-import { QueryFormModel } from '../../../models/query';
 import { DataLoadedPayload } from './actions';
 import { RequestArgs, StrippedFreqResponse, SyDAPI } from './api';
+import { RecognizedQueries } from '../../../common/query';
 
 
 
@@ -41,12 +41,12 @@ export interface SydModelState {
     result:Immutable.List<StrippedFreqResponse>;
 }
 
-export const stateToArgs = (state:SydModelState, word1:string, word2:string):RequestArgs => {
+export const stateToArgs = (state:SydModelState, word:string, otherWords:Immutable.List<string>):RequestArgs => {
     return {
         corp1: state.corp1,
         corp2: state.corp2,
-        word1: word1,
-        word2: word2,
+        word1: word,
+        word2: otherWords.get(0), // TODO support for N words
         fcrit1: state.corp1Fcrit.toArray(),
         fcrit2: state.corp2Fcrit.toArray(),
         flimit: state.flimit.toFixed(),
@@ -63,18 +63,18 @@ export class SydModel extends StatelessModel<SydModelState> {
 
     private readonly waitForTile:number;
 
-    private readonly mainForm:QueryFormModel;
+    private readonly queries:RecognizedQueries;
 
     private readonly api:SyDAPI;
 
     private readonly appServices:AppServices;
 
-    constructor(dispatcher:IActionQueue, initialState:SydModelState, tileId:number, waitForTile:number, mainForm:QueryFormModel,
+    constructor(dispatcher:IActionQueue, initialState:SydModelState, tileId:number, waitForTile:number, queries:RecognizedQueries,
                 appServices:AppServices, api:SyDAPI) {
         super(dispatcher, initialState);
         this.tileId = tileId;
         this.waitForTile = waitForTile;
-        this.mainForm = mainForm;
+        this.queries = queries;
         this.api = api;
         this.appServices = appServices;
         this.actionMatch = {
@@ -110,9 +110,9 @@ export class SydModel extends StatelessModel<SydModelState> {
             case GlobalActionName.RequestQueryResponse:
                 this.api.call(stateToArgs(
                     state,
-                    this.mainForm.getState().query.value,
-                    this.mainForm.getState().query2.value)
-                )
+                    this.queries.get(0).get(0).word, // TODO !!!
+                    this.queries.slice(1).map(lvList => lvList.get(0).word).toList() // TODO
+                ))
             .subscribe(
                 (data) => {
                     seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({

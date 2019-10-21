@@ -28,13 +28,13 @@ import { DataRow } from '../../../common/api/kontext/freqs';
 import { KontextTimeDistribApi } from '../../../common/api/kontext/timeDistrib';
 import { GeneralSingleCritFreqBarModelState } from '../../../common/models/freq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
-import { QueryFormModel, findCurrLemmaVariant } from '../../../models/query';
+import { findCurrLemmaVariant } from '../../../models/query';
 import { ConcLoadedPayload } from '../concordance/actions';
 import { DataItemWithWCI, DataLoadedPayload, SubchartID } from './common';
 import { AlphaLevel, wilsonConfInterval } from './stat';
 import { Actions, ActionName } from './common';
 import { callWithExtraVal } from '../../../common/api/util';
-import { LemmaVariant } from '../../../common/query';
+import { LemmaVariant, RecognizedQueries } from '../../../common/query';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { HTTPMethod } from '../../../common/types';
 
@@ -111,8 +111,9 @@ export interface TimeDistribModelArgs {
     api:KontextTimeDistribApi;
     concApi:ConcApi;
     appServices:AppServices;
-    mainForm:QueryFormModel;
+    queries:RecognizedQueries;
     backlink:Backlink;
+    queryLang:string;
 }
 
 /**
@@ -130,21 +131,24 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private readonly waitForTile:number;
 
-    private readonly mainForm:QueryFormModel;
+    private readonly queries:RecognizedQueries;
+
+    private readonly queryLang:string;
 
     private readonly backlink:Backlink;
 
     private unfinishedChunks:Immutable.Map<string, boolean>; // subcname => done
 
     constructor({dispatcher, initState, tileId, waitForTile, api,
-                concApi, appServices, mainForm, backlink}) {
+                concApi, appServices, queries, queryLang, backlink}) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.api = api;
         this.concApi = concApi;
         this.waitForTile = waitForTile;
         this.appServices = appServices;
-        this.mainForm = mainForm;
+        this.queries = queries;
+        this.queryLang = queryLang;
         this.backlink = backlink;
         this.unfinishedChunks = Immutable.Map<string, boolean>(initState.subcnames.flatMap(
                 v => Immutable.List([[this.mkChunkId(v, SubchartID.MAIN), false], [this.mkChunkId(v, SubchartID.SECONDARY), false]])));
@@ -499,22 +503,20 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
     sideEffects(state:TimeDistribModelState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse: {
-                const formState = this.mainForm.getState();
                 this.loadData(
                     state,
                     dispatch,
                     SubchartID.MAIN,
-                    rxOf(findCurrLemmaVariant(formState.lemmas))
+                    rxOf(findCurrLemmaVariant(this.queries.get(0)))
                 );
             }
             break;
             case ActionName.SubmitCmpWord: {
-                const formState = this.mainForm.getState();
                 this.loadData(
                     state,
                     dispatch,
                     SubchartID.SECONDARY,
-                    this.appServices.queryLemmaDbApi(formState.queryLanguage, state.wordCmp).pipe(
+                    this.appServices.queryLemmaDbApi(this.queryLang, state.wordCmp).pipe(
                         map(v => v.result[0])
                     )
                 );

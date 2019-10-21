@@ -23,7 +23,7 @@ import { SubqueryModeConf } from '../../../common/models/freq';
 import { QueryType } from '../../../common/query';
 import { TileComponent, TileConf, TileFactory, ITileProvider } from '../../../common/tile';
 import { GlobalComponents } from '../../../views/global';
-import { factory as defaultModelFactory, MatchingDocsModel } from './model';
+import { MatchingDocsModel } from './model';
 import { init as viewInit } from './view';
 import { createMatchingDocsApiInstance } from './apiFactory';
 import { DataRow } from '../../../common/api/abstract/matchingDocs';
@@ -72,22 +72,21 @@ export class MatchingDocsTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({dispatcher, tileId, waitForTiles, subqSourceTiles, ut, theme, appServices, widthFract, conf, isBusy, cache, mainForm}:TileFactory.Args<MatchingDocsTileConf>) {
+    constructor({dispatcher, tileId, waitForTiles, subqSourceTiles, ut, theme, appServices, widthFract, conf, isBusy, cache, queries}:TileFactory.Args<MatchingDocsTileConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
         this.appServices = appServices;
         this.blockingTiles = waitForTiles;
 
-        const modelFact = defaultModelFactory;
-        this.model = modelFact(
-            this.dispatcher,
+        this.model = new MatchingDocsModel({
+            dispatcher: this.dispatcher,
             tileId,
             waitForTiles,
             subqSourceTiles,
             appServices,
-            createMatchingDocsApiInstance(conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL), cache),
-            {
+            api: createMatchingDocsApiInstance(conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL), cache),
+            initState: {
                 isBusy: isBusy,
                 isTweakMode: false,
                 error: null,
@@ -103,8 +102,8 @@ export class MatchingDocsTile implements ITileProvider {
                 backlink: null,
                 subqSyncPalette: false
             },
-            mainForm
-        );
+            queries
+        });
         this.label = appServices.importExternalMessage(conf.label || 'matchingDocs__main_label');
         this.view = viewInit(this.dispatcher, ut, theme, this.model);
     }

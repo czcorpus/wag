@@ -29,8 +29,8 @@ import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { DataRow, CollocationApi } from '../../../common/api/abstract/collocations';
 import { CollocModelState, ctxToRange } from '../../../common/models/collocations';
 import { CoreCollRequestArgs } from '../../../common/api/kontext/collocations';
-import { QueryFormModel, findCurrLemmaVariant } from '../../../models/query';
-import { LemmaVariant } from '../../../common/query';
+import { findCurrLemmaVariant } from '../../../models/query';
+import { LemmaVariant, RecognizedQueries } from '../../../common/query';
 
 
 export interface CollocModelArgs {
@@ -40,7 +40,7 @@ export interface CollocModelArgs {
     service:CollocationApi<{}>;
     initState:CollocModelState;
     waitForTile:number;
-    mainForm:QueryFormModel;
+    queries:RecognizedQueries;
     backlink:Backlink;
 }
 
@@ -56,7 +56,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
 
     private readonly waitForTile:number;
 
-    private readonly mainForm:QueryFormModel;
+    private readonly queries:RecognizedQueries;
 
     private readonly measureMap = {
         't': 'T-score',
@@ -71,14 +71,14 @@ export class CollocModel extends StatelessModel<CollocModelState> {
 
     private readonly backlink:Backlink;
 
-    constructor({dispatcher, tileId, waitForTile, appServices, service, initState, backlink, mainForm}:CollocModelArgs) {
+    constructor({dispatcher, tileId, waitForTile, appServices, service, initState, backlink, queries}:CollocModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.waitForTile = waitForTile;
         this.appServices = appServices;
         this.service = service;
         this.backlink = backlink;
-        this.mainForm = mainForm;
+        this.queries = queries;
         this.actionMatch = {
             [GlobalActionName.EnableTileTweakMode]: (state, action:GlobalActions.EnableTileTweakMode) => {
                 if (action.payload.ident === this.tileId) {
@@ -264,8 +264,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                     );
 
                 } else {
-                    const formState = this.mainForm.getState();
-                    const variant = findCurrLemmaVariant(formState.lemmas);
+                    const variant = findCurrLemmaVariant(this.queries.get(0));
                     this.requestData(state, variant, null, seDispatch);
                 }
             break;

@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+import { List } from 'immutable';
+
 
 export enum QueryType {
     SINGLE_QUERY = 'single',
@@ -64,11 +66,19 @@ export interface LemmaVariant {
     isNonDict?:boolean;
 }
 
-export function testIsDictQuery(lemmas:Array<LemmaVariant>|LemmaVariant):boolean {
-    if (Array.isArray(lemmas)) {
-        return lemmas.length > 1 || !lemmas[0].isNonDict;
+/**
+ * For each query (1st array dimension) we provide possibly multiple
+ * lemma variants (2nd array dimension).
+ */
+export type RecognizedQueries = List<List<LemmaVariant>>;
+
+
+export function testIsDictQuery(lemmas:List<LemmaVariant>|LemmaVariant):boolean {
+    if (List.isList(lemmas)) {
+        const tmp = lemmas as List<LemmaVariant>;
+        return tmp.size > 1 || !tmp.get(0).isNonDict;
     }
-    return !lemmas.isNonDict;
+    return !(lemmas as LemmaVariant).isNonDict;
 }
 
 export function matchesPos(lv:LemmaVariant, pos:Array<QueryPoS>):boolean {
@@ -89,7 +99,7 @@ const MERGE_CANDIDATE_MIN_DIFF_RATIO = 100;
  * For further processing we have to merge those items into a single LemmaVariant instance
  * with pos = [all the individual PoS values].
  */
-export function findMergeableLemmas(variants:Array<LemmaVariant>):Array<LemmaVariant> {
+export function findMergeableLemmas(variants:Array<LemmaVariant>):List<LemmaVariant> {
     const mapping:{[key:string]:Array<{pos:{value:QueryPoS; label:string}; abs:number; form:string; arf:number}>} = {};
     variants.forEach(item => {
         if (!(item.lemma in mapping)) {
@@ -121,7 +131,7 @@ export function findMergeableLemmas(variants:Array<LemmaVariant>):Array<LemmaVar
             ans.push(item);
         }
     });
-    return ans;
+    return List(ans);
 }
 
 export enum QueryPoS {

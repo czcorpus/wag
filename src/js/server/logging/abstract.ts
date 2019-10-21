@@ -17,7 +17,6 @@
  */
 
 import { Observable } from 'rxjs';
-import { QueryPoS } from '../../common/query';
 
 /**
  * The format is intentionally based on KonText log format to make
@@ -39,7 +38,7 @@ export interface LogRecord {
         queryType:string;
         query1Lang:string;
         query2Lang:string|null;
-        queryPos:Array<QueryPoS>|null;
+        queryPos:Array<string>|null;
         query:Array<string>|null;
         error:string|null;
    };

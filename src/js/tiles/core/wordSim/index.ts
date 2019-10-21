@@ -68,7 +68,7 @@ export class WordSimTile implements ITileProvider {
     private readonly api:WordSimApi<{}>;
 
     constructor({tileId, waitForTiles, subqSourceTiles, dispatcher, appServices, ut, widthFract, conf, theme,
-            isBusy, cache, lang2, mainForm}:TileFactory.Args<WordSimTileConf>) {
+            isBusy, cache, lang2, queries}:TileFactory.Args<WordSimTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.appServices = appServices;
@@ -76,9 +76,9 @@ export class WordSimTile implements ITileProvider {
         this.widthFract = widthFract;
         this.label = appServices.importExternalMessage(conf.label || 'wordsim__main_label');
         this.api = createWordSimApiInstance(conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL), cache);
-        this.model = new WordSimModel(
+        this.model = new WordSimModel({
             dispatcher,
-            {
+            initState: {
                 isBusy: isBusy,
                 isMobile: appServices.isMobileMode(),
                 isAltViewMode: false,
@@ -91,9 +91,9 @@ export class WordSimTile implements ITileProvider {
                 minScore: conf.minScore || 0
             },
             tileId,
-            this.api,
-            mainForm
-        );
+            api: this.api,
+            queries
+        });
         this.view = viewInit(dispatcher, ut, theme, this.model);
     }
 

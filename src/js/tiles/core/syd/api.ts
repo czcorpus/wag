@@ -177,7 +177,7 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
 
                             return ajax$<FreqsHTTPResponse>(
                                 'GET',
-                                this.apiURL,
+                                this.apiURL + '/freqs',
                                 args1,
                                 {headers: this.customHeaders}
 

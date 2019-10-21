@@ -57,14 +57,14 @@ export class WordFreqTile implements ITileProvider {
 
     private readonly view:TileComponent;
 
-    constructor({tileId, dispatcher, appServices, ut, mainForm, widthFract, conf, isBusy, cache}:TileFactory.Args<WordFreqTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, queries, lang1, widthFract, conf, isBusy, cache}:TileFactory.Args<WordFreqTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
         this.label = this.appServices.importExternalMessage(conf.label);
-        this.model = new SummaryModel(
+        this.model = new SummaryModel({
             dispatcher,
-            {
+            initialState: {
                 isBusy: isBusy,
                 error: null,
                 corpname: conf.corpname,
@@ -76,10 +76,11 @@ export class WordFreqTile implements ITileProvider {
                 )
             },
             tileId,
-            new FreqDbAPI(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
-            mainForm,
+            api: new FreqDbAPI(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            queries,
+            queryLang: lang1,
             appServices
-        );
+        });
         this.label = appServices.importExternalMessage(conf.label || 'freqpie__main_label');
         this.view = viewInit(dispatcher, ut, this.model);
     }
