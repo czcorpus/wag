@@ -149,7 +149,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
             break;
             case GlobalActionName.GetSourceInfo:
                 if (action.payload['tileId'] === this.tileId) {
-                    this.api.getSourceDescription(this.tileId).subscribe(
+                    this.api.getSourceDescription(this.tileId, state.corpus).subscribe(
                         (data) => {
                             seDispatch({
                                 name: GlobalActionName.GetSourceInfoDone,

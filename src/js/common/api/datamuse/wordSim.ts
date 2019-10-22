@@ -66,7 +66,7 @@ export class DatamuseMLApi implements WordSimApi<DatamuseMLApiArgs|DatamuseSLApi
         return true;
     }
 
-    getSourceDescription(tileId:number):Observable<SourceDetails> {
+    getSourceDescription(tileId:number, corpname:string):Observable<SourceDetails> {
         return rxOf({
             tileId: tileId,
             title: 'Datamuse.com',

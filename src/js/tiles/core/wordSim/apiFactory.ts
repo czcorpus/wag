@@ -21,10 +21,13 @@ import { CoreApiGroup } from '../../../common/api/coreGroups';
 import { DatamuseMLApi } from '../../../common/api/datamuse/wordSim';
 import { WordSimApi } from '../../../common/api/abstract/wordSim';
 import { LccCoocSimApi } from '../../../common/api/lcc/wordSim';
+import { CNCWord2VecSimApi } from '../../../common/api/wdglance/wordSim';
 
 
-export function createWordSimApiInstance(apiIdent:string, apiURL:string, apiHeaders:HTTPHeaders, cache:IAsyncKeyValueStore):WordSimApi<{}> {
+export function createWordSimApiInstance(apiIdent:string, apiURL:string, srcInfoURL:string, apiHeaders:HTTPHeaders, cache:IAsyncKeyValueStore):WordSimApi<{}> {
 	switch (apiIdent) {
+		case CoreApiGroup.WDGLANCE:
+			return new CNCWord2VecSimApi(cache, apiURL, srcInfoURL, apiHeaders);
         case CoreApiGroup.DATAMUSE:
 			return new DatamuseMLApi(cache, apiURL, apiHeaders);
 		case CoreApiGroup.LCC:

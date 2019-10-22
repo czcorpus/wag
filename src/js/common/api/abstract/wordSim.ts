@@ -36,5 +36,5 @@ export interface WordSimApi<T> extends DataApi<T, WordSimApiResponse> {
 
     supportsTweaking():boolean;
 
-    getSourceDescription(tileId:number):Observable<SourceDetails>;
+    getSourceDescription(tileId:number, corpname:string):Observable<SourceDetails>;
 }
