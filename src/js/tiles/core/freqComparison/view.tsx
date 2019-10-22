@@ -149,7 +149,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
 
         render() {
-            const chartsViewBoxWidth = this.props.isMobile ? '100%' : `${95 / Math.min(this.props.blocks.size, this.props.maxChartsPerLine)}%`;
+            const chartsViewBoxWidth = this.props.isMobile ? '100%' : `${100 / Math.min(this.props.blocks.size, this.props.maxChartsPerLine)}%`;
             return (
                 <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.blocks.find(v => v.isReady) !== undefined}
@@ -161,7 +161,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             {this.props.blocks.filter(block => block.isReady).map(block => {
                                 const chartWidth = this.props.isMobile ? (this.props.renderSize[0] * 0.9).toFixed() : "90%";
                                 return  (
-                                    <div key={block.ident} style={{width: chartsViewBoxWidth, flexGrow: 1, height: "100%"}}>
+                                    <div key={block.ident} style={{width: chartsViewBoxWidth, height: "100%"}}>
                                         <h3>{block.label}</h3>
                                         {block.data.size > 0 ?
                                             <Chart data={block.data} words={block.words} width={chartWidth} height={70 + block.data.groupBy(x => x.name).size * 25}

@@ -214,7 +214,7 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                 newState.datalessGroups = newState.datalessGroups.clear();
                 return newState;
             },
-            [ActionName.TileDataLoaded]: (state, action:Actions.TileDataLoaded<{}>) => {
+            [ActionName.TileDataLoaded]: (state, action:Actions.TileDataLoaded<{}>) => {                
                 const newState = this.copyState(state);
                 const srchIdx = newState.tileResultFlags.findIndex(v => v.tileId === action.payload.tileId);
                 if (srchIdx > -1) {

@@ -18,7 +18,7 @@
 import * as Immutable from 'immutable';
 import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { Observable, Observer } from 'rxjs';
-import { concatMap, map } from 'rxjs/operators';
+import { map, mergeMap, scan } from 'rxjs/operators';
 
 import { AppServices } from '../../../appServices';
 import { BacklinkArgs, DataRow, FreqComparisonAPI, APIBlockResponse } from '../../../common/api/kontext/freqComparison';
@@ -79,55 +79,54 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                 return newState;
             },
             [ActionName.SetActiveBlock]: (state, action:Actions.SetActiveBlock) => {
-                if (action.payload.tileId === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.activeBlock = action.payload.idx;
-                    return newState;
-                }
-                return state;
+                const newState = this.copyState(state);
+                newState.activeBlock = action.payload.idx;
+                return newState;
             },
-            [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<DataLoadedPayload>) => {
-                if (action.payload.tileId === this.tileId) {
-                    const newState = this.copyState(state);
-                    if (action.error) {
-                        newState.blocks = Immutable.List<FreqComparisonDataBlock<DataRow>>(state.fcrit.map((_, i) => ({
-                            data: Immutable.List<FreqComparisonDataBlock<DataRow>>(),
-                            words: Immutable.List<string>(),
-                            ident: puid(),
-                            label: action.payload.blockLabel ? action.payload.blockLabel : state.critLabels.get(i),
-                            isReady: false
-                        })));
-                        newState.error = action.error.message;
-                        newState.isBusy = false;
+            [ActionName.PartialDataLoaded]: (state, action:GlobalActions.TileDataLoaded<DataLoadedPayload>) => {
+                const newState = this.copyState(state);
+                if (action.error) {
+                    newState.blocks = Immutable.List<FreqComparisonDataBlock<DataRow>>(state.fcrit.map((_, i) => ({
+                        data: Immutable.List<FreqComparisonDataBlock<DataRow>>(),
+                        words: Immutable.List<string>(),
+                        ident: puid(),
+                        label: action.payload.blockLabel ? action.payload.blockLabel : state.critLabels.get(i),
+                        isReady: false
+                    })));
+                    newState.error = action.error.message;
+                    newState.isBusy = false;
 
-                    } else {
-                        const newData = action.payload.block.data ? newState.blocks.get(action.payload.critIdx).data.concat(
+                } else {
+                    // data for these words were requested (some words can have no data)
+                    // also data are rendered in this order of words, we order it so it corresponds to inputs
+                    const newWords = newState.blocks.get(action.payload.critIdx).words.push(action.payload.lemma.word).sortBy(
+                        word => this.lemmas.findKey(variants => variants.some(lemma => lemma.word === word))
+                    ).toList();
+                    const newData = action.payload.isEmpty ? newState.blocks.get(action.payload.critIdx).data :
+                        newState.blocks.get(action.payload.critIdx).data.concat(
                             Immutable.List<DataRow>(action.payload.block.data.map(v => ({
                                 name: this.appServices.translateDbValue(state.corpname, v.name),
                                 freq: v.freq,
                                 ipm: v.ipm,
                                 word: action.payload.lemma.word
-                            })))).toList() : newState.blocks.get(action.payload.critIdx).data;
-                        const newWords = newState.blocks.get(action.payload.critIdx).words.push(action.payload.lemma.word);
+                            })))).toList();
 
-                        newState.blocks = newState.blocks.set(
-                            action.payload.critIdx,
-                            {
-                                data: newData,
-                                words: newWords,
-                                ident: puid(),
-                                label: this.appServices.importExternalMessage(
-                                    action.payload.blockLabel ? action.payload.blockLabel : state.critLabels.get(action.payload.critIdx)),
-                                isReady: newWords.size === this.lemmas.size
-                            }
-                        );
-                        
-                        newState.isBusy = !newState.blocks.some(v => v.isReady);
-                        newState.backlink = null;
-                    }
-                    return newState;
+                    newState.blocks = newState.blocks.set(
+                        action.payload.critIdx,
+                        {
+                            data: newData,
+                            words: newWords,
+                            ident: puid(),
+                            label: this.appServices.importExternalMessage(
+                                action.payload.blockLabel ? action.payload.blockLabel : state.critLabels.get(action.payload.critIdx)),
+                            isReady: newWords.size === this.lemmas.size
+                        }
+                    );
+                    
+                    newState.isBusy = newState.blocks.some(v => !v.isReady);
+                    newState.backlink = null;
                 }
-                return state;
+                return newState;
             }
         }
     }
@@ -135,24 +134,42 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
     sideEffects(state:FreqComparisonModelState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
-                new Observable((observer:Observer<[number, LemmaVariant]>) => {
+                const requests = new Observable((observer:Observer<[number, LemmaVariant]>) => {
                     state.fcrit.keySeq().forEach(critIdx => {
                         this.lemmas.forEach(lemma => {                            
                             observer.next([critIdx, findCurrLemmaVariant(lemma)]);
                         });
                     });
+                    observer.complete();
                 }).pipe(
-                    concatMap(([critIdx, lemma]) => 
-                        this.api.call(stateToAPIArgs(state, critIdx), lemma).pipe(map(v => [v, critIdx, lemma] as [APIBlockResponse, number, LemmaVariant]))
+                    mergeMap(([critIdx, lemma]) => 
+                        this.api.call(
+                            stateToAPIArgs(state, critIdx),
+                            lemma
+                        ).pipe(
+                            map(v => [v, critIdx, lemma] as [APIBlockResponse, number, LemmaVariant])
+                        )
                     )
-                )
-                .subscribe(
-                    ([resp, critIdx, lemma]) => {
-                        dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                );
+
+                requests.pipe(scan((acc, value) => acc && value[0].blocks.every(v => v.data.length === 0), true)).subscribe(
+                    isEmpty => {
+                        dispatch<GlobalActions.TileDataLoaded<{}>>({
                             name: GlobalActionName.TileDataLoaded,
                             payload: {
                                 tileId: this.tileId,
-                                isEmpty: resp.blocks.every(v => v.data.length === 0),
+                                isEmpty: isEmpty
+                            }
+                        });
+                    }
+                );
+
+                requests.subscribe(
+                    ([resp, critIdx, lemma]) => {
+                        dispatch<Actions.PartialDataLoaded<DataLoadedPayload>>({
+                            name: ActionName.PartialDataLoaded,
+                            payload: {
+                                tileId: this.tileId,
                                 block: {data: resp.blocks[0].data.sort((x1, x2) => x2.ipm - x1.ipm).slice(0, state.fmaxitems)},
                                 critIdx: critIdx,
                                 lemma: lemma
@@ -160,14 +177,21 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                         });
                     },
                     error => {
-                        dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                            name: GlobalActionName.TileDataLoaded,
+                        dispatch<Actions.PartialDataLoaded<DataLoadedPayload>>({
+                            name: ActionName.PartialDataLoaded,
                             payload: {
                                 tileId: this.tileId,
-                                isEmpty: true,
                                 block: null,
                                 critIdx: null,
                                 lemma: null
+                            },
+                            error: error
+                        });
+                        dispatch<GlobalActions.TileDataLoaded<{}>>({
+                            name: GlobalActionName.TileDataLoaded,
+                            payload: {
+                                tileId: this.tileId,
+                                isEmpty: true
                             },
                             error: error
                         });
@@ -191,7 +215,6 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                             dispatch({
                                 name: GlobalActionName.GetSourceInfoDone,
                                 error: err
-
                             });
                         }
                     );

@@ -133,12 +133,12 @@ export class FreqComparisonAPI implements WordDataApi<MultiCritQueryArgs, APIBlo
     }
 
     prepareCQL(lemma:LemmaVariant):string {
-        if (lemma.lemma) {
-            const posPart = lemma.pos.length > 0 ? ' & (' + lemma.pos.map(v => `pos="${v.value}"`).join(' | ') + ')' : '';
-            return `[word="${lemma.word}" ${posPart}]`
-        } else {
+        if (lemma.isNonDict) {
             const words = lemma.word.split(' ')
             return words.map(part => `[word="${part}"]`).join('')
+        } else {
+            const posPart = lemma.pos.length > 0 ? ' & (' + lemma.pos.map(v => `pos="${v.value}"`).join(' | ') + ')' : '';
+            return `[word="${lemma.word}" ${posPart}]`
         }
     }
 
