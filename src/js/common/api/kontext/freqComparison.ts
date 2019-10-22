@@ -132,11 +132,21 @@ export class FreqComparisonAPI implements WordDataApi<MultiCritQueryArgs, APIBlo
         });
     }
 
+    prepareCQL(lemma:LemmaVariant):string {
+        if (lemma.lemma) {
+            const posPart = lemma.pos.length > 0 ? ' & (' + lemma.pos.map(v => `pos="${v.value}"`).join(' | ') + ')' : '';
+            return `[word="${lemma.word}" ${posPart}]`
+        } else {
+            const words = lemma.word.split(' ')
+            return words.map(part => `[word="${part}"]`).join('')
+        }
+    }
+
     call(args:MultiCritQueryArgs, lemma:LemmaVariant):Observable<APIBlockResponse> {
         return this.concApi.call({
             corpname: args.corpname,
             queryselector: QuerySelector.CQL,
-            cql: lemma.word.split(' ').map(part => `[word="${part}"]`).join(''),
+            cql: this.prepareCQL(lemma),
             kwicleftctx: '0',
             kwicrightctx: '0',
             async: '0',
