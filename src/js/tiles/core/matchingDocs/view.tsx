@@ -80,6 +80,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         from:number;
         to:number;
     }> = (props) => {
+
         return (
             <table className="data">
                 <thead>
@@ -93,7 +94,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     {props.data.map((row, i) => {
                         if (i >= props.from && i < props.to) {
                             return <tr key={`${i}:${row.name}`}>
-                                <td className="row_num">{i+1}</td>
+                                <td className="rowNum num">{i+1}.</td>
                                 <td className="document">{row.name}</td>
                                 <td className="num score">{ut.formatNumber(row.score)}</td>
                             </tr>
