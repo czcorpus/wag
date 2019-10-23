@@ -22,6 +22,7 @@ using miscellaneous online lingustic tools, corpora and databases.
 | concFilter        |           | :star:  |        |        |            |            |             |         |
 | concordance       |           | :star:  |        |        | :star:     |            |             | :construction: |
 | freqBar           |           | :star:  |        |        |            |            |             |         |
+| freqComparison    |           | :star:  |        |        |            |            |             |         |
 | freqPie           |           | :star:  |        |        |            |            |             |         |
 | geoAreas          |           | :star:  |        |        |            |            |             |         |
 | html              |           | :star:  | :star: |        |            |            |             |         |
@@ -33,7 +34,7 @@ using miscellaneous online lingustic tools, corpora and databases.
 | treqSubsets       |           |         |        | :star: |            |            |             |         |
 | wordForms         | :star:    | :star:  |        |        |            |            |             |         |
 | wordFreq          | :star:    | :star:  |        |        |            |            |             |         |
-| wordSim           | :construction: |    |        |        |            |  :star:    |             | :star: | 
+| wordSim           | :star:    |    |        |        |            |  :star:    |             | :star: | 
 
 
 ## Requirements
