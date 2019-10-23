@@ -103,7 +103,7 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
                     name: GlobalActionName.TileDataLoaded,
                     payload: {
                         tileId: this.tileId,
-                        isEmpty: Boolean(data),
+                        isEmpty: !data,
                         data: data,
                     }
                 });
