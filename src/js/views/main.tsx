@@ -710,29 +710,31 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         }
                         </div>
                     </header>
-                    <div className="provider" ref={this.ref}>
-                        <globalComponents.ErrorBoundary>
-                            {this.props.supportsCurrQuery ?
-                                <this.props.tile.Component
-                                        tileId={this.props.tile.tileId}
-                                        tileName={this.props.tile.tileName}
-                                        renderSize={this.props.tile.renderSize}
-                                        isMobile={this.props.isMobile}
-                                        widthFract={this.props.tile.widthFract}
-                                        supportsReloadOnError={this.props.tile.supportsReloadOnError} /> :
-                                <div className="TileWrapper empty">
-                                    <div className="loader-wrapper"></div>
-                                    <div className="cnc-tile-body content empty">
-                                        <div className="message">
-                                            <globalComponents.MessageStatusIcon statusType={SystemMessageType.WARNING} isInline={false} />
-                                            <p>
-                                                {ut.translate('global__query_not_supported')}
-                                            </p>
+                    <div className="provider" ref={this.ref} style={this.props.tile.maxTileHeight ? {overflow: 'auto'} : {}}>
+                        <div style={this.props.tile.maxTileHeight ? {maxHeight: this.props.tile.maxTileHeight} : {}}>
+                            <globalComponents.ErrorBoundary>
+                                {this.props.supportsCurrQuery ?
+                                    <this.props.tile.Component
+                                            tileId={this.props.tile.tileId}
+                                            tileName={this.props.tile.tileName}
+                                            renderSize={this.props.tile.renderSize}
+                                            isMobile={this.props.isMobile}
+                                            widthFract={this.props.tile.widthFract}
+                                            supportsReloadOnError={this.props.tile.supportsReloadOnError} /> :
+                                    <div className="TileWrapper empty">
+                                        <div className="loader-wrapper"></div>
+                                        <div className="cnc-tile-body content empty">
+                                            <div className="message">
+                                                <globalComponents.MessageStatusIcon statusType={SystemMessageType.WARNING} isInline={false} />
+                                                <p>
+                                                    {ut.translate('global__query_not_supported')}
+                                                </p>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            }
-                        </globalComponents.ErrorBoundary>
+                                }
+                            </globalComponents.ErrorBoundary>
+                        </div>
                     </div>
                 </section>
             );

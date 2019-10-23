@@ -37,7 +37,6 @@ export interface HtmlTileConf extends TileConf {
     apiURL:string;
     apiType:HtmlApiType;
     sanitizeHTML?:boolean;
-    maxTileHeight?:string;
     args?:{[key:string]:string};
     lemmaArg?:string;
 }
@@ -82,7 +81,6 @@ export class HtmlTile implements ITileProvider {
             appServices: appServices,
             service: new ServiceClass(cache, conf.apiURL),
             lemmas: lemmas,
-            maxTileHeight: conf.maxTileHeight,
             initState: {
                 isBusy: isBusy,
                 tileId: tileId,

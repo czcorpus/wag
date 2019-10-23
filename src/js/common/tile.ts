@@ -108,6 +108,13 @@ export interface TileConf {
     label?:LocalizedConfMsg;
 
     srcInfoURL?:string;
+
+    /**
+     * Defines tile max height using a css value (e.g. '10em', '130px').
+     * If other tiles in the row enforce more height, the value is ignored
+     * (but a possible scrollbar is still applied if needed).
+     */
+    maxTileHeight?:string;
 }
 
 /**
@@ -160,6 +167,8 @@ export interface TileFrameProps {
     widthFract:number;
 
     supportsReloadOnError:boolean;
+
+    maxTileHeight:string;
 }
 
 /**

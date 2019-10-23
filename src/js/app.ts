@@ -43,7 +43,7 @@ import { mkTileFactory } from './tileLoader';
 
 
 const mkAttachTile = (queryType:QueryType, isDictQuery:boolean, lang1:string, lang2:string) =>
-    (data:Array<TileFrameProps>, tileName:string, tile:ITileProvider, helpURL:string):void => {
+    (data:Array<TileFrameProps>, tileName:string, tile:ITileProvider, helpURL:string, maxTileHeight:string):void => {
         const support = tile.supportsQueryType(queryType, lang1, lang2) && (isDictQuery || tile.supportsNonDictQueries());
         data.push({
             tileId: tile.getIdent(),
@@ -57,6 +57,7 @@ const mkAttachTile = (queryType:QueryType, isDictQuery:boolean, lang1:string, la
             supportsAltView: tile.supportsAltView(),
             renderSize: [50, 50],
             widthFract: tile.getWidthFract(),
+            maxTileHeight: maxTileHeight,
             helpURL: helpURL,
             supportsReloadOnError: tile.exposeModel() !== null // TODO this inference is debatable
         });
@@ -144,7 +145,8 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
             tiles,
             tileId,
             tile,
-            appServices.importExternalMessage(config.tiles[tileId].helpURL)
+            appServices.importExternalMessage(config.tiles[tileId].helpURL),
+            config.tiles[tileId].maxTileHeight
         );
         const model = tile.exposeModel();
         retryLoadModel.registerModel(
