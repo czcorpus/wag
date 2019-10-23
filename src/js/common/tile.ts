@@ -107,6 +107,11 @@ export interface TileConf {
      */
     label?:LocalizedConfMsg;
 
+    /**
+     * If needed, a specific address for a resource information can be defined.
+     * (e.g. you still want to use KonText as a corpus information provider
+     * for a non-KonText service).
+     */
     srcInfoURL?:string;
 
     /**
