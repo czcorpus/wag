@@ -49,6 +49,7 @@ interface ElasticsearchQueryArgs {
     _source: string;
     sort: string;
     size: number;
+    displayAttrs:Array<string>;
 }
 
 
@@ -60,13 +61,10 @@ export class ElasticsearchMatchingDocsAPI implements MatchingDocsAPI<Elasticsear
 
     private readonly cache:IAsyncKeyValueStore;
 
-    private displayAttrs:Immutable.List<string>;
-
     constructor(cache:IAsyncKeyValueStore, apiURL:string, customHeaders?:HTTPHeaders) {
         this.cache = cache;
         this.apiURL = apiURL;
         this.customHeaders = customHeaders || {};
-        this.displayAttrs = Immutable.List([]);
     }
 
     stateToBacklink(state:MatchingDocsModelState, query:string):null {
@@ -74,10 +72,10 @@ export class ElasticsearchMatchingDocsAPI implements MatchingDocsAPI<Elasticsear
     }
 
     stateToArgs(state:MatchingDocsModelState, query:string):ElasticsearchQueryArgs {
-        this.displayAttrs = state.displayAttrs;
         return {
             q: state.searchAttrs.map(value => `${value}:${query}`).join(' OR '),
-            _source: state.displayAttrs.join(','),
+            displayAttrs: state.displayAttrs.toArray(),
+            _source: state.searchAttrs.join(','),
             sort: '_score:desc',
             size: state.maxNumCategories
         }
@@ -96,7 +94,7 @@ export class ElasticsearchMatchingDocsAPI implements MatchingDocsAPI<Elasticsear
         ).pipe(
             map<HTTPResponse, APIResponse>(resp => ({
                 data: resp.hits.hits.map(v => ({
-                        name: this.displayAttrs.map(attr => {
+                        name: args.displayAttrs.map(attr => {
                                 let item:any = v._source;
                                 for (let index of attr.split('.')) {item = item[index]}
                                 return item;

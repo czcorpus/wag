@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { Action, SEDispatcher, StatelessModel, IActionQueue, IActionDispatcher } from 'kombo';
+import { Action, SEDispatcher, StatelessModel, IActionDispatcher } from 'kombo';
 import { Observable, Observer } from 'rxjs';
-import { flatMap } from 'rxjs/operators';
+import { concatMap } from 'rxjs/operators';
 
 import { AppServices } from '../../../appServices';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
@@ -31,7 +31,7 @@ import { RecognizedQueries } from '../../../common/query';
 
 
 export interface MatchingDocsModelArgs {
-    dispatcher:IActionQueue;
+    dispatcher:IActionDispatcher;
     tileId:number;
     waitForTiles:Array<number>;
     subqSourceTiles:Array<number>;
@@ -115,13 +115,14 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState> {
                         newState.error = action.error.message;
                         newState.isBusy = false;
                         newState.backlink = action.payload.backlink;
+
                     } else {
                         newState.data = Immutable.List<DataRow>(action.payload.data.map(v => ({
                             name: this.appServices.translateDbValue(state.corpname, v.name),
                             score: v.score
                         })));
                         newState.currPage = 1;
-                        newState.numPages = Math.ceil(newState.data.size/newState.maxNumCategoriesPerPage);
+                        newState.numPages = Math.ceil(newState.data.size / newState.maxNumCategoriesPerPage);
                         newState.isBusy = false;
                         newState.backlink = action.payload.backlink;
                     }
@@ -141,15 +142,19 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState> {
                         if (action.name === GlobalActionName.TileDataLoaded && this.waitForTiles.has(action.payload['tileId'])) {
                             const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
                             this.waitForTiles = this.waitForTiles.set(payload.tileId, false);
-                            new Observable((observer:Observer<number>) => {
+                            new Observable((observer:Observer<boolean>) => {
                                 if (action.error) {
                                     observer.error(new Error(this.appServices.translate('global__failed_to_obtain_required_data')));
+
                                 } else {
-                                    observer.next(1);
+                                    observer.next(true);
                                     observer.complete();
                                 }
-                            }).pipe(flatMap(_ => this.api.call(this.api.stateToArgs(state, payload.data.concPersistenceID))))
-                            .subscribe(
+
+                            }).pipe(
+                                concatMap(_ => this.api.call(this.api.stateToArgs(state, payload.data.concPersistenceID)))
+
+                            ).subscribe(
                                 (resp) => {
                                     dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
                                         name: GlobalActionName.TileDataLoaded,

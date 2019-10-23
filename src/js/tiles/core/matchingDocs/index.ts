@@ -19,7 +19,6 @@ import * as Immutable from 'immutable';
 import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
 
 import { AppServices } from '../../../appServices';
-import { SubqueryModeConf } from '../../../common/models/freq';
 import { QueryType } from '../../../common/query';
 import { TileComponent, TileConf, TileFactory, ITileProvider } from '../../../common/tile';
 import { GlobalComponents } from '../../../views/global';
@@ -42,21 +41,12 @@ export interface MatchingDocsTileConf extends TileConf {
     searchAttrs?:string|Array<string>;
     maxNumCategories:number;
     maxNumCategoriesPerPage:number;
-
-    // if defined, then we wait for some other
-    // tile which produces payload extended
-    // from SubqueryPayload. This tile will
-    // perform provided subqueries, and
-    // obtains respective freq. distributions.
-    subqueryMode?:SubqueryModeConf;
 }
 
 
 export class MatchingDocsTile implements ITileProvider {
 
     private readonly dispatcher:IActionDispatcher;
-
-    private readonly ut:ViewUtils<GlobalComponents>;
 
     private readonly model:MatchingDocsModel;
 
@@ -68,15 +58,12 @@ export class MatchingDocsTile implements ITileProvider {
 
     private readonly widthFract:number;
 
-    private readonly appServices:AppServices;
-
     private readonly blockingTiles:Array<number>;
 
     constructor({dispatcher, tileId, waitForTiles, subqSourceTiles, ut, theme, appServices, widthFract, conf, isBusy, cache, lemmas}:TileFactory.Args<MatchingDocsTileConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
-        this.appServices = appServices;
         this.blockingTiles = waitForTiles;
 
         this.model = new MatchingDocsModel({
@@ -97,8 +84,8 @@ export class MatchingDocsTile implements ITileProvider {
                 searchAttrs: conf.searchAttrs ? Immutable.List<string>(typeof conf.searchAttrs === 'string' ? [conf.searchAttrs] : conf.searchAttrs) : null,
                 currPage: null,
                 numPages: null,
-                maxNumCategories: conf.maxNumCategories,
-                maxNumCategoriesPerPage: conf.maxNumCategoriesPerPage,
+                maxNumCategories: conf.maxNumCategories || 20,
+                maxNumCategoriesPerPage: conf.maxNumCategoriesPerPage || 10,
                 backlink: null,
                 subqSyncPalette: false
             },
