@@ -93,6 +93,7 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                             supportsAltView: tile.supportsAltView,
                             renderSize: [action.payload.size[0] + tile.tileId, action.payload.size[1]],
                             widthFract: tile.widthFract,
+                            maxTileHeight: tile.maxTileHeight,
                             helpURL: tile.helpURL,
                             supportsReloadOnError: tile.supportsReloadOnError
                         }
@@ -214,7 +215,7 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                 newState.datalessGroups = newState.datalessGroups.clear();
                 return newState;
             },
-            [ActionName.TileDataLoaded]: (state, action:Actions.TileDataLoaded<{}>) => {                
+            [ActionName.TileDataLoaded]: (state, action:Actions.TileDataLoaded<{}>) => {
                 const newState = this.copyState(state);
                 const srchIdx = newState.tileResultFlags.findIndex(v => v.tileId === action.payload.tileId);
                 if (srchIdx > -1) {

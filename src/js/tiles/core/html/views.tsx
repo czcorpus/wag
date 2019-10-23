@@ -40,13 +40,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         render() {
 
             return (
-                <div style={{maxHeight: model.maxTileHeight}}>
-                    <globalCompontents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy}
-                            error={this.props.error} htmlClass={`HtmlTile${this.props.tileName}`} hasData={Boolean(this.props.data)}
-                            sourceIdent={null} supportsTileReload={this.props.supportsReloadOnError} >
-                        <div className="htmlFrame" dangerouslySetInnerHTML={{__html: this.props.data}} />
-                    </globalCompontents.TileWrapper>
-                </div>
+                <globalCompontents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy}
+                        error={this.props.error} htmlClass={`HtmlTile${this.props.tileName}`} hasData={Boolean(this.props.data)}
+                        sourceIdent={null} supportsTileReload={this.props.supportsReloadOnError} >
+                    <div className="htmlFrame" dangerouslySetInnerHTML={{__html: this.props.data}} />
+                </globalCompontents.TileWrapper>
             );
         }
     }
