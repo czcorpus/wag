@@ -424,7 +424,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
     // Find words with similar frequency
     app.get(HTTPAction.SIMILAR_FREQ_WORDS, (req, res) => {
 
-        const pos:Array<string> = req.query.pos.split(',');
+        const pos:Array<string> = (req.query.pos || '').split(',');
         const uiLang = getLangFromCookie(req, services.serverConf.langCookie, services.serverConf.languages);
 
         const viewUtils = new ViewUtils<GlobalComponents>({
