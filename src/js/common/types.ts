@@ -111,6 +111,7 @@ export interface TelemetryAction {
     actionName:string;
     tileName:string;
     isSubquery:boolean;
+    isMobile:boolean;
 }
 
 

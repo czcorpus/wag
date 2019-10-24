@@ -377,16 +377,23 @@ export const wdgRouter = (services:Services) => (app:Express) => {
     app.post(HTTPAction.TELEMETRY, (req, res, next) => {
         const t1 = new Date().getTime();
         const statement = services.telemetryDB.prepare(
-            'INSERT INTO telemetry (session, timestamp, action, tile_name, is_subquery) values (?, ?, ?, ?, ?)'
+            'INSERT INTO telemetry (session, timestamp, action, tile_name, is_subquery, is_mobile) values (?, ?, ?, ?, ?, ?)'
         );
         services.telemetryDB.run('BEGIN TRANSACTION');
         rxOf(...(services.telemetryDB ? req.body['telemetry'] as Array<TelemetryAction> : [])).pipe(
             concatMap(
                 action => new Observable(observer => {
-                    const data = [req['session'].id, action.timestamp, action.actionName, action.tileName, action.isSubquery ? 1 : 0];
+                    const data = [
+                        req['session'].id,
+                        action.timestamp,
+                        action.actionName,
+                        action.tileName,
+                        action.isSubquery ? 1 : 0,
+                        action.isMobile ? 1 : 0
+                    ];
                     statement.run(data, (err:Error, res) => {
                         if (err) {
-                            observer.error();
+                            observer.error(err);
 
                         } else {
                             observer.next(res);
