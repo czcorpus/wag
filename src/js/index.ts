@@ -20,8 +20,8 @@ import * as Immutable from 'immutable';
 import { ActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { fromEvent, Observable, interval, empty, of as rxOf } from 'rxjs';
-import { debounceTime, map, switchMap, concatMap, take, bufferWhen } from 'rxjs/operators';
+import { fromEvent, Observable, interval, empty, of as rxOf, merge } from 'rxjs';
+import { debounceTime, map, concatMap, take, scan } from 'rxjs/operators';
 import { isSubqueryPayload } from './common/query';
 import * as translations from 'translations';
 
@@ -113,34 +113,44 @@ export const initClient = (mountElement:HTMLElement, config:ClientConf, userSess
 
     // telemetry capture
     if (config.telemetry && Math.random() < config.telemetry.participationProbability) {
-        new Observable<TelemetryAction>((observer) => {
-            dispatcher.registerActionListener((action, _) => {
-                const payload = action.payload || {};
-                observer.next({
-                    timestamp: Date.now(),
-                    actionName: action.name,
-                    isSubquery: isSubqueryPayload(payload) as boolean,
-                    tileName: (Object.entries(tileMap).find(x => x[1] === payload['tileId']) || [null])[0]
+        merge(
+            new Observable<TelemetryAction>((observer) => {
+                dispatcher.registerActionListener((action, _) => {
+                    const payload = action.payload || {};
+                    observer.next({
+                        timestamp: Date.now(),
+                        actionName: action.name,
+                        isSubquery: isSubqueryPayload(payload) as boolean,
+                        isMobile: appServices.isMobileMode(),
+                        tileName: (Object.entries(tileMap).find(x => x[1] === payload['tileId']) || [null])[0]
+                    });
                 });
-            });
-        }).pipe(
-            bufferWhen(
-                () => rxOf(1, 1.2, 1.5, 1.6, 1.8, 2.0, 2.3, 2.6, 3, 4.0).pipe(
-                    switchMap(v => interval(config.telemetry.sendIntervalSecs * 1000 * v)),
-                    take(1)
-                )
+            }),
+            rxOf(1, 1.2, 1.4, 1.6, 1.8, 2.0, 2.3, 2.6, 3, 4.0, 6, 10).pipe(
+                concatMap(v => interval(config.telemetry.sendIntervalSecs * v * 1000).pipe(take(1))),
+            )
+        ).pipe(
+            scan<number|TelemetryAction, {toDispatch: Array<TelemetryAction>, buffer:Array<TelemetryAction>}>(
+                (acc, curr) => typeof curr === 'number' ?
+                    {
+                        toDispatch: acc.buffer,
+                        buffer: []
+                    } :
+                    {
+                        toDispatch: [],
+                        buffer: acc.buffer.concat([curr])
+                    },
+                    {toDispatch: [], buffer: []}
             ),
             concatMap(
-                (data) => {
-                    return data.length > 0 ?
-                        ajax$(
-                            HTTPMethod.POST,
-                            appServices.createActionUrl(HTTPAction.TELEMETRY),
-                            {telemetry: data.filter(x => typeof x !== 'number')},
-                            {contentType: 'application/json'}
-                        ) :
-                        empty();
-                }
+                (data) => data.toDispatch.length > 0 ?
+                    ajax$(
+                        HTTPMethod.POST,
+                        appServices.createActionUrl(HTTPAction.TELEMETRY),
+                        {telemetry: data.toDispatch},
+                        {contentType: 'application/json'}
+                    ) :
+                    empty()
             )
         ).subscribe();
     }

@@ -21,7 +21,6 @@ import { Observable } from 'rxjs';
 import { HTTPHeaders, IAsyncKeyValueStore } from '../../types';
 import { map } from 'rxjs/operators';
 import { APIResponse as CorpusInfoApiResponse } from '../kontext/corpusInfo';
-import * as Immutable from 'immutable';
 
 
 export interface HTTPResponse {
