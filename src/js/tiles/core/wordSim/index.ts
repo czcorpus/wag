@@ -131,7 +131,7 @@ export class WordSimTile implements ITileProvider {
     }
 
     supportsAltView():boolean {
-        return false;
+        return true;
     }
 
     exposeModel():StatelessModel<{}>|null {
