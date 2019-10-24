@@ -446,10 +446,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 <div className="WdglanceControls">
                     <form className="cnc-form">
                         <div>
-                            <QueryTypeSelector menuItems={this.props.queryTypesMenuItems}
-                                    value={this.props.queryType}
-                                    onChange={this.handleQueryTypeChange}
-                                    isMobile={this.props.isMobile} />
+                            {this.props.queryTypesMenuItems.filter(v => v.isEnabled).size > 1 ?
+                                <QueryTypeSelector menuItems={this.props.queryTypesMenuItems}
+                                        value={this.props.queryType}
+                                        onChange={this.handleQueryTypeChange}
+                                        isMobile={this.props.isMobile} /> :
+                                null}
                         </div>
                         <div className="main">
                             <QueryFields
