@@ -79,11 +79,17 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                 return newState;
             },
             [ActionName.SetActiveBlock]: (state, action:Actions.SetActiveBlock) => {
+                if (action.payload.tileId !== this.tileId) {
+                    return state;
+                }
                 const newState = this.copyState(state);
                 newState.activeBlock = action.payload.idx;
                 return newState;
             },
             [ActionName.PartialDataLoaded]: (state, action:GlobalActions.TileDataLoaded<DataLoadedPayload>) => {
+                if (action.payload.tileId !== this.tileId) {
+                    return state;
+                }
                 const newState = this.copyState(state);
                 if (action.error) {
                     newState.blocks = Immutable.List<FreqComparisonDataBlock<DataRow>>(state.fcrit.map((_, i) => ({
@@ -122,7 +128,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                             isReady: newWords.size === this.lemmas.size
                         }
                     );
-                    
+
                     newState.isBusy = newState.blocks.some(v => !v.isReady);
                     newState.backlink = null;
                 }
@@ -136,13 +142,13 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
             case GlobalActionName.RequestQueryResponse:
                 const requests = new Observable((observer:Observer<[number, LemmaVariant]>) => {
                     state.fcrit.keySeq().forEach(critIdx => {
-                        this.lemmas.forEach(lemma => {                            
+                        this.lemmas.forEach(lemma => {
                             observer.next([critIdx, findCurrLemmaVariant(lemma)]);
                         });
                     });
                     observer.complete();
                 }).pipe(
-                    mergeMap(([critIdx, lemma]) => 
+                    mergeMap(([critIdx, lemma]) =>
                         this.api.call(
                             stateToAPIArgs(state, critIdx),
                             lemma
