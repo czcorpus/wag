@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 import * as React from 'react';
+import { List } from 'immutable';
 import { IActionDispatcher, ViewUtils, BoundWithProps } from 'kombo';
 import { GlobalComponents } from '../../../views/global';
 import { Theme } from '../../../common/theme';
@@ -62,6 +63,34 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         );
     }
 
+    // ------------------ <AltView /> --------------------------------------------
+
+    const AltView:React.SFC<{
+        data:List<WordSimWord>;
+
+    }> = (props) => {
+        return (
+            <table className="data">
+                <thead>
+                    <tr>
+                        <th />
+                        <th />
+                        <th>{ut.translate('wordsim__attr_score')}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {props.data.map((row, i) => (
+                        <tr key={`${i}:${row.word}`}>
+                            <td className="num">{i + 1}.</td>
+                            <td className="word">{row.word}</td>
+                            <td className="num">{ut.formatNumber(row.score)}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        );
+    }
+
     // ------------------ <WordSimView /> --------------------------------------------
 
     const WordSimView:React.SFC<WordSimModelState & CoreTileComponentProps> = (props) => {
@@ -69,7 +98,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         const dataTransform = (v:WordSimWord) => ({
             text: v.word,
             value: v.score,
-            tooltip: [{label: 'score', value: v.score, round: 1}],
+            tooltip: [{label: ut.translate('wordsim__attr_score'), value: v.score, round: 1}],
             interactionId: null
         });
 
@@ -80,13 +109,16 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     supportsTileReload={props.supportsReloadOnError}>
                 <div className="WordSimView">
                     {props.isTweakMode ? <Controls tileId={props.tileId} operationMode={props.operationMode} /> : null }
-                    <globalCompontents.ResponsiveWrapper render={(width:number, height:number) => (
-                        <WordCloud width={width} height={height} data={props.data} isMobile={props.isMobile}
-                                        style={props.isMobile ? {height: `${props.data.size * 30}px`} :
-                                                {height: `${props.data.size * 40}px`, width: '100%'}}
-                                                font="Roboto Condensed"
-                                                dataTransform={dataTransform} />)}
-                        />
+                    {props.isAltViewMode ?
+                        <AltView data={props.data} /> :
+                        <globalCompontents.ResponsiveWrapper render={(width:number, height:number) => (
+                            <WordCloud width={width} height={height} data={props.data} isMobile={props.isMobile}
+                                            style={props.isMobile ? {height: `${props.data.size * 30}px`} :
+                                                    {height: `${props.data.size * 40}px`, width: '100%'}}
+                                                    font="Roboto Condensed"
+                                                    dataTransform={dataTransform} />)}
+                            />
+                    }
                 </div>
             </globalCompontents.TileWrapper>
         );
