@@ -17,22 +17,23 @@
  */
 import * as Immutable from 'immutable';
 import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
-import { Observable, Observer } from 'rxjs';
-import { map, mergeMap, scan } from 'rxjs/operators';
+import { Observable, Observer, of } from 'rxjs';
+import { map, mergeMap, scan, tap, reduce } from 'rxjs/operators';
 
 import { AppServices } from '../../../appServices';
-import { BacklinkArgs, DataRow, FreqComparisonAPI, APIBlockResponse } from '../../../common/api/kontext/freqComparison';
-import { FreqComparisonDataBlock, GeneralMultiCritFreqComparisonModelState, stateToAPIArgs } from '../../../common/models/freqComparison';
+import { BacklinkArgs, FreqComparisonAPI, APIBlockResponse, CritVariantsResponse } from '../../../common/api/kontext/freqTree';
+import { GeneralCritFreqTreeModelState, stateToAPIArgs, FreqTreeDataBlock } from '../../../common/models/freqTree';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { puid } from '../../../common/util';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { ActionName, Actions, DataLoadedPayload } from './actions';
 import { findCurrLemmaVariant } from '../../../models/query';
 import { RecognizedQueries, LemmaVariant } from '../../../common/query';
+import { FreqDataBlock } from '../../../common/models/freq';
 
 
 
-export interface FreqComparisonModelState extends GeneralMultiCritFreqComparisonModelState<DataRow> {
+export interface FreqComparisonModelState extends GeneralCritFreqTreeModelState {
     activeBlock:number;
     backlink:BacklinkWithArgs<BacklinkArgs>;
     maxChartsPerLine:number;
@@ -79,54 +80,34 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                 return newState;
             },
             [ActionName.SetActiveBlock]: (state, action:Actions.SetActiveBlock) => {
-                const newState = this.copyState(state);
-                newState.activeBlock = action.payload.idx;
-                return newState;
+                if (action.payload.tileId === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.activeBlock = action.payload.idx;
+                    return newState;
+                }
             },
             [ActionName.PartialDataLoaded]: (state, action:GlobalActions.TileDataLoaded<DataLoadedPayload>) => {
-                const newState = this.copyState(state);
-                if (action.error) {
-                    newState.blocks = Immutable.List<FreqComparisonDataBlock<DataRow>>(state.fcrit.map((_, i) => ({
-                        data: Immutable.List<FreqComparisonDataBlock<DataRow>>(),
-                        words: Immutable.List<string>(),
-                        ident: puid(),
-                        label: action.payload.blockLabel ? action.payload.blockLabel : state.critLabels.get(i),
-                        isReady: false
-                    })));
-                    newState.error = action.error.message;
-                    newState.isBusy = false;
-
-                } else {
-                    // data for these words were requested (some words can have no data)
-                    // also data are rendered in this order of words, we order it so it corresponds to inputs
-                    const newWords = newState.blocks.get(action.payload.critIdx).words.push(action.payload.lemma.word).sortBy(
-                        word => this.lemmas.findKey(variants => variants.some(lemma => lemma.word === word))
-                    ).toList();
-                    const newData = action.payload.isEmpty ? newState.blocks.get(action.payload.critIdx).data :
-                        newState.blocks.get(action.payload.critIdx).data.concat(
-                            Immutable.List<DataRow>(action.payload.block.data.map(v => ({
-                                name: this.appServices.translateDbValue(state.corpname, v.name),
-                                freq: v.freq,
-                                ipm: v.ipm,
-                                word: action.payload.lemma.word
-                            })))).toList();
-
-                    newState.blocks = newState.blocks.set(
-                        action.payload.critIdx,
-                        {
-                            data: newData,
-                            words: newWords,
+                if (action.payload.tileId === this.tileId) {
+                    const newState = this.copyState(state);
+                    if (action.error) {
+                        newState.frequencyTree = Immutable.List([{
+                            data: Immutable.Map(),
                             ident: puid(),
-                            label: this.appServices.importExternalMessage(
-                                action.payload.blockLabel ? action.payload.blockLabel : state.critLabels.get(action.payload.critIdx)),
-                            isReady: newWords.size === this.lemmas.size
-                        }
-                    );
-                    
-                    newState.isBusy = newState.blocks.some(v => !v.isReady);
-                    newState.backlink = null;
+                            label: '',
+                            isReady: false
+                        } as FreqTreeDataBlock]);
+                        newState.error = action.error.message;
+                        newState.isBusy = false;
+                    } else {
+                        const freqTree = newState.frequencyTree.get(0);
+                        freqTree.isReady = !freqTree.isReady; //TODO
+                        freqTree.data = action.payload.data;
+                        newState.frequencyTree = newState.frequencyTree.set(0, freqTree);                        
+                        newState.isBusy = false;
+                        newState.backlink = null;
+                    }
+                    return newState;
                 }
-                return newState;
             }
         }
     }
@@ -134,25 +115,38 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
     sideEffects(state:FreqComparisonModelState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
-                const requests = new Observable((observer:Observer<[number, LemmaVariant]>) => {
-                    state.fcrit.keySeq().forEach(critIdx => {
-                        this.lemmas.forEach(lemma => {                            
-                            observer.next([critIdx, findCurrLemmaVariant(lemma)]);
-                        });
+                const requests = new Observable((observer:Observer<LemmaVariant>) => {
+                    this.lemmas.forEach(lemma => {
+                        observer.next(findCurrLemmaVariant(lemma));
                     });
                     observer.complete();
                 }).pipe(
-                    mergeMap(([critIdx, lemma]) => 
-                        this.api.call(
-                            stateToAPIArgs(state, critIdx),
+                    mergeMap<LemmaVariant, Observable<CritVariantsResponse>>(lemma => 
+                        this.api.callVariants(
+                            stateToAPIArgs(state, 0),
                             lemma
-                        ).pipe(
-                            map(v => [v, critIdx, lemma] as [APIBlockResponse, number, LemmaVariant])
                         )
-                    )
+                    ),
+                    mergeMap(resp =>
+                        of(...resp.fcritValues).pipe(
+                            mergeMap(fcritValue =>
+                                this.api.call(
+                                    stateToAPIArgs(state, 1),
+                                    resp.concId,
+                                    {[resp.fcrit]: fcritValue}
+                                )
+                            ),
+                            map(v => [v, resp.lemma] as [APIBlockResponse, LemmaVariant])
+                        )
+                    ),
+                    reduce<[APIBlockResponse, LemmaVariant], Immutable.Map<string, any>>((acc, [v, lemma]) => acc.mergeDeep({
+                        [lemma.word]:{
+                            [v.filter[state.fcritTree.get(0)]]:v.data
+                        }
+                    }), Immutable.Map())
                 );
 
-                requests.pipe(scan((acc, value) => acc && value[0].blocks.every(v => v.data.length === 0), true)).subscribe(
+                requests.pipe(scan((acc, value) => acc && value.size === 0, true)).subscribe(
                     isEmpty => {
                         dispatch<GlobalActions.TileDataLoaded<{}>>({
                             name: GlobalActionName.TileDataLoaded,
@@ -165,14 +159,12 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                 );
 
                 requests.subscribe(
-                    ([resp, critIdx, lemma]) => {
+                    data => {
                         dispatch<Actions.PartialDataLoaded<DataLoadedPayload>>({
                             name: ActionName.PartialDataLoaded,
                             payload: {
                                 tileId: this.tileId,
-                                block: {data: resp.blocks[0].data.sort((x1, x2) => x2.ipm - x1.ipm).slice(0, state.fmaxitems)},
-                                critIdx: critIdx,
-                                lemma: lemma
+                                data: data,
                             }
                         });
                     },
@@ -181,9 +173,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                             name: ActionName.PartialDataLoaded,
                             payload: {
                                 tileId: this.tileId,
-                                block: null,
-                                critIdx: null,
-                                lemma: null
+                                data: null,
                             },
                             error: error
                         });

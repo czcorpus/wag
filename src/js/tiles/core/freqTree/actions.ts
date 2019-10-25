@@ -17,9 +17,10 @@
  */
 import { Action } from 'kombo';
 
-import { ApiDataBlock } from '../../../common/api/kontext/freqComparison';
+import { ApiDataBlock, DataRow } from '../../../common/api/kontext/freqTree';
 import { LocalizedConfMsg } from '../../../common/types';
 import { LemmaVariant } from '../../../common/query';
+import * as Immuatable from 'immutable';
 
 
 
@@ -29,10 +30,8 @@ export enum ActionName {
 }
 
 export interface DataLoadedPayload {
-    block:ApiDataBlock;
+    data:Immuatable.Map<string, any>;
     blockLabel?:LocalizedConfMsg;
-    critIdx:number;
-    lemma:LemmaVariant;
 }
 
 export namespace Actions {

@@ -20,7 +20,6 @@ import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 import { ResponsiveContainer, Tooltip, Treemap } from 'recharts';
 
-import { DataRow } from '../../../common/api/kontext/freqComparison';
 import { Theme } from '../../../common/theme';
 import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
 import { GlobalComponents } from '../../../views/global';
@@ -32,34 +31,87 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const globComponents = ut.getComponents();
 
-    const processData = (data:Immutable.List<DataRow>, words:Immutable.List<string>) => {
-        return data.groupBy(x => x.word).map((values, word) => ({
-            name: word,
-            children: values.map(value => ({
-                name: value.name,
-                value: value.freq
+    const processData = (data:Immutable.Map<string, any>):{name: any; children:any[]}[] => {
+        console.log(data.toJS());
+        
+        return data.entrySeq().map(([k1, v1]) => ({
+            name: k1,
+            children: v1.entrySeq().map(([k2, v2]) => ({
+                name: k2,
+                children: v2.toJS()
             })).toArray()
-        }));
+        })).toArray()
     }
 
     // ------- <TreeWrapper /> ---------------------------------------------------
 
+    const COLORS = ['#8889DD', '#9597E4', '#8DC77B', '#A5D297', '#E2CF45', '#F8C12D'];
+
+    class CustomizedContent extends React.PureComponent<{
+        root?:{name:string; children:Array<any>};
+        depth?:number;
+        x?:number;
+        y?:number;
+        width?:number;
+        height?:number;
+        index?:number;
+        payload?:any;
+        colors?:Array<string>;
+        rank?:number;
+        name?:string;
+    }> {
+        render() {
+            const {root, depth, x, y, width, height, index, payload, colors, rank, name} = this.props;
+            // leaf rect needs to be filled with color in order to show tooltip on mouse over
+            return (
+                <g>
+                    <rect
+                        x={x}
+                        y={y}
+                        width={width}
+                        height={height}
+                        style={{
+                            fill: depth < 2 ? colors[Math.floor(index / root.children.length * 6)] : 'white',
+                            fillOpacity: depth > 1 ? 0 : 1,
+                            stroke: '#fff',
+                            strokeWidth: 2 / (depth + 1e-10),
+                            strokeOpacity: 1 / (depth + 1e-10),
+                        }}/>
+                    {
+                        depth === 1 ? (
+                            <text x={x + width / 2} y={y + height / 2 + 7} textAnchor="middle" fill="#00000" fontSize={14}>
+                                {name}
+                            </text>
+                        ) : null
+                    }
+
+                    {
+                        depth === 2 ? (
+                            <text x={x + 4} y={y + 18} textAnchor="enstart" fill="#00000" fontSize={14}>
+                                {name}
+                            </text>
+                        ) : null
+                    }
+                </g>
+            );
+        }
+    }
+
     const TreeWrapper:React.SFC<{
-        data:Immutable.List<DataRow>;
-        words:Immutable.List<string>;
+        data:Immutable.Map<string,any>;
         width:string|number;
         height:string|number;
         isMobile:boolean;
-
     }> = (props) => {
-        console.log(processData(props.data, props.words).toArray());
-        
+        const processedData = processData(props.data);
         if (props.isMobile) {
             return (
-                <Treemap data={processData(props.data, props.words).toArray()}
+                <Treemap data={processedData}
                         width={typeof props.width === 'string' ? parseInt(props.width) : props.width}
                         height={typeof props.height === 'string' ? parseInt(props.height) : props.height}
-                        isAnimationActive={false}>
+                        isAnimationActive={false}
+                        ratio={4 / 3}
+                        content={<CustomizedContent colors={COLORS} />}>
                     {props.children}
                 </Treemap>
             );
@@ -67,7 +119,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         } else {
             return (
                 <ResponsiveContainer width={props.width} height={props.height}>
-                    <Treemap data={processData(props.data, props.words).toArray()}>
+                    <Treemap data={processedData} ratio={4 / 3} content={<CustomizedContent colors={COLORS} />}>
                         {props.children}
                     </Treemap>
                 </ResponsiveContainer>
@@ -79,21 +131,20 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // -------------------------- <Tree /> --------------------------------------
 
     const Tree:React.SFC<{
-        data:Immutable.List<DataRow>;
-        words:Immutable.List<string>;
+        data:Immutable.Map<string,any>;
         width:string|number;
         height:string|number;
         isMobile:boolean;
         colors:Array<string>;
     }> = (props) => {
         return (
-            <TreeWrapper data={props.data} words={props.words} isMobile={props.isMobile} width={props.width} height={props.height}>
+            <TreeWrapper data={props.data} isMobile={props.isMobile} width={props.width} height={props.height}>
                 <Tooltip cursor={false} isAnimationActive={false} formatter={(value, name, props) => `${props.payload.name}: ${value}`} separator="" />
             </TreeWrapper>
         );
     };
 
-    // -------------------------- <FreqBarTile /> --------------------------------------
+    // -------------------------- <FreqTreeTile /> --------------------------------------
 
     class FreqBarTile extends React.PureComponent<FreqComparisonModelState & CoreTileComponentProps> {
 
@@ -123,22 +174,22 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
 
         render() {
-            const chartsViewBoxWidth = this.props.isMobile ? '100%' : `${100 / Math.min(this.props.blocks.size, this.props.maxChartsPerLine)}%`;
+            const chartsViewBoxWidth = this.props.isMobile ? '100%' : `${100 / Math.min(this.props.frequencyTree.size, this.props.maxChartsPerLine)}%`;
             return (
                 <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
-                        hasData={this.props.blocks.find(v => v.isReady) !== undefined}
+                        hasData={this.props.frequencyTree.find(v => v.isReady) !== undefined}
                         sourceIdent={{corp: this.props.corpname}}
                         backlink={this.props.backlink}
                         supportsTileReload={this.props.supportsReloadOnError}>
                     <div className="FreqTreeTile">
                         <div className={`charts${this.props.isBusy ? ' incomplete' : ''}`} ref={this.chartsRef} onScroll={this.handleScroll} style={{flexWrap: this.props.isMobile ? 'nowrap' : 'wrap'}}>
-                            {this.props.blocks.filter(block => block.isReady).map(block => {
+                            {this.props.frequencyTree.filter(block => block.isReady).map(block => {
                                 const chartWidth = this.props.isMobile ? (this.props.renderSize[0] * 0.9).toFixed() : "90%";
                                 return  (
                                     <div key={block.ident} style={{width: chartsViewBoxWidth, height: "100%"}}>
                                         <h3>{block.label}</h3>
                                         {block.data.size > 0 ?
-                                            <Tree data={block.data} words={block.words} width={chartWidth} height={250}
+                                            <Tree data={block.data} width={chartWidth} height={250}
                                                     isMobile={this.props.isMobile} colors={this.props.colors} /> :
                                             <p className="note" style={{textAlign: 'center'}}>No result</p>
                                         }
@@ -146,9 +197,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 );
                             })}
                         </div>
-                        {this.props.isMobile && this.props.blocks.size > 1 ?
+                        {this.props.isMobile && this.props.frequencyTree.size > 1 ?
                             <globComponents.HorizontalBlockSwitch htmlClass="ChartSwitch"
-                                    blockIndices={this.props.blocks.map((_, i) => i).toList()}
+                                    blockIndices={Immutable.List(this.props.frequencyTree.map((_, i) => i))}
                                     currentIdx={this.props.activeBlock}
                                     onChange={this.handleDotClick} /> :
                             null

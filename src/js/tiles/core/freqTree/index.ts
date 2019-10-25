@@ -19,8 +19,8 @@ import * as Immutable from 'immutable';
 import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
 
 import { AppServices } from '../../../appServices';
-import { DataRow, FreqSort } from '../../../common/api/kontext/freqComparison';
-import { FreqComparisonDataBlock } from '../../../common/models/freqComparison';
+import { DataRow, FreqSort, FreqComparisonAPI, DataTree } from '../../../common/api/kontext/freqTree';
+import { FreqTreeDataBlock } from '../../../common/models/freqTree';
 import { LocalizedConfMsg } from '../../../common/types';
 import { QueryType } from '../../../common/query';
 import { TileComponent, TileConf, TileFactory, Backlink, ITileProvider } from '../../../common/tile';
@@ -28,7 +28,6 @@ import { puid } from '../../../common/util';
 import { GlobalComponents } from '../../../views/global';
 import { factory as defaultModelFactory, FreqComparisonModel } from './model';
 import { init as viewInit } from './view';
-import { FreqComparisonAPI } from '../../../common/api/kontext/freqComparison';
 
 
 
@@ -38,7 +37,7 @@ require('./style.less');
 export interface FreqComparisonTileConf extends TileConf {
     apiURL:string;
     corpname:string;
-    fcrit:string|Array<string>;
+    fcritTree:Array<string>;
     critLabels:LocalizedConfMsg|Array<LocalizedConfMsg>;
     flimit:number;
     freqSort:FreqSort;
@@ -77,7 +76,7 @@ export class FreqComparisonTile implements ITileProvider {
         this.appServices = appServices;
         this.blockingTiles = waitForTiles;
         this.label = appServices.importExternalMessage(conf.label);
-        const criteria = Immutable.List<string>(typeof conf.fcrit === 'string' ? [conf.fcrit] : conf.fcrit);
+        const criteria = Immutable.List(conf.fcritTree);
         const labels = Array.isArray(conf.critLabels) ?
             conf.critLabels.map(v => this.appServices.importExternalMessage(v)) :
             [this.appServices.importExternalMessage(conf.critLabels)];
@@ -92,15 +91,15 @@ export class FreqComparisonTile implements ITileProvider {
             {
                 isBusy: isBusy,
                 error: null,
-                blocks: Immutable.List<FreqComparisonDataBlock<DataRow>>(criteria.map(v => ({
-                    data: Immutable.List<DataRow>(),
-                    words: Immutable.List<string>(),
+                frequencyTree: Immutable.List([{
+                    data: Immutable.Map(),
                     ident: puid(),
+                    label: '',
                     isReady: false
-                }))),
+                } as FreqTreeDataBlock]),
                 activeBlock: 0,
                 corpname: conf.corpname,
-                fcrit: criteria,
+                fcritTree: criteria,
                 critLabels: Immutable.List<string>(labels),
                 flimit: conf.flimit,
                 freqSort: conf.freqSort,
@@ -113,7 +112,7 @@ export class FreqComparisonTile implements ITileProvider {
             },
             lemmas
         );
-        this.label = appServices.importExternalMessage(conf.label || 'freqComparison__main_label');
+        this.label = appServices.importExternalMessage(conf.label || 'freqTree__main_label');
         this.view = viewInit(this.dispatcher, ut, theme, this.model);
     }
 

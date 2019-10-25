@@ -1,8 +1,8 @@
 {
     "en-US": {
-        "freqComparison__main_label": "Frequency comparison"
+        "freqTree__main_label": "Frequency tree"
     },
     "cs-CZ": {
-        "freqComparison__main_label": "Frekvenční srovnání"
+        "freqTree__main_label": "Frekvenční strom"
     }
 }
