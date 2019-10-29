@@ -19,14 +19,14 @@ import * as Immutable from 'immutable';
 import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
 
 import { AppServices } from '../../../appServices';
-import { DataRow, FreqSort, FreqComparisonAPI, DataTree } from '../../../common/api/kontext/freqTree';
+import { FreqSort, FreqTreeAPI } from '../../../common/api/kontext/freqTree';
 import { FreqTreeDataBlock } from '../../../common/models/freqTree';
 import { LocalizedConfMsg } from '../../../common/types';
 import { QueryType } from '../../../common/query';
 import { TileComponent, TileConf, TileFactory, Backlink, ITileProvider } from '../../../common/tile';
 import { puid } from '../../../common/util';
 import { GlobalComponents } from '../../../views/global';
-import { factory as defaultModelFactory, FreqComparisonModel } from './model';
+import { factory as defaultModelFactory, FreqTreeModel } from './model';
 import { init as viewInit } from './view';
 
 
@@ -34,7 +34,7 @@ import { init as viewInit } from './view';
 declare var require:(src:string)=>void;  // webpack
 require('./style.less');
 
-export interface FreqComparisonTileConf extends TileConf {
+export interface FreqTreeTileConf extends TileConf {
     apiURL:string;
     corpname:string;
     fcritTree:Array<string>;
@@ -49,13 +49,13 @@ export interface FreqComparisonTileConf extends TileConf {
 }
 
 
-export class FreqComparisonTile implements ITileProvider {
+export class FreqTreeTile implements ITileProvider {
 
     private readonly dispatcher:IActionDispatcher;
 
     private readonly ut:ViewUtils<GlobalComponents>;
 
-    private readonly model:FreqComparisonModel;
+    private readonly model:FreqTreeModel;
 
     private readonly tileId:number;
 
@@ -69,7 +69,7 @@ export class FreqComparisonTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({dispatcher, tileId, waitForTiles, ut, theme, appServices, widthFract, conf, isBusy, cache, lemmas}:TileFactory.Args<FreqComparisonTileConf>) {
+    constructor({dispatcher, tileId, waitForTiles, ut, theme, appServices, widthFract, conf, isBusy, cache, lemmas}:TileFactory.Args<FreqTreeTileConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
@@ -86,7 +86,7 @@ export class FreqComparisonTile implements ITileProvider {
             tileId,
             waitForTiles,
             appServices,
-            new FreqComparisonAPI(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            new FreqTreeAPI(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             conf.backlink || null,
             {
                 isBusy: isBusy,
@@ -172,4 +172,4 @@ export class FreqComparisonTile implements ITileProvider {
 
 export const TILE_TYPE = 'FreqTreeTile';
 
-export const init:TileFactory.TileFactory<FreqComparisonTileConf>  = (args) => new FreqComparisonTile(args);
+export const init:TileFactory.TileFactory<FreqTreeTileConf>  = (args) => new FreqTreeTile(args);

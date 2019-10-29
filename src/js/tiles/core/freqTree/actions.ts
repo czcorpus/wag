@@ -17,16 +17,13 @@
  */
 import { Action } from 'kombo';
 
-import { ApiDataBlock, DataRow } from '../../../common/api/kontext/freqTree';
 import { LocalizedConfMsg } from '../../../common/types';
-import { LemmaVariant } from '../../../common/query';
 import * as Immuatable from 'immutable';
 
 
 
 export enum ActionName {
-    SetActiveBlock = 'FREQ_TREE_SET_ACTIVE_BLOCK',
-    PartialDataLoaded = 'FREQ_TREE_PARTIAL_DATA_LOADED'
+    SetActiveBlock = 'FREQ_TREE_SET_ACTIVE_BLOCK'
 }
 
 export interface DataLoadedPayload {
@@ -41,12 +38,5 @@ export namespace Actions {
         tileId:number;
     }> {
         name: ActionName.SetActiveBlock;
-    }
-
-    export interface PartialDataLoaded<T> extends Action<{
-        tileId:number;
-
-    } & T> {
-        name: ActionName.PartialDataLoaded;
     }
 }

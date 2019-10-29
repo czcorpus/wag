@@ -64,10 +64,6 @@ export interface DataRow {
     value:number;
 }
 
-export interface ApiDataBlock {
-    data:Array<DataRow>;
-}
-
 export interface APIBlockResponse {
     filter:{[attr:string]:string}
     data:Array<{name:string; value:number;}>;
@@ -114,7 +110,7 @@ export interface CritVariantsResponse {
     concId:string;
 }
 
-export class FreqComparisonAPI implements WordDataApi<SingleCritQueryArgs, APIBlockResponse> {
+export class FreqTreeAPI implements WordDataApi<SingleCritQueryArgs, APIBlockResponse> {
 
     private readonly apiURL:string;
 

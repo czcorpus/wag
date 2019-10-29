@@ -18,10 +18,10 @@
 import * as Immutable from 'immutable';
 import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { Observable, Observer, of } from 'rxjs';
-import { map, mergeMap, scan, tap, reduce } from 'rxjs/operators';
+import { map, mergeMap, reduce } from 'rxjs/operators';
 
 import { AppServices } from '../../../appServices';
-import { BacklinkArgs, FreqComparisonAPI, APIBlockResponse, CritVariantsResponse } from '../../../common/api/kontext/freqTree';
+import { BacklinkArgs, FreqTreeAPI, APIBlockResponse, CritVariantsResponse } from '../../../common/api/kontext/freqTree';
 import { GeneralCritFreqTreeModelState, stateToAPIArgs, FreqTreeDataBlock } from '../../../common/models/freqTree';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { puid } from '../../../common/util';
@@ -29,11 +29,10 @@ import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../
 import { ActionName, Actions, DataLoadedPayload } from './actions';
 import { findCurrLemmaVariant } from '../../../models/query';
 import { RecognizedQueries, LemmaVariant } from '../../../common/query';
-import { FreqDataBlock } from '../../../common/models/freq';
 
 
 
-export interface FreqComparisonModelState extends GeneralCritFreqTreeModelState {
+export interface FreqTreeModelState extends GeneralCritFreqTreeModelState {
     activeBlock:number;
     backlink:BacklinkWithArgs<BacklinkArgs>;
     maxChartsPerLine:number;
@@ -45,16 +44,16 @@ export interface FreqComparisonModelArgs {
     tileId:number;
     waitForTiles:Array<number>;
     appServices:AppServices;
-    api:FreqComparisonAPI;
+    api:FreqTreeAPI;
     backlink:Backlink|null;
-    initState:FreqComparisonModelState;
+    initState:FreqTreeModelState;
 }
 
 
-export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState> {
+export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
     private readonly lemmas:RecognizedQueries;
 
-    protected api:FreqComparisonAPI;
+    protected api:FreqTreeAPI;
 
     protected readonly appServices:AppServices;
 
@@ -80,42 +79,45 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                 return newState;
             },
             [ActionName.SetActiveBlock]: (state, action:Actions.SetActiveBlock) => {
-                if (action.payload.tileId === this.tileId) {
+                if (action.payload['tileId'] === this.tileId) {
                     const newState = this.copyState(state);
                     newState.activeBlock = action.payload.idx;
                     return newState;
                 }
+                return state
             },
-            [ActionName.PartialDataLoaded]: (state, action:GlobalActions.TileDataLoaded<DataLoadedPayload>) => {
-                if (action.payload.tileId === this.tileId) {
-                    const newState = this.copyState(state);
-                    if (action.error) {
-                        newState.frequencyTree = Immutable.List([{
-                            data: Immutable.Map(),
-                            ident: puid(),
-                            label: '',
-                            isReady: false
-                        } as FreqTreeDataBlock]);
-                        newState.error = action.error.message;
-                        newState.isBusy = false;
-                    } else {
-                        const freqTree = newState.frequencyTree.get(0);
-                        freqTree.isReady = !freqTree.isReady; //TODO
-                        freqTree.data = action.payload.data;
-                        newState.frequencyTree = newState.frequencyTree.set(0, freqTree);                        
-                        newState.isBusy = false;
-                        newState.backlink = null;
-                    }
-                    return newState;
+            [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<DataLoadedPayload>) => {
+                if (action.payload['tileId'] !== this.tileId) {
+                    return state
                 }
+                
+                const newState = this.copyState(state);
+                if (action.error) {
+                    newState.frequencyTree = Immutable.List([{
+                        data: Immutable.Map(),
+                        ident: puid(),
+                        label: '',
+                        isReady: true
+                    } as FreqTreeDataBlock]);
+                    newState.error = action.error.message;
+                    newState.isBusy = false;
+                } else {
+                    const freqTreeBlock = newState.frequencyTree.get(0);
+                    freqTreeBlock.isReady = !action.payload.isEmpty;
+                    freqTreeBlock.data = action.payload.data;
+                    newState.frequencyTree = newState.frequencyTree.set(0, freqTreeBlock);                        
+                    newState.isBusy = false;
+                    newState.backlink = null;
+                }
+                return newState;
             }
         }
     }
 
-    sideEffects(state:FreqComparisonModelState, action:Action, dispatch:SEDispatcher):void {
+    sideEffects(state:FreqTreeModelState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
-                const requests = new Observable((observer:Observer<LemmaVariant>) => {
+                new Observable((observer:Observer<LemmaVariant>) => {
                     this.lemmas.forEach(lemma => {
                         observer.next(findCurrLemmaVariant(lemma));
                     });
@@ -127,61 +129,41 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                             lemma
                         )
                     ),
-                    mergeMap(resp =>
-                        of(...resp.fcritValues).pipe(
+                    mergeMap(resp1 =>
+                        of(...resp1.fcritValues).pipe(
                             mergeMap(fcritValue =>
                                 this.api.call(
                                     stateToAPIArgs(state, 1),
-                                    resp.concId,
-                                    {[resp.fcrit]: fcritValue}
+                                    resp1.concId,
+                                    {[resp1.fcrit]: fcritValue}
                                 )
                             ),
-                            map(v => [v, resp.lemma] as [APIBlockResponse, LemmaVariant])
+                            map(resp2 => [resp2, resp1.lemma] as [APIBlockResponse, LemmaVariant])
                         )
                     ),
-                    reduce<[APIBlockResponse, LemmaVariant], Immutable.Map<string, any>>((acc, [v, lemma]) => acc.mergeDeep({
+                    reduce<[APIBlockResponse, LemmaVariant], Immutable.Map<string, any>>((acc, [resp, lemma]) => acc.mergeDeep({
                         [lemma.word]:{
-                            [v.filter[state.fcritTree.get(0)]]:v.data
+                            [resp.filter[state.fcritTree.get(0)]]:resp.data
                         }
                     }), Immutable.Map())
-                );
-
-                requests.pipe(scan((acc, value) => acc && value.size === 0, true)).subscribe(
-                    isEmpty => {
-                        dispatch<GlobalActions.TileDataLoaded<{}>>({
+                ).subscribe(
+                    data => {
+                        dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
                             name: GlobalActionName.TileDataLoaded,
                             payload: {
                                 tileId: this.tileId,
-                                isEmpty: isEmpty
-                            }
-                        });
-                    }
-                );
-
-                requests.subscribe(
-                    data => {
-                        dispatch<Actions.PartialDataLoaded<DataLoadedPayload>>({
-                            name: ActionName.PartialDataLoaded,
-                            payload: {
-                                tileId: this.tileId,
-                                data: data,
+                                isEmpty: data.size === 0,
+                                data: data
                             }
                         });
                     },
                     error => {
-                        dispatch<Actions.PartialDataLoaded<DataLoadedPayload>>({
-                            name: ActionName.PartialDataLoaded,
-                            payload: {
-                                tileId: this.tileId,
-                                data: null,
-                            },
-                            error: error
-                        });
-                        dispatch<GlobalActions.TileDataLoaded<{}>>({
+                        dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
                             name: GlobalActionName.TileDataLoaded,
                             payload: {
                                 tileId: this.tileId,
-                                isEmpty: true
+                                isEmpty: true,
+                                data: null
                             },
                             error: error
                         });
@@ -219,12 +201,12 @@ export const factory = (
     tileId:number,
     waitForTiles:Array<number>,
     appServices:AppServices,
-    api:FreqComparisonAPI,
+    api:FreqTreeAPI,
     backlink:Backlink|null,
-    initState:FreqComparisonModelState,
+    initState:FreqTreeModelState,
     lemmas:RecognizedQueries) => {
 
-    return new FreqComparisonModel({
+    return new FreqTreeModel({
         dispatcher,
         tileId,
         waitForTiles,

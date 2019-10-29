@@ -24,16 +24,14 @@ import { Theme } from '../../../common/theme';
 import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
 import { GlobalComponents } from '../../../views/global';
 import { ActionName, Actions } from './actions';
-import { FreqComparisonModel, FreqComparisonModelState } from './model';
+import { FreqTreeModel, FreqTreeModelState } from './model';
 
 
-export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:FreqComparisonModel):TileComponent {
+export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:FreqTreeModel):TileComponent {
 
     const globComponents = ut.getComponents();
 
-    const processData = (data:Immutable.Map<string, any>):{name: any; children:any[]}[] => {
-        console.log(data.toJS());
-        
+    const transformData = (data:Immutable.Map<string, any>):{name: any; children:any[]}[] => {        
         return data.entrySeq().map(([k1, v1]) => ({
             name: k1,
             children: v1.entrySeq().map(([k2, v2]) => ({
@@ -45,8 +43,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------- <TreeWrapper /> ---------------------------------------------------
 
-    const COLORS = ['#8889DD', '#9597E4', '#8DC77B', '#A5D297', '#E2CF45', '#F8C12D'];
-
+    // this is for rendering customized tree blocks
     class CustomizedContent extends React.PureComponent<{
         root?:{name:string; children:Array<any>};
         depth?:number;
@@ -71,7 +68,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         width={width}
                         height={height}
                         style={{
-                            fill: depth < 2 ? colors[Math.floor(index / root.children.length * 6)] : 'white',
+                            fill: depth < 2 ? colors[index] : 'white',
                             fillOpacity: depth > 1 ? 0 : 1,
                             stroke: '#fff',
                             strokeWidth: 2 / (depth + 1e-10),
@@ -79,7 +76,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         }}/>
                     {
                         depth === 1 ? (
-                            <text x={x + width / 2} y={y + height / 2 + 7} textAnchor="middle" fill="#00000" fontSize={14}>
+                            <text x={x + width / 2} y={y + height / 2 + 7} textAnchor="middle" fill="black" fontSize={14}>
                                 {name}
                             </text>
                         ) : null
@@ -87,7 +84,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
                     {
                         depth === 2 ? (
-                            <text x={x + 4} y={y + 18} textAnchor="enstart" fill="#00000" fontSize={14}>
+                            <text x={x + 4} y={y + 18} textAnchor="enstart" fill="black" fontSize={14}>
                                 {name}
                             </text>
                         ) : null
@@ -101,17 +98,17 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         data:Immutable.Map<string,any>;
         width:string|number;
         height:string|number;
+        colors:Array<string>;
         isMobile:boolean;
     }> = (props) => {
-        const processedData = processData(props.data);
+        const processedData = transformData(props.data);
         if (props.isMobile) {
             return (
                 <Treemap data={processedData}
                         width={typeof props.width === 'string' ? parseInt(props.width) : props.width}
                         height={typeof props.height === 'string' ? parseInt(props.height) : props.height}
                         isAnimationActive={false}
-                        ratio={4 / 3}
-                        content={<CustomizedContent colors={COLORS} />}>
+                        content={<CustomizedContent colors={props.colors} />}>
                     {props.children}
                 </Treemap>
             );
@@ -119,7 +116,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         } else {
             return (
                 <ResponsiveContainer width={props.width} height={props.height}>
-                    <Treemap data={processedData} ratio={4 / 3} content={<CustomizedContent colors={COLORS} />}>
+                    <Treemap data={processedData}
+                            content={<CustomizedContent colors={props.colors} />}>
                         {props.children}
                     </Treemap>
                 </ResponsiveContainer>
@@ -138,15 +136,19 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         colors:Array<string>;
     }> = (props) => {
         return (
-            <TreeWrapper data={props.data} isMobile={props.isMobile} width={props.width} height={props.height}>
-                <Tooltip cursor={false} isAnimationActive={false} formatter={(value, name, props) => `${props.payload.name}: ${value}`} separator="" />
+            <TreeWrapper data={props.data} isMobile={props.isMobile} width={props.width} height={props.height} colors={props.colors}>
+                <Tooltip
+                    cursor={false}
+                    isAnimationActive={false}
+                    separator=""
+                    formatter={(value, name, props) => `${props.payload.name}: ${value}`} />
             </TreeWrapper>
         );
     };
 
     // -------------------------- <FreqTreeTile /> --------------------------------------
 
-    class FreqBarTile extends React.PureComponent<FreqComparisonModelState & CoreTileComponentProps> {
+    class FreqTreeTile extends React.PureComponent<FreqTreeModelState & CoreTileComponentProps> {
 
         private chartsRef:React.RefObject<HTMLDivElement>;
 
@@ -210,5 +212,5 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
     }
 
-    return BoundWithProps<CoreTileComponentProps, FreqComparisonModelState>(FreqBarTile, model);
+    return BoundWithProps<CoreTileComponentProps, FreqTreeModelState>(FreqTreeTile, model);
 }
