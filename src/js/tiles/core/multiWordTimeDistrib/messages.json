@@ -1,0 +1,16 @@
+{
+    "en-US": {
+        "multiWordTimeDistrib__main_label": "Compared frequencys of the words during time",
+        "multiWordTimeDistrib__occurence_human": "relative occurrences",
+        "multiWordTimeDistrib__estimated_value_for_{word}": "Estimated value for \"{word}\"",
+        "multiWordTimeDistrib__estimated_interval_for_{word}": "Estimated trend for \"{word}\"",
+        "multiWordTimeDistrib__no_data_found_for_{word}": "No data found \"{word}\""
+    },
+    "cs-CZ": {
+        "multiWordTimeDistrib__main_label": "Porovnání frekvencí výskytu slov v čase",
+        "multiWordTimeDistrib__occurence_human": "relativní výskyt",
+        "multiWordTimeDistrib__estimated_value_for_{word}": "Odhadnutá hodnota pro \"{word}\"",
+        "multiWordTimeDistrib__estimated_interval_for_{word}": "Odhadnutý trend pro \"{word}\"",
+        "multiWordTimeDistrib__no_data_found_for_{word}": "Nebyla nalezena žádná data pro \"{word}\""
+    }
+}
