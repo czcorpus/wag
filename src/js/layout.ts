@@ -15,12 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
-
+import { List, Map } from 'immutable';
 import { AppServices } from './appServices';
 import { QueryType, QueryTypeMenuItem } from './common/query';
-import { GroupLayoutConfig, LayoutsConfig } from './conf';
-import { string } from 'prop-types';
+import { GroupLayoutConfig, LayoutsConfig, LayoutConfigCommon } from './conf';
 import { TileIdentMap } from './common/types';
 
 
@@ -36,165 +34,159 @@ function itemIsServiceConf(v:string|GroupLayoutConfig):v is string {
 export interface TileGroup {
     groupLabel:string;
     groupDescURL:string;
-    tiles:Immutable.List<{width:number; tileId:number}>;
+    tiles:List<{width:number; tileId:number}>;
+}
+
+
+interface LayoutCore {
+    groups:List<TileGroup>;
+    services:List<number>;
+    supportsMultiWordQuery:boolean;
+}
+
+
+interface LayoutOfQueryTypeSingle extends LayoutCore {}
+
+
+interface LayoutOfQueryTypeCmp extends LayoutCore {}
+
+
+interface LayoutOfQueryTypeTranslat extends LayoutCore {
+    translatTargetLanguages:List<[string, string]>;
+}
+
+
+function concatLayouts(...layouts:Array<LayoutCore>):List<TileGroup> {
+    return layouts.map(t => t.groups).reduce((acc, curr) => acc.concat(curr).toList(), List<TileGroup>());
+}
+
+function layoutIsEmpty(layout:LayoutCore):boolean {
+    return layout.groups.size === 0;
+}
+
+
+function importLayout(gc:LayoutConfigCommon|undefined, tileMap:TileIdentMap,
+            appServices:AppServices):LayoutCore {
+    return gc !== undefined ?
+        {
+            groups: List<TileGroup>(
+                (gc.groups || []).filter(itemIsGroupConf).map<TileGroup>(group => ({
+                    groupLabel: appServices.importExternalMessage(group.groupLabel),
+                    groupDescURL: appServices.importExternalMessage(group.groupDescURL || {}),
+                    tiles: List<{width:number; tileId:number}>(
+                                group.tiles.map(v => ({tileId: tileMap[v.tile], width: v.width})))
+                }))),
+            services: List<number>(
+                (gc.groups || []).filter(itemIsServiceConf).map(v => tileMap[v])),
+            supportsMultiWordQuery: !!gc.allowMultiWordQuery
+        } :
+        {
+            groups: List<TileGroup>(),
+            services: List<number>(),
+            supportsMultiWordQuery: false
+        };
 }
 
 
 export class LayoutManager {
 
-    private readonly singleQueryLayout:Immutable.List<TileGroup>;
+    private readonly layoutSingle:LayoutOfQueryTypeSingle;
 
-    private readonly singleQueryService:Immutable.List<number>;
+    private readonly layoutCmp:LayoutOfQueryTypeCmp;
 
-    private readonly cmpQueryLayout:Immutable.List<TileGroup>;
+    private readonly layoutTranslat:LayoutOfQueryTypeTranslat;
 
-    private readonly cmpQueryService:Immutable.List<number>;
-
-    private readonly translatQueryLayout:Immutable.List<TileGroup>;
-
-    private readonly translatQueryService:Immutable.List<number>;
-
-    private readonly queryTypes:Immutable.List<QueryTypeMenuItem>;
-
-    private readonly translatTargetLanguages:Immutable.List<[string, string]>;
-
-    private readonly multiWordQuerySupport:Immutable.Map<QueryType, boolean>;
+    private readonly queryTypes:List<QueryTypeMenuItem>;
 
     constructor(layouts:LayoutsConfig, tileMap:TileIdentMap, appServices:AppServices) {
-        // single
-        this.singleQueryLayout = Immutable.List<TileGroup>(
-                (layouts.single.groups || []).filter(itemIsGroupConf).map<TileGroup>(group => {
-                    return {
-                        groupLabel: appServices.importExternalMessage(group.groupLabel),
-                        groupDescURL: appServices.importExternalMessage(group.groupDescURL),
-                        tiles: Immutable.List<{width:number; tileId:number}>(
-                                    group.tiles.map(v => ({tileId: tileMap[v.tile], width: v.width})))
-                    }
-                }));
-        this.singleQueryService = Immutable.List<number>(
-            (layouts.single.groups || []).filter(itemIsServiceConf).map(v => tileMap[v])
-        );
-        // cmp
-        this.cmpQueryLayout = Immutable.List<TileGroup>(
-            (layouts.cmp.groups || []).filter(itemIsGroupConf).map<TileGroup>(group => {
-                return {
-                    groupLabel: appServices.importExternalMessage(group.groupLabel),
-                    groupDescURL: appServices.importExternalMessage(group.groupDescURL),
-                    tiles: Immutable.List<{width:number; tileId:number}>(
-                                group.tiles.map(v => ({tileId: tileMap[v.tile], width: v.width})))
-                }
-            }));
-        this.cmpQueryService = Immutable.List<number>(
-                (layouts.cmp.groups || []).filter(itemIsServiceConf).map(v => tileMap[v])
-            );
-        // translat
-        this.translatQueryLayout = Immutable.List<TileGroup>(
-            (layouts.translat.groups || []).filter(itemIsGroupConf).map<TileGroup>(group => {
-                return {
-                    groupLabel: appServices.importExternalMessage(group.groupLabel),
-                    groupDescURL: appServices.importExternalMessage(group.groupDescURL),
-                    tiles: Immutable.List<{width:number; tileId:number}>(
-                                group.tiles.map(v => ({tileId: tileMap[v.tile], width: v.width})))
-                }
-            }));
-        this.translatQueryService = Immutable.List<number>(
-                (layouts.translat.groups || []).filter(itemIsServiceConf).map(v => tileMap[v])
-            );
-        this.translatTargetLanguages = Immutable.List<[string, string]>((layouts.translat.targetLanguages || []).map(c => [c, appServices.getLanguageName(c)])).toList();
 
-        const invalid = this.validateLayouts();
-        invalid.forEach(item => {
-            console.error(`Invalid layout configuration for group ${item.group} at position ${item.idx}`);
-        });
-
-        this.queryTypes = Immutable.List<QueryTypeMenuItem>([
+        this.layoutSingle = importLayout(layouts.single, tileMap, appServices);
+        this.layoutCmp = importLayout(layouts.cmp, tileMap, appServices);
+        this.layoutTranslat = {
+            ...importLayout(layouts.translat, tileMap, appServices),
+            translatTargetLanguages: List<[string, string]>(
+                (layouts.translat ? layouts.translat.targetLanguages : []).map(c => [c, appServices.getLanguageName(c)])).toList()
+        };
+        this.validateLayouts();
+        this.queryTypes = List<QueryTypeMenuItem>([
             {
                 type: QueryType.SINGLE_QUERY,
                 label: appServices.translate('global__single_word_sel'),
-                isEnabled: this.singleQueryLayout.size > 0
+                isEnabled: !layoutIsEmpty(this.layoutSingle)
             },
             {
                 type: QueryType.CMP_QUERY,
                 label: appServices.translate('global__two_words_compare'),
-                isEnabled: this.cmpQueryLayout.size > 0
+                isEnabled: !layoutIsEmpty(this.layoutCmp)
             },
             {
                 type: QueryType.TRANSLAT_QUERY,
                 label: appServices.translate('global__word_translate'),
-                isEnabled: this.translatQueryLayout.size > 0
+                isEnabled: !layoutIsEmpty(this.layoutTranslat)
             }
         ]);
-        this.multiWordQuerySupport = Immutable.Map<QueryType, boolean>({
-            [QueryType.SINGLE_QUERY]: !!layouts.single.allowMultiWordQuery,
-            [QueryType.CMP_QUERY]: !!layouts.cmp.allowMultiWordQuery,
-            [QueryType.TRANSLAT_QUERY]: !!layouts.translat.allowMultiWordQuery
-        });
     }
 
     /**
      * Return a list of information about invalid items.
      */
-    private validateLayouts():Immutable.List<{group:string; idx:number, tileId:number|undefined}> {
-        return this.singleQueryLayout
-            .concat(this.translatQueryLayout)
-            .concat(this.cmpQueryLayout)
+    private validateLayouts():void {
+        concatLayouts(this.layoutSingle, this.layoutCmp, this.layoutTranslat)
             .flatMap(v => v.tiles.map((v2, idx) => ({group: v.groupLabel, tileId: v2.tileId, idx: idx})))
             .filter(v => v.tileId === undefined)
-            .toList();
+            .forEach(item => {
+                console.error(`Invalid layout configuration for group ${item.group} at position ${item.idx}`);
+            });
     }
 
-    getLayout(queryType:QueryType):Immutable.List<TileGroup> {
+    getLayoutGroups(queryType:QueryType):List<TileGroup> {
+        return this.getLayout(queryType).groups;
+    }
+
+    private getLayout(queryType:QueryType):LayoutCore {
         switch (queryType) {
             case QueryType.SINGLE_QUERY:
-                return this.singleQueryLayout;
+                return this.layoutSingle;
             case QueryType.CMP_QUERY:
-                return this.cmpQueryLayout;
+                return this.layoutCmp;
             case QueryType.TRANSLAT_QUERY:
-                return this.translatQueryLayout;
+                return this.layoutTranslat;
             default:
                 throw new Error(`No layout for ${queryType}`);
         }
     }
 
-    getTargetLanguages():Immutable.Map<QueryType, Immutable.List<[string, string]>> {
-        return Immutable.Map<QueryType, Immutable.List<[string, string]>>([
-            [QueryType.SINGLE_QUERY, Immutable.List<[string, string]>()],
-            [QueryType.CMP_QUERY, Immutable.List<[string, string]>()],
-            [QueryType.TRANSLAT_QUERY, this.translatTargetLanguages]
+    getTargetLanguages():Map<QueryType, List<[string, string]>> {
+        return Map<QueryType, List<[string, string]>>([
+            [QueryType.SINGLE_QUERY, List<[string, string]>()],
+            [QueryType.CMP_QUERY, List<[string, string]>()],
+            [QueryType.TRANSLAT_QUERY, this.layoutTranslat.translatTargetLanguages]
         ]);
     }
 
     getTileWidthFract(queryType:QueryType, tileId:number):number|null {
-        const srch = this.getLayout(queryType).flatMap(v => v.tiles).find(v => v.tileId === tileId);
+        const srch = this.getLayout(queryType).groups.flatMap(v => v.tiles).find(v => v.tileId === tileId);
         return srch ? srch.width : null;
     }
 
-    getMultiWordQuerySupport():Immutable.Map<QueryType, boolean> {
-        return this.multiWordQuerySupport;
+    getMultiWordQuerySupport():Map<QueryType, boolean> {
+        return Map([
+            [QueryType.SINGLE_QUERY, this.getLayout(QueryType.SINGLE_QUERY).supportsMultiWordQuery],
+            [QueryType.CMP_QUERY, this.getLayout(QueryType.CMP_QUERY).supportsMultiWordQuery],
+            [QueryType.TRANSLAT_QUERY, this.getLayout(QueryType.TRANSLAT_QUERY).supportsMultiWordQuery]
+        ])
     }
 
     private isServiceOf(queryType:QueryType, tileId:number):boolean {
-        switch (queryType) {
-            case QueryType.SINGLE_QUERY:
-                return this.singleQueryService.find(v => v === tileId) !== undefined;
-            case QueryType.CMP_QUERY:
-                return this.cmpQueryService.find(v => v === tileId) !== undefined;
-            case QueryType.TRANSLAT_QUERY:
-                return this.translatQueryService.find(v => v === tileId) !== undefined;
-            default:
-                return false;
-        }
+        return this.getLayout(queryType).services.find(v => v === tileId) !== undefined;
     }
 
     isInCurrentLayout(queryType:QueryType, tileId:number):boolean {
-        return this.getLayout(queryType).flatMap(v => v.tiles).find(v => v.tileId === tileId) !== undefined ||
+        return this.getLayout(queryType).groups.flatMap(v => v.tiles).find(v => v.tileId === tileId) !== undefined ||
             this.isServiceOf(queryType, tileId);
     }
 
-
-
-    getQueryTypesMenuItems():Immutable.List<QueryTypeMenuItem> {
+    getQueryTypesMenuItems():List<QueryTypeMenuItem> {
         return this.queryTypes;
     }
-
 }

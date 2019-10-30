@@ -52,12 +52,12 @@ interface AjaxRequestProps {
 export type AjaxArgs = MultiDict|{[key:string]:any}|string;
 
 
-const exportValue = (v) => v === null || v === undefined ? '' : encodeURIComponent(v);
+const exportValue = (v:string|number|boolean) => v === null || v === undefined ? '' : encodeURIComponent(v);
 
 
 export function encodeArgs(obj:{}):string {
-    const ans = [];
-    let p; // ES5 issue
+    const ans:Array<string> = [];
+    let p:string; // ES5 issue
     for (p in obj) {
         if (obj.hasOwnProperty(p) && obj[p] !== undefined) {
             const val = obj[p] !== null ? obj[p] : '';
@@ -75,9 +75,8 @@ export function encodeArgs(obj:{}):string {
 }
 
 export function encodeURLParameters(params:MultiDict|Array<[string, any]>):string {
-    function exportValue(v) {
-        return v === null || v === undefined ? '' : encodeURIComponent(v);
-    }
+    const exportValue = (v:string) => v === null || v === undefined ? '' : encodeURIComponent(v);
+
     return (MultiDict.isMultiDict(params) ? params.items() : params).filter(v => v[0] !== undefined).map((item) => {
         return encodeURIComponent(item[0]) + '=' + exportValue(item[1]);
     }).join('&');
@@ -190,9 +189,11 @@ export type AjaxCall<T> = (method:string, url:string, args:AjaxArgs, options?:Aj
 export const ajax$ = <T>(method:string, url:string, args:AjaxArgs, options?:AjaxOptions) => {
     const callArgs = prepareAjax(method, url, args, options);
     const headers:HTTPHeaders = {'Content-Type': callArgs.contentType};
-    if (options && options.headers) {
-        Object.keys(options.headers).forEach(key => {
-            headers[key] = options.headers[key];
+    if (options !== undefined) {
+        Object.keys(options.headers || {}).forEach(key => {
+            if (options.headers !== undefined) {
+                headers[key] = options.headers[key];
+            }
         });
     }
     return ajax({

@@ -171,7 +171,7 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
             altViewActiveTiles: Immutable.Set<number>(),
             hiddenGroups: Immutable.Set<number>(),
             datalessGroups: Immutable.Set<number>(),
-            tileResultFlags: layoutManager.getLayout(qType).reduce(
+            tileResultFlags: layoutManager.getLayoutGroups(qType).reduce(
                 (acc, curr, i) => acc.concat(curr.tiles.map<TileResultFlagRec>(v => ({
                     tileId: v.tileId,
                     groupId: i,
@@ -201,5 +201,5 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
         }
     );
 
-    return [component, layoutManager.getLayout(qType), tilesMap];
+    return [component, layoutManager.getLayoutGroups(qType), tilesMap];
 }

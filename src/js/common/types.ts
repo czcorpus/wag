@@ -24,7 +24,7 @@ export type AnyInterface<T> = {
 };
 
 export interface IMultiDict {
-    getFirst(key:string):string;
+    getFirst(key:string):string|undefined;
     getList(key:string):Array<string>;
     set(key:string, value:number|boolean|string):void;
     add(key:string, value:any):void;

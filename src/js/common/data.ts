@@ -18,12 +18,14 @@
 import { AnyInterface, IMultiDict, ListOfPairs } from './types';
 
 
+export type AcceptedValue = string|number|boolean;
 
-export class MultiDict<T={}> implements IMultiDict {
 
-    private _data:any;
+export class MultiDict implements IMultiDict {
 
-    constructor(data?:ListOfPairs|AnyInterface<T>|{[key:string]:string|number|Array<string|number>}) {
+    private readonly _data:{[k:string]:Array<string>};
+
+    constructor(data?:ListOfPairs|AnyInterface<{}>|{[key:string]:AcceptedValue|Array<AcceptedValue>}) {
         this._data = {};
         if (Array.isArray(data)) {
             for (let i = 0; i < data.length; i += 1) {
@@ -32,8 +34,7 @@ export class MultiDict<T={}> implements IMultiDict {
                 if (this._data[k] === undefined) {
                     this._data[k] = [];
                 }
-                this._data[k].push(v);
-                this[k] = v;
+                this._data[k].push(this.importValue(v));
             }
 
         } else if (data !== null && data !== undefined) {
@@ -46,6 +47,16 @@ export class MultiDict<T={}> implements IMultiDict {
                 }
             });
         }
+    }
+
+    private importValue(s:AcceptedValue):string {
+        if (typeof s === 'number') {
+            return s.toString();
+
+        } else if (typeof s === 'boolean') {
+            return s ? '1' : '0';
+        }
+        return s;
     }
 
     static isMultiDict(v:any):v is MultiDict {
@@ -62,7 +73,7 @@ export class MultiDict<T={}> implements IMultiDict {
         return ans;
     }
 
-    getFirst(key:string):string {
+    getFirst(key:string):string|undefined {
         return this._data[key] !== undefined ? this._data[key][0] : undefined;
     }
 
@@ -75,9 +86,9 @@ export class MultiDict<T={}> implements IMultiDict {
      * already a value present it is removed
      * first.
      */
-    set(key:string, value:number|boolean|string):void {
+    set(key:string, value:AcceptedValue):void {
         this[key] = value;
-        this._data[key] = [value];
+        this._data[key] = [this.importValue(value)];
     }
 
     /**
@@ -118,7 +129,7 @@ export class MultiDict<T={}> implements IMultiDict {
      * Return a list of key-value pairs.
      */
     items():Array<[string, string]> {
-        let ans = [];
+        let ans:Array<[string, string]> = [];
         for (let p in this._data) {
             if (this._data.hasOwnProperty(p)) {
                 for (let i = 0; i < this._data[p].length; i += 1) {
@@ -177,4 +188,3 @@ export namespace Forms {
     };
 
 }
-

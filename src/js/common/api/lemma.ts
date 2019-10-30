@@ -22,13 +22,13 @@ import { LemmaVariant } from '../query';
 import { ajax$ } from '../ajax';
 
 
-export class LemmaDbRequestArgs {
+export interface LemmaDbRequestArgs {
     lang:string;
     q:string;
 }
 
 
-export class LemmaDbResponse {
+export interface LemmaDbResponse {
     result:Array<LemmaVariant>;
 }
 
