@@ -25,6 +25,7 @@ import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
 import { GlobalComponents } from '../../../views/global';
 import { ActionName, Actions } from './actions';
 import { FreqTreeModel, FreqTreeModelState } from './model';
+import { findCurrLemmaVariant } from '../../../models/query';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:FreqTreeModel):TileComponent {
@@ -74,20 +75,19 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             strokeWidth: 2 / (depth + 1e-10),
                             strokeOpacity: 1 / (depth + 1e-10),
                         }}/>
+                    
                     {
-                        depth === 1 ? (
-                            <text x={x + width / 2} y={y + height / 2 + 7} textAnchor="middle" fill="black" fontSize={14}>
-                                {name}
-                            </text>
-                        ) : null
-                    }
-
-                    {
-                        depth === 2 ? (
-                            <text x={x + 4} y={y + 18} textAnchor="enstart" fill="black" fontSize={14}>
-                                {name}
-                            </text>
-                        ) : null
+                        name && name.length * 6 < width ?
+                            depth === 1 ? (
+                                <text x={x + width / 2} y={y + height / 2 + 7} textAnchor="middle" fill="black" fontSize={16}>
+                                    {name}
+                                </text>
+                            ) : depth === 2 ? (
+                                <text x={x + 4} y={y + 18} textAnchor="enstart" fill="black" fontSize={14}>
+                                    {name}
+                                </text>
+                            ) : null
+                        : null
                     }
                 </g>
             );

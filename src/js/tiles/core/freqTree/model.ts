@@ -37,6 +37,7 @@ export interface FreqTreeModelState extends GeneralCritFreqTreeModelState {
     backlink:BacklinkWithArgs<BacklinkArgs>;
     maxChartsPerLine:number;
     colors:Array<string>;
+    lemmas:RecognizedQueries;
 }
 
 export interface FreqComparisonModelArgs {
@@ -63,14 +64,13 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
 
     private readonly backlink:Backlink|null;
 
-    constructor({dispatcher, tileId, waitForTiles, appServices, api, backlink, initState, lemmas}) {
+    constructor({dispatcher, tileId, waitForTiles, appServices, api, backlink, initState}) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.waitForTiles = Immutable.Map<number, boolean>(waitForTiles.map(v => [v, false]));
         this.appServices = appServices;
         this.api = api;
         this.backlink = backlink;
-        this.lemmas = lemmas;
         this.actionMatch = {
             [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
                 const newState = this.copyState(state);
@@ -93,19 +93,19 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                 
                 const newState = this.copyState(state);
                 if (action.error) {
-                    newState.frequencyTree = Immutable.List(newState.fcritTrees.map((_, index) => ({
+                    newState.frequencyTree = Immutable.List(newState.fcritTrees.map(_ => ({
                         data: Immutable.Map(),
                         ident: puid(),
-                        label: state.treeLabels ? state.treeLabels.get(index) : '',
+                        label: '',
                         isReady: true
                     }) as FreqTreeDataBlock))
                     newState.error = action.error.message;
                     newState.isBusy = false;
                 } else {
-                    newState.frequencyTree = action.payload.data.valueSeq().map((value, index) => ({
+                    newState.frequencyTree = action.payload.data.entrySeq().map(([blockId, value]) => ({
                         data: Immutable.fromJS(value),
                         ident: puid(),
-                        label: state.treeLabels ? state.treeLabels.get(index) : '',
+                        label: state.treeLabels ? state.treeLabels.get(blockId) : '',
                         isReady: true,
                     }) as FreqTreeDataBlock).toList();
                     newState.isBusy = false;
@@ -121,7 +121,7 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
             case GlobalActionName.RequestQueryResponse:
                 new Observable((observer:Observer<[number, LemmaVariant]>) => {
                     state.fcritTrees.forEach((_, index) =>
-                        this.lemmas.forEach(lemma => {
+                        state.lemmas.forEach(lemma => {
                             observer.next([index, findCurrLemmaVariant(lemma)]);
                         })
                     )
@@ -211,8 +211,7 @@ export const factory = (
     appServices:AppServices,
     api:FreqTreeAPI,
     backlink:Backlink|null,
-    initState:FreqTreeModelState,
-    lemmas:RecognizedQueries) => {
+    initState:FreqTreeModelState) => {
 
     return new FreqTreeModel({
         dispatcher,
@@ -221,7 +220,6 @@ export const factory = (
         appServices,
         api,
         backlink,
-        initState,
-        lemmas
+        initState
     });
 }

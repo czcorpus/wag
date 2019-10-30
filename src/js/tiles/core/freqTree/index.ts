@@ -90,10 +90,10 @@ export class FreqTreeTile implements ITileProvider {
             {
                 isBusy: isBusy,
                 error: null,
-                frequencyTree: Immutable.List(criteria.map((_, index) => ({
+                frequencyTree: Immutable.List(criteria.map(_ => ({
                     data: Immutable.Map(),
                     ident: puid(),
-                    label: labels ? labels.get(index) : '',
+                    label: '',
                     isReady: false
                 }) as FreqTreeDataBlock)),
                 activeBlock: 0,
@@ -106,9 +106,9 @@ export class FreqTreeTile implements ITileProvider {
                 fmaxitems: 100,
                 backlink: null,
                 maxChartsPerLine: conf.maxChartsPerLine ? conf.maxChartsPerLine : 3,
-                colors: conf.colors ? conf.colors : ["#8addff", "#f26e43"]
-            },
-            lemmas
+                colors: conf.colors ? conf.colors : ["#8addff", "#f26e43"],
+                lemmas: lemmas
+            }
         );
         this.label = appServices.importExternalMessage(conf.label || 'freqTree__main_label');
         this.view = viewInit(this.dispatcher, ut, theme, this.model);
