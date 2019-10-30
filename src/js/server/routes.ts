@@ -98,7 +98,7 @@ interface RenderResultArgs {
     returnUrl:string;
     rootView:React.ComponentType<WdglanceMainProps>;
     homepageSections:List<{label:string; html:string}>;
-    layout:List<TileGroup>;
+    layout:Array<TileGroup>;
     isMobile:boolean;
     isAnswerMode:boolean;
 }
@@ -362,7 +362,7 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
                 clientConfig: emptyClientConf(services.clientConf),
                 returnUrl: mkReturnUrl(req, services.clientConf.rootUrl),
                 rootView: null,
-                layout: List(),
+                layout: [],
                 homepageSections: List<{label:string, html:string}>(services.clientConf.homepage.tiles),
                 isMobile: false, // TODO should we detect the mode on server too
                 isAnswerMode: answerMode

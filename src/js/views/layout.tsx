@@ -39,7 +39,7 @@ export interface LayoutProps {
     uiLang:string;
     returnUrl:string;
     RootComponent:React.ComponentType<WdglanceMainProps>;
-    layout:Immutable.List<TileGroup>;
+    layout:Array<TileGroup>;
     homepageSections:Immutable.List<{label:string; html:string}>;
     isMobile:boolean;
     isAnswerMode:boolean;

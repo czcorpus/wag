@@ -36,7 +36,7 @@ import { isAPIResponse as isCorpusBasedResponse } from '../common/api/kontext/co
 
 
 export interface WdglanceMainProps {
-    layout:Immutable.List<TileGroup>;
+    layout:Array<TileGroup>;
     homepageSections:Immutable.List<{label:string; html:string}>;
     isMobile:boolean;
     isAnswerMode:boolean;
@@ -126,7 +126,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const QueryLang2Selector:React.SFC<{
         value:string;
-        targetLanguages:Immutable.List<[string, string]>;
+        targetLanguages:Array<[string, string]>;
         htmlClass?:string;
         queryType:QueryType;
         onChange:(v:string)=>void;
@@ -200,7 +200,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // ------------------ <QueryTypeSelector /> ------------------------------
 
     const QueryTypeSelector:React.SFC<{
-        menuItems:Immutable.List<QueryTypeMenuItem>;
+        menuItems:Array<QueryTypeMenuItem>;
         value:QueryType;
         isMobile:boolean;
         onChange:(v:QueryType)=>void;
@@ -276,7 +276,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         queryLanguage:string;
         queryLanguage2:string;
         searchLanguages:Immutable.List<SearchLanguage>;
-        targetLanguages:Immutable.List<[string, string]>;
+        targetLanguages:Array<[string, string]>;
         maxCmpQueries:number;
         onEnterKey:()=>void;
 
@@ -446,7 +446,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 <div className="WdglanceControls">
                     <form className="cnc-form">
                         <div>
-                            {this.props.queryTypesMenuItems.filter(v => v.isEnabled).size > 1 ?
+                            {this.props.queryTypesMenuItems.filter(v => v.isEnabled).length > 1 ?
                                 <QueryTypeSelector menuItems={this.props.queryTypesMenuItems}
                                         value={this.props.queryType}
                                         onChange={this.handleQueryTypeChange}
@@ -461,7 +461,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                     queryLanguage={this.props.queryLanguage}
                                     queryLanguage2={this.props.queryLanguage2}
                                     searchLanguages={this.props.searchLanguages}
-                                    targetLanguages={this.props.targetLanguages.get(this.props.queryType)}
+                                    targetLanguages={this.props.targetLanguages[this.props.queryType]}
                                     onEnterKey={this.handleSubmit}
                                     maxCmpQueries={this.props.maxCmpQueries} />
                             <SubmitButton onClick={this.handleSubmit} />

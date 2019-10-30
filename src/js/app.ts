@@ -88,7 +88,7 @@ export interface InitIntArgs {
 
 
 export function createRootComponent({config, userSession, lemmas, appServices, dispatcher,
-    onResize, viewUtils, cache}:InitIntArgs):[React.FunctionComponent<WdglanceMainProps>, Immutable.List<TileGroup>, TileIdentMap] {
+    onResize, viewUtils, cache}:InitIntArgs):[React.FunctionComponent<WdglanceMainProps>, Array<TileGroup>, TileIdentMap] {
 
     const qType = userSession.queryType as QueryType; // TODO validate
     const isDictQuery = userSession.queryType === QueryType.CMP_QUERY ?
