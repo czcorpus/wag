@@ -21,7 +21,7 @@ import { Observable, Observer, of } from 'rxjs';
 import { map, mergeMap, reduce } from 'rxjs/operators';
 
 import { AppServices } from '../../../appServices';
-import { BacklinkArgs, FreqTreeAPI, APIBlockResponse, CritVariantsResponse } from '../../../common/api/kontext/freqTree';
+import { BacklinkArgs, FreqTreeAPI, APILeafResponse, APIVariantsResponse } from '../../../common/api/kontext/freqTree';
 import { GeneralCritFreqTreeModelState, stateToAPIArgs, FreqTreeDataBlock } from '../../../common/models/freqTree';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { puid } from '../../../common/util';
@@ -93,19 +93,21 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                 
                 const newState = this.copyState(state);
                 if (action.error) {
-                    newState.frequencyTree = Immutable.List([{
+                    newState.frequencyTree = Immutable.List(newState.fcritTrees.map((_, index) => ({
                         data: Immutable.Map(),
                         ident: puid(),
-                        label: '',
+                        label: state.treeLabels ? state.treeLabels.get(index) : '',
                         isReady: true
-                    } as FreqTreeDataBlock]);
+                    }) as FreqTreeDataBlock))
                     newState.error = action.error.message;
                     newState.isBusy = false;
                 } else {
-                    const freqTreeBlock = newState.frequencyTree.get(0);
-                    freqTreeBlock.isReady = !action.payload.isEmpty;
-                    freqTreeBlock.data = action.payload.data;
-                    newState.frequencyTree = newState.frequencyTree.set(0, freqTreeBlock);                        
+                    newState.frequencyTree = action.payload.data.valueSeq().map((value, index) => ({
+                        data: Immutable.fromJS(value),
+                        ident: puid(),
+                        label: state.treeLabels ? state.treeLabels.get(index) : '',
+                        isReady: true,
+                    }) as FreqTreeDataBlock).toList();
                     newState.isBusy = false;
                     newState.backlink = null;
                 }
@@ -117,33 +119,39 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
     sideEffects(state:FreqTreeModelState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
-                new Observable((observer:Observer<LemmaVariant>) => {
-                    this.lemmas.forEach(lemma => {
-                        observer.next(findCurrLemmaVariant(lemma));
-                    });
+                new Observable((observer:Observer<[number, LemmaVariant]>) => {
+                    state.fcritTrees.forEach((_, index) =>
+                        this.lemmas.forEach(lemma => {
+                            observer.next([index, findCurrLemmaVariant(lemma)]);
+                        })
+                    )
                     observer.complete();
                 }).pipe(
-                    mergeMap<LemmaVariant, Observable<CritVariantsResponse>>(lemma => 
+                    mergeMap<[number, LemmaVariant], Observable<[number, LemmaVariant, APIVariantsResponse]>>(([blockId, lemma]) => 
                         this.api.callVariants(
-                            stateToAPIArgs(state, 0),
+                            stateToAPIArgs(state, blockId, 0),
                             lemma
+                        ).pipe(
+                            map(resp => [blockId, lemma, resp])
                         )
                     ),
-                    mergeMap(resp1 =>
+                    mergeMap(([blockId, lemma, resp1]) =>
                         of(...resp1.fcritValues).pipe(
                             mergeMap(fcritValue =>
                                 this.api.call(
-                                    stateToAPIArgs(state, 1),
+                                    stateToAPIArgs(state, blockId, 1),
                                     resp1.concId,
                                     {[resp1.fcrit]: fcritValue}
                                 )
                             ),
-                            map(resp2 => [resp2, resp1.lemma] as [APIBlockResponse, LemmaVariant])
+                            map(resp2 => [blockId, lemma, resp2] as [number, LemmaVariant, APILeafResponse])
                         )
                     ),
-                    reduce<[APIBlockResponse, LemmaVariant], Immutable.Map<string, any>>((acc, [resp, lemma]) => acc.mergeDeep({
-                        [lemma.word]:{
-                            [resp.filter[state.fcritTree.get(0)]]:resp.data
+                    reduce<[number, LemmaVariant, APILeafResponse], Immutable.Map<string, any>>((acc, [blockId, lemma, resp]) => acc.mergeDeep({
+                        [blockId]:{
+                            [lemma.word]:{
+                                [resp.filter[state.fcritTrees.get(blockId).get(0)]]:resp.data
+                            }
                         }
                     }), Immutable.Map())
                 ).subscribe(

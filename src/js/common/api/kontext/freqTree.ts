@@ -51,20 +51,13 @@ export interface HTTPResponse {
     }>;
 }
 
-export interface DataTree {
-    name:string;
-    children:Array<{
-        name:string;
-        children:Array<DataRow>
-    }>
+export interface APIVariantsResponse {
+    fcrit:string;
+    fcritValues:Array<string>;
+    concId:string;
 }
 
-export interface DataRow {
-    name:string;
-    value:number;
-}
-
-export interface APIBlockResponse {
+export interface APILeafResponse {
     filter:{[attr:string]:string}
     data:Array<{name:string; value:number;}>;
     concId:string;
@@ -88,7 +81,6 @@ interface CoreQueryArgs {
     corpname:string;
     pagesize?:number;
     flimit:number;
-    freq_sort:string;
     fpage:number;
     ftt_include_empty:number;
     format:'json';
@@ -103,14 +95,7 @@ export interface WordDataApi<T, U> {
     call(queryArgs:T, concId:string, filter:{[attr:string]:string}):Observable<U>;
 }
 
-export interface CritVariantsResponse {
-    lemma:LemmaVariant;
-    fcrit:string;
-    fcritValues:Array<string>;
-    concId:string;
-}
-
-export class FreqTreeAPI implements WordDataApi<SingleCritQueryArgs, APIBlockResponse> {
+export class FreqTreeAPI implements WordDataApi<SingleCritQueryArgs, APILeafResponse> {
 
     private readonly apiURL:string;
 
@@ -151,7 +136,7 @@ export class FreqTreeAPI implements WordDataApi<SingleCritQueryArgs, APIBlockRes
         }
     }
 
-    callVariants(args:SingleCritQueryArgs, lemma:LemmaVariant):Observable<CritVariantsResponse> {
+    callVariants(args:SingleCritQueryArgs, lemma:LemmaVariant):Observable<APIVariantsResponse> {
         return this.concApi.call({
             corpname: args.corpname,
             queryselector: QuerySelector.CQL,
@@ -173,7 +158,7 @@ export class FreqTreeAPI implements WordDataApi<SingleCritQueryArgs, APIBlockRes
                 {...args, q: `~${x.concPersistenceID}`},
                 {headers: this.customHeaders}
             ).pipe(
-                map(resp => ({
+                map<HTTPResponse, APIVariantsResponse>(resp => ({
                     lemma: lemma,
                     fcrit: args.fcrit,
                     fcritValues: resp.Blocks.map(block =>
@@ -187,7 +172,7 @@ export class FreqTreeAPI implements WordDataApi<SingleCritQueryArgs, APIBlockRes
         ))
     }
 
-    call(args:SingleCritQueryArgs, concId:string, filter:{[attr:string]:string}):Observable<APIBlockResponse> {
+    call(args:SingleCritQueryArgs, concId:string, filter:{[attr:string]:string}):Observable<APILeafResponse> {
         return this.concApiFilter.call({
             corpname: args.corpname,
             queryselector: QuerySelector.CQL,
@@ -210,7 +195,7 @@ export class FreqTreeAPI implements WordDataApi<SingleCritQueryArgs, APIBlockRes
                 {...args, q: `~${x.concPersistenceID}`},
                 {headers: this.customHeaders}
             ).pipe(
-                map<HTTPResponse, APIBlockResponse>(
+                map<HTTPResponse, APILeafResponse>(
                     resp => ({
                         filter: filter,
                         data: resp.Blocks.map(block => 

@@ -19,7 +19,7 @@ import * as Immutable from 'immutable';
 import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
 
 import { AppServices } from '../../../appServices';
-import { FreqSort, FreqTreeAPI } from '../../../common/api/kontext/freqTree';
+import { FreqTreeAPI } from '../../../common/api/kontext/freqTree';
 import { FreqTreeDataBlock } from '../../../common/models/freqTree';
 import { LocalizedConfMsg } from '../../../common/types';
 import { QueryType } from '../../../common/query';
@@ -37,10 +37,9 @@ require('./style.less');
 export interface FreqTreeTileConf extends TileConf {
     apiURL:string;
     corpname:string;
-    fcritTree:Array<string>;
-    critLabels:LocalizedConfMsg|Array<LocalizedConfMsg>;
+    fcritTrees:Array<Array<string>>; // trees of 2 levels
+    treeLabels:LocalizedConfMsg|Array<LocalizedConfMsg>;
     flimit:number;
-    freqSort:FreqSort;
     fpage:number;
     fttIncludeEmpty:boolean;
     maxChartsPerLine?:number;
@@ -76,10 +75,10 @@ export class FreqTreeTile implements ITileProvider {
         this.appServices = appServices;
         this.blockingTiles = waitForTiles;
         this.label = appServices.importExternalMessage(conf.label);
-        const criteria = Immutable.List(conf.fcritTree);
-        const labels = Array.isArray(conf.critLabels) ?
-            conf.critLabels.map(v => this.appServices.importExternalMessage(v)) :
-            [this.appServices.importExternalMessage(conf.critLabels)];
+        const criteria = Immutable.fromJS(conf.fcritTrees);
+        const labels = Immutable.fromJS(Array.isArray(conf.treeLabels) ?
+            conf.treeLabels.map(v => this.appServices.importExternalMessage(v)) :
+            [this.appServices.importExternalMessage(conf.treeLabels)]);
 
         this.model = defaultModelFactory(
             this.dispatcher,
@@ -91,18 +90,17 @@ export class FreqTreeTile implements ITileProvider {
             {
                 isBusy: isBusy,
                 error: null,
-                frequencyTree: Immutable.List([{
+                frequencyTree: Immutable.List(criteria.map((_, index) => ({
                     data: Immutable.Map(),
                     ident: puid(),
-                    label: '',
+                    label: labels ? labels.get(index) : '',
                     isReady: false
-                } as FreqTreeDataBlock]),
+                }) as FreqTreeDataBlock)),
                 activeBlock: 0,
                 corpname: conf.corpname,
-                fcritTree: criteria,
-                critLabels: Immutable.List<string>(labels),
+                fcritTrees: criteria,
+                treeLabels: labels,
                 flimit: conf.flimit,
-                freqSort: conf.freqSort,
                 fpage: conf.fpage,
                 fttIncludeEmpty: conf.fttIncludeEmpty,
                 fmaxitems: 100,

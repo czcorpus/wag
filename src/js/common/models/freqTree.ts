@@ -17,7 +17,7 @@
  */
 import * as Immutable from 'immutable';
 
-import { FreqSort, SingleCritQueryArgs } from '../api/kontext/freqTree';
+import { SingleCritQueryArgs } from '../api/kontext/freqTree';
 import { LocalizedConfMsg } from '../types';
 
 
@@ -26,7 +26,6 @@ interface FreqTreeStateBase {
     error:string;
     corpname:string;
     flimit:number;
-    freqSort:FreqSort;
     fpage:number;
     fttIncludeEmpty:boolean;
     fmaxitems:number;
@@ -40,18 +39,17 @@ export interface FreqTreeDataBlock {
 }
 
 export interface GeneralCritFreqTreeModelState extends FreqTreeStateBase {
-    fcritTree:Immutable.List<string>;
-    critLabels:Immutable.List<LocalizedConfMsg>;
+    fcritTrees:Immutable.List<Immutable.List<string>>;
+    treeLabels:Immutable.List<LocalizedConfMsg>;
     frequencyTree:Immutable.List<FreqTreeDataBlock>;
 }
 
-export function stateToAPIArgs(state:GeneralCritFreqTreeModelState, critLevel:number, subcname?:string):SingleCritQueryArgs {
+export function stateToAPIArgs(state:GeneralCritFreqTreeModelState, blockId:number, critLevel:number, subcname?:string):SingleCritQueryArgs {
     return {
         corpname: state.corpname,
         usesubcorp: subcname,
-        fcrit: state.fcritTree.get(critLevel),
+        fcrit: state.fcritTrees.get(blockId).get(critLevel),
         flimit: state.flimit,
-        freq_sort: state.freqSort,
         fpage: state.fpage,
         ftt_include_empty: state.fttIncludeEmpty ? 1 : 0,
         format: 'json'

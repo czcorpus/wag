@@ -141,7 +141,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     cursor={false}
                     isAnimationActive={false}
                     separator=""
-                    formatter={(value, name, props) => `${props.payload.name}: ${value}`} />
+                    formatter={(value, name, props) => `${props.payload.root.name} -> ${props.payload.name}: ${value}`} />
             </TreeWrapper>
         );
     };
