@@ -34,13 +34,13 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const processData = (data:Immutable.List<DataRow>, words:Immutable.List<string>) => {
         return data.groupBy(x => x.name).map((values, name) => {
-            const totalFreq = values.reduce((acc, curr) => acc + curr.freq, 0)
+            const totalIpm = values.reduce((acc, curr) => acc + curr.ipm, 0)
             let wordData = {}
 
             // calculate percentage from frequency
             values.forEach(item => {
-                wordData[item.word] = (100*item.freq/totalFreq).toFixed(2);
-                wordData[`${item.word}_abs`] = item.freq;
+                wordData[item.word] = (100*item.ipm/totalIpm).toFixed(2);
+                wordData[`${item.word}_abs`] = item.ipm;
             });
             
             // add also words with no data

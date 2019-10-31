@@ -180,7 +180,7 @@ export class FreqTreeAPI implements WordDataApi<SingleCritQueryArgs, APILeafResp
                         data: resp.Blocks.map(block => 
                             block.Items.map(v => ({
                                 name: v.Word.map(v => v.n).join(' '),
-                                value: v.freq
+                                value: v.rel
                             }))
                         ).reduce((acc,curr) => [...acc, ...curr], []),
                         concId: resp.conc_persistence_op_id,
