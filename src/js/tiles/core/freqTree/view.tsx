@@ -75,16 +75,16 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             stroke: '#fff',
                             strokeWidth: 2 / (depth + 1e-10),
                             strokeOpacity: 1 / (depth + 1e-10),
-                        }}/>
+                        }} />
                     
                     {
-                        name && name.length * 6 < width ?
-                            depth === 1 ? (
-                                <text x={x + width / 2} y={y + height / 2 + 7} textAnchor="middle" fill="black" fontSize={16}>
+                        name ?
+                            depth === 1 && name.length * 6 < width ? (
+                                <text x={x + width / 2} y={y + 20} textAnchor="middle" fill="rgb(60,60,60)" fontSize={14} fontWeight={900}>
                                     {name}
                                 </text>
-                            ) : depth === 2 ? (
-                                <text x={x + 4} y={y + 18} textAnchor="enstart" fill="black" fontSize={14}>
+                            ) : depth === 2 && name.length * 4 < width ? (
+                                <text x={x + width / 2} y={y + height / 2 + 10} textAnchor="middle" fill="black" fontSize={10} fontWeight={600}>
                                     {name}
                                 </text>
                             ) : null
@@ -141,7 +141,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     cursor={false}
                     isAnimationActive={false}
                     separator=""
-                    formatter={(value, name, props) => `${props.payload.root.name} -> ${props.payload.name}: ${(100*value/props.payload.root.value).toFixed(2)}% (${value})`} />
+                    formatter={(value, name, props) => <span>{props.payload.root.name} <br/> -> {props.payload.name}: {(100*value/props.payload.root.value).toFixed(2)}% ({value})</span>} />
             </TreeWrapper>
         );
     };
@@ -196,7 +196,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                                 if (transformedData) {
                                                     const lemmaData = transformedData.find(item => item.name === word).children;
                                                     if (lemmaData) {
-                                                        return <div>
+                                                        return <div key={word}>
                                                             <p style={{textAlign: 'center'}}>{word}</p>
                                                             <Tree data={lemmaData} width={chartWidth} height={250}
                                                                 isMobile={this.props.isMobile} colors={this.props.colors} />
