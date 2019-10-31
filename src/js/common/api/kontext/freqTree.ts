@@ -1,6 +1,6 @@
 /*
- * Copyright 2018 Tomas Machalek <tomas.machalek@gmail.com>
- * Copyright 2018 Institute of the Czech National Corpus,
+ * Copyright 2019 Martin Zimandl <martin.zimandl@gmail.com>
+ * Copyright 2019 Institute of the Czech National Corpus,
  *                Faculty of Arts, Charles University
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,31 +24,10 @@ import { CorpusInfoAPI, APIResponse as CorpusInfoApiResponse } from './corpusInf
 import { ConcApi, QuerySelector } from './concordance';
 import { ViewMode } from '../abstract/concordance';
 import { LemmaVariant } from '../../query';
+import { HTTPResponse } from './freqs';
 
 export enum FreqSort {
     REL = 'rel'
-}
-
-export interface HTTPResponse {
-    conc_persistence_op_id:string;
-    concsize:number;
-    Blocks:Array<{
-        Head:Array<{s:string; n:string}>;
-        Items:Array<{
-            Word:Array<{n:string}>;
-            fbar:number;
-            freq:number;
-            freqbar:number;
-            nbar:number;
-            norm:number;
-            nfilter:Array<[string, string]>;
-            pfilter:Array<[string, string]>;
-            rel:number;
-            relbar:number;
-        }>;
-        Total:number;
-        TotalPages:number;
-    }>;
 }
 
 export interface APIVariantsResponse {
