@@ -141,7 +141,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     cursor={false}
                     isAnimationActive={false}
                     separator=""
-                    formatter={(value, name, props) => <span>{props.payload.root.name} <br/> -> {props.payload.name}: {(100*value/props.payload.root.value).toFixed(2)}% ({value})</span>} />
+                    formatter={(value, name, props) => <span>{props.payload.root.name} <br/> -> {props.payload.name}: {(100*value/props.payload.root.value).toFixed(2)} % ({value} ipm)</span>} />
             </TreeWrapper>
         );
     };
@@ -192,12 +192,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                     <div key={block.ident} style={{width: chartsViewBoxWidth, height: "100%"}}>
                                         <h3>{block.label}</h3>
                                         {
-                                            this.props.lemmas.map(lemma => findCurrLemmaVariant(lemma).word).map(word => {
+                                            this.props.lemmas.map(lemma => findCurrLemmaVariant(lemma).word).map((word, index) => {
                                                 if (transformedData) {
                                                     const lemmaData = transformedData.find(item => item.name === word).children;
                                                     if (lemmaData) {
                                                         return <div key={word}>
-                                                            <p style={{textAlign: 'center'}}>{word}</p>
+                                                            <h4>{`${index + 1}. ${word}`}</h4>
                                                             <Tree data={lemmaData} width={chartWidth} height={250}
                                                                 isMobile={this.props.isMobile} colors={this.props.colors} />
                                                         </div>

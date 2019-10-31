@@ -113,7 +113,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <XAxis type="number" unit="%" ticks={[0, 25, 50, 75, 100]} domain={[0, 100]} interval={0} />
                     <YAxis type="category" dataKey="name" width={Math.max(60, maxLabelWidth * 8)} interval={0} />
                     <Legend />
-                    <Tooltip cursor={false} isAnimationActive={false} formatter={(value, name, props) => `${value}% (${props.payload[`${name}_abs`]})`} />
+                    <Tooltip cursor={false} isAnimationActive={false} formatter={(value, name, props) => `${value} % (${props.payload[`${name}_abs`]} ipm)`} />
                 </ChartWrapper>
             </div>
         );
