@@ -156,7 +156,7 @@ export class FreqTreeAPI implements WordDataApi<SingleCritQueryArgs, APILeafResp
             corpname: args.corpname,
             queryselector: QuerySelector.CQL,
             q: `~${concId}`,
-            q2: `p0 0 1 [] within <doc ${Object.entries(filter).map(([key, value]) => `${key.split(' ')[0].replace('doc.', '')}="${value}"`).join(' & ')}/>`,
+            q2: `p0 0 1 [] within ${Object.entries(filter).map(([key, value]) => `<${key.split('.')[0]} ${key.split('.')[1].split(' ')[0]}="${value}"/>`).join(' & ')}`,
             kwicleftctx: '0',
             kwicrightctx: '0',
             async: '0',

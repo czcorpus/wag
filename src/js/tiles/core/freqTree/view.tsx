@@ -27,18 +27,19 @@ import { ActionName, Actions } from './actions';
 import { FreqTreeModel, FreqTreeModelState } from './model';
 import { findCurrLemmaVariant } from '../../../models/query';
 
+type TreeData = {name: any; children:any[]}[];
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:FreqTreeModel):TileComponent {
 
     const globComponents = ut.getComponents();
 
-    const transformData = (data:Immutable.Map<string, any>):{name: any; children:any[]}[] => {        
+    const transformData = (data:Immutable.Map<string, any>):TreeData => {        
         return data.entrySeq().map(([k1, v1]) => ({
             name: k1,
             children: v1.entrySeq().map(([k2, v2]) => ({
                 name: k2,
-                children: v2.toJS()
-            })).toArray()
+                children: v2.toJS().sort((a, b) => a.name > b.name ? 1 : -1)
+            })).toArray().sort((a, b) => a.name > b.name ? 1 : -1)
         })).toArray()
     }
 
@@ -69,7 +70,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         width={width}
                         height={height}
                         style={{
-                            fill: depth < 2 ? colors[index] : 'white',
+                            fill: depth === 1 ? colors[index % colors.length] : 'white',
                             fillOpacity: depth > 1 ? 0 : 1,
                             stroke: '#fff',
                             strokeWidth: 2 / (depth + 1e-10),
@@ -95,16 +96,15 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     }
 
     const TreeWrapper:React.SFC<{
-        data:Immutable.Map<string,any>;
+        data:TreeData;
         width:string|number;
         height:string|number;
         colors:Array<string>;
         isMobile:boolean;
     }> = (props) => {
-        const processedData = transformData(props.data);
         if (props.isMobile) {
             return (
-                <Treemap data={processedData}
+                <Treemap data={props.data}
                         width={typeof props.width === 'string' ? parseInt(props.width) : props.width}
                         height={typeof props.height === 'string' ? parseInt(props.height) : props.height}
                         isAnimationActive={false}
@@ -116,7 +116,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         } else {
             return (
                 <ResponsiveContainer width={props.width} height={props.height}>
-                    <Treemap data={processedData}
+                    <Treemap data={props.data}
                             content={<CustomizedContent colors={props.colors} />}>
                         {props.children}
                     </Treemap>
@@ -129,7 +129,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // -------------------------- <Tree /> --------------------------------------
 
     const Tree:React.SFC<{
-        data:Immutable.Map<string,any>;
+        data:TreeData;
         width:string|number;
         height:string|number;
         isMobile:boolean;
@@ -141,7 +141,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     cursor={false}
                     isAnimationActive={false}
                     separator=""
-                    formatter={(value, name, props) => `${props.payload.root.name} -> ${props.payload.name}: ${value}`} />
+                    formatter={(value, name, props) => `${props.payload.root.name} -> ${props.payload.name}: ${(100*value/props.payload.root.value).toFixed(2)}% (${value})`} />
             </TreeWrapper>
         );
     };
@@ -187,13 +187,24 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <div className={`charts${this.props.isBusy ? ' incomplete' : ''}`} ref={this.chartsRef} onScroll={this.handleScroll} style={{flexWrap: this.props.isMobile ? 'nowrap' : 'wrap'}}>
                             {this.props.frequencyTree.filter(block => block.isReady).map(block => {
                                 const chartWidth = this.props.isMobile ? (this.props.renderSize[0] * 0.9).toFixed() : "90%";
+                                const transformedData = block.data.size > 0 ? transformData(block.data) : null;
                                 return  (
                                     <div key={block.ident} style={{width: chartsViewBoxWidth, height: "100%"}}>
                                         <h3>{block.label}</h3>
-                                        {block.data.size > 0 ?
-                                            <Tree data={block.data} width={chartWidth} height={250}
-                                                    isMobile={this.props.isMobile} colors={this.props.colors} /> :
-                                            <p className="note" style={{textAlign: 'center'}}>No result</p>
+                                        {
+                                            this.props.lemmas.map(lemma => findCurrLemmaVariant(lemma).word).map(word => {
+                                                if (transformedData) {
+                                                    const lemmaData = transformedData.find(item => item.name === word).children;
+                                                    if (lemmaData) {
+                                                        return <div>
+                                                            <p style={{textAlign: 'center'}}>{word}</p>
+                                                            <Tree data={lemmaData} width={chartWidth} height={250}
+                                                                isMobile={this.props.isMobile} colors={this.props.colors} />
+                                                        </div>
+                                                    }
+                                                }
+                                                return <p className="note" style={{textAlign: 'center'}}>No result</p>
+                                            })
                                         }
                                     </div>
                                 );

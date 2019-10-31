@@ -28,7 +28,6 @@ export enum ActionName {
 
 export interface DataLoadedPayload {
     data:Immuatable.Map<string, any>;
-    blockLabel?:LocalizedConfMsg;
 }
 
 export namespace Actions {

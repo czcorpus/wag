@@ -102,7 +102,7 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                     newState.error = action.error.message;
                     newState.isBusy = false;
                 } else {
-                    newState.frequencyTree = action.payload.data.entrySeq().map(([blockId, value]) => ({
+                    newState.frequencyTree = action.payload.data.sortBy((_, key) => key).entrySeq().map(([blockId, value]) => ({
                         data: Immutable.fromJS(value),
                         ident: puid(),
                         label: state.treeLabels ? state.treeLabels.get(blockId) : '',
@@ -120,9 +120,9 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
                 new Observable((observer:Observer<[number, LemmaVariant]>) => {
-                    state.fcritTrees.forEach((_, index) =>
+                    state.fcritTrees.forEach((_, blockId) =>
                         state.lemmas.forEach(lemma => {
-                            observer.next([index, findCurrLemmaVariant(lemma)]);
+                            observer.next([blockId, findCurrLemmaVariant(lemma)]);
                         })
                     )
                     observer.complete();
