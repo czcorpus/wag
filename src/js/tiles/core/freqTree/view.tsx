@@ -58,13 +58,15 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         colors?:Array<string>;
         rank?:number;
         name?:string;
+        handleZoom:(category:string) => void;
     }> {
         render() {
-            const {root, depth, x, y, width, height, index, payload, colors, rank, name} = this.props;
+            const {root, depth, x, y, width, height, index, payload, colors, rank, name, handleZoom} = this.props;
             // leaf rect needs to be filled with color in order to show tooltip on mouse over
             return (
                 <g>
                     <rect
+                        onDoubleClick={() => handleZoom(root.name)}
                         x={x}
                         y={y}
                         width={width}
@@ -79,11 +81,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     
                     {
                         name ?
-                            depth === 1 && name.length * 6 < width ? (
+                            depth === 1 && name.length * 6 < width && height > 14 ? (
                                 <text x={x + width / 2} y={y + 20} textAnchor="middle" fill="rgb(60,60,60)" fontSize={14} fontWeight={900}>
                                     {name}
                                 </text>
-                            ) : depth === 2 && name.length * 4 < width ? (
+                            ) : depth === 2 && name.length * 4 < width && height > 10 ? (
                                 <text x={x + width / 2} y={y + height / 2 + 10} textAnchor="middle" fill="black" fontSize={10} fontWeight={600}>
                                     {name}
                                 </text>
@@ -101,6 +103,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         height:string|number;
         colors:Array<string>;
         isMobile:boolean;
+        handleZoom:(category:string) => void;
     }> = (props) => {
         if (props.isMobile) {
             return (
@@ -108,7 +111,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         width={typeof props.width === 'string' ? parseInt(props.width) : props.width}
                         height={typeof props.height === 'string' ? parseInt(props.height) : props.height}
                         isAnimationActive={false}
-                        content={<CustomizedContent colors={props.colors} />}>
+                        content={<CustomizedContent colors={props.colors} handleZoom={props.handleZoom}/>}>
                     {props.children}
                 </Treemap>
             );
@@ -117,7 +120,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             return (
                 <ResponsiveContainer width={props.width} height={props.height}>
                     <Treemap data={props.data}
-                            content={<CustomizedContent colors={props.colors} />}>
+                            content={<CustomizedContent colors={props.colors} handleZoom={props.handleZoom}/>}>
                         {props.children}
                     </Treemap>
                 </ResponsiveContainer>
@@ -134,14 +137,19 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         height:string|number;
         isMobile:boolean;
         colors:Array<string>;
+        handleZoom:(category:string) => void;
     }> = (props) => {
         return (
-            <TreeWrapper data={props.data} isMobile={props.isMobile} width={props.width} height={props.height} colors={props.colors}>
+            <TreeWrapper data={props.data} handleZoom={props.handleZoom} isMobile={props.isMobile} width={props.width} height={props.height} colors={props.colors}>
                 <Tooltip
                     cursor={false}
                     isAnimationActive={false}
                     separator=""
-                    formatter={(value, name, props) => <span>{props.payload.root.name} <br/> -> {props.payload.name}: {(100*value/props.payload.root.value).toFixed(2)} % ({value} ipm)</span>} />
+                    formatter={(value, name, props) =>
+                        <span>
+                            {props.payload.root.name}<br/>{' -> '}{props.payload.name}: {(100*value/props.payload.root.value).toFixed(2)} % ({value} ipm)
+                        </span>
+                    }/>
             </TreeWrapper>
         );
     };
@@ -175,6 +183,18 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             }
         }
 
+        private handleZoom(blockId:number, variantId:number, category:string) {
+            dispatcher.dispatch<Actions.SetZoom>({
+                name: ActionName.SetZoom,
+                payload: {
+                    tileId: this.props.tileId,
+                    blockId: blockId,
+                    variantId: variantId,
+                    category: category
+                }
+            });
+        }
+
         render() {
             const chartsViewBoxWidth = this.props.isMobile ? '100%' : `${100 / Math.min(this.props.frequencyTree.size, this.props.maxChartsPerLine)}%`;
             return (
@@ -185,21 +205,37 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         supportsTileReload={this.props.supportsReloadOnError}>
                     <div className="FreqTreeTile">
                         <div className={`charts${this.props.isBusy ? ' incomplete' : ''}`} ref={this.chartsRef} onScroll={this.handleScroll} style={{flexWrap: this.props.isMobile ? 'nowrap' : 'wrap'}}>
-                            {this.props.frequencyTree.filter(block => block.isReady).map(block => {
+                            {this.props.frequencyTree.filter(block => block.isReady).map((block, blockId) => {
                                 const chartWidth = this.props.isMobile ? (this.props.renderSize[0] * 0.9).toFixed() : "90%";
                                 const transformedData = block.data.size > 0 ? transformData(block.data) : null;
                                 return  (
                                     <div key={block.ident} style={{width: chartsViewBoxWidth, height: "100%"}}>
                                         <h3>{block.label}</h3>
                                         {
-                                            this.props.lemmas.map(lemma => findCurrLemmaVariant(lemma).word).map((word, index) => {
+                                            this.props.lemmas.map(lemma => findCurrLemmaVariant(lemma).word).map((word, variantId) => {
                                                 if (transformedData) {
-                                                    const lemmaData = transformedData.find(item => item.name === word).children;
-                                                    if (lemmaData) {
+                                                    let variantData = transformedData.find(item => item.name === word).children;
+                                                    if (variantData) {
+                                                        // zooming category done by making children zero size
+                                                        // this will keep the same category colors and make nice transition animations
+                                                        const zoomCategory = this.props.zoomCategory.get(blockId).get(variantId);
+                                                        if (zoomCategory) {
+                                                            variantData = variantData.map(item =>
+                                                                item.name === zoomCategory ? item :
+                                                                {name: item.name, children: item.children.map(child =>
+                                                                    ({name: child.name, value: 0})
+                                                                )}
+                                                            );
+                                                        }
                                                         return <div key={word}>
-                                                            <h4>{`${index + 1}. ${word}`}</h4>
-                                                            <Tree data={lemmaData} width={chartWidth} height={250}
-                                                                isMobile={this.props.isMobile} colors={this.props.colors} />
+                                                            <h4>{`${variantId + 1}. ${word}`}</h4>
+                                                            <Tree
+                                                                data={variantData}
+                                                                width={chartWidth}
+                                                                height={250}
+                                                                handleZoom={(category) => this.handleZoom(blockId, variantId, category)}
+                                                                isMobile={this.props.isMobile}
+                                                                colors={this.props.colors} />
                                                         </div>
                                                     }
                                                 }

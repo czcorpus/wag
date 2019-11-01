@@ -38,6 +38,7 @@ export interface FreqTreeModelState extends GeneralCritFreqTreeModelState {
     maxChartsPerLine:number;
     colors:Array<string>;
     lemmas:RecognizedQueries;
+    zoomCategory:Immutable.List<Immutable.List<string|null>>;
 }
 
 export interface FreqComparisonModelArgs {
@@ -82,6 +83,20 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                 if (action.payload['tileId'] === this.tileId) {
                     const newState = this.copyState(state);
                     newState.activeBlock = action.payload.idx;
+                    return newState;
+                }
+                return state
+            },
+            [ActionName.SetZoom]: (state, action:Actions.SetZoom) => {
+                if (action.payload['tileId'] === this.tileId) {
+                    const newState = this.copyState(state);
+                    let blockZoomCategory = newState.zoomCategory.get(action.payload.blockId);
+                    if (blockZoomCategory.get(action.payload.variantId)) {
+                        blockZoomCategory = blockZoomCategory.set(action.payload.variantId, null);
+                    } else {
+                        blockZoomCategory = blockZoomCategory.set(action.payload.variantId, action.payload.category);
+                    }
+                    newState.zoomCategory = newState.zoomCategory.set(action.payload.blockId, blockZoomCategory);
                     return newState;
                 }
                 return state

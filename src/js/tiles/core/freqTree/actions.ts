@@ -17,13 +17,13 @@
  */
 import { Action } from 'kombo';
 
-import { LocalizedConfMsg } from '../../../common/types';
 import * as Immuatable from 'immutable';
 
 
 
 export enum ActionName {
-    SetActiveBlock = 'FREQ_TREE_SET_ACTIVE_BLOCK'
+    SetActiveBlock = 'FREQ_TREE_SET_ACTIVE_BLOCK',
+    SetZoom = 'FREQ_TREE_SET_ZOOM'
 }
 
 export interface DataLoadedPayload {
@@ -37,5 +37,14 @@ export namespace Actions {
         tileId:number;
     }> {
         name: ActionName.SetActiveBlock;
+    }
+
+    export interface SetZoom extends Action<{
+        tileId:number;
+        blockId:number;
+        variantId:number;
+        category:string;
+    }> {
+        name: ActionName.SetZoom;
     }
 }
