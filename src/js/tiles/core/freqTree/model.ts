@@ -102,8 +102,8 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                     newState.error = action.error.message;
                     newState.isBusy = false;
                 } else {
-                    newState.frequencyTree = action.payload.data.entrySeq().map(([blockId, value]) => ({
-                        data: Immutable.fromJS(value),
+                    newState.frequencyTree = action.payload.data.sortBy((_, key) => key).entrySeq().map(([blockId, data]) => ({
+                        data: data,
                         ident: puid(),
                         label: state.treeLabels ? state.treeLabels.get(blockId) : '',
                         isReady: true,
@@ -120,9 +120,9 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
                 new Observable((observer:Observer<[number, LemmaVariant]>) => {
-                    state.fcritTrees.forEach((_, index) =>
+                    state.fcritTrees.forEach((_, blockId) =>
                         state.lemmas.forEach(lemma => {
-                            observer.next([index, findCurrLemmaVariant(lemma)]);
+                            observer.next([blockId, findCurrLemmaVariant(lemma)]);
                         })
                     )
                     observer.complete();
@@ -147,13 +147,24 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                             map(resp2 => [blockId, lemma, resp2] as [number, LemmaVariant, APILeafResponse])
                         )
                     ),
-                    reduce<[number, LemmaVariant, APILeafResponse], Immutable.Map<string, any>>((acc, [blockId, lemma, resp]) => acc.mergeDeep({
-                        [blockId]:{
-                            [lemma.word]:{
-                                [resp.filter[state.fcritTrees.get(blockId).get(0)]]:resp.data
-                            }
-                        }
-                    }), Immutable.Map()),
+                    reduce<[number, LemmaVariant, APILeafResponse], Immutable.Map<string, any>>((acc, [blockId, lemma, resp]) =>
+                        acc.mergeDeep(
+                            Immutable.fromJS({
+                                [blockId]:{
+                                    [lemma.word]:{
+                                        [this.appServices.translateDbValue(
+                                            state.corpname,
+                                            resp.filter[state.fcritTrees.get(blockId).get(0)]
+                                        )]:resp.data.map(item => ({
+                                            ...item,
+                                            name: this.appServices.translateDbValue(state.corpname, item.name)}
+                                        ))
+                                    }
+                                }
+                            })
+                        ),
+                        Immutable.Map()
+                    )
                 ).subscribe(
                     data => {
                         dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
