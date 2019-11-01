@@ -86,7 +86,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                     {name}
                                 </text>
                             ) : depth === 2 && name.length * 4 < width && height > 10 ? (
-                                <text x={x + width / 2} y={y + height / 2 + 10} textAnchor="middle" fill="black" fontSize={10} fontWeight={600}>
+                                <text x={x + width / 2} y={y + height / 2 + 4} textAnchor="middle" fill="black" fontSize={10} fontWeight={600}>
                                     {name}
                                 </text>
                             ) : null
