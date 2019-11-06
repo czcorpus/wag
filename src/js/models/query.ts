@@ -31,13 +31,13 @@ import { LayoutManager } from '../layout';
 export interface QueryFormModelState {
     queries:Immutable.List<Forms.Input>;
     initialQueryType:QueryType;
-    multiWordQuerySupport:Immutable.Map<QueryType, boolean>;
+    multiWordQuerySupport:{[k in QueryType]:boolean};
     queryType:QueryType;
     queryLanguage:string;
     queryLanguage2:string;
     searchLanguages:Immutable.List<SearchLanguage>;
-    targetLanguages:Immutable.Map<QueryType, Immutable.List<[string, string]>>;
-    queryTypesMenuItems:Immutable.List<QueryTypeMenuItem>;
+    targetLanguages:{[k in QueryType]:Array<[string, string]>};
+    queryTypesMenuItems:Array<QueryTypeMenuItem>;
     errors:Immutable.List<Error>;
     lemmas:RecognizedQueries;
     isAnswerMode:boolean;
@@ -223,7 +223,7 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
             state.errors = state.errors.push(new Error(this.appServices.translate('global__query_contains_unsupported_chars')));
             isValid = false;
         }
-        if (state.multiWordQuerySupport.get(state.queryType) === false && /\s/.exec(state.queries.get(idx).value)) {
+        if (state.multiWordQuerySupport[state.queryType] === false && /\s/.exec(state.queries.get(idx).value)) {
             state.errors = state.errors.push(new Error(this.appServices.translate('global__query_cannot_be_multi_word')));
             isValid = false;
         }

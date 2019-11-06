@@ -170,12 +170,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
 
     const SourceLink:React.SFC<{
         tileId:number;
-        data:SourceInfo|Array<SourceInfo>;
-        backlink:BacklinkWithArgs<{}>|Array<BacklinkWithArgs<{}>>;
+        data:SourceInfo|Array<SourceInfo>|undefined;
+        backlink:BacklinkWithArgs<{}>|Array<BacklinkWithArgs<{}>>|undefined;
 
     }> = (props) => {
 
-        const handleClick = (corp:string, subcorp:string) => () => {
+        const handleClick = (corp:string, subcorp:string|undefined) => () => {
             dispatcher.dispatch<Actions.GetSourceInfo>({
                 name: ActionName.GetSourceInfo,
                 payload: {
@@ -326,7 +326,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                             }
                         </div>
                     </div>
-                    {props.hasData && (props.sourceIdent || props.backlink) ? <SourceLink data={props.sourceIdent} backlink={props.backlink} tileId={props.tileId} /> : null}
+                    {props.hasData && (props.sourceIdent || props.backlink) ?
+                        <SourceLink data={props.sourceIdent} backlink={props.backlink} tileId={props.tileId} /> :
+                        null
+                    }
                 </div>
             );
         }
@@ -334,7 +337,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
 
     // --------------- <ErrorBoundary /> -------------------------------------------
 
-    class ErrorBoundary extends React.Component<{}, {error: string}> {
+    class ErrorBoundary extends React.Component<{}, {error: string|null}> {
 
         constructor(props) {
             super(props);
@@ -423,7 +426,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
             <div className={`HorizontalBlockSwitch${props.htmlClass ? ' ' + props.htmlClass : ''}`}>
                 {props.blockIndices.map(ident =>
                         <a key={ident} className={`${props.currentIdx === ident ? 'current' : ''}`}
-                                onClick={()=>props.onChange(ident)}>{'\u25A0'}</a>)}
+                                onClick={ident ? ()=>props.onChange(ident) : undefined}>{'\u25A0'}</a>)}
             </div>
         );
     };
@@ -500,7 +503,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
 
     const ElementTooltip:GlobalComponents['ElementTooltip'] = (props) => {
 
-        const ref = React.useRef(null);
+        const ref = React.useRef<HTMLDivElement>(null);
 
         const calcXPos = () =>
             ref.current ? Math.max(0, props.x - ref.current.getBoundingClientRect().width - 20) : props.x;
@@ -520,7 +523,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                 <table>
                     <tbody>
                         {Object.keys(props.values || {}).map(label => {
-                            const v = props.values[label];
+                            const v = props.values ? props.values[label] : '';
                             return (
                                 <tr key={label}>
                                 <th>{label}:</th>

@@ -42,7 +42,7 @@ export namespace KeyCodes {
 export function puid():string {
     const ab = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     const len = ab.length;
-    const ans = [];
+    const ans:Array<string> = [];
 
     let x = new Date().getTime();
     while (x > 0) {
@@ -59,7 +59,7 @@ export function puid():string {
 
 
 export function repeat<T>(fn:()=>T, size:number):Array<T> {
-    const ans = [];
+    const ans:Array<T> = [];
     for (let i = 0; i < size; i += 1) {
         ans.push(fn());
     }

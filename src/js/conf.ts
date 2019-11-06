@@ -56,20 +56,26 @@ export interface GroupLayoutConfig {
     tiles:Array<{tile:string; width:number}>;
 }
 
+export type GroupItemConfig = GroupLayoutConfig|string;
+
+export interface LayoutConfigCommon {
+    groups:Array<GroupItemConfig>;
+    allowMultiWordQuery?:boolean;
+}
+
+export interface LayoutConfigSingleQuery extends LayoutConfigCommon {}
+
+export interface LayoutConfigCmpQuery extends LayoutConfigCommon {}
+
+
+export interface LayoutConfigTranslatQuery extends LayoutConfigCommon {
+    targetLanguages:Array<string>;
+}
+
 export interface LayoutsConfig {
-    single?:{
-        groups:Array<GroupLayoutConfig|string>;
-        allowMultiWordQuery?:boolean;
-    };
-    cmp?:{
-        groups:Array<GroupLayoutConfig|string>;
-        allowMultiWordQuery?:boolean;
-    };
-    translat?:{
-        groups:Array<GroupLayoutConfig|string>;
-        targetLanguages:Array<string>;
-        allowMultiWordQuery?:boolean;
-    };
+    single?:LayoutConfigSingleQuery;
+    cmp?:LayoutConfigCmpQuery;
+    translat?:LayoutConfigTranslatQuery;
 }
 
 export interface HomePageTileConf {
@@ -170,7 +176,7 @@ export function emptyClientConf(conf:ClientStaticConf):ClientConf {
         apiHeaders: conf.apiHeaders,
         dbValuesMapping: conf.dbValuesMapping,
         reqCacheTTL: conf.reqCacheTTL,
-        onLoadInit: conf.onLoadInit,
+        onLoadInit: conf.onLoadInit || [],
         colors: conf.colors,
         tiles: {},
         layouts: emptyLayoutConf(),

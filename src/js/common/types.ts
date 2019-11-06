@@ -23,15 +23,15 @@ export type AnyInterface<T> = {
     [P in keyof T]: T[P];
 };
 
-export interface IMultiDict {
-    getFirst(key:string):string;
-    getList(key:string):Array<string>;
-    set(key:string, value:number|boolean|string):void;
-    add(key:string, value:any):void;
-    replace(key:string, values:Array<string>);
-    remove(key:string):void;
-    items():Array<[string, string]>;
-    has(key:string):boolean;
+export interface IMultiDict<K, V> {
+    getFirst(key:string):V|undefined;
+    getList(key:string):Array<V>;
+    set(key:K, value:V):void;
+    add(key:K, value:V):void;
+    replace(key:K, values:Array<V>):void;
+    remove(key:K):void;
+    items():Array<[K, V]>;
+    has(key:K):boolean;
 }
 
 export type ListOfPairs = Array<[string, string|number]>;

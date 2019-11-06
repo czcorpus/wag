@@ -16,58 +16,74 @@
  * limitations under the License.
  */
 import { AnyInterface, IMultiDict, ListOfPairs } from './types';
+import { produce, Draft } from 'immer';
+import { number } from 'prop-types';
 
 
+export type AcceptedValue = string|number|boolean;
 
-export class MultiDict<T={}> implements IMultiDict {
+/**
+ * MultiDict is a IMultiDict implementation suitable for
+ * collecting HTTP request args.
+ */
+export class MultiDict implements IMultiDict<string, string|number|boolean> {
 
-    private _data:any;
+    private readonly data:{[k:string]:Array<string>};
 
-    constructor(data?:ListOfPairs|AnyInterface<T>|{[key:string]:string|number|Array<string|number>}) {
-        this._data = {};
+    constructor(data?:ListOfPairs|AnyInterface<{}>|{[key:string]:AcceptedValue|Array<AcceptedValue>}) {
+        this.data = {};
         if (Array.isArray(data)) {
             for (let i = 0; i < data.length; i += 1) {
-                let k = data[i][0];
-                let v = data[i][1];
-                if (this._data[k] === undefined) {
-                    this._data[k] = [];
+                const k = data[i][0];
+                const v = data[i][1];
+                if (this.data[k] === undefined) {
+                    this.data[k] = [];
                 }
-                this._data[k].push(v);
-                this[k] = v;
+                this.data[k].push(this.importValue(v));
             }
 
         } else if (data !== null && data !== undefined) {
             Object.keys(data).forEach(k => {
                 if (Array.isArray(data[k])) {
-                    this._data[k] = data[k];
+                    this.data[k] = data[k];
 
                 } else {
-                    this._data[k] = [data[k]];
+                    this.data[k] = [data[k]];
                 }
             });
         }
     }
 
+    private importValue(s:AcceptedValue):string {
+        if (typeof s === 'number') {
+            return s.toString();
+
+        } else if (typeof s === 'boolean') {
+            return s ? '1' : '0';
+        }
+        return s;
+    }
+
     static isMultiDict(v:any):v is MultiDict {
-        return typeof v === 'object' && v['_data'] !== undefined;
+        return v instanceof MultiDict;
     }
 
     size():number {
         let ans = 0;
-        for (let p in this._data) {
-            if (this._data.hasOwnProperty(p)) {
+        for (let p in this.data) {
+            if (this.data.hasOwnProperty(p)) {
                 ans += 1;
             }
         }
         return ans;
     }
 
-    getFirst(key:string):string {
-        return this._data[key] !== undefined ? this._data[key][0] : undefined;
+    getFirst(key:string):string|undefined {
+        return this.data[key] !== undefined ? this.data[key][0] : undefined;
     }
 
     getList(key:string):Array<string> {
-        return this._data[key] !== undefined ? this._data[key] : [];
+        return this.data[key] !== undefined ? this.data[key] : [];
     }
 
     /**
@@ -75,9 +91,8 @@ export class MultiDict<T={}> implements IMultiDict {
      * already a value present it is removed
      * first.
      */
-    set(key:string, value:number|boolean|string):void {
-        this[key] = value;
-        this._data[key] = [value];
+    set(key:string, value:AcceptedValue):void {
+        this.data[key] = [this.importValue(value)];
     }
 
     /**
@@ -87,8 +102,7 @@ export class MultiDict<T={}> implements IMultiDict {
      */
     replace(key:string, values:Array<string>):void {
         if (values.length > 0) {
-            this[key] = values[0];
-            this._data[key] = values || [];
+            this.data[key] = values || [];
 
         } else {
             this.remove(key);
@@ -96,8 +110,7 @@ export class MultiDict<T={}> implements IMultiDict {
     }
 
     remove(key:string):void {
-        delete this[key];
-        delete this._data[key];
+        delete this.data[key];
     }
 
     /**
@@ -107,22 +120,21 @@ export class MultiDict<T={}> implements IMultiDict {
      * value to the list of existing ones.
      */
     add(key:string, value:any):void {
-        this[key] = value;
-        if (this._data[key] === undefined) {
-            this._data[key] = [];
+        if (this.data[key] === undefined) {
+            this.data[key] = [];
         }
-        this._data[key].push(value);
+        this.data[key].push(value);
     }
 
     /**
      * Return a list of key-value pairs.
      */
     items():Array<[string, string]> {
-        let ans = [];
-        for (let p in this._data) {
-            if (this._data.hasOwnProperty(p)) {
-                for (let i = 0; i < this._data[p].length; i += 1) {
-                    ans.push([p, this._data[p][i]]);
+        let ans:Array<[string, string]> = [];
+        for (let p in this.data) {
+            if (this.data.hasOwnProperty(p)) {
+                for (let i = 0; i < this.data[p].length; i += 1) {
+                    ans.push([p, this.data[p][i]]);
                 }
             }
         }
@@ -136,16 +148,16 @@ export class MultiDict<T={}> implements IMultiDict {
      */
     toDict():{[key:string]:string} {
         let ans:{[key:string]:any} = {}; // TODO: type mess here
-        for (let k in this._data) {
-            if (this._data.hasOwnProperty(k)) {
-                ans[k] = this._data[k][0];
+        for (let k in this.data) {
+            if (this.data.hasOwnProperty(k)) {
+                ans[k] = this.data[k][0];
             }
         }
         return ans;
     }
 
     has(key:string) {
-        return this._data.hasOwnProperty(key);
+        return this.data.hasOwnProperty(key);
     }
 }
 
@@ -177,4 +189,3 @@ export namespace Forms {
     };
 
 }
-

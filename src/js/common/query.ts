@@ -83,7 +83,7 @@ export function testIsDictQuery(lemmas:List<LemmaVariant>|LemmaVariant):boolean 
 
 export function matchesPos(lv:LemmaVariant, pos:Array<QueryPoS>):boolean {
     return lv.pos.length === pos.length &&
-        lv.pos.reduce((acc, curr) => acc && pos.indexOf(curr.value) > -1, true);
+        lv.pos.reduce((acc, curr) => acc && pos.indexOf(curr.value) > -1, true as boolean);
 }
 
 interface MergedLemmaVariant extends LemmaVariant {
