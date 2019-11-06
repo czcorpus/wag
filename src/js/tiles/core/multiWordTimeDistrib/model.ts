@@ -149,35 +149,12 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     }
                     newState.isBusy = this.unfinishedChunks.includes(true);
                     newState.data = newState.data.set(action.payload.subchartId, newData);
-                    newState.backlink = this.createBackLink(newState, action.payload.concId, action.payload.origQuery);
                     
                     return newState;
                 }
                 return state;
             }
         };
-    }
-
-    private createBackLink(state:TimeDistribModelState, concId:string, origQuery:string):BacklinkWithArgs<BacklinkArgs> {
-        return this.backlink ?
-            {
-                url: this.backlink.url,
-                method: this.backlink.method || HTTPMethod.GET,
-                label: this.backlink.label,
-                args: origQuery ?
-                    {
-                        corpname: state.corpname,
-                        usesubcorp: this.backlink.subcname,
-                        cql: origQuery,
-                        queryselector: 'cqlrow'
-                    } :
-                    {
-                        corpname: state.corpname,
-                        usesubcorp: this.backlink.subcname,
-                        q: `~${concId}`
-                    }
-            } :
-            null;
     }
 
     private mergeChunks(currData:Immutable.List<DataItemWithWCI>, newChunk:Immutable.List<DataItemWithWCI>, alphaLevel:AlphaLevel):Immutable.List<DataItemWithWCI> {
