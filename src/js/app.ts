@@ -40,6 +40,7 @@ import { ViewUtils, IFullActionControl } from 'kombo';
 import { AppServices } from './appServices';
 import { IAsyncKeyValueStore, TileIdentMap } from './common/types';
 import { mkTileFactory } from './tileLoader';
+import { Listop } from 'montainer';
 
 
 const mkAttachTile = (queryType:QueryType, isDictQuery:boolean, lang1:string, lang2:string) =>
@@ -167,20 +168,19 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
             isAnswerMode: userSession.answerMode,
             isBusy: false,
             isMobile: appServices.isMobileMode(),
-            tweakActiveTiles: Immutable.Set<number>(),
-            altViewActiveTiles: Immutable.Set<number>(),
-            hiddenGroups: Immutable.Set<number>(),
-            datalessGroups: Immutable.Set<number>(),
-            tileResultFlags: layoutManager.getLayoutGroups(qType).reduce(
-                (acc, curr, i) => acc.concat(curr.tiles.map<TileResultFlagRec>(v => ({
+            tweakActiveTiles: [],
+            altViewActiveTiles: [],
+            hiddenGroups: [],
+            datalessGroups: [],
+            tileResultFlags: Listop.of(layoutManager.getLayoutGroups(qType)).flatMap(
+                (item, i) => Listop.of(item.tiles).map<TileResultFlagRec>(v => ({
                     tileId: v.tileId,
                     groupId: i,
                     status: TileResultFlag.PENDING,
                     canBeAmbiguousResult: false
-                }))).toList(),
-                Immutable.List<TileResultFlagRec>()
-            ),
-            tileProps: Immutable.List<TileFrameProps>(tiles),
+                }))
+            ).u(),
+            tileProps: tiles,
             activeSourceInfo: null,
             activeGroupHelp: null,
             activeTileHelp: null,

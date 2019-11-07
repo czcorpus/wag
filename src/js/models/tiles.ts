@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
 import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { Observable } from 'rxjs';
 import { concatMap, map } from 'rxjs/operators';
@@ -25,6 +24,8 @@ import { ajax$, ResponseType } from '../common/ajax';
 import { SystemMessageType, SourceDetails } from '../common/types';
 import { TileFrameProps } from '../common/tile';
 import { ActionName, Actions } from './actions';
+import { produce } from 'immer';
+import { Listop, Transform } from 'montainer';
 
 
 
@@ -47,16 +48,16 @@ export interface WdglanceTilesState {
     isAnswerMode:boolean;
     isBusy:boolean;
     isMobile:boolean;
-    altViewActiveTiles:Immutable.Set<number>;
-    tweakActiveTiles:Immutable.Set<number>;
-    hiddenGroups:Immutable.Set<number>;
+    altViewActiveTiles:Array<number>;
+    tweakActiveTiles:Array<number>;
+    hiddenGroups:Array<number>;
     activeSourceInfo:SourceDetails|null;
     activeGroupHelp:{html:string; idx:number}|null;
     activeTileHelp:{html:string; ident:number}|null;
     showAmbiguousResultHelp:boolean;
-    datalessGroups:Immutable.Set<number>;
-    tileResultFlags:Immutable.List<TileResultFlagRec>;
-    tileProps:Immutable.List<TileFrameProps>;
+    datalessGroups:Array<number>;
+    tileResultFlags:Array<TileResultFlagRec>;
+    tileProps:Array<TileFrameProps>;
 }
 
 
@@ -73,12 +74,11 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                 newState.isMobile = action.payload.isMobile;
                 return newState;
             },
-            [ActionName.SetTileRenderSize]: (state, action:Actions.SetTileRenderSize) => {
-                const newState = this.copyState(state);
-                const srchId = newState.tileProps.findIndex(v => v.tileId === action.payload.tileId);
+            [ActionName.SetTileRenderSize]: produce((state:WdglanceTilesState, action:Actions.SetTileRenderSize) => {
+                const srchId = state.tileProps.findIndex(v => v.tileId === action.payload.tileId);
                 if (srchId > -1) {
-                    const tile = newState.tileProps.get(srchId);
-                    newState.tileProps = newState.tileProps.set(
+                    const tile = state.tileProps[srchId];
+                    state.tileProps = Listop.of(state.tileProps).set(
                         srchId,
                         {
                             tileId: tile.tileId,
@@ -96,29 +96,28 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                             helpURL: tile.helpURL,
                             supportsReloadOnError: tile.supportsReloadOnError
                         }
-                    );
-                    return newState;
+                    ).u();
                 }
                 return state;
-            },
-            [ActionName.EnableAltViewMode]: (state, action:Actions.EnableAltViewMode) => {
+            }),
+            [ActionName.EnableAltViewMode]: produce((state, action:Actions.EnableAltViewMode) => {
                 const newState = this.copyState(state);
-                newState.altViewActiveTiles = newState.altViewActiveTiles.add(action.payload.ident);
+                newState.altViewActiveTiles = Listop.of(newState.altViewActiveTiles).addUnique(action.payload.ident).unwrap();
                 return newState;
-            },
+            }),
             [ActionName.DisableAltViewMode]: (state, action:Actions.DisableAltViewMode) => {
                 const newState = this.copyState(state);
-                newState.altViewActiveTiles = newState.altViewActiveTiles.remove(action.payload.ident);
+                newState.altViewActiveTiles = Listop.of(newState.altViewActiveTiles).removeValue(action.payload.ident).unwrap();
                 return newState;
             },
             [ActionName.EnableTileTweakMode]: (state, action:Actions.EnableTileTweakMode) => {
                 const newState = this.copyState(state);
-                newState.tweakActiveTiles = newState.tweakActiveTiles.add(action.payload.ident);
+                newState.tweakActiveTiles = Listop.of(newState.tweakActiveTiles).addUnique(action.payload.ident).unwrap();
                 return newState;
             },
             [ActionName.DisableTileTweakMode]: (state, action:Actions.DisableTileTweakMode) => {
                 const newState = this.copyState(state);
-                newState.tweakActiveTiles = newState.tweakActiveTiles.remove(action.payload.ident);
+                newState.tweakActiveTiles = Listop.of(newState.tweakActiveTiles).removeValue(action.payload.ident).unwrap();
                 return newState;
             },
             [ActionName.ShowTileHelp]: (state, action:Actions.ShowTileHelp) => {
@@ -172,11 +171,11 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
             },
             [ActionName.ToggleGroupVisibility]: (state, action:Actions.ToggleGroupVisibility) => {
                 const newState = this.copyState(state);
-                if (newState.hiddenGroups.contains(action.payload.groupIdx)) {
-                    newState.hiddenGroups = newState.hiddenGroups.remove(action.payload.groupIdx);
+                if (newState.hiddenGroups.some(v => v === action.payload.groupIdx)) {
+                    newState.hiddenGroups = Listop.of(newState.hiddenGroups).removeValue(action.payload.groupIdx).unwrap();
 
                 } else {
-                    newState.hiddenGroups = newState.hiddenGroups.add(action.payload.groupIdx);
+                    newState.hiddenGroups = Listop.of(newState.hiddenGroups).addUnique(action.payload.groupIdx).unwrap();
                 }
 
                 return newState;
@@ -205,26 +204,27 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
             },
             [ActionName.RequestQueryResponse]: (state, action) => {
                 const newState = this.copyState(state);
-                newState.tileResultFlags = newState.tileResultFlags.map(v => ({
-                    tileId: v.tileId,
-                    groupId: v.groupId,
-                    status: TileResultFlag.PENDING,
-                    canBeAmbiguousResult: false
-                })).toList();
-                newState.datalessGroups = newState.datalessGroups.clear();
+                newState.tileResultFlags = Listop.of(newState.tileResultFlags)
+                    .map(v => ({
+                        tileId: v.tileId,
+                        groupId: v.groupId,
+                        status: TileResultFlag.PENDING,
+                        canBeAmbiguousResult: false
+                    })).unwrap();
+                newState.datalessGroups = [];
                 return newState;
             },
             [ActionName.TileDataLoaded]: (state, action:Actions.TileDataLoaded<{}>) => {
                 const newState = this.copyState(state);
                 const srchIdx = newState.tileResultFlags.findIndex(v => v.tileId === action.payload.tileId);
                 if (srchIdx > -1) {
-                    const curr = newState.tileResultFlags.get(srchIdx);
-                    newState.tileResultFlags = newState.tileResultFlags.set(srchIdx, {
+                    const curr = newState.tileResultFlags[srchIdx];
+                    newState.tileResultFlags = Listop.of(newState.tileResultFlags).set(srchIdx, {
                         tileId: curr.tileId,
                         groupId: curr.groupId,
                         status: this.inferResultFlag(action),
                         canBeAmbiguousResult: action.payload.canBeAmbiguousResult
-                    });
+                    }).unwrap();
                 }
                 if (this.allTileStatusFlagsWritten(newState)) {
                     this.findEmptyGroups(newState);
@@ -233,12 +233,13 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
             },
             [ActionName.SetEmptyResult]: (state, action) => {
                 const newState = this.copyState(state);
-                newState.tileResultFlags = newState.tileResultFlags.map(v => ({
-                    tileId: v.tileId,
-                    groupId: v.groupId,
-                    status: TileResultFlag.EMPTY_RESULT,
-                    canBeAmbiguousResult: false
-                })).toList();
+                newState.tileResultFlags = Listop.of(newState.tileResultFlags)
+                    .map(v => ({
+                        tileId: v.tileId,
+                        groupId: v.groupId,
+                        status: TileResultFlag.EMPTY_RESULT,
+                        canBeAmbiguousResult: false
+                    })).unwrap();
                 this.findEmptyGroups(newState);
                 return newState;
             },
@@ -270,20 +271,21 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
     }
 
     private findEmptyGroups(state:WdglanceTilesState):void {
-        state.datalessGroups = Immutable.Set<number>(
-            state.tileResultFlags
-                .groupBy(v => v.groupId)
-                .map<[number, boolean]>((v, i) => [i, !v.find(v2 => v2.status !== TileResultFlag.EMPTY_RESULT)])
-                .filter(v => v[1])
-                .map(v => v[0])
-                .toList()
-        );
+        state.datalessGroups = Transform.groupBy(
+                Listop.of(state.tileResultFlags),
+                v => v.groupId.toString()
+        )
+        .map((v, _) => !v.find(v2 => v2.status !== TileResultFlag.EMPTY_RESULT))
+        .filter(v => v)
+        .keys()
+        .map(v => parseInt(v))
+        .u();
     }
 
     private getTileProps(state:WdglanceTilesState, tileId:number):Observable<TileFrameProps> {
         return new Observable<TileFrameProps>((observer) => {
-            if (state.tileProps.get(tileId)) {
-                observer.next(state.tileProps.get(tileId));
+            if (state.tileProps[tileId]) {
+                observer.next(state.tileProps[tileId]);
                 observer.complete();
 
             } else {

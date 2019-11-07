@@ -58,7 +58,7 @@
     "express-session": "^1.16.2",
     "immutable": "^3.8.2",
     "immer": "^4.0.2",
-    "montainer": "^0.0.5",
+    "montainer": "^0.0.10",
     "ioredis": "^4.14.0",
     "kombo": "^0.51.2",
     "react": "^16.9.0",

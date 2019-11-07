@@ -817,10 +817,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         isHidden:boolean;
         hasData:boolean;
         isMobile:boolean;
-        tileFrameProps:Immutable.List<TileFrameProps>;
-        tweakActiveTiles:Immutable.Set<number>;
-        altViewActiveTiles:Immutable.Set<number>;
-        tileResultFlags:Immutable.List<TileResultFlagRec>;
+        tileFrameProps:Array<TileFrameProps>;
+        tweakActiveTiles:Array<number>;
+        altViewActiveTiles:Array<number>;
+        tileResultFlags:Array<TileResultFlagRec>;
 
     }> = (props) => {
 
@@ -871,14 +871,14 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 return (
                     <section className="tiles">
                     {props.data.tiles
-                        .map(v => props.tileFrameProps.get(v.tileId))
+                        .map(v => props.tileFrameProps[v.tileId])
                         .map(tile => <TileContainer key={`tile:${tile.tileId}`} tile={tile}
                                             isMobile={props.isMobile}
                                             helpURL={tile.helpURL}
-                                            isTweakMode={props.tweakActiveTiles.contains(tile.tileId)}
-                                            isAltViewMode={props.altViewActiveTiles.contains(tile.tileId)}
+                                            isTweakMode={props.tweakActiveTiles.some(v => v === tile.tileId)}
+                                            isAltViewMode={props.altViewActiveTiles.find(v => v === tile.tileId) !== undefined}
                                             supportsCurrQuery={tile.supportsCurrQuery}
-                                            tileResultFlag={props.tileResultFlags.get(tile.tileId)} />)
+                                            tileResultFlag={props.tileResultFlags[tile.tileId]} />)
                     }
                     </section>
                 );
@@ -924,7 +924,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const SourceInfo:React.SFC<{
         data:SourceDetails;
-        tileProps:Immutable.List<TileFrameProps>;
+        tileProps:Array<TileFrameProps>;
     }> = (props) => {
 
         if (props.data) {
@@ -1053,7 +1053,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
             } else if (this.props.activeTileHelp !== null) {
                 return <ModalHelpContent onClose={this.handleCloseTileHelp}
-                            title={this.props.tileProps.get(this.props.activeTileHelp.ident).label}
+                            title={this.props.tileProps[this.props.activeTileHelp.ident].label}
                             html={this.props.activeTileHelp.html}
                             isBusy={this.props.isBusy} />;
 
@@ -1072,14 +1072,14 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             return (
                 <section className="TilesSections">
                     {this.props.isAnswerMode ?
-                        (this.props.datalessGroups.size < this.props.layout.length ?
+                        (this.props.datalessGroups.length < this.props.layout.length ?
                             this.props.layout.map((group, groupIdx) => (
                                 <TileGroup
                                     key={`${group.groupLabel}:${groupIdx}`}
                                     data={group}
                                     idx={groupIdx}
-                                    isHidden={this.props.hiddenGroups.contains(groupIdx)}
-                                    hasData={!this.props.datalessGroups.contains(groupIdx)}
+                                    isHidden={this.props.hiddenGroups.some(v => v === groupIdx)}
+                                    hasData={!this.props.datalessGroups.some(v => v === groupIdx)}
                                     isMobile={this.props.isMobile}
                                     tileFrameProps={this.props.tileProps}
                                     tweakActiveTiles={this.props.tweakActiveTiles}
