@@ -23,7 +23,7 @@ import { Area, AreaChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, X
 import { Theme } from '../../../common/theme';
 import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
 import { GlobalComponents } from '../../../views/global';
-import { LemmaData } from './common';
+import { LemmaData, Actions, ActionName } from './common';
 import { TimeDistribModel, TimeDistribModelState } from './model';
 
 
@@ -47,12 +47,12 @@ function mergeDataSets(data:Immutable.List<LemmaData>, averagingYears:number):Ar
 
     const sortedData = datetimeData.sortBy((_, k) => parseInt(k)).valueSeq().toList();
     return sortedData
-        // aggregate data by years
+        // aggregate data by sliding window years
         .map((dataPoint, index) =>
             dataPoint.mergeDeepWith((prev, next, key) =>
                 key === 'datetime' ? prev :
                     key.startsWith('occurrenceInterval') ? [prev[0] + next[0], prev[1] + next[1]] : prev + next,
-                ...sortedData.slice(index, index + averagingYears)[Symbol.iterator]()
+                ...sortedData.slice(index, index + averagingYears).filter(v => parseInt(v.get('datetime')) < parseInt(dataPoint.get('datetime')) + averagingYears)[Symbol.iterator]()
             ).toMap())
         // normalize data to percentages
         .map(value => 
@@ -146,6 +146,40 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         );
     });
 
+    // -------------------------- <TweakControls /> --------------------------------------
+
+    class TweakControls extends React.Component<{
+        tileId:number;
+        averagingYears:number;
+
+    }> {
+        constructor(props) {
+            super(props);
+            this.handleInputChange = this.handleInputChange.bind(this);
+        }
+
+        private handleInputChange(e:React.ChangeEvent<HTMLInputElement>) {
+            dispatcher.dispatch<Actions.ChangeTimeWindow>({
+                name: ActionName.ChangeTimeWindow,
+                payload: {
+                    tileId: this.props.tileId,
+                    value: parseInt(e.target.value)
+                }
+            });
+        }
+
+        render() {
+            return (
+                <form>
+                    <label>
+                        <p>{ut.translate('multiWordTimeDistrib__sliding_window_average')}: {this.props.averagingYears}{'\u00a0'}</p>
+                        <input type="range" min="1" max="10" value={this.props.averagingYears} onChange={this.handleInputChange} />
+                    </label>
+                </form>
+            );
+        }
+    }
+
     // -------------- <MultiWordTimeDistribTile /> ------------------------------------------------------
 
     const MultiWordTimeDistribTile:React.SFC<TimeDistribModelState & CoreTileComponentProps> = (props) => {
@@ -157,6 +191,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         supportsTileReload={props.supportsReloadOnError}
                         backlink={props.backlink}>
                 <div className="MultiWordTimeDistribTile">
+                    {props.isTweakMode ?
+                        <div className="tweak-box">
+                            <TweakControls averagingYears={props.averagingYears} tileId={props.tileId} />
+                        </div> :
+                        null
+                    }
                     <Chart data={props.data}
                             size={[props.renderSize[0], 300]}
                             isPartial={props.isBusy}

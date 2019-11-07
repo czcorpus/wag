@@ -15,9 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Action } from 'kombo';
 import { CorpSrchTileConf, Backlink } from '../../../common/tile';
 import * as Immutable from 'immutable';
 
+
+export enum ActionName {
+    ChangeTimeWindow = 'MULTI_WORD_TIME_DISTRIB_CHANGE_TIME_WINDOW'
+}
 
 export interface TimeDistTileConf extends CorpSrchTileConf {
 
@@ -55,4 +60,15 @@ export interface DataLoadedPayload {
     origQuery:string; // in case we generate our own concordance (and not reusing one from a different tile)
     subcname:string;
     subchartId:number;
+}
+
+export namespace Actions {
+
+    export interface ChangeTimeWindow extends Action<{
+        tileId:number;
+        value:number;
+
+    }> {
+        name:ActionName.ChangeTimeWindow;
+    }
 }

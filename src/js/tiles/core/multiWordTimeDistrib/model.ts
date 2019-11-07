@@ -29,7 +29,7 @@ import { KontextTimeDistribApi } from '../../../common/api/kontext/timeDistrib';
 import { GeneralSingleCritFreqBarModelState } from '../../../common/models/freq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { findCurrLemmaVariant } from '../../../models/query';
-import { DataItemWithWCI, DataLoadedPayload, LemmaData } from './common';
+import { DataItemWithWCI, DataLoadedPayload, LemmaData, ActionName, Actions } from './common';
 import { AlphaLevel, wilsonConfInterval } from '../../../common/statistics';
 import { callWithExtraVal } from '../../../common/api/util';
 import { LemmaVariant, RecognizedQueries } from '../../../common/query';
@@ -52,6 +52,7 @@ export interface TimeDistribModelState extends GeneralSingleCritFreqBarModelStat
     wordLabels:Immutable.List<string>;
     backlink:BacklinkWithArgs<BacklinkArgs>;
     averagingYears:number;
+    isTweakMode:boolean;
 }
 
 
@@ -127,6 +128,22 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         this.unfinishedChunks = this.lemmas.map(_ => this.getState().subcnames.map(_ => true).toList()).toList();
 
         this.actionMatch = {
+            [GlobalActionName.EnableAltViewMode]: (state, action:GlobalActions.EnableAltViewMode) => {
+                if (action.payload.ident === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.isTweakMode = true;
+                    return newState;
+                }
+                return state;
+            },
+            [GlobalActionName.DisableAltViewMode]: (state, action:GlobalActions.DisableAltViewMode) => {
+                if (action.payload.ident === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.isTweakMode = false;
+                    return newState;
+                }
+                return state;
+            },
             [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
                 this.unfinishedChunks = this.lemmas.map(_ => this.getState().subcnames.map(_ => true).toList()).toList();
                 const newState = this.copyState(state);
@@ -157,7 +174,15 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     return newState;
                 }
                 return state;
-            }
+            },
+            [ActionName.ChangeTimeWindow]: (state, action:Actions.ChangeTimeWindow) => {
+                if (action.payload.tileId === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.averagingYears = action.payload.value;
+                    return newState;
+                }
+                return state;
+            },
         };
     }
 

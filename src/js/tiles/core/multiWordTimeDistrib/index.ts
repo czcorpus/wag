@@ -48,7 +48,7 @@ require('./style.less');
  *     - the tile queries all the subcorpora and then merges all the data
  *
  */
-export class TimeDistTile implements ITileProvider {
+export class MultiWordTimeDistTile implements ITileProvider {
 
     private readonly dispatcher:IActionDispatcher;
 
@@ -88,7 +88,8 @@ export class TimeDistTile implements ITileProvider {
                 data: lemmas.map(_ => Immutable.List<DataItemWithWCI>()).toList(),
                 posQueryGenerator: conf.posQueryGenerator,
                 wordLabels: lemmas.map(l => findCurrLemmaVariant(l).word),
-                averagingYears: 1
+                averagingYears: 1,
+                isTweakMode: false
             },
             tileId: tileId,
             waitForTile: waitForTiles[0] || -1,
@@ -137,7 +138,7 @@ export class TimeDistTile implements ITileProvider {
     }
 
     supportsTweakMode():boolean {
-        return false;
+        return true;
     }
 
     supportsAltView():boolean {
@@ -159,4 +160,4 @@ export class TimeDistTile implements ITileProvider {
 
 export const TILE_TYPE = 'MultiWordTimeDistribTile';
 
-export const init:TileFactory.TileFactory<TimeDistTileConf>  = (args) => new TimeDistTile(args);
+export const init:TileFactory.TileFactory<TimeDistTileConf>  = (args) => new MultiWordTimeDistTile(args);
