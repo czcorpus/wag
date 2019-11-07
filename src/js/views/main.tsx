@@ -994,7 +994,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // -------------------- <TilesSections /> -----------------------------
 
     class TilesSections extends React.PureComponent<{
-        layout:Immutable.List<TileGroup>;
+        layout:Array<TileGroup>;
         homepageSections:Immutable.List<{label:string; html:string}>;
 
     } & WdglanceTilesState> {
@@ -1046,7 +1046,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 );
 
             } else if (this.props.activeGroupHelp !== null) {
-                const group = this.props.layout.get(this.props.activeGroupHelp.idx);
+                const group = this.props.layout[this.props.activeGroupHelp.idx];
                 return <ModalHelpContent onClose={this.handleCloseGroupHelp} title={group.groupLabel}
                             html={this.props.activeGroupHelp.html}
                             isBusy={this.props.isBusy} />;
@@ -1072,7 +1072,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             return (
                 <section className="TilesSections">
                     {this.props.isAnswerMode ?
-                        (this.props.datalessGroups.size < this.props.layout.size ?
+                        (this.props.datalessGroups.size < this.props.layout.length ?
                             this.props.layout.map((group, groupIdx) => (
                                 <TileGroup
                                     key={`${group.groupLabel}:${groupIdx}`}
