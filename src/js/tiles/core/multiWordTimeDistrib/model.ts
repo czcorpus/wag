@@ -110,7 +110,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private readonly backlink:Backlink;
 
-    private unfinishedChunks:Immutable.List<boolean>;
+    private unfinishedChunks:Immutable.List<Immutable.List<boolean>>;
 
     constructor({dispatcher, initState, tileId, waitForTile, api,
                 concApi, appServices, lemmas, queryLang, backlink}) {
@@ -123,11 +123,11 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         this.lemmas = lemmas;
         this.queryLang = queryLang;
         this.backlink = backlink;
-        this.unfinishedChunks = Immutable.List(this.lemmas.map(_ => true));
+        this.unfinishedChunks = this.lemmas.map(_ => this.getState().subcnames.map(_ => true).toList()).toList();
 
         this.actionMatch = {
             [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
-                this.unfinishedChunks = Immutable.List(this.lemmas.map(_ => true));
+                this.unfinishedChunks = this.lemmas.map(_ => this.getState().subcnames.map(_ => true).toList()).toList();
                 const newState = this.copyState(state);
                 newState.data = this.lemmas.map(_ => Immutable.List<DataItemWithWCI>()).toList();
                 newState.isBusy = true;
@@ -137,7 +137,11 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<DataLoadedPayload>) => {
                 if (action.payload.tileId === this.tileId) {
                     const newState = this.copyState(state);
-                    this.unfinishedChunks = this.unfinishedChunks.set(action.payload.subchartId, false);
+                    const subcIndex = newState.subcnames.findIndex(v => v === action.payload.subcname);
+                    this.unfinishedChunks = this.unfinishedChunks.set(
+                        action.payload.subchartId,
+                        this.unfinishedChunks.get(action.payload.subchartId).set(subcIndex, false)
+                    );
                     let newData:Immutable.List<DataItemWithWCI>;
                     if (action.error) {
                         newData = Immutable.List<DataItemWithWCI>();
@@ -146,7 +150,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         const currentData = newState.data.get(action.payload.subchartId, newData) || Immutable.List<DataItemWithWCI>();
                         newData = this.mergeChunks(currentData, Immutable.List<DataItemWithWCI>(action.payload.data), state.alphaLevel);
                     }
-                    newState.isBusy = this.unfinishedChunks.includes(true);
+                    newState.isBusy = this.unfinishedChunks.some(l => l.includes(true));
                     newState.data = newState.data.set(action.payload.subchartId, newData);
 
                     return newState;
