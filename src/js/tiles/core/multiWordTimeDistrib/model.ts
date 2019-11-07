@@ -51,6 +51,7 @@ export interface TimeDistribModelState extends GeneralSingleCritFreqBarModelStat
     posQueryGenerator:[string, string];
     wordLabels:Immutable.List<string>;
     backlink:BacklinkWithArgs<BacklinkArgs>;
+    averagingYears:number;
 }
 
 

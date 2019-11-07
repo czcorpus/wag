@@ -27,11 +27,11 @@ import { LemmaData } from './common';
 import { TimeDistribModel, TimeDistribModelState } from './model';
 
 
-function mergeDataSets(data:Immutable.List<LemmaData>):Array<{}> {
+function mergeDataSets(data:Immutable.List<LemmaData>, averagingYears:number):Array<{}> {
     const defaultDataPoint = {datetime: null, occurrenceNorm: 0};
     data.forEach((_, index) => {
-        defaultDataPoint[`occurrenceValue${index}`] = null;
-        defaultDataPoint[`occurrenceInterval${index}`] = [null, null];
+        defaultDataPoint[`occurrenceValue${index}`] = 0;
+        defaultDataPoint[`occurrenceInterval${index}`] = [0, 0];
     });
 
     // flatten data structure
@@ -45,17 +45,26 @@ function mergeDataSets(data:Immutable.List<LemmaData>):Array<{}> {
         datetimeData = datetimeData.set(d.datetime, dataPoint);
     }));
 
-    // sort and calculation of normalized comparison
-    return datetimeData.sortBy((_, k) => parseInt(k)).valueSeq().map(value => 
-        value.map((v, key) => {
-            if (key.startsWith('occurrenceValue')) {
-                return (100*v/value.get('occurrenceNorm')).toFixed(2)
-            } else if (key.startsWith('occurrenceInterval')) {
-                return v.map(d => (100*d/value.get('occurrenceNorm')).toFixed(2))
-            }
-            return v;
-        })
-    ).toJS();
+    const sortedData = datetimeData.sortBy((_, k) => parseInt(k)).valueSeq().toList();
+    return sortedData
+        // aggregate data by years
+        .map((dataPoint, index) =>
+            dataPoint.mergeDeepWith((prev, next, key) =>
+                key === 'datetime' ? prev :
+                    key.startsWith('occurrenceInterval') ? [prev[0] + next[0], prev[1] + next[1]] : prev + next,
+                ...sortedData.slice(index, index + averagingYears)[Symbol.iterator]()
+            ).toMap())
+        // normalize data to percentages
+        .map(value => 
+            value.map((v, key) => {
+                if (key.startsWith('occurrenceValue')) {
+                    return (100*v/value.get('occurrenceNorm')).toFixed(2)
+                } else if (key.startsWith('occurrenceInterval')) {
+                    return v.map(d => (100*d/value.get('occurrenceNorm')).toFixed(2))
+                }
+                return v;
+            }).toMap())
+        .toJS();
 }
 
 
@@ -96,9 +105,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         size:[number, number];
         isPartial:boolean;
         isSmallWidth:boolean;
-
+        averagingYears:number;
     }> = React.memo((props) => {        
-        const data = mergeDataSets(props.data);        
+        const data = mergeDataSets(props.data, props.averagingYears);        
         return (
             <ResponsiveContainer width={props.isSmallWidth ? '100%' : '90%'} height={props.size[1]}>
                 <AreaChart data={data}
@@ -152,7 +161,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             size={[props.renderSize[0], 300]}
                             isPartial={props.isBusy}
                             words={props.wordLabels}
-                            isSmallWidth={props.isMobile || props.widthFract < 2} />
+                            isSmallWidth={props.isMobile || props.widthFract < 2}
+                            averagingYears={props.averagingYears} />
                 </div>
             </globComponents.TileWrapper>
         );

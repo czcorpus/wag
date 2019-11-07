@@ -88,6 +88,7 @@ export class TimeDistTile implements ITileProvider {
                 data: lemmas.map(_ => Immutable.List<DataItemWithWCI>()).toList(),
                 posQueryGenerator: conf.posQueryGenerator,
                 wordLabels: lemmas.map(l => findCurrLemmaVariant(l).word),
+                averagingYears: 1
             },
             tileId: tileId,
             waitForTile: waitForTiles[0] || -1,
