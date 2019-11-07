@@ -17,14 +17,14 @@
  */
 import * as Immutable from 'immutable';
 
-import { ITileProvider, TileFactory, TileComponent, SourceInfoComponent, TileConf } from '../../../common/tile';
+import { ITileProvider, TileFactory, TileComponent, TileConf } from '../../../common/tile';
 import { AppServices } from '../../../appServices';
 import { StatelessModel } from 'kombo';
 import { WordFormsModel } from './model';
 import { QueryType } from '../../../common/query';
 import { init as viewInit } from './views';
 import { createApiInstance } from './apiFactory';
-import { AlphaLevel } from '../timeDistrib/stat';
+import { AlphaLevel } from '../../../common/statistics';
 
 
 export interface WordFormsTileConf extends TileConf {

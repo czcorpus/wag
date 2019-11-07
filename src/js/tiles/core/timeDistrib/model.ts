@@ -31,7 +31,7 @@ import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../
 import { findCurrLemmaVariant } from '../../../models/query';
 import { ConcLoadedPayload } from '../concordance/actions';
 import { DataItemWithWCI, DataLoadedPayload, SubchartID } from './common';
-import { AlphaLevel, wilsonConfInterval } from './stat';
+import { AlphaLevel, wilsonConfInterval } from '../../../common/statistics';
 import { Actions, ActionName } from './common';
 import { callWithExtraVal } from '../../../common/api/util';
 import { LemmaVariant, RecognizedQueries } from '../../../common/query';
