@@ -152,7 +152,7 @@ export class TimeDistTile implements ITileProvider {
     }
 
     supportsNonDictQueries():boolean {
-        return false;
+        return true;
     }
 }
 
