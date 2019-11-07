@@ -28,20 +28,30 @@ import { TimeDistribModel, TimeDistribModelState } from './model';
 
 
 function mergeDataSets(data:Immutable.List<LemmaData>):Array<{}> {
+    const defaultDataPoint = {datetime: null, occurrenceNorm: 0};
+    data.forEach((_, index) => {
+        defaultDataPoint[`occurrenceValue${index}`] = null;
+        defaultDataPoint[`occurrenceInterval${index}`] = [null, null];
+    });
+
+    // flatten data structure
     let datetimeData:Immutable.Map<string, Immutable.Map<string, any>> = Immutable.Map();
     data.forEach((lemmaData, index) => lemmaData.forEach(d => {
-        let dataPoint: Immutable.Map<string, any> = datetimeData.get(d.datetime, Immutable.Map({datetime: d.datetime, occNorm: 0}));
-        dataPoint = dataPoint.set(`occValue${index}`, d.ipm);
-        dataPoint = dataPoint.set(`occInterval${index}`, d.ipmInterval);
-        dataPoint = dataPoint.set('occNorm', dataPoint.get('occNorm') + d.ipm);
+        let dataPoint: Immutable.Map<string, any> = datetimeData.get(d.datetime, Immutable.Map(defaultDataPoint));
+        dataPoint = dataPoint.set(`datetime`, d.datetime)
+        dataPoint = dataPoint.set(`occurrenceValue${index}`, d.ipm);
+        dataPoint = dataPoint.set(`occurrenceInterval${index}`, d.ipmInterval);
+        dataPoint = dataPoint.set('occurrenceNorm', dataPoint.get('occurrenceNorm') + d.ipm);
         datetimeData = datetimeData.set(d.datetime, dataPoint);
     }));
-    return datetimeData.valueSeq().map(value => 
+
+    // sort and calculation of normalized comparison
+    return datetimeData.sortBy((_, k) => parseInt(k)).valueSeq().map(value => 
         value.map((v, key) => {
-            if (key.startsWith('occValue')) {
-                return (100*v/value.get('occNorm')).toFixed(2)
-            } else if (key.startsWith('occInterval')) {
-                return v.map(d => (100*d/value.get('occNorm')).toFixed(2))
+            if (key.startsWith('occurrenceValue')) {
+                return (100*v/value.get('occurrenceNorm')).toFixed(2)
+            } else if (key.startsWith('occurrenceInterval')) {
+                return v.map(d => (100*d/value.get('occurrenceNorm')).toFixed(2))
             }
             return v;
         })
@@ -53,7 +63,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const globComponents = ut.getComponents();
 
-    // -------------------------- <Chart /> --------------------------------------
+    // -------------------------- <ChartLegend /> --------------------------------------
 
     const ChartLegend:React.SFC<{
         rcData:{payload:Array<{color:string; payload:{stroke:string; fill:string; name:string}}>};
@@ -95,13 +105,15 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         margin={{top: 10, right: 30, left: 0, bottom: 0}}>
                     <CartesianGrid strokeDasharray="1 1"/>
                     <XAxis dataKey="datetime" interval="preserveStartEnd" minTickGap={0} type="category" />
-                    <YAxis domain={[0, 100]} unit='%'/>
-                    <Tooltip isAnimationActive={false} />
+                    <YAxis domain={[0, 100]} unit='%' />
+                    <Tooltip isAnimationActive={false} formatter={(value, name, props) =>
+                        name.startsWith('occurrenceInterval') ? [null, null] : [`${value} %`, name]
+                    } />
                     {props.words.map((word, index) =>
                         <Area type="linear"
                             key={`${word}Values`}
-                            dataKey={`occValue${index}`}
-                            name={ut.translate('multiWordTimeDistrib__estimated_value_for_{word}', {word: word})}
+                            dataKey={`occurrenceValue${index}`}
+                            name={ut.translate('multiWordTimeDistrib__estimated_trend_for_{word}', {word: word})}
                             stroke={props.isPartial ? '#dddddd' : theme.barColor(index % theme.barColor.length)}
                             fill={'rgba(0,0,0,0)'}  // transparent fill - only line
                             strokeWidth={2}
@@ -111,9 +123,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     {props.words.map((word, index) =>
                         <Area type="linear"
                             key={`${word}Confidence`}
-                            dataKey={`occInterval${index}`}
-                            name={ut.translate('multiWordTimeDistrib__estimated_interval_for_{word}', {word: word})}
-                            stroke={props.isPartial ? '#dddddd' : theme.barColor(index % theme.barColor.length)}
+                            dataKey={`occurrenceInterval${index}`}
+                            name={null}
+                            stroke={null}
                             fill={props.isPartial ? '#eeeeee' : theme.barColor(index % theme.barColor.length)}
                             strokeWidth={1}
                             isAnimationActive={false}

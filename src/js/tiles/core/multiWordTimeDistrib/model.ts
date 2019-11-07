@@ -130,7 +130,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
                 this.unfinishedChunks = Immutable.List(this.lemmas.map(_ => true));
                 const newState = this.copyState(state);
-                newState.data = Immutable.List<LemmaData>();
+                newState.data = this.lemmas.map(_ => Immutable.List<DataItemWithWCI>()).toList();
                 newState.isBusy = true;
                 newState.error = null;
                 return newState;

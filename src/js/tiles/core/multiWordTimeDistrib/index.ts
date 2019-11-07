@@ -85,7 +85,7 @@ export class TimeDistTile implements ITileProvider {
                 fttIncludeEmpty: false,
                 fmaxitems: 100,
                 alphaLevel: AlphaLevel.LEVEL_0_1, // TODO conf/explain
-                data: Immutable.List<LemmaData>(),
+                data: lemmas.map(_ => Immutable.List<DataItemWithWCI>()).toList(),
                 posQueryGenerator: conf.posQueryGenerator,
                 wordLabels: lemmas.map(l => findCurrLemmaVariant(l).word),
             },
