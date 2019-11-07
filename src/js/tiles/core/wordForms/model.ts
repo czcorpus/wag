@@ -25,7 +25,7 @@ import { DataLoadedPayload } from './actions';
 import { findCurrLemmaVariant } from '../../../models/query';
 import { ConcLoadedPayload } from '../concordance/actions';
 import { calcPercentRatios } from '../../../common/util';
-import { AlphaLevel, wilsonConfInterval } from '../timeDistrib/stat';
+import { AlphaLevel, wilsonConfInterval } from '../../../common/statistics';
 import { RecognizedQueries } from '../../../common/query';
 
 

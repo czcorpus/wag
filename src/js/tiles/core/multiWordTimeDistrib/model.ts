@@ -30,11 +30,10 @@ import { GeneralSingleCritFreqBarModelState } from '../../../common/models/freq'
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { findCurrLemmaVariant } from '../../../models/query';
 import { DataItemWithWCI, DataLoadedPayload, LemmaData } from './common';
-import { AlphaLevel, wilsonConfInterval } from './stat';
+import { AlphaLevel, wilsonConfInterval } from '../../../common/statistics';
 import { callWithExtraVal } from '../../../common/api/util';
 import { LemmaVariant, RecognizedQueries } from '../../../common/query';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
-import { HTTPMethod } from '../../../common/types';
 
 
 export interface BacklinkArgs {
@@ -149,7 +148,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     }
                     newState.isBusy = this.unfinishedChunks.includes(true);
                     newState.data = newState.data.set(action.payload.subchartId, newData);
-                    
+
                     return newState;
                 }
                 return state;
@@ -334,7 +333,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     sideEffects(state:TimeDistribModelState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
-            case GlobalActionName.RequestQueryResponse: {                
+            case GlobalActionName.RequestQueryResponse: {
                 this.loadData(
                     state,
                     dispatch,
