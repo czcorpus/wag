@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
+import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 
@@ -126,35 +126,67 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         this.queryLang = queryLang;
         this.backlink = backlink;
         this.unfinishedChunks = this.lemmas.map(_ => this.getState().subcnames.map(_ => true).toList()).toList();
-        this.actionMatch = {
-            [GlobalActionName.EnableTileTweakMode]: (state, action:GlobalActions.EnableAltViewMode) => {
-                if (action.payload.ident === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isTweakMode = true;
-                    return newState;
-                }
-                return state;
-            },
-            [GlobalActionName.DisableTileTweakMode]: (state, action:GlobalActions.DisableAltViewMode) => {
-                if (action.payload.ident === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isTweakMode = false;
-                    return newState;
-                }
-                return state;
-            },
-            [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
+
+        this.addActionHandler(GlobalActionName.EnableTileTweakMode,
+            (state:TimeDistribModelState, action:GlobalActions.EnableTileTweakMode) => {
+                if (action.payload.ident === this.tileId) {state.isTweakMode = true}
+            }
+        );
+        this.addActionHandler(GlobalActionName.DisableTileTweakMode,
+            (state:TimeDistribModelState, action:GlobalActions.DisableTileTweakMode) => {
+                if (action.payload.ident === this.tileId) {state.isTweakMode = false}
+            }
+        );
+        this.addActionHandler(ActionName.ChangeTimeWindow,
+            (state:TimeDistribModelState, action:Actions.ChangeTimeWindow) => {
+                if (action.payload.tileId === this.tileId) {state.averagingYears = action.payload.value}
+            }
+        );
+        this.addActionHandler(GlobalActionName.RequestQueryResponse,
+            (state:TimeDistribModelState, action:GlobalActions.RequestQueryResponse) => {
                 this.unfinishedChunks = this.lemmas.map(_ => this.getState().subcnames.map(_ => true).toList()).toList();
-                const newState = this.copyState(state);
-                newState.data = this.lemmas.map(_ => Immutable.List<DataItemWithWCI>()).toList();
-                newState.isBusy = true;
-                newState.error = null;
-                return newState;
+                state.data = this.lemmas.map(_ => Immutable.List<DataItemWithWCI>()).toList();
+                state.isBusy = true;
+                state.error = null;
             },
-            [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<DataLoadedPayload>) => {
+            (state:TimeDistribModelState, action:GlobalActions.RequestQueryResponse, dispatch:SEDispatcher) => {
+                this.loadData(
+                    state,
+                    dispatch,
+                    rxOf(...this.lemmas.map((lemma, index) => [index, findCurrLemmaVariant(lemma)]).toArray()) as Observable<[number, LemmaVariant]>
+                );
+            }
+        );
+        this.addActionHandler(GlobalActionName.GetSourceInfo,
+            (state:TimeDistribModelState, action:GlobalActions.GetSourceInfo) => {},
+            (state:TimeDistribModelState, action:GlobalActions.GetSourceInfo, dispatch:SEDispatcher) => {
+                if (action.payload['tileId'] === this.tileId) {
+                    this.api.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), action.payload['corpusId'])
+                    .subscribe(
+                        (data) => {
+                            dispatch({
+                                name: GlobalActionName.GetSourceInfoDone,
+                                payload: {
+                                    data: data
+                                }
+                            });
+                        },
+                        (err) => {
+                            console.error(err);
+                            dispatch({
+                                name: GlobalActionName.GetSourceInfoDone,
+                                error: err
+
+                            });
+                        }
+                    );
+                }
+            }
+        );
+        this.addActionHandler(GlobalActionName.TileDataLoaded,
+            (state:TimeDistribModelState, action:GlobalActions.TileDataLoaded<DataLoadedPayload>) => {
                 if (action.payload.tileId === this.tileId) {
-                    const newState = this.copyState(state);
-                    const subcIndex = newState.subcnames.findIndex(v => v === action.payload.subcname);
+                    const subcIndex = state.subcnames.findIndex(v => v === action.payload.subcname);
                     this.unfinishedChunks = this.unfinishedChunks.set(
                         action.payload.subchartId,
                         this.unfinishedChunks.get(action.payload.subchartId).set(subcIndex, false)
@@ -162,27 +194,16 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     let newData:Immutable.List<DataItemWithWCI>;
                     if (action.error) {
                         newData = Immutable.List<DataItemWithWCI>();
-                        newState.error = action.error.message;
+                        state.error = action.error.message;
                     } else {
-                        const currentData = newState.data.get(action.payload.subchartId, newData) || Immutable.List<DataItemWithWCI>();
+                        const currentData = state.data.get(action.payload.subchartId, newData) || Immutable.List<DataItemWithWCI>();
                         newData = this.mergeChunks(currentData, Immutable.List<DataItemWithWCI>(action.payload.data), state.alphaLevel);
                     }
-                    newState.isBusy = this.unfinishedChunks.some(l => l.includes(true));
-                    newState.data = newState.data.set(action.payload.subchartId, newData);
-
-                    return newState;
+                    state.isBusy = this.unfinishedChunks.some(l => l.includes(true));
+                    state.data = state.data.set(action.payload.subchartId, newData);
                 }
-                return state;
-            },
-            [ActionName.ChangeTimeWindow]: (state, action:Actions.ChangeTimeWindow) => {
-                if (action.payload.tileId === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.averagingYears = action.payload.value;
-                    return newState;
-                }
-                return state;
-            },
-        };
+            }
+        );
     }
 
     private mergeChunks(currData:Immutable.List<DataItemWithWCI>, newChunk:Immutable.List<DataItemWithWCI>, alphaLevel:AlphaLevel):Immutable.List<DataItemWithWCI> {
@@ -359,41 +380,4 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             this.getFreqs(resp, dispatch);
         });
     }
-
-    sideEffects(state:TimeDistribModelState, action:Action, dispatch:SEDispatcher):void {
-        switch (action.name) {
-            case GlobalActionName.RequestQueryResponse: {
-                this.loadData(
-                    state,
-                    dispatch,
-                    rxOf(...this.lemmas.map((lemma, index) => [index, findCurrLemmaVariant(lemma)]).toArray()) as Observable<[number, LemmaVariant]>
-                );
-            }
-            break;
-            case GlobalActionName.GetSourceInfo:
-                if (action.payload['tileId'] === this.tileId) {
-                    this.api.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), action.payload['corpusId'])
-                    .subscribe(
-                        (data) => {
-                            dispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
-                                payload: {
-                                    data: data
-                                }
-                            });
-                        },
-                        (err) => {
-                            console.error(err);
-                            dispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
-                                error: err
-
-                            });
-                        }
-                    );
-                }
-            break;
-        }
-    }
-
 }
