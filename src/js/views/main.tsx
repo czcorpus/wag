@@ -751,7 +751,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         render() {
             return (
                 <div className="MessagesBox">
-                {this.props.systemMessages.size > 0 ?
+                {this.props.systemMessages.length > 0 ?
                     <ul className="Messages">
                         {this.props.systemMessages.map(
                                 msg => <SystemMessage key={msg.ident} type={msg.type} text={msg.text}
@@ -767,7 +767,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const BoundMessagesBox = messagesModel ?
             Bound(MessagesBox, messagesModel) :
-            (props) => <MessagesBox systemMessages={Immutable.List<SystemMessage>()} />;
+            (_) => <MessagesBox systemMessages={[]} />;
 
 
     // -------------------- <TileGroupButton /> -----------------------------

@@ -15,17 +15,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
 import { StatelessModel, IActionQueue } from 'kombo';
 
 import { AppServices } from '../appServices';
 import { SystemMessage } from '../notifications';
 import { ActionName, Actions } from './actions';
+import { Listop } from 'montainer';
 
 
 
 export interface MessagesState {
-    systemMessages:Immutable.List<SystemMessage>;
+    systemMessages:Array<SystemMessage>;
 }
 
 
@@ -37,30 +37,30 @@ export class MessagesModel extends StatelessModel<MessagesState> {
         super(
             dispatcher,
             {
-                systemMessages: Immutable.List<SystemMessage>()
+                systemMessages: []
             }
         );
         this.appServices = appServices;
-        this.actionMatch = {
-            [ActionName.AddSystemMessage]: (state, action:Actions.AddSystemMessage) => {
-                const newState = this.copyState(state);
-                newState.systemMessages = newState.systemMessages.push({
+        this.addActionHandler(
+            ActionName.AddSystemMessage,
+            (state, action:Actions.AddSystemMessage) => {
+                state.systemMessages = Listop.of(state.systemMessages).append({
                     type: action.payload.type,
                     text: action.payload.text,
                     ttl: action.payload.ttl,
                     ident: action.payload.ident
-                });
-                return newState;
-            },
-            [ActionName.RemoveSystemMessage]: (state, action:Actions.RemoveSystemMessage) => {
-                const newState = this.copyState(state);
-                const srchIdx = newState.systemMessages.findIndex(v => v.ident === action.payload['ident']);
+                }).u();
+            }
+        );
+        this.addActionHandler(
+            ActionName.RemoveSystemMessage,
+            (state, action:Actions.RemoveSystemMessage) => {
+                const srchIdx = state.systemMessages.findIndex(v => v.ident === action.payload.ident);
                 if (srchIdx > -1) {
-                    newState.systemMessages = newState.systemMessages.remove(srchIdx);
+                    state.systemMessages = Listop.of(state.systemMessages).remove(srchIdx).u();
                 }
-                return newState;
-            },
-        };
+            }
+        );
     }
 
 }
