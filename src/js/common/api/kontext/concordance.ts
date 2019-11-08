@@ -156,7 +156,7 @@ function mkLemmaMatchQuery(lvar:LemmaVariant, generator:[string, string]):string
 }
 
 function mkWordMatchQuery(lvar:LemmaVariant):string {
-    return `[word="${escapeVal(lvar.word)}"]`;
+    return lvar.word.split(' ').map(word => `[word="${escapeVal(word)}"]`).join('');
 }
 
 export function mkMatchQuery(lvar:LemmaVariant, generator:[string, string]):string {

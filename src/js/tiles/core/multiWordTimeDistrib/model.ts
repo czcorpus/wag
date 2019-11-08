@@ -29,7 +29,7 @@ import { KontextTimeDistribApi } from '../../../common/api/kontext/timeDistrib';
 import { GeneralSingleCritFreqBarModelState } from '../../../common/models/freq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { findCurrLemmaVariant } from '../../../models/query';
-import { DataItemWithWCI, DataLoadedPayload, LemmaData } from './common';
+import { DataItemWithWCI, DataLoadedPayload, LemmaData, ActionName, Actions } from './common';
 import { AlphaLevel, wilsonConfInterval } from '../../../common/statistics';
 import { callWithExtraVal } from '../../../common/api/util';
 import { LemmaVariant, RecognizedQueries } from '../../../common/query';
@@ -51,6 +51,8 @@ export interface TimeDistribModelState extends GeneralSingleCritFreqBarModelStat
     posQueryGenerator:[string, string];
     wordLabels:Immutable.List<string>;
     backlink:BacklinkWithArgs<BacklinkArgs>;
+    averagingYears:number;
+    isTweakMode:boolean;
 }
 
 
@@ -110,7 +112,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private readonly backlink:Backlink;
 
-    private unfinishedChunks:Immutable.List<boolean>;
+    private unfinishedChunks:Immutable.List<Immutable.List<boolean>>;
 
     constructor({dispatcher, initState, tileId, waitForTile, api,
                 concApi, appServices, lemmas, queryLang, backlink}) {
@@ -123,11 +125,27 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         this.lemmas = lemmas;
         this.queryLang = queryLang;
         this.backlink = backlink;
-        this.unfinishedChunks = Immutable.List(this.lemmas.map(_ => true));
+        this.unfinishedChunks = this.lemmas.map(_ => this.getState().subcnames.map(_ => true).toList()).toList();
 
         this.actionMatch = {
+            [GlobalActionName.EnableAltViewMode]: (state, action:GlobalActions.EnableAltViewMode) => {
+                if (action.payload.ident === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.isTweakMode = true;
+                    return newState;
+                }
+                return state;
+            },
+            [GlobalActionName.DisableAltViewMode]: (state, action:GlobalActions.DisableAltViewMode) => {
+                if (action.payload.ident === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.isTweakMode = false;
+                    return newState;
+                }
+                return state;
+            },
             [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
-                this.unfinishedChunks = Immutable.List(this.lemmas.map(_ => true));
+                this.unfinishedChunks = this.lemmas.map(_ => this.getState().subcnames.map(_ => true).toList()).toList();
                 const newState = this.copyState(state);
                 newState.data = this.lemmas.map(_ => Immutable.List<DataItemWithWCI>()).toList();
                 newState.isBusy = true;
@@ -137,7 +155,11 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<DataLoadedPayload>) => {
                 if (action.payload.tileId === this.tileId) {
                     const newState = this.copyState(state);
-                    this.unfinishedChunks = this.unfinishedChunks.set(action.payload.subchartId, false);
+                    const subcIndex = newState.subcnames.findIndex(v => v === action.payload.subcname);
+                    this.unfinishedChunks = this.unfinishedChunks.set(
+                        action.payload.subchartId,
+                        this.unfinishedChunks.get(action.payload.subchartId).set(subcIndex, false)
+                    );
                     let newData:Immutable.List<DataItemWithWCI>;
                     if (action.error) {
                         newData = Immutable.List<DataItemWithWCI>();
@@ -146,13 +168,21 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         const currentData = newState.data.get(action.payload.subchartId, newData) || Immutable.List<DataItemWithWCI>();
                         newData = this.mergeChunks(currentData, Immutable.List<DataItemWithWCI>(action.payload.data), state.alphaLevel);
                     }
-                    newState.isBusy = this.unfinishedChunks.includes(true);
+                    newState.isBusy = this.unfinishedChunks.some(l => l.includes(true));
                     newState.data = newState.data.set(action.payload.subchartId, newData);
 
                     return newState;
                 }
                 return state;
-            }
+            },
+            [ActionName.ChangeTimeWindow]: (state, action:Actions.ChangeTimeWindow) => {
+                if (action.payload.tileId === this.tileId) {
+                    const newState = this.copyState(state);
+                    newState.averagingYears = action.payload.value;
+                    return newState;
+                }
+                return state;
+            },
         };
     }
 
