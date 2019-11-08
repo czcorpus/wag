@@ -55,7 +55,7 @@ function mergeDataSets(data:Immutable.List<LemmaData>, averagingYears:number):Ar
                 ...sortedData.slice(index, index + averagingYears).filter(v => parseInt(v.get('datetime')) < parseInt(dataPoint.get('datetime')) + averagingYears)[Symbol.iterator]()
             ).toMap())
         // normalize data to percentages
-        .map(value => 
+        .map(value =>
             value.map((v, key) => {
                 if (key.startsWith('occurrenceValue')) {
                     return (100*v/value.get('occurrenceNorm')).toFixed(2)
@@ -106,8 +106,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         isPartial:boolean;
         isSmallWidth:boolean;
         averagingYears:number;
-    }> = React.memo((props) => {        
-        const data = mergeDataSets(props.data, props.averagingYears);        
+    }> = React.memo((props) => {
+        const data = mergeDataSets(props.data, props.averagingYears);
         return (
             <ResponsiveContainer width={props.isSmallWidth ? '100%' : '90%'} height={props.size[1]}>
                 <AreaChart data={data}
@@ -183,7 +183,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // -------------- <MultiWordTimeDistribTile /> ------------------------------------------------------
 
     const MultiWordTimeDistribTile:React.SFC<TimeDistribModelState & CoreTileComponentProps> = (props) => {
-
         return (
             <globComponents.TileWrapper tileId={props.tileId} isBusy={props.isBusy} error={props.error}
                         hasData={props.data.size > 0}
