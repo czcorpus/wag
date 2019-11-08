@@ -126,9 +126,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         this.queryLang = queryLang;
         this.backlink = backlink;
         this.unfinishedChunks = this.lemmas.map(_ => this.getState().subcnames.map(_ => true).toList()).toList();
-
         this.actionMatch = {
-            [GlobalActionName.EnableAltViewMode]: (state, action:GlobalActions.EnableAltViewMode) => {
+            [GlobalActionName.EnableTileTweakMode]: (state, action:GlobalActions.EnableAltViewMode) => {
                 if (action.payload.ident === this.tileId) {
                     const newState = this.copyState(state);
                     newState.isTweakMode = true;
@@ -136,7 +135,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 }
                 return state;
             },
-            [GlobalActionName.DisableAltViewMode]: (state, action:GlobalActions.DisableAltViewMode) => {
+            [GlobalActionName.DisableTileTweakMode]: (state, action:GlobalActions.DisableAltViewMode) => {
                 if (action.payload.ident === this.tileId) {
                     const newState = this.copyState(state);
                     newState.isTweakMode = false;
