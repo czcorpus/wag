@@ -2,7 +2,7 @@ const path = require('path');
 const build = require('./build');
 const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 
 // helper functions
 
@@ -58,10 +58,13 @@ module.exports = (env) => ({
                         options: {
                             presets: [
                                 ['@babel/preset-env', {
-                                    "modules": false,
-                                    'targets': 'last 3 versions'
+                                    modules: false,
+                                    targets: {
+                                        browsers: ['last 3 versions'],
+                                    },
+                                    forceAllTransforms: true
                                 }]
-                            ]
+                            ],
                         }
                     }
                 ]
@@ -120,10 +123,10 @@ module.exports = (env) => ({
         },
         minimizer: [
             new OptimizeCSSAssetsPlugin({}),
-            new UglifyJsPlugin()
+            new TerserPlugin(),
         ]
     },
-    devtool: 'inline-source-map',
+    //devtool: 'inline-source-map',
     plugins: [
         new build.ProcTranslationsPlugin(SRC_PATH, DIST_PATH, CONF),
         new MiniCssExtractPlugin({
