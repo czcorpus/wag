@@ -15,9 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
-
 import { StatelessModel, StatefulModel, Action, IFullActionControl } from 'kombo';
+import { Listop, Dictop } from 'montainer';
 import { ActionName} from '../models/actions';
 
 
@@ -29,7 +28,7 @@ interface ModelInfo {
 }
 
 interface RetryTileLoadState {
-    models:Immutable.Map<number, ModelInfo>;
+    models:{[k:string]:ModelInfo};
     lastAction:Action|null;
 }
 
@@ -47,7 +46,7 @@ export class RetryTileLoad extends StatefulModel<RetryTileLoadState> {
         super(
             dispatcher,
             {
-                models: Immutable.Map<number, ModelInfo>(),
+                models: {},
                 lastAction: null
             }
         );
@@ -59,28 +58,28 @@ export class RetryTileLoad extends StatefulModel<RetryTileLoadState> {
      * any tile tileId is dependent on (in this case including
      * transitive dependencies).
      */
-    private getBlockedGroup(tileId:number):Immutable.Set<number> {
-        let ans = Immutable.Set<number>([tileId]);
-        let toProc = Immutable.List<number>(this.state.models.get(tileId).blockers);
-        while (toProc.size > 0) {
-            const item = toProc.first();
-            ans = ans.add(item);
-            toProc = toProc.shift().concat(this.state.models.get(item).blockers).toList();
+    private getBlockedGroup(tileId:number):Array<number> {
+        let ans = Listop.of([tileId]);
+        let toProc = this.state.models[tileId.toString()].blockers;
+        while (toProc.length > 0) {
+            const item = toProc[0];
+            ans = ans.addUnique(item);
+            toProc = Listop.of(toProc).shift().concat(this.state.models[item.toFixed()].blockers).u();
         }
-        this.state.models.forEach((model, ident) => {
+        Dictop.of(this.state.models).tap((model, ident) => {
             if (model.blockers.indexOf(tileId) > -1) {
-                ans = ans.add(ident);
+                ans = ans.addUnique(parseInt(ident));
             }
         });
-        return ans;
+        return ans.u();
     }
 
     onAction(action:Action) {
         switch (action.name) {
             case ActionName.RetryTileLoad:
                 const blockedGroup = this.getBlockedGroup(action.payload['tileId']);
-                this.state.models.forEach((model, ident) => {
-                    if (!blockedGroup.includes(ident)) {
+                Dictop.of(this.state.models).tap((model, ident) => {
+                    if (!blockedGroup.some(x => x.toFixed() === ident)) {
                         model.model.suspend((action) => {
                             if (action.name === ActionName.WakeSuspendedTiles) {
                                 return true;
@@ -99,16 +98,16 @@ export class RetryTileLoad extends StatefulModel<RetryTileLoadState> {
             break;
             case ActionName.TileDataLoaded:
                 if (action.error) {
-                    const m = this.state.models.get(action.payload['tileId']);
+                    const m = this.state.models[action.payload['tileId']];
                     if (m) {
-                        this.state.models = this.state.models.set(
+                        this.state.models = Dictop.of(this.state.models).set(
                             action.payload['tileId'],
                             {
                                 model: m.model,
                                 isError: true,
                                 blockers: m.blockers
                             }
-                        );
+                        ).u();
                     }
                 }
             break;
@@ -117,14 +116,14 @@ export class RetryTileLoad extends StatefulModel<RetryTileLoadState> {
 
     registerModel(ident:number, model:StatelessModel<{}>, blockers:Array<number>):void {
         if (model) {
-            this.state.models = this.state.models.set(
-                ident,
+            this.state.models = Dictop.of(this.state.models).set(
+                ident.toFixed(),
                 {
                     model: model,
                     isError: false,
                     blockers: blockers
                 }
-            );
+            ).u();
         }
     }
 
