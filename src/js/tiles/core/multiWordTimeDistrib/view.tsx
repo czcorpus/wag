@@ -52,8 +52,15 @@ function mergeDataSets(data:Immutable.List<LemmaData>, averagingYears:number):Ar
             dataPoint.mergeDeepWith((prev, next, key) =>
                 key === 'datetime' ? prev :
                     key.startsWith('occurrenceInterval') ? [prev[0] + next[0], prev[1] + next[1]] : prev + next,
-                ...sortedData.slice(index, index + averagingYears).filter(v => parseInt(v.get('datetime')) < parseInt(dataPoint.get('datetime')) + averagingYears)[Symbol.iterator]()
+                ...sortedData.slice(
+                    (index - averagingYears) < 0 ? 0 : index - averagingYears,
+                    index + averagingYears + 1
+                ).filter(v =>
+                    parseInt(v.get('datetime')) >= parseInt(dataPoint.get('datetime')) - averagingYears &&
+                    parseInt(v.get('datetime')) < parseInt(dataPoint.get('datetime')) + averagingYears + 1
+                )[Symbol.iterator]()
             ).toMap())
+
         // normalize data to percentages
         .map(value =>
             value.map((v, key) => {
@@ -172,8 +179,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             return (
                 <form>
                     <label>
-                        <p>{ut.translate('multiWordTimeDistrib__sliding_window_average')}: {this.props.averagingYears}{'\u00a0'}</p>
-                        <input type="range" min="1" max="10" value={this.props.averagingYears} onChange={this.handleInputChange} />
+                        <p>{ut.translate('multiWordTimeDistrib__sliding_window_average')}: &plusmn;{this.props.averagingYears}{'\u00a0'}</p>
+                        <input type="range" min="0" max="10" value={this.props.averagingYears} onChange={this.handleInputChange} />
                     </label>
                 </form>
             );
