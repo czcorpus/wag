@@ -60,7 +60,7 @@
     "immer": "^5.0.0",
     "immutable": "^3.8.2",
     "ioredis": "^4.14.0",
-    "kombo": "^0.61.0",
+    "kombo": "^0.62.3",
     "montainer": "^0.0.15",
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
