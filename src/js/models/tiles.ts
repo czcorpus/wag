@@ -132,7 +132,7 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                 state.isBusy = true;
             },
             (state, action, dispatch) => {
-                this.getTileProps(state, action.payload['tileId']).pipe(
+                this.getTileProps(state, action.payload.tileId).pipe(
                     map(
                         (props) => {
                             if (!props.helpURL) {

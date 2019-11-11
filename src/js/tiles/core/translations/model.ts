@@ -125,7 +125,7 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
     sideEffects(state:GeneralTranslationsModelState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
-                const srchLemma = findCurrLemmaVariant(this.lemmas.get(0));
+                const srchLemma = findCurrLemmaVariant(this.lemmas[0]);
                 this.api.call(this.api.stateToArgs(state, srchLemma.lemma))
                     .pipe(
                         map(item => {
@@ -151,7 +151,7 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
                                 payload: {
                                     tileId: this.tileId,
                                     isEmpty: data.length === 0,
-                                    query: findCurrLemmaVariant(this.lemmas.get(0)).lemma, // TODO switch to word and give up dict support
+                                    query: findCurrLemmaVariant(this.lemmas[0]).lemma, // TODO switch to word and give up dict support
                                     subqueries: data.map(v => ({
                                         value: {
                                             value: v.firstTranslatLc,
@@ -172,7 +172,7 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
                                 payload: {
                                     tileId: this.tileId,
                                     isEmpty: true,
-                                    query: findCurrLemmaVariant(this.lemmas.get(0)).lemma, // TODO switch to word and give up dict support
+                                    query: findCurrLemmaVariant(this.lemmas[0]).lemma, // TODO switch to word and give up dict support
                                     subqueries: [],
                                     lang1: state.lang1,
                                     lang2: state.lang2,

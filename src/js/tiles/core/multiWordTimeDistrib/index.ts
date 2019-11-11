@@ -85,11 +85,12 @@ export class MultiWordTimeDistTile implements ITileProvider {
                 fttIncludeEmpty: false,
                 fmaxitems: 100,
                 alphaLevel: AlphaLevel.LEVEL_0_1, // TODO conf/explain
-                data: lemmas.map(_ => Immutable.List<DataItemWithWCI>()).toList(),
+                data: Immutable.List(lemmas.map(_ => Immutable.List<DataItemWithWCI>())),
                 posQueryGenerator: conf.posQueryGenerator,
-                wordLabels: lemmas.map(l => findCurrLemmaVariant(l).word),
+                wordLabels: Immutable.List(lemmas.map(l => findCurrLemmaVariant(l).word)),
                 averagingYears: 1,
-                isTweakMode: false
+                isTweakMode: false,
+                backlink: null
             },
             tileId: tileId,
             waitForTile: waitForTiles[0] || -1,

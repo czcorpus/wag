@@ -114,7 +114,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                 new Observable<{variant:LemmaVariant; lang:string}>((observer) => {
                     try {
                         observer.next({
-                            variant: findCurrLemmaVariant(this.lemmas.get(0)),
+                            variant: findCurrLemmaVariant(this.lemmas[0]),
                             lang: this.queryLang
                         });
                         observer.complete();
@@ -149,7 +149,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                         (data) => ({
                             data: data.result.map(v => {
                                 return {
-                                    word: v.isSearched ? findCurrLemmaVariant(this.lemmas.get(0)).word : '',
+                                    word: v.isSearched ? findCurrLemmaVariant(this.lemmas[0]).word : '',
                                     lemma: v.lemma,
                                     pos: v.pos,
                                     abs: v.abs,

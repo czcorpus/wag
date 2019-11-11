@@ -185,7 +185,7 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState> {
                     });
 
                 } else {
-                    const variant = findCurrLemmaVariant(this.lemmas.get(0));
+                    const variant = findCurrLemmaVariant(this.lemmas[0]);
                     this.api.call(this.api.stateToArgs(state, variant.word))
                     .subscribe(
                         (resp) => {

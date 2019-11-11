@@ -218,7 +218,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
     private reloadData(state:ConcordanceTileState, dispatch:SEDispatcher, otherLangCql:string):void {
         new Observable<{}>((observer) => {
             try {
-                observer.next(this.service.stateToArgs(state, state.concId ? null : findCurrLemmaVariant(this.lemmas.get(0)), otherLangCql));
+                observer.next(this.service.stateToArgs(state, state.concId ? null : findCurrLemmaVariant(this.lemmas[0]), otherLangCql));
                 observer.complete();
 
             } catch (e) {

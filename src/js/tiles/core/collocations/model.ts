@@ -264,7 +264,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                     );
 
                 } else {
-                    const variant = findCurrLemmaVariant(this.lemmas.get(0));
+                    const variant = findCurrLemmaVariant(this.lemmas[0]);
                     this.requestData(state, variant, null, seDispatch);
                 }
             break;

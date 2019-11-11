@@ -252,7 +252,7 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
             case GlobalActionName.RequestQueryResponse:
                 this.suspend(
                     (action:Action) => {
-                        const srchLemma = findCurrLemmaVariant(this.lemmas.get(0));
+                        const srchLemma = findCurrLemmaVariant(this.lemmas[0]);
                         if (action.name === GlobalActionName.TileDataLoaded && this.waitForColorsTile === action.payload['tileId']) {
                             merge(...state.subsets.map(subset =>
                                 callWithExtraVal(
@@ -288,7 +288,7 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
                                         payload: {
                                             tileId: this.tileId,
                                             isEmpty: true,
-                                            query: findCurrLemmaVariant(this.lemmas.get(0)).word,
+                                            query: findCurrLemmaVariant(this.lemmas[0]).word,
                                             lines: [],
                                             sum: -1,
                                             subsetId: null

@@ -49,7 +49,6 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
         this.tileId = tileId;
         this.api = api;
         this.lemmas = lemmas;
-
         this.actionMatch = {
             [GlobalActionName.EnableTileTweakMode]: (state, action:GlobalActions.EnableTileTweakMode) => {
                 if (action.payload.ident === this.tileId) {
@@ -122,7 +121,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
             case GlobalActionName.RequestQueryResponse:
             case ActionName.SetOperationMode:
                 this.api.call(
-                    this.api.stateToArgs(state, findCurrLemmaVariant(this.lemmas.get(0)).lemma)
+                    this.api.stateToArgs(state, findCurrLemmaVariant(this.lemmas[0]).lemma)
 
                 ).subscribe(
                     (data) => {

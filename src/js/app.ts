@@ -94,7 +94,7 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
     const qType = userSession.queryType as QueryType; // TODO validate
     const isDictQuery = userSession.queryType === QueryType.CMP_QUERY ?
             lemmas.every(lvList => testIsDictQuery(lvList)) :
-            testIsDictQuery(lemmas.get(0));
+            testIsDictQuery(lemmas[0]);
     const globalComponents = globalCompInit(dispatcher, viewUtils, onResize);
     viewUtils.attachComponents(globalComponents);
 
@@ -113,9 +113,8 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
         queryType: qType,
         lemmas: lemmas,
         isAnswerMode: userSession.answerMode,
-        uiLanguages: Immutable.List<AvailableLanguage>(
-            Object.keys(userSession.uiLanguages).map(k => [k, userSession.uiLanguages[k]])),
-        searchLanguages: Immutable.List<SearchLanguage>(config.searchLanguages),
+        uiLanguages: Object.keys(userSession.uiLanguages).map(k => ({code: k, label: userSession.uiLanguages[k]})),
+        searchLanguages: config.searchLanguages,
         layout: layoutManager,
         maxCmpQueries: 10
     });

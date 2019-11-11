@@ -108,7 +108,7 @@ export class FreqTreeTile implements ITileProvider {
                 maxChartsPerLine: conf.maxChartsPerLine ? conf.maxChartsPerLine : 3,
                 colors: conf.colors ? conf.colors : ["#8addff", "#f26e43"],
                 lemmas: lemmas,
-                zoomCategory: criteria.map(_ => lemmas.map(_ => null).toList()).toList()
+                zoomCategory: criteria.map(_ => Immutable.List(lemmas.map(_ => null))).toList()
             }
         );
         this.label = appServices.importExternalMessage(conf.label || 'freqTree__main_label');
