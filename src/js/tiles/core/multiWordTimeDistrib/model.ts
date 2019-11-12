@@ -127,29 +127,33 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         this.backlink = backlink;
         this.unfinishedChunks = Immutable.List(this.lemmas.map(_ => initState.subcnames.map(_ => true).toList()));
 
-        this.addActionHandler(GlobalActionName.EnableTileTweakMode,
-            (state:TimeDistribModelState, action:GlobalActions.EnableTileTweakMode) => {
+        this.addActionHandler<GlobalActions.EnableTileTweakMode>(
+            GlobalActionName.EnableTileTweakMode,
+            (state, action) => {
                 if (action.payload.ident === this.tileId) {state.isTweakMode = true}
             }
         );
-        this.addActionHandler(GlobalActionName.DisableTileTweakMode,
-            (state:TimeDistribModelState, action:GlobalActions.DisableTileTweakMode) => {
+        this.addActionHandler<GlobalActions.DisableTileTweakMode>(
+            GlobalActionName.DisableTileTweakMode,
+            (state, action) => {
                 if (action.payload.ident === this.tileId) {state.isTweakMode = false}
             }
         );
-        this.addActionHandler(ActionName.ChangeTimeWindow,
-            (state:TimeDistribModelState, action:Actions.ChangeTimeWindow) => {
+        this.addActionHandler<Actions.ChangeTimeWindow>(
+            ActionName.ChangeTimeWindow,
+            (state, action) => {
                 if (action.payload.tileId === this.tileId) {state.averagingYears = action.payload.value}
             }
         );
-        this.addActionHandler(GlobalActionName.RequestQueryResponse,
-            (state:TimeDistribModelState, action:GlobalActions.RequestQueryResponse) => {
+        this.addActionHandler<GlobalActions.RequestQueryResponse>(
+            GlobalActionName.RequestQueryResponse,
+            (state, action) => {
                 this.unfinishedChunks = Immutable.List(this.lemmas.map(_ => this.getState().subcnames.map(_ => true).toList()));
                 state.data = Immutable.List(this.lemmas.map(_ => Immutable.List<DataItemWithWCI>()));
                 state.isBusy = true;
                 state.error = null;
             },
-            (state:TimeDistribModelState, action:GlobalActions.RequestQueryResponse, dispatch:SEDispatcher) => {
+            (state, action, dispatch) => {
                 this.loadData(
                     state,
                     dispatch,
@@ -157,9 +161,10 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 );
             }
         );
-        this.addActionHandler(GlobalActionName.GetSourceInfo,
-            (state:TimeDistribModelState, action:GlobalActions.GetSourceInfo) => {},
-            (state:TimeDistribModelState, action:GlobalActions.GetSourceInfo, dispatch:SEDispatcher) => {
+        this.addActionHandler<GlobalActions.GetSourceInfo>(
+            GlobalActionName.GetSourceInfo,
+            (state, action) => {},
+            (state, action, dispatch) => {
                 if (action.payload['tileId'] === this.tileId) {
                     this.api.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), action.payload['corpusId'])
                     .subscribe(
@@ -183,8 +188,9 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 }
             }
         );
-        this.addActionHandler(GlobalActionName.TileDataLoaded,
-            (state:TimeDistribModelState, action:GlobalActions.TileDataLoaded<DataLoadedPayload>) => {
+        this.addActionHandler<GlobalActions.TileDataLoaded<DataLoadedPayload>>(
+            GlobalActionName.TileDataLoaded,
+            (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     const subcIndex = state.subcnames.findIndex(v => v === action.payload.subcname);
                     this.unfinishedChunks = this.unfinishedChunks.set(
