@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Tomas Machalek <tomas.machalek@gmail.com>
+ * Copyright 2019 Martin Zimandl <martin.zimandl@gmail.com>
  * Copyright 2019 Institute of the Czech National Corpus,
  *                Faculty of Arts, Charles University
  *
@@ -88,7 +88,7 @@ export class MultiWordTimeDistTile implements ITileProvider {
                 data: Immutable.List(lemmas.map(_ => Immutable.List<DataItemWithWCI>())),
                 posQueryGenerator: conf.posQueryGenerator,
                 wordLabels: Immutable.List(lemmas.map(l => findCurrLemmaVariant(l).word)),
-                averagingYears: 1,
+                averagingYears: 0,
                 isTweakMode: false,
                 backlink: null
             },

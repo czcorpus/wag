@@ -1,6 +1,6 @@
 {
     "en-US": {
-        "multiWordTimeDistrib__main_label": "Compared frequencys of the words during time",
+        "multiWordTimeDistrib__main_label": "Compared frequencies of the words during time",
         "multiWordTimeDistrib__occurence_human": "normalized relative occurrences",
         "multiWordTimeDistrib__estimated_trend_for_{word}": "Estimated trend for \"{word}\"",
         "multiWordTimeDistrib__no_data_found_for_{word}": "No data found \"{word}\"",

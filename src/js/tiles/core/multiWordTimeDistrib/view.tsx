@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Tomas Machalek <tomas.machalek@gmail.com>
+ * Copyright 2019 Martin Zimandl <martin.zimandl@gmail.com>
  * Copyright 2019 Institute of the Czech National Corpus,
  *                Faculty of Arts, Charles University
  *
@@ -35,34 +35,48 @@ function mergeDataSets(data:Immutable.List<LemmaData>, averagingYears:number):Ar
     });
 
     // flatten data structure
-    let datetimeData:Immutable.Map<string, Immutable.Map<string, any>> = Immutable.Map();
+    let datetimeData:Immutable.Map<number, Immutable.Map<string, any>> = Immutable.Map();
     data.forEach((lemmaData, index) => lemmaData.forEach(d => {
-        let dataPoint: Immutable.Map<string, any> = datetimeData.get(d.datetime, Immutable.Map(defaultDataPoint));
+        let dataPoint: Immutable.Map<string, any> = datetimeData.get(parseInt(d.datetime), Immutable.Map(defaultDataPoint));
         dataPoint = dataPoint.set(`datetime`, d.datetime)
         dataPoint = dataPoint.set(`occurrenceValue${index}`, d.ipm);
         dataPoint = dataPoint.set(`occurrenceInterval${index}`, d.ipmInterval);
         dataPoint = dataPoint.set('occurrenceNorm', dataPoint.get('occurrenceNorm') + d.ipm);
-        datetimeData = datetimeData.set(d.datetime, dataPoint);
+        datetimeData = datetimeData.set(parseInt(d.datetime), dataPoint);
     }));
 
-    const sortedData = datetimeData.sortBy((_, k) => parseInt(k)).valueSeq().toList();
+    // fill the gaps
+    Immutable.Range(datetimeData.keySeq().min(), datetimeData.keySeq().max() + 1).forEach(year => {
+        if (!datetimeData.has(year)) {
+            datetimeData = datetimeData.set(year, Immutable.Map({...defaultDataPoint, datetime: year.toString()}));
+        }
+    })
+
+    const sortedData = datetimeData.sortBy((_, k) => k).valueSeq();
     return sortedData
-        // aggregate data by sliding window years
-        .map((dataPoint, index) =>
+        // aggregate data - sliding average
+        .map((dataPoint, year) =>
             dataPoint.mergeDeepWith((prev, next, key) =>
                 key === 'datetime' ? prev :
                     key.startsWith('occurrenceInterval') ? [prev[0] + next[0], prev[1] + next[1]] : prev + next,
-                ...sortedData.slice(index, index + averagingYears).filter(v => parseInt(v.get('datetime')) < parseInt(dataPoint.get('datetime')) + averagingYears)[Symbol.iterator]()
+                ...sortedData.slice(
+                    (year - averagingYears) < 0 ? 0 : year - averagingYears,
+                    year + averagingYears + 1
+                )[Symbol.iterator]()
             ).toMap())
+
         // normalize data to percentages
-        .map(value =>
-            value.map((v, key) => {
-                if (key.startsWith('occurrenceValue')) {
-                    return (100*v/value.get('occurrenceNorm')).toFixed(2)
-                } else if (key.startsWith('occurrenceInterval')) {
-                    return v.map(d => (100*d/value.get('occurrenceNorm')).toFixed(2))
+        .map(dataPoint =>
+            dataPoint.map((value, key) => {
+                const norm = dataPoint.get('occurrenceNorm');
+                if (norm > 0) {
+                    if (key.startsWith('occurrenceValue')) {
+                        return (100*value/norm).toFixed(2);
+                    } else if (key.startsWith('occurrenceInterval')) {
+                        return value.map(v => (100*v/norm).toFixed(2));
+                    }
                 }
-                return v;
+                return value;
             }).toMap())
         .toJS();
 }
@@ -110,13 +124,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         const data = mergeDataSets(props.data, props.averagingYears);
         return (
             <ResponsiveContainer width={props.isSmallWidth ? '100%' : '90%'} height={props.size[1]}>
-                <AreaChart data={data}
-                        margin={{top: 10, right: 30, left: 0, bottom: 0}}>
+                <AreaChart data={data} margin={{top: 10, right: 30, left: 0, bottom: 0}}>
                     <CartesianGrid strokeDasharray="1 1"/>
                     <XAxis dataKey="datetime" interval="preserveStartEnd" minTickGap={0} type="category" />
-                    <YAxis domain={[0, 100]} unit='%' />
-                    <Tooltip isAnimationActive={false} formatter={(value, name, props) =>
-                        name.startsWith('occurrenceInterval') ? [null, null] : [`${value} %`, name]
+                    <YAxis type="number" domain={[0, 100]} unit='%'/>
+                    <Tooltip isAnimationActive={false} formatter={(value, name, props) =>                        
+                        name.startsWith('occurrenceInterval') ? [null, null] : [`${value} % (${(props.payload.occurrenceNorm*value/100).toFixed(2)} ipm)`, name]
                     } />
                     {props.words.map((word, index) =>
                         <Area type="linear"
@@ -172,8 +185,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             return (
                 <form>
                     <label>
-                        <p>{ut.translate('multiWordTimeDistrib__sliding_window_average')}: {this.props.averagingYears}{'\u00a0'}</p>
-                        <input type="range" min="1" max="10" value={this.props.averagingYears} onChange={this.handleInputChange} />
+                        <p>{ut.translate('multiWordTimeDistrib__sliding_window_average')}: &plusmn;{this.props.averagingYears}{'\u00a0'}</p>
+                        <input type="range" min="0" max="10" value={this.props.averagingYears} onChange={this.handleInputChange} />
                     </label>
                 </form>
             );
