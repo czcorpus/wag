@@ -35,41 +35,48 @@ function mergeDataSets(data:Immutable.List<LemmaData>, averagingYears:number):Ar
     });
 
     // flatten data structure
-    let datetimeData:Immutable.Map<string, Immutable.Map<string, any>> = Immutable.Map();
+    let datetimeData:Immutable.Map<number, Immutable.Map<string, any>> = Immutable.Map();
     data.forEach((lemmaData, index) => lemmaData.forEach(d => {
-        let dataPoint: Immutable.Map<string, any> = datetimeData.get(d.datetime, Immutable.Map(defaultDataPoint));
+        let dataPoint: Immutable.Map<string, any> = datetimeData.get(parseInt(d.datetime), Immutable.Map(defaultDataPoint));
         dataPoint = dataPoint.set(`datetime`, d.datetime)
         dataPoint = dataPoint.set(`occurrenceValue${index}`, d.ipm);
         dataPoint = dataPoint.set(`occurrenceInterval${index}`, d.ipmInterval);
         dataPoint = dataPoint.set('occurrenceNorm', dataPoint.get('occurrenceNorm') + d.ipm);
-        datetimeData = datetimeData.set(d.datetime, dataPoint);
+        datetimeData = datetimeData.set(parseInt(d.datetime), dataPoint);
     }));
 
-    const sortedData = datetimeData.sortBy((_, k) => parseInt(k)).valueSeq().toList();
+    // fill the gaps
+    Immutable.Range(datetimeData.keySeq().min(), datetimeData.keySeq().max() + 1).forEach(year => {
+        if (!datetimeData.has(year)) {
+            datetimeData = datetimeData.set(year, Immutable.Map({...defaultDataPoint, datetime: year.toString()}));
+        }
+    })
+
+    const sortedData = datetimeData.sortBy((_, k) => k).valueSeq();
     return sortedData
-        // aggregate data by sliding window years
-        .map((dataPoint, index) =>
+        // aggregate data - sliding average
+        .map((dataPoint, year) =>
             dataPoint.mergeDeepWith((prev, next, key) =>
                 key === 'datetime' ? prev :
                     key.startsWith('occurrenceInterval') ? [prev[0] + next[0], prev[1] + next[1]] : prev + next,
                 ...sortedData.slice(
-                    (index - averagingYears) < 0 ? 0 : index - averagingYears,
-                    index + averagingYears + 1
-                ).filter(v =>
-                    parseInt(v.get('datetime')) >= parseInt(dataPoint.get('datetime')) - averagingYears &&
-                    parseInt(v.get('datetime')) < parseInt(dataPoint.get('datetime')) + averagingYears + 1
+                    (year - averagingYears) < 0 ? 0 : year - averagingYears,
+                    year + averagingYears + 1
                 )[Symbol.iterator]()
             ).toMap())
 
         // normalize data to percentages
-        .map(value =>
-            value.map((v, key) => {
-                if (key.startsWith('occurrenceValue')) {
-                    return (100*v/value.get('occurrenceNorm')).toFixed(2)
-                } else if (key.startsWith('occurrenceInterval')) {
-                    return v.map(d => (100*d/value.get('occurrenceNorm')).toFixed(2))
+        .map(dataPoint =>
+            dataPoint.map((value, key) => {
+                const norm = dataPoint.get('occurrenceNorm');
+                if (norm > 0) {
+                    if (key.startsWith('occurrenceValue')) {
+                        return (100*value/norm).toFixed(2);
+                    } else if (key.startsWith('occurrenceInterval')) {
+                        return value.map(v => (100*v/norm).toFixed(2));
+                    }
                 }
-                return v;
+                return value;
             }).toMap())
         .toJS();
 }
