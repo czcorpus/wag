@@ -124,13 +124,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         const data = mergeDataSets(props.data, props.averagingYears);
         return (
             <ResponsiveContainer width={props.isSmallWidth ? '100%' : '90%'} height={props.size[1]}>
-                <AreaChart data={data}
-                        margin={{top: 10, right: 30, left: 0, bottom: 0}}>
+                <AreaChart data={data} margin={{top: 10, right: 30, left: 0, bottom: 0}}>
                     <CartesianGrid strokeDasharray="1 1"/>
                     <XAxis dataKey="datetime" interval="preserveStartEnd" minTickGap={0} type="category" />
-                    <YAxis domain={[0, 100]} unit='%' />
-                    <Tooltip isAnimationActive={false} formatter={(value, name, props) =>
-                        name.startsWith('occurrenceInterval') ? [null, null] : [`${value} %`, name]
+                    <YAxis type="number" domain={[0, 100]} unit='%'/>
+                    <Tooltip isAnimationActive={false} formatter={(value, name, props) =>                        
+                        name.startsWith('occurrenceInterval') ? [null, null] : [`${value} % (${(props.payload.occurrenceNorm*value/100).toFixed(2)} ipm)`, name]
                     } />
                     {props.words.map((word, index) =>
                         <Area type="linear"
