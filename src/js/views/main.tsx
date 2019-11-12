@@ -102,7 +102,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const QueryLangSelector:React.SFC<{
         value:string;
-        searchLanguages:Immutable.List<SearchLanguage>;
+        searchLanguages:Array<SearchLanguage>;
         htmlClass?:string;
         queryType:QueryType;
         onChange:(v:string)=>void;
@@ -270,12 +270,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // ------------------ <QueryFields /> ------------------------------
 
     const QueryFields:React.SFC<{
-        queries:Immutable.List<Forms.Input>;
+        queries:Array<Forms.Input>;
         queryType:QueryType;
         wantsFocus:boolean;
         queryLanguage:string;
         queryLanguage2:string;
-        searchLanguages:Immutable.List<SearchLanguage>;
+        searchLanguages:Array<SearchLanguage>;
         targetLanguages:Array<[string, string]>;
         maxCmpQueries:number;
         onEnterKey:()=>void;
@@ -299,7 +299,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     lang1: primary ? lang : props.queryLanguage,
                     lang2: primary ? props.queryLanguage2 : lang,
                     queryType: props.queryType,
-                    queries: props.queries.map(v => v.value).toArray()
+                    queries: props.queries.map(v => v.value)
                 }
             });
         };
@@ -313,7 +313,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <QueryLangSelector value={props.queryLanguage} searchLanguages={props.searchLanguages}
                                 onChange={handleTargetLanguageChange(true)} queryType={QueryType.SINGLE_QUERY} />
                         <span className="input-row">
-                            <QueryInput value={props.queries.get(0)} onEnter={props.onEnterKey}
+                            <QueryInput value={props.queries[0]} onEnter={props.onEnterKey}
                                     onContentChange={handleQueryInput(0)} wantsFocus={props.wantsFocus} />
                         </span>
                     </>
@@ -328,11 +328,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 <span className="input-row" key={`query:${queryIdx}`}>
                                     <QueryInput value={query} onEnter={props.onEnterKey}
                                         onContentChange={handleQueryInput(queryIdx)} wantsFocus={props.wantsFocus && query.value === ''} />
-                                    {queryIdx > 0 && props.queries.size > 2 ? <RemoveCmpQueryField queryIdx={queryIdx} /> : null}
+                                    {queryIdx > 0 && props.queries.length > 2 ? <RemoveCmpQueryField queryIdx={queryIdx} /> : null}
                                     <br />
                                 </span>
                             ))}
-                            {props.queries.size < props.maxCmpQueries ? <AddCmpQueryField /> : null}
+                            {props.queries.length < props.maxCmpQueries ? <AddCmpQueryField /> : null}
                         </div>
                     </>
                 );
@@ -346,7 +346,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 htmlClass="secondary"
                                 onChange={handleTargetLanguageChange(false)} queryType={QueryType.TRANSLAT_QUERY} />
                         <span className="input-row">
-                            <QueryInput value={props.queries.get(0)} onEnter={props.onEnterKey}
+                            <QueryInput value={props.queries[0]} onEnter={props.onEnterKey}
                                     onContentChange={handleQueryInput(0)} wantsFocus={props.wantsFocus} />
                         </span>
                     </>
@@ -359,7 +359,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const LemmaSelector:React.SFC<{
         queryIdx:number;
-        lemmas:Immutable.List<LemmaVariant>;
+        lemmas:Array<LemmaVariant>;
 
     }> = (props) => {
 
@@ -385,7 +385,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             return ut.translate('global__alt_expr_nondict');
         };
 
-        if (props.lemmas.size > 0) {
+        if (props.lemmas.length > 0) {
             const curr = props.lemmas.find(v => v.isCurrent == true);
             if (curr) {
                 return (
@@ -393,7 +393,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         {ut.translate('global__searching_by_pos')}:{'\u00a0'}
                         <span className="curr">{curr.isNonDict ? curr.word : curr.lemma} ({mkAltLabel(curr)})</span>
                         <br />
-                        {props.lemmas.size > 1 ?
+                        {props.lemmas.length > 1 ?
                             <div className="variants">
                                 {ut.translate('global__multiple_words_for_query')}:{'\u00a0'}
                                 <ul>
@@ -436,7 +436,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     queryType: qt,
                     lang1: this.props.queryLanguage,
                     lang2: this.props.queryLanguage2,
-                    queries: this.props.queries.map(v => v.value).toArray(),
+                    queries: this.props.queries.map(v => v.value),
                 }
             });
         };
@@ -468,7 +468,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         </div>
                     </form>
                     {this.props.isAnswerMode ?
-                        <LemmaSelector lemmas={this.props.lemmas.get(0)} queryIdx={0} /> :
+                        <LemmaSelector lemmas={this.props.lemmas[0]} queryIdx={0} /> :
                         null
                     }
                 </div>

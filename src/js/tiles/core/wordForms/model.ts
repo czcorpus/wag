@@ -239,7 +239,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                     );
 
                 } else {
-                    const variant = findCurrLemmaVariant(this.lemmas.get(0));
+                    const variant = findCurrLemmaVariant(this.lemmas[0]);
                     this.fetchWordForms(
                         {
                             lang: this.queryLang,

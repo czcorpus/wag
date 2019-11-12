@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
+import { StatelessModel, IActionDispatcher } from 'kombo';
 import { Observable } from 'rxjs';
 import { concatMap, map } from 'rxjs/operators';
 
@@ -24,7 +24,6 @@ import { ajax$, ResponseType } from '../common/ajax';
 import { SystemMessageType, SourceDetails } from '../common/types';
 import { TileFrameProps } from '../common/tile';
 import { ActionName, Actions } from './actions';
-import { produce } from 'immer';
 import { Listop, Transform } from 'montainer';
 
 
@@ -65,16 +64,18 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
 
     private readonly appServices:AppServices;
 
-    constructor(dispatcher:IActionQueue, initialState:WdglanceTilesState, appServices:AppServices) {
+    constructor(dispatcher:IActionDispatcher, initialState:WdglanceTilesState, appServices:AppServices) {
         super(dispatcher, initialState);
         this.appServices = appServices;
-        this.actionMatch = {
-            [ActionName.SetScreenMode]: (state, action:Actions.SetScreenMode) => {
-                const newState = this.copyState(state);
-                newState.isMobile = action.payload.isMobile;
-                return newState;
-            },
-            [ActionName.SetTileRenderSize]: produce((state:WdglanceTilesState, action:Actions.SetTileRenderSize) => {
+        this.addActionHandler<Actions.SetScreenMode>(
+            ActionName.SetScreenMode,
+            (state, action) => {
+                state.isMobile = action.payload.isMobile;
+            }
+        );
+        this.addActionHandler<Actions.SetTileRenderSize>(
+            ActionName.SetTileRenderSize,
+            (state, action) => {
                 const srchId = state.tileProps.findIndex(v => v.tileId === action.payload.tileId);
                 if (srchId > -1) {
                     const tile = state.tileProps[srchId];
@@ -98,206 +99,40 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                         }
                     ).u();
                 }
-                return state;
-            }),
-            [ActionName.EnableAltViewMode]: produce((state, action:Actions.EnableAltViewMode) => {
-                const newState = this.copyState(state);
-                newState.altViewActiveTiles = Listop.of(newState.altViewActiveTiles).addUnique(action.payload.ident).unwrap();
-                return newState;
-            }),
-            [ActionName.DisableAltViewMode]: (state, action:Actions.DisableAltViewMode) => {
-                const newState = this.copyState(state);
-                newState.altViewActiveTiles = Listop.of(newState.altViewActiveTiles).removeValue(action.payload.ident).unwrap();
-                return newState;
-            },
-            [ActionName.EnableTileTweakMode]: (state, action:Actions.EnableTileTweakMode) => {
-                const newState = this.copyState(state);
-                newState.tweakActiveTiles = Listop.of(newState.tweakActiveTiles).addUnique(action.payload.ident).unwrap();
-                return newState;
-            },
-            [ActionName.DisableTileTweakMode]: (state, action:Actions.DisableTileTweakMode) => {
-                const newState = this.copyState(state);
-                newState.tweakActiveTiles = Listop.of(newState.tweakActiveTiles).removeValue(action.payload.ident).unwrap();
-                return newState;
-            },
-            [ActionName.ShowTileHelp]: (state, action:Actions.ShowTileHelp) => {
-                const newState = this.copyState(state);
-                newState.activeTileHelp = {ident: action.payload.tileId, html: null};
-                newState.isBusy = true;
-                return newState;
-            },
-            [ActionName.LoadTileHelpDone]: (state, action:Actions.LoadTileHelpDone) => {
-                const newState = this.copyState(state);
-                newState.isBusy = false;
-                if (action.error) {
-                    newState.activeTileHelp = null;
-
-                } else {
-                    newState.activeTileHelp = {ident: action.payload.tileId, html: action.payload.html};
-                }
-                return newState;
-            },
-            [ActionName.HideTileHelp]: (state, action:Actions.HideTileHelp) => {
-                const newState = this.copyState(state);
-                newState.activeTileHelp = null;
-                return newState;
-            },
-            [ActionName.GetSourceInfo]: (state, action:Actions.GetSourceInfo) => {
-                const newState = this.copyState(state);
-                newState.activeSourceInfo = {
-                    tileId: action.payload.tileId,
-                    title: null,
-                    description: null,
-                    author: null
-                };
-                newState.isBusy = true;
-                return newState;
-            },
-            [ActionName.GetSourceInfoDone]: (state, action:Actions.GetSourceInfoDone) => {
-                const newState = this.copyState(state);
-                newState.isBusy = false;
-                if (action.error) {
-                    newState.activeSourceInfo = null;
-
-                } else {
-                    newState.activeSourceInfo = action.payload.data;
-                }
-                return newState;
-            },
-            [ActionName.CloseSourceInfo]: (state, action:Actions.CloseSourceInfo) => {
-                const newState = this.copyState(state);
-                newState.activeSourceInfo = null;
-                return newState;
-            },
-            [ActionName.ToggleGroupVisibility]: (state, action:Actions.ToggleGroupVisibility) => {
-                const newState = this.copyState(state);
-                if (newState.hiddenGroups.some(v => v === action.payload.groupIdx)) {
-                    newState.hiddenGroups = Listop.of(newState.hiddenGroups).removeValue(action.payload.groupIdx).unwrap();
-
-                } else {
-                    newState.hiddenGroups = Listop.of(newState.hiddenGroups).addUnique(action.payload.groupIdx).unwrap();
-                }
-
-                return newState;
-            },
-            [ActionName.ShowGroupHelp]: (state, action:Actions.ShowGroupHelp) => {
-                const newState = this.copyState(state);
-                newState.isBusy = true;
-                newState.activeGroupHelp = {html: '', idx: action.payload.groupIdx};
-                return newState;
-            },
-            [ActionName.ShowGroupHelpDone]: (state, action:Actions.ShowGroupHelpDone) => {
-                const newState = this.copyState(state);
-                newState.isBusy = false;
-                if (action.error) {
-                    newState.activeGroupHelp = null;
-
-                } else {
-                    newState.activeGroupHelp = {html: action.payload.html, idx: action.payload.groupIdx};
-                }
-                return newState;
-            },
-            [ActionName.HideGroupHelp]: (state, action:Actions.HideGroupHelp) => {
-                const newState = this.copyState(state);
-                newState.activeGroupHelp = null;
-                return newState;
-            },
-            [ActionName.RequestQueryResponse]: (state, action) => {
-                const newState = this.copyState(state);
-                newState.tileResultFlags = Listop.of(newState.tileResultFlags)
-                    .map(v => ({
-                        tileId: v.tileId,
-                        groupId: v.groupId,
-                        status: TileResultFlag.PENDING,
-                        canBeAmbiguousResult: false
-                    })).unwrap();
-                newState.datalessGroups = [];
-                return newState;
-            },
-            [ActionName.TileDataLoaded]: (state, action:Actions.TileDataLoaded<{}>) => {
-                const newState = this.copyState(state);
-                const srchIdx = newState.tileResultFlags.findIndex(v => v.tileId === action.payload.tileId);
-                if (srchIdx > -1) {
-                    const curr = newState.tileResultFlags[srchIdx];
-                    newState.tileResultFlags = Listop.of(newState.tileResultFlags).set(srchIdx, {
-                        tileId: curr.tileId,
-                        groupId: curr.groupId,
-                        status: this.inferResultFlag(action),
-                        canBeAmbiguousResult: action.payload.canBeAmbiguousResult
-                    }).unwrap();
-                }
-                if (this.allTileStatusFlagsWritten(newState)) {
-                    this.findEmptyGroups(newState);
-                }
-                return newState;
-            },
-            [ActionName.SetEmptyResult]: (state, action) => {
-                const newState = this.copyState(state);
-                newState.tileResultFlags = Listop.of(newState.tileResultFlags)
-                    .map(v => ({
-                        tileId: v.tileId,
-                        groupId: v.groupId,
-                        status: TileResultFlag.EMPTY_RESULT,
-                        canBeAmbiguousResult: false
-                    })).unwrap();
-                this.findEmptyGroups(newState);
-                return newState;
-            },
-            [ActionName.ShowAmbiguousResultHelp]: (state, action) => {
-                const newState = this.copyState(state);
-                newState.showAmbiguousResultHelp = true;
-                return newState;
-            },
-            [ActionName.HideAmbiguousResultHelp]: (state, action) => {
-                const newState = this.copyState(state);
-                newState.showAmbiguousResultHelp = false;
-                return newState;
             }
-        };
-    }
-
-    private allTileStatusFlagsWritten(state:WdglanceTilesState):boolean {
-        return state.tileResultFlags.find(v => v.status === TileResultFlag.PENDING) === undefined;
-    }
-
-    private inferResultFlag(action:Actions.TileDataLoaded<{}>):TileResultFlag {
-        if (action.error) {
-            return TileResultFlag.ERROR;
-
-        } else if (action.payload.isEmpty) {
-            return TileResultFlag.EMPTY_RESULT;
-        }
-        return TileResultFlag.VALID_RESULT;
-    }
-
-    private findEmptyGroups(state:WdglanceTilesState):void {
-        state.datalessGroups = Transform.groupBy(
-                Listop.of(state.tileResultFlags),
-                v => v.groupId.toString()
-        )
-        .map((v, _) => !v.find(v2 => v2.status !== TileResultFlag.EMPTY_RESULT))
-        .filter(v => v)
-        .keys()
-        .map(v => parseInt(v))
-        .u();
-    }
-
-    private getTileProps(state:WdglanceTilesState, tileId:number):Observable<TileFrameProps> {
-        return new Observable<TileFrameProps>((observer) => {
-            if (state.tileProps[tileId]) {
-                observer.next(state.tileProps[tileId]);
-                observer.complete();
-
-            } else {
-                observer.error(new Error('Missing help URL'));
+        );
+        this.addActionHandler<Actions.EnableAltViewMode>(
+            ActionName.EnableAltViewMode,
+            (state, action) => {
+                state.altViewActiveTiles = Listop.of(state.altViewActiveTiles).addUnique(action.payload.ident).u();
             }
-        });
-    }
-
-    sideEffects(state:WdglanceTilesState, action:Action, dispatch:SEDispatcher):void {
-        switch (action.name) {
-            case ActionName.ShowTileHelp:
-                this.getTileProps(state, action.payload['tileId']).pipe(
+        );
+        this.addActionHandler<Actions.DisableAltViewMode>(
+            ActionName.DisableAltViewMode,
+            (state, action) => {
+                state.altViewActiveTiles = Listop.of(state.altViewActiveTiles).removeValue(action.payload.ident).u();
+            }
+        );
+        this.addActionHandler<Actions.EnableTileTweakMode>(
+            ActionName.EnableTileTweakMode,
+            (state, action) => {
+                state.tweakActiveTiles = Listop.of(state.tweakActiveTiles).addUnique(action.payload.ident).u();
+            }
+        );
+        this.addActionHandler<Actions.DisableTileTweakMode>(
+            ActionName.DisableTileTweakMode,
+            (state, action) => {
+                state.tweakActiveTiles = Listop.of(state.tweakActiveTiles).removeValue(action.payload.ident).u();
+            }
+        );
+        this.addActionHandler<Actions.ShowTileHelp>(
+            ActionName.ShowTileHelp,
+            (state, action) => {
+                state.activeTileHelp = {ident: action.payload.tileId, html: null};
+                state.isBusy = true;
+            },
+            (state, action, dispatch) => {
+                this.getTileProps(state, action.payload.tileId).pipe(
                     map(
                         (props) => {
                             if (!props.helpURL) {
@@ -340,8 +175,74 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                         });
                     }
                 );
-            break;
-            case ActionName.ShowGroupHelp:
+            }
+        );
+        this.addActionHandler<Actions.LoadTileHelpDone>(
+            ActionName.LoadTileHelpDone,
+            (state, action) => {
+                state.isBusy = false;
+                if (action.error) {
+                    state.activeTileHelp = null;
+
+                } else {
+                    state.activeTileHelp = {ident: action.payload.tileId, html: action.payload.html};
+                }
+            }
+        );
+        this.addActionHandler<Actions.HideTileHelp>(
+            ActionName.HideTileHelp,
+            (state, action) => {
+                state.activeTileHelp = null;
+            }
+        );
+        this.addActionHandler<Actions.GetSourceInfo>(
+            ActionName.GetSourceInfo,
+            (state, action) => {
+                state.activeSourceInfo = {
+                    tileId: action.payload.tileId,
+                    title: null,
+                    description: null,
+                    author: null
+                };
+                state.isBusy = true;
+            }
+        );
+        this.addActionHandler<Actions.GetSourceInfoDone>(
+            ActionName.GetSourceInfoDone,
+            (state, action) => {
+                state.isBusy = false;
+                if (action.error) {
+                    state.activeSourceInfo = null;
+
+                } else {
+                    state.activeSourceInfo = action.payload.data;
+                }
+            }
+        );
+        this.addActionHandler<Actions.CloseSourceInfo>(
+            ActionName.CloseSourceInfo,
+            (state, action) => {
+                state.activeSourceInfo = null;
+            }
+        );
+        this.addActionHandler<Actions.ToggleGroupVisibility>(
+            ActionName.ToggleGroupVisibility,
+            (state, action) => {
+                if (state.hiddenGroups.some(v => v === action.payload.groupIdx)) {
+                    state.hiddenGroups = Listop.of(state.hiddenGroups).removeValue(action.payload.groupIdx).u();
+
+                } else {
+                    state.hiddenGroups = Listop.of(state.hiddenGroups).addUnique(action.payload.groupIdx).u();
+                }
+            }
+        );
+        this.addActionHandler<Actions.ShowGroupHelp>(
+            ActionName.ShowGroupHelp,
+            (state, action) => {
+                state.isBusy = true;
+                state.activeGroupHelp = {html: '', idx: action.payload.groupIdx};
+            },
+            (state, action, dispatch) => {
                 ajax$<string>(
                     'GET',
                     action.payload['url'],
@@ -371,12 +272,126 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                         });
                     }
                 );
-            break;
-            case ActionName.SetEmptyResult:
-                if (action.payload && action.payload['error']) {
-                    this.appServices.showMessage(SystemMessageType.ERROR, action.payload['error']);
+            }
+        );
+        this.addActionHandler<Actions.ShowGroupHelpDone>(
+            ActionName.ShowGroupHelpDone,
+            (state, action) => {
+                state.isBusy = false;
+                if (action.error) {
+                    state.activeGroupHelp = null;
+
+                } else {
+                    state.activeGroupHelp = {html: action.payload.html, idx: action.payload.groupIdx};
                 }
-            break;
+            }
+        );
+        this.addActionHandler<Actions.HideGroupHelp>(
+            ActionName.HideGroupHelp,
+            (state, action) => {
+                state.activeGroupHelp = null;
+            }
+        );
+        this.addActionHandler(
+            ActionName.RequestQueryResponse,
+            (state, action) => {
+                state.tileResultFlags = Listop.of(state.tileResultFlags)
+                    .map(v => ({
+                        tileId: v.tileId,
+                        groupId: v.groupId,
+                        status: TileResultFlag.PENDING,
+                        canBeAmbiguousResult: false
+                    })).u();
+                state.datalessGroups = [];
+            }
+        );
+        this.addActionHandler<Actions.TileDataLoaded<{}>>(
+            ActionName.TileDataLoaded,
+            (state, action) => {
+                const srchIdx = state.tileResultFlags.findIndex(v => v.tileId === action.payload.tileId);
+                if (srchIdx > -1) {
+                    const curr = state.tileResultFlags[srchIdx];
+                    state.tileResultFlags = Listop.of(state.tileResultFlags).set(srchIdx, {
+                        tileId: curr.tileId,
+                        groupId: curr.groupId,
+                        status: this.inferResultFlag(action),
+                        canBeAmbiguousResult: action.payload.canBeAmbiguousResult
+                    }).u();
+                }
+                if (this.allTileStatusFlagsWritten(state)) {
+                    this.findEmptyGroups(state);
+                }
+            }
+        );
+        this.addActionHandler<Actions.SetEmptyResult>(
+            ActionName.SetEmptyResult,
+            (state, action) => {
+                state.tileResultFlags = Listop.of(state.tileResultFlags)
+                    .map(v => ({
+                        tileId: v.tileId,
+                        groupId: v.groupId,
+                        status: TileResultFlag.EMPTY_RESULT,
+                        canBeAmbiguousResult: false
+                    })).u();
+                this.findEmptyGroups(state);
+                return state;
+            },
+            (state, action, dispatch) => {
+                if (action.payload && action.payload.error) {
+                    this.appServices.showMessage(SystemMessageType.ERROR, action.payload.error);
+                }
+            }
+        );
+        this.addActionHandler(
+            ActionName.ShowAmbiguousResultHelp,
+            (state, action) => {
+                state.showAmbiguousResultHelp = true;
+                return state;
+            }
+        );
+        this.addActionHandler(
+            ActionName.HideAmbiguousResultHelp,
+            (state, action) => {
+                state.showAmbiguousResultHelp = false;
+            }
+        );
+    }
+
+    private allTileStatusFlagsWritten(state:WdglanceTilesState):boolean {
+        return state.tileResultFlags.find(v => v.status === TileResultFlag.PENDING) === undefined;
+    }
+
+    private inferResultFlag(action:Actions.TileDataLoaded<{}>):TileResultFlag {
+        if (action.error) {
+            return TileResultFlag.ERROR;
+
+        } else if (action.payload.isEmpty) {
+            return TileResultFlag.EMPTY_RESULT;
         }
+        return TileResultFlag.VALID_RESULT;
+    }
+
+    private findEmptyGroups(state:WdglanceTilesState):void {
+        state.datalessGroups = Transform.groupBy(
+                Listop.of(state.tileResultFlags),
+                v => v.groupId.toString()
+            )
+            .map((v, _) => !v.find(v2 => v2.status !== TileResultFlag.EMPTY_RESULT))
+            .filter(v => v)
+            .keys()
+            .map(v => parseInt(v))
+            .u();
+    }
+
+    private getTileProps(state:WdglanceTilesState, tileId:number):Observable<TileFrameProps> {
+        return new Observable<TileFrameProps>((observer) => {
+            if (state.tileProps[tileId]) {
+                observer.next(state.tileProps[tileId]);
+                observer.complete();
+
+            } else {
+                observer.error(new Error('Missing help URL'));
+            }
+        });
     }
 }

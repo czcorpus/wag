@@ -126,7 +126,7 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
     sideEffects(state:HtmlModelState, action:Action, seDispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
-                const variant = findCurrLemmaVariant(this.lemmas.get(0));
+                const variant = findCurrLemmaVariant(this.lemmas[0]);
                 this.requestData(state, variant.lemma, seDispatch);
             break;
         }

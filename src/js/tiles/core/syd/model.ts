@@ -110,8 +110,8 @@ export class SydModel extends StatelessModel<SydModelState> {
             case GlobalActionName.RequestQueryResponse:
                 this.api.call(stateToArgs(
                     state,
-                    this.lemmas.get(0).get(0).word, // TODO !!!
-                    this.lemmas.slice(1).map(lvList => lvList.get(0).word).toList() // TODO
+                    this.lemmas[0][0].word, // TODO !!!
+                    Immutable.List(this.lemmas.slice(1).map(lvList => lvList[0].word)) // TODO
                 ))
             .subscribe(
                 (data) => {

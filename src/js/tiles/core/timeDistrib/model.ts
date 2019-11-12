@@ -507,7 +507,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     state,
                     dispatch,
                     SubchartID.MAIN,
-                    rxOf(findCurrLemmaVariant(this.lemmas.get(0)))
+                    rxOf(findCurrLemmaVariant(this.lemmas[0]))
                 );
             }
             break;

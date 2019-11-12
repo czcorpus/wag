@@ -38,6 +38,7 @@ import { initStore } from './cacheDb';
 import { HTTPMethod, TelemetryAction } from './common/types';
 import { HTTPAction } from './server/actions';
 import { MultiDict } from './common/data';
+import produce from 'immer';
 
 declare var DocumentTouch;
 declare var require:(src:string)=>void;  // webpack
@@ -103,7 +104,7 @@ export const initClient = (mountElement:HTMLElement, config:ClientConf, userSess
     const [WdglanceMain, currLayout, tileMap] = createRootComponent({
         config: config,
         userSession: userSession,
-        lemmas: Immutable.List<Immutable.List<LemmaVariant>>(lemmas.map(v => Immutable.List(v))),
+        lemmas: lemmas,
         appServices: appServices,
         dispatcher: dispatcher,
         onResize: windowResize$,
@@ -154,7 +155,6 @@ export const initClient = (mountElement:HTMLElement, config:ClientConf, userSess
             )
         ).subscribe();
     }
-
 
     ReactDOM.hydrate(
         React.createElement(

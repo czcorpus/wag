@@ -17,7 +17,6 @@
  */
 
 import * as React from 'react';
-import * as Immutable from 'immutable';
 import { FCS1ExplainResponse } from '../../../common/api/clarin/fcs1/explain';
 import { IActionDispatcher, ViewUtils } from 'kombo';
 import { GlobalComponents } from '../../global';
@@ -28,7 +27,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // ------------------ <IndicesList /> ----------------------------
 
     const IndicesList:React.SFC<{
-        data:Immutable.List<{name:string; title:string}>;
+        data:Array<{name:string; title:string}>;
 
     }> = (props) => {
         return (
@@ -62,7 +61,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
                         </> : null
                     }
-                    {props.data.supportedIndices.size > 0 ?
+                    {props.data.supportedIndices.length > 0 ?
                         <>
                             <dt>{ut.translate('global__source_indices_label')}:</dt>
                             <dd><IndicesList data={props.data.supportedIndices} /></dd>

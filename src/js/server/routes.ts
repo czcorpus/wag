@@ -46,6 +46,7 @@ import { ActionName } from '../models/actions';
 import { DummyCache } from '../cacheDb';
 import { ILogQueue } from './logging/abstract';
 import { TelemetryAction } from '../common/types';
+import { Listop } from 'montainer';
 
 
 function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, appServices:AppServices):Observable<ClientConf> {
@@ -274,9 +275,9 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
                 )
     }).subscribe(
         (ans) => {
-            const lemmasExtended = List<List<LemmaVariant>>(ans.lemmasEachQuery.map((lemmas, queryIdx) => {
+            const lemmasExtended = ans.lemmasEachQuery.map((lemmas, queryIdx) => {
                 let mergedLemmas = findMergeableLemmas(lemmas);
-                if (mergedLemmas.size > 0) {
+                if (mergedLemmas.length > 0) {
                     let matchIdx = 0;
                     if (ans.userConf.queryPos[queryIdx]) {
                         const srchIdx = mergedLemmas.findIndex(
@@ -285,8 +286,8 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
                             matchIdx = srchIdx;
                         }
                     }
-                    const v = mergedLemmas.get(matchIdx);
-                    mergedLemmas = mergedLemmas.set(matchIdx, {
+                    const v = mergedLemmas[matchIdx];
+                    mergedLemmas = Listop.of(mergedLemmas).set(matchIdx, {
                         lemma: v.lemma,
                         word: v.word,
                         pos: v.pos.concat([]),
@@ -296,10 +297,10 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
                         flevel: v.flevel,
                         isCurrent: true,
                         isNonDict: v.isNonDict
-                    });
+                    }).u();
 
                 } else {
-                    mergedLemmas = List([{
+                    mergedLemmas = [{
                         lemma: null,
                         word: userConfig.queries[queryIdx],
                         pos: [],
@@ -309,10 +310,10 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
                         flevel: 0,
                         isCurrent: true,
                         isNonDict: true
-                    }]);
+                    }];
                 }
                 return mergedLemmas;
-            }));
+            });
             const [rootView, layout, _] = createRootComponent({
                 config: ans.runtimeConf,
                 userSession: userConfig,
@@ -357,7 +358,7 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
                 view: view,
                 services: services,
                 toolbarData: emptyValue(),
-                lemmas: List<List<LemmaVariant>>(),
+                lemmas: [],
                 userConfig: userConfig,
                 clientConfig: emptyClientConf(services.clientConf),
                 returnUrl: mkReturnUrl(req, services.clientConf.rootUrl),

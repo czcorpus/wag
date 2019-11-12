@@ -51,6 +51,7 @@ export interface FreqComparisonModelArgs {
 
 
 export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState> {
+
     private readonly lemmas:RecognizedQueries;
 
     protected api:FreqComparisonAPI;
@@ -106,7 +107,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                     // data for these words were requested (some words can have no data)
                     // also data are rendered in this order of words, we order it so it corresponds to inputs
                     const newWords = newState.blocks.get(action.payload.critIdx).words.push(action.payload.lemma.word).sortBy(
-                        word => this.lemmas.findKey(variants => variants.some(lemma => lemma.word === word))
+                        word => this.lemmas.findIndex(variants => variants.some(lemma => lemma.word === word))
                     ).toList();
                     const newData = action.payload.isEmpty ? newState.blocks.get(action.payload.critIdx).data :
                         newState.blocks.get(action.payload.critIdx).data.concat(
@@ -125,7 +126,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                             ident: puid(),
                             label: this.appServices.importExternalMessage(
                                 action.payload.blockLabel ? action.payload.blockLabel : state.critLabels.get(action.payload.critIdx)),
-                            isReady: newWords.size === this.lemmas.size
+                            isReady: newWords.size === this.lemmas.length
                         }
                     );
 

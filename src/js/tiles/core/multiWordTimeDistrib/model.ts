@@ -115,7 +115,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
     private unfinishedChunks:Immutable.List<Immutable.List<boolean>>;
 
     constructor({dispatcher, initState, tileId, waitForTile, api,
-                concApi, appServices, lemmas, queryLang, backlink}) {
+                concApi, appServices, lemmas, queryLang, backlink}:TimeDistribModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.api = api;
@@ -125,7 +125,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         this.lemmas = lemmas;
         this.queryLang = queryLang;
         this.backlink = backlink;
-        this.unfinishedChunks = this.lemmas.map(_ => this.getState().subcnames.map(_ => true).toList()).toList();
+        this.unfinishedChunks = Immutable.List(this.lemmas.map(_ => initState.subcnames.map(_ => true).toList()));
 
         this.addActionHandler(GlobalActionName.EnableTileTweakMode,
             (state:TimeDistribModelState, action:GlobalActions.EnableTileTweakMode) => {
@@ -144,8 +144,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         );
         this.addActionHandler(GlobalActionName.RequestQueryResponse,
             (state:TimeDistribModelState, action:GlobalActions.RequestQueryResponse) => {
-                this.unfinishedChunks = this.lemmas.map(_ => this.getState().subcnames.map(_ => true).toList()).toList();
-                state.data = this.lemmas.map(_ => Immutable.List<DataItemWithWCI>()).toList();
+                this.unfinishedChunks = Immutable.List(this.lemmas.map(_ => this.getState().subcnames.map(_ => true).toList()));
+                state.data = Immutable.List(this.lemmas.map(_ => Immutable.List<DataItemWithWCI>()));
                 state.isBusy = true;
                 state.error = null;
             },
@@ -153,7 +153,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 this.loadData(
                     state,
                     dispatch,
-                    rxOf(...this.lemmas.map((lemma, index) => [index, findCurrLemmaVariant(lemma)]).toArray()) as Observable<[number, LemmaVariant]>
+                    rxOf(...this.lemmas.map((lemma, index) => [index, findCurrLemmaVariant(lemma)])) as Observable<[number, LemmaVariant]>
                 );
             }
         );
