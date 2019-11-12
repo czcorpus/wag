@@ -17,7 +17,6 @@
  */
 
 import { Observable } from 'rxjs';
-import * as Immutable from 'immutable';
 import { map } from 'rxjs/operators';
 import { DataApi, HTTPMethod, HTTPHeaders, SourceDetails } from '../../../types';
 import { XMLParser, XMLNode } from '../../../xml';
@@ -37,7 +36,7 @@ export interface FCS1ExplainResponse extends SourceDetails {
     description:string;
     author:string;
     resourceDescription:string;
-    supportedIndices:Immutable.List<{name:string; title:string}>;
+    supportedIndices:Array<{name:string; title:string}>;
 }
 
 
@@ -49,7 +48,7 @@ const importResponse = (tileId:number, lang:string) => (root:XMLNode):FCS1Explai
         author: '',
         resourceDescription: '',
         version: '?',
-        supportedIndices: Immutable.List<{name:string; title:string}>()
+        supportedIndices: Array<{name:string; title:string}>()
     };
 
     const dbInfoElm = root.findChildRecursive(v => v.name === 'zr:databaseInfo');
@@ -70,7 +69,7 @@ const importResponse = (tileId:number, lang:string) => (root:XMLNode):FCS1Explai
 
     const indexInfoElm = root.findChildRecursive(v => v.name === 'zr:indexInfo');
     if (indexInfoElm) {
-        ans.supportedIndices = Immutable.List<{name:string; title:string}>(indexInfoElm.findAllChildren(v => v.name === 'zr:index').map(
+        ans.supportedIndices = (indexInfoElm.findAllChildren(v => v.name === 'zr:index').map(
             (item) => {
                 let name = item.findChildRecursive(v => v.name === 'zr:name', new XMLNode()).textContent();
                 let title = item.findChild(v => v.name === 'zr:title' && v.attributes['lang'] === lang, new XMLNode()).textContent();
