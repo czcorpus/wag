@@ -71,9 +71,9 @@ function mergeDataSets(data:Immutable.List<LemmaData>, averagingYears:number):Ar
                 const norm = dataPoint.get('occurrenceNorm');
                 if (norm > 0) {
                     if (key.startsWith('occurrenceValue')) {
-                        return (100*value/norm).toFixed(2);
+                        return value/norm;
                     } else if (key.startsWith('occurrenceInterval')) {
-                        return value.map(v => (100*v/norm).toFixed(2));
+                        return value.map(v => v/norm);
                     }
                 }
                 return value;
@@ -127,9 +127,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 <AreaChart data={data} margin={{top: 10, right: 30, left: 0, bottom: 0}}>
                     <CartesianGrid strokeDasharray="1 1"/>
                     <XAxis dataKey="datetime" interval="preserveStartEnd" minTickGap={0} type="category" />
-                    <YAxis type="number" domain={[0, 100]} unit='%'/>
-                    <Tooltip isAnimationActive={false} formatter={(value, name, props) =>                        
-                        name.startsWith('occurrenceInterval') ? [null, null] : [`${value} % (${(props.payload.occurrenceNorm*value/100).toFixed(2)} ipm)`, name]
+                    <YAxis domain={[0, 1]} unit='%' tickFormatter={value => `${(value * 100).toFixed(2)}`}/>
+                    <Tooltip isAnimationActive={false} formatter={(value, name, formatterProps) =>                        
+                        name.startsWith('occurrenceInterval') ? [null, null] : [`${(value * 100).toFixed(2)} % (${(formatterProps.payload.occurrenceNorm * value / (props.averagingYears + 1)).toFixed(2)} ipm)`, name]
                     } />
                     {props.words.map((word, index) =>
                         <Area type="linear"
