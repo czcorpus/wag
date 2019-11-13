@@ -32,8 +32,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     const SingleWordProfile = singleWordViewsInit(dispatcher, ut);
 
 
-
-
     // -------------------- <WordFreqTileView /> -----------------------------------------------
 
     class WordFreqTileView extends React.PureComponent<SummaryModelState & CoreTileComponentProps> {

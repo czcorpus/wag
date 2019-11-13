@@ -1,6 +1,21 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "definitions": {
+        "FreqDbConf": {
+            "properties": {
+                "corpusSize": {
+                    "type": "number"
+                },
+                "path": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "corpusSize",
+                "path"
+            ],
+            "type": "object"
+        },
         "LogQueueConf": {
             "properties": {
                 "db": {
@@ -28,7 +43,7 @@
             "properties": {
                 "databases": {
                     "additionalProperties": {
-                        "type": "string"
+                        "$ref": "#/definitions/FreqDbConf"
                     },
                     "type": "object"
                 },
@@ -46,7 +61,7 @@
             "properties": {
                 "databases": {
                     "additionalProperties": {
-                        "type": "string"
+                        "$ref": "#/definitions/FreqDbConf"
                     },
                     "type": "object"
                 },

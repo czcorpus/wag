@@ -15,49 +15,49 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ServerConf, ClientStaticConf, WordFreqDbConf } from '../conf';
+import { ServerConf, ClientStaticConf, WordFreqDbConf, FreqDbConf } from '../conf';
 import { Database } from 'sqlite3';
 import { IToolbarProvider } from '../common/hostPage';
 import { ILogQueue } from './logging/abstract';
 import { QueryType } from '../common/query';
 
+
+export interface WordDatabase {
+    conn:Database;
+    corpusSize:number;
+}
+
+
 export class WordDatabases {
 
-    private readonly single:{[lang:string]:Database};
+    private readonly single:{[lang:string]:WordDatabase};
 
-    private readonly cmp:{[lang:string]:Database};
+    private readonly cmp:{[lang:string]:WordDatabase};
 
-    private readonly translat:{[lang:string]:Database};
+    private readonly translat:{[lang:string]:WordDatabase};
 
     constructor(conf:WordFreqDbConf) {
         const uniqDb = {};
         this.single = {};
         this.cmp = {};
         this.translat = {};
-        Object.entries(conf.single.databases || {}).forEach(([lang, path]:[string, string]) => {
-            if (!uniqDb[path]) {
-                uniqDb[path] = new Database(path);
-            }
-            this.single[lang] = uniqDb[path];
-            console.log(`Initialized 'single' mode frequency database ${path}`);
-        });
-        Object.entries(conf.cmp.databases || {}).forEach(([lang, path]:[string, string]) => {
-            if (!uniqDb[path]) {
-                uniqDb[path] = new Database(path);
-            }
-            this.cmp[lang] = uniqDb[path];
-            console.log(`Initialized 'cmp' mode frequency database ${path}`);
-        });
-        Object.entries(conf.translat.databases || {}).forEach(([lang, path]:[string, string]) => {
-            if (!uniqDb[path]) {
-                uniqDb[path] = new Database(path);
-            }
-            this.translat[lang] = uniqDb[path];
-            console.log(`Initialized 'translat' frequency database ${path}`);
+        [
+            [conf.single.databases || {}, this.single, 'single'],
+            [conf.cmp.databases || {}, this.cmp, 'cmp'],
+            [conf.translat.databases || {}, this.translat, 'translat']
+
+        ].forEach(([dbConf, targetConf, ident]) => {
+            Object.entries(dbConf).forEach(([lang, db]:[string, FreqDbConf]) => {
+                if (!uniqDb[db.path]) {
+                    uniqDb[db.path] = {conn: new Database(db.path), corpusSize: db.corpusSize};
+                }
+                targetConf[lang] = uniqDb[db.path];
+                console.log(`Initialized '${ident}' mode frequency database ${db.path} (corpus size: ${db.corpusSize})`);
+            });
         });
     }
 
-    getDatabase(qType:QueryType, lang:string):Database {
+    getDatabase(qType:QueryType, lang:string):WordDatabase {
         switch (qType) {
             case QueryType.SINGLE_QUERY:
                 return this.single[lang];

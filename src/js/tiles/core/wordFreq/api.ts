@@ -73,6 +73,7 @@ export class FreqDbAPI implements DataApi<RequestArgs, Response> {
             this.apiURL,
             new MultiDict([
                 ['lang', args.lang],
+                ['word', args.word],
                 ['lemma', args.lemma],
                 ['pos', args.pos.join(',')],
                 ['srchRange', args.srchRange]

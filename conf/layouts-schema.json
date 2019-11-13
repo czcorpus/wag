@@ -59,86 +59,95 @@
             ],
             "type": "object"
         },
+        "LayoutConfigCmpQuery": {
+            "properties": {
+                "allowMultiWordQuery": {
+                    "type": "boolean"
+                },
+                "groups": {
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/definitions/GroupLayoutConfig"
+                            },
+                            {
+                                "type": "string"
+                            }
+                        ]
+                    },
+                    "type": "array"
+                }
+            },
+            "required": [
+                "groups"
+            ],
+            "type": "object"
+        },
+        "LayoutConfigSingleQuery": {
+            "properties": {
+                "allowMultiWordQuery": {
+                    "type": "boolean"
+                },
+                "groups": {
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/definitions/GroupLayoutConfig"
+                            },
+                            {
+                                "type": "string"
+                            }
+                        ]
+                    },
+                    "type": "array"
+                }
+            },
+            "required": [
+                "groups"
+            ],
+            "type": "object"
+        },
+        "LayoutConfigTranslatQuery": {
+            "properties": {
+                "allowMultiWordQuery": {
+                    "type": "boolean"
+                },
+                "groups": {
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/definitions/GroupLayoutConfig"
+                            },
+                            {
+                                "type": "string"
+                            }
+                        ]
+                    },
+                    "type": "array"
+                },
+                "targetLanguages": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                }
+            },
+            "required": [
+                "groups",
+                "targetLanguages"
+            ],
+            "type": "object"
+        },
         "LayoutsConfig": {
             "properties": {
                 "cmp": {
-                    "properties": {
-                        "allowMultiWordQuery": {
-                            "type": "boolean"
-                        },
-                        "groups": {
-                            "items": {
-                                "anyOf": [
-                                    {
-                                        "$ref": "#/definitions/GroupLayoutConfig"
-                                    },
-                                    {
-                                        "type": "string"
-                                    }
-                                ]
-                            },
-                            "type": "array"
-                        }
-                    },
-                    "required": [
-                        "groups"
-                    ],
-                    "type": "object"
+                    "$ref": "#/definitions/LayoutConfigCmpQuery"
                 },
                 "single": {
-                    "properties": {
-                        "allowMultiWordQuery": {
-                            "type": "boolean"
-                        },
-                        "groups": {
-                            "items": {
-                                "anyOf": [
-                                    {
-                                        "$ref": "#/definitions/GroupLayoutConfig"
-                                    },
-                                    {
-                                        "type": "string"
-                                    }
-                                ]
-                            },
-                            "type": "array"
-                        }
-                    },
-                    "required": [
-                        "groups"
-                    ],
-                    "type": "object"
+                    "$ref": "#/definitions/LayoutConfigSingleQuery"
                 },
                 "translat": {
-                    "properties": {
-                        "allowMultiWordQuery": {
-                            "type": "boolean"
-                        },
-                        "groups": {
-                            "items": {
-                                "anyOf": [
-                                    {
-                                        "$ref": "#/definitions/GroupLayoutConfig"
-                                    },
-                                    {
-                                        "type": "string"
-                                    }
-                                ]
-                            },
-                            "type": "array"
-                        },
-                        "targetLanguages": {
-                            "items": {
-                                "type": "string"
-                            },
-                            "type": "array"
-                        }
-                    },
-                    "required": [
-                        "groups",
-                        "targetLanguages"
-                    ],
-                    "type": "object"
+                    "$ref": "#/definitions/LayoutConfigTranslatQuery"
                 }
             },
             "type": "object"
