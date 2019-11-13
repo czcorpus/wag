@@ -89,8 +89,7 @@ export class MultiWordTimeDistTile implements ITileProvider {
                 posQueryGenerator: conf.posQueryGenerator,
                 wordLabels: Immutable.List(lemmas.map(l => findCurrLemmaVariant(l).word)),
                 averagingYears: 0,
-                isTweakMode: false,
-                backlink: null
+                isTweakMode: false
             },
             tileId: tileId,
             waitForTile: waitForTiles[0] || -1,
@@ -103,8 +102,7 @@ export class MultiWordTimeDistTile implements ITileProvider {
             concApi: conf.concApiURL ? new ConcApi(false, cache, conf.concApiURL, appServices.getApiHeaders(conf.apiURL)) : null,
             appServices: appServices,
             lemmas: lemmas,
-            queryLang: lang1,
-            backlink: conf.backlink
+            queryLang: lang1
         });
         this.label = appServices.importExternalMessage(conf.label || 'multiWordTimeDistrib__main_label');
         this.view = viewInit(this.dispatcher, ut, theme, this.model);

@@ -33,16 +33,7 @@ import { DataItemWithWCI, DataLoadedPayload, LemmaData, ActionName, Actions } fr
 import { AlphaLevel, wilsonConfInterval } from '../../../common/statistics';
 import { callWithExtraVal } from '../../../common/api/util';
 import { LemmaVariant, RecognizedQueries } from '../../../common/query';
-import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 
-
-export interface BacklinkArgs {
-    corpname:string;
-    usesubcorp:string;
-    q?:string;
-    cql?:string;
-    queryselector?:'cqlrow';
-}
 
 export interface TimeDistribModelState extends GeneralSingleCritFreqBarModelState<LemmaData> {
     subcnames:Immutable.List<string>;
@@ -50,7 +41,6 @@ export interface TimeDistribModelState extends GeneralSingleCritFreqBarModelStat
     alphaLevel:AlphaLevel;
     posQueryGenerator:[string, string];
     wordLabels:Immutable.List<string>;
-    backlink:BacklinkWithArgs<BacklinkArgs>;
     averagingYears:number;
     isTweakMode:boolean;
 }
@@ -62,6 +52,7 @@ const calcIPM = (v:DataRow|DataItemWithWCI, domainSize:number) => Math.round(v.f
 
 
 interface DataFetchArgsOwn {
+    corpName:string;
     subcName:string;
     targetId:number;
     concId:string;
@@ -73,6 +64,7 @@ function isDataFetchArgsOwn(v:DataFetchArgsOwn|DataFetchArgsForeignConc): v is D
 }
 
 interface DataFetchArgsForeignConc {
+    corpName:string;
     subcName:string;
     targetId:number;
     concId:string;
@@ -87,7 +79,6 @@ export interface TimeDistribModelArgs {
     concApi:ConcApi;
     appServices:AppServices;
     lemmas:RecognizedQueries;
-    backlink:Backlink;
     queryLang:string;
 }
 
@@ -110,12 +101,9 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private readonly queryLang:string;
 
-    private readonly backlink:Backlink;
-
     private unfinishedChunks:Immutable.List<Immutable.List<boolean>>;
 
-    constructor({dispatcher, initState, tileId, waitForTile, api,
-                concApi, appServices, lemmas, queryLang, backlink}:TimeDistribModelArgs) {
+    constructor({dispatcher, initState, tileId, waitForTile, api, concApi, appServices, lemmas, queryLang}:TimeDistribModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.api = api;
@@ -124,7 +112,6 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         this.appServices = appServices;
         this.lemmas = lemmas;
         this.queryLang = queryLang;
-        this.backlink = backlink;
         this.unfinishedChunks = Immutable.List(this.lemmas.map(_ => initState.subcnames.map(_ => true).toList()));
 
         this.addActionHandler<GlobalActions.EnableTileTweakMode>(
@@ -317,8 +304,9 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 null
             ),
             {
-                concId: null,
+                corpName: state.corpname,
                 subcName: subcname,
+                concId: null,
                 targetId: target,
                 origQuery: mkMatchQuery(lemmaVariant, state.posQueryGenerator)
             }
@@ -345,8 +333,9 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                             concPersistenceID: null
                         },
                         {
-                            concId: null,
+                            corpName: state.corpname,
                             subcName: subcname,
+                            concId: null,
                             targetId: target,
                             origQuery: ''
                         }

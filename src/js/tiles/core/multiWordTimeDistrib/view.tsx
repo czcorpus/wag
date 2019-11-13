@@ -202,7 +202,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         hasData={props.data.size > 0}
                         sourceIdent={{corp: props.corpname, subcorp: props.subcDesc}}
                         supportsTileReload={props.supportsReloadOnError}
-                        backlink={props.backlink}>
+                        backlink={null}>
                 <div className="MultiWordTimeDistribTile">
                     {props.isTweakMode ?
                         <div className="tweak-box">
