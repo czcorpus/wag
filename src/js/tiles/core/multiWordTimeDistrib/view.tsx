@@ -28,57 +28,56 @@ import { TimeDistribModel, TimeDistribModelState } from './model';
 
 
 function mergeDataSets(data:Immutable.List<LemmaData>, averagingYears:number):Array<{}> {
-    const defaultDataPoint = {datetime: null, occurrenceNorm: 0};
+    const defaultDataPoint = {year: null, ipmNorm: 0};
     data.forEach((_, index) => {
-        defaultDataPoint[`occurrenceValue${index}`] = 0;
-        defaultDataPoint[`occurrenceInterval${index}`] = [0, 0];
+        defaultDataPoint[`ipmValue${index}`] = 0;
+        defaultDataPoint[`ipmInterval${index}`] = [0, 0];
     });
 
     // flatten data structure
-    let datetimeData:Immutable.Map<number, Immutable.Map<string, any>> = Immutable.Map();
+    let timeData:Immutable.Map<number, Immutable.Map<string, any>> = Immutable.Map();
     data.forEach((lemmaData, index) => lemmaData.forEach(d => {
-        let dataPoint: Immutable.Map<string, any> = datetimeData.get(parseInt(d.datetime), Immutable.Map(defaultDataPoint));
-        dataPoint = dataPoint.set(`datetime`, d.datetime)
-        dataPoint = dataPoint.set(`occurrenceValue${index}`, d.ipm);
-        dataPoint = dataPoint.set(`occurrenceInterval${index}`, d.ipmInterval);
-        dataPoint = dataPoint.set('occurrenceNorm', dataPoint.get('occurrenceNorm') + d.ipm);
-        datetimeData = datetimeData.set(parseInt(d.datetime), dataPoint);
+        const year = parseInt(d.datetime);
+        let dataPoint: Immutable.Map<string, any> = timeData.get(year, Immutable.Map({...defaultDataPoint, year: year}));
+        dataPoint = dataPoint.set(`ipmValue${index}`, d.ipm);
+        dataPoint = dataPoint.set(`ipmInterval${index}`, d.ipmInterval);
+        dataPoint = dataPoint.set('ipmNorm', dataPoint.get('ipmNorm') + d.ipm);
+        timeData = timeData.set(year, dataPoint);
     }));
 
     // fill the gaps
-    Immutable.Range(datetimeData.keySeq().min(), datetimeData.keySeq().max() + 1).forEach(year => {
-        if (!datetimeData.has(year)) {
-            datetimeData = datetimeData.set(year, Immutable.Map({...defaultDataPoint, datetime: year.toString()}));
+    Immutable.Range(timeData.keySeq().min(), timeData.keySeq().max() + 1).forEach(year => {
+        if (!timeData.has(year)) {
+            timeData = timeData.set(year, Immutable.Map({...defaultDataPoint, year: year}));
         }
     })
 
-    const sortedData = datetimeData.sortBy((_, k) => k).valueSeq();
-    return sortedData
+    return timeData
         // aggregate data - sliding average
         .map((dataPoint, year) =>
-            dataPoint.mergeDeepWith((prev, next, key) =>
-                key === 'datetime' ? prev :
-                    key.startsWith('occurrenceInterval') ? [prev[0] + next[0], prev[1] + next[1]] : prev + next,
-                ...sortedData.slice(
-                    (year - averagingYears) < 0 ? 0 : year - averagingYears,
-                    year + averagingYears + 1
-                )[Symbol.iterator]()
-            ).toMap())
+            Immutable.Map(defaultDataPoint).mergeDeepWith((prev, next, key) =>
+                key === 'year' ?
+                year :
+                    key.startsWith('ipmInterval') ?
+                    [prev[0] + next[0]/(2*averagingYears + 1), prev[1] + next[1]/(2*averagingYears + 1)] :
+                    prev + next/(2*averagingYears + 1),
+                ...timeData.filter((v, k) => k >= year - averagingYears && k <= year + averagingYears).values()[Symbol.iterator]()
+            )
+        )
 
-        // normalize data to percentages
+        // normalize data to fractions using total norm
         .map(dataPoint =>
-            dataPoint.map((value, key) => {
-                const norm = dataPoint.get('occurrenceNorm');
-                if (norm > 0) {
-                    if (key.startsWith('occurrenceValue')) {
-                        return value/norm;
-                    } else if (key.startsWith('occurrenceInterval')) {
-                        return value.map(v => v/norm);
-                    }
+            dataPoint.mapEntries(([key, value]) => {
+                const norm = dataPoint.get('ipmNorm');
+                if (key.startsWith('ipmValue')) {
+                    return [key.replace('ipmValue', 'fracValue'), norm > 0 ? value/norm : 0];
+                } else if (key.startsWith('ipmInterval')) {
+                    return [key.replace('ipmInterval', 'fracInterval'), norm > 0 ? value.map(v => v/norm) : [0, 0]];
                 }
-                return value;
-            }).toMap())
-        .toJS();
+                return [key, value];
+            })
+        )
+        .sortBy((_, k) => k).valueSeq().toJS();
 }
 
 
@@ -126,15 +125,17 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             <ResponsiveContainer width={props.isSmallWidth ? '100%' : '90%'} height={props.size[1]}>
                 <AreaChart data={data} margin={{top: 10, right: 30, left: 0, bottom: 0}}>
                     <CartesianGrid strokeDasharray="1 1"/>
-                    <XAxis dataKey="datetime" interval="preserveStartEnd" minTickGap={0} type="category" />
-                    <YAxis domain={[0, 1]} unit='%' tickFormatter={value => `${(value * 100).toFixed(2)}`}/>
-                    <Tooltip isAnimationActive={false} formatter={(value, name, formatterProps) =>                        
-                        name.startsWith('occurrenceInterval') ? [null, null] : [`${(value * 100).toFixed(2)} % (${(formatterProps.payload.occurrenceNorm * value / (props.averagingYears + 1)).toFixed(2)} ipm)`, name]
+                    <XAxis dataKey="year" minTickGap={0} type="category" />
+                    <YAxis allowDataOverflow={true} domain={[0, 1]} tickFormatter={fracValue => `${fracValue * 100}%`}/>
+                    <Tooltip isAnimationActive={false} formatter={(fracValue, name, formatterProps) =>                        
+                        name.startsWith('fracInterval') ?
+                        [null, null] :
+                        [`${(fracValue * 100).toFixed(2)} % (${(formatterProps.payload.ipmNorm * fracValue).toFixed(2)} ipm)`, name]
                     } />
                     {props.words.map((word, index) =>
                         <Area type="linear"
                             key={`${word}Values`}
-                            dataKey={`occurrenceValue${index}`}
+                            dataKey={`fracValue${index}`}
                             name={ut.translate('multiWordTimeDistrib__estimated_trend_for_{word}', {word: word})}
                             stroke={props.isPartial ? '#dddddd' : theme.barColor(index % theme.barColor.length)}
                             fill={'rgba(0,0,0,0)'}  // transparent fill - only line
@@ -145,7 +146,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     {props.words.map((word, index) =>
                         <Area type="linear"
                             key={`${word}Confidence`}
-                            dataKey={`occurrenceInterval${index}`}
+                            dataKey={`fracInterval${index}`}
                             name={null}
                             stroke={null}
                             fill={props.isPartial ? '#eeeeee' : theme.barColor(index % theme.barColor.length)}
