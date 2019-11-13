@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { Action } from 'kombo';
-import { CorpSrchTileConf, Backlink } from '../../../common/tile';
+import { CorpSrchTileConf } from '../../../common/tile';
 import * as Immutable from 'immutable';
 
 
@@ -41,7 +41,6 @@ export interface TimeDistTileConf extends CorpSrchTileConf {
 
     posQueryGenerator:[string, string];
 
-    backlink?:Backlink;
 }
 
 export type LemmaData = Immutable.List<DataItemWithWCI>
@@ -56,10 +55,10 @@ export interface DataItemWithWCI {
 
 export interface DataLoadedPayload {
     data:Array<DataItemWithWCI>;
+    targetId:number;
     concId:string;
     origQuery:string; // in case we generate our own concordance (and not reusing one from a different tile)
     subcname:string;
-    subchartId:number;
 }
 
 export namespace Actions {
