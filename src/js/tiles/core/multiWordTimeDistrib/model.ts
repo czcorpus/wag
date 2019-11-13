@@ -161,6 +161,28 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 );
             }
         );
+        this.addActionHandler<GlobalActions.TileDataLoaded<DataLoadedPayload>>(
+            GlobalActionName.TileDataLoaded,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {
+                    const subcIndex = state.subcnames.findIndex(v => v === action.payload.subcname);
+                    this.unfinishedChunks = this.unfinishedChunks.set(
+                        action.payload.targetId,
+                        this.unfinishedChunks.get(action.payload.targetId).set(subcIndex, false)
+                    );
+                    let newData:Immutable.List<DataItemWithWCI>;
+                    if (action.error) {
+                        newData = Immutable.List<DataItemWithWCI>();
+                        state.error = action.error.message;
+                    } else {
+                        const currentData = state.data.get(action.payload.targetId, newData) || Immutable.List<DataItemWithWCI>();
+                        newData = this.mergeChunks(currentData, Immutable.List<DataItemWithWCI>(action.payload.data), state.alphaLevel);
+                    }
+                    state.isBusy = this.unfinishedChunks.some(l => l.includes(true));
+                    state.data = state.data.set(action.payload.targetId, newData);
+                }
+            }
+        );
         this.addActionHandler<GlobalActions.GetSourceInfo>(
             GlobalActionName.GetSourceInfo,
             (state, action) => {},
@@ -185,28 +207,6 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                             });
                         }
                     );
-                }
-            }
-        );
-        this.addActionHandler<GlobalActions.TileDataLoaded<DataLoadedPayload>>(
-            GlobalActionName.TileDataLoaded,
-            (state, action) => {
-                if (action.payload.tileId === this.tileId) {
-                    const subcIndex = state.subcnames.findIndex(v => v === action.payload.subcname);
-                    this.unfinishedChunks = this.unfinishedChunks.set(
-                        action.payload.subchartId,
-                        this.unfinishedChunks.get(action.payload.subchartId).set(subcIndex, false)
-                    );
-                    let newData:Immutable.List<DataItemWithWCI>;
-                    if (action.error) {
-                        newData = Immutable.List<DataItemWithWCI>();
-                        state.error = action.error.message;
-                    } else {
-                        const currentData = state.data.get(action.payload.subchartId, newData) || Immutable.List<DataItemWithWCI>();
-                        newData = this.mergeChunks(currentData, Immutable.List<DataItemWithWCI>(action.payload.data), state.alphaLevel);
-                    }
-                    state.isBusy = this.unfinishedChunks.some(l => l.includes(true));
-                    state.data = state.data.set(action.payload.subchartId, newData);
                 }
             }
         );
@@ -260,11 +260,11 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     name: GlobalActionName.TileDataLoaded,
                     payload: {
                         tileId: this.tileId,
-                        subchartId: args.targetId,
                         isEmpty: dataFull.length === 0,
                         data: dataFull,
                         subcname: resp.subcorpName,
-                        concId: resp.concPersistenceID,
+                        concId: args.concId,
+                        targetId: args.targetId,
                         origQuery: isDataFetchArgsOwn(args) ? args.origQuery : ''
                     }
                 });
@@ -275,11 +275,11 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     name: GlobalActionName.TileDataLoaded,
                     payload: {
                         tileId: this.tileId,
-                        subchartId: null,
                         isEmpty: true,
                         data: null,
                         subcname: null,
                         concId: null,
+                        targetId: null,
                         origQuery: null
                     },
                     error: error
@@ -328,9 +328,9 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
     private loadData(state:TimeDistribModelState, dispatch:SEDispatcher, lemmaVariant:Observable<[number, LemmaVariant]>):void {
         state.subcnames.toArray().map(subcname =>
             lemmaVariant.pipe(
-                concatMap(([target, lv]) => {
-                    if (lv) {
-                        return this.loadConcordance(state, lv, subcname, target);
+                concatMap(([target, lemma]) => {
+                    if (lemma) {
+                        return this.loadConcordance(state, lemma, subcname, target);
                     }
                     return rxOf<[ConcResponse, DataFetchArgsOwn]>([
                         {
