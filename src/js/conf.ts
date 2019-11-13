@@ -223,9 +223,14 @@ export interface LogQueueConf {
     key:string;
 }
 
+export interface FreqDbConf {
+    path:string;
+    corpusSize:number;
+}
+
 export interface QueryModeWordDb {
     minLemmaFreq:number;
-    databases:{[lang:string]:string};
+    databases:{[lang:string]:FreqDbConf};
 };
 
 export interface SingleModeWordDb extends QueryModeWordDb {

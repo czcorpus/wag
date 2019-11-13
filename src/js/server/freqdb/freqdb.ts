@@ -17,27 +17,28 @@
  */
 import { Observable, merge, of as rxOf } from 'rxjs';
 import { concatMap, reduce } from 'rxjs/operators';
-import { Database } from 'sqlite3';
 
 import { AppServices } from '../../appServices';
 import { importQueryPos, LemmaVariant, QueryPoS } from '../../common/query';
 import { posTable } from './common';
+import { WordDatabase } from '../actionServices';
 
 
 
-export const getLemmas = (db:Database, appServices:AppServices, word:string, minFreq:number):Observable<Array<LemmaVariant>> => {
+export const getLemmas = (db:WordDatabase, appServices:AppServices, word:string, minFreq:number):Observable<Array<LemmaVariant>> => {
     return new Observable<LemmaVariant>((observer) => {
         const srchWord = word.toLowerCase();
-        if(db) {
-            db.serialize(() => {
-                db.each(
-                    'SELECT w.value, w.lemma, w.pos, m.`count` AS abs, m.arf ' +
+        if(db.conn) {
+            db.conn.serialize(() => {
+                db.conn.each(
+                    'SELECT w.value, w.lemma, w.pos, m.`count` AS abs, m.arf, ' +
+                    'CAST(m.count AS FLOAT) / ? * 1000000 AS ipm ' +
                     'FROM word AS w ' +
                     'JOIN lemma AS m ON (w.lemma = m.value AND w.pos = m.pos) ' +
                     'WHERE (w.value = ? OR w.lemma = ?) AND m.count >= ? ' +
                     'GROUP BY w.lemma, w.pos ' +
                     'ORDER BY m.arf DESC',
-                    [srchWord, srchWord, minFreq],
+                    [db.corpusSize, srchWord, srchWord, minFreq],
                     (err, row) => {
                         if (err) {
                             observer.error(err);
@@ -49,7 +50,7 @@ export const getLemmas = (db:Database, appServices:AppServices, word:string, min
                                     word: srchWord,
                                     lemma: row['lemma'],
                                     abs: row['abs'],
-                                    ipm: -1,
+                                    ipm: row['ipm'],
                                     arf: row['arf'],
                                     pos: [{value: pos, label: appServices.importExternalMessage(posTable[pos])}],
                                     flevel: -1,
@@ -90,7 +91,7 @@ const exportRow = (row:{[key:string]:any}, appServices:AppServices, isCurrent:bo
     lemma: row['value'],
     abs: row['abs'],
     arf: row['arf'],
-    ipm: -1,
+    ipm: row['ipm'] !== undefined ? row['ipm'] : -1,
     flevel: -1,
     pos: row['pos'].split(',').map((v:string) => ({value: v, label: appServices.importExternalMessage(posTable[v])})),
     isCurrent: isCurrent
@@ -106,17 +107,19 @@ const ntimesPlaceholder = (n:number):string => {
 }
 
 
-const getNearFreqItems = (db:Database, appServices:AppServices, val:LemmaVariant, whereSgn:number, limit:number):Observable<LemmaVariant> => {
+const getNearFreqItems = (db:WordDatabase, appServices:AppServices, val:LemmaVariant, whereSgn:number, limit:number):Observable<LemmaVariant> => {
 
     return new Observable<LemmaVariant>((observer) => {
-        db.each(
-            'SELECT value, pos, arf, `count` AS abs ' +
+        db.conn.each(
+            'SELECT value, pos, arf, `count` AS abs, CAST(count AS FLOAT) / ? * 1000000 AS ipm ' +
             'FROM lemma ' +
             (whereSgn > 0 ?
                 `WHERE is_pname = 0 AND arf >= ? AND (value <> ? OR pos NOT IN (${ntimesPlaceholder(val.pos.length)})) ORDER BY arf ASC` :
                 'WHERE is_pname = 0 AND arf < ? ORDER BY arf DESC') + ' ' +
             'LIMIT ?',
-            whereSgn > 0 ? [val.arf, val.lemma, ...val.pos.map(v => v.value), limit] : [val.arf, limit],
+            whereSgn > 0 ?
+                [db.corpusSize, val.arf, val.lemma, ...val.pos.map(v => v.value), limit] :
+                [db.corpusSize, val.arf, limit],
             (err, row) => {
                 if (err) {
                     observer.error(err);
@@ -138,9 +141,9 @@ const getNearFreqItems = (db:Database, appServices:AppServices, val:LemmaVariant
 }
 
 
-export const getSimilarFreqWords = (db:Database, appServices:AppServices, lemma:string, pos:Array<QueryPoS>, rng:number):Observable<Array<LemmaVariant>> => {
+export const getSimilarFreqWords = (db:WordDatabase, appServices:AppServices, lemma:string, pos:Array<QueryPoS>, rng:number):Observable<Array<LemmaVariant>> => {
     return new Observable<LemmaVariant>((observer) => {
-        db.get(
+        db.conn.get(
             `SELECT value, GROUP_CONCAT(pos) AS pos, SUM(\`count\`) AS abs, SUM(arf) AS arf
              FROM lemma
              WHERE value = ? AND pos IN (${ntimesPlaceholder(pos.length)}) GROUP BY value`,
@@ -172,14 +175,14 @@ export const getSimilarFreqWords = (db:Database, appServices:AppServices, lemma:
 };
 
 
-export const getWordForms = (db:Database, appServices:AppServices, lemma:string, pos:Array<QueryPoS>):Observable<Array<LemmaVariant>> => {
+export const getWordForms = (db:WordDatabase, appServices:AppServices, lemma:string, pos:Array<QueryPoS>):Observable<Array<LemmaVariant>> => {
     return new Observable<LemmaVariant>((observer) => {
-        db.each(
-            'SELECT w.value AS value, w.pos, w.count AS abs ' +
+        db.conn.each(
+            'SELECT w.value AS value, w.pos, w.count AS abs, CAST(w.count AS FLOAT) / ? * 1000000 AS ipm ' +
             'FROM lemma AS m ' +
             'JOIN word AS w ON m.value = w.lemma AND m.pos = w.pos ' +
             `WHERE m.value = ? AND m.pos IN (${ntimesPlaceholder(pos.length)})`,
-            [lemma, ...pos],
+            [db.corpusSize, lemma, ...pos],
             (err, row) => {
                 if (err) {
                     observer.error(err);

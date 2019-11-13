@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
 import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
 import { map, concatMap } from 'rxjs/operators';
@@ -37,9 +36,9 @@ export interface SummaryModelState {
     error:string;
     corpname:string;
     corpusSize:number;
-    data:Immutable.List<FreqDBRow>;
+    data:Array<FreqDBRow>;
     sfwRowRange:number;
-    flevelDistrb:Immutable.List<FlevelDistribItem>;
+    flevelDistrb:Array<FlevelDistribItem>;
 }
 
 const calcFreqBand = (ipm:number):FreqBand => {
@@ -85,7 +84,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                 const newState = this.copyState(state);
                 newState.isBusy = true;
                 newState.error = null;
-                newState.data = newState.data.clear();
+                newState.data = [];
                 return newState;
             },
             [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<DataLoadedPayload>) => {
@@ -96,10 +95,10 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                         newState.error = action.error.message;
 
                     } else if (action.payload.data.length === 0) {
-                        newState.data = Immutable.List<FreqDBRow>();
+                        newState.data = [];
 
                     } else {
-                        newState.data = Immutable.List<FreqDBRow>(action.payload.data);
+                        newState.data = action.payload.data;
                     }
                     return newState;
                 }

@@ -197,86 +197,95 @@
             "description": "These types are necessary to create config schemata\nusing Makefile for tiles and layouts only",
             "type": "object"
         },
+        "LayoutConfigCmpQuery": {
+            "properties": {
+                "allowMultiWordQuery": {
+                    "type": "boolean"
+                },
+                "groups": {
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/definitions/GroupLayoutConfig"
+                            },
+                            {
+                                "type": "string"
+                            }
+                        ]
+                    },
+                    "type": "array"
+                }
+            },
+            "required": [
+                "groups"
+            ],
+            "type": "object"
+        },
+        "LayoutConfigSingleQuery": {
+            "properties": {
+                "allowMultiWordQuery": {
+                    "type": "boolean"
+                },
+                "groups": {
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/definitions/GroupLayoutConfig"
+                            },
+                            {
+                                "type": "string"
+                            }
+                        ]
+                    },
+                    "type": "array"
+                }
+            },
+            "required": [
+                "groups"
+            ],
+            "type": "object"
+        },
+        "LayoutConfigTranslatQuery": {
+            "properties": {
+                "allowMultiWordQuery": {
+                    "type": "boolean"
+                },
+                "groups": {
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/definitions/GroupLayoutConfig"
+                            },
+                            {
+                                "type": "string"
+                            }
+                        ]
+                    },
+                    "type": "array"
+                },
+                "targetLanguages": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                }
+            },
+            "required": [
+                "groups",
+                "targetLanguages"
+            ],
+            "type": "object"
+        },
         "LayoutsConfig": {
             "properties": {
                 "cmp": {
-                    "properties": {
-                        "allowMultiWordQuery": {
-                            "type": "boolean"
-                        },
-                        "groups": {
-                            "items": {
-                                "anyOf": [
-                                    {
-                                        "$ref": "#/definitions/GroupLayoutConfig"
-                                    },
-                                    {
-                                        "type": "string"
-                                    }
-                                ]
-                            },
-                            "type": "array"
-                        }
-                    },
-                    "required": [
-                        "groups"
-                    ],
-                    "type": "object"
+                    "$ref": "#/definitions/LayoutConfigCmpQuery"
                 },
                 "single": {
-                    "properties": {
-                        "allowMultiWordQuery": {
-                            "type": "boolean"
-                        },
-                        "groups": {
-                            "items": {
-                                "anyOf": [
-                                    {
-                                        "$ref": "#/definitions/GroupLayoutConfig"
-                                    },
-                                    {
-                                        "type": "string"
-                                    }
-                                ]
-                            },
-                            "type": "array"
-                        }
-                    },
-                    "required": [
-                        "groups"
-                    ],
-                    "type": "object"
+                    "$ref": "#/definitions/LayoutConfigSingleQuery"
                 },
                 "translat": {
-                    "properties": {
-                        "allowMultiWordQuery": {
-                            "type": "boolean"
-                        },
-                        "groups": {
-                            "items": {
-                                "anyOf": [
-                                    {
-                                        "$ref": "#/definitions/GroupLayoutConfig"
-                                    },
-                                    {
-                                        "type": "string"
-                                    }
-                                ]
-                            },
-                            "type": "array"
-                        },
-                        "targetLanguages": {
-                            "items": {
-                                "type": "string"
-                            },
-                            "type": "array"
-                        }
-                    },
-                    "required": [
-                        "groups",
-                        "targetLanguages"
-                    ],
-                    "type": "object"
+                    "$ref": "#/definitions/LayoutConfigTranslatQuery"
                 }
             },
             "type": "object"
@@ -320,6 +329,10 @@
                     ],
                     "description": "A label used in the header of the tile"
                 },
+                "maxTileHeight": {
+                    "description": "Defines tile max height using a css value (e.g. '10em', '130px').\nIf other tiles in the row enforce more height, the value is ignored\n(but a possible scrollbar is still applied if needed).",
+                    "type": "string"
+                },
                 "readSubqFrom": {
                     "anyOf": [
                         {
@@ -335,6 +348,7 @@
                     "description": "In case we depend on multiple tiles and some of them are\njust kind of hidden dependencies (i.e. we want to wait them\nto complate but we don't need their subquery args) this can\nbe used to distinguish the two dependency types.\n\nPlease note that this value is not used directly by WdG but\nit is rather provided for tile model to provide more information\nabout inter-tile dependencies. I.e. it is perfectly doable to\ndefine a subquery producing tile as a dependency via 'waitFor'.\nBut in more complex situations when we need some tiles to just\nwait for and some to also provide subqueries the model may not\nhave enough information to distinguish between the two."
                 },
                 "srcInfoURL": {
+                    "description": "If needed, a specific address for a resource information can be defined.\n(e.g. you still want to use KonText as a corpus information provider\nfor a non-KonText service).",
                     "type": "string"
                 },
                 "tileType": {
