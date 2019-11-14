@@ -137,7 +137,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             key={`${word}Values`}
                             dataKey={`fracValue${index}`}
                             name={ut.translate('multiWordTimeDistrib__estimated_trend_for_{word}', {word: word})}
-                            stroke={props.isPartial ? '#dddddd' : theme.barColor(index % theme.barColor.length)}
+                            stroke={props.isPartial ? '#dddddd' : theme.barColor(index)}
                             fill={'rgba(0,0,0,0)'}  // transparent fill - only line
                             strokeWidth={2}
                             isAnimationActive={false}
@@ -149,7 +149,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             dataKey={`fracInterval${index}`}
                             name={null}
                             stroke={null}
-                            fill={props.isPartial ? '#eeeeee' : theme.barColor(index % theme.barColor.length)}
+                            fill={props.isPartial ? '#eeeeee' : theme.barColor(index)}
                             strokeWidth={1}
                             isAnimationActive={false}
                             connectNulls={true} />
