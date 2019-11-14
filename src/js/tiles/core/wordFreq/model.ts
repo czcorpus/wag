@@ -52,12 +52,23 @@ export interface SummaryModelState {
     flevelDistrb:Array<FlevelDistribItem>;
 }
 
-export function createEmptyDataArray(numSrchWords:number):Array<Array<FreqDBRow>> {
-    const ans = [];
-    for (let i = 0; i < numSrchWords; i++) {
-        ans[i] = [];
-    }
-    return ans;
+export function createInitialWordDataArray(lemmasAllQueries:Array<Array<LemmaVariant>>):Array<Array<FreqDBRow>> {
+    return lemmasAllQueries.map(lemmasQuery => {
+        const curr = findCurrLemmaVariant(lemmasQuery);
+        return [
+            {
+                word: curr.word,
+                lemma: curr.lemma,
+                pos: curr.pos,
+                abs: curr.abs,
+                ipm: curr.ipm,
+                arf: curr.arf,
+                flevel: calcFreqBand(curr.ipm),
+                isSearched: true
+            }
+        ];
+    });
+
 }
 
 const calcFreqBand = (ipm:number):FreqBand => {
@@ -98,37 +109,15 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
         this.appServices = appServices;
         this.lemmas = lemmas;
         this.queryLang = queryLang;
-        this.actionMatch = {
-            [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
-                const newState = this.copyState(state);
-                newState.isBusy = true;
-                newState.error = null;
-                newState.data = createEmptyDataArray(lemmas.length);
-                return newState;
+
+        this.addActionHandler<GlobalActions.RequestQueryResponse>(
+            GlobalActionName.RequestQueryResponse,
+            (state, action) => {
+                state.isBusy = true;
+                state.error = null;
+                state.data = createInitialWordDataArray(lemmas);
             },
-            [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<DataLoadedPayload>) => {
-                if (action.payload.tileId === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isBusy = false;
-                    if (action.error) {
-                        newState.error = action.error.message;
-
-                    } else if (action.payload.data.length === 0) {
-                        newState.data = createEmptyDataArray(lemmas.length);
-
-                    } else {
-                        newState.data[0] = action.payload.data;
-                    }
-                    return newState;
-                }
-                return state;
-            }
-        }
-    }
-
-    sideEffects(state:SummaryModelState, action:Action, dispatch:SEDispatcher):void {
-        switch (action.name) {
-            case GlobalActionName.RequestQueryResponse:
+            (state, action, dispatch) => {
                 new Observable<{variant:LemmaVariant; lang:string}>((observer) => {
                     try {
                         observer.next({
@@ -171,9 +160,9 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                                     lemma: v.lemma,
                                     pos: v.pos,
                                     abs: v.abs,
-                                    ipm: v.abs / state.corpusSize * 1e6,
+                                    ipm: v.ipm,
                                     arf: v.arf,
-                                    flevel: calcFreqBand(v.abs / state.corpusSize * 1e6),
+                                    flevel: calcFreqBand(v.ipm),
                                     isSearched: v.isSearched
                                 }
                             })
@@ -203,7 +192,24 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                         });
                     }
                 );
-            break;
-        }
+            }
+        );
+        this.addActionHandler<GlobalActions.TileDataLoaded<DataLoadedPayload>>(
+            GlobalActionName.TileDataLoaded,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {
+                    state.isBusy = false;
+                    if (action.error) {
+                        state.error = action.error.message;
+
+                    } else if (action.payload.data.length === 0) {
+                        state.data = createInitialWordDataArray(lemmas);
+
+                    } else {
+                        state.data[0] = action.payload.data;
+                    }
+                }
+            }
+        );
     }
 }

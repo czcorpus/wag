@@ -18,7 +18,6 @@
 
 import { IActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
-import { QueryPoS } from '../../../../common/query';
 import { GlobalComponents } from '../../../../views/global';
 
 

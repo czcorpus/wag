@@ -129,11 +129,15 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
                         || state.queries.slice(1).find(v => v.value !== ''))) {
                     this.checkAndSubmitUserQuery(state);
                 }
+
                 if (state.queryType === QueryType.SINGLE_QUERY || state.queryType === QueryType.TRANSLAT_QUERY) {
                     state.queries = state.queries.map(q => Forms.updateFormInput(q, {isRequired: false}));
 
                 } else {
                     state.queries = state.queries.map(q => Forms.updateFormInput(q, {isRequired: true}));
+                    if (state.queries.length === 1) {
+                        state.queries.push(Forms.newFormValue('', true));
+                    }
                 }
             }
         );

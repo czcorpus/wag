@@ -116,7 +116,7 @@ export class LayoutManager {
             },
             {
                 type: QueryType.CMP_QUERY,
-                label: appServices.translate('global__two_words_compare'),
+                label: appServices.translate('global__words_compare'),
                 isEnabled: !layoutIsEmpty(this.layoutCmp)
             },
             {

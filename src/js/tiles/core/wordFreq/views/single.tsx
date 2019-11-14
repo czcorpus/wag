@@ -21,14 +21,11 @@ import * as React from 'react';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../../models/actions';
 import { GlobalComponents } from '../../../../views/global';
 import { FreqDBRow } from '../api';
-import { init as chartViewInit } from './chart';
 import { init as commonViewInit } from './common';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>) {
 
-    const globalComponents = ut.getComponents();
-    const Chart = chartViewInit(dispatcher, ut);
     const commonViews = commonViewInit(dispatcher, ut);
 
 
@@ -108,8 +105,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         return (
             <div className="SingleWordProfile">
-                {srchWord ? <SrchWordInfo data={srchWord} /> : null}
-                {similarFreqWords.length > 0 ? <SimilarFreqWords data={similarFreqWords} /> : null}
+                <dl className="info">
+                    {srchWord ? <SrchWordInfo data={srchWord} /> : null}
+                    {similarFreqWords.length > 0 ? <SimilarFreqWords data={similarFreqWords} /> : null}
+                </dl>
             </div>
         );
     }

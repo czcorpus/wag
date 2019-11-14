@@ -22,6 +22,16 @@ export enum QueryType {
     TRANSLAT_QUERY = 'translat'
 }
 
+export function importQueryTypeString(v:string, dflt:QueryType):QueryType {
+    if (v === QueryType.SINGLE_QUERY || v === QueryType.CMP_QUERY || v === QueryType.TRANSLAT_QUERY) {
+        return v as QueryType;
+
+    } else if (!v) {
+        return dflt;
+    }
+    throw new Error(`Unknown query type '${v}`);
+}
+
 export interface SearchLanguage {
     code:string;
     label:string;

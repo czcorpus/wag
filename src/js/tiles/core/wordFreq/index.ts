@@ -15,13 +15,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
-
 import { AppServices } from '../../../appServices';
 import { QueryType } from '../../../common/query';
 import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../../common/tile';
-import { FreqDBRow, FreqDbAPI } from './api';
-import { FlevelDistribItem, SummaryModel, createEmptyDataArray } from './model';
+import { FreqDbAPI } from './api';
+import { FlevelDistribItem, SummaryModel, createInitialWordDataArray } from './model';
 import { init as viewInit } from './views';
 import { StatelessModel } from 'kombo';
 
@@ -69,7 +67,7 @@ export class WordFreqTile implements ITileProvider {
                 error: null,
                 corpname: conf.corpname,
                 corpusSize: conf.corpusSize,
-                data: createEmptyDataArray(lemmas.length),
+                data: createInitialWordDataArray(lemmas),
                 sfwRowRange: conf.sfwRowRange,
                 flevelDistrb: conf.flevelDistrib ? conf.flevelDistrib : defaultFlevelDistrib
             },

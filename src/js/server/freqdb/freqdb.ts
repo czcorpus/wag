@@ -144,10 +144,10 @@ const getNearFreqItems = (db:WordDatabase, appServices:AppServices, val:LemmaVar
 export const getSimilarFreqWords = (db:WordDatabase, appServices:AppServices, lemma:string, pos:Array<QueryPoS>, rng:number):Observable<Array<LemmaVariant>> => {
     return new Observable<LemmaVariant>((observer) => {
         db.conn.get(
-            `SELECT value, GROUP_CONCAT(pos) AS pos, SUM(\`count\`) AS abs, SUM(arf) AS arf
+            `SELECT value, GROUP_CONCAT(pos) AS pos, SUM(\`count\`) AS abs, CAST(\`count\` AS FLOAT) / ? * 1000000 AS ipm, SUM(arf) AS arf
              FROM lemma
              WHERE value = ? AND pos IN (${ntimesPlaceholder(pos.length)}) GROUP BY value`,
-            [lemma, ...pos],
+            [db.corpusSize, lemma, ...pos],
             (err, row) => {
                 if (err) {
                     observer.error(err);
