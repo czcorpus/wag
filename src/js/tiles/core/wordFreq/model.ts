@@ -32,13 +32,32 @@ export interface FlevelDistribItem {
 }
 
 export interface SummaryModelState {
+
     isBusy:boolean;
+
     error:string;
+
     corpname:string;
+
     corpusSize:number;
-    data:Array<FreqDBRow>;
+    /**
+     * 1st dimension: searched word
+     * 2nd dimension: list of words with similar freq. including the searched word
+     *   (for other than 1st word the list can be of size 1 - just the word)
+     */
+    data:Array<Array<FreqDBRow>>;
+
     sfwRowRange:number;
+
     flevelDistrb:Array<FlevelDistribItem>;
+}
+
+export function createEmptyDataArray(numSrchWords:number):Array<Array<FreqDBRow>> {
+    const ans = [];
+    for (let i = 0; i < numSrchWords; i++) {
+        ans[i] = [];
+    }
+    return ans;
 }
 
 const calcFreqBand = (ipm:number):FreqBand => {
@@ -72,7 +91,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
 
     private readonly queryLang:string;
 
-    constructor({dispatcher, initialState, tileId, api, appServices, lemmas, queryLang}) {
+    constructor({dispatcher, initialState, tileId, api, appServices, lemmas, queryLang}:SummaryModelArgs) {
         super(dispatcher, initialState);
         this.tileId = tileId;
         this.api = api;
@@ -84,7 +103,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                 const newState = this.copyState(state);
                 newState.isBusy = true;
                 newState.error = null;
-                newState.data = [];
+                newState.data = createEmptyDataArray(lemmas.length);
                 return newState;
             },
             [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<DataLoadedPayload>) => {
@@ -95,10 +114,10 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                         newState.error = action.error.message;
 
                     } else if (action.payload.data.length === 0) {
-                        newState.data = [];
+                        newState.data = createEmptyDataArray(lemmas.length);
 
                     } else {
-                        newState.data = action.payload.data;
+                        newState.data[0] = action.payload.data;
                     }
                     return newState;
                 }
