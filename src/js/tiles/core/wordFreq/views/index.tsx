@@ -23,6 +23,7 @@ import { GlobalComponents } from '../../../../views/global';
 import { SummaryModel, SummaryModelState } from '../model';
 import { init as chartViewInit } from './chart';
 import { init as singleWordViewsInit } from './single';
+import { init as multiWordViewsInit } from './compare';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, model:SummaryModel):TileComponent {
@@ -30,7 +31,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     const globalComponents = ut.getComponents();
     const Chart = chartViewInit(dispatcher, ut);
     const SingleWordProfile = singleWordViewsInit(dispatcher, ut);
-
+    const MultiWordProfile = multiWordViewsInit(dispatcher, ut);
 
     // -------------------- <WordFreqTileView /> -----------------------------------------------
 
@@ -45,13 +46,14 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <div className={`WordFreqTileView${this.props.isMobile ? ' mobile' : ''}`}>
                         {!this.props.isMobile && this.props.widthFract > 1 ?
                             <div className="chart">
-                            <Chart lemmaItems={this.props.data.filter(v => v.isSearched)} />
+                            <Chart lemmaItems={this.props.data[0].filter(v => v.isSearched)} />
                             </div> :
                             null
                         }
-                        <dl className="info">
-                            <SingleWordProfile data={this.props.data} />
-                        </dl>
+                        {this.props.data.length === 1 ?
+                            <SingleWordProfile data={this.props.data[0]} /> :
+                            <MultiWordProfile data={this.props.data} />
+                        }
                     </div>
                 </globalComponents.TileWrapper>
             );

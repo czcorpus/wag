@@ -65,6 +65,52 @@
         }
     }
 
+
+    .MultiWordProfile > table {
+
+        thead th {
+            color: @color-light-text;
+            text-align: right;
+        }
+
+        td, th {
+            padding: 0.4em 0.7em;
+            vertical-align: top;
+        }
+
+        th.query-num {
+            background-color: @color-light-grey;
+            color: @color-default-text;
+            border-radius: 0.3em;
+        }
+
+        td.ipm {
+            padding-left: 2.5em;
+        }
+
+        td.word {
+            font-weight: normal;
+            text-align: left;
+
+            dl.info {
+
+                margin-top: 0;
+
+                dd:not(:last-child) {
+                    margin-bottom: 0.3em;
+                }
+
+                dt {
+                    margin-bottom: 0.2em;
+                }
+
+                dd {
+                    font-size: 1.3em;
+                }
+            }
+        }
+    }
+
 }
 
 .FreqLevelCustomTooltip {
@@ -72,5 +118,4 @@
     background-color: #FFFFFF;
     border-radius: 2px;
     border: 1px solid @color-light-grey;
-
 }

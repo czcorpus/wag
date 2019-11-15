@@ -29,7 +29,7 @@ import { AppServices } from '../appServices';
 import { encodeArgs } from '../common/ajax';
 import { ErrorType, mapToStatusCode, newError } from '../common/errors';
 import { HostPageEnv, AvailableLanguage } from '../common/hostPage';
-import { QueryType, LemmaVariant, importQueryPos, QueryPoS, matchesPos, findMergeableLemmas, RecognizedQueries } from '../common/query';
+import { QueryType, LemmaVariant, importQueryPos, QueryPoS, matchesPos, findMergeableLemmas, RecognizedQueries, importQueryTypeString } from '../common/query';
 import { UserConf, ClientStaticConf, ClientConf, emptyClientConf, getSupportedQueryTypes, emptyLayoutConf, getQueryTypeFreqDb } from '../conf';
 import { GlobalComponents } from '../views/global';
 import { init as viewInit, LayoutProps } from '../views/layout';
@@ -231,15 +231,18 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
         return;
     }
 
+    const queryType = importQueryTypeString(req.query['queryType'], QueryType.SINGLE_QUERY);
+    const minNumQueries = queryType === QueryType.CMP_QUERY ? 2 : 1;
+
     const userConfig:UserConf = {
         uiLang: getLangFromCookie(req, services.serverConf.langCookie, services.serverConf.languages),
         uiLanguages: services.serverConf.languages,
         query1Lang: req.query['lang1'] || 'cs',
         query2Lang: req.query['lang2'] || 'en',
-        queryType: req.query['queryType'] || 'single',
-        queryPos: fetchReqArgArray(req, 'pos', 2).map(v => v.split(',') as Array<QueryPoS>),
-        queries: fetchReqArgArray(req, 'q', 2),
-        lemma: fetchReqArgArray(req, 'lemma', 2),
+        queryType: queryType,
+        queryPos: fetchReqArgArray(req, 'pos', minNumQueries).map(v => v.split(',') as Array<QueryPoS>),
+        queries: fetchReqArgArray(req, 'q', minNumQueries),
+        lemma: fetchReqArgArray(req, 'lemma', minNumQueries),
         answerMode: answerMode
     };
     const dispatcher = new ServerSideActionDispatcher();
