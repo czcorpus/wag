@@ -163,12 +163,14 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                                             attr_vmode: 'mouseover',
                                             viewMode: ViewMode.KWIC,
                                             tileId: this.tileId,
-                                            attrs: Immutable.List<string>(['word']),
-                                            metadataAttrs: Immutable.List<{value:string; label:string}>(),
-                                            concId: null,
+                                            attrs: ['word'],
+                                            metadataAttrs: [],
+                                            concIds: [],
+                                            queries: [],
                                             posQueryGenerator: state.posQueryGenerator
                                         },
                                         lemmaVariant,
+                                        target,
                                         null
                                     ),
                                     {

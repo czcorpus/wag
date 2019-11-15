@@ -302,7 +302,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     posQueryGenerator: state.posQueryGenerator
                 },
                 lemmaVariant,
-                0,
+                target,
                 null
             ),
             {
