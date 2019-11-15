@@ -17,8 +17,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
-import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
+
+import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { Observable } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 import { AppServices } from '../../../appServices';
@@ -49,7 +49,7 @@ export interface ConcordanceTileState extends ConcordanceMinState {
     isTweakMode:boolean;
     isMobile:boolean;
     widthFract:number;
-    lines:Immutable.List<Line>;
+    lines:Array<Line>;
     currPage:number;
     concsize:number;
     numPages:number;
@@ -98,106 +98,176 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
         this.tileId = tileId;
         this.backlink = backlink;
         this.waitForTile = waitForTile;
-        this.actionMatch = {
-            [GlobalActionName.SetScreenMode]: (state, action:GlobalActions.SetScreenMode) => {
+
+        this.addActionHandler<GlobalActions.SetScreenMode>(
+            GlobalActionName.SetScreenMode,
+            (state, action) => {
                 if (action.payload.isMobile !== state.isMobile) {
-                    const newState = this.copyState(state);
-                    newState.isMobile = action.payload.isMobile;
+                    state.isMobile = action.payload.isMobile;
                     if (action.payload.isMobile) {
-                        newState.kwicLeftCtx = ConcordanceTileModel.CTX_SIZES[0];
-                        newState.kwicRightCtx = ConcordanceTileModel.CTX_SIZES[0];
+                        state.kwicLeftCtx = ConcordanceTileModel.CTX_SIZES[0];
+                        state.kwicRightCtx = ConcordanceTileModel.CTX_SIZES[0];
 
                     } else {
-                        newState.kwicLeftCtx = newState.initialKwicLeftCtx;
-                        newState.kwicRightCtx = newState.initialKwicRightCtx;
+                        state.kwicLeftCtx = state.initialKwicLeftCtx;
+                        state.kwicRightCtx = state.initialKwicRightCtx;
                     }
-                    return newState;
                 }
-                return state;
             },
-            [GlobalActionName.EnableTileTweakMode]: (state, action:GlobalActions.EnableTileTweakMode) => {
+            (state, action, dispatch) => {
+                if (state.lines.length > 0) {
+                    this.reloadData(state, dispatch, null);
+                }
+            }
+        );
+
+        this.addActionHandler<GlobalActions.EnableTileTweakMode>(
+            GlobalActionName.EnableTileTweakMode,
+            (state, action) => {
                 if (action.payload.ident === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isTweakMode = true;
-                    return newState;
+                    state.isTweakMode = true;
                 }
-                return state;
-            },
-            [GlobalActionName.DisableTileTweakMode]: (state, action:GlobalActions.DisableTileTweakMode) => {
+            }
+        );
+
+        this.addActionHandler<GlobalActions.DisableTileTweakMode>(
+            GlobalActionName.DisableTileTweakMode,
+            (state, action) => {
                 if (action.payload.ident === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isTweakMode = false;
-                    return newState;
+                    state.isTweakMode = false;
                 }
-                return state;
+            }
+        );
+
+        this.addActionHandler<GlobalActions.RequestQueryResponse>(
+            GlobalActionName.RequestQueryResponse,
+            (state, action) => {
+                state.isBusy = true;
+                state.error = null;
+                state.concId = null;
             },
-            [GlobalActionName.RequestQueryResponse]: (state, action) => {
-                const newState = this.copyState(state);
-                newState.isBusy = true;
-                newState.error = null;
-                newState.concId = null;
-                return newState;
-            },
-            [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<ConcLoadedPayload>) => {
+            (state, action, dispatch) => {
+                if (this.waitForTile) {
+                    this.suspend(
+                        (action) => {
+                            if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
+                                if (isCollocSubqueryPayload(action.payload)) {
+                                    const cql = `[word="${action.payload.subqueries.map(v => v.value.value).join('|')}"]`; // TODO escape
+                                    this.reloadData(state, dispatch, cql);
+
+                                } else if (isSubqueryPayload(action.payload)) {
+                                    const cql = `[word="${action.payload.subqueries.map(v => v.value).join('|')}"]`; // TODO escape
+                                    this.reloadData(state, dispatch, cql);
+                                }
+                                return true;
+                            }
+                            return false;
+                        }
+                    );
+                } else {
+                    this.reloadData(state, dispatch, null);
+                }
+            }
+        );
+
+        this.addActionHandler<GlobalActions.TileDataLoaded<ConcLoadedPayload>>(
+            GlobalActionName.TileDataLoaded,
+            (state, action) => {
                 if (action.payload.tileId === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isBusy = false;
+                    state.isBusy = false;
                     if (action.error) {
-                        newState.error = action.error.message;
+                        state.error = action.error.message;
 
                     } else {
                         // debug:
                         action.payload.data.messages.forEach(msg => console.log(`${importMessageType(msg[0]).toUpperCase()}: conc - ${msg[1]}`));
 
-                        newState.lines = Immutable.List<Line>(normalizeTypography(action.payload.data.lines));
-                        newState.concsize = action.payload.data.concsize; // TODO fullsize?
-                        newState.resultARF = action.payload.data.arf;
-                        newState.resultIPM = action.payload.data.ipm;
-                        newState.currPage = newState.loadPage;
-                        newState.numPages = Math.ceil(newState.concsize / newState.pageSize);
-                        newState.backlink = this.createBackLink(state, action);
-                        newState.concId = action.payload.data.concPersistenceID;
+                        state.lines = normalizeTypography(action.payload.data.lines);
+                        state.concsize = action.payload.data.concsize; // TODO fullsize?
+                        state.resultARF = action.payload.data.arf;
+                        state.resultIPM = action.payload.data.ipm;
+                        state.currPage = state.loadPage;
+                        state.numPages = Math.ceil(state.concsize / state.pageSize);
+                        state.backlink = this.createBackLink(state, action);
+                        state.concId = action.payload.data.concPersistenceID;
                     }
-                    return newState;
                 }
-                return state;
-            },
-            [ActionName.LoadNextPage]: (state, action:Actions.LoadNextPage) => {
+            }
+        );
+
+        this.addActionHandler<Actions.LoadNextPage>(
+            ActionName.LoadNextPage,
+            (state, action) => {
                 if (action.payload.tileId === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isBusy = true;
-                    newState.error = null;
-                    newState.loadPage = newState.currPage + 1;
-                    return newState;
+                    state.isBusy = true;
+                    state.error = null;
+                    state.loadPage = state.currPage + 1;
                 }
-                return state;
             },
-            [ActionName.LoadPrevPage]: (state, action:Actions.LoadNextPage) => {
+            (state, action, dispatch) => {
+                if (action.payload['tileId'] === this.tileId) {
+                    this.reloadData(state, dispatch, null);
+                }
+            }
+        ).sideEffectAlsoOn(
+            ActionName.LoadPrevPage,
+            ActionName.SetViewMode
+        );
+
+        this.addActionHandler<Actions.LoadPrevPage>(
+            ActionName.LoadPrevPage,
+            (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     if (state.currPage - 1 > 0) {
-                        const newState = this.copyState(state);
-                        newState.isBusy = true;
-                        newState.error = null;
-                        newState.loadPage = newState.currPage - 1;
-                        return newState;
+                        state.isBusy = true;
+                        state.error = null;
+                        state.loadPage = state.currPage - 1;
 
                     } else {
                         this.appServices.showMessage(SystemMessageType.ERROR, 'Cannot load page < 1');
                     }
                 }
-                return state;
-            },
-            [ActionName.SetViewMode]: (state, action:Actions.SetViewMode) => {
-                if (action.payload.tileId === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isBusy = true;
-                    newState.error = null;
-                    newState.viewMode = action.payload.mode;
-                    return newState;
-                }
-                return state;
             }
-        };
+        );
+
+        this.addActionHandler<Actions.SetViewMode>(
+            ActionName.SetViewMode,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {
+                    state.isBusy = true;
+                    state.error = null;
+                    state.viewMode = action.payload.mode;
+                }
+            }
+        );
+
+        this.addActionHandler<GlobalActions.GetSourceInfo>(
+            GlobalActionName.GetSourceInfo,
+            null,
+            (state, action, dispatch) => {
+                if (action.payload.tileId === this.tileId) {
+                    this.service.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), state.corpname)
+                    .subscribe(
+                        (data) => {
+                            dispatch({
+                                name: GlobalActionName.GetSourceInfoDone,
+                                payload: {
+                                    data: data
+                                }
+                            });
+                        },
+                        (err) => {
+                            console.error(err);
+                            dispatch({
+                                name: GlobalActionName.GetSourceInfoDone,
+                                error: err
+
+                            });
+                        }
+                    );
+                }
+            }
+        )
     }
 
     private createBackLink(state:ConcordanceTileState, action:GlobalActions.TileDataLoaded<ConcLoadedPayload>):BacklinkWithArgs<BacklinkArgs> {
@@ -270,67 +340,5 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 });
             }
         );
-    }
-
-    sideEffects(state:ConcordanceTileState, action:Action, dispatch:SEDispatcher):void {
-        switch(action.name) {
-            case GlobalActionName.RequestQueryResponse:
-                if (this.waitForTile) {
-                    this.suspend(
-                        (action) => {
-                            if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
-                                if (isCollocSubqueryPayload(action.payload)) {
-                                    const cql = `[word="${action.payload.subqueries.map(v => v.value.value).join('|')}"]`; // TODO escape
-                                    this.reloadData(state, dispatch, cql);
-
-                                } else if (isSubqueryPayload(action.payload)) {
-                                    const cql = `[word="${action.payload.subqueries.map(v => v.value).join('|')}"]`; // TODO escape
-                                    this.reloadData(state, dispatch, cql);
-                                }
-                                return true;
-                            }
-                            return false;
-                        }
-                    );
-                } else {
-                    this.reloadData(state, dispatch, null);
-                }
-            break;
-            case ActionName.LoadNextPage:
-            case ActionName.LoadPrevPage:
-            case ActionName.SetViewMode:
-                if (action.payload['tileId'] === this.tileId) {
-                    this.reloadData(state, dispatch, null);
-                }
-            break;
-            case GlobalActionName.SetScreenMode:
-                if (state.lines.size > 0) {
-                    this.reloadData(state, dispatch, null);
-                }
-            break;
-            case GlobalActionName.GetSourceInfo:
-                if (action.payload['tileId'] === this.tileId) {
-                    this.service.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), state.corpname)
-                    .subscribe(
-                        (data) => {
-                            dispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
-                                payload: {
-                                    data: data
-                                }
-                            });
-                        },
-                        (err) => {
-                            console.error(err);
-                            dispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
-                                error: err
-
-                            });
-                        }
-                    );
-                }
-            break;
-        }
     }
 }

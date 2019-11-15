@@ -15,8 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
-
 import { QuerySelector} from '../../api/kontext/concordance';
 import { ViewMode } from '../../api/abstract/concordance';
 
@@ -37,7 +35,7 @@ export interface ConcordanceMinState {
     viewMode:ViewMode;
     concId:string|null;
     shuffle:boolean;
-    metadataAttrs:Immutable.List<{value:string; label:string}>;
-    attrs:Immutable.List<string>;
+    metadataAttrs:Array<{value:string; label:string}>;
+    attrs:Array<string>;
     posQueryGenerator:[string, string];
 }

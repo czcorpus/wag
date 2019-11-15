@@ -295,8 +295,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     attr_vmode: 'mouseover',
                     viewMode: ViewMode.KWIC,
                     tileId: this.tileId,
-                    attrs: Immutable.List<string>(['word']),
-                    metadataAttrs: Immutable.List<{value:string; label:string}>(),
+                    attrs: [],
+                    metadataAttrs: [],
                     concId: null,
                     posQueryGenerator: state.posQueryGenerator
                 },

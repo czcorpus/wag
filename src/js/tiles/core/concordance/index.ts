@@ -15,12 +15,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
+
 import { IActionDispatcher, StatelessModel } from 'kombo';
 
 import { AppServices } from '../../../appServices';
 import { QuerySelector } from '../../../common/api/kontext/concordance';
-import { Line, ViewMode } from '../../../common/api/abstract/concordance';
+import { ViewMode } from '../../../common/api/abstract/concordance';
 
 import { LocalizedConfMsg } from '../../../common/types';
 import { QueryType } from '../../../common/query';
@@ -99,7 +99,7 @@ export class ConcordanceTile implements ITileProvider {
                 widthFract: widthFract,
                 concId: null,
                 querySelector: QuerySelector.CQL,
-                lines: Immutable.List<Line>(),
+                lines: [],
                 corpname: conf.corpname,
                 otherCorpname: conf.parallelLangMapping ? conf.parallelLangMapping[lang2] : null,
                 subcname: Array.isArray(conf.subcname) ? conf.subcname[0] : conf.subcname,
@@ -118,9 +118,8 @@ export class ConcordanceTile implements ITileProvider {
                 kwicRightCtx: appServices.isMobileMode() ? ConcordanceTileModel.CTX_SIZES[0] : this.calcContext(widthFract),
                 attr_vmode: 'mouseover',
                 viewMode: conf.parallelLangMapping ? ViewMode.SENT : ViewMode.KWIC,
-                attrs: Immutable.List<string>(conf.posAttrs),
-                metadataAttrs: Immutable.List<{value:string; label:string}>(
-                    (conf.metadataAttrs || []).map(v => ({value: v.value, label: appServices.importExternalMessage(v.label)})) || []),
+                attrs: conf.posAttrs,
+                metadataAttrs: (conf.metadataAttrs || []).map(v => ({value: v.value, label: appServices.importExternalMessage(v.label)})),
                 backlink: null,
                 posQueryGenerator: conf.posQueryGenerator,
                 disableViewModes: !!conf.disableViewModes
@@ -151,7 +150,7 @@ export class ConcordanceTile implements ITileProvider {
     }
 
     supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {
-        return qt === QueryType.SINGLE_QUERY || qt === QueryType.TRANSLAT_QUERY;
+        return qt === QueryType.SINGLE_QUERY || qt === QueryType.TRANSLAT_QUERY || qt === QueryType.CMP_QUERY;
     }
 
     disable():void {
