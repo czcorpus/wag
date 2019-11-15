@@ -21,6 +21,8 @@ import { ViewMode } from '../../api/abstract/concordance';
 
 export interface ConcordanceMinState {
     tileId:number;
+    concIds:Array<string>;
+    queries:Array<string>;
     querySelector:QuerySelector;
     corpname:string;
     otherCorpname:string;
@@ -33,7 +35,6 @@ export interface ConcordanceMinState {
     loadPage:number; // the one we are going to load
     attr_vmode:'mouseover'|'direct';
     viewMode:ViewMode;
-    concId:string|null;
     shuffle:boolean;
     metadataAttrs:Array<{value:string; label:string}>;
     attrs:Array<string>;

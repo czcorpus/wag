@@ -100,6 +100,32 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         );
     };
 
+    // ------------------ <QueryIdxSwitch /> --------------------------------------------
+
+    const QueryIdxSwitch:React.SFC<{
+        tileId:number;
+        currIdx:number;
+        values:Array<string>;
+
+    }> = (props) => {
+
+        const handleChange = (evt:React.ChangeEvent<HTMLSelectElement>) => {
+            dispatcher.dispatch<Actions.SetVisibleQuery>({
+                name: ActionName.SetVisibleQuery,
+                payload: {
+                    tileId: props.tileId,
+                    queryIdx: parseInt(evt.target.value)
+                }
+            });
+        };
+
+        return (
+            <select value={props.currIdx} onChange={handleChange}>
+                {props.values.map((v, i) => (<option key={`${v}:${i}`} value={i}>{v}</option>))}
+            </select>
+        );
+    }
+
     // ------------------ <Controls /> --------------------------------------------
 
     const Controls:React.SFC<{
@@ -108,6 +134,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         viewMode:ViewMode;
         viewModeEnabled:boolean;
         tileId:number;
+        queries:Array<string>;
+        currVisibleQueryIdx:number;
 
     }> = (props) => {
         return (
@@ -119,6 +147,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <label title={props.viewModeEnabled ? null : ut.translate('global__func_not_avail')}>{ut.translate('concordance__view_mode')}:{'\u00a0'}
                             <ViewModeSwitch mode={props.viewMode} tileId={props.tileId} isEnabled={props.viewModeEnabled} />
                         </label>
+                        {props.queries.length > 1 ?
+                            <label>{ut.translate('concordance__sel_query')}:{'\u00a0'}
+                                <QueryIdxSwitch tileId={props.tileId} values={props.queries} currIdx={props.currVisibleQueryIdx} />
+                            </label> :
+                            null
+                        }
                 </fieldset>
             </form>
         )
@@ -179,17 +213,26 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 tableClasses.push('aligned');
             }
 
+            const lines = this.props.lines[this.props.visibleQueryIdx];
+
             return (
                 <globalCompontents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
-                        hasData={this.props.lines.length > 0}
+                        hasData={lines.length > 0}
                         sourceIdent={{corp: this.props.corpname, subcorp: this.props.subcDesc}}
                         backlink={this.props.backlink}
                         supportsTileReload={this.props.supportsReloadOnError}>
                     <div className="ConcordanceTileView">
                         {this.props.isTweakMode ?
-                            <div className="tweak-box"><Controls currPage={this.props.currPage} numPages={this.props.numPages}
-                                    viewMode={this.props.viewMode} tileId={this.props.tileId}
-                                    viewModeEnabled={!this.props.otherCorpname && !this.props.disableViewModes} /></div> :
+                            <div className="tweak-box">
+                                    <Controls
+                                        currPage={this.props.currPage}
+                                        numPages={this.props.numPages}
+                                        viewMode={this.props.viewMode}
+                                        tileId={this.props.tileId}
+                                        viewModeEnabled={!this.props.otherCorpname && !this.props.disableViewModes}
+                                        queries={this.props.queries}
+                                        currVisibleQueryIdx={this.props.visibleQueryIdx} />
+                            </div> :
                             null
                         }
                         <dl className="summary">
@@ -212,7 +255,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         </dl>
                         <table className={tableClasses.join(' ')}>
                             <tbody>
-                                {this.props.lines.map(line => <Row key={`${line.toknum}`} data={line} isParallel={!!this.props.otherCorpname} />)}
+                                {lines.map(line => <Row key={`${line.toknum}`} data={line} isParallel={!!this.props.otherCorpname} />)}
                             </tbody>
                         </table>
                     </div>

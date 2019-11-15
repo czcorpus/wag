@@ -234,7 +234,7 @@ export class ConcApi implements IConcordanceApi<RequestArgs> {
         this.srcInfoService = new CorpusInfoAPI(cache, apiURL, customHeaders);
     }
 
-    stateToArgs(state:ConcordanceMinState, lvar:LemmaVariant, otherLangCql:string):RequestArgs {
+    stateToArgs(state:ConcordanceMinState, lvar:LemmaVariant, lvarIdx:number, otherLangCql:string):RequestArgs {
         if (state.otherCorpname) {
             const ans:PCRequestArgs = {
                 corpname: state.corpname,
@@ -261,7 +261,7 @@ export class ConcApi implements IConcordanceApi<RequestArgs> {
                 setQuery(ans, mkMatchQuery(lvar, state.posQueryGenerator));
 
             } else {
-                ans.q = `~${state.concId}`;
+                ans.q = `~${state.concIds[lvarIdx]}`;
             }
             return ans;
 
@@ -286,7 +286,7 @@ export class ConcApi implements IConcordanceApi<RequestArgs> {
                 setQuery(ans, mkMatchQuery(lvar, state.posQueryGenerator));
 
             } else {
-                ans.q = `~${state.concId}`;
+                ans.q = `~${state.concIds[lvarIdx]}`;
             }
             return ans;
         }

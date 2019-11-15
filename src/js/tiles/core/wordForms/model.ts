@@ -225,9 +225,9 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                                     const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
                                     this.fetchWordForms(
                                         {
-                                            corpName: payload.data.corpName,
-                                            subcorpName: payload.data.subcorpName,
-                                            concPersistenceID: payload.data.concPersistenceID
+                                            corpName: payload.corpusName,
+                                            subcorpName: payload.subcorpusName,
+                                            concPersistenceID: payload.concPersistenceID
                                         },
                                         dispatch
                                     );

@@ -190,7 +190,7 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                                     observer.complete();
                                 }
                             }).pipe(
-                                concatMap(args => this.api.call(stateToAPIArgs(state, payload.data.concPersistenceID)))
+                                concatMap(args => this.api.call(stateToAPIArgs(state, payload.concPersistenceID)))
                             ),
                             state.mapSVG ? rxOf(null) : this.mapLoader.call('mapCzech.inline.svg')
                         )

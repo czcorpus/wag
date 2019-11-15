@@ -297,10 +297,12 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     tileId: this.tileId,
                     attrs: [],
                     metadataAttrs: [],
-                    concId: null,
+                    concIds: [],
+                    queries: [],
                     posQueryGenerator: state.posQueryGenerator
                 },
                 lemmaVariant,
+                0,
                 null
             ),
             {

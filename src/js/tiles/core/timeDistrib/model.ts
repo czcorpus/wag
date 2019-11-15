@@ -380,10 +380,12 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     tileId: this.tileId,
                     attrs: ['word'],
                     metadataAttrs: [],
-                    concId: null,
-                    posQueryGenerator: state.posQueryGenerator
+                    concIds: [],
+                    posQueryGenerator: state.posQueryGenerator,
+                    queries: []
                 },
                 lemmaVariant,
+                0,
                 null
             ),
             {
@@ -410,8 +412,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
                                     } else {
                                         observer.next({
-                                            concId: payload.data.concPersistenceID,
-                                            subcName: payload.data.subcorpName,
+                                            concId: payload.concPersistenceID,
+                                            subcName: payload.subcorpusName,
                                             wordMainLabel: lv.lemma,
                                             targetId: target
                                         });
