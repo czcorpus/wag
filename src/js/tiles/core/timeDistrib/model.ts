@@ -378,12 +378,14 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     attr_vmode: 'mouseover',
                     viewMode: ViewMode.KWIC,
                     tileId: this.tileId,
-                    attrs: Immutable.List<string>(['word']),
-                    metadataAttrs: Immutable.List<{value:string; label:string}>(),
-                    concId: null,
-                    posQueryGenerator: state.posQueryGenerator
+                    attrs: ['word'],
+                    metadataAttrs: [],
+                    concIds: [],
+                    posQueryGenerator: state.posQueryGenerator,
+                    queries: []
                 },
                 lemmaVariant,
+                0,
                 null
             ),
             {
@@ -410,8 +412,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
                                     } else {
                                         observer.next({
-                                            concId: payload.data.concPersistenceID,
-                                            subcName: payload.data.subcorpName,
+                                            concId: payload.concPersistenceID,
+                                            subcName: payload.subcorpusName,
                                             wordMainLabel: lv.lemma,
                                             targetId: target
                                         });

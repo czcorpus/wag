@@ -98,6 +98,7 @@ export const mkTileFactory = (
                 appServices: appServices,
                 lang1: lang1,
                 lang2: lang2,
+                queryType: queryType,
                 waitForTiles: importDependentTilesList(conf.waitFor, conf.readSubqFrom).map(v => tileIdentMap[v]),
                 subqSourceTiles: importDependentTilesList(conf.readSubqFrom).map(v => tileIdentMap[v]),
                 widthFract: layoutManager.getTileWidthFract(queryType, tileIdentMap[confName]),

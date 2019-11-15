@@ -256,7 +256,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                                     });
                                     return true;
                                 }
-                                this.requestData(state, payload.data.concPersistenceID, action.error, seDispatch);
+                                this.requestData(state, payload.concPersistenceID, action.error, seDispatch);
                                 return true;
                             }
                             return false;

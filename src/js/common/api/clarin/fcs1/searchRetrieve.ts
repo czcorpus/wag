@@ -153,7 +153,7 @@ export class FCS1SearchRetrieveAPI implements IConcordanceApi<FCS1Args> {
         this.srcInfoApi = new FCS1ExplainAPI(url, this.customHeaders);
     }
 
-    stateToArgs(state:ConcordanceMinState, lvar:LemmaVariant, otherLangCql:string):FCS1Args {
+    stateToArgs(state:ConcordanceMinState, lvar:LemmaVariant, lvarIdx:number, otherLangCql:string):FCS1Args {
         return {
             operation: 'searchRetrieve',
             query: lvar.lemma,

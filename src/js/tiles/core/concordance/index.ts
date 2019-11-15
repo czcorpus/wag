@@ -15,20 +15,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
+
 import { IActionDispatcher, StatelessModel } from 'kombo';
 
 import { AppServices } from '../../../appServices';
 import { QuerySelector } from '../../../common/api/kontext/concordance';
-import { Line, ViewMode } from '../../../common/api/abstract/concordance';
+import { ViewMode } from '../../../common/api/abstract/concordance';
 
 import { LocalizedConfMsg } from '../../../common/types';
 import { QueryType } from '../../../common/query';
 import { Backlink, CorpSrchTileConf, ITileProvider, TileComponent, TileFactory, SourceInfoComponent } from '../../../common/tile';
-import { ConcordanceTileModel } from './model';
+import { ConcordanceTileModel, createInitialLinesData } from './model';
 import { init as viewInit } from './views';
 import { createApiInstance } from '../../../common/api/factory/concordance';
 import { createSourceInfoViewInstance } from './apiFactory';
+import { findCurrLemmaVariant } from '../../../models/query';
+import { arrayOfSize } from '../../../common/data';
 
 
 
@@ -71,7 +73,7 @@ export class ConcordanceTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({tileId, dispatcher, appServices, ut, lemmas, widthFract, waitForTiles, conf, lang2, isBusy, cache}:TileFactory.Args<ConcordanceTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, lemmas, widthFract, waitForTiles, conf, lang2, isBusy, cache, queryType}:TileFactory.Args<ConcordanceTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.widthFract = widthFract;
@@ -84,22 +86,24 @@ export class ConcordanceTile implements ITileProvider {
 
         this.model = new ConcordanceTileModel({
             dispatcher: dispatcher,
-            tileId: tileId,
-            appServices: appServices,
+            tileId,
+            appServices,
             service: createApiInstance(cache, conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
-            lemmas: lemmas,
+            lemmas,
+            queryType,
             backlink: conf.backlink || null,
             waitForTile: Array.isArray(waitForTiles) ? waitForTiles[0] : waitForTiles,
             initState: {
                 tileId: tileId,
+                visibleQueryIdx: 0,
                 isBusy: isBusy,
                 error: null,
                 isTweakMode: false,
                 isMobile: appServices.isMobileMode(),
                 widthFract: widthFract,
-                concId: null,
+                concIds: arrayOfSize(lemmas.length, null),
                 querySelector: QuerySelector.CQL,
-                lines: Immutable.List<Line>(),
+                lines: createInitialLinesData(lemmas.length),
                 corpname: conf.corpname,
                 otherCorpname: conf.parallelLangMapping ? conf.parallelLangMapping[lang2] : null,
                 subcname: Array.isArray(conf.subcname) ? conf.subcname[0] : conf.subcname,
@@ -118,12 +122,12 @@ export class ConcordanceTile implements ITileProvider {
                 kwicRightCtx: appServices.isMobileMode() ? ConcordanceTileModel.CTX_SIZES[0] : this.calcContext(widthFract),
                 attr_vmode: 'mouseover',
                 viewMode: conf.parallelLangMapping ? ViewMode.SENT : ViewMode.KWIC,
-                attrs: Immutable.List<string>(conf.posAttrs),
-                metadataAttrs: Immutable.List<{value:string; label:string}>(
-                    (conf.metadataAttrs || []).map(v => ({value: v.value, label: appServices.importExternalMessage(v.label)})) || []),
+                attrs: conf.posAttrs,
+                metadataAttrs: (conf.metadataAttrs || []).map(v => ({value: v.value, label: appServices.importExternalMessage(v.label)})),
                 backlink: null,
                 posQueryGenerator: conf.posQueryGenerator,
-                disableViewModes: !!conf.disableViewModes
+                disableViewModes: !!conf.disableViewModes,
+                queries: lemmas.map(lemmaGroup => findCurrLemmaVariant(lemmaGroup).word)
             }
         });
         this.label = appServices.importExternalMessage(conf.label || 'concordance__main_label');
@@ -151,7 +155,7 @@ export class ConcordanceTile implements ITileProvider {
     }
 
     supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {
-        return qt === QueryType.SINGLE_QUERY || qt === QueryType.TRANSLAT_QUERY;
+        return qt === QueryType.SINGLE_QUERY || qt === QueryType.TRANSLAT_QUERY || qt === QueryType.CMP_QUERY;
     }
 
     disable():void {

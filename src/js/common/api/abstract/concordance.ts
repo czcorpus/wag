@@ -66,7 +66,7 @@ export enum ViewMode {
 
 export interface IConcordanceApi<T> extends DataApi<T, ConcResponse> {
 
-    stateToArgs(state:ConcordanceMinState, lvar:LemmaVariant|null, otherLangCql:string|null):T;
+    stateToArgs(state:ConcordanceMinState, lvar:LemmaVariant|null, lvarIdx:number, otherLangCql:string|null):T;
 
     getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<SourceDetails>;
 

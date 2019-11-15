@@ -6,7 +6,8 @@
         "concordance__arf": "Average reduced frequency",
         "concordance__view_options": "View options",
         "concordance__page": "Page",
-        "concordance__view_mode": "View mode"
+        "concordance__view_mode": "View mode",
+        "concordance__sel_query": "Query"
     },
     "cs-CZ": {
         "concordance__main_label": "Konkordance",
@@ -15,6 +16,7 @@
         "concordance__arf": "Průměrná redukovaná četnost",
         "concordance__view_options": "Možnosti zobrazení",
         "concordance__page": "Strana",
-        "concordance__view_mode": "Režim"
+        "concordance__view_mode": "Režim",
+        "concordance__sel_query": "Dotaz"
     }
 }

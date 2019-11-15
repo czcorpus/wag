@@ -189,3 +189,12 @@ export namespace Forms {
     };
 
 }
+
+
+export function arrayOfSize<T extends number|string|boolean>(size:number, value:T):Array<T> {
+    const ans:Array<T> = [];
+    for (let i = 0; i < size; i++) {
+        ans.push(value);
+    }
+    return ans;
+}

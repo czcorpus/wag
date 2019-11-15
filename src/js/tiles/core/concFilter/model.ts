@@ -300,7 +300,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                             } else if (isConcLoadedPayload(payload) && this.waitingForTiles.get(basicPayload.tileId) === null) {
                                 this.waitingForTiles = this.waitingForTiles.set(
                                     basicPayload.tileId,
-                                    payload.data.concPersistenceID
+                                    payload.concPersistenceID
                                 );
 
                             }

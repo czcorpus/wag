@@ -283,6 +283,8 @@ export namespace TileFactory {
 
         lang2?:string;
 
+        queryType:QueryType;
+
         /**
          * Tiles we need to wait for
          */
