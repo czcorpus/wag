@@ -35,8 +35,8 @@ import { RecognizedQueries, LemmaVariant } from '../../../common/query';
 export interface FreqComparisonModelState extends GeneralMultiCritFreqComparisonModelState<DataRow> {
     activeBlock:number;
     backlink:BacklinkWithArgs<BacklinkArgs>;
+    isAltViewMode:boolean;
     maxChartsPerLine:number;
-    colors:Array<string>;
 }
 
 export interface FreqComparisonModelArgs {
@@ -72,75 +72,14 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
         this.api = api;
         this.backlink = backlink;
         this.lemmas = lemmas;
-        this.actionMatch = {
-            [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
-                const newState = this.copyState(state);
-                newState.isBusy = true;
-                newState.error = null;
-                return newState;
+
+        this.addActionHandler<GlobalActions.RequestQueryResponse>(
+            GlobalActionName.RequestQueryResponse,
+            (state, action) => {
+                state.isBusy = true;
+                state.error = null;
             },
-            [ActionName.SetActiveBlock]: (state, action:Actions.SetActiveBlock) => {
-                if (action.payload.tileId !== this.tileId) {
-                    return state;
-                }
-                const newState = this.copyState(state);
-                newState.activeBlock = action.payload.idx;
-                return newState;
-            },
-            [ActionName.PartialDataLoaded]: (state, action:GlobalActions.TileDataLoaded<DataLoadedPayload>) => {
-                if (action.payload.tileId !== this.tileId) {
-                    return state;
-                }
-                const newState = this.copyState(state);
-                if (action.error) {
-                    newState.blocks = Immutable.List<FreqComparisonDataBlock<DataRow>>(state.fcrit.map((_, i) => ({
-                        data: Immutable.List<FreqComparisonDataBlock<DataRow>>(),
-                        words: Immutable.List<string>(),
-                        ident: puid(),
-                        label: action.payload.blockLabel ? action.payload.blockLabel : state.critLabels.get(i),
-                        isReady: false
-                    })));
-                    newState.error = action.error.message;
-                    newState.isBusy = false;
-
-                } else {
-                    // data for these words were requested (some words can have no data)
-                    // also data are rendered in this order of words, we order it so it corresponds to inputs
-                    const newWords = newState.blocks.get(action.payload.critIdx).words.push(action.payload.lemma.word).sortBy(
-                        word => this.lemmas.findIndex(variants => variants.some(lemma => lemma.word === word))
-                    ).toList();
-                    const newData = action.payload.isEmpty ? newState.blocks.get(action.payload.critIdx).data :
-                        newState.blocks.get(action.payload.critIdx).data.concat(
-                            Immutable.List<DataRow>(action.payload.block.data.map(v => ({
-                                name: this.appServices.translateDbValue(state.corpname, v.name),
-                                freq: v.freq,
-                                ipm: v.ipm,
-                                word: action.payload.lemma.word
-                            })))).toList();
-
-                    newState.blocks = newState.blocks.set(
-                        action.payload.critIdx,
-                        {
-                            data: newData,
-                            words: newWords,
-                            ident: puid(),
-                            label: this.appServices.importExternalMessage(
-                                action.payload.blockLabel ? action.payload.blockLabel : state.critLabels.get(action.payload.critIdx)),
-                            isReady: newWords.size === this.lemmas.length
-                        }
-                    );
-
-                    newState.isBusy = newState.blocks.some(v => !v.isReady);
-                    newState.backlink = null;
-                }
-                return newState;
-            }
-        }
-    }
-
-    sideEffects(state:FreqComparisonModelState, action:Action, dispatch:SEDispatcher):void {
-        switch (action.name) {
-            case GlobalActionName.RequestQueryResponse:
+            (state, action, dispatch) => {
                 const requests = new Observable((observer:Observer<[number, LemmaVariant]>) => {
                     state.fcrit.keySeq().forEach(critIdx => {
                         this.lemmas.forEach(lemma => {
@@ -204,8 +143,88 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                         });
                     }
                 );
-            break;
-            case GlobalActionName.GetSourceInfo:
+            }
+        );
+        this.addActionHandler<Actions.PartialDataLoaded<DataLoadedPayload>>(
+            ActionName.PartialDataLoaded,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {
+                    if (action.error) {
+                        state.blocks = Immutable.List<FreqComparisonDataBlock<DataRow>>(state.fcrit.map((_, i) => ({
+                            data: Immutable.List<FreqComparisonDataBlock<DataRow>>(),
+                            words: Immutable.List<string>(),
+                            ident: puid(),
+                            label: action.payload.blockLabel ? action.payload.blockLabel : state.critLabels.get(i),
+                            isReady: false
+                        })));
+                        state.error = action.error.message;
+                        state.isBusy = false;
+    
+                    } else {
+                        // data for these words were requested (some words can have no data)
+                        // also data are rendered in this order of words, we order it so it corresponds to inputs
+                        const newWords = state.blocks.get(action.payload.critIdx).words.push(action.payload.lemma.word).sortBy(word =>
+                            this.lemmas.findIndex(variants =>
+                                variants.some(lemma => lemma.word === word)
+                            )
+                        ).toList();
+                        const newData = action.payload.block.data.length === 0 ?
+                            state.blocks.get(action.payload.critIdx).data :
+                            state.blocks.get(action.payload.critIdx).data.concat(
+                                Immutable.List<DataRow>(action.payload.block.data.map(v => ({
+                                    name: this.appServices.translateDbValue(state.corpname, v.name),
+                                    freq: v.freq,
+                                    ipm: v.ipm,
+                                    word: action.payload.lemma.word
+                                })))
+                            ).toList();
+    
+                        state.blocks = state.blocks.set(
+                            action.payload.critIdx,
+                            {
+                                data: newData,
+                                words: newWords,
+                                ident: puid(),
+                                label: this.appServices.importExternalMessage(
+                                    action.payload.blockLabel ? action.payload.blockLabel : state.critLabels.get(action.payload.critIdx)),
+                                isReady: newWords.size === this.lemmas.length
+                            }
+                        );
+    
+                        state.isBusy = state.blocks.some(v => !v.isReady);
+                        state.backlink = null;
+                    }
+                }
+            }
+        );
+        this.addActionHandler<Actions.SetActiveBlock>(
+            ActionName.SetActiveBlock,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {
+                    state.activeBlock = action.payload.idx;
+                }
+            }
+        );
+        this.addActionHandler<GlobalActions.EnableAltViewMode>(
+            GlobalActionName.EnableAltViewMode,
+            (state, action) => {
+                if (action.payload.ident === this.tileId) {
+                    state.isAltViewMode = true;
+                }
+            }
+        );
+        this.addActionHandler<GlobalActions.DisableAltViewMode>(
+            GlobalActionName.DisableAltViewMode,
+            (state, action) => {
+                if (action.payload.ident === this.tileId) {
+                    state.isAltViewMode = false;
+                }
+            }
+        );
+        this.addActionHandler<GlobalActions.GetSourceInfo>(
+            GlobalActionName.GetSourceInfo,
+            (state, action) => {},
+            (state, action, dispatch) => {
                 if (action.payload['tileId'] === this.tileId) {
                     this.api.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), state.corpname)
                     .subscribe(
@@ -226,8 +245,8 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                         }
                     );
                 }
-            break;
-        }
+            }
+        );
     }
 }
 

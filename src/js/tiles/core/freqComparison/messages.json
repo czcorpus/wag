@@ -1,8 +1,18 @@
 {
     "en-US": {
-        "freqComparison__main_label": "Frequency comparison"
+        "freq_comparison__main_label": "Frequency comparison",
+        "freq_comparison__table_heading_category": "Category",
+        "freq_comparison__table_heading_total_occurrence": "Total occurrence",
+        "freq_comparison__table_heading_occurrence_of_{word}": "Occurrence of \"{word}\"",
+        "freq_comparison__table_heading_freq_rel": "rel. [ipm]",
+        "freq_comparison__table_heading_freq_abs": "abs."
     },
     "cs-CZ": {
-        "freqComparison__main_label": "Frekvenční srovnání"
+        "freq_comparison__main_label": "Frekvenční srovnání",
+        "freq_comparison__table_heading_category": "Kategorie",
+        "freq_comparison__table_heading_total_occurrence": "Celkový výskyt",
+        "freq_comparison__table_heading_occurrence_of_{word}": "Výskyt slova \"{word}\"",
+        "freq_comparison__table_heading_freq_rel": "rel. [ipm]",
+        "freq_comparison__table_heading_freq_abs": "abs."
     }
 }

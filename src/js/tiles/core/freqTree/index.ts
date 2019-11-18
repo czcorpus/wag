@@ -43,7 +43,6 @@ export interface FreqTreeTileConf extends TileConf {
     fpage:number;
     fttIncludeEmpty:boolean;
     maxChartsPerLine?:number;
-    colors?:Array<string>;
     backlink?:Backlink;
 }
 
@@ -106,7 +105,6 @@ export class FreqTreeTile implements ITileProvider {
                 fmaxitems: 100,
                 backlink: null,
                 maxChartsPerLine: conf.maxChartsPerLine ? conf.maxChartsPerLine : 3,
-                colors: conf.colors ? conf.colors : ["#8addff", "#f26e43"],
                 lemmas: lemmas,
                 zoomCategory: criteria.map(_ => Immutable.List(lemmas.map(_ => null))).toList()
             }

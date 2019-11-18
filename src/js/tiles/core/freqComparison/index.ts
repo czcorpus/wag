@@ -45,7 +45,6 @@ export interface FreqComparisonTileConf extends TileConf {
     fpage:number;
     fttIncludeEmpty:boolean;
     maxChartsPerLine?:number;
-    colors?:Array<string>;
     backlink?:Backlink;
 }
 
@@ -109,11 +108,11 @@ export class FreqComparisonTile implements ITileProvider {
                 fmaxitems: 100,
                 backlink: null,
                 maxChartsPerLine: conf.maxChartsPerLine ? conf.maxChartsPerLine : 3,
-                colors: conf.colors ? conf.colors : ["#8addff", "#f26e43"]
+                isAltViewMode: false
             },
             lemmas
         );
-        this.label = appServices.importExternalMessage(conf.label || 'freqComparison__main_label');
+        this.label = appServices.importExternalMessage(conf.label || 'freq_comparison__main_label');
         this.view = viewInit(this.dispatcher, ut, theme, this.model);
     }
 
@@ -150,7 +149,7 @@ export class FreqComparisonTile implements ITileProvider {
     }
 
     supportsAltView():boolean {
-        return false;
+        return true;
     }
 
     exposeModelForRetryOnError():StatelessModel<{}>|null {
