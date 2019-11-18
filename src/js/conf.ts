@@ -99,6 +99,7 @@ export interface ClientStaticConf {
     apiHeaders:{[urlPrefix:string]:HTTPHeaders};
     reqCacheTTL:number;
     onLoadInit?:Array<string>;
+    issueReportingUrl?:string;
     homepage:HomepageConf;
     colors:ColorsConf;
     searchLanguages:{[code:string]:string};
@@ -141,6 +142,7 @@ export interface ClientConf {
     reqCacheTTL:number;
     onLoadInit:Array<string>;
     apiHeaders:{[urlPrefix:string]:HTTPHeaders};
+    issueReportingUrl?:string;
     homepage:{tiles:Array<{label:string; html:string}>};
     tiles:{[ident:string]:TileConf};
     layouts:LayoutsConfig;

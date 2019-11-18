@@ -80,6 +80,7 @@ function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, appServices:App
                 queryTypes: getSupportedQueryTypes(conf, k)
             })),
             externalStyles: conf.externalStyles || [],
+            issueReportingUrl: conf.issueReportingUrl,
             homepage: {
                 tiles: item
             },

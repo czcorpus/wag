@@ -128,6 +128,9 @@ export class WordFormsTile implements ITileProvider {
         return false;
     }
 
+    getIssueReportingUrl():null {
+        return null;
+    }
 }
 
 export const TILE_TYPE = 'WordFormsTile';

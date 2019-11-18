@@ -121,7 +121,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         hasData={this.props.data.size > 0}
                         sourceIdent={this.props.corpname ? {corp: this.props.corpname} : null}
                         backlink={this.props.backlink}
-                        supportsTileReload={this.props.supportsReloadOnError}>
+                        supportsTileReload={this.props.supportsReloadOnError}
+                        issueReportingUrl={this.props.issueReportingUrl}>
                     <div className="MatchingDocsTile">
                         {this.props.isTweakMode ?
                             <form className="cnc-form tile-tweak">

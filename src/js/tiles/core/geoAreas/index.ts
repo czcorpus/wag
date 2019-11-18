@@ -150,6 +150,10 @@ export class GeoAreasTile implements ITileProvider {
     supportsNonDictQueries():boolean {
         return false;
     }
+
+    getIssueReportingUrl():null {
+        return null;
+    }
 }
 
 export const TILE_TYPE = 'GeoAreasTile';

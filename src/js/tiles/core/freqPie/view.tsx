@@ -154,7 +154,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     hasData={props.blocks.find(v => v.isReady && v.data.size > 0) !== undefined}
                     sourceIdent={{corp: props.corpname}}
                     backlink={props.backlink}
-                    supportsTileReload={props.supportsReloadOnError}>
+                    supportsTileReload={props.supportsReloadOnError}
+                    issueReportingUrl={props.issueReportingUrl}>
                 <div className="FreqPieTileView">
                     <div className="charts" ref={chartsRef} onScroll={handleScroll}>
                         {props.blocks.map(block => {

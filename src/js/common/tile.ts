@@ -174,6 +174,8 @@ export interface TileFrameProps {
     supportsReloadOnError:boolean;
 
     maxTileHeight:string;
+
+    issueReportingUrl:string;
 }
 
 /**
@@ -187,6 +189,7 @@ export interface CoreTileComponentProps {
     isMobile:boolean;
     widthFract:number;
     supportsReloadOnError:boolean;
+    issueReportingUrl:string;
 }
 
 /**
@@ -256,6 +259,8 @@ export interface ITileProvider {
     getBlockingTiles():Array<number>;
 
     supportsNonDictQueries():boolean;
+
+    getIssueReportingUrl():string|null;
 }
 
 /**

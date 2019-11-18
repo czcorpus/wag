@@ -42,7 +42,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 wordData[item.word] = (100*item.ipm/totalIpm).toFixed(2);
                 wordData[`${item.word}_abs`] = item.ipm;
             });
-            
+
             // add also words with no data
             words.forEach(word => {
                 if (!Object.keys(wordData).includes(word)) {
@@ -107,7 +107,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             <div className="Chart">
                 <ChartWrapper data={props.data} words={props.words} isMobile={props.isMobile} width={props.width} height={props.height}>
                     <CartesianGrid />
-                    {props.words.map((word, index) => 
+                    {props.words.map((word, index) =>
                         <Bar key={word} dataKey={word} isAnimationActive={false} name={word} stackId='a' fill={props.colors[index % props.colors.length]} />
                     )};
                     <XAxis type="number" unit="%" ticks={[0, 25, 50, 75, 100]} domain={[0, 100]} interval={0} />
@@ -155,7 +155,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         hasData={this.props.blocks.find(v => v.isReady) !== undefined}
                         sourceIdent={{corp: this.props.corpname}}
                         backlink={this.props.backlink}
-                        supportsTileReload={this.props.supportsReloadOnError}>
+                        supportsTileReload={this.props.supportsReloadOnError}
+                        issueReportingUrl={this.props.issueReportingUrl}>
                     <div className="FreqComparisonTile">
                         <div className={`charts${this.props.isBusy ? ' incomplete' : ''}`} ref={this.chartsRef} onScroll={this.handleScroll} style={{flexWrap: this.props.isMobile ? 'nowrap' : 'wrap'}}>
                             {this.props.blocks.filter(block => block.isReady).map(block => {

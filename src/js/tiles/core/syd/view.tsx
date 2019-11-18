@@ -34,7 +34,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.result.find(v => v.items.length > 0) !== undefined}
                         sourceIdent={[this.props.corp1, this.props.corp2].map(v => ({corp: v}))}
-                        supportsTileReload={this.props.supportsReloadOnError}>
+                        supportsTileReload={this.props.supportsReloadOnError}
+                        issueReportingUrl={this.props.issueReportingUrl}>
                     <div className="SydTileView">
                         <pre>############ in development ###################</pre>
                         <h3>freq calc. benchmark</h3>

@@ -99,7 +99,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         hasData={this.props.data.find(v => v.freq > 0) !== undefined}
                         sourceIdent={this.props.sources.groupBy(v => v.corpname).map(v => ({corp: v.first().corpname})).toArray()}
                         backlink={backlinks}
-                        supportsTileReload={this.props.supportsReloadOnError}>
+                        supportsTileReload={this.props.supportsReloadOnError}
+                        issueReportingUrl={this.props.issueReportingUrl}>
                     <div className="MergeCorpFreqBarTile">
                         {this.props.isAltViewMode ?
                             <TableView data={this.props.data} /> :

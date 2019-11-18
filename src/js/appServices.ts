@@ -188,4 +188,11 @@ export class AppServices {
     getAudioPlayer():AudioPlayer {
         return this.audioPlayer;
     }
+
+    decodeError(err:Error):string {
+        if (err.name === 'AjaxError') {
+            return this.translate('global__general_tile_ajax_error_{err}', {err: err.message});
+        }
+        return err.message;
+    }
 }

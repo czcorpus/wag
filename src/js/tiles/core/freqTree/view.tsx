@@ -33,7 +33,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const globComponents = ut.getComponents();
 
-    const transformData = (data:Immutable.Map<string, any>):TreeData => {        
+    const transformData = (data:Immutable.Map<string, any>):TreeData => {
         return data.entrySeq().map(([k1, v1]) => ({
             name: k1,
             children: v1.entrySeq().map(([k2, v2]) => ({
@@ -78,7 +78,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             strokeWidth: 2 / (depth + 1e-10),
                             strokeOpacity: 1 / (depth + 1e-10),
                         }} />
-                    
+
                     {
                         name ?
                             depth === 1 && name.length * 6 < width && height > 14 ? (
@@ -202,7 +202,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         hasData={this.props.frequencyTree.find(v => v.isReady) !== undefined}
                         sourceIdent={{corp: this.props.corpname}}
                         backlink={this.props.backlink}
-                        supportsTileReload={this.props.supportsReloadOnError}>
+                        supportsTileReload={this.props.supportsReloadOnError}
+                        issueReportingUrl={this.props.issueReportingUrl}>
                     <div className="FreqTreeTile">
                         <div className={`charts${this.props.isBusy ? ' incomplete' : ''}`} ref={this.chartsRef} onScroll={this.handleScroll} style={{flexWrap: this.props.isMobile ? 'nowrap' : 'wrap'}}>
                             {this.props.frequencyTree.filter(block => block.isReady).map((block, blockId) => {

@@ -424,6 +424,9 @@
         "hostUrl": {
             "type": "string"
         },
+        "issueReportingUrl": {
+            "type": "string"
+        },
         "layouts": {
             "anyOf": [
                 {

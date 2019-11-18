@@ -185,6 +185,10 @@ export class ConcordanceTile implements ITileProvider {
     supportsNonDictQueries():boolean {
         return true;
     }
+
+    getIssueReportingUrl():null {
+        return null;
+    }
 }
 
 export const TILE_TYPE = 'ConcordanceTile';

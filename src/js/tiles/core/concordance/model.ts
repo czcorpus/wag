@@ -219,7 +219,15 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
         this.addActionHandler<GlobalActions.TileDataLoaded<ConcLoadedPayload>>(
             GlobalActionName.TileDataLoaded,
             (state, action) => {
-                state.backlink = this.createBackLink(state, action);
+                if (action.error) {
+                    state.isBusy = false;
+                    state.lines = createInitialLinesData(this.lemmas.length);
+                    state.error = this.appServices.decodeError(action.error);
+
+                } else {
+                    state.isBusy = false;
+                    state.backlink = this.createBackLink(state, action);
+                }
             }
         );
 
