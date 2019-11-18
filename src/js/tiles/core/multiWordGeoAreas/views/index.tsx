@@ -129,21 +129,16 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             <table className="DataTable data cnc-table">
                 <thead>
                     <tr>
-                        <th colSpan={3}></th>
-                        {props.data.map((targetData, target) => <th key={target} colSpan={2}>{props.lemmas.get(target).word}</th>)}
+                        <th rowSpan={2}>{ut.translate('multi_word_geolocations__table_heading_area')}</th>
+                        <th colSpan={2}>{ut.translate('multi_word_geolocations__table_heading_total_occurrence')}</th>
+                        {props.data.map((targetData, target) => <th key={target} colSpan={2}>{ut.translate('multi_word_geolocations__table_heading_occurrence_of_{word}', {word: props.lemmas.get(target).word})}</th>)}
                     </tr>
                     <tr>
-                        <th></th>
-                        <th colSpan={2}>{ut.translate('multi_word_geolocations__table_heading_freq')}</th>
-                        {props.data.map((targetData, target) => <th key={target} colSpan={2}>{ut.translate('multi_word_geolocations__table_heading_freq')}</th>)}
-                    </tr>
-                    <tr>
-                        <th>{ut.translate('multi_word_geolocations__table_heading_area')}</th>
-                        <th key={`totalipm`}>{ut.translate('multi_word_geolocations__table_heading_freq_rel')} [ipm]</th>
-                        <th key={`totalabs`}>{ut.translate('multi_word_geolocations__table_heading_freq_abs')}</th>
+                        <th key={`totalIpm`}>{ut.translate('multi_word_geolocations__table_heading_freq_rel')}</th>
+                        <th key={`totalAbs`}>{ut.translate('multi_word_geolocations__table_heading_freq_abs')}</th>
                         {props.data.flatMap((targetData, target) => [
-                            <th key={`${target}ipm`}>{ut.translate('multi_word_geolocations__table_heading_freq_rel')} [ipm]</th>,
-                            <th key={`${target}abs`}>{ut.translate('multi_word_geolocations__table_heading_freq_abs')}</th>
+                            <th key={`${target}Ipm`}>{ut.translate('multi_word_geolocations__table_heading_freq_rel')}</th>,
+                            <th key={`${target}Abs`}>{ut.translate('multi_word_geolocations__table_heading_freq_abs')}</th>
                         ])}
                     </tr>
                 </thead>
@@ -151,16 +146,16 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     {groupedAreaData.sortBy((rows, area) => area, (a, b) => a.localeCompare(b)).entrySeq().map(([area, rows]) =>
                         <tr key={area}>
                             <td key={area}>{area}</td>
-                            <td key={`${area}totalipm`} className="num">{groupedAreaIpmNorms.get(area).toFixed(2)}</td>
-                            <td key={`${area}totalabs`} className="num">{groupedAreaAbsFreqs.get(area)}</td>
+                            <td key={`${area}Ipm`} className="num">{groupedAreaIpmNorms.get(area).toFixed(2)}</td>
+                            <td key={`${area}Abs`} className="num">{groupedAreaAbsFreqs.get(area)}</td>
                             {props.data.flatMap((targetData, target) => {
                                 const row = rows.find(row => row.target === target);
                                 return row ? [
-                                    <td key={`${area}${target}ipm`} className="num">{row.ipm}<br/>({(100*row.ipm/groupedAreaIpmNorms.get(area)).toFixed(2)}%)</td>,
-                                    <td key={`${area}${target}abs`} className="num">{row.freq}</td>
+                                    <td key={`${area}${target}Ipm`} className="num">{row.ipm}<br/>({(100*row.ipm/groupedAreaIpmNorms.get(area)).toFixed(2)}%)</td>,
+                                    <td key={`${area}${target}Abs`} className="num">{row.freq}</td>
                                 ] : [
-                                    <td key={`${area}${target}ipm`}></td>,
-                                    <td key={`${area}${target}abs`}></td>
+                                    <td key={`${area}${target}Ipm`}></td>,
+                                    <td key={`${area}${target}Abs`}></td>
                                 ]
                             })}
                         </tr>
