@@ -167,6 +167,9 @@ export class FreqTreeTile implements ITileProvider {
         return this.model;
     }
 
+    getIssueReportingUrl():null {
+        return null;
+    }
 }
 
 export const TILE_TYPE = 'FreqTreeTile';

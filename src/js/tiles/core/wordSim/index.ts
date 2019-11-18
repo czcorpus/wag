@@ -26,7 +26,6 @@ import { QueryType } from '../../../common/query';
 import { createWordSimApiInstance } from './apiFactory';
 import { OperationMode } from '../../../common/models/wordSim';
 import { WordSimApi } from '../../../common/api/abstract/wordSim';
-import { SourceDetails } from '../../../common/types';
 
 
 declare var require:(src:string)=>void;  // webpack
@@ -144,6 +143,10 @@ export class WordSimTile implements ITileProvider {
 
     supportsNonDictQueries():boolean {
         return true;
+    }
+
+    getIssueReportingUrl():null {
+        return null;
     }
 }
 

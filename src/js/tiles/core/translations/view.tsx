@@ -109,7 +109,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             hasData={this.props.translations.size > 0}
                             sourceIdent={{corp: 'InterCorp'}}
                             backlink={this.props.backLink}
-                            supportsTileReload={this.props.supportsReloadOnError}>
+                            supportsTileReload={this.props.supportsReloadOnError}
+                            issueReportingUrl={this.props.issueReportingUrl}>
                     {this.props.isAltViewMode ?
                         <TranslationsTable translations={this.props.translations} /> :
                         <globComponents.ResponsiveWrapper render={(width:number, height:number) => (

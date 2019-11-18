@@ -84,7 +84,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             return (
                 <globalComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.data.size > 0} sourceIdent={{corp: this.props.corpname}}
-                        supportsTileReload={this.props.supportsReloadOnError}>
+                        supportsTileReload={this.props.supportsReloadOnError}
+                        issueReportingUrl={this.props.issueReportingUrl}>
                     {this.props.isAltViewMode ?
                             <TableView data={this.props.data} roundToPos={this.props.roundToPos} /> :
                             <globalComponents.ResponsiveWrapper render={(width:number, height:number) => (

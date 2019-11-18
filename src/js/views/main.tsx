@@ -722,7 +722,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                             renderSize={this.props.tile.renderSize}
                                             isMobile={this.props.isMobile}
                                             widthFract={this.props.tile.widthFract}
-                                            supportsReloadOnError={this.props.tile.supportsReloadOnError} /> :
+                                            supportsReloadOnError={this.props.tile.supportsReloadOnError}
+                                            issueReportingUrl={this.props.tile.issueReportingUrl} /> :
                                     <div className="TileWrapper empty">
                                         <div className="loader-wrapper"></div>
                                         <div className="cnc-tile-body content empty">

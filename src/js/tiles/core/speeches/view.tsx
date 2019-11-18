@@ -331,7 +331,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         hasData={this.props.data.length > 0}
                         sourceIdent={{corp: this.props.corpname, subcorp: this.props.subcDesc}}
                         backlink={this.props.backlink}
-                        supportsTileReload={this.props.supportsReloadOnError}>
+                        supportsTileReload={this.props.supportsReloadOnError}
+                        issueReportingUrl={this.props.issueReportingUrl}>
                     <div className="SpeechesTile">
                        <SpeechView data={this.props.data} hasExpandLeft={!!this.props.expandLeftArgs.get(-1)}
                                 hasExpandRight={!!this.props.expandRightArgs.get(-1)}

@@ -95,7 +95,8 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                             widthFract: tile.widthFract,
                             maxTileHeight: tile.maxTileHeight,
                             helpURL: tile.helpURL,
-                            supportsReloadOnError: tile.supportsReloadOnError
+                            supportsReloadOnError: tile.supportsReloadOnError,
+                            issueReportingUrl: tile.issueReportingUrl
                         }
                     ).u();
                 }

@@ -169,6 +169,9 @@ export class FreqComparisonTile implements ITileProvider {
         return this.model;
     }
 
+    getIssueReportingUrl():null {
+        return null;
+    }
 }
 
 export const TILE_TYPE = 'FreqComparisonTile';

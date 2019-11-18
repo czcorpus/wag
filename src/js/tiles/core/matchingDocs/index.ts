@@ -143,6 +143,10 @@ export class MatchingDocsTile implements ITileProvider {
         return false;
     }
 
+    getIssueReportingUrl():null {
+        return null;
+    }
+
 }
 
 export const TILE_TYPE = 'MatchingDocsTile';

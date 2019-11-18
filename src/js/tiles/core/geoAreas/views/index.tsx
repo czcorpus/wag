@@ -188,7 +188,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.data.size > 0}
                         sourceIdent={{corp: this.props.corpname}}
-                        supportsTileReload={this.props.supportsReloadOnError}>
+                        supportsTileReload={this.props.supportsReloadOnError}
+                        issueReportingUrl={this.props.issueReportingUrl}>
                     <div className="GeoAreasTileView">
                         {this.props.isAltViewMode ?
                             <DataTable rows={this.props.data} /> :

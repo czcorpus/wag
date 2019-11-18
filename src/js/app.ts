@@ -21,11 +21,10 @@
  * server and client applications
  */
 import * as React from 'react';
-import * as Immutable from 'immutable';
 import { Observable } from 'rxjs';
 import { Theme } from './common/theme';
-import { AvailableLanguage, ScreenProps } from './common/hostPage';
-import { QueryType, SearchLanguage, testIsDictQuery, RecognizedQueries } from './common/query';
+import { ScreenProps } from './common/hostPage';
+import { QueryType, testIsDictQuery, RecognizedQueries } from './common/query';
 import { ITileProvider, TileFrameProps, TileConf } from './common/tile';
 import { ClientConf, UserConf } from './conf';
 import { LayoutManager, TileGroup } from './layout';
@@ -43,8 +42,17 @@ import { mkTileFactory } from './tileLoader';
 import { Listop } from 'montainer';
 
 
+interface AttachTileArgs {
+    data:Array<TileFrameProps>;
+    tileName:string;
+    tile:ITileProvider;
+    helpURL:string;
+    issueReportingURL:string;
+    maxTileHeight:string;
+}
+
 const mkAttachTile = (queryType:QueryType, isDictQuery:boolean, lang1:string, lang2:string) =>
-    (data:Array<TileFrameProps>, tileName:string, tile:ITileProvider, helpURL:string, maxTileHeight:string):void => {
+    ({data, tileName, tile, helpURL, issueReportingURL, maxTileHeight}:AttachTileArgs):void => {
         const support = tile.supportsQueryType(queryType, lang1, lang2) && (isDictQuery || tile.supportsNonDictQueries());
         data.push({
             tileId: tile.getIdent(),
@@ -53,6 +61,7 @@ const mkAttachTile = (queryType:QueryType, isDictQuery:boolean, lang1:string, la
             SourceInfoComponent: tile.getSourceInfoComponent(),
             label: tile.getLabel(),
             supportsTweakMode: tile.supportsTweakMode(),
+            issueReportingUrl: tile.getIssueReportingUrl() || issueReportingURL,
             supportsCurrQuery: support,
             supportsHelpView: !!helpURL,
             supportsAltView: tile.supportsAltView(),
@@ -141,13 +150,14 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
     );
     Object.keys(config.tiles).forEach(tileId => {
         const tile = factory(tileId, config.tiles[tileId]);
-        attachTile(
-            tiles,
-            tileId,
+        attachTile({
+            data: tiles,
+            tileName: tileId,
             tile,
-            appServices.importExternalMessage(config.tiles[tileId].helpURL),
-            config.tiles[tileId].maxTileHeight
-        );
+            helpURL: appServices.importExternalMessage(config.tiles[tileId].helpURL),
+            issueReportingURL: config.issueReportingUrl,
+            maxTileHeight: config.tiles[tileId].maxTileHeight
+        });
         const model = tile.exposeModel();
         retryLoadModel.registerModel(
             tilesMap[tileId],

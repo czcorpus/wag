@@ -74,7 +74,9 @@
         "global__not_using_lemmatized_query_msg": "The tile does not have a lemmatized version of the query (e.g. 'went' -> 'go'). The search is performed using exact word form match.",
         "global__add_query_field": "Add query field",
         "global__remove_query_field": "Remove this query field",
-        "global__maximum_limit_of_compared_queries": "Max. limit of compared queries reached."
+        "global__maximum_limit_of_compared_queries": "Max. limit of compared queries reached.",
+        "global__general_tile_ajax_error_{err}": "Failed to fetch response (error type: {err}). Please try again or report the error via our support website.",
+        "global__report_the_problem": "report the problem"
     },
     "cs-CZ": {
         "global__logo_file": "logo_cs.svg",
@@ -151,6 +153,8 @@
         "global__not_using_lemmatized_query_msg": "Dlaždice nemá k dispozici lemmatizovanou verzi dotazu (např. 'šla' -> 'jít') a hledá pouze podle přesné shody zadaného slovního tvaru. Možná homonyma tedy nejsou rozlišena.",
         "global__add_query_field": "Přidat pole pro dotaz",
         "global__remove_query_field": "Odstranit toto pole dotazu",
-        "global__maximum_limit_of_compared_queries": "Byl dosažen max. počet dotazů ke srovnání."
+        "global__maximum_limit_of_compared_queries": "Byl dosažen max. počet dotazů ke srovnání.",
+        "global__general_tile_ajax_error_{err}": "Nepodařilo se získat výsledek (typ chyby: {err}). Zkuste prosím akci opakovat nebo ohlašte problém na webu naší podpory.",
+        "global__report_the_problem": "ohlásit problém"
     }
 }

@@ -19,11 +19,10 @@ import * as Immutable from 'immutable';
 import { StatelessModel } from 'kombo';
 
 import { QueryType } from '../../../common/query';
-import { ITileProvider, TileComponent, TileConf, TileFactory, SourceInfoComponent, Backlink } from '../../../common/tile';
+import { ITileProvider, TileComponent, TileConf, TileFactory, Backlink } from '../../../common/tile';
 import { SpeechesModel } from './model';
 import { init as viewInit } from './view';
-import { createSourceInfoApiInstance } from '../../../common/api/factory/concordance';
-import { DataApi, RGBAColor, LocalizedConfMsg } from '../../../common/types';
+import { RGBAColor, LocalizedConfMsg } from '../../../common/types';
 import { SpeechesApi } from './api';
 import { ExpandArgs } from './modelDomain';
 import { createAudioUrlGeneratorInstance } from './impl';
@@ -173,6 +172,10 @@ export class SpeechesTile implements ITileProvider {
 
     supportsNonDictQueries():boolean {
         return false;
+    }
+
+    getIssueReportingUrl():null {
+        return null;
     }
 }
 

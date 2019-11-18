@@ -157,6 +157,10 @@ export class TimeDistTile implements ITileProvider {
     supportsNonDictQueries():boolean {
         return false;
     }
+
+    getIssueReportingUrl():null {
+        return null;
+    }
 }
 
 export const TILE_TYPE = 'TimeDistribTile';

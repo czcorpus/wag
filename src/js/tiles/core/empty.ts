@@ -17,7 +17,6 @@
  */
 import { QueryType } from '../../common/query';
 import { ITileProvider, TileComponent } from '../../common/tile';
-import { isNullOrUndefined } from 'util';
 
 
 /**
@@ -80,5 +79,9 @@ export class EmptyTile implements ITileProvider {
 
     supportsNonDictQueries():boolean {
         return true;
+    }
+
+    getIssueReportingUrl():null {
+        return null;
     }
 }

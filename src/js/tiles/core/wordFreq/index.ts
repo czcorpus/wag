@@ -128,6 +128,10 @@ export class WordFreqTile implements ITileProvider {
     supportsNonDictQueries():boolean {
         return true;
     }
+
+    getIssueReportingUrl():null {
+        return null;
+    }
 }
 
 export const TILE_TYPE = 'WordFreqTile';

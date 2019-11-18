@@ -126,7 +126,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         hasData={this.props.blocks.find(v => v.isReady) !== undefined}
                         sourceIdent={{corp: this.props.corpname}}
                         backlink={this.props.backlink}
-                        supportsTileReload={this.props.supportsReloadOnError}>
+                        supportsTileReload={this.props.supportsReloadOnError}
+                        issueReportingUrl={this.props.issueReportingUrl}>
                     <div className="FreqBarTile">
                         <div className={`charts${this.props.isBusy ? ' incomplete' : ''}`} ref={this.chartsRef} onScroll={this.handleScroll}>
                             {this.props.blocks.filter(block => block.isReady).map(block => {

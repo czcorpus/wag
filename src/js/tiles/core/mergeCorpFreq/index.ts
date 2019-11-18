@@ -180,6 +180,10 @@ export class MergeCorpFreqTile implements ITileProvider {
     supportsNonDictQueries():boolean {
         return false;
     }
+
+    getIssueReportingUrl():null {
+        return null;
+    }
 }
 
 export const TILE_TYPE = 'MergeCorpFreqTile';

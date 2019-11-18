@@ -127,7 +127,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <CartesianGrid strokeDasharray="1 1"/>
                     <XAxis dataKey="year" minTickGap={0} type="category" />
                     <YAxis allowDataOverflow={true} domain={[0, 1]} tickFormatter={fracValue => `${fracValue * 100}%`}/>
-                    <Tooltip isAnimationActive={false} formatter={(fracValue, name, formatterProps) =>                        
+                    <Tooltip isAnimationActive={false} formatter={(fracValue, name, formatterProps) =>
                         name.startsWith('fracInterval') ?
                         [null, null] :
                         [`${(fracValue * 100).toFixed(2)} % (${(formatterProps.payload.ipmNorm * fracValue).toFixed(2)} ipm)`, name]
@@ -202,6 +202,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         hasData={props.data.size > 0}
                         sourceIdent={{corp: props.corpname, subcorp: props.subcDesc}}
                         supportsTileReload={props.supportsReloadOnError}
+                        issueReportingUrl={props.issueReportingUrl}
                         backlink={null}>
                 <div className="MultiWordTimeDistribTile">
                     {props.isTweakMode ?

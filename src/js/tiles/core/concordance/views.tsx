@@ -220,7 +220,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         hasData={lines.length > 0}
                         sourceIdent={{corp: this.props.corpname, subcorp: this.props.subcDesc}}
                         backlink={this.props.backlink}
-                        supportsTileReload={this.props.supportsReloadOnError}>
+                        supportsTileReload={this.props.supportsReloadOnError}
+                        issueReportingUrl={this.props.issueReportingUrl}>
                     <div className="ConcordanceTileView">
                         {this.props.isTweakMode ?
                             <div className="tweak-box">

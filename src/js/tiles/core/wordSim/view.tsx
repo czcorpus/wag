@@ -106,7 +106,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             <globalCompontents.TileWrapper tileId={props.tileId} isBusy={props.isBusy} error={props.error}
                     hasData={props.data.size > 0}
                     sourceIdent={{corp: null}}
-                    supportsTileReload={props.supportsReloadOnError}>
+                    supportsTileReload={props.supportsReloadOnError}
+                    issueReportingUrl={props.issueReportingUrl}>
                 <div className="WordSimView">
                     {props.isTweakMode ? <Controls tileId={props.tileId} operationMode={props.operationMode} /> : null }
                     {props.isAltViewMode ?

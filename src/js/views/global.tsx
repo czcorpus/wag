@@ -52,6 +52,7 @@ export interface GlobalComponents {
         tileId:number;
         sourceIdent?:SourceInfo|Array<SourceInfo>;
         supportsTileReload:boolean;
+        issueReportingUrl:string;
         backlink?:BacklinkWithArgs<{}>|Array<BacklinkWithArgs<{}>>;
         htmlClass?:string;
         error?:string;
@@ -259,7 +260,20 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                 <a onClick={handleClick}>{ut.translate('global__retry_reload')} {'\u21bb'}</a>
             </p>
         );
-    }
+    };
+
+    // --------------- <ErrorReportControl /> -------------------------------------------
+
+    const ErrorReportControl:React.SFC<{
+        url:string;
+
+    }> = (props) => {
+        return (
+            <p className="report">
+                <a href={props.url} target="_blank">{ut.translate('global__report_the_problem')}</a>
+            </p>
+        );
+    };
 
     // --------------- <TileWrapper /> -------------------------------------------
 
@@ -295,6 +309,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                         </div>
                         <div />
                         {props.supportsTileReload ? <TileReloadControl tileId={props.tileId} /> : null}
+                        {props.issueReportingUrl ? <ErrorReportControl url={props.issueReportingUrl} /> : null}
+
                     </div>
                 </div>
             );
