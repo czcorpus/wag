@@ -61,6 +61,11 @@ export function isSubqueryPayload(payload:{}):payload is SubqueryPayload {
     return Array.isArray(payload['subqueries']);
 }
 
+export interface RangeRelatedSubqueryValue {
+    value:string;
+    context:[number, number];
+}
+
 export interface LemmaVariant {
     lemma:string;
     word:string;

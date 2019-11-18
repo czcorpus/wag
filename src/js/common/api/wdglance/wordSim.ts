@@ -22,6 +22,7 @@ import { WordSimApiResponse, WordSimApi } from '../abstract/wordSim';
 import { map } from 'rxjs/operators';
 import { WordSimModelState } from '../../models/wordSim';
 import { CorpusInfoAPI } from '../kontext/corpusInfo';
+import { puid } from '../../util';
 
 
 export interface CNCWord2VecSimApiArgs {
@@ -99,7 +100,11 @@ export class CNCWord2VecSimApi implements WordSimApi<CNCWord2VecSimApiArgs> {
 
         ).pipe(
             map(
-                (ans) => ({words: ans.map(v => ({word: v.word, score: v.score}))})
+                (ans) => ({words: ans.map(v => ({
+                    word: v.word,
+                    score: v.score,
+                    interactionId: puid()
+                }))})
             )
         );
     }

@@ -99,7 +99,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             text: v.word,
             value: v.score,
             tooltip: [{label: ut.translate('wordsim__attr_score'), value: v.score, round: 1}],
-            interactionId: null
+            interactionId: v.interactionId
         });
 
         return (

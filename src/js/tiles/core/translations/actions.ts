@@ -15,13 +15,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { SubqueryPayload } from '../../../common/query';
-import { CollocSubqueryValue } from '../../../common/api/abstract/collocations';
+import { SubqueryPayload, RangeRelatedSubqueryValue } from '../../../common/query';
 import { TranslationResponse } from '../../../common/api/abstract/translations';
 
 
 
-export interface DataLoadedPayload extends SubqueryPayload<CollocSubqueryValue> {
+export interface DataLoadedPayload extends SubqueryPayload<RangeRelatedSubqueryValue> {
     query:string;
     data:TranslationResponse;
 }

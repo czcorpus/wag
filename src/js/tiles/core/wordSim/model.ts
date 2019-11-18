@@ -129,7 +129,16 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                             name: GlobalActionName.TileDataLoaded,
                             payload: {
                                 tileId: this.tileId,
-                                words: data.words
+                                words: data.words,
+                                subqueries: data.words.map(v => ({
+                                    value: {
+                                        value: v.word,
+                                        context: [-5, 5] // TODO
+                                    },
+                                    interactionId: v.interactionId
+                                })),
+                                lang1: null,
+                                lang2: null
                             }
                         });
 
@@ -139,7 +148,10 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                             name: GlobalActionName.TileDataLoaded,
                             payload: {
                                 tileId: this.tileId,
-                                words: []
+                                words: [],
+                                subqueries: [],
+                                lang1: null,
+                                lang2: null
                             },
                             error: err
                         })

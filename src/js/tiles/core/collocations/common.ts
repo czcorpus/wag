@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 import { Action } from 'kombo';
-import { DataRow, DataHeading, SrchContextType, CollocSubqueryValue } from '../../../common/api/abstract/collocations';
-import { SubqueryPayload } from '../../../common/query';
+import { DataRow, DataHeading, SrchContextType } from '../../../common/api/abstract/collocations';
+import { SubqueryPayload, RangeRelatedSubqueryValue } from '../../../common/query';
 
 
 export enum CollocMetric {
@@ -36,7 +36,7 @@ export enum ActionName {
 }
 
 
-export interface DataLoadedPayload extends SubqueryPayload<CollocSubqueryValue> {
+export interface DataLoadedPayload extends SubqueryPayload<RangeRelatedSubqueryValue> {
     data:Array<DataRow>;
     heading:DataHeading;
     concId:string;

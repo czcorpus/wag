@@ -141,7 +141,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         render() {
             return (
                 <globalCompontents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
-                        hasData={this.props.lines.size > 0}
+                        hasData={this.props.lines.length > 0}
                         sourceIdent={{corp: this.props.corpName}}
                         supportsTileReload={this.props.supportsReloadOnError}
                         issueReportingUrl={this.props.issueReportingUrl}>
