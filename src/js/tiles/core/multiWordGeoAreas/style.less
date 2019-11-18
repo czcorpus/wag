@@ -1,0 +1,52 @@
+@import '../../../../css/shared.less';
+
+.MultiWordGeoAreasTileView {
+    display: flex;
+    justify-content: center;
+
+    .legend {
+        text-align: center;
+        margin: 0.5em;
+    }
+
+    .legendColorBlock {
+        display: inline-block;
+        width: 1em;
+        height: 0.9em;
+        margin-right: 0.5em;
+        vertical-align: middle;
+    }
+
+    .map-tooltip {
+
+        position: absolute;
+        display: none;
+        background-color: #FFFFFF;
+        z-index: 10000;
+        padding: 0.3em 1em;
+        border: 1px solid @color-light-grey;
+        border-radius: 3px;
+        border-spacing: 0;
+        border-collapse: collapse;
+        line-height: 1.2em;
+        //pointer-events: 'none';
+    
+        table {
+            
+            th {
+                font-weight: normal;
+                text-align: right;
+                padding-right: 0.4em;
+            }
+    
+            td {
+                text-align: left;
+            }
+    
+            td.num {
+                text-align: right;
+            }
+    
+        }
+    }
+}

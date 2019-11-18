@@ -309,7 +309,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     }]
                 },
                 lemmaVariant,
-                0,
+                target,
                 null
             ),
             {

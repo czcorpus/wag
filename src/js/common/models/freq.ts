@@ -23,7 +23,7 @@ import { Backlink, BacklinkWithArgs } from '../tile';
 
 
 
-interface FreqBarModelStateBase {
+export interface FreqBarModelStateBase {
     isBusy:boolean;
     error:string;
     corpname:string;
