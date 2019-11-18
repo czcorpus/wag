@@ -33,6 +33,7 @@ import { DataItemWithWCI, DataLoadedPayload, LemmaData, ActionName, Actions } fr
 import { AlphaLevel, wilsonConfInterval } from '../../../common/statistics';
 import { callWithExtraVal } from '../../../common/api/util';
 import { LemmaVariant, RecognizedQueries } from '../../../common/query';
+import { createInitialLinesData } from '../../../common/models/concordance';
 
 
 export interface TimeDistribModelState extends GeneralSingleCritFreqBarModelState<LemmaData> {
@@ -297,16 +298,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     metadataAttrs: [],
                     queries: [],
                     posQueryGenerator: state.posQueryGenerator,
-                    concordances: [{
-                        concsize: -1,
-                        numPages: -1,
-                        resultARF: -1,
-                        resultIPM: -1,
-                        currPage: 1,
-                        loadPage: 1,
-                        concId: null,
-                        lines: []
-                    }]
+                    concordances: createInitialLinesData(this.lemmas.length)
                 },
                 lemmaVariant,
                 target,
