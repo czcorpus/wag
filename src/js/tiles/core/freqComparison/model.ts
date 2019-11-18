@@ -35,6 +35,7 @@ import { RecognizedQueries, LemmaVariant } from '../../../common/query';
 export interface FreqComparisonModelState extends GeneralMultiCritFreqComparisonModelState<DataRow> {
     activeBlock:number;
     backlink:BacklinkWithArgs<BacklinkArgs>;
+    isAltViewMode:boolean;
     maxChartsPerLine:number;
 }
 
@@ -201,6 +202,22 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.activeBlock = action.payload.idx;
+                }
+            }
+        );
+        this.addActionHandler<GlobalActions.EnableAltViewMode>(
+            GlobalActionName.EnableAltViewMode,
+            (state, action) => {
+                if (action.payload.ident === this.tileId) {
+                    state.isAltViewMode = true;
+                }
+            }
+        );
+        this.addActionHandler<GlobalActions.DisableAltViewMode>(
+            GlobalActionName.DisableAltViewMode,
+            (state, action) => {
+                if (action.payload.ident === this.tileId) {
+                    state.isAltViewMode = false;
                 }
             }
         );

@@ -107,11 +107,12 @@ export class FreqComparisonTile implements ITileProvider {
                 fttIncludeEmpty: conf.fttIncludeEmpty,
                 fmaxitems: 100,
                 backlink: null,
-                maxChartsPerLine: conf.maxChartsPerLine ? conf.maxChartsPerLine : 3
+                maxChartsPerLine: conf.maxChartsPerLine ? conf.maxChartsPerLine : 3,
+                isAltViewMode: false
             },
             lemmas
         );
-        this.label = appServices.importExternalMessage(conf.label || 'freqComparison__main_label');
+        this.label = appServices.importExternalMessage(conf.label || 'freq_comparison__main_label');
         this.view = viewInit(this.dispatcher, ut, theme, this.model);
     }
 
@@ -148,7 +149,7 @@ export class FreqComparisonTile implements ITileProvider {
     }
 
     supportsAltView():boolean {
-        return false;
+        return true;
     }
 
     exposeModelForRetryOnError():StatelessModel<{}>|null {
