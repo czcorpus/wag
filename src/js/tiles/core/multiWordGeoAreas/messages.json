@@ -4,15 +4,17 @@
         "multi_word_geolocations__map_legend": "Relative occurences",
         "multi_word_geolocations__swipe_horizontally_to_view_map": "Swipe a finger horizontally to scroll the map",
         "multi_word_geolocations__table_heading_area": "Area",
-        "multi_word_geolocations__table_heading_ipm": "Occurrences per million words (ipm)",
-        "multi_word_geolocations__table_heading_abs": "Absolute frequency"
+        "multi_word_geolocations__table_heading_freq": "Occurence",
+        "multi_word_geolocations__table_heading_freq_abs": "Absolute",
+        "multi_word_geolocations__table_heading_freq_rel": "Relative"
     },
     "cs-CZ": {
         "multi_word_geolocations__main_label": "Geografické oblasti",
         "multi_word_geolocations__map_legend": "Relativní výskyt",
         "multi_word_geolocations__swipe_horizontally_to_view_map": "Pro posun mapy potáhněte prstem horizontálně",
         "multi_word_geolocations__table_heading_area": "Oblast",
-        "multi_word_geolocations__table_heading_ipm": "Výskytů na milion slov (ipm)",
-        "multi_word_geolocations__table_heading_abs": "Absolutních výskytů"
+        "multi_word_geolocations__table_heading_freq": "Výskyt",
+        "multi_word_geolocations__table_heading_freq_abs": "Absolutní",
+        "multi_word_geolocations__table_heading_freq_rel": "Relativní"
     }
 }

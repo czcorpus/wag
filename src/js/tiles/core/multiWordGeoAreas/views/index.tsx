@@ -64,7 +64,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         const pieText = createSVGElement(chart, 'g', {});
         
         let ipmFracAgg = 0;
-        areaData.forEach((row, index) => {
+        areaData.forEach(row => {
             const ipmFrac = row.ipm/areaIpmNorm;
             const x0 = radius * Math.sin(2*Math.PI * ipmFracAgg);
             const y0 = -radius * Math.cos(2*Math.PI * ipmFracAgg);
@@ -92,7 +92,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             A ${radius} ${radius} 0 ${longArc} 1 ${x1} ${y1}
                             L 0 0
                         `,
-                    'fill': theme.barColor(index),
+                    'fill': theme.barColor(row.target),
                     'stroke': 'black',
                     'opacity': '0.8'
                 }
@@ -124,33 +124,43 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         lemmas:Immutable.List<LemmaVariant>;
     }> = (props) => {
         const [groupedAreaData, groupedAreaIpmNorms] = groupData(props.data);
+        const groupedAreaAbsFreqs = groupedAreaData.map(data => data.reduce((acc, curr) => acc + curr.freq, 0));
         return (
             <table className="DataTable data cnc-table">
                 <thead>
                     <tr>
+                        <th colSpan={3}></th>
+                        {props.data.map((targetData, target) => <th key={target} colSpan={2}>{props.lemmas.get(target).word}</th>)}
+                    </tr>
+                    <tr>
                         <th></th>
-                        {props.data.map((item, index) => <th key={index} colSpan={2}>{props.lemmas.get(index).word}</th>)}
+                        <th colSpan={2}>{ut.translate('multi_word_geolocations__table_heading_freq')}</th>
+                        {props.data.map((targetData, target) => <th key={target} colSpan={2}>{ut.translate('multi_word_geolocations__table_heading_freq')}</th>)}
                     </tr>
                     <tr>
                         <th>{ut.translate('multi_word_geolocations__table_heading_area')}</th>
-                        {props.data.flatMap((item, index) => [
-                            <th key={`${index}ipm`}>{ut.translate('multi_word_geolocations__table_heading_ipm')}</th>,
-                            <th key={`${index}freq`}>{ut.translate('multi_word_geolocations__table_heading_abs')}</th>
+                        <th key={`totalipm`}>{ut.translate('multi_word_geolocations__table_heading_freq_rel')} [ipm]</th>
+                        <th key={`totalabs`}>{ut.translate('multi_word_geolocations__table_heading_freq_abs')}</th>
+                        {props.data.flatMap((targetData, target) => [
+                            <th key={`${target}ipm`}>{ut.translate('multi_word_geolocations__table_heading_freq_rel')} [ipm]</th>,
+                            <th key={`${target}abs`}>{ut.translate('multi_word_geolocations__table_heading_freq_abs')}</th>
                         ])}
                     </tr>
                 </thead>
                 <tbody>
-                    {groupedAreaData.sortBy((v, k) => k).entrySeq().map(([name, rows]) => 
-                        <tr key={name}>
-                            <td key={name}>{name}</td>
-                            {props.data.flatMap((item, index) => {
-                                const row = rows.find(i => i.variant === index)
+                    {groupedAreaData.sortBy((rows, area) => area, (a, b) => a.localeCompare(b)).entrySeq().map(([area, rows]) => 
+                        <tr key={area}>
+                            <td key={area}>{area}</td>
+                            <td key={`${area}totalipm`} className="num">{groupedAreaIpmNorms.get(area).toFixed(2)}</td>
+                            <td key={`${area}totalabs`} className="num">{groupedAreaAbsFreqs.get(area)}</td>
+                            {props.data.flatMap((targetData, target) => {
+                                const row = rows.find(row => row.target === target);
                                 return row ? [
-                                    <td key={`${name}${index}ipm`} className="num">{row.ipm}</td>,
-                                    <td key={`${name}${index}freq`} className="num">{row.freq}</td>
+                                    <td key={`${area}${target}ipm`} className="num">{row.ipm}<br/>({(100*row.ipm/groupedAreaIpmNorms.get(area)).toFixed(2)}%)</td>,
+                                    <td key={`${area}${target}abs`} className="num">{row.freq}</td>
                                 ] : [
-                                    <td key={`${name}${index}ipm`} className="num"></td>,
-                                    <td key={`${name}${index}freq`} className="num"></td>
+                                    <td key={`${area}${target}ipm`}></td>,
+                                    <td key={`${area}${target}abs`}></td>
                                 ]
                             })}
                         </tr>
