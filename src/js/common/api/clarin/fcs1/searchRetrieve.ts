@@ -18,13 +18,12 @@
 
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { DataApi, HTTPMethod, HTTPHeaders } from '../../../types';
+import { HTTPMethod, HTTPHeaders } from '../../../types';
 import { ConcResponse, Line, IConcordanceApi } from '../../../../common/api/abstract/concordance';
 import { XMLParser, XMLNode } from '../../../xml';
 import { ConcordanceMinState } from '../../../models/concordance';
 import { ajax$, ResponseType } from '../../../ajax';
 import { LemmaVariant } from '../../../query';
-import { ConcApi } from '../../kontext/concordance';
 import { FCS1ExplainAPI, FCS1ExplainResponse } from './explain';
 
 
@@ -159,7 +158,7 @@ export class FCS1SearchRetrieveAPI implements IConcordanceApi<FCS1Args> {
             query: lvar.lemma,
             recordPacking: 'xml',
             recordSchema: 'http://clarin.eu/fcs/resource',
-            startRecord: state.pageSize * (state.loadPage - 1) + 1,
+            startRecord: state.pageSize * (state.concordances[lvarIdx].loadPage - 1) + 1,
             maximumRecords: state.pageSize ? state.pageSize : undefined,
             'x-cmd-context': state.corpname ? state.corpname : undefined
         };

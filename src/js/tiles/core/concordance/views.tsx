@@ -213,11 +213,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 tableClasses.push('aligned');
             }
 
-            const lines = this.props.lines[this.props.visibleQueryIdx];
+            const conc = this.props.concordances[this.props.visibleQueryIdx];
 
             return (
                 <globalCompontents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
-                        hasData={lines.length > 0}
+                        hasData={this.props.concordances.some(conc => conc.lines.length > 0)}
                         sourceIdent={{corp: this.props.corpname, subcorp: this.props.subcDesc}}
                         backlink={this.props.backlink}
                         supportsTileReload={this.props.supportsReloadOnError}
@@ -226,8 +226,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         {this.props.isTweakMode ?
                             <div className="tweak-box">
                                     <Controls
-                                        currPage={this.props.currPage}
-                                        numPages={this.props.numPages}
+                                        currPage={conc.currPage}
+                                        numPages={conc.numPages}
                                         viewMode={this.props.viewMode}
                                         tileId={this.props.tileId}
                                         viewModeEnabled={!this.props.otherCorpname && !this.props.disableViewModes}
@@ -238,25 +238,25 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         }
                         <dl className="summary">
                             <dt>{ut.translate('concordance__num_matching_items')}:</dt>
-                            <dd>{ut.formatNumber(this.props.concsize, 0)}</dd>
-                            {this.props.resultIPM > -1 ?
+                            <dd>{ut.formatNumber(conc.concsize, 0)}</dd>
+                            {conc.resultIPM > -1 ?
                                 <>
                                     <dt>{ut.translate('concordance__ipm')}:</dt>
-                                    <dd>{ut.formatNumber(this.props.resultIPM, 2)}</dd>
+                                    <dd>{ut.formatNumber(conc.resultIPM, 2)}</dd>
                                 </> :
                                 null
                             }
-                            {this.props.resultARF > -1 ?
+                            {conc.resultARF > -1 ?
                                 <>
                                     <dt>{ut.translate('concordance__arf')}:</dt>
-                                    <dd>{ut.formatNumber(this.props.resultARF, 2)}</dd>
+                                    <dd>{ut.formatNumber(conc.resultARF, 2)}</dd>
                                 </> :
                                 null
                             }
                         </dl>
                         <table className={tableClasses.join(' ')}>
                             <tbody>
-                                {lines.map(line => <Row key={`${line.toknum}`} data={line} isParallel={!!this.props.otherCorpname} />)}
+                                {conc.lines.map(line => <Row key={`${line.toknum}`} data={line} isParallel={!!this.props.otherCorpname} />)}
                             </tbody>
                         </table>
                     </div>

@@ -246,7 +246,7 @@ export class ConcApi implements IConcordanceApi<RequestArgs> {
                 kwicrightctx: state.kwicRightCtx.toFixed(),
                 async: '0',
                 pagesize: state.pageSize.toFixed(),
-                fromp: state.loadPage.toFixed(),
+                fromp: state.concordances[lvarIdx].loadPage.toFixed(),
                 attr_vmode: state.attr_vmode,
                 attrs: state.attrs.join(','),
                 viewmode: state.viewMode,
@@ -261,7 +261,7 @@ export class ConcApi implements IConcordanceApi<RequestArgs> {
                 setQuery(ans, mkMatchQuery(lvar, state.posQueryGenerator));
 
             } else {
-                ans.q = `~${state.concIds[lvarIdx]}`;
+                ans.q = `~${state.concordances[lvarIdx].concId}`;
             }
             return ans;
 
@@ -274,7 +274,7 @@ export class ConcApi implements IConcordanceApi<RequestArgs> {
                 kwicrightctx: state.kwicRightCtx.toFixed(),
                 async: '0',
                 pagesize: state.pageSize.toFixed(),
-                fromp: state.loadPage.toFixed(),
+                fromp: state.concordances[lvarIdx].loadPage.toFixed(),
                 attr_vmode: state.attr_vmode,
                 attrs: state.attrs.join(','),
                 refs: state.metadataAttrs.map(v => '=' + v.value).join(','),
@@ -286,7 +286,7 @@ export class ConcApi implements IConcordanceApi<RequestArgs> {
                 setQuery(ans, mkMatchQuery(lvar, state.posQueryGenerator));
 
             } else {
-                ans.q = `~${state.concIds[lvarIdx]}`;
+                ans.q = `~${state.concordances[lvarIdx].concId}`;
             }
             return ans;
         }
