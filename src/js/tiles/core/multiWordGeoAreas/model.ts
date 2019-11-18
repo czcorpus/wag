@@ -76,7 +76,7 @@ export interface MultiWordGeoAreasModelState extends FreqBarModelStateBase {
     concIds:Immutable.List<string>;
     data:Immutable.List<Immutable.List<DataRow>>;
     areaCodeMapping:Immutable.Map<string, string>;
-    tooltipArea:{tooltipX:number; tooltipY:number, caption: string, data:{[variant:string]:TooltipValues}}|null;
+    tooltipArea:{tooltipX:number; tooltipY:number, caption: string, data:TooltipValues}|null;
     mapSVG:string;
     areaDiscFillColor:string;
     areaDiscTextColor:string;
@@ -240,25 +240,19 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
             ActionName.ShowAreaTooltip,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
-                    const data = state.data.flatMap((values, index) =>
-                        values.filter(v =>
-                            v.name === action.payload.areaName
-                        ).map(v =>
-                            ({...v, variant: state.currentLemmas.get(index).word})
-                        )
-                    );
-
                     state.tooltipArea = {
                         tooltipX: action.payload.tooltipX,
                         tooltipY: action.payload.tooltipY,
-                        caption: action.payload.areaName,
-                        data: data.reduce((acc, curr) => ({
-                            ...acc,
-                            [curr.variant]: {
-                                [this.appServices.translate('multi_word_geolocations__table_heading_ipm')]: curr.ipm,
-                                [this.appServices.translate('multi_word_geolocations__table_heading_abs')]: curr.freq
-                            }
-                        }), {})
+                        caption: `${action.payload.areaName} (${action.payload.areaIpmNorm.toFixed(2)} ipm)`,
+                        data: state.currentLemmas.toMap().mapEntries<string, string>(([index, lemma]) => {
+                            const areaData = action.payload.areaData.find(item => item.target === index);
+                            return [
+                                lemma.word,
+                                areaData ?
+                                    `${(100*areaData.ipm/action.payload.areaIpmNorm).toFixed(2)} % (${areaData.ipm} ipm)` :
+                                    undefined
+                            ]
+                        }).toObject()
                     };
                 }
             }

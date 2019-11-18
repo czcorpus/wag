@@ -29,6 +29,21 @@ import { MultiWordGeoAreasModel, MultiWordGeoAreasModelState } from '../model';
 import { LemmaVariant } from '../../../../common/query';
 
 
+export interface TargetDataRow extends DataRow {
+    target: number;
+}
+
+const groupData = (data:Immutable.List<Immutable.List<DataRow>>):[Immutable.Seq.Keyed<string, Immutable.Iterable<number, TargetDataRow>>, Immutable.Iterable<string, number>] => {
+    const groupedData = data.flatMap((targetData, targetId) =>
+        targetData.map(item => ({
+            ...item,
+            target: targetId
+        } as TargetDataRow))
+    ).groupBy(item => item['name']);
+    const groupedIpmNorms = groupedData.map(data => data.reduce((acc, curr) => acc + curr.ipm, 0));
+    return [groupedData, groupedIpmNorms]
+}
+
 const createSVGElement = (parent:Element, name:string, attrs:{[name:string]:string}):SVGElement => {
     const elm = document.createElementNS('http://www.w3.org/2000/svg', name);
     Object.keys(attrs).forEach(k => {
@@ -43,14 +58,14 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const globComponents = ut.getComponents();
 
-    const createSVGPieChart = (parent:Element, ipmNorm:number, data:Array<DataRow>, radius:number):SVGElement => {
+    const createSVGPieChart = (parent:Element, areaIpmNorm:number, areaData:Immutable.Iterable<number, TargetDataRow>, radius:number):SVGElement => {
         const chart = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         const pieSlices = createSVGElement(chart, 'g', {});
         const pieText = createSVGElement(chart, 'g', {});
         
         let ipmFracAgg = 0;
-        data.forEach((row, index) => {
-            const ipmFrac = row.ipm/ipmNorm;
+        areaData.forEach((row, index) => {
+            const ipmFrac = row.ipm/areaIpmNorm;
             const x0 = radius * Math.sin(2*Math.PI * ipmFracAgg);
             const y0 = -radius * Math.cos(2*Math.PI * ipmFracAgg);
             ipmFracAgg += ipmFrac/2;
@@ -91,7 +106,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     'text-anchor': 'middle',
                     'font-size': '4em',
                     'fill': 'black',
-                    'visibility': ipmFrac < 0.05 ? 'hidden' : 'visible'
+                    // hide labels with values smaller than 10%
+                    'visibility': ipmFrac < 0.1 ? 'hidden' : 'visible'
                 }
             );
             text.style.cssText = 'opacity: 1';
@@ -107,8 +123,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         data:Immutable.List<Immutable.List<DataRow>>;
         lemmas:Immutable.List<LemmaVariant>;
     }> = (props) => {
-
-        const groupedData = props.data.flatMap((variantData, index) => variantData.map(item => ({...item, variant: index}))).groupBy(item => item['name']);
+        const [groupedAreaData, groupedAreaIpmNorms] = groupData(props.data);
         return (
             <table className="DataTable data cnc-table">
                 <thead>
@@ -125,7 +140,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     </tr>
                 </thead>
                 <tbody>
-                    {groupedData.sortBy((v, k) => k).entrySeq().map(([name, rows]) => 
+                    {groupedAreaData.sortBy((v, k) => k).entrySeq().map(([name, rows]) => 
                         <tr key={name}>
                             <td key={name}>{name}</td>
                             {props.data.flatMap((item, index) => {
@@ -147,11 +162,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -----------------
 
-    const drawLabels = (props:MultiWordGeoAreasModelState, tileId:number) => {
-        const groupedData = props.data.flatMap((variantData, variantName) => variantData.map(item => ({...item, variant: variantName}))).groupBy(item => item['name']);
-        const groupedIpmNorms = groupedData.map(data => data.reduce((acc, curr) => acc + curr.ipm, 0));
-        const maxIpmNorm = groupedIpmNorms.valueSeq().max();
-        const minIpmNorm = groupedIpmNorms.valueSeq().min();
+    const drawLabels = (tileId:number, areaCodeMapping:Immutable.Map<string, string>, data: Immutable.List<Immutable.List<DataRow>>) => {
+        const [groupedAreaData, groupedAreaIpmNorms] = groupData(data);
+        const maxIpmNorm = groupedAreaIpmNorms.valueSeq().max();
+        const minIpmNorm = groupedAreaIpmNorms.valueSeq().min();
         
         // clear possible previous labels
         document.querySelectorAll('#svg-graph-p g.label-mount').forEach(elm => {
@@ -160,16 +174,16 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             }
         });
         // insert data
-        groupedData.forEach((data, name) => {
-            const ident = props.areaCodeMapping.get(name);
+        groupedAreaData.forEach((areaData, areaName) => {
+            const ident = areaCodeMapping.get(areaName);
             if (ident) {
-                const elm = document.getElementById(`${ident}-g`);
-                if (elm) {
-                    const ipmNorm = groupedIpmNorms.get(name)
+                const element = document.getElementById(`${ident}-g`);
+                if (element) {
+                    const areaIpmNorm = groupedAreaIpmNorms.get(areaName)
                     const pieChart = createSVGPieChart(
-                        elm,
-                        ipmNorm,
-                        data.toArray(),
+                        element,
+                        areaIpmNorm,
+                        areaData,
                         150
                     );
                     
@@ -178,7 +192,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             dispatcher.dispatch<Actions.ShowAreaTooltip>({
                                 name: ActionName.ShowAreaTooltip,
                                 payload: {
-                                    areaName: name,
+                                    areaName: areaName,
+                                    areaIpmNorm: areaIpmNorm,
+                                    areaData: areaData,
                                     tileId: tileId,
                                     tooltipX: e.pageX,
                                     tooltipY: e.pageY
@@ -195,8 +211,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 }
                             });
                         });
-                    
-                    const scale = 0.75 + ((ipmNorm - minIpmNorm)/(maxIpmNorm - minIpmNorm))/2;
+                    // scaling pie chart according to relative ipm norm
+                    const scale = 0.75 + ((areaIpmNorm - minIpmNorm)/(maxIpmNorm - minIpmNorm))/2;
                     pieChart.setAttribute('transform', `scale(${scale} ${scale})`);
                 }
             }
@@ -210,7 +226,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         y:number;
         visible:boolean;
         caption:string;
-        values:{[variant:string]:TooltipValues};
+        values:TooltipValues;
     }> = (props) => {
 
         const ref = React.useRef<HTMLDivElement>(null);
@@ -231,24 +247,17 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         return (
             <div className="map-tooltip" ref={ref} style={style}>
                 <p>{ut.translate('multi_word_geolocations__table_heading_area')}: {props.caption}</p>
-                {Object.entries(props.values).map(([variant, values], index) =>
-                    <table key={variant} style={{color: theme.barColor(index)}}>
-                        <caption>{variant}</caption>
-                        <tbody>
-                            {Object.keys(values || {}).map(label => {
-                                const v = values ? values[label] : '';
-                                return (
-                                    <tr key={label}>
-                                    {typeof v === 'number' ?
-                                        <td>{label} : {ut.formatNumber(v, 1)}</td> :
-                                        <td>{label} : {v}</td>
-                                    }
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
-                )}
+                <table>
+                    <tbody>
+                        {Object.entries(props.values || {}).map(([label, value], index) => 
+                            value === undefined ?
+                            null :                                    
+                            <tr key={label} style={{color: theme.barColor(index)}}>
+                                <td>{label} : {value}</td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
             </div>
         );
     }
@@ -259,19 +268,19 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         componentDidMount() {
             if (this.props.data.some(v => v.size > 0)) {
-                drawLabels(this.props, this.props.tileId);
+                drawLabels(this.props.tileId, this.props.areaCodeMapping, this.props.data);
             }
         }
 
         componentDidUpdate(prevProps) {
             if (this.props.data.some(v => v.size > 0) && (prevProps.data !== this.props.data || prevProps.isAltViewMode !== this.props.isAltViewMode ||
                         prevProps.renderSize !== this.props.renderSize)) {
-                drawLabels(this.props, this.props.tileId);
+                drawLabels(this.props.tileId, this.props.areaCodeMapping, this.props.data);
             }
         }
 
         render() {
-            const areaWidth = this.props.widthFract > 2 && !this.props.isMobile ? '90%' : '100%';
+            const areaWidth = this.props.widthFract > 2 && !this.props.isMobile ? '90%' : '100%';        
             return (
                 <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.data.some(v => v.size > 0)}
