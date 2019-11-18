@@ -79,8 +79,6 @@ export interface MultiWordGeoAreasModelState extends FreqBarModelStateBase {
     areaCodeMapping:Immutable.Map<string, string>;
     tooltipArea:{tooltipX:number; tooltipY:number, caption: string, data:TooltipValues}|null;
     mapSVG:string;
-    areaDiscFillColor:string;
-    areaDiscTextColor:string;
     isAltViewMode:boolean;
     posQueryGenerator:[string, string];
 }

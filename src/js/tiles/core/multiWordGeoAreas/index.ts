@@ -42,8 +42,6 @@ export interface MultiWordGeoAreasTileConf extends TileConf {
     fpage:number;
     fttIncludeEmpty:boolean;
     areaCodeMapping:{[name:string]:string};
-    areaDiscFillColor:string;
-    areaDiscTextColor:string;
     posQueryGenerator:[string, string];
 }
 
@@ -97,8 +95,6 @@ export class MultiWordGeoAreasTile implements ITileProvider {
                 fpage: conf.fpage,
                 fttIncludeEmpty: conf.fttIncludeEmpty,
                 fmaxitems: 100,
-                areaDiscFillColor: conf.areaDiscFillColor,
-                areaDiscTextColor: conf.areaDiscTextColor,
                 isAltViewMode: false,
                 concIds: Immutable.List(lemmas.map(_ => null)),
                 posQueryGenerator: conf.posQueryGenerator,
