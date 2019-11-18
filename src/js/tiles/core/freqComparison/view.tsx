@@ -99,7 +99,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         width:string|number;
         height:string|number;
         isMobile:boolean;
-        colors:Array<string>;
     }> = (props) => {
         const processedData = processData(props.data, props.words);
         const maxLabelWidth = processedData.max((v1, v2) => v1.name.length - v2.name.length).name.length;
@@ -108,7 +107,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 <ChartWrapper data={props.data} words={props.words} isMobile={props.isMobile} width={props.width} height={props.height}>
                     <CartesianGrid />
                     {props.words.map((word, index) =>
-                        <Bar key={word} dataKey={word} isAnimationActive={false} name={word} stackId='a' fill={props.colors[index % props.colors.length]} />
+                        <Bar key={word} dataKey={word} isAnimationActive={false} name={word} stackId='a' fill={theme.barColor(index)} />
                     )};
                     <XAxis type="number" unit="%" ticks={[0, 25, 50, 75, 100]} domain={[0, 100]} interval={0} />
                     <YAxis type="category" dataKey="name" width={Math.max(60, maxLabelWidth * 8)} interval={0} />
@@ -166,7 +165,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                         <h3>{block.label}</h3>
                                         {block.data.size > 0 ?
                                             <Chart data={block.data} words={block.words} width={chartWidth} height={70 + block.data.groupBy(x => x.name).size * 25}
-                                                    isMobile={this.props.isMobile} colors={this.props.colors} /> :
+                                                    isMobile={this.props.isMobile} /> :
                                             <p className="note" style={{textAlign: 'center'}}>No result</p>
                                         }
                                     </div>

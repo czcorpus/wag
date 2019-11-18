@@ -55,13 +55,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         height?:number;
         index?:number;
         payload?:any;
-        colors?:Array<string>;
         rank?:number;
         name?:string;
         handleZoom:(category:string) => void;
     }> {
         render() {
-            const {root, depth, x, y, width, height, index, payload, colors, rank, name, handleZoom} = this.props;
+            const {root, depth, x, y, width, height, index, payload, rank, name, handleZoom} = this.props;
             // leaf rect needs to be filled with color in order to show tooltip on mouse over
             return (
                 <g>
@@ -72,7 +71,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         width={width}
                         height={height}
                         style={{
-                            fill: depth === 1 ? colors[index % colors.length] : 'white',
+                            fill: depth === 1 ? theme.barColor(index) : 'white',
                             fillOpacity: depth > 1 ? 0 : 1,
                             stroke: '#fff',
                             strokeWidth: 2 / (depth + 1e-10),
@@ -101,7 +100,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         data:TreeData;
         width:string|number;
         height:string|number;
-        colors:Array<string>;
         isMobile:boolean;
         handleZoom:(category:string) => void;
     }> = (props) => {
@@ -111,7 +109,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         width={typeof props.width === 'string' ? parseInt(props.width) : props.width}
                         height={typeof props.height === 'string' ? parseInt(props.height) : props.height}
                         isAnimationActive={false}
-                        content={<CustomizedContent colors={props.colors} handleZoom={props.handleZoom}/>}>
+                        content={<CustomizedContent handleZoom={props.handleZoom}/>}>
                     {props.children}
                 </Treemap>
             );
@@ -120,7 +118,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             return (
                 <ResponsiveContainer width={props.width} height={props.height}>
                     <Treemap data={props.data}
-                            content={<CustomizedContent colors={props.colors} handleZoom={props.handleZoom}/>}>
+                            content={<CustomizedContent handleZoom={props.handleZoom}/>}>
                         {props.children}
                     </Treemap>
                 </ResponsiveContainer>
@@ -136,11 +134,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         width:string|number;
         height:string|number;
         isMobile:boolean;
-        colors:Array<string>;
         handleZoom:(category:string) => void;
     }> = (props) => {
         return (
-            <TreeWrapper data={props.data} handleZoom={props.handleZoom} isMobile={props.isMobile} width={props.width} height={props.height} colors={props.colors}>
+            <TreeWrapper data={props.data} handleZoom={props.handleZoom} isMobile={props.isMobile} width={props.width} height={props.height}>
                 <Tooltip
                     cursor={false}
                     isAnimationActive={false}
@@ -235,8 +232,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                                                 width={chartWidth}
                                                                 height={250}
                                                                 handleZoom={(category) => this.handleZoom(blockId, variantId, category)}
-                                                                isMobile={this.props.isMobile}
-                                                                colors={this.props.colors} />
+                                                                isMobile={this.props.isMobile} />
                                                         </div>
                                                     }
                                                 }

@@ -36,7 +36,6 @@ export interface FreqTreeModelState extends GeneralCritFreqTreeModelState {
     activeBlock:number;
     backlink:BacklinkWithArgs<BacklinkArgs>;
     maxChartsPerLine:number;
-    colors:Array<string>;
     lemmas:RecognizedQueries;
     zoomCategory:Immutable.List<Immutable.List<string|null>>;
 }
