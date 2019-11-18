@@ -31,6 +31,7 @@ import { LemmaVariant } from '../../../common/query';
 import { ConcApi, QuerySelector, mkMatchQuery } from '../../../common/api/kontext/concordance';
 import { callWithExtraVal } from '../../../common/api/util';
 import { ViewMode } from '../../../common/api/abstract/concordance';
+import { createInitialLinesData } from '../../../common/models/concordance';
 
 /*
 oral2013:
@@ -94,17 +95,20 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
     private readonly appServices:AppServices;
 
     private readonly concApi:ConcApi;
-    
+
     private readonly freqApi:FreqDistribAPI;
 
     private readonly mapLoader:DataApi<string, string>;
 
-    constructor(dispatcher:IActionQueue, tileId:number, waitForTile:number, appServices:AppServices, concApi:ConcApi, freqApi:FreqDistribAPI,
-            mapLoader:DataApi<string, string>, initState:MultiWordGeoAreasModelState) {
+    private readonly lemmas:Array<Array<LemmaVariant>>;
+
+    constructor(dispatcher:IActionQueue, tileId:number, waitForTile:number, appServices:AppServices, lemmas:Array<Array<LemmaVariant>>,
+                concApi:ConcApi, freqApi:FreqDistribAPI, mapLoader:DataApi<string, string>, initState:MultiWordGeoAreasModelState) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.waitForTile = waitForTile;
         this.appServices = appServices;
+        this.lemmas = lemmas;
         this.concApi = concApi;
         this.freqApi = freqApi;
         this.mapLoader = mapLoader;
@@ -157,16 +161,14 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                                             kwicLeftCtx: -1,
                                             kwicRightCtx: 1,
                                             pageSize: 10,
-                                            loadPage: 1,
-                                            currPage: 1,
                                             shuffle: false,
                                             attr_vmode: 'mouseover',
                                             viewMode: ViewMode.KWIC,
                                             tileId: this.tileId,
                                             attrs: ['word'],
                                             metadataAttrs: [],
-                                            concIds: [],
                                             queries: [],
+                                            concordances: createInitialLinesData(this.lemmas.length),
                                             posQueryGenerator: state.posQueryGenerator
                                         },
                                         lemmaVariant,
@@ -216,7 +218,7 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                         state.concIds = state.concIds.set(action.payload.targetId, action.payload.concId);
                         state.isBusy = state.concIds.some(v => v === null);
                     }
-                    state.mapSVG = action.payload.mapSVG;                    
+                    state.mapSVG = action.payload.mapSVG;
                 }
             }
         );
@@ -294,7 +296,8 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
         );
     }
 
-    private handleLoad(dataStream:Observable<[string, [APIResponse, {concId:string; targetId:number;}]]>, state:MultiWordGeoAreasModelState, dispatch:SEDispatcher):void {
+    private handleLoad(dataStream:Observable<[string, [APIResponse, {concId:string; targetId:number;}]]>, state:MultiWordGeoAreasModelState,
+                dispatch:SEDispatcher):void {
         dataStream.pipe(
             reduce<[string, [APIResponse, {concId:string; targetId:number;}]], [boolean, Immutable.List<string>]>(([hasData, concIds], [mapSVG, [resp, args]]) =>
                 [
@@ -314,7 +317,7 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                 }
             })
         );
-        
+
         dataStream.subscribe(
             ([mapSVG, [resp, args]]) => {
                 dispatch<Actions.PartialDataLoaded>({

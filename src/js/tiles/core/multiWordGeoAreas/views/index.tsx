@@ -62,7 +62,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         const chart = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         const pieSlices = createSVGElement(chart, 'g', {});
         const pieText = createSVGElement(chart, 'g', {});
-        
+
         let ipmFracAgg = 0;
         areaData.forEach(row => {
             const ipmFrac = row.ipm/areaIpmNorm;
@@ -75,7 +75,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             const x1 = radius * Math.sin(2*Math.PI * ipmFracAgg);
             const y1 = -radius * Math.cos(2*Math.PI * ipmFracAgg);
             const longArc = (ipmFrac) > 0.5 ? 1 : 0;
-            
+
             createSVGElement(
                 pieSlices,
                 'path',
@@ -148,7 +148,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     </tr>
                 </thead>
                 <tbody>
-                    {groupedAreaData.sortBy((rows, area) => area, (a, b) => a.localeCompare(b)).entrySeq().map(([area, rows]) => 
+                    {groupedAreaData.sortBy((rows, area) => area, (a, b) => a.localeCompare(b)).entrySeq().map(([area, rows]) =>
                         <tr key={area}>
                             <td key={area}>{area}</td>
                             <td key={`${area}totalipm`} className="num">{groupedAreaIpmNorms.get(area).toFixed(2)}</td>
@@ -176,7 +176,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         const [groupedAreaData, groupedAreaIpmNorms] = groupData(data);
         const maxIpmNorm = groupedAreaIpmNorms.valueSeq().max();
         const minIpmNorm = groupedAreaIpmNorms.valueSeq().min();
-        
+
         // clear possible previous labels
         document.querySelectorAll('#svg-graph-p g.label-mount').forEach(elm => {
             while (elm.firstChild) {
@@ -196,7 +196,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         areaData,
                         150
                     );
-                    
+
                     fromEvent(pieChart, 'mousemove')
                         .subscribe((e:MouseEvent) => {
                             dispatcher.dispatch<Actions.ShowAreaTooltip>({
@@ -211,7 +211,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 }
                             });
                         });
-                    
+
                     fromEvent(pieChart, 'mouseout')
                         .subscribe(() => {
                             dispatcher.dispatch<Actions.HideAreaTooltip>({
@@ -259,9 +259,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 <p>{ut.translate('multi_word_geolocations__table_heading_area')}: {props.caption}</p>
                 <table>
                     <tbody>
-                        {Object.entries(props.values || {}).map(([label, value], index) => 
+                        {Object.entries(props.values || {}).map(([label, value], index) =>
                             value === undefined ?
-                            null :                                    
+                            null :
                             <tr key={label} style={{color: theme.barColor(index)}}>
                                 <td>{label} : {value}</td>
                             </tr>
@@ -290,12 +290,13 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
 
         render() {
-            const areaWidth = this.props.widthFract > 2 && !this.props.isMobile ? '90%' : '100%';        
+            const areaWidth = this.props.widthFract > 2 && !this.props.isMobile ? '90%' : '100%';
             return (
                 <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.data.some(v => v.size > 0)}
                         sourceIdent={{corp: this.props.corpname}}
-                        supportsTileReload={this.props.supportsReloadOnError}>
+                        supportsTileReload={this.props.supportsReloadOnError}
+                        issueReportingUrl={this.props.issueReportingUrl}>
                     <div className="MultiWordGeoAreasTileView">
                         {this.props.isAltViewMode ?
                             <div style={{overflowX: 'auto'}}>

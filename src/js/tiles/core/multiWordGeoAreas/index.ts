@@ -78,6 +78,7 @@ export class MultiWordGeoAreasTile implements ITileProvider {
             tileId,
             waitForTiles[0],
             appServices,
+            lemmas,
             new ConcApi(false, cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             new FreqDistribAPI(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             new MapLoader(cache, appServices),
@@ -156,6 +157,10 @@ export class MultiWordGeoAreasTile implements ITileProvider {
 
     supportsNonDictQueries():boolean {
         return false;
+    }
+
+    getIssueReportingUrl():null {
+        return null;
     }
 }
 
