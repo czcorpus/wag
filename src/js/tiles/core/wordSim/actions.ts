@@ -17,11 +17,11 @@
  */
 
 import { Action } from 'kombo';
-import { WordSimWord } from '../../../common/api/abstract/wordSim';
+import { WordSimWord, WordSimSubqueryPayload } from '../../../common/api/abstract/wordSim';
 import { OperationMode } from '../../../common/models/wordSim';
 
 
-export interface DataLoadedPayload {
+export interface DataLoadedPayload extends WordSimSubqueryPayload {
     tileId:number;
     words:Array<WordSimWord>;
 }

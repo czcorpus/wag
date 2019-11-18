@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { SubqueryPayload, isSubqueryPayload, LemmaVariant } from '../../query';
+import { SubqueryPayload, isSubqueryPayload, LemmaVariant, RangeRelatedSubqueryValue } from '../../query';
 import { DataApi, SourceDetails } from '../../types';
 import { CollocModelState } from '../../models/collocations';
 import { Observable } from 'rxjs';
@@ -24,12 +24,7 @@ import { Observable } from 'rxjs';
 
 // Sub-query related types
 
-export interface CollocSubqueryValue {
-    value:string;
-    context:[number, number];
-}
-
-export type CollocSubqueryPayload = SubqueryPayload<CollocSubqueryValue>;
+export type CollocSubqueryPayload = SubqueryPayload<RangeRelatedSubqueryValue>;
 
 
 export function isCollocSubqueryPayload(payload:{}):payload is CollocSubqueryPayload {

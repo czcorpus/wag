@@ -19,11 +19,17 @@
 import { Observable } from 'rxjs';
 import { DataApi, SourceDetails } from '../../types';
 import { WordSimModelState } from '../../models/wordSim';
+import { SubqueryPayload, RangeRelatedSubqueryValue } from '../../query';
+
+
+export type WordSimSubqueryPayload = SubqueryPayload<RangeRelatedSubqueryValue>;
+
 
 
 export interface WordSimWord {
     word:string;
     score:number;
+    interactionId?:string;
 }
 
 export interface WordSimApiResponse {
