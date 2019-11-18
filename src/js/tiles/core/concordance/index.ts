@@ -25,12 +25,12 @@ import { ViewMode } from '../../../common/api/abstract/concordance';
 import { LocalizedConfMsg } from '../../../common/types';
 import { QueryType } from '../../../common/query';
 import { Backlink, CorpSrchTileConf, ITileProvider, TileComponent, TileFactory, SourceInfoComponent } from '../../../common/tile';
-import { ConcordanceTileModel, createInitialLinesData } from './model';
+import { ConcordanceTileModel } from './model';
 import { init as viewInit } from './views';
 import { createApiInstance } from '../../../common/api/factory/concordance';
 import { createSourceInfoViewInstance } from './apiFactory';
 import { findCurrLemmaVariant } from '../../../models/query';
-import { arrayOfSize } from '../../../common/data';
+import { createInitialLinesData } from '../../../common/models/concordance';
 
 
 
@@ -101,20 +101,13 @@ export class ConcordanceTile implements ITileProvider {
                 isTweakMode: false,
                 isMobile: appServices.isMobileMode(),
                 widthFract: widthFract,
-                concIds: arrayOfSize(lemmas.length, null),
                 querySelector: QuerySelector.CQL,
-                lines: createInitialLinesData(lemmas.length),
+                pageSize: conf.pageSize,
+                concordances: createInitialLinesData(lemmas.length),
                 corpname: conf.corpname,
                 otherCorpname: conf.parallelLangMapping ? conf.parallelLangMapping[lang2] : null,
                 subcname: Array.isArray(conf.subcname) ? conf.subcname[0] : conf.subcname,
                 subcDesc: conf.subcDesc ? appServices.importExternalMessage(conf.subcDesc) : '',
-                concsize: -1,
-                numPages: -1,
-                resultARF: -1,
-                resultIPM: -1,
-                pageSize: conf.pageSize,
-                currPage: 1,
-                loadPage: 1,
                 shuffle: true,
                 initialKwicLeftCtx: this.calcContext(widthFract),
                 initialKwicRightCtx: this.calcContext(widthFract),

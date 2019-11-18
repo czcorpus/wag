@@ -22,8 +22,8 @@ import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { Observable } from 'rxjs';
 import { mergeMap, scan, tap } from 'rxjs/operators';
 import { AppServices } from '../../../appServices';
-import { Line, IConcordanceApi, ConcResponse } from '../../../common/api/abstract/concordance';
-import { ConcordanceMinState } from '../../../common/models/concordance';
+import { IConcordanceApi, ConcResponse } from '../../../common/api/abstract/concordance';
+import { ConcordanceMinState, createInitialLinesData } from '../../../common/models/concordance';
 import { HTTPMethod, SystemMessageType } from '../../../common/types';
 import { isSubqueryPayload, RecognizedQueries, QueryType } from '../../../common/query';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
@@ -34,7 +34,6 @@ import { ActionName, Actions, ConcLoadedPayload } from './actions';
 import { normalizeTypography } from '../../../common/models/concordance/normalize';
 import { isCollocSubqueryPayload } from '../../../common/api/abstract/collocations';
 import { callWithExtraVal } from '../../../common/api/util';
-import { arrayOfSize } from '../../../common/data';
 
 
 
@@ -44,7 +43,6 @@ export interface BacklinkArgs {
     q:string;
 }
 
-
 export interface ConcordanceTileState extends ConcordanceMinState {
     visibleQueryIdx:number;
     isBusy:boolean;
@@ -52,12 +50,6 @@ export interface ConcordanceTileState extends ConcordanceMinState {
     isTweakMode:boolean;
     isMobile:boolean;
     widthFract:number;
-    lines:Array<Array<Line>>;
-    currPage:number;
-    concsize:number;
-    numPages:number;
-    resultARF:number;
-    resultIPM:number;
     initialKwicLeftCtx:number;
     initialKwicRightCtx:number;
     backlink:BacklinkWithArgs<BacklinkArgs>;
@@ -75,15 +67,6 @@ export interface ConcordanceTileModelArgs {
     initState:ConcordanceTileState;
     queryType:QueryType;
     backlink:Backlink;
-}
-
-
-export function createInitialLinesData(numLemmas:number):Array<Array<Line>> {
-    const ans = [];
-    for (let i = 0; i < numLemmas; i++) {
-        ans.push([]);
-    }
-    return ans;
 }
 
 interface PartialLoadingStatus {
@@ -137,7 +120,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 }
             },
             (state, action, dispatch) => {
-                if (state.lines.length > 0) {
+                if (state.concordances.some(conc => conc.lines.length > 0)) {
                     this.reloadData(state, dispatch, null);
                 }
             }
@@ -166,7 +149,6 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
-                state.concIds = arrayOfSize(this.lemmas.length, null);
             },
             (state, action, dispatch) => {
                 if (this.waitForTile) {
@@ -195,23 +177,19 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
         this.addActionHandler<Actions.SingleConcordanceLoaded>(
             ActionName.SingleConcordanceLoaded,
             (state, action) => {
-                if (action.payload.tileId === this.tileId) {
-                    state.isBusy = false;
-                    if (action.error) {
-                        state.error = action.error.message;
-
-                    } else {
-                        // debug:
-                        action.payload.data.messages.forEach(msg => console.log(`${importMessageType(msg[0]).toUpperCase()}: conc - ${msg[1]}`));
-
-                        state.lines[action.payload.queryNum] = normalizeTypography(action.payload.data.lines); // TODO
-                        state.concsize = action.payload.data.concsize; // TODO fullsize?
-                        state.resultARF = action.payload.data.arf;
-                        state.resultIPM = action.payload.data.ipm;
-                        state.currPage = state.loadPage;
-                        state.numPages = Math.ceil(state.concsize / state.pageSize);
-                        state.concIds[action.payload.queryNum] = action.payload.data.concPersistenceID;
-                    }
+                // note: error is handled via TileDataLoaded
+                if (action.payload.tileId === this.tileId && !action.error) {
+                    action.payload.data.messages.forEach(msg => console.log(`${importMessageType(msg[0]).toUpperCase()}: conc - ${msg[1]}`));
+                    state.concordances[action.payload.queryNum] = {
+                        concsize: action.payload.data.concsize,
+                        resultARF: action.payload.data.arf,
+                        resultIPM: action.payload.data.ipm,
+                        currPage: state.concordances[action.payload.queryNum].loadPage,
+                        loadPage: state.concordances[action.payload.queryNum].loadPage,
+                        numPages: Math.ceil(action.payload.data.concsize / state.pageSize),
+                        concId: action.payload.data.concPersistenceID,
+                        lines: normalizeTypography(action.payload.data.lines)
+                    };
                 }
             }
         );
@@ -219,14 +197,15 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
         this.addActionHandler<GlobalActions.TileDataLoaded<ConcLoadedPayload>>(
             GlobalActionName.TileDataLoaded,
             (state, action) => {
-                if (action.error) {
+                if (action.payload.tileId === this.tileId) {
                     state.isBusy = false;
-                    state.lines = createInitialLinesData(this.lemmas.length);
-                    state.error = this.appServices.decodeError(action.error);
+                    if (action.error) {
+                        state.concordances = createInitialLinesData(this.lemmas.length);
+                        state.error = this.appServices.decodeError(action.error);
 
-                } else {
-                    state.isBusy = false;
-                    state.backlink = this.createBackLink(state, action);
+                    } else {
+                        state.backlink = this.createBackLink(state, action);
+                    }
                 }
             }
         );
@@ -237,7 +216,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = true;
                     state.error = null;
-                    state.loadPage = state.currPage + 1;
+                    state.concordances[state.visibleQueryIdx].loadPage = state.concordances[state.visibleQueryIdx].currPage + 1;
                 }
             },
             (state, action, dispatch) => {
@@ -254,10 +233,10 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             ActionName.LoadPrevPage,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
-                    if (state.currPage - 1 > 0) {
+                    if (state.concordances[state.visibleQueryIdx].currPage - 1 > 0) {
                         state.isBusy = true;
                         state.error = null;
-                        state.loadPage = state.currPage - 1;
+                        state.concordances[state.visibleQueryIdx].loadPage = state.concordances[state.visibleQueryIdx].currPage - 1;
 
                     } else {
                         this.appServices.showMessage(SystemMessageType.ERROR, 'Cannot load page < 1');
@@ -333,7 +312,8 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             try {
                 this.lemmas.slice(0, this.queryType !== QueryType.CMP_QUERY ? 1 : undefined).forEach((lemma, queryIdx) => {
                     observer.next({
-                        apiArgs: this.service.stateToArgs(state, state.concIds[queryIdx] ? null : findCurrLemmaVariant(lemma), queryIdx, otherLangCql),
+                        apiArgs: this.service.stateToArgs(state, state.concordances[queryIdx].concId ?
+                                    null : findCurrLemmaVariant(lemma), queryIdx, otherLangCql),
                         queryIdx: queryIdx
                     });
                 });

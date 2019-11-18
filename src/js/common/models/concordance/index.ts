@@ -16,12 +16,22 @@
  * limitations under the License.
  */
 import { QuerySelector} from '../../api/kontext/concordance';
-import { ViewMode } from '../../api/abstract/concordance';
+import { ViewMode, Line } from '../../api/abstract/concordance';
 
+
+export interface ConcData {
+    concsize:number;
+    numPages:number;
+    resultARF:number;
+    resultIPM:number;
+    currPage:number;
+    loadPage:number; // the one we are going to load
+    concId:string;
+    lines:Array<Line>;
+}
 
 export interface ConcordanceMinState {
     tileId:number;
-    concIds:Array<string>;
     queries:Array<string>;
     querySelector:QuerySelector;
     corpname:string;
@@ -31,12 +41,29 @@ export interface ConcordanceMinState {
     kwicLeftCtx:number;
     kwicRightCtx:number;
     pageSize:number;
-    currPage:number;
-    loadPage:number; // the one we are going to load
     attr_vmode:'mouseover'|'direct';
     viewMode:ViewMode;
     shuffle:boolean;
     metadataAttrs:Array<{value:string; label:string}>;
     attrs:Array<string>;
     posQueryGenerator:[string, string];
+    concordances:Array<ConcData>;
+}
+
+
+export function createInitialLinesData(numLemmas:number):Array<ConcData> {
+    const ans:Array<ConcData> = [];
+    for (let i = 0; i < numLemmas; i++) {
+        ans.push({
+            concId: null,
+            lines: [],
+            concsize: -1,
+            numPages: -1,
+            resultARF: -1,
+            resultIPM: -1,
+            currPage: 1,
+            loadPage: 1
+        });
+    }
+    return ans;
 }

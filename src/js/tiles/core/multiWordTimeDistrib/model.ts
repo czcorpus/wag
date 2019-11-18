@@ -289,17 +289,24 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     kwicLeftCtx: -1,
                     kwicRightCtx: 1,
                     pageSize: 10,
-                    loadPage: 1,
-                    currPage: 1,
                     shuffle: false,
                     attr_vmode: 'mouseover',
                     viewMode: ViewMode.KWIC,
                     tileId: this.tileId,
                     attrs: [],
                     metadataAttrs: [],
-                    concIds: [],
                     queries: [],
-                    posQueryGenerator: state.posQueryGenerator
+                    posQueryGenerator: state.posQueryGenerator,
+                    concordances: [{
+                        concsize: -1,
+                        numPages: -1,
+                        resultARF: -1,
+                        resultIPM: -1,
+                        currPage: 1,
+                        loadPage: 1,
+                        concId: null,
+                        lines: []
+                    }]
                 },
                 lemmaVariant,
                 0,
