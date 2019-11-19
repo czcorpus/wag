@@ -79,56 +79,93 @@ export class CollocModel extends StatelessModel<CollocModelState> {
         this.service = service;
         this.backlink = backlink;
         this.lemmas = lemmas;
-        this.actionMatch = {
-            [GlobalActionName.EnableTileTweakMode]: (state, action:GlobalActions.EnableTileTweakMode) => {
+        
+        this.addActionHandler<GlobalActions.EnableTileTweakMode>(
+            GlobalActionName.EnableTileTweakMode,
+            (state, action) => {
                 if (action.payload.ident === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isTweakMode = true;
-                    return newState;
+                    state.isTweakMode = true;
                 }
-                return state;
-            },
-            [GlobalActionName.DisableTileTweakMode]: (state, action:GlobalActions.DisableTileTweakMode) => {
+            }
+        );
+        this.addActionHandler<GlobalActions.DisableTileTweakMode>(
+            GlobalActionName.DisableTileTweakMode,
+            (state, action) => {
                 if (action.payload.ident === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isTweakMode = false;
-                    return newState;
+                    state.isTweakMode = false;
                 }
-                return state;
-            },
-            [GlobalActionName.EnableAltViewMode]: (state, action:GlobalActions.EnableAltViewMode) => {
+            }
+        );
+        this.addActionHandler<GlobalActions.EnableAltViewMode>(
+            GlobalActionName.EnableAltViewMode,
+            (state, action) => {
                 if (action.payload.ident === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isAltViewMode = true;
-                    return newState;
+                    state.isAltViewMode = true;
                 }
-                return state;
-            },
-            [GlobalActionName.DisableAltViewMode]: (state, action:GlobalActions.DisableAltViewMode) => {
+            }
+        );
+        this.addActionHandler<GlobalActions.DisableAltViewMode>(
+            GlobalActionName.DisableAltViewMode,
+            (state, action) => {
                 if (action.payload.ident === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isAltViewMode = false;
-                    return newState;
+                    state.isAltViewMode = false;
                 }
-                return state;
+            }
+        );
+        this.addActionHandler<GlobalActions.RequestQueryResponse>(
+            GlobalActionName.RequestQueryResponse,
+            (state, action) => {
+                state.isBusy = true;
+                state.error = null;
             },
-            [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse)  => {
-                const newState = this.copyState(state);
-                newState.isBusy = true;
-                newState.error = null;
-                return newState;
-            },
-            [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<DataLoadedPayload>) => {
+            (state, action, seDispatch) => {
+                if (this.waitForTile) {
+                    this.suspend(
+                        (action:Action) => {
+                            if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
+                                const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
+                                if (action.error) {
+                                    seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                        name: GlobalActionName.TileDataLoaded,
+                                        payload: {
+                                            tileId: this.tileId,
+                                            isEmpty: true,
+                                            data: [],
+                                            heading: null,
+                                            concId: null,
+                                            subqueries: [],
+                                            lang1: null,
+                                            lang2: null
+                                        },
+                                        error: new Error(this.appServices.translate('global__failed_to_obtain_required_data')),
+                                    });
+                                    return true;
+                                }
+                                this.requestData(state, payload.concPersistenceID, action.error, seDispatch);
+                                return true;
+                            }
+                            return false;
+                        }
+                    );
+
+                } else {
+                    const variant = findCurrLemmaVariant(this.lemmas[0]);
+                    this.requestData(state, variant, null, seDispatch);
+                }
+            }
+        );
+        this.addActionHandler<GlobalActions.TileDataLoaded<DataLoadedPayload>>(
+            GlobalActionName.TileDataLoaded,
+            (state, action) => {
                 if (action.payload.tileId === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.concId = action.payload.concId;
-                    newState.isBusy = false;
+                    state.concId = action.payload.concId;
+                    state.isBusy = false;
                     if (action.error) {
-                        newState.error = action.error.message;
+                        state.error = action.error.message;
 
                     } else {
-                        newState.data = Immutable.List<DataRow>(action.payload.data);
-                        newState.heading =
+                        state.data = Immutable.List<DataRow>(action.payload.data);
+                        state.heading =
                             [{label: 'Abs', ident: ''}]
                             .concat(
                                 action.payload.heading
@@ -136,23 +173,52 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                                     .filter(v => v !== null)
                             );
 
-                        newState.backlink = this.createBackLink(newState, action);
+                        state.backlink = this.createBackLink(state, action);
                     }
-                    return newState;
                 }
-                return state;
-            },
-            [ActionName.SetSrchContextType]: (state, action:Actions.SetSrchContextType) => {
-                if (action.payload.tileId === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isBusy = true;
-                    newState.srchRangeType = action.payload.ctxType;
-                    return newState;
-
-                }
-                return state;
             }
-        }
+        );
+        this.addActionHandler<Actions.SetSrchContextType>(
+            ActionName.SetSrchContextType,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {
+                    state.isBusy = true;
+                    state.srchRangeType = action.payload.ctxType;
+                }
+            },
+            (state, action, seDispatch) => {
+                if (action.payload.tileId === this.tileId) {
+                    this.requestData(state, state.concId, null, seDispatch);
+                }
+            }
+        );
+        this.addActionHandler<GlobalActions.GetSourceInfo>(
+            GlobalActionName.GetSourceInfo,
+            (state, action) => {},
+            (state, action, seDispatch) => {
+                if (action.payload.tileId === this.tileId) {
+                    this.service.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), state.corpname)
+                    .subscribe(
+                        (data) => {
+                            seDispatch({
+                                name: GlobalActionName.GetSourceInfoDone,
+                                payload: {
+                                    data: data
+                                }
+                            });
+                        },
+                        (err) => {
+                            console.error(err);
+                            seDispatch({
+                                name: GlobalActionName.GetSourceInfoDone,
+                                error: err
+
+                            });
+                        }
+                    );
+                }
+            }
+        );
     }
 
     private createBackLink(state:CollocModelState, action:GlobalActions.TileDataLoaded<DataLoadedPayload>):BacklinkWithArgs<CoreCollRequestArgs> {
@@ -229,73 +295,5 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                 });
             }
         );
-    }
-
-    sideEffects(state:CollocModelState, action:Action, seDispatch:SEDispatcher):void {
-        switch (action.name) {
-            case GlobalActionName.RequestQueryResponse:
-                if (this.waitForTile) {
-                    this.suspend(
-                        (action:Action) => {
-                            if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
-                                const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
-                                if (action.error) {
-                                    seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                        name: GlobalActionName.TileDataLoaded,
-                                        payload: {
-                                            tileId: this.tileId,
-                                            isEmpty: true,
-                                            data: [],
-                                            heading: null,
-                                            concId: null,
-                                            subqueries: [],
-                                            lang1: null,
-                                            lang2: null
-                                        },
-                                        error: new Error(this.appServices.translate('global__failed_to_obtain_required_data')),
-                                    });
-                                    return true;
-                                }
-                                this.requestData(state, payload.concPersistenceID, action.error, seDispatch);
-                                return true;
-                            }
-                            return false;
-                        }
-                    );
-
-                } else {
-                    const variant = findCurrLemmaVariant(this.lemmas[0]);
-                    this.requestData(state, variant, null, seDispatch);
-                }
-            break;
-            case ActionName.SetSrchContextType:
-                if (action.payload['tileId'] === this.tileId) {
-                    this.requestData(state, state.concId, null, seDispatch);
-                }
-            break;
-            case GlobalActionName.GetSourceInfo:
-                if (action.payload['tileId'] === this.tileId) {
-                    this.service.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), state.corpname)
-                    .subscribe(
-                        (data) => {
-                            seDispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
-                                payload: {
-                                    data: data
-                                }
-                            });
-                        },
-                        (err) => {
-                            console.error(err);
-                            seDispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
-                                error: err
-
-                            });
-                        }
-                    );
-                }
-            break;
-        }
     }
 }
