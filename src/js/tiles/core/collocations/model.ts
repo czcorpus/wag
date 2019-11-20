@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
-import { Observable, Observer } from 'rxjs';
+import { Observable, Observer, of } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 
 import { AppServices } from '../../../appServices';
@@ -31,7 +31,10 @@ import { CoreCollRequestArgs } from '../../../common/api/kontext/collocations';
 import { findCurrLemmaVariant } from '../../../models/query';
 import { LemmaVariant, RecognizedQueries, QueryType } from '../../../common/query';
 import { CoreApiGroup } from '../../../common/api/coreGroups';
-import { ConcApi } from '../../../common/api/kontext/concordance';
+import { ConcApi, QuerySelector, mkMatchQuery } from '../../../common/api/kontext/concordance';
+import { callWithExtraVal } from '../../../common/api/util';
+import { ViewMode } from '../../../common/api/abstract/concordance';
+import { createInitialLinesData } from '../../../common/models/concordance';
 
 
 export interface CollocModelArgs {
@@ -132,39 +135,43 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                 state.error = null;
             },
             (state, action, seDispatch) => {
-                if (this.waitForTile) {
-                    this.suspend(
-                        (action:Action) => {
-                            if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
-                                const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
-                                if (action.error) {
-                                    seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                        name: GlobalActionName.TileDataLoaded,
-                                        payload: {
-                                            tileId: this.tileId,
-                                            isEmpty: true,
-                                            data: [],
-                                            heading: null,
-                                            concId: null,
-                                            queryId: null,
-                                            subqueries: [],
-                                            lang1: null,
-                                            lang2: null
-                                        },
-                                        error: new Error(this.appServices.translate('global__failed_to_obtain_required_data')),
-                                    });
+                if (this.queryType === QueryType.CMP_QUERY) {
+                    this.reloadAllData(state, seDispatch);
+                } else {
+                    if (this.waitForTile) {
+                        this.suspend(
+                            (action:Action) => {
+                                if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
+                                    const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
+                                    if (action.error) {
+                                        seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                            name: GlobalActionName.TileDataLoaded,
+                                            payload: {
+                                                tileId: this.tileId,
+                                                isEmpty: true,
+                                                data: [],
+                                                heading: null,
+                                                concId: null,
+                                                queryId: null,
+                                                subqueries: [],
+                                                lang1: null,
+                                                lang2: null
+                                            },
+                                            error: new Error(this.appServices.translate('global__failed_to_obtain_required_data')),
+                                        });
+                                        return true;
+                                    }
+                                    this.requestData(state, payload.concPersistenceID, action.error, seDispatch);
                                     return true;
                                 }
-                                this.requestData(state, payload.concPersistenceID, action.error, seDispatch);
-                                return true;
+                                return false;
                             }
-                            return false;
-                        }
-                    );
+                        );
 
-                } else {
-                    const variant = findCurrLemmaVariant(this.lemmas[0]);
-                    this.requestData(state, variant, null, seDispatch);
+                    } else {
+                        const variant = findCurrLemmaVariant(this.lemmas[0]);
+                        this.requestData(state, variant, null, seDispatch);
+                    }
                 }
             }
         );
@@ -280,6 +287,98 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                         data: data.data,
                         concId: data.concId,
                         queryId: 0,
+                        subqueries: data.data.map(v => ({
+                            value: {
+                                value: v.str,
+                                context: ctxToRange(state.srchRangeType, state.srchRange)
+                            },
+                            interactionId: v.interactionId
+                        })),
+                        lang1: null,
+                        lang2: null
+                    }
+                });
+            },
+            (err) => {
+                this.appServices.showMessage(SystemMessageType.ERROR, err);
+                seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                    name: GlobalActionName.TileDataLoaded,
+                    payload: {
+                        tileId: this.tileId,
+                        isEmpty: true,
+                        heading: null,
+                        data: [],
+                        concId: null,
+                        queryId: null,
+                        subqueries: [],
+                        lang1: null,
+                        lang2: null
+                    },
+                    error: err
+                });
+            }
+        );
+    }
+
+    private reloadAllData(state:CollocModelState, seDispatch:SEDispatcher):void {
+        of(...this.lemmas.map((lemma, queryId) => ({lemma: findCurrLemmaVariant(lemma), queryId: queryId})))
+        .pipe(
+            concatMap(args =>
+                callWithExtraVal(
+                    this.concApi,
+                    this.concApi.stateToArgs(
+                        {
+                            querySelector: QuerySelector.CQL,
+                            corpname: state.corpname,
+                            otherCorpname: undefined,
+                            subcname: null,
+                            subcDesc: null,
+                            kwicLeftCtx: -1,
+                            kwicRightCtx: 1,
+                            pageSize: 10,
+                            shuffle: false,
+                            attr_vmode: 'mouseover',
+                            viewMode: ViewMode.KWIC,
+                            tileId: this.tileId,
+                            attrs: ['word'],
+                            metadataAttrs: [],
+                            queries: [],
+                            concordances: createInitialLinesData(this.lemmas.length),
+                            posQueryGenerator: ['tag', 'ppTagset']
+                        },
+                        args.lemma,
+                        args.queryId,
+                        null
+                    ),
+                    {
+                        corpName: state.corpname,
+                        subcName: null,
+                        concId: null,
+                        queryId: args.queryId,
+                        origQuery: mkMatchQuery(args.lemma, ['tag', 'ppTagset'])
+                    }
+                )
+            ),
+            concatMap(([resp, args]) => {
+                args.concId = resp.concPersistenceID;
+                return callWithExtraVal(
+                    this.service,
+                    this.service.stateToArgs(state, args.concId),
+                    args
+                )
+            })
+        )
+        .subscribe(
+            ([data, args]) => {
+                seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                    name: GlobalActionName.TileDataLoaded,
+                    payload: {
+                        tileId: this.tileId,
+                        isEmpty: data.data.length === 0,
+                        heading: data.collHeadings,
+                        data: data.data,
+                        concId: data.concId,
+                        queryId: args.queryId,
                         subqueries: data.data.map(v => ({
                             value: {
                                 value: v.str,
