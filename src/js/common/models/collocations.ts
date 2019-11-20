@@ -76,7 +76,7 @@ export interface CollocModelState {
 
     sortByMetric:CollocMetric;
 
-    data:Immutable.List<DataRow>;
+    data:Array<DataRow>;
 
     heading:DataHeading;
 

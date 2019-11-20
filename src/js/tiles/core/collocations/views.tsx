@@ -80,7 +80,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // -------------- <TableView /> -------------------------------------
 
     const TableView:React.SFC<{
-        data:Immutable.List<DataRow>;
+        data:Array<DataRow>;
         heading:DataHeading;
 
     }> = (props) => {
@@ -125,7 +125,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
             return (
                 <globalCompontents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error} htmlClass="CollocTile"
-                        hasData={this.props.data.size > 0} sourceIdent={{corp: this.props.corpname}}
+                        hasData={this.props.data.length > 0} sourceIdent={{corp: this.props.corpname}}
                         backlink={this.props.backlink} supportsTileReload={this.props.supportsReloadOnError}
                         issueReportingUrl={this.props.issueReportingUrl}>
                     {this.props.isTweakMode ?
@@ -136,9 +136,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         {this.props.isAltViewMode ?
                             <TableView heading={this.props.heading} data={this.props.data} /> :
                             <globalCompontents.ResponsiveWrapper render={(width:number, height:number) => (
-                                <WordCloud width={width} height={height} data={this.props.data} isMobile={this.props.isMobile}
-                                        style={this.props.isMobile ? {height: `${this.props.data.size * 30}px`} :
-                                                {height: `${this.props.data.size * 40}px`, width: '100%'}}
+                                <WordCloud width={width} height={height} data={Immutable.List(this.props.data)} isMobile={this.props.isMobile}
+                                        style={this.props.isMobile ? {height: `${this.props.data.length * 30}px`} :
+                                                {height: `${this.props.data.length * 40}px`, width: '100%'}}
                                                 font="Roboto Condensed"
                                                 dataTransform={dataTransform} />
                                 )} />

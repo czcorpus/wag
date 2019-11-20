@@ -164,7 +164,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                         state.error = action.error.message;
 
                     } else {
-                        state.data = Immutable.List<DataRow>(action.payload.data);
+                        state.data = action.payload.data;
                         state.heading =
                             [{label: 'Abs', ident: ''}]
                             .concat(
