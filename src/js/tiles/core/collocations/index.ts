@@ -26,6 +26,7 @@ import { init as viewInit } from './views';
 import { TileConf, ITileProvider, TileComponent, TileFactory, Backlink } from '../../../common/tile';
 import { CollocationApi, SrchContextType } from '../../../common/api/abstract/collocations';
 import { createInstance } from './apiFactory';
+import { CoreApiGroup } from '../../../common/api/coreGroups';
 
 
 declare var require:(src:string)=>void;  // webpack
@@ -82,6 +83,7 @@ export class CollocationsTile implements ITileProvider {
             backlink: conf.backlink || null,
             lemmas: lemmas,
             queryType: queryType,
+            apiType: CoreApiGroup[conf.apiType],
             initState: {
                 isBusy: isBusy,
                 isTweakMode: false,

@@ -30,6 +30,7 @@ import { CollocModelState, ctxToRange } from '../../../common/models/collocation
 import { CoreCollRequestArgs } from '../../../common/api/kontext/collocations';
 import { findCurrLemmaVariant } from '../../../models/query';
 import { LemmaVariant, RecognizedQueries, QueryType } from '../../../common/query';
+import { CoreApiGroup } from '../../../common/api/coreGroups';
 
 
 export interface CollocModelArgs {
@@ -42,6 +43,7 @@ export interface CollocModelArgs {
     lemmas:RecognizedQueries;
     backlink:Backlink;
     queryType:QueryType;
+    apiType:CoreApiGroup;
 }
 
 
@@ -59,7 +61,9 @@ export class CollocModel extends StatelessModel<CollocModelState> {
     private readonly lemmas:RecognizedQueries;
 
     private readonly queryType:QueryType;
-
+    
+    private readonly apiType:CoreApiGroup;
+    
     private readonly measureMap = {
         't': 'T-score',
         'm': 'MI',
@@ -73,7 +77,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
 
     private readonly backlink:Backlink;
 
-    constructor({dispatcher, tileId, waitForTile, appServices, service, initState, backlink, lemmas, queryType}:CollocModelArgs) {
+    constructor({dispatcher, tileId, waitForTile, appServices, service, initState, backlink, lemmas, queryType, apiType}:CollocModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.waitForTile = waitForTile;
@@ -82,6 +86,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
         this.backlink = backlink;
         this.lemmas = lemmas;
         this.queryType = queryType;
+        this.apiType = apiType;
         
         this.addActionHandler<GlobalActions.EnableTileTweakMode>(
             GlobalActionName.EnableTileTweakMode,
