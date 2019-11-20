@@ -125,7 +125,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
             return (
                 <globalCompontents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error} htmlClass="CollocTile"
-                        hasData={this.props.data.length > 0} sourceIdent={{corp: this.props.corpname}}
+                        hasData={this.props.data.some(data => data.length > 0)} sourceIdent={{corp: this.props.corpname}}
                         backlink={this.props.backlink} supportsTileReload={this.props.supportsReloadOnError}
                         issueReportingUrl={this.props.issueReportingUrl}>
                     {this.props.isTweakMode ?
@@ -133,17 +133,16 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         null
                     }
                     <div className="boxes">
-                        {this.props.isAltViewMode ?
-                            <TableView heading={this.props.heading} data={this.props.data} /> :
-                            <globalCompontents.ResponsiveWrapper render={(width:number, height:number) => (
-                                <WordCloud width={width} height={height} data={Immutable.List(this.props.data)} isMobile={this.props.isMobile}
-                                        style={this.props.isMobile ? {height: `${this.props.data.length * 30}px`} :
-                                                {height: `${this.props.data.length * 40}px`, width: '100%'}}
+                        {this.props.data.map((data, index) => this.props.isAltViewMode ?
+                            <TableView key={index} heading={this.props.heading} data={data} /> :
+                            <globalCompontents.ResponsiveWrapper key={index} render={(width:number, height:number) => (
+                                <WordCloud width={width} height={height} data={Immutable.List(data)} isMobile={this.props.isMobile}
+                                        style={this.props.isMobile ? {height: `${data.length * 30}px`} :
+                                                {height: `${data.length * 40}px`, width: '100%'}}
                                                 font="Roboto Condensed"
                                                 dataTransform={dataTransform} />
                                 )} />
-                        }
-
+                        )}
                     </div>
                 </globalCompontents.TileWrapper>
             );

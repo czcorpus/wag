@@ -75,7 +75,7 @@ export interface CollocModelState {
 
     sortByMetric:CollocMetric;
 
-    data:Array<DataRow>;
+    data:Array<Array<DataRow>>;
 
     heading:DataHeading;
 

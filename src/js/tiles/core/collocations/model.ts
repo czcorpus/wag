@@ -141,6 +141,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                                             data: [],
                                             heading: null,
                                             concId: null,
+                                            queryId: null,
                                             subqueries: [],
                                             lang1: null,
                                             lang2: null
@@ -172,7 +173,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                         state.error = action.error.message;
 
                     } else {
-                        state.data = action.payload.data;
+                        state.data[action.payload.queryId] = action.payload.data;
                         state.heading =
                             [{label: 'Abs', ident: ''}]
                             .concat(
@@ -273,6 +274,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                         heading: data.collHeadings,
                         data: data.data,
                         concId: data.concId,
+                        queryId: 0,
                         subqueries: data.data.map(v => ({
                             value: {
                                 value: v.str,
@@ -295,6 +297,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                         heading: null,
                         data: [],
                         concId: null,
+                        queryId: null,
                         subqueries: [],
                         lang1: null,
                         lang2: null
