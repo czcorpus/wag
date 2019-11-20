@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
 import { SrchContextType, DataRow, DataHeading } from '../api/abstract/collocations';
 import { BacklinkWithArgs } from '../tile';
 import { CollocMetric } from '../../tiles/core/collocations/common';

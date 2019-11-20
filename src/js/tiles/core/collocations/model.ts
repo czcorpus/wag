@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
 import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { Observable, Observer } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
@@ -26,11 +25,11 @@ import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../
 import { ConcLoadedPayload } from '../concordance/actions';
 import { ActionName, Actions, DataLoadedPayload } from './common';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
-import { DataRow, CollocationApi } from '../../../common/api/abstract/collocations';
+import { CollocationApi } from '../../../common/api/abstract/collocations';
 import { CollocModelState, ctxToRange } from '../../../common/models/collocations';
 import { CoreCollRequestArgs } from '../../../common/api/kontext/collocations';
 import { findCurrLemmaVariant } from '../../../models/query';
-import { LemmaVariant, RecognizedQueries } from '../../../common/query';
+import { LemmaVariant, RecognizedQueries, QueryType } from '../../../common/query';
 
 
 export interface CollocModelArgs {
@@ -42,6 +41,7 @@ export interface CollocModelArgs {
     waitForTile:number;
     lemmas:RecognizedQueries;
     backlink:Backlink;
+    queryType:QueryType;
 }
 
 
@@ -58,6 +58,8 @@ export class CollocModel extends StatelessModel<CollocModelState> {
 
     private readonly lemmas:RecognizedQueries;
 
+    private readonly queryType:QueryType;
+
     private readonly measureMap = {
         't': 'T-score',
         'm': 'MI',
@@ -71,7 +73,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
 
     private readonly backlink:Backlink;
 
-    constructor({dispatcher, tileId, waitForTile, appServices, service, initState, backlink, lemmas}:CollocModelArgs) {
+    constructor({dispatcher, tileId, waitForTile, appServices, service, initState, backlink, lemmas, queryType}:CollocModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.waitForTile = waitForTile;
@@ -79,6 +81,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
         this.service = service;
         this.backlink = backlink;
         this.lemmas = lemmas;
+        this.queryType = queryType;
         
         this.addActionHandler<GlobalActions.EnableTileTweakMode>(
             GlobalActionName.EnableTileTweakMode,

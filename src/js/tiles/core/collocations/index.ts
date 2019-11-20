@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
 import { IActionDispatcher, StatelessModel } from 'kombo';
 
 import { AppServices } from '../../../appServices';
@@ -25,7 +24,7 @@ import { CollocMetric } from './common';
 import { CollocModel } from './model';
 import { init as viewInit } from './views';
 import { TileConf, ITileProvider, TileComponent, TileFactory, Backlink } from '../../../common/tile';
-import { CollocationApi, SrchContextType, DataRow } from '../../../common/api/abstract/collocations';
+import { CollocationApi, SrchContextType } from '../../../common/api/abstract/collocations';
 import { createInstance } from './apiFactory';
 
 
@@ -67,7 +66,7 @@ export class CollocationsTile implements ITileProvider {
 
     private readonly api:CollocationApi<{}>;
 
-    constructor({tileId, dispatcher, appServices, ut, theme, waitForTiles, widthFract, conf, isBusy, lemmas, cache}:TileFactory.Args<CollocationsTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, theme, waitForTiles, widthFract, conf, isBusy, lemmas, cache, queryType}:TileFactory.Args<CollocationsTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.appServices = appServices;
@@ -82,6 +81,7 @@ export class CollocationsTile implements ITileProvider {
             service: this.api,
             backlink: conf.backlink || null,
             lemmas: lemmas,
+            queryType: queryType,
             initState: {
                 isBusy: isBusy,
                 isTweakMode: false,
@@ -130,7 +130,7 @@ export class CollocationsTile implements ITileProvider {
     }
 
     supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {
-        return qt === QueryType.SINGLE_QUERY || qt === QueryType.TRANSLAT_QUERY;
+        return qt === QueryType.SINGLE_QUERY || qt === QueryType.CMP_QUERY || qt === QueryType.TRANSLAT_QUERY;
     }
 
     disable():void {
