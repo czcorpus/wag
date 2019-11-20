@@ -31,6 +31,7 @@ import { CoreCollRequestArgs } from '../../../common/api/kontext/collocations';
 import { findCurrLemmaVariant } from '../../../models/query';
 import { LemmaVariant, RecognizedQueries, QueryType } from '../../../common/query';
 import { CoreApiGroup } from '../../../common/api/coreGroups';
+import { ConcApi } from '../../../common/api/kontext/concordance';
 
 
 export interface CollocModelArgs {
@@ -38,6 +39,7 @@ export interface CollocModelArgs {
     tileId:number;
     appServices:AppServices;
     service:CollocationApi<{}>;
+    concApi:ConcApi;
     initState:CollocModelState;
     waitForTile:number;
     lemmas:RecognizedQueries;
@@ -51,6 +53,8 @@ export class CollocModel extends StatelessModel<CollocModelState> {
 
 
     private readonly service:CollocationApi<{}>;
+
+    private readonly concApi:ConcApi;
 
     private readonly appServices:AppServices;
 
@@ -77,12 +81,13 @@ export class CollocModel extends StatelessModel<CollocModelState> {
 
     private readonly backlink:Backlink;
 
-    constructor({dispatcher, tileId, waitForTile, appServices, service, initState, backlink, lemmas, queryType, apiType}:CollocModelArgs) {
+    constructor({dispatcher, tileId, waitForTile, appServices, service, initState, backlink, lemmas, queryType, apiType, concApi}:CollocModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.waitForTile = waitForTile;
         this.appServices = appServices;
         this.service = service;
+        this.concApi = concApi;
         this.backlink = backlink;
         this.lemmas = lemmas;
         this.queryType = queryType;

@@ -27,6 +27,7 @@ import { TileConf, ITileProvider, TileComponent, TileFactory, Backlink } from '.
 import { CollocationApi, SrchContextType } from '../../../common/api/abstract/collocations';
 import { createInstance } from './apiFactory';
 import { CoreApiGroup } from '../../../common/api/coreGroups';
+import { ConcApi } from '../../../common/api/kontext/concordance';
 
 
 declare var require:(src:string)=>void;  // webpack
@@ -80,6 +81,7 @@ export class CollocationsTile implements ITileProvider {
             waitForTile: waitForTiles[0],
             appServices: appServices,
             service: this.api,
+            concApi: conf.apiType === CoreApiGroup.KONTEXT ? new ConcApi(false, cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)) : null,
             backlink: conf.backlink || null,
             lemmas: lemmas,
             queryType: queryType,
