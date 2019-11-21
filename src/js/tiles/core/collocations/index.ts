@@ -103,7 +103,7 @@ export class CollocationsTile implements ITileProvider {
                 minLocalAbsFreq: conf.minLocalFreq,
                 appliedMetrics: [CollocMetric.LOG_DICE, CollocMetric.MI, CollocMetric.T_SCORE],
                 sortByMetric: CollocMetric.LOG_DICE,
-                data: lemmas.map(_ => []),
+                data: lemmas.map(_ => null),
                 heading: [],
                 citemsperpage: conf.maxItems ? conf.maxItems : 10,
                 backlink: null

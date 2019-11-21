@@ -125,7 +125,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
             return (
                 <globalCompontents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error} htmlClass="CollocTile"
-                        hasData={this.props.data.some(data => data.length > 0)} sourceIdent={{corp: this.props.corpname}}
+                        hasData={this.props.data.some(data => data !== null && data.length > 0)} sourceIdent={{corp: this.props.corpname}}
                         backlink={this.props.backlink} supportsTileReload={this.props.supportsReloadOnError}
                         issueReportingUrl={this.props.issueReportingUrl}>
                     {this.props.isTweakMode ?
@@ -135,7 +135,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <div className="boxes">
                         {this.props.data.map((data, index) => this.props.isAltViewMode ?
                             <TableView key={index} heading={this.props.heading} data={data} /> :
-                            data.length > 0 ?
+                            data ?
                                 <globalCompontents.ResponsiveWrapper key={index} render={(width:number, height:number) => (
                                     <WordCloud width={width} height={height} data={Immutable.List(data)} isMobile={this.props.isMobile}
                                             style={this.props.isMobile ? {height: `${data.length * 30}px`} :
@@ -144,7 +144,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                                     dataTransform={dataTransform}
                                                     selectedText={this.props.data.length > 1 ? this.props.selectedText : null} />
                                 )} /> :
-                                <globalCompontents.ResponsiveWrapper key={`${index}empty`} render={() => <p>No data</p>} />
+                                <globalCompontents.ResponsiveWrapper key={`${index}empty`} render={() => data === null ? <p>Processing...</p> : <p>No data</p>} />
                         )}
                     </div>
                 </globalCompontents.TileWrapper>

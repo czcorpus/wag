@@ -192,10 +192,9 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             GlobalActionName.TileDataLoaded,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
-                    state.isBusy = false;
                     if (action.error) {
+                        state.isBusy = false;
                         state.error = action.error.message;
-
                     } else {
                         state.concIds[action.payload.queryId] = action.payload.concId;
                         state.data[action.payload.queryId] = action.payload.data;
@@ -209,6 +208,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
 
                         state.backlink = this.createBackLink(state, action);
                     }
+                    state.isBusy = state.data.some(d => d === null);
                 }
             }
         );
