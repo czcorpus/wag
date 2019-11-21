@@ -85,7 +85,7 @@ export class CollocationsTile implements ITileProvider {
             backlink: conf.backlink || null,
             lemmas: lemmas,
             queryType: queryType,
-            apiType: CoreApiGroup[conf.apiType],
+            apiType: conf.apiType,
             initState: {
                 isBusy: isBusy,
                 isTweakMode: false,
@@ -94,7 +94,7 @@ export class CollocationsTile implements ITileProvider {
                 widthFract: widthFract,
                 error: null,
                 corpname: conf.corpname,
-                concId: null,
+                concIds: lemmas.map(_ => null),
                 selectedText: null,
                 tokenAttr: CorePosAttribute.LEMMA,
                 srchRange: conf.rangeSize,

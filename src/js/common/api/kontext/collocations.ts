@@ -87,7 +87,7 @@ export class KontextCollAPI implements CollocationApi<CollApiArgs> {
         const [cfromw, ctow] = ctxToRange(state.srchRangeType, state.srchRange);
         return {
             corpname: state.corpname,
-            q: `~${concId ? concId : state.concId}`,
+            q: `~${concId}`,
             cattr: state.tokenAttr,
             cfromw: cfromw,
             ctow: ctow,

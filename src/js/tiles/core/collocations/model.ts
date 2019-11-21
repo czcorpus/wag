@@ -48,7 +48,7 @@ export interface CollocModelArgs {
     lemmas:RecognizedQueries;
     backlink:Backlink;
     queryType:QueryType;
-    apiType:CoreApiGroup;
+    apiType:string;
 }
 
 
@@ -69,7 +69,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
 
     private readonly queryType:QueryType;
     
-    private readonly apiType:CoreApiGroup;
+    private readonly apiType:string;
     
     private readonly measureMap = {
         't': 'T-score',
@@ -147,42 +147,43 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                 state.error = null;
             },
             (state, action, seDispatch) => {
-                if (this.queryType === QueryType.CMP_QUERY) {
-                    this.reloadAllData(state, seDispatch);
-                } else {
-                    if (this.waitForTile) {
-                        this.suspend(
-                            (action:Action) => {
-                                if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
-                                    const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
-                                    if (action.error) {
-                                        seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                            name: GlobalActionName.TileDataLoaded,
-                                            payload: {
-                                                tileId: this.tileId,
-                                                isEmpty: true,
-                                                data: [],
-                                                heading: null,
-                                                concId: null,
-                                                queryId: null,
-                                                subqueries: [],
-                                                lang1: null,
-                                                lang2: null
-                                            },
-                                            error: new Error(this.appServices.translate('global__failed_to_obtain_required_data')),
-                                        });
-                                        return true;
-                                    }
-                                    this.requestData(state, payload.concPersistenceID, action.error, seDispatch);
+                if (this.waitForTile) {
+                    this.suspend(
+                        (action:Action) => {
+                            if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
+                                const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
+                                if (action.error) {
+                                    seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                        name: GlobalActionName.TileDataLoaded,
+                                        payload: {
+                                            tileId: this.tileId,
+                                            isEmpty: true,
+                                            data: [],
+                                            heading: null,
+                                            concId: null,
+                                            queryId: null,
+                                            subqueries: [],
+                                            lang1: null,
+                                            lang2: null
+                                        },
+                                        error: new Error(this.appServices.translate('global__failed_to_obtain_required_data')),
+                                    });
                                     return true;
                                 }
-                                return false;
+                                this.requestData(state, payload.concPersistenceID, 0, action.error, seDispatch);
+                                return true;
                             }
-                        );
-
-                    } else {
-                        const variant = findCurrLemmaVariant(this.lemmas[0]);
-                        this.requestData(state, variant, null, seDispatch);
+                            return false;
+                        }
+                    );
+                } else {
+                    switch (this.apiType) {
+                        case CoreApiGroup.KONTEXT:                            
+                            this.reloadAllData(state, seDispatch);
+                        break;
+                        case CoreApiGroup.LCC:
+                            this.lemmas.forEach((lemma, queryId) => this.requestData(state, findCurrLemmaVariant(lemma), queryId, null, seDispatch));
+                        break;
                     }
                 }
             }
@@ -191,12 +192,12 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             GlobalActionName.TileDataLoaded,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
-                    state.concId = action.payload.concId;
                     state.isBusy = false;
                     if (action.error) {
                         state.error = action.error.message;
 
                     } else {
+                        state.concIds[action.payload.queryId] = action.payload.concId;
                         state.data[action.payload.queryId] = action.payload.data;
                         state.heading =
                             [{label: 'Abs', ident: ''}]
@@ -221,7 +222,14 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             },
             (state, action, seDispatch) => {
                 if (action.payload.tileId === this.tileId) {
-                    this.requestData(state, state.concId, null, seDispatch);
+                    switch (this.apiType) {
+                        case CoreApiGroup.KONTEXT:
+                            this.reloadAllData(state, seDispatch);
+                        break;
+                        case CoreApiGroup.LCC:
+                            this.lemmas.forEach((lemma, queryId) => this.requestData(state, findCurrLemmaVariant(lemma), queryId, null, seDispatch));
+                        break;
+                    }
                 }
             }
         );
@@ -277,7 +285,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             null;
     }
 
-    private requestData(state:CollocModelState, dataSpec:LemmaVariant|string, prevActionErr:Error|null, seDispatch:SEDispatcher):void {
+    private requestData(state:CollocModelState, dataSpec:LemmaVariant|string, queryId:number, prevActionErr:Error|null, seDispatch:SEDispatcher):void {
         new Observable((observer:Observer<{}>) => {
             if (prevActionErr) {
                 observer.error(prevActionErr);
@@ -298,7 +306,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                         heading: data.collHeadings,
                         data: data.data,
                         concId: data.concId,
-                        queryId: 0,
+                        queryId: queryId,
                         subqueries: data.data.map(v => ({
                             value: {
                                 value: v.str,
@@ -333,9 +341,18 @@ export class CollocModel extends StatelessModel<CollocModelState> {
     }
 
     private reloadAllData(state:CollocModelState, seDispatch:SEDispatcher):void {
-        of(...this.lemmas.map((lemma, queryId) => ({lemma: findCurrLemmaVariant(lemma), queryId: queryId})))
+        of(...this.lemmas.map((lemma, queryId) => ({lemma: findCurrLemmaVariant(lemma), queryId: queryId, concId: state.concIds[queryId]})))
         .pipe(
             concatMap(args =>
+                args.concId ?
+                of([{
+                        concPersistenceID: args.concId
+                    }, {
+                        corpName: state.corpname,
+                        subcName: null,
+                        concId: null,
+                        queryId: args.queryId
+                    }]) :
                 callWithExtraVal(
                     this.concApi,
                     this.concApi.stateToArgs(
@@ -366,8 +383,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                         corpName: state.corpname,
                         subcName: null,
                         concId: null,
-                        queryId: args.queryId,
-                        origQuery: mkMatchQuery(args.lemma, ['tag', 'ppTagset'])
+                        queryId: args.queryId
                     }
                 )
             ),

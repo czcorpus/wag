@@ -42,7 +42,7 @@ export interface CollocModelState {
     error:string|null;
     widthFract:number;
     corpname:string;
-    concId:string;
+    concIds:Array<string>;
     selectedText:string;
 
     /**
