@@ -17,7 +17,6 @@
  */
 import { IActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
-import * as Immutable from 'immutable';
 import { Theme } from '../../common/theme';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
 import { GlobalComponents } from '../../views/global';
@@ -33,12 +32,12 @@ export interface WordCloudProps<T> {
     width:number;
     height:number;
     font:string;
-    data:Immutable.List<T>;
+    data:Array<T>;
     dataTransform:(v:T)=>WordCloudItem;
     selectedText?:string;
 }
 interface WordCloudState<T> {
-    data:Immutable.List<T>;
+    data:Array<T>;
     rects:Array<Rect>;
     transform:string;
     activeItem:WordCloudItem|null;
@@ -223,7 +222,7 @@ export function init<T>(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalCompone
         render() {
             const vboxAspectRatio = this.props.width / this.props.height;
             const wcloud = createWordCloud(
-                this.props.data.map(this.props.dataTransform).toArray(),
+                this.props.data.map(this.props.dataTransform),
                 200,
                 200 / vboxAspectRatio,
                 this.props.isMobile,

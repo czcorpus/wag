@@ -137,7 +137,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             <TableView key={index} heading={this.props.heading} data={data} /> :
                             data ?
                                 <globalCompontents.ResponsiveWrapper key={index} render={(width:number, height:number) => (
-                                    <WordCloud width={width} height={height} data={Immutable.List(data)} isMobile={this.props.isMobile}
+                                    <WordCloud width={width} height={height} data={data} isMobile={this.props.isMobile}
                                             style={this.props.isMobile ? {height: `${data.length * 30}px`} :
                                                     {height: `${data.length * 40}px`, width: '100%'}}
                                                     font="Roboto Condensed"
