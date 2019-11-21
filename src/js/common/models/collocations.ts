@@ -43,6 +43,7 @@ export interface CollocModelState {
     widthFract:number;
     corpname:string;
     concId:string;
+    selectedText:string;
 
     /**
      * A positional attribute used to analyze the text

@@ -261,6 +261,7 @@ export namespace Actions {
 
     export interface SubqItemHighlighted extends Action<{
         interactionId:string;
+        text:string;
 
     }> {
         name:ActionName.SubqItemHighlighted;

@@ -95,6 +95,7 @@ export class CollocationsTile implements ITileProvider {
                 error: null,
                 corpname: conf.corpname,
                 concId: null,
+                selectedText: null,
                 tokenAttr: CorePosAttribute.LEMMA,
                 srchRange: conf.rangeSize,
                 srchRangeType: SrchContextType.BOTH,

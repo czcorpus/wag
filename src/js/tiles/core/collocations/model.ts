@@ -96,6 +96,18 @@ export class CollocModel extends StatelessModel<CollocModelState> {
         this.queryType = queryType;
         this.apiType = apiType;
         
+        this.addActionHandler<GlobalActions.SubqItemHighlighted>(
+            GlobalActionName.SubqItemHighlighted,
+            (state, action) => {
+                state.selectedText = action.payload.text;             
+            }
+        );
+        this.addActionHandler<GlobalActions.SubqItemDehighlighted>(
+            GlobalActionName.SubqItemDehighlighted,
+            (state, action) => {
+                state.selectedText = null;
+            }
+        );
         this.addActionHandler<GlobalActions.EnableTileTweakMode>(
             GlobalActionName.EnableTileTweakMode,
             (state, action) => {

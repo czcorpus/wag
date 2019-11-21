@@ -35,6 +35,7 @@ export interface WordCloudProps<T> {
     font:string;
     data:Immutable.List<T>;
     dataTransform:(v:T)=>WordCloudItem;
+    selectedText?:string;
 }
 interface WordCloudState<T> {
     data:Immutable.List<T>;
@@ -56,13 +57,14 @@ export function init<T>(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalCompone
         onMouseMove:(x:number, y:number, data:WordCloudItem)=>void;
         onMouseOver:(x:number, y:number, data:WordCloudItem)=>void;
         onMouseOut:(data:WordCloudItem)=>void;
+        selectedText?:string;
 
     }> = (props) => {
 
         const style = {
             fontWeight: 700,
             fontSize: `${props.rect.fontSize}px`,
-            fontFamily: props.font,
+            fontFamily: props.font
         };
 
         const handleMouseMove = (e:React.MouseEvent) => {
@@ -78,18 +80,19 @@ export function init<T>(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalCompone
         };
 
         return (
-            <g>
+            <g pointerEvents="all"
+                onMouseMove={handleMouseMove}
+                onMouseOut={handleMouseOut}
+                onMouseOver={handleMouseOver}>
+                
+                <rect x={props.rect.x} y={props.rect.y}
+                        width={props.rect.w} height={props.rect.h}
+                        fill='blue' opacity={props.rect.data.text === props.selectedText ? 0.05 : 0}/>
                 <text x={props.rect.x}
                         y={props.rect.y + props.rect.fontSize}
                         fill={props.color}
                         pointerEvents="none"
                         style={style}>{props.rect.data.text}</text>
-                <rect x={props.rect.x} y={props.rect.y}
-                        width={props.rect.w} height={props.rect.h} opacity={0}
-                        pointerEvents="all"
-                        onMouseMove={handleMouseMove}
-                        onMouseOut={handleMouseOut}
-                        onMouseOver={handleMouseOver} />
             </g>
         );
     };
@@ -180,7 +183,8 @@ export function init<T>(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalCompone
                 dispatcher.dispatch<GlobalActions.SubqItemHighlighted>({
                     name: GlobalActionName.SubqItemHighlighted,
                     payload: {
-                        interactionId: data.interactionId
+                        interactionId: data.interactionId,
+                        text: data.text
                     }
                 });
             }
@@ -242,7 +246,9 @@ export function init<T>(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalCompone
                                     onMouseMove={this.handleMouseMove}
                                     onMouseOut={this.handleMouseOut}
                                     onMouseOver={this.handleMouseOver}
-                                    font={this.props.font} /> )}
+                                    font={this.props.font}
+                                    selectedText={this.props.selectedText} />
+                            )}
                         </g>
                     </svg>
                 </div>
