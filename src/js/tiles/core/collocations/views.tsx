@@ -82,10 +82,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     const TableView:React.SFC<{
         data:Array<DataRow>;
         heading:DataHeading;
-
+        caption:string;
     }> = (props) => {
         return (
             <table className="data">
+                <caption>{props.caption}</caption>
                 <thead>
                     <tr>
                         <th />
@@ -134,15 +135,17 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     }
                     <div className="boxes">
                         {this.props.data.map((data, index) => this.props.isAltViewMode ?
-                            <TableView key={index} heading={this.props.heading} data={data} /> :
+                            <TableView key={index} heading={this.props.heading} data={data} caption={this.props.data.length > 1 ? this.props.lemmas[index].word : null} /> :
                             data ?
                                 <globalCompontents.ResponsiveWrapper key={index} render={(width:number, height:number) => (
-                                    <WordCloud width={width} height={height} data={data} isMobile={this.props.isMobile}
+                                    <div><p>{this.props.data.length > 1 ? this.props.lemmas[index].word : null}</p>
+                                        <WordCloud width={width} height={height} data={data} isMobile={this.props.isMobile}
                                             style={this.props.isMobile ? {height: `${data.length * 30}px`} :
-                                                    {height: `${data.length * 40}px`, width: '100%'}}
-                                                    font="Roboto Condensed"
-                                                    dataTransform={dataTransform}
-                                                    selectedText={this.props.data.length > 1 ? this.props.selectedText : null} />
+                                                {height: `${data.length * 40}px`, width: '100%'}}
+                                                font="Roboto Condensed"
+                                                dataTransform={dataTransform}
+                                                selectedText={this.props.data.length > 1 ? this.props.selectedText : null}/>
+                                    </div>
                                 )} /> :
                                 <globalCompontents.ResponsiveWrapper key={`${index}empty`} render={() => data === null ? <p>Processing...</p> : <p>No data</p>} />
                         )}

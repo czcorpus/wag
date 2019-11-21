@@ -45,7 +45,6 @@ export interface CollocModelArgs {
     concApi:ConcApi;
     initState:CollocModelState;
     waitForTile:number;
-    lemmas:RecognizedQueries;
     backlink:Backlink;
     queryType:QueryType;
     apiType:string;
@@ -65,8 +64,6 @@ export class CollocModel extends StatelessModel<CollocModelState> {
 
     private readonly waitForTile:number;
 
-    private readonly lemmas:RecognizedQueries;
-
     private readonly queryType:QueryType;
     
     private readonly apiType:string;
@@ -84,7 +81,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
 
     private readonly backlink:Backlink;
 
-    constructor({dispatcher, tileId, waitForTile, appServices, service, initState, backlink, lemmas, queryType, apiType, concApi}:CollocModelArgs) {
+    constructor({dispatcher, tileId, waitForTile, appServices, service, initState, backlink, queryType, apiType, concApi}:CollocModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.waitForTile = waitForTile;
@@ -92,7 +89,6 @@ export class CollocModel extends StatelessModel<CollocModelState> {
         this.service = service;
         this.concApi = concApi;
         this.backlink = backlink;
-        this.lemmas = lemmas;
         this.queryType = queryType;
         this.apiType = apiType;
         
@@ -182,7 +178,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                             this.reloadAllData(state, seDispatch);
                         break;
                         case CoreApiGroup.LCC:
-                            this.lemmas.forEach((lemma, queryId) => this.requestData(state, findCurrLemmaVariant(lemma), queryId, null, seDispatch));
+                            state.lemmas.forEach((lemma, queryId) => this.requestData(state, lemma, queryId, null, seDispatch));
                         break;
                     }
                 }
@@ -227,7 +223,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                             this.reloadAllData(state, seDispatch);
                         break;
                         case CoreApiGroup.LCC:
-                            this.lemmas.forEach((lemma, queryId) => this.requestData(state, findCurrLemmaVariant(lemma), queryId, null, seDispatch));
+                            state.lemmas.forEach((lemma, queryId) => this.requestData(state, lemma, queryId, null, seDispatch));
                         break;
                     }
                 }
@@ -341,7 +337,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
     }
 
     private reloadAllData(state:CollocModelState, seDispatch:SEDispatcher):void {
-        of(...this.lemmas.map((lemma, queryId) => ({lemma: findCurrLemmaVariant(lemma), queryId: queryId, concId: state.concIds[queryId]})))
+        of(...state.lemmas.map((lemma, queryId) => ({lemma: lemma, queryId: queryId, concId: state.concIds[queryId]})))
         .pipe(
             concatMap(args =>
                 args.concId ?
@@ -372,7 +368,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                             attrs: ['word'],
                             metadataAttrs: [],
                             queries: [],
-                            concordances: createInitialLinesData(this.lemmas.length),
+                            concordances: createInitialLinesData(state.lemmas.length),
                             posQueryGenerator: ['tag', 'ppTagset']
                         },
                         args.lemma,

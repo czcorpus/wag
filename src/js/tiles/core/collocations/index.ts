@@ -28,6 +28,7 @@ import { CollocationApi, SrchContextType } from '../../../common/api/abstract/co
 import { createInstance } from './apiFactory';
 import { CoreApiGroup } from '../../../common/api/coreGroups';
 import { ConcApi } from '../../../common/api/kontext/concordance';
+import { findCurrLemmaVariant } from '../../../models/query';
 
 
 declare var require:(src:string)=>void;  // webpack
@@ -83,7 +84,6 @@ export class CollocationsTile implements ITileProvider {
             service: this.api,
             concApi: conf.apiType === CoreApiGroup.KONTEXT ? new ConcApi(false, cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)) : null,
             backlink: conf.backlink || null,
-            lemmas: lemmas,
             queryType: queryType,
             apiType: conf.apiType,
             initState: {
@@ -106,7 +106,8 @@ export class CollocationsTile implements ITileProvider {
                 data: lemmas.map(_ => null),
                 heading: [],
                 citemsperpage: conf.maxItems ? conf.maxItems : 10,
-                backlink: null
+                backlink: null,
+                lemmas: lemmas.map(findCurrLemmaVariant)
             }
         });
         this.label = appServices.importExternalMessage(conf.label || 'collocations__main_label');

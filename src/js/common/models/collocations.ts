@@ -18,6 +18,7 @@
 import { SrchContextType, DataRow, DataHeading } from '../api/abstract/collocations';
 import { BacklinkWithArgs } from '../tile';
 import { CollocMetric } from '../../tiles/core/collocations/common';
+import { LemmaVariant } from '../query';
 
 
 export function ctxToRange(ctxType:SrchContextType, range:number):[number, number] {
@@ -83,4 +84,6 @@ export interface CollocModelState {
     citemsperpage:number;
 
     backlink:BacklinkWithArgs<{}>;
+
+    lemmas:Array<LemmaVariant>;
 }
