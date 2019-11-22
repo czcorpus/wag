@@ -44,6 +44,7 @@ export interface CollocationsTileConf extends TileConf {
     rangeSize:number;
     maxItems?:number;
     backlink?:Backlink;
+    posQueryGenerator?:[string, string]; // a positional attribute name and a function to create a query value (e.g. ['tag', (v) => `${v}.+`])
 }
 
 /**
@@ -107,7 +108,8 @@ export class CollocationsTile implements ITileProvider {
                 heading: [],
                 citemsperpage: conf.maxItems ? conf.maxItems : 10,
                 backlink: null,
-                lemmas: lemmas.map(findCurrLemmaVariant)
+                lemmas: lemmas.map(findCurrLemmaVariant),
+                posQueryGenerator: conf.posQueryGenerator
             }
         });
         this.label = appServices.importExternalMessage(conf.label || 'collocations__main_label');

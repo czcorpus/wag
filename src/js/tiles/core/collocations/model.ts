@@ -365,11 +365,11 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                             attr_vmode: 'mouseover',
                             viewMode: ViewMode.KWIC,
                             tileId: this.tileId,
-                            attrs: ['word'],
+                            attrs: [],
                             metadataAttrs: [],
                             queries: [],
                             concordances: createInitialLinesData(state.lemmas.length),
-                            posQueryGenerator: ['tag', 'ppTagset']
+                            posQueryGenerator: state.posQueryGenerator
                         },
                         args.lemma,
                         args.queryId,
