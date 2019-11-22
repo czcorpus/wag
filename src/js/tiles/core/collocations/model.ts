@@ -28,7 +28,6 @@ import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { CollocationApi } from '../../../common/api/abstract/collocations';
 import { CollocModelState, ctxToRange } from '../../../common/models/collocations';
 import { CoreCollRequestArgs } from '../../../common/api/kontext/collocations';
-import { findCurrLemmaVariant } from '../../../models/query';
 import { LemmaVariant, RecognizedQueries, QueryType } from '../../../common/query';
 import { CoreApiGroup } from '../../../common/api/coreGroups';
 import { ConcApi, QuerySelector, mkMatchQuery } from '../../../common/api/kontext/concordance';
