@@ -31,8 +31,9 @@ export enum ActionName {
 export interface DataLoadedPayload {
     block:ApiDataBlock;
     blockLabel?:LocalizedConfMsg;
-    critIdx:number;
+    queryId:number;
     lemma:LemmaVariant;
+    critId:number;    
 }
 
 export namespace Actions {

@@ -15,14 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { map, flatMap } from 'rxjs/operators';
 
 import { cachedAjax$ } from '../../ajax';
 import { HTTPHeaders, IAsyncKeyValueStore } from '../../types';
 import { CorpusInfoAPI, APIResponse as CorpusInfoApiResponse } from './corpusInfo';
 import { ConcApi, QuerySelector } from './concordance';
-import { ViewMode } from '../abstract/concordance';
+import { ViewMode, ConcResponse } from '../abstract/concordance';
 import { LemmaVariant } from '../../query';
 
 export enum FreqSort {
@@ -101,7 +101,7 @@ export interface MultiCritQueryArgs extends CoreQueryArgs {
 }
 
 export interface WordDataApi<T, U> {
-    call(queryArgs:T, lemma:LemmaVariant):Observable<U>;
+    call(queryArgs:T, lemma:LemmaVariant, concId:string):Observable<U>;
 }
 
 export class FreqComparisonAPI implements WordDataApi<MultiCritQueryArgs, APIBlockResponse> {
@@ -142,23 +142,25 @@ export class FreqComparisonAPI implements WordDataApi<MultiCritQueryArgs, APIBlo
         }
     }
 
-    call(args:MultiCritQueryArgs, lemma:LemmaVariant):Observable<APIBlockResponse> {
-        return this.concApi.call({
-            corpname: args.corpname,
-            queryselector: QuerySelector.CQL,
-            cql: this.prepareCQL(lemma),
-            kwicleftctx: '0',
-            kwicrightctx: '0',
-            async: '0',
-            pagesize: '0',
-            fromp: '1',
-            attr_vmode: 'mouseover',
-            attrs: 'word',
-            viewmode: ViewMode.KWIC,
-            shuffle: 0,
-            format:'json'
-        })
-        .pipe(flatMap(x =>
+    call(args:MultiCritQueryArgs, lemma:LemmaVariant, concId:string):Observable<APIBlockResponse> {
+        const concResp = concId ? of({concPersistenceID: concId} as ConcResponse) :
+            this.concApi.call({
+                corpname: args.corpname,
+                queryselector: QuerySelector.CQL,
+                cql: this.prepareCQL(lemma),
+                kwicleftctx: '0',
+                kwicrightctx: '0',
+                async: '0',
+                pagesize: '0',
+                fromp: '1',
+                attr_vmode: 'mouseover',
+                attrs: 'word',
+                viewmode: ViewMode.KWIC,
+                shuffle: 0,
+                format:'json'
+            })
+        
+        return concResp.pipe(flatMap(x =>
             cachedAjax$<HTTPResponse>(this.cache)(
                 'GET',
                 this.apiURL + '/freqs',

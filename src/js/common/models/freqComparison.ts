@@ -49,11 +49,11 @@ export interface GeneralMultiCritFreqComparisonModelState<T=DataRow> extends Fre
 
 
 
-export function stateToAPIArgs<T>(state:GeneralMultiCritFreqComparisonModelState<T>, critIdx?:number, subcname?:string):MultiCritQueryArgs {
+export function stateToAPIArgs<T>(state:GeneralMultiCritFreqComparisonModelState<T>, critId?:number, subcname?:string):MultiCritQueryArgs {
     return {
         corpname: state.corpname,
         usesubcorp: subcname,
-        fcrit: critIdx !== undefined ? state.fcrit.get(critIdx) : state.fcrit.toArray(),
+        fcrit: critId !== undefined ? state.fcrit.get(critId) : state.fcrit.toArray(),
         flimit: state.flimit,
         freq_sort: state.freqSort,
         fpage: state.fpage,

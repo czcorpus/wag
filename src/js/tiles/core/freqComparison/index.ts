@@ -93,7 +93,7 @@ export class FreqComparisonTile implements ITileProvider {
                 error: null,
                 blocks: Immutable.List<FreqComparisonDataBlock<DataRow>>(criteria.map(v => ({
                     data: Immutable.List<DataRow>(),
-                    words: Immutable.List<string>(),
+                    words: Immutable.List<string>(lemmas.map(_ => null)),
                     ident: puid(),
                     isReady: false
                 }))),
