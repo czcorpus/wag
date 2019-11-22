@@ -43,11 +43,11 @@ export interface ConcLoadedPayload extends SubqueryPayload {
     tileId:number;
     corpusName:string;
     subcorpusName?:string;
-    concPersistenceID:string;
+    concPersistenceIDs:Array<string>;
 }
 
 export function isConcLoadedPayload(p:any):p is ConcLoadedPayload {
-    return p.concPersistenceID !== undefined && p.corpusName !== undefined;
+    return p.concPersistenceIDs !== undefined && p.corpusName !== undefined;
 }
 
 export namespace Actions {

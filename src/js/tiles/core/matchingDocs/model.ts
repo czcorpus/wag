@@ -152,7 +152,7 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState> {
                                 }
 
                             }).pipe(
-                                concatMap(_ => this.api.call(this.api.stateToArgs(state, payload.concPersistenceID)))
+                                concatMap(_ => this.api.call(this.api.stateToArgs(state, payload.concPersistenceIDs[0])))
 
                             ).subscribe(
                                 (resp) => {
@@ -162,7 +162,7 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState> {
                                             tileId: this.tileId,
                                             isEmpty: resp.data.length === 0,
                                             data: resp.data.sort((x1, x2) => x2.score - x1.score).slice(0, state.maxNumCategories),
-                                            backlink: this.api.stateToBacklink(state, payload.concPersistenceID)
+                                            backlink: this.api.stateToBacklink(state, payload.concPersistenceIDs[0])
                                         }
                                     });
                                 },

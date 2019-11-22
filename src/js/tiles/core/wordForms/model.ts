@@ -227,7 +227,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                                         {
                                             corpName: payload.corpusName,
                                             subcorpName: payload.subcorpusName,
-                                            concPersistenceID: payload.concPersistenceID
+                                            concPersistenceID: payload.concPersistenceIDs[0]
                                         },
                                         dispatch
                                     );
