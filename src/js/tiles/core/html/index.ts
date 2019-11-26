@@ -79,7 +79,7 @@ export class HtmlTile implements ITileProvider {
             dispatcher: dispatcher,
             tileId: tileId,
             appServices: appServices,
-            service: new ServiceClass(cache, conf.apiURL),
+            service: new ServiceClass(cache, conf.apiURL, appServices),
             lemmas: lemmas,
             initState: {
                 isBusy: isBusy,

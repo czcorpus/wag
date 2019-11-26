@@ -21,10 +21,13 @@ import { map } from 'rxjs/operators';
 import { cachedAjax$, ResponseType } from '../../../common/ajax';
 import { DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../../common/types';
 import { HtmlApiArgs, WiktionaryApiArgs, HtmlModelState } from './common';
+import { AppServices } from '../../../appServices';
+import { AjaxError } from 'rxjs/ajax';
 
 
 export interface GeneralHtmlAPI<T> extends DataApi<T, string> {
     stateToArgs(state:HtmlModelState, query:string):T;
+    getErrorMessage(err):null|string;
 }
 
 
@@ -36,7 +39,7 @@ export class RawHtmlAPI implements GeneralHtmlAPI<HtmlApiArgs> {
 
     private readonly cache:IAsyncKeyValueStore;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, customHeaders?:HTTPHeaders) {
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, appServices:AppServices, customHeaders?:HTTPHeaders) {
         this.apiURL = apiURL;
         this.customHeaders = customHeaders || {};
         this.cache = cache;
@@ -59,6 +62,10 @@ export class RawHtmlAPI implements GeneralHtmlAPI<HtmlApiArgs> {
         );
     }
 
+    getErrorMessage(err) {
+        return null
+    }
+
 }
 
 
@@ -70,10 +77,13 @@ export class WiktionaryHtmlAPI implements GeneralHtmlAPI<WiktionaryApiArgs>  {
 
     private readonly cache:IAsyncKeyValueStore;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, customHeaders?:HTTPHeaders) {
+    private readonly appServices:AppServices;
+
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, appServices:AppServices, customHeaders?:HTTPHeaders) {
         this.apiURL = apiURL;
         this.customHeaders = customHeaders || {};
         this.cache = cache;
+        this.appServices = appServices;
     }
 
     stateToArgs(state:HtmlModelState, query:string):WiktionaryApiArgs {
@@ -89,13 +99,19 @@ export class WiktionaryHtmlAPI implements GeneralHtmlAPI<WiktionaryApiArgs>  {
             this.apiURL,
             queryArgs,
             {headers: this.customHeaders, responseType: ResponseType.TEXT}
-
         ).pipe(
-            map(data => data.indexOf('čeština</span></h2>') > -1 ?
+            map(data =>
+                data.indexOf('čeština</span></h2>') > -1 ?
                     data.split('čeština</span></h2>', 2)[1].split('<h2>', 1)[0] :
                     data
             )
         );
+    }
+
+    getErrorMessage(err:AjaxError) {
+        return err.status === 404 && err.response.includes('noarticletext') ?
+            this.appServices.importExternalMessage('html__not_found_message_wiktionary') :
+            null
     }
 
 }

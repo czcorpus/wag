@@ -72,7 +72,12 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = false;
                     if (action.error) {
-                        state.error = action.error.message;
+                        const errMsg = this.service.getErrorMessage(action.error)
+                        if (errMsg !== null) {
+                            state.data = errMsg;
+                        } else {
+                            state.error = action.error.message;
+                        }
                     } else {
                         state.data = action.payload.data;
                     }   
