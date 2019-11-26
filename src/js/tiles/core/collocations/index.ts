@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
 import { IActionDispatcher, StatelessModel } from 'kombo';
 
 import { AppServices } from '../../../appServices';
@@ -25,8 +24,11 @@ import { CollocMetric } from './common';
 import { CollocModel } from './model';
 import { init as viewInit } from './views';
 import { TileConf, ITileProvider, TileComponent, TileFactory, Backlink } from '../../../common/tile';
-import { CollocationApi, SrchContextType, DataRow } from '../../../common/api/abstract/collocations';
+import { CollocationApi, SrchContextType } from '../../../common/api/abstract/collocations';
 import { createInstance } from './apiFactory';
+import { CoreApiGroup } from '../../../common/api/coreGroups';
+import { ConcApi } from '../../../common/api/kontext/concordance';
+import { findCurrLemmaVariant } from '../../../models/query';
 
 
 declare var require:(src:string)=>void;  // webpack
@@ -42,6 +44,7 @@ export interface CollocationsTileConf extends TileConf {
     rangeSize:number;
     maxItems?:number;
     backlink?:Backlink;
+    posQueryGenerator?:[string, string]; // a positional attribute name and a function to create a query value (e.g. ['tag', (v) => `${v}.+`])
 }
 
 /**
@@ -67,7 +70,7 @@ export class CollocationsTile implements ITileProvider {
 
     private readonly api:CollocationApi<{}>;
 
-    constructor({tileId, dispatcher, appServices, ut, theme, waitForTiles, widthFract, conf, isBusy, lemmas, cache}:TileFactory.Args<CollocationsTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, theme, waitForTiles, widthFract, conf, isBusy, lemmas, cache, queryType}:TileFactory.Args<CollocationsTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.appServices = appServices;
@@ -80,8 +83,10 @@ export class CollocationsTile implements ITileProvider {
             waitForTile: waitForTiles[0],
             appServices: appServices,
             service: this.api,
+            concApi: conf.apiType === CoreApiGroup.KONTEXT ? new ConcApi(false, cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)) : null,
             backlink: conf.backlink || null,
-            lemmas: lemmas,
+            queryType: queryType,
+            apiType: conf.apiType,
             initState: {
                 isBusy: isBusy,
                 isTweakMode: false,
@@ -90,7 +95,8 @@ export class CollocationsTile implements ITileProvider {
                 widthFract: widthFract,
                 error: null,
                 corpname: conf.corpname,
-                concId: null,
+                concIds: lemmas.map(_ => null),
+                selectedText: null,
                 tokenAttr: CorePosAttribute.LEMMA,
                 srchRange: conf.rangeSize,
                 srchRangeType: SrchContextType.BOTH,
@@ -98,10 +104,12 @@ export class CollocationsTile implements ITileProvider {
                 minLocalAbsFreq: conf.minLocalFreq,
                 appliedMetrics: [CollocMetric.LOG_DICE, CollocMetric.MI, CollocMetric.T_SCORE],
                 sortByMetric: CollocMetric.LOG_DICE,
-                data: Immutable.List<DataRow>(),
+                data: lemmas.map(_ => null),
                 heading: [],
                 citemsperpage: conf.maxItems ? conf.maxItems : 10,
-                backlink: null
+                backlink: null,
+                lemmas: lemmas.map(findCurrLemmaVariant),
+                posQueryGenerator: conf.posQueryGenerator
             }
         });
         this.label = appServices.importExternalMessage(conf.label || 'collocations__main_label');
@@ -130,7 +138,7 @@ export class CollocationsTile implements ITileProvider {
     }
 
     supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {
-        return qt === QueryType.SINGLE_QUERY || qt === QueryType.TRANSLAT_QUERY;
+        return qt === QueryType.SINGLE_QUERY || qt === QueryType.CMP_QUERY || qt === QueryType.TRANSLAT_QUERY;
     }
 
     disable():void {

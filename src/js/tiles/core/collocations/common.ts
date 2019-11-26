@@ -40,6 +40,7 @@ export interface DataLoadedPayload extends SubqueryPayload<RangeRelatedSubqueryV
     data:Array<DataRow>;
     heading:DataHeading;
     concId:string;
+    queryId:number;
 }
 
 

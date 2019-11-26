@@ -89,7 +89,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     {this.props.isAltViewMode ?
                             <TableView data={this.props.data} roundToPos={this.props.roundToPos} /> :
                             <globalComponents.ResponsiveWrapper render={(width:number, height:number) => (
-                                <WordCloud width={width} height={height} data={this.props.data} isMobile={this.props.isMobile}
+                                <WordCloud width={width} height={height} data={this.props.data.toArray()} isMobile={this.props.isMobile}
                                         style={this.props.isMobile ? {height: `${this.props.data.size * 30}px`} :
                                                 {height: `${this.props.data.size * 40}px`, width: '100%'}}
                                                 font="Roboto Condensed"

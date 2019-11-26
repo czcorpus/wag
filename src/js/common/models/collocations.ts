@@ -15,10 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
 import { SrchContextType, DataRow, DataHeading } from '../api/abstract/collocations';
 import { BacklinkWithArgs } from '../tile';
 import { CollocMetric } from '../../tiles/core/collocations/common';
+import { LemmaVariant } from '../query';
 
 
 export function ctxToRange(ctxType:SrchContextType, range:number):[number, number] {
@@ -43,7 +43,8 @@ export interface CollocModelState {
     error:string|null;
     widthFract:number;
     corpname:string;
-    concId:string;
+    concIds:Array<string>;
+    selectedText:string;
 
     /**
      * A positional attribute used to analyze the text
@@ -76,11 +77,15 @@ export interface CollocModelState {
 
     sortByMetric:CollocMetric;
 
-    data:Immutable.List<DataRow>;
+    data:Array<Array<DataRow>>;
 
     heading:DataHeading;
 
     citemsperpage:number;
 
     backlink:BacklinkWithArgs<{}>;
+
+    lemmas:Array<LemmaVariant>;
+
+    posQueryGenerator: [string, string];
 }

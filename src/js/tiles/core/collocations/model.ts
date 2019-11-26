@@ -15,9 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
 import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
-import { Observable, Observer } from 'rxjs';
+import { Observable, Observer, of } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 
 import { AppServices } from '../../../appServices';
@@ -26,11 +25,16 @@ import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../
 import { ConcLoadedPayload } from '../concordance/actions';
 import { ActionName, Actions, DataLoadedPayload } from './common';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
-import { DataRow, CollocationApi } from '../../../common/api/abstract/collocations';
+import { CollocationApi } from '../../../common/api/abstract/collocations';
 import { CollocModelState, ctxToRange } from '../../../common/models/collocations';
 import { CoreCollRequestArgs } from '../../../common/api/kontext/collocations';
 import { findCurrLemmaVariant } from '../../../models/query';
-import { LemmaVariant, RecognizedQueries } from '../../../common/query';
+import { LemmaVariant, RecognizedQueries, QueryType } from '../../../common/query';
+import { CoreApiGroup } from '../../../common/api/coreGroups';
+import { ConcApi, QuerySelector, mkMatchQuery } from '../../../common/api/kontext/concordance';
+import { callWithExtraVal } from '../../../common/api/util';
+import { ViewMode } from '../../../common/api/abstract/concordance';
+import { createInitialLinesData } from '../../../common/models/concordance';
 
 
 export interface CollocModelArgs {
@@ -38,10 +42,12 @@ export interface CollocModelArgs {
     tileId:number;
     appServices:AppServices;
     service:CollocationApi<{}>;
+    concApi:ConcApi;
     initState:CollocModelState;
     waitForTile:number;
-    lemmas:RecognizedQueries;
     backlink:Backlink;
+    queryType:QueryType;
+    apiType:string;
 }
 
 
@@ -50,14 +56,18 @@ export class CollocModel extends StatelessModel<CollocModelState> {
 
     private readonly service:CollocationApi<{}>;
 
+    private readonly concApi:ConcApi;
+
     private readonly appServices:AppServices;
 
     private readonly tileId:number;
 
     private readonly waitForTile:number;
 
-    private readonly lemmas:RecognizedQueries;
-
+    private readonly queryType:QueryType;
+    
+    private readonly apiType:string;
+    
     private readonly measureMap = {
         't': 'T-score',
         'm': 'MI',
@@ -71,64 +81,120 @@ export class CollocModel extends StatelessModel<CollocModelState> {
 
     private readonly backlink:Backlink;
 
-    constructor({dispatcher, tileId, waitForTile, appServices, service, initState, backlink, lemmas}:CollocModelArgs) {
+    constructor({dispatcher, tileId, waitForTile, appServices, service, initState, backlink, queryType, apiType, concApi}:CollocModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.waitForTile = waitForTile;
         this.appServices = appServices;
         this.service = service;
+        this.concApi = concApi;
         this.backlink = backlink;
-        this.lemmas = lemmas;
-        this.actionMatch = {
-            [GlobalActionName.EnableTileTweakMode]: (state, action:GlobalActions.EnableTileTweakMode) => {
+        this.queryType = queryType;
+        this.apiType = apiType;
+        
+        this.addActionHandler<GlobalActions.SubqItemHighlighted>(
+            GlobalActionName.SubqItemHighlighted,
+            (state, action) => {
+                state.selectedText = action.payload.text;             
+            }
+        );
+        this.addActionHandler<GlobalActions.SubqItemDehighlighted>(
+            GlobalActionName.SubqItemDehighlighted,
+            (state, action) => {
+                state.selectedText = null;
+            }
+        );
+        this.addActionHandler<GlobalActions.EnableTileTweakMode>(
+            GlobalActionName.EnableTileTweakMode,
+            (state, action) => {
                 if (action.payload.ident === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isTweakMode = true;
-                    return newState;
+                    state.isTweakMode = true;
                 }
-                return state;
-            },
-            [GlobalActionName.DisableTileTweakMode]: (state, action:GlobalActions.DisableTileTweakMode) => {
+            }
+        );
+        this.addActionHandler<GlobalActions.DisableTileTweakMode>(
+            GlobalActionName.DisableTileTweakMode,
+            (state, action) => {
                 if (action.payload.ident === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isTweakMode = false;
-                    return newState;
+                    state.isTweakMode = false;
                 }
-                return state;
-            },
-            [GlobalActionName.EnableAltViewMode]: (state, action:GlobalActions.EnableAltViewMode) => {
+            }
+        );
+        this.addActionHandler<GlobalActions.EnableAltViewMode>(
+            GlobalActionName.EnableAltViewMode,
+            (state, action) => {
                 if (action.payload.ident === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isAltViewMode = true;
-                    return newState;
+                    state.isAltViewMode = true;
                 }
-                return state;
-            },
-            [GlobalActionName.DisableAltViewMode]: (state, action:GlobalActions.DisableAltViewMode) => {
+            }
+        );
+        this.addActionHandler<GlobalActions.DisableAltViewMode>(
+            GlobalActionName.DisableAltViewMode,
+            (state, action) => {
                 if (action.payload.ident === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isAltViewMode = false;
-                    return newState;
+                    state.isAltViewMode = false;
                 }
-                return state;
+            }
+        );
+        this.addActionHandler<GlobalActions.RequestQueryResponse>(
+            GlobalActionName.RequestQueryResponse,
+            (state, action) => {
+                state.isBusy = true;
+                state.error = null;
             },
-            [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse)  => {
-                const newState = this.copyState(state);
-                newState.isBusy = true;
-                newState.error = null;
-                return newState;
-            },
-            [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<DataLoadedPayload>) => {
+            (state, action, seDispatch) => {
+                if (this.waitForTile) {
+                    this.suspend(
+                        (action:Action) => {
+                            if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
+                                const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
+                                if (action.error) {
+                                    seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                        name: GlobalActionName.TileDataLoaded,
+                                        payload: {
+                                            tileId: this.tileId,
+                                            isEmpty: true,
+                                            data: [],
+                                            heading: null,
+                                            concId: null,
+                                            queryId: null,
+                                            subqueries: [],
+                                            lang1: null,
+                                            lang2: null
+                                        },
+                                        error: new Error(this.appServices.translate('global__failed_to_obtain_required_data')),
+                                    });
+                                    return true;
+                                }
+                                this.requestData(state, payload.concPersistenceID, 0, action.error, seDispatch);
+                                return true;
+                            }
+                            return false;
+                        }
+                    );
+                } else {
+                    switch (this.apiType) {
+                        case CoreApiGroup.KONTEXT:                            
+                            this.reloadAllData(state, seDispatch);
+                        break;
+                        case CoreApiGroup.LCC:
+                            state.lemmas.forEach((lemma, queryId) => this.requestData(state, lemma, queryId, null, seDispatch));
+                        break;
+                    }
+                }
+            }
+        );
+        this.addActionHandler<GlobalActions.TileDataLoaded<DataLoadedPayload>>(
+            GlobalActionName.TileDataLoaded,
+            (state, action) => {
                 if (action.payload.tileId === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.concId = action.payload.concId;
-                    newState.isBusy = false;
                     if (action.error) {
-                        newState.error = action.error.message;
-
+                        state.isBusy = false;
+                        state.error = action.error.message;
                     } else {
-                        newState.data = Immutable.List<DataRow>(action.payload.data);
-                        newState.heading =
+                        state.concIds[action.payload.queryId] = action.payload.concId;
+                        state.data[action.payload.queryId] = action.payload.data;
+                        state.heading =
                             [{label: 'Abs', ident: ''}]
                             .concat(
                                 action.payload.heading
@@ -136,23 +202,60 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                                     .filter(v => v !== null)
                             );
 
-                        newState.backlink = this.createBackLink(newState, action);
+                        state.backlink = this.createBackLink(state, action);
                     }
-                    return newState;
+                    state.isBusy = state.data.some(d => d === null);
                 }
-                return state;
-            },
-            [ActionName.SetSrchContextType]: (state, action:Actions.SetSrchContextType) => {
-                if (action.payload.tileId === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isBusy = true;
-                    newState.srchRangeType = action.payload.ctxType;
-                    return newState;
-
-                }
-                return state;
             }
-        }
+        );
+        this.addActionHandler<Actions.SetSrchContextType>(
+            ActionName.SetSrchContextType,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {
+                    state.isBusy = true;
+                    state.srchRangeType = action.payload.ctxType;
+                }
+            },
+            (state, action, seDispatch) => {
+                if (action.payload.tileId === this.tileId) {
+                    switch (this.apiType) {
+                        case CoreApiGroup.KONTEXT:
+                            this.reloadAllData(state, seDispatch);
+                        break;
+                        case CoreApiGroup.LCC:
+                            state.lemmas.forEach((lemma, queryId) => this.requestData(state, lemma, queryId, null, seDispatch));
+                        break;
+                    }
+                }
+            }
+        );
+        this.addActionHandler<GlobalActions.GetSourceInfo>(
+            GlobalActionName.GetSourceInfo,
+            (state, action) => {},
+            (state, action, seDispatch) => {
+                if (action.payload.tileId === this.tileId) {
+                    this.service.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), state.corpname)
+                    .subscribe(
+                        (data) => {
+                            seDispatch({
+                                name: GlobalActionName.GetSourceInfoDone,
+                                payload: {
+                                    data: data
+                                }
+                            });
+                        },
+                        (err) => {
+                            console.error(err);
+                            seDispatch({
+                                name: GlobalActionName.GetSourceInfoDone,
+                                error: err
+
+                            });
+                        }
+                    );
+                }
+            }
+        );
     }
 
     private createBackLink(state:CollocModelState, action:GlobalActions.TileDataLoaded<DataLoadedPayload>):BacklinkWithArgs<CoreCollRequestArgs> {
@@ -178,7 +281,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             null;
     }
 
-    private requestData(state:CollocModelState, dataSpec:LemmaVariant|string, prevActionErr:Error|null, seDispatch:SEDispatcher):void {
+    private requestData(state:CollocModelState, dataSpec:LemmaVariant|string, queryId:number, prevActionErr:Error|null, seDispatch:SEDispatcher):void {
         new Observable((observer:Observer<{}>) => {
             if (prevActionErr) {
                 observer.error(prevActionErr);
@@ -199,6 +302,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                         heading: data.collHeadings,
                         data: data.data,
                         concId: data.concId,
+                        queryId: queryId,
                         subqueries: data.data.map(v => ({
                             value: {
                                 value: v.str,
@@ -221,6 +325,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                         heading: null,
                         data: [],
                         concId: null,
+                        queryId: null,
                         subqueries: [],
                         lang1: null,
                         lang2: null
@@ -231,71 +336,103 @@ export class CollocModel extends StatelessModel<CollocModelState> {
         );
     }
 
-    sideEffects(state:CollocModelState, action:Action, seDispatch:SEDispatcher):void {
-        switch (action.name) {
-            case GlobalActionName.RequestQueryResponse:
-                if (this.waitForTile) {
-                    this.suspend(
-                        (action:Action) => {
-                            if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
-                                const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
-                                if (action.error) {
-                                    seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                        name: GlobalActionName.TileDataLoaded,
-                                        payload: {
-                                            tileId: this.tileId,
-                                            isEmpty: true,
-                                            data: [],
-                                            heading: null,
-                                            concId: null,
-                                            subqueries: [],
-                                            lang1: null,
-                                            lang2: null
-                                        },
-                                        error: new Error(this.appServices.translate('global__failed_to_obtain_required_data')),
-                                    });
-                                    return true;
-                                }
-                                this.requestData(state, payload.concPersistenceID, action.error, seDispatch);
-                                return true;
-                            }
-                            return false;
-                        }
-                    );
-
-                } else {
-                    const variant = findCurrLemmaVariant(this.lemmas[0]);
-                    this.requestData(state, variant, null, seDispatch);
-                }
-            break;
-            case ActionName.SetSrchContextType:
-                if (action.payload['tileId'] === this.tileId) {
-                    this.requestData(state, state.concId, null, seDispatch);
-                }
-            break;
-            case GlobalActionName.GetSourceInfo:
-                if (action.payload['tileId'] === this.tileId) {
-                    this.service.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), state.corpname)
-                    .subscribe(
-                        (data) => {
-                            seDispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
-                                payload: {
-                                    data: data
-                                }
-                            });
+    private reloadAllData(state:CollocModelState, seDispatch:SEDispatcher):void {
+        of(...state.lemmas.map((lemma, queryId) => ({lemma: lemma, queryId: queryId, concId: state.concIds[queryId]})))
+        .pipe(
+            concatMap(args =>
+                args.concId ?
+                of([{
+                        concPersistenceID: args.concId
+                    }, {
+                        corpName: state.corpname,
+                        subcName: null,
+                        concId: null,
+                        queryId: args.queryId
+                    }]) :
+                callWithExtraVal(
+                    this.concApi,
+                    this.concApi.stateToArgs(
+                        {
+                            querySelector: QuerySelector.CQL,
+                            corpname: state.corpname,
+                            otherCorpname: undefined,
+                            subcname: null,
+                            subcDesc: null,
+                            kwicLeftCtx: -1,
+                            kwicRightCtx: 1,
+                            pageSize: 10,
+                            shuffle: false,
+                            attr_vmode: 'mouseover',
+                            viewMode: ViewMode.KWIC,
+                            tileId: this.tileId,
+                            attrs: [],
+                            metadataAttrs: [],
+                            queries: [],
+                            concordances: createInitialLinesData(state.lemmas.length),
+                            posQueryGenerator: state.posQueryGenerator
                         },
-                        (err) => {
-                            console.error(err);
-                            seDispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
-                                error: err
-
-                            });
-                        }
-                    );
-                }
-            break;
-        }
+                        args.lemma,
+                        args.queryId,
+                        null
+                    ),
+                    {
+                        corpName: state.corpname,
+                        subcName: null,
+                        concId: null,
+                        queryId: args.queryId
+                    }
+                )
+            ),
+            concatMap(([resp, args]) => {
+                args.concId = resp.concPersistenceID;
+                return callWithExtraVal(
+                    this.service,
+                    this.service.stateToArgs(state, args.concId),
+                    args
+                )
+            })
+        )
+        .subscribe(
+            ([data, args]) => {
+                seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                    name: GlobalActionName.TileDataLoaded,
+                    payload: {
+                        tileId: this.tileId,
+                        isEmpty: data.data.length === 0,
+                        heading: data.collHeadings,
+                        data: data.data,
+                        concId: data.concId,
+                        queryId: args.queryId,
+                        subqueries: data.data.map(v => ({
+                            value: {
+                                value: v.str,
+                                context: ctxToRange(state.srchRangeType, state.srchRange)
+                            },
+                            interactionId: v.interactionId
+                        })),
+                        lang1: null,
+                        lang2: null
+                    }
+                });
+            },
+            (err) => {
+                this.appServices.showMessage(SystemMessageType.ERROR, err);
+                seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                    name: GlobalActionName.TileDataLoaded,
+                    payload: {
+                        tileId: this.tileId,
+                        isEmpty: true,
+                        heading: null,
+                        data: [],
+                        concId: null,
+                        queryId: null,
+                        subqueries: [],
+                        lang1: null,
+                        lang2: null
+                    },
+                    error: err
+                });
+            }
+        );
     }
 }

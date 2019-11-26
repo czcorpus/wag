@@ -113,7 +113,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     {props.isAltViewMode ?
                         <AltView data={props.data} /> :
                         <globalCompontents.ResponsiveWrapper render={(width:number, height:number) => (
-                            <WordCloud width={width} height={height} data={props.data} isMobile={props.isMobile}
+                            <WordCloud width={width} height={height} data={props.data.toArray()} isMobile={props.isMobile}
                                             style={props.isMobile ? {height: `${props.data.size * 30}px`} :
                                                     {height: `${props.data.size * 40}px`, width: '100%'}}
                                                     font="Roboto Condensed"
