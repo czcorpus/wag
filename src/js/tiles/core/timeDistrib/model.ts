@@ -419,7 +419,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
                                     } else {
                                         observer.next({
-                                            concId: payload.concPersistenceID,
+                                            concId: payload.concPersistenceIDs[0],
                                             subcName: payload.subcorpusName,
                                             wordMainLabel: lv.lemma,
                                             targetId: target

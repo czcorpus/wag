@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
+import { SEDispatcher, StatelessModel, IActionQueue, Action } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 
@@ -34,6 +34,8 @@ import { AlphaLevel, wilsonConfInterval } from '../../../common/statistics';
 import { callWithExtraVal } from '../../../common/api/util';
 import { LemmaVariant, RecognizedQueries } from '../../../common/query';
 import { createInitialLinesData } from '../../../common/models/concordance';
+import { string } from 'prop-types';
+import { ConcLoadedPayload } from '../concordance/actions';
 
 
 export interface TimeDistribModelState extends GeneralSingleCritFreqBarModelState<LemmaData> {
@@ -142,11 +144,36 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 state.error = null;
             },
             (state, action, dispatch) => {
-                this.loadData(
-                    state,
-                    dispatch,
-                    rxOf(...this.lemmas.map((lemma, index) => [index, findCurrLemmaVariant(lemma)])) as Observable<[number, LemmaVariant]>
-                );
+                if (this.waitForTile) {
+                    this.suspend((action:Action) => {
+                        if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
+                            const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
+                            this.loadData(
+                                state,
+                                dispatch,
+                                [null],
+                                rxOf(...this.lemmas.map((lemma, queryId) => ({
+                                    queryId: queryId,
+                                    lemma: findCurrLemmaVariant(lemma),
+                                    concId: payload.concPersistenceIDs[queryId] 
+                                }))) as Observable<{queryId:number; lemma:LemmaVariant; concId:string;}>
+                            );
+                            return true;
+                        }
+                        return false;
+                    });
+                } else {
+                    this.loadData(
+                        state,
+                        dispatch,
+                        state.subcnames.toArray(),
+                        rxOf(...this.lemmas.map((lemma, queryId) => ({
+                            queryId: queryId,
+                            lemma: findCurrLemmaVariant(lemma),
+                            concId: null 
+                        }))) as Observable<{queryId:number; lemma:LemmaVariant; concId:string;}>
+                    );
+                }
             }
         );
         this.addActionHandler<GlobalActions.TileDataLoaded<DataLoadedPayload>>(
@@ -314,37 +341,36 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         );
     }
 
-    private loadData(state:TimeDistribModelState, dispatch:SEDispatcher, lemmaVariant:Observable<[number, LemmaVariant]>):void {
-        state.subcnames.toArray().map(subcname =>
+    private loadData(state:TimeDistribModelState, dispatch:SEDispatcher, subcNames:Array<string>, lemmaVariant:Observable<{queryId:number; lemma:LemmaVariant; concId:string;}>):void {
+        subcNames.map(subcName =>
             lemmaVariant.pipe(
-                concatMap(([target, lemma]) => {
-                    if (lemma) {
-                        return this.loadConcordance(state, lemma, subcname, target);
+                concatMap(args => {
+                    if (!args.concId) {
+                        return this.loadConcordance(state, args.lemma, subcName, args.queryId);
                     }
                     return rxOf<[ConcResponse, DataFetchArgsOwn]>([
                         {
                             query: '',
                             corpName: state.corpname,
-                            subcorpName: subcname,
+                            subcorpName: subcName,
                             lines: [],
                             concsize: 0,
                             arf: 0,
                             ipm: 0,
                             messages: [],
-                            concPersistenceID: null
+                            concPersistenceID: args.concId
                         },
                         {
                             corpName: state.corpname,
-                            subcName: subcname,
-                            concId: null,
-                            targetId: target,
+                            subcName: subcName,
+                            concId: args.concId,
+                            targetId: args.queryId,
                             origQuery: ''
                         }
                     ]);
                 }),
                 concatMap(
-                    (data) => {
-                        const [concResp, args] = data;
+                    ([concResp, args]) => {
                         args.concId = concResp.concPersistenceID;
                         if (args.concId) {
                             return callWithExtraVal(

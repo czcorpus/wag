@@ -423,7 +423,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                                         state,
                                         dispatch,
                                         action.payload.subqueries.map(v => parseInt(v.value)),
-                                        payload.concPersistenceID
+                                        payload.concPersistenceIDs[0]
                                     );
 
                                 } else {

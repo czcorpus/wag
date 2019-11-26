@@ -28,7 +28,6 @@ import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { CollocationApi } from '../../../common/api/abstract/collocations';
 import { CollocModelState, ctxToRange } from '../../../common/models/collocations';
 import { CoreCollRequestArgs } from '../../../common/api/kontext/collocations';
-import { findCurrLemmaVariant } from '../../../models/query';
 import { LemmaVariant, RecognizedQueries, QueryType } from '../../../common/query';
 import { CoreApiGroup } from '../../../common/api/coreGroups';
 import { ConcApi, QuerySelector, mkMatchQuery } from '../../../common/api/kontext/concordance';
@@ -166,7 +165,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                                     });
                                     return true;
                                 }
-                                this.requestData(state, payload.concPersistenceID, 0, action.error, seDispatch);
+                                this.reloadAllData(state, payload.concPersistenceIDs, seDispatch);
                                 return true;
                             }
                             return false;
@@ -175,7 +174,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                 } else {
                     switch (this.apiType) {
                         case CoreApiGroup.KONTEXT:                            
-                            this.reloadAllData(state, seDispatch);
+                            this.reloadAllData(state, state.concIds, seDispatch);
                         break;
                         case CoreApiGroup.LCC:
                             state.lemmas.forEach((lemma, queryId) => this.requestData(state, lemma, queryId, null, seDispatch));
@@ -220,7 +219,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                 if (action.payload.tileId === this.tileId) {
                     switch (this.apiType) {
                         case CoreApiGroup.KONTEXT:
-                            this.reloadAllData(state, seDispatch);
+                            this.reloadAllData(state, state.concIds, seDispatch);
                         break;
                         case CoreApiGroup.LCC:
                             state.lemmas.forEach((lemma, queryId) => this.requestData(state, lemma, queryId, null, seDispatch));
@@ -336,8 +335,8 @@ export class CollocModel extends StatelessModel<CollocModelState> {
         );
     }
 
-    private reloadAllData(state:CollocModelState, seDispatch:SEDispatcher):void {
-        of(...state.lemmas.map((lemma, queryId) => ({lemma: lemma, queryId: queryId, concId: state.concIds[queryId]})))
+    private reloadAllData(state:CollocModelState, concIds:Array<string>, seDispatch:SEDispatcher):void {
+        of(...state.lemmas.map((lemma, queryId) => ({lemma: lemma, queryId: queryId, concId: concIds[queryId]})))
         .pipe(
             concatMap(args =>
                 args.concId ?

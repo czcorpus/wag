@@ -32,6 +32,7 @@ import { ConcApi, QuerySelector, mkMatchQuery } from '../../../common/api/kontex
 import { callWithExtraVal } from '../../../common/api/util';
 import { ViewMode } from '../../../common/api/abstract/concordance';
 import { createInitialLinesData } from '../../../common/models/concordance';
+import { ConcLoadedPayload } from '../concordance/actions';
 
 /*
 oral2013:
@@ -121,17 +122,17 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                 if (this.waitForTile) {
                     this.suspend((action:Action) => {
                         if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
-                            const payload = (action as GlobalActions.TileDataLoaded<{concIds:Array<string>;}>).payload;
+                            const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
                             const dataStream = combineLatest(
                                 this.mapLoader.call('mapCzech.inline.svg'),
-                                rxOf(...payload.concIds.map((value, index) => [index, value] as [number, string]))
+                                rxOf(...payload.concPersistenceIDs.map((concId, queryId) => [queryId, concId] as [number, string]))
                                 .pipe(
-                                    concatMap(([target, concId]) => callWithExtraVal(
+                                    concatMap(([queryId, concId]) => callWithExtraVal(
                                         this.freqApi,
                                         stateToAPIArgs(state, concId),
                                         {
                                             concId: concId,
-                                            targetId: target
+                                            targetId: queryId
                                         }
                                     ))
                                 )
@@ -145,8 +146,8 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                 } else {
                     const dataStream = combineLatest(
                         this.mapLoader.call('mapCzech.inline.svg'),
-                        rxOf(...state.currentLemmas.map((lemma, index) => [index, lemma] as [number, LemmaVariant])[Symbol.iterator]()).pipe(
-                            concatMap(([target, lemmaVariant]) =>
+                        rxOf(...state.currentLemmas.map((lemma, queryId) => [queryId, lemma] as [number, LemmaVariant])[Symbol.iterator]()).pipe(
+                            concatMap(([queryId, lemmaVariant]) =>
                                 callWithExtraVal(
                                     this.concApi,
                                     this.concApi.stateToArgs(
@@ -170,14 +171,14 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                                             posQueryGenerator: state.posQueryGenerator
                                         },
                                         lemmaVariant,
-                                        target,
+                                        queryId,
                                         null
                                     ),
                                     {
                                         corpName: state.corpname,
                                         subcName: null,
                                         concId: null,
-                                        targetId: target,
+                                        targetId: queryId,
                                         origQuery: mkMatchQuery(lemmaVariant, state.posQueryGenerator)
                                     }
                                 )

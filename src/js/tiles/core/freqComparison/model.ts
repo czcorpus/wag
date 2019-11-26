@@ -29,6 +29,7 @@ import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../
 import { ActionName, Actions, DataLoadedPayload } from './actions';
 import { findCurrLemmaVariant } from '../../../models/query';
 import { RecognizedQueries, LemmaVariant } from '../../../common/query';
+import { ConcLoadedPayload } from '../concordance/actions';
 
 
 
@@ -60,14 +61,14 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
 
     protected readonly tileId:number;
 
-    protected waitForTiles:Immutable.Map<number, boolean>;
+    protected waitForTiles:Array<number>;
 
     private readonly backlink:Backlink|null;
 
     constructor({dispatcher, tileId, waitForTiles, appServices, api, backlink, initState, lemmas}) {
         super(dispatcher, initState);
         this.tileId = tileId;
-        this.waitForTiles = Immutable.Map<number, boolean>(waitForTiles.map(v => [v, false]));
+        this.waitForTiles = waitForTiles;
         this.appServices = appServices;
         this.api = api;
         this.backlink = backlink;
@@ -80,69 +81,35 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                 state.error = null;
             },
             (state, action, dispatch) => {
-                const requests = new Observable((observer:Observer<[number, LemmaVariant]>) => {
-                    state.fcrit.keySeq().forEach(critIdx => {
-                        this.lemmas.forEach(lemma => {
-                            observer.next([critIdx, findCurrLemmaVariant(lemma)]);
-                        });
-                    });
-                    observer.complete();
-                }).pipe(
-                    mergeMap(([critIdx, lemma]) =>
-                        this.api.call(
-                            stateToAPIArgs(state, critIdx),
-                            lemma
-                        ).pipe(
-                            map(v => [v, critIdx, lemma] as [APIBlockResponse, number, LemmaVariant])
-                        )
-                    )
-                );
-
-                requests.pipe(scan((acc, value) => acc && value[0].blocks.every(v => v.data.length === 0), true)).subscribe(
-                    isEmpty => {
-                        dispatch<GlobalActions.TileDataLoaded<{}>>({
-                            name: GlobalActionName.TileDataLoaded,
-                            payload: {
-                                tileId: this.tileId,
-                                isEmpty: isEmpty
+                if (this.waitForTiles) {
+                    this.suspend(
+                        (action:Action) => {
+                            if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTiles[0]) {
+                                const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
+                                if (action.error) {
+                                    dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                        name: GlobalActionName.TileDataLoaded,
+                                        payload: {
+                                            tileId: this.tileId,
+                                            isEmpty: true,
+                                            block: null,
+                                            queryId: null,
+                                            lemma: null,
+                                            critId: null
+                                        },
+                                        error: new Error(this.appServices.translate('global__failed_to_obtain_required_data')),
+                                    });
+                                    return true;
+                                }
+                                this.loadData(state, dispatch, payload.concPersistenceIDs);
+                                return true;
                             }
-                        });
-                    }
-                );
-
-                requests.subscribe(
-                    ([resp, critIdx, lemma]) => {
-                        dispatch<Actions.PartialDataLoaded<DataLoadedPayload>>({
-                            name: ActionName.PartialDataLoaded,
-                            payload: {
-                                tileId: this.tileId,
-                                block: {data: resp.blocks[0].data.sort((x1, x2) => x2.ipm - x1.ipm).slice(0, state.fmaxitems)},
-                                critIdx: critIdx,
-                                lemma: lemma
-                            }
-                        });
-                    },
-                    error => {
-                        dispatch<Actions.PartialDataLoaded<DataLoadedPayload>>({
-                            name: ActionName.PartialDataLoaded,
-                            payload: {
-                                tileId: this.tileId,
-                                block: null,
-                                critIdx: null,
-                                lemma: null
-                            },
-                            error: error
-                        });
-                        dispatch<GlobalActions.TileDataLoaded<{}>>({
-                            name: GlobalActionName.TileDataLoaded,
-                            payload: {
-                                tileId: this.tileId,
-                                isEmpty: true
-                            },
-                            error: error
-                        });
-                    }
-                );
+                            return false;
+                        }
+                    );
+                } else {
+                    this.loadData(state, dispatch, null);
+                }
             }
         );
         this.addActionHandler<Actions.PartialDataLoaded<DataLoadedPayload>>(
@@ -152,7 +119,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                     if (action.error) {
                         state.blocks = Immutable.List<FreqComparisonDataBlock<DataRow>>(state.fcrit.map((_, i) => ({
                             data: Immutable.List<FreqComparisonDataBlock<DataRow>>(),
-                            words: Immutable.List<string>(),
+                            words: Immutable.List<string>(this.lemmas.map(_ => null)),
                             ident: puid(),
                             label: action.payload.blockLabel ? action.payload.blockLabel : state.critLabels.get(i),
                             isReady: false
@@ -163,31 +130,27 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                     } else {
                         // data for these words were requested (some words can have no data)
                         // also data are rendered in this order of words, we order it so it corresponds to inputs
-                        const newWords = state.blocks.get(action.payload.critIdx).words.push(action.payload.lemma.word).sortBy(word =>
-                            this.lemmas.findIndex(variants =>
-                                variants.some(lemma => lemma.word === word)
-                            )
-                        ).toList();
+                        const newWords = state.blocks.get(action.payload.critId).words.set(action.payload.queryId, action.payload.lemma.word);
                         const newData = action.payload.block.data.length === 0 ?
-                            state.blocks.get(action.payload.critIdx).data :
-                            state.blocks.get(action.payload.critIdx).data.concat(
-                                Immutable.List<DataRow>(action.payload.block.data.map(v => ({
-                                    name: this.appServices.translateDbValue(state.corpname, v.name),
-                                    freq: v.freq,
-                                    ipm: v.ipm,
+                            state.blocks.get(action.payload.critId).data :
+                            state.blocks.get(action.payload.critId).data.concat(
+                                Immutable.List<DataRow>(action.payload.block.data.map(data => ({
+                                    name: this.appServices.translateDbValue(state.corpname, data.name),
+                                    freq: data.freq,
+                                    ipm: data.ipm,
                                     word: action.payload.lemma.word
                                 })))
                             ).toList();
     
                         state.blocks = state.blocks.set(
-                            action.payload.critIdx,
+                            action.payload.critId,
                             {
                                 data: newData,
                                 words: newWords,
                                 ident: puid(),
                                 label: this.appServices.importExternalMessage(
-                                    action.payload.blockLabel ? action.payload.blockLabel : state.critLabels.get(action.payload.critIdx)),
-                                isReady: newWords.size === this.lemmas.length
+                                    action.payload.blockLabel ? action.payload.blockLabel : state.critLabels.get(action.payload.critId)),
+                                isReady: newWords.every(word => word !== null)
                             }
                         );
     
@@ -247,7 +210,79 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                 }
             }
         );
-    }
+    };
+
+    loadData(state:FreqComparisonModelState, dispatch:SEDispatcher, concPersistenceIDs:Array<string>):void {
+        const requests = new Observable((observer:Observer<{critId:number; queryId:number; lemma:LemmaVariant}>) => {
+            state.fcrit.keySeq().forEach(critId => {
+                this.lemmas.forEach((lemma, queryId) => {
+                    observer.next({critId: critId, queryId: queryId, lemma: findCurrLemmaVariant(lemma)});
+                });
+            });
+            observer.complete();
+        }).pipe(
+            mergeMap(args =>
+                this.api.call(
+                    stateToAPIArgs(state, args.critId),
+                    args.lemma,
+                    concPersistenceIDs ? concPersistenceIDs[args.queryId] : null
+                ).pipe(
+                    map(resp => [resp, args] as [APIBlockResponse, {critId:number; queryId:number; lemma:LemmaVariant}])
+                )
+            )
+        );
+        this.handleRequests(requests, state, dispatch);
+    };
+
+    handleRequests(requests:Observable<[APIBlockResponse, {critId:number; queryId:number; lemma:LemmaVariant;}]>, state:FreqComparisonModelState, dispatch:SEDispatcher):void {
+        requests.pipe(scan((acc, [resp, args]) => acc && resp.blocks.every(v => v.data.length === 0), true)).subscribe(
+            isEmpty => {
+                dispatch<GlobalActions.TileDataLoaded<{}>>({
+                    name: GlobalActionName.TileDataLoaded,
+                    payload: {
+                        tileId: this.tileId,
+                        isEmpty: isEmpty
+                    }
+                });
+            }
+        );
+
+        requests.subscribe(
+            ([resp, args]) => {
+                dispatch<Actions.PartialDataLoaded<DataLoadedPayload>>({
+                    name: ActionName.PartialDataLoaded,
+                    payload: {
+                        tileId: this.tileId,
+                        block: {data: resp.blocks[0].data.sort((x1, x2) => x2.ipm - x1.ipm).slice(0, state.fmaxitems)},
+                        queryId: args.queryId,
+                        lemma: args.lemma,
+                        critId: args.critId
+                    }
+                });
+            },
+            error => {
+                dispatch<Actions.PartialDataLoaded<DataLoadedPayload>>({
+                    name: ActionName.PartialDataLoaded,
+                    payload: {
+                        tileId: this.tileId,
+                        block: null,
+                        queryId: null,
+                        lemma: null,
+                        critId: null
+                    },
+                    error: error
+                });
+                dispatch<GlobalActions.TileDataLoaded<{}>>({
+                    name: GlobalActionName.TileDataLoaded,
+                    payload: {
+                        tileId: this.tileId,
+                        isEmpty: true
+                    },
+                    error: error
+                });
+            }
+        );
+    };
 }
 
 export const factory = (

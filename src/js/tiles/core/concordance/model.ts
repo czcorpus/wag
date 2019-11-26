@@ -73,6 +73,7 @@ interface PartialLoadingStatus {
     numRemaining:number;
     hasSomeData:boolean;
     firstData:ConcResponse;
+    concPersistanceIDs:Array<string>;
 }
 
 
@@ -293,7 +294,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
     }
 
     private createBackLink(state:ConcordanceTileState, action:GlobalActions.TileDataLoaded<ConcLoadedPayload>):BacklinkWithArgs<BacklinkArgs> {
-        return this.backlink ?
+        return this.backlink && this.queryType !== QueryType.CMP_QUERY ?
             {
                 url: this.backlink.url,
                 method: this.backlink.method || HTTPMethod.GET,
@@ -301,7 +302,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 args: {
                     corpname: state.corpname,
                     usesubcorp: state.subcname,
-                    q: `~${action.payload.concPersistenceID}`
+                    q: `~${action.payload.concPersistenceIDs[0]}`
                 }
             } :
             null;
@@ -341,15 +342,20 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 }
             ),
             scan(
-                (acc, [resp, curr]) => ({
-                    numRemaining: acc.numRemaining - 1,
-                    hasSomeData: acc.hasSomeData || resp.lines.length > 0,
-                    firstData: curr === 0 ? resp : acc.firstData
-                }),
+                (acc, [resp, curr]) => {
+                    acc.concPersistanceIDs[curr] = resp.concPersistenceID;
+                    return {
+                        numRemaining: acc.numRemaining - 1,
+                        hasSomeData: acc.hasSomeData || resp.lines.length > 0,
+                        firstData: curr === 0 ? resp : acc.firstData,
+                        concPersistanceIDs: acc.concPersistanceIDs
+                    }
+                },
                 {
                     numRemaining: this.queryType === QueryType.CMP_QUERY ? this.lemmas.length : 1,
                     hasSomeData: false,
-                    firstData: null
+                    firstData: null,
+                    concPersistanceIDs: this.lemmas.map(_ => null)
                 } as PartialLoadingStatus
             )
 
@@ -365,7 +371,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                             subqueries: status.firstData.lines.map(v => ({value: `${v.toknum}`, interactionId: v.interactionId})),
                             lang1: null,
                             lang2: null,
-                            concPersistenceID: status.firstData.concPersistenceID,
+                            concPersistenceIDs: status.concPersistanceIDs,
                             corpusName: status.firstData.corpName,
                             subcorpusName: status.firstData.subcorpName
                         }

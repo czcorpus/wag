@@ -321,7 +321,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                         this.waitingForTiles[action.payload.tileId.toFixed()] = action.payload.subqueries;
 
                     } else if (isConcLoadedPayload(action.payload) && this.waitingForTiles[action.payload.tileId.toFixed()] === null) {
-                        this.waitingForTiles[action.payload.tileId.toFixed()] = action.payload.concPersistenceID;
+                        this.waitingForTiles[action.payload.tileId.toFixed()] = action.payload.concPersistenceIDs[0];
 
                     }
                     if (Dictop.of(this.waitingForTiles).find((v, k) => v === null).size().u0() === 0) {
