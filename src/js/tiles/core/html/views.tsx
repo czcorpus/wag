@@ -38,7 +38,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
 
         render() {
-
             return (
                 <globalCompontents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy}
                         error={this.props.error} htmlClass={`HtmlTile${this.props.tileName}`} hasData={Boolean(this.props.data)}

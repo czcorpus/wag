@@ -1,8 +1,10 @@
 {
     "en-US": {
-        "html__main_label": "HTML"
+        "html__main_label": "HTML",
+        "html__not_found_message_wiktionary": "Word not found"
     },
     "cs-CZ": {
-        "html__main_label": "HTML"
+        "html__main_label": "HTML",
+        "html__not_found_message_wiktionary": "Slovo nenalezeno"
     }
 }

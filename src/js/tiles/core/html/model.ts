@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
+import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 
 import { AppServices } from '../../../appServices';
 import { SystemMessageType } from '../../../common/types';
@@ -54,28 +54,36 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
         this.appServices = appServices;
         this.service = service;
         this.lemmas = lemmas;
-        this.actionMatch = {
-            [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse)  => {
-                const newState = this.copyState(state);
-                newState.isBusy = true;
-                newState.error = null;
-                return newState;
-            },
-            [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<DataLoadedPayload>) => {
-                if (action.payload.tileId === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isBusy = false;
-                    if (action.error) {
-                        newState.error = action.error.message;
 
-                    } else {
-                        newState.data = action.payload.data;
-                    }
-                    return newState;
-                }
-                return state;
+        this.addActionHandler<GlobalActions.RequestQueryResponse>(
+            GlobalActionName.RequestQueryResponse,
+            (state, action) => {
+                state.isBusy = true;
+                state.error = null;
+            },
+            (state, action, seDispatch) => {
+                const variant = findCurrLemmaVariant(this.lemmas[0]);
+                this.requestData(state, variant.lemma, seDispatch);
             }
-        }
+        )
+        this.addActionHandler<GlobalActions.TileDataLoaded<DataLoadedPayload>>(
+            GlobalActionName.TileDataLoaded,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {
+                    state.isBusy = false;
+                    if (action.error) {
+                        const errMsg = this.service.getErrorMessage(action.error)
+                        if (errMsg !== null) {
+                            state.data = errMsg;
+                        } else {
+                            state.error = action.error.message;
+                        }
+                    } else {
+                        state.data = action.payload.data;
+                    }   
+                }
+            }
+        )
     }
 
     private requestData(state:HtmlModelState, variant:string, seDispatch:SEDispatcher):void {
@@ -121,14 +129,5 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
                 });
             }
         );
-    }
-
-    sideEffects(state:HtmlModelState, action:Action, seDispatch:SEDispatcher):void {
-        switch (action.name) {
-            case GlobalActionName.RequestQueryResponse:
-                const variant = findCurrLemmaVariant(this.lemmas[0]);
-                this.requestData(state, variant.lemma, seDispatch);
-            break;
-        }
     }
 }
