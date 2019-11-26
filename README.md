@@ -3,7 +3,7 @@
 Obtain and compile information about:
 
 1) a single word,
-2) two or more words compared with each other :construction:,
+2) two or more words compared with each other,
 3) a word translation
 
 using miscellaneous online lingustic tools, corpora and databases.
