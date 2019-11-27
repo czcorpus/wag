@@ -18,7 +18,7 @@
 import * as Immutable from 'immutable';
 import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { Observable, Observer } from 'rxjs';
-import { map, mergeMap, scan } from 'rxjs/operators';
+import { map, mergeMap, reduce } from 'rxjs/operators';
 
 import { AppServices } from '../../../appServices';
 import { BacklinkArgs, DataRow, FreqComparisonAPI, APIBlockResponse } from '../../../common/api/kontext/freqComparison';
@@ -26,7 +26,7 @@ import { FreqComparisonDataBlock, GeneralMultiCritFreqComparisonModelState, stat
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { puid } from '../../../common/util';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
-import { ActionName, Actions, DataLoadedPayload } from './actions';
+import { ActionName, Actions, DataLoadedPayload, LoadFinishedPayload } from './actions';
 import { findCurrLemmaVariant } from '../../../models/query';
 import { RecognizedQueries, LemmaVariant } from '../../../common/query';
 import { ConcLoadedPayload, isConcLoadedPayload } from '../concordance/actions';
@@ -239,13 +239,23 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
     };
 
     handleRequests(requests:Observable<[APIBlockResponse, {critId:number; queryId:number; lemma:LemmaVariant;}]>, state:FreqComparisonModelState, dispatch:SEDispatcher):void {
-        requests.pipe(scan((acc, [resp, args]) => acc && resp.blocks.every(v => v.data.length === 0), true)).subscribe(
-            isEmpty => {
-                dispatch<GlobalActions.TileDataLoaded<{}>>({
+        requests.pipe(
+            reduce((acc, [resp, args]) => {
+                    acc.isEmpty = acc.isEmpty && resp.blocks.every(v => v.data.length === 0);
+                    acc.concIds[args.queryId] = resp.concId;
+                    return acc;
+                },
+                {isEmpty: true, concIds: this.lemmas.map(_ => null)}
+            )
+        ).subscribe(
+            acc => {
+                dispatch<GlobalActions.TileDataLoaded<LoadFinishedPayload>>({
                     name: GlobalActionName.TileDataLoaded,
                     payload: {
                         tileId: this.tileId,
-                        isEmpty: isEmpty
+                        isEmpty: acc.isEmpty,
+                        concPersistenceIDs: acc.concIds,
+                        corpusName: state.corpname                  
                     }
                 });
             }
@@ -276,11 +286,13 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                     },
                     error: error
                 });
-                dispatch<GlobalActions.TileDataLoaded<{}>>({
+                dispatch<GlobalActions.TileDataLoaded<LoadFinishedPayload>>({
                     name: GlobalActionName.TileDataLoaded,
                     payload: {
                         tileId: this.tileId,
-                        isEmpty: true
+                        isEmpty: true,
+                        corpusName: state.corpname,
+                        concPersistenceIDs: null
                     },
                     error: error
                 });
