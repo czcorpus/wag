@@ -32,7 +32,7 @@ import { ConcApi, QuerySelector, mkMatchQuery } from '../../../common/api/kontex
 import { callWithExtraVal } from '../../../common/api/util';
 import { ViewMode } from '../../../common/api/abstract/concordance';
 import { createInitialLinesData } from '../../../common/models/concordance';
-import { ConcLoadedPayload } from '../concordance/actions';
+import { ConcLoadedPayload, isConcLoadedPayload } from '../concordance/actions';
 
 /*
 oral2013:
@@ -122,21 +122,26 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                 if (this.waitForTile) {
                     this.suspend((action:Action) => {
                         if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
-                            const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
-                            const dataStream = combineLatest(
-                                this.mapLoader.call('mapCzech.inline.svg'),
-                                rxOf(...payload.concPersistenceIDs.map((concId, queryId) => [queryId, concId] as [number, string]))
-                                .pipe(
-                                    concatMap(([queryId, concId]) => callWithExtraVal(
-                                        this.freqApi,
-                                        stateToAPIArgs(state, concId),
-                                        {
-                                            concId: concId,
-                                            targetId: queryId
-                                        }
-                                    ))
-                                )
-                            );
+                            let dataStream;
+                            if (isConcLoadedPayload(action.payload)) {
+                                const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
+                                dataStream = combineLatest(
+                                    this.mapLoader.call('mapCzech.inline.svg'),
+                                    rxOf(...payload.concPersistenceIDs.map((concId, queryId) => [queryId, concId] as [number, string]))
+                                    .pipe(
+                                        concatMap(([queryId, concId]) => callWithExtraVal(
+                                            this.freqApi,
+                                            stateToAPIArgs(state, concId),
+                                            {
+                                                concId: concId,
+                                                targetId: queryId
+                                            }
+                                        ))
+                                    )
+                                );
+                            } else {
+                                dataStream = this.getConcordances(state);
+                            }
 
                             this.handleLoad(dataStream, state, dispatch);
                             return true;
@@ -144,56 +149,7 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                         return false;
                     });
                 } else {
-                    const dataStream = combineLatest(
-                        this.mapLoader.call('mapCzech.inline.svg'),
-                        rxOf(...state.currentLemmas.map((lemma, queryId) => [queryId, lemma] as [number, LemmaVariant])[Symbol.iterator]()).pipe(
-                            concatMap(([queryId, lemmaVariant]) =>
-                                callWithExtraVal(
-                                    this.concApi,
-                                    this.concApi.stateToArgs(
-                                        {
-                                            querySelector: QuerySelector.CQL,
-                                            corpname: state.corpname,
-                                            otherCorpname: undefined,
-                                            subcname: null,
-                                            subcDesc: null,
-                                            kwicLeftCtx: -1,
-                                            kwicRightCtx: 1,
-                                            pageSize: 10,
-                                            shuffle: false,
-                                            attr_vmode: 'mouseover',
-                                            viewMode: ViewMode.KWIC,
-                                            tileId: this.tileId,
-                                            attrs: ['word'],
-                                            metadataAttrs: [],
-                                            queries: [],
-                                            concordances: createInitialLinesData(this.lemmas.length),
-                                            posQueryGenerator: state.posQueryGenerator
-                                        },
-                                        lemmaVariant,
-                                        queryId,
-                                        null
-                                    ),
-                                    {
-                                        corpName: state.corpname,
-                                        subcName: null,
-                                        concId: null,
-                                        targetId: queryId,
-                                        origQuery: mkMatchQuery(lemmaVariant, state.posQueryGenerator)
-                                    }
-                                )
-                            ),
-                            concatMap(([resp, args]) => {
-                                args.concId = resp.concPersistenceID;
-                                return callWithExtraVal(
-                                    this.freqApi,
-                                    stateToAPIArgs(state, args.concId),
-                                    args
-                                )
-                            })
-                        )
-                    );
-
+                    const dataStream = this.getConcordances(state);
                     this.handleLoad(dataStream, state, dispatch);
                 }
             }
@@ -292,6 +248,58 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                     );
                 }
             }
+        );
+    }
+
+    private getConcordances(state:MultiWordGeoAreasModelState) {
+        return combineLatest(
+            this.mapLoader.call('mapCzech.inline.svg'),
+            rxOf(...state.currentLemmas.map((lemma, queryId) => [queryId, lemma] as [number, LemmaVariant])[Symbol.iterator]()).pipe(
+                concatMap(([queryId, lemmaVariant]) =>
+                    callWithExtraVal(
+                        this.concApi,
+                        this.concApi.stateToArgs(
+                            {
+                                querySelector: QuerySelector.CQL,
+                                corpname: state.corpname,
+                                otherCorpname: undefined,
+                                subcname: null,
+                                subcDesc: null,
+                                kwicLeftCtx: -1,
+                                kwicRightCtx: 1,
+                                pageSize: 10,
+                                shuffle: false,
+                                attr_vmode: 'mouseover',
+                                viewMode: ViewMode.KWIC,
+                                tileId: this.tileId,
+                                attrs: ['word'],
+                                metadataAttrs: [],
+                                queries: [],
+                                concordances: createInitialLinesData(this.lemmas.length),
+                                posQueryGenerator: state.posQueryGenerator
+                            },
+                            lemmaVariant,
+                            queryId,
+                            null
+                        ),
+                        {
+                            corpName: state.corpname,
+                            subcName: null,
+                            concId: null,
+                            targetId: queryId,
+                            origQuery: mkMatchQuery(lemmaVariant, state.posQueryGenerator)
+                        }
+                    )
+                ),
+                concatMap(([resp, args]) => {
+                    args.concId = resp.concPersistenceID;
+                    return callWithExtraVal(
+                        this.freqApi,
+                        stateToAPIArgs(state, args.concId),
+                        args
+                    )
+                })
+            )
         );
     }
 

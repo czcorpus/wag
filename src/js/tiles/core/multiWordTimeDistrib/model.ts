@@ -35,7 +35,7 @@ import { callWithExtraVal } from '../../../common/api/util';
 import { LemmaVariant, RecognizedQueries } from '../../../common/query';
 import { createInitialLinesData } from '../../../common/models/concordance';
 import { string } from 'prop-types';
-import { ConcLoadedPayload } from '../concordance/actions';
+import { ConcLoadedPayload, isConcLoadedPayload } from '../concordance/actions';
 
 
 export interface TimeDistribModelState extends GeneralSingleCritFreqBarModelState<LemmaData> {
@@ -147,17 +147,30 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 if (this.waitForTile) {
                     this.suspend((action:Action) => {
                         if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
-                            const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
-                            this.loadData(
-                                state,
-                                dispatch,
-                                [null],
-                                rxOf(...this.lemmas.map((lemma, queryId) => ({
-                                    queryId: queryId,
-                                    lemma: findCurrLemmaVariant(lemma),
-                                    concId: payload.concPersistenceIDs[queryId] 
-                                }))) as Observable<{queryId:number; lemma:LemmaVariant; concId:string;}>
-                            );
+                            if (isConcLoadedPayload(action.payload)) {
+                                const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
+                                this.loadData(
+                                    state,
+                                    dispatch,
+                                    [null],
+                                    rxOf(...this.lemmas.map((lemma, queryId) => ({
+                                        queryId: queryId,
+                                        lemma: findCurrLemmaVariant(lemma),
+                                        concId: payload.concPersistenceIDs[queryId] 
+                                    }))) as Observable<{queryId:number; lemma:LemmaVariant; concId:string;}>
+                                );
+                            } else {
+                                this.loadData(
+                                    state,
+                                    dispatch,
+                                    state.subcnames.toArray(),
+                                    rxOf(...this.lemmas.map((lemma, queryId) => ({
+                                        queryId: queryId,
+                                        lemma: findCurrLemmaVariant(lemma),
+                                        concId: null 
+                                    }))) as Observable<{queryId:number; lemma:LemmaVariant; concId:string;}>
+                                );
+                            }
                             return true;
                         }
                         return false;

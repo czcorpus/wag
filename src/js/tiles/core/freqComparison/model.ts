@@ -29,7 +29,7 @@ import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../
 import { ActionName, Actions, DataLoadedPayload } from './actions';
 import { findCurrLemmaVariant } from '../../../models/query';
 import { RecognizedQueries, LemmaVariant } from '../../../common/query';
-import { ConcLoadedPayload } from '../concordance/actions';
+import { ConcLoadedPayload, isConcLoadedPayload } from '../concordance/actions';
 
 
 
@@ -85,23 +85,27 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                     this.suspend(
                         (action:Action) => {
                             if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTiles[0]) {
-                                const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
-                                if (action.error) {
-                                    dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                        name: GlobalActionName.TileDataLoaded,
-                                        payload: {
-                                            tileId: this.tileId,
-                                            isEmpty: true,
-                                            block: null,
-                                            queryId: null,
-                                            lemma: null,
-                                            critId: null
-                                        },
-                                        error: new Error(this.appServices.translate('global__failed_to_obtain_required_data')),
-                                    });
-                                    return true;
+                                if (isConcLoadedPayload(action.payload)) {
+                                    const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
+                                    if (action.error) {
+                                        dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                            name: GlobalActionName.TileDataLoaded,
+                                            payload: {
+                                                tileId: this.tileId,
+                                                isEmpty: true,
+                                                block: null,
+                                                queryId: null,
+                                                lemma: null,
+                                                critId: null
+                                            },
+                                            error: new Error(this.appServices.translate('global__failed_to_obtain_required_data')),
+                                        });
+                                        return true;
+                                    }
+                                    this.loadData(state, dispatch, payload.concPersistenceIDs);
+                                } else {
+                                    this.loadData(state, dispatch, null);
                                 }
-                                this.loadData(state, dispatch, payload.concPersistenceIDs);
                                 return true;
                             }
                             return false;
