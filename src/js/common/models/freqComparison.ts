@@ -15,8 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
-
 import { DataRow, MultiCritQueryArgs, FreqSort } from '../api/kontext/freqs';
 import { LocalizedConfMsg } from '../types';
 
@@ -34,17 +32,17 @@ interface FreqComparisonStateBase {
 }
 
 export interface FreqComparisonDataBlock<T> {
-    data:Immutable.List<T>;
-    words:Immutable.List<string>;
+    data:Array<T>;
+    words:Array<string>;
     ident:string;
     label:string;
     isReady:boolean;
 }
 
 export interface GeneralMultiCritFreqComparisonModelState<T=DataRow> extends FreqComparisonStateBase {
-    fcrit:Immutable.List<string>;
-    critLabels:Immutable.List<LocalizedConfMsg>;
-    blocks:Immutable.List<FreqComparisonDataBlock<T>>;
+    fcrit:Array<string>;
+    critLabels:Array<LocalizedConfMsg>;
+    blocks:Array<FreqComparisonDataBlock<T>>;
 }
 
 
@@ -53,7 +51,7 @@ export function stateToAPIArgs<T>(state:GeneralMultiCritFreqComparisonModelState
     return {
         corpname: state.corpname,
         usesubcorp: subcname,
-        fcrit: critId !== undefined ? state.fcrit.get(critId) : state.fcrit.toArray(),
+        fcrit: critId !== undefined ? state.fcrit[critId] : state.fcrit,
         flimit: state.flimit,
         freq_sort: state.freqSort,
         fpage: state.fpage,

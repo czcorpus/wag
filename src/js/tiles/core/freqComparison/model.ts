@@ -15,14 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
 import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { Observable, Observer } from 'rxjs';
 import { map, mergeMap, reduce } from 'rxjs/operators';
 
 import { AppServices } from '../../../appServices';
 import { BacklinkArgs, DataRow, FreqComparisonAPI, APIBlockResponse } from '../../../common/api/kontext/freqComparison';
-import { FreqComparisonDataBlock, GeneralMultiCritFreqComparisonModelState, stateToAPIArgs } from '../../../common/models/freqComparison';
+import { GeneralMultiCritFreqComparisonModelState, stateToAPIArgs } from '../../../common/models/freqComparison';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { puid } from '../../../common/util';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
@@ -121,43 +120,37 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     if (action.error) {
-                        state.blocks = Immutable.List<FreqComparisonDataBlock<DataRow>>(state.fcrit.map((_, i) => ({
-                            data: Immutable.List<FreqComparisonDataBlock<DataRow>>(),
-                            words: Immutable.List<string>(this.lemmas.map(_ => null)),
+                        state.blocks = state.fcrit.map(v => ({
+                            data: [],
+                            words: lemmas.map(_ => null),
                             ident: puid(),
-                            label: action.payload.blockLabel ? action.payload.blockLabel : state.critLabels.get(i),
-                            isReady: false
-                        })));
+                            isReady: false,
+                            label: null
+                        }))
                         state.error = action.error.message;
                         state.isBusy = false;
     
                     } else {
                         // data for these words were requested (some words can have no data)
                         // also data are rendered in this order of words, we order it so it corresponds to inputs
-                        const newWords = state.blocks.get(action.payload.critId).words.set(action.payload.queryId, action.payload.lemma.word);
-                        const newData = action.payload.block.data.length === 0 ?
-                            state.blocks.get(action.payload.critId).data :
-                            state.blocks.get(action.payload.critId).data.concat(
-                                Immutable.List<DataRow>(action.payload.block.data.map(data => ({
-                                    name: this.appServices.translateDbValue(state.corpname, data.name),
-                                    freq: data.freq,
-                                    ipm: data.ipm,
-                                    word: action.payload.lemma.word
-                                })))
-                            ).toList();
-    
-                        state.blocks = state.blocks.set(
-                            action.payload.critId,
-                            {
-                                data: newData,
-                                words: newWords,
-                                ident: puid(),
-                                label: this.appServices.importExternalMessage(
-                                    action.payload.blockLabel ? action.payload.blockLabel : state.critLabels.get(action.payload.critId)),
-                                isReady: newWords.every(word => word !== null)
-                            }
+                        state.blocks[action.payload.critId].words[action.payload.queryId] = action.payload.lemma.word;
+                        action.payload.block.data.forEach(data => 
+                            state.blocks[action.payload.critId].data.push({
+                                name: this.appServices.translateDbValue(state.corpname, data.name),
+                                freq: data.freq,
+                                ipm: data.ipm,
+                                word: action.payload.lemma.word,
+                                norm: data.norm
+                            })
                         );
-    
+                        state.blocks[action.payload.critId].ident = puid();
+                        state.blocks[action.payload.critId].label = this.appServices.importExternalMessage(
+                            action.payload.blockLabel ?
+                            action.payload.blockLabel :
+                            state.critLabels[action.payload.critId]
+                        );
+                        state.blocks[action.payload.critId].isReady = state.blocks[action.payload.critId].words.every(word => word !== null);
+
                         state.isBusy = state.blocks.some(v => !v.isReady);
                         state.backlink = null;
                     }
@@ -218,7 +211,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
 
     loadData(state:FreqComparisonModelState, dispatch:SEDispatcher, concPersistenceIDs:Array<string>):void {
         const requests = new Observable((observer:Observer<{critId:number; queryId:number; lemma:LemmaVariant}>) => {
-            state.fcrit.keySeq().forEach(critId => {
+            state.fcrit.forEach((critName, critId) => {
                 this.lemmas.forEach((lemma, queryId) => {
                     observer.next({critId: critId, queryId: queryId, lemma: findCurrLemmaVariant(lemma)});
                 });

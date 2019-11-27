@@ -32,8 +32,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const globComponents = ut.getComponents();
 
-    const processData = (data:Immutable.List<DataRow>, words:Immutable.List<string>) => {
-        return data.groupBy(x => x.name).map((values, name) => {
+    const processData = (data:Array<DataRow>, words:Array<string>) => {
+        return Immutable.List(data).groupBy(x => x.name).map((values, name) => {
             const totalIpm = values.reduce((acc, curr) => acc + curr.ipm, 0)
             let wordData = {}
 
@@ -63,8 +63,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // ------- <ChartWrapper /> ---------------------------------------------------
 
     const ChartWrapper:React.SFC<{
-        data:Immutable.List<DataRow>;
-        words:Immutable.List<string>;
+        data:Array<DataRow>;
+        words:Array<string>;
         width:string|number;
         height:string|number;
         isMobile:boolean;
@@ -96,8 +96,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // -------------------------- <Chart /> --------------------------------------
 
     const Chart:React.SFC<{
-        data:Immutable.List<DataRow>;
-        words:Immutable.List<string>;
+        data:Array<DataRow>;
+        words:Array<string>;
         width:string|number;
         height:string|number;
         isMobile:boolean;
@@ -123,8 +123,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // -------------- <DataTable /> ---------------------------------------------
 
     const DataTable:React.SFC<{
-        data:Immutable.List<DataRow>;
-        words:Immutable.List<string>;
+        data:Array<DataRow>;
+        words:Array<string>;
     }> = (props) => {
         const processedData = processData(props.data, props.words);
         return <table className="DataTable data cnc-table">
@@ -189,7 +189,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
 
         render() {
-            const chartsViewBoxWidth = this.props.isMobile ? '100%' : `${100 / Math.min(this.props.blocks.size, this.props.maxChartsPerLine)}%`;
+            const chartsViewBoxWidth = this.props.isMobile ? '100%' : `${100 / Math.min(this.props.blocks.length, this.props.maxChartsPerLine)}%`;
             return (
                 <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.blocks.find(v => v.isReady) !== undefined}
@@ -211,8 +211,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                     return  (
                                         <div key={block.ident} style={{width: chartsViewBoxWidth, height: "100%"}}>
                                             <h3>{block.label}</h3>
-                                            {block.data.size > 0 ?
-                                                <Chart data={block.data} words={block.words} width={chartWidth} height={70 + block.data.groupBy(x => x.name).size * 25}
+                                            {block.data.length > 0 ?
+                                                <Chart data={block.data} words={block.words} width={chartWidth} height={70 + Immutable.List(block.data).groupBy(x => x.name).size * 25}
                                                         isMobile={this.props.isMobile} /> :
                                                 <p className="note" style={{textAlign: 'center'}}>No result</p>
                                             }
@@ -221,9 +221,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 })}
                             </div>
                         }
-                        {this.props.isMobile && this.props.blocks.size > 1 && !this.props.isAltViewMode ?
+                        {this.props.isMobile && this.props.blocks.length > 1 && !this.props.isAltViewMode ?
                             <globComponents.HorizontalBlockSwitch htmlClass="ChartSwitch"
-                                    blockIndices={this.props.blocks.map((_, i) => i).toList()}
+                                    blockIndices={Immutable.List(this.props.blocks.map((_, i) => i))}
                                     currentIdx={this.props.activeBlock}
                                     onChange={this.handleDotClick} /> :
                             null
