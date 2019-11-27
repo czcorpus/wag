@@ -24,7 +24,7 @@ import { AppServices } from '../../../appServices';
 import { DataRow, FreqDistribAPI, APIResponse } from '../../../common/api/kontext/freqs';
 import { FreqBarModelStateBase, stateToAPIArgs } from '../../../common/models/freq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
-import { ActionName, Actions, DataLoadedPayload } from './actions';
+import { ActionName, Actions, LoadFinishedPayload } from './actions';
 import { DataApi } from '../../../common/types';
 import { TooltipValues } from '../../../views/global';
 import { LemmaVariant } from '../../../common/query';
@@ -75,7 +75,6 @@ ORAL_V1:
 export interface MultiWordGeoAreasModelState extends FreqBarModelStateBase {
     fcrit:string;
     currentLemmas:Immutable.List<LemmaVariant>;
-    concIds:Immutable.List<string>;
     data:Immutable.List<Immutable.List<DataRow>>;
     areaCodeMapping:Immutable.Map<string, string>;
     tooltipArea:{tooltipX:number; tooltipY:number, caption: string, data:TooltipValues}|null;
@@ -161,19 +160,22 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                     if (action.error) {
                         state.data = Immutable.List(state.currentLemmas.map(_ => Immutable.List<DataRow>()));
                         state.error = action.error.message;
-                        state.isBusy = false;
 
                     } else if (action.payload.data.length === 0) {
                         state.data = state.data.set(action.payload.queryId, Immutable.List<DataRow>());
-                        state.concIds = state.concIds.set(action.payload.queryId, action.payload.concId);
-                        state.isBusy = state.concIds.some(v => v === null);
 
                     } else {
                         state.data = state.data.set(action.payload.queryId, Immutable.List<DataRow>(action.payload.data));
-                        state.concIds = state.concIds.set(action.payload.queryId, action.payload.concId);
-                        state.isBusy = state.concIds.some(v => v === null);
                     }
                     state.mapSVG = action.payload.mapSVG;
+                }
+            }
+        );
+        this.addActionHandler<GlobalActions.TileDataLoaded<LoadFinishedPayload>>(
+            GlobalActionName.TileDataLoaded,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {
+                    state.isBusy = false;
                 }
             }
         );
@@ -272,7 +274,7 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                                 attr_vmode: 'mouseover',
                                 viewMode: ViewMode.KWIC,
                                 tileId: this.tileId,
-                                attrs: ['word'],
+                                attrs: [],
                                 metadataAttrs: [],
                                 queries: [],
                                 concordances: createInitialLinesData(this.lemmas.length),
@@ -303,27 +305,11 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
         );
     }
 
-    private handleLoad(dataStream:Observable<[string, [APIResponse, {concId:string; queryId:number;}]]>, state:MultiWordGeoAreasModelState,
-                dispatch:SEDispatcher):void {
-        dataStream.pipe(
-            reduce<[string, [APIResponse, {concId:string; queryId:number;}]], [boolean, Immutable.List<string>]>(([hasData, concIds], [mapSVG, [resp, args]]) =>
-                [
-                    (hasData || (resp.data && resp.data.length > 0)),
-                    concIds.set(args.queryId, args.concId)
-                ],
-                [false, state.concIds]
-            )
-        )
-        .subscribe(([hasData, concIds]) =>
-            dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                name: GlobalActionName.TileDataLoaded,
-                payload: {
-                    tileId: this.tileId,
-                    isEmpty: !hasData,
-                    concIds: concIds.toArray()
-                }
-            })
-        );
+    private handleLoad(
+        dataStream:Observable<[string, [APIResponse, {concId:string; queryId:number;}]]>,
+        state:MultiWordGeoAreasModelState,
+        dispatch:SEDispatcher
+    ):void {
 
         dataStream.subscribe(
             ([mapSVG, [resp, args]]) => {
@@ -351,6 +337,28 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                     error: error
                 });
             }
+        );
+
+        dataStream.pipe(
+            reduce<[string, [APIResponse, {concId:string; queryId:number;}]], {hasData:boolean, concIds:Array<string>}>(
+                (acc, [mapSVG, [resp, args]]) => {
+                    acc.hasData = acc.hasData || (resp.data && resp.data.length > 0);
+                    acc.concIds[args.queryId] = args.concId;
+                    return acc
+                },
+                {hasData: true, concIds: this.lemmas.map(_ => null)}
+            )
+        )
+        .subscribe(acc =>
+            dispatch<GlobalActions.TileDataLoaded<LoadFinishedPayload>>({
+                name: GlobalActionName.TileDataLoaded,
+                payload: {
+                    tileId: this.tileId,
+                    isEmpty: !acc.hasData,
+                    corpusName: state.corpname,
+                    concPersistenceIDs: acc.concIds
+                }
+            })
         );
     }
 }

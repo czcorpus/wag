@@ -36,8 +36,10 @@ export interface PartialDataLoadedPayload {
     queryId:number;
 }
 
-export interface DataLoadedPayload {
-    concIds:Array<string>;
+// this is to allow other tiles to use this one as source of concordances - ConcLoadedPayload
+export interface LoadFinishedPayload {
+    concPersistenceIDs:Array<string>;
+    corpusName:string;
 }
 
 export namespace Actions {

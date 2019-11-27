@@ -96,7 +96,6 @@ export class MultiWordGeoAreasTile implements ITileProvider {
                 fttIncludeEmpty: conf.fttIncludeEmpty,
                 fmaxitems: 100,
                 isAltViewMode: false,
-                concIds: Immutable.List(lemmas.map(_ => null)),
                 posQueryGenerator: conf.posQueryGenerator,
                 currentLemmas: Immutable.List(lemmas.map(lemma => findCurrLemmaVariant(lemma)))
             }
