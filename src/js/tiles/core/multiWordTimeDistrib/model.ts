@@ -18,7 +18,7 @@
 import * as Immutable from 'immutable';
 import { SEDispatcher, StatelessModel, IActionQueue, Action } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
-import { concatMap } from 'rxjs/operators';
+import { concatMap, reduce } from 'rxjs/operators';
 
 import { AppServices } from '../../../appServices';
 import { ConcApi, QuerySelector, mkMatchQuery } from '../../../common/api/kontext/concordance';
@@ -29,12 +29,11 @@ import { KontextTimeDistribApi } from '../../../common/api/kontext/timeDistrib';
 import { GeneralSingleCritFreqBarModelState } from '../../../common/models/freq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { findCurrLemmaVariant } from '../../../models/query';
-import { DataItemWithWCI, DataLoadedPayload, LemmaData, ActionName, Actions } from './common';
+import { DataItemWithWCI, PartialDataLoadedPayload, LemmaData, ActionName, Actions, LoadFinishedPayload } from './common';
 import { AlphaLevel, wilsonConfInterval } from '../../../common/statistics';
 import { callWithExtraVal } from '../../../common/api/util';
 import { LemmaVariant, RecognizedQueries } from '../../../common/query';
 import { createInitialLinesData } from '../../../common/models/concordance';
-import { string } from 'prop-types';
 import { ConcLoadedPayload, isConcLoadedPayload } from '../concordance/actions';
 
 
@@ -144,7 +143,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 state.error = null;
             },
             (state, action, dispatch) => {
-                if (this.waitForTile) {
+                // we can propagate concordances only for one corpus (subcorpus)
+                if (this.waitForTile && state.subcnames.size === 1) {
                     this.suspend((action:Action) => {
                         if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
                             if (isConcLoadedPayload(action.payload)) {
@@ -189,8 +189,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 }
             }
         );
-        this.addActionHandler<GlobalActions.TileDataLoaded<DataLoadedPayload>>(
-            GlobalActionName.TileDataLoaded,
+        this.addActionHandler<Actions.PartialDataLoaded>(
+            ActionName.PartialDataLoaded,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     const subcIndex = state.subcnames.findIndex(v => v === action.payload.subcname);
@@ -284,11 +284,10 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     };
                 });
 
-                seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                    name: GlobalActionName.TileDataLoaded,
+                seDispatch<Actions.PartialDataLoaded>({
+                    name: ActionName.PartialDataLoaded,
                     payload: {
                         tileId: this.tileId,
-                        isEmpty: dataFull.length === 0,
                         data: dataFull,
                         subcname: resp.subcorpName,
                         concId: args.concId,
@@ -299,11 +298,10 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             },
             error => {
                 console.error(error);
-                seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                    name: GlobalActionName.TileDataLoaded,
+                seDispatch<Actions.PartialDataLoaded>({
+                    name: ActionName.PartialDataLoaded,
                     payload: {
                         tileId: this.tileId,
-                        isEmpty: true,
                         data: null,
                         subcname: null,
                         concId: null,
@@ -313,6 +311,29 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     error: error
                 });
             }
+        );
+    }
+
+    private handleFinish(state: TimeDistribModelState, response:Observable<[TimeDistribResponse, DataFetchArgsOwn|DataFetchArgsForeignConc]>, seDispatch:SEDispatcher) {
+        response.pipe(
+            reduce(
+                (acc, [resp, args]) => {
+                    acc.isEmpty = acc.isEmpty && resp.data.length === 0;
+                    acc.concIds[args.queryId] = args.concId;
+                    return acc
+                },
+                {isEmpty: true, concIds: this.lemmas.map(_ => null)}
+            )
+        ).subscribe(data =>
+            seDispatch<GlobalActions.TileDataLoaded<LoadFinishedPayload>>({
+                name: GlobalActionName.TileDataLoaded,
+                payload: {
+                    tileId: this.tileId,
+                    isEmpty: data.isEmpty,
+                    corpusName: state.corpname,
+                    concPersistenceIDs: state.subcnames.size > 1 ? undefined : data.concIds
+                }
+            })
         );
     }
 
@@ -413,6 +434,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
         ).forEach(resp => {
             this.getFreqs(resp, dispatch);
+            this.handleFinish(state, resp, dispatch);
         });
     }
 }
