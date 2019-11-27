@@ -36,6 +36,12 @@ export interface DataLoadedPayload {
     critId:number;    
 }
 
+// this is to allow other tiles to use this one as source of concordances - ConcLoadedPayload
+export interface LoadFinishedPayload {
+    concPersistenceIDs:Array<string>;
+    corpusName:string;
+}
+
 export namespace Actions {
 
     export interface SetActiveBlock extends Action<{

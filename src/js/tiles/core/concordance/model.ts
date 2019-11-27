@@ -73,6 +73,7 @@ interface PartialLoadingStatus {
     numRemaining:number;
     hasSomeData:boolean;
     firstData:ConcResponse;
+    // conc positions corresponds to different queries (for example when using word comparison mode)
     concPersistanceIDs:Array<string>;
 }
 

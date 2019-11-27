@@ -21,6 +21,7 @@ import * as Immutable from 'immutable';
 
 
 export enum ActionName {
+    PartialDataLoaded = 'MULTI_WORD_TIME_DISTRIB_PARTIAL_DATA_LOADED',
     ChangeTimeWindow = 'MULTI_WORD_TIME_DISTRIB_CHANGE_TIME_WINDOW'
 }
 
@@ -53,15 +54,26 @@ export interface DataItemWithWCI {
     ipmInterval:[number, number];
 }
 
-export interface DataLoadedPayload {
+export interface PartialDataLoadedPayload {
+    tileId:number;
     data:Array<DataItemWithWCI>;
-    targetId:number;
+    queryId:number;
     concId:string;
     origQuery:string; // in case we generate our own concordance (and not reusing one from a different tile)
     subcname:string;
 }
 
+// this is to allow other tiles to use this one as source of concordances - ConcLoadedPayload
+export interface LoadFinishedPayload {
+    concPersistenceIDs:Array<string>;
+    corpusName:string;
+}
+
 export namespace Actions {
+
+    export interface PartialDataLoaded extends Action<PartialDataLoadedPayload> {
+        name:ActionName.PartialDataLoaded;
+    }
 
     export interface ChangeTimeWindow extends Action<{
         tileId:number;

@@ -24,7 +24,7 @@ import { AppServices } from '../../../appServices';
 import { DataRow, FreqDistribAPI, APIResponse } from '../../../common/api/kontext/freqs';
 import { FreqBarModelStateBase, stateToAPIArgs } from '../../../common/models/freq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
-import { ActionName, Actions, DataLoadedPayload } from './actions';
+import { ActionName, Actions, LoadFinishedPayload } from './actions';
 import { DataApi } from '../../../common/types';
 import { TooltipValues } from '../../../views/global';
 import { LemmaVariant } from '../../../common/query';
@@ -32,7 +32,7 @@ import { ConcApi, QuerySelector, mkMatchQuery } from '../../../common/api/kontex
 import { callWithExtraVal } from '../../../common/api/util';
 import { ViewMode } from '../../../common/api/abstract/concordance';
 import { createInitialLinesData } from '../../../common/models/concordance';
-import { ConcLoadedPayload } from '../concordance/actions';
+import { ConcLoadedPayload, isConcLoadedPayload } from '../concordance/actions';
 
 /*
 oral2013:
@@ -75,7 +75,6 @@ ORAL_V1:
 export interface MultiWordGeoAreasModelState extends FreqBarModelStateBase {
     fcrit:string;
     currentLemmas:Immutable.List<LemmaVariant>;
-    concIds:Immutable.List<string>;
     data:Immutable.List<Immutable.List<DataRow>>;
     areaCodeMapping:Immutable.Map<string, string>;
     tooltipArea:{tooltipX:number; tooltipY:number, caption: string, data:TooltipValues}|null;
@@ -122,21 +121,26 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                 if (this.waitForTile) {
                     this.suspend((action:Action) => {
                         if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
-                            const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
-                            const dataStream = combineLatest(
-                                this.mapLoader.call('mapCzech.inline.svg'),
-                                rxOf(...payload.concPersistenceIDs.map((concId, queryId) => [queryId, concId] as [number, string]))
-                                .pipe(
-                                    concatMap(([queryId, concId]) => callWithExtraVal(
-                                        this.freqApi,
-                                        stateToAPIArgs(state, concId),
-                                        {
-                                            concId: concId,
-                                            targetId: queryId
-                                        }
-                                    ))
-                                )
-                            );
+                            let dataStream;
+                            if (isConcLoadedPayload(action.payload)) {
+                                const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
+                                dataStream = combineLatest(
+                                    this.mapLoader.call('mapCzech.inline.svg'),
+                                    rxOf(...payload.concPersistenceIDs.map((concId, queryId) => [queryId, concId] as [number, string]))
+                                    .pipe(
+                                        concatMap(([queryId, concId]) => callWithExtraVal(
+                                            this.freqApi,
+                                            stateToAPIArgs(state, concId),
+                                            {
+                                                concId: concId,
+                                                queryId: queryId
+                                            }
+                                        ))
+                                    )
+                                );
+                            } else {
+                                dataStream = this.getConcordances(state);
+                            }
 
                             this.handleLoad(dataStream, state, dispatch);
                             return true;
@@ -144,56 +148,7 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                         return false;
                     });
                 } else {
-                    const dataStream = combineLatest(
-                        this.mapLoader.call('mapCzech.inline.svg'),
-                        rxOf(...state.currentLemmas.map((lemma, queryId) => [queryId, lemma] as [number, LemmaVariant])[Symbol.iterator]()).pipe(
-                            concatMap(([queryId, lemmaVariant]) =>
-                                callWithExtraVal(
-                                    this.concApi,
-                                    this.concApi.stateToArgs(
-                                        {
-                                            querySelector: QuerySelector.CQL,
-                                            corpname: state.corpname,
-                                            otherCorpname: undefined,
-                                            subcname: null,
-                                            subcDesc: null,
-                                            kwicLeftCtx: -1,
-                                            kwicRightCtx: 1,
-                                            pageSize: 10,
-                                            shuffle: false,
-                                            attr_vmode: 'mouseover',
-                                            viewMode: ViewMode.KWIC,
-                                            tileId: this.tileId,
-                                            attrs: ['word'],
-                                            metadataAttrs: [],
-                                            queries: [],
-                                            concordances: createInitialLinesData(this.lemmas.length),
-                                            posQueryGenerator: state.posQueryGenerator
-                                        },
-                                        lemmaVariant,
-                                        queryId,
-                                        null
-                                    ),
-                                    {
-                                        corpName: state.corpname,
-                                        subcName: null,
-                                        concId: null,
-                                        targetId: queryId,
-                                        origQuery: mkMatchQuery(lemmaVariant, state.posQueryGenerator)
-                                    }
-                                )
-                            ),
-                            concatMap(([resp, args]) => {
-                                args.concId = resp.concPersistenceID;
-                                return callWithExtraVal(
-                                    this.freqApi,
-                                    stateToAPIArgs(state, args.concId),
-                                    args
-                                )
-                            })
-                        )
-                    );
-
+                    const dataStream = this.getConcordances(state);
                     this.handleLoad(dataStream, state, dispatch);
                 }
             }
@@ -205,19 +160,22 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                     if (action.error) {
                         state.data = Immutable.List(state.currentLemmas.map(_ => Immutable.List<DataRow>()));
                         state.error = action.error.message;
-                        state.isBusy = false;
 
                     } else if (action.payload.data.length === 0) {
-                        state.data = state.data.set(action.payload.targetId, Immutable.List<DataRow>());
-                        state.concIds = state.concIds.set(action.payload.targetId, action.payload.concId);
-                        state.isBusy = state.concIds.some(v => v === null);
+                        state.data = state.data.set(action.payload.queryId, Immutable.List<DataRow>());
 
                     } else {
-                        state.data = state.data.set(action.payload.targetId, Immutable.List<DataRow>(action.payload.data));
-                        state.concIds = state.concIds.set(action.payload.targetId, action.payload.concId);
-                        state.isBusy = state.concIds.some(v => v === null);
+                        state.data = state.data.set(action.payload.queryId, Immutable.List<DataRow>(action.payload.data));
                     }
                     state.mapSVG = action.payload.mapSVG;
+                }
+            }
+        );
+        this.addActionHandler<GlobalActions.TileDataLoaded<LoadFinishedPayload>>(
+            GlobalActionName.TileDataLoaded,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {
+                    state.isBusy = false;
                 }
             }
         );
@@ -295,27 +253,63 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
         );
     }
 
-    private handleLoad(dataStream:Observable<[string, [APIResponse, {concId:string; targetId:number;}]]>, state:MultiWordGeoAreasModelState,
-                dispatch:SEDispatcher):void {
-        dataStream.pipe(
-            reduce<[string, [APIResponse, {concId:string; targetId:number;}]], [boolean, Immutable.List<string>]>(([hasData, concIds], [mapSVG, [resp, args]]) =>
-                [
-                    (hasData || (resp.data && resp.data.length > 0)),
-                    concIds.set(args.targetId, args.concId)
-                ],
-                [false, state.concIds]
+    private getConcordances(state:MultiWordGeoAreasModelState) {
+        return combineLatest(
+            this.mapLoader.call('mapCzech.inline.svg'),
+            rxOf(...state.currentLemmas.map((lemma, queryId) => [queryId, lemma] as [number, LemmaVariant])[Symbol.iterator]()).pipe(
+                concatMap(([queryId, lemmaVariant]) =>
+                    callWithExtraVal(
+                        this.concApi,
+                        this.concApi.stateToArgs(
+                            {
+                                querySelector: QuerySelector.CQL,
+                                corpname: state.corpname,
+                                otherCorpname: undefined,
+                                subcname: null,
+                                subcDesc: null,
+                                kwicLeftCtx: -1,
+                                kwicRightCtx: 1,
+                                pageSize: 10,
+                                shuffle: false,
+                                attr_vmode: 'mouseover',
+                                viewMode: ViewMode.KWIC,
+                                tileId: this.tileId,
+                                attrs: [],
+                                metadataAttrs: [],
+                                queries: [],
+                                concordances: createInitialLinesData(this.lemmas.length),
+                                posQueryGenerator: state.posQueryGenerator
+                            },
+                            lemmaVariant,
+                            queryId,
+                            null
+                        ),
+                        {
+                            corpName: state.corpname,
+                            subcName: null,
+                            concId: null,
+                            queryId: queryId,
+                            origQuery: mkMatchQuery(lemmaVariant, state.posQueryGenerator)
+                        }
+                    )
+                ),
+                concatMap(([resp, args]) => {
+                    args.concId = resp.concPersistenceID;
+                    return callWithExtraVal(
+                        this.freqApi,
+                        stateToAPIArgs(state, args.concId),
+                        args
+                    )
+                })
             )
-        )
-        .subscribe(([hasData, concIds]) =>
-            dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                name: GlobalActionName.TileDataLoaded,
-                payload: {
-                    tileId: this.tileId,
-                    isEmpty: !hasData,
-                    concIds: concIds.toArray()
-                }
-            })
         );
+    }
+
+    private handleLoad(
+        dataStream:Observable<[string, [APIResponse, {concId:string; queryId:number;}]]>,
+        state:MultiWordGeoAreasModelState,
+        dispatch:SEDispatcher
+    ):void {
 
         dataStream.subscribe(
             ([mapSVG, [resp, args]]) => {
@@ -326,7 +320,7 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                         mapSVG: mapSVG,
                         data: resp.data,
                         concId: args.concId,
-                        targetId: args.targetId
+                        queryId: args.queryId
                     }
                 });
             },
@@ -338,11 +332,33 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                         mapSVG: null,
                         data: null,
                         concId: null,
-                        targetId: null
+                        queryId: null
                     },
                     error: error
                 });
             }
+        );
+
+        dataStream.pipe(
+            reduce<[string, [APIResponse, {concId:string; queryId:number;}]], {hasData:boolean, concIds:Array<string>}>(
+                (acc, [mapSVG, [resp, args]]) => {
+                    acc.hasData = acc.hasData || (resp.data && resp.data.length > 0);
+                    acc.concIds[args.queryId] = args.concId;
+                    return acc
+                },
+                {hasData: true, concIds: this.lemmas.map(_ => null)}
+            )
+        )
+        .subscribe(acc =>
+            dispatch<GlobalActions.TileDataLoaded<LoadFinishedPayload>>({
+                name: GlobalActionName.TileDataLoaded,
+                payload: {
+                    tileId: this.tileId,
+                    isEmpty: !acc.hasData,
+                    corpusName: state.corpname,
+                    concPersistenceIDs: acc.concIds
+                }
+            })
         );
     }
 }

@@ -18,7 +18,7 @@
 import * as Immutable from 'immutable';
 import { SEDispatcher, StatelessModel, IActionQueue, Action } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
-import { concatMap } from 'rxjs/operators';
+import { concatMap, reduce } from 'rxjs/operators';
 
 import { AppServices } from '../../../appServices';
 import { ConcApi, QuerySelector, mkMatchQuery } from '../../../common/api/kontext/concordance';
@@ -29,13 +29,12 @@ import { KontextTimeDistribApi } from '../../../common/api/kontext/timeDistrib';
 import { GeneralSingleCritFreqBarModelState } from '../../../common/models/freq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { findCurrLemmaVariant } from '../../../models/query';
-import { DataItemWithWCI, DataLoadedPayload, LemmaData, ActionName, Actions } from './common';
+import { DataItemWithWCI, PartialDataLoadedPayload, LemmaData, ActionName, Actions, LoadFinishedPayload } from './common';
 import { AlphaLevel, wilsonConfInterval } from '../../../common/statistics';
 import { callWithExtraVal } from '../../../common/api/util';
 import { LemmaVariant, RecognizedQueries } from '../../../common/query';
 import { createInitialLinesData } from '../../../common/models/concordance';
-import { string } from 'prop-types';
-import { ConcLoadedPayload } from '../concordance/actions';
+import { ConcLoadedPayload, isConcLoadedPayload } from '../concordance/actions';
 
 
 export interface TimeDistribModelState extends GeneralSingleCritFreqBarModelState<LemmaData> {
@@ -57,7 +56,7 @@ const calcIPM = (v:DataRow|DataItemWithWCI, domainSize:number) => Math.round(v.f
 interface DataFetchArgsOwn {
     corpName:string;
     subcName:string;
-    targetId:number;
+    queryId:number;
     concId:string;
     origQuery:string;
 }
@@ -69,7 +68,7 @@ function isDataFetchArgsOwn(v:DataFetchArgsOwn|DataFetchArgsForeignConc): v is D
 interface DataFetchArgsForeignConc {
     corpName:string;
     subcName:string;
-    targetId:number;
+    queryId:number;
     concId:string;
 }
 
@@ -144,20 +143,34 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 state.error = null;
             },
             (state, action, dispatch) => {
-                if (this.waitForTile) {
+                // we can propagate concordances only for one corpus (subcorpus)
+                if (this.waitForTile && state.subcnames.size === 1) {
                     this.suspend((action:Action) => {
                         if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
-                            const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
-                            this.loadData(
-                                state,
-                                dispatch,
-                                [null],
-                                rxOf(...this.lemmas.map((lemma, queryId) => ({
-                                    queryId: queryId,
-                                    lemma: findCurrLemmaVariant(lemma),
-                                    concId: payload.concPersistenceIDs[queryId] 
-                                }))) as Observable<{queryId:number; lemma:LemmaVariant; concId:string;}>
-                            );
+                            if (isConcLoadedPayload(action.payload)) {
+                                const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
+                                this.loadData(
+                                    state,
+                                    dispatch,
+                                    [null],
+                                    rxOf(...this.lemmas.map((lemma, queryId) => ({
+                                        queryId: queryId,
+                                        lemma: findCurrLemmaVariant(lemma),
+                                        concId: payload.concPersistenceIDs[queryId] 
+                                    }))) as Observable<{queryId:number; lemma:LemmaVariant; concId:string;}>
+                                );
+                            } else {
+                                this.loadData(
+                                    state,
+                                    dispatch,
+                                    state.subcnames.toArray(),
+                                    rxOf(...this.lemmas.map((lemma, queryId) => ({
+                                        queryId: queryId,
+                                        lemma: findCurrLemmaVariant(lemma),
+                                        concId: null 
+                                    }))) as Observable<{queryId:number; lemma:LemmaVariant; concId:string;}>
+                                );
+                            }
                             return true;
                         }
                         return false;
@@ -176,25 +189,25 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 }
             }
         );
-        this.addActionHandler<GlobalActions.TileDataLoaded<DataLoadedPayload>>(
-            GlobalActionName.TileDataLoaded,
+        this.addActionHandler<Actions.PartialDataLoaded>(
+            ActionName.PartialDataLoaded,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     const subcIndex = state.subcnames.findIndex(v => v === action.payload.subcname);
                     this.unfinishedChunks = this.unfinishedChunks.set(
-                        action.payload.targetId,
-                        this.unfinishedChunks.get(action.payload.targetId).set(subcIndex, false)
+                        action.payload.queryId,
+                        this.unfinishedChunks.get(action.payload.queryId).set(subcIndex, false)
                     );
                     let newData:Immutable.List<DataItemWithWCI>;
                     if (action.error) {
                         newData = Immutable.List<DataItemWithWCI>();
                         state.error = action.error.message;
                     } else {
-                        const currentData = state.data.get(action.payload.targetId, newData) || Immutable.List<DataItemWithWCI>();
+                        const currentData = state.data.get(action.payload.queryId, newData) || Immutable.List<DataItemWithWCI>();
                         newData = this.mergeChunks(currentData, Immutable.List<DataItemWithWCI>(action.payload.data), state.alphaLevel);
                     }
                     state.isBusy = this.unfinishedChunks.some(l => l.includes(true));
-                    state.data = state.data.set(action.payload.targetId, newData);
+                    state.data = state.data.set(action.payload.queryId, newData);
                 }
             }
         );
@@ -271,30 +284,28 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     };
                 });
 
-                seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                    name: GlobalActionName.TileDataLoaded,
+                seDispatch<Actions.PartialDataLoaded>({
+                    name: ActionName.PartialDataLoaded,
                     payload: {
                         tileId: this.tileId,
-                        isEmpty: dataFull.length === 0,
                         data: dataFull,
                         subcname: resp.subcorpName,
                         concId: args.concId,
-                        targetId: args.targetId,
+                        queryId: args.queryId,
                         origQuery: isDataFetchArgsOwn(args) ? args.origQuery : ''
                     }
                 });
             },
             error => {
                 console.error(error);
-                seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                    name: GlobalActionName.TileDataLoaded,
+                seDispatch<Actions.PartialDataLoaded>({
+                    name: ActionName.PartialDataLoaded,
                     payload: {
                         tileId: this.tileId,
-                        isEmpty: true,
                         data: null,
                         subcname: null,
                         concId: null,
-                        targetId: null,
+                        queryId: null,
                         origQuery: null
                     },
                     error: error
@@ -303,8 +314,31 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         );
     }
 
+    private handleFinish(state: TimeDistribModelState, response:Observable<[TimeDistribResponse, DataFetchArgsOwn|DataFetchArgsForeignConc]>, seDispatch:SEDispatcher) {
+        response.pipe(
+            reduce(
+                (acc, [resp, args]) => {
+                    acc.isEmpty = acc.isEmpty && resp.data.length === 0;
+                    acc.concIds[args.queryId] = args.concId;
+                    return acc
+                },
+                {isEmpty: true, concIds: this.lemmas.map(_ => null)}
+            )
+        ).subscribe(data =>
+            seDispatch<GlobalActions.TileDataLoaded<LoadFinishedPayload>>({
+                name: GlobalActionName.TileDataLoaded,
+                payload: {
+                    tileId: this.tileId,
+                    isEmpty: data.isEmpty,
+                    corpusName: state.corpname,
+                    concPersistenceIDs: state.subcnames.size > 1 ? undefined : data.concIds
+                }
+            })
+        );
+    }
+
     private loadConcordance(state:TimeDistribModelState, lemmaVariant:LemmaVariant, subcname:string,
-            target:number):Observable<[ConcResponse, DataFetchArgsOwn]> {
+            queryId:number):Observable<[ConcResponse, DataFetchArgsOwn]> {
         return callWithExtraVal(
             this.concApi,
             this.concApi.stateToArgs(
@@ -328,14 +362,14 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     concordances: createInitialLinesData(this.lemmas.length)
                 },
                 lemmaVariant,
-                target,
+                queryId,
                 null
             ),
             {
                 corpName: state.corpname,
                 subcName: subcname,
                 concId: null,
-                targetId: target,
+                queryId: queryId,
                 origQuery: mkMatchQuery(lemmaVariant, state.posQueryGenerator)
             }
         );
@@ -364,7 +398,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                             corpName: state.corpname,
                             subcName: subcName,
                             concId: args.concId,
-                            targetId: args.queryId,
+                            queryId: args.queryId,
                             origQuery: ''
                         }
                     ]);
@@ -400,6 +434,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
         ).forEach(resp => {
             this.getFreqs(resp, dispatch);
+            this.handleFinish(state, resp, dispatch);
         });
     }
 }

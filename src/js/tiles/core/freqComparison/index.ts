@@ -15,12 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
 import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
 
 import { AppServices } from '../../../appServices';
-import { DataRow, FreqSort } from '../../../common/api/kontext/freqComparison';
-import { FreqComparisonDataBlock } from '../../../common/models/freqComparison';
+import { FreqSort } from '../../../common/api/kontext/freqComparison';
 import { LocalizedConfMsg } from '../../../common/types';
 import { QueryType } from '../../../common/query';
 import { TileComponent, TileConf, TileFactory, Backlink, ITileProvider } from '../../../common/tile';
@@ -76,7 +74,7 @@ export class FreqComparisonTile implements ITileProvider {
         this.appServices = appServices;
         this.blockingTiles = waitForTiles;
         this.label = appServices.importExternalMessage(conf.label);
-        const criteria = Immutable.List<string>(typeof conf.fcrit === 'string' ? [conf.fcrit] : conf.fcrit);
+        const criteria = typeof conf.fcrit === 'string' ? [conf.fcrit] : conf.fcrit;
         const labels = Array.isArray(conf.critLabels) ?
             conf.critLabels.map(v => this.appServices.importExternalMessage(v)) :
             [this.appServices.importExternalMessage(conf.critLabels)];
@@ -91,16 +89,17 @@ export class FreqComparisonTile implements ITileProvider {
             {
                 isBusy: isBusy,
                 error: null,
-                blocks: Immutable.List<FreqComparisonDataBlock<DataRow>>(criteria.map(v => ({
-                    data: Immutable.List<DataRow>(),
-                    words: Immutable.List<string>(lemmas.map(_ => null)),
+                blocks: criteria.map(v => ({
+                    data: [],
+                    words: lemmas.map(_ => null),
                     ident: puid(),
-                    isReady: false
-                }))),
+                    isReady: false,
+                    label: null
+                })),
                 activeBlock: 0,
                 corpname: conf.corpname,
                 fcrit: criteria,
-                critLabels: Immutable.List<string>(labels),
+                critLabels: labels,
                 flimit: conf.flimit,
                 freqSort: conf.freqSort,
                 fpage: conf.fpage,

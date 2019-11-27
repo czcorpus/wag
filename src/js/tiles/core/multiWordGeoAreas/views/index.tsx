@@ -34,10 +34,10 @@ export interface TargetDataRow extends DataRow {
 }
 
 const groupData = (data:Immutable.List<Immutable.List<DataRow>>):[Immutable.Seq.Keyed<string, Immutable.Iterable<number, TargetDataRow>>, Immutable.Iterable<string, number>] => {
-    const groupedData = data.flatMap((targetData, targetId) =>
+    const groupedData = data.flatMap((targetData, queryId) =>
         targetData.map(item => ({
             ...item,
-            target: targetId
+            target: queryId
         } as TargetDataRow))
     ).groupBy(item => item['name']);
     const groupedIpmNorms = groupedData.map(data => data.reduce((acc, curr) => acc + curr.ipm, 0));

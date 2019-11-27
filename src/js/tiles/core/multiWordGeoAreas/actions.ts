@@ -33,11 +33,13 @@ export interface PartialDataLoadedPayload {
     mapSVG:string|null;
     data:Array<DataRow>;
     concId:string;
-    targetId:number;
+    queryId:number;
 }
 
-export interface DataLoadedPayload {
-    concIds:Array<string>;
+// this is to allow other tiles to use this one as source of concordances - ConcLoadedPayload
+export interface LoadFinishedPayload {
+    concPersistenceIDs:Array<string>;
+    corpusName:string;
 }
 
 export namespace Actions {
