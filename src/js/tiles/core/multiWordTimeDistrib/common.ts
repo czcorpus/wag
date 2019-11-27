@@ -55,7 +55,7 @@ export interface DataItemWithWCI {
 
 export interface DataLoadedPayload {
     data:Array<DataItemWithWCI>;
-    targetId:number;
+    queryId:number;
     concId:string;
     origQuery:string; // in case we generate our own concordance (and not reusing one from a different tile)
     subcname:string;

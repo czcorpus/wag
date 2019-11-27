@@ -33,7 +33,7 @@ export interface PartialDataLoadedPayload {
     mapSVG:string|null;
     data:Array<DataRow>;
     concId:string;
-    targetId:number;
+    queryId:number;
 }
 
 export interface DataLoadedPayload {

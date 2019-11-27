@@ -57,7 +57,7 @@ const calcIPM = (v:DataRow|DataItemWithWCI, domainSize:number) => Math.round(v.f
 interface DataFetchArgsOwn {
     corpName:string;
     subcName:string;
-    targetId:number;
+    queryId:number;
     concId:string;
     origQuery:string;
 }
@@ -69,7 +69,7 @@ function isDataFetchArgsOwn(v:DataFetchArgsOwn|DataFetchArgsForeignConc): v is D
 interface DataFetchArgsForeignConc {
     corpName:string;
     subcName:string;
-    targetId:number;
+    queryId:number;
     concId:string;
 }
 
@@ -195,19 +195,19 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 if (action.payload.tileId === this.tileId) {
                     const subcIndex = state.subcnames.findIndex(v => v === action.payload.subcname);
                     this.unfinishedChunks = this.unfinishedChunks.set(
-                        action.payload.targetId,
-                        this.unfinishedChunks.get(action.payload.targetId).set(subcIndex, false)
+                        action.payload.queryId,
+                        this.unfinishedChunks.get(action.payload.queryId).set(subcIndex, false)
                     );
                     let newData:Immutable.List<DataItemWithWCI>;
                     if (action.error) {
                         newData = Immutable.List<DataItemWithWCI>();
                         state.error = action.error.message;
                     } else {
-                        const currentData = state.data.get(action.payload.targetId, newData) || Immutable.List<DataItemWithWCI>();
+                        const currentData = state.data.get(action.payload.queryId, newData) || Immutable.List<DataItemWithWCI>();
                         newData = this.mergeChunks(currentData, Immutable.List<DataItemWithWCI>(action.payload.data), state.alphaLevel);
                     }
                     state.isBusy = this.unfinishedChunks.some(l => l.includes(true));
-                    state.data = state.data.set(action.payload.targetId, newData);
+                    state.data = state.data.set(action.payload.queryId, newData);
                 }
             }
         );
@@ -292,7 +292,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         data: dataFull,
                         subcname: resp.subcorpName,
                         concId: args.concId,
-                        targetId: args.targetId,
+                        queryId: args.queryId,
                         origQuery: isDataFetchArgsOwn(args) ? args.origQuery : ''
                     }
                 });
@@ -307,7 +307,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         data: null,
                         subcname: null,
                         concId: null,
-                        targetId: null,
+                        queryId: null,
                         origQuery: null
                     },
                     error: error
@@ -317,7 +317,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
     }
 
     private loadConcordance(state:TimeDistribModelState, lemmaVariant:LemmaVariant, subcname:string,
-            target:number):Observable<[ConcResponse, DataFetchArgsOwn]> {
+            queryId:number):Observable<[ConcResponse, DataFetchArgsOwn]> {
         return callWithExtraVal(
             this.concApi,
             this.concApi.stateToArgs(
@@ -341,14 +341,14 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     concordances: createInitialLinesData(this.lemmas.length)
                 },
                 lemmaVariant,
-                target,
+                queryId,
                 null
             ),
             {
                 corpName: state.corpname,
                 subcName: subcname,
                 concId: null,
-                targetId: target,
+                queryId: queryId,
                 origQuery: mkMatchQuery(lemmaVariant, state.posQueryGenerator)
             }
         );
@@ -377,7 +377,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                             corpName: state.corpname,
                             subcName: subcName,
                             concId: args.concId,
-                            targetId: args.queryId,
+                            queryId: args.queryId,
                             origQuery: ''
                         }
                     ]);

@@ -134,7 +134,7 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                                             stateToAPIArgs(state, concId),
                                             {
                                                 concId: concId,
-                                                targetId: queryId
+                                                queryId: queryId
                                             }
                                         ))
                                     )
@@ -164,13 +164,13 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                         state.isBusy = false;
 
                     } else if (action.payload.data.length === 0) {
-                        state.data = state.data.set(action.payload.targetId, Immutable.List<DataRow>());
-                        state.concIds = state.concIds.set(action.payload.targetId, action.payload.concId);
+                        state.data = state.data.set(action.payload.queryId, Immutable.List<DataRow>());
+                        state.concIds = state.concIds.set(action.payload.queryId, action.payload.concId);
                         state.isBusy = state.concIds.some(v => v === null);
 
                     } else {
-                        state.data = state.data.set(action.payload.targetId, Immutable.List<DataRow>(action.payload.data));
-                        state.concIds = state.concIds.set(action.payload.targetId, action.payload.concId);
+                        state.data = state.data.set(action.payload.queryId, Immutable.List<DataRow>(action.payload.data));
+                        state.concIds = state.concIds.set(action.payload.queryId, action.payload.concId);
                         state.isBusy = state.concIds.some(v => v === null);
                     }
                     state.mapSVG = action.payload.mapSVG;
@@ -286,7 +286,7 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                             corpName: state.corpname,
                             subcName: null,
                             concId: null,
-                            targetId: queryId,
+                            queryId: queryId,
                             origQuery: mkMatchQuery(lemmaVariant, state.posQueryGenerator)
                         }
                     )
@@ -303,13 +303,13 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
         );
     }
 
-    private handleLoad(dataStream:Observable<[string, [APIResponse, {concId:string; targetId:number;}]]>, state:MultiWordGeoAreasModelState,
+    private handleLoad(dataStream:Observable<[string, [APIResponse, {concId:string; queryId:number;}]]>, state:MultiWordGeoAreasModelState,
                 dispatch:SEDispatcher):void {
         dataStream.pipe(
-            reduce<[string, [APIResponse, {concId:string; targetId:number;}]], [boolean, Immutable.List<string>]>(([hasData, concIds], [mapSVG, [resp, args]]) =>
+            reduce<[string, [APIResponse, {concId:string; queryId:number;}]], [boolean, Immutable.List<string>]>(([hasData, concIds], [mapSVG, [resp, args]]) =>
                 [
                     (hasData || (resp.data && resp.data.length > 0)),
-                    concIds.set(args.targetId, args.concId)
+                    concIds.set(args.queryId, args.concId)
                 ],
                 [false, state.concIds]
             )
@@ -334,7 +334,7 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                         mapSVG: mapSVG,
                         data: resp.data,
                         concId: args.concId,
-                        targetId: args.targetId
+                        queryId: args.queryId
                     }
                 });
             },
@@ -346,7 +346,7 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                         mapSVG: null,
                         data: null,
                         concId: null,
-                        targetId: null
+                        queryId: null
                     },
                     error: error
                 });
