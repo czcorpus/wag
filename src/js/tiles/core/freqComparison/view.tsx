@@ -20,19 +20,18 @@ import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
-import { DataRow } from '../../../common/api/kontext/freqComparison';
 import { Theme } from '../../../common/theme';
 import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
 import { GlobalComponents } from '../../../views/global';
 import { ActionName, Actions } from './actions';
-import { FreqComparisonModel, FreqComparisonModelState } from './model';
+import { FreqComparisonModel, FreqComparisonModelState, MultiWordDataRow } from './model';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:FreqComparisonModel):TileComponent {
 
     const globComponents = ut.getComponents();
 
-    const processData = (data:Array<DataRow>, words:Array<string>) => {
+    const processData = (data:Array<MultiWordDataRow>, words:Array<string>) => {
         return Immutable.List(data).groupBy(x => x.name).map((values, name) => {
             const totalIpm = values.reduce((acc, curr) => acc + curr.ipm, 0)
             let wordData = {}
@@ -63,7 +62,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // ------- <ChartWrapper /> ---------------------------------------------------
 
     const ChartWrapper:React.SFC<{
-        data:Array<DataRow>;
+        data:Array<MultiWordDataRow>;
         words:Array<string>;
         width:string|number;
         height:string|number;
@@ -96,7 +95,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // -------------------------- <Chart /> --------------------------------------
 
     const Chart:React.SFC<{
-        data:Array<DataRow>;
+        data:Array<MultiWordDataRow>;
         words:Array<string>;
         width:string|number;
         height:string|number;
@@ -123,7 +122,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // -------------- <DataTable /> ---------------------------------------------
 
     const DataTable:React.SFC<{
-        data:Array<DataRow>;
+        data:Array<MultiWordDataRow>;
         words:Array<string>;
     }> = (props) => {
         const processedData = processData(props.data, props.words);
@@ -137,10 +136,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 <tr>
                     <th key={`totalIpm`}>{ut.translate('freq_comparison__table_heading_freq_rel')}</th>
                     <th key={`totalAbs`}>{ut.translate('freq_comparison__table_heading_freq_abs')}</th>
-                    {props.words.flatMap(word => [
+                    {props.words.reduce((acc, word) => [...acc,
                         <th key={`${word}Ipm`}>{ut.translate('freq_comparison__table_heading_freq_rel')}</th>,
                         <th key={`${word}Abs`}>{ut.translate('freq_comparison__table_heading_freq_abs')}</th>
-                    ])}
+                    ], [])}
                 </tr>
             </thead>
             <tbody>
@@ -149,10 +148,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <td key={category}>{category}</td>
                         <td key={`${category}Ipm`} className="num">{props.words.reduce((ipmSum, word) => ipmSum + rows[`${word}_ipm`], 0).toFixed(2)}</td>
                         <td key={`${category}Abs`} className="num">{props.words.reduce((absSum, word) => absSum + rows[`${word}_abs`], 0)}</td>
-                        {props.words.flatMap(word => [
+                        {props.words.reduce((acc, word) => [...acc,
                             <td key={`${word}Ipm`} className="num">{rows[`${word}_ipm`]}<br/>({rows[`${word}`]}%)</td>,
                             <td key={`${word}Abs`} className="num">{rows[`${word}_abs`]}</td>
-                        ])}
+                        ], [])}
                     </tr>
                 )}
             </tbody>

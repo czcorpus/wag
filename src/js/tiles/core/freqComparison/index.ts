@@ -18,7 +18,6 @@
 import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
 
 import { AppServices } from '../../../appServices';
-import { FreqSort } from '../../../common/api/kontext/freqComparison';
 import { LocalizedConfMsg } from '../../../common/types';
 import { QueryType } from '../../../common/query';
 import { TileComponent, TileConf, TileFactory, Backlink, ITileProvider } from '../../../common/tile';
@@ -26,7 +25,8 @@ import { puid } from '../../../common/util';
 import { GlobalComponents } from '../../../views/global';
 import { factory as defaultModelFactory, FreqComparisonModel } from './model';
 import { init as viewInit } from './view';
-import { FreqComparisonAPI } from '../../../common/api/kontext/freqComparison';
+import { ConcApi } from '../../../common/api/kontext/concordance';
+import { MultiBlockFreqDistribAPI, FreqSort } from '../../../common/api/kontext/freqs';
 
 
 
@@ -42,6 +42,7 @@ export interface FreqComparisonTileConf extends TileConf {
     freqSort:FreqSort;
     fpage:number;
     fttIncludeEmpty:boolean;
+    posQueryGenerator:[string, string];
     maxChartsPerLine?:number;
     backlink?:Backlink;
 }
@@ -84,7 +85,8 @@ export class FreqComparisonTile implements ITileProvider {
             tileId,
             waitForTiles,
             appServices,
-            new FreqComparisonAPI(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            new ConcApi(false, cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            new MultiBlockFreqDistribAPI(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             conf.backlink || null,
             {
                 isBusy: isBusy,
@@ -107,7 +109,8 @@ export class FreqComparisonTile implements ITileProvider {
                 fmaxitems: 100,
                 backlink: null,
                 maxChartsPerLine: conf.maxChartsPerLine ? conf.maxChartsPerLine : 3,
-                isAltViewMode: false
+                isAltViewMode: false,
+                posQueryGenerator: conf.posQueryGenerator
             },
             lemmas
         );
