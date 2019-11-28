@@ -27,8 +27,12 @@ import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { puid } from '../../../common/util';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { ActionName, Actions, DataLoadedPayload } from './actions';
-import { findCurrLemmaVariant } from '../../../models/query';
-import { RecognizedQueries, LemmaVariant } from '../../../common/query';
+import { LemmaVariant } from '../../../common/query';
+import { ConcApi, mkMatchQuery, QuerySelector } from '../../../common/api/kontext/concordance';
+import { isConcLoadedPayload, ConcLoadedPayload } from '../concordance/actions';
+import { createInitialLinesData } from '../../../common/models/concordance';
+import { ViewMode, ConcResponse } from '../../../common/api/abstract/concordance';
+import { callWithExtraVal } from '../../../common/api/util';
 
 
 
@@ -36,8 +40,9 @@ export interface FreqTreeModelState extends GeneralCritFreqTreeModelState {
     activeBlock:number;
     backlink:BacklinkWithArgs<BacklinkArgs>;
     maxChartsPerLine:number;
-    lemmas:RecognizedQueries;
+    lemmaVariants:Array<LemmaVariant>;
     zoomCategory:Immutable.List<Immutable.List<string|null>>;
+    posQueryGenerator:[string, string];
 }
 
 export interface FreqComparisonModelArgs {
@@ -45,167 +50,131 @@ export interface FreqComparisonModelArgs {
     tileId:number;
     waitForTiles:Array<number>;
     appServices:AppServices;
-    api:FreqTreeAPI;
+    concApi:ConcApi;
+    freqTreeApi:FreqTreeAPI;
     backlink:Backlink|null;
     initState:FreqTreeModelState;
 }
 
 
 export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
-    private readonly lemmas:RecognizedQueries;
 
-    protected api:FreqTreeAPI;
+    protected readonly concApi:ConcApi;
+
+    protected readonly freqTreeApi:FreqTreeAPI;
 
     protected readonly appServices:AppServices;
 
     protected readonly tileId:number;
 
-    protected waitForTiles:Immutable.Map<number, boolean>;
+    protected readonly waitForTiles:Array<number>;
 
     private readonly backlink:Backlink|null;
 
-    constructor({dispatcher, tileId, waitForTiles, appServices, api, backlink, initState}) {
+    constructor({dispatcher, tileId, waitForTiles, appServices, concApi, freqTreeApi, backlink, initState}:FreqComparisonModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
-        this.waitForTiles = Immutable.Map<number, boolean>(waitForTiles.map(v => [v, false]));
+        this.waitForTiles = waitForTiles;
         this.appServices = appServices;
-        this.api = api;
+        this.concApi = concApi;
+        this.freqTreeApi = freqTreeApi;
         this.backlink = backlink;
-        this.actionMatch = {
-            [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
-                const newState = this.copyState(state);
-                newState.isBusy = true;
-                newState.error = null;
-                return newState;
+        
+        this.addActionHandler<GlobalActions.RequestQueryResponse>(
+            GlobalActionName.RequestQueryResponse,
+            (state, action) => {
+                state.isBusy = true;
+                state.error = null;
             },
-            [ActionName.SetActiveBlock]: (state, action:Actions.SetActiveBlock) => {
-                if (action.payload['tileId'] === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.activeBlock = action.payload.idx;
-                    return newState;
+            (state, action, dispatch) => {                
+                if (this.waitForTiles.length > 0) {                    
+                    this.suspend(
+                        (action:Action) => {
+                            if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTiles[0]) {
+                                if (isConcLoadedPayload(action.payload)) {
+                                    const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
+                                    if (action.error) {
+                                        dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                            name: GlobalActionName.TileDataLoaded,
+                                            payload: {
+                                                tileId: this.tileId,
+                                                isEmpty: true,
+                                                data: null
+                                            },
+                                            error: new Error(this.appServices.translate('global__failed_to_obtain_required_data')),
+                                        });
+                                        return true;
+                                    }
+                                    this.loadTreeData(this.composeConcordances(state, payload.concPersistenceIDs), state, dispatch);
+                                } else {
+                                    // if foreign tile response does not send concordances, load as standalone tile
+                                    this.loadTreeData(this.loadConcordances(state), state, dispatch);
+                                }
+                                return true;
+                            }
+                            return false;
+                        }
+                    );
+                } else {
+                    this.loadTreeData(this.loadConcordances(state), state, dispatch);
                 }
-                return state
-            },
-            [ActionName.SetZoom]: (state, action:Actions.SetZoom) => {
-                if (action.payload['tileId'] === this.tileId) {
-                    const newState = this.copyState(state);
-                    let blockZoomCategory = newState.zoomCategory.get(action.payload.blockId);
+            }
+        );
+        this.addActionHandler<Actions.SetActiveBlock>(
+            ActionName.SetActiveBlock,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {
+                    state.activeBlock = action.payload.idx;
+                }
+            }
+        );
+        this.addActionHandler<Actions.SetZoom>(
+            ActionName.SetZoom,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {
+                    let blockZoomCategory = state.zoomCategory.get(action.payload.blockId);
                     if (blockZoomCategory.get(action.payload.variantId)) {
                         blockZoomCategory = blockZoomCategory.set(action.payload.variantId, null);
                     } else {
                         blockZoomCategory = blockZoomCategory.set(action.payload.variantId, action.payload.category);
                     }
-                    newState.zoomCategory = newState.zoomCategory.set(action.payload.blockId, blockZoomCategory);
-                    return newState;
+                    state.zoomCategory = state.zoomCategory.set(action.payload.blockId, blockZoomCategory);
                 }
-                return state
-            },
-            [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<DataLoadedPayload>) => {
-                if (action.payload['tileId'] !== this.tileId) {
-                    return state
-                }
-                
-                const newState = this.copyState(state);
-                if (action.error) {
-                    newState.frequencyTree = Immutable.List(newState.fcritTrees.map(_ => ({
-                        data: Immutable.Map(),
-                        ident: puid(),
-                        label: '',
-                        isReady: true
-                    }) as FreqTreeDataBlock))
-                    newState.error = action.error.message;
-                    newState.isBusy = false;
-                } else {
-                    newState.frequencyTree = action.payload.data.sortBy((_, key) => key).entrySeq().map(([blockId, data]) => ({
-                        data: data,
-                        ident: puid(),
-                        label: state.treeLabels ? state.treeLabels.get(blockId) : '',
-                        isReady: true,
-                    }) as FreqTreeDataBlock).toList();
-                    newState.isBusy = false;
-                    newState.backlink = null;
-                }
-                return newState;
             }
-        }
-    }
-
-    sideEffects(state:FreqTreeModelState, action:Action, dispatch:SEDispatcher):void {
-        switch (action.name) {
-            case GlobalActionName.RequestQueryResponse:
-                new Observable((observer:Observer<[number, LemmaVariant]>) => {
-                    state.fcritTrees.forEach((_, blockId) =>
-                        state.lemmas.forEach(lemma => {
-                            observer.next([blockId, findCurrLemmaVariant(lemma)]);
-                        })
-                    )
-                    observer.complete();
-                }).pipe(
-                    mergeMap<[number, LemmaVariant], Observable<[number, LemmaVariant, APIVariantsResponse]>>(([blockId, lemma]) => 
-                        this.api.callVariants(
-                            stateToAPIArgs(state, blockId, 0),
-                            lemma
-                        ).pipe(
-                            map(resp => [blockId, lemma, resp])
-                        )
-                    ),
-                    mergeMap(([blockId, lemma, resp1]) =>
-                        of(...resp1.fcritValues).pipe(
-                            mergeMap(fcritValue =>
-                                this.api.call(
-                                    stateToAPIArgs(state, blockId, 1),
-                                    resp1.concId,
-                                    {[resp1.fcrit]: fcritValue}
-                                )
-                            ),
-                            map(resp2 => [blockId, lemma, resp2] as [number, LemmaVariant, APILeafResponse])
-                        )
-                    ),
-                    reduce<[number, LemmaVariant, APILeafResponse], Immutable.Map<string, any>>((acc, [blockId, lemma, resp]) =>
-                        acc.mergeDeep(
-                            Immutable.fromJS({
-                                [blockId]:{
-                                    [lemma.word]:{
-                                        [this.appServices.translateDbValue(
-                                            state.corpname,
-                                            resp.filter[state.fcritTrees.get(blockId).get(0)]
-                                        )]:resp.data.map(item => ({
-                                            ...item,
-                                            name: this.appServices.translateDbValue(state.corpname, item.name)}
-                                        ))
-                                    }
-                                }
-                            })
-                        ),
-                        Immutable.Map()
-                    )
-                ).subscribe(
-                    data => {
-                        dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                            name: GlobalActionName.TileDataLoaded,
-                            payload: {
-                                tileId: this.tileId,
-                                isEmpty: data.size === 0,
-                                data: data
-                            }
-                        });
-                    },
-                    error => {
-                        dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                            name: GlobalActionName.TileDataLoaded,
-                            payload: {
-                                tileId: this.tileId,
-                                isEmpty: true,
-                                data: null
-                            },
-                            error: error
-                        });
+        );
+        this.addActionHandler<GlobalActions.TileDataLoaded<DataLoadedPayload>>(
+            GlobalActionName.TileDataLoaded,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {
+                    if (action.error) {
+                        console.error(action.error);
+                        state.frequencyTree = Immutable.List(state.fcritTrees.map(_ => ({
+                            data: Immutable.Map(),
+                            ident: puid(),
+                            label: '',
+                            isReady: true
+                        }) as FreqTreeDataBlock))
+                        state.error = action.error.message;
+                        state.isBusy = false;
+                    } else {
+                        state.frequencyTree = action.payload.data.sortBy((_, key) => key).entrySeq().map(([blockId, data]) => ({
+                            data: data,
+                            ident: puid(),
+                            label: state.treeLabels ? state.treeLabels.get(blockId) : '',
+                            isReady: true,
+                        }) as FreqTreeDataBlock).toList();
+                        state.isBusy = false;
+                        state.backlink = null;
                     }
-                );
-            break;
-            case GlobalActionName.GetSourceInfo:
-                if (action.payload['tileId'] === this.tileId) {
-                    this.api.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), state.corpname)
+                }
+            }
+        );
+        this.addActionHandler<GlobalActions.GetSourceInfo>(
+            GlobalActionName.GetSourceInfo,
+            (state, action) => {},
+            (state, action, dispatch) => {
+                if (action.payload.tileId === this.tileId) {
+                    this.freqTreeApi.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), state.corpname)
                     .subscribe(
                         (data) => {
                             dispatch({
@@ -224,8 +193,140 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                         }
                     );
                 }
-            break;
-        }
+            }
+        );
+        
+    }
+
+    loadConcordances(state:FreqTreeModelState):Observable<[ConcResponse, {blockId:number; queryId:number; lemma:LemmaVariant; concId:string}]> {
+        return new Observable((observer:Observer<{blockId:number; queryId:number; lemma:LemmaVariant; concId:string}>) => {
+            state.fcritTrees.forEach((fcritTree, blockId) =>
+                state.lemmaVariants.forEach((lemma, queryId) => {
+                    observer.next({blockId: blockId, queryId: queryId, lemma: lemma, concId: null});
+                })
+            );
+            observer.complete();
+        }).pipe(
+            mergeMap(args => 
+                callWithExtraVal(
+                    this.concApi,
+                    this.concApi.stateToArgs(
+                        {
+                            querySelector: QuerySelector.CQL,
+                            corpname: state.corpname,
+                            otherCorpname: undefined,
+                            subcname: null,
+                            subcDesc: null,
+                            kwicLeftCtx: -1,
+                            kwicRightCtx: 1,
+                            pageSize: 10,
+                            shuffle: false,
+                            attr_vmode: 'mouseover',
+                            viewMode: ViewMode.KWIC,
+                            tileId: this.tileId,
+                            attrs: [],
+                            metadataAttrs: [],
+                            queries: [],
+                            concordances: createInitialLinesData(state.lemmaVariants.length),
+                            posQueryGenerator: state.posQueryGenerator
+                        },
+                        args.lemma,
+                        args.queryId,
+                        null
+                    ),
+                    {
+                        corpName: state.corpname,
+                        subcName: null,
+                        blockId: args.blockId,
+                        concId: null,
+                        queryId: args.queryId,
+                        origQuery: mkMatchQuery(args.lemma, state.posQueryGenerator),
+                        lemma: args.lemma
+                    }
+                )
+            )
+        )
+    };
+
+    composeConcordances(state:FreqTreeModelState, concIds: Array<string>):Observable<[{concPersistenceID:string;}, {blockId:number; queryId: number; lemma:LemmaVariant; concId:string;}]> {
+        return new Observable((observer:Observer<[{concPersistenceID:string;}, {blockId: number; queryId: number; lemma:LemmaVariant; concId:string;}]>) => {
+            state.fcritTrees.forEach((fcritTree, blockId) =>
+                state.lemmaVariants.forEach((lemma, queryId) => {
+                    observer.next([
+                        {concPersistenceID: concIds[queryId]},
+                        {blockId: blockId, queryId: queryId, lemma: lemma, concId: concIds[queryId]}
+                    ]);
+                })
+            );
+            observer.complete();
+        })
+    };
+
+    loadTreeData(concResp:Observable<[{concPersistenceID:string;}, {blockId:number; queryId:number; lemma:LemmaVariant; concId:string;}]> ,state:FreqTreeModelState, dispatch:SEDispatcher):void {
+        concResp.pipe(
+            mergeMap(([resp, args]) => {
+                args.concId = resp.concPersistenceID;
+                return this.freqTreeApi.callVariants(
+                    stateToAPIArgs(state, args.blockId, 0),
+                    args.lemma,
+                    resp.concPersistenceID
+                ).pipe(
+                    map(resp => [resp, args] as [APIVariantsResponse, {blockId:number; queryId:number; lemma:LemmaVariant; concId:string;}])
+                )
+            }),
+            mergeMap(([resp1, args]) =>
+                of(...resp1.fcritValues).pipe(
+                    mergeMap(fcritValue =>
+                        this.freqTreeApi.call(
+                            stateToAPIArgs(state, args.blockId, 1),
+                            resp1.concId,
+                            {[resp1.fcrit]: fcritValue}
+                        )
+                    ),
+                    map(resp2 => [resp2, args] as [APILeafResponse, {blockId:number; queryId:number; lemma:LemmaVariant; concId:string;}])
+                )
+            ),
+            reduce<[APILeafResponse, {blockId:number; queryId:number; lemma:LemmaVariant; concId:string;}], Immutable.Map<string, any>>((acc, [resp, args]) =>
+                acc.mergeDeep(
+                    Immutable.fromJS({
+                        [args.blockId]:{
+                            [args.lemma.word]:{
+                                [this.appServices.translateDbValue(
+                                    state.corpname,
+                                    resp.filter[state.fcritTrees.get(args.blockId).get(0)]
+                                )]:resp.data.map(item => ({
+                                    ...item,
+                                    name: this.appServices.translateDbValue(state.corpname, item.name)}
+                                ))
+                            }
+                        }
+                    })
+                ),
+                Immutable.Map()
+            )
+        ).subscribe(
+            data => {
+                dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                    name: GlobalActionName.TileDataLoaded,
+                    payload: {
+                        tileId: this.tileId,
+                        isEmpty: data.size === 0,
+                        data: data
+                    }
+                });
+            },
+            error => {
+                dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                    name: GlobalActionName.TileDataLoaded,
+                    payload: {
+                        tileId: this.tileId,
+                        isEmpty: true,
+                        data: null
+                    },
+                    error: error
+                });
+            }
+        );
     }
 }
 
@@ -234,7 +335,8 @@ export const factory = (
     tileId:number,
     waitForTiles:Array<number>,
     appServices:AppServices,
-    api:FreqTreeAPI,
+    concApi:ConcApi,
+    freqTreeApi:FreqTreeAPI,
     backlink:Backlink|null,
     initState:FreqTreeModelState) => {
 
@@ -243,7 +345,8 @@ export const factory = (
         tileId,
         waitForTiles,
         appServices,
-        api,
+        concApi,
+        freqTreeApi,
         backlink,
         initState
     });

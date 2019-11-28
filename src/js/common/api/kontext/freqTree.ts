@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { Observable } from 'rxjs';
-import { map, flatMap, tap } from 'rxjs/operators';
+import { map, flatMap } from 'rxjs/operators';
 
 import { cachedAjax$ } from '../../ajax';
 import { HTTPHeaders, IAsyncKeyValueStore } from '../../types';
@@ -77,8 +77,6 @@ export interface WordDataApi<T, U> {
 export class FreqTreeAPI implements WordDataApi<SingleCritQueryArgs, APILeafResponse> {
 
     private readonly apiURL:string;
-
-    private readonly concApi:ConcApi;
     
     private readonly concApiFilter:ConcApi;
 
@@ -90,7 +88,6 @@ export class FreqTreeAPI implements WordDataApi<SingleCritQueryArgs, APILeafResp
 
     constructor(cache:IAsyncKeyValueStore, apiURL:string, customHeaders?:HTTPHeaders) {
         this.cache = cache;
-        this.concApi = new ConcApi(false, cache, apiURL, customHeaders);
         this.concApiFilter = new ConcApi(true, cache, apiURL, customHeaders);
         this.apiURL = apiURL;
         this.customHeaders = customHeaders || {};
@@ -105,50 +102,24 @@ export class FreqTreeAPI implements WordDataApi<SingleCritQueryArgs, APILeafResp
         });
     }
 
-    prepareCQL(lemma:LemmaVariant):string {
-        if (lemma.isNonDict) {
-            const words = lemma.word.split(' ')
-            return words.map(part => `[word="${part}"]`).join('')
-        } else {
-            const posPart = lemma.pos.length > 0 ? ' & (' + lemma.pos.map(v => `pos="${v.value}"`).join(' | ') + ')' : '';
-            return `[word="${lemma.word}" ${posPart}]`
-        }
-    }
-
-    callVariants(args:SingleCritQueryArgs, lemma:LemmaVariant):Observable<APIVariantsResponse> {
-        return this.concApi.call({
-            corpname: args.corpname,
-            queryselector: QuerySelector.CQL,
-            cql: this.prepareCQL(lemma),
-            kwicleftctx: '0',
-            kwicrightctx: '0',
-            async: '0',
-            pagesize: '0',
-            fromp: '1',
-            attr_vmode: 'mouseover',
-            attrs: 'word',
-            viewmode: ViewMode.KWIC,
-            shuffle: 0,
-            format:'json'
-        }).pipe(flatMap(x =>
-            cachedAjax$<HTTPResponse>(this.cache)(
-                'GET',
-                this.apiURL + '/freqs',
-                {...args, q: `~${x.concPersistenceID}`},
-                {headers: this.customHeaders}
-            ).pipe(
-                map<HTTPResponse, APIVariantsResponse>(resp => ({
-                    lemma: lemma,
-                    fcrit: args.fcrit,
-                    fcritValues: resp.Blocks.map(block =>
-                        block.Items.map(v =>
-                            v.Word.map(v => v.n).join(' ')
-                        )
-                    ).reduce((acc,curr) => [...acc, ...curr], []),
-                    concId: resp.conc_persistence_op_id
-                }))
-            )
-        ))
+    callVariants(args:SingleCritQueryArgs, lemma:LemmaVariant, concId: string):Observable<APIVariantsResponse> {
+        return cachedAjax$<HTTPResponse>(this.cache)(
+            'GET',
+            this.apiURL + '/freqs',
+            {...args, q: `~${concId}`},
+            {headers: this.customHeaders}
+        ).pipe(
+            map<HTTPResponse, APIVariantsResponse>(resp => ({
+                lemma: lemma,
+                fcrit: args.fcrit,
+                fcritValues: resp.Blocks.map(block =>
+                    block.Items.map(v =>
+                        v.Word.map(v => v.n).join(' ')
+                    )
+                ).reduce((acc,curr) => [...acc, ...curr], []),
+                concId: resp.conc_persistence_op_id
+            }))
+        );
     }
 
     call(args:SingleCritQueryArgs, concId:string, filter:{[attr:string]:string}):Observable<APILeafResponse> {

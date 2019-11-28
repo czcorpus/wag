@@ -25,7 +25,6 @@ import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
 import { GlobalComponents } from '../../../views/global';
 import { ActionName, Actions } from './actions';
 import { FreqTreeModel, FreqTreeModelState } from './model';
-import { findCurrLemmaVariant } from '../../../models/query';
 
 type TreeData = {name: any; children:any[]}[];
 
@@ -210,7 +209,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                     <div key={block.ident} style={{width: chartsViewBoxWidth, height: "100%"}}>
                                         <h3>{block.label}</h3>
                                         {
-                                            this.props.lemmas.map(lemma => findCurrLemmaVariant(lemma).word).map((word, variantId) => {
+                                            this.props.lemmaVariants.map(lemma => lemma.word).map((word, variantId) => {
                                                 if (transformedData) {
                                                     let variantData = transformedData.find(item => item.name === word).children;
                                                     if (variantData) {

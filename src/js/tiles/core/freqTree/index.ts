@@ -28,6 +28,8 @@ import { puid } from '../../../common/util';
 import { GlobalComponents } from '../../../views/global';
 import { factory as defaultModelFactory, FreqTreeModel } from './model';
 import { init as viewInit } from './view';
+import { ConcApi } from '../../../common/api/kontext/concordance';
+import { findCurrLemmaVariant } from '../../../models/query';
 
 
 
@@ -44,6 +46,7 @@ export interface FreqTreeTileConf extends TileConf {
     fttIncludeEmpty:boolean;
     maxChartsPerLine?:number;
     backlink?:Backlink;
+    posQueryGenerator:[string, string];
 }
 
 
@@ -84,6 +87,7 @@ export class FreqTreeTile implements ITileProvider {
             tileId,
             waitForTiles,
             appServices,
+            new ConcApi(false, cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             new FreqTreeAPI(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             conf.backlink || null,
             {
@@ -105,8 +109,9 @@ export class FreqTreeTile implements ITileProvider {
                 fmaxitems: 100,
                 backlink: null,
                 maxChartsPerLine: conf.maxChartsPerLine ? conf.maxChartsPerLine : 3,
-                lemmas: lemmas,
-                zoomCategory: criteria.map(_ => Immutable.List(lemmas.map(_ => null))).toList()
+                lemmaVariants: lemmas.map(lemma => findCurrLemmaVariant(lemma)),
+                zoomCategory: criteria.map(_ => Immutable.List(lemmas.map(_ => null))).toList(),
+                posQueryGenerator: conf.posQueryGenerator
             }
         );
         this.label = appServices.importExternalMessage(conf.label || 'freqTree__main_label');
