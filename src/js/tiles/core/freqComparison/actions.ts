@@ -17,9 +17,9 @@
  */
 import { Action } from 'kombo';
 
-import { ApiDataBlock } from '../../../common/api/kontext/freqComparison';
 import { LocalizedConfMsg } from '../../../common/types';
 import { LemmaVariant } from '../../../common/query';
+import { ApiDataBlock } from '../../../common/api/kontext/freqs';
 
 
 

@@ -47,7 +47,7 @@ export interface GeneralMultiCritFreqComparisonModelState<T=DataRow> extends Fre
 
 
 
-export function stateToAPIArgs<T>(state:GeneralMultiCritFreqComparisonModelState<T>, critId?:number, subcname?:string):MultiCritQueryArgs {
+export function stateToAPIArgs<T>(state:GeneralMultiCritFreqComparisonModelState<T>, concId: string, critId?:number, subcname?:string):MultiCritQueryArgs {
     return {
         corpname: state.corpname,
         usesubcorp: subcname,
@@ -56,6 +56,7 @@ export function stateToAPIArgs<T>(state:GeneralMultiCritFreqComparisonModelState
         freq_sort: state.freqSort,
         fpage: state.fpage,
         ftt_include_empty: state.fttIncludeEmpty ? 1 : 0,
-        format: 'json'
+        format: 'json',
+        q: `~${concId}`
     } as MultiCritQueryArgs;
 };

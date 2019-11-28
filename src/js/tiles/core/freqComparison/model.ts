@@ -17,10 +17,9 @@
  */
 import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { Observable, Observer } from 'rxjs';
-import { map, mergeMap, reduce } from 'rxjs/operators';
+import { mergeMap, reduce } from 'rxjs/operators';
 
 import { AppServices } from '../../../appServices';
-import { BacklinkArgs, DataRow, FreqComparisonAPI, APIBlockResponse } from '../../../common/api/kontext/freqComparison';
 import { GeneralMultiCritFreqComparisonModelState, stateToAPIArgs } from '../../../common/models/freqComparison';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { puid } from '../../../common/util';
@@ -29,14 +28,23 @@ import { ActionName, Actions, DataLoadedPayload, LoadFinishedPayload } from './a
 import { findCurrLemmaVariant } from '../../../models/query';
 import { RecognizedQueries, LemmaVariant } from '../../../common/query';
 import { ConcLoadedPayload, isConcLoadedPayload } from '../concordance/actions';
+import { ConcApi, QuerySelector, mkMatchQuery } from '../../../common/api/kontext/concordance';
+import { callWithExtraVal } from '../../../common/api/util';
+import { ViewMode } from '../../../common/api/abstract/concordance';
+import { createInitialLinesData } from '../../../common/models/concordance';
+import { MultiBlockFreqDistribAPI, BacklinkArgs, DataRow } from '../../../common/api/kontext/freqs';
 
 
+export interface MultiWordDataRow extends DataRow {
+    word: string;
+}
 
-export interface FreqComparisonModelState extends GeneralMultiCritFreqComparisonModelState<DataRow> {
+export interface FreqComparisonModelState extends GeneralMultiCritFreqComparisonModelState<MultiWordDataRow> {
     activeBlock:number;
     backlink:BacklinkWithArgs<BacklinkArgs>;
     isAltViewMode:boolean;
     maxChartsPerLine:number;
+    posQueryGenerator:[string, string];
 }
 
 export interface FreqComparisonModelArgs {
@@ -44,9 +52,11 @@ export interface FreqComparisonModelArgs {
     tileId:number;
     waitForTiles:Array<number>;
     appServices:AppServices;
-    api:FreqComparisonAPI;
+    concApi:ConcApi;
+    freqApi:MultiBlockFreqDistribAPI;
     backlink:Backlink|null;
     initState:FreqComparisonModelState;
+    lemmas:RecognizedQueries;
 }
 
 
@@ -54,7 +64,9 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
 
     private readonly lemmas:RecognizedQueries;
 
-    protected api:FreqComparisonAPI;
+    protected readonly concApi:ConcApi;
+
+    protected readonly freqApi:MultiBlockFreqDistribAPI;
 
     protected readonly appServices:AppServices;
 
@@ -64,12 +76,13 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
 
     private readonly backlink:Backlink|null;
 
-    constructor({dispatcher, tileId, waitForTiles, appServices, api, backlink, initState, lemmas}) {
+    constructor({dispatcher, tileId, waitForTiles, appServices, concApi, freqApi, backlink, initState, lemmas}:FreqComparisonModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.waitForTiles = waitForTiles;
         this.appServices = appServices;
-        this.api = api;
+        this.concApi = concApi;
+        this.freqApi = freqApi;
         this.backlink = backlink;
         this.lemmas = lemmas;
 
@@ -101,9 +114,10 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                                         });
                                         return true;
                                     }
-                                    this.loadData(state, dispatch, payload.concPersistenceIDs);
+                                    this.loadFreqs(this.composeConcordances(state, payload.concPersistenceIDs), state, dispatch);
                                 } else {
-                                    this.loadData(state, dispatch, null);
+                                    // if foreign tile response does not send concordances, load as standalone tile
+                                    this.loadFreqs(this.loadConcordances(state), state, dispatch);
                                 }
                                 return true;
                             }
@@ -111,7 +125,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                         }
                     );
                 } else {
-                    this.loadData(state, dispatch, null);
+                    this.loadFreqs(this.loadConcordances(state), state, dispatch);
                 }
             }
         );
@@ -186,7 +200,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
             (state, action) => {},
             (state, action, dispatch) => {
                 if (action.payload['tileId'] === this.tileId) {
-                    this.api.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), state.corpname)
+                    this.freqApi.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), state.corpname)
                     .subscribe(
                         (data) => {
                             dispatch({
@@ -209,8 +223,8 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
         );
     };
 
-    loadData(state:FreqComparisonModelState, dispatch:SEDispatcher, concPersistenceIDs:Array<string>):void {
-        const requests = new Observable((observer:Observer<{critId:number; queryId:number; lemma:LemmaVariant}>) => {
+    loadConcordances(state:FreqComparisonModelState):Observable<[{concPersistenceID:string;}, {critId:number; queryId: number; lemma:LemmaVariant; concId:string;}]> {
+        return new Observable((observer:Observer<{critId:number; queryId:number; lemma:LemmaVariant}>) => {
             state.fcrit.forEach((critName, critId) => {
                 this.lemmas.forEach((lemma, queryId) => {
                     observer.next({critId: critId, queryId: queryId, lemma: findCurrLemmaVariant(lemma)});
@@ -218,27 +232,87 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
             });
             observer.complete();
         }).pipe(
-            mergeMap(args =>
-                this.api.call(
-                    stateToAPIArgs(state, args.critId),
-                    args.lemma,
-                    concPersistenceIDs ? concPersistenceIDs[args.queryId] : null
-                ).pipe(
-                    map(resp => [resp, args] as [APIBlockResponse, {critId:number; queryId:number; lemma:LemmaVariant}])
+            mergeMap(args => 
+                callWithExtraVal(
+                    this.concApi,
+                    this.concApi.stateToArgs(
+                        {
+                            querySelector: QuerySelector.CQL,
+                            corpname: state.corpname,
+                            otherCorpname: undefined,
+                            subcname: null,
+                            subcDesc: null,
+                            kwicLeftCtx: -1,
+                            kwicRightCtx: 1,
+                            pageSize: 10,
+                            shuffle: false,
+                            attr_vmode: 'mouseover',
+                            viewMode: ViewMode.KWIC,
+                            tileId: this.tileId,
+                            attrs: [],
+                            metadataAttrs: [],
+                            queries: [],
+                            concordances: createInitialLinesData(this.lemmas.length),
+                            posQueryGenerator: state.posQueryGenerator
+                        },
+                        args.lemma,
+                        args.queryId,
+                        null
+                    ),
+                    {
+                        corpName: state.corpname,
+                        subcName: null,
+                        concId: null,
+                        queryId: args.queryId,
+                        origQuery: mkMatchQuery(args.lemma, state.posQueryGenerator),
+                        critId: args.critId,
+                        lemma: args.lemma
+                    }
                 )
             )
-        );
-        this.handleRequests(requests, state, dispatch);
+        )
     };
 
-    handleRequests(requests:Observable<[APIBlockResponse, {critId:number; queryId:number; lemma:LemmaVariant;}]>, state:FreqComparisonModelState, dispatch:SEDispatcher):void {
-        requests.pipe(
+    composeConcordances(
+        state:FreqComparisonModelState,
+        concIds: Array<string>
+    ):Observable<[{concPersistenceID:string;}, {critId:number; queryId: number; lemma:LemmaVariant; concId:string;}]> {
+        return new Observable((observer:Observer<[{concPersistenceID:string;}, {critId:number; queryId: number; lemma:LemmaVariant; concId:string;}]>) => {
+            state.fcrit.forEach((critName, critId) => {
+                this.lemmas.forEach((lemma, queryId) => {
+                    observer.next([
+                        {concPersistenceID: concIds[queryId]},
+                        {critId: critId, queryId: queryId, lemma: findCurrLemmaVariant(lemma), concId: concIds[queryId]}
+                    ]);
+                });
+            });
+            observer.complete();
+        })
+    };
+
+    loadFreqs(
+        concResp:Observable<[{concPersistenceID:string;}, {critId:number; queryId: number; lemma:LemmaVariant; concId:string;}]>,
+        state:FreqComparisonModelState,
+        dispatch:SEDispatcher
+    ):void {
+        const freqResp = concResp.pipe(
+            mergeMap(([resp, args]) => {
+                args.concId = resp.concPersistenceID;
+                return callWithExtraVal(
+                    this.freqApi,
+                    stateToAPIArgs(state, resp.concPersistenceID, args.critId),
+                    args
+                )
+            })
+        );
+
+        freqResp.pipe(
             reduce((acc, [resp, args]) => {
                     acc.isEmpty = acc.isEmpty && resp.blocks.every(v => v.data.length === 0);
                     acc.concIds[args.queryId] = resp.concId;
                     return acc;
                 },
-                {isEmpty: true, concIds: this.lemmas.map(_ => null)}
+                {isEmpty: true, concIds: this.lemmas.map(_ => null), corpname: null}
             )
         ).subscribe(
             acc => {
@@ -254,7 +328,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
             }
         );
 
-        requests.subscribe(
+        freqResp.subscribe(
             ([resp, args]) => {
                 dispatch<Actions.PartialDataLoaded<DataLoadedPayload>>({
                     name: ActionName.PartialDataLoaded,
@@ -299,7 +373,8 @@ export const factory = (
     tileId:number,
     waitForTiles:Array<number>,
     appServices:AppServices,
-    api:FreqComparisonAPI,
+    concApi:ConcApi,
+    freqApi:MultiBlockFreqDistribAPI,
     backlink:Backlink|null,
     initState:FreqComparisonModelState,
     lemmas:RecognizedQueries) => {
@@ -309,7 +384,8 @@ export const factory = (
         tileId,
         waitForTiles,
         appServices,
-        api,
+        concApi,
+        freqApi,
         backlink,
         initState,
         lemmas
