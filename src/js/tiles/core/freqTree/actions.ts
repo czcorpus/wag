@@ -28,6 +28,9 @@ export enum ActionName {
 
 export interface DataLoadedPayload {
     data:Immuatable.Map<string, any>;
+    // this is to allow other tiles to use this one as source of concordances - ConcLoadedPayload
+    concPersistenceIDs:Array<string>;
+    corpusName:string;
 }
 
 export namespace Actions {

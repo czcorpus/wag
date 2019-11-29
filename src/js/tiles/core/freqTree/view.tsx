@@ -25,7 +25,6 @@ import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
 import { GlobalComponents } from '../../../views/global';
 import { ActionName, Actions } from './actions';
 import { FreqTreeModel, FreqTreeModelState } from './model';
-import { findCurrLemmaVariant } from '../../../models/query';
 
 type TreeData = {name: any; children:any[]}[];
 
@@ -81,11 +80,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     {
                         name ?
                             depth === 1 && name.length * 6 < width && height > 14 ? (
-                                <text x={x + width / 2} y={y + 20} textAnchor="middle" fill="rgb(60,60,60)" fontSize={14} fontWeight={900}>
+                                <text x={x + width / 2} y={y + 20} textAnchor="middle" fill="rgb(60,60,60)" fontSize={14} fontWeight={900} style={{userSelect: 'none'}}>
                                     {name}
                                 </text>
                             ) : depth === 2 && name.length * 4 < width && height > 10 ? (
-                                <text x={x + width / 2} y={y + height / 2 + 4} textAnchor="middle" fill="black" fontSize={10} fontWeight={600}>
+                                <text x={x + width / 2} y={y + height / 2 + 4} textAnchor="middle" fill="black" fontSize={10} fontWeight={600} style={{userSelect: 'none'}}>
                                     {name}
                                 </text>
                             ) : null
@@ -193,7 +192,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
 
         render() {
-            const chartsViewBoxWidth = this.props.isMobile ? '100%' : `${100 / Math.min(this.props.frequencyTree.size, this.props.maxChartsPerLine)}%`;
+            const chartsViewBoxWidth = this.props.isMobile ? '100%' : `${100 / Math.min(this.props.frequencyTree.length, this.props.maxChartsPerLine)}%`;
             return (
                 <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.frequencyTree.find(v => v.isReady) !== undefined}
@@ -210,13 +209,13 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                     <div key={block.ident} style={{width: chartsViewBoxWidth, height: "100%"}}>
                                         <h3>{block.label}</h3>
                                         {
-                                            this.props.lemmas.map(lemma => findCurrLemmaVariant(lemma).word).map((word, variantId) => {
+                                            this.props.lemmaVariants.map(lemma => lemma.word).map((word, variantId) => {
                                                 if (transformedData) {
                                                     let variantData = transformedData.find(item => item.name === word).children;
                                                     if (variantData) {
                                                         // zooming category done by making children zero size
                                                         // this will keep the same category colors and make nice transition animations
-                                                        const zoomCategory = this.props.zoomCategory.get(blockId).get(variantId);
+                                                        const zoomCategory = this.props.zoomCategory[blockId][variantId];
                                                         if (zoomCategory) {
                                                             variantData = variantData.map(item =>
                                                                 item.name === zoomCategory ? item :
@@ -243,7 +242,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 );
                             })}
                         </div>
-                        {this.props.isMobile && this.props.frequencyTree.size > 1 ?
+                        {this.props.isMobile && this.props.frequencyTree.length > 1 ?
                             <globComponents.HorizontalBlockSwitch htmlClass="ChartSwitch"
                                     blockIndices={Immutable.List(this.props.frequencyTree.map((_, i) => i))}
                                     currentIdx={this.props.activeBlock}

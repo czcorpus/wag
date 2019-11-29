@@ -28,6 +28,8 @@ import { puid } from '../../../common/util';
 import { GlobalComponents } from '../../../views/global';
 import { factory as defaultModelFactory, FreqTreeModel } from './model';
 import { init as viewInit } from './view';
+import { ConcApi } from '../../../common/api/kontext/concordance';
+import { findCurrLemmaVariant } from '../../../models/query';
 
 
 
@@ -44,6 +46,7 @@ export interface FreqTreeTileConf extends TileConf {
     fttIncludeEmpty:boolean;
     maxChartsPerLine?:number;
     backlink?:Backlink;
+    posQueryGenerator:[string, string];
 }
 
 
@@ -74,30 +77,30 @@ export class FreqTreeTile implements ITileProvider {
         this.appServices = appServices;
         this.blockingTiles = waitForTiles;
         this.label = appServices.importExternalMessage(conf.label);
-        const criteria = Immutable.fromJS(conf.fcritTrees);
-        const labels = Immutable.fromJS(Array.isArray(conf.treeLabels) ?
+        const labels = Array.isArray(conf.treeLabels) ?
             conf.treeLabels.map(v => this.appServices.importExternalMessage(v)) :
-            [this.appServices.importExternalMessage(conf.treeLabels)]);
+            [this.appServices.importExternalMessage(conf.treeLabels)];
 
         this.model = defaultModelFactory(
             this.dispatcher,
             tileId,
             waitForTiles,
             appServices,
+            new ConcApi(false, cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             new FreqTreeAPI(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             conf.backlink || null,
             {
                 isBusy: isBusy,
                 error: null,
-                frequencyTree: Immutable.List(criteria.map(_ => ({
+                frequencyTree: conf.fcritTrees.map(_ => ({
                     data: Immutable.Map(),
                     ident: puid(),
                     label: '',
                     isReady: false
-                }) as FreqTreeDataBlock)),
+                }) as FreqTreeDataBlock),
                 activeBlock: 0,
                 corpname: conf.corpname,
-                fcritTrees: criteria,
+                fcritTrees: conf.fcritTrees,
                 treeLabels: labels,
                 flimit: conf.flimit,
                 fpage: conf.fpage,
@@ -105,8 +108,9 @@ export class FreqTreeTile implements ITileProvider {
                 fmaxitems: 100,
                 backlink: null,
                 maxChartsPerLine: conf.maxChartsPerLine ? conf.maxChartsPerLine : 3,
-                lemmas: lemmas,
-                zoomCategory: criteria.map(_ => Immutable.List(lemmas.map(_ => null))).toList()
+                lemmaVariants: lemmas.map(lemma => findCurrLemmaVariant(lemma)),
+                zoomCategory: conf.fcritTrees.map(_ => lemmas.map(_ => null)),
+                posQueryGenerator: conf.posQueryGenerator
             }
         );
         this.label = appServices.importExternalMessage(conf.label || 'freqTree__main_label');
