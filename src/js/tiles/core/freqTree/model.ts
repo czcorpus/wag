@@ -99,7 +99,9 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                                             payload: {
                                                 tileId: this.tileId,
                                                 isEmpty: true,
-                                                data: null
+                                                data: null,
+                                                concPersistenceIDs: null,
+                                                corpusName: state.corpname
                                             },
                                             error: new Error(this.appServices.translate('global__failed_to_obtain_required_data')),
                                         });
@@ -286,8 +288,8 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                     map(resp2 => [resp2, args] as [APILeafResponse, {blockId:number; queryId:number; lemma:LemmaVariant; concId:string;}])
                 )
             ),
-            reduce<[APILeafResponse, {blockId:number; queryId:number; lemma:LemmaVariant; concId:string;}], Immutable.Map<string, any>>((acc, [resp, args]) =>
-                acc.mergeDeep(
+            reduce<[APILeafResponse, {blockId:number; queryId:number; lemma:LemmaVariant; concId:string;}], {concIds: Array<string>, dataTree: Immutable.Map<string, any>}>((acc, [resp, args]) => {
+                acc.dataTree = acc.dataTree.mergeDeep(
                     Immutable.fromJS({
                         [args.blockId]:{
                             [args.lemma.word]:{
@@ -301,17 +303,20 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                             }
                         }
                     })
-                ),
-                Immutable.Map()
-            )
+                );
+                acc.concIds[args.queryId] = args.concId;
+                return acc;
+            }, {concIds: state.lemmaVariants.map(_ => null), dataTree: Immutable.Map()})
         ).subscribe(
-            data => {
+            acc => {
                 dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
                     name: GlobalActionName.TileDataLoaded,
                     payload: {
                         tileId: this.tileId,
-                        isEmpty: data.size === 0,
-                        data: data
+                        isEmpty: acc.dataTree.size === 0,
+                        data: acc.dataTree,
+                        concPersistenceIDs: acc.concIds,
+                        corpusName: state.corpname
                     }
                 });
             },
@@ -321,7 +326,9 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                     payload: {
                         tileId: this.tileId,
                         isEmpty: true,
-                        data: null
+                        data: null,
+                        concPersistenceIDs: null,
+                        corpusName: state.corpname
                     },
                     error: error
                 });
