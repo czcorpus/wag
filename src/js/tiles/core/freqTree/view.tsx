@@ -80,11 +80,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     {
                         name ?
                             depth === 1 && name.length * 6 < width && height > 14 ? (
-                                <text x={x + width / 2} y={y + 20} textAnchor="middle" fill="rgb(60,60,60)" fontSize={14} fontWeight={900}>
+                                <text x={x + width / 2} y={y + 20} textAnchor="middle" fill="rgb(60,60,60)" fontSize={14} fontWeight={900} style={{userSelect: 'none'}}>
                                     {name}
                                 </text>
                             ) : depth === 2 && name.length * 4 < width && height > 10 ? (
-                                <text x={x + width / 2} y={y + height / 2 + 4} textAnchor="middle" fill="black" fontSize={10} fontWeight={600}>
+                                <text x={x + width / 2} y={y + height / 2 + 4} textAnchor="middle" fill="black" fontSize={10} fontWeight={600} style={{userSelect: 'none'}}>
                                     {name}
                                 </text>
                             ) : null
