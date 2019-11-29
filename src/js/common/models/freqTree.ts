@@ -39,16 +39,16 @@ export interface FreqTreeDataBlock {
 }
 
 export interface GeneralCritFreqTreeModelState extends FreqTreeStateBase {
-    fcritTrees:Immutable.List<Immutable.List<string>>;
-    treeLabels:Immutable.List<LocalizedConfMsg>;
-    frequencyTree:Immutable.List<FreqTreeDataBlock>;
+    fcritTrees:Array<Array<string>>;
+    treeLabels:Array<LocalizedConfMsg>;
+    frequencyTree:Array<FreqTreeDataBlock>;
 }
 
 export function stateToAPIArgs(state:GeneralCritFreqTreeModelState, blockId:number, critLevel:number, subcname?:string):SingleCritQueryArgs {
     return {
         corpname: state.corpname,
         usesubcorp: subcname,
-        fcrit: state.fcritTrees.get(blockId).get(critLevel),
+        fcrit: state.fcritTrees[blockId][critLevel],
         flimit: state.flimit,
         fpage: state.fpage,
         ftt_include_empty: state.fttIncludeEmpty ? 1 : 0,

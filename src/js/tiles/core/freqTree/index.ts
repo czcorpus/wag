@@ -77,10 +77,9 @@ export class FreqTreeTile implements ITileProvider {
         this.appServices = appServices;
         this.blockingTiles = waitForTiles;
         this.label = appServices.importExternalMessage(conf.label);
-        const criteria = Immutable.fromJS(conf.fcritTrees);
-        const labels = Immutable.fromJS(Array.isArray(conf.treeLabels) ?
+        const labels = Array.isArray(conf.treeLabels) ?
             conf.treeLabels.map(v => this.appServices.importExternalMessage(v)) :
-            [this.appServices.importExternalMessage(conf.treeLabels)]);
+            [this.appServices.importExternalMessage(conf.treeLabels)];
 
         this.model = defaultModelFactory(
             this.dispatcher,
@@ -93,15 +92,15 @@ export class FreqTreeTile implements ITileProvider {
             {
                 isBusy: isBusy,
                 error: null,
-                frequencyTree: Immutable.List(criteria.map(_ => ({
+                frequencyTree: conf.fcritTrees.map(_ => ({
                     data: Immutable.Map(),
                     ident: puid(),
                     label: '',
                     isReady: false
-                }) as FreqTreeDataBlock)),
+                }) as FreqTreeDataBlock),
                 activeBlock: 0,
                 corpname: conf.corpname,
-                fcritTrees: criteria,
+                fcritTrees: conf.fcritTrees,
                 treeLabels: labels,
                 flimit: conf.flimit,
                 fpage: conf.fpage,
@@ -110,7 +109,7 @@ export class FreqTreeTile implements ITileProvider {
                 backlink: null,
                 maxChartsPerLine: conf.maxChartsPerLine ? conf.maxChartsPerLine : 3,
                 lemmaVariants: lemmas.map(lemma => findCurrLemmaVariant(lemma)),
-                zoomCategory: criteria.map(_ => Immutable.List(lemmas.map(_ => null))).toList(),
+                zoomCategory: conf.fcritTrees.map(_ => lemmas.map(_ => null)),
                 posQueryGenerator: conf.posQueryGenerator
             }
         );

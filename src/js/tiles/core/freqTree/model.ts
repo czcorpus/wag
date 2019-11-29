@@ -41,7 +41,7 @@ export interface FreqTreeModelState extends GeneralCritFreqTreeModelState {
     backlink:BacklinkWithArgs<BacklinkArgs>;
     maxChartsPerLine:number;
     lemmaVariants:Array<LemmaVariant>;
-    zoomCategory:Immutable.List<Immutable.List<string|null>>;
+    zoomCategory:Array<Array<string|null>>;
     posQueryGenerator:[string, string];
 }
 
@@ -134,13 +134,11 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
             ActionName.SetZoom,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
-                    let blockZoomCategory = state.zoomCategory.get(action.payload.blockId);
-                    if (blockZoomCategory.get(action.payload.variantId)) {
-                        blockZoomCategory = blockZoomCategory.set(action.payload.variantId, null);
+                    if (state.zoomCategory[action.payload.blockId][action.payload.variantId]) {
+                        state.zoomCategory[action.payload.blockId][action.payload.variantId] = null;
                     } else {
-                        blockZoomCategory = blockZoomCategory.set(action.payload.variantId, action.payload.category);
+                        state.zoomCategory[action.payload.blockId][action.payload.variantId] = action.payload.category;
                     }
-                    state.zoomCategory = state.zoomCategory.set(action.payload.blockId, blockZoomCategory);
                 }
             }
         );
@@ -150,21 +148,21 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                 if (action.payload.tileId === this.tileId) {
                     if (action.error) {
                         console.error(action.error);
-                        state.frequencyTree = Immutable.List(state.fcritTrees.map(_ => ({
+                        state.frequencyTree = state.fcritTrees.map(_ => ({
                             data: Immutable.Map(),
                             ident: puid(),
                             label: '',
                             isReady: true
-                        }) as FreqTreeDataBlock))
+                        }) as FreqTreeDataBlock);
                         state.error = action.error.message;
                         state.isBusy = false;
                     } else {
                         state.frequencyTree = action.payload.data.sortBy((_, key) => key).entrySeq().map(([blockId, data]) => ({
                             data: data,
                             ident: puid(),
-                            label: state.treeLabels ? state.treeLabels.get(blockId) : '',
+                            label: state.treeLabels ? state.treeLabels[blockId] : '',
                             isReady: true,
-                        }) as FreqTreeDataBlock).toList();
+                        }) as FreqTreeDataBlock).toArray();
                         state.isBusy = false;
                         state.backlink = null;
                     }
@@ -295,7 +293,7 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                             [args.lemma.word]:{
                                 [this.appServices.translateDbValue(
                                     state.corpname,
-                                    resp.filter[state.fcritTrees.get(args.blockId).get(0)]
+                                    resp.filter[state.fcritTrees[args.blockId][0]]
                                 )]:resp.data.map(item => ({
                                     ...item,
                                     name: this.appServices.translateDbValue(state.corpname, item.name)}

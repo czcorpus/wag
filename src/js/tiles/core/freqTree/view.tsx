@@ -192,7 +192,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
 
         render() {
-            const chartsViewBoxWidth = this.props.isMobile ? '100%' : `${100 / Math.min(this.props.frequencyTree.size, this.props.maxChartsPerLine)}%`;
+            const chartsViewBoxWidth = this.props.isMobile ? '100%' : `${100 / Math.min(this.props.frequencyTree.length, this.props.maxChartsPerLine)}%`;
             return (
                 <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.frequencyTree.find(v => v.isReady) !== undefined}
@@ -215,7 +215,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                                     if (variantData) {
                                                         // zooming category done by making children zero size
                                                         // this will keep the same category colors and make nice transition animations
-                                                        const zoomCategory = this.props.zoomCategory.get(blockId).get(variantId);
+                                                        const zoomCategory = this.props.zoomCategory[blockId][variantId];
                                                         if (zoomCategory) {
                                                             variantData = variantData.map(item =>
                                                                 item.name === zoomCategory ? item :
@@ -242,7 +242,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 );
                             })}
                         </div>
-                        {this.props.isMobile && this.props.frequencyTree.size > 1 ?
+                        {this.props.isMobile && this.props.frequencyTree.length > 1 ?
                             <globComponents.HorizontalBlockSwitch htmlClass="ChartSwitch"
                                     blockIndices={Immutable.List(this.props.frequencyTree.map((_, i) => i))}
                                     currentIdx={this.props.activeBlock}
