@@ -201,13 +201,22 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     let newData:Immutable.List<DataItemWithWCI>;
                     if (action.error) {
                         newData = Immutable.List<DataItemWithWCI>();
-                        state.error = action.error.message;
                     } else {
                         const currentData = state.data.get(action.payload.queryId, newData) || Immutable.List<DataItemWithWCI>();
                         newData = this.mergeChunks(currentData, Immutable.List<DataItemWithWCI>(action.payload.data), state.alphaLevel);
                     }
-                    state.isBusy = this.unfinishedChunks.some(l => l.includes(true));
                     state.data = state.data.set(action.payload.queryId, newData);
+                }
+            }
+        );
+        this.addActionHandler<GlobalActions.TileDataLoaded<LoadFinishedPayload>>(
+            GlobalActionName.TileDataLoaded,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {
+                    state.isBusy = false;
+                    if (action.error) {
+                        state.error = action.error.message;
+                    }
                 }
             }
         );
@@ -231,7 +240,6 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                             dispatch({
                                 name: GlobalActionName.GetSourceInfoDone,
                                 error: err
-
                             });
                         }
                     );
@@ -324,16 +332,28 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 },
                 {isEmpty: true, concIds: this.lemmas.map(_ => null)}
             )
-        ).subscribe(data =>
-            seDispatch<GlobalActions.TileDataLoaded<LoadFinishedPayload>>({
-                name: GlobalActionName.TileDataLoaded,
-                payload: {
-                    tileId: this.tileId,
-                    isEmpty: data.isEmpty,
-                    corpusName: state.corpname,
-                    concPersistenceIDs: state.subcnames.size > 1 ? undefined : data.concIds
-                }
-            })
+        ).subscribe(
+            data =>
+                seDispatch<GlobalActions.TileDataLoaded<LoadFinishedPayload>>({
+                    name: GlobalActionName.TileDataLoaded,
+                    payload: {
+                        tileId: this.tileId,
+                        isEmpty: data.isEmpty,
+                        corpusName: state.corpname,
+                        concPersistenceIDs: state.subcnames.size > 1 ? undefined : data.concIds
+                    }
+                }),
+            error =>
+                seDispatch<GlobalActions.TileDataLoaded<LoadFinishedPayload>>({
+                    name: GlobalActionName.TileDataLoaded,
+                    payload: {
+                        tileId: this.tileId,
+                        isEmpty: true,
+                        corpusName: state.corpname,
+                        concPersistenceIDs: undefined
+                    },
+                    error: error
+                }),
         );
     }
 
