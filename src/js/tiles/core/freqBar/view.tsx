@@ -64,6 +64,32 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
     }
 
+    // -------------- <TableView /> -------------------------------------
+
+    const TableView:React.SFC<{
+        data:Immutable.List<DataRow>;
+    }> = (props) => {
+        return (
+            <table className="data">
+                <thead>
+                    <tr>
+                        <th />
+                        <th>{ut.translate('mergeCorpFreq_abs_freq')}</th>
+                        <th>{ut.translate('mergeCorpFreq_rel_freq')}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {props.data.map((row, i) => (
+                        <tr key={`${i}:${row.name}`}>
+                            <td className="word">{row.name}</td>
+                            <td className="num">{ut.formatNumber(row.freq)}</td>
+                            <td className="num">{ut.formatNumber(row.ipm)}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        );
+    }
 
     // -------------------------- <Chart /> --------------------------------------
 
@@ -129,27 +155,35 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         supportsTileReload={this.props.supportsReloadOnError}
                         issueReportingUrl={this.props.issueReportingUrl}>
                     <div className="FreqBarTile">
-                        <div className={`charts${this.props.isBusy ? ' incomplete' : ''}`} ref={this.chartsRef} onScroll={this.handleScroll}>
-                            {this.props.blocks.filter(block => block.isReady).map(block => {
-                                const chartWidth = this.props.isMobile ? (this.props.renderSize[0] * 0.9).toFixed() : "90%";
-                                return  (
-                                    <div key={block.ident} style={{width: chartsViewBoxWidth, height: "100%"}}>
-                                        <h3>{block.label}</h3>
-                                        {block.data.size > 0 ?
-                                            <Chart data={block.data} width={chartWidth} height={70 + block.data.size * 40}
-                                                    isMobile={this.props.isMobile} /> :
-                                            <p className="note" style={{textAlign: 'center'}}>No result</p>
-                                        }
-                                    </div>
-                                );
-                                })}
-                        </div>
-                        {this.props.isMobile && this.props.blocks.size > 1 ?
-                            <globComponents.HorizontalBlockSwitch htmlClass="ChartSwitch"
-                                    blockIndices={this.props.blocks.map((_, i) => i).toList()}
-                                    currentIdx={this.props.activeBlock}
-                                    onChange={this.handleDotClick} /> :
-                            null
+                        {this.props.isAltViewMode ?
+                            this.props.blocks.flatMap((block, blockId) => [
+                                <h3 key={'h' + blockId} style={{textAlign: 'center'}}>{block.label}</h3>,
+                                <TableView key={'t' + blockId} data={block.data}/>
+                            ]) :
+                            <div>
+                                <div className={`charts${this.props.isBusy ? ' incomplete' : ''}`} ref={this.chartsRef} onScroll={this.handleScroll}>
+                                    {this.props.blocks.filter(block => block.isReady).map(block => {
+                                        const chartWidth = this.props.isMobile ? (this.props.renderSize[0] * 0.9).toFixed() : "90%";
+                                        return  (
+                                            <div key={block.ident} style={{width: chartsViewBoxWidth, height: "100%"}}>
+                                                <h3>{block.label}</h3>
+                                                {block.data.size > 0 ?
+                                                    <Chart data={block.data} width={chartWidth} height={70 + block.data.size * 40}
+                                                            isMobile={this.props.isMobile} /> :
+                                                    <p className="note" style={{textAlign: 'center'}}>No result</p>
+                                                }
+                                            </div>
+                                        );
+                                        })}
+                                </div>
+                                {this.props.isMobile && this.props.blocks.size > 1 ?
+                                    <globComponents.HorizontalBlockSwitch htmlClass="ChartSwitch"
+                                            blockIndices={this.props.blocks.map((_, i) => i).toList()}
+                                            currentIdx={this.props.activeBlock}
+                                            onChange={this.handleDotClick} /> :
+                                    null
+                                }
+                            </div>
                         }
                     </div>
                 </globComponents.TileWrapper>

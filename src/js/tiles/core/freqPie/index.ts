@@ -111,7 +111,8 @@ export class FreqPieTile implements ITileProvider {
                 fmaxitems: 100,
                 backlink: null,
                 maxNumCategories: conf.maxNumCategories,
-                subqSyncPalette: !!conf.subqueryMode
+                subqSyncPalette: !!conf.subqueryMode,
+                isAltViewMode: false
             }
         );
         this.label = appServices.importExternalMessage(conf.label || 'freqpie__main_label');
@@ -156,7 +157,7 @@ export class FreqPieTile implements ITileProvider {
     }
 
     supportsAltView():boolean {
-        return false;
+        return true;
     }
 
     exposeModel():StatelessModel<{}>|null {

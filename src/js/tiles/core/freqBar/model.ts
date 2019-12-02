@@ -37,6 +37,7 @@ export interface FreqBarModelState extends GeneralMultiCritFreqBarModelState<Dat
     activeBlock:number;
     backlink:BacklinkWithArgs<BacklinkArgs>;
     subqSyncPalette:boolean;
+    isAltViewMode:boolean;
 }
 
 export interface FreqBarModelArgs {
@@ -73,63 +74,30 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState> {
         this.appServices = appServices;
         this.api = api;
         this.backlink = backlink;
-        this.actionMatch = {
-            [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
-                const newState = this.copyState(state);
-                newState.isBusy = true;
-                newState.error = null;
-                return newState;
-            },
-            [ActionName.SetActiveBlock]: (state, action:Actions.SetActiveBlock) => {
-                if (action.payload.tileId === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.activeBlock = action.payload.idx;
-                    return newState;
-                }
-                return state;
-            },
-            [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<DataLoadedPayload>) => {
-                if (action.payload.tileId === this.tileId) {
-                    const newState = this.copyState(state);
-                    if (action.error) {
-                        newState.blocks = Immutable.List<FreqDataBlock<DataRow>>(state.fcrit.map((_, i) => ({
-                            data: Immutable.List<FreqDataBlock<DataRow>>(),
-                            ident: puid(),
-                            label: action.payload.blockLabel ? action.payload.blockLabel : state.critLabels.get(i),
-                            isReady: true
-                        })));
-                        newState.error = action.error.message;
-                        newState.isBusy = false;
 
-                    } else {
-                        newState.blocks = newState.blocks.set(
-                            action.payload.critIdx,
-                            {
-                                data: action.payload.block ?
-                                    Immutable.List<DataRow>(action.payload.block.data.map(v => ({
-                                        name: this.appServices.translateDbValue(state.corpname, v.name),
-                                        freq: v.freq,
-                                        ipm: v.ipm
-                                    }))) : null,
-                                ident: puid(),
-                                label: this.appServices.importExternalMessage(
-                                    action.payload.blockLabel ? action.payload.blockLabel : state.critLabels.get(action.payload.critIdx)),
-                                isReady: true
-                            }
-                        );
-                        newState.isBusy = newState.blocks.some(v => !v.isReady);
-                        newState.backlink = createBackLink(newState, this.backlink, action.payload.concId);
-                    }
-                    return newState;
+        this.addActionHandler<GlobalActions.EnableAltViewMode>(
+            GlobalActionName.EnableAltViewMode,
+            (state, action) => {
+                if (action.payload.ident === this.tileId) {
+                    state.isAltViewMode = true;
                 }
-                return state;
             }
-        }
-    }
-
-    sideEffects(state:FreqBarModelState, action:Action, dispatch:SEDispatcher):void {
-        switch (action.name) {
-            case GlobalActionName.RequestQueryResponse:
+        );
+        this.addActionHandler<GlobalActions.DisableAltViewMode>(
+            GlobalActionName.DisableAltViewMode,
+            (state, action) => {
+                if (action.payload.ident === this.tileId) {
+                    state.isAltViewMode = false;
+                }
+            }
+        );
+        this.addActionHandler<GlobalActions.RequestQueryResponse>(
+            GlobalActionName.RequestQueryResponse,
+            (state, action) => {
+                state.isBusy = true;
+                state.error = null;
+            },
+            (state, action, dispatch) => {
                 this.waitForTiles = this.waitForTiles.map(_ => true).toMap();
                 this.suspend((action:Action) => {
                     if (action.name === GlobalActionName.TileDataLoaded && this.waitForTiles.has(action.payload['tileId'])) {
@@ -183,9 +151,55 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState> {
                     }
                     return false;
                 });
-            break;
-            case GlobalActionName.GetSourceInfo:
-                if (action.payload['tileId'] === this.tileId) {
+            }
+        );
+        this.addActionHandler<Actions.SetActiveBlock>(
+            ActionName.SetActiveBlock,
+            (state, action) => {
+                state.activeBlock = action.payload.idx;
+            }
+        );
+        this.addActionHandler<GlobalActions.TileDataLoaded<DataLoadedPayload>>(
+            GlobalActionName.TileDataLoaded,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {
+                    if (action.error) {
+                        state.blocks = Immutable.List<FreqDataBlock<DataRow>>(state.fcrit.map((_, i) => ({
+                            data: Immutable.List<FreqDataBlock<DataRow>>(),
+                            ident: puid(),
+                            label: action.payload.blockLabel ? action.payload.blockLabel : state.critLabels.get(i),
+                            isReady: true
+                        })));
+                        state.error = action.error.message;
+                        state.isBusy = false;
+
+                    } else {
+                        state.blocks = state.blocks.set(
+                            action.payload.critIdx,
+                            {
+                                data: action.payload.block ?
+                                    Immutable.List<DataRow>(action.payload.block.data.map(v => ({
+                                        name: this.appServices.translateDbValue(state.corpname, v.name),
+                                        freq: v.freq,
+                                        ipm: v.ipm
+                                    }))) : null,
+                                ident: puid(),
+                                label: this.appServices.importExternalMessage(
+                                    action.payload.blockLabel ? action.payload.blockLabel : state.critLabels.get(action.payload.critIdx)),
+                                isReady: true
+                            }
+                        );
+                        state.isBusy = state.blocks.some(v => !v.isReady);
+                        state.backlink = createBackLink(state, this.backlink, action.payload.concId);
+                    }
+                }
+            }
+        );
+        this.addActionHandler<GlobalActions.GetSourceInfo>(
+            GlobalActionName.GetSourceInfo,
+            (state, action) => {},
+            (state, action, dispatch) => {
+                if (action.payload.tileId === this.tileId) {
                     this.api.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), state.corpname)
                     .subscribe(
                         (data) => {
@@ -206,9 +220,9 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState> {
                         }
                     );
                 }
-            break;
-        }
-    }
+            }
+        );
+    };
 }
 
 export const factory = (
