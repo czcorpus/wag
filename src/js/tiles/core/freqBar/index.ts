@@ -123,7 +123,8 @@ export class FreqBarTile implements ITileProvider {
                 maxNumCategories: conf.maxNumCategories,
                 fmaxitems: 100,
                 backlink: null,
-                subqSyncPalette: false
+                subqSyncPalette: false,
+                isAltViewMode: false
             }
         );
         this.label = appServices.importExternalMessage(conf.label || 'freqBar__main_label');
@@ -163,7 +164,7 @@ export class FreqBarTile implements ITileProvider {
     }
 
     supportsAltView():boolean {
-        return false;
+        return true;
     }
 
     exposeModel():StatelessModel<{}>|null {

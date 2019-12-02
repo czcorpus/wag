@@ -74,6 +74,33 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
     }
 
+    // -------------- <TableView /> -------------------------------------
+
+    const TableView:React.SFC<{
+        data:Immutable.List<DataRow>;
+    }> = (props) => {
+        return (
+            <table className="data">
+                <thead>
+                    <tr>
+                        <th />
+                        <th>{ut.translate('mergeCorpFreq_abs_freq')}</th>
+                        <th>{ut.translate('mergeCorpFreq_rel_freq')}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {props.data.map((row, i) => (
+                        <tr key={`${i}:${row.name}`}>
+                            <td className="word">{row.name}</td>
+                            <td className="num">{ut.formatNumber(row.freq)}</td>
+                            <td className="num">{ut.formatNumber(row.ipm)}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        );
+    }
+
     // ------- <Chart /> ---------------------------------------------------
 
     const Chart:React.SFC<{
@@ -156,26 +183,34 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     backlink={props.backlink}
                     supportsTileReload={props.supportsReloadOnError}
                     issueReportingUrl={props.issueReportingUrl}>
-                <div className="FreqPieTileView">
-                    <div className="charts" ref={chartsRef} onScroll={handleScroll}>
-                        {props.blocks.map(block => {
-                            const chartWidth = props.isMobile ? (props.renderSize[0] * 0.95).toFixed() : "90%";
-                            return (
-                                <div key={block.ident} style={{width: chartsViewBoxWidth, height: "100%"}}>
-                                    <h3>{block.label}</h3>
-                                    <Chart data={block.data} width={chartWidth} height={300}
-                                            radius={Math.min(props.renderSize[0], 90)}
-                                            isMobile={props.isMobile}
-                                            palette={paletteFn} />
-                                </div>
-                            );
-                        })}
-                    </div>
-                    {props.isMobile && props.blocks.size > 1 ?
-                        <globalComponents.HorizontalBlockSwitch blockIndices={props.blocks.map((_, i) => i).toList()}
-                                currentIdx={props.activeBlock}
-                                onChange={handleDotClick} /> :
-                        null
+                <div className="FreqPieTileView">                    
+                    {props.isAltViewMode ?
+                        props.blocks.flatMap((block, blockId) => [
+                            <h3 key={'h' + blockId} style={{textAlign: 'center'}}>{block.label}</h3>,
+                            <TableView key={'t' + blockId} data={block.data}/>
+                        ]) :
+                        <div>
+                            <div className="charts" ref={chartsRef} onScroll={handleScroll}>
+                                {props.blocks.map(block => {
+                                    const chartWidth = props.isMobile ? (props.renderSize[0] * 0.95).toFixed() : "90%";
+                                    return (
+                                        <div key={block.ident} style={{width: chartsViewBoxWidth, height: "100%"}}>
+                                            <h3>{block.label}</h3>
+                                            <Chart data={block.data} width={chartWidth} height={300}
+                                                    radius={Math.min(props.renderSize[0], 90)}
+                                                    isMobile={props.isMobile}
+                                                    palette={paletteFn} />
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                            {props.isMobile && props.blocks.size > 1 ?
+                                <globalComponents.HorizontalBlockSwitch blockIndices={props.blocks.map((_, i) => i).toList()}
+                                        currentIdx={props.activeBlock}
+                                        onChange={handleDotClick} /> :
+                                null
+                            }
+                        </div>
                     }
                 </div>
             </globalComponents.TileWrapper>
