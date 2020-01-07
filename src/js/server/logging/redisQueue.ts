@@ -40,15 +40,15 @@ export class RedisLogQueue implements ILogQueue {
     put(value:LogRecord):Observable<number> {
         return new Observable<number>(
             (observer) => {
-                this.client.rpush(this.queueKey, JSON.stringify(value), (err, res) => {
-                    if (err) {
-                        observer.error(err);
-
-                    } else {
+                this.client.rpush(this.queueKey, JSON.stringify(value)).then(
+                    (res) => {
                         observer.next(res);
                         observer.complete();
+                    },
+                    (err) => {
+                        observer.error(err);
                     }
-                });
+                );
             }
         ).pipe(
             share()
