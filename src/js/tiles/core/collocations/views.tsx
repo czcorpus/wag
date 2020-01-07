@@ -138,7 +138,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             <TableView key={index} heading={this.props.heading} data={data} caption={this.props.data.length > 1 ? this.props.lemmas[index].word : null} /> :
                             data ?
                                 <globalCompontents.ResponsiveWrapper key={index} render={(width:number, height:number) => (
-                                    <div><p>{this.props.data.length > 1 ? this.props.lemmas[index].word : null}</p>
+                                    <div className="colloc-cloud">
+                                        <h2>{this.props.data.length > 1 ? `[${index + 1}] ${this.props.lemmas[index].word}` : null}</h2>
                                         <WordCloud width={width} height={height} data={data} isMobile={this.props.isMobile}
                                             style={this.props.isMobile ? {height: `${data.length * 30}px`} :
                                                 {height: `${data.length * 40}px`, width: '100%'}}

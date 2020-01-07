@@ -7,7 +7,8 @@
         "concordance__view_options": "View options",
         "concordance__page": "Page",
         "concordance__view_mode": "View mode",
-        "concordance__sel_query": "Query"
+        "concordance__sel_query": "Query",
+        "concordance__showing_results_for": "Showing results for"
     },
     "cs-CZ": {
         "concordance__main_label": "Konkordance",
@@ -17,6 +18,7 @@
         "concordance__view_options": "Možnosti zobrazení",
         "concordance__page": "Strana",
         "concordance__view_mode": "Režim",
-        "concordance__sel_query": "Dotaz"
+        "concordance__sel_query": "Dotaz",
+        "concordance__showing_results_for": "Zobrazuji výsledky pro"
     }
 }

@@ -225,7 +225,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                                             );
                                                         }
                                                         return <div key={word}>
-                                                            <h4>{`${variantId + 1}. ${word}`}</h4>
+                                                            <h4>{`[${variantId + 1}] ${word}`}</h4>
                                                             <Tree
                                                                 data={variantData}
                                                                 width={chartWidth}

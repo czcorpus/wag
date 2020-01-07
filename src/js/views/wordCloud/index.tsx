@@ -34,6 +34,7 @@ export interface WordCloudProps<T> {
     font:string;
     data:Array<T>;
     dataTransform:(v:T)=>WordCloudItem;
+    colors?:(i:number)=>string;
     selectedText?:string;
 }
 interface WordCloudState<T> {
@@ -83,7 +84,7 @@ export function init<T>(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalCompone
                 onMouseMove={handleMouseMove}
                 onMouseOut={handleMouseOut}
                 onMouseOver={handleMouseOver}>
-                
+
                 <rect x={props.rect.x} y={props.rect.y}
                         width={props.rect.w} height={props.rect.h}
                         fill='blue' opacity={props.rect.data.text === props.selectedText ? 0.05 : 0}/>
@@ -231,7 +232,7 @@ export function init<T>(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalCompone
 
             const style = Object.assign({}, this.props.style);
             style['minHeight'] = `${2 * (this.props.isMobile ? MAX_WC_FONT_SIZE_MOBILE : MAX_WC_FONT_SIZE)}px`;
-            const colors = theme.scaleColorIndexed(0, 10);
+            const colors = this.props.colors ? this.props.colors : theme.scaleColorIndexed(0, 10);
             return (
                 <div ref={this.chartContainer} style={style}>
                     <Tooltip x={this.state.tooltipPos[0]} y={this.state.tooltipPos[1]}

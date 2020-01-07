@@ -303,7 +303,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                     {this.props.currentLemmas.map((lemma, index) =>
                                         <span key={`legend${index}`} style={{margin: '0 0.5em'}}>
                                             <div className="legendColorBlock" style={{backgroundColor: theme.barColor(index)}} />
-                                            {lemma.word}
+                                            {`[${index + 1}] ${lemma.word}`}
                                         </span>
                                     )}
                                     <br/>

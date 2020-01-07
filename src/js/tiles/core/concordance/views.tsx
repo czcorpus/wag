@@ -22,6 +22,7 @@ import { Line, LineElement, ViewMode } from '../../../common/api/abstract/concor
 import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
 import { GlobalComponents } from '../../../views/global';
 import { ActionName, Actions } from './actions';
+import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { ConcordanceTileModel, ConcordanceTileState } from './model';
 
 
@@ -203,6 +204,20 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     class ConcordanceTileView extends React.PureComponent<ConcordanceTileState & CoreTileComponentProps> {
 
+        constructor(props) {
+            super(props);
+            this.handleQueryVariantClick = this.handleQueryVariantClick.bind(this);
+        }
+
+        handleQueryVariantClick() {
+            dispatcher.dispatch<GlobalActions.EnableTileTweakMode>({
+                name: GlobalActionName.EnableTileTweakMode,
+                payload: {
+                    ident: this.props.tileId
+                }
+            });
+        }
+
         render() {
 
             const tableClasses = ['conc-lines'];
@@ -234,6 +249,16 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                         queries={this.props.queries}
                                         currVisibleQueryIdx={this.props.visibleQueryIdx} />
                             </div> :
+                            null
+                        }
+                        {
+                            this.props.queries.length > 1 ?
+                            <p className="query-info">
+                                {ut.translate('concordance__showing_results_for')}:{'\u00a0'}
+                                <a className="variant" onClick={this.handleQueryVariantClick}>
+                                    {`[${this.props.visibleQueryIdx + 1}] ${this.props.queries[this.props.visibleQueryIdx]}`}
+                                </a>
+                            </p> :
                             null
                         }
                         <dl className="summary">

@@ -72,7 +72,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                         </dl>
                                     </td>
                                     <td className="num ipm">{ut.formatNumber(w.ipm, 2)}</td>
-                                    <td style={{textAlign: 'right'}}><commonViews.Stars freqBand={w.flevel} /></td>
+                                    <td className="band"><commonViews.Stars freqBand={w.flevel} /></td>
                                 </tr>
                             </React.Fragment>
                         ))}
