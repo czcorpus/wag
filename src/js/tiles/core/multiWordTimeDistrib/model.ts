@@ -29,7 +29,7 @@ import { KontextTimeDistribApi } from '../../../common/api/kontext/timeDistrib';
 import { GeneralSingleCritFreqBarModelState } from '../../../common/models/freq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { findCurrLemmaVariant } from '../../../models/query';
-import { DataItemWithWCI, PartialDataLoadedPayload, LemmaData, ActionName, Actions, LoadFinishedPayload } from './common';
+import { DataItemWithWCI, LemmaData, ActionName, Actions, LoadFinishedPayload } from './common';
 import { AlphaLevel, wilsonConfInterval } from '../../../common/statistics';
 import { callWithExtraVal } from '../../../common/api/util';
 import { LemmaVariant, RecognizedQueries } from '../../../common/query';
@@ -144,7 +144,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             },
             (state, action, dispatch) => {
                 // we can propagate concordances only for one corpus (subcorpus)
-                if (this.waitForTile && state.subcnames.size === 1) {
+                if (this.waitForTile > -1 && state.subcnames.size === 1) {
                     this.suspend((action:Action) => {
                         if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
                             if (isConcLoadedPayload(action.payload)) {
@@ -156,7 +156,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                     rxOf(...this.lemmas.map((lemma, queryId) => ({
                                         queryId: queryId,
                                         lemma: findCurrLemmaVariant(lemma),
-                                        concId: payload.concPersistenceIDs[queryId] 
+                                        concId: payload.concPersistenceIDs[queryId]
                                     }))) as Observable<{queryId:number; lemma:LemmaVariant; concId:string;}>
                                 );
                             } else {
@@ -167,7 +167,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                     rxOf(...this.lemmas.map((lemma, queryId) => ({
                                         queryId: queryId,
                                         lemma: findCurrLemmaVariant(lemma),
-                                        concId: null 
+                                        concId: null
                                     }))) as Observable<{queryId:number; lemma:LemmaVariant; concId:string;}>
                                 );
                             }
@@ -175,6 +175,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         }
                         return false;
                     });
+
                 } else {
                     this.loadData(
                         state,
@@ -183,7 +184,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         rxOf(...this.lemmas.map((lemma, queryId) => ({
                             queryId: queryId,
                             lemma: findCurrLemmaVariant(lemma),
-                            concId: null 
+                            concId: null
                         }))) as Observable<{queryId:number; lemma:LemmaVariant; concId:string;}>
                     );
                 }

@@ -79,15 +79,15 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
         this.concApi = concApi;
         this.freqTreeApi = freqTreeApi;
         this.backlink = backlink;
-        
+
         this.addActionHandler<GlobalActions.RequestQueryResponse>(
             GlobalActionName.RequestQueryResponse,
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
             },
-            (state, action, dispatch) => {                
-                if (this.waitForTiles.length > 0) {                    
+            (state, action, dispatch) => {
+                if (this.waitForTiles.length > 0) {
                     this.suspend(
                         (action:Action) => {
                             if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTiles[0]) {
@@ -108,6 +108,7 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                                         return true;
                                     }
                                     this.loadTreeData(this.composeConcordances(state, payload.concPersistenceIDs), state, dispatch);
+
                                 } else {
                                     // if foreign tile response does not send concordances, load as standalone tile
                                     this.loadTreeData(this.loadConcordances(state), state, dispatch);
@@ -195,7 +196,7 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                 }
             }
         );
-        
+
     }
 
     loadConcordances(state:FreqTreeModelState):Observable<[ConcResponse, {blockId:number; queryId:number; lemma:LemmaVariant; concId:string}]> {
@@ -207,7 +208,7 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
             );
             observer.complete();
         }).pipe(
-            mergeMap(args => 
+            mergeMap(args =>
                 callWithExtraVal(
                     this.concApi,
                     this.concApi.stateToArgs(
