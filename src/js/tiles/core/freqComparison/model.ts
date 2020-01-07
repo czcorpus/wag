@@ -93,7 +93,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                 state.error = null;
             },
             (state, action, dispatch) => {
-                if (this.waitForTiles) {
+                if (this.waitForTiles.length > 0) {
                     this.suspend(
                         (action:Action) => {
                             if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTiles[0]) {
@@ -124,6 +124,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                             return false;
                         }
                     );
+
                 } else {
                     this.loadFreqs(this.loadConcordances(state), state, dispatch);
                 }
@@ -143,12 +144,12 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                         }))
                         state.error = action.error.message;
                         state.isBusy = false;
-    
+
                     } else {
                         // data for these words were requested (some words can have no data)
                         // also data are rendered in this order of words, we order it so it corresponds to inputs
                         state.blocks[action.payload.critId].words[action.payload.queryId] = action.payload.lemma.word;
-                        action.payload.block.data.forEach(data => 
+                        action.payload.block.data.forEach(data =>
                             state.blocks[action.payload.critId].data.push({
                                 name: this.appServices.translateDbValue(state.corpname, data.name),
                                 freq: data.freq,
@@ -232,7 +233,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
             });
             observer.complete();
         }).pipe(
-            mergeMap(args => 
+            mergeMap(args =>
                 callWithExtraVal(
                     this.concApi,
                     this.concApi.stateToArgs(
@@ -322,7 +323,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                         tileId: this.tileId,
                         isEmpty: acc.isEmpty,
                         concPersistenceIDs: acc.concIds,
-                        corpusName: state.corpname                  
+                        corpusName: state.corpname
                     }
                 });
             }
