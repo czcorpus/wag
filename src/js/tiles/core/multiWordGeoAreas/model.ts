@@ -147,6 +147,7 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                         }
                         return false;
                     });
+
                 } else {
                     const dataStream = this.getConcordances(state);
                     this.handleLoad(dataStream, state, dispatch);
