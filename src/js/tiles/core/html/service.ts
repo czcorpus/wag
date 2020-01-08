@@ -16,18 +16,18 @@
  * limitations under the License.
  */
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, catchError } from 'rxjs/operators';
 
 import { cachedAjax$, ResponseType } from '../../../common/ajax';
 import { DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../../common/types';
 import { HtmlApiArgs, WiktionaryApiArgs, HtmlModelState } from './common';
 import { AppServices } from '../../../appServices';
+import { of as rxOf } from 'rxjs';
 import { AjaxError } from 'rxjs/ajax';
 
 
 export interface GeneralHtmlAPI<T> extends DataApi<T, string> {
     stateToArgs(state:HtmlModelState, query:string):T;
-    getErrorMessage(err):null|string;
 }
 
 
@@ -39,8 +39,11 @@ export class RawHtmlAPI implements GeneralHtmlAPI<HtmlApiArgs> {
 
     private readonly cache:IAsyncKeyValueStore;
 
+    private readonly appServices:AppServices;
+
     constructor(cache:IAsyncKeyValueStore, apiURL:string, appServices:AppServices, customHeaders?:HTTPHeaders) {
         this.apiURL = apiURL;
+        this.appServices = appServices;
         this.customHeaders = customHeaders || {};
         this.cache = cache;
     }
@@ -59,11 +62,17 @@ export class RawHtmlAPI implements GeneralHtmlAPI<HtmlApiArgs> {
             this.apiURL,
             queryArgs,
             {headers: this.customHeaders, responseType: ResponseType.TEXT}
-        );
-    }
 
-    getErrorMessage(err) {
-        return null
+        ).pipe(
+            catchError(
+                (err) => {
+                    if (err instanceof AjaxError && err.status === 404) {
+                        return rxOf(this.appServices.translate('html__entry_not_found_message'));
+                    }
+                    throw err;
+                }
+            )
+        );
     }
 
 }
@@ -99,19 +108,22 @@ export class WiktionaryHtmlAPI implements GeneralHtmlAPI<WiktionaryApiArgs>  {
             this.apiURL,
             queryArgs,
             {headers: this.customHeaders, responseType: ResponseType.TEXT}
+
         ).pipe(
+            catchError(
+                (err) => {
+                    if (err instanceof AjaxError && err.status === 404 && err.response.includes('noarticletext')) {
+                        return rxOf(this.appServices.translate('html__entry_not_found_message'));
+                    }
+                    throw err;
+                }
+            ),
             map(data =>
                 data.indexOf('čeština</span></h2>') > -1 ?
                     data.split('čeština</span></h2>', 2)[1].split('<h2>', 1)[0] :
                     data
             )
         );
-    }
-
-    getErrorMessage(err:AjaxError) {
-        return err.status === 404 && err.response.includes('noarticletext') ?
-            this.appServices.importExternalMessage('html__not_found_message_wiktionary') :
-            null
     }
 
 }

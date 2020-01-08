@@ -25,6 +25,7 @@ import { RawHtmlAPI, WiktionaryHtmlAPI, GeneralHtmlAPI } from './service';
 import { findCurrLemmaVariant } from '../../../models/query';
 import { Observable, of as rxOf } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
+import { AjaxError } from 'rxjs/ajax';
 import { RecognizedQueries } from '../../../common/query';
 
 
@@ -72,15 +73,11 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = false;
                     if (action.error) {
-                        const errMsg = this.service.getErrorMessage(action.error)
-                        if (errMsg !== null) {
-                            state.data = errMsg;
-                        } else {
-                            state.error = action.error.message;
-                        }
+                        state.error = action.error.message;
+
                     } else {
                         state.data = action.payload.data;
-                    }   
+                    }
                 }
             }
         )
@@ -117,7 +114,6 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
                 });
             },
             (err) => {
-                this.appServices.showMessage(SystemMessageType.ERROR, err);
                 seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
                     name: GlobalActionName.TileDataLoaded,
                     payload: {
