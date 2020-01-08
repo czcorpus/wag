@@ -22,7 +22,7 @@ import { resolve as urlResolve } from 'url';
 
 import { HostPageEnv, AvailableLanguage } from '../common/hostPage';
 import { RecognizedQueries } from '../common/query';
-import { ClientConf, UserConf } from '../conf';
+import { ClientConf, UserConf, FaviconConf } from '../conf';
 import { TileGroup } from '../layout';
 import { GlobalComponents } from './global';
 import { WdglanceMainProps } from './main';
@@ -71,6 +71,7 @@ export function init(ut:ViewUtils<GlobalComponents>):React.SFC<LayoutProps> {
                     <meta name="viewport" content="width=device-width, initial-scale=1" />
                     <title>{ut.translate('global__wdglance_title')}</title>
                     <link href={`${urlResolve(props.config.hostUrl, 'dist/common.css')}`} rel="stylesheet" type="text/css" />
+                    {props.config.favicon ? <link rel="icon" type={props.config.favicon.contentType} href={props.config.favicon.url} /> : null}
                     <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Droid+Sans+Mono%7CRoboto:100,400,400italic,700,700italic%7CRoboto+Condensed:400,700&amp;subset=latin,latin-ext" media="all" />
                     {props.hostPageEnv.styles.concat(props.config.externalStyles).map(style =>
                        <link key={style} rel="stylesheet" type="text/css" href={style} media="all"/> )}

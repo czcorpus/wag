@@ -66,6 +66,7 @@ function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, appServices:App
         map((item:Array<{label:string; html: string}>) => ({
             rootUrl: conf.rootUrl,
             hostUrl: conf.hostUrl,
+            favicon: conf.favicon,
             corpInfoApiUrl: conf.corpInfoApiUrl,
             apiHeaders: conf.apiHeaders,
             reqCacheTTL: conf.reqCacheTTL,
