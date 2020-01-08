@@ -80,7 +80,10 @@ export function init(ut:ViewUtils<GlobalComponents>):React.SFC<LayoutProps> {
                     {props.hostPageEnv.html ? renderToolbar() : null}
                     <header className="wdg-header">
                         <a href={props.config.hostUrl} title={ut.translate('global__wdglance_title')}>
-                            <img src={ut.createStaticUrl(ut.translate('global__logo_file'))} alt="logo" />
+                            {props.config.logo ?
+                                <img src={props.config.logo.url} alt="logo" style={props.config.logo.inlineStyle} /> :
+                                <img src={ut.createStaticUrl(ut.translate('global__logo_file'))} alt="logo" />
+                            }
                         </a>
                     </header>
                     <section className="wdglance-mount">
@@ -96,6 +99,15 @@ export function init(ut:ViewUtils<GlobalComponents>):React.SFC<LayoutProps> {
                     <script type="text/javascript" src={`${urlResolve(props.config.hostUrl, 'dist/common.js')}`}></script>
                     <script type="text/javascript" src={`${urlResolve(props.config.hostUrl, 'dist/index.js')}`}></script>
                     <script type="text/javascript" dangerouslySetInnerHTML={{__html: createScriptStr()}} />
+                    <footer>
+                        <p>
+                            {props.config.logo ?
+                                <span>Powered by <img src={ut.createStaticUrl('logo-small.svg')} className="logo" alt="WaG" /></span> :
+                                null
+                            }
+                            <span className="copy">&copy; Institute of the Czech National Corpus</span>
+                        </p>
+                    </footer>
                 </body>
             </html>
         );

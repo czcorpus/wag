@@ -18,6 +18,7 @@
 import { DbValueMapping, HTTPHeaders, LocalizedConfMsg } from './common/types';
 import { QueryPoS, QueryType, SearchLanguage } from './common/query';
 import { TileConf } from './common/tile';
+import { CSSProperties } from 'react';
 
 /**
  * A page configuration based on
@@ -92,6 +93,11 @@ export interface FaviconConf {
     url:string;
 }
 
+export interface LogoConf {
+    url:string;
+    inlineStyle?:CSSProperties;
+}
+
 /**
  * Client side app configuration as present in wdglance.json
  * configuration file.
@@ -100,6 +106,7 @@ export interface ClientStaticConf {
     rootUrl:string;
     hostUrl:string;
     favicon?:FaviconConf;
+    logo?:LogoConf;
 	corpInfoApiUrl:string;
     dbValuesMapping:DbValueMapping;
     apiHeaders:{[urlPrefix:string]:HTTPHeaders};
@@ -143,6 +150,7 @@ export interface ClientConf {
     rootUrl:string;
     hostUrl:string;
     favicon:FaviconConf|null;
+    logo:LogoConf|null;
 	corpInfoApiUrl:string;
     dbValuesMapping:DbValueMapping;
     colors:ColorsConf;
@@ -182,6 +190,7 @@ export function emptyClientConf(conf:ClientStaticConf):ClientConf {
         rootUrl: conf.rootUrl,
         hostUrl: conf.hostUrl,
         favicon: conf.favicon,
+        logo: conf.logo,
         corpInfoApiUrl: conf.corpInfoApiUrl,
         apiHeaders: conf.apiHeaders,
         dbValuesMapping: conf.dbValuesMapping,
