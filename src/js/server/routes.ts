@@ -67,6 +67,7 @@ function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, appServices:App
             rootUrl: conf.rootUrl,
             hostUrl: conf.hostUrl,
             favicon: conf.favicon,
+            logo: conf.logo,
             corpInfoApiUrl: conf.corpInfoApiUrl,
             apiHeaders: conf.apiHeaders,
             reqCacheTTL: conf.reqCacheTTL,
