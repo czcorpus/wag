@@ -87,13 +87,19 @@ export interface HomepageConf {
     tiles:Array<HomePageTileConf>;
 }
 
+export interface FaviconConf {
+    contentType:string;
+    url:string;
+}
+
 /**
  * Client side app configuration as present in wdglance.json
  * configuration file.
  */
 export interface ClientStaticConf {
     rootUrl:string;
-	hostUrl:string;
+    hostUrl:string;
+    favicon?:FaviconConf;
 	corpInfoApiUrl:string;
     dbValuesMapping:DbValueMapping;
     apiHeaders:{[urlPrefix:string]:HTTPHeaders};
@@ -135,7 +141,8 @@ export interface LanguageAnyTileConf {[lang:string]:{[ident:string]:TileConf}};
  */
 export interface ClientConf {
     rootUrl:string;
-	hostUrl:string;
+    hostUrl:string;
+    favicon:FaviconConf|null;
 	corpInfoApiUrl:string;
     dbValuesMapping:DbValueMapping;
     colors:ColorsConf;
@@ -174,6 +181,7 @@ export function emptyClientConf(conf:ClientStaticConf):ClientConf {
     return {
         rootUrl: conf.rootUrl,
         hostUrl: conf.hostUrl,
+        favicon: conf.favicon,
         corpInfoApiUrl: conf.corpInfoApiUrl,
         apiHeaders: conf.apiHeaders,
         dbValuesMapping: conf.dbValuesMapping,

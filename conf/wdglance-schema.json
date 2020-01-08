@@ -76,6 +76,21 @@
             ],
             "type": "object"
         },
+        "FaviconConf": {
+            "properties": {
+                "contentType": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "contentType",
+                "url"
+            ],
+            "type": "object"
+        },
         "GroupLayoutConfig": {
             "properties": {
                 "groupDescURL": {
@@ -417,6 +432,9 @@
                 "type": "string"
             },
             "type": "array"
+        },
+        "favicon": {
+            "$ref": "#/definitions/FaviconConf"
         },
         "homepage": {
             "$ref": "#/definitions/HomepageConf"
