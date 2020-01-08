@@ -64,9 +64,9 @@ export class CollocModel extends StatelessModel<CollocModelState> {
     private readonly waitForTile:number;
 
     private readonly queryType:QueryType;
-    
+
     private readonly apiType:string;
-    
+
     private readonly measureMap = {
         't': 'T-score',
         'm': 'MI',
@@ -90,11 +90,11 @@ export class CollocModel extends StatelessModel<CollocModelState> {
         this.backlink = backlink;
         this.queryType = queryType;
         this.apiType = apiType;
-        
+
         this.addActionHandler<GlobalActions.SubqItemHighlighted>(
             GlobalActionName.SubqItemHighlighted,
             (state, action) => {
-                state.selectedText = action.payload.text;             
+                state.selectedText = action.payload.text;
             }
         );
         this.addActionHandler<GlobalActions.SubqItemDehighlighted>(
@@ -173,7 +173,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                     );
                 } else {
                     switch (this.apiType) {
-                        case CoreApiGroup.KONTEXT:                            
+                        case CoreApiGroup.KONTEXT:
                             this.reloadAllData(state, state.concIds, seDispatch);
                         break;
                         case CoreApiGroup.LCC:
