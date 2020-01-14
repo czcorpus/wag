@@ -18,7 +18,7 @@
 import * as Immutable from 'immutable';
 import { SEDispatcher, StatelessModel, IActionQueue, Action } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
-import { concatMap, reduce } from 'rxjs/operators';
+import { concatMap, reduce, share } from 'rxjs/operators';
 
 import { AppServices } from '../../../appServices';
 import { ConcApi, QuerySelector, mkMatchQuery } from '../../../common/api/kontext/concordance';
@@ -450,7 +450,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                             ]);
                         }
                     }
-                )
+                ),
+                share()
             )
 
         ).forEach(resp => {
