@@ -18,7 +18,7 @@
 import * as Immutable from 'immutable';
 import { Action, StatelessModel, IActionQueue, SEDispatcher } from 'kombo';
 import { Observable, of as rxOf, combineLatest } from 'rxjs';
-import { concatMap, reduce } from 'rxjs/operators';
+import { concatMap, reduce, share } from 'rxjs/operators';
 
 import { AppServices } from '../../../appServices';
 import { DataRow, FreqDistribAPI, APIResponse } from '../../../common/api/kontext/freqs';
@@ -302,7 +302,7 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                         args
                     )
                 })
-            )
+            ).pipe(share())
         );
     }
 

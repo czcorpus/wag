@@ -17,7 +17,7 @@
  */
 import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { Observable, Observer } from 'rxjs';
-import { mergeMap, reduce } from 'rxjs/operators';
+import { mergeMap, reduce, share } from 'rxjs/operators';
 
 import { AppServices } from '../../../appServices';
 import { GeneralMultiCritFreqComparisonModelState, stateToAPIArgs } from '../../../common/models/freqComparison';
@@ -304,7 +304,8 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                     stateToAPIArgs(state, resp.concPersistenceID, args.critId),
                     args
                 )
-            })
+            }),
+            share()
         );
 
         freqResp.pipe(
