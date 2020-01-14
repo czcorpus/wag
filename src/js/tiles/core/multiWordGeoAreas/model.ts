@@ -347,7 +347,7 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                     acc.concIds[args.queryId] = args.concId;
                     return acc
                 },
-                {hasData: true, concIds: this.lemmas.map(_ => null)}
+                {hasData: false, concIds: this.lemmas.map(_ => null)}
             )
         )
         .subscribe(acc =>
