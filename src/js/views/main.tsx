@@ -16,12 +16,12 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { Bound, BoundWithProps, IActionDispatcher, ViewUtils } from 'kombo';
+import { Bound, BoundWithProps, IActionDispatcher, ViewUtils, ActionDispatcher } from 'kombo';
 import * as React from 'react';
 
 import { Forms } from '../common/data';
 import { SystemMessageType, SourceDetails } from '../common/types';
-import { QueryType, LemmaVariant, QueryTypeMenuItem, SearchLanguage } from '../common/query';
+import { QueryType, LemmaVariant, QueryTypeMenuItem, SearchLanguage, RecognizedQueries } from '../common/query';
 import { TileFrameProps } from '../common/tile';
 import { KeyCodes } from '../common/util';
 import { TileGroup } from '../layout';
@@ -358,16 +358,18 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // --------------- <LemmaSelector /> -------------------------------------------
 
     const LemmaSelector:React.SFC<{
-        queryIdx:number;
-        lemmas:Array<LemmaVariant>;
+        lemmas:RecognizedQueries;
+        queries:Array<string>;
+        lemmaSelectorModalVisible:boolean;
+        modalSelections:Array<number>;
 
     }> = (props) => {
 
-        const mkHandleClick = (lemmaVar:LemmaVariant) => () => {
+        const mkHandleClick = (queryIdx:number, lemmaVar:LemmaVariant) => () => {
             dispatcher.dispatch<Actions.ChangeCurrLemmaVariant>({
                 name: ActionName.ChangeCurrLemmaVariant,
                 payload: {
-                    queryIdx: props.queryIdx,
+                    queryIdx: queryIdx,
                     word: lemmaVar.word,
                     lemma: lemmaVar.lemma,
                     pos: lemmaVar.pos.map(p => p.value)
@@ -385,33 +387,107 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             return ut.translate('global__alt_expr_nondict');
         };
 
-        if (props.lemmas.length > 0) {
-            const curr = props.lemmas.find(v => v.isCurrent == true);
-            if (curr) {
+        const handleCloseModal = () => {
+            dispatcher.dispatch({
+                name: ActionName.HideLemmaVariantsModal
+            });
+        };
+
+        const handleShowModal = () => {
+            dispatcher.dispatch({
+                name: ActionName.ShowLemmaVariantsModal
+            });
+        };
+
+        const handleModalLemmaSelection = (queryIdx:number, variantIdx:number) => () => {
+            dispatcher.dispatch<Actions.SelectModalLemmaVariant>({
+                name: ActionName.SelectModalLemmaVariant,
+                payload: {
+                    queryIdx: queryIdx,
+                    variantIdx: variantIdx
+                }
+            });
+        };
+
+        const handleConfirmModalSelection = () => {
+            dispatcher.dispatch({
+                name: ActionName.ApplyModalLemmaVariantSelection
+            });
+        };
+
+        if (props.queries.length === 1) {
+            if (props.lemmas[0].length > 0) {
+                const curr = props.lemmas[0].find(v => v.isCurrent == true);
+                if (curr) {
+                    return (
+                        <div className="LemmaSelector">
+                            {ut.translate('global__searching_by_pos')}:{'\u00a0'}
+                            <span className="curr">{curr.isNonDict ? curr.word : curr.lemma} ({mkAltLabel(curr)})</span>
+                            <br />
+                            {props.lemmas.length > 1 ?
+                                <div className="variants">
+                                    {ut.translate('global__multiple_words_for_query')}:{'\u00a0'}
+                                    <ul>
+                                        {props.lemmas[0].filter(v => !v.isCurrent).map((v, i) =>
+                                            <li key={`${v.lemma}:${v.pos}:${i}`}>
+                                                {i > 0 ? <span>, </span> : null}
+                                                <a onClick={mkHandleClick(0, v)}>{v.lemma} ({mkAltLabel(v)})</a>
+                                            </li>
+                                        )}
+                                    </ul>
+                                </div>
+                                : null
+                            }
+                        </div>
+                    );
+                }
+                return <div className="LemmaSelector"></div>;
+            }
+
+        } else {
+            if (props.lemmaSelectorModalVisible) {
+                return (
+                    <globalComponents.ModalBox onCloseClick={handleCloseModal}
+                            title={ut.translate('global__query_specification')} tileClass="text">
+                        <div className="LemmaSelector multiple-queries">
+                            {props.lemmas.map((lemmas, queryIdx) => (
+                                <div key={`varGroup${queryIdx}`} className="variants">
+                                    <h2 className="query-num">[{queryIdx + 1}]</h2>
+                                    <ul>
+                                        {lemmas.map((v, i) =>
+                                            <li key={`${v.lemma}:${v.pos}:${i}`}>
+                                                <label>
+                                                    <input type="radio" name={`lemma_${queryIdx}`}
+                                                            checked={props.modalSelections[queryIdx] === i}
+                                                            onChange={handleModalLemmaSelection(queryIdx, i)} />
+                                                    <em>{v.lemma}</em> ({mkAltLabel(v)})
+                                                </label>
+                                            </li>
+                                        )}
+                                    </ul>
+                                </div>
+                            ))}
+                            <p className="buttons">
+                                <button className="cnc-button cnc-button-primary" type="button" onClick={handleConfirmModalSelection}
+                                        aria-label={ut.translate('global__aria_search_btn')}>
+                                    {ut.translate('global__modal_variants_confirm_btn')}
+                                </button>
+                            </p>
+                        </div>
+                    </globalComponents.ModalBox>
+                );
+
+            } else {
                 return (
                     <div className="LemmaSelector">
-                        {ut.translate('global__searching_by_pos')}:{'\u00a0'}
-                        <span className="curr">{curr.isNonDict ? curr.word : curr.lemma} ({mkAltLabel(curr)})</span>
-                        <br />
-                        {props.lemmas.length > 1 ?
-                            <div className="variants">
-                                {ut.translate('global__multiple_words_for_query')}:{'\u00a0'}
-                                <ul>
-                                    {props.lemmas.filter(v => !v.isCurrent).map((v, i) =>
-                                        <li key={`${v.lemma}:${v.pos}:${i}`}>
-                                            {i > 0 ? <span>, </span> : null}
-                                            <a onClick={mkHandleClick(v)}>{v.lemma} ({mkAltLabel(v)})</a>
-                                        </li>
-                                    )}
-                                </ul>
-                            </div>
-                            : null
-                        }
+                        <a className="modal-box-trigger" onClick={handleShowModal}>
+                            {ut.translate('global__some_results_ambiguous_msg_{num}',
+                                {num: props.lemmas.reduce((acc, curr) => acc + (curr.length > 1 ? 1 : 0), 0).toFixed()})}
+                        </a>
                     </div>
                 );
             }
         }
-        return <div className="LemmaSelector"></div>;
     }
 
     // ------------------ <WdglanceControls /> ------------------------------
@@ -468,7 +544,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         </div>
                     </form>
                     {this.props.isAnswerMode ?
-                        <LemmaSelector lemmas={this.props.lemmas[0]} queryIdx={0} /> :
+                        <LemmaSelector lemmas={this.props.lemmas} queries={this.props.queries.map(v => v.value)}
+                                lemmaSelectorModalVisible={this.props.lemmaSelectorModalVisible}
+                                modalSelections={this.props.modalSelections} /> :
                         null
                     }
                 </div>

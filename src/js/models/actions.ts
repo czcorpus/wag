@@ -58,7 +58,11 @@ export enum ActionName {
     ShowAmbiguousResultHelp = 'MAIN_SHOW_AMBIGUOUS_TILE_HELP',
     HideAmbiguousResultHelp = 'MAIN_HIDE_AMBIGUOUS_TILE_HELP',
     AddCmpQueryInput = 'MAIN_ADD_CMP_QUERY_INPUT',
-    RemoveCmpQueryInput = 'MAIN_REMOVE_CMP_QUERY_INPUT'
+    RemoveCmpQueryInput = 'MAIN_REMOVE_CMP_QUERY_INPUT',
+    ShowLemmaVariantsModal = 'MAIN_SHOW_LEMMA_VARIANT_MODAL',
+    HideLemmaVariantsModal = 'MAIN_HIDE_LEMMA_VARIANT_MODAL',
+    SelectModalLemmaVariant = 'MAIN_SELECT_MODAL_LEMMA_VARIANT',
+    ApplyModalLemmaVariantSelection = 'MAIN_APPLY_MODAL_LEMMA_VARIANT_SELECTION'
 }
 
 export namespace Actions {
@@ -306,5 +310,27 @@ export namespace Actions {
         queryIdx:number;
     }> {
         name:ActionName.RemoveCmpQueryInput;
+    }
+
+    export interface ShowLemmaVariantsModal extends Action<{
+    }> {
+        name:ActionName.ShowLemmaVariantsModal;
+    }
+
+    export interface HideLemmaVariantsModal extends Action<{
+    }> {
+        name:ActionName.HideLemmaVariantsModal;
+    }
+
+    export interface SelectModalLemmaVariant extends Action<{
+        queryIdx:number;
+        variantIdx:number;
+    }> {
+        name:ActionName.SelectModalLemmaVariant;
+    }
+
+    export interface ApplyModalLemmaVariantSelection extends Action<{
+    }> {
+        name:ActionName.ApplyModalLemmaVariantSelection;
     }
 }

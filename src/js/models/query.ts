@@ -16,8 +16,7 @@
  * limitations under the License.
  */
 
-import { StatelessModel, IActionQueue } from 'kombo';
-import { Listop } from 'montainer';
+import { StatelessModel, IActionQueue, ActionDispatcher } from 'kombo';
 
 import { AppServices } from '../appServices';
 import { Forms, MultiDict } from '../common/data';
@@ -44,6 +43,8 @@ export interface QueryFormModelState {
     isAnswerMode:boolean;
     uiLanguages:Array<AvailableLanguage>;
     maxCmpQueries:number;
+    lemmaSelectorModalVisible:boolean;
+    modalSelections:Array<number>;
 }
 
 export const findCurrLemmaVariant = (lemmas:Array<LemmaVariant>):LemmaVariant => {
@@ -78,10 +79,8 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
             ActionName.ChangeQueryInput,
             (state, action) => {
                 state.errors = [];
-                state.queries = Listop.of(state.queries).set(
-                    action.payload.queryIdx,
-                    Forms.updateFormInput(state.queries[action.payload.queryIdx], {value: action.payload.value, isValid: true})
-                ).u();
+                state.queries[action.payload.queryIdx] =
+                    Forms.updateFormInput(state.queries[action.payload.queryIdx], {value: action.payload.value, isValid: true});
             }
         );
 
@@ -89,7 +88,7 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
             ActionName.ChangeCurrLemmaVariant,
             (state, action) => {
                 const group = state.lemmas[action.payload.queryIdx];
-                state.lemmas = Listop.of(state.lemmas).set(action.payload.queryIdx, group.map(v => ({
+                state.lemmas[action.payload.queryIdx] = group.map(v => ({
                     lemma: v.lemma,
                     word: v.word,
                     pos: v.pos,
@@ -99,7 +98,7 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
                     flevel: v.flevel,
                     isCurrent: matchesPos(v, action.payload.pos) && v.word == action.payload.word &&
                             v.lemma === action.payload.lemma ? true : false
-                }))).u();
+                }));
             },
             (state, action, dispatch) => {
                 this.submitCurrLemma(state);
@@ -158,7 +157,7 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
             ActionName.AddCmpQueryInput,
             (state, action) => {
                 if (state.queries.length < state.maxCmpQueries) {
-                    state.queries = Listop.of(state.queries).append(Forms.newFormValue('', true)).u();
+                    state.queries.push(Forms.newFormValue('', true));
                 }
             },
             (state, action, dispatch) => {
@@ -171,7 +170,50 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
         this.addActionHandler(
             ActionName.RemoveCmpQueryInput,
             (state, action:Actions.RemoveCmpQueryInput) => {
-                state.queries = Listop.of(state.queries).remove(action.payload.queryIdx).u();
+                state.queries.splice(action.payload.queryIdx, 1);
+            }
+        );
+
+        this.addActionHandler(
+            ActionName.ShowLemmaVariantsModal,
+            (state, action:Actions.ShowLemmaVariantsModal) => {
+                state.lemmaSelectorModalVisible = true;
+            }
+        );
+
+        this.addActionHandler(
+            ActionName.HideLemmaVariantsModal,
+            (state, action:Actions.HideLemmaVariantsModal) => {
+                state.lemmaSelectorModalVisible = false;
+            }
+        );
+
+        this.addActionHandler(
+            ActionName.SelectModalLemmaVariant,
+            (state, action:Actions.SelectModalLemmaVariant) => {
+                state.modalSelections[action.payload.queryIdx] = action.payload.variantIdx;
+            }
+        );
+
+        this.addActionHandler(
+            ActionName.ApplyModalLemmaVariantSelection,
+            (state, action:Actions.ApplyModalLemmaVariantSelection) => {
+                state.lemmaSelectorModalVisible = false;
+                state.modalSelections.forEach((sel, idx) => {
+                    state.lemmas[idx] = state.lemmas[idx].map((v, i2) => ({
+                        lemma: v.lemma,
+                        word: v.word,
+                        pos: v.pos,
+                        abs: v.abs,
+                        ipm: v.ipm,
+                        arf: v.arf,
+                        flevel: v.flevel,
+                        isCurrent: i2 === sel
+                    }))
+                });
+            },
+            (state, action, dispatch) => {
+                this.submitCurrLemma(state);
             }
         );
     }
@@ -227,14 +269,14 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
     private validateNthQuery(state:QueryFormModelState, idx:number):boolean {
         let isValid = true;
         if (!this.queryCheckRegexp.exec(state.queries[idx].value)) {
-            state.errors = Listop.of(state.errors).append(new Error(this.appServices.translate('global__query_contains_unsupported_chars'))).u();
+            state.errors.push(new Error(this.appServices.translate('global__query_contains_unsupported_chars')));
             isValid = false;
         }
         if (state.multiWordQuerySupport[state.queryType] === false && /\s/.exec(state.queries[idx].value)) {
-            state.errors = Listop.of(state.errors).append(new Error(this.appServices.translate('global__query_cannot_be_multi_word'))).u();
+            state.errors.push(new Error(this.appServices.translate('global__query_cannot_be_multi_word')));
             isValid = false;
         }
-        state.queries = Listop.of(state.queries).set(idx, Forms.updateFormInput(state.queries[idx], {isValid: isValid})).u();
+        state.queries[idx] = Forms.updateFormInput(state.queries[idx], {isValid: isValid});
         return isValid;
     }
 
@@ -250,7 +292,7 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
         } else if (state.queryType === QueryType.TRANSLAT_QUERY) {
             this.validateNthQuery(state, 0);
             if (state.queryLanguage === state.queryLanguage2) {
-                state.errors = Listop.of(state.errors).append(new Error(this.appServices.translate('global__src_and_dst_langs_must_be_different'))).u();
+                state.errors.push(new Error(this.appServices.translate('global__src_and_dst_langs_must_be_different')));
             }
         }
     }
@@ -298,7 +340,9 @@ export const defaultFactory = ({dispatcher, appServices, query1Lang, query2Lang,
             isAnswerMode: isAnswerMode,
             uiLanguages: uiLanguages,
             multiWordQuerySupport: layout.getMultiWordQuerySupport(),
-            maxCmpQueries: maxCmpQueries
+            maxCmpQueries: maxCmpQueries,
+            lemmaSelectorModalVisible: false,
+            modalSelections: lemmas.map(v => v.findIndex(v2 => v2.isCurrent))
         }
     );
 };
