@@ -97,28 +97,79 @@
             color: @color-logo-pink;
         }
 
-        .variants {
-            ul {
-                display: inline;
+        .variants > ul {
+            display: inline;
+            margin: 0;
+            padding: 0;
+            list-style-type: none;
+
+            li {
                 margin: 0;
                 padding: 0;
-                list-style-type: none;
+                display: inline-block;
 
-                li {
-                    margin: 0;
-                    padding: 0;
-                    display: inline-block;
+                a {
+                    color: @color-logo-blue;
+                    cursor: pointer;
+                }
 
-                    a {
-                        color: @color-logo-blue;
-                        cursor: pointer;
-                    }
-
-                    a:hover {
-                        text-decoration: underline;
-                    }
+                a:hover {
+                    text-decoration: underline;
                 }
             }
+        }
+
+        a.modal-box-trigger {
+            cursor: pointer;
+            color: @color-logo-pink;
+        }
+    }
+
+    .LemmaSelector.multiple-queries  {
+        font-size: 1.25em;
+        text-align: left;
+        padding-top: 0;
+
+        .variants {
+
+            h2.query-num {
+                font-size: 1.1em;
+                margin: 1.1em 0 0.2em 0;
+                text-align: center;
+                letter-spacing: 0.1em;
+            }
+
+            ul {
+                display: block;
+                list-style-type: none;
+                text-align: left;
+            }
+
+            li {
+                margin: 0;
+                padding: 0.1em 0;
+                display: block;
+
+                em {
+                    font-style: normal;
+                    color: @color-logo-pink;
+                }
+
+                input[type="radio"] {
+                    display: inline-block;
+                    padding: 0;
+                    vertical-align: middle;
+                    margin: 0 0.3em 0 0;
+                }
+            }
+        }
+
+        h2.query-num:first-child h2.query-num {
+            margin-top: 0;
+        }
+
+        .buttons {
+            text-align: center;
         }
     }
 

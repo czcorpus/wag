@@ -76,7 +76,10 @@
         "global__remove_query_field": "Remove this query field",
         "global__maximum_limit_of_compared_queries": "Max. limit of compared queries reached.",
         "global__general_tile_ajax_error_{err}": "Failed to fetch response (error type: {err}). Please try again or report the error via our support website.",
-        "global__report_the_problem": "report the problem"
+        "global__report_the_problem": "report the problem",
+        "global__query_specification": "Query specification",
+        "global__some_results_ambiguous_msg_{num}": "Click to specify {num, plural, one{# ambiguous query} other{# ambiguous queries}}.",
+        "global__modal_variants_confirm_btn": "Confirm"
     },
     "cs-CZ": {
         "global__logo_file": "logo_cs.svg",
@@ -155,6 +158,9 @@
         "global__remove_query_field": "Odstranit toto pole dotazu",
         "global__maximum_limit_of_compared_queries": "Byl dosažen max. počet dotazů ke srovnání.",
         "global__general_tile_ajax_error_{err}": "Nepodařilo se získat výsledek (typ chyby: {err}). Zkuste prosím akci opakovat nebo ohlašte problém na webu naší podpory.",
-        "global__report_the_problem": "ohlásit problém"
+        "global__report_the_problem": "ohlásit problém",
+        "global__query_specification": "Upřesnění dotazu",
+        "global__some_results_ambiguous_msg_{num}": "Klikněte pro upřesnění {num, plural, one{# víceznačného dotazu} other{# víceznačných dotazů}}.",
+        "global__modal_variants_confirm_btn": "Potvrdit"
     }
 }
