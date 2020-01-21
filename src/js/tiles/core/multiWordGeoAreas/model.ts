@@ -17,8 +17,8 @@
  */
 import * as Immutable from 'immutable';
 import { Action, StatelessModel, IActionQueue, SEDispatcher } from 'kombo';
-import { Observable, of as rxOf, combineLatest } from 'rxjs';
-import { concatMap, reduce, share } from 'rxjs/operators';
+import { Observable, of as rxOf, zip } from 'rxjs';
+import { concatMap, reduce, share, repeat } from 'rxjs/operators';
 
 import { AppServices } from '../../../appServices';
 import { DataRow, FreqDistribAPI, APIResponse } from '../../../common/api/kontext/freqs';
@@ -124,8 +124,8 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                             let dataStream;
                             if (isConcLoadedPayload(action.payload)) {
                                 const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
-                                dataStream = combineLatest(
-                                    this.mapLoader.call('mapCzech.inline.svg'),
+                                dataStream = zip(
+                                    this.mapLoader.call('mapCzech.inline.svg').pipe(repeat(payload.concPersistenceIDs.length)),
                                     rxOf(...payload.concPersistenceIDs.map((concId, queryId) => [queryId, concId] as [number, string]))
                                     .pipe(
                                         concatMap(([queryId, concId]) => callWithExtraVal(
@@ -255,8 +255,8 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
     }
 
     private getConcordances(state:MultiWordGeoAreasModelState) {
-        return combineLatest(
-            this.mapLoader.call('mapCzech.inline.svg'),
+        return zip(
+            this.mapLoader.call('mapCzech.inline.svg').pipe(repeat(state.currentLemmas.size)),
             rxOf(...state.currentLemmas.map((lemma, queryId) => [queryId, lemma] as [number, LemmaVariant])[Symbol.iterator]()).pipe(
                 concatMap(([queryId, lemmaVariant]) =>
                     callWithExtraVal(
@@ -311,7 +311,6 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
         state:MultiWordGeoAreasModelState,
         dispatch:SEDispatcher
     ):void {
-
         dataStream.subscribe(
             ([mapSVG, [resp, args]]) => {
                 dispatch<Actions.PartialDataLoaded>({
@@ -342,7 +341,7 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
 
         dataStream.pipe(
             reduce<[string, [APIResponse, {concId:string; queryId:number;}]], {hasData:boolean, concIds:Array<string>}>(
-                (acc, [mapSVG, [resp, args]]) => {
+                (acc, [_, [resp, args]]) => {
                     acc.hasData = acc.hasData || (resp.data && resp.data.length > 0);
                     acc.concIds[args.queryId] = args.concId;
                     return acc
