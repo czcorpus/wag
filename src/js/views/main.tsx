@@ -478,12 +478,16 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 );
 
             } else {
+                const numAmbig = props.lemmas.reduce((acc, curr) => acc + (curr.length > 1 ? 1 : 0), 0);
                 return (
                     <div className="LemmaSelector">
-                        <a className="modal-box-trigger" onClick={handleShowModal}>
-                            {ut.translate('global__some_results_ambiguous_msg_{num}',
-                                {num: props.lemmas.reduce((acc, curr) => acc + (curr.length > 1 ? 1 : 0), 0).toFixed()})}
-                        </a>
+                        {numAmbig > 0 ?
+                            <a className="modal-box-trigger" onClick={handleShowModal}>
+                                {ut.translate('global__some_results_ambiguous_msg_{num}',
+                                    {num: numAmbig.toFixed()})}
+                            </a> :
+                            null
+                        }
                     </div>
                 );
             }
