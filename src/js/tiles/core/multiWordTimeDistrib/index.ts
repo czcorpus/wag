@@ -89,7 +89,8 @@ export class MultiWordTimeDistTile implements ITileProvider {
                 posQueryGenerator: conf.posQueryGenerator,
                 wordLabels: Immutable.List(lemmas.map(l => findCurrLemmaVariant(l).word)),
                 averagingYears: 0,
-                isTweakMode: false
+                isTweakMode: false,
+                units: '%',
             },
             tileId: tileId,
             waitForTile: waitForTiles[0] || -1,

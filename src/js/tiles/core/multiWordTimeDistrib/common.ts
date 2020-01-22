@@ -22,7 +22,8 @@ import * as Immutable from 'immutable';
 
 export enum ActionName {
     PartialDataLoaded = 'MULTI_WORD_TIME_DISTRIB_PARTIAL_DATA_LOADED',
-    ChangeTimeWindow = 'MULTI_WORD_TIME_DISTRIB_CHANGE_TIME_WINDOW'
+    ChangeTimeWindow = 'MULTI_WORD_TIME_DISTRIB_CHANGE_TIME_WINDOW',
+    ChangeUnits = 'MULTI_WORD_TIME_DISTRIB_CHANGE_UNITS'
 }
 
 export interface TimeDistTileConf extends CorpSrchTileConf {
@@ -81,5 +82,13 @@ export namespace Actions {
 
     }> {
         name:ActionName.ChangeTimeWindow;
+    }
+
+    export interface ChangeUnits extends Action<{
+        tileId:number;
+        units:string;
+
+    }> {
+        name:ActionName.ChangeUnits;
     }
 }

@@ -45,6 +45,7 @@ export interface TimeDistribModelState extends GeneralSingleCritFreqBarModelStat
     wordLabels:Immutable.List<string>;
     averagingYears:number;
     isTweakMode:boolean;
+    units:string;
 }
 
 
@@ -132,6 +133,12 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             ActionName.ChangeTimeWindow,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {state.averagingYears = action.payload.value}
+            }
+        );
+        this.addActionHandler<Actions.ChangeUnits>(
+            ActionName.ChangeUnits,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {state.units = action.payload.units}
             }
         );
         this.addActionHandler<GlobalActions.RequestQueryResponse>(
