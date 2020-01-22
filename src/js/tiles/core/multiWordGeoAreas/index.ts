@@ -37,12 +37,12 @@ export interface MultiWordGeoAreasTileConf extends TileConf {
     apiURL:string;
     corpname:string;
     fcrit:string;
-    flimit:number;
     freqSort:FreqSort;
     fpage:number;
     fttIncludeEmpty:boolean;
     areaCodeMapping:{[name:string]:string};
     posQueryGenerator:[string, string];
+    frequencyDisplayLimit:number;
 }
 
 
@@ -90,7 +90,8 @@ export class MultiWordGeoAreasTile implements ITileProvider {
                 corpname: conf.corpname,
                 concId: null,
                 fcrit: conf.fcrit,
-                flimit: conf.flimit,
+                flimit: 1,  // necessary for the freqApi
+                frequencyDisplayLimit: conf.frequencyDisplayLimit,
                 freqSort: conf.freqSort,
                 fpage: conf.fpage,
                 fttIncludeEmpty: conf.fttIncludeEmpty,

@@ -33,7 +33,7 @@ export interface TargetDataRow extends DataRow {
     target: number;
 }
 
-const groupData = (data:Immutable.List<Immutable.List<DataRow>>):[Immutable.Seq.Keyed<string, Immutable.Iterable<number, TargetDataRow>>, Immutable.Iterable<string, number>] => {
+const groupData = (data:Immutable.List<Immutable.List<DataRow>>):[Immutable.Seq.Keyed<string, Immutable.Iterable<number, TargetDataRow>>, Immutable.Iterable<string, number>, Immutable.Iterable<string, number>] => {
     const groupedData = data.flatMap((targetData, queryId) =>
         targetData.map(item => ({
             ...item,
@@ -41,7 +41,8 @@ const groupData = (data:Immutable.List<Immutable.List<DataRow>>):[Immutable.Seq.
         } as TargetDataRow))
     ).groupBy(item => item['name']);
     const groupedIpmNorms = groupedData.map(data => data.reduce((acc, curr) => acc + curr.ipm, 0));
-    return [groupedData, groupedIpmNorms]
+    const groupedAreaAbsFreqs = groupedData.map(data => data.reduce((acc, curr) => acc + curr.freq, 0));
+    return [groupedData, groupedIpmNorms, groupedAreaAbsFreqs]
 }
 
 const createSVGElement = (parent:Element, name:string, attrs:{[name:string]:string}):SVGElement => {
@@ -57,6 +58,55 @@ const createSVGElement = (parent:Element, name:string, attrs:{[name:string]:stri
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:MultiWordGeoAreasModel):TileComponent {
 
     const globComponents = ut.getComponents();
+
+    const createSVGEmptyCircle = (parent:Element, radius:number):SVGElement => {
+        const chart = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        const circle = createSVGElement(chart, 'g', {});
+
+        createSVGElement(
+            circle,
+            'circle',
+            {
+                'cx': '0',
+                'cy': '0',
+                'r': radius.toString(),
+                'stroke': 'black',
+                'stroke-width': '2',
+                'fill-opacity': '0'
+            }
+        );
+
+        const position = radius*Math.sqrt(2)/4
+
+        createSVGElement(
+            circle,
+            'line',
+            {
+                'x1': (-position).toString(),
+                'y1': (-position).toString(),
+                'x2': position.toString(),
+                'y2': position.toString(),
+                'stroke-width': '2',
+                'stroke': 'black'
+            }
+        );
+
+        createSVGElement(
+            circle,
+            'line',
+            {
+                'x1': position.toString(),
+                'y1': (-position).toString(),
+                'x2': (-position).toString(),
+                'y2': position.toString(),
+                'stroke-width': '2',
+                'stroke': 'black'
+            }
+        );
+
+        parent.appendChild(chart);
+        return chart;
+    }
 
     const createSVGPieChart = (parent:Element, areaIpmNorm:number, areaData:Immutable.Iterable<number, TargetDataRow>, radius:number):SVGElement => {
         const chart = document.createElementNS('http://www.w3.org/2000/svg', 'g');
@@ -123,8 +173,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         data:Immutable.List<Immutable.List<DataRow>>;
         lemmas:Immutable.List<LemmaVariant>;
     }> = (props) => {
-        const [groupedAreaData, groupedAreaIpmNorms] = groupData(props.data);
-        const groupedAreaAbsFreqs = groupedAreaData.map(data => data.reduce((acc, curr) => acc + curr.freq, 0));
+        const [groupedAreaData, groupedAreaIpmNorms, groupedAreaAbsFreqs] = groupData(props.data);
         return (
             <table className="DataTable data cnc-table">
                 <thead>
@@ -167,8 +216,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -----------------
 
-    const drawLabels = (tileId:number, areaCodeMapping:Immutable.Map<string, string>, data: Immutable.List<Immutable.List<DataRow>>) => {
-        const [groupedAreaData, groupedAreaIpmNorms] = groupData(data);
+    const drawLabels = (tileId:number, areaCodeMapping:Immutable.Map<string, string>, data: Immutable.List<Immutable.List<DataRow>>, frequencyDisplayLimit: number) => {
+        const [groupedAreaData, groupedAreaIpmNorms, groupedAreaAbsFreqs] = groupData(data);
         const maxIpmNorm = groupedAreaIpmNorms.valueSeq().max();
         const minIpmNorm = groupedAreaIpmNorms.valueSeq().min();
 
@@ -184,41 +233,49 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             if (ident) {
                 const element = document.getElementById(`${ident}-g`);
                 if (element) {
-                    const areaIpmNorm = groupedAreaIpmNorms.get(areaName)
-                    const pieChart = createSVGPieChart(
-                        element,
-                        areaIpmNorm,
-                        areaData,
-                        150
-                    );
+                    if (groupedAreaAbsFreqs.get(areaName) < frequencyDisplayLimit) {
+                        const emptyCircle = createSVGEmptyCircle(
+                            element,
+                            150
+                        );
+                        emptyCircle.setAttribute('transform', `scale(0.75 0.75)`);
+                    } else {
+                        const areaIpmNorm = groupedAreaIpmNorms.get(areaName)
+                        const pieChart = createSVGPieChart(
+                            element,
+                            areaIpmNorm,
+                            areaData,
+                            150
+                        );
 
-                    fromEvent(pieChart, 'mousemove')
-                        .subscribe((e:MouseEvent) => {
-                            dispatcher.dispatch<Actions.ShowAreaTooltip>({
-                                name: ActionName.ShowAreaTooltip,
-                                payload: {
-                                    areaName: areaName,
-                                    areaIpmNorm: areaIpmNorm,
-                                    areaData: areaData,
-                                    tileId: tileId,
-                                    tooltipX: e.pageX,
-                                    tooltipY: e.pageY
-                                }
+                        fromEvent(pieChart, 'mousemove')
+                            .subscribe((e:MouseEvent) => {
+                                dispatcher.dispatch<Actions.ShowAreaTooltip>({
+                                    name: ActionName.ShowAreaTooltip,
+                                    payload: {
+                                        areaName: areaName,
+                                        areaIpmNorm: areaIpmNorm,
+                                        areaData: areaData,
+                                        tileId: tileId,
+                                        tooltipX: e.pageX,
+                                        tooltipY: e.pageY
+                                    }
+                                });
                             });
-                        });
 
-                    fromEvent(pieChart, 'mouseout')
-                        .subscribe(() => {
-                            dispatcher.dispatch<Actions.HideAreaTooltip>({
-                                name: ActionName.HideAreaTooltip,
-                                payload: {
-                                    tileId: tileId
-                                }
+                        fromEvent(pieChart, 'mouseout')
+                            .subscribe(() => {
+                                dispatcher.dispatch<Actions.HideAreaTooltip>({
+                                    name: ActionName.HideAreaTooltip,
+                                    payload: {
+                                        tileId: tileId
+                                    }
+                                });
                             });
-                        });
-                    // scaling pie chart according to relative ipm norm
-                    const scale = 0.75 + ((areaIpmNorm - minIpmNorm)/(maxIpmNorm - minIpmNorm))/2;
-                    pieChart.setAttribute('transform', `scale(${scale} ${scale})`);
+                        // scaling pie chart according to relative ipm norm
+                        const scale = 0.75 + ((areaIpmNorm - minIpmNorm)/(maxIpmNorm - minIpmNorm))/2;
+                        pieChart.setAttribute('transform', `scale(${scale} ${scale})`);
+                    }
                 }
             }
         });
@@ -273,14 +330,14 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         componentDidMount() {
             if (this.props.data.some(v => v.size > 0)) {
-                drawLabels(this.props.tileId, this.props.areaCodeMapping, this.props.data);
+                drawLabels(this.props.tileId, this.props.areaCodeMapping, this.props.data, this.props.frequencyDisplayLimit);
             }
         }
 
         componentDidUpdate(prevProps) {
             if (this.props.data.some(v => v.size > 0) && (prevProps.data !== this.props.data || prevProps.isAltViewMode !== this.props.isAltViewMode ||
                         prevProps.renderSize !== this.props.renderSize)) {
-                drawLabels(this.props.tileId, this.props.areaCodeMapping, this.props.data);
+                drawLabels(this.props.tileId, this.props.areaCodeMapping, this.props.data, this.props.frequencyDisplayLimit);
             }
         }
 

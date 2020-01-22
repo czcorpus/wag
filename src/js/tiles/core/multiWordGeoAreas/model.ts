@@ -81,6 +81,7 @@ export interface MultiWordGeoAreasModelState extends FreqBarModelStateBase {
     mapSVG:string;
     isAltViewMode:boolean;
     posQueryGenerator:[string, string];
+    frequencyDisplayLimit:number;
 }
 
 
