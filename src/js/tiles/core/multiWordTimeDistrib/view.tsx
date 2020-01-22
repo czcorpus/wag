@@ -66,16 +66,18 @@ function mergeDataSets(data:Immutable.List<LemmaData>, averagingYears:number):Ar
         )
 
         // normalize data to fractions using total norm
-        .map(dataPoint =>
-            dataPoint.mapEntries(([key, value]) => {
-                const norm = dataPoint.get('ipmNorm');
-                if (key.startsWith('ipmValue')) {
-                    return [key.replace('ipmValue', 'fracValue'), norm > 0 ? value/norm : 0];
-                } else if (key.startsWith('ipmInterval')) {
-                    return [key.replace('ipmInterval', 'fracInterval'), norm > 0 ? value.map(v => v/norm) : [0, 0]];
-                }
-                return [key, value];
-            })
+        .map(dataPoint => 
+            dataPoint.mergeWith((prev, next) => next,
+                dataPoint.mapEntries(([key, value]) => {
+                    const norm = dataPoint.get('ipmNorm');
+                    if (key.startsWith('ipmValue')) {
+                        return [key.replace('ipmValue', 'fracValue'), norm > 0 ? value/norm : 0];
+                    } else if (key.startsWith('ipmInterval')) {
+                        return [key.replace('ipmInterval', 'fracInterval'), norm > 0 ? value.map(v => v/norm) : [0, 0]];
+                    }
+                    return [key, value];
+                })
+            )
         )
         .sortBy((_, k) => k).valueSeq().toJS();
 }
@@ -119,23 +121,40 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         isPartial:boolean;
         isSmallWidth:boolean;
         averagingYears:number;
+        units:string;
     }> = React.memo((props) => {
         const data = mergeDataSets(props.data, props.averagingYears);
+        let fields, domainY, tickFormatterY, tooltipFormatter;
+        switch (props.units) {
+            case '%':
+                fields = ['fracValue', 'fracInterval'];
+                domainY = [0, 1];
+                tickFormatterY = fracValue => `${fracValue * 100}%`;
+                tooltipFormatter = (fracValue, name, formatterProps) => [`${(fracValue * 100).toFixed(2)} % (${(fracValue * formatterProps.payload.ipmNorm).toFixed(2)} ipm)`, name]
+            break;
+            case 'ipm':
+                fields = ['ipmValue', 'ipmInterval'];
+                domainY = [0, 'auto'];
+                tickFormatterY = ipmValue => `${ipmValue} ipm`;
+                tooltipFormatter = (ipmValue, name, formatterProps) => [`${ipmValue.toFixed(2)} ipm (${(ipmValue * 100 / formatterProps.payload.ipmNorm).toFixed(2)} %)`, name];
+            break;
+        }
+        
         return (
             <ResponsiveContainer width={props.isSmallWidth ? '100%' : '90%'} height={props.size[1]}>
                 <AreaChart data={data} margin={{top: 10, right: 30, left: 0, bottom: 0}}>
                     <CartesianGrid strokeDasharray="1 1"/>
                     <XAxis dataKey="year" minTickGap={0} type="category" />
-                    <YAxis allowDataOverflow={true} domain={[0, 1]} tickFormatter={fracValue => `${fracValue * 100}%`}/>
-                    <Tooltip isAnimationActive={false} formatter={(fracValue, name, formatterProps) =>
-                        name.startsWith('fracInterval') ?
+                    <YAxis allowDataOverflow={true} domain={domainY} tickFormatter={tickFormatterY}/>
+                    <Tooltip isAnimationActive={false} formatter={(value, name, formatterProps) =>
+                        name.includes('Interval') ?
                         [null, null] :
-                        [`${(fracValue * 100).toFixed(2)} % (${(formatterProps.payload.ipmNorm * fracValue).toFixed(2)} ipm)`, name]
+                        tooltipFormatter(value, name, formatterProps)
                     } />
                     {props.words.map((word, index) =>
                         <Area type="linear"
                             key={`${word}Values`}
-                            dataKey={`fracValue${index}`}
+                            dataKey={`${fields[0]}${index}`}
                             name={ut.translate('multiWordTimeDistrib__estimated_trend_for_{word}', {word: word})}
                             stroke={props.isPartial ? '#dddddd' : theme.barColor(index)}
                             fill={'rgba(0,0,0,0)'}  // transparent fill - only line
@@ -146,7 +165,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     {props.words.map((word, index) =>
                         <Area type="linear"
                             key={`${word}Confidence`}
-                            dataKey={`fracInterval${index}`}
+                            dataKey={`${fields[1]}${index}`}
                             name={null}
                             stroke={null}
                             fill={props.isPartial ? '#eeeeee' : theme.barColor(index)}
@@ -165,11 +184,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     class TweakControls extends React.Component<{
         tileId:number;
         averagingYears:number;
-
+        units:string;
     }> {
         constructor(props) {
             super(props);
             this.handleInputChange = this.handleInputChange.bind(this);
+            this.handleUnitsChange = this.handleUnitsChange.bind(this);
         }
 
         private handleInputChange(e:React.ChangeEvent<HTMLInputElement>) {
@@ -182,13 +202,30 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             });
         }
 
+        private handleUnitsChange(e) {
+            dispatcher.dispatch<Actions.ChangeUnits>({
+                name: ActionName.ChangeUnits,
+                payload: {
+                    tileId: this.props.tileId,
+                    units: e.target.value
+                }
+            });
+        }        
+
         render() {
             return (
-                <form>
-                    <label>
-                        <p>{ut.translate('multiWordTimeDistrib__sliding_window_average')}: &plusmn;{this.props.averagingYears}{'\u00a0'}</p>
-                        <input type="range" min="0" max="10" value={this.props.averagingYears} onChange={this.handleInputChange} />
-                    </label>
+                <form style={{minHeight: "2em"}}>
+                    <span style={{float: "left", margin: "0 1em"}}>
+                        <label htmlFor="unitsSelect">{ut.translate('multiWordTimeDistrib__units')}{'\u00a0'}</label><br/>
+                        <select id="unitsSelect" name="units" value={this.props.units} onChange={this.handleUnitsChange} >
+                            <option value="%">%</option>
+                            <option value="ipm">ipm</option>
+                        </select>
+                    </span>
+                    <span style={{float: "left", margin: "0em"}}>
+                        <label htmlFor="intervalSelect">{ut.translate('multiWordTimeDistrib__sliding_window_average')}: &plusmn;{this.props.averagingYears}{'\u00a0'}</label><br/>
+                        <input id="intervalSelect" type="range" min="0" max="10" value={this.props.averagingYears} onChange={this.handleInputChange} />
+                    </span>
                 </form>
             );
         }
@@ -207,7 +244,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 <div className="MultiWordTimeDistribTile">
                     {props.isTweakMode ?
                         <div className="tweak-box">
-                            <TweakControls averagingYears={props.averagingYears} tileId={props.tileId} />
+                            <TweakControls averagingYears={props.averagingYears} tileId={props.tileId} units={props.units} />
                         </div> :
                         null
                     }
@@ -216,7 +253,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             isPartial={props.isBusy}
                             words={props.wordLabels}
                             isSmallWidth={props.isMobile || props.widthFract < 2}
-                            averagingYears={props.averagingYears} />
+                            averagingYears={props.averagingYears}
+                            units={props.units} />
                 </div>
             </globComponents.TileWrapper>
         );
