@@ -26,6 +26,7 @@ import { GlobalComponents } from '../../../views/global';
 import { MergeCorpFreqModel, ModelSourceArgs, SourceMappedDataRow } from './model';
 import { init as viewInit } from './view';
 import { LocalizedConfMsg } from '../../../common/types';
+import { ConcApi } from '../../../common/api/kontext/concordance';
 
 
 declare var require:(src:string)=>void;  // webpack
@@ -92,7 +93,7 @@ export class MergeCorpFreqTile implements ITileProvider {
     private readonly blockingTiles:Array<number>;
 
     constructor({dispatcher, tileId, waitForTiles, ut,
-                theme, appServices, widthFract, conf, isBusy, cache}:TileFactory.Args<MergeCorpFreqTileConf>) {
+                theme, appServices, widthFract, conf, isBusy, cache, lemmas}:TileFactory.Args<MergeCorpFreqTileConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
@@ -103,6 +104,7 @@ export class MergeCorpFreqTile implements ITileProvider {
             tileId,
             waitForTiles,
             appServices,
+            new ConcApi(false, cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             new FreqDistribAPI(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             {
                 isBusy: isBusy,
@@ -127,7 +129,8 @@ export class MergeCorpFreqTile implements ITileProvider {
                 }))),
                 pixelsPerItem: conf.pixelsPerItem ? conf.pixelsPerItem : 30,
                 barGap: Math.max(10, 40 - conf.pixelsPerItem)
-            }
+            },
+            lemmas
         );
         this.label = appServices.importExternalMessage(conf.label || 'mergeCorpFreq__main_label');
         this.view = viewInit(this.dispatcher, ut, theme, this.model);

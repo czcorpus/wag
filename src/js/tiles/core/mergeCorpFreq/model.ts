@@ -28,6 +28,7 @@ import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { ConcLoadedPayload } from '../concordance/actions';
 import { DataLoadedPayload } from './actions';
+import { ConcApi } from '../../../common/api/kontext/concordance';
 
 
 
@@ -100,15 +101,18 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
 
     private waitingForTiles:Immutable.Map<number, {corpname:string; concId:string}>; // once not null for a key we know we can start to call freq
 
-    private readonly api:FreqDistribAPI;
+    private readonly concApi:ConcApi;
+
+    private readonly freqApi:FreqDistribAPI;
 
     constructor(dispatcher:IActionQueue, tileId:number, waitForTiles:Array<number>, appServices:AppServices,
-                    api:FreqDistribAPI, initState:MergeCorpFreqModelState) {
+                    concApi:ConcApi, freqApi:FreqDistribAPI, initState:MergeCorpFreqModelState) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.waitingForTiles = Immutable.Map<number, {corpname:string; concId:string}>(waitForTiles.map(v => [v, null]));
         this.appServices = appServices;
-        this.api = api;
+        this.concApi = concApi;
+        this.freqApi = freqApi;
 
         this.addActionHandler<GlobalActions.EnableAltViewMode>(
             GlobalActionName.EnableAltViewMode,
@@ -217,7 +221,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
             (state, action) => {},
             (state, action, dispatch) => {
                 if (action.payload['tileId'] === this.tileId) {
-                    this.api.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), action.payload['corpusId'])
+                    this.freqApi.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), action.payload['corpusId'])
                     .subscribe(
                         (data) => {
                             dispatch({
@@ -266,7 +270,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
             const srchKey = this.waitingForTiles.findKey(v => v && v.corpname === src.corpname);
             return srchKey !== undefined ?
                 callWithExtraVal(
-                    this.api,
+                    this.freqApi,
                     sourceToAPIArgs(src, this.waitingForTiles.get(srchKey).concId),
                     src.uuid
                 ) :
