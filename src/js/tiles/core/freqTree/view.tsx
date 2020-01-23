@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
 import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 import { ResponsiveContainer, Tooltip, Treemap } from 'recharts';
@@ -25,6 +24,7 @@ import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
 import { GlobalComponents } from '../../../views/global';
 import { ActionName, Actions } from './actions';
 import { FreqTreeModel, FreqTreeModelState } from './model';
+import { mapDictEntries } from '../../../common/collections';
 
 type TreeData = {name: any; children:any[]}[];
 
@@ -32,14 +32,17 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const globComponents = ut.getComponents();
 
-    const transformData = (data:Immutable.Map<string, any>):TreeData => {
-        return data.entrySeq().map(([k1, v1]) => ({
+    const transformData = (data:{}):TreeData => {
+        return []; // TODO
+        /*
+        return mapDictEntries(data, ([k1, v1]) => ({
             name: k1,
-            children: v1.entrySeq().map(([k2, v2]) => ({
+            children: mapDictEntries(v1, ([k2, v2]) => ({
                 name: k2,
-                children: v2.toJS().sort((a, b) => a.name > b.name ? 1 : -1)
+                children: v2.sort((a, b) => a.name > b.name ? 1 : -1)
             })).toArray().sort((a, b) => a.name > b.name ? 1 : -1)
-        })).toArray()
+        }))
+        */
     }
 
     // ------- <TreeWrapper /> ---------------------------------------------------
@@ -204,7 +207,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <div className={`charts${this.props.isBusy ? ' incomplete' : ''}`} ref={this.chartsRef} onScroll={this.handleScroll} style={{flexWrap: this.props.isMobile ? 'nowrap' : 'wrap'}}>
                             {this.props.frequencyTree.filter(block => block.isReady).map((block, blockId) => {
                                 const chartWidth = this.props.isMobile ? (this.props.renderSize[0] * 0.9).toFixed() : "90%";
-                                const transformedData = block.data.size > 0 ? transformData(block.data) : null;
+                                const transformedData = block.data.length > 0 ? transformData(block.data) : null;
                                 return  (
                                     <div key={block.ident} style={{width: chartsViewBoxWidth, height: "100%"}}>
                                         <h3>{block.label}</h3>
@@ -244,7 +247,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         </div>
                         {this.props.isMobile && this.props.frequencyTree.length > 1 ?
                             <globComponents.HorizontalBlockSwitch htmlClass="ChartSwitch"
-                                    blockIndices={Immutable.List(this.props.frequencyTree.map((_, i) => i))}
+                                    blockIndices={this.props.frequencyTree.map((_, i) => i)}
                                     currentIdx={this.props.activeBlock}
                                     onChange={this.handleDotClick} /> :
                             null

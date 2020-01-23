@@ -18,20 +18,20 @@
 import { Action, SEDispatcher, IActionQueue } from 'kombo';
 import { Observable, merge } from 'rxjs';
 import { concatMap, map } from 'rxjs/operators';
-import * as Immutable from 'immutable';
 
 import { AppServices } from '../../../appServices';
 import { ConcApi, QuerySelector, RequestArgs } from '../../../common/api/kontext/concordance';
 import { ViewMode, ConcResponse } from '../../../common/api/abstract/concordance';
-import { APIBlockResponse, MultiBlockFreqDistribAPI, DataRow } from '../../../common/api/kontext/freqs';
-import { stateToAPIArgs, SubqueryModeConf, FreqDataBlock } from '../../../common/models/freq';
+import { APIBlockResponse, MultiBlockFreqDistribAPI } from '../../../common/api/kontext/freqs';
+import { stateToAPIArgs, SubqueryModeConf } from '../../../common/models/freq';
 import { isSubqueryPayload, SubqueryPayload, SubQueryItem } from '../../../common/query';
 import { Backlink } from '../../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
-import { DataLoadedPayload, ActionName, Actions } from './actions';
+import { DataLoadedPayload } from './actions';
 import { FreqBarModel, FreqBarModelState } from './model';
 import { callWithExtraVal } from '../../../common/api/util';
 import { puid } from '../../../common/util';
+import * as C from '../../../common/collections';
 
 
 export class SubqFreqBarModelArgs {
@@ -76,22 +76,23 @@ export class SubqFreqBarModel extends FreqBarModel {
         this.subqConf = subqConf;
         this.concApi = concApi;
         const superFn = this.actionMatch[GlobalActionName.TileDataLoaded];
-        this.actionMatch[GlobalActionName.TileDataLoaded] = (state, action:GlobalActions.TileDataLoaded<DataLoadedPayload>) => {
-            const superState = superFn(state, action);
-            if (action.payload && isSubqueryPayload(action.payload) && this.subqSourceTiles.has(action.payload.tileId)) {
-                const newState = this.copyState(superState);
-                newState.blocks = Immutable.List<FreqDataBlock<DataRow>>(
-                    action.payload.subqueries.slice(0, this.subqConf.maxNumSubqueries).map(subq => ({
-                        data: Immutable.List<DataRow>(),
-                        ident: puid(),
-                        label: subq.value,
-                        isReady: false
-                    }))
-                );
-                return newState;
+        this.replaceActionHandler<GlobalActions.TileDataLoaded<DataLoadedPayload>>(
+            GlobalActionName.TileDataLoaded,
+            (state, action) => {
+                superFn(state, action);
+                if (action.payload && isSubqueryPayload(action.payload) &&
+                        C.dictHasKey(this.subqSourceTiles, action.payload.tileId.toFixed())) {
+                    state.blocks = action.payload.subqueries
+                        .slice(0, this.subqConf.maxNumSubqueries)
+                        .map(subq => ({
+                            data: [],
+                            ident: puid(),
+                            label: subq.value,
+                            isReady: false
+                        }));
+                }
             }
-            return superState;
-        };
+        );
     }
 
 
@@ -128,12 +129,13 @@ export class SubqFreqBarModel extends FreqBarModel {
     sideEffects(state:FreqBarModelState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
-                this.waitForTiles = this.waitForTiles.map(_ => true).toMap();
+                this.waitForTiles = C.dictMap(this.waitForTiles, _ => true);
                 this.suspend((action:Action) => {
-                    if (action.name === GlobalActionName.TileDataLoaded && this.subqSourceTiles.contains(action.payload['tileId'])
-                            && isSubqueryPayload(action.payload)) {
+                    if (action.name === GlobalActionName.TileDataLoaded &&
+                            C.dictHasKey(this.subqSourceTiles, action.payload['tileId'].toFixed()) &&
+                            isSubqueryPayload(action.payload)) {
                         const payload:SubqueryPayload = action.payload;
-                        this.waitForTiles = this.waitForTiles.set(payload.tileId, false);
+                        this.waitForTiles[payload.tileId.toFixed()] = false;
                         const subqueries:Array<{critIdx:number; v:SubQueryItem<string>}> = payload.subqueries
                                 .slice(0, this.subqConf.maxNumSubqueries)
                                 .map((v, i) => ({critIdx: i, v: v}));
@@ -175,7 +177,7 @@ export class SubqFreqBarModel extends FreqBarModel {
                                 console.log('err: ', err);
                             }
                         );
-                        return !this.waitForTiles.contains(true);
+                        return !C.dictHasValue(this.waitForTiles, true);
                     }
                     return false;
                 });

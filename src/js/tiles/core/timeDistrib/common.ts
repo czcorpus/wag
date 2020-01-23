@@ -40,9 +40,18 @@ export interface TimeDistTileConf extends CorpSrchTileConf {
 }
 
 
+export interface DataLoadedPayload {
+    tileId:number;
+    isLast:boolean;
+    data?:Array<DataItemWithWCI>;
+    dataCmp?:Array<DataItemWithWCI>;
+    wordMainLabel?:string;
+}
+
+
 export enum ActionName {
     ChangeCmpWord = 'TIME_DISTRIB_CHANGE_CMP_WORD',
-    SubmitCmpWord = 'TIME_DISTRIB_SUBMIT_CMP_WORD'
+    SubmitCmpWord = 'TIME_DISTRIB_SUBMIT_CMP_WORD',
 }
 
 export interface DataItemWithWCI {
@@ -51,15 +60,6 @@ export interface DataItemWithWCI {
     ipm:number;
     norm:number;
     ipmInterval:[number, number];
-}
-
-export interface DataLoadedPayload {
-    data:Array<DataItemWithWCI>;
-    concId:string;
-    origQuery:string; // in case we generate our own concordance (and not reusing one from a different tile)
-    subchartId:SubchartID;
-    subcname:string;
-    wordMainLabel:string;
 }
 
 export namespace Actions {

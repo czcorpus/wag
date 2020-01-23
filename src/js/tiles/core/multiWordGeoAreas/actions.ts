@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 import { Action } from 'kombo';
-import * as Immutable from 'immutable';
 import { DataRow } from '../../../common/api/kontext/freqs';
 import { TargetDataRow } from './views';
 
@@ -52,7 +51,7 @@ export namespace Actions {
         tileId:number;
         areaName:string;
         areaIpmNorm:number;
-        areaData:Immutable.Iterable<number, TargetDataRow>;
+        areaData:Array<TargetDataRow>;
         tooltipX:number;
         tooltipY:number;
 

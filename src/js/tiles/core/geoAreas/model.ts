@@ -15,19 +15,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
-import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
+import { Action, StatelessModel, IActionQueue } from 'kombo';
 import { forkJoin, Observable, Observer, of as rxOf } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 
 import { AppServices } from '../../../appServices';
-import { DataRow, FreqDistribAPI } from '../../../common/api/kontext/freqs';
+import { FreqDistribAPI } from '../../../common/api/kontext/freqs';
 import { GeneralSingleCritFreqBarModelState, stateToAPIArgs } from '../../../common/models/freq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { ConcLoadedPayload } from '../concordance/actions';
 import { ActionName, Actions, DataLoadedPayload } from './actions';
 import { DataApi } from '../../../common/types';
 import { TooltipValues } from '../../../views/global';
+import { DataRow } from '../../../common/api/kontext/freqs';
 
 /*
 oral2013:
@@ -67,8 +67,8 @@ ORAL_V1:
 "neznámé": "naUNK"
 */
 
-export interface GeoAreasModelState extends GeneralSingleCritFreqBarModelState {
-    areaCodeMapping:Immutable.Map<string, string>;
+export interface GeoAreasModelState extends GeneralSingleCritFreqBarModelState<DataRow> {
+    areaCodeMapping:{[key:string]:string};
     tooltipArea:{tooltipX:number; tooltipY:number, data:TooltipValues}|null;
     mapSVG:string;
     areaDiscFillColor:string;
@@ -97,85 +97,14 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
         this.appServices = appServices;
         this.api = api;
         this.mapLoader = mapLoader;
-        this.actionMatch = {
-            [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
-                const newState = this.copyState(state);
-                newState.isBusy = true;
-                newState.error = null;
-                return newState;
-            },
-            [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<DataLoadedPayload>) => {
-                if (action.payload.tileId === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isBusy = false;
-                    if (action.error) {
-                        newState.data = Immutable.List<DataRow>();
-                        newState.error = action.error.message;
 
-                    } else if (action.payload.data.length === 0) {
-                        newState.data = Immutable.List<DataRow>();
-                        if (action.payload.mapSVG) {
-                            newState.mapSVG = action.payload.mapSVG;
-                        }
-
-                    } else {
-                        newState.data = Immutable.List<DataRow>(action.payload.data);
-                        if (action.payload.mapSVG) {
-                            newState.mapSVG = action.payload.mapSVG;
-                        }
-                    }
-                    return newState;
-                }
-                return state;
+        this.addActionHandler<GlobalActions.RequestQueryResponse>(
+            GlobalActionName.RequestQueryResponse,
+            (state, action) => {
+                state.isBusy = true;
+                state.error = null;
             },
-            [GlobalActionName.EnableAltViewMode]: (state, action:GlobalActions.EnableAltViewMode) => {
-                if (action.payload.ident === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isAltViewMode = true;
-                    return newState;
-                }
-                return state;
-            },
-            [GlobalActionName.DisableAltViewMode]: (state, action:GlobalActions.DisableAltViewMode) => {
-                if (action.payload.ident === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isAltViewMode = false;
-                    return newState;
-                }
-                return state;
-            },
-            [ActionName.ShowAreaTooltip]: (state, action:Actions.ShowAreaTooltip) => {
-                if (action.payload.tileId === this.tileId) {
-                    const newState = this.copyState(state);
-                    const data = newState.data.get(action.payload.areaIdx);
-
-                    newState.tooltipArea = {
-                        tooltipX: action.payload.tooltipX,
-                        tooltipY: action.payload.tooltipY,
-                        data: {
-                            [this.appServices.translate('geolocations__table_heading_area')]: data.name,
-                            [this.appServices.translate('geolocations__table_heading_ipm')]: data.ipm,
-                            [this.appServices.translate('geolocations__table_heading_abs')]: data.freq
-                        }
-                    };
-                    return newState;
-                }
-                return state;
-            },
-            [ActionName.HideAreaTooltip]: (state, action:Actions.HideAreaTooltip) => {
-                if (action.payload.tileId === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.tooltipArea = null;
-                    return newState;
-                }
-                return state;
-            }
-        }
-    }
-
-    sideEffects(state:GeoAreasModelState, action:Action, dispatch:SEDispatcher):void {
-        switch (action.name) {
-            case GlobalActionName.RequestQueryResponse:
+            (state, action, dispatch) => {
                 this.suspend((action:Action) => {
                     if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
                         const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
@@ -225,8 +154,83 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                     }
                     return false;
                 });
-            break;
-            case GlobalActionName.GetSourceInfo:
+            }
+        );
+
+        this.addActionHandler<GlobalActions.TileDataLoaded<DataLoadedPayload>>(
+            GlobalActionName.TileDataLoaded,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {
+                    state.isBusy = false;
+                    if (action.error) {
+                        state.data = [];
+                        state.error = action.error.message;
+
+                    } else if (action.payload.data.length === 0) {
+                        state.data = [];
+                        if (action.payload.mapSVG) {
+                            state.mapSVG = action.payload.mapSVG;
+                        }
+
+                    } else {
+                        state.data = action.payload.data;
+                        if (action.payload.mapSVG) {
+                            state.mapSVG = action.payload.mapSVG;
+                        }
+                    }
+                }
+            }
+        );
+
+        this.addActionHandler<GlobalActions.EnableAltViewMode>(
+            GlobalActionName.EnableAltViewMode,
+            (state, action) => {
+                if (action.payload.ident === this.tileId) {
+                    state.isAltViewMode = true;
+                }
+            }
+        );
+
+        this.addActionHandler<GlobalActions.DisableAltViewMode>(
+            GlobalActionName.DisableAltViewMode,
+            (state, action) => {
+                if (action.payload.ident === this.tileId) {
+                    state.isAltViewMode = false;
+                }
+            }
+        );
+
+        this.addActionHandler<Actions.ShowAreaTooltip>(
+            ActionName.ShowAreaTooltip,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {
+                    const data = state.data[action.payload.areaIdx];
+                    state.tooltipArea = {
+                        tooltipX: action.payload.tooltipX,
+                        tooltipY: action.payload.tooltipY,
+                        data: {
+                            [this.appServices.translate('geolocations__table_heading_area')]: data.name,
+                            [this.appServices.translate('geolocations__table_heading_ipm')]: data.ipm,
+                            [this.appServices.translate('geolocations__table_heading_abs')]: data.freq
+                        }
+                    };
+                }
+            }
+        );
+
+        this.addActionHandler<Actions.HideAreaTooltip>(
+            ActionName.HideAreaTooltip,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {
+                    state.tooltipArea = null;
+                }
+            }
+        );
+
+        this.addActionHandler<GlobalActions.GetSourceInfo>(
+            GlobalActionName.GetSourceInfo,
+            null,
+            (state, action, dispatch) => {
                 if (action.payload['tileId'] === this.tileId) {
                     this.api.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), state.corpname)
                     .subscribe(
@@ -248,8 +252,8 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                         }
                     );
                 }
-            break;
-        }
+            }
+        );
     }
 
 }

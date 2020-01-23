@@ -15,9 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
-
-import { BacklinkArgs, DataRow, MultiCritQueryArgs, SingleCritQueryArgs, FreqSort } from '../api/kontext/freqs';
+import { BacklinkArgs, MultiCritQueryArgs, SingleCritQueryArgs, FreqSort } from '../api/kontext/freqs';
 import { HTTPMethod, LocalizedConfMsg } from '../types';
 import { Backlink, BacklinkWithArgs } from '../tile';
 
@@ -35,9 +33,14 @@ export interface FreqBarModelStateBase {
     fmaxitems:number;
 }
 
-export interface GeneralSingleCritFreqBarModelState<T=DataRow> extends FreqBarModelStateBase {
+export interface GeneralSingleCritFreqBarModelState<T> extends FreqBarModelStateBase {
     fcrit:string;
-    data:Immutable.List<T>;
+    data:Array<T>;
+}
+
+export interface GeneralSingleCritFreqMultiQueryState<T> extends FreqBarModelStateBase {
+    fcrit:string;
+    data:Array<Array<T>>;
 }
 
 function isMultiCritState<T>(state:GeneralSingleCritFreqBarModelState<T>|GeneralMultiCritFreqBarModelState<T>): state is GeneralMultiCritFreqBarModelState<T> {
@@ -45,16 +48,16 @@ function isMultiCritState<T>(state:GeneralSingleCritFreqBarModelState<T>|General
 }
 
 export interface FreqDataBlock<T> {
-    data:Immutable.List<T>;
+    data:Array<T>;
     ident:string;
     label:string;
     isReady:boolean;
 }
 
-export interface GeneralMultiCritFreqBarModelState<T=DataRow> extends FreqBarModelStateBase {
-    fcrit:Immutable.List<string>;
-    critLabels:Immutable.List<LocalizedConfMsg>;
-    blocks:Immutable.List<FreqDataBlock<T>>;
+export interface GeneralMultiCritFreqBarModelState<T> extends FreqBarModelStateBase {
+    fcrit:Array<string>;
+    critLabels:Array<LocalizedConfMsg>;
+    blocks:Array<FreqDataBlock<T>>;
 }
 
 
@@ -68,7 +71,7 @@ export function stateToAPIArgs<T>(state:GeneralSingleCritFreqBarModelState<T>|Ge
             corpname: state.corpname,
             usesubcorp: subcname,
             q: `~${concId ? concId : state.concId}`,
-            fcrit: critIdx !== undefined ? state.fcrit.get(critIdx) : state.fcrit.toArray(),
+            fcrit: critIdx !== undefined ? state.fcrit[critIdx] : state.fcrit,
             flimit: state.flimit,
             freq_sort: state.freqSort,
             fpage: state.fpage,
@@ -103,7 +106,7 @@ export const createBackLink = <T>(state:GeneralMultiCritFreqBarModelState<T>|Gen
                 corpname: state.corpname,
                 usesubcorp: null,
                 q: `~${concId}`,
-                fcrit: isMultiCritState(state) ? state.fcrit.toArray() : [state.fcrit],
+                fcrit: isMultiCritState(state) ? state.fcrit : [state.fcrit],
                 flimit: state.flimit,
                 freq_sort: state.freqSort,
                 fpage: state.fpage,

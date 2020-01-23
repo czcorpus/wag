@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 import { AnyInterface, IMultiDict, ListOfPairs } from './types';
-import { produce, Draft } from 'immer';
-import { number } from 'prop-types';
 
 
 export type AcceptedValue = string|number|boolean;

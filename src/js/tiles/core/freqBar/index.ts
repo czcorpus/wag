@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
 import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
 
 import { AppServices } from '../../../appServices';
@@ -84,7 +83,7 @@ export class FreqBarTile implements ITileProvider {
         this.appServices = appServices;
         this.blockingTiles = waitForTiles;
         this.label = appServices.importExternalMessage(conf.label);
-        const criteria = Immutable.List<string>(typeof conf.fcrit === 'string' ? [conf.fcrit] : conf.fcrit);
+        const criteria = typeof conf.fcrit === 'string' ? [conf.fcrit] : conf.fcrit;
         const labels = Array.isArray(conf.critLabels) ?
             conf.critLabels.map(v => this.appServices.importExternalMessage(v)) :
             [this.appServices.importExternalMessage(conf.critLabels)];
@@ -106,16 +105,17 @@ export class FreqBarTile implements ITileProvider {
             {
                 isBusy: isBusy,
                 error: null,
-                blocks: Immutable.List<FreqDataBlock<DataRow>>(criteria.map(v => ({
-                    data: Immutable.List<DataRow>(),
+                blocks: criteria.map(v => ({
+                    data: [],
                     ident: puid(),
-                    isReady: false
-                }))),
+                    isReady: false,
+                    label: ''
+                })),
                 activeBlock: 0,
                 corpname: conf.corpname,
                 concId: null,
                 fcrit: criteria,
-                critLabels: Immutable.List<string>(labels),
+                critLabels: labels,
                 flimit: conf.flimit,
                 freqSort: conf.freqSort,
                 fpage: conf.fpage,

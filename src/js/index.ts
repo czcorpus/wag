@@ -38,7 +38,6 @@ import { initStore } from './cacheDb';
 import { HTTPMethod, TelemetryAction } from './common/types';
 import { HTTPAction } from './server/actions';
 import { MultiDict } from './common/data';
-import produce from 'immer';
 
 declare var DocumentTouch;
 declare var require:(src:string)=>void;  // webpack
@@ -111,6 +110,7 @@ export const initClient = (mountElement:HTMLElement, config:ClientConf, userSess
         viewUtils: viewUtils,
         cache: initStore('requests', config.reqCacheTTL)
     });
+    console.log('tile map: ', tileMap); // DEBUG TODO
 
     // telemetry capture
     if (config.telemetry && Math.random() < config.telemetry.participationProbability) {

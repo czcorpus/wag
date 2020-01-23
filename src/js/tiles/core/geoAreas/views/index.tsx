@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
 import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 import { fromEvent } from 'rxjs';
@@ -45,7 +44,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // -------------- <DataTable /> ---------------------------------------------
 
     const DataTable:React.SFC<{
-        rows:Immutable.List<DataRow>;
+        rows:Array<DataRow>;
 
     }> = (props) => {
 
@@ -76,7 +75,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     const drawLabels = (props:GeoAreasModelState, tileId:number, textColor:string, fillColor:string) => {
         const [min, max] = props.data.reduce(
             (acc, curr) => [Math.min(acc[0], curr.ipm), Math.max(acc[1], curr.ipm)],
-            [props.data.get(0).ipm, props.data.get(0).ipm]
+            [props.data[0].ipm, props.data[0].ipm]
         );
         const rMin = max > 1000 ? 110 : 90;
         const rMax = max > 1000 ? 190 : 170;
@@ -92,7 +91,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         });
         // insert data
         props.data.forEach((v, i) => {
-            const ident = props.areaCodeMapping.get(v.name);
+            const ident = props.areaCodeMapping[v.name];
             if (ident) {
                 const elm = document.getElementById(`${ident}-g`);
                 if (elm) {
@@ -170,13 +169,13 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     class GeoAreasTileView extends React.PureComponent<GeoAreasModelState & CoreTileComponentProps> {
 
         componentDidMount() {
-            if (this.props.data.size > 0) {
+            if (this.props.data.length > 0) {
                 drawLabels(this.props, this.props.tileId, this.props.areaDiscTextColor, this.props.areaDiscFillColor);
             }
         }
 
         componentDidUpdate(prevProps) {
-            if (this.props.data.size > 0 && (prevProps.data !== this.props.data || prevProps.isAltViewMode !== this.props.isAltViewMode ||
+            if (this.props.data.length > 0 && (prevProps.data !== this.props.data || prevProps.isAltViewMode !== this.props.isAltViewMode ||
                         prevProps.renderSize !== this.props.renderSize)) {
                 drawLabels(this.props, this.props.tileId, this.props.areaDiscTextColor, this.props.areaDiscFillColor);
             }
@@ -186,7 +185,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             const areaWidth = this.props.widthFract > 2 && !this.props.isMobile ? '70%' : '100%';
             return (
                 <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
-                        hasData={this.props.data.size > 0}
+                        hasData={this.props.data.length > 0}
                         sourceIdent={{corp: this.props.corpname}}
                         supportsTileReload={this.props.supportsReloadOnError}
                         issueReportingUrl={this.props.issueReportingUrl}>

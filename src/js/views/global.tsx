@@ -67,7 +67,7 @@ export interface GlobalComponents {
     }>;
 
     HorizontalBlockSwitch:React.SFC<{
-        blockIndices:Immutable.List<number>;
+        blockIndices:Array<number>;
         currentIdx:number;
         htmlClass?:string;
         onChange:(idx:number)=>void;

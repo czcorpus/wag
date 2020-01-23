@@ -17,7 +17,6 @@
  */
 import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
-import * as Immutable from 'immutable';
 import { Area, AreaChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 import { Theme } from '../../../common/theme';
@@ -26,6 +25,7 @@ import { GlobalComponents } from '../../../views/global';
 import { DataItemWithWCI, ActionName, Actions } from './common';
 import { TimeDistribModel, TimeDistribModelState } from './model';
 import { KeyCodes } from '../../../common/util';
+import { groupBy } from '../../../common/collections';
 
 
 const MIN_DATA_ITEMS_TO_SHOW = 2;
@@ -36,25 +36,30 @@ interface MultiChartItem {
     ipmInterval2:[number, number];
 }
 
-function mergeDataSets(data1:Immutable.List<DataItemWithWCI>, data2:Immutable.List<DataItemWithWCI>):Array<MultiChartItem> {
-    return data1.map(v => ({
-        datetime: v.datetime,
-        ipmInterval:[v.ipmInterval[0], v.ipmInterval[1]],
-        src: 0
-    })).concat(
-        data2.map(v => ({
+function mergeDataSets(data1:Array<DataItemWithWCI>, data2:Array<DataItemWithWCI>):Array<MultiChartItem> {
+    return groupBy(
+        data1.map(v => ({
             datetime: v.datetime,
             ipmInterval:[v.ipmInterval[0], v.ipmInterval[1]],
-            src: 1
-        }))
-    ).groupBy(v => v.datetime)
-    .map(v => ({
-        datetime: v.get(0).datetime,
-        ipmInterval1: v.find(x => x.src === 0, null, {ipmInterval: [null, null], src: 0, datetime: null}).ipmInterval as [number, number],
-        ipmInterval2: v.find(x => x.src === 1, null, {ipmInterval: [null, null], src: 1, datetime: null}).ipmInterval as [number, number]
-    }))
-    .sort((v1, v2) => parseInt(v1.datetime) - parseInt(v2.datetime))
-    .toArray();
+            src: 0
+        })).concat(
+            data2.map(v => ({
+                datetime: v.datetime,
+                ipmInterval:[v.ipmInterval[0], v.ipmInterval[1]],
+                src: 1
+            }))
+        ),
+        v => v.datetime
+    ).map(([,v]) => {
+        const interv1 = v.find(x => x.src === 0);
+        const interv2 = v.find(x => x.src === 1);
+        return {
+            datetime: v[0].datetime,
+            ipmInterval1: (interv1 ? interv1 : {ipmInterval: [null, null], src: 0, datetime: null}).ipmInterval as [number, number],
+            ipmInterval2: (interv2 ? interv2 : {ipmInterval: [null, null], src: 1, datetime: null}).ipmInterval as [number, number]
+        }
+    })
+    .sort((v1, v2) => parseInt(v1.datetime) - parseInt(v2.datetime));
 
 }
 
@@ -168,8 +173,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     const Chart:React.SFC<{
         wordCmp:string;
         word:string;
-        data1:Immutable.List<DataItemWithWCI>;
-        data2:Immutable.List<DataItemWithWCI>;
+        data1:Array<DataItemWithWCI>;
+        data2:Array<DataItemWithWCI>;
         size:[number, number];
         isPartial:boolean;
         isSmallWidth:boolean;
@@ -212,7 +217,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         return (
             <globComponents.TileWrapper tileId={props.tileId} isBusy={props.isBusy} error={props.error}
-                        hasData={props.data.size >= MIN_DATA_ITEMS_TO_SHOW}
+                        hasData={props.data.length >= MIN_DATA_ITEMS_TO_SHOW}
                         sourceIdent={{corp: props.corpname, subcorp: props.subcDesc}}
                         supportsTileReload={props.supportsReloadOnError}
                         backlink={props.backlink}
@@ -224,7 +229,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         </div> :
                         null
                     }
-                    {props.wordCmp && props.dataCmp.size < MIN_DATA_ITEMS_TO_SHOW && !props.isBusy ?
+                    {props.wordCmp && props.dataCmp.length < MIN_DATA_ITEMS_TO_SHOW && !props.isBusy ?
                         <p className="message" style={{color: theme.barColor(1)}}>
                             {ut.translate('timeDistrib__no_data_found_for_{word}', {word: props.wordCmp})}
                         </p> :

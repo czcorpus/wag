@@ -32,7 +32,7 @@ interface FreqTreeStateBase {
 }
 
 export interface FreqTreeDataBlock {
-    data:Immutable.Map<string,any>;
+    data:Array<any>; // TODO type
     ident:string;
     label:string;
     isReady:boolean;
