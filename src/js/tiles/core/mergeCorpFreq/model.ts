@@ -109,49 +109,136 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
         this.waitingForTiles = Immutable.Map<number, {corpname:string; concId:string}>(waitForTiles.map(v => [v, null]));
         this.appServices = appServices;
         this.api = api;
-        this.actionMatch = {
-            [GlobalActionName.EnableAltViewMode]: (state, action:GlobalActions.EnableAltViewMode) => {
+
+        this.addActionHandler<GlobalActions.EnableAltViewMode>(
+            GlobalActionName.EnableAltViewMode,
+            (state, action) => {
                 if (action.payload.ident === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isAltViewMode = true;
-                    return newState;
+                    state.isAltViewMode = true;
                 }
-                return state;
-            },
-            [GlobalActionName.DisableAltViewMode]: (state, action:GlobalActions.DisableAltViewMode) => {
+            }
+        );
+
+        this.addActionHandler<GlobalActions.DisableAltViewMode>(
+            GlobalActionName.DisableAltViewMode,
+            (state, action) => {
                 if (action.payload.ident === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isAltViewMode = false;
-                    return newState;
+                    state.isAltViewMode = false;
                 }
-                return state;
-            },
-            [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
+            }
+        );
+
+        this.addActionHandler<GlobalActions.RequestQueryResponse>(
+            GlobalActionName.RequestQueryResponse,
+            (state, action) => {
                 this.waitingForTiles = this.waitingForTiles.map(() => null).toMap();
-                const newState = this.copyState(state);
-                newState.isBusy = true;
-                newState.error = null;
-                return newState;
+                state.isBusy = true;
+                state.error = null;
             },
-            [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<DataLoadedPayload>) => {
+            (state, action, dispatch) => {
+                this.suspend((action:Action) => {
+                    if (action.name === GlobalActionName.TileDataLoaded && this.waitingForTiles.has(action.payload['tileId'])) {
+                        if (action.error) {
+                            dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                name: GlobalActionName.TileDataLoaded,
+                                error: new Error(this.appServices.translate('global__failed_to_obtain_required_data')),
+                                payload: {
+                                    tileId: this.tileId,
+                                    isEmpty: true,
+                                    data: [],
+                                    concId: null // TODO
+                                }
+                            });
+                            return true;
+                        }
+                        const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
+
+                        if (this.waitingForTiles.get(payload.tileId) === null) {
+                            this.waitingForTiles = this.waitingForTiles.set(
+                                payload.tileId,
+                                {corpname: payload.corpusName, concId: payload.concPersistenceIDs[0]}
+                            );
+                        }
+                        if (!this.waitingForTiles.findKey(v => v === null)) {
+                            this.loadFreqs(state).subscribe(
+                                (data) => {
+                                    dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                        name: GlobalActionName.TileDataLoaded,
+                                        payload: {
+                                            tileId: this.tileId,
+                                            isEmpty: data.every(v => v.freq === 0),
+                                            data: data,
+                                            concId: null // TODO
+                                        }
+                                    });
+                                },
+                                (err) => {
+                                    dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                        name: GlobalActionName.TileDataLoaded,
+                                        payload: {
+                                            tileId: this.tileId,
+                                            isEmpty: true,
+                                            data: [],
+                                            concId: null // TODO
+                                        },
+                                        error: err
+                                    });
+                                }
+                            );
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+            }
+        );
+
+        this.addActionHandler<GlobalActions.TileDataLoaded<DataLoadedPayload>>(
+            GlobalActionName.TileDataLoaded,
+            (state, action) => {
                 if (action.payload.tileId === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isBusy = false;
+                    state.isBusy = false;
                     if (action.error) {
-                        newState.data = Immutable.List<SourceMappedDataRow>();
-                        newState.error = action.error.message;
+                        state.data = Immutable.List<SourceMappedDataRow>();
+                        state.error = action.error.message;
 
                     } else if (action.payload.data.length === 0) {
-                        newState.data = Immutable.List<SourceMappedDataRow>();
+                        state.data = Immutable.List<SourceMappedDataRow>();
 
                     } else {
-                        newState.data = Immutable.List<SourceMappedDataRow>(action.payload.data);
+                        state.data = Immutable.List<SourceMappedDataRow>(action.payload.data);
                     }
-                    return newState;
                 }
-                return state;
             }
-        }
+        );
+
+        this.addActionHandler<GlobalActions.GetSourceInfo>(
+            GlobalActionName.GetSourceInfo,
+            (state, action) => {},
+            (state, action, dispatch) => {
+                if (action.payload['tileId'] === this.tileId) {
+                    this.api.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), action.payload['corpusId'])
+                    .subscribe(
+                        (data) => {
+                            dispatch({
+                                name: GlobalActionName.GetSourceInfoDone,
+                                payload: {
+                                    data: data
+                                }
+                            });
+                        },
+                        (err) => {
+                            console.error(err);
+                            dispatch({
+                                name: GlobalActionName.GetSourceInfoDone,
+                                error: err
+
+                            });
+                        }
+                    );
+                }
+            }
+        );
     }
 
     private createBackLink(source:ModelSourceArgs, concId:string):BacklinkWithArgs<BacklinkArgs> {
@@ -245,89 +332,4 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
             })
         );
     }
-
-    sideEffects(state:MergeCorpFreqModelState, action:Action, dispatch:SEDispatcher):void {
-        switch (action.name) {
-            case GlobalActionName.RequestQueryResponse:
-                this.suspend((action:Action) => {
-                    if (action.name === GlobalActionName.TileDataLoaded && this.waitingForTiles.has(action.payload['tileId'])) {
-                        if (action.error) {
-                            dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                name: GlobalActionName.TileDataLoaded,
-                                error: new Error(this.appServices.translate('global__failed_to_obtain_required_data')),
-                                payload: {
-                                    tileId: this.tileId,
-                                    isEmpty: true,
-                                    data: [],
-                                    concId: null // TODO
-                                }
-                            });
-                            return true;
-                        }
-                        const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
-
-                        if (this.waitingForTiles.get(payload.tileId) === null) {
-                            this.waitingForTiles = this.waitingForTiles.set(
-                                payload.tileId,
-                                {corpname: payload.corpusName, concId: payload.concPersistenceIDs[0]}
-                            );
-                        }
-                        if (!this.waitingForTiles.findKey(v => v === null)) {
-                            this.loadFreqs(state).subscribe(
-                                (data) => {
-                                    dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                        name: GlobalActionName.TileDataLoaded,
-                                        payload: {
-                                            tileId: this.tileId,
-                                            isEmpty: data.every(v => v.freq === 0),
-                                            data: data,
-                                            concId: null // TODO
-                                        }
-                                    });
-                                },
-                                (err) => {
-                                    dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                        name: GlobalActionName.TileDataLoaded,
-                                        payload: {
-                                            tileId: this.tileId,
-                                            isEmpty: true,
-                                            data: [],
-                                            concId: null // TODO
-                                        },
-                                        error: err
-                                    });
-                                }
-                            );
-                            return true;
-                        }
-                    }
-                    return false;
-                });
-            break;
-            case GlobalActionName.GetSourceInfo:
-                if (action.payload['tileId'] === this.tileId) {
-                    this.api.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), action.payload['corpusId'])
-                    .subscribe(
-                        (data) => {
-                            dispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
-                                payload: {
-                                    data: data
-                                }
-                            });
-                        },
-                        (err) => {
-                            console.error(err);
-                            dispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
-                                error: err
-
-                            });
-                        }
-                    );
-                }
-            break;
-        }
-    }
-
 }
