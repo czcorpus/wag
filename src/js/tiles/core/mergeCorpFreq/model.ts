@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
+import { Action, StatelessModel, IActionQueue } from 'kombo';
 import { forkJoin, Observable, throwError } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, tap, flatMap } from 'rxjs/operators';
 
 import { AppServices } from '../../../appServices';
 import { APIResponse, BacklinkArgs, DataRow, FreqDistribAPI, SingleCritQueryArgs } from '../../../common/api/kontext/freqs';
@@ -28,7 +28,10 @@ import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { ConcLoadedPayload } from '../concordance/actions';
 import { DataLoadedPayload } from './actions';
-import { ConcApi } from '../../../common/api/kontext/concordance';
+import { ConcApi, QuerySelector } from '../../../common/api/kontext/concordance';
+import { LemmaVariant } from '../../../common/query';
+import { ViewMode } from '../../../common/api/abstract/concordance';
+import { createInitialLinesData } from '../../../common/models/concordance';
 
 
 
@@ -67,6 +70,7 @@ export interface ModelSourceArgs {
 
 export interface SourceMappedDataRow extends DataRow {
     sourceId:string;
+    queryId:number;
     error?:Error;
     backlink:BacklinkWithArgs<BacklinkArgs>|null;
 }
@@ -79,6 +83,7 @@ export interface MergeCorpFreqModelState {
     sources:Immutable.List<ModelSourceArgs>;
     pixelsPerItem:number;
     barGap:number;
+    lemmas:Array<LemmaVariant>;
 }
 
 const sourceToAPIArgs = (src:ModelSourceArgs, concId:string):SingleCritQueryArgs => ({
@@ -265,23 +270,75 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
             null;
     }
 
+    private loadConcordances(state:MergeCorpFreqModelState) {
+        return state.sources.flatMap(source =>
+            state.lemmas.map((lemma, queryId) =>
+                this.concApi.call(
+                    this.concApi.stateToArgs(
+                        {
+                            querySelector: QuerySelector.CQL,
+                            corpname: source.corpname,
+                            otherCorpname: undefined,
+                            subcname: null,
+                            subcDesc: null,
+                            kwicLeftCtx: -1,
+                            kwicRightCtx: 1,
+                            pageSize: 10,
+                            shuffle: false,
+                            attr_vmode: 'mouseover',
+                            viewMode: ViewMode.KWIC,
+                            tileId: this.tileId,
+                            attrs: [],
+                            metadataAttrs: [],
+                            queries: [],
+                            concordances: createInitialLinesData(state.lemmas.length),
+                            posQueryGenerator: ["tag", "ppTagset"] // TODO configuration
+                        },
+                        lemma,
+                        queryId,
+                        null
+                    )
+                ).pipe(
+                    flatMap(resp =>
+                        callWithExtraVal(
+                            this.freqApi,
+                            sourceToAPIArgs(source, resp.concPersistenceID),
+                            {
+                                sourceId: source.uuid,
+                                queryId: queryId
+                            }
+                        )
+                    )
+                )
+            )
+        ).toArray()
+    }
+
     private loadFreqs(state:MergeCorpFreqModelState):Observable<Array<SourceMappedDataRow>> {
-        const streams$ = state.sources.map<Observable<[APIResponse, string]>>(src => {
-            const srchKey = this.waitingForTiles.findKey(v => v && v.corpname === src.corpname);
-            return srchKey !== undefined ?
-                callWithExtraVal(
-                    this.freqApi,
-                    sourceToAPIArgs(src, this.waitingForTiles.get(srchKey).concId),
-                    src.uuid
-                ) :
-                throwError(new Error(`Cannot find concordance result for ${src.corpname}. Passing an empty stream.`));
-        }).toArray();
+        let streams$;
+        if (state.lemmas.length > 1) {
+            streams$ = this.loadConcordances(state);
+        } else {
+            streams$ = state.sources.map<Observable<[APIResponse, {sourceId:string; queryId:number;}]>>(src => {
+                const srchKey = this.waitingForTiles.findKey(v => v && v.corpname === src.corpname);
+                return srchKey !== undefined ?
+                    callWithExtraVal(
+                        this.freqApi,
+                        sourceToAPIArgs(src, this.waitingForTiles.get(srchKey).concId),
+                        {
+                            sourceId: src.uuid,
+                            queryId: 0
+                        }                        
+                    ) :
+                    throwError(new Error(`Cannot find concordance result for ${src.corpname}. Passing an empty stream.`));
+            }).toArray();
+        }        
 
         return forkJoin(...streams$).pipe(
-            map((partials:Array<[APIResponse, string]>) => {
+            map((partials:Array<[APIResponse, {sourceId:string; queryId:number;}]>) => {
                 return partials.reduce<Array<SourceMappedDataRow>>((acc, curr) => {
-                    const [resp, reqId] = curr;
-                    const srcConf = state.sources.find(v => v.uuid === reqId);
+                    const [resp, args] = curr;
+                    const srcConf = state.sources.find(v => v.uuid === args.sourceId);
                     const dataNorm:Array<DataRow> = srcConf.isSingleCategory ?
                         [resp.data.reduce(
                             (acc, curr) => ({
@@ -314,6 +371,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                                 return v.ipm ?
                                     {
                                         sourceId: srcConf.uuid,
+                                        queryId: args.queryId,
                                         backlink: this.createBackLink(srcConf, resp.concId),
                                         freq: v.freq,
                                         ipm: v.ipm,
@@ -322,6 +380,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                                     } :
                                     {
                                         sourceId: srcConf.uuid,
+                                        queryId: args.queryId,
                                         backlink: this.createBackLink(srcConf, resp.concId),
                                         freq: v.freq,
                                         ipm: Math.round(v.freq / srcConf.corpusSize * 1e8) / 100,

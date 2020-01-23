@@ -27,6 +27,7 @@ import { MergeCorpFreqModel, ModelSourceArgs, SourceMappedDataRow } from './mode
 import { init as viewInit } from './view';
 import { LocalizedConfMsg } from '../../../common/types';
 import { ConcApi } from '../../../common/api/kontext/concordance';
+import { findCurrLemmaVariant } from '../../../models/query';
 
 
 declare var require:(src:string)=>void;  // webpack
@@ -128,9 +129,9 @@ export class MergeCorpFreqTile implements ITileProvider {
                     isSingleCategory: !!src.isSingleCategory
                 }))),
                 pixelsPerItem: conf.pixelsPerItem ? conf.pixelsPerItem : 30,
-                barGap: Math.max(10, 40 - conf.pixelsPerItem)
-            },
-            lemmas
+                barGap: Math.max(10, 40 - conf.pixelsPerItem),
+                lemmas: lemmas.map(lemma => findCurrLemmaVariant(lemma))
+            }
         );
         this.label = appServices.importExternalMessage(conf.label || 'mergeCorpFreq__main_label');
         this.view = viewInit(this.dispatcher, ut, theme, this.model);
