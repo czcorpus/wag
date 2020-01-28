@@ -31,7 +31,7 @@ import { DataLoadedPayload } from './actions';
 import { FreqBarModel, FreqBarModelState } from './model';
 import { callWithExtraVal } from '../../../common/api/util';
 import { puid } from '../../../common/util';
-import * as C from '../../../common/collections';
+import { Dict } from '../../../common/collections';
 
 
 export class SubqFreqBarModelArgs {
@@ -81,7 +81,7 @@ export class SubqFreqBarModel extends FreqBarModel {
             (state, action) => {
                 superFn(state, action);
                 if (action.payload && isSubqueryPayload(action.payload) &&
-                        C.dictHasKey(this.subqSourceTiles, action.payload.tileId.toFixed())) {
+                        Dict.hasKey(this.subqSourceTiles, action.payload.tileId.toFixed())) {
                     state.blocks = action.payload.subqueries
                         .slice(0, this.subqConf.maxNumSubqueries)
                         .map(subq => ({
@@ -129,10 +129,10 @@ export class SubqFreqBarModel extends FreqBarModel {
     sideEffects(state:FreqBarModelState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
-                this.waitForTiles = C.dictMap(this.waitForTiles, _ => true);
+                this.waitForTiles = Dict.map(this.waitForTiles, _ => true);
                 this.suspend((action:Action) => {
                     if (action.name === GlobalActionName.TileDataLoaded &&
-                            C.dictHasKey(this.subqSourceTiles, action.payload['tileId'].toFixed()) &&
+                            Dict.hasKey(this.subqSourceTiles, action.payload['tileId'].toFixed()) &&
                             isSubqueryPayload(action.payload)) {
                         const payload:SubqueryPayload = action.payload;
                         this.waitForTiles[payload.tileId.toFixed()] = false;
@@ -177,7 +177,7 @@ export class SubqFreqBarModel extends FreqBarModel {
                                 console.log('err: ', err);
                             }
                         );
-                        return !C.dictHasValue(this.waitForTiles, true);
+                        return !Dict.hasValue(this.waitForTiles, true);
                     }
                     return false;
                 });

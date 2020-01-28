@@ -26,7 +26,7 @@ import { GlobalComponents, TooltipValues } from '../../../../views/global';
 import { ActionName, Actions } from '../actions';
 import { MultiWordGeoAreasModel, MultiWordGeoAreasModelState } from '../model';
 import { LemmaVariant } from '../../../../common/query';
-import * as C from '../../../../common/collections';
+import { Dict, List } from '../../../../common/collections';
 
 
 export interface TargetDataRow extends DataRow {
@@ -34,8 +34,8 @@ export interface TargetDataRow extends DataRow {
 }
 
 const groupData = (data:Array<Array<DataRow>>):[{[area:string]:Array<TargetDataRow>}, {[area:string]:number}, {[area:string]:number}] => {
-    const groupedData = C.groupBy(
-        C.flatMapList(
+    const groupedData = List.groupBy(
+        List.flatMap(
             data,
             (targetData, queryId) =>
                 targetData.map(item => ({
@@ -45,9 +45,9 @@ const groupData = (data:Array<Array<DataRow>>):[{[area:string]:Array<TargetDataR
         ),
         item => item['name']
     );
-    const groupedIpmNorms = C.dictFromList(groupedData.map(([area, data]) => [area, data.reduce((acc, curr) => acc + curr.ipm, 0)]));
-    const groupedAreaAbsFreqs = C.dictFromList(groupedData.map(([area, data]) => [area, data.reduce((acc, curr) => acc + curr.freq, 0)]));
-    return [C.dictFromList(groupedData), groupedIpmNorms, groupedAreaAbsFreqs]
+    const groupedIpmNorms = Dict.fromEntries(groupedData.map(([area, data]) => [area, data.reduce((acc, curr) => acc + curr.ipm, 0)]));
+    const groupedAreaAbsFreqs = Dict.fromEntries(groupedData.map(([area, data]) => [area, data.reduce((acc, curr) => acc + curr.freq, 0)]));
+    return [Dict.fromEntries(groupedData), groupedIpmNorms, groupedAreaAbsFreqs]
 }
 
 const createSVGElement = (parent:Element, name:string, attrs:{[name:string]:string}):SVGElement => {
@@ -201,7 +201,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     </tr>
                 </thead>
                 <tbody>
-                    {C.dictToList(groupedAreaData).sort(([area1,], [area2,]) => area1.localeCompare(area2)).map(([area, rows]) =>
+                    {Dict.toEntries(groupedAreaData).sort(([area1,], [area2,]) => area1.localeCompare(area2)).map(([area, rows]) =>
                         <tr key={area}>
                             <td key={area}>{area}</td>
                             <td key={`${area}Ipm`} className="num">{groupedAreaIpmNorms[area].toFixed(2)}</td>
@@ -233,8 +233,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const drawLabels = (tileId:number, areaCodeMapping:{[key:string]:string}, data:Array<Array<DataRow>>, frequencyDisplayLimit: number) => {
         const [groupedAreaData, groupedAreaIpmNorms, groupedAreaAbsFreqs] = groupData(data);
-        const maxIpmNorm = Math.max(...C.dictToList(groupedAreaIpmNorms).map(([, v]) => v));
-        const minIpmNorm = Math.min(...C.dictToList(groupedAreaIpmNorms).map(([, v]) => v));
+        const maxIpmNorm = Math.max(...Dict.toEntries(groupedAreaIpmNorms).map(([, v]) => v));
+        const minIpmNorm = Math.min(...Dict.toEntries(groupedAreaIpmNorms).map(([, v]) => v));
 
         // clear possible previous labels
         document.querySelectorAll('#svg-graph-p g.label-mount').forEach(elm => {
@@ -243,7 +243,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             }
         });
         // insert data
-        C.dictForEach(groupedAreaData, (areaData, areaName) => {
+        Dict.forEach(groupedAreaData, (areaData, areaName) => {
             const ident = areaCodeMapping[areaName];
             if (ident) {
                 const element = document.getElementById(`${ident}-g`);

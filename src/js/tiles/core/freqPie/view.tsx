@@ -26,7 +26,7 @@ import { ActionName } from './actions';
 import { FreqDataBlock } from '../../../common/models/freq';
 import { DataRow } from '../../../common/api/kontext/freqs';
 import { FreqBarModel, FreqBarModelState } from '../freqBar/model';
-import { flatMapList } from '../../../common/collections';
+import { List } from '../../../common/collections';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:FreqBarModel):TileComponent {
@@ -38,7 +38,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     const createColorMapping = (blocks:Array<FreqDataBlock<DataRow>>):{[v:string]:string} => {
         const ans = {};
         let i = 0;
-        flatMapList(blocks, block => block.data).forEach(item => {
+        List.flatMap(blocks, block => block.data).forEach(item => {
             if (ans[item.name] === undefined) {
                 ans[item.name] = colorPalette(`${i % catList.length}`);
                 i += 1;
@@ -185,7 +185,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     issueReportingUrl={props.issueReportingUrl}>
                 <div className="FreqPieTileView">
                     {props.isAltViewMode ?
-                        flatMapList(props.blocks, (block, blockId) => [
+                        List.flatMap(props.blocks, (block, blockId) => [
                             <h3 key={'h' + blockId} style={{textAlign: 'center'}}>{block.label}</h3>,
                             <TableView key={'t' + blockId} data={block.data}/>
                         ]) :

@@ -32,7 +32,7 @@ import { callWithExtraVal } from '../../../common/api/util';
 import { ViewMode } from '../../../common/api/abstract/concordance';
 import { createInitialLinesData } from '../../../common/models/concordance';
 import { ConcLoadedPayload, isConcLoadedPayload } from '../concordance/actions';
-import * as C from '../../../common/collections';
+import { Dict } from '../../../common/collections';
 
 /*
 oral2013:
@@ -205,7 +205,7 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                         tooltipX: action.payload.tooltipX,
                         tooltipY: action.payload.tooltipY,
                         caption: `${action.payload.areaName} (${action.payload.areaIpmNorm.toFixed(2)} ipm)`,
-                        data: C.dictFromList(
+                        data: Dict.fromEntries(
                             state.currentLemmas.map((lemma, index) => {
                                 const areaData = action.payload.areaData.find(item => item.target === index);
                                 return [
