@@ -25,7 +25,7 @@ import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
 import { GlobalComponents } from '../../../views/global';
 import { LemmaData, Actions, ActionName } from './common';
 import { TimeDistribModel, TimeDistribModelState } from './model';
-import * as C from '../../../common/collections';
+import { List } from '../../../common/collections';
 
 
 interface ChartDataPoint {
@@ -48,7 +48,7 @@ function prepareChartData(data:Array<LemmaData>, averagingYears:number):Array<Ch
         ipmIntervals: data.map(() => [0, 0])
     });
 
-    const zipped = C.zipByMappedKey(
+    const zipped = List.zipByMappedKey(
         data,
         d => d.datetime,
         mkDefaultDataPoint,

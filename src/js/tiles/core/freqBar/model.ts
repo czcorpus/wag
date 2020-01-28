@@ -21,14 +21,14 @@ import { concatMap } from 'rxjs/operators';
 
 import { AppServices } from '../../../appServices';
 import { BacklinkArgs, DataRow, MultiBlockFreqDistribAPI } from '../../../common/api/kontext/freqs';
-import { createBackLink, FreqDataBlock, GeneralMultiCritFreqBarModelState, stateToAPIArgs } from '../../../common/models/freq';
+import { createBackLink, GeneralMultiCritFreqBarModelState, stateToAPIArgs } from '../../../common/models/freq';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { puid } from '../../../common/util';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { ConcLoadedPayload } from '../concordance/actions';
 import { ActionName, Actions, DataLoadedPayload } from './actions';
 import { callWithExtraVal } from '../../../common/api/util';
-import * as C from '../../../common/collections';
+import { Dict } from '../../../common/collections';
 
 
 
@@ -69,8 +69,8 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState> {
     constructor({dispatcher, tileId, waitForTiles, subqSourceTiles, appServices, api, backlink, initState}:FreqBarModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
-        this.waitForTiles = C.dictFromList(waitForTiles.map(v => [v.toFixed(), false]));
-        this.subqSourceTiles = C.dictFromList(subqSourceTiles.map(v => [v.toFixed(), true]));
+        this.waitForTiles = Dict.fromEntries(waitForTiles.map(v => [v.toFixed(), false]));
+        this.subqSourceTiles = Dict.fromEntries(subqSourceTiles.map(v => [v.toFixed(), true]));
         this.appServices = appServices;
         this.api = api;
         this.backlink = backlink;
@@ -98,7 +98,7 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState> {
                 state.error = null;
             },
             (state, action, dispatch) => {
-                this.waitForTiles = C.dictMap(this.waitForTiles, _ => true);
+                this.waitForTiles = Dict.map(this.waitForTiles, _ => true);
                 this.suspend((action:Action) => {
                     if (action.name === GlobalActionName.TileDataLoaded && this.waitForTiles[action.payload['tileId']] !== undefined) {
                         const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
@@ -147,7 +147,7 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState> {
                                 });
                             }
                         );
-                        return !C.dictHasValue(this.waitForTiles, true);
+                        return !Dict.hasValue(this.waitForTiles, true);
                     }
                     return false;
                 });

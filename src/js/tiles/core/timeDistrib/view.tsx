@@ -25,7 +25,7 @@ import { GlobalComponents } from '../../../views/global';
 import { DataItemWithWCI, ActionName, Actions } from './common';
 import { TimeDistribModel, TimeDistribModelState } from './model';
 import { KeyCodes } from '../../../common/util';
-import { groupBy } from '../../../common/collections';
+import { List } from '../../../common/collections';
 
 
 const MIN_DATA_ITEMS_TO_SHOW = 2;
@@ -37,7 +37,7 @@ interface MultiChartItem {
 }
 
 function mergeDataSets(data1:Array<DataItemWithWCI>, data2:Array<DataItemWithWCI>):Array<MultiChartItem> {
-    return groupBy(
+    return List.groupBy(
         data1.map(v => ({
             datetime: v.datetime,
             ipmInterval:[v.ipmInterval[0], v.ipmInterval[1]],

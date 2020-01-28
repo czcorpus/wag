@@ -24,7 +24,7 @@ import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
 import { GlobalComponents } from '../../../views/global';
 import { ActionName, Actions } from './actions';
 import { FreqTreeModel, FreqTreeModelState } from './model';
-import { mapDictEntries } from '../../../common/collections';
+import { Dict } from '../../../common/collections';
 
 type TreeData = {name: any; children:any[]}[];
 

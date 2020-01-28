@@ -25,7 +25,7 @@ import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
 import { GlobalComponents } from '../../../views/global';
 import { ActionName, Actions } from './actions';
 import { FreqBarModel, FreqBarModelState } from './model';
-import { listMaxItem, flatMapList } from '../../../common/collections';
+import { List } from '../../../common/collections';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:FreqBarModel):TileComponent {
@@ -100,7 +100,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         isMobile:boolean;
 
     }> = (props) => {
-        const maxLabelWidth = listMaxItem(props.data, v => v.name.length).name.length;
+        const maxLabelWidth = List.maxItem(props.data, v => v.name.length).name.length;
         return (
             <div className="Chart">
                 <ChartWrapper data={props.data} isMobile={props.isMobile} width={props.width} height={props.height}>
@@ -156,7 +156,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         issueReportingUrl={this.props.issueReportingUrl}>
                     <div className="FreqBarTile">
                         {this.props.isAltViewMode ?
-                            flatMapList(this.props.blocks, (block, blockId) => [
+                            List.flatMap(this.props.blocks, (block, blockId) => [
                                 <h3 key={'h' + blockId} style={{textAlign: 'center'}}>{block.label}</h3>,
                                 <TableView key={'t' + blockId} data={block.data}/>
                             ]) :

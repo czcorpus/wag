@@ -17,7 +17,7 @@
  */
 import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { Observable, Observer, of as rxOf } from 'rxjs';
-import { concatMap, map, mergeMap, scan, reduce } from 'rxjs/operators';
+import { concatMap, map, mergeMap, reduce } from 'rxjs/operators';
 
 import { AppServices } from '../../../appServices';
 import { ConcApi, QuerySelector, mkMatchQuery } from '../../../common/api/kontext/concordance';
@@ -36,7 +36,7 @@ import { callWithExtraVal } from '../../../common/api/util';
 import { LemmaVariant, RecognizedQueries } from '../../../common/query';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { HTTPMethod } from '../../../common/types';
-import { dictFromList, dictToList } from '../../../common/collections';
+import { Dict } from '../../../common/collections';
 
 
 export const enum FreqFilterQuantity {
@@ -292,7 +292,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
     }
 
     private mergeChunks(currData:Array<DataItemWithWCI>, newChunk:Array<DataItemWithWCI>, alphaLevel:AlphaLevel):Array<DataItemWithWCI> {
-        return dictToList(newChunk.reduce(
+        return Dict.toEntries(newChunk.reduce(
             (acc, curr) => {
                 if (acc[curr.datetime] !== undefined) {
                     const tmp = acc[curr.datetime];
@@ -317,7 +317,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     return acc;
                 }
             },
-            dictFromList(currData.map(v => [v.datetime, v] as [string, DataItemWithWCI]))
+            Dict.fromEntries(currData.map(v => [v.datetime, v] as [string, DataItemWithWCI]))
 
         )).map(([,v]) => v).sort((x1, x2) => parseInt(x1.datetime) - parseInt(x2.datetime));
     }
