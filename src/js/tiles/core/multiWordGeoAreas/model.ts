@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
 import { Action, StatelessModel, IActionQueue, SEDispatcher } from 'kombo';
 import { Observable, of as rxOf, zip } from 'rxjs';
 import { concatMap, reduce, share, repeat } from 'rxjs/operators';
@@ -33,6 +32,7 @@ import { callWithExtraVal } from '../../../common/api/util';
 import { ViewMode } from '../../../common/api/abstract/concordance';
 import { createInitialLinesData } from '../../../common/models/concordance';
 import { ConcLoadedPayload, isConcLoadedPayload } from '../concordance/actions';
+import * as C from '../../../common/collections';
 
 /*
 oral2013:
@@ -74,9 +74,9 @@ ORAL_V1:
 
 export interface MultiWordGeoAreasModelState extends FreqBarModelStateBase {
     fcrit:string;
-    currentLemmas:Immutable.List<LemmaVariant>;
-    data:Immutable.List<Immutable.List<DataRow>>;
-    areaCodeMapping:Immutable.Map<string, string>;
+    currentLemmas:Array<LemmaVariant>;
+    data:Array<Array<DataRow>>;
+    areaCodeMapping:{[key:string]:string};
     tooltipArea:{tooltipX:number; tooltipY:number, caption: string, data:TooltipValues}|null;
     mapSVG:string;
     isAltViewMode:boolean;
@@ -160,14 +160,14 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     if (action.error) {
-                        state.data = Immutable.List(state.currentLemmas.map(_ => Immutable.List<DataRow>()));
+                        state.data = state.currentLemmas.map(_ => []);
                         state.error = action.error.message;
 
                     } else if (action.payload.data.length === 0) {
-                        state.data = state.data.set(action.payload.queryId, Immutable.List<DataRow>());
+                        state.data[action.payload.queryId] = [];
 
                     } else {
-                        state.data = state.data.set(action.payload.queryId, Immutable.List<DataRow>(action.payload.data));
+                        state.data[action.payload.queryId] = action.payload.data;
                     }
                     state.mapSVG = action.payload.mapSVG;
                 }
@@ -205,15 +205,17 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                         tooltipX: action.payload.tooltipX,
                         tooltipY: action.payload.tooltipY,
                         caption: `${action.payload.areaName} (${action.payload.areaIpmNorm.toFixed(2)} ipm)`,
-                        data: state.currentLemmas.toMap().mapEntries<string, string>(([index, lemma]) => {
-                            const areaData = action.payload.areaData.find(item => item.target === index);
-                            return [
-                                lemma.word,
-                                areaData ?
-                                    `${(100*areaData.ipm/action.payload.areaIpmNorm).toFixed(2)} % (${areaData.ipm} ipm)` :
-                                    undefined
-                            ]
-                        }).toObject()
+                        data: C.dictFromList(
+                            state.currentLemmas.map((lemma, index) => {
+                                const areaData = action.payload.areaData.find(item => item.target === index);
+                                return [
+                                    lemma.word,
+                                    areaData ?
+                                        `${(100*areaData.ipm/action.payload.areaIpmNorm).toFixed(2)} % (${areaData.ipm} ipm)` :
+                                        undefined
+                                ]
+                            })
+                        )
                     };
                 }
             }
@@ -257,7 +259,7 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
 
     private getConcordances(state:MultiWordGeoAreasModelState) {
         return zip(
-            this.mapLoader.call('mapCzech.inline.svg').pipe(repeat(state.currentLemmas.size)),
+            this.mapLoader.call('mapCzech.inline.svg').pipe(repeat(state.currentLemmas.length)),
             rxOf(...state.currentLemmas.map((lemma, queryId) => [queryId, lemma] as [number, LemmaVariant])[Symbol.iterator]()).pipe(
                 concatMap(([queryId, lemmaVariant]) =>
                     callWithExtraVal(

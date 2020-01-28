@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
 import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
 
 import { AppServices } from '../../../appServices';
@@ -93,7 +92,7 @@ export class FreqTreeTile implements ITileProvider {
                 isBusy: isBusy,
                 error: null,
                 frequencyTree: conf.fcritTrees.map(_ => ({
-                    data: Immutable.Map(),
+                    data: {},
                     ident: puid(),
                     label: '',
                     isReady: false

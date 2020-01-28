@@ -1,5 +1,6 @@
 /*
  * Copyright 2019 Martin Zimandl <martin.zimandl@gmail.com>
+ * Copyright 2019 Tomas Machalek <tomas.machalek@gmail.com>
  * Copyright 2019 Institute of the Czech National Corpus,
  *                Faculty of Arts, Charles University
  *
@@ -15,10 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
 import { SEDispatcher, StatelessModel, IActionQueue, Action } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
-import { concatMap, reduce, share } from 'rxjs/operators';
+import { concatMap, reduce, map } from 'rxjs/operators';
 
 import { AppServices } from '../../../appServices';
 import { ConcApi, QuerySelector, mkMatchQuery } from '../../../common/api/kontext/concordance';
@@ -26,23 +26,24 @@ import { ConcResponse, ViewMode } from '../../../common/api/abstract/concordance
 import { TimeDistribResponse } from '../../../common/api/abstract/timeDistrib';
 import { DataRow } from '../../../common/api/kontext/freqs';
 import { KontextTimeDistribApi } from '../../../common/api/kontext/timeDistrib';
-import { GeneralSingleCritFreqBarModelState } from '../../../common/models/freq';
+import { GeneralSingleCritFreqMultiQueryState } from '../../../common/models/freq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { findCurrLemmaVariant } from '../../../models/query';
-import { DataItemWithWCI, LemmaData, ActionName, Actions, LoadFinishedPayload } from './common';
+import { DataItemWithWCI, ActionName, Actions, DataLoadedPayload, DataFetchArgs } from './common';
 import { AlphaLevel, wilsonConfInterval } from '../../../common/statistics';
 import { callWithExtraVal } from '../../../common/api/util';
 import { LemmaVariant, RecognizedQueries } from '../../../common/query';
 import { createInitialLinesData } from '../../../common/models/concordance';
 import { ConcLoadedPayload, isConcLoadedPayload } from '../concordance/actions';
+import { dictToList, dictFromList } from '../../../common/collections';
 
 
-export interface TimeDistribModelState extends GeneralSingleCritFreqBarModelState<LemmaData> {
-    subcnames:Immutable.List<string>;
+export interface TimeDistribModelState extends GeneralSingleCritFreqMultiQueryState<DataItemWithWCI> {
+    subcnames:Array<string>;
     subcDesc:string;
     alphaLevel:AlphaLevel;
     posQueryGenerator:[string, string];
-    wordLabels:Immutable.List<string>;
+    wordLabels:Array<string>;
     averagingYears:number;
     isTweakMode:boolean;
     units:string;
@@ -53,25 +54,6 @@ const roundFloat = (v:number):number => Math.round(v * 100) / 100;
 
 const calcIPM = (v:DataRow|DataItemWithWCI, domainSize:number) => Math.round(v.freq / domainSize * 1e6 * 100) / 100;
 
-
-interface DataFetchArgsOwn {
-    corpName:string;
-    subcName:string;
-    queryId:number;
-    concId:string;
-    origQuery:string;
-}
-
-function isDataFetchArgsOwn(v:DataFetchArgsOwn|DataFetchArgsForeignConc): v is DataFetchArgsOwn {
-    return v['origQuery'] !== undefined;
-}
-
-interface DataFetchArgsForeignConc {
-    corpName:string;
-    subcName:string;
-    queryId:number;
-    concId:string;
-}
 
 export interface TimeDistribModelArgs {
     dispatcher:IActionQueue;
@@ -102,11 +84,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private readonly lemmas:RecognizedQueries;
 
-    private readonly queryLang:string;
-
-    private unfinishedChunks:Immutable.List<Immutable.List<boolean>>;
-
-    constructor({dispatcher, initState, tileId, waitForTile, api, concApi, appServices, lemmas, queryLang}:TimeDistribModelArgs) {
+    constructor({dispatcher, initState, tileId, waitForTile, api, concApi, appServices, lemmas}:TimeDistribModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.api = api;
@@ -114,8 +92,6 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         this.waitForTile = waitForTile;
         this.appServices = appServices;
         this.lemmas = lemmas;
-        this.queryLang = queryLang;
-        this.unfinishedChunks = Immutable.List(this.lemmas.map(_ => initState.subcnames.map(_ => true).toList()));
 
         this.addActionHandler<GlobalActions.EnableTileTweakMode>(
             GlobalActionName.EnableTileTweakMode,
@@ -144,14 +120,13 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         this.addActionHandler<GlobalActions.RequestQueryResponse>(
             GlobalActionName.RequestQueryResponse,
             (state, action) => {
-                this.unfinishedChunks = Immutable.List(this.lemmas.map(_ => this.getState().subcnames.map(_ => true).toList()));
-                state.data = Immutable.List(this.lemmas.map(_ => Immutable.List<DataItemWithWCI>()));
+                state.data = this.lemmas.map(_ => []);
                 state.isBusy = true;
                 state.error = null;
             },
             (state, action, dispatch) => {
                 // we can propagate concordances only for one corpus (subcorpus)
-                if (this.waitForTile > -1 && state.subcnames.size === 1) {
+                if (this.waitForTile > -1 && state.subcnames.length === 1) {
                     this.suspend((action:Action) => {
                         if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
                             if (isConcLoadedPayload(action.payload)) {
@@ -170,7 +145,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                 this.loadData(
                                     state,
                                     dispatch,
-                                    state.subcnames.toArray(),
+                                    state.subcnames,
                                     rxOf(...this.lemmas.map((lemma, queryId) => ({
                                         queryId: queryId,
                                         lemma: findCurrLemmaVariant(lemma),
@@ -187,7 +162,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     this.loadData(
                         state,
                         dispatch,
-                        state.subcnames.toArray(),
+                        state.subcnames,
                         rxOf(...this.lemmas.map((lemma, queryId) => ({
                             queryId: queryId,
                             lemma: findCurrLemmaVariant(lemma),
@@ -197,33 +172,26 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 }
             }
         );
-        this.addActionHandler<Actions.PartialDataLoaded>(
-            ActionName.PartialDataLoaded,
-            (state, action) => {
-                if (action.payload.tileId === this.tileId) {
-                    const subcIndex = state.subcnames.findIndex(v => v === action.payload.subcname);
-                    this.unfinishedChunks = this.unfinishedChunks.set(
-                        action.payload.queryId,
-                        this.unfinishedChunks.get(action.payload.queryId).set(subcIndex, false)
-                    );
-                    let newData:Immutable.List<DataItemWithWCI>;
-                    if (action.error) {
-                        newData = Immutable.List<DataItemWithWCI>();
-                    } else {
-                        const currentData = state.data.get(action.payload.queryId, newData) || Immutable.List<DataItemWithWCI>();
-                        newData = this.mergeChunks(currentData, Immutable.List<DataItemWithWCI>(action.payload.data), state.alphaLevel);
-                    }
-                    state.data = state.data.set(action.payload.queryId, newData);
-                }
-            }
-        );
-        this.addActionHandler<GlobalActions.TileDataLoaded<LoadFinishedPayload>>(
+        this.addActionHandler<GlobalActions.TileDataLoaded<DataLoadedPayload>>(
             GlobalActionName.TileDataLoaded,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
-                    state.isBusy = false;
+                    if (action.payload.isLast) {
+                        state.isBusy = false;
+                    }
                     if (action.error) {
                         state.error = action.error.message;
+                        state.data = [];
+
+                    } else {
+                        const newData:Array<DataItemWithWCI> = action.error ?
+                            [] :
+                            this.mergeChunks(
+                                state.data[action.payload.queryId] || [],
+                                action.payload.data,
+                                state.alphaLevel
+                            );
+                        state.data[action.payload.queryId] = newData;
                     }
                 }
             }
@@ -256,38 +224,40 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         );
     }
 
-    private mergeChunks(currData:Immutable.List<DataItemWithWCI>, newChunk:Immutable.List<DataItemWithWCI>, alphaLevel:AlphaLevel):Immutable.List<DataItemWithWCI> {
-        return newChunk.reduce(
+    private mergeChunks(currData:Array<DataItemWithWCI>, newChunk:Array<DataItemWithWCI>, alphaLevel:AlphaLevel):Array<DataItemWithWCI> {
+        return dictToList(newChunk.reduce(
             (acc, curr) => {
-                if (acc.has(curr.datetime)) {
-                    const tmp = acc.get(curr.datetime);
+                if (acc[curr.datetime] !== undefined) {
+                    const tmp = acc[curr.datetime];
                     tmp.freq += curr.freq;
                     tmp.datetime = curr.datetime;
                     tmp.norm += curr.norm;
                     tmp.ipm = calcIPM(tmp, tmp.norm);
                     const confInt = wilsonConfInterval(tmp.freq, tmp.norm, alphaLevel);
                     tmp.ipmInterval = [roundFloat(confInt[0] * 1e6), roundFloat(confInt[1] * 1e6)];
-                    return acc.set(tmp.datetime, tmp);
+                    acc[tmp.datetime] = tmp;
+                    return acc;
 
                 } else {
                     const confInt = wilsonConfInterval(curr.freq, curr.norm, alphaLevel);
-                    return acc.set(curr.datetime, {
+                    acc[curr.datetime] = {
                         datetime: curr.datetime,
                         freq: curr.freq,
                         norm: curr.norm,
                         ipm: calcIPM(curr, curr.norm),
                         ipmInterval: [roundFloat(confInt[0] * 1e6), roundFloat(confInt[1] * 1e6)]
-                    });
+                    };
+                    return acc;
                 }
             },
-            Immutable.Map<string, DataItemWithWCI>(currData.map(v => [v.datetime, v]))
+            dictFromList(currData.map(v => [v.datetime, v] as [string, DataItemWithWCI]))
 
-        ).sort((x1, x2) => parseInt(x1.datetime) - parseInt(x2.datetime)).toList();
+        )).map(([d, v]) => v).sort((x1, x2) => parseInt(x1.datetime) - parseInt(x2.datetime));
     }
 
-    private getFreqs(response:Observable<[TimeDistribResponse, DataFetchArgsOwn|DataFetchArgsForeignConc]>, seDispatch:SEDispatcher) {
-        response.subscribe(
-            data => {
+    private getFreqs(response:Observable<[TimeDistribResponse, DataFetchArgs]>, seDispatch:SEDispatcher) {
+        response.pipe(
+            map<[TimeDistribResponse, DataFetchArgs], DataLoadedPayload>(data => {
                 const [resp, args] = data;
 
                 const dataFull = resp.data.map<DataItemWithWCI>(v => {
@@ -300,170 +270,158 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     };
                 });
 
-                seDispatch<Actions.PartialDataLoaded>({
-                    name: ActionName.PartialDataLoaded,
-                    payload: {
-                        tileId: this.tileId,
-                        data: dataFull,
-                        subcname: resp.subcorpName,
-                        concId: args.concId,
-                        queryId: args.queryId,
-                        origQuery: isDataFetchArgsOwn(args) ? args.origQuery : ''
-                    }
+                return {
+                    tileId: this.tileId,
+                    isLast: false,
+                    data: dataFull,
+                    queryId: args.queryId,
+                    origQuery: args.origQuery
+                };
+            })
+
+        ).subscribe(
+            data => {
+                seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                    name: GlobalActionName.TileDataLoaded,
+                    payload: { ... data, isEmpty: data.data.length === 0}
                 });
             },
             error => {
                 console.error(error);
-                seDispatch<Actions.PartialDataLoaded>({
-                    name: ActionName.PartialDataLoaded,
+                seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                    name: GlobalActionName.TileDataLoaded,
                     payload: {
                         tileId: this.tileId,
-                        data: null,
-                        subcname: null,
-                        concId: null,
-                        queryId: null,
-                        origQuery: null
+                        data: [],
+                        isEmpty: true,
+                        isLast: false,
+                        queryId: -1,
+                        origQuery: ''
                     },
                     error: error
                 });
             }
         );
-    }
 
-    private handleFinish(state: TimeDistribModelState, response:Observable<[TimeDistribResponse, DataFetchArgsOwn|DataFetchArgsForeignConc]>, seDispatch:SEDispatcher) {
         response.pipe(
             reduce(
-                (acc, [resp, args]) => {
-                    acc.isEmpty = acc.isEmpty && resp.data.length === 0;
-                    acc.concIds[args.queryId] = args.concId;
-                    return acc
-                },
-                {isEmpty: true, concIds: this.lemmas.map(_ => null)}
+                (acc, [v,]) => acc || v.data.length > 0,
+                true
             )
         ).subscribe(
-            data =>
-                seDispatch<GlobalActions.TileDataLoaded<LoadFinishedPayload>>({
+            (isEmpty) => {
+                seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
                     name: GlobalActionName.TileDataLoaded,
-                    payload: {
+                    payload:{
                         tileId: this.tileId,
-                        isEmpty: data.isEmpty,
-                        corpusName: state.corpname,
-                        concPersistenceIDs: state.subcnames.size > 1 ? undefined : data.concIds
+                        isEmpty: isEmpty,
+                        isLast: true,
+                        queryId: -1,
+                        data: [],
+                        origQuery: ''
                     }
-                }),
-            error =>
-                seDispatch<GlobalActions.TileDataLoaded<LoadFinishedPayload>>({
-                    name: GlobalActionName.TileDataLoaded,
-                    payload: {
-                        tileId: this.tileId,
-                        isEmpty: true,
-                        corpusName: state.corpname,
-                        concPersistenceIDs: undefined
-                    },
-                    error: error
-                }),
-        );
-    }
-
-    private loadConcordance(state:TimeDistribModelState, lemmaVariant:LemmaVariant, subcname:string,
-            queryId:number):Observable<[ConcResponse, DataFetchArgsOwn]> {
-        return callWithExtraVal(
-            this.concApi,
-            this.concApi.stateToArgs(
-                {
-                    querySelector: QuerySelector.CQL,
-                    corpname: state.corpname,
-                    otherCorpname: undefined,
-                    subcname: subcname,
-                    subcDesc: null,
-                    kwicLeftCtx: -1,
-                    kwicRightCtx: 1,
-                    pageSize: 10,
-                    shuffle: false,
-                    attr_vmode: 'mouseover',
-                    viewMode: ViewMode.KWIC,
-                    tileId: this.tileId,
-                    attrs: [],
-                    metadataAttrs: [],
-                    queries: [],
-                    posQueryGenerator: state.posQueryGenerator,
-                    concordances: createInitialLinesData(this.lemmas.length)
-                },
-                lemmaVariant,
-                queryId,
-                null
-            ),
-            {
-                corpName: state.corpname,
-                subcName: subcname,
-                concId: null,
-                queryId: queryId,
-                origQuery: mkMatchQuery(lemmaVariant, state.posQueryGenerator)
+                });
             }
         );
     }
 
-    private loadData(state:TimeDistribModelState, dispatch:SEDispatcher, subcNames:Array<string>, lemmaVariant:Observable<{queryId:number; lemma:LemmaVariant; concId:string;}>):void {
-        subcNames.map(subcName =>
-            lemmaVariant.pipe(
-                concatMap(args => {
-                    if (!args.concId) {
-                        return this.loadConcordance(state, args.lemma, subcName, args.queryId);
-                    }
-                    return rxOf<[ConcResponse, DataFetchArgsOwn]>([
+    private loadConcordance(state:TimeDistribModelState, lemmaVariant:LemmaVariant, subcnames:Array<string>,
+            queryId:number):Observable<[ConcResponse, DataFetchArgs]> {
+        return rxOf<string>(...subcnames).pipe(
+            concatMap(
+                subcname => callWithExtraVal(
+                    this.concApi,
+                    this.concApi.stateToArgs(
                         {
-                            query: '',
-                            corpName: state.corpname,
-                            subcorpName: subcName,
-                            lines: [],
-                            concsize: 0,
-                            arf: 0,
-                            ipm: 0,
-                            messages: [],
-                            concPersistenceID: args.concId
+                            querySelector: QuerySelector.CQL,
+                            corpname: state.corpname,
+                            otherCorpname: undefined,
+                            subcname: subcname,
+                            subcDesc: null,
+                            kwicLeftCtx: -1,
+                            kwicRightCtx: 1,
+                            pageSize: 10,
+                            shuffle: false,
+                            attr_vmode: 'mouseover',
+                            viewMode: ViewMode.KWIC,
+                            tileId: this.tileId,
+                            attrs: [],
+                            metadataAttrs: [],
+                            queries: [],
+                            posQueryGenerator: state.posQueryGenerator,
+                            concordances: createInitialLinesData(this.lemmas.length)
                         },
-                        {
-                            corpName: state.corpname,
-                            subcName: subcName,
-                            concId: args.concId,
-                            queryId: args.queryId,
-                            origQuery: ''
-                        }
-                    ]);
-                }),
-                concatMap(
-                    ([concResp, args]) => {
-                        args.concId = concResp.concPersistenceID;
-                        if (args.concId) {
-                            return callWithExtraVal(
-                                this.api,
-                                {
-                                    corpName: state.corpname,
-                                    subcorpName: args.subcName,
-                                    concIdent: `~${args.concId}`
-                                },
-                                args
-                            );
-
-                        } else {
-                            return rxOf<[TimeDistribResponse, DataFetchArgsOwn]>([
-                                {
-                                    corpName: state.corpname,
-                                    subcorpName: args.subcName,
-                                    concPersistenceID: null,
-                                    data: []
-                                },
-                                args
-                            ]);
-                        }
+                        lemmaVariant,
+                        queryId,
+                        null
+                    ),
+                    {
+                        corpName: state.corpname,
+                        subcName: subcname,
+                        concId: null,
+                        queryId: queryId,
+                        origQuery: mkMatchQuery(lemmaVariant, state.posQueryGenerator)
                     }
-                ),
-                share()
+                )
             )
+        );
+    }
 
-        ).forEach(resp => {
-            this.getFreqs(resp, dispatch);
-            this.handleFinish(state, resp, dispatch);
-        });
+    private loadData(state:TimeDistribModelState, dispatch:SEDispatcher, subcNames:Array<string>, lemmaVariant:Observable<{queryId:number; lemma:LemmaVariant; concId:string;}>):void {
+        const resp = lemmaVariant.pipe(
+            concatMap(args => {
+                if (!args.concId) {
+                    return this.loadConcordance(state, args.lemma, subcNames, args.queryId);
+                }
+                return rxOf<[ConcResponse, DataFetchArgs]>([
+                    {
+                        query: '',
+                        corpName: state.corpname,
+                        subcorpName: subcNames[0],
+                        lines: [],
+                        concsize: 0,
+                        arf: 0,
+                        ipm: 0,
+                        messages: [],
+                        concPersistenceID: args.concId
+                    },
+                    {
+                        corpName: state.corpname,
+                        subcName: subcNames[0],
+                        concId: args.concId,
+                        queryId: args.queryId,
+                        origQuery: mkMatchQuery(args.lemma, state.posQueryGenerator)
+                    }
+                ]);
+            }),
+            concatMap(
+                ([concResp, args]) => {
+                    args.concId = concResp.concPersistenceID;
+                    if (args.concId) {
+                        return callWithExtraVal(
+                            this.api,
+                            {
+                                corpName: state.corpname,
+                                subcorpName: args.subcName,
+                                concIdent: `~${args.concId}`
+                            },
+                            args
+                        );
+
+                    } else {
+                        return rxOf<[TimeDistribResponse, DataFetchArgs]>([
+                            {
+                                corpName: state.corpname,
+                                subcorpName: args.subcName,
+                                concPersistenceID: null,
+                                data: []
+                            },
+                            args
+                        ]);
+                    }
+                }
+            )
+        );
+        this.getFreqs(resp, dispatch);
     }
 }

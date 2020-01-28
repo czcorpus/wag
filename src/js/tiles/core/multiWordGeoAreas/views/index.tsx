@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
 import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 import { fromEvent } from 'rxjs';
@@ -27,22 +26,28 @@ import { GlobalComponents, TooltipValues } from '../../../../views/global';
 import { ActionName, Actions } from '../actions';
 import { MultiWordGeoAreasModel, MultiWordGeoAreasModelState } from '../model';
 import { LemmaVariant } from '../../../../common/query';
+import * as C from '../../../../common/collections';
 
 
 export interface TargetDataRow extends DataRow {
     target: number;
 }
 
-const groupData = (data:Immutable.List<Immutable.List<DataRow>>):[Immutable.Seq.Keyed<string, Immutable.Iterable<number, TargetDataRow>>, Immutable.Iterable<string, number>, Immutable.Iterable<string, number>] => {
-    const groupedData = data.flatMap((targetData, queryId) =>
-        targetData.map(item => ({
-            ...item,
-            target: queryId
-        } as TargetDataRow))
-    ).groupBy(item => item['name']);
-    const groupedIpmNorms = groupedData.map(data => data.reduce((acc, curr) => acc + curr.ipm, 0));
-    const groupedAreaAbsFreqs = groupedData.map(data => data.reduce((acc, curr) => acc + curr.freq, 0));
-    return [groupedData, groupedIpmNorms, groupedAreaAbsFreqs]
+const groupData = (data:Array<Array<DataRow>>):[{[area:string]:Array<TargetDataRow>}, {[area:string]:number}, {[area:string]:number}] => {
+    const groupedData = C.groupBy(
+        C.flatMapList(
+            data,
+            (targetData, queryId) =>
+                targetData.map(item => ({
+                ...item,
+                target: queryId
+            } as TargetDataRow))
+        ),
+        item => item['name']
+    );
+    const groupedIpmNorms = C.dictFromList(groupedData.map(([area, data]) => [area, data.reduce((acc, curr) => acc + curr.ipm, 0)]));
+    const groupedAreaAbsFreqs = C.dictFromList(groupedData.map(([area, data]) => [area, data.reduce((acc, curr) => acc + curr.freq, 0)]));
+    return [C.dictFromList(groupedData), groupedIpmNorms, groupedAreaAbsFreqs]
 }
 
 const createSVGElement = (parent:Element, name:string, attrs:{[name:string]:string}):SVGElement => {
@@ -108,7 +113,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         return chart;
     }
 
-    const createSVGPieChart = (parent:Element, areaIpmNorm:number, areaData:Immutable.Iterable<number, TargetDataRow>, radius:number):SVGElement => {
+    const createSVGPieChart = (parent:Element, areaIpmNorm:number, areaData:Array<TargetDataRow>, radius:number):SVGElement => {
         const chart = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         const pieSlices = createSVGElement(chart, 'g', {});
         const pieText = createSVGElement(chart, 'g', {});
@@ -170,8 +175,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // -------------- <DataTable /> ---------------------------------------------
 
     const DataTable:React.SFC<{
-        data:Immutable.List<Immutable.List<DataRow>>;
-        lemmas:Immutable.List<LemmaVariant>;
+        data:Array<Array<DataRow>>;
+        lemmas:Array<LemmaVariant>;
     }> = (props) => {
         const [groupedAreaData, groupedAreaIpmNorms, groupedAreaAbsFreqs] = groupData(props.data);
         return (
@@ -180,32 +185,42 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <tr>
                         <th rowSpan={2}>{ut.translate('multi_word_geolocations__table_heading_area')}</th>
                         <th colSpan={2}>{ut.translate('multi_word_geolocations__table_heading_total_occurrence')}</th>
-                        {props.data.map((targetData, target) => <th key={target} colSpan={2}>{ut.translate('multi_word_geolocations__table_heading_occurrence_of_{word}', {word: props.lemmas.get(target).word})}</th>)}
+                        {props.data.map((targetData, target) => <th key={target} colSpan={2}>
+                            {ut.translate('multi_word_geolocations__table_heading_occurrence_of_{word}',
+                                {word: props.lemmas[target].word})}</th>)}
                     </tr>
                     <tr>
                         <th key={`totalIpm`}>{ut.translate('multi_word_geolocations__table_heading_freq_rel')}</th>
                         <th key={`totalAbs`}>{ut.translate('multi_word_geolocations__table_heading_freq_abs')}</th>
-                        {props.data.flatMap((targetData, target) => [
-                            <th key={`${target}Ipm`}>{ut.translate('multi_word_geolocations__table_heading_freq_rel')}</th>,
-                            <th key={`${target}Abs`}>{ut.translate('multi_word_geolocations__table_heading_freq_abs')}</th>
-                        ])}
+                        {(props.data[0] || []).map(dataBlock => {
+                            <>
+                                <th key={`${dataBlock.name}Ipm`}>{ut.translate('multi_word_geolocations__table_heading_freq_rel')}</th>
+                                <th key={`${dataBlock.name}Abs`}>{ut.translate('multi_word_geolocations__table_heading_freq_abs')}</th>
+                            </>
+                        })}
                     </tr>
                 </thead>
                 <tbody>
-                    {groupedAreaData.sortBy((rows, area) => area, (a, b) => a.localeCompare(b)).entrySeq().map(([area, rows]) =>
+                    {C.dictToList(groupedAreaData).sort(([area1,], [area2,]) => area1.localeCompare(area2)).map(([area, rows]) =>
                         <tr key={area}>
                             <td key={area}>{area}</td>
-                            <td key={`${area}Ipm`} className="num">{groupedAreaIpmNorms.get(area).toFixed(2)}</td>
-                            <td key={`${area}Abs`} className="num">{groupedAreaAbsFreqs.get(area)}</td>
-                            {props.data.flatMap((targetData, target) => {
+                            <td key={`${area}Ipm`} className="num">{groupedAreaIpmNorms[area].toFixed(2)}</td>
+                            <td key={`${area}Abs`} className="num">{groupedAreaAbsFreqs[area]}</td>
+                            {props.data.map((targetData, target) => {
                                 const row = rows.find(row => row.target === target);
-                                return row ? [
-                                    <td key={`${area}${target}Ipm`} className="num">{row.ipm}<br/>({(100*row.ipm/groupedAreaIpmNorms.get(area)).toFixed(2)}%)</td>,
-                                    <td key={`${area}${target}Abs`} className="num">{row.freq}</td>
-                                ] : [
-                                    <td key={`${area}${target}Ipm`}></td>,
-                                    <td key={`${area}${target}Abs`}></td>
-                                ]
+                                return row ?
+                                    <>
+                                        <td key={`${area}${target}Ipm`} className="num">
+                                            {row.ipm}
+                                            <br />
+                                            ({(100 * row.ipm / groupedAreaIpmNorms[area]).toFixed(2)}%)
+                                        </td>
+                                        <td key={`${area}${target}Abs`} className="num">{row.freq}</td>
+                                    </> :
+                                    <>
+                                        <td key={`${area}${target}Ipm`}></td>
+                                        <td key={`${area}${target}Abs`}></td>
+                                    </>
                             })}
                         </tr>
                     )}
@@ -216,10 +231,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -----------------
 
-    const drawLabels = (tileId:number, areaCodeMapping:Immutable.Map<string, string>, data: Immutable.List<Immutable.List<DataRow>>, frequencyDisplayLimit: number) => {
+    const drawLabels = (tileId:number, areaCodeMapping:{[key:string]:string}, data:Array<Array<DataRow>>, frequencyDisplayLimit: number) => {
         const [groupedAreaData, groupedAreaIpmNorms, groupedAreaAbsFreqs] = groupData(data);
-        const maxIpmNorm = groupedAreaIpmNorms.valueSeq().max();
-        const minIpmNorm = groupedAreaIpmNorms.valueSeq().min();
+        const maxIpmNorm = Math.max(...C.dictToList(groupedAreaIpmNorms).map(([, v]) => v));
+        const minIpmNorm = Math.min(...C.dictToList(groupedAreaIpmNorms).map(([, v]) => v));
 
         // clear possible previous labels
         document.querySelectorAll('#svg-graph-p g.label-mount').forEach(elm => {
@@ -228,19 +243,19 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             }
         });
         // insert data
-        groupedAreaData.forEach((areaData, areaName) => {
-            const ident = areaCodeMapping.get(areaName);
+        C.dictForEach(groupedAreaData, (areaData, areaName) => {
+            const ident = areaCodeMapping[areaName];
             if (ident) {
                 const element = document.getElementById(`${ident}-g`);
                 if (element) {
-                    if (groupedAreaAbsFreqs.get(areaName) < frequencyDisplayLimit) {
+                    if (groupedAreaAbsFreqs[areaName] < frequencyDisplayLimit) {
                         const emptyCircle = createSVGEmptyCircle(
                             element,
                             150
                         );
                         emptyCircle.setAttribute('transform', `scale(0.75 0.75)`);
                     } else {
-                        const areaIpmNorm = groupedAreaIpmNorms.get(areaName)
+                        const areaIpmNorm = groupedAreaIpmNorms[areaName];
                         const pieChart = createSVGPieChart(
                             element,
                             areaIpmNorm,
@@ -273,7 +288,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 });
                             });
                         // scaling pie chart according to relative ipm norm
-                        const scale = 0.75 + ((areaIpmNorm - minIpmNorm)/(maxIpmNorm - minIpmNorm))/2;
+                        const scale = 0.75 + ((areaIpmNorm - minIpmNorm)/(maxIpmNorm - minIpmNorm)) / 2;
                         pieChart.setAttribute('transform', `scale(${scale} ${scale})`);
                     }
                 }
@@ -329,13 +344,13 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     class MultiWordGeoAreasTileView extends React.PureComponent<MultiWordGeoAreasModelState & CoreTileComponentProps> {
 
         componentDidMount() {
-            if (this.props.data.some(v => v.size > 0)) {
+            if (this.props.data.some(v => v.length > 0)) {
                 drawLabels(this.props.tileId, this.props.areaCodeMapping, this.props.data, this.props.frequencyDisplayLimit);
             }
         }
 
         componentDidUpdate(prevProps) {
-            if (this.props.data.some(v => v.size > 0) && (prevProps.data !== this.props.data || prevProps.isAltViewMode !== this.props.isAltViewMode ||
+            if (this.props.data.some(v => v.length > 0) && (prevProps.data !== this.props.data || prevProps.isAltViewMode !== this.props.isAltViewMode ||
                         prevProps.renderSize !== this.props.renderSize)) {
                 drawLabels(this.props.tileId, this.props.areaCodeMapping, this.props.data, this.props.frequencyDisplayLimit);
             }
@@ -345,7 +360,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             const areaWidth = this.props.widthFract > 2 && !this.props.isMobile ? '90%' : '100%';
             return (
                 <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
-                        hasData={this.props.data.some(v => v.size > 0)}
+                        hasData={this.props.data.some(v => v.length > 0)}
                         sourceIdent={{corp: this.props.corpname}}
                         supportsTileReload={this.props.supportsReloadOnError}
                         issueReportingUrl={this.props.issueReportingUrl}>

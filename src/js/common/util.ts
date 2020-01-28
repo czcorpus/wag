@@ -58,15 +58,6 @@ export function puid():string {
 }
 
 
-export function repeat<T>(fn:()=>T, size:number):Array<T> {
-    const ans:Array<T> = [];
-    for (let i = 0; i < size; i += 1) {
-        ans.push(fn());
-    }
-    return ans;
-}
-
-
 export function calcPercentRatios<T, U>(values:Array<T>, get:(v:T)=>number, trans:(v:T, ratio:number)=>U):Array<U> {
     const sum = values.reduce((acc, curr) => acc + get(curr), 0);
     const mod = values

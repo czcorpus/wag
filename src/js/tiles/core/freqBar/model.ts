@@ -15,8 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
-import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
+import { Action, StatelessModel, IActionQueue } from 'kombo';
 import { Observable, Observer } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 
@@ -29,6 +28,7 @@ import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../
 import { ConcLoadedPayload } from '../concordance/actions';
 import { ActionName, Actions, DataLoadedPayload } from './actions';
 import { callWithExtraVal } from '../../../common/api/util';
+import * as C from '../../../common/collections';
 
 
 
@@ -60,17 +60,17 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState> {
 
     protected readonly tileId:number;
 
-    protected waitForTiles:Immutable.Map<number, boolean>;
+    protected waitForTiles:{[tileId:string]:boolean};
 
-    protected subqSourceTiles:Immutable.Set<number>;
+    protected subqSourceTiles:{[tileId:string]:boolean};
 
     private readonly backlink:Backlink|null;
 
-    constructor({dispatcher, tileId, waitForTiles, subqSourceTiles, appServices, api, backlink, initState}) {
+    constructor({dispatcher, tileId, waitForTiles, subqSourceTiles, appServices, api, backlink, initState}:FreqBarModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
-        this.waitForTiles = Immutable.Map<number, boolean>(waitForTiles.map(v => [v, false]));
-        this.subqSourceTiles = Immutable.Set<number>(subqSourceTiles);
+        this.waitForTiles = C.dictFromList(waitForTiles.map(v => [v.toFixed(), false]));
+        this.subqSourceTiles = C.dictFromList(subqSourceTiles.map(v => [v.toFixed(), true]));
         this.appServices = appServices;
         this.api = api;
         this.backlink = backlink;
@@ -98,17 +98,17 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState> {
                 state.error = null;
             },
             (state, action, dispatch) => {
-                this.waitForTiles = this.waitForTiles.map(_ => true).toMap();
+                this.waitForTiles = C.dictMap(this.waitForTiles, _ => true);
                 this.suspend((action:Action) => {
-                    if (action.name === GlobalActionName.TileDataLoaded && this.waitForTiles.has(action.payload['tileId'])) {
+                    if (action.name === GlobalActionName.TileDataLoaded && this.waitForTiles[action.payload['tileId']] !== undefined) {
                         const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
-                        this.waitForTiles = this.waitForTiles.set(payload.tileId, false);
+                        this.waitForTiles[payload.tileId.toFixed()] = false;
                         new Observable((observer:Observer<number>) => {
                             if (action.error) {
                                 observer.error(new Error(this.appServices.translate('global__failed_to_obtain_required_data')));
 
                             } else {
-                                state.fcrit.keySeq().forEach(critIdx => observer.next(critIdx));
+                                state.fcrit.forEach((_, critIdx) => observer.next(critIdx));
                                 observer.complete();
                             }
                         }).pipe(
@@ -147,7 +147,7 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState> {
                                 });
                             }
                         );
-                        return !this.waitForTiles.contains(true);
+                        return !C.dictHasValue(this.waitForTiles, true);
                     }
                     return false;
                 });
@@ -164,31 +164,32 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState> {
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     if (action.error) {
-                        state.blocks = Immutable.List<FreqDataBlock<DataRow>>(state.fcrit.map((_, i) => ({
-                            data: Immutable.List<FreqDataBlock<DataRow>>(),
+                        state.blocks = state.fcrit.map((_, i) => ({
+                            data: [],
                             ident: puid(),
-                            label: action.payload.blockLabel ? action.payload.blockLabel : state.critLabels.get(i),
+                            label: this.appServices.importExternalMessage(action.payload.blockLabel ? action.payload.blockLabel : state.critLabels[i]),
                             isReady: true
-                        })));
+                        }));
                         state.error = action.error.message;
                         state.isBusy = false;
 
                     } else {
-                        state.blocks = state.blocks.set(
-                            action.payload.critIdx,
-                            {
-                                data: action.payload.block ?
-                                    Immutable.List<DataRow>(action.payload.block.data.map(v => ({
-                                        name: this.appServices.translateDbValue(state.corpname, v.name),
-                                        freq: v.freq,
-                                        ipm: v.ipm
-                                    }))) : null,
-                                ident: puid(),
-                                label: this.appServices.importExternalMessage(
-                                    action.payload.blockLabel ? action.payload.blockLabel : state.critLabels.get(action.payload.critIdx)),
-                                isReady: true
-                            }
-                        );
+                        state.blocks[action.payload.critIdx] = {
+                            data: action.payload.block ?
+                                action.payload.block.data.map(v => ({
+                                    name: this.appServices.translateDbValue(state.corpname, v.name),
+                                    freq: v.freq,
+                                    ipm: v.ipm,
+                                    norm: v.norm
+                                })) : null,
+                            ident: puid(),
+                            label: this.appServices.importExternalMessage(
+                                action.payload.blockLabel ?
+                                    action.payload.blockLabel :
+                                    state.critLabels[action.payload.critIdx]
+                            ),
+                            isReady: true
+                        };
                         state.isBusy = state.blocks.some(v => !v.isReady);
                         state.backlink = createBackLink(state, this.backlink, action.payload.concId);
                     }

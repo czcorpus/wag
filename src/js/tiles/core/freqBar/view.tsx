@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
 import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
@@ -26,6 +25,7 @@ import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
 import { GlobalComponents } from '../../../views/global';
 import { ActionName, Actions } from './actions';
 import { FreqBarModel, FreqBarModelState } from './model';
+import { listMaxItem, flatMapList } from '../../../common/collections';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:FreqBarModel):TileComponent {
@@ -36,7 +36,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // ------- <ChartWrapper /> ---------------------------------------------------
 
     const ChartWrapper:React.SFC<{
-        data:Immutable.List<DataRow>;
+        data:Array<DataRow>;
         width:string|number;
         height:string|number;
         isMobile:boolean;
@@ -44,7 +44,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     }> = (props) => {
         if (props.isMobile) {
             return (
-                <BarChart data={props.data.toArray()}
+                <BarChart data={props.data}
                         width={typeof props.width === 'string' ? parseInt(props.width) : props.width}
                         height={typeof props.height === 'string' ? parseInt(props.height) : props.height}
                         layout="vertical"
@@ -56,7 +56,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         } else {
             return (
                 <ResponsiveContainer width={props.width} height={props.height}>
-                    <BarChart data={props.data.toArray()} layout="vertical">
+                    <BarChart data={props.data} layout="vertical">
                         {props.children}
                     </BarChart>
                 </ResponsiveContainer>
@@ -67,7 +67,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // -------------- <TableView /> -------------------------------------
 
     const TableView:React.SFC<{
-        data:Immutable.List<DataRow>;
+        data:Array<DataRow>;
     }> = (props) => {
         return (
             <table className="data">
@@ -94,18 +94,18 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // -------------------------- <Chart /> --------------------------------------
 
     const Chart:React.SFC<{
-        data:Immutable.List<DataRow>;
+        data:Array<DataRow>;
         width:string|number;
         height:string|number;
         isMobile:boolean;
 
     }> = (props) => {
-        const maxLabelWidth = props.data.max((v1, v2) => v1.name.length - v2.name.length).name.length;
+        const maxLabelWidth = listMaxItem(props.data, v => v.name.length).name.length;
         return (
             <div className="Chart">
                 <ChartWrapper data={props.data} isMobile={props.isMobile} width={props.width} height={props.height}>
                     <CartesianGrid />
-                    <Bar data={props.data.toArray()} dataKey="ipm" fill={theme.barColor(0)} isAnimationActive={false}
+                    <Bar data={props.data} dataKey="ipm" fill={theme.barColor(0)} isAnimationActive={false}
                             name={ut.translate('freqBar__rel_freq')} />
                     <XAxis type="number" />
                     <YAxis type="category" dataKey="name" width={Math.max(60, maxLabelWidth * 8)} />
@@ -146,7 +146,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
 
         render() {
-            const chartsViewBoxWidth = this.props.isMobile ? '100%' : `${100 / this.props.blocks.size}%`;
+            const chartsViewBoxWidth = this.props.isMobile ? '100%' : `${100 / this.props.blocks.length}%`;
             return (
                 <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.blocks.find(v => v.isReady) !== undefined}
@@ -156,7 +156,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         issueReportingUrl={this.props.issueReportingUrl}>
                     <div className="FreqBarTile">
                         {this.props.isAltViewMode ?
-                            this.props.blocks.flatMap((block, blockId) => [
+                            flatMapList(this.props.blocks, (block, blockId) => [
                                 <h3 key={'h' + blockId} style={{textAlign: 'center'}}>{block.label}</h3>,
                                 <TableView key={'t' + blockId} data={block.data}/>
                             ]) :
@@ -167,8 +167,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                         return  (
                                             <div key={block.ident} style={{width: chartsViewBoxWidth, height: "100%"}}>
                                                 <h3>{block.label}</h3>
-                                                {block.data.size > 0 ?
-                                                    <Chart data={block.data} width={chartWidth} height={70 + block.data.size * 40}
+                                                {block.data.length > 0 ?
+                                                    <Chart data={block.data} width={chartWidth} height={70 + block.data.length * 40}
                                                             isMobile={this.props.isMobile} /> :
                                                     <p className="note" style={{textAlign: 'center'}}>No result</p>
                                                 }
@@ -176,9 +176,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                         );
                                         })}
                                 </div>
-                                {this.props.isMobile && this.props.blocks.size > 1 ?
+                                {this.props.isMobile && this.props.blocks.length > 1 ?
                                     <globComponents.HorizontalBlockSwitch htmlClass="ChartSwitch"
-                                            blockIndices={this.props.blocks.map((_, i) => i).toList()}
+                                            blockIndices={this.props.blocks.map((_, i) => i)}
                                             currentIdx={this.props.activeBlock}
                                             onChange={this.handleDotClick} /> :
                                     null

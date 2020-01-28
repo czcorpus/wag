@@ -17,11 +17,9 @@
  */
 import { Action } from 'kombo';
 import { CorpSrchTileConf } from '../../../common/tile';
-import * as Immutable from 'immutable';
 
 
 export enum ActionName {
-    PartialDataLoaded = 'MULTI_WORD_TIME_DISTRIB_PARTIAL_DATA_LOADED',
     ChangeTimeWindow = 'MULTI_WORD_TIME_DISTRIB_CHANGE_TIME_WINDOW',
     ChangeUnits = 'MULTI_WORD_TIME_DISTRIB_CHANGE_UNITS'
 }
@@ -45,7 +43,7 @@ export interface TimeDistTileConf extends CorpSrchTileConf {
 
 }
 
-export type LemmaData = Immutable.List<DataItemWithWCI>
+export type LemmaData = Array<DataItemWithWCI>;
 
 export interface DataItemWithWCI {
     datetime:string;
@@ -55,26 +53,23 @@ export interface DataItemWithWCI {
     ipmInterval:[number, number];
 }
 
-export interface PartialDataLoadedPayload {
+export interface DataLoadedPayload {
     tileId:number;
-    data:Array<DataItemWithWCI>;
     queryId:number;
-    concId:string;
-    origQuery:string; // in case we generate our own concordance (and not reusing one from a different tile)
-    subcname:string;
+    origQuery:string;
+    data:Array<DataItemWithWCI>;
+    isLast:boolean;
 }
 
-// this is to allow other tiles to use this one as source of concordances - ConcLoadedPayload
-export interface LoadFinishedPayload {
-    concPersistenceIDs:Array<string>;
-    corpusName:string;
+export interface DataFetchArgs {
+    corpName:string;
+    subcName:string;
+    concId:string;
+    queryId:number;
+    origQuery:string;
 }
 
 export namespace Actions {
-
-    export interface PartialDataLoaded extends Action<PartialDataLoadedPayload> {
-        name:ActionName.PartialDataLoaded;
-    }
 
     export interface ChangeTimeWindow extends Action<{
         tileId:number;

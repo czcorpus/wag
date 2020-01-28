@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
 import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer } from 'recharts';
@@ -27,6 +26,7 @@ import { ActionName } from './actions';
 import { FreqDataBlock } from '../../../common/models/freq';
 import { DataRow } from '../../../common/api/kontext/freqs';
 import { FreqBarModel, FreqBarModelState } from '../freqBar/model';
+import { flatMapList } from '../../../common/collections';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:FreqBarModel):TileComponent {
@@ -35,10 +35,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     const catList = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
     const colorPalette = theme.categoryPalette(catList);
 
-    const createColorMapping = (blocks:Immutable.List<FreqDataBlock<DataRow>>):{[v:string]:string} => {
+    const createColorMapping = (blocks:Array<FreqDataBlock<DataRow>>):{[v:string]:string} => {
         const ans = {};
         let i = 0;
-        blocks.flatMap(block => block.data).forEach(item => {
+        flatMapList(blocks, block => block.data).forEach(item => {
             if (ans[item.name] === undefined) {
                 ans[item.name] = colorPalette(`${i % catList.length}`);
                 i += 1;
@@ -77,7 +77,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // -------------- <TableView /> -------------------------------------
 
     const TableView:React.SFC<{
-        data:Immutable.List<DataRow>;
+        data:Array<DataRow>;
     }> = (props) => {
         return (
             <table className="data">
@@ -104,7 +104,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // ------- <Chart /> ---------------------------------------------------
 
     const Chart:React.SFC<{
-        data:Immutable.List<DataRow>;
+        data:Array<DataRow>;
         width:string;
         height:number;
         radius:number;
@@ -127,7 +127,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         return (
             <ChartWrapper isMobile={props.isMobile} width={props.width} height={props.height}>
                 <Pie
-                        data={props.data.toArray()}
+                        data={props.data}
                         dataKey="ipm"
                         labelLine={false}
                         label={renderCustomizedLabel}
@@ -165,7 +165,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             }
         };
 
-        const chartsViewBoxWidth = props.isMobile ? '100%' : `${100 / props.blocks.size}%`;
+        const chartsViewBoxWidth = props.isMobile ? '100%' : `${100 / props.blocks.length}%`;
 
         let paletteFn:(item:DataRow, i:number)=>string;
         if (props.subqSyncPalette) {
@@ -178,14 +178,14 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         return (
             <globalComponents.TileWrapper tileId={props.tileId} isBusy={props.isBusy} error={props.error}
-                    hasData={props.blocks.find(v => v.isReady && v.data.size > 0) !== undefined}
+                    hasData={props.blocks.find(v => v.isReady && v.data.length > 0) !== undefined}
                     sourceIdent={{corp: props.corpname}}
                     backlink={props.backlink}
                     supportsTileReload={props.supportsReloadOnError}
                     issueReportingUrl={props.issueReportingUrl}>
-                <div className="FreqPieTileView">                    
+                <div className="FreqPieTileView">
                     {props.isAltViewMode ?
-                        props.blocks.flatMap((block, blockId) => [
+                        flatMapList(props.blocks, (block, blockId) => [
                             <h3 key={'h' + blockId} style={{textAlign: 'center'}}>{block.label}</h3>,
                             <TableView key={'t' + blockId} data={block.data}/>
                         ]) :
@@ -204,8 +204,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                     );
                                 })}
                             </div>
-                            {props.isMobile && props.blocks.size > 1 ?
-                                <globalComponents.HorizontalBlockSwitch blockIndices={props.blocks.map((_, i) => i).toList()}
+                            {props.isMobile && props.blocks.length > 1 ?
+                                <globalComponents.HorizontalBlockSwitch blockIndices={props.blocks.map((_, i) => i)}
                                         currentIdx={props.activeBlock}
                                         onChange={handleDotClick} /> :
                                 null

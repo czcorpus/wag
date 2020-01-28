@@ -150,9 +150,9 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                     if (action.error) {
                         console.error(action.error);
                         state.frequencyTree = state.fcritTrees.map(_ => ({
-                            data: Immutable.Map(),
+                            data: {},
                             ident: puid(),
-                            label: '',
+                            label: '`',
                             isReady: true
                         }) as FreqTreeDataBlock);
                         state.error = action.error.message;

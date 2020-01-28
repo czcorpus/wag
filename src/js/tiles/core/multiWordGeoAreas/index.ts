@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
 import { IActionDispatcher, StatelessModel } from 'kombo';
 
 import { AppServices } from '../../../appServices';
@@ -83,10 +82,10 @@ export class MultiWordGeoAreasTile implements ITileProvider {
             {
                 isBusy: isBusy,
                 error: null,
-                areaCodeMapping: Immutable.Map<string, string>(conf.areaCodeMapping),
+                areaCodeMapping: {...conf.areaCodeMapping},
                 mapSVG: '',
                 tooltipArea: null,
-                data: Immutable.List(lemmas.map(_ => Immutable.List<DataRow>())),
+                data: lemmas.map(_ => []),
                 corpname: conf.corpname,
                 concId: null,
                 fcrit: conf.fcrit,
@@ -98,7 +97,7 @@ export class MultiWordGeoAreasTile implements ITileProvider {
                 fmaxitems: 100,
                 isAltViewMode: false,
                 posQueryGenerator: conf.posQueryGenerator,
-                currentLemmas: Immutable.List(lemmas.map(lemma => findCurrLemmaVariant(lemma)))
+                currentLemmas: lemmas.map(lemma => findCurrLemmaVariant(lemma))
             }
         );
         this.label = appServices.importExternalMessage(conf.label || 'geolocations__main_label');

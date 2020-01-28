@@ -80,10 +80,10 @@ export class GeoAreasTile implements ITileProvider {
             {
                 isBusy: isBusy,
                 error: null,
-                areaCodeMapping: Immutable.Map<string, string>(conf.areaCodeMapping),
+                areaCodeMapping: {...conf.areaCodeMapping},
                 mapSVG: '',
                 tooltipArea: null,
-                data: Immutable.List<DataRow>(),
+                data: [],
                 corpname: conf.corpname,
                 concId: null,
                 fcrit: conf.fcrit,

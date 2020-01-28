@@ -197,7 +197,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         supportsTileReload={this.props.supportsReloadOnError}
                         issueReportingUrl={this.props.issueReportingUrl}>
                     <div className="FreqComparisonTile">
-                        {this.props.isAltViewMode ? 
+                        {this.props.isAltViewMode ?
                             this.props.blocks.filter(block => block.isReady).map(block => {
                                 return <div key={`${block.label}Wrapper`} className="table">
                                     <h3 key={`${block.label}Heading`} style={{textAlign: 'center'}}>{block.label}</h3>
@@ -222,7 +222,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         }
                         {this.props.isMobile && this.props.blocks.length > 1 && !this.props.isAltViewMode ?
                             <globComponents.HorizontalBlockSwitch htmlClass="ChartSwitch"
-                                    blockIndices={Immutable.List(this.props.blocks.map((_, i) => i))}
+                                    blockIndices={this.props.blocks.map((_, i) => i)}
                                     currentIdx={this.props.activeBlock}
                                     onChange={this.handleDotClick} /> :
                             null

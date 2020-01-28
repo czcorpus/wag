@@ -15,8 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
-
 import { AppServices } from '../../../appServices';
 import { MultiBlockFreqDistribAPI, FreqSort, DataRow } from '../../../common/api/kontext/freqs';
 import { FreqDataBlock, SubqueryModeConf } from '../../../common/models/freq';
@@ -95,15 +93,17 @@ export class FreqPieTile implements ITileProvider {
             {
                 isBusy: isBusy,
                 error: null,
-                blocks: Immutable.List<FreqDataBlock<DataRow>>(criteria.map(v => ({
-                    data: Immutable.List<DataRow>(),
-                    ident: puid()
-                }))),
+                blocks: criteria.map(v => ({
+                    data: [],
+                    ident: puid(),
+                    label: '',
+                    isReady: false
+                })),
                 activeBlock: 0,
                 corpname: conf.corpname,
                 concId: null,
-                fcrit: Immutable.List<string>(criteria),
-                critLabels: Immutable.List<string>(labels),
+                fcrit: criteria,
+                critLabels: labels,
                 flimit: conf.flimit,
                 freqSort: conf.freqSort,
                 fpage: conf.fpage,

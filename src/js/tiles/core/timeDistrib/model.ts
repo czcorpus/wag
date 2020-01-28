@@ -15,10 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
 import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { Observable, Observer, of as rxOf } from 'rxjs';
-import { concatMap, map } from 'rxjs/operators';
+import { concatMap, map, mergeMap, scan, reduce } from 'rxjs/operators';
 
 import { AppServices } from '../../../appServices';
 import { ConcApi, QuerySelector, mkMatchQuery } from '../../../common/api/kontext/concordance';
@@ -30,13 +29,14 @@ import { GeneralSingleCritFreqBarModelState } from '../../../common/models/freq'
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { findCurrLemmaVariant } from '../../../models/query';
 import { ConcLoadedPayload } from '../concordance/actions';
-import { DataItemWithWCI, DataLoadedPayload, SubchartID } from './common';
+import { DataItemWithWCI, SubchartID, DataLoadedPayload } from './common';
 import { AlphaLevel, wilsonConfInterval } from '../../../common/statistics';
 import { Actions, ActionName } from './common';
 import { callWithExtraVal } from '../../../common/api/util';
 import { LemmaVariant, RecognizedQueries } from '../../../common/query';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { HTTPMethod } from '../../../common/types';
+import { dictFromList, dictToList } from '../../../common/collections';
 
 
 export const enum FreqFilterQuantity {
@@ -66,12 +66,12 @@ export interface BacklinkArgs {
 }
 
 export interface TimeDistribModelState extends GeneralSingleCritFreqBarModelState<DataItemWithWCI> {
-    subcnames:Immutable.List<string>;
+    subcnames:Array<string>;
     subcDesc:string;
     alphaLevel:AlphaLevel;
     posQueryGenerator:[string, string];
     isTweakMode:boolean;
-    dataCmp:Immutable.List<DataItemWithWCI>;
+    dataCmp:Array<DataItemWithWCI>;
     wordCmp:string;
     wordCmpInput:string;
     wordMainLabel:string; // a copy from mainform state used to attach a legend
@@ -90,10 +90,6 @@ interface DataFetchArgsOwn {
     targetId:SubchartID;
     concId:string;
     origQuery:string;
-}
-
-function isDataFetchArgsOwn(v:DataFetchArgsOwn|DataFetchArgsForeignConc): v is DataFetchArgsOwn {
-    return v['origQuery'] !== undefined;
 }
 
 interface DataFetchArgsForeignConc {
@@ -137,7 +133,6 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private readonly backlink:Backlink;
 
-    private unfinishedChunks:Immutable.Map<string, boolean>; // subcname => done
 
     constructor({dispatcher, initState, tileId, waitForTile, api,
                 concApi, appServices, lemmas, queryLang, backlink}) {
@@ -150,86 +145,128 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         this.lemmas = lemmas;
         this.queryLang = queryLang;
         this.backlink = backlink;
-        this.unfinishedChunks = Immutable.Map<string, boolean>(initState.subcnames.flatMap(
-                v => Immutable.List([[this.mkChunkId(v, SubchartID.MAIN), false], [this.mkChunkId(v, SubchartID.SECONDARY), false]])));
 
-        this.actionMatch = {
-            [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
-                this.unfinishedChunks = this.mapChunkStatusOf(v => true).toMap();
-                const newState = this.copyState(state);
-                newState.data = Immutable.List<DataItemWithWCI>();
-                newState.isBusy = true;
-                newState.error = null;
-                return newState;
+        this.addActionHandler<GlobalActions.RequestQueryResponse>(
+            GlobalActionName.RequestQueryResponse,
+            (state, action) => {
+                state.data = [];
+                state.isBusy = true;
+                state.error = null;
             },
-            [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<DataLoadedPayload>) => {
+            (state, action, dispatch) => {
+                this.loadData(
+                    state,
+                    dispatch,
+                    SubchartID.MAIN,
+                    rxOf(findCurrLemmaVariant(this.lemmas[0]))
+                );
+            }
+        );
+        this.addActionHandler<GlobalActions.TileDataLoaded<DataLoadedPayload>>(
+            GlobalActionName.TileDataLoaded,
+            (state, action) => {
                 if (action.payload.tileId === this.tileId) {
-                    const newState = this.copyState(state);
-                    const prevData = this.getDataOf(newState, action.payload.subchartId);
-                    let newData:Immutable.List<DataItemWithWCI>;
+                    if (action.payload.isLast) {
+                        state.isBusy = false;
+                    }
                     if (action.error) {
-                        this.unfinishedChunks = this.mapChunkStatusOf((v, k) => false, action.payload.subchartId).toMap();
-                        newData = Immutable.List<DataItemWithWCI>();
-                        newState.error = action.error.message;
-                        newState.isBusy = false;
+                        state.data = [];
+                        state.dataCmp = [];
+                        state.error = action.error.message;
 
                     } else {
-                        if (action.payload.subchartId === SubchartID.MAIN) {
-                            newState.wordMainLabel = action.payload.wordMainLabel;
+                        if (action.payload.data) {
+                            state.data = this.mergeChunks(state.data, action.payload.data, state.alphaLevel);
+
+                        } else if (action.payload.dataCmp) {
+                            state.data = this.mergeChunks(state.dataCmp, action.payload.dataCmp, state.alphaLevel);
                         }
-                        newData = this.mergeChunks(
-                            prevData,
-                            Immutable.List<DataItemWithWCI>(action.payload.data),
-                            state.alphaLevel
-                        );
-                        this.unfinishedChunks = this.unfinishedChunks.set(this.mkChunkId(action.payload.subcname, action.payload.subchartId), false);
-                        if (!this.hasUnfinishedChunks(action.payload.subchartId)) {
-                            newState.isBusy = false;
+                        if (action.payload.wordMainLabel) {
+                            state.wordMainLabel = action.payload.wordMainLabel;
                         }
                     }
-                    this.setDataOf(newState, action.payload.subchartId, newData);
-                    newState.backlink = this.createBackLink(newState, action.payload.concId, action.payload.origQuery);
-                    return newState;
-                }
-                return state;
-            },
-            [GlobalActionName.EnableTileTweakMode]: (state, action:GlobalActions.EnableTileTweakMode) => {
-                if (action.payload.ident === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isTweakMode = true;
-                    return newState;
-                }
-                return state;
-            },
-            [GlobalActionName.DisableTileTweakMode]: (state, action:GlobalActions.DisableTileTweakMode) => {
-                if (action.payload.ident === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isTweakMode = false;
-                    return newState;
-                }
-                return state;
-            },
-            [ActionName.ChangeCmpWord]: (state, action:Actions.ChangeCmpWord) => {
-                if (action.payload.tileId === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.wordCmpInput = action.payload.value;
-                    return newState;
-                }
-                return state;
-
-            },
-            [ActionName.SubmitCmpWord]: (state, action:Actions.SubmitCmpWord) => {
-                if (action.payload.tileId === this.tileId) {
-                    this.unfinishedChunks = this.mapChunkStatusOf(v => true).toMap();
-                    const newState = this.copyState(state);
-                    newState.isBusy = true;
-                    newState.wordCmp = newState.wordCmpInput.trim();
-                    newState.dataCmp = newState.dataCmp.clear();
-                    return newState;
+                    // TODO backlink !!!
+                    // state.backlink = this.createBackLink(newState, action.payload.concId, action.payload.origQuery);
                 }
                 return state;
             }
-        };
+        );
+
+        this.addActionHandler<GlobalActions.EnableTileTweakMode>(
+            GlobalActionName.EnableTileTweakMode,
+            (state, action) => {
+                if (action.payload.ident === this.tileId) {
+                    state.isTweakMode = true;
+                }
+            }
+        );
+
+        this.addActionHandler<GlobalActions.DisableTileTweakMode>(
+            GlobalActionName.DisableTileTweakMode,
+            (state, action) => {
+                if (action.payload.ident === this.tileId) {
+                    state.isTweakMode = false;
+                }
+            }
+        );
+
+        this.addActionHandler<Actions.ChangeCmpWord>(
+            ActionName.ChangeCmpWord,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {
+                    state.wordCmpInput = action.payload.value;
+                }
+            }
+        );
+
+        this.addActionHandler<Actions.SubmitCmpWord>(
+            ActionName.SubmitCmpWord,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {
+                    state.isBusy = true;
+                    state.wordCmp = state.wordCmpInput.trim();
+                    state.dataCmp = []
+                }
+            },
+            (state, action, dispatch) => {
+                this.loadData(
+                    state,
+                    dispatch,
+                    SubchartID.SECONDARY,
+                    this.appServices.queryLemmaDbApi(this.queryLang, state.wordCmp).pipe(
+                        map(v => v.result[0])
+                    )
+                );
+            }
+        );
+
+        this.addActionHandler(
+            GlobalActionName.GetSourceInfo,
+            (state, action) => state,
+            (state, action, dispatch) => {
+                if (action.payload['tileId'] === this.tileId) {
+                    this.api.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), action.payload['corpusId'])
+                    .subscribe(
+                        (data) => {
+                            dispatch({
+                                name: GlobalActionName.GetSourceInfoDone,
+                                payload: {
+                                    data: data
+                                }
+                            });
+                        },
+                        (err) => {
+                            console.error(err);
+                            dispatch({
+                                name: GlobalActionName.GetSourceInfoDone,
+                                error: err
+
+                            });
+                        }
+                    );
+                }
+            }
+        );
     }
 
     private createBackLink(state:TimeDistribModelState, concId:string, origQuery:string):BacklinkWithArgs<BacklinkArgs> {
@@ -254,88 +291,70 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             null;
     }
 
-    private mkChunkId(subcname:string, subchartId:SubchartID):string {
-        return `${subchartId}:${subcname}`;
-    }
-
-    private getDataOf(state:TimeDistribModelState, subchartId:SubchartID):Immutable.List<DataItemWithWCI> {
-        return subchartId === SubchartID.MAIN ? state.data : state.dataCmp;
-    }
-
-    private setDataOf(state:TimeDistribModelState, subchartId:SubchartID, data:Immutable.List<DataItemWithWCI>):void {
-        if (subchartId === SubchartID.MAIN) {
-            state.data = data;
-
-        } else {
-            state.dataCmp = data;
-        }
-    }
-
-    private mapChunkStatusOf(mapFn:((v:boolean, k:string) => boolean), subchartId?:SubchartID):Immutable.Map<string, boolean> {
-        return this.unfinishedChunks.map((v, k) => (subchartId && k.startsWith(subchartId) || !subchartId) ? mapFn(v, k) : v).toMap();
-    }
-
-    private hasUnfinishedChunks(subchartId:SubchartID):boolean {
-        return this.unfinishedChunks.filter((v, k) => k.startsWith(subchartId)).includes(true);
-    }
-
-    private mergeChunks(currData:Immutable.List<DataItemWithWCI>, newChunk:Immutable.List<DataItemWithWCI>, alphaLevel:AlphaLevel):Immutable.List<DataItemWithWCI> {
-        return newChunk.reduce(
+    private mergeChunks(currData:Array<DataItemWithWCI>, newChunk:Array<DataItemWithWCI>, alphaLevel:AlphaLevel):Array<DataItemWithWCI> {
+        return dictToList(newChunk.reduce(
             (acc, curr) => {
-                if (acc.has(curr.datetime)) {
-                    const tmp = acc.get(curr.datetime);
+                if (acc[curr.datetime] !== undefined) {
+                    const tmp = acc[curr.datetime];
                     tmp.freq += curr.freq;
                     tmp.datetime = curr.datetime;
                     tmp.norm += curr.norm;
                     tmp.ipm = calcIPM(tmp, tmp.norm);
                     const confInt = wilsonConfInterval(tmp.freq, tmp.norm, alphaLevel);
                     tmp.ipmInterval = [roundFloat(confInt[0] * 1e6), roundFloat(confInt[1] * 1e6)];
-                    return acc.set(tmp.datetime, tmp);
+                    acc[tmp.datetime] = tmp;
+                    return acc;
 
                 } else {
                     const confInt = wilsonConfInterval(curr.freq, curr.norm, alphaLevel);
-                    return acc.set(curr.datetime, {
+                    acc[curr.datetime] = {
                         datetime: curr.datetime,
                         freq: curr.freq,
                         norm: curr.norm,
                         ipm: calcIPM(curr, curr.norm),
                         ipmInterval: [roundFloat(confInt[0] * 1e6), roundFloat(confInt[1] * 1e6)]
-                    });
+                    };
+                    return acc;
                 }
             },
-            Immutable.Map<string, DataItemWithWCI>(currData.map(v => [v.datetime, v]))
+            dictFromList(currData.map(v => [v.datetime, v] as [string, DataItemWithWCI]))
 
-        ).sort((x1, x2) => parseInt(x1.datetime) - parseInt(x2.datetime)).toList();
+        )).map(([,v]) => v).sort((x1, x2) => parseInt(x1.datetime) - parseInt(x2.datetime));
     }
 
 
     private getFreqs(response:Observable<[TimeDistribResponse, DataFetchArgsOwn|DataFetchArgsForeignConc]>, seDispatch:SEDispatcher) {
-        response.subscribe(
-            data => {
-                const [resp, args] = data;
-
-                const dataFull = resp.data.map<DataItemWithWCI>(v => {
-                    return {
+        response.pipe(
+            map(
+                ([resp, args]) => {
+                    const dataFull = resp.data.map<DataItemWithWCI>(v => ({
                         datetime: v.datetime,
                         freq: v.freq,
                         norm: v.norm,
                         ipm: -1,
                         ipmInterval: [-1, -1]
-                    };
-                });
+                    }));
+                    if (args.targetId === SubchartID.MAIN) {
+                        return {
+                            tileId: this.tileId,
+                            data: dataFull,
+                            wordMainLabel: args.wordMainLabel
+                        };
 
+                    } else if (args.targetId === SubchartID.SECONDARY) {
+                        return {
+                            tileId: this.tileId,
+                            dataCmp: dataFull
+                        };
+                    }
+                    return {tileId: this.tileId};
+                }
+            ),
+        ).subscribe(
+            data => {
                 seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
                     name: GlobalActionName.TileDataLoaded,
-                    payload: {
-                        tileId: this.tileId,
-                        subchartId: args.targetId,
-                        isEmpty: dataFull.length === 0,
-                        data: dataFull,
-                        subcname: resp.subcorpName,
-                        concId: resp.concPersistenceID,
-                        origQuery: isDataFetchArgsOwn(args) ? args.origQuery : '',
-                        wordMainLabel: args.wordMainLabel
-                    }
+                    payload: {...data, isLast: false, isEmpty: data.data.length > 0}
                 });
             },
             error => {
@@ -344,64 +363,83 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     name: GlobalActionName.TileDataLoaded,
                     payload: {
                         tileId: this.tileId,
-                        subchartId: null,
-                        isEmpty: true,
-                        data: null,
-                        subcname: null,
-                        concId: null,
-                        origQuery: null,
-                        wordMainLabel: null
+                        data: [],
+                        dataCmp: [],
+                        wordMainLabel: '??',
+                        isLast: false,
+                        isEmpty: true
                     },
                     error: error
                 });
             }
         );
+        response.pipe(
+            reduce(
+                (acc, [v,]) => acc || v.data.length > 0,
+                true
+            )
+        ).subscribe(
+            (isEmpty) => {
+                seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                    name: GlobalActionName.TileDataLoaded,
+                    payload:{
+                        tileId: this.tileId,
+                        isEmpty: isEmpty,
+                        isLast: true
+                    }
+                });
+            }
+        );
     }
 
-    private loadConcordance(state:TimeDistribModelState, lemmaVariant:LemmaVariant, subcname:string,
+    private loadConcordance(state:TimeDistribModelState, lemmaVariant:LemmaVariant, subcnames:Array<string>,
             target:SubchartID):Observable<[ConcResponse, DataFetchArgsOwn]> {
-        return callWithExtraVal(
-            this.concApi,
-            this.concApi.stateToArgs(
-                {
-                    querySelector: QuerySelector.CQL,
-                    corpname: state.corpname,
-                    otherCorpname: undefined,
-                    subcname: subcname,
-                    subcDesc: null,
-                    kwicLeftCtx: -1,
-                    kwicRightCtx: 1,
-                    pageSize: 10,
-                    concordances: [{
-                        concsize: -1,
-                        numPages: -1,
-                        resultARF: -1,
-                        resultIPM: -1,
-                        currPage: 1,
-                        loadPage: 1,
+        return rxOf(...subcnames).pipe(
+            mergeMap(
+                (subcname) => callWithExtraVal(
+                    this.concApi,
+                    this.concApi.stateToArgs(
+                        {
+                            querySelector: QuerySelector.CQL,
+                            corpname: state.corpname,
+                            otherCorpname: undefined,
+                            subcname: subcname,
+                            subcDesc: null,
+                            kwicLeftCtx: -1,
+                            kwicRightCtx: 1,
+                            pageSize: 10,
+                            concordances: [{
+                                concsize: -1,
+                                numPages: -1,
+                                resultARF: -1,
+                                resultIPM: -1,
+                                currPage: 1,
+                                loadPage: 1,
+                                concId: null,
+                                lines: []
+                            }],
+                            shuffle: false,
+                            attr_vmode: 'mouseover',
+                            viewMode: ViewMode.KWIC,
+                            tileId: this.tileId,
+                            attrs: ['word'],
+                            metadataAttrs: [],
+                            posQueryGenerator: state.posQueryGenerator,
+                            queries: []
+                        },
+                        lemmaVariant,
+                        0,
+                        null
+                    ),
+                    {
                         concId: null,
-                        lines: []
-                    }],
-                    shuffle: false,
-                    attr_vmode: 'mouseover',
-                    viewMode: ViewMode.KWIC,
-                    tileId: this.tileId,
-                    attrs: ['word'],
-                    metadataAttrs: [],
-                    posQueryGenerator: state.posQueryGenerator,
-                    queries: []
-                },
-                lemmaVariant,
-                0,
-                null
-            ),
-            {
-                concId: null,
-                subcName: subcname,
-                wordMainLabel: lemmaVariant.lemma,
-                targetId: target,
-                origQuery: mkMatchQuery(lemmaVariant, state.posQueryGenerator)
-            }
+                        subcName: subcname,
+                        wordMainLabel: lemmaVariant.lemma,
+                        targetId: target,
+                        origQuery: mkMatchQuery(lemmaVariant, state.posQueryGenerator)
+                    }
+                )
+            )
         );
     }
 
@@ -433,7 +471,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                             this.api,
                             {
                                 corpName: state.corpname,
-                                subcorpName: state.subcnames.get(0),
+                                subcorpName: state.subcnames[0],
                                 concIdent: `~${args.concId}`
                             },
                             args
@@ -446,115 +484,63 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             });
 
         } else { // here we must create our own concordance(s) if needed
-            state.subcnames.toArray().map(subcname =>
-                lemmaVariant.pipe(
-                    concatMap((lv:LemmaVariant) => {
-                        if (lv) {
-                            return this.loadConcordance(state, lv, subcname, target);
-                        }
-                        return rxOf<[ConcResponse, DataFetchArgsOwn]>([
-                            {
-                                query: '',
-                                corpName: state.corpname,
-                                subcorpName: subcname,
-                                lines: [],
-                                concsize: 0,
-                                arf: 0,
-                                ipm: 0,
-                                messages: [],
-                                concPersistenceID: null
-                            },
-                            {
-                                concId: null,
-                                subcName: subcname,
-                                wordMainLabel: '',
-                                targetId: target,
-                                origQuery: ''
-                            }
-                        ]);
-                    }),
-                    concatMap(
-                        (data) => {
-                            const [concResp, args] = data;
-                            args.concId = concResp.concPersistenceID;
-                            if (args.concId) {
-                                return callWithExtraVal(
-                                    this.api,
-                                    {
-                                        corpName: state.corpname,
-                                        subcorpName: args.subcName,
-                                        concIdent: `~${args.concId}`
-                                    },
-                                    args
-                                );
-
-                            } else {
-                                return rxOf<[TimeDistribResponse, DataFetchArgsOwn]>([
-                                    {
-                                        corpName: state.corpname,
-                                        subcorpName: args.subcName,
-                                        concPersistenceID: null,
-                                        data: []
-                                    },
-                                    args
-                                ]);
-                            }
-                        }
-                    )
-                )
-
-            ).forEach(resp => {
-                this.getFreqs(resp, dispatch);
-            });
-        }
-    }
-
-    sideEffects(state:TimeDistribModelState, action:Action, dispatch:SEDispatcher):void {
-        switch (action.name) {
-            case GlobalActionName.RequestQueryResponse: {
-                this.loadData(
-                    state,
-                    dispatch,
-                    SubchartID.MAIN,
-                    rxOf(findCurrLemmaVariant(this.lemmas[0]))
-                );
-            }
-            break;
-            case ActionName.SubmitCmpWord: {
-                this.loadData(
-                    state,
-                    dispatch,
-                    SubchartID.SECONDARY,
-                    this.appServices.queryLemmaDbApi(this.queryLang, state.wordCmp).pipe(
-                        map(v => v.result[0])
-                    )
-                );
-            }
-            break;
-            case GlobalActionName.GetSourceInfo:
-                if (action.payload['tileId'] === this.tileId) {
-                    this.api.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), action.payload['corpusId'])
-                    .subscribe(
-                        (data) => {
-                            dispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
-                                payload: {
-                                    data: data
-                                }
-                            });
+            const data = lemmaVariant.pipe(
+                concatMap((lv:LemmaVariant) => {
+                    if (lv) {
+                        return this.loadConcordance(state, lv, state.subcnames, target);
+                    }
+                    return rxOf<[ConcResponse, DataFetchArgsOwn]>([
+                        {
+                            query: '',
+                            corpName: state.corpname,
+                            subcorpName: state.subcnames[0],
+                            lines: [],
+                            concsize: 0,
+                            arf: 0,
+                            ipm: 0,
+                            messages: [],
+                            concPersistenceID: null
                         },
-                        (err) => {
-                            console.error(err);
-                            dispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
-                                error: err
-
-                            });
+                        {
+                            concId: null,
+                            subcName: state.subcnames[0],
+                            wordMainLabel: '',
+                            targetId: target,
+                            origQuery: ''
                         }
-                    );
-                }
-            break;
+                    ]);
+                }),
+                concatMap(
+                    (data) => {
+                        const [concResp, args] = data;
+                        args.concId = concResp.concPersistenceID;
+                        if (args.concId) {
+                            return callWithExtraVal(
+                                this.api,
+                                {
+                                    corpName: state.corpname,
+                                    subcorpName: args.subcName,
+                                    concIdent: `~${args.concId}`
+                                },
+                                args
+                            );
+
+                        } else {
+                            return rxOf<[TimeDistribResponse, DataFetchArgsOwn]>([
+                                {
+                                    corpName: state.corpname,
+                                    subcorpName: args.subcName,
+                                    concPersistenceID: null,
+                                    data: []
+                                },
+                                args
+                            ]);
+                        }
+                    }
+                )
+            );
+
+            this.getFreqs(data, dispatch);
         }
     }
-
 }
