@@ -18,7 +18,7 @@
  */
 import { SEDispatcher, StatelessModel, IActionQueue, Action } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
-import { concatMap, reduce, map } from 'rxjs/operators';
+import { concatMap, reduce, map, tap } from 'rxjs/operators';
 
 import { AppServices } from '../../../appServices';
 import { ConcApi, QuerySelector, mkMatchQuery } from '../../../common/api/kontext/concordance';
@@ -277,13 +277,31 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     queryId: args.queryId,
                     origQuery: args.origQuery
                 };
-            })
-
+            }),
+            tap(
+                data => {
+                    seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                        name: GlobalActionName.TileDataLoaded,
+                        payload: { ... data, isEmpty: data.data.length === 0}
+                    });
+                }
+            ),
+            reduce(
+                (acc, v) => acc && v.data.length === 0,
+                true
+            )
         ).subscribe(
-            data => {
+            (isEmpty) => {
                 seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
                     name: GlobalActionName.TileDataLoaded,
-                    payload: { ... data, isEmpty: data.data.length === 0}
+                    payload:{
+                        tileId: this.tileId,
+                        isEmpty: isEmpty,
+                        isLast: true,
+                        queryId: -1,
+                        data: [],
+                        origQuery: ''
+                    }
                 });
             },
             error => {
@@ -299,27 +317,6 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         origQuery: ''
                     },
                     error: error
-                });
-            }
-        );
-
-        response.pipe(
-            reduce(
-                (acc, [v,]) => acc || v.data.length > 0,
-                true
-            )
-        ).subscribe(
-            (isEmpty) => {
-                seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                    name: GlobalActionName.TileDataLoaded,
-                    payload:{
-                        tileId: this.tileId,
-                        isEmpty: isEmpty,
-                        isLast: true,
-                        queryId: -1,
-                        data: [],
-                        origQuery: ''
-                    }
                 });
             }
         );
