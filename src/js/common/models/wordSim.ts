@@ -17,6 +17,7 @@
  */
 import * as Immutable from 'immutable';
 import { WordSimWord } from '../api/abstract/wordSim';
+import { LemmaVariant } from '../query';
 
 export enum OperationMode {
     MeansLike = 'ml',
@@ -35,7 +36,8 @@ export interface WordSimModelState {
     error:string;
     maxResultItems:number;
     minScore:number;
-    data:Immutable.List<WordSimWord>;
+    data:Array<Immutable.List<WordSimWord>>;
     operationMode:OperationMode;
     corpus:string;
+    lemmas:Array<LemmaVariant>;
 }

@@ -24,7 +24,10 @@ import { ActionName, Actions } from './actions';
 import { findCurrLemmaVariant } from '../../../models/query';
 import { WordSimApi, WordSimWord } from '../../../common/api/abstract/wordSim';
 import { WordSimModelState } from '../../../common/models/wordSim';
-import { RecognizedQueries } from '../../../common/query';
+import { LemmaVariant } from '../../../common/query';
+import { Observable, Observer } from 'rxjs';
+import { mergeMap } from 'rxjs/operators';
+import { callWithExtraVal } from '../../../common/api/util';
 
 
 export interface WordSimModelArgs {
@@ -32,7 +35,6 @@ export interface WordSimModelArgs {
     initState:WordSimModelState;
     tileId:number;
     api:WordSimApi<{}>;
-    lemmas:RecognizedQueries;
 }
 
 
@@ -42,13 +44,10 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
 
     private readonly api:WordSimApi<{}>;
 
-    private readonly lemmas:RecognizedQueries;
-
-    constructor({dispatcher, initState, tileId, api, lemmas}:WordSimModelArgs) {
+    constructor({dispatcher, initState, tileId, api}:WordSimModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.api = api;
-        this.lemmas = lemmas;
 
         this.addActionHandler<GlobalActions.EnableTileTweakMode>(
             GlobalActionName.EnableTileTweakMode,
@@ -98,11 +97,12 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = false;
                     if (action.error) {
-                        state.data = Immutable.List<WordSimWord>();
+                        state.data = state.lemmas.map(_ => null);
                         state.error = action.error.message;
 
                     } else {
-                        state.data = Immutable.List<WordSimWord>(action.payload.words);
+                        state.data[action.payload.queryId] = Immutable.List<WordSimWord>(action.payload.words);
+                        
                     }
                 }
             }
@@ -113,7 +113,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = true;
                     state.operationMode = action.payload.value;
-                    state.data = Immutable.List<WordSimWord>();
+                    state.data = state.lemmas.map(_ => null);
                 }
             },
             (state, action, seDispatch) => {
@@ -150,15 +150,26 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
     }
 
     getData(state:WordSimModelState, seDispatch:SEDispatcher):void {
-        this.api.call(
-            this.api.stateToArgs(state, findCurrLemmaVariant(this.lemmas[0]).lemma)
-
+        new Observable((observer:Observer<{queryId:number; lemma:LemmaVariant}>) => {
+            state.lemmas.forEach((lemma, queryId) => {
+                observer.next({queryId: queryId, lemma: lemma});
+            });
+            observer.complete();
+        }).pipe(
+            mergeMap(args =>
+                callWithExtraVal(
+                    this.api,
+                    this.api.stateToArgs(state, args.lemma.lemma),
+                    args
+                )
+            )
         ).subscribe(
-            (data) => {
+            ([data, args]) => {
                 seDispatch<Action<DataLoadedPayload>>({
                     name: GlobalActionName.TileDataLoaded,
                     payload: {
                         tileId: this.tileId,
+                        queryId: args.queryId,
                         words: data.words,
                         subqueries: data.words.map(v => ({
                             value: {
@@ -178,6 +189,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                     name: GlobalActionName.TileDataLoaded,
                     payload: {
                         tileId: this.tileId,
+                        queryId: null,
                         words: [],
                         subqueries: [],
                         lang1: null,

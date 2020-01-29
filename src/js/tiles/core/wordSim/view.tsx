@@ -65,12 +65,14 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------------------ <AltView /> --------------------------------------------
 
-    const AltView:React.SFC<{
+    const TableView:React.SFC<{
         data:List<WordSimWord>;
+        caption:string;
 
     }> = (props) => {
         return (
             <table className="data">
+            <caption>{props.caption}</caption>
                 <thead>
                     <tr>
                         <th />
@@ -104,22 +106,28 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         return (
             <globalCompontents.TileWrapper tileId={props.tileId} isBusy={props.isBusy} error={props.error}
-                    hasData={props.data.size > 0}
+                    hasData={props.data.some(d => d)}
                     sourceIdent={{corp: null}}
                     supportsTileReload={props.supportsReloadOnError}
                     issueReportingUrl={props.issueReportingUrl}>
                 <div className="WordSimView">
-                    {props.isTweakMode ? <Controls tileId={props.tileId} operationMode={props.operationMode} /> : null }
-                    {props.isAltViewMode ?
-                        <AltView data={props.data} /> :
-                        <globalCompontents.ResponsiveWrapper render={(width:number, height:number) => (
-                            <WordCloud width={width} height={height} data={props.data.toArray()} isMobile={props.isMobile}
-                                            style={props.isMobile ? {height: `${props.data.size * 30}px`} :
-                                                    {height: `${props.data.size * 40}px`, width: '100%'}}
-                                                    font="Roboto Condensed"
-                                                    dataTransform={dataTransform} />)}
-                            />
-                    }
+                    {props.isTweakMode ? <Controls tileId={props.tileId} operationMode={props.operationMode} /> : null}
+                    <div className="boxes">
+                        {props.data.map((data, index) => props.isAltViewMode ? <TableView data={data} caption={props.data.length > 1 ? props.lemmas[index].word : null} /> :
+                        data ?
+                            <globalCompontents.ResponsiveWrapper render={(width:number, height:number) => (
+                                <div className="sim-cloud">
+                                    <h2>{props.data.length > 1 ? `[${index + 1}] ${props.lemmas[index].word}` : null}</h2>
+                                    <WordCloud width={width} height={height} data={data.toArray()} isMobile={props.isMobile}
+                                                    style={props.isMobile ? {height: `${data.size * 30}px`} :
+                                                            {height: `${data.size * 40}px`, width: '100%'}}
+                                                            font="Roboto Condensed"
+                                                            dataTransform={dataTransform} />
+                                </div>
+                            )}/> :
+                            <globalCompontents.ResponsiveWrapper key={`${index}empty`} render={() => data === null ? <p>Processing...</p> : <p>No data</p>} />
+                        )}
+                    </div>
                 </div>
             </globalCompontents.TileWrapper>
         );

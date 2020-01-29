@@ -1,6 +1,52 @@
+@import '../../../../css/shared.less';
+
 .WordSimView {
 
     .Controls {
         margin-bottom: 0.7em;
     }
+
+    .boxes {
+        overflow: auto;
+        display: flex;
+        align-items: stretch;
+        justify-content: space-between;
+        flex-direction: row;
+
+        > .chart {
+            min-width: 50%;
+        }
+
+        > div:not(:last-child) {
+            margin-right: 0.7em;
+        }
+    }
+
+    .sim-cloud {
+
+        h2 {
+            font-weight: normal;
+            font-size: 1.4em;
+            padding-bottom: 0.3em;
+            padding-left: 0.7em;
+            border-color: @color-light-grey;
+            border-style: solid;
+            border-width: 0 0 1px 0;
+        }
+    }
+}
+
+@media screen and (max-width: @media-medium-screen) {
+
+    .WordSimView {
+
+        .boxes {
+
+            > .chart {
+                min-width: initial;
+                width: 100%;
+            }
+        }
+    }
+
 }
