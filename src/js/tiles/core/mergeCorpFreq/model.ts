@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
+import { Action, StatelessModel, IActionQueue } from 'kombo';
 import { forkJoin, Observable, throwError } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, tap, flatMap } from 'rxjs/operators';
 
 import { AppServices } from '../../../appServices';
 import { APIResponse, BacklinkArgs, DataRow, FreqDistribAPI, SingleCritQueryArgs } from '../../../common/api/kontext/freqs';
@@ -28,6 +28,10 @@ import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { ConcLoadedPayload } from '../concordance/actions';
 import { DataLoadedPayload } from './actions';
+import { ConcApi, QuerySelector } from '../../../common/api/kontext/concordance';
+import { LemmaVariant } from '../../../common/query';
+import { ViewMode } from '../../../common/api/abstract/concordance';
+import { createInitialLinesData } from '../../../common/models/concordance';
 
 
 
@@ -66,6 +70,7 @@ export interface ModelSourceArgs {
 
 export interface SourceMappedDataRow extends DataRow {
     sourceId:string;
+    queryId:number;
     error?:Error;
     backlink:BacklinkWithArgs<BacklinkArgs>|null;
 }
@@ -78,6 +83,7 @@ export interface MergeCorpFreqModelState {
     sources:Immutable.List<ModelSourceArgs>;
     pixelsPerItem:number;
     barGap:number;
+    lemmas:Array<LemmaVariant>;
 }
 
 const sourceToAPIArgs = (src:ModelSourceArgs, concId:string):SingleCritQueryArgs => ({
@@ -100,155 +106,45 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
 
     private waitingForTiles:Immutable.Map<number, {corpname:string; concId:string}>; // once not null for a key we know we can start to call freq
 
-    private readonly api:FreqDistribAPI;
+    private readonly concApi:ConcApi;
+
+    private readonly freqApi:FreqDistribAPI;
 
     constructor(dispatcher:IActionQueue, tileId:number, waitForTiles:Array<number>, appServices:AppServices,
-                    api:FreqDistribAPI, initState:MergeCorpFreqModelState) {
+                    concApi:ConcApi, freqApi:FreqDistribAPI, initState:MergeCorpFreqModelState) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.waitingForTiles = Immutable.Map<number, {corpname:string; concId:string}>(waitForTiles.map(v => [v, null]));
         this.appServices = appServices;
-        this.api = api;
-        this.actionMatch = {
-            [GlobalActionName.EnableAltViewMode]: (state, action:GlobalActions.EnableAltViewMode) => {
-                if (action.payload.ident === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isAltViewMode = true;
-                    return newState;
-                }
-                return state;
-            },
-            [GlobalActionName.DisableAltViewMode]: (state, action:GlobalActions.DisableAltViewMode) => {
-                if (action.payload.ident === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isAltViewMode = false;
-                    return newState;
-                }
-                return state;
-            },
-            [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
-                this.waitingForTiles = this.waitingForTiles.map(() => null).toMap();
-                const newState = this.copyState(state);
-                newState.isBusy = true;
-                newState.error = null;
-                return newState;
-            },
-            [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<DataLoadedPayload>) => {
-                if (action.payload.tileId === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isBusy = false;
-                    if (action.error) {
-                        newState.data = Immutable.List<SourceMappedDataRow>();
-                        newState.error = action.error.message;
+        this.concApi = concApi;
+        this.freqApi = freqApi;
 
-                    } else if (action.payload.data.length === 0) {
-                        newState.data = Immutable.List<SourceMappedDataRow>();
-
-                    } else {
-                        newState.data = Immutable.List<SourceMappedDataRow>(action.payload.data);
-                    }
-                    return newState;
+        this.addActionHandler<GlobalActions.EnableAltViewMode>(
+            GlobalActionName.EnableAltViewMode,
+            (state, action) => {
+                if (action.payload.ident === this.tileId) {
+                    state.isAltViewMode = true;
                 }
-                return state;
             }
-        }
-    }
-
-    private createBackLink(source:ModelSourceArgs, concId:string):BacklinkWithArgs<BacklinkArgs> {
-        return source.backlinkTpl ?
-            {
-                url: source.backlinkTpl.url,
-                method: source.backlinkTpl.method || HTTPMethod.GET,
-                label: source.backlinkTpl.label,
-                args: {
-                    corpname: source.corpname,
-                    usesubcorp: null,
-                    q: `~${concId}`,
-                    fcrit: [source.fcrit],
-                    flimit: source.flimit,
-                    freq_sort: source.freqSort,
-                    fpage: source.fpage,
-                    ftt_include_empty: source.fttIncludeEmpty ? 1 : 0
-                }
-            } :
-            null;
-    }
-
-    private loadFreqs(state:MergeCorpFreqModelState):Observable<Array<SourceMappedDataRow>> {
-        const streams$ = state.sources.map<Observable<[APIResponse, string]>>(src => {
-            const srchKey = this.waitingForTiles.findKey(v => v && v.corpname === src.corpname);
-            return srchKey !== undefined ?
-                callWithExtraVal(
-                    this.api,
-                    sourceToAPIArgs(src, this.waitingForTiles.get(srchKey).concId),
-                    src.uuid
-                ) :
-                throwError(new Error(`Cannot find concordance result for ${src.corpname}. Passing an empty stream.`));
-        }).toArray();
-
-        return forkJoin(...streams$).pipe(
-            map((partials:Array<[APIResponse, string]>) => {
-                return partials.reduce<Array<SourceMappedDataRow>>((acc, curr) => {
-                    const [resp, reqId] = curr;
-                    const srcConf = state.sources.find(v => v.uuid === reqId);
-                    const dataNorm:Array<DataRow> = srcConf.isSingleCategory ?
-                        [resp.data.reduce(
-                            (acc, curr) => ({
-                                name: '',
-                                freq: acc.freq + curr.freq,
-                                ipm: undefined,
-                                norm: undefined,
-                                order: undefined
-
-                            }),
-                            {
-                                name: '',
-                                freq: 0,
-                                ipm: undefined,
-                                norm: undefined,
-                                order: undefined
-                            }
-                        )] :
-                        resp.data;
-                    return acc.concat(
-                        (dataNorm.length > 0 ?
-                            dataNorm :
-                            [{name: srcConf.valuePlaceholder, freq: 0, ipm: 0, norm: 0}]
-                        ).map(
-                            v => {
-                                const name = srcConf.valuePlaceholder ?
-                                srcConf.valuePlaceholder :
-                                this.appServices.translateDbValue(resp.corpname, v.name);
-
-                                return v.ipm ?
-                                    {
-                                        sourceId: srcConf.uuid,
-                                        backlink: this.createBackLink(srcConf, resp.concId),
-                                        freq: v.freq,
-                                        ipm: v.ipm,
-                                        norm: v.norm,
-                                        name: name
-                                    } :
-                                    {
-                                        sourceId: srcConf.uuid,
-                                        backlink: this.createBackLink(srcConf, resp.concId),
-                                        freq: v.freq,
-                                        ipm: Math.round(v.freq / srcConf.corpusSize * 1e8) / 100,
-                                        norm: v.norm,
-                                        name: name
-                                    };
-                                }
-                        ));
-                    },
-                    []
-                );
-            })
         );
-    }
 
-    sideEffects(state:MergeCorpFreqModelState, action:Action, dispatch:SEDispatcher):void {
-        switch (action.name) {
-            case GlobalActionName.RequestQueryResponse:
+        this.addActionHandler<GlobalActions.DisableAltViewMode>(
+            GlobalActionName.DisableAltViewMode,
+            (state, action) => {
+                if (action.payload.ident === this.tileId) {
+                    state.isAltViewMode = false;
+                }
+            }
+        );
+
+        this.addActionHandler<GlobalActions.RequestQueryResponse>(
+            GlobalActionName.RequestQueryResponse,
+            (state, action) => {
+                this.waitingForTiles = this.waitingForTiles.map(() => null).toMap();
+                state.isBusy = true;
+                state.error = null;
+            },
+            (state, action, dispatch) => {
                 this.suspend((action:Action) => {
                     if (action.name === GlobalActionName.TileDataLoaded && this.waitingForTiles.has(action.payload['tileId'])) {
                         if (action.error) {
@@ -303,10 +199,34 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                     }
                     return false;
                 });
-            break;
-            case GlobalActionName.GetSourceInfo:
+            }
+        );
+
+        this.addActionHandler<GlobalActions.TileDataLoaded<DataLoadedPayload>>(
+            GlobalActionName.TileDataLoaded,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {
+                    state.isBusy = false;
+                    if (action.error) {
+                        state.data = Immutable.List<SourceMappedDataRow>();
+                        state.error = action.error.message;
+
+                    } else if (action.payload.data.length === 0) {
+                        state.data = Immutable.List<SourceMappedDataRow>();
+
+                    } else {
+                        state.data = Immutable.List<SourceMappedDataRow>(action.payload.data);
+                    }
+                }
+            }
+        );
+
+        this.addActionHandler<GlobalActions.GetSourceInfo>(
+            GlobalActionName.GetSourceInfo,
+            (state, action) => {},
+            (state, action, dispatch) => {
                 if (action.payload['tileId'] === this.tileId) {
-                    this.api.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), action.payload['corpusId'])
+                    this.freqApi.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), action.payload['corpusId'])
                     .subscribe(
                         (data) => {
                             dispatch({
@@ -326,8 +246,153 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                         }
                     );
                 }
-            break;
-        }
+            }
+        );
     }
 
+    private createBackLink(source:ModelSourceArgs, concId:string):BacklinkWithArgs<BacklinkArgs> {
+        return source.backlinkTpl ?
+            {
+                url: source.backlinkTpl.url,
+                method: source.backlinkTpl.method || HTTPMethod.GET,
+                label: source.backlinkTpl.label,
+                args: {
+                    corpname: source.corpname,
+                    usesubcorp: null,
+                    q: `~${concId}`,
+                    fcrit: [source.fcrit],
+                    flimit: source.flimit,
+                    freq_sort: source.freqSort,
+                    fpage: source.fpage,
+                    ftt_include_empty: source.fttIncludeEmpty ? 1 : 0
+                }
+            } :
+            null;
+    }
+
+    private loadConcordances(state:MergeCorpFreqModelState) {
+        return state.sources.flatMap(source =>
+            state.lemmas.map((lemma, queryId) =>
+                this.concApi.call(
+                    this.concApi.stateToArgs(
+                        {
+                            querySelector: QuerySelector.CQL,
+                            corpname: source.corpname,
+                            otherCorpname: undefined,
+                            subcname: null,
+                            subcDesc: null,
+                            kwicLeftCtx: -1,
+                            kwicRightCtx: 1,
+                            pageSize: 10,
+                            shuffle: false,
+                            attr_vmode: 'mouseover',
+                            viewMode: ViewMode.KWIC,
+                            tileId: this.tileId,
+                            attrs: [],
+                            metadataAttrs: [],
+                            queries: [],
+                            concordances: createInitialLinesData(state.lemmas.length),
+                            posQueryGenerator: ["tag", "ppTagset"] // TODO configuration
+                        },
+                        lemma,
+                        queryId,
+                        null
+                    )
+                ).pipe(
+                    flatMap(resp =>
+                        callWithExtraVal(
+                            this.freqApi,
+                            sourceToAPIArgs(source, resp.concPersistenceID),
+                            {
+                                sourceId: source.uuid,
+                                queryId: queryId
+                            }
+                        )
+                    )
+                )
+            )
+        ).toArray()
+    }
+
+    private loadFreqs(state:MergeCorpFreqModelState):Observable<Array<SourceMappedDataRow>> {
+        let streams$;
+        if (state.lemmas.length > 1) {
+            streams$ = this.loadConcordances(state);
+        } else {
+            streams$ = state.sources.map<Observable<[APIResponse, {sourceId:string; queryId:number;}]>>(src => {
+                const srchKey = this.waitingForTiles.findKey(v => v && v.corpname === src.corpname);
+                return srchKey !== undefined ?
+                    callWithExtraVal(
+                        this.freqApi,
+                        sourceToAPIArgs(src, this.waitingForTiles.get(srchKey).concId),
+                        {
+                            sourceId: src.uuid,
+                            queryId: 0
+                        }                        
+                    ) :
+                    throwError(new Error(`Cannot find concordance result for ${src.corpname}. Passing an empty stream.`));
+            }).toArray();
+        }        
+
+        return forkJoin(...streams$).pipe(
+            map((partials:Array<[APIResponse, {sourceId:string; queryId:number;}]>) => {
+                return partials.reduce<Array<SourceMappedDataRow>>((acc, curr) => {
+                    const [resp, args] = curr;
+                    const srcConf = state.sources.find(v => v.uuid === args.sourceId);
+                    const dataNorm:Array<DataRow> = srcConf.isSingleCategory ?
+                        [resp.data.reduce(
+                            (acc, curr) => ({
+                                name: '',
+                                freq: acc.freq + curr.freq,
+                                ipm: undefined,
+                                norm: undefined,
+                                order: undefined
+
+                            }),
+                            {
+                                name: '',
+                                freq: 0,
+                                ipm: undefined,
+                                norm: undefined,
+                                order: undefined
+                            }
+                        )] :
+                        resp.data;
+                    return acc.concat(
+                        (dataNorm.length > 0 ?
+                            dataNorm :
+                            [{name: srcConf.valuePlaceholder, freq: 0, ipm: 0, norm: 0}]
+                        ).map(
+                            v => {
+                                const name = srcConf.valuePlaceholder ?
+                                srcConf.valuePlaceholder :
+                                this.appServices.translateDbValue(resp.corpname, v.name);
+
+                                return v.ipm ?
+                                    {
+                                        sourceId: srcConf.uuid,
+                                        queryId: args.queryId,
+                                        backlink: this.createBackLink(srcConf, resp.concId),
+                                        freq: v.freq,
+                                        ipm: v.ipm,
+                                        norm: v.norm,
+                                        name: name
+                                    } :
+                                    {
+                                        sourceId: srcConf.uuid,
+                                        queryId: args.queryId,
+                                        backlink: this.createBackLink(srcConf, resp.concId),
+                                        freq: v.freq,
+                                        ipm: Math.round(v.freq / srcConf.corpusSize * 1e8) / 100,
+                                        norm: v.norm,
+                                        name: name
+                                    };
+                                }
+                        ));
+                    },
+                    []
+                );
+            })
+        );
+    }
 }
