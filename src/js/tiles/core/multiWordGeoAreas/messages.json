@@ -8,7 +8,8 @@
         "multi_word_geolocations__table_heading_occurrence_of_{word}": "Occurrence of \"{word}\"",
         "multi_word_geolocations__table_heading_freq": "Occurrence",
         "multi_word_geolocations__table_heading_freq_abs": "abs.",
-        "multi_word_geolocations__table_heading_freq_rel": "rel. [ipm]"
+        "multi_word_geolocations__table_heading_freq_rel": "rel. [ipm]",
+        "multi_word_geolocations__not_enough_data": "Not enough data"
     },
     "cs-CZ": {
         "multi_word_geolocations__main_label": "Geografické oblasti",
@@ -18,6 +19,7 @@
         "multi_word_geolocations__table_heading_total_occurrence": "Celkový výskyt",
         "multi_word_geolocations__table_heading_occurrence_of_{word}": "Výskyt slova \"{word}\"",
         "multi_word_geolocations__table_heading_freq_abs": "abs.",
-        "multi_word_geolocations__table_heading_freq_rel": "rel. [ipm]"
+        "multi_word_geolocations__table_heading_freq_rel": "rel. [ipm]",
+        "multi_word_geolocations__not_enough_data": "Málo dat pro výpočet"
     }
 }
