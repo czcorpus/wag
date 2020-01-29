@@ -42,6 +42,7 @@ export interface GeoAreasTileConf extends TileConf {
     areaCodeMapping:{[name:string]:string};
     areaDiscFillColor:string;
     areaDiscTextColor:string;
+    frequencyDisplayLimit:number;
 }
 
 
@@ -94,7 +95,8 @@ export class GeoAreasTile implements ITileProvider {
                 fmaxitems: 100,
                 areaDiscFillColor: conf.areaDiscFillColor,
                 areaDiscTextColor: conf.areaDiscTextColor,
-                isAltViewMode: false
+                isAltViewMode: false,
+                frequencyDisplayLimit: conf.frequencyDisplayLimit
             }
         );
         this.label = appServices.importExternalMessage(conf.label || 'geolocations__main_label');

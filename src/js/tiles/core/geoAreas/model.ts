@@ -74,6 +74,7 @@ export interface GeoAreasModelState extends GeneralSingleCritFreqBarModelState<D
     areaDiscFillColor:string;
     areaDiscTextColor:string;
     isAltViewMode:boolean;
+    frequencyDisplayLimit:number;
 }
 
 
@@ -208,7 +209,11 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                     state.tooltipArea = {
                         tooltipX: action.payload.tooltipX,
                         tooltipY: action.payload.tooltipY,
-                        data: {
+                        data : data.freq < state.frequencyDisplayLimit ? {
+                            [this.appServices.translate('geolocations__table_heading_area')]: data.name,
+                            [this.appServices.translate('geolocations__table_heading_ipm')]: this.appServices.translate('geolocations__not_enough_data'),
+                            [this.appServices.translate('geolocations__table_heading_abs')]: data.freq
+                        } : {
                             [this.appServices.translate('geolocations__table_heading_area')]: data.name,
                             [this.appServices.translate('geolocations__table_heading_ipm')]: data.ipm,
                             [this.appServices.translate('geolocations__table_heading_abs')]: data.freq
