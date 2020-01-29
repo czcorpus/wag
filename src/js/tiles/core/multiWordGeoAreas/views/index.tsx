@@ -68,19 +68,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         const chart = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         const circle = createSVGElement(chart, 'g', {});
 
-        createSVGElement(
-            circle,
-            'circle',
-            {
-                'cx': '0',
-                'cy': '0',
-                'r': radius.toString(),
-                'stroke': 'black',
-                'stroke-width': '2',
-                'fill-opacity': '0'
-            }
-        );
-
         const position = radius*Math.sqrt(2)/4
 
         createSVGElement(
@@ -106,6 +93,19 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 'y2': position.toString(),
                 'stroke-width': '2',
                 'stroke': 'black'
+            }
+        );
+
+        createSVGElement(
+            circle,
+            'circle',
+            {
+                'cx': '0',
+                'cy': '0',
+                'r': radius.toString(),
+                'stroke': 'black',
+                'stroke-width': '2',
+                'fill-opacity': '0'
             }
         );
 
@@ -167,6 +167,19 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             );
             text.style.cssText = 'opacity: 1';
             text.textContent = `${ut.formatNumber(ipmFrac * 100, 1)}%`;
+
+            // overlay to improve mouse over behaviour
+            createSVGElement(
+                chart,
+                'circle',
+                {
+                    'cx': '0',
+                    'cy': '0',
+                    'r': radius.toString(),
+                    'fill-opacity': '0',
+                    'stroke-opacity': '0'
+                }
+            );
         })
         parent.appendChild(chart);
         return chart;
