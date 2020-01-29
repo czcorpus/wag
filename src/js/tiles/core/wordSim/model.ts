@@ -17,14 +17,15 @@
  */
 
 import { StatelessModel, IActionDispatcher, Action, SEDispatcher } from 'kombo';
-import * as Immutable from 'immutable';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { DataLoadedPayload } from './actions';
 import { ActionName, Actions } from './actions';
-import { findCurrLemmaVariant } from '../../../models/query';
 import { WordSimApi, WordSimWord } from '../../../common/api/abstract/wordSim';
 import { WordSimModelState } from '../../../common/models/wordSim';
-import { RecognizedQueries } from '../../../common/query';
+import { LemmaVariant } from '../../../common/query';
+import { Observable, Observer } from 'rxjs';
+import { mergeMap } from 'rxjs/operators';
+import { callWithExtraVal } from '../../../common/api/util';
 
 
 export interface WordSimModelArgs {
@@ -32,7 +33,6 @@ export interface WordSimModelArgs {
     initState:WordSimModelState;
     tileId:number;
     api:WordSimApi<{}>;
-    lemmas:RecognizedQueries;
 }
 
 
@@ -42,123 +42,98 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
 
     private readonly api:WordSimApi<{}>;
 
-    private readonly lemmas:RecognizedQueries;
-
-    constructor({dispatcher, initState, tileId, api, lemmas}:WordSimModelArgs) {
+    constructor({dispatcher, initState, tileId, api}:WordSimModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.api = api;
-        this.lemmas = lemmas;
-        this.actionMatch = {
-            [GlobalActionName.EnableTileTweakMode]: (state, action:GlobalActions.EnableTileTweakMode) => {
+
+        this.addActionHandler<GlobalActions.SubqItemHighlighted>(
+            GlobalActionName.SubqItemHighlighted,
+            (state, action) => {
+                state.selectedText = action.payload.text;
+            }
+        );
+        this.addActionHandler<GlobalActions.SubqItemDehighlighted>(
+            GlobalActionName.SubqItemDehighlighted,
+            (state, action) => {
+                state.selectedText = null;
+            }
+        );
+        this.addActionHandler<GlobalActions.EnableTileTweakMode>(
+            GlobalActionName.EnableTileTweakMode,
+            (state, action) => {
                 if (action.payload.ident === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isTweakMode = true;
-                    return newState;
+                    state.isTweakMode = true;
                 }
-                return state;
-            },
-            [GlobalActionName.DisableTileTweakMode]: (state, action:GlobalActions.DisableTileTweakMode) => {
+            }
+        );
+        this.addActionHandler<GlobalActions.DisableTileTweakMode>(
+            GlobalActionName.DisableTileTweakMode,
+            (state, action) => {
                 if (action.payload.ident === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isTweakMode = false;
-                    return newState;
+                    state.isTweakMode = false;
                 }
-                return state;
-            },
-            [GlobalActionName.EnableAltViewMode]: (state, action:GlobalActions.EnableAltViewMode) => {
+            }
+        );
+        this.addActionHandler<GlobalActions.EnableAltViewMode>(
+            GlobalActionName.EnableAltViewMode,
+            (state, action) => {
                 if (action.payload.ident === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isAltViewMode = true;
-                    return newState;
+                    state.isAltViewMode = true;
                 }
-                return state;
-            },
-            [GlobalActionName.DisableAltViewMode]: (state, action:GlobalActions.DisableAltViewMode) => {
+            }
+        );
+        this.addActionHandler<GlobalActions.DisableAltViewMode>(
+            GlobalActionName.DisableAltViewMode,
+            (state, action) => {
                 if (action.payload.ident === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isAltViewMode = false;
-                    return newState;
+                    state.isAltViewMode = false;
                 }
-                return state;
+            }
+        );
+        this.addActionHandler<GlobalActions.RequestQueryResponse>(
+            GlobalActionName.RequestQueryResponse,
+            (state, action) => {
+                state.isBusy = true;
+                state.error = null;
             },
-            [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse)  => {
-                const newState = this.copyState(state);
-                newState.isBusy = true;
-                newState.error = null;
-                return newState;
-            },
-            [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<DataLoadedPayload>) => {
+            (state, action, seDispatch) => {
+                this.getData(state, seDispatch);
+            }
+        );
+        this.addActionHandler<GlobalActions.TileDataLoaded<DataLoadedPayload>>(
+            GlobalActionName.TileDataLoaded,
+            (state, action) => {
                 if (action.payload.tileId === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isBusy = false;
+                    state.isBusy = false;
                     if (action.error) {
-                        newState.data = Immutable.List<WordSimWord>();
-                        newState.error = action.error.message;
+                        state.data = state.lemmas.map(_ => null);
+                        state.error = action.error.message;
 
                     } else {
-                        newState.data = Immutable.List<WordSimWord>(action.payload.words);
+                        state.data[action.payload.queryId] = action.payload.words;
+                        
                     }
-                    return newState;
                 }
-                return state;
-            },
-            [ActionName.SetOperationMode]: (state, action:Actions.SetOperationMode) => {
-                if (action.payload.tileId === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isBusy = true;
-                    newState.operationMode = action.payload.value;
-                    newState.data = Immutable.List<WordSimWord>();
-                    return newState;
-                }
-                return state;
             }
-        }
-    }
-
-    sideEffects(state:WordSimModelState, action:Action, seDispatch:SEDispatcher):void {
-        switch (action.name) {
-            case GlobalActionName.RequestQueryResponse:
-            case ActionName.SetOperationMode:
-                this.api.call(
-                    this.api.stateToArgs(state, findCurrLemmaVariant(this.lemmas[0]).lemma)
-
-                ).subscribe(
-                    (data) => {
-                        seDispatch<Action<DataLoadedPayload>>({
-                            name: GlobalActionName.TileDataLoaded,
-                            payload: {
-                                tileId: this.tileId,
-                                words: data.words,
-                                subqueries: data.words.map(v => ({
-                                    value: {
-                                        value: v.word,
-                                        context: [-5, 5] // TODO
-                                    },
-                                    interactionId: v.interactionId
-                                })),
-                                lang1: null,
-                                lang2: null
-                            }
-                        });
-
-                    },
-                    (err) => {
-                        seDispatch<Action<DataLoadedPayload>>({
-                            name: GlobalActionName.TileDataLoaded,
-                            payload: {
-                                tileId: this.tileId,
-                                words: [],
-                                subqueries: [],
-                                lang1: null,
-                                lang2: null
-                            },
-                            error: err
-                        })
-                    }
-                );
-            break;
-            case GlobalActionName.GetSourceInfo:
+        );
+        this.addActionHandler<Actions.SetOperationMode>(
+            ActionName.SetOperationMode,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {
+                    state.isBusy = true;
+                    state.operationMode = action.payload.value;
+                    state.data = state.lemmas.map(_ => null);
+                }
+            },
+            (state, action, seDispatch) => {
+                this.getData(state, seDispatch);
+            }
+        );
+        this.addActionHandler<GlobalActions.GetSourceInfo>(
+            GlobalActionName.GetSourceInfo,
+            (state, action) => {},
+            (state, action, seDispatch) => {
                 if (action.payload['tileId'] === this.tileId) {
                     this.api.getSourceDescription(this.tileId, state.corpus).subscribe(
                         (data) => {
@@ -180,8 +155,60 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                         }
                     );
                 }
-            break;
-        }
+            }
+        );
+    }
+
+    getData(state:WordSimModelState, seDispatch:SEDispatcher):void {
+        new Observable((observer:Observer<{queryId:number; lemma:LemmaVariant}>) => {
+            state.lemmas.forEach((lemma, queryId) => {
+                observer.next({queryId: queryId, lemma: lemma});
+            });
+            observer.complete();
+        }).pipe(
+            mergeMap(args =>
+                callWithExtraVal(
+                    this.api,
+                    this.api.stateToArgs(state, args.lemma.lemma),
+                    args
+                )
+            )
+        ).subscribe(
+            ([data, args]) => {
+                seDispatch<Action<DataLoadedPayload>>({
+                    name: GlobalActionName.TileDataLoaded,
+                    payload: {
+                        tileId: this.tileId,
+                        queryId: args.queryId,
+                        words: data.words,
+                        subqueries: data.words.map(v => ({
+                            value: {
+                                value: v.word,
+                                context: [-5, 5] // TODO
+                            },
+                            interactionId: v.interactionId
+                        })),
+                        lang1: null,
+                        lang2: null
+                    }
+                });
+
+            },
+            (err) => {
+                seDispatch<Action<DataLoadedPayload>>({
+                    name: GlobalActionName.TileDataLoaded,
+                    payload: {
+                        tileId: this.tileId,
+                        queryId: null,
+                        words: [],
+                        subqueries: [],
+                        lang1: null,
+                        lang2: null
+                    },
+                    error: err
+                })
+            }
+        );
     }
 
 }

@@ -23,6 +23,7 @@ import { OperationMode } from '../../../common/models/wordSim';
 
 export interface DataLoadedPayload extends WordSimSubqueryPayload {
     tileId:number;
+    queryId:number;
     words:Array<WordSimWord>;
 }
 

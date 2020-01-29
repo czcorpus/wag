@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
 import { IActionDispatcher, StatelessModel } from 'kombo';
 
 import { TileConf, ITileProvider, TileFactory, TileComponent } from '../../../common/tile';
@@ -26,6 +25,7 @@ import { QueryType } from '../../../common/query';
 import { createWordSimApiInstance } from './apiFactory';
 import { OperationMode } from '../../../common/models/wordSim';
 import { WordSimApi } from '../../../common/api/abstract/wordSim';
+import { findCurrLemmaVariant } from '../../../models/query';
 
 
 declare var require:(src:string)=>void;  // webpack
@@ -83,15 +83,16 @@ export class WordSimTile implements ITileProvider {
                 isAltViewMode: false,
                 error: null,
                 isTweakMode: false,
-                data: Immutable.List<any>(),
+                data: lemmas.map(_ => null),
                 maxResultItems: conf.maxResultItems,
                 operationMode: OperationMode.MeansLike,
                 corpus: conf.corpname || '',
-                minScore: conf.minScore || 0
+                minScore: conf.minScore || 0,
+                lemmas: lemmas.map(lemma => findCurrLemmaVariant(lemma)),
+                selectedText: null
             },
             tileId,
-            api: this.api,
-            lemmas
+            api: this.api
         });
         this.view = viewInit(dispatcher, ut, theme, this.model);
     }
@@ -114,7 +115,7 @@ export class WordSimTile implements ITileProvider {
     }
 
     supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {
-        return qt === QueryType.SINGLE_QUERY;
+        return qt === QueryType.SINGLE_QUERY || qt === QueryType.CMP_QUERY;
     }
 
     disable():void {
