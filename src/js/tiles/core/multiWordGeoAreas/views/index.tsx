@@ -68,19 +68,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         const chart = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         const circle = createSVGElement(chart, 'g', {});
 
-        createSVGElement(
-            circle,
-            'circle',
-            {
-                'cx': '0',
-                'cy': '0',
-                'r': radius.toString(),
-                'stroke': 'black',
-                'stroke-width': '2',
-                'fill-opacity': '0'
-            }
-        );
-
         const position = radius*Math.sqrt(2)/4
 
         createSVGElement(
@@ -106,6 +93,19 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 'y2': position.toString(),
                 'stroke-width': '2',
                 'stroke': 'black'
+            }
+        );
+
+        createSVGElement(
+            circle,
+            'circle',
+            {
+                'cx': '0',
+                'cy': '0',
+                'r': radius.toString(),
+                'stroke': 'black',
+                'stroke-width': '2',
+                'fill-opacity': '0'
             }
         );
 
@@ -167,6 +167,19 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             );
             text.style.cssText = 'opacity: 1';
             text.textContent = `${ut.formatNumber(ipmFrac * 100, 1)}%`;
+
+            // overlay to improve mouse over behaviour
+            createSVGElement(
+                chart,
+                'circle',
+                {
+                    'cx': '0',
+                    'cy': '0',
+                    'r': radius.toString(),
+                    'fill-opacity': '0',
+                    'stroke-opacity': '0'
+                }
+            );
         })
         parent.appendChild(chart);
         return chart;
@@ -245,53 +258,59 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         // insert data
         Dict.forEach(groupedAreaData, (areaData, areaName) => {
             const ident = areaCodeMapping[areaName];
+            const notEnoughData = groupedAreaAbsFreqs[areaName] < frequencyDisplayLimit;
             if (ident) {
                 const element = document.getElementById(`${ident}-g`);
                 if (element) {
-                    if (groupedAreaAbsFreqs[areaName] < frequencyDisplayLimit) {
-                        const emptyCircle = createSVGEmptyCircle(
+                    let pieChart, areaIpmNorm, scale;
+
+                    if (notEnoughData) {
+                        areaIpmNorm = 0;
+                        scale = 0.75;
+
+                        pieChart = createSVGEmptyCircle(
                             element,
                             150
                         );
-                        emptyCircle.setAttribute('transform', `scale(0.75 0.75)`);
                     } else {
-                        const areaIpmNorm = groupedAreaIpmNorms[areaName];
-                        const pieChart = createSVGPieChart(
+                        areaIpmNorm = groupedAreaIpmNorms[areaName];
+                        scale = 0.75 + ((areaIpmNorm - minIpmNorm)/(maxIpmNorm - minIpmNorm))/2;
+
+                        pieChart = createSVGPieChart(
                             element,
                             areaIpmNorm,
                             areaData,
                             150
                         );
-
-                        fromEvent(pieChart, 'mousemove')
-                            .subscribe((e:MouseEvent) => {
-                                dispatcher.dispatch<Actions.ShowAreaTooltip>({
-                                    name: ActionName.ShowAreaTooltip,
-                                    payload: {
-                                        areaName: areaName,
-                                        areaIpmNorm: areaIpmNorm,
-                                        areaData: areaData,
-                                        tileId: tileId,
-                                        tooltipX: e.pageX,
-                                        tooltipY: e.pageY
-                                    }
-                                });
-                            });
-
-                        fromEvent(pieChart, 'mouseout')
-                            .subscribe(() => {
-                                dispatcher.dispatch<Actions.HideAreaTooltip>({
-                                    name: ActionName.HideAreaTooltip,
-                                    payload: {
-                                        tileId: tileId
-                                    }
-                                });
-                            });
-                        // scaling pie chart according to relative ipm norm
-                        const scale = 0.75 + ((areaIpmNorm - minIpmNorm)/(maxIpmNorm - minIpmNorm)) / 2;
-                        pieChart.setAttribute('transform', `scale(${scale} ${scale})`);
                     }
-                }
+                    // scaling pie chart according to relative ipm norm
+                    pieChart.setAttribute('transform', `scale(${scale} ${scale})`);
+                
+                    fromEvent(pieChart, 'mousemove')
+                        .subscribe((e:MouseEvent) => {
+                            dispatcher.dispatch<Actions.ShowAreaTooltip>({
+                                name: ActionName.ShowAreaTooltip,
+                                payload: {
+                                    areaName: areaName,
+                                    areaIpmNorm: areaIpmNorm,
+                                    areaData: notEnoughData ? null : areaData,
+                                    tileId: tileId,
+                                    tooltipX: e.pageX,
+                                    tooltipY: e.pageY
+                                }
+                            });
+                        });
+
+                    fromEvent(pieChart, 'mouseout')
+                        .subscribe(() => {
+                            dispatcher.dispatch<Actions.HideAreaTooltip>({
+                                name: ActionName.HideAreaTooltip,
+                                payload: {
+                                    tileId: tileId
+                                }
+                            });
+                        });
+                    }
             }
         });
     }
@@ -326,13 +345,16 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 <p>{ut.translate('multi_word_geolocations__table_heading_area')}: {props.caption}</p>
                 <table>
                     <tbody>
-                        {Object.entries(props.values || {}).map(([label, value], index) =>
-                            value === undefined ?
-                            null :
-                            <tr key={label} style={{color: theme.barColor(index)}}>
-                                <td>{label} : {value}</td>
-                            </tr>
-                        )}
+                        {props.values === null ?
+                            <tr><td>{ut.translate('multi_word_geolocations__not_enough_data')}</td></tr> :
+                            Object.entries(props.values || {}).map(([label, value], index) =>
+                                value === undefined ?
+                                null :
+                                <tr key={label} style={{color: theme.barColor(index)}}>
+                                    <td>{label} : {value}</td>
+                                </tr>
+                            )
+                        }
                     </tbody>
                 </table>
             </div>

@@ -41,6 +41,55 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const globComponents = ut.getComponents();
 
+    const createSVGEmptyCircle = (parent:Element, radius:number):SVGElement => {
+        const chart = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        const circle = createSVGElement(chart, 'g', {});
+
+        const position = radius*Math.sqrt(2)/4
+
+        createSVGElement(
+            circle,
+            'line',
+            {
+                'x1': (-position).toString(),
+                'y1': (-position).toString(),
+                'x2': position.toString(),
+                'y2': position.toString(),
+                'stroke-width': '2',
+                'stroke': 'black'
+            }
+        );
+
+        createSVGElement(
+            circle,
+            'line',
+            {
+                'x1': position.toString(),
+                'y1': (-position).toString(),
+                'x2': (-position).toString(),
+                'y2': position.toString(),
+                'stroke-width': '2',
+                'stroke': 'black'
+            }
+        );
+
+        createSVGElement(
+            circle,
+            'circle',
+            {
+                'cx': '0',
+                'cy': '0',
+                'r': radius.toString(),
+                'stroke': 'black',
+                'stroke-width': '2',
+                'fill-opacity': '0'
+            }
+        );
+
+        parent.appendChild(chart);
+        return chart;
+    }
+
     // -------------- <DataTable /> ---------------------------------------------
 
     const DataTable:React.SFC<{
@@ -95,48 +144,54 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             if (ident) {
                 const elm = document.getElementById(`${ident}-g`);
                 if (elm) {
-                    createSVGElement(
-                        elm,
-                        'ellipse',
-                        {
-                            'rx': mkSize(v.ipm).toFixed(1),
-                            'ry': (mkSize(v.ipm) / 1.5).toFixed(1),
-                            'cx': '0',
-                            'cy': '0',
-                            'stroke': fillColor,
-                            'stroke-width': '3',
-                            'fill': fillColor,
-                            'pointer-events': 'fill',
-                            'opacity': '0.8'
-                        }
-                    );
-                    const text = createSVGElement(
-                        elm,
-                        'text',
-                        {
-                            'transform': 'translate(0, 15)',
-                            'text-anchor': 'middle',
-                            'font-size': '4.5em',
-                            'font-weight': 'bold',
-                            'fill': textColor
-                        }
-                    );
-                    text.style.cssText = 'opacity: 1';
-                    text.textContent = ut.formatNumber(v.ipm, v.ipm >= 100 ? 0 : 1);
-                    const ellipse = createSVGElement(
-                        elm,
-                        'ellipse',
-                        {
-                            'rx': mkSize(v.ipm).toFixed(1),
-                            'ry': (mkSize(v.ipm) / 1.5).toFixed(1),
-                            'cx': '0',
-                            'cy': '0',
-                            'fill': 'white',
-                            'pointer-events': 'fill',
-                            'opacity': '0'
-                        }
-                    );
-                    fromEvent(ellipse, 'mousemove')
+                    let label;
+                    if (v.freq < props.frequencyDisplayLimit) {
+                        label = createSVGEmptyCircle(elm, mkSize(0));
+                    } else {
+                        createSVGElement(
+                            elm,
+                            'ellipse',
+                            {
+                                'rx': mkSize(v.ipm).toFixed(1),
+                                'ry': (mkSize(v.ipm) / 1.5).toFixed(1),
+                                'cx': '0',
+                                'cy': '0',
+                                'stroke': fillColor,
+                                'stroke-width': '3',
+                                'fill': fillColor,
+                                'pointer-events': 'fill',
+                                'opacity': '0.8'
+                            }
+                        );
+                        const text = createSVGElement(
+                            elm,
+                            'text',
+                            {
+                                'transform': 'translate(0, 15)',
+                                'text-anchor': 'middle',
+                                'font-size': '4.5em',
+                                'font-weight': 'bold',
+                                'fill': textColor
+                            }
+                        );
+                        text.style.cssText = 'opacity: 1';
+                        text.textContent = ut.formatNumber(v.ipm, v.ipm >= 100 ? 0 : 1);
+                        label = createSVGElement(
+                            elm,
+                            'ellipse',
+                            {
+                                'rx': mkSize(v.ipm).toFixed(1),
+                                'ry': (mkSize(v.ipm) / 1.5).toFixed(1),
+                                'cx': '0',
+                                'cy': '0',
+                                'fill': 'white',
+                                'pointer-events': 'fill',
+                                'opacity': '0'
+                            }
+                        );
+                    }
+
+                    fromEvent(label, 'mousemove')
                         .subscribe((e:MouseEvent) => {
                             dispatcher.dispatch<Actions.ShowAreaTooltip>({
                                 name: ActionName.ShowAreaTooltip,
@@ -148,7 +203,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 }
                             });
                         });
-                    fromEvent(ellipse, 'mouseout')
+                    fromEvent(label, 'mouseout')
                         .subscribe(() => {
                             dispatcher.dispatch<Actions.HideAreaTooltip>({
                                 name: ActionName.HideAreaTooltip,
@@ -157,8 +212,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 }
                             });
                         });
-
-
                 }
             }
         });
