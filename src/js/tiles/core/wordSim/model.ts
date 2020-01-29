@@ -17,11 +17,9 @@
  */
 
 import { StatelessModel, IActionDispatcher, Action, SEDispatcher } from 'kombo';
-import * as Immutable from 'immutable';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { DataLoadedPayload } from './actions';
 import { ActionName, Actions } from './actions';
-import { findCurrLemmaVariant } from '../../../models/query';
 import { WordSimApi, WordSimWord } from '../../../common/api/abstract/wordSim';
 import { WordSimModelState } from '../../../common/models/wordSim';
 import { LemmaVariant } from '../../../common/query';
@@ -113,7 +111,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                         state.error = action.error.message;
 
                     } else {
-                        state.data[action.payload.queryId] = Immutable.List<WordSimWord>(action.payload.words);
+                        state.data[action.payload.queryId] = action.payload.words;
                         
                     }
                 }

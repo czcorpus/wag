@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
 import { WordSimWord } from '../api/abstract/wordSim';
 import { LemmaVariant } from '../query';
 
@@ -36,7 +35,7 @@ export interface WordSimModelState {
     error:string;
     maxResultItems:number;
     minScore:number;
-    data:Array<Immutable.List<WordSimWord>>;
+    data:Array<Array<WordSimWord>>;
     operationMode:OperationMode;
     corpus:string;
     lemmas:Array<LemmaVariant>;

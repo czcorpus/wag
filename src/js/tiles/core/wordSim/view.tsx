@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 import * as React from 'react';
-import { List } from 'immutable';
 import { IActionDispatcher, ViewUtils, BoundWithProps } from 'kombo';
 import { GlobalComponents } from '../../../views/global';
 import { Theme } from '../../../common/theme';
@@ -66,7 +65,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // ------------------ <AltView /> --------------------------------------------
 
     const TableView:React.SFC<{
-        data:List<WordSimWord>;
+        data:Array<WordSimWord>;
         caption:string;
 
     }> = (props) => {
@@ -118,9 +117,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             <globalCompontents.ResponsiveWrapper render={(width:number, height:number) => (
                                 <div className="sim-cloud">
                                     <h2>{props.data.length > 1 ? `[${index + 1}] ${props.lemmas[index].word}` : null}</h2>
-                                    <WordCloud width={width} height={height} data={data.toArray()} isMobile={props.isMobile}
-                                                    style={props.isMobile ? {height: `${data.size * 30}px`} :
-                                                            {height: `${data.size * 40}px`, width: '100%'}}
+                                    <WordCloud width={width} height={height} data={data} isMobile={props.isMobile}
+                                                    style={props.isMobile ? {height: `${data.length * 30}px`} :
+                                                            {height: `${data.length * 40}px`, width: '100%'}}
                                                     font="Roboto Condensed"
                                                     dataTransform={dataTransform}
                                                     selectedText={props.data.length > 1 ? props.selectedText : null}
