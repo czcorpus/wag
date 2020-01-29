@@ -250,59 +250,57 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
     sideEffects(state:TranslationsSubsetsModelState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
-                this.suspend(
-                    (action:Action) => {
-                        const srchLemma = findCurrLemmaVariant(this.lemmas[0]);
-                        if (action.name === GlobalActionName.TileDataLoaded && this.waitForColorsTile === action.payload['tileId']) {
-                            merge(...state.subsets.map(subset =>
-                                callWithExtraVal(
-                                    this.api,
-                                    this.api.stateToArgs(
-                                        state,
-                                        srchLemma.lemma,
-                                        subset.packages
-                                    ),
-                                    subset.ident
-                                )
-                            ).toArray())
-                            .subscribe(
-                                (resp) => {
-                                    const [data, reqId] = resp;
-                                    const lines = data.translations.filter(v => v.freq >= state.minItemFreq);
-                                    const sum = data.translations.reduce((acc, curr) => acc + curr.freq, 0);
-                                    dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                        name: GlobalActionName.TileDataLoaded,
-                                        payload: {
-                                            tileId: this.tileId,
-                                            isEmpty: data.translations.length === 0,
-                                            query: srchLemma.word, // TODO give up
-                                            lines: lines,
-                                            sum: sum,
-                                            subsetId: reqId
-                                        }
-                                    });
-                                },
-                                (error) => {
-                                    dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                        name: GlobalActionName.TileDataLoaded,
-                                        payload: {
-                                            tileId: this.tileId,
-                                            isEmpty: true,
-                                            query: findCurrLemmaVariant(this.lemmas[0]).word,
-                                            lines: [],
-                                            sum: -1,
-                                            subsetId: null
-                                        },
-                                        error: error
-                                    });
-                                    console.log(error);
-                                }
-                            );
-                            return true;
-                        }
-                        return false;
+                this.suspend({}, (action, syncData) => {
+                    const srchLemma = findCurrLemmaVariant(this.lemmas[0]);
+                    if (action.name === GlobalActionName.TileDataLoaded && this.waitForColorsTile === action.payload['tileId']) {
+                        merge(...state.subsets.map(subset =>
+                            callWithExtraVal(
+                                this.api,
+                                this.api.stateToArgs(
+                                    state,
+                                    srchLemma.lemma,
+                                    subset.packages
+                                ),
+                                subset.ident
+                            )
+                        ).toArray())
+                        .subscribe(
+                            (resp) => {
+                                const [data, reqId] = resp;
+                                const lines = data.translations.filter(v => v.freq >= state.minItemFreq);
+                                const sum = data.translations.reduce((acc, curr) => acc + curr.freq, 0);
+                                dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                    name: GlobalActionName.TileDataLoaded,
+                                    payload: {
+                                        tileId: this.tileId,
+                                        isEmpty: data.translations.length === 0,
+                                        query: srchLemma.word, // TODO give up
+                                        lines: lines,
+                                        sum: sum,
+                                        subsetId: reqId
+                                    }
+                                });
+                            },
+                            (error) => {
+                                dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                    name: GlobalActionName.TileDataLoaded,
+                                    payload: {
+                                        tileId: this.tileId,
+                                        isEmpty: true,
+                                        query: findCurrLemmaVariant(this.lemmas[0]).word,
+                                        lines: [],
+                                        sum: -1,
+                                        subsetId: null
+                                    },
+                                    error: error
+                                });
+                                console.log(error);
+                            }
+                        );
+                        return null;
                     }
-                );
+                    return syncData;
+                });
             break;
             case GlobalActionName.GetSourceInfo:
                 if (action.payload['tileId'] === this.tileId) {

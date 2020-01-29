@@ -794,8 +794,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         }
                         </div>
                     </header>
-                    <div className="provider" ref={this.ref} style={this.props.tile.maxTileHeight ? {overflow: 'auto'} : {}}>
-                        <div style={this.props.tile.maxTileHeight ? {maxHeight: this.props.tile.maxTileHeight} : {}}>
+                    <div className="provider" ref={this.ref} style={{height: '100%', overflow: this.props.tile.maxTileHeight ? 'auto' : 'initial'}}>
+                        <div style={{height: '100%', maxHeight: this.props.tile.maxTileHeight ? this.props.tile.maxTileHeight : 'initial'}}>
                             <globalComponents.ErrorBoundary>
                                 {this.props.supportsCurrQuery ?
                                     <this.props.tile.Component

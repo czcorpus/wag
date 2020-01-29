@@ -22,7 +22,7 @@ import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { Observable } from 'rxjs';
 import { mergeMap, scan, tap } from 'rxjs/operators';
 import { AppServices } from '../../../appServices';
-import { IConcordanceApi, ConcResponse } from '../../../common/api/abstract/concordance';
+import { IConcordanceApi, ConcResponse, SingleConcLoadedPayload } from '../../../common/api/abstract/concordance';
 import { ConcordanceMinState, createInitialLinesData } from '../../../common/models/concordance';
 import { HTTPMethod, SystemMessageType } from '../../../common/types';
 import { isSubqueryPayload, RecognizedQueries, QueryType } from '../../../common/query';
@@ -154,30 +154,28 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             },
             (state, action, dispatch) => {
                 if (this.waitForTile) {
-                    this.suspend(
-                        (action:GlobalActions.TileDataLoaded<{}>) => {
-                            if (action.name === GlobalActionName.TileDataLoaded && action.payload.tileId === this.waitForTile) {
-                                if (isCollocSubqueryPayload(action.payload)) {
-                                    const cql = `[word="${action.payload.subqueries.map(v => v.value.value).join('|')}"]`; // TODO escape
-                                    this.reloadData(state, dispatch, cql);
+                    this.suspend({}, (action:GlobalActions.TileDataLoaded<{}>, syncData) => {
+                        if (action.name === GlobalActionName.TileDataLoaded && action.payload.tileId === this.waitForTile) {
+                            if (isCollocSubqueryPayload(action.payload)) {
+                                const cql = `[word="${action.payload.subqueries.map(v => v.value.value).join('|')}"]`; // TODO escape
+                                this.reloadData(state, dispatch, cql);
 
-                                } else if (isSubqueryPayload(action.payload)) {
-                                    const cql = `[word="${action.payload.subqueries.map(v => v.value).join('|')}"]`; // TODO escape
-                                    this.reloadData(state, dispatch, cql);
-                                }
-                                return true;
+                            } else if (isSubqueryPayload(action.payload)) {
+                                const cql = `[word="${action.payload.subqueries.map(v => v.value).join('|')}"]`; // TODO escape
+                                this.reloadData(state, dispatch, cql);
                             }
-                            return false;
+                            return null;
                         }
-                    );
+                        return syncData;
+                    });
                 } else {
                     this.reloadData(state, dispatch, null);
                 }
             }
         );
 
-        this.addActionHandler<Actions.SingleConcordanceLoaded>(
-            ActionName.SingleConcordanceLoaded,
+        this.addActionHandler<GlobalActions.TilePartialDataLoaded<SingleConcLoadedPayload>>(
+            GlobalActionName.TilePartialDataLoaded,
             (state, action) => {
                 // note: error is handled via TileDataLoaded
                 if (action.payload.tileId === this.tileId && !action.error) {
@@ -329,8 +327,8 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             mergeMap(data => callWithExtraVal(this.service, data.apiArgs, data.queryIdx)),
             tap(
                 ([resp, curr]) => {
-                    dispatch<Actions.SingleConcordanceLoaded>({
-                        name: ActionName.SingleConcordanceLoaded,
+                    dispatch<GlobalActions.TilePartialDataLoaded<SingleConcLoadedPayload>>({
+                        name: GlobalActionName.TilePartialDataLoaded,
                         payload: {
                             tileId: this.tileId,
                             queryNum: curr,

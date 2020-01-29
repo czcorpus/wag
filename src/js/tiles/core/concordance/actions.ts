@@ -17,26 +17,18 @@
  */
 import { Action } from 'kombo';
 
-import { ConcResponse, ViewMode } from '../../../common/api/abstract/concordance';
+import { ViewMode } from '../../../common/api/abstract/concordance';
 import { SubqueryPayload } from '../../../common/query';
 
 
 
 export enum ActionName {
-    SingleConcordanceLoaded = 'CONCORDANCE_SINGLE_CONCORDANCE_LOADED',
     LoadNextPage = 'CONCORDANCE_LOAD_NEXT_PAGE',
     LoadNextPageDone = 'CONCORDANCE_LOAD_NEXT_PAGE_DONE',
     LoadPrevPage = 'CONCORDANCE_LOAD_PREV_PAGE',
     LoadPrevPageDone = 'CONCORDANCE_LOAD_PREV_PAGE_DONE',
     SetViewMode = 'CONCORDANCE_SET_VIEW_MODE',
     SetVisibleQuery = 'CONCORDANCE_SET_VISIBLE_QUERY'
-}
-
-
-export interface SingleConcLoadedPayload extends SubqueryPayload {
-    tileId:number;
-    data:ConcResponse;
-    queryNum:number;
 }
 
 export interface ConcLoadedPayload extends SubqueryPayload {
@@ -51,10 +43,6 @@ export function isConcLoadedPayload(p:any):p is ConcLoadedPayload {
 }
 
 export namespace Actions {
-
-    export interface SingleConcordanceLoaded extends Action<SingleConcLoadedPayload> {
-        name: ActionName.SingleConcordanceLoaded
-    }
 
     export interface LoadNextPage extends Action<{
         tileId:number;

@@ -143,34 +143,33 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             },
             (state, action, seDispatch) => {
                 if (this.waitForTile) {
-                    this.suspend(
-                        (action:Action) => {
-                            if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
-                                const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
-                                if (action.error) {
-                                    seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                        name: GlobalActionName.TileDataLoaded,
-                                        payload: {
-                                            tileId: this.tileId,
-                                            isEmpty: true,
-                                            data: [],
-                                            heading: null,
-                                            concId: null,
-                                            queryId: null,
-                                            subqueries: [],
-                                            lang1: null,
-                                            lang2: null
-                                        },
-                                        error: new Error(this.appServices.translate('global__failed_to_obtain_required_data')),
-                                    });
-                                    return true;
-                                }
-                                this.reloadAllData(state, payload.concPersistenceIDs, seDispatch);
-                                return true;
+                    this.suspend({}, (action:Action, syncData) => {
+                        if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
+                            const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
+                            if (action.error) {
+                                seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                    name: GlobalActionName.TileDataLoaded,
+                                    payload: {
+                                        tileId: this.tileId,
+                                        isEmpty: true,
+                                        data: [],
+                                        heading: null,
+                                        concId: null,
+                                        queryId: null,
+                                        subqueries: [],
+                                        lang1: null,
+                                        lang2: null
+                                    },
+                                    error: new Error(this.appServices.translate('global__failed_to_obtain_required_data')),
+                                });
+                                return null;
                             }
-                            return false;
+                            this.reloadAllData(state, payload.concPersistenceIDs, seDispatch);
+                            return null;
                         }
-                    );
+                        return syncData;
+                    });
+
                 } else {
                     switch (this.apiType) {
                         case CoreApiGroup.KONTEXT:

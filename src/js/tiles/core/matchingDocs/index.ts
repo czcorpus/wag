@@ -16,12 +16,10 @@
  * limitations under the License.
  */
 import * as Immutable from 'immutable';
-import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
+import { IActionDispatcher, StatelessModel } from 'kombo';
 
-import { AppServices } from '../../../appServices';
 import { QueryType } from '../../../common/query';
 import { TileComponent, TileConf, TileFactory, ITileProvider } from '../../../common/tile';
-import { GlobalComponents } from '../../../views/global';
 import { MatchingDocsModel } from './model';
 import { init as viewInit } from './view';
 import { createMatchingDocsApiInstance } from './apiFactory';
@@ -116,7 +114,7 @@ export class MatchingDocsTile implements ITileProvider {
     }
 
     disable():void {
-        this.model.suspend(()=>false);
+        this.model.suspend(Immutable.Map<number, boolean>(), (_, syncData)=>syncData);
     }
 
     getWidthFract():number {

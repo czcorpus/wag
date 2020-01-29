@@ -80,6 +80,9 @@ export class FreqComparisonTile implements ITileProvider {
             conf.critLabels.map(v => this.appServices.importExternalMessage(v)) :
             [this.appServices.importExternalMessage(conf.critLabels)];
 
+        if (!conf.posQueryGenerator) {
+            throw Error('Missing posQueryGenerator configuration');
+        }
         this.model = defaultModelFactory(
             this.dispatcher,
             tileId,
@@ -139,7 +142,7 @@ export class FreqComparisonTile implements ITileProvider {
     }
 
     disable():void {
-        this.model.suspend(()=>false);
+        this.model.suspend({}, (_, syncData)=>syncData);
     }
 
     getWidthFract():number {

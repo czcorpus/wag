@@ -120,7 +120,7 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
             },
             (state, action, dispatch) => {
                 if (this.waitForTile) {
-                    this.suspend((action:Action) => {
+                    this.suspend({}, (action, syncData) => {
                         if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
                             let dataStream;
                             if (isConcLoadedPayload(action.payload)) {
@@ -144,9 +144,9 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                             }
 
                             this.handleLoad(dataStream, state, dispatch);
-                            return true;
+                            return null;
                         }
-                        return false;
+                        return syncData;
                     });
 
                 } else {

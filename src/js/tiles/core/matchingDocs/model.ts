@@ -41,8 +41,10 @@ export interface MatchingDocsModelArgs {
     lemmas:RecognizedQueries;
 }
 
+export type ModelSyncData = Immutable.Map<number, boolean>;
 
-export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState> {
+
+export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState, ModelSyncData> {
 
     private readonly lemmas:RecognizedQueries;
 
@@ -137,11 +139,9 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState> {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
                 if (this.waitForTiles.size > 0) {
-                    this.waitForTiles = this.waitForTiles.map(_ => true).toMap();
-                    this.suspend((action:Action) => {
+                    this.suspend(this.waitForTiles.map(_ => true).toMap(), (action, syncStatus) => {
                         if (action.name === GlobalActionName.TileDataLoaded && this.waitForTiles.has(action.payload['tileId'])) {
                             const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
-                            this.waitForTiles = this.waitForTiles.set(payload.tileId, false);
                             new Observable((observer:Observer<boolean>) => {
                                 if (action.error) {
                                     observer.error(new Error(this.appServices.translate('global__failed_to_obtain_required_data')));
@@ -179,9 +179,10 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState> {
                                     });
                                 }
                             );
-                            return !this.waitForTiles.contains(true);
+                            const ans = syncStatus.set(payload.tileId, false);
+                            return ans.contains(true) ? ans : null;
                         }
-                        return false;
+                        return syncStatus;
                     });
 
                 } else {

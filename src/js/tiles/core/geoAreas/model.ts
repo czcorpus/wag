@@ -105,7 +105,7 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                 state.error = null;
             },
             (state, action, dispatch) => {
-                this.suspend((action:Action) => {
+                this.suspend({}, (action, syncStatus) => {
                     if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
                         const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
 
@@ -150,9 +150,9 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                                 });
                             }
                         );
-                        return true;
+                        return null;
                     }
-                    return false;
+                    return syncStatus;
                 });
             }
         );

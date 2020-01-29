@@ -30,6 +30,7 @@ export enum ActionName {
     WakeSuspendedTiles = 'MAIN_WAKE_SUSPENDED_TILES',
     SetEmptyResult = 'MAIN_SET_EMPTY_RESULT',
     TileDataLoaded = 'MAIN_TILE_DATA_LOADED',
+    TilePartialDataLoaded = 'MAIN_TILE_PARTIAL_DATA_LOADED',
     ChangeTargetLanguage = 'MAIN_CHANGE_TARGET_LANGUAGE',
     ChangeQueryType = 'MAIN_CHANGE_QUERY_TYPE',
     SetTileRenderSize = 'MAIN_SET_TILE_RENDER_SIZE',
@@ -96,6 +97,13 @@ export namespace Actions {
 
     } & T> {
         name: ActionName.TileDataLoaded;
+    }
+
+    export interface TilePartialDataLoaded<T> extends Action<{
+        tileId:number;
+
+    } & T> {
+        name: ActionName.TilePartialDataLoaded;
     }
 
     export interface ChangeQueryInput extends Action<{

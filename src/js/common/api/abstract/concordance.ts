@@ -17,9 +17,20 @@
  */
 
 import { ConcordanceMinState } from '../../models/concordance';
-import { LemmaVariant } from '../../query';
+import { LemmaVariant, SubqueryPayload } from '../../query';
 import { DataApi, SourceDetails } from '../../types';
 import { Observable } from 'rxjs';
+
+
+/**
+ * A general action notifying about single query
+ * (out of possibly multiple queries) concordance load.
+ */
+export interface SingleConcLoadedPayload extends SubqueryPayload {
+    tileId:number;
+    queryNum:number;
+    data:ConcResponse;
+}
 
 
 export interface LineElement {

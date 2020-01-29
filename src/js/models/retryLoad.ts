@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 import { StatelessModel, StatefulModel, Action, IFullActionControl } from 'kombo';
-import { Listop, Dictop } from 'montainer';
 import { ActionName} from '../models/actions';
+import { List, Dict } from '../common/collections';
 
 
 
@@ -59,28 +59,35 @@ export class RetryTileLoad extends StatefulModel<RetryTileLoadState> {
      * transitive dependencies).
      */
     private getBlockedGroup(tileId:number):Array<number> {
-        let ans = Listop.of([tileId]);
-        let toProc = this.state.models[tileId.toString()].blockers;
+        let ans = [tileId];
+        let toProc = this.state.models[tileId.toFixed()].blockers;
         while (toProc.length > 0) {
             const item = toProc[0];
-            ans = ans.addUnique(item);
-            toProc = Listop.of(toProc).shift().concat(this.state.models[item.toFixed()].blockers).u();
+            toProc = List.shift(toProc);
+            ans = List.addUnique(ans, item);
+            const model = this.state.models[item.toFixed()];
+            if (model) {
+                toProc = toProc.concat(this.state.models[item.toFixed()].blockers);
+
+            } else {
+                console.error('Tile dependency misconfiguration related to tile ', item);
+            }
         }
-        Dictop.of(this.state.models).tap((model, ident) => {
+        Dict.forEach(this.state.models, (model, ident) => {
             if (model.blockers.indexOf(tileId) > -1) {
-                ans = ans.addUnique(parseInt(ident));
+                ans = List.addUnique(ans, parseInt(ident));
             }
         });
-        return ans.u();
+        return ans;
     }
 
     onAction(action:Action) {
         switch (action.name) {
             case ActionName.RetryTileLoad:
                 const blockedGroup = this.getBlockedGroup(action.payload['tileId']);
-                Dictop.of(this.state.models).tap((model, ident) => {
+                Dict.forEach(this.state.models, (model, ident) => {
                     if (!blockedGroup.some(x => x.toFixed() === ident)) {
-                        model.model.suspend((action) => {
+                        model.model.suspend({}, (action, syncData) => {
                             if (action.name === ActionName.WakeSuspendedTiles) {
                                 return true;
                             }
@@ -100,14 +107,14 @@ export class RetryTileLoad extends StatefulModel<RetryTileLoadState> {
                 if (action.error) {
                     const m = this.state.models[action.payload['tileId']];
                     if (m) {
-                        this.state.models = Dictop.of(this.state.models).set(
-                            action.payload['tileId'],
-                            {
+                        this.state.models = {
+                            ...this.state.models,
+                            ...{[action.payload['tileId']]:{
                                 model: m.model,
                                 isError: true,
                                 blockers: m.blockers
-                            }
-                        ).u();
+                            }}
+                        }
                     }
                 }
             break;
@@ -116,14 +123,16 @@ export class RetryTileLoad extends StatefulModel<RetryTileLoadState> {
 
     registerModel(ident:number, model:StatelessModel<{}>, blockers:Array<number>):void {
         if (model) {
-            this.state.models = Dictop.of(this.state.models).set(
-                ident.toFixed(),
-                {
-                    model: model,
-                    isError: false,
-                    blockers: blockers
+            this.state.models = {
+                ...this.state.models,
+                ...{[ident.toFixed()]:
+                    {
+                        model: model,
+                        isError: false,
+                        blockers: blockers
+                    }
                 }
-            ).u();
+            };
         }
     }
 

@@ -445,7 +445,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private loadData(state:TimeDistribModelState, dispatch:SEDispatcher, target:SubchartID, lemmaVariant:Observable<LemmaVariant>):void {
         if (this.waitForTile > -1) { // in this case we rely on a concordance provided by other tile
-            this.suspend((action:Action) => {
+            this.suspend({}, (action, syncData) => {
                 if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
                     const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
                     const ans = lemmaVariant.pipe(
@@ -478,9 +478,9 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         ))
                     )
                     this.getFreqs(ans, dispatch);
-                    return true;
+                    return null;
                 }
-                return false;
+                return syncData;
             });
 
         } else { // here we must create our own concordance(s) if needed

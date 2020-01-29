@@ -202,41 +202,38 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
                 if (this.waitForTile !== null) {
-                    this.suspend(
-                        (action:Action) => {
-                            if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
+                    this.suspend({}, (action, syncData) => {
+                        if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
+                            if (action.error) {
+                                console.log(action.error);
+                                dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                    name: GlobalActionName.TileDataLoaded,
+                                    error: action.error,
+                                    payload: {
+                                        tileId: this.tileId,
+                                        isEmpty: true,
+                                        data: [],
+                                        subqueries: [],
+                                        lang1: null,
+                                        lang2: null
+                                    }
+                                });
 
-                                if (action.error) {
-                                    console.log(action.error);
-                                    dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                        name: GlobalActionName.TileDataLoaded,
-                                        error: action.error,
-                                        payload: {
-                                            tileId: this.tileId,
-                                            isEmpty: true,
-                                            data: [],
-                                            subqueries: [],
-                                            lang1: null,
-                                            lang2: null
-                                        }
-                                    });
-
-                                } else {
-                                    const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
-                                    this.fetchWordForms(
-                                        {
-                                            corpName: payload.corpusName,
-                                            subcorpName: payload.subcorpusName,
-                                            concPersistenceID: payload.concPersistenceIDs[0]
-                                        },
-                                        dispatch
-                                    );
-                                }
-                                return true;
+                            } else {
+                                const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
+                                this.fetchWordForms(
+                                    {
+                                        corpName: payload.corpusName,
+                                        subcorpName: payload.subcorpusName,
+                                        concPersistenceID: payload.concPersistenceIDs[0]
+                                    },
+                                    dispatch
+                                );
                             }
-                            return false;
+                            return null;
                         }
-                    );
+                        return syncData;
+                    });
 
                 } else {
                     const variant = findCurrLemmaVariant(this.lemmas[0]);

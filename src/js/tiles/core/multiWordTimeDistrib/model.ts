@@ -127,7 +127,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             (state, action, dispatch) => {
                 // we can propagate concordances only for one corpus (subcorpus)
                 if (this.waitForTile > -1 && state.subcnames.length === 1) {
-                    this.suspend((action:Action) => {
+                    this.suspend({}, (action, syncData) => {
                         if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
                             if (isConcLoadedPayload(action.payload)) {
                                 const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
@@ -153,9 +153,9 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                     }))) as Observable<{queryId:number; lemma:LemmaVariant; concId:string;}>
                                 );
                             }
-                            return true;
+                            return null;
                         }
-                        return false;
+                        return syncData;
                     });
 
                 } else {

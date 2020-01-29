@@ -21,6 +21,7 @@ import { map } from 'rxjs/operators';
 import { cachedAjax$ } from '../../ajax';
 import { DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../types';
 import { CorpusInfoAPI, APIResponse as CorpusInfoApiResponse } from './corpusInfo';
+import { BacklinkWithArgs } from '../../tile';
 
 export enum FreqSort {
     REL = 'rel'
@@ -55,6 +56,17 @@ export interface DataRow {
     ipm:number;
     norm:number;
     order?:number;
+}
+
+export interface SourceMappedDataRow {
+    sourceId:string;
+    error?:Error;
+    name:string;
+    freq:number;
+    ipm:number;
+    norm:number;
+    order?:number;
+    backlink:BacklinkWithArgs<BacklinkArgs>|null;
 }
 
 export interface APIResponse {

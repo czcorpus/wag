@@ -129,13 +129,11 @@ export class SubqFreqBarModel extends FreqBarModel {
     sideEffects(state:FreqBarModelState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
-                this.waitForTiles = Dict.map(this.waitForTiles, _ => true);
-                this.suspend((action:Action) => {
+                this.suspend(Dict.map(this.waitForTiles, _ => true), (action, syncData) => {
                     if (action.name === GlobalActionName.TileDataLoaded &&
                             Dict.hasKey(this.subqSourceTiles, action.payload['tileId'].toFixed()) &&
                             isSubqueryPayload(action.payload)) {
                         const payload:SubqueryPayload = action.payload;
-                        this.waitForTiles[payload.tileId.toFixed()] = false;
                         const subqueries:Array<{critIdx:number; v:SubQueryItem<string>}> = payload.subqueries
                                 .slice(0, this.subqConf.maxNumSubqueries)
                                 .map((v, i) => ({critIdx: i, v: v}));
@@ -177,9 +175,10 @@ export class SubqFreqBarModel extends FreqBarModel {
                                 console.log('err: ', err);
                             }
                         );
-                        return !Dict.hasValue(this.waitForTiles, true);
+                        const ans = {...syncData, ...{[payload.tileId.toFixed()]: false}};
+                        return Dict.hasValue(ans, true) ? ans : null;
                     }
-                    return false;
+                    return syncData;
                 });
             break;
         }

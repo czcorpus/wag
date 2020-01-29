@@ -46,7 +46,6 @@ import { ActionName } from '../models/actions';
 import { DummyCache } from '../cacheDb';
 import { ILogQueue } from './logging/abstract';
 import { TelemetryAction } from '../common/types';
-import { Listop } from 'montainer';
 
 
 function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, appServices:AppServices):Observable<ClientConf> {
@@ -293,7 +292,7 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
                         }
                     }
                     const v = mergedLemmas[matchIdx];
-                    mergedLemmas = Listop.of(mergedLemmas).set(matchIdx, {
+                    mergedLemmas[matchIdx] = {
                         lemma: v.lemma,
                         word: v.word,
                         pos: v.pos.concat([]),
@@ -303,7 +302,7 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
                         flevel: v.flevel,
                         isCurrent: true,
                         isNonDict: v.isNonDict
-                    }).u();
+                    };
 
                 } else {
                     mergedLemmas = [{

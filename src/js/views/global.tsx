@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
 import { ViewUtils, IActionDispatcher } from 'kombo';
 import * as React from 'react';
 import { Observable } from 'rxjs';
@@ -327,7 +326,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                 <div className={htmlClasses.join(' ')} onClick={handleAreaClick}>
                     <div className="loader-wrapper">{props.hasData && props.isBusy ? <TitleLoaderBar  /> : null}</div>
                     <div className={`cnc-tile-body content${props.hasData ? '' : ' empty'}`}>
-                        <div>
+                        <div style={{height: '100%'}}>
                             {props.hasData ?
                                 props.children :
                                 <>
@@ -508,7 +507,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
         }
 
         render() {
-            return <div style={{width: '100%', height: '100%'}} ref={this.ref}>{this.props.render(this.state.width, this.state.height)}</div>;
+            return (
+                <div className="ResponsiveWrapper" style={{width: '100%', height: '100%'}} ref={this.ref}>
+                    {this.props.render(this.state.width, this.state.height)}
+                </div>
+            );
         }
 
     };
