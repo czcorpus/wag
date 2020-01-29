@@ -121,8 +121,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                     <WordCloud width={width} height={height} data={data.toArray()} isMobile={props.isMobile}
                                                     style={props.isMobile ? {height: `${data.size * 30}px`} :
                                                             {height: `${data.size * 40}px`, width: '100%'}}
-                                                            font="Roboto Condensed"
-                                                            dataTransform={dataTransform} />
+                                                    font="Roboto Condensed"
+                                                    dataTransform={dataTransform}
+                                                    selectedText={props.data.length > 1 ? props.selectedText : null}
+                                    />
                                 </div>
                             )}/> :
                             <globalCompontents.ResponsiveWrapper key={`${index}empty`} render={() => data === null ? <p>Processing...</p> : <p>No data</p>} />

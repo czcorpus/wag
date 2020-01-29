@@ -49,6 +49,18 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
         this.tileId = tileId;
         this.api = api;
 
+        this.addActionHandler<GlobalActions.SubqItemHighlighted>(
+            GlobalActionName.SubqItemHighlighted,
+            (state, action) => {
+                state.selectedText = action.payload.text;
+            }
+        );
+        this.addActionHandler<GlobalActions.SubqItemDehighlighted>(
+            GlobalActionName.SubqItemDehighlighted,
+            (state, action) => {
+                state.selectedText = null;
+            }
+        );
         this.addActionHandler<GlobalActions.EnableTileTweakMode>(
             GlobalActionName.EnableTileTweakMode,
             (state, action) => {

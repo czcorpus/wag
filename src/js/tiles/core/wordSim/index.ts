@@ -88,7 +88,8 @@ export class WordSimTile implements ITileProvider {
                 operationMode: OperationMode.MeansLike,
                 corpus: conf.corpname || '',
                 minScore: conf.minScore || 0,
-                lemmas: lemmas.map(lemma => findCurrLemmaVariant(lemma))
+                lemmas: lemmas.map(lemma => findCurrLemmaVariant(lemma)),
+                selectedText: null
             },
             tileId,
             api: this.api

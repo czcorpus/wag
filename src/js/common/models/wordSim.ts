@@ -40,4 +40,5 @@ export interface WordSimModelState {
     operationMode:OperationMode;
     corpus:string;
     lemmas:Array<LemmaVariant>;
+    selectedText:string;
 }
