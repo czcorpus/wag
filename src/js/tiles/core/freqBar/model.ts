@@ -52,7 +52,7 @@ export interface FreqBarModelArgs {
 }
 
 
-export class FreqBarModel extends StatelessModel<FreqBarModelState> {
+export class FreqBarModel extends StatelessModel<FreqBarModelState, {[tileId:string]:boolean}> {
 
     protected api:MultiBlockFreqDistribAPI;
 
@@ -98,11 +98,9 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState> {
                 state.error = null;
             },
             (state, action, dispatch) => {
-                this.waitForTiles = Dict.map(this.waitForTiles, _ => true);
-                this.suspend((action:Action) => {
+                this.suspend(Dict.map(this.waitForTiles, _ => true), (action:Action, syncData) => {
                     if (action.name === GlobalActionName.TileDataLoaded && this.waitForTiles[action.payload['tileId']] !== undefined) {
                         const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
-                        this.waitForTiles[payload.tileId.toFixed()] = false;
                         new Observable((observer:Observer<number>) => {
                             if (action.error) {
                                 observer.error(new Error(this.appServices.translate('global__failed_to_obtain_required_data')));
@@ -147,9 +145,12 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState> {
                                 });
                             }
                         );
-                        return !Dict.hasValue(this.waitForTiles, true);
+
+                        const ans = {...syncData};
+                        ans[payload.tileId.toFixed()] = false;
+                        return Dict.hasValue(ans, true) ? ans : null;
                     }
-                    return false;
+                    return syncData;
                 });
             }
         );

@@ -130,13 +130,34 @@ export namespace List {
         return ans;
     }
 
+    export function addUnique<T>(data:Array<T>, v:T):Array<T> {
+        const idx = data.findIndex(item => item === v);
+        if (idx < 0) {
+            data.push(v);
+        }
+        return data;
+    }
+
+    export function shift<T>(data:Array<T>):Array<T> {
+        data.splice(0, 1);
+        return data;
+    }
+
+    export function removeValue<T>(data:Array<T>, v:T):Array<T> {
+        const idx = data.findIndex(item => item === v);
+        if (idx > -1) {
+            data.splice(idx, 1);
+        }
+        return data;
+    }
+
 }
 
 
 export namespace Dict {
 
-    export function fromEntries<T>(items:Array<[string, T]>):{[key:string]:T} {
-        const ans:{[key:string]:T} = {};
+    export function fromEntries<T, K extends string>(items:Array<[string, T]>):{[k in K]:T} {
+        const ans:{[k in K]:T} = {} as {[k in K]:T};
         items.forEach(([k, v]) => {
             ans[k] = v;
         });
@@ -165,6 +186,16 @@ export namespace Dict {
         return ans;
     }
 
+    export function filter<T>(data:{[key:string]:T}, pred:(v:T, k:string)=>boolean):{[key:string]:T} {
+        const ans:{[key:string]:T} = {};
+        for (let k in data) {
+            if (pred(data[k], k)) {
+                ans[k] = data[k];
+            }
+        }
+        return ans;
+    }
+
     /**
      * note: function uses strict comparison (===)
      */
@@ -179,6 +210,21 @@ export namespace Dict {
 
     export function hasKey<T>(data:{[key:string]:T}, k:string):boolean {
         return data[k] !== undefined;
+    }
+
+    /**
+     * Find a key-value pair patching predicate. Order is not defined.
+     * If nothing is found, undefined is returned.
+     * @param data
+     * @param pred
+     */
+    export function find<T>(data:{[key:string]:T}, pred:(v:T, k:string)=>boolean):[string, T]|undefined {
+        for (let k in data) {
+            if (pred(data[k], k)) {
+                return [k, data[k]];
+            }
+        }
+        return undefined;
     }
 
     export function mapEntries<T, U>(data:{[key:string]:T}, mapper:(entry:[string, T])=>U):Array<U> {

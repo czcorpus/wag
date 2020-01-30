@@ -94,36 +94,35 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
             },
             (state, action, dispatch) => {
                 if (this.waitForTiles.length > 0) {
-                    this.suspend(
-                        (action:Action) => {
-                            if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTiles[0]) {
-                                if (isConcLoadedPayload(action.payload)) {
-                                    const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
-                                    if (action.error) {
-                                        dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                            name: GlobalActionName.TileDataLoaded,
-                                            payload: {
-                                                tileId: this.tileId,
-                                                isEmpty: true,
-                                                block: null,
-                                                queryId: null,
-                                                lemma: null,
-                                                critId: null
-                                            },
-                                            error: new Error(this.appServices.translate('global__failed_to_obtain_required_data')),
-                                        });
-                                        return true;
-                                    }
-                                    this.loadFreqs(this.composeConcordances(state, payload.concPersistenceIDs), state, dispatch);
-                                } else {
-                                    // if foreign tile response does not send concordances, load as standalone tile
-                                    this.loadFreqs(this.loadConcordances(state), state, dispatch);
+                    this.suspend({}, (action, syncData) => {
+                        if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTiles[0]) {
+                            if (isConcLoadedPayload(action.payload)) {
+                                const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
+                                if (action.error) {
+                                    dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                        name: GlobalActionName.TileDataLoaded,
+                                        payload: {
+                                            tileId: this.tileId,
+                                            isEmpty: true,
+                                            block: null,
+                                            queryId: null,
+                                            lemma: null,
+                                            critId: null
+                                        },
+                                        error: new Error(this.appServices.translate('global__failed_to_obtain_required_data')),
+                                    });
+                                    return null;
                                 }
-                                return true;
+                                this.loadFreqs(this.composeConcordances(state, payload.concPersistenceIDs), state, dispatch);
+
+                            } else {
+                                // if foreign tile response does not send concordances, load as standalone tile
+                                this.loadFreqs(this.loadConcordances(state), state, dispatch);
                             }
-                            return false;
+                            return null;
                         }
-                    );
+                        return syncData;
+                    });
 
                 } else {
                     this.loadFreqs(this.loadConcordances(state), state, dispatch);

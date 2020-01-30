@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
 import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
 
 import { FreqDistribAPI } from '../../../common/api/kontext/freqs';
@@ -23,7 +22,7 @@ import { QueryType } from '../../../common/query';
 import { Backlink, ITileProvider, TileComponent, TileConf, TileFactory } from '../../../common/tile';
 import { puid } from '../../../common/util';
 import { GlobalComponents } from '../../../views/global';
-import { MergeCorpFreqModel, ModelSourceArgs, SourceMappedDataRow } from './model';
+import { MergeCorpFreqModel } from './model';
 import { init as viewInit } from './view';
 import { LocalizedConfMsg } from '../../../common/types';
 import { ConcApi } from '../../../common/api/kontext/concordance';
@@ -59,9 +58,9 @@ export interface MergeCorpFreqTileConf extends TileConf {
         backlink?:Backlink;
 
         /**
-         * If true then the model will always consider multiple
-         * values as some sub-categorization of a main category
-         * and merge all the values into one.
+         * If true then the model will always consider possible
+         * multiple values as some sub-categorization we are actually
+         * not interested in merge all the values into one.
          */
         isSingleCategory?:boolean;
     }>;
@@ -111,8 +110,8 @@ export class MergeCorpFreqTile implements ITileProvider {
                 isBusy: isBusy,
                 isAltViewMode: false,
                 error: null,
-                data: Immutable.List<SourceMappedDataRow>(),
-                sources: Immutable.List<ModelSourceArgs>(conf.sources.map(src => ({
+                data: [],
+                sources: conf.sources.map(src => ({
                     corpname: src.corpname,
                     corpusSize: src.corpusSize,
                     fcrit: src.fcrit,
@@ -127,7 +126,7 @@ export class MergeCorpFreqTile implements ITileProvider {
                     backlinkTpl: src.backlink || null,
                     backlink: null,
                     isSingleCategory: !!src.isSingleCategory
-                }))),
+                })),
                 pixelsPerItem: conf.pixelsPerItem ? conf.pixelsPerItem : 30,
                 barGap: Math.max(10, 40 - conf.pixelsPerItem),
                 lemmas: lemmas.map(lemma => findCurrLemmaVariant(lemma))
@@ -158,7 +157,7 @@ export class MergeCorpFreqTile implements ITileProvider {
     }
 
     disable():void {
-        this.model.suspend(()=>false);
+        this.model.suspend({}, (_, syncData)=>syncData);
     }
 
     getWidthFract():number {

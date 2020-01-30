@@ -15,17 +15,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { DataRow } from '../../../common/api/kontext/freqs';
 
-
+import { SourceMappedDataRow } from '../../../common/api/kontext/freqs';
 
 export enum ActionName {
     // TODO
 }
 
 export interface DataLoadedPayload {
-    data:Array<DataRow>;
-    concId:string;
+    data:Array<Array<SourceMappedDataRow>>;
+    isLast:boolean;
 }
 
 export namespace Actions {

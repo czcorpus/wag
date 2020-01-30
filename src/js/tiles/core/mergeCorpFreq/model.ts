@@ -15,22 +15,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
-import { Action, StatelessModel, IActionQueue } from 'kombo';
-import { forkJoin, Observable, throwError } from 'rxjs';
-import { map, tap, flatMap } from 'rxjs/operators';
+
+import { StatelessModel, IActionQueue, SEDispatcher } from 'kombo';
+import { Observable, of as rxOf } from 'rxjs';
+import { flatMap, concatMap, map, timeout, scan } from 'rxjs/operators';
 
 import { AppServices } from '../../../appServices';
-import { APIResponse, BacklinkArgs, DataRow, FreqDistribAPI, SingleCritQueryArgs } from '../../../common/api/kontext/freqs';
+import { BacklinkArgs, DataRow, FreqDistribAPI, SingleCritQueryArgs, SourceMappedDataRow } from '../../../common/api/kontext/freqs';
 import { callWithExtraVal } from '../../../common/api/util';
 import { HTTPMethod } from '../../../common/types';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
-import { ConcLoadedPayload } from '../concordance/actions';
-import { DataLoadedPayload } from './actions';
 import { ConcApi, QuerySelector } from '../../../common/api/kontext/concordance';
 import { LemmaVariant } from '../../../common/query';
-import { ViewMode } from '../../../common/api/abstract/concordance';
+import { ViewMode, SingleConcLoadedPayload } from '../../../common/api/abstract/concordance';
+import { Dict } from '../../../common/collections';
+import { DataLoadedPayload } from './actions';
 import { createInitialLinesData } from '../../../common/models/concordance';
 
 
@@ -68,23 +68,18 @@ export interface ModelSourceArgs {
     isSingleCategory:boolean;
 }
 
-export interface SourceMappedDataRow extends DataRow {
-    sourceId:string;
-    queryId:number;
-    error?:Error;
-    backlink:BacklinkWithArgs<BacklinkArgs>|null;
-}
-
 export interface MergeCorpFreqModelState {
     isBusy:boolean;
     isAltViewMode:boolean;
     error:string;
-    data:Immutable.List<SourceMappedDataRow>;
-    sources:Immutable.List<ModelSourceArgs>;
+    data:Array<Array<SourceMappedDataRow>>;
+    sources:Array<ModelSourceArgs>;
     pixelsPerItem:number;
     barGap:number;
     lemmas:Array<LemmaVariant>;
 }
+
+type LoadedConcProps = [number, ModelSourceArgs, string];
 
 const sourceToAPIArgs = (src:ModelSourceArgs, concId:string):SingleCritQueryArgs => ({
     corpname: src.corpname,
@@ -98,13 +93,11 @@ const sourceToAPIArgs = (src:ModelSourceArgs, concId:string):SingleCritQueryArgs
 });
 
 
-export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> {
+export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, {[key:string]:number}> {
 
     private readonly appServices:AppServices;
 
     private readonly tileId:number;
-
-    private waitingForTiles:Immutable.Map<number, {corpname:string; concId:string}>; // once not null for a key we know we can start to call freq
 
     private readonly concApi:ConcApi;
 
@@ -114,7 +107,6 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                     concApi:ConcApi, freqApi:FreqDistribAPI, initState:MergeCorpFreqModelState) {
         super(dispatcher, initState);
         this.tileId = tileId;
-        this.waitingForTiles = Immutable.Map<number, {corpname:string; concId:string}>(waitForTiles.map(v => [v, null]));
         this.appServices = appServices;
         this.concApi = concApi;
         this.freqApi = freqApi;
@@ -140,65 +132,29 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
         this.addActionHandler<GlobalActions.RequestQueryResponse>(
             GlobalActionName.RequestQueryResponse,
             (state, action) => {
-                this.waitingForTiles = this.waitingForTiles.map(() => null).toMap();
                 state.isBusy = true;
                 state.error = null;
             },
             (state, action, dispatch) => {
-                this.suspend((action:Action) => {
-                    if (action.name === GlobalActionName.TileDataLoaded && this.waitingForTiles.has(action.payload['tileId'])) {
-                        if (action.error) {
-                            dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                name: GlobalActionName.TileDataLoaded,
-                                error: new Error(this.appServices.translate('global__failed_to_obtain_required_data')),
-                                payload: {
-                                    tileId: this.tileId,
-                                    isEmpty: true,
-                                    data: [],
-                                    concId: null // TODO
-                                }
-                            });
-                            return true;
+                const conc$ = waitForTiles.length > 0 ?
+                    this.suspend(Dict.fromEntries(waitForTiles.map(v => [v.toFixed(), 0])), (action, syncData) => {
+                        if (action.name === GlobalActionName.TilePartialDataLoaded && waitForTiles.indexOf(action.payload['tileId']) > -1) {
+                            const ans = {...syncData};
+                            ans[action.payload['tileId'].toFixed()] += 1;
+                            return Dict.find(ans, v => v < state.lemmas.length) ? ans : null;
                         }
-                        const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
+                        return syncData;
 
-                        if (this.waitingForTiles.get(payload.tileId) === null) {
-                            this.waitingForTiles = this.waitingForTiles.set(
-                                payload.tileId,
-                                {corpname: payload.corpusName, concId: payload.concPersistenceIDs[0]}
-                            );
-                        }
-                        if (!this.waitingForTiles.findKey(v => v === null)) {
-                            this.loadFreqs(state).subscribe(
-                                (data) => {
-                                    dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                        name: GlobalActionName.TileDataLoaded,
-                                        payload: {
-                                            tileId: this.tileId,
-                                            isEmpty: data.every(v => v.freq === 0),
-                                            data: data,
-                                            concId: null // TODO
-                                        }
-                                    });
-                                },
-                                (err) => {
-                                    dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                        name: GlobalActionName.TileDataLoaded,
-                                        payload: {
-                                            tileId: this.tileId,
-                                            isEmpty: true,
-                                            data: [],
-                                            concId: null // TODO
-                                        },
-                                        error: err
-                                    });
-                                }
-                            );
-                            return true;
-                        }
-                    }
-                    return false;
-                });
+                    }).pipe(
+                        map(action => {
+                            const payload = (action as GlobalActions.TilePartialDataLoaded<SingleConcLoadedPayload>).payload;
+                            const src = state.sources.find(v => v.corpname === payload.data.corpName);
+                            return [payload.queryNum, src, payload.data.concPersistenceID] as LoadedConcProps;
+                        })
+                    ) :
+                    this.loadConcordances(state);
+
+                this.loadFreqs(conc$, dispatch);
             }
         );
 
@@ -206,16 +162,18 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
             GlobalActionName.TileDataLoaded,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
-                    state.isBusy = false;
+                    if (action.payload.isLast) {
+                        state.isBusy = false;
+                    }
                     if (action.error) {
-                        state.data = Immutable.List<SourceMappedDataRow>();
+                        state.data = [];
                         state.error = action.error.message;
 
                     } else if (action.payload.data.length === 0) {
-                        state.data = Immutable.List<SourceMappedDataRow>();
+                        state.data = [];
 
                     } else {
-                        state.data = Immutable.List<SourceMappedDataRow>(action.payload.data);
+                        state.data = action.payload.data;
                     }
                 }
             }
@@ -270,14 +228,16 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
             null;
     }
 
-    private loadConcordances(state:MergeCorpFreqModelState) {
-        return state.sources.flatMap(source =>
-            state.lemmas.map((lemma, queryId) =>
-                this.concApi.call(
+    private loadConcordances(state:MergeCorpFreqModelState):Observable<[number, ModelSourceArgs, string]> {
+        return rxOf(...state.sources).pipe(
+            flatMap(source => rxOf(...state.lemmas.map((v, i) => [i, source, v] as [number, ModelSourceArgs, LemmaVariant]))),
+            concatMap(([queryId, args, lemma]) =>
+                callWithExtraVal(
+                    this.concApi,
                     this.concApi.stateToArgs(
                         {
                             querySelector: QuerySelector.CQL,
-                            corpname: source.corpname,
+                            corpname: args.corpname,
                             otherCorpname: undefined,
                             subcname: null,
                             subcDesc: null,
@@ -292,107 +252,122 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> 
                             metadataAttrs: [],
                             queries: [],
                             concordances: createInitialLinesData(state.lemmas.length),
-                            posQueryGenerator: ["tag", "ppTagset"] // TODO configuration
+                            posQueryGenerator: ['tag', 'ppTagset'] // TODO configuration
                         },
                         lemma,
                         queryId,
                         null
-                    )
-                ).pipe(
-                    flatMap(resp =>
-                        callWithExtraVal(
-                            this.freqApi,
-                            sourceToAPIArgs(source, resp.concPersistenceID),
-                            {
-                                sourceId: source.uuid,
-                                queryId: queryId
-                            }
-                        )
-                    )
+                    ),
+                    [args, queryId] as [ModelSourceArgs, number]
                 )
+            ),
+            map(
+                ([resp, [args, queryId]]) => [queryId, args, resp.concPersistenceID]
             )
-        ).toArray()
+        );
     }
 
-    private loadFreqs(state:MergeCorpFreqModelState):Observable<Array<SourceMappedDataRow>> {
-        let streams$;
-        if (state.lemmas.length > 1) {
-            streams$ = this.loadConcordances(state);
-        } else {
-            streams$ = state.sources.map<Observable<[APIResponse, {sourceId:string; queryId:number;}]>>(src => {
-                const srchKey = this.waitingForTiles.findKey(v => v && v.corpname === src.corpname);
-                return srchKey !== undefined ?
-                    callWithExtraVal(
-                        this.freqApi,
-                        sourceToAPIArgs(src, this.waitingForTiles.get(srchKey).concId),
-                        {
-                            sourceId: src.uuid,
-                            queryId: 0
-                        }                        
-                    ) :
-                    throwError(new Error(`Cannot find concordance result for ${src.corpname}. Passing an empty stream.`));
-            }).toArray();
-        }        
+    private loadFreqs(conc$:Observable<[number, ModelSourceArgs, string]>, dispatch:SEDispatcher):void {
+        conc$.pipe(
+            timeout(60 * 1000), // TODO conf
+            flatMap(([queryId, sourceArgs, concId]) => {
+                return callWithExtraVal(
+                    this.freqApi,
+                    sourceToAPIArgs(sourceArgs, concId),
+                    {
+                        sourceArgs: sourceArgs,
+                        queryId: queryId,
+                        concId: concId
+                    }
+                );
+            }),
+            scan(
+                (acc, [resp, args]) => {
+                    const ans = [...acc];
+                    if (ans[args.queryId] === undefined) {
+                        ans[args.queryId] = [];
+                    }
+                    const dataNorm:Array<DataRow> =
+                        args.sourceArgs.isSingleCategory ?
+                            [resp.data.reduce<DataRow>(
+                                (ans, curr) => ({
+                                    sourceId: args.sourceArgs.uuid,
+                                    name: '',
+                                    freq: ans.freq + curr.freq,
+                                    ipm: undefined,
+                                    norm: undefined,
+                                    order: undefined,
+                                    backlink: undefined
 
-        return forkJoin(...streams$).pipe(
-            map((partials:Array<[APIResponse, {sourceId:string; queryId:number;}]>) => {
-                return partials.reduce<Array<SourceMappedDataRow>>((acc, curr) => {
-                    const [resp, args] = curr;
-                    const srcConf = state.sources.find(v => v.uuid === args.sourceId);
-                    const dataNorm:Array<DataRow> = srcConf.isSingleCategory ?
-                        [resp.data.reduce(
-                            (acc, curr) => ({
-                                name: '',
-                                freq: acc.freq + curr.freq,
-                                ipm: undefined,
-                                norm: undefined,
-                                order: undefined
+                                }),
+                                {
+                                    name: '',
+                                    freq: 0,
+                                    ipm: undefined,
+                                    norm: undefined,
+                                    order: undefined
+                                }
+                            )] :
+                            resp.data;
 
-                            }),
-                            {
-                                name: '',
-                                freq: 0,
-                                ipm: undefined,
-                                norm: undefined,
-                                order: undefined
-                            }
-                        )] :
-                        resp.data;
-                    return acc.concat(
+                    ans[args.queryId] = ans[args.queryId].concat(
                         (dataNorm.length > 0 ?
                             dataNorm :
-                            [{name: srcConf.valuePlaceholder, freq: 0, ipm: 0, norm: 0}]
+                            [{
+                                name: args.sourceArgs.valuePlaceholder,
+                                freq: 0,
+                                ipm: 0,
+                                norm: 0
+                            }]
                         ).map(
                             v => {
-                                const name = srcConf.valuePlaceholder ?
-                                srcConf.valuePlaceholder :
-                                this.appServices.translateDbValue(resp.corpname, v.name);
-
+                                const name = args.sourceArgs.valuePlaceholder ?
+                                    args.sourceArgs.valuePlaceholder :
+                                    this.appServices.translateDbValue(resp.corpname, v.name);
                                 return v.ipm ?
                                     {
-                                        sourceId: srcConf.uuid,
+                                        sourceId: args.sourceArgs.uuid,
                                         queryId: args.queryId,
-                                        backlink: this.createBackLink(srcConf, resp.concId),
+                                        backlink: this.createBackLink(args.sourceArgs, resp.concId),
                                         freq: v.freq,
                                         ipm: v.ipm,
                                         norm: v.norm,
                                         name: name
                                     } :
                                     {
-                                        sourceId: srcConf.uuid,
+                                        sourceId: args.sourceArgs.uuid,
                                         queryId: args.queryId,
-                                        backlink: this.createBackLink(srcConf, resp.concId),
+                                        backlink: this.createBackLink(args.sourceArgs, resp.concId),
                                         freq: v.freq,
-                                        ipm: Math.round(v.freq / srcConf.corpusSize * 1e8) / 100,
+                                        ipm: Math.round(v.freq / args.sourceArgs.corpusSize * 1e8) / 100,
                                         norm: v.norm,
                                         name: name
                                     };
-                                }
-                        ));
-                    },
-                    []
-                );
-            })
+                            }
+                        )
+                    );
+                    return ans;
+                },
+                [] as Array<Array<SourceMappedDataRow>>
+            )
+        ).subscribe(
+            data => {
+                dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                    name: GlobalActionName.TileDataLoaded,
+                    payload: {
+                        tileId: this.tileId,
+                        isLast: data.every(x => x !== undefined),
+                        isEmpty: data.every(v => (v && v.every(v2 => v2.freq === 0) === true)),
+                        data: data,
+                    }
+                });
+            },
+            err => {
+                dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                    name: GlobalActionName.TileDataLoaded,
+                    error: err
+                });
+            }
         );
     }
 }

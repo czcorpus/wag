@@ -413,8 +413,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
         switch(action.name) {
             case GlobalActionName.RequestQueryResponse:
                 if (this.waitForTile) {
-                    this.suspend(
-                        (action) => {
+                    this.suspend({}, (action, syncData) => {
                             const payload = action.payload;
                             if (action.name === GlobalActionName.TileDataLoaded && isConcLoadedPayload(payload) &&
                                     action.payload['tileId'] === this.waitForTile) {
@@ -429,9 +428,9 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                                 } else {
                                     this.reloadData(state, dispatch, null, null);
                                 }
-                                return true;
+                                return null;
                             }
-                            return false;
+                            return syncData;
                         }
                     );
 

@@ -29,7 +29,7 @@ import { CollExamplesLoadedPayload } from './actions';
 import { Actions, ActionName } from './actions';
 import { normalizeTypography } from '../../../common/models/concordance/normalize';
 import { ISwitchMainCorpApi } from '../../../common/api/abstract/switchMainCorp';
-import { Dictop, Listop } from 'montainer';
+import { Dict } from '../../../common/collections';
 
 
 export interface ConcFilterModelState {
@@ -72,7 +72,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
         this.tileId = tileId;
         this.api = api;
         this.switchMainCorpApi = switchMainCorpApi;
-        this.waitingForTiles = Dictop.of(waitForTiles.map(v => [v.toFixed(), null])).u();
+        this.waitingForTiles = Dict.fromEntries(waitForTiles.map(v => [v.toFixed(), null]));
         this.subqSourceTiles = subqSourceTiles;
         this.numPendingSources = 0; // this cannot be part of the state (see occurrences in the 'suspend' fn)
         this.appServices = appServices;
@@ -80,7 +80,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
         this.addActionHandler<GlobalActions.RequestQueryResponse>(
             GlobalActionName.RequestQueryResponse,
             (state, action)  => {
-                this.waitingForTiles = Dictop.of(this.waitingForTiles).map(v => null).u();
+                this.waitingForTiles = Dict.map(this.waitingForTiles, v => null);
                 this.numPendingSources = 0;
                 state.isBusy = true;
                 state.error = null;
@@ -152,8 +152,8 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
         this.addActionHandler<GlobalActions.SubqChanged>(
             GlobalActionName.SubqChanged,
             (state, action) => {
-                if (Dictop.of(this.waitingForTiles).hasKey(action.payload.tileId.toFixed()).u0()) {
-                    this.waitingForTiles = Dictop.of(this.waitingForTiles).map(v => typeof v === 'string' ? v : null).u();
+                if (Dict.hasKey(this.waitingForTiles, action.payload.tileId.toFixed())) {
+                    this.waitingForTiles = Dict.map(this.waitingForTiles, v => typeof v === 'string' ? v : null);
                     state.isBusy = true;
                     state.lines = [];
                 }
@@ -293,101 +293,98 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
     }
 
     private isFromSubqSourceModel(action:Action<{tileId: number} & SubqueryPayload<RangeRelatedSubqueryValue>>):boolean {
-        return Listop.of(this.subqSourceTiles).containsValue(action.payload.tileId).u0();
+        return this.subqSourceTiles.find(v => v === action.payload.tileId) !== undefined;
     }
 
     private handleDataLoad(state:ConcFilterModelState, seDispatch:SEDispatcher) {
-        this.suspend(
-            (action:GlobalActions.TileDataLoaded<SubqueryPayload<RangeRelatedSubqueryValue> & {tileId:number}>) => {
-                if (action.name === GlobalActionName.TileDataLoaded &&
-                            Dictop.of(this.waitingForTiles).hasKey(action.payload.tileId.toFixed()).u0()) {
-                    if (action.error) {
-                        this.waitingForTiles = Dictop.of(this.waitingForTiles).map(v => null).u();
-                        seDispatch<GlobalActions.TileDataLoaded<CollExamplesLoadedPayload>>({
-                            name: GlobalActionName.TileDataLoaded,
-                            payload: {
-                                tileId: this.tileId,
-                                isEmpty: true,
-                                data: []
-                            },
-                            error: new Error(this.appServices.translate('global__failed_to_obtain_required_data')),
-                        });
-                        return true;
-                    }
-                    if (this.isFromSubqSourceModel(action) && isSubqueryPayload(action.payload)) {
-                        this.numPendingSources += action.payload.subqueries.length;
-                    }
-                    if (this.isFromSubqSourceModel(action) && this.waitingForTiles[action.payload.tileId.toFixed()] === null) {
-                        this.waitingForTiles[action.payload.tileId.toFixed()] = action.payload.subqueries;
+        this.suspend({}, (action:GlobalActions.TileDataLoaded<SubqueryPayload<RangeRelatedSubqueryValue> & {tileId:number}>, syncData) => {
+            if (action.name === GlobalActionName.TileDataLoaded &&
+                        Dict.hasKey(this.waitingForTiles, action.payload.tileId.toFixed())) {
+                if (action.error) {
+                    this.waitingForTiles = Dict.map(this.waitingForTiles, v => null);
+                    seDispatch<GlobalActions.TileDataLoaded<CollExamplesLoadedPayload>>({
+                        name: GlobalActionName.TileDataLoaded,
+                        payload: {
+                            tileId: this.tileId,
+                            isEmpty: true,
+                            data: []
+                        },
+                        error: new Error(this.appServices.translate('global__failed_to_obtain_required_data')),
+                    });
+                    return null;
+                }
+                if (this.isFromSubqSourceModel(action) && isSubqueryPayload(action.payload)) {
+                    this.numPendingSources += action.payload.subqueries.length;
+                }
+                if (this.isFromSubqSourceModel(action) && this.waitingForTiles[action.payload.tileId.toFixed()] === null) {
+                    this.waitingForTiles[action.payload.tileId.toFixed()] = action.payload.subqueries;
 
-                    } else if (isConcLoadedPayload(action.payload) && this.waitingForTiles[action.payload.tileId.toFixed()] === null) {
-                        this.waitingForTiles[action.payload.tileId.toFixed()] = action.payload.concPersistenceIDs[0];
+                } else if (isConcLoadedPayload(action.payload) && this.waitingForTiles[action.payload.tileId.toFixed()] === null) {
+                    this.waitingForTiles[action.payload.tileId.toFixed()] = action.payload.concPersistenceIDs[0];
 
-                    }
-                    if (Dictop.of(this.waitingForTiles).find((v, k) => v === null).size().u0() === 0) {
-                        let conc:string;
-                        let subq:Array<SubQueryItem<RangeRelatedSubqueryValue>>;
-                        Dictop.of(this.waitingForTiles).tap((v, k) => {
-                            if (typeof v === 'string') {
-                                conc = v;
+                }
+                if (!Dict.hasValue(this.waitingForTiles, null)) {
+                    let conc:string;
+                    let subq:Array<SubQueryItem<RangeRelatedSubqueryValue>>;
+                    Dict.forEach(this.waitingForTiles, (v, k) => {
+                        if (typeof v === 'string') {
+                            conc = v;
 
-                            } else {
-                                subq = v;
-                            }
-                        });
-                        this.switchMainCorpApi.call({
-                            concPersistenceID: conc,
-                            corpname: state.corpName,
-                            align: state.otherCorpname,
-                            maincorp: state.otherCorpname
+                        } else {
+                            subq = v;
+                        }
+                    });
+                    this.switchMainCorpApi.call({
+                        concPersistenceID: conc,
+                        corpname: state.corpName,
+                        align: state.otherCorpname,
+                        maincorp: state.otherCorpname
 
-                        }).pipe(
-                            concatMap(
-                                (resp) => merge(...this.loadFreqs(state, resp.concPersistenceID, subq))
-                            )
+                    }).pipe(
+                        concatMap(
+                            (resp) => merge(...this.loadFreqs(state, resp.concPersistenceID, subq))
+                        )
 
-                        ).subscribe(
-                            (data) => {
-                                seDispatch<GlobalActions.TileDataLoaded<CollExamplesLoadedPayload>>({
-                                    name: GlobalActionName.TileDataLoaded,
-                                    payload: {
-                                        tileId: this.tileId,
-                                        isEmpty: false, // here we cannot assume final state
-                                        data: normalizeTypography(data.lines.slice(0, state.itemsPerSrc))
-                                    }
-                                });
-                            },
-                            (err) => {
+                    ).subscribe(
+                        (data) => {
+                            seDispatch<GlobalActions.TileDataLoaded<CollExamplesLoadedPayload>>({
+                                name: GlobalActionName.TileDataLoaded,
+                                payload: {
+                                    tileId: this.tileId,
+                                    isEmpty: false, // here we cannot assume final state
+                                    data: normalizeTypography(data.lines.slice(0, state.itemsPerSrc))
+                                }
+                            });
+                        },
+                        (err) => {
+                            seDispatch<GlobalActions.TileDataLoaded<CollExamplesLoadedPayload>>({
+                                name: GlobalActionName.TileDataLoaded,
+                                payload: {
+                                    tileId: this.tileId,
+                                    isEmpty: true,
+                                    data: []
+                                },
+                                error: err,
+                            });
+                        },
+                        () => {
+                            if (subq.length === 0) {
                                 seDispatch<GlobalActions.TileDataLoaded<CollExamplesLoadedPayload>>({
                                     name: GlobalActionName.TileDataLoaded,
                                     payload: {
                                         tileId: this.tileId,
                                         isEmpty: true,
                                         data: []
-                                    },
-                                    error: err,
+                                    }
                                 });
-                            },
-                            () => {
-                                if (subq.length === 0) {
-                                    seDispatch<GlobalActions.TileDataLoaded<CollExamplesLoadedPayload>>({
-                                        name: GlobalActionName.TileDataLoaded,
-                                        payload: {
-                                            tileId: this.tileId,
-                                            isEmpty: true,
-                                            data: []
-                                        }
-                                    });
-                                }
                             }
-                        );
-                        return true;
-                    }
-
+                        }
+                    );
+                    return null;
                 }
-                return false;
             }
-        );
+            return syncData;
+        });
     }
 
 }

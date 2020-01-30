@@ -24,7 +24,7 @@ import { ajax$, ResponseType } from '../common/ajax';
 import { SystemMessageType, SourceDetails } from '../common/types';
 import { TileFrameProps } from '../common/tile';
 import { ActionName, Actions } from './actions';
-import { Listop, Transform } from 'montainer';
+import { List, Dict } from '../common/collections';
 
 
 
@@ -79,51 +79,48 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                 const srchId = state.tileProps.findIndex(v => v.tileId === action.payload.tileId);
                 if (srchId > -1) {
                     const tile = state.tileProps[srchId];
-                    state.tileProps = Listop.of(state.tileProps).set(
-                        srchId,
-                        {
-                            tileId: tile.tileId,
-                            tileName: tile.tileName,
-                            Component: tile.Component,
-                            SourceInfoComponent: tile.SourceInfoComponent,
-                            label: tile.label,
-                            supportsTweakMode: tile.supportsTweakMode,
-                            supportsCurrQuery: tile.supportsCurrQuery,
-                            supportsHelpView: tile.supportsHelpView,
-                            supportsAltView: tile.supportsAltView,
-                            renderSize: [action.payload.size[0] + tile.tileId, action.payload.size[1]],
-                            widthFract: tile.widthFract,
-                            maxTileHeight: tile.maxTileHeight,
-                            helpURL: tile.helpURL,
-                            supportsReloadOnError: tile.supportsReloadOnError,
-                            issueReportingUrl: tile.issueReportingUrl
-                        }
-                    ).u();
-                }
+                    state.tileProps[srchId] = {
+                        tileId: tile.tileId,
+                        tileName: tile.tileName,
+                        Component: tile.Component,
+                        SourceInfoComponent: tile.SourceInfoComponent,
+                        label: tile.label,
+                        supportsTweakMode: tile.supportsTweakMode,
+                        supportsCurrQuery: tile.supportsCurrQuery,
+                        supportsHelpView: tile.supportsHelpView,
+                        supportsAltView: tile.supportsAltView,
+                        renderSize: [action.payload.size[0] + tile.tileId, action.payload.size[1]],
+                        widthFract: tile.widthFract,
+                        maxTileHeight: tile.maxTileHeight,
+                        helpURL: tile.helpURL,
+                        supportsReloadOnError: tile.supportsReloadOnError,
+                        issueReportingUrl: tile.issueReportingUrl
+                    }
+                };
             }
         );
         this.addActionHandler<Actions.EnableAltViewMode>(
             ActionName.EnableAltViewMode,
             (state, action) => {
-                state.altViewActiveTiles = Listop.of(state.altViewActiveTiles).addUnique(action.payload.ident).u();
+                state.altViewActiveTiles = List.addUnique(state.altViewActiveTiles, action.payload.ident);
             }
         );
         this.addActionHandler<Actions.DisableAltViewMode>(
             ActionName.DisableAltViewMode,
             (state, action) => {
-                state.altViewActiveTiles = Listop.of(state.altViewActiveTiles).removeValue(action.payload.ident).u();
+                state.altViewActiveTiles = List.removeValue(state.altViewActiveTiles, action.payload.ident);
             }
         );
         this.addActionHandler<Actions.EnableTileTweakMode>(
             ActionName.EnableTileTweakMode,
             (state, action) => {
-                state.tweakActiveTiles = Listop.of(state.tweakActiveTiles).addUnique(action.payload.ident).u();
+                state.tweakActiveTiles = List.addUnique(state.tweakActiveTiles, action.payload.ident);
             }
         );
         this.addActionHandler<Actions.DisableTileTweakMode>(
             ActionName.DisableTileTweakMode,
             (state, action) => {
-                state.tweakActiveTiles = Listop.of(state.tweakActiveTiles).removeValue(action.payload.ident).u();
+                state.tweakActiveTiles = List.removeValue(state.tweakActiveTiles, action.payload.ident);
             }
         );
         this.addActionHandler<Actions.ShowTileHelp>(
@@ -230,10 +227,10 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
             ActionName.ToggleGroupVisibility,
             (state, action) => {
                 if (state.hiddenGroups.some(v => v === action.payload.groupIdx)) {
-                    state.hiddenGroups = Listop.of(state.hiddenGroups).removeValue(action.payload.groupIdx).u();
+                    state.hiddenGroups = List.removeValue(state.hiddenGroups, action.payload.groupIdx);
 
                 } else {
-                    state.hiddenGroups = Listop.of(state.hiddenGroups).addUnique(action.payload.groupIdx).u();
+                    state.hiddenGroups = List.addUnique(state.hiddenGroups, action.payload.groupIdx);
                 }
             }
         );
@@ -296,13 +293,13 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
         this.addActionHandler(
             ActionName.RequestQueryResponse,
             (state, action) => {
-                state.tileResultFlags = Listop.of(state.tileResultFlags)
+                state.tileResultFlags = state.tileResultFlags
                     .map(v => ({
                         tileId: v.tileId,
                         groupId: v.groupId,
                         status: TileResultFlag.PENDING,
                         canBeAmbiguousResult: false
-                    })).u();
+                    }));
                 state.datalessGroups = [];
             }
         );
@@ -312,12 +309,12 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                 const srchIdx = state.tileResultFlags.findIndex(v => v.tileId === action.payload.tileId);
                 if (srchIdx > -1) {
                     const curr = state.tileResultFlags[srchIdx];
-                    state.tileResultFlags = Listop.of(state.tileResultFlags).set(srchIdx, {
+                    state.tileResultFlags[srchIdx] = {
                         tileId: curr.tileId,
                         groupId: curr.groupId,
                         status: this.inferResultFlag(action),
                         canBeAmbiguousResult: action.payload.canBeAmbiguousResult
-                    }).u();
+                    };
                 }
                 if (this.allTileStatusFlagsWritten(state)) {
                     this.findEmptyGroups(state);
@@ -327,13 +324,13 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
         this.addActionHandler<Actions.SetEmptyResult>(
             ActionName.SetEmptyResult,
             (state, action) => {
-                state.tileResultFlags = Listop.of(state.tileResultFlags)
+                state.tileResultFlags = state.tileResultFlags
                     .map(v => ({
                         tileId: v.tileId,
                         groupId: v.groupId,
                         status: TileResultFlag.EMPTY_RESULT,
                         canBeAmbiguousResult: false
-                    })).u();
+                    }));
                 this.findEmptyGroups(state);
                 return state;
             },
@@ -372,16 +369,23 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
         return TileResultFlag.VALID_RESULT;
     }
 
-    private findEmptyGroups(state:WdglanceTilesState):void {
-        state.datalessGroups = Transform.groupBy(
-                Listop.of(state.tileResultFlags),
-                v => v.groupId.toString()
+    private findEmptyGroups(state:WdglanceTilesState):void { // TODO
+        state.datalessGroups =
+            Object.keys(
+                Dict.filter(
+                    Dict.map(
+                        Dict.fromEntries(
+                            List.groupBy(
+                                state.tileResultFlags,
+                                v => v.groupId.toString()
+                            )
+                        ),
+                        (v, _) => !v.some(v2 => v2.status !== TileResultFlag.EMPTY_RESULT)
+                    ),
+                    (v, _) => v
+                )
             )
-            .map((v, _) => !v.find(v2 => v2.status !== TileResultFlag.EMPTY_RESULT))
-            .filter(v => v)
-            .keys()
-            .map(v => parseInt(v))
-            .u();
+            .map(v => parseInt(v));
     }
 
     private getTileProps(state:WdglanceTilesState, tileId:number):Observable<TileFrameProps> {

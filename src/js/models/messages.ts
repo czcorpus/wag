@@ -20,7 +20,6 @@ import { StatelessModel, IActionQueue } from 'kombo';
 import { AppServices } from '../appServices';
 import { SystemMessage } from '../notifications';
 import { ActionName, Actions } from './actions';
-import { Listop } from 'montainer';
 
 
 
@@ -44,12 +43,12 @@ export class MessagesModel extends StatelessModel<MessagesState> {
         this.addActionHandler(
             ActionName.AddSystemMessage,
             (state, action:Actions.AddSystemMessage) => {
-                state.systemMessages = Listop.of(state.systemMessages).append({
+                state.systemMessages.push({
                     type: action.payload.type,
                     text: action.payload.text,
                     ttl: action.payload.ttl,
                     ident: action.payload.ident
-                }).u();
+                });
             }
         );
         this.addActionHandler(
@@ -57,7 +56,7 @@ export class MessagesModel extends StatelessModel<MessagesState> {
             (state, action:Actions.RemoveSystemMessage) => {
                 const srchIdx = state.systemMessages.findIndex(v => v.ident === action.payload.ident);
                 if (srchIdx > -1) {
-                    state.systemMessages = Listop.of(state.systemMessages).remove(srchIdx).u();
+                    state.systemMessages = state.systemMessages.splice(srchIdx, 1);
                 }
             }
         );

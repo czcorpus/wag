@@ -39,7 +39,7 @@ import { ViewUtils, IFullActionControl } from 'kombo';
 import { AppServices } from './appServices';
 import { IAsyncKeyValueStore, TileIdentMap } from './common/types';
 import { mkTileFactory } from './tileLoader';
-import { Listop } from 'montainer';
+import { List } from './common/collections';
 
 
 interface AttachTileArgs {
@@ -165,7 +165,7 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
             tile.getBlockingTiles()
         );
         if (!isDictQuery && !tile.supportsNonDictQueries()) {
-            model.suspend(() => false);
+            model.suspend({}, (_, syncData) => syncData);
         }
 
     });
@@ -181,14 +181,15 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
             altViewActiveTiles: [],
             hiddenGroups: [],
             datalessGroups: [],
-            tileResultFlags: Listop.of(layoutManager.getLayoutGroups(qType)).flatMap(
-                (item, i) => Listop.of(item.tiles).map<TileResultFlagRec>(v => ({
+            tileResultFlags: List.flatMap(
+                layoutManager.getLayoutGroups(qType),
+                (item, i) => item.tiles.map<TileResultFlagRec>(v => ({
                     tileId: v.tileId,
                     groupId: i,
                     status: TileResultFlag.PENDING,
                     canBeAmbiguousResult: false
                 }))
-            ).u(),
+            ),
             tileProps: tiles,
             activeSourceInfo: null,
             activeGroupHelp: null,

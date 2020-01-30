@@ -19,7 +19,7 @@ import { AppServices } from './appServices';
 import { QueryType, QueryTypeMenuItem } from './common/query';
 import { GroupLayoutConfig, LayoutsConfig, LayoutConfigCommon } from './conf';
 import { TileIdentMap } from './common/types';
-import { Listop, Dictop } from 'montainer';
+import { List, Dict } from './common/collections';
 
 
 function itemIsGroupConf(v:string|GroupLayoutConfig):v is GroupLayoutConfig {
@@ -57,10 +57,7 @@ interface LayoutOfQueryTypeTranslat extends LayoutCore {
 
 
 function concatLayouts(...layouts:Array<LayoutCore>):Array<TileGroup> {
-    return Listop.of(layouts)
-            .map(t => t.groups)
-            .flatMap(t => Listop.of(t))
-            .unwrap();
+    return List.flatMap(layouts.map(t => t.groups), t => t);
 }
 
 function layoutIsEmpty(layout:LayoutCore):boolean {
@@ -131,12 +128,14 @@ export class LayoutManager {
      * Return a list of information about invalid items.
      */
     private validateLayouts():void {
-        Listop.of(concatLayouts(this.layoutSingle, this.layoutCmp, this.layoutTranslat))
-            .flatMap(v => Listop.of(v.tiles.map((v2, idx) => ({group: v.groupLabel, tileId: v2.tileId, idx: idx}))))
-            .filter(v => v.tileId === undefined)
-            .tap(item => {
-                console.error(`Invalid layout configuration for group ${item.group} at position ${item.idx}`);
-            });
+        List.flatMap(
+            concatLayouts(this.layoutSingle, this.layoutCmp, this.layoutTranslat),
+            v => v.tiles.map((v2, idx) => ({group: v.groupLabel, tileId: v2.tileId, idx: idx}))
+        ).filter(v => v.tileId === undefined)
+        .map(item => {
+            console.error(`Invalid layout configuration for group ${item.group} at position ${item.idx}`);
+            return item;
+        });
     }
 
     getLayoutGroups(queryType:QueryType):Array<TileGroup> {
@@ -157,27 +156,27 @@ export class LayoutManager {
     }
 
     getTargetLanguages():{[k in QueryType]:Array<[string, string]>} {
-        return Dictop.of([
+        return Dict.fromEntries([
             [QueryType.SINGLE_QUERY, []],
             [QueryType.CMP_QUERY, []],
             [QueryType.TRANSLAT_QUERY, this.layoutTranslat.translatTargetLanguages]
-        ]).unwrap();
+        ]);
     }
 
     getTileWidthFract(queryType:QueryType, tileId:number):number|null {
-        const srch = Listop.of(this.getLayout(queryType).groups)
-            .flatMap(v => Listop.of(v.tiles))
-            .find(v => v.tileId === tileId)
-            .unwrapFirst();
+        const srch = List.flatMap(
+                this.getLayout(queryType).groups,
+                v => v.tiles
+            ).find(v => v.tileId === tileId);
         return srch ? srch.width : null;
     }
 
     getMultiWordQuerySupport():{[k in QueryType]:boolean} {
-        return Dictop.of([
+        return Dict.fromEntries([
             [QueryType.SINGLE_QUERY, this.getLayout(QueryType.SINGLE_QUERY).supportsMultiWordQuery],
             [QueryType.CMP_QUERY, this.getLayout(QueryType.CMP_QUERY).supportsMultiWordQuery],
             [QueryType.TRANSLAT_QUERY, this.getLayout(QueryType.TRANSLAT_QUERY).supportsMultiWordQuery]
-        ]).unwrap();
+        ]);
     }
 
     private isServiceOf(queryType:QueryType, tileId:number):boolean {
@@ -186,11 +185,10 @@ export class LayoutManager {
 
     isInCurrentLayout(queryType:QueryType, tileId:number):boolean {
         return this.isServiceOf(queryType, tileId) ||
-            !Listop.of(this.getLayout(queryType).groups)
-                    .flatMap(v => Listop.of(v.tiles))
-                    .find(v => v.tileId === tileId)
-                    .isEmpty()
-                    .unwrapFirst();
+            List.flatMap(
+                this.getLayout(queryType).groups,
+                v => v.tiles
+            ).some(v => v.tileId === tileId);
     }
 
     getQueryTypesMenuItems():Array<QueryTypeMenuItem> {

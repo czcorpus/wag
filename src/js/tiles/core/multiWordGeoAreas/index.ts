@@ -127,7 +127,7 @@ export class MultiWordGeoAreasTile implements ITileProvider {
     }
 
     disable():void {
-        this.model.suspend(()=>false);
+        this.model.suspend({}, (_, syncData)=>syncData);
     }
 
     getWidthFract():number {
