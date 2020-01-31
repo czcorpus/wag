@@ -381,7 +381,6 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 }
             },
             (err) => {
-                console.log("#################### ERR")
                 dispatch<GlobalActions.TileDataLoaded<{}>>({
                     name: GlobalActionName.TileDataLoaded,
                     error: err,
