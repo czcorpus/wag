@@ -28,9 +28,9 @@ import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { CollocationApi } from '../../../common/api/abstract/collocations';
 import { CollocModelState, ctxToRange } from '../../../common/models/collocations';
 import { CoreCollRequestArgs } from '../../../common/api/kontext/collocations';
-import { LemmaVariant, RecognizedQueries, QueryType } from '../../../common/query';
+import { LemmaVariant, QueryType } from '../../../common/query';
 import { CoreApiGroup } from '../../../common/api/coreGroups';
-import { ConcApi, QuerySelector, mkMatchQuery } from '../../../common/api/kontext/concordance';
+import { ConcApi, QuerySelector } from '../../../common/api/kontext/concordance';
 import { callWithExtraVal } from '../../../common/api/util';
 import { ViewMode } from '../../../common/api/abstract/concordance';
 import { createInitialLinesData } from '../../../common/models/concordance';
@@ -44,6 +44,7 @@ export interface CollocModelArgs {
     concApi:ConcApi;
     initState:CollocModelState;
     waitForTile:number;
+    waitForTilesTimeoutSecs:number;
     backlink:Backlink;
     queryType:QueryType;
     apiType:string;
@@ -63,6 +64,8 @@ export class CollocModel extends StatelessModel<CollocModelState> {
 
     private readonly waitForTile:number;
 
+    private readonly waitForTilesTimeoutSecs:number;
+
     private readonly queryType:QueryType;
 
     private readonly apiType:string;
@@ -80,10 +83,11 @@ export class CollocModel extends StatelessModel<CollocModelState> {
 
     private readonly backlink:Backlink;
 
-    constructor({dispatcher, tileId, waitForTile, appServices, service, initState, backlink, queryType, apiType, concApi}:CollocModelArgs) {
+    constructor({dispatcher, tileId, waitForTile, waitForTilesTimeoutSecs, appServices, service, initState, backlink, queryType, apiType, concApi}:CollocModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.waitForTile = waitForTile;
+        this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.appServices = appServices;
         this.service = service;
         this.concApi = concApi;

@@ -26,7 +26,7 @@ import { GlobalComponents, TooltipValues } from '../../../../views/global';
 import { ActionName, Actions } from '../actions';
 import { MultiWordGeoAreasModel, MultiWordGeoAreasModelState } from '../model';
 import { LemmaVariant } from '../../../../common/query';
-import { Dict, List } from '../../../../common/collections';
+import { Dict, List, applyComposed } from '../../../../common/collections';
 
 
 export interface TargetDataRow extends DataRow {
@@ -34,16 +34,14 @@ export interface TargetDataRow extends DataRow {
 }
 
 const groupData = (data:Array<Array<DataRow>>):[{[area:string]:Array<TargetDataRow>}, {[area:string]:number}, {[area:string]:number}] => {
-    const groupedData = List.groupBy(
-        List.flatMap(
-            data,
-            (targetData, queryId) =>
-                targetData.map(item => ({
-                ...item,
-                target: queryId
-            } as TargetDataRow))
-        ),
-        item => item['name']
+    const groupedData = applyComposed(
+        data,
+        List.flatMap((targetData, queryId) =>
+            targetData.map(item => ({
+            ...item,
+            target: queryId
+            } as TargetDataRow))),
+        List.groupBy(item => item['name'])
     );
     const groupedIpmNorms = Dict.fromEntries(groupedData.map(([area, data]) => [area, data.reduce((acc, curr) => acc + curr.ipm, 0)]));
     const groupedAreaAbsFreqs = Dict.fromEntries(groupedData.map(([area, data]) => [area, data.reduce((acc, curr) => acc + curr.freq, 0)]));
@@ -256,63 +254,66 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             }
         });
         // insert data
-        Dict.forEach(groupedAreaData, (areaData, areaName) => {
-            const ident = areaCodeMapping[areaName];
-            const notEnoughData = groupedAreaAbsFreqs[areaName] < frequencyDisplayLimit;
-            if (ident) {
-                const element = document.getElementById(`${ident}-g`);
-                if (element) {
-                    let pieChart, areaIpmNorm, scale;
+        Dict.forEach(
+            (areaData, areaName) => {
+                const ident = areaCodeMapping[areaName];
+                const notEnoughData = groupedAreaAbsFreqs[areaName] < frequencyDisplayLimit;
+                if (ident) {
+                    const element = document.getElementById(`${ident}-g`);
+                    if (element) {
+                        let pieChart, areaIpmNorm, scale;
 
-                    if (notEnoughData) {
-                        areaIpmNorm = 0;
-                        scale = 0.75;
+                        if (notEnoughData) {
+                            areaIpmNorm = 0;
+                            scale = 0.75;
 
-                        pieChart = createSVGEmptyCircle(
-                            element,
-                            150
-                        );
-                    } else {
-                        areaIpmNorm = groupedAreaIpmNorms[areaName];
-                        scale = 0.75 + ((areaIpmNorm - minIpmNorm)/(maxIpmNorm - minIpmNorm))/2;
+                            pieChart = createSVGEmptyCircle(
+                                element,
+                                150
+                            );
+                        } else {
+                            areaIpmNorm = groupedAreaIpmNorms[areaName];
+                            scale = 0.75 + ((areaIpmNorm - minIpmNorm)/(maxIpmNorm - minIpmNorm))/2;
 
-                        pieChart = createSVGPieChart(
-                            element,
-                            areaIpmNorm,
-                            areaData,
-                            150
-                        );
-                    }
-                    // scaling pie chart according to relative ipm norm
-                    pieChart.setAttribute('transform', `scale(${scale} ${scale})`);
-                
-                    fromEvent(pieChart, 'mousemove')
-                        .subscribe((e:MouseEvent) => {
-                            dispatcher.dispatch<Actions.ShowAreaTooltip>({
-                                name: ActionName.ShowAreaTooltip,
-                                payload: {
-                                    areaName: areaName,
-                                    areaIpmNorm: areaIpmNorm,
-                                    areaData: notEnoughData ? null : areaData,
-                                    tileId: tileId,
-                                    tooltipX: e.pageX,
-                                    tooltipY: e.pageY
-                                }
+                            pieChart = createSVGPieChart(
+                                element,
+                                areaIpmNorm,
+                                areaData,
+                                150
+                            );
+                        }
+                        // scaling pie chart according to relative ipm norm
+                        pieChart.setAttribute('transform', `scale(${scale} ${scale})`);
+
+                        fromEvent(pieChart, 'mousemove')
+                            .subscribe((e:MouseEvent) => {
+                                dispatcher.dispatch<Actions.ShowAreaTooltip>({
+                                    name: ActionName.ShowAreaTooltip,
+                                    payload: {
+                                        areaName: areaName,
+                                        areaIpmNorm: areaIpmNorm,
+                                        areaData: notEnoughData ? null : areaData,
+                                        tileId: tileId,
+                                        tooltipX: e.pageX,
+                                        tooltipY: e.pageY
+                                    }
+                                });
                             });
-                        });
 
-                    fromEvent(pieChart, 'mouseout')
-                        .subscribe(() => {
-                            dispatcher.dispatch<Actions.HideAreaTooltip>({
-                                name: ActionName.HideAreaTooltip,
-                                payload: {
-                                    tileId: tileId
-                                }
+                        fromEvent(pieChart, 'mouseout')
+                            .subscribe(() => {
+                                dispatcher.dispatch<Actions.HideAreaTooltip>({
+                                    name: ActionName.HideAreaTooltip,
+                                    payload: {
+                                        tileId: tileId
+                                    }
+                                });
                             });
-                        });
-                    }
-            }
-        });
+                        }
+                }
+            },
+            groupedAreaData
+        );
     }
 
     // -------------- <Tooltip /> ---------------------------------------------

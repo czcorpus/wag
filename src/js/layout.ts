@@ -19,7 +19,7 @@ import { AppServices } from './appServices';
 import { QueryType, QueryTypeMenuItem } from './common/query';
 import { GroupLayoutConfig, LayoutsConfig, LayoutConfigCommon } from './conf';
 import { TileIdentMap } from './common/types';
-import { List, Dict } from './common/collections';
+import { List, Dict, applyComposed as applyComposed } from './common/collections';
 
 
 function itemIsGroupConf(v:string|GroupLayoutConfig):v is GroupLayoutConfig {
@@ -57,7 +57,7 @@ interface LayoutOfQueryTypeTranslat extends LayoutCore {
 
 
 function concatLayouts(...layouts:Array<LayoutCore>):Array<TileGroup> {
-    return List.flatMap(layouts.map(t => t.groups), t => t);
+    return List.flatMap(t => t, layouts.map(t => t.groups));
 }
 
 function layoutIsEmpty(layout:LayoutCore):boolean {
@@ -128,14 +128,14 @@ export class LayoutManager {
      * Return a list of information about invalid items.
      */
     private validateLayouts():void {
-        List.flatMap(
+        applyComposed(
             concatLayouts(this.layoutSingle, this.layoutCmp, this.layoutTranslat),
-            v => v.tiles.map((v2, idx) => ({group: v.groupLabel, tileId: v2.tileId, idx: idx}))
-        ).filter(v => v.tileId === undefined)
-        .map(item => {
-            console.error(`Invalid layout configuration for group ${item.group} at position ${item.idx}`);
-            return item;
-        });
+            List.flatMap(v => v.tiles.map((v2, idx) => ({group: v.groupLabel, tileId: v2.tileId, idx: idx}))),
+            List.filter(v => v.tileId === undefined),
+            List.tap((item) => {
+                console.error(`Invalid layout configuration for group ${item.group} at position ${item.idx}`);
+            })
+        );
     }
 
     getLayoutGroups(queryType:QueryType):Array<TileGroup> {
@@ -164,10 +164,11 @@ export class LayoutManager {
     }
 
     getTileWidthFract(queryType:QueryType, tileId:number):number|null {
-        const srch = List.flatMap(
+        const srch = applyComposed(
                 this.getLayout(queryType).groups,
-                v => v.tiles
-            ).find(v => v.tileId === tileId);
+                List.flatMap(v => v.tiles),
+                List.find(v => v.tileId === tileId)
+        );
         return srch ? srch.width : null;
     }
 
@@ -185,10 +186,11 @@ export class LayoutManager {
 
     isInCurrentLayout(queryType:QueryType, tileId:number):boolean {
         return this.isServiceOf(queryType, tileId) ||
-            List.flatMap(
+            applyComposed(
                 this.getLayout(queryType).groups,
-                v => v.tiles
-            ).some(v => v.tileId === tileId);
+                List.flatMap(v => v.tiles),
+                List.some(v => v.tileId === tileId)
+            );
     }
 
     getQueryTypesMenuItems():Array<QueryTypeMenuItem> {

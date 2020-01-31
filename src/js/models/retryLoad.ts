@@ -64,7 +64,7 @@ export class RetryTileLoad extends StatefulModel<RetryTileLoadState> {
         while (toProc.length > 0) {
             const item = toProc[0];
             toProc = List.shift(toProc);
-            ans = List.addUnique(ans, item);
+            ans = List.addUnique(item, ans);
             const model = this.state.models[item.toFixed()];
             if (model) {
                 toProc = toProc.concat(this.state.models[item.toFixed()].blockers);
@@ -73,11 +73,14 @@ export class RetryTileLoad extends StatefulModel<RetryTileLoadState> {
                 console.error('Tile dependency misconfiguration related to tile ', item);
             }
         }
-        Dict.forEach(this.state.models, (model, ident) => {
-            if (model.blockers.indexOf(tileId) > -1) {
-                ans = List.addUnique(ans, parseInt(ident));
-            }
-        });
+        Dict.forEach(
+            (model, ident) => {
+                if (model.blockers.indexOf(tileId) > -1) {
+                    ans = List.addUnique(parseInt(ident), ans);
+                }
+            },
+            this.state.models
+        );
         return ans;
     }
 
@@ -85,16 +88,19 @@ export class RetryTileLoad extends StatefulModel<RetryTileLoadState> {
         switch (action.name) {
             case ActionName.RetryTileLoad:
                 const blockedGroup = this.getBlockedGroup(action.payload['tileId']);
-                Dict.forEach(this.state.models, (model, ident) => {
-                    if (!blockedGroup.some(x => x.toFixed() === ident)) {
-                        model.model.suspend({}, (action, syncData) => {
-                            if (action.name === ActionName.WakeSuspendedTiles) {
-                                return true;
-                            }
-                            return false;
-                        });
-                    }
-                });
+                Dict.forEach(
+                    (model, ident) => {
+                        if (!blockedGroup.some(x => x.toFixed() === ident)) {
+                            model.model.suspend({}, (action, syncData) => {
+                                if (action.name === ActionName.WakeSuspendedTiles) {
+                                    return true;
+                                }
+                                return false;
+                            });
+                        }
+                    },
+                    this.state.models
+                );
                 this.reloadDispatcher.dispatch(this.state.lastAction);
                 this.reloadDispatcher.dispatch({
                     name: ActionName.WakeSuspendedTiles

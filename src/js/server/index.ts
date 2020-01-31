@@ -25,7 +25,7 @@ import * as path from 'path';
 import * as sqlite3 from 'sqlite3';
 import * as translations from 'translations';
 
-import { ClientStaticConf, ServerConf, WordFreqDbConf } from '../conf';
+import { ClientStaticConf, ServerConf } from '../conf';
 import { wdgRouter } from './routes';
 import { createToolbarInstance } from './toolbar/factory';
 import { RedisLogQueue } from './logging/redisQueue';

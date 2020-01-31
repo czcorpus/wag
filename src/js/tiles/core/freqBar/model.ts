@@ -98,7 +98,7 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState, {[tileId:str
                 state.error = null;
             },
             (state, action, dispatch) => {
-                this.suspend(Dict.map(this.waitForTiles, _ => true), (action:Action, syncData) => {
+                this.suspend(Dict.map(_ => true, this.waitForTiles), (action:Action, syncData) => {
                     if (action.name === GlobalActionName.TileDataLoaded && this.waitForTiles[action.payload['tileId']] !== undefined) {
                         const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
                         new Observable((observer:Observer<number>) => {
@@ -148,7 +148,7 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState, {[tileId:str
 
                         const ans = {...syncData};
                         ans[payload.tileId.toFixed()] = false;
-                        return Dict.hasValue(ans, true) ? ans : null;
+                        return Dict.hasValue(true, ans) ? ans : null;
                     }
                     return syncData;
                 });
@@ -208,6 +208,7 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState, {[tileId:str
                             dispatch({
                                 name: GlobalActionName.GetSourceInfoDone,
                                 payload: {
+                                    tileId: this.tileId,
                                     data: data
                                 }
                             });
@@ -216,8 +217,10 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState, {[tileId:str
                             console.error(err);
                             dispatch({
                                 name: GlobalActionName.GetSourceInfoDone,
-                                error: err
-
+                                error: err,
+                                paylod: {
+                                    tileId: this.tileId
+                                }
                             });
                         }
                     );

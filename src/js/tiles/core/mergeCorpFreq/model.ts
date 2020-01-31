@@ -103,11 +103,14 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
 
     private readonly freqApi:FreqDistribAPI;
 
-    constructor(dispatcher:IActionQueue, tileId:number, waitForTiles:Array<number>, appServices:AppServices,
+    private readonly waitForTilesTimeoutSecs:number;
+
+    constructor(dispatcher:IActionQueue, tileId:number, waitForTiles:Array<number>, waitForTilesTimeoutSecs:number, appServices:AppServices,
                     concApi:ConcApi, freqApi:FreqDistribAPI, initState:MergeCorpFreqModelState) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.appServices = appServices;
+        this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.concApi = concApi;
         this.freqApi = freqApi;
 
@@ -141,7 +144,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
                         if (action.name === GlobalActionName.TilePartialDataLoaded && waitForTiles.indexOf(action.payload['tileId']) > -1) {
                             const ans = {...syncData};
                             ans[action.payload['tileId'].toFixed()] += 1;
-                            return Dict.find(ans, v => v < state.lemmas.length) ? ans : null;
+                            return Dict.find(v => v < state.lemmas.length, ans) ? ans : null;
                         }
                         return syncData;
 
@@ -190,6 +193,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
                             dispatch({
                                 name: GlobalActionName.GetSourceInfoDone,
                                 payload: {
+                                    tileId: this.tileId,
                                     data: data
                                 }
                             });
@@ -198,8 +202,10 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
                             console.error(err);
                             dispatch({
                                 name: GlobalActionName.GetSourceInfoDone,
-                                error: err
-
+                                error: err,
+                                payload: {
+                                    tileId: this.tileId
+                                }
                             });
                         }
                     );
@@ -269,7 +275,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
 
     private loadFreqs(conc$:Observable<[number, ModelSourceArgs, string]>, dispatch:SEDispatcher):void {
         conc$.pipe(
-            timeout(60 * 1000), // TODO conf
+            timeout(this.waitForTilesTimeoutSecs * 1000),
             flatMap(([queryId, sourceArgs, concId]) => {
                 return callWithExtraVal(
                     this.freqApi,
@@ -365,7 +371,13 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
             err => {
                 dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
                     name: GlobalActionName.TileDataLoaded,
-                    error: err
+                    error: err,
+                    payload: {
+                        tileId: this.tileId,
+                        isEmpty: true,
+                        isLast: true,
+                        data: []
+                    }
                 });
             }
         );

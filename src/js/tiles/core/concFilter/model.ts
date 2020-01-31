@@ -80,7 +80,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
         this.addActionHandler<GlobalActions.RequestQueryResponse>(
             GlobalActionName.RequestQueryResponse,
             (state, action)  => {
-                this.waitingForTiles = Dict.map(this.waitingForTiles, v => null);
+                this.waitingForTiles = Dict.map(v => null, this.waitingForTiles);
                 this.numPendingSources = 0;
                 state.isBusy = true;
                 state.error = null;
@@ -152,8 +152,8 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
         this.addActionHandler<GlobalActions.SubqChanged>(
             GlobalActionName.SubqChanged,
             (state, action) => {
-                if (Dict.hasKey(this.waitingForTiles, action.payload.tileId.toFixed())) {
-                    this.waitingForTiles = Dict.map(this.waitingForTiles, v => typeof v === 'string' ? v : null);
+                if (Dict.hasKey(action.payload.tileId.toFixed()), this.waitingForTiles) {
+                    this.waitingForTiles = Dict.map(v => typeof v === 'string' ? v : null, this.waitingForTiles);
                     state.isBusy = true;
                     state.lines = [];
                 }
@@ -299,9 +299,9 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
     private handleDataLoad(state:ConcFilterModelState, seDispatch:SEDispatcher) {
         this.suspend({}, (action:GlobalActions.TileDataLoaded<SubqueryPayload<RangeRelatedSubqueryValue> & {tileId:number}>, syncData) => {
             if (action.name === GlobalActionName.TileDataLoaded &&
-                        Dict.hasKey(this.waitingForTiles, action.payload.tileId.toFixed())) {
+                        Dict.hasKey(action.payload.tileId.toFixed(), this.waitingForTiles)) {
                 if (action.error) {
-                    this.waitingForTiles = Dict.map(this.waitingForTiles, v => null);
+                    this.waitingForTiles = Dict.map(v => null, this.waitingForTiles);
                     seDispatch<GlobalActions.TileDataLoaded<CollExamplesLoadedPayload>>({
                         name: GlobalActionName.TileDataLoaded,
                         payload: {
@@ -326,14 +326,17 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                 if (!Dict.hasValue(this.waitingForTiles, null)) {
                     let conc:string;
                     let subq:Array<SubQueryItem<RangeRelatedSubqueryValue>>;
-                    Dict.forEach(this.waitingForTiles, (v, k) => {
-                        if (typeof v === 'string') {
-                            conc = v;
+                    Dict.forEach(
+                        (v, k) => {
+                            if (typeof v === 'string') {
+                                conc = v;
 
-                        } else {
-                            subq = v;
-                        }
-                    });
+                            } else {
+                                subq = v;
+                            }
+                        },
+                        this.waitingForTiles
+                    );
                     this.switchMainCorpApi.call({
                         concPersistenceID: conc,
                         corpname: state.corpName,

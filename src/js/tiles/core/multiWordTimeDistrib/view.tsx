@@ -49,7 +49,6 @@ function prepareChartData(data:Array<LemmaData>, averagingYears:number):Array<Ch
     });
 
     const zipped = List.zipByMappedKey(
-        data,
         d => d.datetime,
         mkDefaultDataPoint,
         (curr, incom, datasetIdx) => {
@@ -58,7 +57,8 @@ function prepareChartData(data:Array<LemmaData>, averagingYears:number):Array<Ch
             curr.ipmIntervals[datasetIdx] = incom.ipmInterval;
             curr.ipmNorm += incom.ipm;
             return curr;
-        }
+        },
+        data
     );
 
     return zipped.map(

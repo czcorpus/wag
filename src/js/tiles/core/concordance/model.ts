@@ -267,6 +267,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                             dispatch({
                                 name: GlobalActionName.GetSourceInfoDone,
                                 payload: {
+                                    tileId: this.tileId,
                                     data: data
                                 }
                             });
@@ -275,8 +276,10 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                             console.error(err);
                             dispatch({
                                 name: GlobalActionName.GetSourceInfoDone,
-                                error: err
-
+                                error: err,
+                                payload: {
+                                    tileId: this.tileId,
+                                }
                             });
                         }
                     );
@@ -378,6 +381,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 }
             },
             (err) => {
+                console.log("#################### ERR")
                 dispatch<GlobalActions.TileDataLoaded<{}>>({
                     name: GlobalActionName.TileDataLoaded,
                     error: err,
