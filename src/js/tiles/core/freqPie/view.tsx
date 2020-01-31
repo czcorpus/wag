@@ -26,7 +26,7 @@ import { ActionName } from './actions';
 import { FreqDataBlock } from '../../../common/models/freq';
 import { DataRow } from '../../../common/api/kontext/freqs';
 import { FreqBarModel, FreqBarModelState } from '../freqBar/model';
-import { List } from '../../../common/collections';
+import { List, applyComposed } from '../../../common/collections';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:FreqBarModel):TileComponent {
@@ -38,12 +38,16 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     const createColorMapping = (blocks:Array<FreqDataBlock<DataRow>>):{[v:string]:string} => {
         const ans = {};
         let i = 0;
-        List.flatMap(blocks, block => block.data).forEach(item => {
-            if (ans[item.name] === undefined) {
-                ans[item.name] = colorPalette(`${i % catList.length}`);
-                i += 1;
-            }
-        });
+        applyComposed(
+            blocks,
+            List.flatMap(block => block.data),
+            List.tap(item => {
+                if (ans[item.name] === undefined) {
+                    ans[item.name] = colorPalette(`${i % catList.length}`);
+                    i += 1;
+                }
+            })
+        );
         return ans;
     }
 
@@ -185,10 +189,15 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     issueReportingUrl={props.issueReportingUrl}>
                 <div className="FreqPieTileView">
                     {props.isAltViewMode ?
-                        List.flatMap(props.blocks, (block, blockId) => [
-                            <h3 key={'h' + blockId} style={{textAlign: 'center'}}>{block.label}</h3>,
-                            <TableView key={'t' + blockId} data={block.data}/>
-                        ]) :
+                        List.map(
+                            (block, blockId) => (
+                                <React.Fragment key={'h' + blockId}>
+                                    <h3  style={{textAlign: 'center'}}>{block.label}</h3>
+                                    <TableView data={block.data}/>
+                                </React.Fragment>
+                            ),
+                            props.blocks
+                        ) :
                         <div>
                             <div className="charts" ref={chartsRef} onScroll={handleScroll}>
                                 {props.blocks.map(block => {

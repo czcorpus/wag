@@ -81,7 +81,7 @@ export class SubqFreqBarModel extends FreqBarModel {
             (state, action) => {
                 superFn(state, action);
                 if (action.payload && isSubqueryPayload(action.payload) &&
-                        Dict.hasKey(this.subqSourceTiles, action.payload.tileId.toFixed())) {
+                        Dict.hasKey(action.payload.tileId.toFixed(), this.subqSourceTiles)) {
                     state.blocks = action.payload.subqueries
                         .slice(0, this.subqConf.maxNumSubqueries)
                         .map(subq => ({
@@ -129,11 +129,10 @@ export class SubqFreqBarModel extends FreqBarModel {
     sideEffects(state:FreqBarModelState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
-                this.suspend(Dict.map(this.waitForTiles, _ => true), (action, syncData) => {
+                this.suspend(Dict.map(_ => true, this.waitForTiles), (action, syncData) => {
                     if (action.name === GlobalActionName.TileDataLoaded &&
-                            Dict.hasKey(this.subqSourceTiles, action.payload['tileId'].toFixed()) &&
-                            isSubqueryPayload(action.payload)) {
-                        const payload:SubqueryPayload = action.payload;
+                            Dict.hasKey(action.payload['tileId'].toFixed()) && isSubqueryPayload(action.payload), this.subqSourceTiles) {
+                        const payload = action.payload as SubqueryPayload;
                         const subqueries:Array<{critIdx:number; v:SubQueryItem<string>}> = payload.subqueries
                                 .slice(0, this.subqConf.maxNumSubqueries)
                                 .map((v, i) => ({critIdx: i, v: v}));
@@ -176,7 +175,7 @@ export class SubqFreqBarModel extends FreqBarModel {
                             }
                         );
                         const ans = {...syncData, ...{[payload.tileId.toFixed()]: false}};
-                        return Dict.hasValue(ans, true) ? ans : null;
+                        return Dict.hasValue(true, ans) ? ans : null;
                     }
                     return syncData;
                 });

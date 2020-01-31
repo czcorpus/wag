@@ -238,6 +238,7 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                             dispatch({
                                 name: GlobalActionName.GetSourceInfoDone,
                                 payload: {
+                                    tileId: this.tileId,
                                     data: data
                                 }
                             });
@@ -246,8 +247,10 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                             console.error(err);
                             dispatch({
                                 name: GlobalActionName.GetSourceInfoDone,
-                                error: err
-
+                                error: err,
+                                payload: {
+                                    tileId: this.tileId
+                                }
                             });
                         }
                     );

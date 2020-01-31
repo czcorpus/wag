@@ -70,7 +70,7 @@ export class CollocationsTile implements ITileProvider {
 
     private readonly api:CollocationApi<{}>;
 
-    constructor({tileId, dispatcher, appServices, ut, theme, waitForTiles, widthFract, conf, isBusy, lemmas, cache, queryType}:TileFactory.Args<CollocationsTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, theme, waitForTiles, waitForTilesTimeoutSecs, widthFract, conf, isBusy, lemmas, cache, queryType}:TileFactory.Args<CollocationsTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.appServices = appServices;
@@ -81,6 +81,7 @@ export class CollocationsTile implements ITileProvider {
             dispatcher: dispatcher,
             tileId: tileId,
             waitForTile: waitForTiles[0],
+            waitForTilesTimeoutSecs: waitForTilesTimeoutSecs,
             appServices: appServices,
             service: this.api,
             concApi: conf.apiType === CoreApiGroup.KONTEXT ? new ConcApi(false, cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)) : null,

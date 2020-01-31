@@ -25,7 +25,7 @@ import { GlobalComponents } from '../../../views/global';
 import { DataItemWithWCI, ActionName, Actions } from './common';
 import { TimeDistribModel, TimeDistribModelState } from './model';
 import { KeyCodes } from '../../../common/util';
-import { List } from '../../../common/collections';
+import { List, applyComposed } from '../../../common/collections';
 
 
 const MIN_DATA_ITEMS_TO_SHOW = 2;
@@ -37,30 +37,34 @@ interface MultiChartItem {
 }
 
 function mergeDataSets(data1:Array<DataItemWithWCI>, data2:Array<DataItemWithWCI>):Array<MultiChartItem> {
-    return List.groupBy(
-        data1.map(v => ({
+    return applyComposed(
+        data1,
+        List.map(v => ({
             datetime: v.datetime,
             ipmInterval:[v.ipmInterval[0], v.ipmInterval[1]],
             src: 0
-        })).concat(
-            data2.map(v => ({
+        })),
+        List.concat(
+            List.map(v => ({
                 datetime: v.datetime,
                 ipmInterval:[v.ipmInterval[0], v.ipmInterval[1]],
                 src: 1
-            }))
+                }),
+                data2
+            )
         ),
-        v => v.datetime
-    ).map(([,v]) => {
-        const interv1 = v.find(x => x.src === 0);
-        const interv2 = v.find(x => x.src === 1);
-        return {
-            datetime: v[0].datetime,
-            ipmInterval1: (interv1 ? interv1 : {ipmInterval: [null, null], src: 0, datetime: null}).ipmInterval as [number, number],
-            ipmInterval2: (interv2 ? interv2 : {ipmInterval: [null, null], src: 1, datetime: null}).ipmInterval as [number, number]
-        }
-    })
-    .sort((v1, v2) => parseInt(v1.datetime) - parseInt(v2.datetime));
-
+        List.groupBy(v => v.datetime),
+        List.map(([,v]) => {
+            const interv1 = v.find(x => x.src === 0);
+            const interv2 = v.find(x => x.src === 1);
+            return {
+                datetime: v[0].datetime,
+                ipmInterval1: (interv1 ? interv1 : {ipmInterval: [null, null], src: 0, datetime: null}).ipmInterval as [number, number],
+                ipmInterval2: (interv2 ? interv2 : {ipmInterval: [null, null], src: 1, datetime: null}).ipmInterval as [number, number]
+            }
+        }),
+        List.sortBy(v => parseInt(v.datetime))
+    );
 }
 
 

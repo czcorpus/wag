@@ -30,7 +30,7 @@ import { encodeArgs } from '../common/ajax';
 import { ErrorType, mapToStatusCode, newError } from '../common/errors';
 import { HostPageEnv, AvailableLanguage } from '../common/hostPage';
 import { QueryType, LemmaVariant, importQueryPos, QueryPoS, matchesPos, findMergeableLemmas, RecognizedQueries, importQueryTypeString } from '../common/query';
-import { UserConf, ClientStaticConf, ClientConf, emptyClientConf, getSupportedQueryTypes, emptyLayoutConf, getQueryTypeFreqDb } from '../conf';
+import { UserConf, ClientStaticConf, ClientConf, emptyClientConf, getSupportedQueryTypes, emptyLayoutConf, getQueryTypeFreqDb, DEFAULT_WAIT_FOR_OTHER_TILES } from '../conf';
 import { GlobalComponents } from '../views/global';
 import { init as viewInit, LayoutProps } from '../views/layout';
 import { ServerSideActionDispatcher } from './core';
@@ -46,6 +46,8 @@ import { ActionName } from '../models/actions';
 import { DummyCache } from '../cacheDb';
 import { ILogQueue } from './logging/abstract';
 import { TelemetryAction } from '../common/types';
+import { Dict } from '../common/collections';
+
 
 
 function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, appServices:AppServices):Observable<ClientConf> {
@@ -73,7 +75,12 @@ function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, appServices:App
             onLoadInit: conf.onLoadInit,
             dbValuesMapping: conf.dbValuesMapping,
             colors: conf.colors,
-            tiles: conf.tiles[lang],
+            tiles: typeof conf.tiles === 'string' ?
+                {} : // this should not happen at runtime (string has been already used as uri to load a nested conf)
+                Dict.map(
+                    item => ({waitForTimeoutSecs: DEFAULT_WAIT_FOR_OTHER_TILES, ...item}),
+                    conf.tiles[lang]
+                ),
             layouts: Object.assign(emptyLayoutConf(), conf.layouts[lang]),
             searchLanguages: Object.keys(conf.searchLanguages).map(k => ({
                 code: k,

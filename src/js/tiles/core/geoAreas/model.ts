@@ -243,6 +243,7 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                             dispatch({
                                 name: GlobalActionName.GetSourceInfoDone,
                                 payload: {
+                                    tileId: this.tileId,
                                     data: data
                                 }
                             });
@@ -251,7 +252,10 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                             console.error(err);
                             dispatch({
                                 name: GlobalActionName.GetSourceInfoDone,
-                                error: err
+                                error: err,
+                                payload: {
+                                    tileId: this.tileId
+                                }
 
                             });
                         }

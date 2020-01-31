@@ -100,7 +100,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         isMobile:boolean;
 
     }> = (props) => {
-        const maxLabelWidth = List.maxItem(props.data, v => v.name.length).name.length;
+        const maxLabelWidth = List.maxItem(v => v.name.length, props.data).name.length;
         return (
             <div className="Chart">
                 <ChartWrapper data={props.data} isMobile={props.isMobile} width={props.width} height={props.height}>
@@ -156,10 +156,15 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         issueReportingUrl={this.props.issueReportingUrl}>
                     <div className="FreqBarTile">
                         {this.props.isAltViewMode ?
-                            List.flatMap(this.props.blocks, (block, blockId) => [
-                                <h3 key={'h' + blockId} style={{textAlign: 'center'}}>{block.label}</h3>,
-                                <TableView key={'t' + blockId} data={block.data}/>
-                            ]) :
+                            List.map(
+                                (block, blockId) => (
+                                    <React.Fragment key={'h' + blockId}>
+                                        <h3  style={{textAlign: 'center'}}>{block.label}</h3>
+                                        <TableView data={block.data}/>
+                                    </React.Fragment>
+                                ),
+                                this.props.blocks
+                            ) :
                             <div>
                                 <div className={`charts${this.props.isBusy ? ' incomplete' : ''}`} ref={this.chartsRef} onScroll={this.handleScroll}>
                                     {this.props.blocks.filter(block => block.isReady).map(block => {

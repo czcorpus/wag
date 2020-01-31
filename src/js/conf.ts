@@ -20,6 +20,8 @@ import { QueryPoS, QueryType, SearchLanguage } from './common/query';
 import { TileConf } from './common/tile';
 import { CSSProperties } from 'react';
 
+export const DEFAULT_WAIT_FOR_OTHER_TILES = 60;
+
 /**
  * A page configuration based on
  * user specific information/input.

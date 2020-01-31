@@ -192,6 +192,7 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
                             dispatch({
                                 name: GlobalActionName.GetSourceInfoDone,
                                 payload: {
+                                    tileId: this.tileId,
                                     data: data
                                 }
                             });
@@ -200,8 +201,10 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
                             console.error(err);
                             dispatch({
                                 name: GlobalActionName.GetSourceInfoDone,
-                                error: err
-
+                                error: err,
+                                payload: {
+                                    tileId: this.tileId
+                                }
                             });
                         }
                     );

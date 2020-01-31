@@ -170,6 +170,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         state.isBusy = false;
                     }
                     if (action.error) {
+                        state.isBusy = false;
                         state.data = [];
                         state.dataCmp = [];
                         state.error = action.error.message;
@@ -251,6 +252,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                             dispatch({
                                 name: GlobalActionName.GetSourceInfoDone,
                                 payload: {
+                                    tileId: this.tileId,
                                     data: data
                                 }
                             });
@@ -259,8 +261,10 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                             console.error(err);
                             dispatch({
                                 name: GlobalActionName.GetSourceInfoDone,
-                                error: err
-
+                                error: err,
+                                payload: {
+                                    tileId: this.tileId
+                                }
                             });
                         }
                     );

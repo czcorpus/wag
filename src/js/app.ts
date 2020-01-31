@@ -31,7 +31,7 @@ import { LayoutManager, TileGroup } from './layout';
 import { ActionName, Actions } from './models/actions';
 import { MessagesModel } from './models/messages';
 import { defaultFactory as mainFormFactory } from './models/query';
-import { TileResultFlag, TileResultFlagRec, WdglanceTilesModel } from './models/tiles';
+import { TileResultFlag, WdglanceTilesModel } from './models/tiles';
 import { GlobalComponents, init as globalCompInit } from './views/global';
 import { init as viewInit, WdglanceMainProps } from './views/main';
 import { RetryTileLoad } from './models/retryLoad';
@@ -39,7 +39,7 @@ import { ViewUtils, IFullActionControl } from 'kombo';
 import { AppServices } from './appServices';
 import { IAsyncKeyValueStore, TileIdentMap } from './common/types';
 import { mkTileFactory } from './tileLoader';
-import { List } from './common/collections';
+import { List, applyComposed } from './common/collections';
 
 
 interface AttachTileArgs {
@@ -123,6 +123,7 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
         lemmas: lemmas,
         isAnswerMode: userSession.answerMode,
         uiLanguages: Object.keys(userSession.uiLanguages).map(k => ({code: k, label: userSession.uiLanguages[k]})),
+
         searchLanguages: config.searchLanguages,
         layout: layoutManager,
         maxCmpQueries: 10
@@ -181,9 +182,10 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
             altViewActiveTiles: [],
             hiddenGroups: [],
             datalessGroups: [],
-            tileResultFlags: List.flatMap(
+            tileResultFlags: applyComposed(
                 layoutManager.getLayoutGroups(qType),
-                (item, i) => item.tiles.map<TileResultFlagRec>(v => ({
+                List.flatMap(v => v.tiles),
+                List.map((v, i) => ({
                     tileId: v.tileId,
                     groupId: i,
                     status: TileResultFlag.PENDING,

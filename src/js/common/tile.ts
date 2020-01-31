@@ -86,6 +86,8 @@ export interface TileConf {
      */
     waitFor?:string|Array<string>;
 
+    waitForTimeoutSecs:number;
+
     /**
      * In case we depend on multiple tiles and some of them are
      * just kind of hidden dependencies (i.e. we want to wait them
@@ -294,6 +296,8 @@ export namespace TileFactory {
          * Tiles we need to wait for
          */
         waitForTiles?:Array<number>;
+
+        waitForTilesTimeoutSecs:number;
 
         /**
          * Tiles we want data from (via sub-query).

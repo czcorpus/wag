@@ -112,7 +112,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
 
                     } else {
                         state.data[action.payload.queryId] = action.payload.words;
-                        
+
                     }
                 }
             }
@@ -140,6 +140,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                             seDispatch({
                                 name: GlobalActionName.GetSourceInfoDone,
                                 payload: {
+                                    tileId: this.tileId,
                                     data: data
                                 }
                             });
@@ -148,6 +149,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                             seDispatch({
                                 name: GlobalActionName.GetSourceInfoDone,
                                 payload: {
+                                    tileId: this.tileId,
                                     data: null
                                 },
                                 error: err

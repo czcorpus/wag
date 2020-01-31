@@ -20,12 +20,12 @@ import * as React from 'react';
 import { IActionDispatcher, ViewUtils, BoundWithProps } from 'kombo';
 import { MergeCorpFreqModel, MergeCorpFreqModelState } from './model';
 import { ResponsiveContainer, BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, Legend } from 'recharts';
-import { BacklinkArgs, SourceMappedDataRow } from '../../../common/api/kontext/freqs';
+import { SourceMappedDataRow } from '../../../common/api/kontext/freqs';
 import { GlobalComponents } from '../../../views/global';
-import { CoreTileComponentProps, TileComponent, BacklinkWithArgs } from '../../../common/tile';
+import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
 import { Theme } from '../../../common/theme';
 import { LemmaVariant } from '../../../common/query';
-import { List } from '../../../common/collections';
+import { List, applyComposed } from '../../../common/collections';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:MergeCorpFreqModel):TileComponent {
@@ -33,7 +33,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     const globComponents = ut.getComponents();
 
     function transformData(data:Array<Array<SourceMappedDataRow>>, lemmas: Array<LemmaVariant>):Array<{name:string; ipm:Array<number>; freq:Array<number>}> {
-        return List.flatMap(data, (v, i) => v ? v.map<[SourceMappedDataRow, number]>(v => [v, i]) : []).reduce((acc, [row, queryIdx]) => {
+        return applyComposed(
+            data,
+            List.flatMap((v, i) => v ? v.map<[SourceMappedDataRow, number]>(v => [v, i]) : []),
+            List.reduce((acc, [row, queryIdx]) => {
                 const itemIndex = acc.findIndex(v => v.name === row.name);
                 if (itemIndex < 0) {
                     const item = {name: row.name, ipm: lemmas.map(_ => 0), freq: lemmas.map(_ => 0)};
@@ -48,6 +51,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 return acc
             },
             []
+            )
         );
     }
 
@@ -130,16 +134,19 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     class MergeCorpFreqBarTile extends React.PureComponent<MergeCorpFreqModelState & CoreTileComponentProps> {
 
         render() {
-            const backlinks = List.groupBy(
-                List.flatMap(this.props.data.filter(x => x !== undefined), v => v),
-                v => v.sourceId
-            ).map<BacklinkWithArgs<BacklinkArgs>>(([x,v]) => v[0].backlink); // TODO
+            const backlinks = applyComposed(
+                this.props.data,
+                List.filter(x => x !== undefined),
+                List.flatMap(v => v),
+                List.groupBy(v => v.sourceId),
+                List.map(([x,v]) => v[0].backlink)
+            ); // TODO
             const numCats = Math.max(0, ...this.props.data.map(v => v ? v.length : 0));
             const minHeight = 70 + numCats * this.props.data.length * this.props.pixelsPerItem;
             return (
                 <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.data.some(v => v && v.find(f => f.freq > 0))}
-                        sourceIdent={List.flatMap(List.groupBy(this.props.sources, v => v.corpname), ([, v])=>v).map(v => ({corp: v.corpname}))}
+                        sourceIdent={applyComposed(this.props.sources, List.groupBy(v => v.corpname), List.flatMap(([,v]) => v), List.map(v => ({corp: v.corpname})))}
                         backlink={backlinks}
                         supportsTileReload={this.props.supportsReloadOnError}
                         issueReportingUrl={this.props.issueReportingUrl}>

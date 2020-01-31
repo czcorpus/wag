@@ -24,7 +24,7 @@ import { ajax$, ResponseType } from '../common/ajax';
 import { SystemMessageType, SourceDetails } from '../common/types';
 import { TileFrameProps } from '../common/tile';
 import { ActionName, Actions } from './actions';
-import { List, Dict } from '../common/collections';
+import { List, Dict, applyComposed } from '../common/collections';
 
 
 
@@ -102,25 +102,25 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
         this.addActionHandler<Actions.EnableAltViewMode>(
             ActionName.EnableAltViewMode,
             (state, action) => {
-                state.altViewActiveTiles = List.addUnique(state.altViewActiveTiles, action.payload.ident);
+                state.altViewActiveTiles = List.addUnique(action.payload.ident, state.altViewActiveTiles);
             }
         );
         this.addActionHandler<Actions.DisableAltViewMode>(
             ActionName.DisableAltViewMode,
             (state, action) => {
-                state.altViewActiveTiles = List.removeValue(state.altViewActiveTiles, action.payload.ident);
+                state.altViewActiveTiles = List.removeValue(action.payload.ident, state.altViewActiveTiles);
             }
         );
         this.addActionHandler<Actions.EnableTileTweakMode>(
             ActionName.EnableTileTweakMode,
             (state, action) => {
-                state.tweakActiveTiles = List.addUnique(state.tweakActiveTiles, action.payload.ident);
+                state.tweakActiveTiles = List.addUnique(action.payload.ident, state.tweakActiveTiles);
             }
         );
         this.addActionHandler<Actions.DisableTileTweakMode>(
             ActionName.DisableTileTweakMode,
             (state, action) => {
-                state.tweakActiveTiles = List.removeValue(state.tweakActiveTiles, action.payload.ident);
+                state.tweakActiveTiles = List.removeValue(action.payload.ident, state.tweakActiveTiles);
             }
         );
         this.addActionHandler<Actions.ShowTileHelp>(
@@ -227,10 +227,10 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
             ActionName.ToggleGroupVisibility,
             (state, action) => {
                 if (state.hiddenGroups.some(v => v === action.payload.groupIdx)) {
-                    state.hiddenGroups = List.removeValue(state.hiddenGroups, action.payload.groupIdx);
+                    state.hiddenGroups = List.removeValue(action.payload.groupIdx, state.hiddenGroups);
 
                 } else {
-                    state.hiddenGroups = List.addUnique(state.hiddenGroups, action.payload.groupIdx);
+                    state.hiddenGroups = List.addUnique(action.payload.groupIdx, state.hiddenGroups);
                 }
             }
         );
@@ -370,22 +370,15 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
     }
 
     private findEmptyGroups(state:WdglanceTilesState):void { // TODO
-        state.datalessGroups =
-            Object.keys(
-                Dict.filter(
-                    Dict.map(
-                        Dict.fromEntries(
-                            List.groupBy(
-                                state.tileResultFlags,
-                                v => v.groupId.toString()
-                            )
-                        ),
-                        (v, _) => !v.some(v2 => v2.status !== TileResultFlag.EMPTY_RESULT)
-                    ),
-                    (v, _) => v
-                )
-            )
-            .map(v => parseInt(v));
+        state.datalessGroups = applyComposed(
+            state.tileResultFlags,
+            List.groupBy(v => v.groupId.toString()),
+            Dict.fromEntries(),
+            Dict.map((v, _) => !v.some(v2 => v2.status !== TileResultFlag.EMPTY_RESULT)),
+            Dict.filter((v, _) => !!v),
+            Dict.keys(),
+            List.map(v => parseInt(v))
+        );
     }
 
     private getTileProps(state:WdglanceTilesState, tileId:number):Observable<TileFrameProps> {
