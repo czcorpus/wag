@@ -15,7 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { map, concatMap } from 'rxjs/operators';
+import { map, concatMap, scan, reduce } from 'rxjs/operators';
+import { of as rxOf, empty } from 'rxjs';
 import { StatelessModel, Action, SEDispatcher, IActionQueue } from 'kombo';
 
 import { AppServices } from '../../../appServices';
@@ -29,7 +30,8 @@ import { CollExamplesLoadedPayload } from './actions';
 import { Actions, ActionName } from './actions';
 import { normalizeTypography } from '../../../common/models/concordance/normalize';
 import { ISwitchMainCorpApi } from '../../../common/api/abstract/switchMainCorp';
-import { Dict } from '../../../common/collections';
+import { Dict, List, applyComposed } from '../../../common/collections';
+import { callWithExtraVal } from '../../../common/api/util';
 
 
 export interface ConcFilterModelState {
@@ -50,7 +52,15 @@ export interface ConcFilterModelState {
 }
 
 
-export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
+type TileWaitSync = {[tileId:string]:boolean};
+
+interface SourceLoadingData {
+    concordanceId:string;
+    subqueries:{[subq:string]:SubQueryItem<RangeRelatedSubqueryValue>};
+}
+
+
+export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWaitSync> {
 
     private readonly api:ConcApi;
 
@@ -60,7 +70,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
 
     private readonly tileId:number;
 
-    private waitingForTiles:{[k:string]:string|Array<SubQueryItem<RangeRelatedSubqueryValue>>|null};
+    private readonly waitingForTiles:Array<number>;
 
     private subqSourceTiles:Array<number>;
 
@@ -72,7 +82,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
         this.tileId = tileId;
         this.api = api;
         this.switchMainCorpApi = switchMainCorpApi;
-        this.waitingForTiles = Dict.fromEntries(waitForTiles.map(v => [v.toFixed(), null]));
+        this.waitingForTiles = [...waitForTiles];
         this.subqSourceTiles = subqSourceTiles;
         this.numPendingSources = 0; // this cannot be part of the state (see occurrences in the 'suspend' fn)
         this.appServices = appServices;
@@ -80,7 +90,6 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
         this.addActionHandler<GlobalActions.RequestQueryResponse>(
             GlobalActionName.RequestQueryResponse,
             (state, action)  => {
-                this.waitingForTiles = Dict.map(v => null, this.waitingForTiles);
                 this.numPendingSources = 0;
                 state.isBusy = true;
                 state.error = null;
@@ -153,7 +162,6 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
             GlobalActionName.SubqChanged,
             (state, action) => {
                 if (Dict.hasKey(action.payload.tileId.toFixed()), this.waitingForTiles) {
-                    this.waitingForTiles = Dict.map(v => typeof v === 'string' ? v : null, this.waitingForTiles);
                     state.isBusy = true;
                     state.lines = [];
                 }
@@ -257,11 +265,17 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
         }
     }
 
-    private loadFreqs(state:ConcFilterModelState, concId:string, queries:Array<SubQueryItem<RangeRelatedSubqueryValue>>):Array<Observable<ConcResponse>> {
-        return queries.map(subq => {
-            const args = this.mkConcArgs(state, subq, concId);
-            return this.api.call(args).pipe(
-                map(v => ({
+    private loadFreqs(state:ConcFilterModelState, concId:string, query:SubQueryItem<RangeRelatedSubqueryValue>):Observable<ConcResponse> {
+        return rxOf(query).pipe(
+            concatMap(
+                subq => callWithExtraVal(
+                    this.api,
+                    this.mkConcArgs(state, subq, concId),
+                    subq
+                )
+            ),
+            map(
+                ([v, subq]) => ({
                     concPersistenceID: v.concPersistenceID,
                     messages: v.messages,
                     lines: v.lines.map(line => ({
@@ -287,107 +301,115 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                     subcorpName: v.subcorpName,
                     align: state.otherCorpname, // TODO not always needed
                     maincorp: state.otherCorpname, // TODO not always needed
-                }))
-            );
-        });
+                })
+            )
+        );
     }
 
-    private isFromSubqSourceModel(action:Action<{tileId: number} & SubqueryPayload<RangeRelatedSubqueryValue>>):boolean {
-        return this.subqSourceTiles.find(v => v === action.payload.tileId) !== undefined;
+    private isFromSubqSourceTile(action:Action):action is (Action<{tileId: number} & SubqueryPayload<RangeRelatedSubqueryValue>>) {
+        return this.subqSourceTiles.find(v => v === action.payload['tileId'] && action.payload['subqueries']) !== undefined;
     }
 
     private handleDataLoad(state:ConcFilterModelState, seDispatch:SEDispatcher) {
-        this.suspend({}, (action:GlobalActions.TileDataLoaded<SubqueryPayload<RangeRelatedSubqueryValue> & {tileId:number}>, syncData) => {
-            if (action.name === GlobalActionName.TileDataLoaded &&
-                        Dict.hasKey(action.payload.tileId.toFixed(), this.waitingForTiles)) {
-                if (action.error) {
-                    this.waitingForTiles = Dict.map(v => null, this.waitingForTiles);
-                    seDispatch<GlobalActions.TileDataLoaded<CollExamplesLoadedPayload>>({
-                        name: GlobalActionName.TileDataLoaded,
-                        payload: {
-                            tileId: this.tileId,
-                            isEmpty: true,
-                            data: []
-                        },
-                        error: new Error(this.appServices.translate('global__failed_to_obtain_required_data')),
-                    });
-                    return null;
+        return this.suspend(
+            Dict.fromEntries(List.map(v => [v.toFixed(), false], this.waitingForTiles)),
+            (action:GlobalActions.TileDataLoaded<SubqueryPayload<RangeRelatedSubqueryValue> & {tileId:number}>, syncData) => {
+                if (action.name === GlobalActionName.TileDataLoaded && Dict.hasKey(action.payload.tileId.toFixed(), syncData)) {
+                    if (action.error) {
+                        throw action.error;
+                    }
+                    const ans = {...syncData, ...{[action.payload.tileId.toFixed()]: true}};
+                    return Dict.hasValue(false, ans) ? ans : null;
                 }
-                if (this.isFromSubqSourceModel(action) && isSubqueryPayload(action.payload)) {
-                    this.numPendingSources += action.payload.subqueries.length;
-                }
-                if (this.isFromSubqSourceModel(action) && this.waitingForTiles[action.payload.tileId.toFixed()] === null) {
-                    this.waitingForTiles[action.payload.tileId.toFixed()] = action.payload.subqueries;
+                return syncData;
+            }
 
-                } else if (isConcLoadedPayload(action.payload) && this.waitingForTiles[action.payload.tileId.toFixed()] === null) {
-                    this.waitingForTiles[action.payload.tileId.toFixed()] = action.payload.concPersistenceIDs[0];
+        ).pipe(
+            reduce(
+                (acc, action) => {
+                    console.log('action: ', action);
+                    const ans = {...acc};
+                    if (this.isFromSubqSourceTile(action)) {
+                        ans.subqueries = Dict.mergeDict(
+                            (old, nw) => nw,
+                            applyComposed(
+                                action.payload.subqueries,
+                                List.map(v => [v.value.value, v] as [string, SubQueryItem<RangeRelatedSubqueryValue>]),
+                                Dict.fromEntries()
+                            ),
+                            ans.subqueries
+                        );
 
-                }
-                if (!Dict.hasValue(this.waitingForTiles, null)) {
-                    let conc:string;
-                    let subq:Array<SubQueryItem<RangeRelatedSubqueryValue>>;
-                    Dict.forEach(
-                        (v, k) => {
-                            if (typeof v === 'string') {
-                                conc = v;
-
-                            } else {
-                                subq = v;
-                            }
-                        },
-                        this.waitingForTiles
-                    );
-                    this.switchMainCorpApi.call({
-                        concPersistenceID: conc,
+                    } else if (isConcLoadedPayload(action.payload)) {
+                        ans.concordanceId = action.payload.concPersistenceIDs[0];
+                    }
+                    console.log('ans: >> ', ans);
+                    return ans;
+                },
+                {concordanceId: null, subqueries:{}} as SourceLoadingData
+                // TODO submit subqueries where v === waitIdx
+            ),
+            concatMap(
+                (data) => {
+                    return this.switchMainCorpApi.call({
+                        concPersistenceID: data.concordanceId,
                         corpname: state.corpName,
                         align: state.otherCorpname,
                         maincorp: state.otherCorpname
 
                     }).pipe(
                         concatMap(
-                            (resp) => merge(...this.loadFreqs(state, resp.concPersistenceID, subq))
+                            () => rxOf(...Dict.mapEntries(([,v]) => v, data.subqueries))
+                        ),
+                        concatMap(
+                            (resp) => this.loadFreqs(state, data.concordanceId, resp)
                         )
-
-                    ).subscribe(
-                        (data) => {
-                            seDispatch<GlobalActions.TileDataLoaded<CollExamplesLoadedPayload>>({
-                                name: GlobalActionName.TileDataLoaded,
-                                payload: {
-                                    tileId: this.tileId,
-                                    isEmpty: false, // here we cannot assume final state
-                                    data: normalizeTypography(data.lines.slice(0, state.itemsPerSrc))
-                                }
-                            });
-                        },
-                        (err) => {
-                            seDispatch<GlobalActions.TileDataLoaded<CollExamplesLoadedPayload>>({
-                                name: GlobalActionName.TileDataLoaded,
-                                payload: {
-                                    tileId: this.tileId,
-                                    isEmpty: true,
-                                    data: []
-                                },
-                                error: err,
-                            });
-                        },
-                        () => {
-                            if (subq.length === 0) {
+                    );
+                }
+            )
+        ).subscribe(
+            (data)=>console.log('data: ', data),
+            (err)=>console.log('err: ', err)
+        )
+    }
+                        /*
+                        .subscribe(
+                            (data) => {
+                                seDispatch<GlobalActions.TileDataLoaded<CollExamplesLoadedPayload>>({
+                                    name: GlobalActionName.TileDataLoaded,
+                                    payload: {
+                                        tileId: this.tileId,
+                                        isEmpty: false, // here we cannot assume final state
+                                        data: normalizeTypography(data.lines.slice(0, state.itemsPerSrc))
+                                    }
+                                });
+                            },
+                            (err) => {
                                 seDispatch<GlobalActions.TileDataLoaded<CollExamplesLoadedPayload>>({
                                     name: GlobalActionName.TileDataLoaded,
                                     payload: {
                                         tileId: this.tileId,
                                         isEmpty: true,
                                         data: []
-                                    }
+                                    },
+                                    error: err,
                                 });
+                            },
+                            () => {
+                                if (subq.length === 0) {
+                                    seDispatch<GlobalActions.TileDataLoaded<CollExamplesLoadedPayload>>({
+                                        name: GlobalActionName.TileDataLoaded,
+                                        payload: {
+                                            tileId: this.tileId,
+                                            isEmpty: true,
+                                            data: []
+                                        }
+                                    });
+                                }
                             }
-                        }
-                    );
-                    return null;
-                }
-            }
-            return syncData;
-        });
-    }
+                        );
+                        return null;
+                        */
+    //}
 
 }
