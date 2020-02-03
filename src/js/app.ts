@@ -27,7 +27,7 @@ import { ScreenProps } from './common/hostPage';
 import { QueryType, testIsDictQuery, RecognizedQueries } from './common/query';
 import { ITileProvider, TileFrameProps, TileConf } from './common/tile';
 import { ClientConf, UserConf } from './conf';
-import { LayoutManager, TileGroup } from './layout';
+import { LayoutManager, TileGroup, GroupedTileProps } from './layout';
 import { ActionName, Actions } from './models/actions';
 import { MessagesModel } from './models/messages';
 import { defaultFactory as mainFormFactory } from './models/query';
@@ -170,7 +170,6 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
         }
 
     });
-    // console.log('tiles map: ', tilesMap);
 
     const tilesModel = new WdglanceTilesModel(
         dispatcher,
@@ -184,10 +183,13 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
             datalessGroups: [],
             tileResultFlags: applyComposed(
                 layoutManager.getLayoutGroups(qType),
-                List.flatMap(v => v.tiles),
-                List.map((v, i) => ({
+                List.flatMap(
+                    (v, groupIdx) => List.map(v2 => [groupIdx, v2] as [number, GroupedTileProps],
+                        v.tiles)
+                ),
+                List.map(([groupIdx, v], _) => ({
                     tileId: v.tileId,
-                    groupId: i,
+                    groupId: groupIdx,
                     status: TileResultFlag.PENDING,
                     canBeAmbiguousResult: false
                 }))
