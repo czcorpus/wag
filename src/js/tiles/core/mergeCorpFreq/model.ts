@@ -29,7 +29,7 @@ import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../
 import { ConcApi, QuerySelector } from '../../../common/api/kontext/concordance';
 import { LemmaVariant } from '../../../common/query';
 import { ViewMode, SingleConcLoadedPayload } from '../../../common/api/abstract/concordance';
-import { Dict } from '../../../common/collections';
+import { Dict, List, applyComposed } from '../../../common/collections';
 import { DataLoadedPayload } from './actions';
 import { createInitialLinesData } from '../../../common/models/concordance';
 
@@ -316,16 +316,20 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
                             )] :
                             resp.data;
 
-                    ans[args.queryId] = ans[args.queryId].concat(
-                        (dataNorm.length > 0 ?
-                            dataNorm :
-                            [{
-                                name: args.sourceArgs.valuePlaceholder,
-                                freq: 0,
-                                ipm: 0,
-                                norm: 0
-                            }]
-                        ).map(
+                    ans[args.queryId] = applyComposed(
+                        ans[args.queryId],
+                        List.concat(
+                            (dataNorm.length > 0 ?
+                                dataNorm :
+                                [{
+                                    name: args.sourceArgs.valuePlaceholder,
+                                    freq: 0,
+                                    ipm: 0,
+                                    norm: 0
+                                }]
+                            )
+                        ),
+                        List.map(
                             v => {
                                 const name = args.sourceArgs.valuePlaceholder ?
                                     args.sourceArgs.valuePlaceholder :
@@ -362,8 +366,12 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
                     name: GlobalActionName.TileDataLoaded,
                     payload: {
                         tileId: this.tileId,
-                        isLast: data.every(x => x !== undefined),
-                        isEmpty: data.every(v => (v && v.every(v2 => v2.freq === 0) === true)),
+                        isLast: List.every(x => x !== undefined, data),
+                        isEmpty: applyComposed(
+                            data,
+                            List.flatMap(v => v),
+                            List.every(v => v && v.freq === 0)
+                        ),
                         data: data,
                     }
                 });
