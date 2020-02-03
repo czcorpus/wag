@@ -114,7 +114,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <div className="boxes">
                         {props.data.map((data, index) => props.isAltViewMode ? <TableView data={data} caption={props.data.length > 1 ? props.lemmas[index].word : null} /> :
                         data ?
-                            <globalCompontents.ResponsiveWrapper render={(width:number, height:number) => (
+                            <globalCompontents.ResponsiveWrapper key={`${index}non-empty`} render={(width:number, height:number) => (
                                 <div className="sim-cloud">
                                     <h2>{props.data.length > 1 ? `[${index + 1}] ${props.lemmas[index].word}` : null}</h2>
                                     <WordCloud width={width} height={height} data={data} isMobile={props.isMobile}
