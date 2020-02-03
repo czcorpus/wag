@@ -31,10 +31,15 @@ function itemIsServiceConf(v:string|GroupLayoutConfig):v is string {
 }
 
 
+export interface GroupedTileProps {
+    width:number;
+    tileId:number;
+}
+
 export interface TileGroup {
     groupLabel:string;
     groupDescURL:string;
-    tiles:Array<{width:number; tileId:number}>;
+    tiles:Array<GroupedTileProps>;
 }
 
 

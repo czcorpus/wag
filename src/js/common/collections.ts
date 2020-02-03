@@ -262,6 +262,13 @@ export namespace List {
         return data ? fn(data) : fn;
     }
 
+    export function every<T>(pred:(v:T)=>boolean, data:Array<T>):boolean;
+    export function every<T>(pred:(v:T)=>boolean):(data:Array<T>)=>boolean;
+    export function every<T>(pred:(v:T)=>boolean, data?:Array<T>):any {
+        const fn = (data2:Array<T>):boolean => data2.every(pred);
+        return data ? fn(data) : fn;
+    }
+
     export function concat<T>(incoming:Array<T>, data:Array<T>):Array<T>;
     export function concat<T>(incoming:Array<T>):(data:Array<T>)=>Array<T>;
     export function concat<T>(incoming:Array<T>, data?:Array<T>):any {

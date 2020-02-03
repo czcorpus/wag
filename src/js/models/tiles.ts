@@ -293,13 +293,15 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
         this.addActionHandler(
             ActionName.RequestQueryResponse,
             (state, action) => {
-                state.tileResultFlags = state.tileResultFlags
-                    .map(v => ({
+                state.tileResultFlags = List.map(
+                    v => ({
                         tileId: v.tileId,
                         groupId: v.groupId,
                         status: TileResultFlag.PENDING,
                         canBeAmbiguousResult: false
-                    }));
+                    }),
+                    state.tileResultFlags
+                );
                 state.datalessGroups = [];
             }
         );
@@ -356,7 +358,7 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
     }
 
     private allTileStatusFlagsWritten(state:WdglanceTilesState):boolean {
-        return state.tileResultFlags.find(v => v.status === TileResultFlag.PENDING) === undefined;
+        return List.find(v => v.status === TileResultFlag.PENDING, state.tileResultFlags) === undefined;
     }
 
     private inferResultFlag(action:Actions.TileDataLoaded<{}>):TileResultFlag {
@@ -374,7 +376,7 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
             state.tileResultFlags,
             List.groupBy(v => v.groupId.toString()),
             Dict.fromEntries(),
-            Dict.map((v, _) => !v.some(v2 => v2.status !== TileResultFlag.EMPTY_RESULT)),
+            Dict.map((v, _) => List.every(t => t.status !== TileResultFlag.EMPTY_RESULT, v)),
             Dict.filter((v, _) => !!v),
             Dict.keys(),
             List.map(v => parseInt(v))

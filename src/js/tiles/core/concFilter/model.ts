@@ -15,16 +15,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { map, concatMap, scan, reduce } from 'rxjs/operators';
-import { of as rxOf, empty } from 'rxjs';
+import { map, concatMap, reduce, endWith } from 'rxjs/operators';
+import { of as rxOf } from 'rxjs';
 import { StatelessModel, Action, SEDispatcher, IActionQueue } from 'kombo';
 
 import { AppServices } from '../../../appServices';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
-import { isSubqueryPayload, SubQueryItem, SubqueryPayload, RangeRelatedSubqueryValue } from '../../../common/query';
+import { SubQueryItem, SubqueryPayload, RangeRelatedSubqueryValue } from '../../../common/query';
 import { ConcApi, FilterRequestArgs, QuerySelector, FilterPCRequestArgs, QuickFilterRequestArgs } from '../../../common/api/kontext/concordance';
 import { Line, ViewMode, ConcResponse } from '../../../common/api/abstract/concordance';
-import { Observable, merge } from 'rxjs';
+import { Observable } from 'rxjs';
 import { isConcLoadedPayload } from '../concordance/actions';
 import { CollExamplesLoadedPayload } from './actions';
 import { Actions, ActionName } from './actions';
@@ -59,6 +59,10 @@ interface SourceLoadingData {
     subqueries:{[subq:string]:SubQueryItem<RangeRelatedSubqueryValue>};
 }
 
+interface ResultDataAccumulator {
+    lines:Array<Line>;
+}
+
 
 export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWaitSync> {
 
@@ -84,18 +88,16 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
         this.switchMainCorpApi = switchMainCorpApi;
         this.waitingForTiles = [...waitForTiles];
         this.subqSourceTiles = subqSourceTiles;
-        this.numPendingSources = 0; // this cannot be part of the state (see occurrences in the 'suspend' fn)
         this.appServices = appServices;
 
         this.addActionHandler<GlobalActions.RequestQueryResponse>(
             GlobalActionName.RequestQueryResponse,
             (state, action)  => {
-                this.numPendingSources = 0;
                 state.isBusy = true;
                 state.error = null;
                 state.lines = [];
             },
-            (state, action ,dispatch) => {
+            (state, action, dispatch) => {
                 this.handleDataLoad(state, dispatch);
             }
         ).sideEffectAlsoOn(GlobalActionName.SubqChanged);
@@ -110,10 +112,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
                         state.error = action.error.message;
 
                     } else {
-                        this.numPendingSources -= 1;
-                        if (this.numPendingSources <= 0) {
-                            state.isBusy = false;
-                        }
+                        state.isBusy = !action.payload.isLast;
                         state.lines = state.lines.concat(action.payload.data);
                     }
                 }
@@ -327,7 +326,6 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
         ).pipe(
             reduce(
                 (acc, action) => {
-                    console.log('action: ', action);
                     const ans = {...acc};
                     if (this.isFromSubqSourceTile(action)) {
                         ans.subqueries = Dict.mergeDict(
@@ -343,11 +341,9 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
                     } else if (isConcLoadedPayload(action.payload)) {
                         ans.concordanceId = action.payload.concPersistenceIDs[0];
                     }
-                    console.log('ans: >> ', ans);
                     return ans;
                 },
                 {concordanceId: null, subqueries:{}} as SourceLoadingData
-                // TODO submit subqueries where v === waitIdx
             ),
             concatMap(
                 (data) => {
@@ -366,50 +362,43 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
                         )
                     );
                 }
-            )
-        ).subscribe(
-            (data)=>console.log('data: ', data),
-            (err)=>console.log('err: ', err)
-        )
-    }
-                        /*
-                        .subscribe(
-                            (data) => {
-                                seDispatch<GlobalActions.TileDataLoaded<CollExamplesLoadedPayload>>({
-                                    name: GlobalActionName.TileDataLoaded,
-                                    payload: {
-                                        tileId: this.tileId,
-                                        isEmpty: false, // here we cannot assume final state
-                                        data: normalizeTypography(data.lines.slice(0, state.itemsPerSrc))
-                                    }
-                                });
-                            },
-                            (err) => {
-                                seDispatch<GlobalActions.TileDataLoaded<CollExamplesLoadedPayload>>({
-                                    name: GlobalActionName.TileDataLoaded,
-                                    payload: {
-                                        tileId: this.tileId,
-                                        isEmpty: true,
-                                        data: []
-                                    },
-                                    error: err,
-                                });
-                            },
-                            () => {
-                                if (subq.length === 0) {
-                                    seDispatch<GlobalActions.TileDataLoaded<CollExamplesLoadedPayload>>({
-                                        name: GlobalActionName.TileDataLoaded,
-                                        payload: {
-                                            tileId: this.tileId,
-                                            isEmpty: true,
-                                            data: []
-                                        }
-                                    });
-                                }
-                            }
-                        );
-                        return null;
-                        */
-    //}
+            ),
+           endWith({
+            query: '__last__',
+            corpName: '',
+            subcorpName: '',
+            lines: [],
+            concsize: 0,
+            arf: 0,
+            ipm: 0,
+            messages: [],
+            concPersistenceID: ''
+           })
 
+        ).subscribe(
+            (data) => {
+                seDispatch<GlobalActions.TileDataLoaded<CollExamplesLoadedPayload>>({
+                    name: GlobalActionName.TileDataLoaded,
+                    payload: {
+                        tileId: this.tileId,
+                        isEmpty: data.lines.length === 0,
+                        isLast: data.query === '__last__',
+                        data: normalizeTypography(data.lines.slice(0, state.itemsPerSrc))
+                    }
+                });
+            },
+            (err) => {
+                seDispatch<GlobalActions.TileDataLoaded<CollExamplesLoadedPayload>>({
+                    name: GlobalActionName.TileDataLoaded,
+                    payload: {
+                        tileId: this.tileId,
+                        isEmpty: true,
+                        isLast: true,
+                        data: []
+                    },
+                    error: err,
+                });
+            }
+        );
+    }
 }
