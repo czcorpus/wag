@@ -17,7 +17,6 @@
  */
 import { Observable, of as rxOf } from 'rxjs';
 import { map } from 'rxjs/operators';
-import * as Immutable from 'immutable';
 
 import { cachedAjax$ } from '../../ajax';
 import { IAsyncKeyValueStore, SourceDetails } from '../../types';
@@ -173,7 +172,7 @@ export class TreqAPI extends TreqAPICaller implements TranslationAPI<RequestArgs
             lemma: '1',
             caseInsen: '1',
             hledejCo: query,
-            'hledejKde[]': state.searchPackages.toArray()
+            'hledejKde[]': state.searchPackages
         };
     }
 }
@@ -183,7 +182,7 @@ export class TreqAPI extends TreqAPICaller implements TranslationAPI<RequestArgs
 export class TreqSubsetsAPI extends TreqAPICaller implements TranslationSubsetsAPI<RequestArgs> {
 
 
-    stateToArgs(state:TranslationsSubsetsModelState, query:string, packages:Immutable.List<string>):RequestArgs {
+    stateToArgs(state:TranslationsSubsetsModelState, query:string, packages:Array<string>):RequestArgs {
         return {
             left: state.lang1,
             right: state.lang2,

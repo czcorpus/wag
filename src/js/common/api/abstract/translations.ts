@@ -17,7 +17,6 @@
  */
 
 import { Observable } from 'rxjs';
-import * as Immutable from 'immutable';
 import { DataApi, SourceDetails } from '../../types';
 import { TranslationsModelState, TranslationsSubsetsModelState } from '../../models/translations';
 
@@ -50,5 +49,5 @@ export interface TranslationAPI<T, U> extends DataApi<T, TranslationResponse> {
 
 export interface TranslationSubsetsAPI<T> extends DataApi<T, TranslationResponse> {
 
-    stateToArgs(state:TranslationsSubsetsModelState, query:string, packages:Immutable.List<string>):T;
+    stateToArgs(state:TranslationsSubsetsModelState, query:string, packages:Array<string>):T;
 }

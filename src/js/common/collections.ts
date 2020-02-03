@@ -159,10 +159,25 @@ export namespace List {
         return data ? fn(data) : fn;
     }
 
+    export function sort<T>(cmp:(v1:T, v2:T) => number, data:Array<T>):Array<T>;
+    export function sort<T>(cmp:(v1:T, v2:T) => number):(data:Array<T>)=>Array<T>;
+    export function sort<T>(cmp:(v1:T, v2:T) => number, data?:Array<T>):any {
+        const fn = (data2:Array<T>):Array<T> => data2.sort(cmp);
+        return data ? fn(data) : fn;
+    }
+
     export function filter<T>(pred:(v:T)=>boolean, data:Array<T>):Array<T>;
     export function filter<T>(pred:(v:T)=>boolean):(data:Array<T>)=>Array<T>;
     export function filter<T>(pred:(v:T)=>boolean, data?:Array<T>):any {
         const fn = (data2:Array<T>):Array<T> => data2.filter(pred);
+        return data ? fn(data) : fn;
+    }
+
+    export function slice<T>(start:number, end:number, data:Array<T>):Array<T>;
+    export function slice<T>(start:number, end:number):(data:Array<T>)=>Array<T>;
+    export function slice<T>(start:number):(data:Array<T>)=>Array<T>;
+    export function slice<T>(start:number, end?:number, data?:Array<T>):any {
+        const fn = (data2:Array<T>) => data2.slice(start, end);
         return data ? fn(data) : fn;
     }
 
@@ -279,6 +294,13 @@ export namespace List {
 
 
 export namespace Dict {
+
+    export function get<V, K extends string>(k:K, dflt:V|undefined, data:Obj<V, K>):V|undefined;
+    export function get<V, K extends string>(k:K, dflt:V|undefined):(data:Obj<V, K>)=>V|undefined;
+    export function get<V, K extends string>(k:K, dflt:V|undefined, data?:Obj<V, K>):any {
+        const fn = (data2:Obj<V, K>) => data2[k] !== undefined ? data2[k] : dflt;
+        return data ? fn(data) : fn;
+    }
 
     export function size<V, K extends string>(data:Obj<V, K>):number;
     export function size<V, K extends string>():(data:Obj<V, K>)=>number;

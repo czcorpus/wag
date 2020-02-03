@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
 import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 
@@ -35,12 +34,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // -----
 
     const TranslationsTable:React.SFC<{
-        translations:Immutable.List<WordTranslation>;
+        translations:Array<WordTranslation>;
 
     }> = (props) => {
 
         const renderWords = () => {
-            if (props.translations.size > 0) {
+            if (props.translations.length > 0) {
                 return (
                     <table className="data">
                         <thead>
@@ -101,12 +100,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 color: t.color
             });
 
-            const style = this.props.isMobile ? {height: `${this.props.translations.size * 30}px`} :
-                                                {height: `${this.props.translations.size * 40}px`, width: '100%'};
+            const style = this.props.isMobile ? {height: `${this.props.translations.length * 30}px`} :
+                                                {height: `${this.props.translations.length * 40}px`, width: '100%'};
 
             return (
                 <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
-                            hasData={this.props.translations.size > 0}
+                            hasData={this.props.translations.length > 0}
                             sourceIdent={{corp: 'InterCorp'}}
                             backlink={this.props.backLink}
                             supportsTileReload={this.props.supportsReloadOnError}
@@ -116,7 +115,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <globComponents.ResponsiveWrapper render={(width:number, height:number) => (
                                     <WordCloud width={width} height={height}
                                             style={style} isMobile={this.props.isMobile}
-                                            data={this.props.translations.toArray()} font="Roboto Condensed"
+                                            data={this.props.translations} font="Roboto Condensed"
                                             dataTransform={dataTransform} />)} />
                     }
                 </globComponents.TileWrapper>

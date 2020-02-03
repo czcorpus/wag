@@ -20,7 +20,6 @@ import { Action } from 'kombo';
 
 export interface CollExamplesLoadedPayload {
     data:Array<Line>;
-    isLast:boolean;
 }
 
 export enum ActionName {
