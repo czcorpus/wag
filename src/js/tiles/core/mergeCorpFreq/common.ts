@@ -17,17 +17,45 @@
  */
 
 import { SourceMappedDataRow } from '../../../common/api/kontext/freqs';
+import { Backlink } from '../../../common/tile';
 
-export enum ActionName {
-    // TODO
+export interface ModelSourceArgs {
+
+    corpname:string;
+
+    corpusSize:number;
+
+    fcrit:string;
+
+    /**
+     * In case 'fcrit' describes a positional
+     * attribute we have to replace ann actual
+     * value returned by freq. distrib. function
+     * (which is equal to our query: e.g. for
+     * the query 'house' the value will be 'house')
+     * by something more specific (e.g. 'social media')
+     */
+    valuePlaceholder:string|null;
+
+    flimit:number;
+
+    freqSort:string;
+
+    fpage:number;
+
+    fttIncludeEmpty:boolean;
+
+    backlinkTpl:Backlink;
+
+    uuid:string;
+
+    isSingleCategory:boolean;
 }
 
 export interface DataLoadedPayload {
-    data:Array<Array<SourceMappedDataRow>>;
-    isLast:boolean;
-}
-
-export namespace Actions {
-
-    // TODO
+    data:Array<SourceMappedDataRow>;
+    valuePlaceholder:string;
+    queryId:number;
+    concId:string;
+    sourceId:string;
 }

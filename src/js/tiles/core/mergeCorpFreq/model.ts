@@ -18,55 +18,21 @@
 
 import { StatelessModel, IActionQueue, SEDispatcher } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
-import { flatMap, concatMap, map, timeout, scan } from 'rxjs/operators';
+import { flatMap, concatMap, map, timeout, reduce } from 'rxjs/operators';
 
 import { AppServices } from '../../../appServices';
 import { BacklinkArgs, DataRow, FreqDistribAPI, SingleCritQueryArgs, SourceMappedDataRow } from '../../../common/api/kontext/freqs';
 import { callWithExtraVal } from '../../../common/api/util';
 import { HTTPMethod } from '../../../common/types';
-import { Backlink, BacklinkWithArgs } from '../../../common/tile';
+import { BacklinkWithArgs } from '../../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { ConcApi, QuerySelector } from '../../../common/api/kontext/concordance';
 import { LemmaVariant } from '../../../common/query';
 import { ViewMode, SingleConcLoadedPayload } from '../../../common/api/abstract/concordance';
 import { Dict, List, applyComposed } from '../../../common/collections';
-import { DataLoadedPayload } from './actions';
+import { DataLoadedPayload, ModelSourceArgs } from './common';
 import { createInitialLinesData } from '../../../common/models/concordance';
 
-
-
-export interface ModelSourceArgs {
-
-    corpname:string;
-
-    corpusSize:number;
-
-    fcrit:string;
-
-    /**
-     * In case 'fcrit' describes a positional
-     * attribute we have to replace ann actual
-     * value returned by freq. distrib. function
-     * (which is equal to our query: e.g. for
-     * the query 'house' the value will be 'house')
-     * by something more specific (e.g. 'social media')
-     */
-    valuePlaceholder:string|null;
-
-    flimit:number;
-
-    freqSort:string;
-
-    fpage:number;
-
-    fttIncludeEmpty:boolean;
-
-    backlinkTpl:Backlink;
-
-    uuid:string;
-
-    isSingleCategory:boolean;
-}
 
 export interface MergeCorpFreqModelState {
     isBusy:boolean;
@@ -77,6 +43,12 @@ export interface MergeCorpFreqModelState {
     pixelsPerItem:number;
     barGap:number;
     lemmas:Array<LemmaVariant>;
+}
+
+interface SourceQueryProps {
+    sourceArgs:ModelSourceArgs;
+    queryId:number;
+    concId:string;
 }
 
 type LoadedConcProps = [number, ModelSourceArgs, string];
@@ -161,26 +133,44 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
             }
         );
 
-        this.addActionHandler<GlobalActions.TileDataLoaded<DataLoadedPayload>>(
-            GlobalActionName.TileDataLoaded,
+        this.addActionHandler<GlobalActions.TilePartialDataLoaded<DataLoadedPayload>>(
+            GlobalActionName.TilePartialDataLoaded,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
-                    if (action.payload.isLast) {
-                        state.isBusy = false;
+                    if (state.data[action.payload.queryId] === undefined) {
+                        state.data[action.payload.queryId] = [];
                     }
-                    if (action.error) {
-                        state.data = [];
-                        state.error = action.error.message;
 
-                    } else if (action.payload.data.length === 0) {
-                        state.data = [];
-
-                    } else {
-                        state.data = action.payload.data;
-                    }
+                    state.data[action.payload.queryId] = List.concat(
+                        (action.payload.data.length > 0 ?
+                            action.payload.data :
+                            [{
+                                sourceId: action.payload.sourceId,
+                                name: action.payload.valuePlaceholder,
+                                freq: 0,
+                                ipm: 0,
+                                norm: 0,
+                                backlink: null
+                            }]
+                        ),
+                        state.data[action.payload.queryId]
+                    );
                 }
             }
         );
+
+        this.addActionHandler<GlobalActions.TileDataLoaded<{}>>(
+            GlobalActionName.TileDataLoaded,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {
+                    state.isBusy = false;
+                    if (action.error) {
+                        state.data = [];
+                        state.error = action.error.message;
+                    }
+                }
+            }
+        )
 
         this.addActionHandler<GlobalActions.GetSourceInfo>(
             GlobalActionName.GetSourceInfo,
@@ -274,32 +264,28 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
     }
 
     private loadFreqs(conc$:Observable<[number, ModelSourceArgs, string]>, dispatch:SEDispatcher):void {
-        conc$.pipe(
+        const load$ = conc$.pipe(
             timeout(this.waitForTilesTimeoutSecs * 1000),
             flatMap(([queryId, sourceArgs, concId]) => {
+                const auxArgs:SourceQueryProps = {
+                    sourceArgs: sourceArgs,
+                    queryId: queryId,
+                    concId: concId
+                };
                 return callWithExtraVal(
                     this.freqApi,
                     sourceToAPIArgs(sourceArgs, concId),
-                    {
-                        sourceArgs: sourceArgs,
-                        queryId: queryId,
-                        concId: concId
-                    }
+                    auxArgs
                 );
             }),
-            scan(
-                (acc, [resp, args]) => {
-                    const ans = [...acc];
-                    if (ans[args.queryId] === undefined) {
-                        ans[args.queryId] = [];
-                    }
+            map(
+                ([resp, args]) => {
                     const dataNorm:Array<DataRow> =
                         args.sourceArgs.isSingleCategory ?
                             [resp.data.reduce<DataRow>(
-                                (ans, curr) => ({
-                                    sourceId: args.sourceArgs.uuid,
+                                (acc, curr) => ({
                                     name: '',
-                                    freq: ans.freq + curr.freq,
+                                    freq: acc.freq + curr.freq,
                                     ipm: undefined,
                                     norm: undefined,
                                     order: undefined,
@@ -315,76 +301,86 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
                                 }
                             )] :
                             resp.data;
-
-                    ans[args.queryId] = applyComposed(
-                        ans[args.queryId],
-                        List.concat(
-                            (dataNorm.length > 0 ?
-                                dataNorm :
-                                [{
-                                    name: args.sourceArgs.valuePlaceholder,
-                                    freq: 0,
-                                    ipm: 0,
-                                    norm: 0
-                                }]
-                            )
-                        ),
+                    const ans:[Array<DataRow>, SourceQueryProps] = [dataNorm, args];
+                    return ans;
+                }
+            ),
+            map(
+                ([data, props]) => {
+                    const ans:[Array<SourceMappedDataRow>, SourceQueryProps] = [
                         List.map(
-                            v => {
-                                const name = args.sourceArgs.valuePlaceholder ?
-                                    args.sourceArgs.valuePlaceholder :
-                                    this.appServices.translateDbValue(resp.corpname, v.name);
-                                return v.ipm ?
+                            row => {
+                                const name = props.sourceArgs.valuePlaceholder ?
+                                    props.sourceArgs.valuePlaceholder :
+                                    this.appServices.translateDbValue(props.sourceArgs.corpname, row.name);
+                                return row.ipm ?
                                     {
-                                        sourceId: args.sourceArgs.uuid,
-                                        queryId: args.queryId,
-                                        backlink: this.createBackLink(args.sourceArgs, resp.concId),
-                                        freq: v.freq,
-                                        ipm: v.ipm,
-                                        norm: v.norm,
+                                        sourceId: props.sourceArgs.uuid,
+                                        queryId: props.queryId,
+                                        backlink: this.createBackLink(props.sourceArgs, props.concId),
+                                        freq: row.freq,
+                                        ipm: row.ipm,
+                                        norm: row.norm,
                                         name: name
                                     } :
                                     {
-                                        sourceId: args.sourceArgs.uuid,
-                                        queryId: args.queryId,
-                                        backlink: this.createBackLink(args.sourceArgs, resp.concId),
-                                        freq: v.freq,
-                                        ipm: Math.round(v.freq / args.sourceArgs.corpusSize * 1e8) / 100,
-                                        norm: v.norm,
+                                        sourceId: props.sourceArgs.uuid,
+                                        queryId: props.queryId,
+                                        backlink: this.createBackLink(props.sourceArgs, props.concId),
+                                        freq: row.freq,
+                                        ipm: Math.round(row.freq / props.sourceArgs.corpusSize * 1e8) / 100,
+                                        norm: row.norm,
                                         name: name
                                     };
-                            }
-                        )
-                    );
+                            },
+                            data
+                        ),
+                        props
+                    ];
                     return ans;
-                },
-                [] as Array<Array<SourceMappedDataRow>>
+                }
+            )
+        );
+
+        load$.pipe(
+            reduce(
+                (acc, [data, args]) => acc && applyComposed(
+                    data,
+                    List.every(v => v && v.freq === 0)
+                ),
+                true
             )
         ).subscribe(
-            data => {
-                dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                    name: GlobalActionName.TileDataLoaded,
+            (isEmpty) => dispatch<GlobalActions.TileDataLoaded<{}>>({
+                name: GlobalActionName.TileDataLoaded,
+                payload: {
+                    tileId: this.tileId,
+                    isEmpty: isEmpty
+                }
+            })
+        );
+
+        load$.subscribe(
+            ([data, srcProps]) => {
+                dispatch<GlobalActions.TilePartialDataLoaded<DataLoadedPayload>>({
+                    name: GlobalActionName.TilePartialDataLoaded,
                     payload: {
                         tileId: this.tileId,
-                        isLast: List.every(x => x !== undefined, data),
-                        isEmpty: applyComposed(
-                            data,
-                            List.flatMap(v => v),
-                            List.every(v => v && v.freq === 0)
-                        ),
+                        queryId: srcProps.queryId,
+                        concId: srcProps.concId,
+                        sourceId: srcProps.sourceArgs.uuid,
                         data: data,
+                        valuePlaceholder: srcProps.sourceArgs.valuePlaceholder
                     }
                 });
             },
             err => {
-                dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                dispatch<GlobalActions.TileDataLoaded<{}>>({
                     name: GlobalActionName.TileDataLoaded,
                     error: err,
                     payload: {
                         tileId: this.tileId,
-                        isEmpty: true,
-                        isLast: true,
-                        data: []
+                        isEmpty: true
                     }
                 });
             }
