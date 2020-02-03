@@ -359,10 +359,16 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
 
                     }).pipe(
                         concatMap(
-                            () => rxOf(...Dict.mapEntries(([,v]) => v, data.subqueries))
+                            (switchResp) => rxOf(...Dict.mapEntries(
+                                ([,v]) => {
+                                    const ans:[string, SubQueryItem<RangeRelatedSubqueryValue>] = [switchResp.concPersistenceID, v];
+                                    return ans;
+                                },
+                                data.subqueries
+                            ))
                         ),
                         concatMap(
-                            (resp) => this.loadFreqs(state, data.concordanceId, resp)
+                            ([concId, resp]) => this.loadFreqs(state, concId, resp)
                         )
                     );
                 }
