@@ -376,7 +376,7 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
             state.tileResultFlags,
             List.groupBy(v => v.groupId.toString()),
             Dict.fromEntries(),
-            Dict.map((v, _) => List.every(t => t.status !== TileResultFlag.EMPTY_RESULT, v)),
+            Dict.map((v, _) => List.every(t => t.status === TileResultFlag.EMPTY_RESULT, v)),
             Dict.filter((v, _) => !!v),
             Dict.keys(),
             List.map(v => parseInt(v))
