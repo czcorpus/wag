@@ -98,9 +98,9 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
                 state.lines = [];
             },
             (state, action, dispatch) => {
-                this.handleDataLoad(state, dispatch);
+                this.handleDataLoad(state, false, dispatch);
             }
-        ).sideEffectAlsoOn(GlobalActionName.SubqChanged);
+        );
 
         this.addActionHandler<GlobalActions.TilePartialDataLoaded<CollExamplesLoadedPayload>>(
             GlobalActionName.TilePartialDataLoaded,
@@ -168,6 +168,9 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
                     state.isBusy = true;
                     state.lines = [];
                 }
+            },
+            (state, action, dispatch) => {
+                this.handleDataLoad(state, true, dispatch);
             }
         );
         this.addActionHandler<GlobalActions.TileAreaClicked>(
@@ -313,7 +316,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
         return this.subqSourceTiles.find(v => v === action.payload['tileId'] && action.payload['subqueries']) !== undefined;
     }
 
-    private handleDataLoad(state:ConcFilterModelState, seDispatch:SEDispatcher) {
+    private handleDataLoad(state:ConcFilterModelState, ignoreConc:boolean, seDispatch:SEDispatcher) {
         this.suspend(
             Dict.fromEntries(List.map(v => [v.toFixed(), false], this.waitingForTiles)),
             (action:GlobalActions.TileDataLoaded<SubqueryPayload<RangeRelatedSubqueryValue> & {tileId:number}>, syncData) => {
@@ -322,7 +325,12 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
                         throw action.error;
                     }
                     const ans = {...syncData, ...{[action.payload.tileId.toFixed()]: true}};
-                    return Dict.hasValue(false, ans) ? ans : null;
+                    if (this.isFromSubqSourceTile(action) && ignoreConc || !Dict.hasValue(false, ans)) {
+                        return null;
+
+                    } else {
+                        return ans;
+                    }
                 }
                 return syncData;
             }
@@ -359,10 +367,16 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
 
                     }).pipe(
                         concatMap(
-                            () => rxOf(...Dict.mapEntries(([,v]) => v, data.subqueries))
+                            (switchResp) => rxOf(...Dict.mapEntries(
+                                ([,v]) => {
+                                    const ans:[string, SubQueryItem<RangeRelatedSubqueryValue>] = [switchResp.concPersistenceID, v];
+                                    return ans;
+                                },
+                                data.subqueries
+                            ))
                         ),
                         concatMap(
-                            (resp) => this.loadFreqs(state, data.concordanceId, resp)
+                            ([concId, resp]) => this.loadFreqs(state, concId, resp)
                         )
                     );
                 }
