@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { map, concatMap, reduce, endWith } from 'rxjs/operators';
+import { map, concatMap, reduce, tap } from 'rxjs/operators';
 import { of as rxOf } from 'rxjs';
 import { StatelessModel, Action, SEDispatcher, IActionQueue } from 'kombo';
 
@@ -102,18 +102,22 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
             }
         ).sideEffectAlsoOn(GlobalActionName.SubqChanged);
 
-        this.addActionHandler<GlobalActions.TileDataLoaded<CollExamplesLoadedPayload>>(
+        this.addActionHandler<GlobalActions.TilePartialDataLoaded<CollExamplesLoadedPayload>>(
+            GlobalActionName.TilePartialDataLoaded,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {
+                    state.lines = state.lines.concat(action.payload.data);
+                }
+            }
+        );
+
+        this.addActionHandler<GlobalActions.TileDataLoaded<{}>>(
             GlobalActionName.TileDataLoaded,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
+                    state.isBusy = false;
                     if (action.error) {
-                        state.lines = [];
-                        state.isBusy = false;
                         state.error = action.error.message;
-
-                    } else {
-                        state.isBusy = !action.payload.isLast;
-                        state.lines = state.lines.concat(action.payload.data);
                     }
                 }
             }
@@ -310,7 +314,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
     }
 
     private handleDataLoad(state:ConcFilterModelState, seDispatch:SEDispatcher) {
-        return this.suspend(
+        this.suspend(
             Dict.fromEntries(List.map(v => [v.toFixed(), false], this.waitingForTiles)),
             (action:GlobalActions.TileDataLoaded<SubqueryPayload<RangeRelatedSubqueryValue> & {tileId:number}>, syncData) => {
                 if (action.name === GlobalActionName.TileDataLoaded && Dict.hasKey(action.payload.tileId.toFixed(), syncData)) {
@@ -363,38 +367,37 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
                     );
                 }
             ),
-           endWith({
-            query: '__last__',
-            corpName: '',
-            subcorpName: '',
-            lines: [],
-            concsize: 0,
-            arf: 0,
-            ipm: 0,
-            messages: [],
-            concPersistenceID: ''
-           })
-
+            tap(
+                (data) => {
+                    seDispatch<GlobalActions.TilePartialDataLoaded<CollExamplesLoadedPayload>>({
+                        name: GlobalActionName.TilePartialDataLoaded,
+                        payload: {
+                            tileId: this.tileId,
+                            data: normalizeTypography(data.lines.slice(0, state.itemsPerSrc))
+                        }
+                    });
+                }
+            ),
+            reduce(
+                (acc, curr) => acc && curr.lines.length === 0,
+                true // is empty
+            )
         ).subscribe(
-            (data) => {
-                seDispatch<GlobalActions.TileDataLoaded<CollExamplesLoadedPayload>>({
+            (isEmpty) => {
+                seDispatch<GlobalActions.TileDataLoaded<{}>>({
                     name: GlobalActionName.TileDataLoaded,
                     payload: {
                         tileId: this.tileId,
-                        isEmpty: data.lines.length === 0,
-                        isLast: data.query === '__last__',
-                        data: normalizeTypography(data.lines.slice(0, state.itemsPerSrc))
+                        isEmpty: isEmpty
                     }
-                });
+                })
             },
             (err) => {
-                seDispatch<GlobalActions.TileDataLoaded<CollExamplesLoadedPayload>>({
+                seDispatch<GlobalActions.TileDataLoaded<{}>>({
                     name: GlobalActionName.TileDataLoaded,
                     payload: {
                         tileId: this.tileId,
-                        isEmpty: true,
-                        isLast: true,
-                        data: []
+                        isEmpty: true
                     },
                     error: err,
                 });
