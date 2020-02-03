@@ -17,7 +17,6 @@
  */
 import { Observable, of as rxOf } from 'rxjs';
 import { ITranslator } from 'kombo';
-import * as Immutable from 'immutable';
 
 import { DbValueMapping, HTTPHeaders, SystemMessageType } from './common/types';
 import { LemmaDbApi, LemmaDbResponse } from './common/api/lemma';
@@ -25,6 +24,7 @@ import { SystemNotifications } from './notifications';
 import { HTTPAction } from './server/actions';
 import { AudioPlayer } from './common/audioPlayer';
 import { MultiDict } from './common/data';
+import { Dict } from './common/collections';
 
 /**
  *
@@ -68,13 +68,13 @@ export class AppServices {
 
     private readonly audioPlayer:AudioPlayer;
 
-    private readonly languageNames:Immutable.Map<string, string>;
+    private readonly languageNames:{[k:string]:string};
 
     constructor({notifications, uiLang, searchLanguages: searchedLanguages, translator, staticUrlCreator, actionUrlCreator, dbValuesMapping,
             apiHeadersMapping, mobileModeTest}:AppServicesArgs) {
         this.notifications = notifications;
         this.uiLang = uiLang;
-        this.languageNames = Immutable.Map<string, string>(searchedLanguages);
+        this.languageNames = Dict.fromEntries(searchedLanguages);
         this.translator = translator;
         this.staticUrlCreator = staticUrlCreator;
         this.actionUrlCreator = actionUrlCreator;
@@ -95,7 +95,7 @@ export class AppServices {
     }
 
     getLanguageName(langCode:string):string {
-        return this.languageNames.get(langCode.split('-')[0], '??');
+        return Dict.get(langCode.split('-')[0], '??', this.languageNames);
     }
 
     private importText<T>(label:string|{[lang:string]:T}):string|T {

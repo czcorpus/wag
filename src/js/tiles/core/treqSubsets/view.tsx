@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
 import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 
@@ -24,6 +23,7 @@ import { GlobalComponents, TooltipValues } from '../../../views/global';
 import { TreqSubsetModel, flipRowColMapper } from './model';
 import { Theme } from '../../../common/theme';
 import { TranslationSubset, TranslationsSubsetsModelState } from '../../../common/models/translations';
+import { List } from '../../../common/collections';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:TreqSubsetModel):TileComponent {
@@ -84,7 +84,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // ---------------------- <ChartLikeTable /> ------------------------------------------
 
     const ChartLikeTable:React.SFC<{
-        subsets:Immutable.List<TranslationSubset>;
+        subsets:Array<TranslationSubset>;
         maxNumLines:number;
         chartWidthPx:number;
         highlightedRowIdx:number;
@@ -129,7 +129,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // ---------------------- <AltViewTable /> ------------------------------------------
 
     const AltViewTable:React.SFC<{
-        subsets:Immutable.List<TranslationSubset>;
+        subsets:Array<TranslationSubset>;
         maxNumLines:number;
 
     }> = (props) => {
@@ -147,7 +147,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         {props.subsets.map((v, i) =>
                             <React.Fragment key={`A:${v.label}`}><th>abs.</th><th className="separ">rel.</th></React.Fragment>)}
                     </tr>
-                    <tr className="separ"><td colSpan={props.subsets.size * 2} /></tr>
+                    <tr className="separ"><td colSpan={props.subsets.length * 2} /></tr>
                 </thead>
                 <tbody>
                     {flipRowColMapper(props.subsets, props.maxNumLines, row => (
@@ -170,7 +170,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // ---------------------- <ResultChart /> ------------------------------------------
 
     class ResultChart extends React.Component<{
-        subsets:Immutable.List<TranslationSubset>;
+        subsets:Array<TranslationSubset>;
         maxNumLines:number;
         highlightedRowIdx:number;
         chartWidthPx:number;
@@ -246,7 +246,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         render() {
             return (
                 <globalComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
-                        hasData={this.props.subsets.flatMap(v => v.translations).size > 0}
+                        hasData={List.flatMap(v => v.translations, this.props.subsets).length > 0}
                         sourceIdent={{corp: 'InterCorp'}}
                         supportsTileReload={this.props.supportsReloadOnError}
                         issueReportingUrl={this.props.issueReportingUrl}>

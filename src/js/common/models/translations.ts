@@ -15,8 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import * as Immutable from 'immutable';
 import { WordTranslation } from '../api/abstract/translations';
 import { BacklinkWithArgs } from '../tile';
 
@@ -42,12 +40,12 @@ export interface TranslationsModelState<T> extends TranslationsModelCoreState {
      * List of packages/subcorpora where we can search. If not
      * applicable push just a single item.
      */
-    searchPackages:Immutable.List<string>;
+    searchPackages:Array<string>;
 
     /**
      * List of found translations
      */
-    translations:Immutable.List<WordTranslation>;
+    translations:Array<WordTranslation>;
 
     backLink:BacklinkWithArgs<T>|null;
 
@@ -62,9 +60,8 @@ export interface TranslationsModelState<T> extends TranslationsModelCoreState {
 export interface TranslationSubset {
     ident:string;
     label:string;
-    packages:Immutable.List<string>;
-    translations:Immutable.List<WordTranslation>;
-    isPending:boolean;
+    packages:Array<string>;
+    translations:Array<WordTranslation>;
 }
 
 /**
@@ -76,8 +73,8 @@ export interface TranslationsSubsetsModelState extends TranslationsModelCoreStat
     isBusy:boolean;
     error:string;
     isAltViewMode:boolean;
-    subsets:Immutable.List<TranslationSubset>;
+    subsets:Array<TranslationSubset>;
     highlightedRowIdx:number;
     maxNumLines:number;
-    colorMap:Immutable.Map<string, string>;
+    colorMap:{[k:string]:string};
 }

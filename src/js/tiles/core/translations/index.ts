@@ -15,8 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
-
 import { AppServices } from '../../../appServices';
 import { QueryType } from '../../../common/query';
 import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../../common/tile';
@@ -70,8 +68,8 @@ export class TranslationsTile implements ITileProvider {
                 isBusy: isBusy,
                 isAltViewMode: false,
                 error: null,
-                searchPackages: Immutable.List<string>(conf.srchPackages[lang2] || []),
-                translations: Immutable.List<WordTranslation>(),
+                searchPackages: (conf.srchPackages[lang2] || []),
+                translations: [],
                 backLink: null,
                 maxNumLines: conf.maxNumLines || TranslationsTile.DEFAULT_MAX_NUM_LINES,
                 minItemFreq: conf.minItemFreq || TranslationsTile.DEFAULT_MIN_ITEM_FREQ,

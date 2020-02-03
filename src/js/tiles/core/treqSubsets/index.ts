@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-import * as Immutable from 'immutable';
 import { QueryType } from '../../../common/query';
 import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../../common/tile';
 import { TreqSubsetModel } from './model';
@@ -26,6 +25,7 @@ import { StatelessModel } from 'kombo';
 import { LocalizedConfMsg } from '../../../common/types';
 import { WordTranslation } from '../../../common/api/abstract/translations';
 import { TranslationSubset } from '../../../common/models/translations';
+import { List } from '../../../common/collections';
 
 declare var require:any;
 require('./style.less');
@@ -73,16 +73,19 @@ export class TreqSubsetsTile implements ITileProvider {
                 isBusy: isBusy,
                 isAltViewMode: false,
                 error: null,
-                subsets: Immutable.List<TranslationSubset>((conf.srchPackages[lang2] || []).map(v => ({
-                    ident: v.packages.join('|'),
-                    label: v.label ? appServices.importExternalMessage(v.label) : v.packages.join(', '),
-                    translations: Immutable.List<WordTranslation>(),
-                    packages: Immutable.List<PackageGroup>(v.packages),
-                    isPending: false
-                }))),
+                subsets: List.map(
+                    v => ({
+                        ident: v.packages.join('|'),
+                        label: v.label ? appServices.importExternalMessage(v.label) : v.packages.join(', '),
+                        translations: [],
+                        packages: [...v.packages],
+                        isPending: false
+                    }),
+                    conf.srchPackages[lang2] || []
+                ),
                 highlightedRowIdx: -1,
                 maxNumLines: 12,
-                colorMap: Immutable.Map<string, string>(),
+                colorMap: {},
                 minItemFreq: conf.minItemFreq || TreqSubsetsTile.DEFAULT_MIN_ITEM_FREQ
             },
             tileId,
