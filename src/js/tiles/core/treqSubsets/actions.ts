@@ -17,7 +17,6 @@
  */
 
 import { WordTranslation } from '../../../common/api/abstract/translations';
-import { Action } from 'kombo';
 
 
 export interface DataLoadedPayload {
@@ -25,17 +24,4 @@ export interface DataLoadedPayload {
     lines:Array<WordTranslation>;
     sum:number;
     subsetId:string|null;
-}
-
-
-export enum ActionName {
-    ColorMapLoaded = 'TREQ_SUBSETS_COLOR_MAP_LOADED'
-}
-
-export namespace Actions {
-    export interface ColorMapLoaded extends Action<{
-        colorMap:{[k:string]:string};
-    }> {
-        name: ActionName.ColorMapLoaded
-    }
 }

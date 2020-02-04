@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
 import { IActionDispatcher, StatelessModel } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
 
@@ -100,6 +99,7 @@ export class ConcFilterTile implements ITileProvider {
                 otherCorpname: conf.parallelLangMapping ? conf.parallelLangMapping[lang2] : null,
                 posAttrs: conf.posAttrs,
                 lines: [],
+                concPersistenceId: '',
                 viewMode: ViewMode.SENT,
                 attrVmode: 'mouseover',
                 itemsPerSrc: 1,
