@@ -47,6 +47,7 @@ export interface ConcFilterModelState {
     viewMode:ViewMode;
     itemsPerSrc:number;
     lines:Array<Line>;
+    concPersistenceId:string;
     metadataAttrs:Array<{value:string; label:string}>;
     visibleMetadataLine:number;
 }
@@ -57,10 +58,6 @@ type TileWaitSync = {[tileId:string]:boolean};
 interface SourceLoadingData {
     concordanceId:string;
     subqueries:{[subq:string]:SubQueryItem<RangeRelatedSubqueryValue>};
-}
-
-interface ResultDataAccumulator {
-    lines:Array<Line>;
 }
 
 
@@ -76,9 +73,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
 
     private readonly waitingForTiles:Array<number>;
 
-    private subqSourceTiles:Array<number>;
-
-    private numPendingSources:number;
+    private readonly subqSourceTiles:Array<number>;
 
     constructor(dispatcher:IActionQueue, tileId:number, waitForTiles:Array<number>, subqSourceTiles:Array<number>,
                 appServices:AppServices, api:ConcApi, switchMainCorpApi:ISwitchMainCorpApi, initState:ConcFilterModelState) {
@@ -87,7 +82,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
         this.api = api;
         this.switchMainCorpApi = switchMainCorpApi;
         this.waitingForTiles = [...waitForTiles];
-        this.subqSourceTiles = subqSourceTiles;
+        this.subqSourceTiles = [...subqSourceTiles];
         this.appServices = appServices;
 
         this.addActionHandler<GlobalActions.RequestQueryResponse>(
@@ -107,6 +102,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.lines = state.lines.concat(action.payload.data);
+                    state.concPersistenceId = action.payload.baseConcId;
                 }
             }
         );
@@ -271,7 +267,14 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
         }
     }
 
-    private loadFreqs(state:ConcFilterModelState, concId:string, query:SubQueryItem<RangeRelatedSubqueryValue>):Observable<ConcResponse> {
+    /**
+     *
+     * @param state
+     * @param concId
+     * @param query
+     * @return Observable of tuple [base conc ID, filtered conc response]
+     */
+    private loadFreqs(state:ConcFilterModelState, concId:string, query:SubQueryItem<RangeRelatedSubqueryValue>):Observable<[string, ConcResponse]> {
         return rxOf(query).pipe(
             concatMap(
                 subq => callWithExtraVal(
@@ -281,33 +284,36 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
                 )
             ),
             map(
-                ([v, subq]) => ({
-                    concPersistenceID: v.concPersistenceID,
-                    messages: v.messages,
-                    lines: v.lines.map(line => ({
-                        left: line.left,
-                        kwic: line.kwic,
-                        right: line.right,
-                        align: line.align,
-                        metadata: (line.metadata || []).map(item => ({
-                            value: item.value,
-                            label: (() => {
-                                const srch = state.metadataAttrs.find(v => v.value === item.label);
-                                return srch ? srch.label : item.label;
-                            })()
+                ([v, subq]) => [
+                    concId,
+                    {
+                        concPersistenceID: v.concPersistenceID,
+                        messages: v.messages,
+                        lines: v.lines.map(line => ({
+                            left: line.left,
+                            kwic: line.kwic,
+                            right: line.right,
+                            align: line.align,
+                            metadata: (line.metadata || []).map(item => ({
+                                value: item.value,
+                                label: (() => {
+                                    const srch = state.metadataAttrs.find(v => v.value === item.label);
+                                    return srch ? srch.label : item.label;
+                                })()
+                            })),
+                            toknum: line.toknum,
+                            interactionId: subq.interactionId
                         })),
-                        toknum: line.toknum,
-                        interactionId: subq.interactionId
-                    })),
-                    concsize: v.concsize,
-                    arf: v.arf,
-                    ipm: v.ipm,
-                    query: v.query,
-                    corpName: v.corpName,
-                    subcorpName: v.subcorpName,
-                    align: state.otherCorpname, // TODO not always needed
-                    maincorp: state.otherCorpname, // TODO not always needed
-                })
+                        concsize: v.concsize,
+                        arf: v.arf,
+                        ipm: v.ipm,
+                        query: v.query,
+                        corpName: v.corpName,
+                        subcorpName: v.subcorpName,
+                        align: state.otherCorpname, // TODO not always needed
+                        maincorp: state.otherCorpname, // TODO not always needed
+                    }
+                ]
             )
         );
     }
@@ -355,17 +361,21 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
                     }
                     return ans;
                 },
-                {concordanceId: null, subqueries:{}} as SourceLoadingData
+                {concordanceId: state.concPersistenceId, subqueries:{}} as SourceLoadingData
             ),
             concatMap(
                 (data) => {
-                    return this.switchMainCorpApi.call({
-                        concPersistenceID: data.concordanceId,
-                        corpname: state.corpName,
-                        align: state.otherCorpname,
-                        maincorp: state.otherCorpname
+                    return (
+                        state.otherCorpname ?
+                            this.switchMainCorpApi.call({
+                                concPersistenceID: data.concordanceId,
+                                corpname: state.corpName,
+                                align: state.otherCorpname,
+                                maincorp: state.otherCorpname
+                            }) :
+                            rxOf({concPersistenceID: data.concordanceId})
 
-                    }).pipe(
+                    ).pipe(
                         concatMap(
                             (switchResp) => rxOf(...Dict.mapEntries(
                                 ([,v]) => {
@@ -382,18 +392,19 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
                 }
             ),
             tap(
-                (data) => {
+                ([baseConcId, resp]) => {
                     seDispatch<GlobalActions.TilePartialDataLoaded<CollExamplesLoadedPayload>>({
                         name: GlobalActionName.TilePartialDataLoaded,
                         payload: {
                             tileId: this.tileId,
-                            data: normalizeTypography(data.lines.slice(0, state.itemsPerSrc))
+                            data: normalizeTypography(resp.lines.slice(0, state.itemsPerSrc)),
+                            baseConcId: baseConcId
                         }
                     });
                 }
             ),
             reduce(
-                (acc, curr) => acc && curr.lines.length === 0,
+                (acc, [baseConcId, resp]) => acc && resp.lines.length === 0,
                 true // is empty
             )
         ).subscribe(
