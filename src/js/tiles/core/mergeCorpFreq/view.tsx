@@ -107,6 +107,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         data:Array<Array<SourceMappedDataRow>>;
         barGap:number;
         lemmas:Array<LemmaVariant>;
+        isPartial:boolean;
     }> = (props) => {
         const queries = props.lemmas.length;
         const transformedData = transformData(props.data, props.lemmas);
@@ -116,8 +117,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <BarChart data={transformedData} layout="vertical" barCategoryGap={props.barGap}>
                         <CartesianGrid />
                         {props.lemmas.map((_, index) =>
-                            <Bar key={index} dataKey={x => x.ipm[index]} fill={theme.barColor(index)} isAnimationActive={false}
-                            name={queries === 1 ? ut.translate('mergeCorpFreq_rel_freq') : `[${index + 1}] ${props.lemmas[index].word}`} />
+                            <Bar
+                                key={index}
+                                dataKey={x => x.ipm[index]}
+                                fill={props.isPartial ? theme.unfinishedChartColor: theme.barColor(index)}
+                                isAnimationActive={false}
+                                name={queries === 1 ? ut.translate('mergeCorpFreq_rel_freq') : `[${index + 1}] ${props.lemmas[index].word}`} />
                         )}
                         <XAxis type="number" label={{value: queries > 1 ? ut.translate('mergeCorpFreq_rel_freq') : null, dy: 15}} />
                         <YAxis type="category" dataKey="name" width={120} />
@@ -155,7 +160,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <div className="MergeCorpFreqBarTile" style={{minHeight: `${minHeight}px`, height: `${height}px`}}>
                             {this.props.isAltViewMode ?
                                 <TableView data={this.props.data} lemmas={this.props.lemmas} /> :
-                                <Chart data={this.props.data} barGap={this.props.barGap} lemmas={this.props.lemmas} />
+                                <Chart data={this.props.data} barGap={this.props.barGap} lemmas={this.props.lemmas} isPartial={this.props.isBusy} />
                             }
                         </div>)}} />
                 </globComponents.TileWrapper>

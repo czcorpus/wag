@@ -18,7 +18,7 @@
 
 import { StatelessModel, IActionQueue, SEDispatcher } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
-import { flatMap, concatMap, map, timeout, reduce } from 'rxjs/operators';
+import { flatMap, concatMap, map, timeout, reduce, tap } from 'rxjs/operators';
 
 import { AppServices } from '../../../appServices';
 import { BacklinkArgs, DataRow, FreqDistribAPI, SingleCritQueryArgs, SourceMappedDataRow } from '../../../common/api/kontext/freqs';
@@ -264,7 +264,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
     }
 
     private loadFreqs(conc$:Observable<[number, ModelSourceArgs, string]>, dispatch:SEDispatcher):void {
-        const load$ = conc$.pipe(
+        conc$.pipe(
             timeout(this.waitForTilesTimeoutSecs * 1000),
             flatMap(([queryId, sourceArgs, concId]) => {
                 const auxArgs:SourceQueryProps = {
@@ -339,12 +339,24 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
                     ];
                     return ans;
                 }
-            )
-        );
-
-        load$.pipe(
+            ),
+            tap(
+                ([data, srcProps]) => {
+                    dispatch<GlobalActions.TilePartialDataLoaded<DataLoadedPayload>>({
+                        name: GlobalActionName.TilePartialDataLoaded,
+                        payload: {
+                            tileId: this.tileId,
+                            queryId: srcProps.queryId,
+                            concId: srcProps.concId,
+                            sourceId: srcProps.sourceArgs.uuid,
+                            data: data,
+                            valuePlaceholder: srcProps.sourceArgs.valuePlaceholder
+                        }
+                    });
+                }
+            ),
             reduce(
-                (acc, [data, args]) => acc && applyComposed(
+                (acc, [data,]) => acc && applyComposed(
                     data,
                     List.every(v => v && v.freq === 0)
                 ),
@@ -357,23 +369,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
                     tileId: this.tileId,
                     isEmpty: isEmpty
                 }
-            })
-        );
-
-        load$.subscribe(
-            ([data, srcProps]) => {
-                dispatch<GlobalActions.TilePartialDataLoaded<DataLoadedPayload>>({
-                    name: GlobalActionName.TilePartialDataLoaded,
-                    payload: {
-                        tileId: this.tileId,
-                        queryId: srcProps.queryId,
-                        concId: srcProps.concId,
-                        sourceId: srcProps.sourceArgs.uuid,
-                        data: data,
-                        valuePlaceholder: srcProps.sourceArgs.valuePlaceholder
-                    }
-                });
-            },
+            }),
             err => {
                 dispatch<GlobalActions.TileDataLoaded<{}>>({
                     name: GlobalActionName.TileDataLoaded,
