@@ -41,7 +41,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         applyComposed(
             blocks,
             List.flatMap(block => block.data),
-            List.tap(item => {
+            List.forEach(item => {
                 if (ans[item.name] === undefined) {
                     ans[item.name] = colorPalette(`${i % catList.length}`);
                     i += 1;

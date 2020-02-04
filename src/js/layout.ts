@@ -137,7 +137,7 @@ export class LayoutManager {
             concatLayouts(this.layoutSingle, this.layoutCmp, this.layoutTranslat),
             List.flatMap(v => v.tiles.map((v2, idx) => ({group: v.groupLabel, tileId: v2.tileId, idx: idx}))),
             List.filter(v => v.tileId === undefined),
-            List.tap((item) => {
+            List.forEach((item) => {
                 console.error(`Invalid layout configuration for group ${item.group} at position ${item.idx}`);
             })
         );

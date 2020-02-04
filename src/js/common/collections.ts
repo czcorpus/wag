@@ -194,9 +194,9 @@ export namespace List {
         return data ? fn(data) : fn;
     }
 
-    export function tap<T>(effect:(v:T, i:number)=>void, data:Array<T>):Array<T>;
-    export function tap<T>(effect:(v:T, i:number)=>void):(data:Array<T>)=>Array<T>;
-    export function tap<T>(effect:(v:T, i:number)=>void, data?:Array<T>):any {
+    export function forEach<T>(effect:(v:T, i:number)=>void, data:Array<T>):Array<T>;
+    export function forEach<T>(effect:(v:T, i:number)=>void):(data:Array<T>)=>Array<T>;
+    export function forEach<T>(effect:(v:T, i:number)=>void, data?:Array<T>):any {
         const fn = (data2:Array<T>):Array<T> => {
             data2.forEach((v, i) => effect(v, i));
             return data2;
@@ -348,15 +348,10 @@ export namespace Dict {
         return data ? fn(data) : fn;
     }
 
-    export function forEach<V, K extends string>(fn:(v:V, k:K)=>void, data:Obj<V, K>):void {
-        for (let k in data) {
-            fn(data[k], k);
-        }
-    }
 
-    export function tap<V, K extends string>(effect:(v:V, k:K)=>void, data:Obj<V, K>):Obj<V, K>;
-    export function tap<V, K extends string>(effect:(v:V, k:K)=>void):(data:Obj<V, K>)=>Obj<V, K>;
-    export function tap<V, K extends string>(effect:(v:V, k:K)=>void, data?:Obj<V, K>):any {
+    export function forEach<V, K extends string>(effect:(v:V, k:K)=>void, data:Obj<V, K>):Obj<V, K>;
+    export function forEach<V, K extends string>(effect:(v:V, k:K)=>void):(data:Obj<V, K>)=>Obj<V, K>;
+    export function forEach<V, K extends string>(effect:(v:V, k:K)=>void, data?:Obj<V, K>):any {
         const fn = (data2:Obj<V, K>):Obj<V, K> => {
             for (let k in data2) {
                 effect(data2[k], k);
