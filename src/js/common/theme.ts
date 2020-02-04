@@ -51,6 +51,10 @@ export class Theme {
 
     private readonly barColors:Array<string>;
 
+    public readonly unfinishedChartColor:string;
+
+    public readonly unfinishedChartColorLight:string;
+
     private readonly scaleColors:Array<string>;
 
     private readonly catOtherColor:string;
@@ -85,6 +89,8 @@ export class Theme {
             '#ce006f',
             '#e2007a'
         ];
+        this.unfinishedChartColor = '#dddddd';
+        this.unfinishedChartColorLight = '#eeeeee';
         this.catOtherColor = conf.categoryOther ? conf.categoryOther : '#494949';
     }
 
