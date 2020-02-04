@@ -144,7 +144,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                                 {height: `${data.length * 40}px`, width: '100%'}}
                                                 font="Roboto Condensed"
                                                 dataTransform={dataTransform}
-                                                selectedText={this.props.data.length > 1 ? this.props.selectedText : null}/>
+                                                selectedText={this.props.data.length > 1 ? this.props.selectedText : null} />
                                     </div>
                                 )} /> :
                                 <globalCompontents.ResponsiveWrapper key={`${index}empty`} render={() => data === null ? <p>Processing...</p> : <p>No data</p>} />

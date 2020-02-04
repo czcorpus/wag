@@ -197,7 +197,7 @@ export const createWordCloud = (
             frameWidth / frameHeight
         );
     }
-    const bbox = boundingBox(rectangles);
+    const bbox = data.length > 0 ? boundingBox(rectangles) : {x: 0, y: 0, w: frameWidth, h: frameHeight};
     const scale = Math.min(frameWidth * 0.95 / bbox.w, frameHeight / bbox.h);
     return {
         rectangles: rectangles,
