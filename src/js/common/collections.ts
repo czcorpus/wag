@@ -46,6 +46,19 @@ export namespace List {
         return ans;
     }
 
+    export function zip<T, U>(incoming:Array<U>, data:Array<T>):Array<[T, U]>;
+    export function zip<T, U>(incoming:Array<U>):(data:Array<T>)=>Array<[T, U]>;
+    export function zip<T, U>(incoming:Array<U>, data?:Array<T>):any {
+        const fn = (data2:Array<T>):Array<[T, U]> => {
+            const ans:Array<[T, U]> = [];
+            for (let i = 0; i < Math.min(data2.length, incoming.length); i++) {
+                ans.push([data2[i], incoming[i]]);
+            }
+            return ans;
+        }
+        return data ? fn(data) : fn;
+    }
+
 
     export function map<T, U>(fn:(v:T, i:number)=>U):(data:Array<T>)=>Array<U>;
     export function map<T, U>(fn:(v:T, i:number)=>U, data:Array<T>):Array<U>;

@@ -102,7 +102,7 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
 
     const qType = userSession.queryType as QueryType; // TODO validate
     const isDictQuery = userSession.queryType === QueryType.CMP_QUERY ?
-            lemmas.every(lvList => testIsDictQuery(lvList)) :
+            List.some(lvList => testIsDictQuery(lvList), lemmas) :
             testIsDictQuery(lemmas[0]);
     const globalComponents = globalCompInit(dispatcher, viewUtils, onResize);
     viewUtils.attachComponents(globalComponents);

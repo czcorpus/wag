@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
-import { Observable, Observer, of } from 'rxjs';
-import { concatMap } from 'rxjs/operators';
+import { Observable, Observer, of as rxOf } from 'rxjs';
+import { concatMap, map, tap, reduce } from 'rxjs/operators';
 
 import { AppServices } from '../../../appServices';
 import { HTTPMethod, SystemMessageType } from '../../../common/types';
@@ -30,10 +30,12 @@ import { CollocModelState, ctxToRange } from '../../../common/models/collocation
 import { CoreCollRequestArgs } from '../../../common/api/kontext/collocations';
 import { LemmaVariant, QueryType } from '../../../common/query';
 import { CoreApiGroup } from '../../../common/api/coreGroups';
-import { ConcApi, QuerySelector } from '../../../common/api/kontext/concordance';
+import { ConcApi, QuerySelector, RequestArgs } from '../../../common/api/kontext/concordance';
 import { callWithExtraVal } from '../../../common/api/util';
-import { ViewMode } from '../../../common/api/abstract/concordance';
+import { ViewMode, ConcResponse } from '../../../common/api/abstract/concordance';
 import { createInitialLinesData } from '../../../common/models/concordance';
+import { List } from '../../../common/collections';
+import { stateToAPIArgs } from '../../../common/models/freq';
 
 
 export interface CollocModelArgs {
@@ -49,6 +51,9 @@ export interface CollocModelArgs {
     queryType:QueryType;
     apiType:string;
 }
+
+
+type FreqRequestArgs = [number, LemmaVariant, string];
 
 
 export class CollocModel extends StatelessModel<CollocModelState> {
@@ -146,67 +151,51 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                 state.error = null;
             },
             (state, action, seDispatch) => {
-                if (this.waitForTile) {
+                const conc$ = this.waitForTile ?
                     this.suspend({}, (action:Action, syncData) => {
                         if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
-                            const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
-                            if (action.error) {
-                                seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                    name: GlobalActionName.TileDataLoaded,
-                                    payload: {
-                                        tileId: this.tileId,
-                                        isEmpty: true,
-                                        data: [],
-                                        heading: null,
-                                        concId: null,
-                                        queryId: null,
-                                        subqueries: [],
-                                        lang1: null,
-                                        lang2: null
-                                    },
-                                    error: new Error(this.appServices.translate('global__failed_to_obtain_required_data')),
-                                });
-                                return null;
-                            }
-                            this.reloadAllData(state, payload.concPersistenceIDs, seDispatch);
                             return null;
                         }
                         return syncData;
-                    });
 
-                } else {
-                    switch (this.apiType) {
-                        case CoreApiGroup.KONTEXT:
-                            this.reloadAllData(state, state.concIds, seDispatch);
-                        break;
-                        case CoreApiGroup.LCC:
-                            state.lemmas.forEach((lemma, queryId) => this.requestData(state, lemma, queryId, null, seDispatch));
-                        break;
+                    }).pipe(
+                        concatMap(action => {
+                            const payload = action.payload as ConcLoadedPayload;
+                            return rxOf(...List.map<string, FreqRequestArgs>((v, i) => [i, state.lemmas[i], v], payload.concPersistenceIDs))
+                        })
+                    ) : this.loadConcs(state);
+                this.reloadAllData(state, conc$, seDispatch);
+            }
+        );
+
+
+        this.addActionHandler<GlobalActions.TileDataLoaded<{}>>(
+            GlobalActionName.TileDataLoaded,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {
+                    state.isBusy = false;
+                    if (action.error) {
+                        state.error = action.error.message;
                     }
                 }
             }
         );
-        this.addActionHandler<GlobalActions.TileDataLoaded<DataLoadedPayload>>(
-            GlobalActionName.TileDataLoaded,
+
+        this.addActionHandler<GlobalActions.TilePartialDataLoaded<DataLoadedPayload>>(
+            GlobalActionName.TilePartialDataLoaded,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
-                    if (action.error) {
-                        state.isBusy = false;
-                        state.error = action.error.message;
-                    } else {
-                        state.concIds[action.payload.queryId] = action.payload.concId;
-                        state.data[action.payload.queryId] = action.payload.data;
-                        state.heading =
-                            [{label: 'Abs', ident: ''}]
-                            .concat(
-                                action.payload.heading
-                                    .map((v, i) => this.measureMap[v.ident] ? {label: this.measureMap[v.ident], ident: v.ident} : null)
-                                    .filter(v => v !== null)
-                            );
+                    state.concIds[action.payload.queryId] = action.payload.concId;
+                    state.data[action.payload.queryId] = action.payload.data;
+                    state.heading =
+                        [{label: 'Abs', ident: ''}]
+                        .concat(
+                            action.payload.heading
+                                .map((v, i) => this.measureMap[v.ident] ? {label: this.measureMap[v.ident], ident: v.ident} : null)
+                                .filter(v => v !== null)
+                        );
 
-                        state.backlink = this.createBackLink(state, action);
-                    }
-                    state.isBusy = state.data.some(d => d === null);
+                    state.backlink = this.createBackLink(state, action);
                 }
             }
         );
@@ -220,14 +209,11 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             },
             (state, action, seDispatch) => {
                 if (action.payload.tileId === this.tileId) {
-                    switch (this.apiType) {
-                        case CoreApiGroup.KONTEXT:
-                            this.reloadAllData(state, state.concIds, seDispatch);
-                        break;
-                        case CoreApiGroup.LCC:
-                            state.lemmas.forEach((lemma, queryId) => this.requestData(state, lemma, queryId, null, seDispatch));
-                        break;
-                    }
+                    this.reloadAllData(
+                        state,
+                        rxOf(...List.map<string, FreqRequestArgs>((v, i) => [i, state.lemmas[i], v], state.concIds)),
+                        seDispatch
+                    );
                 }
             }
         );
@@ -260,7 +246,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
         );
     }
 
-    private createBackLink(state:CollocModelState, action:GlobalActions.TileDataLoaded<DataLoadedPayload>):BacklinkWithArgs<CoreCollRequestArgs> {
+    private createBackLink(state:CollocModelState, action:GlobalActions.TilePartialDataLoaded<DataLoadedPayload>):BacklinkWithArgs<CoreCollRequestArgs> {
         const [cfromw, ctow] = ctxToRange(state.srchRangeType, state.srchRange);
         return this.backlink ?
             {
@@ -283,75 +269,12 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             null;
     }
 
-    private requestData(state:CollocModelState, dataSpec:LemmaVariant|string, queryId:number, prevActionErr:Error|null, seDispatch:SEDispatcher):void {
-        new Observable((observer:Observer<{}>) => {
-            if (prevActionErr) {
-                observer.error(prevActionErr);
 
-            } else {
-                observer.next(this.service.stateToArgs(state, dataSpec));
-                observer.complete();
-            }
-        })
-        .pipe(concatMap(args => this.service.call(args)))
-        .subscribe(
-            (data) => {
-                seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                    name: GlobalActionName.TileDataLoaded,
-                    payload: {
-                        tileId: this.tileId,
-                        isEmpty: data.data.length === 0,
-                        heading: data.collHeadings,
-                        data: data.data,
-                        concId: data.concId,
-                        queryId: queryId,
-                        subqueries: data.data.map(v => ({
-                            value: {
-                                value: v.str,
-                                context: ctxToRange(state.srchRangeType, state.srchRange)
-                            },
-                            interactionId: v.interactionId
-                        })),
-                        lang1: null,
-                        lang2: null
-                    }
-                });
-            },
-            (err) => {
-                this.appServices.showMessage(SystemMessageType.ERROR, err);
-                seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                    name: GlobalActionName.TileDataLoaded,
-                    payload: {
-                        tileId: this.tileId,
-                        isEmpty: true,
-                        heading: null,
-                        data: [],
-                        concId: null,
-                        queryId: null,
-                        subqueries: [],
-                        lang1: null,
-                        lang2: null
-                    },
-                    error: err
-                });
-            }
-        );
-    }
 
-    private reloadAllData(state:CollocModelState, concIds:Array<string>, seDispatch:SEDispatcher):void {
-        of(...state.lemmas.map((lemma, queryId) => ({lemma: lemma, queryId: queryId, concId: concIds[queryId]})))
-        .pipe(
-            concatMap(args =>
-                args.concId ?
-                of([{
-                        concPersistenceID: args.concId
-                    }, {
-                        corpName: state.corpname,
-                        subcName: null,
-                        concId: null,
-                        queryId: args.queryId
-                    }]) :
-                callWithExtraVal(
+    private loadConcs(state:CollocModelState):Observable<FreqRequestArgs> {
+        return rxOf(...List.map((v, i) => [i, v] as [number, LemmaVariant], state.lemmas)).pipe(
+            concatMap(([queryId, lemma]) =>
+                callWithExtraVal<RequestArgs, ConcResponse, [number, LemmaVariant]>(
                     this.concApi,
                     this.concApi.stateToArgs(
                         {
@@ -373,68 +296,79 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                             concordances: createInitialLinesData(state.lemmas.length),
                             posQueryGenerator: state.posQueryGenerator
                         },
-                        args.lemma,
-                        args.queryId,
+                        lemma,
+                        queryId,
                         null
                     ),
-                    {
-                        corpName: state.corpname,
-                        subcName: null,
-                        concId: null,
-                        queryId: args.queryId
-                    }
+                    [queryId, lemma]
                 )
             ),
-            concatMap(([resp, args]) => {
-                args.concId = resp.concPersistenceID;
-                return callWithExtraVal(
-                    this.service,
-                    this.service.stateToArgs(state, args.concId),
-                    args
-                )
-            })
-        )
-        .subscribe(
-            ([data, args]) => {
-                seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+            map(([resp, [idx, lemma]]) => [idx, lemma, resp.concPersistenceID])
+        );
+    }
+
+
+    private reloadAllData(state:CollocModelState, reqArgs:Observable<FreqRequestArgs>, seDispatch:SEDispatcher):void {
+        this.loadCollocations(state, reqArgs, seDispatch).subscribe(
+            (isEmpty) => {
+                seDispatch<GlobalActions.TileDataLoaded<{}>>({
                     name: GlobalActionName.TileDataLoaded,
                     payload: {
                         tileId: this.tileId,
-                        isEmpty: data.data.length === 0,
-                        heading: data.collHeadings,
-                        data: data.data,
-                        concId: data.concId,
-                        queryId: args.queryId,
-                        subqueries: data.data.map(v => ({
-                            value: {
-                                value: v.str,
-                                context: ctxToRange(state.srchRangeType, state.srchRange)
-                            },
-                            interactionId: v.interactionId
-                        })),
-                        lang1: null,
-                        lang2: null
+                        isEmpty: isEmpty
                     }
-                });
+                })
             },
             (err) => {
                 this.appServices.showMessage(SystemMessageType.ERROR, err);
-                seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                seDispatch<GlobalActions.TileDataLoaded<{}>>({
                     name: GlobalActionName.TileDataLoaded,
                     payload: {
                         tileId: this.tileId,
-                        isEmpty: true,
-                        heading: null,
-                        data: [],
-                        concId: null,
-                        queryId: null,
-                        subqueries: [],
-                        lang1: null,
-                        lang2: null
+                        isEmpty: true
                     },
                     error: err
                 });
             }
+        );
+    }
+
+    private loadCollocations(state:CollocModelState, concIds:Observable<FreqRequestArgs>, seDispatch:SEDispatcher):Observable<boolean> {
+        return concIds.pipe(
+            concatMap(([queryId,, concId]) => {
+                return callWithExtraVal(
+                    this.service,
+                    this.service.stateToArgs(state, concId),
+                    {queryId: queryId}
+                )
+            }),
+            tap(
+                ([data, args]) => {
+                    seDispatch<GlobalActions.TilePartialDataLoaded<DataLoadedPayload>>({
+                        name: GlobalActionName.TilePartialDataLoaded,
+                        payload: {
+                            tileId: this.tileId,
+                            heading: data.collHeadings,
+                            data: data.data,
+                            concId: data.concId,
+                            queryId: args.queryId,
+                            subqueries: data.data.map(v => ({
+                                value: {
+                                    value: v.str,
+                                    context: ctxToRange(state.srchRangeType, state.srchRange)
+                                },
+                                interactionId: v.interactionId
+                            })),
+                            lang1: null,
+                            lang2: null
+                        }
+                    });
+                }
+            ),
+            reduce(
+                (acc, [resp, args]) => acc && resp.data.length === 0,
+                true // is empty
+            )
         );
     }
 }
