@@ -39,7 +39,7 @@ import { ViewUtils, IFullActionControl } from 'kombo';
 import { AppServices } from './appServices';
 import { IAsyncKeyValueStore, TileIdentMap } from './common/types';
 import { mkTileFactory } from './tileLoader';
-import { List, applyComposed } from './common/collections';
+import { List, pipe } from './common/collections';
 
 
 interface AttachTileArgs {
@@ -181,7 +181,7 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
             altViewActiveTiles: [],
             hiddenGroups: [],
             datalessGroups: [],
-            tileResultFlags: applyComposed(
+            tileResultFlags: pipe(
                 layoutManager.getLayoutGroups(qType),
                 List.flatMap(
                     (v, groupIdx) => List.map(v2 => [groupIdx, v2] as [number, GroupedTileProps],

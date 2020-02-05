@@ -26,7 +26,7 @@ import { GlobalComponents, TooltipValues } from '../../../../views/global';
 import { ActionName, Actions } from '../actions';
 import { MultiWordGeoAreasModel, MultiWordGeoAreasModelState } from '../model';
 import { LemmaVariant } from '../../../../common/query';
-import { Dict, List, applyComposed } from '../../../../common/collections';
+import { Dict, List, pipe } from '../../../../common/collections';
 
 
 export interface TargetDataRow extends DataRow {
@@ -34,7 +34,7 @@ export interface TargetDataRow extends DataRow {
 }
 
 const groupData = (data:Array<Array<DataRow>>):[{[area:string]:Array<TargetDataRow>}, {[area:string]:number}, {[area:string]:number}] => {
-    const groupedData = applyComposed(
+    const groupedData = pipe(
         data,
         List.flatMap((targetData, queryId) =>
             targetData.map(item => ({

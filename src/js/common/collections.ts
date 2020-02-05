@@ -23,19 +23,47 @@
 type Fn<T, U> = (v:T) => U;
 type Obj<V, K extends string> = {[k in K]:V};
 
-export function applyComposed<T, U1>(data:T, op1:Fn<T, U1>):U1;
-export function applyComposed<T, U1, U2>(data:T, op1:Fn<T, U1>, op2:Fn<U1, U2>):U2;
-export function applyComposed<T, U1, U2, U3>(data:T, op1:Fn<T, U1>, op2:Fn<U1, U2>, op3:Fn<U2, U3>):U3;
-export function applyComposed<T, U1, U2, U3, U4>(data:T, op1:Fn<T, U1>, op2:Fn<U1, U2>, op3:Fn<U2, U3>, op4:Fn<U3, U4>):U4;
-export function applyComposed<T, U1, U2, U3, U4, U5>(data:T, op1:Fn<T, U1>, op2:Fn<U1, U2>, op3:Fn<U2, U3>, op4:Fn<U3, U4>, op5:Fn<U4, U5>):U5;
-export function applyComposed<T, U1, U2, U3, U4, U5, U6>(data:T, op1:Fn<T, U1>, op2:Fn<U1, U2>, op3:Fn<U2, U3>, op4:Fn<U3, U4>, op5:Fn<U4, U5>, op6:Fn<U5, U6>):U6;
-export function applyComposed<T, U1, U2, U3, U4, U5, U6, U7>(data:T, op1:Fn<T, U1>, op2:Fn<U1, U2>, op3:Fn<U2, U3>, op4:Fn<U3, U4>, op5:Fn<U4, U5>, op6:Fn<U5, U6>, op7:Fn<U6, U7>):U7;
-export function applyComposed<T, U1, U2, U3, U4, U5, U6, U7, U8>(data:T, op1:Fn<T, U1>, op2:Fn<U1, U2>, op3:Fn<U2, U3>, op4:Fn<U3, U4>, op5:Fn<U4, U5>, op6:Fn<U5, U6>, op7:Fn<U6, U7>, op8:Fn<U7, U8>):U8;
-export function applyComposed<T, U1, U2, U3, U4, U5, U6, U7, U8, U9>(data:T, op1:Fn<T, U1>, op2:Fn<U1, U2>, op3:Fn<U2, U3>, op4:Fn<U3, U4>, op5:Fn<U4, U5>, op6:Fn<U5, U6>, op7:Fn<U6, U7>, op8:Fn<U7, U8>, op9:Fn<U8, U9>):U9;
-export function applyComposed<T>(data:T,...ops:Array<Fn<any, any>>):Fn<any, any> {
+/**
+ * Apply one or more functions (from left to right) to a provided argument.
+ */
+export function pipe<T, U1>(data:T, op1:Fn<T, U1>):U1;
+export function pipe<T, U1, U2>(data:T, op1:Fn<T, U1>, op2:Fn<U1, U2>):U2;
+export function pipe<T, U1, U2, U3>(data:T, op1:Fn<T, U1>, op2:Fn<U1, U2>, op3:Fn<U2, U3>):U3;
+export function pipe<T, U1, U2, U3, U4>(data:T, op1:Fn<T, U1>, op2:Fn<U1, U2>, op3:Fn<U2, U3>, op4:Fn<U3, U4>):U4;
+export function pipe<T, U1, U2, U3, U4, U5>(data:T, op1:Fn<T, U1>, op2:Fn<U1, U2>, op3:Fn<U2, U3>, op4:Fn<U3, U4>, op5:Fn<U4, U5>):U5;
+export function pipe<T, U1, U2, U3, U4, U5, U6>(data:T, op1:Fn<T, U1>, op2:Fn<U1, U2>, op3:Fn<U2, U3>, op4:Fn<U3, U4>, op5:Fn<U4, U5>, op6:Fn<U5, U6>):U6;
+export function pipe<T, U1, U2, U3, U4, U5, U6, U7>(data:T, op1:Fn<T, U1>, op2:Fn<U1, U2>, op3:Fn<U2, U3>, op4:Fn<U3, U4>, op5:Fn<U4, U5>, op6:Fn<U5, U6>, op7:Fn<U6, U7>):U7;
+export function pipe<T, U1, U2, U3, U4, U5, U6, U7, U8>(data:T, op1:Fn<T, U1>, op2:Fn<U1, U2>, op3:Fn<U2, U3>, op4:Fn<U3, U4>, op5:Fn<U4, U5>, op6:Fn<U5, U6>, op7:Fn<U6, U7>, op8:Fn<U7, U8>):U8;
+export function pipe<T, U1, U2, U3, U4, U5, U6, U7, U8, U9>(data:T, op1:Fn<T, U1>, op2:Fn<U1, U2>, op3:Fn<U2, U3>, op4:Fn<U3, U4>, op5:Fn<U4, U5>, op6:Fn<U5, U6>, op7:Fn<U6, U7>, op8:Fn<U7, U8>, op9:Fn<U8, U9>):U9;
+export function pipe<T>(data:T,...ops:Array<Fn<any, any>>):Fn<any, any> {
     return ops.reduce((prev, fn) => fn(prev), data);
 }
 
+/**
+ * Compose functions from left to right (i.e. just like pipe).
+ * To ensure proper typing, at least the first function should
+ * contain type information (e.g. List.map<number, string>).
+ */
+export function composeLeft<T, U1>(op1:Fn<T, U1>):Fn<T, U1>;
+export function composeLeft<T, U1, U2>(op1:Fn<T, U1>, op2:Fn<U1, U2>):Fn<T, U2>;
+export function composeLeft<T, U1, U2, U3>(op1:Fn<T, U1>, op2:Fn<U1, U2>, op3:Fn<U2, U3>):Fn<T, U3>;
+export function composeLeft<T, U1, U2, U3, U4>(op1:Fn<T, U1>, op2:Fn<U1, U2>, op3:Fn<U2, U3>, op4:Fn<U3, U4>):Fn<T, U4>;
+export function composeLeft<T, U1, U2, U3, U4, U5>(op1:Fn<T, U1>, op2:Fn<U1, U2>, op3:Fn<U2, U3>, op4:Fn<U3, U4>, op5:Fn<U4, U5>):Fn<T, U5>;
+export function composeLeft<T, U1, U2, U3, U4, U5, U6>(op1:Fn<T, U1>, op2:Fn<U1, U2>, op3:Fn<U2, U3>, op4:Fn<U3, U4>, op5:Fn<U4, U5>, op6:Fn<U5, U6>):Fn<T, U6>;
+export function composeLeft<T, U1, U2, U3, U4, U5, U6, U7>(op1:Fn<T, U1>, op2:Fn<U1, U2>, op3:Fn<U2, U3>, op4:Fn<U3, U4>, op5:Fn<U4, U5>, op6:Fn<U5, U6>, op7:Fn<U6, U7>):Fn<T, U7>;
+export function composeLeft<T, U1, U2, U3, U4, U5, U6, U7, U8>(op1:Fn<T, U1>, op2:Fn<U1, U2>, op3:Fn<U2, U3>, op4:Fn<U3, U4>, op5:Fn<U4, U5>, op6:Fn<U5, U6>, op7:Fn<U6, U7>, op8:Fn<U7, U8>):Fn<T, U8>;
+export function composeLeft<T, U1, U2, U3, U4, U5, U6, U7, U8, U9>(op1:Fn<T, U1>, op2:Fn<U1, U2>, op3:Fn<U2, U3>, op4:Fn<U3, U4>, op5:Fn<U4, U5>, op6:Fn<U5, U6>, op7:Fn<U6, U7>, op8:Fn<U7, U8>, op9:Fn<U8, U9>):Fn<T, U9>;
+export function composeLeft(...ops:Array<Fn<any, any>>):Fn<any, any> {
+    return ops.reduce((prev, fn) => (data:any) => fn(prev(data)), v => v);
+}
+
+
+/**
+ * List namespace contains functions for array creating
+ * and manipulation. For easier composition, the functions
+ * are defined as "data-last" (this applies even for functions
+ * like concat!).
+ */
 export namespace List {
 
     export function repeat<T>(fn:()=>T, size:number):Array<T> {
@@ -194,9 +222,9 @@ export namespace List {
         return data ? fn(data) : fn;
     }
 
-    export function tap<T>(effect:(v:T, i:number)=>void, data:Array<T>):Array<T>;
-    export function tap<T>(effect:(v:T, i:number)=>void):(data:Array<T>)=>Array<T>;
-    export function tap<T>(effect:(v:T, i:number)=>void, data?:Array<T>):any {
+    export function forEach<T>(effect:(v:T, i:number)=>void, data:Array<T>):Array<T>;
+    export function forEach<T>(effect:(v:T, i:number)=>void):(data:Array<T>)=>Array<T>;
+    export function forEach<T>(effect:(v:T, i:number)=>void, data?:Array<T>):any {
         const fn = (data2:Array<T>):Array<T> => {
             data2.forEach((v, i) => effect(v, i));
             return data2;
@@ -348,15 +376,10 @@ export namespace Dict {
         return data ? fn(data) : fn;
     }
 
-    export function forEach<V, K extends string>(fn:(v:V, k:K)=>void, data:Obj<V, K>):void {
-        for (let k in data) {
-            fn(data[k], k);
-        }
-    }
 
-    export function tap<V, K extends string>(effect:(v:V, k:K)=>void, data:Obj<V, K>):Obj<V, K>;
-    export function tap<V, K extends string>(effect:(v:V, k:K)=>void):(data:Obj<V, K>)=>Obj<V, K>;
-    export function tap<V, K extends string>(effect:(v:V, k:K)=>void, data?:Obj<V, K>):any {
+    export function forEach<V, K extends string>(effect:(v:V, k:K)=>void, data:Obj<V, K>):Obj<V, K>;
+    export function forEach<V, K extends string>(effect:(v:V, k:K)=>void):(data:Obj<V, K>)=>Obj<V, K>;
+    export function forEach<V, K extends string>(effect:(v:V, k:K)=>void, data?:Obj<V, K>):any {
         const fn = (data2:Obj<V, K>):Obj<V, K> => {
             for (let k in data2) {
                 effect(data2[k], k);
