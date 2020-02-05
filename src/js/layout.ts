@@ -19,7 +19,7 @@ import { AppServices } from './appServices';
 import { QueryType, QueryTypeMenuItem } from './common/query';
 import { GroupLayoutConfig, LayoutsConfig, LayoutConfigCommon } from './conf';
 import { TileIdentMap } from './common/types';
-import { List, Dict, applyComposed as applyComposed } from './common/collections';
+import { List, Dict, pipe } from './common/collections';
 
 
 function itemIsGroupConf(v:string|GroupLayoutConfig):v is GroupLayoutConfig {
@@ -133,7 +133,7 @@ export class LayoutManager {
      * Return a list of information about invalid items.
      */
     private validateLayouts():void {
-        applyComposed(
+        pipe(
             concatLayouts(this.layoutSingle, this.layoutCmp, this.layoutTranslat),
             List.flatMap(v => v.tiles.map((v2, idx) => ({group: v.groupLabel, tileId: v2.tileId, idx: idx}))),
             List.filter(v => v.tileId === undefined),
@@ -169,7 +169,7 @@ export class LayoutManager {
     }
 
     getTileWidthFract(queryType:QueryType, tileId:number):number|null {
-        const srch = applyComposed(
+        const srch = pipe(
                 this.getLayout(queryType).groups,
                 List.flatMap(v => v.tiles),
                 List.find(v => v.tileId === tileId)
@@ -191,7 +191,7 @@ export class LayoutManager {
 
     isInCurrentLayout(queryType:QueryType, tileId:number):boolean {
         return this.isServiceOf(queryType, tileId) ||
-            applyComposed(
+            pipe(
                 this.getLayout(queryType).groups,
                 List.flatMap(v => v.tiles),
                 List.some(v => v.tileId === tileId)

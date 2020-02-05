@@ -24,7 +24,7 @@ import { ajax$, ResponseType } from '../common/ajax';
 import { SystemMessageType, SourceDetails } from '../common/types';
 import { TileFrameProps } from '../common/tile';
 import { ActionName, Actions } from './actions';
-import { List, Dict, applyComposed } from '../common/collections';
+import { List, Dict, pipe } from '../common/collections';
 
 
 
@@ -372,7 +372,7 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
     }
 
     private findEmptyGroups(state:WdglanceTilesState):void { // TODO
-        state.datalessGroups = applyComposed(
+        state.datalessGroups = pipe(
             state.tileResultFlags,
             List.groupBy(v => v.groupId.toString()),
             Dict.fromEntries(),

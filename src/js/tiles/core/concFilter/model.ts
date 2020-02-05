@@ -30,7 +30,7 @@ import { CollExamplesLoadedPayload } from './actions';
 import { Actions, ActionName } from './actions';
 import { normalizeTypography } from '../../../common/models/concordance/normalize';
 import { ISwitchMainCorpApi } from '../../../common/api/abstract/switchMainCorp';
-import { Dict, List, applyComposed } from '../../../common/collections';
+import { Dict, pipe, List } from '../../../common/collections';
 import { callWithExtraVal } from '../../../common/api/util';
 
 
@@ -348,7 +348,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
                     if (this.isFromSubqSourceTile(action)) {
                         ans.subqueries = Dict.mergeDict(
                             (old, nw) => nw,
-                            applyComposed(
+                            pipe(
                                 action.payload.subqueries,
                                 List.map(v => [v.value.value, v] as [string, SubQueryItem<RangeRelatedSubqueryValue>]),
                                 Dict.fromEntries()

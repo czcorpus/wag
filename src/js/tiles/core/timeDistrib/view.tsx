@@ -25,7 +25,7 @@ import { GlobalComponents } from '../../../views/global';
 import { DataItemWithWCI, ActionName, Actions } from './common';
 import { TimeDistribModel, TimeDistribModelState } from './model';
 import { KeyCodes } from '../../../common/util';
-import { List, applyComposed } from '../../../common/collections';
+import { List, pipe } from '../../../common/collections';
 
 
 const MIN_DATA_ITEMS_TO_SHOW = 2;
@@ -37,7 +37,7 @@ interface MultiChartItem {
 }
 
 function mergeDataSets(data1:Array<DataItemWithWCI>, data2:Array<DataItemWithWCI>):Array<MultiChartItem> {
-    return applyComposed(
+    return pipe(
         data1,
         List.map(v => ({
             datetime: v.datetime,
@@ -45,12 +45,13 @@ function mergeDataSets(data1:Array<DataItemWithWCI>, data2:Array<DataItemWithWCI
             src: 0
         })),
         List.concat(
-            List.map(v => ({
-                datetime: v.datetime,
-                ipmInterval:[v.ipmInterval[0], v.ipmInterval[1]],
-                src: 1
-                }),
-                data2
+            pipe(
+                data2,
+                List.map(v => ({
+                    datetime: v.datetime,
+                    ipmInterval:[v.ipmInterval[0], v.ipmInterval[1]],
+                    src: 1
+                }))
             )
         ),
         List.groupBy(v => v.datetime),

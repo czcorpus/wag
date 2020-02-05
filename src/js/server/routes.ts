@@ -46,7 +46,7 @@ import { ActionName } from '../models/actions';
 import { DummyCache } from '../cacheDb';
 import { ILogQueue } from './logging/abstract';
 import { TelemetryAction } from '../common/types';
-import { Dict } from '../common/collections';
+import { Dict, pipe } from '../common/collections';
 
 
 
@@ -77,9 +77,9 @@ function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, appServices:App
             colors: conf.colors,
             tiles: typeof conf.tiles === 'string' ?
                 {} : // this should not happen at runtime (string has been already used as uri to load a nested conf)
-                Dict.map(
-                    item => ({waitForTimeoutSecs: DEFAULT_WAIT_FOR_OTHER_TILES, ...item}),
-                    conf.tiles[lang]
+                pipe(
+                    conf.tiles[lang],
+                    Dict.map(item => ({waitForTimeoutSecs: DEFAULT_WAIT_FOR_OTHER_TILES, ...item}))
                 ),
             layouts: Object.assign(emptyLayoutConf(), conf.layouts[lang]),
             searchLanguages: Object.keys(conf.searchLanguages).map(k => ({

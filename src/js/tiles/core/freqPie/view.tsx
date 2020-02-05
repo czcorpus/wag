@@ -26,7 +26,7 @@ import { ActionName } from './actions';
 import { FreqDataBlock } from '../../../common/models/freq';
 import { DataRow } from '../../../common/api/kontext/freqs';
 import { FreqBarModel, FreqBarModelState } from '../freqBar/model';
-import { List, applyComposed } from '../../../common/collections';
+import { List, pipe } from '../../../common/collections';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:FreqBarModel):TileComponent {
@@ -38,7 +38,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     const createColorMapping = (blocks:Array<FreqDataBlock<DataRow>>):{[v:string]:string} => {
         const ans = {};
         let i = 0;
-        applyComposed(
+        pipe(
             blocks,
             List.flatMap(block => block.data),
             List.forEach(item => {

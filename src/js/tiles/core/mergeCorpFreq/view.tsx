@@ -25,7 +25,7 @@ import { GlobalComponents } from '../../../views/global';
 import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
 import { Theme } from '../../../common/theme';
 import { LemmaVariant } from '../../../common/query';
-import { List, applyComposed } from '../../../common/collections';
+import { List, pipe } from '../../../common/collections';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:MergeCorpFreqModel):TileComponent {
@@ -33,7 +33,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     const globComponents = ut.getComponents();
 
     function transformData(data:Array<Array<SourceMappedDataRow>>, lemmas: Array<LemmaVariant>):Array<{name:string; ipm:Array<number>; freq:Array<number>}> {
-        return applyComposed(
+        return pipe(
             data,
             List.flatMap((v, i) => v ? v.map<[SourceMappedDataRow, number]>(v => [v, i]) : []),
             List.reduce((acc, [row, queryIdx]) => {
@@ -139,7 +139,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     class MergeCorpFreqBarTile extends React.PureComponent<MergeCorpFreqModelState & CoreTileComponentProps> {
 
         render() {
-            const backlinks = applyComposed(
+            const backlinks = pipe(
                 this.props.data,
                 List.filter(x => x !== undefined),
                 List.flatMap(v => v),
@@ -151,7 +151,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             return (
                 <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.data.some(v => v && v.find(f => f.freq > 0))}
-                        sourceIdent={applyComposed(this.props.sources, List.groupBy(v => v.corpname), List.flatMap(([,v]) => v), List.map(v => ({corp: v.corpname})))}
+                        sourceIdent={pipe(this.props.sources, List.groupBy(v => v.corpname), List.flatMap(([,v]) => v), List.map(v => ({corp: v.corpname})))}
                         backlink={backlinks}
                         supportsTileReload={this.props.supportsReloadOnError}
                         issueReportingUrl={this.props.issueReportingUrl}>
