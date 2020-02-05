@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-import * as Immutable from 'immutable';
 import { ViewUtils } from 'kombo';
 import { Observable } from 'rxjs';
 
@@ -29,7 +28,7 @@ export interface AvailableLanguage {
 }
 
 export type ToolbarView = React.ComponentClass<{
-    languages:Immutable.List<AvailableLanguage>;
+    languages:Array<AvailableLanguage>;
     uiLang:string;
     returnUrl:string;
 }>;

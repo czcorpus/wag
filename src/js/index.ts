@@ -161,7 +161,7 @@ export const initClient = (mountElement:HTMLElement, config:ClientConf, userSess
             WdglanceMain,
             {
                 layout: currLayout,
-                homepageSections: Immutable.List<{label:string, html:string}>(config.homepage.tiles),
+                homepageSections: [...config.homepage.tiles],
                 isMobile: appServices.isMobileMode(),
                 isAnswerMode: userSession.answerMode
             }

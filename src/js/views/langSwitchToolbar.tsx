@@ -17,7 +17,6 @@
  */
 
 import * as React from 'react';
-import * as Immutable from 'immutable';
 import { ViewUtils } from 'kombo';
 import { GlobalComponents } from './global';
 import { AvailableLanguage } from '../common/hostPage';
@@ -27,7 +26,7 @@ import { HTTPAction } from '../server/actions';
 export function init(ut:ViewUtils<GlobalComponents>) {
 
     class LangSwitchToolbar extends React.Component<{
-        languages:Immutable.List<AvailableLanguage>;
+        languages:Array<AvailableLanguage>;
         uiLang:string;
         returnUrl:string;
     }> {
