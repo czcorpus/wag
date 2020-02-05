@@ -20,8 +20,8 @@ import { of as rxOf } from 'rxjs';
 import { StatelessModel, Action, SEDispatcher, IActionQueue } from 'kombo';
 
 import { AppServices } from '../../../appServices';
-import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
-import { SubQueryItem, SubqueryPayload, RangeRelatedSubqueryValue } from '../../../common/query';
+import { ActionName as GlobalActionName, Actions as GlobalActions, isTileSomeDataLoadedAction } from '../../../models/actions';
+import { SubQueryItem, SubqueryPayload, RangeRelatedSubqueryValue, RecognizedQueries } from '../../../common/query';
 import { ConcApi, FilterRequestArgs, QuerySelector, FilterPCRequestArgs, QuickFilterRequestArgs } from '../../../common/api/kontext/concordance';
 import { Line, ViewMode, ConcResponse } from '../../../common/api/abstract/concordance';
 import { Observable } from 'rxjs';
@@ -29,7 +29,7 @@ import { isConcLoadedPayload } from '../concordance/actions';
 import { CollExamplesLoadedPayload } from './actions';
 import { Actions, ActionName } from './actions';
 import { normalizeTypography } from '../../../common/models/concordance/normalize';
-import { ISwitchMainCorpApi } from '../../../common/api/abstract/switchMainCorp';
+import { ISwitchMainCorpApi, SwitchMainCorpResponse } from '../../../common/api/abstract/switchMainCorp';
 import { Dict, pipe, List } from '../../../common/collections';
 import { callWithExtraVal } from '../../../common/api/util';
 
@@ -47,7 +47,7 @@ export interface ConcFilterModelState {
     viewMode:ViewMode;
     itemsPerSrc:number;
     lines:Array<Line>;
-    concPersistenceId:string;
+    concPersistenceIds:Array<string>;
     metadataAttrs:Array<{value:string; label:string}>;
     visibleMetadataLine:number;
 }
@@ -55,9 +55,30 @@ export interface ConcFilterModelState {
 
 type TileWaitSync = {[tileId:string]:boolean};
 
+
+type SubqueryMapping = {[subq:string]:SubQueryItem<RangeRelatedSubqueryValue>};
+
 interface SourceLoadingData {
-    concordanceId:string;
-    subqueries:{[subq:string]:SubQueryItem<RangeRelatedSubqueryValue>};
+    concordanceIds:Array<string>;
+    subqueries:SubqueryMapping;
+}
+
+interface SingleQueryFreqArgs {
+    concId:string;
+    queryId:number;
+    subqs:SubqueryMapping;
+}
+
+export interface ConcFilterModelArgs {
+    tileId:number;
+    waitForTiles:Array<number>;
+    subqSourceTiles:Array<number>;
+    dispatcher:IActionQueue;
+    appServices:AppServices;
+    api:ConcApi;
+    switchMainCorpApi:ISwitchMainCorpApi;
+    initState:ConcFilterModelState;
+    lemmas:RecognizedQueries;
 }
 
 
@@ -75,8 +96,9 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
 
     private readonly subqSourceTiles:Array<number>;
 
-    constructor(dispatcher:IActionQueue, tileId:number, waitForTiles:Array<number>, subqSourceTiles:Array<number>,
-                appServices:AppServices, api:ConcApi, switchMainCorpApi:ISwitchMainCorpApi, initState:ConcFilterModelState) {
+    private readonly lemmas:RecognizedQueries;
+
+    constructor({dispatcher, tileId, waitForTiles, subqSourceTiles, appServices, api, switchMainCorpApi, initState, lemmas}:ConcFilterModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.api = api;
@@ -84,6 +106,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
         this.waitingForTiles = [...waitForTiles];
         this.subqSourceTiles = [...subqSourceTiles];
         this.appServices = appServices;
+        this.lemmas = lemmas;
 
         this.addActionHandler<GlobalActions.RequestQueryResponse>(
             GlobalActionName.RequestQueryResponse,
@@ -91,6 +114,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
                 state.isBusy = true;
                 state.error = null;
                 state.lines = [];
+                state.concPersistenceIds = List.repeat(() => '', this.lemmas.length);
             },
             (state, action, dispatch) => {
                 this.handleDataLoad(state, false, dispatch);
@@ -102,7 +126,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.lines = state.lines.concat(action.payload.data);
-                    state.concPersistenceId = action.payload.baseConcId;
+                    state.concPersistenceIds[action.payload.queryId] = action.payload.baseConcId;
                 }
             }
         );
@@ -272,9 +296,9 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
      * @param state
      * @param concId
      * @param query
-     * @return Observable of tuple [base conc ID, filtered conc response]
+     * @return Observable of tuple [base conc ID, queryId, filtered conc response]
      */
-    private loadFreqs(state:ConcFilterModelState, concId:string, query:SubQueryItem<RangeRelatedSubqueryValue>):Observable<[string, ConcResponse]> {
+    private loadFreqs(state:ConcFilterModelState, concId:string, queryId:number, query:SubQueryItem<RangeRelatedSubqueryValue>):Observable<[string, number, ConcResponse]> {
         return rxOf(query).pipe(
             concatMap(
                 subq => callWithExtraVal(
@@ -286,6 +310,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
             map(
                 ([v, subq]) => [
                     concId,
+                    queryId,
                     {
                         concPersistenceID: v.concPersistenceID,
                         messages: v.messages,
@@ -325,12 +350,16 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
     private handleDataLoad(state:ConcFilterModelState, ignoreConc:boolean, seDispatch:SEDispatcher) {
         this.suspend(
             Dict.fromEntries(List.map(v => [v.toFixed(), false], this.waitingForTiles)),
-            (action:GlobalActions.TileDataLoaded<SubqueryPayload<RangeRelatedSubqueryValue> & {tileId:number}>, syncData) => {
-                if (action.name === GlobalActionName.TileDataLoaded && Dict.hasKey(action.payload.tileId.toFixed(), syncData)) {
+            (action:Action<{tileId:number}>, syncData) => {
+                if (isTileSomeDataLoadedAction(action) && Dict.hasKey(action.payload.tileId.toFixed(), syncData)) {
                     if (action.error) {
                         throw action.error;
                     }
-                    const ans = {...syncData, ...{[action.payload.tileId.toFixed()]: true}};
+                    const ans = {...syncData};
+                    if (action.name === GlobalActionName.TileDataLoaded) { // i.e. we don't sync via TilePartialDataLoaded
+                        ans[action.payload.tileId.toFixed()] = true;
+                    }
+
                     if (this.isFromSubqSourceTile(action) && ignoreConc || !Dict.hasValue(false, ans)) {
                         return null;
 
@@ -345,6 +374,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
             reduce(
                 (acc, action) => {
                     const ans = {...acc};
+                    const payload = action.payload;
                     if (this.isFromSubqSourceTile(action)) {
                         ans.subqueries = Dict.mergeDict(
                             (old, nw) => nw,
@@ -356,47 +386,56 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
                             ans.subqueries
                         );
 
-                    } else if (isConcLoadedPayload(action.payload)) {
-                        ans.concordanceId = action.payload.concPersistenceIDs[0];
+                    } else if (isConcLoadedPayload(payload)) {
+                        ans.concordanceIds = [...payload.concPersistenceIDs];
                     }
                     return ans;
                 },
-                {concordanceId: state.concPersistenceId, subqueries:{}} as SourceLoadingData
+                {concordanceIds: state.concPersistenceIds, subqueries:{}} as SourceLoadingData
             ),
             concatMap(
-                (data) => {
-                    return (
-                        state.otherCorpname ?
-                            this.switchMainCorpApi.call({
-                                concPersistenceID: data.concordanceId,
-                                corpname: state.corpName,
-                                align: state.otherCorpname,
-                                maincorp: state.otherCorpname
-                            }) :
-                            rxOf({concPersistenceID: data.concordanceId})
-
-                    ).pipe(
-                        concatMap(
-                            (switchResp) => rxOf(...Dict.mapEntries(
-                                ([,v]) => {
-                                    const ans:[string, SubQueryItem<RangeRelatedSubqueryValue>] = [switchResp.concPersistenceID, v];
-                                    return ans;
-                                },
-                                data.subqueries
-                            ))
-                        ),
-                        concatMap(
-                            ([concId, resp]) => this.loadFreqs(state, concId, resp)
-                        )
-                    );
-                }
+                (data) => rxOf(...List.map<string, SingleQueryFreqArgs>(
+                    (concId, i) => ({
+                        concId: concId,
+                        subqs: data.subqueries,
+                        queryId: i
+                    }),
+                    data.concordanceIds
+                ))
+            ),
+            concatMap(
+                (data) => state.otherCorpname ?
+                    callWithExtraVal(
+                        this.switchMainCorpApi,
+                        {
+                            concPersistenceID: data.concId,
+                            corpname: state.corpName,
+                            align: state.otherCorpname,
+                            maincorp: state.otherCorpname
+                        },
+                        data
+                    ) :
+                    rxOf<[SwitchMainCorpResponse, SingleQueryFreqArgs]>([{concPersistenceID: data.concId}, data])
+            ),
+            concatMap(
+                ([switchResp, args]) => rxOf(...Dict.mapEntries(
+                    ([,v]) => {
+                        const ans:[string, number, SubQueryItem<RangeRelatedSubqueryValue>] = [switchResp.concPersistenceID, args.queryId, v];
+                        return ans;
+                    },
+                    args.subqs
+                ))
+            ),
+            concatMap(
+                ([concId, queryId, resp]) => this.loadFreqs(state, concId, queryId, resp)
             ),
             tap(
-                ([baseConcId, resp]) => {
+                ([baseConcId, queryId, resp]) => {
                     seDispatch<GlobalActions.TilePartialDataLoaded<CollExamplesLoadedPayload>>({
                         name: GlobalActionName.TilePartialDataLoaded,
                         payload: {
                             tileId: this.tileId,
+                            queryId: queryId,
                             data: normalizeTypography(resp.lines.slice(0, state.itemsPerSrc)),
                             baseConcId: baseConcId
                         }
@@ -404,7 +443,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
                 }
             ),
             reduce(
-                (acc, [baseConcId, resp]) => acc && resp.lines.length === 0,
+                (acc, [,,resp]) => acc && resp.lines.length === 0,
                 true // is empty
             )
         ).subscribe(

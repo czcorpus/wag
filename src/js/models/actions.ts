@@ -66,6 +66,14 @@ export enum ActionName {
     ApplyModalLemmaVariantSelection = 'MAIN_APPLY_MODAL_LEMMA_VARIANT_SELECTION'
 }
 
+/**
+ * Tests whether the action is either  TileDataLoaded or TilePartialDataLoaded.
+ * This can be used when syncing dependent tile.
+ */
+export function isTileSomeDataLoadedAction(action:Action):boolean {
+    return action.name === ActionName.TileDataLoaded || action.name === ActionName.TilePartialDataLoaded;
+}
+
 export namespace Actions {
 
     export interface RequestQueryResponse extends Action<{

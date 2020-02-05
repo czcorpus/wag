@@ -124,7 +124,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
                         map(action => {
                             const payload = (action as GlobalActions.TilePartialDataLoaded<SingleConcLoadedPayload>).payload;
                             const src = state.sources.find(v => v.corpname === payload.data.corpName);
-                            return [payload.queryNum, src, payload.data.concPersistenceID] as LoadedConcProps;
+                            return [payload.queryId, src, payload.data.concPersistenceID] as LoadedConcProps;
                         })
                     ) :
                     this.loadConcordances(state);
