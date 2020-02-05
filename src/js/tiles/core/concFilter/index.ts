@@ -24,7 +24,7 @@ import { TileConf, ITileProvider, TileFactory, TileComponent } from '../../../co
 import { ConcFilterModel } from './model';
 import { init as viewInit } from './view';
 import { ConcApi } from '../../../common/api/kontext/concordance';
-import { Line, ViewMode } from '../../../common/api/abstract/concordance';
+import { ViewMode } from '../../../common/api/abstract/concordance';
 import { LocalizedConfMsg } from '../../../common/types';
 import { SwitchMainCorpApi } from '../../../common/api/kontext/switchMainCorp';
 import { ISwitchMainCorpApi, SwitchMainCorpResponse } from '../../../common/api/abstract/switchMainCorp';
@@ -73,23 +73,24 @@ export class ConcFilterTile implements ITileProvider {
     private readonly blockingTiles:Array<number>;
 
     constructor({tileId, waitForTiles, subqSourceTiles, dispatcher, appServices, ut, widthFract, conf, theme,
-            isBusy, cache, lang2}:TileFactory.Args<ConcFilterTileConf>) {
+            isBusy, cache, lang2, lemmas}:TileFactory.Args<ConcFilterTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.widthFract = widthFract;
         this.appServices = appServices;
         this.blockingTiles = waitForTiles;
-        this.model = new ConcFilterModel(
+        this.model = new ConcFilterModel({
+            lemmas,
             dispatcher,
             tileId,
             waitForTiles,
             subqSourceTiles,
             appServices,
-            new ConcApi(true, cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
-            conf.switchMainCorpApiURL ?
+            api: new ConcApi(true, cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            switchMainCorpApi: conf.switchMainCorpApiURL ?
                 new SwitchMainCorpApi(conf.switchMainCorpApiURL, appServices.getApiHeaders(conf.switchMainCorpApiURL)) :
                 new EmptyMainCorpSwitch(),
-            {
+            initState: {
                 isBusy: isBusy,
                 error: null,
                 isTweakMode: false,
@@ -99,14 +100,14 @@ export class ConcFilterTile implements ITileProvider {
                 otherCorpname: conf.parallelLangMapping ? conf.parallelLangMapping[lang2] : null,
                 posAttrs: conf.posAttrs,
                 lines: [],
-                concPersistenceId: '',
+                concPersistenceIds: [],
                 viewMode: ViewMode.SENT,
                 attrVmode: 'mouseover',
                 itemsPerSrc: 1,
                 visibleMetadataLine: -1,
                 metadataAttrs: (conf.metadataAttrs || []).map(v => ({value: v.value, label: appServices.importExternalMessage(v.label)}))
             }
-        );
+        });
         this.label = appServices.importExternalMessage(conf.label || 'collexamples__main_label');
         this.view = viewInit(this.dispatcher, ut, theme, this.model);
     }

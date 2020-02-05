@@ -28,7 +28,6 @@ import { Observable } from 'rxjs';
  */
 export interface SingleConcLoadedPayload extends SubqueryPayload {
     tileId:number;
-    queryNum:number;
     data:ConcResponse;
 }
 

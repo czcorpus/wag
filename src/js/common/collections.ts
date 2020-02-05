@@ -66,10 +66,15 @@ export function composeLeft(...ops:Array<Fn<any, any>>):Fn<any, any> {
  */
 export namespace List {
 
-    export function repeat<T>(fn:()=>T, size:number):Array<T> {
+    /**
+     * Create an array of size 'size' filled in by values created
+     * by factory function fn. The parameter idx passed to fn
+     * describes order of the item (0-based).
+     */
+    export function repeat<T>(fn:(idx?:number)=>T, size:number):Array<T> {
         const ans:Array<T> = [];
         for (let i = 0; i < size; i += 1) {
-            ans.push(fn());
+            ans.push(fn(i));
         }
         return ans;
     }

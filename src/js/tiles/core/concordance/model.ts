@@ -20,7 +20,7 @@
 
 import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { Observable } from 'rxjs';
-import { mergeMap, scan, tap } from 'rxjs/operators';
+import { mergeMap, tap, reduce } from 'rxjs/operators';
 import { AppServices } from '../../../appServices';
 import { IConcordanceApi, ConcResponse, SingleConcLoadedPayload } from '../../../common/api/abstract/concordance';
 import { ConcordanceMinState, createInitialLinesData } from '../../../common/models/concordance';
@@ -67,14 +67,6 @@ export interface ConcordanceTileModelArgs {
     initState:ConcordanceTileState;
     queryType:QueryType;
     backlink:Backlink;
-}
-
-interface PartialLoadingStatus {
-    numRemaining:number;
-    hasSomeData:boolean;
-    firstData:ConcResponse;
-    // conc positions corresponds to different queries (for example when using word comparison mode)
-    concPersistanceIDs:Array<string>;
 }
 
 
@@ -180,12 +172,12 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 // note: error is handled via TileDataLoaded
                 if (action.payload.tileId === this.tileId && !action.error) {
                     action.payload.data.messages.forEach(msg => console.log(`${importMessageType(msg[0]).toUpperCase()}: conc - ${msg[1]}`));
-                    state.concordances[action.payload.queryNum] = {
+                    state.concordances[action.payload.queryId] = {
                         concsize: action.payload.data.concsize,
                         resultARF: action.payload.data.arf,
                         resultIPM: action.payload.data.ipm,
-                        currPage: state.concordances[action.payload.queryNum].loadPage,
-                        loadPage: state.concordances[action.payload.queryNum].loadPage,
+                        currPage: state.concordances[action.payload.queryId].loadPage,
+                        loadPage: state.concordances[action.payload.queryId].loadPage,
                         numPages: Math.ceil(action.payload.data.concsize / state.pageSize),
                         concId: action.payload.data.concPersistenceID,
                         lines: normalizeTypography(action.payload.data.lines)
@@ -334,7 +326,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                         name: GlobalActionName.TilePartialDataLoaded,
                         payload: {
                             tileId: this.tileId,
-                            queryNum: curr,
+                            queryId: curr,
                             data: resp,
                             subqueries: resp.lines.map(v => ({value: `${v.toknum}`, interactionId: v.interactionId})),
                             lang1: null,
@@ -343,50 +335,35 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                     });
                 }
             ),
-            scan(
-                (acc, [resp, curr]) => {
-                    acc.concPersistanceIDs[curr] = resp.concPersistenceID;
-                    return {
-                        numRemaining: acc.numRemaining - 1,
-                        hasSomeData: acc.hasSomeData || resp.lines.length > 0,
-                        firstData: curr === 0 ? resp : acc.firstData,
-                        concPersistanceIDs: acc.concPersistanceIDs
-                    }
-                },
-                {
-                    numRemaining: this.queryType === QueryType.CMP_QUERY ? this.lemmas.length : 1,
-                    hasSomeData: false,
-                    firstData: null,
-                    concPersistanceIDs: this.lemmas.map(_ => null)
-                } as PartialLoadingStatus
+            reduce(
+                (acc, [resp,]) => ({
+                    concIds: acc.concIds.concat(resp.concPersistenceID),
+                    isEmpty: acc.isEmpty && resp.lines.length === 0
+                }),
+                {concIds: [], isEmpty: true}
             )
 
         ).subscribe(
-            (status) => {
-                if (status.numRemaining === 0) {
-                    dispatch<GlobalActions.TileDataLoaded<ConcLoadedPayload>>({
-                        name: GlobalActionName.TileDataLoaded,
-                        payload: {
-                            tileId: this.tileId,
-                            isEmpty: !status.hasSomeData,
-                            canBeAmbiguousResult: false, // TODO !!!
-                            subqueries: status.firstData.lines.map(v => ({value: `${v.toknum}`, interactionId: v.interactionId})),
-                            lang1: null,
-                            lang2: null,
-                            concPersistenceIDs: status.concPersistanceIDs,
-                            corpusName: status.firstData.corpName,
-                            subcorpusName: status.firstData.subcorpName
-                        }
-                    });
-                }
+            (acc) => {
+                dispatch<GlobalActions.TileDataLoaded<ConcLoadedPayload>>({
+                    name: GlobalActionName.TileDataLoaded,
+                    payload: {
+                        tileId: this.tileId,
+                        isEmpty: acc.isEmpty,
+                        concPersistenceIDs: [...acc.concIds],
+                        corpusName: state.corpname
+                    }
+                });
             },
             (err) => {
-                dispatch<GlobalActions.TileDataLoaded<{}>>({
+                dispatch<GlobalActions.TileDataLoaded<ConcLoadedPayload>>({
                     name: GlobalActionName.TileDataLoaded,
                     error: err,
                     payload: {
                         tileId: this.tileId,
-                        isEmpty: true
+                        isEmpty: true,
+                        concPersistenceIDs: [],
+                        corpusName: state.corpname
                     }
                 });
             }

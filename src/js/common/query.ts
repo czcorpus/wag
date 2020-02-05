@@ -52,6 +52,7 @@ export interface SubQueryItem<T=string> {
 
 export interface SubqueryPayload<T=string> {
     tileId:number;
+    queryId:number;
     subqueries:Array<SubQueryItem<T>>;
     lang1:string;
     lang2:string;

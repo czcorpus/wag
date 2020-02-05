@@ -31,8 +31,7 @@ export enum ActionName {
     SetVisibleQuery = 'CONCORDANCE_SET_VISIBLE_QUERY'
 }
 
-export interface ConcLoadedPayload extends SubqueryPayload {
-    tileId:number;
+export interface ConcLoadedPayload {
     corpusName:string;
     subcorpusName?:string;
     concPersistenceIDs:Array<string>;

@@ -185,6 +185,7 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
                         name: GlobalActionName.TileDataLoaded,
                         payload: {
                             tileId: this.tileId,
+                            queryId: 0,
                             isEmpty: data.length === 0,
                             query: findCurrLemmaVariant(this.lemmas[0]).lemma, // TODO switch to word and give up dict support
                             subqueries: data.map(v => ({
@@ -206,6 +207,7 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
                         name: GlobalActionName.TileDataLoaded,
                         payload: {
                             tileId: this.tileId,
+                            queryId: 0,
                             isEmpty: true,
                             query: findCurrLemmaVariant(this.lemmas[0]).lemma, // TODO switch to word and give up dict support
                             subqueries: [],

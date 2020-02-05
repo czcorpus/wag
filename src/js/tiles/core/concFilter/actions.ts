@@ -20,6 +20,7 @@ import { Action } from 'kombo';
 
 export interface CollExamplesLoadedPayload {
     data:Array<Line>;
+    queryId:number;
     baseConcId:string;
 }
 

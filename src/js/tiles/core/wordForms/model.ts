@@ -169,6 +169,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                     name: GlobalActionName.TileDataLoaded,
                     payload: {
                         tileId: this.tileId,
+                        queryId: 0,
                         isEmpty: false,
                         data: data.forms,
                         subqueries: data.forms.map(v => ({
@@ -187,6 +188,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                     error: err,
                     payload: {
                         tileId: this.tileId,
+                        queryId: 0,
                         isEmpty: true,
                         data: [],
                         subqueries: [],
@@ -211,6 +213,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                                     error: action.error,
                                     payload: {
                                         tileId: this.tileId,
+                                        queryId: 0,
                                         isEmpty: true,
                                         data: [],
                                         subqueries: [],
