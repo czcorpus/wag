@@ -100,6 +100,13 @@ export namespace List {
         return data ? partial(data) : partial;
     }
 
+    export function get<T>(idx:number, data:Array<T>):T;
+    export function get<T>(idx:number):(data:Array<T>)=>T;
+    export function get<T>(idx:number, data?:Array<T>):any {
+        const fn = (data2:Array<T>):T => idx >= 0 ? data2[idx] : data2[data2.length + idx];
+        return data ? fn(data) : fn;
+    }
+
     /**
      *
      * @param from lower limit (inclusive)

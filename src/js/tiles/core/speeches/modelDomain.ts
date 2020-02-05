@@ -15,10 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
 import { RGBAColor } from '../../../common/types';
 import { BacklinkWithArgs } from '../../../common/tile';
 import { LineElement } from '../../../common/api/abstract/concordance';
+import { pipe, Dict, List } from '../../../common/collections';
 
 
 export type ConcDetailText = Array<LineElement>;
@@ -37,9 +37,9 @@ export interface PlayableSegment {
 export interface Speech {
     text:ConcDetailText;
     speakerId:string;
-    segments:Immutable.List<Segment>;
+    segments:Array<Segment>;
     colorCode:RGBAColor;
-    metadata:Immutable.Map<string, string>;
+    metadata:{[k:string]:string};
 }
 
 
@@ -76,25 +76,25 @@ export interface SpeechesModelState {
     subcname:string;
     subcDesc:string;
     concId:string;
-    availTokens:Immutable.List<number>;
+    availTokens:Array<number>;
     tokenIdx:number;
     data:SpeechLines;
-    expandLeftArgs:Immutable.List<ExpandArgs>;
-    expandRightArgs:Immutable.List<ExpandArgs>;
+    expandLeftArgs:Array<ExpandArgs>;
+    expandRightArgs:Array<ExpandArgs>;
     speakerIdAttr:[string, string];
     speechSegment:[string, string];
     speechOverlapAttr:[string, string];
     speechOverlapVal:string;
-    speakerColors:Immutable.List<RGBAColor>;
-    wideCtxGlobals:Immutable.List<[string, string]>;
-    speakerColorsAttachments:Immutable.Map<string, RGBAColor>;
+    speakerColors:Array<RGBAColor>;
+    wideCtxGlobals:Array<[string, string]>;
+    speakerColorsAttachments:{[k:string]:RGBAColor};
     spkOverlapMode:'full'|'simple';
     backlink:BacklinkWithArgs<BacklinkArgs>;
     maxNumSpeeches:number;
     playback:{
         currLineIdx:number;
         newLineIdx:number;
-        segments:Immutable.List<Segment>;
+        segments:Array<Segment>;
         newPlaybackSession:string|null;
         currPlaybackSession:string|null;
     }|null;
@@ -127,14 +127,14 @@ function parseTag(name:string, s:string):{[key:string]:string} {
 }
 
 function createNewSpeech(state:SpeechesModelState, speakerId:string, colorCode:RGBAColor, metadata:{[attr:string]:string}):Speech {
-    const importedMetadata = Immutable.Map<string, string>(metadata)
-            .filter((val, attr) => attr !== state.speechSegment[1] &&
-                        attr !== state.speakerIdAttr[1])
-            .toMap();
+    const importedMetadata = pipe(
+        metadata,
+        Dict.filter((val, attr) => attr !== state.speechSegment[1] && attr !== state.speakerIdAttr[1])
+    );
     return {
         text: [],
         speakerId: speakerId,
-        segments: Immutable.List<Segment>(),
+        segments: [],
         metadata: importedMetadata,
         colorCode: colorCode
     };
@@ -143,11 +143,11 @@ function createNewSpeech(state:SpeechesModelState, speakerId:string, colorCode:R
 
 function isOverlap(state:SpeechesModelState, s1:Speech, s2:Speech):boolean {
     if (s1 && s2 && state.spkOverlapMode === 'full') {
-        const flag1 = s1.metadata.get(state.speechOverlapAttr[1]);
-        const flag2 = s2.metadata.get(state.speechOverlapAttr[1]);
+        const flag1 = s1.metadata[state.speechOverlapAttr[1]];
+        const flag2 = s2.metadata[state.speechOverlapAttr[1]];
         if (flag1 === flag2
                 && flag2 === state.speechOverlapVal
-                && s1.segments.get(0).value === s2.segments.get(0).value) {
+                && s1.segments[0].value === s2.segments[0].value) {
             return true;
         }
     }
@@ -207,16 +207,22 @@ export function normalizeSpeechesRange(data:Array<Array<Speech>>, maxNumSpeeches
         }
     }
     return data.slice(lft, rgt).map((speechLines, lineIdx) => {
-        return speechLines.map(speech => ({
-            text: speech.text,
-            speakerId: speech.speakerId,
-            segments: speech.segments.map(segment => ({
-                lineIdx: lineIdx,
-                value: segment.value
-            })).toList(),
-            colorCode: speech.colorCode,
-            metadata: speech.metadata
-        }))
+        return List.map(
+            speech => ({
+                text: speech.text,
+                speakerId: speech.speakerId,
+                segments: List.map(
+                    segment => ({
+                        lineIdx: lineIdx,
+                        value: segment.value
+                    }),
+                    speech.segments
+                ),
+                colorCode: speech.colorCode,
+                metadata: speech.metadata
+            }
+        ),
+        speechLines)
     });
 }
 
@@ -232,28 +238,25 @@ export function extractSpeeches(state:SpeechesModelState, concDetail:ConcDetailT
             if (attrs !== null && attrs[state.speakerIdAttr[1]]) {
                     tmp.push(currSpeech);
                     const newSpeakerId = attrs[state.speakerIdAttr[1]];
-                    if (!state.speakerColorsAttachments.has(newSpeakerId)) {
-                        state.speakerColorsAttachments = state.speakerColorsAttachments.set(
-                            newSpeakerId, state.speakerColors.get(state.speakerColorsAttachments.size)
-                        )
+                    if (!Dict.hasKey(newSpeakerId, state.speakerColorsAttachments)) {
+                        state.speakerColorsAttachments[newSpeakerId] = state.speakerColors[Dict.size(state.speakerColorsAttachments)];
                     }
                     prevSpeech = currSpeech;
                     currSpeech = createNewSpeech(
                         state,
                         newSpeakerId,
-                        state.speakerColorsAttachments.get(newSpeakerId),
+                        state.speakerColorsAttachments[newSpeakerId],
                         attrs
                     );
             }
             if (item.str.indexOf(`<${state.speechSegment[0]}`) > -1) {
                 const attrs = parseTag(state.speechSegment[0], item.str);
                 if (attrs) {
-                    currSpeech.segments = currSpeech.segments.push({
+                    currSpeech.segments.push({
                         lineIdx: -1,
                         value: attrs[state.speechSegment[1]]
                     });
                 }
-
             }
             if (state.spkOverlapMode === 'simple') {
                 const overlapSrch = new RegExp(`</?(${state.speechOverlapAttr[0]})(>|[^>]+>)`, 'g');
@@ -284,7 +287,7 @@ export function extractSpeeches(state:SpeechesModelState, concDetail:ConcDetailT
     return mergeOverlaps(state, tmp).map((v, i) => v.map(sp =>  ({
         colorCode: sp.colorCode,
         metadata: sp.metadata,
-        segments: sp.segments.map(seg => ({value: seg.value, lineIdx: i})).toList(),
+        segments: List.map(seg => ({value: seg.value, lineIdx: i}), sp.segments),
         speakerId: sp.speakerId,
         text: sp.text
     })));

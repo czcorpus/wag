@@ -25,6 +25,7 @@ import { Theme } from '../../../common/theme';
 import { Speech, SpeechesModelState, Expand, SpeechLine, Segment } from './modelDomain';
 import { RGBAColor } from '../../../common/types';
 import { ActionName, Actions } from './actions';
+import { List } from '../../../common/collections';
 
 
 
@@ -147,9 +148,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             style={style}>
                         {props.speech.speakerId ? props.speech.speakerId : '\u2026'}
                     </strong>
-                    {props.speech.segments.size > 0 ?
+                    {props.speech.segments.length > 0 ?
                         <PlayerIcon tileId={props.tileId} lineIdx={props.idx} isPlaying={props.isPlaying}
-                                segments={props.speech.segments.toArray()} /> :
+                                segments={props.speech.segments} /> :
                         null
                     }
                 </dt>
@@ -200,7 +201,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 <dt className="speaker">
                     {renderOverlappingSpeakersLabel()}
                     <PlayerIcon tileId={props.tileId} lineIdx={props.idx} isPlaying={props.isPlaying}
-                            segments={props.speeches.reduce((acc, curr) => acc.concat(curr.segments.toArray()), [])} />
+                            segments={props.speeches.reduce((acc, curr) => acc.concat(curr.segments), [])} />
                 </dt>
                 <dd className="speech overlapping-block">
                     <div className="text">
@@ -334,8 +335,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         supportsTileReload={this.props.supportsReloadOnError}
                         issueReportingUrl={this.props.issueReportingUrl}>
                     <div className="SpeechesTile">
-                       <SpeechView data={this.props.data} hasExpandLeft={!!this.props.expandLeftArgs.get(-1)}
-                                hasExpandRight={!!this.props.expandRightArgs.get(-1)}
+                       <SpeechView data={this.props.data} hasExpandLeft={!!List.get(-1, this.props.expandLeftArgs)}
+                                hasExpandRight={!!List.get(-1, this.props.expandRightArgs)}
                                 tileId={this.props.tileId} isTweakMode={this.props.isTweakMode}
                                 playingLineIdx={this.props.playback ? this.props.playback.currLineIdx : -1} />
                     </div>
