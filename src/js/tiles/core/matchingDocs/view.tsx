@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
 import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 
@@ -76,7 +75,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // -------------------------- <TableView /> --------------------------------------
 
     const TableView:React.SFC<{
-        data:Immutable.List<DataRow>;
+        data:Array<DataRow>;
         from:number;
         to:number;
     }> = (props) => {
@@ -118,7 +117,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         render() {
             return (
                 <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
-                        hasData={this.props.data.size > 0}
+                        hasData={this.props.data.length > 0}
                         sourceIdent={this.props.corpname ? {corp: this.props.corpname} : null}
                         backlink={this.props.backlink}
                         supportsTileReload={this.props.supportsReloadOnError}
@@ -134,7 +133,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             : null
                         }
                         <div className="tables">
-                            {this.props.data.size > 0 ?
+                            {this.props.data.length > 0 ?
                                 <TableView
                                     data={this.props.data}
                                     from={(this.props.currPage - 1) * this.props.maxNumCategoriesPerPage}

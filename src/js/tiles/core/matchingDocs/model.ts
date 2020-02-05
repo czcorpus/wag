@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
 import { Action, SEDispatcher, StatelessModel, IActionDispatcher } from 'kombo';
 import { Observable, Observer } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
@@ -28,6 +27,7 @@ import { MatchingDocsModelState } from '../../../common/models/matchingDocs';
 import { MatchingDocsAPI, DataRow } from '../../../common/api/abstract/matchingDocs';
 import { findCurrLemmaVariant } from '../../../models/query';
 import { RecognizedQueries } from '../../../common/query';
+import { List, pipe, Dict } from '../../../common/collections';
 
 
 export interface MatchingDocsModelArgs {
@@ -41,7 +41,7 @@ export interface MatchingDocsModelArgs {
     lemmas:RecognizedQueries;
 }
 
-export type ModelSyncData = Immutable.Map<number, boolean>;
+export type ModelSyncData = {[tileId:string]:boolean};
 
 
 export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState, ModelSyncData> {
@@ -54,169 +54,102 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState, Mo
 
     protected readonly tileId:number;
 
-    protected waitForTiles:Immutable.Map<number, boolean>;
+    protected waitForTiles:Array<number>;
 
-    protected subqSourceTiles:Immutable.Set<number>;
+    protected readonly subqSourceTiles:Array<number>;
 
     constructor({dispatcher, tileId, waitForTiles, subqSourceTiles, appServices, api, initState, lemmas}:MatchingDocsModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
-        this.waitForTiles = Immutable.Map<number, boolean>(waitForTiles.map(v => [v, false]));
-        this.subqSourceTiles = Immutable.Set<number>(subqSourceTiles);
+        this.waitForTiles = [...waitForTiles];
+        this.subqSourceTiles = [...subqSourceTiles];
         this.appServices = appServices;
         this.api = api;
         this.lemmas = lemmas;
-        this.actionMatch = {
-            [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
-                const newState = this.copyState(state);
-                newState.isBusy = true;
-                newState.error = null;
-                return newState;
+
+        this.addActionHandler<GlobalActions.RequestQueryResponse>(
+            GlobalActionName.RequestQueryResponse,
+            (state, action) => {
+                state.isBusy = true;
+                state.error = null;
             },
-            [GlobalActionName.EnableTileTweakMode]: (state, action:GlobalActions.EnableTileTweakMode) => {
+            (state, action, dispatch) => {
+                this.handleDataLoad(state, action, dispatch);
+            }
+        );
+
+        this.addActionHandler<GlobalActions.EnableTileTweakMode>(
+            GlobalActionName.EnableTileTweakMode,
+            (state, action) => {
                 if (action.payload.ident === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isTweakMode = true;
-                    return newState;
+                    state.isTweakMode = true;
                 }
-                return state;
-            },
-            [GlobalActionName.DisableTileTweakMode]: (state, action:GlobalActions.DisableTileTweakMode) => {
+            }
+        );
+
+        this.addActionHandler<GlobalActions.DisableTileTweakMode>(
+            GlobalActionName.DisableTileTweakMode,
+            (state, action) => {
                 if (action.payload.ident === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isTweakMode = false;
-                    return newState;
+                    state.isTweakMode = false;
                 }
-                return state;
-            },
-            [ActionName.NextPage]: (state, action:Actions.NextPage) => {
+            }
+        );
+
+        this.addActionHandler<Actions.NextPage>(
+            ActionName.NextPage,
+            (state, action) => {
                 if (action.payload.tileId === this.tileId) {
-                    const newState = this.copyState(state);
-                    if (newState.currPage < newState.numPages) {
-                        newState.currPage++;
+                    if (state.currPage < state.numPages) {
+                        state.currPage++;
                     }
-                    return newState;
                 }
-                return state;
-            },
-            [ActionName.PreviousPage]: (state, action:Actions.PreviousPage) => {
+            }
+        );
+
+        this.addActionHandler<Actions.PreviousPage>(
+            ActionName.PreviousPage,
+            (state, action) => {
                 if (action.payload.tileId === this.tileId) {
-                    const newState = this.copyState(state);
-                    if (newState.currPage > 1) {
-                        newState.currPage--;
+                    if (state.currPage > 1) {
+                        state.currPage--;
                     }
-                    return newState;
                 }
-                return state;
-            },
-            [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<DataLoadedPayload>) => {
+            }
+        );
+
+        this.addActionHandler<GlobalActions.TileDataLoaded<DataLoadedPayload>>(
+            GlobalActionName.TileDataLoaded,
+            (state, action) => {
                 if (action.payload.tileId === this.tileId) {
-                    const newState = this.copyState(state);
                     if (action.error) {
-                        newState.data = Immutable.List<DataRow>();
-                        newState.error = action.error.message;
-                        newState.isBusy = false;
-                        newState.backlink = action.payload.backlink;
+                        state.data = [];
+                        state.error = action.error.message;
+                        state.isBusy = false;
+                        state.backlink = action.payload.backlink;
 
                     } else {
-                        newState.data = Immutable.List<DataRow>(action.payload.data.map(v => ({
-                            name: this.appServices.translateDbValue(state.corpname, v.name),
-                            score: v.score
-                        })));
-                        newState.currPage = 1;
-                        newState.numPages = Math.ceil(newState.data.size / newState.maxNumCategoriesPerPage);
-                        newState.isBusy = false;
-                        newState.backlink = action.payload.backlink;
+                        state.data = List.map(
+                            v => ({
+                                name: this.appServices.translateDbValue(state.corpname, v.name),
+                                score: v.score
+                            }),
+                            action.payload.data
+                        );
+                        state.currPage = 1;
+                        state.numPages = Math.ceil(state.data.length / state.maxNumCategoriesPerPage);
+                        state.isBusy = false;
+                        state.backlink = action.payload.backlink;
                     }
-                    return newState;
                 }
-                return state;
             }
-        }
-    }
+        );
 
-    sideEffects(state:MatchingDocsModelState, action:Action, dispatch:SEDispatcher):void {
-        switch (action.name) {
-            case GlobalActionName.RequestQueryResponse:
-                if (this.waitForTiles.size > 0) {
-                    this.suspend(this.waitForTiles.map(_ => true).toMap(), (action, syncStatus) => {
-                        if (action.name === GlobalActionName.TileDataLoaded && this.waitForTiles.has(action.payload['tileId'])) {
-                            const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
-                            new Observable((observer:Observer<boolean>) => {
-                                if (action.error) {
-                                    observer.error(new Error(this.appServices.translate('global__failed_to_obtain_required_data')));
-
-                                } else {
-                                    observer.next(true);
-                                    observer.complete();
-                                }
-
-                            }).pipe(
-                                concatMap(_ => this.api.call(this.api.stateToArgs(state, payload.concPersistenceIDs[0])))
-
-                            ).subscribe(
-                                (resp) => {
-                                    dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                        name: GlobalActionName.TileDataLoaded,
-                                        payload: {
-                                            tileId: this.tileId,
-                                            isEmpty: resp.data.length === 0,
-                                            data: resp.data.sort((x1, x2) => x2.score - x1.score).slice(0, state.maxNumCategories),
-                                            backlink: this.api.stateToBacklink(state, payload.concPersistenceIDs[0])
-                                        }
-                                    });
-                                },
-                                error => {
-                                    dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                        name: GlobalActionName.TileDataLoaded,
-                                        payload: {
-                                            tileId: this.tileId,
-                                            isEmpty: true,
-                                            data: null,
-                                            backlink: null
-                                        },
-                                        error: error
-                                    });
-                                }
-                            );
-                            const ans = syncStatus.set(payload.tileId, false);
-                            return ans.contains(true) ? ans : null;
-                        }
-                        return syncStatus;
-                    });
-
-                } else {
-                    const variant = findCurrLemmaVariant(this.lemmas[0]);
-                    this.api.call(this.api.stateToArgs(state, variant.word))
-                    .subscribe(
-                        (resp) => {
-                            dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                name: GlobalActionName.TileDataLoaded,
-                                payload: {
-                                    tileId: this.tileId,
-                                    isEmpty: resp.data.length === 0,
-                                    data: resp.data.sort((x1, x2) => x2.score - x1.score).slice(0, state.maxNumCategories),
-                                    backlink: this.api.stateToBacklink(state, null)
-                                }
-                            });
-                        },
-                        error => {
-                            dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                name: GlobalActionName.TileDataLoaded,
-                                payload: {
-                                    tileId: this.tileId,
-                                    isEmpty: true,
-                                    data: null,
-                                    backlink: null
-                                },
-                                error: error
-                            });
-                        }
-                    );
-                }
-            break;
-            case GlobalActionName.GetSourceInfo:
-                if (action.payload['tileId'] === this.tileId) {
+        this.addActionHandler<GlobalActions.GetSourceInfo>(
+            GlobalActionName.GetSourceInfo,
+            null,
+            (state, action, dispatch) => {
+                if (action.payload.tileId === this.tileId) {
                     this.api.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), state.corpname)
                     .subscribe(
                         (data) => {
@@ -241,7 +174,86 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState, Mo
                         }
                     );
                 }
-            break;
+            }
+        )
+    }
+
+    private handleDataLoad(state:MatchingDocsModelState, action:Action, dispatch:SEDispatcher):void {
+        if (this.waitForTiles.length > 0) {
+            this.suspend(pipe(this.waitForTiles, List.map<number, [string, boolean]>(v => [v.toFixed(), true]), Dict.fromEntries()), (action, syncStatus) => {
+                if (action.name === GlobalActionName.TileDataLoaded && this.waitForTiles.indexOf(action.payload['tileId']) > -1) {
+                    const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
+                    new Observable((observer:Observer<boolean>) => {
+                        if (action.error) {
+                            observer.error(new Error(this.appServices.translate('global__failed_to_obtain_required_data')));
+
+                        } else {
+                            observer.next(true);
+                            observer.complete();
+                        }
+
+                    }).pipe(
+                        concatMap(_ => this.api.call(this.api.stateToArgs(state, payload.concPersistenceIDs[0])))
+
+                    ).subscribe(
+                        (resp) => {
+                            dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                name: GlobalActionName.TileDataLoaded,
+                                payload: {
+                                    tileId: this.tileId,
+                                    isEmpty: resp.data.length === 0,
+                                    data: resp.data.sort((x1, x2) => x2.score - x1.score).slice(0, state.maxNumCategories),
+                                    backlink: this.api.stateToBacklink(state, payload.concPersistenceIDs[0])
+                                }
+                            });
+                        },
+                        error => {
+                            dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                name: GlobalActionName.TileDataLoaded,
+                                payload: {
+                                    tileId: this.tileId,
+                                    isEmpty: true,
+                                    data: null,
+                                    backlink: null
+                                },
+                                error: error
+                            });
+                        }
+                    );
+                    const ans = {...syncStatus, [payload.tileId]: false};
+                    return Dict.hasValue(true, ans) ? ans : null;
+                }
+                return syncStatus;
+            });
+
+        } else {
+            const variant = findCurrLemmaVariant(this.lemmas[0]);
+            this.api.call(this.api.stateToArgs(state, variant.word))
+            .subscribe(
+                (resp) => {
+                    dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                        name: GlobalActionName.TileDataLoaded,
+                        payload: {
+                            tileId: this.tileId,
+                            isEmpty: resp.data.length === 0,
+                            data: resp.data.sort((x1, x2) => x2.score - x1.score).slice(0, state.maxNumCategories),
+                            backlink: this.api.stateToBacklink(state, null)
+                        }
+                    });
+                },
+                error => {
+                    dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                        name: GlobalActionName.TileDataLoaded,
+                        payload: {
+                            tileId: this.tileId,
+                            isEmpty: true,
+                            data: null,
+                            backlink: null
+                        },
+                        error: error
+                    });
+                }
+            );
         }
     }
 }

@@ -21,6 +21,7 @@ import { ViewUtils } from 'kombo';
 import { GlobalComponents } from './global';
 import { AvailableLanguage } from '../common/hostPage';
 import { HTTPAction } from '../server/actions';
+import { List } from '../common/collections';
 
 
 export function init(ut:ViewUtils<GlobalComponents>) {
@@ -38,13 +39,15 @@ export function init(ut:ViewUtils<GlobalComponents>) {
                         <input type="hidden" name="returnUrl" value={this.props.returnUrl} />
                         <ul>
                             {
-                                this.props.languages.map(v => (
-                                    <li key={v[0]}>
-                                        <button className={v[0] === this.props.uiLang ? 'current' : null} type="submit" name="lang" value={v[0]}>
-                                            {v[1]}
+                                List.map(v => (
+                                    <li key={v.code}>
+                                        <button className={v.code === this.props.uiLang ? 'current' : null} type="submit" name="lang" value={v.code}>
+                                            {v.label}
                                         </button>
                                     </li>
-                                ))
+                                    ),
+                                    this.props.languages
+                                )
                             }
                         </ul>
                     </form>

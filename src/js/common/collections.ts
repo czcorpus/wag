@@ -356,7 +356,7 @@ export namespace Dict {
     }
 
     export function fromEntries<V, K extends string>(items:Array<[K, V]>):Obj<V, K>;
-    export function fromEntries<V, K extends string>():(item:Array<[K, V]>)=>Obj<V, K>;
+    export function fromEntries<V, K extends string>():(items:Array<[K, V]>)=>Obj<V, K>;
     export function fromEntries<V, K extends string>(items?:Array<[K, V]>):any {
         const fn = (items2:Array<[K, V]>):Obj<V, K> => {
             const ans:Obj<V, K> = {} as {[k in K]:V};

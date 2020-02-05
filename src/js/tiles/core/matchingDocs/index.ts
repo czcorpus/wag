@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
 import { IActionDispatcher, StatelessModel } from 'kombo';
 
 import { QueryType } from '../../../common/query';
@@ -75,11 +74,11 @@ export class MatchingDocsTile implements ITileProvider {
                 isBusy: isBusy,
                 isTweakMode: false,
                 error: null,
-                data: Immutable.List<DataRow>(),
+                data: [],
                 corpname: conf.corpname,
                 subcname: conf.subcname,
-                displayAttrs: Immutable.List<string>(typeof conf.displayAttrs === 'string' ? [conf.displayAttrs] : conf.displayAttrs),
-                searchAttrs: conf.searchAttrs ? Immutable.List<string>(typeof conf.searchAttrs === 'string' ? [conf.searchAttrs] : conf.searchAttrs) : null,
+                displayAttrs: typeof conf.displayAttrs === 'string' ? [conf.displayAttrs] : [...conf.displayAttrs],
+                searchAttrs: conf.searchAttrs ? (typeof conf.searchAttrs === 'string' ? [conf.searchAttrs] : [...conf.searchAttrs]) : null,
                 currPage: null,
                 numPages: null,
                 maxNumCategories: conf.maxNumCategories || 20,
@@ -114,7 +113,7 @@ export class MatchingDocsTile implements ITileProvider {
     }
 
     disable():void {
-        this.model.suspend(Immutable.Map<number, boolean>(), (_, syncData)=>syncData);
+        this.model.suspend({}, (_, syncData)=>syncData);
     }
 
     getWidthFract():number {

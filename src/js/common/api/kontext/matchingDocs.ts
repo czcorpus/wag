@@ -51,7 +51,7 @@ export class KontextMatchingDocsAPI implements MatchingDocsAPI<SingleCritQueryAr
                 corpname: state.corpname,
                 usesubcorp: state.subcname,
                 q: `~${query}`,
-                fcrit: [state.searchAttrs.get(0)],
+                fcrit: [state.searchAttrs[0]],
                 flimit: 1,
                 freq_sort: "rel",
                 fpage: 1,
@@ -61,14 +61,14 @@ export class KontextMatchingDocsAPI implements MatchingDocsAPI<SingleCritQueryAr
     }
 
     stateToArgs(state:MatchingDocsModelState, query:string):SingleCritQueryArgs {
-        if (state.searchAttrs.size > 1) {
+        if (state.searchAttrs.length > 1) {
             console.warn('MatchingDocsTile: Kontext API will take only first item from `searchAttrs` config!');
         }
         return {
             corpname: state.corpname,
             usesubcorp: state.subcname,
             q: `~${query}`,
-            fcrit: state.searchAttrs.get(0),
+            fcrit: state.searchAttrs[0],
             flimit: 1,
             freq_sort: 'rel',
             fpage: 1,
