@@ -29,7 +29,7 @@ import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../
 import { ConcApi, QuerySelector } from '../../../common/api/kontext/concordance';
 import { LemmaVariant } from '../../../common/query';
 import { ViewMode, SingleConcLoadedPayload } from '../../../common/api/abstract/concordance';
-import { Dict, List, applyComposed } from '../../../common/collections';
+import { Dict, List, pipe } from '../../../common/collections';
 import { DataLoadedPayload, ModelSourceArgs } from './common';
 import { createInitialLinesData } from '../../../common/models/concordance';
 
@@ -356,7 +356,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
                 }
             ),
             reduce(
-                (acc, [data,]) => acc && applyComposed(
+                (acc, [data,]) => acc && pipe(
                     data,
                     List.every(v => v && v.freq === 0)
                 ),

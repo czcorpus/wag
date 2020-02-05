@@ -28,7 +28,7 @@ import { isSubqueryPayload, RecognizedQueries } from '../../../common/query';
 import { isCollocSubqueryPayload } from '../../../common/api/abstract/collocations';
 import { TranslationSubset, TranslationsSubsetsModelState } from '../../../common/models/translations';
 import { AppServices } from '../../../appServices';
-import { applyComposed, List, Dict } from '../../../common/collections';
+import { pipe, List, Dict } from '../../../common/collections';
 import { mergeMap, reduce, tap } from 'rxjs/operators';
 
 
@@ -66,7 +66,7 @@ export const flipRowColMapper = <T>(subsets:Array<TranslationSubset>, maxNumLine
 
         const fitem = subsets[0].translations[i];
         const variants = Dict.fromEntries(
-                applyComposed(
+                pipe(
                     subsets,
                     List.flatMap(
                         subs => subs.translations[i].translations,
@@ -84,7 +84,7 @@ export const flipRowColMapper = <T>(subsets:Array<TranslationSubset>, maxNumLine
             color: subsets[0].translations[i].color
         });
     }
-    return applyComposed(
+    return pipe(
         tmp,
         List.sort((v1, v2) => v2.cells.reduce((acc, curr) => acc + curr.perc, 0) - v1.cells.reduce((acc, curr) => acc + curr.perc, 0)),
         List.slice(0, maxNumLines),
@@ -232,7 +232,7 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
                     } else {
                         state.colorMap = {};
                     }
-                    state.subsets = applyComposed(
+                    state.subsets = pipe(
                         state.subsets,
                         List.map((subset) => ({
                             ident: subset.ident,
@@ -357,7 +357,7 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
     }
 
     private mkWordUnion(state:TranslationsSubsetsModelState):void {
-        const allWords = applyComposed(
+        const allWords = pipe(
             state.subsets,
             List.flatMap(subset => subset.translations),
             List.groupBy(v => v.firstTranslatLc),
