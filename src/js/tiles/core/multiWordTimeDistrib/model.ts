@@ -47,6 +47,8 @@ export interface TimeDistribModelState extends GeneralSingleCritFreqMultiQuerySt
     averagingYears:number;
     isTweakMode:boolean;
     units:string;
+    refArea:[number,number];
+    zoom:[number, number];
 }
 
 
@@ -93,6 +95,51 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         this.appServices = appServices;
         this.lemmas = lemmas;
 
+        this.addActionHandler<Actions.ZoomMouseLeave>(
+            ActionName.ZoomMouseLeave,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {
+                    state.refArea = [null, null];
+                }
+            }
+        );
+        this.addActionHandler<Actions.ZoomMouseDown>(
+            ActionName.ZoomMouseDown,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {
+                    state.refArea = [action.payload.value, action.payload.value];
+                }
+            }
+        );
+        this.addActionHandler<Actions.ZoomMouseMove>(
+            ActionName.ZoomMouseMove,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {
+                    state.refArea[1] = action.payload.value;
+                }
+            }
+        );
+        this.addActionHandler<Actions.ZoomMouseUp>(
+            ActionName.ZoomMouseUp,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {
+                    if (state.refArea[1] !== state.refArea[0]) {
+                        state.zoom = state.refArea[1] > state.refArea[0] ?
+                            [state.refArea[0], state.refArea[1]] :
+                            [state.refArea[1], state.refArea[0]];
+                    }
+                    state.refArea = [null, null];
+                }
+            }
+        );
+        this.addActionHandler<Actions.ZoomReset>(
+            ActionName.ZoomReset,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {
+                    state.zoom = [null, null]                    
+                }
+            }
+        );
         this.addActionHandler<GlobalActions.EnableTileTweakMode>(
             GlobalActionName.EnableTileTweakMode,
             (state, action) => {

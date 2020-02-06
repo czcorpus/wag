@@ -18,7 +18,7 @@
  */
 import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
-import { Area, AreaChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Area, AreaChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis, ReferenceArea } from 'recharts';
 
 import { Theme } from '../../../common/theme';
 import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
@@ -119,7 +119,53 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         isSmallWidth:boolean;
         averagingYears:number;
         units:string;
+        zoom:[number, number];
+        refArea:[number, number];
+        tileId:number;
     }> = React.memo((props) => {
+
+        const zoomMouseLeave = () => {
+            dispatcher.dispatch<Actions.ZoomMouseLeave>({
+                name: ActionName.ZoomMouseLeave,
+                payload: {
+                    tileId: props.tileId
+                }
+            });
+        }
+
+        const zoomMouseDown = (e) => {
+            dispatcher.dispatch<Actions.ZoomMouseDown>({
+                name: ActionName.ZoomMouseDown,
+                payload: {
+                    tileId: props.tileId,
+                    value: Number(e.activeLabel)
+                }
+            });
+        }
+
+        const zoomMouseMove = (e) => {
+            dispatcher.dispatch<Actions.ZoomMouseMove>({
+                name: ActionName.ZoomMouseMove,
+                payload: {
+                    tileId: props.tileId,
+                    value: Number(e.activeLabel)
+                }
+            });
+        }
+
+        const zoomMouseUp = (e) => {
+            if (e === null) {
+                zoomMouseLeave();
+            } else {
+                dispatcher.dispatch<Actions.ZoomMouseUp>({
+                    name: ActionName.ZoomMouseUp,
+                    payload: {
+                        tileId: props.tileId,
+                        value: Number(e.activeLabel)
+                    }
+                });
+            }
+        }
 
         const data = prepareChartData(props.data, props.averagingYears);
         let domainY:[number, number]|[number, string];
@@ -148,17 +194,24 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         return (
             <ResponsiveContainer width={props.isSmallWidth ? '100%' : '90%'} height={props.size[1]}>
-                <AreaChart data={data} margin={{top: 10, right: 30, left: 0, bottom: 0}}>
+                
+                <AreaChart
+                    data={data.filter(v => props.zoom.every(v => v !== null) ? v.year >= props.zoom[0] && v.year <= props.zoom[1] : true)}
+                    margin={{top: 10, right: 30, left: 0, bottom: 0}}
+                    onMouseLeave = {zoomMouseLeave}
+                    onMouseDown = {zoomMouseDown}
+                    onMouseMove = {props.refArea[0] ? zoomMouseMove : null}
+                    onMouseUp = {zoomMouseUp}
+                >
                     <CartesianGrid strokeDasharray="1 1"/>
-                    <XAxis dataKey="year" minTickGap={0} type="category" />
+                    <XAxis dataKey="year" minTickGap={0} type="category" allowDataOverflow={true} />
                     <YAxis allowDataOverflow={true} domain={domainY} tickFormatter={tickFormatterY}/>
                     <Tooltip isAnimationActive={false} formatter={(value, name, formatterProps) => {
                         if (Array.isArray(value)) {
                             return [null, null];
                         }
                         return tooltipFormatter(value, name, formatterProps);
-                    }
-                    } />
+                    }} />
                     {props.words.map((word, index) =>
                         <Area type="linear"
                             key={`${word}Values`}
@@ -181,6 +234,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             isAnimationActive={false}
                             connectNulls={true} />
                     )}
+                    {
+                        (props.refArea[0] && props.refArea[1]) ? 
+                        <ReferenceArea x1={props.refArea[0]} x2={props.refArea[1]}  strokeOpacity={0.3} /> :
+                        null    
+                    }
                     <Legend content={(props) => <ChartLegend metric={ut.translate('multiWordTimeDistrib__occurence_human')} rcData={props} />} />
                 </AreaChart>
             </ResponsiveContainer>
@@ -240,30 +298,45 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------- <MultiWordTimeDistribTile /> ------------------------------------------------------
 
-    const MultiWordTimeDistribTile:React.SFC<TimeDistribModelState & CoreTileComponentProps> = (props) => (
-        <globComponents.TileWrapper tileId={props.tileId} isBusy={props.isBusy} error={props.error}
-                    hasData={props.data.length > 0}
-                    sourceIdent={{corp: props.corpname, subcorp: props.subcDesc}}
-                    supportsTileReload={props.supportsReloadOnError}
-                    issueReportingUrl={props.issueReportingUrl}
-                    backlink={null}>
-            <div className="MultiWordTimeDistribTile">
-                {props.isTweakMode ?
-                    <div className="tweak-box">
-                        <TweakControls averagingYears={props.averagingYears} tileId={props.tileId} units={props.units} />
-                    </div> :
-                    null
+    const MultiWordTimeDistribTile:React.SFC<TimeDistribModelState & CoreTileComponentProps> = (props) => {
+        const zoomReset = () => {
+            dispatcher.dispatch<Actions.ZoomReset>({
+                name: ActionName.ZoomReset,
+                payload: {
+                    tileId: props.tileId
                 }
-                <Chart data={props.data}
-                        size={[props.renderSize[0], 300]}
-                        isPartial={props.isBusy}
-                        words={props.wordLabels}
-                        isSmallWidth={props.isMobile || props.widthFract < 2}
-                        averagingYears={props.averagingYears}
-                        units={props.units} />
-            </div>
-        </globComponents.TileWrapper>
-    );
+            });
+        }
+
+        return (
+            <globComponents.TileWrapper tileId={props.tileId} isBusy={props.isBusy} error={props.error}
+                        hasData={props.data.length > 0}
+                        sourceIdent={{corp: props.corpname, subcorp: props.subcDesc}}
+                        supportsTileReload={props.supportsReloadOnError}
+                        issueReportingUrl={props.issueReportingUrl}
+                        backlink={null}>
+                <div className="MultiWordTimeDistribTile">
+                    {props.isTweakMode ?
+                        <div className="tweak-box">
+                            <TweakControls averagingYears={props.averagingYears} tileId={props.tileId} units={props.units} />
+                        </div> :
+                        null
+                    }
+                    <button onClick={zoomReset}>Reset zoom</button>
+                    <Chart data={props.data}
+                            size={[props.renderSize[0], 300]}
+                            isPartial={props.isBusy}
+                            words={props.wordLabels}
+                            isSmallWidth={props.isMobile || props.widthFract < 2}
+                            averagingYears={props.averagingYears}
+                            units={props.units}
+                            zoom={props.zoom}
+                            refArea={props.refArea}
+                            tileId={props.tileId} />
+                </div>
+            </globComponents.TileWrapper>
+        );
+    }
 
     return BoundWithProps(MultiWordTimeDistribTile, model);
 
