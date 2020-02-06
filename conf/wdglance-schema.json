@@ -451,6 +451,7 @@
                     "description": "The **`line-break`** CSS property sets how to break lines of Chinese, Japanese, or Korean (CJK) text when working with punctuation and symbols.\n\n**Initial value**: `auto`",
                     "enum": [
                         "-moz-initial",
+                        "anywhere",
                         "auto",
                         "inherit",
                         "initial",
@@ -463,22 +464,11 @@
                     "type": "string"
                 },
                 "KhtmlOpacity": {
-                    "anyOf": [
-                        {
-                            "enum": [
-                                "-moz-initial",
-                                "inherit",
-                                "initial",
-                                "revert",
-                                "unset"
-                            ],
-                            "type": "string"
-                        },
-                        {
-                            "type": "number"
-                        }
-                    ],
-                    "description": "The **`opacity`** CSS property sets the transparency of an element or the degree to which content behind an element is visible.\n\n**Initial value**: `1.0`"
+                    "description": "The **`opacity`** CSS property sets the transparency of an element or the degree to which content behind an element is visible.\n\n**Initial value**: `1.0`",
+                    "type": [
+                        "string",
+                        "number"
+                    ]
                 },
                 "KhtmlUserSelect": {
                     "description": "The `**user-select**` CSS property controls whether the user can select text. This doesn't have any effect on content loaded as chrome, except in textboxes.\n\n**Initial value**: `auto`",
@@ -1087,22 +1077,11 @@
                     ]
                 },
                 "MozOpacity": {
-                    "anyOf": [
-                        {
-                            "enum": [
-                                "-moz-initial",
-                                "inherit",
-                                "initial",
-                                "revert",
-                                "unset"
-                            ],
-                            "type": "string"
-                        },
-                        {
-                            "type": "number"
-                        }
-                    ],
-                    "description": "The **`opacity`** CSS property sets the transparency of an element or the degree to which content behind an element is visible.\n\n**Initial value**: `1.0`"
+                    "description": "The **`opacity`** CSS property sets the transparency of an element or the degree to which content behind an element is visible.\n\n**Initial value**: `1.0`",
+                    "type": [
+                        "string",
+                        "number"
+                    ]
                 },
                 "MozOrient": {
                     "description": "The **`-moz-orient`** CSS property specifies the orientation of the element to which it's applied.\n\n**Initial value**: `inline`",
@@ -2155,6 +2134,7 @@
                     "description": "The **`line-break`** CSS property sets how to break lines of Chinese, Japanese, or Korean (CJK) text when working with punctuation and symbols.\n\n**Initial value**: `auto`",
                     "enum": [
                         "-moz-initial",
+                        "anywhere",
                         "auto",
                         "inherit",
                         "initial",
@@ -2579,7 +2559,7 @@
                     "type": "string"
                 },
                 "alignSelf": {
-                    "description": "The **`align-self`** CSS property aligns flex items of the current flex line overriding the `align-items` value. If any of the item's cross-axis margin is set to `auto`, then `align-self` is ignored. In Grid layout `align-self` aligns the item inside the grid area.\n\n**Initial value**: `auto`\n\n---\n\n_Supported in Flex Layout_\n\n|  Chrome  | Firefox | Safari |  Edge  |   IE   |\n| :------: | :-----: | :----: | :----: | :----: |\n|  **36**  | **20**  | **9**  | **12** | **11** |\n| 21 _-x-_ |         |        |        |        |\n\n---\n\n_Supported in Grid Layout_\n\n| Chrome | Firefox |  Safari  |  Edge  |      IE      |\n| :----: | :-----: | :------: | :----: | :----------: |\n| **57** | **52**  | **10.1** | **16** | **10** _-x-_ |\n\n---",
+                    "description": "The **`align-self`** CSS property aligns flex items of the current flex line overriding the `align-items` value. If any of the item's cross-axis margin is set to `auto`, then `align-self` is ignored. In Grid layout `align-self` aligns the item inside the grid area.\n\n**Initial value**: `auto`\n\n---\n\n_Supported in Flex Layout_\n\n|  Chrome  | Firefox |  Safari   |  Edge  |   IE   |\n| :------: | :-----: | :-------: | :----: | :----: |\n|  **36**  | **20**  |   **9**   | **12** | **11** |\n| 21 _-x-_ |         | 6.1 _-x-_ |        |        |\n\n---\n\n_Supported in Grid Layout_\n\n| Chrome | Firefox |  Safari  |  Edge  |      IE      |\n| :----: | :-----: | :------: | :----: | :----------: |\n| **57** | **52**  | **10.1** | **16** | **10** _-x-_ |\n\n---",
                     "type": "string"
                 },
                 "alignmentBaseline": {
@@ -2684,12 +2664,16 @@
                     ],
                     "type": "string"
                 },
+                "aspectRatio": {
+                    "description": "The **`aspect-ratio`**    CSS property sets a _**preferred aspect ratio**_ for the box, which will be used in the calculation of auto sizes and some other layout functions.\n\n**Initial value**: `auto`",
+                    "type": "string"
+                },
                 "backdropFilter": {
-                    "description": "The **`backdrop-filter`** CSS property lets you apply graphical effects such as blurring or color shifting to the area behind an element. Because it applies to everything _behind_ the element, to see the effect you must make the element or its background at least partially transparent.\n\n**Initial value**: `none`\n\n| Chrome | Firefox |   Safari    |  Edge  | IE  |\n| :----: | :-----: | :---------: | :----: | :-: |\n| **76** |   No    | **9** _-x-_ | **17** | No  |",
+                    "description": "The **`backdrop-filter`** CSS property lets you apply graphical effects such as blurring or color shifting to the area behind an element. Because it applies to everything _behind_ the element, to see the effect you must make the element or its background at least partially transparent.\n\n**Initial value**: `none`\n\n| Chrome | Firefox |   Safari    |  Edge  | IE  |\n| :----: | :-----: | :---------: | :----: | :-: |\n| **76** |   n/a   | **9** _-x-_ | **17** | No  |",
                     "type": "string"
                 },
                 "backfaceVisibility": {
-                    "description": "The **`backface-visibility`** CSS property sets whether the back face of an element is visible when turned towards the user.\n\n**Initial value**: `visible`\n\n|  Chrome  | Firefox  | Safari |  Edge  |   IE   |\n| :------: | :------: | :----: | :----: | :----: |\n|  **36**  |  **16**  |  Yes   | **12** | **10** |\n| 12 _-x-_ | 10 _-x-_ |        |        |        |",
+                    "description": "The **`backface-visibility`** CSS property sets whether the back face of an element is visible when turned towards the user.\n\n**Initial value**: `visible`\n\n|  Chrome  | Firefox  |    Safari     |  Edge  |   IE   |\n| :------: | :------: | :-----------: | :----: | :----: |\n|  **36**  |  **16**  | **5.1** _-x-_ | **12** | **10** |\n| 12 _-x-_ | 10 _-x-_ |               |        |        |",
                     "enum": [
                         "-moz-initial",
                         "hidden",
@@ -2789,7 +2773,7 @@
                     ]
                 },
                 "borderBlock": {
-                    "description": "The **`border-block`** CSS property is a shorthand property for setting the individual logical block border property values in a single place in the style sheet.\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n|  n/a   | **66**  |   No   |  No  | No  |",
+                    "description": "The **`border-block`** CSS property is a shorthand property for setting the individual logical block border property values in a single place in the style sheet.\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n| **69** | **66**  |   No   |  No  | No  |",
                     "type": [
                         "string",
                         "number"
@@ -2878,7 +2862,7 @@
                     ]
                 },
                 "borderBlockStyle": {
-                    "description": "The **`border-block-style`** CSS property defines the style of the logical block borders of an element, which maps to a physical border style depending on the element's writing mode, directionality, and text orientation. It corresponds to the `border-top-style` and `border-bottom-style`, or `border-left-style` and `border-right-style` properties depending on the values defined for `writing-mode`, `direction`, and `text-orientation`.\n\n**Initial value**: `none`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n|  n/a   | **66**  |   No   |  No  | No  |",
+                    "description": "The **`border-block-style`** CSS property defines the style of the logical block borders of an element, which maps to a physical border style depending on the element's writing mode, directionality, and text orientation. It corresponds to the `border-top-style` and `border-bottom-style`, or `border-left-style` and `border-right-style` properties depending on the values defined for `writing-mode`, `direction`, and `text-orientation`.\n\n**Initial value**: `none`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n| **69** | **66**  |   No   |  No  | No  |",
                     "enum": [
                         "-moz-initial",
                         "dashed",
@@ -2899,7 +2883,7 @@
                     "type": "string"
                 },
                 "borderBlockWidth": {
-                    "description": "The **`border-block-width`** CSS property defines the width of the logical block borders of an element, which maps to a physical border width depending on the element's writing mode, directionality, and text orientation. It corresponds to the `border-top-width` and `border-bottom-width`, or `border-left-width`, and `border-right-width` property depending on the values defined for `writing-mode`, `direction`, and `text-orientation`.\n\n**Initial value**: `medium`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n|  n/a   | **66**  |   No   |  No  | No  |",
+                    "description": "The **`border-block-width`** CSS property defines the width of the logical block borders of an element, which maps to a physical border width depending on the element's writing mode, directionality, and text orientation. It corresponds to the `border-top-width` and `border-bottom-width`, or `border-left-width`, and `border-right-width` property depending on the values defined for `writing-mode`, `direction`, and `text-orientation`.\n\n**Initial value**: `medium`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n| **69** | **66**  |   No   |  No  | No  |",
                     "type": [
                         "string",
                         "number"
@@ -3026,14 +3010,14 @@
                     ]
                 },
                 "borderInline": {
-                    "description": "The **`border-inline`** CSS property is a shorthand property for setting the individual logical inline border property values in a single place in the style sheet.\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n|  n/a   | **66**  |   No   |  No  | No  |",
+                    "description": "The **`border-inline`** CSS property is a shorthand property for setting the individual logical inline border property values in a single place in the style sheet.\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n| **69** | **66**  |   No   |  No  | No  |",
                     "type": [
                         "string",
                         "number"
                     ]
                 },
                 "borderInlineColor": {
-                    "description": "The **`border-inline-color`** CSS property defines the color of the logical inline borders of an element, which maps to a physical border color depending on the element's writing mode, directionality, and text orientation. It corresponds to the `border-top-color` and `border-bottom-color`, or `border-right-color` and `border-left-color` property depending on the values defined for `writing-mode`, `direction`, and `text-orientation`.\n\n**Initial value**: `currentcolor`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n|  n/a   | **66**  |   No   |  No  | No  |",
+                    "description": "The **`border-inline-color`** CSS property defines the color of the logical inline borders of an element, which maps to a physical border color depending on the element's writing mode, directionality, and text orientation. It corresponds to the `border-top-color` and `border-bottom-color`, or `border-right-color` and `border-left-color` property depending on the values defined for `writing-mode`, `direction`, and `text-orientation`.\n\n**Initial value**: `currentcolor`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n| **69** | **66**  |   No   |  No  | No  |",
                     "type": "string"
                 },
                 "borderInlineEnd": {
@@ -3115,7 +3099,7 @@
                     ]
                 },
                 "borderInlineStyle": {
-                    "description": "The **`border-inline-style`** CSS property defines the style of the logical inline borders of an element, which maps to a physical border style depending on the element's writing mode, directionality, and text orientation. It corresponds to the `border-top-style` and `border-bottom-style`, or `border-left-style` and `border-right-style` properties depending on the values defined for `writing-mode`, `direction`, and `text-orientation`.\n\n**Initial value**: `none`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n|  n/a   | **66**  |   No   |  No  | No  |",
+                    "description": "The **`border-inline-style`** CSS property defines the style of the logical inline borders of an element, which maps to a physical border style depending on the element's writing mode, directionality, and text orientation. It corresponds to the `border-top-style` and `border-bottom-style`, or `border-left-style` and `border-right-style` properties depending on the values defined for `writing-mode`, `direction`, and `text-orientation`.\n\n**Initial value**: `none`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n| **69** | **66**  |   No   |  No  | No  |",
                     "enum": [
                         "-moz-initial",
                         "dashed",
@@ -3136,7 +3120,7 @@
                     "type": "string"
                 },
                 "borderInlineWidth": {
-                    "description": "The **`border-inline-width`** CSS property defines the width of the logical inline borders of an element, which maps to a physical border width depending on the element's writing mode, directionality, and text orientation. It corresponds to the `border-top-width` and `border-bottom-width`, or `border-left-width`, and `border-right-width` property depending on the values defined for `writing-mode`, `direction`, and `text-orientation`.\n\n**Initial value**: `medium`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n|  n/a   | **66**  |   No   |  No  | No  |",
+                    "description": "The **`border-inline-width`** CSS property defines the width of the logical inline borders of an element, which maps to a physical border width depending on the element's writing mode, directionality, and text orientation. It corresponds to the `border-top-width` and `border-bottom-width`, or `border-left-width`, and `border-right-width` property depending on the values defined for `writing-mode`, `direction`, and `text-orientation`.\n\n**Initial value**: `medium`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n| **69** | **66**  |   No   |  No  | No  |",
                     "type": [
                         "string",
                         "number"
@@ -3463,7 +3447,7 @@
                     "type": "string"
                 },
                 "boxSizing": {
-                    "description": "The **`box-sizing`** CSS property defines how the user agent should calculate the total width and height of an element.\n\n**Initial value**: `content-box`\n\n| Chrome  | Firefox | Safari  |  Edge  |  IE   |\n| :-----: | :-----: | :-----: | :----: | :---: |\n| **10**  | **29**  | **5.1** | **12** | **8** |\n| 1 _-x-_ | 1 _-x-_ |         |        |       |",
+                    "description": "The **`box-sizing`** CSS property defines how the user agent should calculate the total width and height of an element.\n\n**Initial value**: `content-box`\n\n| Chrome  | Firefox | Safari  |  Edge  |  IE   |\n| :-----: | :-----: | :-----: | :----: | :---: |\n| **10**  | **29**  | **5.1** | **12** | **8** |\n| 1 _-x-_ | 1 _-x-_ | 3 _-x-_ |        |       |",
                     "enum": [
                         "-moz-initial",
                         "border-box",
@@ -3584,7 +3568,7 @@
                     "type": "string"
                 },
                 "clipPath": {
-                    "description": "The `**clip-path**` CSS property creates a clipping region that sets what part of an element should be shown. Parts that are inside the region are shown, while those outside are hidden.\n\n**Initial value**: `none`\n\n|  Chrome  | Firefox |   Safari    |  Edge  |   IE   |\n| :------: | :-----: | :---------: | :----: | :----: |\n|  **55**  | **3.5** | **7** _-x-_ | **12** | **10** |\n| 24 _-x-_ |         |             |        |        |",
+                    "description": "The `**clip-path**` CSS property creates a clipping region that sets what part of an element should be shown. Parts that are inside the region are shown, while those outside are hidden.\n\n**Initial value**: `none`\n\n|  Chrome  | Firefox |  Safari   |  Edge  |   IE   |\n| :------: | :-----: | :-------: | :----: | :----: |\n|  **55**  | **3.5** |  **9.1**  | **12** | **10** |\n| 23 _-x-_ |         | 6.1 _-x-_ |        |        |",
                     "type": "string"
                 },
                 "clipRule": {
@@ -3600,7 +3584,7 @@
                     "type": "string"
                 },
                 "color": {
-                    "description": "The **`color`** CSS property sets the foreground color value of an element's text and text decorations, and sets the `currentcolor` value. `currentcolor` may be used as an indirect value on _other_ properties and is the default for other color properties, such as `border-color`.\n\n**Initial value**: Varies from one browser to another\n\n| Chrome | Firefox | Safari |  Edge  |  IE   |\n| :----: | :-----: | :----: | :----: | :---: |\n| **1**  |  **1**  |  Yes   | **12** | **3** |",
+                    "description": "The **`color`** CSS property sets the foreground color value of an element's text and text decorations, and sets the `currentcolor` value. `currentcolor` may be used as an indirect value on _other_ properties and is the default for other color properties, such as `border-color`.\n\n**Initial value**: Varies from one browser to another\n\n| Chrome | Firefox | Safari |  Edge  |  IE   |\n| :----: | :-----: | :----: | :----: | :---: |\n| **1**  |  **1**  | **1**  | **12** | **3** |",
                     "type": "string"
                 },
                 "colorAdjust": {
@@ -3659,7 +3643,7 @@
                             "type": "number"
                         }
                     ],
-                    "description": "The **`column-count`** CSS property breaks an element's content into the specified number of columns.\n\n**Initial value**: `auto`\n\n| Chrome |  Firefox  | Safari  |  Edge  |   IE   |\n| :----: | :-------: | :-----: | :----: | :----: |\n| **50** |  **52**   |  **9**  | **12** | **10** |\n|        | 1.5 _-x-_ | 3 _-x-_ |        |        |"
+                    "description": "The **`column-count`** CSS property breaks an element's content into the specified number of columns.\n\n**Initial value**: `auto`\n\n| Chrome  |  Firefox  | Safari  |  Edge  |   IE   |\n| :-----: | :-------: | :-----: | :----: | :----: |\n| **50**  |  **52**   |  **9**  | **12** | **10** |\n| 1 _-x-_ | 1.5 _-x-_ | 3 _-x-_ |        |        |"
                 },
                 "columnFill": {
                     "description": "The **`column-fill`** CSS property controls how an element's contents are balanced when broken into columns.\n\n**Initial value**: `balance`\n\n| Chrome | Firefox  | Safari  |  Edge  |   IE   |\n| :----: | :------: | :-----: | :----: | :----: |\n| **50** |  **52**  |  **9**  | **12** | **10** |\n|        | 13 _-x-_ | 8 _-x-_ |        |        |",
@@ -3676,36 +3660,36 @@
                     "type": "string"
                 },
                 "columnGap": {
-                    "description": "The **`column-gap`** CSS property sets the size of the gap (gutter) between an element's columns.\n\n**Initial value**: `normal`\n\n---\n\n_Supported in Flex Layout_\n\n| Chrome | Firefox |   Safari    | Edge | IE  |\n| :----: | :-----: | :---------: | :--: | :-: |\n|   No   | **63**  | **3** _-x-_ |  No  | No  |\n\n---\n\n_Supported in Grid Layout_\n\n|     Chrome      |     Firefox     |        Safari         |  Edge  | IE  |\n| :-------------: | :-------------: | :-------------------: | :----: | :-: |\n|     **66**      |     **61**      | **10.1** _(grid-gap)_ | **16** | No  |\n| 57 _(grid-gap)_ | 52 _(grid-gap)_ |                       |        |     |\n\n---\n\n_Supported in Multi-column Layout_\n\n| Chrome |  Firefox  | Safari  |  Edge  |   IE   |\n| :----: | :-------: | :-----: | :----: | :----: |\n| **50** |  **52**   | **10**  | **12** | **10** |\n|        | 1.5 _-x-_ | 3 _-x-_ |        |        |\n\n---",
+                    "description": "The **`column-gap`** CSS property sets the size of the gap (gutter) between an element's columns.\n\n**Initial value**: `normal`\n\n---\n\n_Supported in Flex Layout_\n\n| Chrome | Firefox |   Safari    | Edge | IE  |\n| :----: | :-----: | :---------: | :--: | :-: |\n|   No   | **63**  | **3** _-x-_ |  No  | No  |\n\n---\n\n_Supported in Grid Layout_\n\n|     Chrome      |     Firefox     |        Safari         |  Edge  | IE  |\n| :-------------: | :-------------: | :-------------------: | :----: | :-: |\n|     **66**      |     **61**      | **10.1** _(grid-gap)_ | **16** | No  |\n| 57 _(grid-gap)_ | 52 _(grid-gap)_ |                       |        |     |\n\n---\n\n_Supported in Multi-column Layout_\n\n| Chrome  |  Firefox  | Safari  |  Edge  |   IE   |\n| :-----: | :-------: | :-----: | :----: | :----: |\n| **50**  |  **52**   | **10**  | **12** | **10** |\n| 1 _-x-_ | 1.5 _-x-_ | 3 _-x-_ |        |        |\n\n---",
                     "type": [
                         "string",
                         "number"
                     ]
                 },
                 "columnRule": {
-                    "description": "The **`column-rule`** CSS property sets the width, style, and color of the rule (line) drawn between columns in a multi-column layout.\n\n| Chrome |  Firefox  | Safari  |  Edge  |   IE   |\n| :----: | :-------: | :-----: | :----: | :----: |\n| **50** |  **52**   |  **9**  | **12** | **10** |\n|        | 3.5 _-x-_ | 3 _-x-_ |        |        |",
+                    "description": "The **`column-rule`** CSS property sets the width, style, and color of the rule (line) drawn between columns in a multi-column layout.\n\n| Chrome  |  Firefox  | Safari  |  Edge  |   IE   |\n| :-----: | :-------: | :-----: | :----: | :----: |\n| **50**  |  **52**   |  **9**  | **12** | **10** |\n| 1 _-x-_ | 3.5 _-x-_ | 3 _-x-_ |        |        |",
                     "type": [
                         "string",
                         "number"
                     ]
                 },
                 "columnRuleColor": {
-                    "description": "The **`column-rule-color`** CSS property sets the color of the rule (line) drawn between columns in a multi-column layout.\n\n**Initial value**: `currentcolor`\n\n| Chrome |  Firefox  | Safari  |  Edge  |   IE   |\n| :----: | :-------: | :-----: | :----: | :----: |\n| **50** |  **52**   |  **9**  | **12** | **10** |\n|        | 3.5 _-x-_ | 3 _-x-_ |        |        |",
+                    "description": "The **`column-rule-color`** CSS property sets the color of the rule (line) drawn between columns in a multi-column layout.\n\n**Initial value**: `currentcolor`\n\n| Chrome  |  Firefox  | Safari  |  Edge  |   IE   |\n| :-----: | :-------: | :-----: | :----: | :----: |\n| **50**  |  **52**   |  **9**  | **12** | **10** |\n| 1 _-x-_ | 3.5 _-x-_ | 3 _-x-_ |        |        |",
                     "type": "string"
                 },
                 "columnRuleStyle": {
-                    "description": "The **`column-rule-style`** CSS property sets the style of the line drawn between columns in a multi-column layout.\n\n**Initial value**: `none`\n\n| Chrome |  Firefox  | Safari  |  Edge  |   IE   |\n| :----: | :-------: | :-----: | :----: | :----: |\n| **50** |  **52**   |  **9**  | **12** | **10** |\n|        | 3.5 _-x-_ | 3 _-x-_ |        |        |",
+                    "description": "The **`column-rule-style`** CSS property sets the style of the line drawn between columns in a multi-column layout.\n\n**Initial value**: `none`\n\n| Chrome  |  Firefox  | Safari  |  Edge  |   IE   |\n| :-----: | :-------: | :-----: | :----: | :----: |\n| **50**  |  **52**   |  **9**  | **12** | **10** |\n| 1 _-x-_ | 3.5 _-x-_ | 3 _-x-_ |        |        |",
                     "type": "string"
                 },
                 "columnRuleWidth": {
-                    "description": "The **`column-rule-width`** CSS property sets the width of the rule (line) drawn between columns in a multi-column layout.\n\n**Initial value**: `medium`\n\n| Chrome |  Firefox  | Safari  |  Edge  |   IE   |\n| :----: | :-------: | :-----: | :----: | :----: |\n| **50** |  **50**   |  **9**  | **12** | **10** |\n|        | 3.5 _-x-_ | 3 _-x-_ |        |        |",
+                    "description": "The **`column-rule-width`** CSS property sets the width of the rule (line) drawn between columns in a multi-column layout.\n\n**Initial value**: `medium`\n\n| Chrome  |  Firefox  | Safari  |  Edge  |   IE   |\n| :-----: | :-------: | :-----: | :----: | :----: |\n| **50**  |  **52**   |  **9**  | **12** | **10** |\n| 1 _-x-_ | 3.5 _-x-_ | 3 _-x-_ |        |        |",
                     "type": [
                         "string",
                         "number"
                     ]
                 },
                 "columnSpan": {
-                    "description": "The **`column-span`** CSS property makes it possible for an element to span across all columns when its value is set to `all`.\n\n**Initial value**: `none`\n\n| Chrome  | Firefox |  Safari   |  Edge  |   IE   |\n| :-----: | :-----: | :-------: | :----: | :----: |\n| **50**  |   n/a   |   **9**   | **12** | **10** |\n| 6 _-x-_ |         | 5.1 _-x-_ |        |        |",
+                    "description": "The **`column-span`** CSS property makes it possible for an element to span across all columns when its value is set to `all`.\n\n**Initial value**: `none`\n\n| Chrome  | Firefox |  Safari   |  Edge  |   IE   |\n| :-----: | :-----: | :-------: | :----: | :----: |\n| **50**  | **71**  |   **9**   | **12** | **10** |\n| 6 _-x-_ |         | 5.1 _-x-_ |        |        |",
                     "enum": [
                         "-moz-initial",
                         "all",
@@ -3718,7 +3702,7 @@
                     "type": "string"
                 },
                 "columnWidth": {
-                    "description": "The **`column-width`** CSS property specifies the ideal column width in a multi-column layout. The container will have as many columns as can fit without any of them having a width less than the `column-width` value. If the width of the container is narrower than the specified value, the single column's width will be smaller than the declared column width.\n\n**Initial value**: `auto`\n\n| Chrome |  Firefox  | Safari  |  Edge  |   IE   |\n| :----: | :-------: | :-----: | :----: | :----: |\n| **50** |  **50**   |  **9**  | **12** | **10** |\n|        | 1.5 _-x-_ | 3 _-x-_ |        |        |",
+                    "description": "The **`column-width`** CSS property specifies the ideal column width in a multi-column layout. The container will have as many columns as can fit without any of them having a width less than the `column-width` value. If the width of the container is narrower than the specified value, the single column's width will be smaller than the declared column width.\n\n**Initial value**: `auto`\n\n| Chrome  |  Firefox  | Safari  |  Edge  |   IE   |\n| :-----: | :-------: | :-----: | :----: | :----: |\n| **50**  |  **50**   |  **9**  | **12** | **10** |\n| 1 _-x-_ | 1.5 _-x-_ | 3 _-x-_ |        |        |",
                     "type": [
                         "string",
                         "number"
@@ -3732,7 +3716,7 @@
                     ]
                 },
                 "contain": {
-                    "description": "The **`contain`** CSS property allows an author to indicate that an element and its contents are, as much as possible, _independent_ of the rest of the document tree. This allows the browser to recalculate layout, style, paint, size, or any combination of them for a limited area of the DOM and not the entire page.\n\n**Initial value**: `none`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n| **52** |   n/a   |   No   |  No  | No  |",
+                    "description": "The **`contain`** CSS property allows an author to indicate that an element and its contents are, as much as possible, _independent_ of the rest of the document tree. This allows the browser to recalculate layout, style, paint, size, or any combination of them for a limited area of the DOM and not the entire page.\n\n**Initial value**: `none`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n| **52** | **69**  |   No   |  No  | No  |",
                     "type": "string"
                 },
                 "content": {
@@ -3913,7 +3897,7 @@
                     "description": "The **`flex-shrink`** CSS property sets the flex shrink factor of a flex item. If the size of flex items is larger than the flex container, items shrink to fit according to `flex-shrink`.\n\n**Initial value**: `1`\n\n|  Chrome  | Firefox | Safari  |  Edge  |   IE   |\n| :------: | :-----: | :-----: | :----: | :----: |\n|  **29**  | **20**  |  **9**  | **12** | **10** |\n| 21 _-x-_ |         | 8 _-x-_ |        |        |"
                 },
                 "flexWrap": {
-                    "description": "The **`flex-wrap`** CSS property sets whether flex items are forced onto one line or can wrap onto multiple lines. If wrapping is allowed, it sets the direction that lines are stacked.\n\n**Initial value**: `nowrap`\n\n|  Chrome  | Firefox | Safari |  Edge  |   IE   |\n| :------: | :-----: | :----: | :----: | :----: |\n|  **29**  | **28**  | **9**  | **12** | **11** |\n| 21 _-x-_ |         |        |        |        |",
+                    "description": "The **`flex-wrap`** CSS property sets whether flex items are forced onto one line or can wrap onto multiple lines. If wrapping is allowed, it sets the direction that lines are stacked.\n\n**Initial value**: `nowrap`\n\n|  Chrome  | Firefox |  Safari   |  Edge  |   IE   |\n| :------: | :-----: | :-------: | :----: | :----: |\n|  **29**  | **28**  |   **9**   | **12** | **11** |\n| 21 _-x-_ |         | 6.1 _-x-_ |        |        |",
                     "enum": [
                         "-moz-initial",
                         "inherit",
@@ -3993,7 +3977,7 @@
                     "type": "string"
                 },
                 "fontOpticalSizing": {
-                    "description": "The **`font-optical-sizing`** CSS property sets whether text rendering is optimized for viewing at different sizes. This only works for fonts that have an optical size variation axis.\n\n**Initial value**: `auto`\n\n| Chrome | Firefox | Safari |  Edge  | IE  |\n| :----: | :-----: | :----: | :----: | :-: |\n|   No   | **62**  |  n/a   | **17** | No  |",
+                    "description": "The **`font-optical-sizing`** CSS property sets whether text rendering is optimized for viewing at different sizes. This only works for fonts that have an optical size variation axis.\n\n**Initial value**: `auto`\n\n| Chrome | Firefox | Safari |  Edge  | IE  |\n| :----: | :-----: | :----: | :----: | :-: |\n| **79** | **62**  | **11** | **17** | No  |",
                     "enum": [
                         "-moz-initial",
                         "auto",
@@ -4029,7 +4013,7 @@
                             "type": "number"
                         }
                     ],
-                    "description": "The **`font-size-adjust`** CSS property sets how the font size should be chosen based on the height of lowercase rather than capital letters.\n\n**Initial value**: `none`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n|  n/a   |  **1**  |   No   |  No  | No  |"
+                    "description": "The **`font-size-adjust`** CSS property sets how the font size should be chosen based on the height of lowercase rather than capital letters.\n\n**Initial value**: `none`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n| **54** |  **1**  |   No   |  No  | No  |"
                 },
                 "fontStretch": {
                     "description": "The **`font-stretch`** CSS property selects a normal, condensed, or expanded face from a font.\n\n**Initial value**: `normal`\n\n| Chrome | Firefox | Safari |  Edge  |  IE   |\n| :----: | :-----: | :----: | :----: | :---: |\n| **60** |  **9**  | **11** | **12** | **9** |",
@@ -4146,7 +4130,7 @@
                     ]
                 },
                 "gridAutoColumns": {
-                    "description": "The **`grid-auto-columns`** CSS property specifies the size of an implicitly-created grid column track.\n\n**Initial value**: `auto`\n\n| Chrome | Firefox |  Safari  |          Edge           |             IE              |\n| :----: | :-----: | :------: | :---------------------: | :-------------------------: |\n| **57** | **52**  | **10.1** |         **16**          | **10** _(-ms-grid-columns)_ |\n|        |         |          | 12 _(-ms-grid-columns)_ |                             |",
+                    "description": "The **`grid-auto-columns`** CSS property specifies the size of an implicitly-created grid column track.\n\n**Initial value**: `auto`\n\n| Chrome | Firefox |  Safari  |          Edge           |             IE              |\n| :----: | :-----: | :------: | :---------------------: | :-------------------------: |\n| **57** | **70**  | **10.1** |         **16**          | **10** _(-ms-grid-columns)_ |\n|        |         |          | 12 _(-ms-grid-columns)_ |                             |",
                     "type": [
                         "string",
                         "number"
@@ -4157,7 +4141,7 @@
                     "type": "string"
                 },
                 "gridAutoRows": {
-                    "description": "The **`grid-auto-rows`** CSS property specifies the size of an implicitly-created grid row track.\n\n**Initial value**: `auto`\n\n| Chrome | Firefox |  Safari  |         Edge         |            IE            |\n| :----: | :-----: | :------: | :------------------: | :----------------------: |\n| **57** | **52**  | **10.1** |        **16**        | **10** _(-ms-grid-rows)_ |\n|        |         |          | 12 _(-ms-grid-rows)_ |                          |",
+                    "description": "The **`grid-auto-rows`** CSS property specifies the size of an implicitly-created grid row track.\n\n**Initial value**: `auto`\n\n| Chrome | Firefox |  Safari  |         Edge         |            IE            |\n| :----: | :-----: | :------: | :------------------: | :----------------------: |\n| **57** | **70**  | **10.1** |        **16**        | **10** _(-ms-grid-rows)_ |\n|        |         |          | 12 _(-ms-grid-rows)_ |                          |",
                     "type": [
                         "string",
                         "number"
@@ -4278,7 +4262,7 @@
                     "type": "string"
                 },
                 "imageRendering": {
-                    "description": "The **`image-rendering`** CSS property sets an image scaling algorithm. The property applies to an element itself, to any images set in its other properties, and to its descendants.\n\n**Initial value**: `auto`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n|  Yes   | **3.6** |  Yes   |  No  | No  |",
+                    "description": "The **`image-rendering`** CSS property sets an image scaling algorithm. The property applies to an element itself, to any images set in its other properties, and to its descendants.\n\n**Initial value**: `auto`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n| **13** | **3.6** | **6**  |  No  | No  |",
                     "enum": [
                         "-moz-crisp-edges",
                         "-moz-initial",
@@ -4378,7 +4362,7 @@
                     ]
                 },
                 "isolation": {
-                    "description": "The **`isolation`** CSS property determines whether an element must create a new stacking context.\n\n**Initial value**: `auto`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n| **41** | **36**  |  Yes   |  No  | No  |",
+                    "description": "The **`isolation`** CSS property determines whether an element must create a new stacking context.\n\n**Initial value**: `auto`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n| **41** | **36**  | **8**  |  No  | No  |",
                     "enum": [
                         "-moz-initial",
                         "auto",
@@ -4391,7 +4375,7 @@
                     "type": "string"
                 },
                 "justifyContent": {
-                    "description": "The CSS **`justify-content`** property defines how the browser distributes space between and around content items along the main-axis of a flex container, and the inline axis of a grid container.\n\n**Initial value**: `normal`\n\n---\n\n_Supported in Flex Layout_\n\n|  Chrome  | Firefox | Safari |  Edge  |   IE   |\n| :------: | :-----: | :----: | :----: | :----: |\n|  **52**  | **20**  | **9**  | **12** | **11** |\n| 21 _-x-_ |         |        |        |        |\n\n---\n\n_Supported in Grid Layout_\n\n| Chrome | Firefox |  Safari  |  Edge  | IE  |\n| :----: | :-----: | :------: | :----: | :-: |\n| **57** | **52**  | **10.1** | **16** | No  |\n\n---",
+                    "description": "The CSS **`justify-content`** property defines how the browser distributes space between and around content items along the main-axis of a flex container, and the inline axis of a grid container.\n\n**Initial value**: `normal`\n\n---\n\n_Supported in Flex Layout_\n\n|  Chrome  | Firefox |  Safari   |  Edge  |   IE   |\n| :------: | :-----: | :-------: | :----: | :----: |\n|  **52**  | **20**  |   **9**   | **12** | **11** |\n| 21 _-x-_ |         | 6.1 _-x-_ |        |        |\n\n---\n\n_Supported in Grid Layout_\n\n| Chrome | Firefox |  Safari  |  Edge  | IE  |\n| :----: | :-----: | :------: | :----: | :-: |\n| **57** | **52**  | **10.1** | **16** | No  |\n\n---",
                     "type": "string"
                 },
                 "justifyItems": {
@@ -4420,9 +4404,10 @@
                     "type": "string"
                 },
                 "lineBreak": {
-                    "description": "The **`line-break`** CSS property sets how to break lines of Chinese, Japanese, or Korean (CJK) text when working with punctuation and symbols.\n\n**Initial value**: `auto`\n\n| Chrome  | Firefox |   Safari    |  Edge  |   IE    |\n| :-----: | :-----: | :---------: | :----: | :-----: |\n| **58**  |   No    | **3** _-x-_ | **14** | **5.5** |\n| 1 _-x-_ |         |             |        |         |",
+                    "description": "The **`line-break`** CSS property sets how to break lines of Chinese, Japanese, or Korean (CJK) text when working with punctuation and symbols.\n\n**Initial value**: `auto`\n\n| Chrome  | Firefox |   Safari    |  Edge  |   IE    |\n| :-----: | :-----: | :---------: | :----: | :-----: |\n| **58**  | **69**  | **3** _-x-_ | **14** | **5.5** |\n| 1 _-x-_ |         |             |        |         |",
                     "enum": [
                         "-moz-initial",
+                        "anywhere",
                         "auto",
                         "inherit",
                         "initial",
@@ -4500,7 +4485,7 @@
                     ]
                 },
                 "marginBlock": {
-                    "description": "The **`margin-block`** CSS property defines the logical block start and end margins of an element, which maps to physical margins depending on the element's writing mode, directionality, and text orientation.\n\n**Initial value**: `0`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n|  n/a   | **66**  |   No   |  No  | No  |",
+                    "description": "The **`margin-block`** CSS property defines the logical block start and end margins of an element, which maps to physical margins depending on the element's writing mode, directionality, and text orientation.\n\n**Initial value**: `0`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n| **69** | **66**  |   No   |  No  | No  |",
                     "type": [
                         "string",
                         "number"
@@ -4528,7 +4513,7 @@
                     ]
                 },
                 "marginInline": {
-                    "description": "The **`margin-inline`** CSS property defines the logical inline start and end margins of an element, which maps to physical margins depending on the element's writing mode, directionality, and text orientation.\n\n**Initial value**: `0`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n|  n/a   | **66**  |   No   |  No  | No  |",
+                    "description": "The **`margin-inline`** CSS property defines the logical inline start and end margins of an element, which maps to physical margins depending on the element's writing mode, directionality, and text orientation.\n\n**Initial value**: `0`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n| **69** | **66**  |   No   |  No  | No  |",
                     "type": [
                         "string",
                         "number"
@@ -4676,7 +4661,7 @@
                     ]
                 },
                 "maskType": {
-                    "description": "The **`mask-type`** CSS property sets whether an SVG `<mask>` element is used as a _luminance_ or an _alpha_ mask. It applies to the `<mask>` element itself.\n\n**Initial value**: `luminance`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n| **24** | **35**  |  n/a   |  No  | No  |",
+                    "description": "The **`mask-type`** CSS property sets whether an SVG `<mask>` element is used as a _luminance_ or an _alpha_ mask. It applies to the `<mask>` element itself.\n\n**Initial value**: `luminance`\n\n| Chrome | Firefox | Safari  | Edge | IE  |\n| :----: | :-----: | :-----: | :--: | :-: |\n| **24** | **35**  | **6.1** |  No  | No  |",
                     "enum": [
                         "-moz-initial",
                         "alpha",
@@ -4791,14 +4776,14 @@
                     "type": "string"
                 },
                 "motion": {
-                    "description": "The **`offset`** CSS property is a shorthand property for animating an element along a defined path.\n\n|    Chrome     | Firefox | Safari | Edge | IE  |\n| :-----------: | :-----: | :----: | :--: | :-: |\n|    **55**     |   No    |   No   |  No  | No  |\n| 46 _(motion)_ |         |        |      |     |",
+                    "description": "The **`offset`** CSS property is a shorthand property for animating an element along a defined path.\n\n|    Chrome     | Firefox | Safari | Edge | IE  |\n| :-----------: | :-----: | :----: | :--: | :-: |\n|    **55**     |   n/a   |   No   |  No  | No  |\n| 46 _(motion)_ |         |        |      |     |",
                     "type": [
                         "string",
                         "number"
                     ]
                 },
                 "motionDistance": {
-                    "description": "The **`offset-distance`** CSS property specifies a position along an `offset-path`.\n\n**Initial value**: `0`\n\n|         Chrome         | Firefox | Safari | Edge | IE  |\n| :--------------------: | :-----: | :----: | :--: | :-: |\n|         **55**         |   No    |   No   |  No  | No  |\n| 46 _(motion-distance)_ |         |        |      |     |",
+                    "description": "The **`offset-distance`** CSS property specifies a position along an `offset-path`.\n\n**Initial value**: `0`\n\n|         Chrome         | Firefox | Safari | Edge | IE  |\n| :--------------------: | :-----: | :----: | :--: | :-: |\n|         **55**         |   n/a   |   No   |  No  | No  |\n| 46 _(motion-distance)_ |         |        |      |     |",
                     "type": [
                         "string",
                         "number"
@@ -4809,7 +4794,7 @@
                     "type": "string"
                 },
                 "motionRotation": {
-                    "description": "The **`offset-rotate`** CSS property defines the direction of the element while positioning along the offset path.\n\n**Initial value**: `auto`\n\n|         Chrome         | Firefox | Safari | Edge | IE  |\n| :--------------------: | :-----: | :----: | :--: | :-: |\n|         **56**         |   No    |   No   |  No  | No  |\n| 46 _(motion-rotation)_ |         |        |      |     |",
+                    "description": "The **`offset-rotate`** CSS property defines the direction of the element while positioning along the offset path.\n\n**Initial value**: `auto`\n\n|         Chrome         | Firefox | Safari | Edge | IE  |\n| :--------------------: | :-----: | :----: | :--: | :-: |\n|         **56**         |   n/a   |   No   |  No  | No  |\n| 46 _(motion-rotation)_ |         |        |      |     |",
                     "type": "string"
                 },
                 "msAccelerator": {
@@ -5063,6 +5048,7 @@
                     "description": "The **`line-break`** CSS property sets how to break lines of Chinese, Japanese, or Korean (CJK) text when working with punctuation and symbols.\n\n**Initial value**: `auto`",
                     "enum": [
                         "-moz-initial",
+                        "anywhere",
                         "auto",
                         "inherit",
                         "initial",
@@ -5450,14 +5436,14 @@
                     ]
                 },
                 "offset": {
-                    "description": "The **`offset`** CSS property is a shorthand property for animating an element along a defined path.\n\n|    Chrome     | Firefox | Safari | Edge | IE  |\n| :-----------: | :-----: | :----: | :--: | :-: |\n|    **55**     |   No    |   No   |  No  | No  |\n| 46 _(motion)_ |         |        |      |     |",
+                    "description": "The **`offset`** CSS property is a shorthand property for animating an element along a defined path.\n\n|    Chrome     | Firefox | Safari | Edge | IE  |\n| :-----------: | :-----: | :----: | :--: | :-: |\n|    **55**     |   n/a   |   No   |  No  | No  |\n| 46 _(motion)_ |         |        |      |     |",
                     "type": [
                         "string",
                         "number"
                     ]
                 },
                 "offsetAnchor": {
-                    "description": "**Initial value**: `auto`",
+                    "description": "**Initial value**: `auto`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n| **79** |   n/a   |   No   |  No  | No  |",
                     "type": [
                         "string",
                         "number"
@@ -5485,7 +5471,7 @@
                     ]
                 },
                 "offsetDistance": {
-                    "description": "The **`offset-distance`** CSS property specifies a position along an `offset-path`.\n\n**Initial value**: `0`\n\n|         Chrome         | Firefox | Safari | Edge | IE  |\n| :--------------------: | :-----: | :----: | :--: | :-: |\n|         **55**         |   No    |   No   |  No  | No  |\n| 46 _(motion-distance)_ |         |        |      |     |",
+                    "description": "The **`offset-distance`** CSS property specifies a position along an `offset-path`.\n\n**Initial value**: `0`\n\n|         Chrome         | Firefox | Safari | Edge | IE  |\n| :--------------------: | :-----: | :----: | :--: | :-: |\n|         **55**         |   n/a   |   No   |  No  | No  |\n| 46 _(motion-distance)_ |         |        |      |     |",
                     "type": [
                         "string",
                         "number"
@@ -5516,38 +5502,20 @@
                     "description": "The **`offset-path`** CSS property specifies a motion path for an element to follow and defines the element's positioning within the parent container or SVG coordinate system.\n\n**Initial value**: `none`\n\n|       Chrome       | Firefox | Safari | Edge | IE  |\n| :----------------: | :-----: | :----: | :--: | :-: |\n|       **55**       |   n/a   |   No   |  No  | No  |\n| 46 _(motion-path)_ |         |        |      |     |",
                     "type": "string"
                 },
-                "offsetPosition": {
-                    "description": "**Initial value**: `auto`",
+                "offsetRotate": {
+                    "description": "The **`offset-rotate`** CSS property defines the direction of the element while positioning along the offset path.\n\n**Initial value**: `auto`\n\n|         Chrome         | Firefox | Safari | Edge | IE  |\n| :--------------------: | :-----: | :----: | :--: | :-: |\n|         **56**         |   n/a   |   No   |  No  | No  |\n| 46 _(motion-rotation)_ |         |        |      |     |",
+                    "type": "string"
+                },
+                "offsetRotation": {
+                    "description": "The **`offset-rotate`** CSS property defines the direction of the element while positioning along the offset path.\n\n**Initial value**: `auto`\n\n|         Chrome         | Firefox | Safari | Edge | IE  |\n| :--------------------: | :-----: | :----: | :--: | :-: |\n|         **56**         |   n/a   |   No   |  No  | No  |\n| 46 _(motion-rotation)_ |         |        |      |     |",
+                    "type": "string"
+                },
+                "opacity": {
+                    "description": "The **`opacity`** CSS property sets the transparency of an element or the degree to which content behind an element is visible.\n\n**Initial value**: `1.0`\n\n| Chrome | Firefox | Safari |  Edge  |  IE   |\n| :----: | :-----: | :----: | :----: | :---: |\n| **1**  |  **1**  | **2**  | **12** | **9** |",
                     "type": [
                         "string",
                         "number"
                     ]
-                },
-                "offsetRotate": {
-                    "description": "The **`offset-rotate`** CSS property defines the direction of the element while positioning along the offset path.\n\n**Initial value**: `auto`\n\n|         Chrome         | Firefox | Safari | Edge | IE  |\n| :--------------------: | :-----: | :----: | :--: | :-: |\n|         **56**         |   No    |   No   |  No  | No  |\n| 46 _(motion-rotation)_ |         |        |      |     |",
-                    "type": "string"
-                },
-                "offsetRotation": {
-                    "description": "The **`offset-rotate`** CSS property defines the direction of the element while positioning along the offset path.\n\n**Initial value**: `auto`\n\n|         Chrome         | Firefox | Safari | Edge | IE  |\n| :--------------------: | :-----: | :----: | :--: | :-: |\n|         **56**         |   No    |   No   |  No  | No  |\n| 46 _(motion-rotation)_ |         |        |      |     |",
-                    "type": "string"
-                },
-                "opacity": {
-                    "anyOf": [
-                        {
-                            "enum": [
-                                "-moz-initial",
-                                "inherit",
-                                "initial",
-                                "revert",
-                                "unset"
-                            ],
-                            "type": "string"
-                        },
-                        {
-                            "type": "number"
-                        }
-                    ],
-                    "description": "The **`opacity`** CSS property sets the transparency of an element or the degree to which content behind an element is visible.\n\n**Initial value**: `1.0`\n\n| Chrome | Firefox | Safari |  Edge  |  IE   |\n| :----: | :-----: | :----: | :----: | :---: |\n| **1**  |  **1**  | **2**  | **12** | **9** |"
                 },
                 "order": {
                     "anyOf": [
@@ -5762,7 +5730,7 @@
                     ]
                 },
                 "paddingBlock": {
-                    "description": "The **`padding-block`** CSS property defines the logical block start and end padding of an element, which maps to physical padding properties depending on the element's writing mode, directionality, and text orientation.\n\n**Initial value**: `0`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n|  n/a   | **66**  |   No   |  No  | No  |",
+                    "description": "The **`padding-block`** CSS property defines the logical block start and end padding of an element, which maps to physical padding properties depending on the element's writing mode, directionality, and text orientation.\n\n**Initial value**: `0`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n| **69** | **66**  |   No   |  No  | No  |",
                     "type": [
                         "string",
                         "number"
@@ -5790,7 +5758,7 @@
                     ]
                 },
                 "paddingInline": {
-                    "description": "The **`padding-inline`** CSS property defines the logical inline start and end padding of an element, which maps to physical padding properties depending on the element's writing mode, directionality, and text orientation.\n\n**Initial value**: `0`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n|  n/a   | **66**  |   No   |  No  | No  |",
+                    "description": "The **`padding-inline`** CSS property defines the logical inline start and end padding of an element, which maps to physical padding properties depending on the element's writing mode, directionality, and text orientation.\n\n**Initial value**: `0`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n| **69** | **66**  |   No   |  No  | No  |",
                     "type": [
                         "string",
                         "number"
@@ -5881,7 +5849,7 @@
                     "type": "string"
                 },
                 "paintOrder": {
-                    "description": "The **`paint-order`** CSS property lets you control the order in which the fill and stroke (and painting markers) of text content and shapes are drawn.\n\n**Initial value**: `normal`\n\n| Chrome | Firefox | Safari |  Edge  | IE  |\n| :----: | :-----: | :----: | :----: | :-: |\n| **35** | **60**  |  Yes   | **17** | No  |",
+                    "description": "The **`paint-order`** CSS property lets you control the order in which the fill and stroke (and painting markers) of text content and shapes are drawn.\n\n**Initial value**: `normal`\n\n| Chrome | Firefox | Safari |  Edge  | IE  |\n| :----: | :-----: | :----: | :----: | :-: |\n| **35** | **60**  | **8**  | **17** | No  |",
                     "type": "string"
                 },
                 "perspective": {
@@ -5899,11 +5867,11 @@
                     ]
                 },
                 "placeContent": {
-                    "description": "The `**place-content**` CSS property is a shorthand for `align-content` and `justify-content`. It can be used in any layout method which utilizes both of these alignment values.\n\n**Initial value**: `normal`\n\n---\n\n_Supported in Flex Layout_\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n| **59** | **45**  |  Yes   |  No  | No  |\n\n---\n\n_Supported in Grid Layout_\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n| **59** | **53**  |  Yes   |  No  | No  |\n\n---\n\n_You can only specify a single value if it is valid for both <code>align-content</code> and <code>justify-content</code>_\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n|  Yes   | **60**  |  Yes   |  No  | No  |\n\n---",
+                    "description": "The `**place-content**` CSS property is a shorthand for `align-content` and `justify-content`. It can be used in any layout method which utilizes both of these alignment values.\n\n**Initial value**: `normal`\n\n---\n\n_Supported in Flex Layout_\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n| **59** | **45**  | **9**  |  No  | No  |\n\n---\n\n_Supported in Grid Layout_\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n| **59** | **53**  | **11** |  No  | No  |\n\n---",
                     "type": "string"
                 },
                 "placeItems": {
-                    "description": "The CSS **`place-items`** shorthand property sets the `align-items` and `justify-items` properties, respectively. If the second value is not set, the first value is also used for it.\n\n---\n\n_Supported in Flex Layout_\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n| **59** | **45**  |  n/a   |  No  | No  |\n\n---\n\n_Supported in Grid Layout_\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n| **59** | **45**  |  n/a   |  No  | No  |\n\n---",
+                    "description": "The CSS **`place-items`** shorthand property sets the `align-items` and `justify-items` properties, respectively. If the second value is not set, the first value is also used for it.\n\n---\n\n_Supported in Flex Layout_\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n| **59** | **45**  | **11** |  No  | No  |\n\n---\n\n_Supported in Grid Layout_\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n| **59** | **45**  | **11** |  No  | No  |\n\n---",
                     "type": "string"
                 },
                 "placeSelf": {
@@ -6293,22 +6261,11 @@
                     "type": "string"
                 },
                 "shapeImageThreshold": {
-                    "anyOf": [
-                        {
-                            "enum": [
-                                "-moz-initial",
-                                "inherit",
-                                "initial",
-                                "revert",
-                                "unset"
-                            ],
-                            "type": "string"
-                        },
-                        {
-                            "type": "number"
-                        }
-                    ],
-                    "description": "The **`shape-image-threshold`** CSS property sets the alpha channel threshold used to extract the shape using an image as the value for `shape-outside`.\n\n**Initial value**: `0.0`\n\n| Chrome | Firefox |  Safari  | Edge | IE  |\n| :----: | :-----: | :------: | :--: | :-: |\n| **37** | **62**  | **10.1** |  No  | No  |"
+                    "description": "The **`shape-image-threshold`** CSS property sets the alpha channel threshold used to extract the shape using an image as the value for `shape-outside`.\n\n**Initial value**: `0.0`\n\n| Chrome | Firefox |  Safari  | Edge | IE  |\n| :----: | :-----: | :------: | :--: | :-: |\n| **37** | **62**  | **10.1** |  No  | No  |",
+                    "type": [
+                        "string",
+                        "number"
+                    ]
                 },
                 "shapeMargin": {
                     "description": "The **`shape-margin`** CSS property sets a margin for a CSS shape created using `shape-outside`.\n\n**Initial value**: `0`\n\n| Chrome | Firefox |     Safari     | Edge | IE  |\n| :----: | :-----: | :------------: | :--: | :-: |\n| **37** | **62**  | **10.1** _-x-_ |  No  | No  |",
@@ -6510,19 +6467,22 @@
                     "type": "string"
                 },
                 "textCombineUpright": {
-                    "description": "The **`text-combine-upright`** CSS property sets the combination of characters into the space of a single character. If the combined text is wider than 1em, the user agent must fit the contents within 1em. The resulting composition is treated as a single upright glyph for layout and decoration. This property only has an effect in vertical writing modes.\n\n**Initial value**: `none`\n\n| Chrome | Firefox | Safari |                  Edge                  |                   IE                   |\n| :----: | :-----: | :----: | :------------------------------------: | :------------------------------------: |\n| **48** | **48**  |  Yes   | **12** _(-ms-text-combine-horizontal)_ | **11** _(-ms-text-combine-horizontal)_ |",
+                    "description": "The **`text-combine-upright`** CSS property sets the combination of characters into the space of a single character. If the combined text is wider than 1em, the user agent must fit the contents within 1em. The resulting composition is treated as a single upright glyph for layout and decoration. This property only has an effect in vertical writing modes.\n\n**Initial value**: `none`\n\n|           Chrome           | Firefox |              Safari              |                  Edge                  |                   IE                   |\n| :------------------------: | :-----: | :------------------------------: | :------------------------------------: | :------------------------------------: |\n|           **48**           | **48**  | **5.1** _(-webkit-text-combine)_ | **12** _(-ms-text-combine-horizontal)_ | **11** _(-ms-text-combine-horizontal)_ |\n| 9 _(-webkit-text-combine)_ |         |                                  |                                        |                                        |",
                     "type": "string"
                 },
                 "textDecoration": {
                     "description": "The **`text-decoration`** CSS property sets the appearance of decorative lines on text. It is a shorthand for `text-decoration-line`, `text-decoration-color`, and `text-decoration-style`.\n\n| Chrome | Firefox | Safari |  Edge  |  IE   |\n| :----: | :-----: | :----: | :----: | :---: |\n| **1**  |  **1**  | **1**  | **12** | **3** |",
-                    "type": "string"
+                    "type": [
+                        "string",
+                        "number"
+                    ]
                 },
                 "textDecorationColor": {
-                    "description": "The **`text-decoration-color`** CSS property sets the color of decorations added to text by `text-decoration-line`.\n\n**Initial value**: `currentcolor`\n\n| Chrome | Firefox |  Safari  | Edge | IE  |\n| :----: | :-----: | :------: | :--: | :-: |\n| **57** | **36**  | **12.1** |  No  | No  |",
+                    "description": "The **`text-decoration-color`** CSS property sets the color of decorations added to text by `text-decoration-line`.\n\n**Initial value**: `currentcolor`\n\n| Chrome | Firefox |  Safari  | Edge | IE  |\n| :----: | :-----: | :------: | :--: | :-: |\n| **57** | **36**  | **12.1** |  No  | No  |\n|        |         | 8 _-x-_  |      |     |",
                     "type": "string"
                 },
                 "textDecorationLine": {
-                    "description": "The **`text-decoration-line`** CSS property sets the kind of decoration that is used on text in an element, such as an underline or overline.\n\n**Initial value**: `none`\n\n| Chrome | Firefox |  Safari  | Edge | IE  |\n| :----: | :-----: | :------: | :--: | :-: |\n| **57** | **36**  | **12.1** |  No  | No  |",
+                    "description": "The **`text-decoration-line`** CSS property sets the kind of decoration that is used on text in an element, such as an underline or overline.\n\n**Initial value**: `none`\n\n| Chrome | Firefox |  Safari  | Edge | IE  |\n| :----: | :-----: | :------: | :--: | :-: |\n| **57** | **36**  | **12.1** |  No  | No  |\n|        |         | 8 _-x-_  |      |     |",
                     "type": "string"
                 },
                 "textDecorationSkip": {
@@ -6530,7 +6490,7 @@
                     "type": "string"
                 },
                 "textDecorationSkipInk": {
-                    "description": "The **`text-decoration-skip-ink`** CSS property specifies how overlines and underlines are drawn when they pass over glyph ascenders and descenders.\n\n**Initial value**: `auto`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n| **64** |   No    |   No   |  No  | No  |",
+                    "description": "The **`text-decoration-skip-ink`** CSS property specifies how overlines and underlines are drawn when they pass over glyph ascenders and descenders.\n\n**Initial value**: `auto`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n| **64** | **70**  |   No   |  No  | No  |",
                     "enum": [
                         "-moz-initial",
                         "auto",
@@ -6543,7 +6503,7 @@
                     "type": "string"
                 },
                 "textDecorationStyle": {
-                    "description": "The **`text-decoration-style`** CSS property sets the style of the lines specified by `text-decoration-line`. The style applies to all lines that are set with `text-decoration-line`.\n\n**Initial value**: `solid`\n\n| Chrome | Firefox |  Safari  | Edge | IE  |\n| :----: | :-----: | :------: | :--: | :-: |\n| **57** | **36**  | **12.1** |  No  | No  |",
+                    "description": "The **`text-decoration-style`** CSS property sets the style of the lines specified by `text-decoration-line`. The style applies to all lines that are set with `text-decoration-line`.\n\n**Initial value**: `solid`\n\n| Chrome | Firefox |  Safari  | Edge | IE  |\n| :----: | :-----: | :------: | :--: | :-: |\n| **57** | **36**  | **12.1** |  No  | No  |\n|        |         | 8 _-x-_  |      |     |",
                     "enum": [
                         "-moz-initial",
                         "dashed",
@@ -6558,20 +6518,34 @@
                     ],
                     "type": "string"
                 },
+                "textDecorationThickness": {
+                    "description": "The **`text-decoration-thickness`** CSS property sets the thickness, or width, of the decoration line that is used on text in an element, such as a line-through, underline, or overline.\n\n**Initial value**: `auto`\n\n| Chrome | Firefox |  Safari  | Edge | IE  |\n| :----: | :-----: | :------: | :--: | :-: |\n|   No   | **70**  | **12.1** |  No  | No  |",
+                    "type": [
+                        "string",
+                        "number"
+                    ]
+                },
+                "textDecorationWidth": {
+                    "description": "The **`text-decoration-thickness`** CSS property sets the thickness, or width, of the decoration line that is used on text in an element, such as a line-through, underline, or overline.\n\n**Initial value**: `auto`\n\n| Chrome | Firefox |  Safari  | Edge | IE  |\n| :----: | :-----: | :------: | :--: | :-: |\n|   No   | **70**  | **12.1** |  No  | No  |",
+                    "type": [
+                        "string",
+                        "number"
+                    ]
+                },
                 "textEmphasis": {
-                    "description": "The **`text-emphasis`** CSS property applies emphasis marks to text (except spaces and control characters). It is a shorthand for `text-emphasis-style` and `text-emphasis-color`.\n\n|    Chrome    | Firefox |    Safari     | Edge | IE  |\n| :----------: | :-----: | :-----------: | :--: | :-: |\n| **25** _-x-_ | **46**  | **6.1** _-x-_ |  No  | No  |",
+                    "description": "The **`text-emphasis`** CSS property applies emphasis marks to text (except spaces and control characters). It is a shorthand for `text-emphasis-style` and `text-emphasis-color`.\n\n| Chrome | Firefox | Safari  | Edge | IE  |\n| :----: | :-----: | :-----: | :--: | :-: |\n| **25** | **46**  | **6.1** |  No  | No  |",
                     "type": "string"
                 },
                 "textEmphasisColor": {
-                    "description": "The **`text-emphasis-color`** CSS property sets the color of emphasis marks. This value can also be set using the `text-emphasis` shorthand.\n\n**Initial value**: `currentcolor`\n\n|    Chrome    | Firefox |    Safari     | Edge | IE  |\n| :----------: | :-----: | :-----------: | :--: | :-: |\n| **25** _-x-_ | **46**  | **6.1** _-x-_ |  No  | No  |",
+                    "description": "The **`text-emphasis-color`** CSS property sets the color of emphasis marks. This value can also be set using the `text-emphasis` shorthand.\n\n**Initial value**: `currentcolor`\n\n| Chrome | Firefox | Safari  | Edge | IE  |\n| :----: | :-----: | :-----: | :--: | :-: |\n| **25** | **46**  | **6.1** |  No  | No  |",
                     "type": "string"
                 },
                 "textEmphasisPosition": {
-                    "description": "The **`text-emphasis-position`** CSS property sets where emphasis marks are drawn. Like ruby text, if there isn't enough room for emphasis marks, the line height is increased.\n\n**Initial value**: `over right`\n\n|    Chrome    | Firefox |    Safari     | Edge | IE  |\n| :----------: | :-----: | :-----------: | :--: | :-: |\n| **25** _-x-_ | **46**  | **6.1** _-x-_ |  No  | No  |",
+                    "description": "The **`text-emphasis-position`** CSS property sets where emphasis marks are drawn. Like ruby text, if there isn't enough room for emphasis marks, the line height is increased.\n\n**Initial value**: `over right`\n\n| Chrome | Firefox | Safari  | Edge | IE  |\n| :----: | :-----: | :-----: | :--: | :-: |\n| **25** | **46**  | **6.1** |  No  | No  |",
                     "type": "string"
                 },
                 "textEmphasisStyle": {
-                    "description": "The **`text-emphasis-style`** CSS property sets the appearance of emphasis marks. It can also be set, and reset, using the `text-emphasis` shorthand.\n\n**Initial value**: `none`\n\n|    Chrome    | Firefox |    Safari     | Edge | IE  |\n| :----------: | :-----: | :-----------: | :--: | :-: |\n| **25** _-x-_ | **46**  | **6.1** _-x-_ |  No  | No  |",
+                    "description": "The **`text-emphasis-style`** CSS property sets the appearance of emphasis marks. It can also be set, and reset, using the `text-emphasis` shorthand.\n\n**Initial value**: `none`\n\n| Chrome | Firefox | Safari  | Edge | IE  |\n| :----: | :-----: | :-----: | :--: | :-: |\n| **25** | **46**  | **6.1** |  No  | No  |",
                     "type": "string"
                 },
                 "textIndent": {
@@ -6582,7 +6556,7 @@
                     ]
                 },
                 "textJustify": {
-                    "description": "The **`text-justify`** CSS property sets what type of justification should be applied to text when `text-align``: justify;` is set on an element.\n\n**Initial value**: `auto`\n\n| Chrome | Firefox | Safari |  Edge  |   IE   |\n| :----: | :-----: | :----: | :----: | :----: |\n|  n/a   | **55**  |   No   | **14** | **11** |",
+                    "description": "The **`text-justify`** CSS property sets what type of justification should be applied to text when `text-align``: justify;` is set on an element.\n\n**Initial value**: `auto`\n\n| Chrome | Firefox | Safari |  Edge  |   IE   |\n| :----: | :-----: | :----: | :----: | :----: |\n|  n/a   | **55**  |   No   | **12** | **11** |",
                     "enum": [
                         "-moz-initial",
                         "auto",
@@ -6597,7 +6571,7 @@
                     "type": "string"
                 },
                 "textOrientation": {
-                    "description": "The **`text-orientation`** CSS property sets the orientation of the text characters in a line. It only affects text in vertical mode (when `writing-mode` is not `horizontal-tb`). It is useful for controlling the display of languages that use vertical script, and also for making vertical table headers.\n\n**Initial value**: `mixed`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n| **48** | **41**  |   No   |  No  | No  |",
+                    "description": "The **`text-orientation`** CSS property sets the orientation of the text characters in a line. It only affects text in vertical mode (when `writing-mode` is not `horizontal-tb`). It is useful for controlling the display of languages that use vertical script, and also for making vertical table headers.\n\n**Initial value**: `mixed`\n\n|  Chrome  | Firefox |    Safari     | Edge | IE  |\n| :------: | :-----: | :-----------: | :--: | :-: |\n|  **48**  | **41**  | **5.1** _-x-_ |  No  | No  |\n| 11 _-x-_ |         |               |      |     |",
                     "enum": [
                         "-moz-initial",
                         "inherit",
@@ -6654,6 +6628,13 @@
                     ],
                     "type": "string"
                 },
+                "textUnderlineOffset": {
+                    "description": "The **`text-underline-offset`** CSS property sets the offset distance of an underline text decoration line (applied using `text-decoration`) from its original position.\n\n**Initial value**: `auto`\n\n| Chrome | Firefox |  Safari  | Edge | IE  |\n| :----: | :-----: | :------: | :--: | :-: |\n|   No   | **70**  | **12.1** |  No  | No  |",
+                    "type": [
+                        "string",
+                        "number"
+                    ]
+                },
                 "textUnderlinePosition": {
                     "description": "The **`text-underline-position`** CSS property specifies the position of the underline which is set using the `text-decoration` property's `underline` value.\n\n**Initial value**: `auto`\n\n| Chrome | Firefox | Safari |  Edge  |  IE   |\n| :----: | :-----: | :----: | :----: | :---: |\n| **33** |   No    |   No   | **12** | **6** |",
                     "type": "string"
@@ -6670,11 +6651,11 @@
                     "type": "string"
                 },
                 "transform": {
-                    "description": "The **`transform`** CSS property lets you rotate, scale, skew, or translate an element. It modifies the coordinate space of the CSS visual formatting model.\n\n**Initial value**: `none`\n\n| Chrome | Firefox |  Safari   |  Edge  |   IE    |\n| :----: | :-----: | :-------: | :----: | :-----: |\n| **36** | **16**  |   **9**   | **12** | **10**  |\n|        |         | 3.1 _-x-_ |        | 9 _-x-_ |",
+                    "description": "The **`transform`** CSS property lets you rotate, scale, skew, or translate an element. It modifies the coordinate space of the CSS visual formatting model.\n\n**Initial value**: `none`\n\n| Chrome  | Firefox |  Safari   |  Edge  |   IE    |\n| :-----: | :-----: | :-------: | :----: | :-----: |\n| **36**  | **16**  |   **9**   | **12** | **10**  |\n| 1 _-x-_ |         | 3.1 _-x-_ |        | 9 _-x-_ |",
                     "type": "string"
                 },
                 "transformBox": {
-                    "description": "The **`transform-box`** CSS property defines the layout box to which the `transform` and `transform-origin` properties relate.\n\n**Initial value**: `border-box `\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n| **64** | **55**  |  n/a   |  No  | No  |",
+                    "description": "The **`transform-box`** CSS property defines the layout box to which the `transform` and `transform-origin` properties relate.\n\n**Initial value**: `border-box `\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n| **64** | **55**  | **11** |  No  | No  |",
                     "enum": [
                         "-moz-initial",
                         "border-box",
@@ -6688,7 +6669,7 @@
                     "type": "string"
                 },
                 "transformOrigin": {
-                    "description": "The **`transform-origin`** CSS property sets the origin for an element's transformations.\n\n**Initial value**: `50% 50% 0`\n\n| Chrome |  Firefox  |  Safari   |  Edge  |   IE    |\n| :----: | :-------: | :-------: | :----: | :-----: |\n| **36** |  **16**   |   **9**   | **12** | **10**  |\n|        | 3.5 _-x-_ | 3.1 _-x-_ |        | 9 _-x-_ |",
+                    "description": "The **`transform-origin`** CSS property sets the origin for an element's transformations.\n\n**Initial value**: `50% 50% 0`\n\n| Chrome  |  Firefox  | Safari  |  Edge  |   IE    |\n| :-----: | :-------: | :-----: | :----: | :-----: |\n| **36**  |  **16**   |  **9**  | **12** | **10**  |\n| 1 _-x-_ | 3.5 _-x-_ | 2 _-x-_ |        | 9 _-x-_ |",
                     "type": [
                         "string",
                         "number"
@@ -6756,7 +6737,7 @@
                     "type": "string"
                 },
                 "userSelect": {
-                    "description": "The `**user-select**` CSS property controls whether the user can select text. This doesn't have any effect on content loaded as chrome, except in textboxes.\n\n**Initial value**: `auto`\n\n| Chrome  | Firefox |   Safari    |     Edge     |      IE      |\n| :-----: | :-----: | :---------: | :----------: | :----------: |\n| **54**  | **69**  | **3** _-x-_ | **12** _-x-_ | **10** _-x-_ |\n| 6 _-x-_ | 1 _-x-_ |             |              |              |",
+                    "description": "The `**user-select**` CSS property controls whether the user can select text. This doesn't have any effect on content loaded as chrome, except in textboxes.\n\n**Initial value**: `auto`\n\n| Chrome  | Firefox |   Safari    |     Edge     |      IE      |\n| :-----: | :-----: | :---------: | :----------: | :----------: |\n| **54**  | **69**  | **3** _-x-_ | **12** _-x-_ | **10** _-x-_ |\n| 1 _-x-_ | 1 _-x-_ |             |              |              |",
                     "enum": [
                         "-moz-initial",
                         "-moz-none",
@@ -6811,6 +6792,7 @@
                     "enum": [
                         "-moz-initial",
                         "-moz-pre-wrap",
+                        "break-spaces",
                         "inherit",
                         "initial",
                         "normal",
@@ -6842,7 +6824,7 @@
                     "description": "The **`widows`** CSS property sets the minimum number of lines in a block container that must be shown at the _top_ of a page, region, or column.\n\n**Initial value**: `2`\n\n| Chrome | Firefox | Safari  |  Edge  |  IE   |\n| :----: | :-----: | :-----: | :----: | :---: |\n| **25** |   No    | **1.3** | **12** | **8** |"
                 },
                 "width": {
-                    "description": "The **`width`** CSS property sets an element's width. By default it sets the width of the content area, but if `box-sizing` is set to `border-box`, it sets the width of the border area.\n\n**Initial value**: `auto`\n\n| Chrome | Firefox | Safari |  Edge  |  IE   |\n| :----: | :-----: | :----: | :----: | :---: |\n|  Yes   |  **1**  | **1**  | **12** | **4** |",
+                    "description": "The **`width`** CSS property sets an element's width. By default it sets the width of the content area, but if `box-sizing` is set to `border-box`, it sets the width of the border area.\n\n**Initial value**: `auto`\n\n| Chrome | Firefox | Safari |  Edge  |  IE   |\n| :----: | :-----: | :----: | :----: | :---: |\n| **1**  |  **1**  | **1**  | **12** | **4** |",
                     "type": [
                         "string",
                         "number"
@@ -6888,7 +6870,7 @@
                     "type": "string"
                 },
                 "writingMode": {
-                    "description": "The **`writing-mode`** CSS property sets whether lines of text are laid out horizontally or vertically, as well as the direction in which blocks progress.\n\n**Initial value**: `horizontal-tb`\n\n|   Chrome    | Firefox |    Safari     |  Edge  |     IE      |\n| :---------: | :-----: | :-----------: | :----: | :---------: |\n| **8** _-x-_ | **41**  | **5.1** _-x-_ | **12** | **9** _-x-_ |",
+                    "description": "The **`writing-mode`** CSS property sets whether lines of text are laid out horizontally or vertically, as well as the direction in which blocks progress.\n\n**Initial value**: `horizontal-tb`\n\n| Chrome  | Firefox |  Safari   |  Edge  |     IE      |\n| :-----: | :-----: | :-------: | :----: | :---------: |\n| **48**  | **41**  | **10.1**  | **12** | **9** _-x-_ |\n| 8 _-x-_ |         | 5.1 _-x-_ |        |             |",
                     "enum": [
                         "-moz-initial",
                         "horizontal-tb",
@@ -7010,10 +6992,14 @@
                         }
                     ],
                     "description": "In case a tile supports this (most of them does so) it can\nwait for a specific tile to finish its operation. Again,\nthis is used mainly for 'concordance -> analysis' combinations."
+                },
+                "waitForTimeoutSecs": {
+                    "type": "number"
                 }
             },
             "required": [
-                "tileType"
+                "tileType",
+                "waitForTimeoutSecs"
             ],
             "type": "object"
         }
