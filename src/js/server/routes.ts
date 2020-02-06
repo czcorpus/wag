@@ -22,7 +22,6 @@ import * as React from 'react';
 import { renderToString } from 'react-dom/server';
 import { Observable, forkJoin, of as rxOf } from 'rxjs';
 import { concatMap, map, catchError, reduce, tap } from 'rxjs/operators';
-import { List } from 'immutable';
 
 
 import { AppServices } from '../appServices';
@@ -46,7 +45,7 @@ import { ActionName } from '../models/actions';
 import { DummyCache } from '../cacheDb';
 import { ILogQueue } from './logging/abstract';
 import { TelemetryAction } from '../common/types';
-import { Dict, pipe } from '../common/collections';
+import { Dict, List, pipe } from '../common/collections';
 
 
 
@@ -107,7 +106,7 @@ interface RenderResultArgs {
     clientConfig:ClientConf;
     returnUrl:string;
     rootView:React.ComponentType<WdglanceMainProps>;
-    homepageSections:List<{label:string; html:string}>;
+    homepageSections:Array<{label:string; html:string}>;
     layout:Array<TileGroup>;
     isMobile:boolean;
     isAnswerMode:boolean;
@@ -123,10 +122,10 @@ function renderResult({view, services, toolbarData, lemmas, userConfig, clientCo
                 userConfig: userConfig,
                 hostPageEnv: toolbarData,
                 lemmas: lemmas,
-                uiLanguages: List<AvailableLanguage>(Object.entries(userConfig.uiLanguages)),
+                uiLanguages: pipe(userConfig.uiLanguages, Dict.mapEntries(v => v), List.map(([k, v]) => ({code: k, label: v}))),
                 uiLang: userConfig.uiLang,
                 returnUrl: returnUrl,
-                homepageTiles: List<{label:string; html:string}>(clientConfig.homepage.tiles),
+                homepageTiles: [...clientConfig.homepage.tiles],
                 RootComponent: rootView,
                 layout: layout,
                 homepageSections: homepageSections,
@@ -357,7 +356,7 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
                 returnUrl: mkReturnUrl(req, services.clientConf.rootUrl),
                 rootView: rootView,
                 layout: layout,
-                homepageSections: List<{label:string, html:string}>(ans.runtimeConf.homepage.tiles),
+                homepageSections: [...ans.runtimeConf.homepage.tiles],
                 isMobile: false, // TODO should we detect the mode on server too
                 isAnswerMode: answerMode
             }));
@@ -376,7 +375,7 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
                 returnUrl: mkReturnUrl(req, services.clientConf.rootUrl),
                 rootView: null,
                 layout: [],
-                homepageSections: List<{label:string, html:string}>(services.clientConf.homepage.tiles),
+                homepageSections: [],
                 isMobile: false, // TODO should we detect the mode on server too
                 isAnswerMode: answerMode
             }));

@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
 import { StatelessModel } from 'kombo';
 
 import { QueryType } from '../../../common/query';
@@ -47,7 +46,7 @@ export interface SpeechesTileConf extends TileConf {
     maxNumSpeeches?:number;
 }
 
-const BASE_COLOR_SCHEME = [
+const BASE_COLOR_SCHEME:Array<[number, number, number, number]> = [
     [ 31, 119, 180, 0.9],
     [255, 127,  14, 0.9],
     [ 44, 160,  44, 0.9],
@@ -78,7 +77,7 @@ export class SpeechesTile implements ITileProvider {
 
     private static readonly DEFAULT_MAX_NUM_SPEECHES = 8;
 
-    constructor({dispatcher, tileId, waitForTiles, ut,
+    constructor({dispatcher, tileId, waitForTiles, subqSourceTiles, ut,
                 theme, appServices, widthFract, conf, isBusy, cache}:TileFactory.Args<SpeechesTileConf>) {
         this.tileId = tileId;
         this.widthFract = widthFract;
@@ -90,7 +89,8 @@ export class SpeechesTile implements ITileProvider {
             appServices: appServices,
             api: new SpeechesApi(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             backlink: conf.backlink || null,
-            waitForTile: Array.isArray(waitForTiles) ? waitForTiles[0] : waitForTiles,
+            waitForTiles: waitForTiles,
+            subqSourceTiles: subqSourceTiles,
             audioLinkGenerator: conf.audioPlaybackUrl ?
                     createAudioUrlGeneratorInstance(conf.apiType, conf.audioPlaybackUrl) :
                     null,
@@ -107,14 +107,14 @@ export class SpeechesTile implements ITileProvider {
                 speechSegment: [conf.speechSegment[0], conf.speechSegment[1]],
                 speechOverlapAttr: [conf.speechOverlapAttr[0], conf.speechOverlapAttr[1]],
                 speechOverlapVal: conf.speechOverlapVal,
-                speakerColors: Immutable.List<RGBAColor>(BASE_COLOR_SCHEME),
-                wideCtxGlobals: Immutable.List<[string, string]>(),
-                speakerColorsAttachments: Immutable.Map<string, RGBAColor>(),
+                speakerColors: [...BASE_COLOR_SCHEME],
+                wideCtxGlobals: [],
+                speakerColorsAttachments: {},
                 spkOverlapMode: (conf.speechOverlapAttr || [])[1] ? 'full' : 'simple',
-                expandLeftArgs: Immutable.List<ExpandArgs>(),
-                expandRightArgs: Immutable.List<ExpandArgs>(),
+                expandLeftArgs: [],
+                expandRightArgs: [],
                 data: [],
-                availTokens: Immutable.List<number>(),
+                availTokens: [],
                 tokenIdx: 0,
                 backlink: null,
                 playback: null,

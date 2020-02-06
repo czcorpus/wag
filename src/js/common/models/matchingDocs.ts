@@ -16,7 +16,6 @@
 */
 
 import { BacklinkWithArgs } from '../tile';
-import * as Immutable from 'immutable';
 import { DataRow } from '../api/abstract/matchingDocs';
 
 
@@ -43,7 +42,7 @@ export interface MatchingDocsModelState {
     numPages:number;
     backlink:BacklinkWithArgs<{}>|null;
     subqSyncPalette:boolean;
-    displayAttrs:Immutable.List<string>;
-    searchAttrs:Immutable.List<string>|null;
-    data:Immutable.List<DataRow>;
+    displayAttrs:Array<string>;
+    searchAttrs:Array<string>|null;
+    data:Array<DataRow>;
 }

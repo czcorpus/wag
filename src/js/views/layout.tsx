@@ -15,14 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
+
 import { ViewUtils } from 'kombo';
 import * as React from 'react';
 import { resolve as urlResolve } from 'url';
 
 import { HostPageEnv, AvailableLanguage } from '../common/hostPage';
 import { RecognizedQueries } from '../common/query';
-import { ClientConf, UserConf, FaviconConf } from '../conf';
+import { ClientConf, UserConf } from '../conf';
 import { TileGroup } from '../layout';
 import { GlobalComponents } from './global';
 import { WdglanceMainProps } from './main';
@@ -34,13 +34,13 @@ export interface LayoutProps {
     userConfig:UserConf;
     hostPageEnv:HostPageEnv;
     lemmas:RecognizedQueries;
-    uiLanguages:Immutable.List<AvailableLanguage>;
-    homepageTiles:Immutable.List<{label:string; html:string}>;
+    uiLanguages:Array<AvailableLanguage>;
+    homepageTiles:Array<{label:string; html:string}>;
     uiLang:string;
     returnUrl:string;
     RootComponent:React.ComponentType<WdglanceMainProps>;
     layout:Array<TileGroup>;
-    homepageSections:Immutable.List<{label:string; html:string}>;
+    homepageSections:Array<{label:string; html:string}>;
     isMobile:boolean;
     isAnswerMode:boolean;
 }

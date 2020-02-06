@@ -73,7 +73,7 @@ export class ElasticsearchMatchingDocsAPI implements MatchingDocsAPI<Elasticsear
     stateToArgs(state:MatchingDocsModelState, query:string):ElasticsearchQueryArgs {
         return {
             q: state.searchAttrs.map(value => `${value}:${query}`).join(' OR '),
-            displayAttrs: state.displayAttrs.toArray(),
+            displayAttrs: state.displayAttrs,
             _source: state.searchAttrs.join(','),
             sort: '_score:desc',
             size: state.maxNumCategories

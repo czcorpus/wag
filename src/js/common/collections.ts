@@ -100,6 +100,13 @@ export namespace List {
         return data ? partial(data) : partial;
     }
 
+    export function get<T>(idx:number, data:Array<T>):T;
+    export function get<T>(idx:number):(data:Array<T>)=>T;
+    export function get<T>(idx:number, data?:Array<T>):any {
+        const fn = (data2:Array<T>):T => idx >= 0 ? data2[idx] : data2[data2.length + idx];
+        return data ? fn(data) : fn;
+    }
+
     /**
      *
      * @param from lower limit (inclusive)
@@ -356,7 +363,7 @@ export namespace Dict {
     }
 
     export function fromEntries<V, K extends string>(items:Array<[K, V]>):Obj<V, K>;
-    export function fromEntries<V, K extends string>():(item:Array<[K, V]>)=>Obj<V, K>;
+    export function fromEntries<V, K extends string>():(items:Array<[K, V]>)=>Obj<V, K>;
     export function fromEntries<V, K extends string>(items?:Array<[K, V]>):any {
         const fn = (items2:Array<[K, V]>):Obj<V, K> => {
             const ans:Obj<V, K> = {} as {[k in K]:V};
@@ -391,6 +398,20 @@ export namespace Dict {
             }
             return data2;
         };
+        return data ? fn(data) : fn;
+    }
+
+    export function every<V, K extends string>(pred:(v:V, k:K)=>boolean, data:Obj<V, K>):boolean;
+    export function every<V, K extends string>(pred:(v:V, k:K)=>boolean):(data:Obj<V, K>)=>boolean;
+    export function every<V, K extends string>(pred:(v:V, k:K)=>boolean, data?:Obj<V, K>):any {
+        const fn = (data2:Obj<V, K>):boolean => {
+            for (let k in data2) {
+                if (!pred(data2[k], k)) {
+                    return false;
+                }
+            }
+            return true;
+        }
         return data ? fn(data) : fn;
     }
 

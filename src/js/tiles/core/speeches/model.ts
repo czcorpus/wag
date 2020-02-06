@@ -17,28 +17,31 @@
  */
 import { StatelessModel, SEDispatcher, Action, IActionQueue } from 'kombo';
 import { map } from 'rxjs/operators';
-import * as Immutable from 'immutable';
 
 import { AppServices } from '../../../appServices';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
-import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
+import { ActionName as GlobalActionName, Actions as GlobalActions, isTileSomeDataLoadedAction } from '../../../models/actions';
 import { SpeechDataPayload } from './actions';
 import { isSubqueryPayload } from '../../../common/query';
 import { SpeechesApi, SpeechReqArgs, SpeechResponse } from './api';
+import { SingleConcLoadedPayload } from '../../../common/api/abstract/concordance';
 import { SpeechesModelState, extractSpeeches, Expand, BacklinkArgs, Segment, PlayableSegment, normalizeSpeechesRange } from './modelDomain';
 import { HTTPMethod, SystemMessageType } from '../../../common/types';
 import { ActionName, Actions } from './actions';
-import { isConcLoadedPayload } from '../concordance/actions';
 import { normalizeConcDetailTypography } from '../../../common/models/concordance/normalize';
 import { IAudioUrlGenerator } from '../../../common/api/abstract/audio';
 import { AudioPlayer } from '../../../common/audioPlayer';
+import { pipe, List } from '../../../common/collections';
+import { isConcLoadedPayload } from '../concordance/actions';
+import { TileWait } from '../../../models/tileSync';
 
 
 
 export interface SpeechesModelArgs {
     dispatcher:IActionQueue;
     tileId:number;
-    waitForTile:number;
+    waitForTiles:Array<number>;
+    subqSourceTiles:Array<number>;
     appServices:AppServices;
     api:SpeechesApi;
     initState:SpeechesModelState;
@@ -47,7 +50,7 @@ export interface SpeechesModelArgs {
 }
 
 
-export class SpeechesModel extends StatelessModel<SpeechesModelState> {
+export class SpeechesModel extends StatelessModel<SpeechesModelState, TileWait<boolean>> {
 
     private readonly api:SpeechesApi;
 
@@ -57,187 +60,298 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
 
     private readonly backlink:Backlink;
 
-    private readonly waitForTile:number;
+    private readonly waitForTiles:Array<number>;
+
+    private readonly subqSourceTiles:Array<number>;
 
     private readonly audioLinkGenerator:IAudioUrlGenerator|null;
 
-    constructor({dispatcher, tileId, appServices, api, initState, waitForTile, backlink,
-                audioLinkGenerator}:SpeechesModelArgs) {
+    constructor({dispatcher, tileId, appServices, api, initState, waitForTiles, subqSourceTiles,
+                backlink, audioLinkGenerator}:SpeechesModelArgs) {
         super(dispatcher, initState);
         this.api = api;
         this.appServices = appServices;
         this.tileId = tileId;
         this.backlink = backlink;
-        this.waitForTile = waitForTile;
+        this.waitForTiles = [...waitForTiles];
+        this.subqSourceTiles = [...subqSourceTiles];
         this.audioLinkGenerator = audioLinkGenerator;
-        this.actionMatch = {
-            [GlobalActionName.RequestQueryResponse]: (state, action) => {
-                const newState = this.copyState(state);
-                newState.isBusy = true;
-                newState.error = null;
-                newState.concId = null;
-                newState.tokenIdx = 0;
-                return newState;
+
+        this.addActionHandler<GlobalActions.RequestQueryResponse>(
+            GlobalActionName.RequestQueryResponse,
+            (state, action) => {
+                state.isBusy = true;
+                state.error = null;
+                state.concId = null;
+                state.tokenIdx = 0;
             },
-            [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<SpeechDataPayload>) => {
+            (state, action, dispatch) => {
+                if (this.waitForTiles.length > 0) {
+                    this.suspend(TileWait.create(this.waitForTiles, (v)=>false), (action:Action<{tileId:number}>, syncData) => {
+                        if (isTileSomeDataLoadedAction(action) && syncData.tileIsRegistered(action.payload.tileId)) {
+                            syncData.setTileDone(action.payload.tileId, true);
+                            return syncData.next(v => v === true);
+                        }
+                        return syncData;
+
+                    }).subscribe(
+                        action => {
+                            if (isSubqueryPayload(action.payload)) {
+                                const payload = action.payload as SingleConcLoadedPayload; // TODO
+                                this.reloadData(
+                                    state,
+                                    dispatch,
+                                    action.payload.subqueries.map(v => parseInt(v.value)),
+                                    payload.data.concPersistenceID
+                                );
+
+                            } else {
+                                this.reloadData(state, dispatch, null, null);
+                            }
+                        }
+                    );
+
+                } else {
+                    this.reloadData(state, dispatch, null, null);
+                }
+            }
+        );
+
+        this.addActionHandler<GlobalActions.TileDataLoaded<SpeechDataPayload>>(
+            GlobalActionName.TileDataLoaded,
+            (state, action) => {
                 if (action.payload.tileId === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isBusy = false;
+                    state.isBusy = false;
                     if (action.error) {
-                        newState.error = action.error.message;
+                        state.error = action.error.message;
 
                     } else {
                         if (action.payload.concId !== null) {
-                            newState.concId = action.payload.concId;
+                            state.concId = action.payload.concId;
                         }
-                        newState.data = action.payload.data;
+
+                        state.data = normalizeSpeechesRange(
+                            extractSpeeches(state, normalizeConcDetailTypography(action.payload.data)),
+                            state.maxNumSpeeches);
+
                         if (action.payload.availableTokens) {
-                            newState.availTokens = Immutable.List<number>(action.payload.availableTokens);
+                            state.availTokens =action.payload.availableTokens;
                         }
                         if (action.payload.expandLeftArgs) {
-                            newState.expandLeftArgs = newState.expandLeftArgs.push({
+                            state.expandLeftArgs.push({
                                 leftCtx: action.payload.expandLeftArgs.leftCtx,
                                 rightCtx: action.payload.expandLeftArgs.rightCtx
                             });
 
                         } else {
-                            newState.expandLeftArgs = newState.expandLeftArgs.push(null);
+                            state.expandLeftArgs.push(null);
                         }
                         if (action.payload.expandRightArgs) {
-                            newState.expandRightArgs = newState.expandRightArgs.push({
+                            state.expandRightArgs.push({
                                 leftCtx: action.payload.expandRightArgs.leftCtx,
                                 rightCtx: action.payload.expandRightArgs.rightCtx
                             });
 
                         } else {
-                            newState.expandRightArgs = newState.expandRightArgs.push(null);
+                            state.expandRightArgs.push(null);
                         }
-                        newState.backlink = this.createBackLink(newState);
+                        state.backlink = this.createBackLink(state);
                     }
-                    return newState;
                 }
-                return state;
-            },
-            [GlobalActionName.EnableTileTweakMode]: (state, action:GlobalActions.EnableTileTweakMode) => {
+            }
+        );
+
+        this.addActionHandler<GlobalActions.EnableTileTweakMode>(
+            GlobalActionName.EnableTileTweakMode,
+            (state, action) => {
                 if (action.payload.ident === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isTweakMode = true;
-                    return newState;
+                    state.isTweakMode = true;
                 }
-                return state;
-            },
-            [GlobalActionName.DisableTileTweakMode]: (state, action:GlobalActions.DisableTileTweakMode) => {
+            }
+        );
+
+        this.addActionHandler<GlobalActions.DisableTileTweakMode>(
+            GlobalActionName.DisableTileTweakMode,
+            (state, action) => {
                 if (action.payload.ident === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isTweakMode = false;
-                    return newState;
+                    state.isTweakMode = false;
                 }
-                return state;
-            },
-            [ActionName.ExpandSpeech]: (state, action:Actions.ExpandSpeech) => {
+            }
+        );
+
+        this.addActionHandler<Actions.ExpandSpeech>(
+            ActionName.ExpandSpeech,
+            (state, action) => {
                 if (action.payload.tileId === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isBusy = true;
-                    return newState;
+                    state.isBusy = true;
                 }
-                return state;
             },
-            [ActionName.LoadAnotherSpeech]: (state, action:Actions.LoadAnotherSpeech) => {
+            (state, action, dispatch) => {
                 if (action.payload.tileId === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isBusy = true;
-                    newState.speakerColorsAttachments = newState.speakerColorsAttachments.clear();
-                    newState.expandLeftArgs = newState.expandLeftArgs.clear();
-                    newState.expandRightArgs = newState.expandRightArgs.clear();
-                    newState.tokenIdx = (newState.tokenIdx + 1) % newState.availTokens.size;
-                    return newState;
+                    if (state.playback !== null) {
+                        this.appServices.getAudioPlayer().stop(state.playback.currPlaybackSession);
+                        this.dispatchPlayStop(dispatch);
+                    }
+                    this.reloadData(state, dispatch, null, null, action.payload.position);
                 }
-                return state;
-            },
-            [ActionName.ClickAudioPlayer]: (state, action:Actions.ClickAudioPlayer) => {
+            }
+        );
+
+        this.addActionHandler<Actions.LoadAnotherSpeech>(
+            ActionName.LoadAnotherSpeech,
+            (state, action) => {
                 if (action.payload.tileId === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.playback = {
-                        segments: Immutable.List<Segment>(action.payload.segments),
-                        currLineIdx: newState.playback ? newState.playback.currLineIdx : null,
+                    state.isBusy = true;
+                    state.speakerColorsAttachments = {};
+                    state.expandLeftArgs = [];
+                    state.expandRightArgs = [];
+                    state.tokenIdx = (state.tokenIdx + 1) % state.availTokens.length;
+                }
+            },
+            (state, action, dispatch) => {
+                if (action.payload.tileId === this.tileId) {
+                    if (state.playback !== null) {
+                        this.appServices.getAudioPlayer().stop(state.playback.currPlaybackSession);
+                        this.dispatchPlayStop(dispatch);
+                    }
+                    this.reloadData(state, dispatch, null, null, Expand.RELOAD);
+                }
+            }
+        );
+
+        this.addActionHandler<Actions.ClickAudioPlayer>(
+            ActionName.ClickAudioPlayer,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {
+                    state.playback = {
+                        segments: action.payload.segments,
+                        currLineIdx: state.playback ? state.playback.currLineIdx : null,
                         newLineIdx: action.payload.lineIdx,
-                        currPlaybackSession: newState.playback ? newState.playback.currPlaybackSession : null,
+                        currPlaybackSession: state.playback ? state.playback.currPlaybackSession : null,
                         newPlaybackSession: null
                     };
-                    return newState;
                 }
-                return state;
             },
-            [ActionName.ClickAudioPlayAll]: (state, action:Actions.ClickAudioPlayAll) => {
+            (state, action, dispatch) => {
                 if (action.payload.tileId === this.tileId) {
-                    const newState = this.copyState(state);
-                    const segments = state.data.reduce(
-                        (acc, curr) => acc.concat(curr),
-                        []
-                    ).reduce(
-                        (acc, curr) => acc.concat(curr.segments),
-                        Immutable.List<Segment>()
-                    ).toList();
-                    newState.playback = {
+                    const player = this.appServices.getAudioPlayer();
+                    if (state.playback && state.playback.currPlaybackSession) {
+                        player.stop(state.playback.currPlaybackSession);
+                    }
+                    if (state.playback.currLineIdx !== state.playback.newLineIdx) {
+                        this.playSegments(state, player, dispatch);
+
+                    } else {
+                        this.dispatchPlayStop(dispatch);
+                    }
+                }
+            }
+        ).sideEffectAlsoOn(ActionName.ClickAudioPlayAll);
+
+        this.addActionHandler<Actions.ClickAudioPlayAll>(
+            ActionName.ClickAudioPlayAll,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {
+                    const segments = pipe(
+                        state.data,
+                        List.reduce(
+                            (acc, curr) => acc.concat(curr),
+                            []
+                        ),
+                        List.reduce(
+                            (acc, curr) => acc.concat(curr.segments),
+                            []
+                        )
+                    );
+                    state.playback = {
                         segments: segments,
-                        currLineIdx: newState.playback ? newState.playback.currLineIdx : null,
-                        newLineIdx: segments.get(0).lineIdx,
-                        currPlaybackSession: newState.playback ? newState.playback.currPlaybackSession : null,
+                        currLineIdx: state.playback ? state.playback.currLineIdx : null,
+                        newLineIdx: segments[0].lineIdx,
+                        currPlaybackSession: state.playback ? state.playback.currPlaybackSession : null,
                         newPlaybackSession: null
                     };
-                    return newState;
                 }
-                return state;
-            },
-            [ActionName.AudioPlayerStarted]: (state, action:Actions.AudioPlayerStarted) => {
+            }
+        );
+
+        this.addActionHandler<Actions.AudioPlayerStarted>(
+            ActionName.AudioPlayerStarted,
+            (state, action) => {
                 if (action.payload.tileId === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.playback = {
-                        segments: newState.playback.segments,
-                        currLineIdx: newState.playback.newLineIdx,
+                    state.playback = {
+                        segments: state.playback.segments,
+                        currLineIdx: state.playback.newLineIdx,
                         newLineIdx: null,
                         currPlaybackSession: action.payload.playbackSession,
                         newPlaybackSession: null
                     };
-                    return newState;
                 }
-                return state;
-            },
-            [ActionName.AudioPlayerStopped]: (state, action:Actions.AudioPlayerStopped) => {
+            }
+        );
+
+        this.addActionHandler<Actions.AudioPlayerStopped>(
+            ActionName.AudioPlayerStopped,
+            (state, action) => {
                 if (action.payload.tileId === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.playback = null;
-                    return newState;
+                    state.playback = null;
                 }
-                return state;
-            },
-            [ActionName.PlayedLineChanged]: (state, action:Actions.PlayedLineChanged) => {
+            }
+        );
+
+        this.addActionHandler<Actions.PlayedLineChanged>(
+            ActionName.PlayedLineChanged,
+            (state, action) => {
                 if (action.payload.tileId === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.playback = {
+                    state.playback = {
                         currLineIdx: action.payload.lineIdx,
                         newLineIdx: null,
-                        segments: newState.playback.segments,
-                        newPlaybackSession: newState.playback.newPlaybackSession,
-                        currPlaybackSession: newState.playback.currPlaybackSession
+                        segments: state.playback.segments,
+                        newPlaybackSession: state.playback.newPlaybackSession,
+                        currPlaybackSession: state.playback.currPlaybackSession
                     };
-                    return newState;
                 }
-                return state;
             }
-        };
+        );
+
+        this.addActionHandler<GlobalActions.GetSourceInfo>(
+            GlobalActionName.GetSourceInfo,
+            null,
+            (state, action, dispatch) => {
+                if (action.payload.tileId === this.tileId) {
+                    this.api.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), action.payload.corpusId)
+                    .subscribe(
+                        (data) => {
+                            dispatch({
+                                name: GlobalActionName.GetSourceInfoDone,
+                                payload: {
+                                    data: data
+                                }
+                            });
+                        },
+                        (err) => {
+                            console.error(err);
+                            dispatch({
+                                name: GlobalActionName.GetSourceInfoDone,
+                                error: err
+
+                            });
+                        }
+                    );
+                }
+            }
+        );
     }
 
-    private normalizeSegments(segments:Immutable.List<Segment>, corpname:string):Array<PlayableSegment> {
-        return segments
-            .groupBy(seg => seg.value) // solving multiple speaking people at the same time
-            .map(v => v.get(0))
-            .map(v => ({
+    private normalizeSegments(segments:Array<Segment>, corpname:string):Array<PlayableSegment> {
+        return pipe(
+            segments,
+            List.groupBy(seg => seg.value), // solving multiple speaking people at the same time
+            List.map(([,segment]) => segment[0]),
+            List.map(v => ({
                 lineIdx: v.lineIdx,
                 url: this.audioLinkGenerator.createUrl(corpname, v.value)
-
             }))
-            .toArray();
+        );
     }
 
     private createArgs(state:SpeechesModelState, pos:number, expand:Expand):SpeechReqArgs {
@@ -261,17 +375,17 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
         }
 
         if (expand === Expand.TOP) {
-            args.detail_left_ctx = state.expandLeftArgs.get(-1).leftCtx;
-            args.detail_right_ctx = state.expandLeftArgs.get(-1).rightCtx;
+            args.detail_left_ctx = List.get(-1, state.expandLeftArgs).leftCtx;
+            args.detail_right_ctx = List.get(-1, state.expandLeftArgs).rightCtx;
 
         } else if (expand === Expand.BOTTOM) {
-            args.detail_left_ctx = state.expandRightArgs.get(-1).leftCtx;
-            args.detail_right_ctx = state.expandRightArgs.get(-1).rightCtx;
+            args.detail_left_ctx = List.get(-1, state.expandRightArgs).leftCtx;
+            args.detail_right_ctx = List.get(-1, state.expandRightArgs).rightCtx;
 
-        } else if (expand === Expand.RELOAD && state.expandLeftArgs.size > 1
-                && state.expandRightArgs.size > 1) {
-            args.detail_left_ctx = state.expandRightArgs.get(-1).leftCtx;
-            args.detail_right_ctx = state.expandLeftArgs.get(-1).rightCtx;
+        } else if (expand === Expand.RELOAD && state.expandLeftArgs.length > 1
+                && state.expandRightArgs.length > 1) {
+            args.detail_left_ctx = List.get(-1, state.expandRightArgs).leftCtx;
+            args.detail_right_ctx = List.get(-1, state.expandLeftArgs).rightCtx;
         }
 
         return args;
@@ -279,40 +393,30 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
 
     private reloadData(state:SpeechesModelState, dispatch:SEDispatcher, tokens:Array<number>|null, concId:string|null, expand?:Expand):void {
         this.api
-            .call(this.createArgs(state, (tokens || state.availTokens.toArray())[state.tokenIdx], expand))
-            .pipe(
-                map<SpeechResponse, SpeechDataPayload>(
-                    (resp) => {
-                        const data = normalizeSpeechesRange(
-                            extractSpeeches(state, normalizeConcDetailTypography(resp.content)),
-                            state.maxNumSpeeches);
-                        return {
-                            tileId: this.tileId,
-                            concId: concId,
-                            availableTokens: tokens,
-                            isEmpty: resp.content.length === 0,
-                            data: data,
-                            expandLeftArgs: resp.expand_left_args ?
-                                {
-                                    leftCtx: resp.expand_left_args.detail_left_ctx,
-                                    rightCtx: resp.expand_left_args.detail_right_ctx,
-                                    pos: resp.expand_left_args.pos
-                                } : null,
-                            expandRightArgs: resp.expand_right_args ?
-                                {
-                                    leftCtx: resp.expand_right_args.detail_left_ctx,
-                                    rightCtx: resp.expand_right_args.detail_right_ctx,
-                                    pos: resp.expand_right_args.pos
-                                } : null
-                        };
-                    }
-                )
-            )
+            .call(this.createArgs(state, (tokens || state.availTokens)[state.tokenIdx], expand))
             .subscribe(
                 (payload) => {
                     dispatch<GlobalActions.TileDataLoaded<SpeechDataPayload>>({
                         name: GlobalActionName.TileDataLoaded,
-                        payload: payload
+                        payload: {
+                            tileId: this.tileId,
+                            isEmpty: payload.content.length === 0,
+                            availableTokens: tokens,
+                            concId: concId,
+                            data: payload.content,
+                            expandLeftArgs: payload.expand_left_args ?
+                                {
+                                    leftCtx: payload.expand_left_args.detail_left_ctx,
+                                    rightCtx: payload.expand_left_args.detail_right_ctx,
+                                    pos: payload.expand_left_args.pos
+                                } : null,
+                            expandRightArgs: payload.expand_right_args ?
+                                {
+                                    leftCtx: payload.expand_right_args.detail_left_ctx,
+                                    rightCtx: payload.expand_right_args.detail_right_ctx,
+                                    pos: payload.expand_right_args.pos
+                                } : null
+                        }
                     });
                 },
                 (err) => {
@@ -409,92 +513,5 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
         });
     }
 
-    sideEffects(state:SpeechesModelState, action:Action, dispatch:SEDispatcher):void {
-        switch(action.name) {
-            case GlobalActionName.RequestQueryResponse:
-                if (this.waitForTile) {
-                    this.suspend({}, (action, syncData) => {
-                            const payload = action.payload;
-                            if (action.name === GlobalActionName.TileDataLoaded && isConcLoadedPayload(payload) &&
-                                    action.payload['tileId'] === this.waitForTile) {
-                                if (isSubqueryPayload(action.payload)) {
-                                    this.reloadData(
-                                        state,
-                                        dispatch,
-                                        action.payload.subqueries.map(v => parseInt(v.value)),
-                                        payload.concPersistenceIDs[0]
-                                    );
-
-                                } else {
-                                    this.reloadData(state, dispatch, null, null);
-                                }
-                                return null;
-                            }
-                            return syncData;
-                        }
-                    );
-
-                } else {
-                    this.reloadData(state, dispatch, null, null);
-                }
-            break;
-            case ActionName.ExpandSpeech:
-                if (action.payload['tileId'] === this.tileId) {
-                    if (state.playback !== null) {
-                        this.appServices.getAudioPlayer().stop(state.playback.currPlaybackSession);
-                        this.dispatchPlayStop(dispatch);
-                    }
-                    this.reloadData(state, dispatch, null, null, action.payload['position']);
-                }
-            break;
-            case ActionName.LoadAnotherSpeech:
-                if (action.payload['tileId'] === this.tileId) {
-                    if (state.playback !== null) {
-                        this.appServices.getAudioPlayer().stop(state.playback.currPlaybackSession);
-                        this.dispatchPlayStop(dispatch);
-                    }
-                    this.reloadData(state, dispatch, null, null, Expand.RELOAD);
-                }
-            break;
-            case ActionName.ClickAudioPlayer:
-            case ActionName.ClickAudioPlayAll:
-                if (action.payload['tileId'] === this.tileId) {
-                    const player = this.appServices.getAudioPlayer();
-                    if (state.playback && state.playback.currPlaybackSession) {
-                        player.stop(state.playback.currPlaybackSession);
-                    }
-                    if (state.playback.currLineIdx !== state.playback.newLineIdx) {
-                        this.playSegments(state, player, dispatch);
-
-                    } else {
-                        this.dispatchPlayStop(dispatch);
-                    }
-                }
-            break;
-            case GlobalActionName.GetSourceInfo:
-                if (action.payload['tileId'] === this.tileId) {
-                    this.api.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), action.payload['corpusId'])
-                    .subscribe(
-                        (data) => {
-                            dispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
-                                payload: {
-                                    data: data
-                                }
-                            });
-                        },
-                        (err) => {
-                            console.error(err);
-                            dispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
-                                error: err
-
-                            });
-                        }
-                    );
-                }
-            break;
-        }
-    }
 
 }

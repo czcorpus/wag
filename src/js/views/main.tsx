@@ -15,8 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
-import { Bound, BoundWithProps, IActionDispatcher, ViewUtils, ActionDispatcher } from 'kombo';
+import { Bound, BoundWithProps, IActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
 
 import { Forms } from '../common/data';
@@ -29,7 +28,6 @@ import { ActionName, Actions } from '../models/actions';
 import { MessagesModel, MessagesState } from '../models/messages';
 import { QueryFormModel, QueryFormModelState } from '../models/query';
 import { WdglanceTilesModel, WdglanceTilesState, TileResultFlagRec } from '../models/tiles';
-import { SystemMessage } from '../notifications';
 import { init as corpusInfoViewInit } from './corpusInfo';
 import { GlobalComponents } from './global';
 import { isAPIResponse as isCorpusBasedResponse } from '../common/api/kontext/corpusInfo'; // TODO generalize
@@ -37,7 +35,7 @@ import { isAPIResponse as isCorpusBasedResponse } from '../common/api/kontext/co
 
 export interface WdglanceMainProps {
     layout:Array<TileGroup>;
-    homepageSections:Immutable.List<{label:string; html:string}>;
+    homepageSections:Array<{label:string; html:string}>;
     isMobile:boolean;
     isAnswerMode:boolean;
 }
@@ -709,7 +707,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // ------------- <InitialHelp /> --------------------------------------
 
     const InitialHelp:React.SFC<{
-        sections:Immutable.List<{label:string; html:string}>;
+        sections:Array<{label:string; html:string}>;
 
     }> = (props) => {
 
@@ -1078,7 +1076,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     class TilesSections extends React.PureComponent<{
         layout:Array<TileGroup>;
-        homepageSections:Immutable.List<{label:string; html:string}>;
+        homepageSections:Array<{label:string; html:string}>;
 
     } & WdglanceTilesState> {
 
