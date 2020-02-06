@@ -24,6 +24,7 @@ import { ActionName as GlobalActionName, Actions as GlobalActions, isTileSomeDat
 import { SpeechDataPayload } from './actions';
 import { isSubqueryPayload } from '../../../common/query';
 import { SpeechesApi, SpeechReqArgs, SpeechResponse } from './api';
+import { SingleConcLoadedPayload } from '../../../common/api/abstract/concordance';
 import { SpeechesModelState, extractSpeeches, Expand, BacklinkArgs, Segment, PlayableSegment, normalizeSpeechesRange } from './modelDomain';
 import { HTTPMethod, SystemMessageType } from '../../../common/types';
 import { ActionName, Actions } from './actions';
@@ -31,13 +32,16 @@ import { normalizeConcDetailTypography } from '../../../common/models/concordanc
 import { IAudioUrlGenerator } from '../../../common/api/abstract/audio';
 import { AudioPlayer } from '../../../common/audioPlayer';
 import { pipe, List } from '../../../common/collections';
+import { isConcLoadedPayload } from '../concordance/actions';
+import { TileWait } from '../../../models/tileSync';
 
 
 
 export interface SpeechesModelArgs {
     dispatcher:IActionQueue;
     tileId:number;
-    waitForTile:number;
+    waitForTiles:Array<number>;
+    subqSourceTiles:Array<number>;
     appServices:AppServices;
     api:SpeechesApi;
     initState:SpeechesModelState;
@@ -46,7 +50,7 @@ export interface SpeechesModelArgs {
 }
 
 
-export class SpeechesModel extends StatelessModel<SpeechesModelState> {
+export class SpeechesModel extends StatelessModel<SpeechesModelState, TileWait<boolean>> {
 
     private readonly api:SpeechesApi;
 
@@ -56,18 +60,21 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
 
     private readonly backlink:Backlink;
 
-    private readonly waitForTile:number;
+    private readonly waitForTiles:Array<number>;
+
+    private readonly subqSourceTiles:Array<number>;
 
     private readonly audioLinkGenerator:IAudioUrlGenerator|null;
 
-    constructor({dispatcher, tileId, appServices, api, initState, waitForTile, backlink,
-                audioLinkGenerator}:SpeechesModelArgs) {
+    constructor({dispatcher, tileId, appServices, api, initState, waitForTiles, subqSourceTiles,
+                backlink, audioLinkGenerator}:SpeechesModelArgs) {
         super(dispatcher, initState);
         this.api = api;
         this.appServices = appServices;
         this.tileId = tileId;
         this.backlink = backlink;
-        this.waitForTile = waitForTile;
+        this.waitForTiles = [...waitForTiles];
+        this.subqSourceTiles = [...subqSourceTiles];
         this.audioLinkGenerator = audioLinkGenerator;
 
         this.addActionHandler<GlobalActions.RequestQueryResponse>(
@@ -79,25 +86,28 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                 state.tokenIdx = 0;
             },
             (state, action, dispatch) => {
-                if (this.waitForTile) {
-                    this.suspend({}, (action:Action<{tileId:number}>, syncData) => {
-                            if (isTileSomeDataLoadedAction(action) && action.payload.tileId === this.waitForTile) {
+                if (this.waitForTiles.length > 0) {
+                    this.suspend(TileWait.create(this.waitForTiles, (v)=>false), (action:Action<{tileId:number}>, syncData) => {
+                        if (isTileSomeDataLoadedAction(action) && syncData.tileIsRegistered(action.payload.tileId)) {
+                            syncData.setTileDone(action.payload.tileId, true);
+                            return syncData.next(v => v === true);
+                        }
+                        return syncData;
 
-                                if (isSubqueryPayload(action.payload)) {
-                                    const payload = action.payload as SingleConcLoadedPayload; // TODO
-                                    this.reloadData(
-                                        state,
-                                        dispatch,
-                                        action.payload.subqueries.map(v => parseInt(v.value)),
-                                        payload.concPersistenceIDs[0]
-                                    );
+                    }).subscribe(
+                        action => {
+                            if (isSubqueryPayload(action.payload)) {
+                                const payload = action.payload as SingleConcLoadedPayload; // TODO
+                                this.reloadData(
+                                    state,
+                                    dispatch,
+                                    action.payload.subqueries.map(v => parseInt(v.value)),
+                                    payload.data.concPersistenceID
+                                );
 
-                                } else {
-                                    this.reloadData(state, dispatch, null, null);
-                                }
-                                return null;
+                            } else {
+                                this.reloadData(state, dispatch, null, null);
                             }
-                            return syncData;
                         }
                     );
 
@@ -119,7 +129,11 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
                         if (action.payload.concId !== null) {
                             state.concId = action.payload.concId;
                         }
-                        state.data = action.payload.data;
+
+                        state.data = normalizeSpeechesRange(
+                            extractSpeeches(state, normalizeConcDetailTypography(action.payload.data)),
+                            state.maxNumSpeeches);
+
                         if (action.payload.availableTokens) {
                             state.availTokens =action.payload.availableTokens;
                         }
@@ -380,39 +394,29 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState> {
     private reloadData(state:SpeechesModelState, dispatch:SEDispatcher, tokens:Array<number>|null, concId:string|null, expand?:Expand):void {
         this.api
             .call(this.createArgs(state, (tokens || state.availTokens)[state.tokenIdx], expand))
-            .pipe(
-                map<SpeechResponse, SpeechDataPayload>(
-                    (resp) => {
-                        const data = normalizeSpeechesRange(
-                            extractSpeeches(state, normalizeConcDetailTypography(resp.content)),
-                            state.maxNumSpeeches);
-                        return {
-                            tileId: this.tileId,
-                            concId: concId,
-                            availableTokens: tokens,
-                            isEmpty: resp.content.length === 0,
-                            data: data,
-                            expandLeftArgs: resp.expand_left_args ?
-                                {
-                                    leftCtx: resp.expand_left_args.detail_left_ctx,
-                                    rightCtx: resp.expand_left_args.detail_right_ctx,
-                                    pos: resp.expand_left_args.pos
-                                } : null,
-                            expandRightArgs: resp.expand_right_args ?
-                                {
-                                    leftCtx: resp.expand_right_args.detail_left_ctx,
-                                    rightCtx: resp.expand_right_args.detail_right_ctx,
-                                    pos: resp.expand_right_args.pos
-                                } : null
-                        };
-                    }
-                )
-            )
             .subscribe(
                 (payload) => {
                     dispatch<GlobalActions.TileDataLoaded<SpeechDataPayload>>({
                         name: GlobalActionName.TileDataLoaded,
-                        payload: payload
+                        payload: {
+                            tileId: this.tileId,
+                            isEmpty: payload.content.length === 0,
+                            availableTokens: tokens,
+                            concId: concId,
+                            data: payload.content,
+                            expandLeftArgs: payload.expand_left_args ?
+                                {
+                                    leftCtx: payload.expand_left_args.detail_left_ctx,
+                                    rightCtx: payload.expand_left_args.detail_right_ctx,
+                                    pos: payload.expand_left_args.pos
+                                } : null,
+                            expandRightArgs: payload.expand_right_args ?
+                                {
+                                    leftCtx: payload.expand_right_args.detail_left_ctx,
+                                    rightCtx: payload.expand_right_args.detail_right_ctx,
+                                    pos: payload.expand_right_args.pos
+                                } : null
+                        }
                     });
                 },
                 (err) => {

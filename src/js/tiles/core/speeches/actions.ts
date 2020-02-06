@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { SpeechLines, ExpandArgs, Expand, Segment } from './modelDomain';
+import { ExpandArgs, Expand, Segment, ConcDetailText } from './modelDomain';
 import { Action } from 'kombo';
 
 
@@ -25,7 +25,7 @@ export interface SpeechDataPayload {
     isEmpty:boolean;
     availableTokens:Array<number>;
     concId:string|null;
-    data:SpeechLines|null;
+    data:ConcDetailText|null;
     expandRightArgs:ExpandArgs|null;
     expandLeftArgs:ExpandArgs|null;
 }

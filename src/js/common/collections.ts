@@ -401,6 +401,20 @@ export namespace Dict {
         return data ? fn(data) : fn;
     }
 
+    export function every<V, K extends string>(pred:(v:V, k:K)=>boolean, data:Obj<V, K>):boolean;
+    export function every<V, K extends string>(pred:(v:V, k:K)=>boolean):(data:Obj<V, K>)=>boolean;
+    export function every<V, K extends string>(pred:(v:V, k:K)=>boolean, data?:Obj<V, K>):any {
+        const fn = (data2:Obj<V, K>):boolean => {
+            for (let k in data2) {
+                if (!pred(data2[k], k)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return data ? fn(data) : fn;
+    }
+
     export function map<V, U, K extends string>(mapper:(v:V, k:K)=>U, data:Obj<V, K>):Obj<U, K>;
     export function map<V, U, K extends string>(mapper:(v:V, k:K)=>U):(data:Obj<V, K>)=>Obj<U, K>;
     export function map<V, U, K extends string>(mapper:(v:V, k:K)=>U, data?:Obj<V, K>):any {
