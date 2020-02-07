@@ -111,7 +111,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------- <Chart /> ------------------------------------------------------
 
-    const Chart:React.SFC<{
+    class Chart extends React.Component<{
         words:Array<string>;
         data:Array<LemmaData>;
         size:[number, number];
@@ -122,128 +122,147 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         zoom:[number, number];
         refArea:[number, number];
         tileId:number;
-    }> = React.memo((props) => {
+    }> {
+        constructor(props) {
+            super(props);
+            this.zoomMouseLeave = this.zoomMouseLeave.bind(this);
+            this.zoomMouseDown = this.zoomMouseDown.bind(this);
+            this.zoomMouseMove = this.zoomMouseMove.bind(this);
+            this.zoomMouseUp = this.zoomMouseUp.bind(this);
+            this.zoomReset = this.zoomReset.bind(this);
+        }
 
-        const zoomMouseLeave = () => {
+        private zoomMouseLeave() {
             dispatcher.dispatch<Actions.ZoomMouseLeave>({
                 name: ActionName.ZoomMouseLeave,
                 payload: {
-                    tileId: props.tileId
+                    tileId: this.props.tileId
                 }
             });
         }
 
-        const zoomMouseDown = (e) => {
+        private zoomMouseDown(e) {
             dispatcher.dispatch<Actions.ZoomMouseDown>({
                 name: ActionName.ZoomMouseDown,
                 payload: {
-                    tileId: props.tileId,
+                    tileId: this.props.tileId,
                     value: Number(e.activeLabel)
                 }
             });
         }
 
-        const zoomMouseMove = (e) => {
+        private zoomMouseMove(e) {
             dispatcher.dispatch<Actions.ZoomMouseMove>({
                 name: ActionName.ZoomMouseMove,
                 payload: {
-                    tileId: props.tileId,
+                    tileId: this.props.tileId,
                     value: Number(e.activeLabel)
                 }
             });
         }
 
-        const zoomMouseUp = (e) => {
+        private zoomMouseUp(e) {
             if (e === null) {
-                zoomMouseLeave();
+                this.zoomMouseLeave();
             } else {
                 dispatcher.dispatch<Actions.ZoomMouseUp>({
                     name: ActionName.ZoomMouseUp,
                     payload: {
-                        tileId: props.tileId,
+                        tileId: this.props.tileId,
                         value: Number(e.activeLabel)
                     }
                 });
             }
         }
 
-        const data = prepareChartData(props.data, props.averagingYears);
-        let domainY:[number, number]|[number, string];
-        let tickFormatterY, tooltipFormatter;
-        let keyFn1:(lemmaIdx:number)=>(v:ChartDataPoint)=>number;
-        let keyFn2:(lemmaIdx:number)=>(v:ChartDataPoint)=>[number, number];
-        switch (props.units) {
-            case '%':
-                keyFn1 = idx => v => v.fracValues[idx];
-                keyFn2 = idx => v => v.fracIntervals[idx];
-                domainY = [0, 1];
-                tickFormatterY = fracValue => `${fracValue * 100}%`;
-                tooltipFormatter = (fracValue, name, formatterProps) => [`${(fracValue * 100).toFixed(2)} % (${(fracValue * formatterProps.payload.ipmNorm).toFixed(2)} ipm)`, name]
-            break;
-            case 'ipm':
-                keyFn1 = idx => v => v.ipmValues[idx];
-                keyFn2 = idx => v => v.ipmIntervals[idx];
-                domainY = [0, 'auto'];
-                tickFormatterY = ipmValue => `${ipmValue} ipm`;
-                tooltipFormatter = (ipmValue, name, formatterProps) => [
-                    `${ipmValue.toFixed(2)} ipm (${(ipmValue * 100 / formatterProps.payload.ipmNorm).toFixed(2)} %)`,
-                    name
-                ];
-            break;
+        private zoomReset() {
+            dispatcher.dispatch<Actions.ZoomReset>({
+                name: ActionName.ZoomReset,
+                payload: {
+                    tileId: this.props.tileId
+                }
+            });
         }
 
-        return (
-            <ResponsiveContainer width={props.isSmallWidth ? '100%' : '90%'} height={props.size[1]}>
-                
-                <AreaChart
-                    data={data.filter(v => props.zoom.every(v => v !== null) ? v.year >= props.zoom[0] && v.year <= props.zoom[1] : true)}
-                    margin={{top: 10, right: 30, left: 0, bottom: 0}}
-                    onMouseLeave = {zoomMouseLeave}
-                    onMouseDown = {zoomMouseDown}
-                    onMouseMove = {props.refArea[0] ? zoomMouseMove : null}
-                    onMouseUp = {zoomMouseUp}
-                >
-                    <CartesianGrid strokeDasharray="1 1"/>
-                    <XAxis dataKey="year" minTickGap={0} type="category" allowDataOverflow={true} />
-                    <YAxis allowDataOverflow={true} domain={domainY} tickFormatter={tickFormatterY}/>
-                    <Tooltip isAnimationActive={false} formatter={(value, name, formatterProps) => {
-                        if (Array.isArray(value)) {
-                            return [null, null];
+        render() {
+            const data = prepareChartData(this.props.data, this.props.averagingYears);
+            let domainY:[number, number]|[number, string];
+            let tickFormatterY, tooltipFormatter;
+            let keyFn1:(lemmaIdx:number)=>(v:ChartDataPoint)=>number;
+            let keyFn2:(lemmaIdx:number)=>(v:ChartDataPoint)=>[number, number];
+            switch (this.props.units) {
+                case '%':
+                    keyFn1 = idx => v => v.fracValues[idx];
+                    keyFn2 = idx => v => v.fracIntervals[idx];
+                    domainY = [0, 1];
+                    tickFormatterY = fracValue => `${fracValue * 100}%`;
+                    tooltipFormatter = (fracValue, name, formatterProps) => [`${(fracValue * 100).toFixed(2)} % (${(fracValue * formatterProps.payload.ipmNorm).toFixed(2)} ipm)`, name]
+                break;
+                case 'ipm':
+                    keyFn1 = idx => v => v.ipmValues[idx];
+                    keyFn2 = idx => v => v.ipmIntervals[idx];
+                    domainY = [0, 'auto'];
+                    tickFormatterY = ipmValue => `${ipmValue} ipm`;
+                    tooltipFormatter = (ipmValue, name, formatterProps) => [
+                        `${ipmValue.toFixed(2)} ipm (${(ipmValue * 100 / formatterProps.payload.ipmNorm).toFixed(2)} %)`,
+                        name
+                    ];
+                break;
+            }
+
+            return [
+                <ResponsiveContainer key='chartContainer' width={this.props.isSmallWidth ? '100%' : '90%'} height={this.props.size[1]}>
+                    <AreaChart
+                        data={data.filter(v => this.props.zoom.every(v => v !== null) ? v.year >= this.props.zoom[0] && v.year <= this.props.zoom[1] : true)}
+                        margin={{top: 10, right: 30, left: 0, bottom: 0}}
+                        onMouseLeave = {this.zoomMouseLeave}
+                        onMouseDown = {this.zoomMouseDown}
+                        onMouseMove = {this.props.refArea[0] ? this.zoomMouseMove : null}
+                        onMouseUp = {this.zoomMouseUp}
+                    >
+                        <CartesianGrid strokeDasharray="1 1"/>
+                        <XAxis dataKey="year" minTickGap={0} type="category" allowDataOverflow={true} />
+                        <YAxis allowDataOverflow={true} domain={domainY} tickFormatter={tickFormatterY}/>
+                        <Tooltip isAnimationActive={false} formatter={(value, name, formatterProps) => {
+                            if (Array.isArray(value)) {
+                                return [null, null];
+                            }
+                            return tooltipFormatter(value, name, formatterProps);
+                        }} />
+                        {this.props.words.map((word, index) =>
+                            <Area type="linear"
+                                key={`${word}Values`}
+                                dataKey={keyFn1(index)}
+                                name={ut.translate('multiWordTimeDistrib__estimated_trend_for_{word}', {word: word})}
+                                stroke={this.props.isPartial ? '#dddddd' : theme.barColor(index)}
+                                fill={'rgba(0,0,0,0)'}  // transparent fill - only line
+                                strokeWidth={2}
+                                isAnimationActive={false}
+                                connectNulls={true} />
+                        )}
+                        {this.props.words.map((word, index) =>
+                            <Area type="linear"
+                                key={`${word}Confidence`}
+                                dataKey={keyFn2(index)}
+                                name={null}
+                                stroke={null}
+                                fill={this.props.isPartial ? '#eeeeee' : theme.barColor(index)}
+                                strokeWidth={1}
+                                isAnimationActive={false}
+                                connectNulls={true} />
+                        )}
+                        {
+                            (this.props.refArea[0] && this.props.refArea[1]) ? 
+                            <ReferenceArea x1={this.props.refArea[0]} x2={this.props.refArea[1]}  strokeOpacity={0.3} /> :
+                            null    
                         }
-                        return tooltipFormatter(value, name, formatterProps);
-                    }} />
-                    {props.words.map((word, index) =>
-                        <Area type="linear"
-                            key={`${word}Values`}
-                            dataKey={keyFn1(index)}
-                            name={ut.translate('multiWordTimeDistrib__estimated_trend_for_{word}', {word: word})}
-                            stroke={props.isPartial ? '#dddddd' : theme.barColor(index)}
-                            fill={'rgba(0,0,0,0)'}  // transparent fill - only line
-                            strokeWidth={2}
-                            isAnimationActive={false}
-                            connectNulls={true} />
-                    )}
-                    {props.words.map((word, index) =>
-                        <Area type="linear"
-                            key={`${word}Confidence`}
-                            dataKey={keyFn2(index)}
-                            name={null}
-                            stroke={null}
-                            fill={props.isPartial ? '#eeeeee' : theme.barColor(index)}
-                            strokeWidth={1}
-                            isAnimationActive={false}
-                            connectNulls={true} />
-                    )}
-                    {
-                        (props.refArea[0] && props.refArea[1]) ? 
-                        <ReferenceArea x1={props.refArea[0]} x2={props.refArea[1]}  strokeOpacity={0.3} /> :
-                        null    
-                    }
-                    <Legend content={(props) => <ChartLegend metric={ut.translate('multiWordTimeDistrib__occurence_human')} rcData={props} />} />
-                </AreaChart>
-            </ResponsiveContainer>
-        );
-    });
+                        <Legend content={(props) => <ChartLegend metric={ut.translate('multiWordTimeDistrib__occurence_human')} rcData={props} />} />
+                    </AreaChart>
+                </ResponsiveContainer>,
+                <button id="zoomResetButton" key='resetButton' onClick={this.zoomReset} disabled={this.props.zoom.every(v => v === null)}>Reset zoom</button>
+            ]
+        }
+    }
 
     // -------------------------- <TweakControls /> --------------------------------------
 
@@ -299,15 +318,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // -------------- <MultiWordTimeDistribTile /> ------------------------------------------------------
 
     const MultiWordTimeDistribTile:React.SFC<TimeDistribModelState & CoreTileComponentProps> = (props) => {
-        const zoomReset = () => {
-            dispatcher.dispatch<Actions.ZoomReset>({
-                name: ActionName.ZoomReset,
-                payload: {
-                    tileId: props.tileId
-                }
-            });
-        }
-
         return (
             <globComponents.TileWrapper tileId={props.tileId} isBusy={props.isBusy} error={props.error}
                         hasData={props.data.length > 0}
@@ -322,7 +332,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         </div> :
                         null
                     }
-                    <button onClick={zoomReset}>Reset zoom</button>
                     <Chart data={props.data}
                             size={[props.renderSize[0], 300]}
                             isPartial={props.isBusy}
@@ -339,5 +348,4 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     }
 
     return BoundWithProps(MultiWordTimeDistribTile, model);
-
 }
