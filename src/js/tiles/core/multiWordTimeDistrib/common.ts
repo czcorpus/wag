@@ -21,7 +21,12 @@ import { CorpSrchTileConf } from '../../../common/tile';
 
 export enum ActionName {
     ChangeTimeWindow = 'MULTI_WORD_TIME_DISTRIB_CHANGE_TIME_WINDOW',
-    ChangeUnits = 'MULTI_WORD_TIME_DISTRIB_CHANGE_UNITS'
+    ChangeUnits = 'MULTI_WORD_TIME_DISTRIB_CHANGE_UNITS',
+    ZoomMouseLeave = 'MULTI_WORD_ZOOM_MOUSE_LEAVE',
+    ZoomMouseDown = 'MULTI_WORD_ZOOM_MOUSE_DOWN',
+    ZoomMouseMove = 'MULTI_WORD_ZOOM_MOUSE_MOVE',
+    ZoomMouseUp = 'MULTI_WORD_ZOOM_MOUSE_UP',
+    ZoomReset = 'MULTI_WORD_ZOOM_RESET'
 }
 
 export interface TimeDistTileConf extends CorpSrchTileConf {
@@ -70,6 +75,44 @@ export interface DataFetchArgs {
 }
 
 export namespace Actions {
+
+    export interface ZoomMouseLeave extends Action<{
+        tileId:number;
+
+    }> {
+        name:ActionName.ZoomMouseLeave;
+    }
+
+    export interface ZoomMouseDown extends Action<{
+        tileId:number;
+        value:number;
+
+    }> {
+        name:ActionName.ZoomMouseDown;
+    }
+
+    export interface ZoomMouseMove extends Action<{
+        tileId:number;
+        value:number;
+
+    }> {
+        name:ActionName.ZoomMouseMove;
+    }
+
+    export interface ZoomMouseUp extends Action<{
+        tileId:number;
+        value:number;
+
+    }> {
+        name:ActionName.ZoomMouseUp;
+    }
+
+    export interface ZoomReset extends Action<{
+        tileId:number;
+
+    }> {
+        name:ActionName.ZoomReset;
+    }
 
     export interface ChangeTimeWindow extends Action<{
         tileId:number;

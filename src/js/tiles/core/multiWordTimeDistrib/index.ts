@@ -90,6 +90,8 @@ export class MultiWordTimeDistTile implements ITileProvider {
                 averagingYears: 0,
                 isTweakMode: false,
                 units: '%',
+                zoom: [null, null],
+                refArea: [null, null]
             },
             tileId: tileId,
             waitForTile: waitForTiles[0] || -1,
