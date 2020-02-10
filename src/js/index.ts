@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 /// <reference path="./translations.d.ts" />
-import * as Immutable from 'immutable';
 import { ActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';

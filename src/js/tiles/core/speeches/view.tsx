@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
 import * as React from 'react';
 import { IActionDispatcher, ViewUtils, BoundWithProps } from 'kombo';
 import { SpeechesModel } from './model';
@@ -25,7 +24,7 @@ import { Theme } from '../../../common/theme';
 import { Speech, SpeechesModelState, Expand, SpeechLine, Segment } from './modelDomain';
 import { RGBAColor } from '../../../common/types';
 import { ActionName, Actions } from './actions';
-import { List } from '../../../common/collections';
+import { List, pipe } from '../../../common/collections';
 
 
 
@@ -176,24 +175,27 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     }> = (props) => {
 
         const renderOverlappingSpeakersLabel = () => {
-            const ans = [];
-            Immutable.List<Speech>(props.speeches)
-                .groupBy(v => v.speakerId)
-                .valueSeq()
-                .forEach((speakerSpeeches, i) => {
-                    const speech = speakerSpeeches.get(0);
-                    if (i > 0) {
-                        ans.push(<span key={`p-${props.idx}:${i}`} className="plus">{'\u00a0'}+{'\u00a0'}</span>);
-                    }
-                    const css = {
-                        backgroundColor: color2str(speech.colorCode),
-                        color: color2str(calcTextColorFromBg(speech.colorCode))
-                    };
-                    ans.push(<strong key={`${props.idx}:${i}`} className="speaker"
-                                    title={exportMetadata(speech.metadata)}
-                                    style={css}>{speech.speakerId}</strong>);
-                });
-            return ans;
+            return pipe(
+                props.speeches,
+                List.groupBy(v => v.speakerId),
+                List.reduce(
+                    (acc, [,speakerSpeeches], i) => {
+                        const speech = speakerSpeeches[0];
+                        if (i > 0) {
+                            acc.push(<span key={`p-${props.idx}:${i}`} className="plus">{'\u00a0'}+{'\u00a0'}</span>);
+                        }
+                        const css = {
+                            backgroundColor: color2str(speech.colorCode),
+                            color: color2str(calcTextColorFromBg(speech.colorCode))
+                        };
+                        acc.push(<strong key={`${props.idx}:${i}`} className="speaker"
+                                        title={exportMetadata(speech.metadata)}
+                                        style={css}>{speech.speakerId}</strong>);
+                        return acc;
+                    },
+                    [] as Array<React.ReactElement>
+                )
+            );
         };
 
         return (
