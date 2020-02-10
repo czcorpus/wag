@@ -32,6 +32,7 @@ import { normalizeTypography } from '../../../common/models/concordance/normaliz
 import { ISwitchMainCorpApi, SwitchMainCorpResponse } from '../../../common/api/abstract/switchMainCorp';
 import { Dict, pipe, List } from '../../../common/collections';
 import { callWithExtraVal } from '../../../common/api/util';
+import { TileWait } from '../../../models/tileSync';
 
 
 export interface ConcFilterModelState {
@@ -51,10 +52,6 @@ export interface ConcFilterModelState {
     metadataAttrs:Array<{value:string; label:string}>;
     visibleMetadataLine:number;
 }
-
-
-type TileWaitSync = {[tileId:string]:boolean};
-
 
 type SubqueryMapping = {[subq:string]:SubQueryItem<RangeRelatedSubqueryValue>};
 
@@ -82,7 +79,7 @@ export interface ConcFilterModelArgs {
 }
 
 
-export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWaitSync> {
+export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWait<boolean>> {
 
     private readonly api:ConcApi;
 
@@ -92,7 +89,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
 
     private readonly tileId:number;
 
-    private readonly waitingForTiles:Array<number>;
+    private readonly waitForTiles:Array<number>;
 
     private readonly subqSourceTiles:Array<number>;
 
@@ -103,7 +100,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
         this.tileId = tileId;
         this.api = api;
         this.switchMainCorpApi = switchMainCorpApi;
-        this.waitingForTiles = [...waitForTiles];
+        this.waitForTiles = [...waitForTiles];
         this.subqSourceTiles = [...subqSourceTiles];
         this.appServices = appServices;
         this.lemmas = lemmas;
@@ -184,7 +181,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
         this.addActionHandler<GlobalActions.SubqChanged>(
             GlobalActionName.SubqChanged,
             (state, action) => {
-                if (Dict.hasKey(action.payload.tileId.toFixed()), this.waitingForTiles) {
+                if (Dict.hasKey(action.payload.tileId.toFixed()), this.waitForTiles) {
                     state.isBusy = true;
                     state.lines = [];
                 }
@@ -348,24 +345,19 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
     }
 
     private handleDataLoad(state:ConcFilterModelState, ignoreConc:boolean, seDispatch:SEDispatcher) {
-        this.suspend(
-            Dict.fromEntries(List.map(v => [v.toFixed(), false], this.waitingForTiles)),
-            (action:Action<{tileId:number}>, syncData) => {
-                if (isTileSomeDataLoadedAction(action) && Dict.hasKey(action.payload.tileId.toFixed(), syncData)) {
+        this.suspend(TileWait.create(this.waitForTiles, ()=>false), (action:Action<{tileId:number}>, syncData) => {
+                if (isTileSomeDataLoadedAction(action) && syncData.tileIsRegistered(action.payload.tileId)) {
                     if (action.error) {
                         throw action.error;
                     }
-                    const ans = {...syncData};
                     if (action.name === GlobalActionName.TileDataLoaded) { // i.e. we don't sync via TilePartialDataLoaded
-                        ans[action.payload.tileId.toFixed()] = true;
+                        syncData.setTileDone(action.payload.tileId, true);
+
+                    } else if (action.name === GlobalActionName.TilePartialDataLoaded) {
+                        syncData.touch();
                     }
 
-                    if (this.isFromSubqSourceTile(action) && ignoreConc || !Dict.hasValue(false, ans)) {
-                        return null;
-
-                    } else {
-                        return ans;
-                    }
+                    return this.isFromSubqSourceTile(action) && ignoreConc ? null : syncData.next(v => v === true);
                 }
                 return syncData;
             }
@@ -377,7 +369,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
                     const payload = action.payload;
                     if (this.isFromSubqSourceTile(action)) {
                         ans.subqueries = Dict.mergeDict(
-                            (old, nw) => nw,
+                            (_, nw) => nw,
                             pipe(
                                 action.payload.subqueries,
                                 List.map(v => [v.value.value, v] as [string, SubQueryItem<RangeRelatedSubqueryValue>]),
@@ -457,6 +449,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
                 })
             },
             (err) => {
+                console.log(err)
                 seDispatch<GlobalActions.TileDataLoaded<{}>>({
                     name: GlobalActionName.TileDataLoaded,
                     payload: {

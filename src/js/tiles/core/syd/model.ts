@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
+import { StatelessModel, IActionQueue } from 'kombo';
 
 import { AppServices } from '../../../appServices';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
@@ -23,7 +23,6 @@ import { DataLoadedPayload } from './actions';
 import { RequestArgs, StrippedFreqResponse, SyDAPI } from './api';
 import { RecognizedQueries } from '../../../common/query';
 import { List, pipe } from '../../../common/collections';
-
 
 
 export interface SydModelState {
@@ -77,66 +76,62 @@ export class SydModel extends StatelessModel<SydModelState> {
         this.lemmas = lemmas;
         this.api = api;
         this.appServices = appServices;
-        this.actionMatch = {
-            [GlobalActionName.RequestQueryResponse]: (state, action) => {
-                const newState = this.copyState(state);
-                newState.isBusy = true;
-                newState.procTime = -1;
-                newState.result = [];
-                return newState;
+
+        this.addActionHandler(
+            GlobalActionName.RequestQueryResponse,
+            (state, action) => {
+                state.isBusy = true;
+                state.procTime = -1;
+                state.result = [];
             },
-            [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<DataLoadedPayload>) => {
-                if (action.payload.tileId === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isBusy = false;
-                    if (action.error) {
-                        newState.isBusy = false;
-                        newState.error = action.error.message;
-
-                    } else {
-                        newState.isBusy = false;
-                        newState.result = action.payload.data.results;
-                        newState.procTime = action.payload.data.procTime;
-                    }
-                    return newState;
-                }
-                return state;
-            }
-        };
-    }
-
-    sideEffects(state:SydModelState, action:Action, seDispatch:SEDispatcher):void {
-        switch (action.name) {
-            case GlobalActionName.RequestQueryResponse:
+            (state, action, dispatch) => {
                 this.api.call(stateToArgs(
                     state,
                     this.lemmas[0][0].word, // TODO !!!
                     pipe(this.lemmas, List.slice(1), List.map(lvList => lvList[0].word)) // TODO
                 ))
-            .subscribe(
-                (data) => {
-                    seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                        name: GlobalActionName.TileDataLoaded,
-                        payload: {
-                            tileId: this.tileId,
-                            isEmpty: data.results.length === 0,
-                            data: data
-                        }
-                    });
-                },
-                (err) => {
-                    seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                        name: GlobalActionName.TileDataLoaded,
-                        error: err,
-                        payload: {
-                            tileId: this.tileId,
-                            isEmpty: true,
-                            data: null
-                        }
-                    });
+                .subscribe(
+                    (data) => {
+                        dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                            name: GlobalActionName.TileDataLoaded,
+                            payload: {
+                                tileId: this.tileId,
+                                isEmpty: data.results.length === 0,
+                                data: data
+                            }
+                        });
+                    },
+                    (err) => {
+                        dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                            name: GlobalActionName.TileDataLoaded,
+                            error: err,
+                            payload: {
+                                tileId: this.tileId,
+                                isEmpty: true,
+                                data: null
+                            }
+                        });
+                    }
+                );
+            }
+        );
+
+        this.addActionHandler<GlobalActions.TileDataLoaded<DataLoadedPayload>>(
+            GlobalActionName.TileDataLoaded,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {
+                    state.isBusy = false;
+                    if (action.error) {
+                        state.isBusy = false;
+                        state.error = action.error.message;
+
+                    } else {
+                        state.isBusy = false;
+                        state.result = action.payload.data.results;
+                        state.procTime = action.payload.data.procTime;
+                    }
                 }
-            );
-            break;
-        }
+            }
+        );
     }
 }

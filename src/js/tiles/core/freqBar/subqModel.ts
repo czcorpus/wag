@@ -75,11 +75,9 @@ export class SubqFreqBarModel extends FreqBarModel {
         super({dispatcher, tileId, waitForTiles, subqSourceTiles, appServices, api, backlink, initState});
         this.subqConf = subqConf;
         this.concApi = concApi;
-        const superFn = this.actionMatch[GlobalActionName.TileDataLoaded];
-        this.replaceActionHandler<GlobalActions.TileDataLoaded<DataLoadedPayload>>(
+        this.extendActionHandler<GlobalActions.TileDataLoaded<DataLoadedPayload>>(
             GlobalActionName.TileDataLoaded,
             (state, action) => {
-                superFn(state, action);
                 if (action.payload && isSubqueryPayload(action.payload) &&
                         Dict.hasKey(action.payload.tileId.toFixed(), this.subqSourceTiles)) {
                     state.blocks = action.payload.subqueries
