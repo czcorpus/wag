@@ -48,6 +48,7 @@ import { TelemetryAction } from '../common/types';
 import { Dict, List, pipe } from '../common/collections';
 
 import * as winston from 'winston';
+import 'winston-daily-rotate-file';
 
 
 const logger = winston.createLogger({
@@ -214,8 +215,8 @@ function logRequest(logging:ILogQueue, datetime:string, req:Request, userConfig:
         settings: {}
     }).pipe(
         catchError(
-            (err) => {
-                logger.error(err);
+            (err:Error) => {
+                logger.error(err.message, {trace: err.stack});
                 return rxOf(0);
             }
         )
@@ -370,8 +371,8 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
                 isAnswerMode: answerMode
             }));
         },
-        (err) => {
-            logger.error(err);
+        (err:Error) => {
+            logger.error(err.message, {trace: err.stack});
             userConfig.error = String(err);
             const view = viewInit(viewUtils);
             res.send(renderResult({
@@ -394,8 +395,17 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
 
 
 export const wdgRouter = (services:Services) => (app:Express) => {  
-    if (services.serverConf.logFile) {
-        logger.add(new winston.transports.File({filename: services.serverConf.logFile}));
+    if (services.serverConf.logging) {
+        if (services.serverConf.logging.rotation) {
+            logger.add(new winston.transports.DailyRotateFile({
+                filename: services.serverConf.logging.path.includes('%DATE%') ?
+                    services.serverConf.logging.path :
+                    services.serverConf.logging.path + '.%DATE%',
+                datePattern: 'YYYY-MM-DD'
+            }));    
+        } else {
+            logger.add(new winston.transports.File({filename: services.serverConf.logging.path}));
+        }
     }
 
     // endpoint to receive client telemetry
@@ -439,7 +449,10 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                 const t2 = new Date().getTime() - t1;
                 res.send({saved: true, procTimePerItem: t2 / total});
             },
-            (err) => res.status(500).send({saved: false, message: err})
+            (err:Error) => {
+                logger.error(err.message, {trace: err.stack});
+                res.status(500).send({saved: false, message: err});
+            }
         );
     });
 
@@ -528,6 +541,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                 res.send(JSON.stringify({result: data}));
             },
             (err:Error) => {
+                logger.error(err.message, {trace: err.stack});
                 res.status(mapToStatusCode(err.name)).send({
                     message: err.message
                 });
@@ -584,6 +598,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                 res.send(JSON.stringify({result: data}));
             },
             (err:Error) => {
+                logger.error(err.message, {trace: err.stack});
                 res.status(mapToStatusCode(err.name)).send({
                     message: err.message
                 });

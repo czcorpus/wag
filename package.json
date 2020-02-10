@@ -69,6 +69,7 @@
     "sax": "^1.2.4",
     "soundmanager2": "^2.97.20170602",
     "sqlite3": "^4.1.1",
-    "winston": "^3.2.1"
+    "winston": "^3.2.1",
+    "winston-daily-rotate-file": "^4.4.2"
   }
 }
