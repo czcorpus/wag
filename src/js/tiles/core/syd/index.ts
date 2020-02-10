@@ -15,8 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
-
 import { AppServices } from '../../../appServices';
 import { QueryType } from '../../../common/query';
 import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../../common/tile';
@@ -68,14 +66,14 @@ export class SyDTile implements ITileProvider {
                 error: null,
                 procTime: -1,
                 corp1: conf.corp1,
-                corp1Fcrit: Immutable.List<string>(conf.corp1Fcrit),
+                corp1Fcrit: [...conf.corp1Fcrit],
                 corp2: conf.corp2,
-                corp2Fcrit: Immutable.List<string>(conf.corp2Fcrit),
+                corp2Fcrit: [...conf.corp2Fcrit],
                 flimit: 1, // TODO
                 freqSort: '', // TODO
                 fpage: 1, // TODO
                 fttIncludeEmpty: false,
-                result: Immutable.List<StrippedFreqResponse>()
+                result: []
             },
             tileId,
             waitForTiles[0],

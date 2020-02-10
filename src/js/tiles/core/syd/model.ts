@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
 import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 
 import { AppServices } from '../../../appServices';
@@ -23,6 +22,7 @@ import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../
 import { DataLoadedPayload } from './actions';
 import { RequestArgs, StrippedFreqResponse, SyDAPI } from './api';
 import { RecognizedQueries } from '../../../common/query';
+import { List, pipe } from '../../../common/collections';
 
 
 
@@ -31,24 +31,24 @@ export interface SydModelState {
     error:string;
     procTime:number;
     corp1:string;
-    corp1Fcrit:Immutable.List<string>;
+    corp1Fcrit:Array<string>;
     corp2:string;
-    corp2Fcrit:Immutable.List<string>;
+    corp2Fcrit:Array<string>;
     flimit:number;
     freqSort:string;
     fpage:number;
     fttIncludeEmpty:boolean;
-    result:Immutable.List<StrippedFreqResponse>;
+    result:Array<StrippedFreqResponse>;
 }
 
-export const stateToArgs = (state:SydModelState, word:string, otherWords:Immutable.List<string>):RequestArgs => {
+export const stateToArgs = (state:SydModelState, word:string, otherWords:Array<string>):RequestArgs => {
     return {
         corp1: state.corp1,
         corp2: state.corp2,
         word1: word,
-        word2: otherWords.get(0), // TODO support for N words
-        fcrit1: state.corp1Fcrit.toArray(),
-        fcrit2: state.corp2Fcrit.toArray(),
+        word2: otherWords[0], // TODO support for N words
+        fcrit1: state.corp1Fcrit,
+        fcrit2: state.corp2Fcrit,
         flimit: state.flimit.toFixed(),
         freq_sort: state.freqSort,
         fpage: state.fpage.toFixed(),
@@ -82,7 +82,7 @@ export class SydModel extends StatelessModel<SydModelState> {
                 const newState = this.copyState(state);
                 newState.isBusy = true;
                 newState.procTime = -1;
-                newState.result = Immutable.List<StrippedFreqResponse>();
+                newState.result = [];
                 return newState;
             },
             [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<DataLoadedPayload>) => {
@@ -95,7 +95,7 @@ export class SydModel extends StatelessModel<SydModelState> {
 
                     } else {
                         newState.isBusy = false;
-                        newState.result = Immutable.List<StrippedFreqResponse>(action.payload.data.results);
+                        newState.result = action.payload.data.results;
                         newState.procTime = action.payload.data.procTime;
                     }
                     return newState;
@@ -111,7 +111,7 @@ export class SydModel extends StatelessModel<SydModelState> {
                 this.api.call(stateToArgs(
                     state,
                     this.lemmas[0][0].word, // TODO !!!
-                    Immutable.List(this.lemmas.slice(1).map(lvList => lvList[0].word)) // TODO
+                    pipe(this.lemmas, List.slice(1), List.map(lvList => lvList[0].word)) // TODO
                 ))
             .subscribe(
                 (data) => {

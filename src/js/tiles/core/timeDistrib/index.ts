@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
 import { IActionDispatcher, StatelessModel } from 'kombo';
 
 import { ConcApi } from '../../../common/api/kontext/concordance';
@@ -74,7 +73,7 @@ export class TimeDistTile implements ITileProvider {
                 isBusy: isBusy,
                 error: null,
                 corpname: conf.corpname,
-                subcnames: Immutable.List<string>(Array.isArray(conf.subcname) ? conf.subcname : [conf.subcname]),
+                subcnames: Array.isArray(conf.subcname) ? [...conf.subcname] : [conf.subcname],
                 subcDesc: appServices.importExternalMessage(conf.subcDesc),
                 concId: null,
                 fcrit: conf.fcrit,
@@ -84,8 +83,8 @@ export class TimeDistTile implements ITileProvider {
                 fttIncludeEmpty: false,
                 fmaxitems: 100,
                 alphaLevel: AlphaLevel.LEVEL_0_1, // TODO conf/explain
-                data: Immutable.List<DataItemWithWCI>(),
-                dataCmp: Immutable.List<DataItemWithWCI>(),
+                data: [],
+                dataCmp: [],
                 posQueryGenerator: conf.posQueryGenerator,
                 isTweakMode: false,
                 wordMainLabel: '',

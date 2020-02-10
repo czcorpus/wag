@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
 import { map } from 'rxjs/operators';
 
 import { StatelessModel, Action, SEDispatcher, IActionQueue } from 'kombo';
@@ -27,6 +26,7 @@ import { ConcLoadedPayload } from '../concordance/actions';
 import { calcPercentRatios } from '../../../common/util';
 import { AlphaLevel, wilsonConfInterval } from '../../../common/statistics';
 import { RecognizedQueries } from '../../../common/query';
+import { List } from '../../../common/collections';
 
 
 
@@ -39,7 +39,7 @@ export interface WordFormsModelState {
     roundToPos:number; // 0 to N
     corpusSize:number;
     freqFilterAlphaLevel:AlphaLevel;
-    data:Immutable.List<WordFormItem>;
+    data:Array<WordFormItem>;
 }
 
 /**
@@ -49,21 +49,23 @@ export interface WordFormsModelState {
  * For each item we check whether the lower end of a respective
  * Wilson score interval is non-zero (after rounding).
  */
-function filterRareVariants(items:Immutable.List<WordFormItem>, corpSize:number, alpha:AlphaLevel):Immutable.List<WordFormItem> {
-    const total = items.reduce(
+function filterRareVariants(items:Array<WordFormItem>, corpSize:number, alpha:AlphaLevel):Array<WordFormItem> {
+    const total = List.reduce(
         (acc, curr) => {
             return acc + curr.freq;
         },
-        0
+        0,
+        items
     );
 
-    return items.filter(
+    return List.filter(
         (value) => {
             const left = wilsonConfInterval(value.freq, total, alpha)[0] * 100;
             const abs = wilsonConfInterval(value.freq, corpSize, alpha)[0] * corpSize;
             return Math.round(left) > 0 && Math.round(abs) > 0;
-        }
-    ).toList();
+        },
+        items
+    );
 }
 
 
@@ -118,7 +120,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                 const newState = this.copyState(state);
                 newState.isBusy = true;
                 newState.error = null;
-                newState.data = newState.data.clear();
+                newState.data = [];
                 return newState;
             },
             [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<DataLoadedPayload>) => {
@@ -129,11 +131,11 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                         newState.error = action.error.message;
 
                     } else if (action.payload.data.length === 0) {
-                        newState.data = Immutable.List<WordFormItem>();
+                        newState.data = [];
 
                     } else {
                         newState.data = filterRareVariants(
-                            Immutable.List<WordFormItem>(action.payload.data),
+                            action.payload.data,
                             state.corpusSize,
                             state.freqFilterAlphaLevel
                         );

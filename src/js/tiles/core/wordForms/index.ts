@@ -15,8 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
-
 import { ITileProvider, TileFactory, TileComponent, TileConf } from '../../../common/tile';
 import { AppServices } from '../../../appServices';
 import { StatelessModel } from 'kombo';
@@ -68,7 +66,7 @@ export class WordFormsTile implements ITileProvider {
                 roundToPos: 1,
                 corpusSize: conf.corpusSize,
                 freqFilterAlphaLevel: conf.freqFilterAlphaLevel,
-                data: Immutable.List<any>()
+                data: []
             },
             tileId,
             api: createApiInstance(conf.apiType, cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
