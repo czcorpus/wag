@@ -99,52 +99,104 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
         this.lemmas = lemmas;
         this.queryLang = queryLang;
         this.waitForTile = waitForTile;
-        this.actionMatch = {
-            [GlobalActionName.EnableAltViewMode]: (state, action:GlobalActions.EnableAltViewMode) => {
+
+        this.addActionHandler<GlobalActions.EnableAltViewMode>(
+            GlobalActionName.EnableAltViewMode,
+            (state, action) => {
                 if (action.payload.ident === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isAltViewMode = true;
-                    return newState;
+                    state.isAltViewMode = true;
                 }
-                return state;
-            },
-            [GlobalActionName.DisableAltViewMode]: (state, action:GlobalActions.DisableAltViewMode) => {
+            }
+        );
+
+        this.addActionHandler<GlobalActions.DisableAltViewMode>(
+            GlobalActionName.DisableAltViewMode,
+            (state, action) => {
                 if (action.payload.ident === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isAltViewMode = false;
-                    return newState;
+                    state.isAltViewMode = false;
                 }
-                return state;
+            }
+        );
+
+        this.addActionHandler<GlobalActions.RequestQueryResponse>(
+            GlobalActionName.RequestQueryResponse,
+            (state, action) => {
+                state.isBusy = true;
+                state.error = null;
+                state.data = [];
             },
-            [GlobalActionName.RequestQueryResponse]: (state, action:GlobalActions.RequestQueryResponse) => {
-                const newState = this.copyState(state);
-                newState.isBusy = true;
-                newState.error = null;
-                newState.data = [];
-                return newState;
-            },
-            [GlobalActionName.TileDataLoaded]: (state, action:GlobalActions.TileDataLoaded<DataLoadedPayload>) => {
+            (state, action, dispatch) => {
+                if (this.waitForTile !== null) {
+                    this.suspend({}, (action:Action<{tileId:number}>, syncData) => {
+                        if (action.name === GlobalActionName.TileDataLoaded && action.payload.tileId === this.waitForTile) {
+                            if (action.error) {
+                                console.log(action.error);
+                                dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                    name: GlobalActionName.TileDataLoaded,
+                                    error: action.error,
+                                    payload: {
+                                        tileId: this.tileId,
+                                        queryId: 0,
+                                        isEmpty: true,
+                                        data: [],
+                                        subqueries: [],
+                                        lang1: null,
+                                        lang2: null
+                                    }
+                                });
+
+                            } else {
+                                const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
+                                this.fetchWordForms(
+                                    {
+                                        corpName: payload.corpusName,
+                                        subcorpName: payload.subcorpusName,
+                                        concPersistenceID: payload.concPersistenceIDs[0]
+                                    },
+                                    dispatch
+                                );
+                            }
+                            return null;
+                        }
+                        return syncData;
+                    });
+
+                } else {
+                    const variant = findCurrLemmaVariant(this.lemmas[0]);
+                    this.fetchWordForms(
+                        {
+                            lang: this.queryLang,
+                            lemma: variant.lemma,
+                            pos: variant.pos.map(v => v.value)
+                        },
+                        dispatch
+                    );
+                }
+
+            }
+        );
+
+        this.addActionHandler<GlobalActions.TileDataLoaded<DataLoadedPayload>>(
+            GlobalActionName.TileDataLoaded,
+            (state, action) => {
                 if (action.payload.tileId === this.tileId) {
-                    const newState = this.copyState(state);
-                    newState.isBusy = false;
+                    state.isBusy = false;
                     if (action.error) {
-                        newState.error = action.error.message;
+                        state.error = action.error.message;
 
                     } else if (action.payload.data.length === 0) {
-                        newState.data = [];
+                        state.data = [];
 
                     } else {
-                        newState.data = filterRareVariants(
+                        state.data = filterRareVariants(
                             action.payload.data,
                             state.corpusSize,
                             state.freqFilterAlphaLevel
                         );
                     }
-                    return newState;
                 }
-                return state;
             }
-        };
+        );
     }
 
     private fetchWordForms(args:RequestArgs|RequestConcArgs, dispatch:SEDispatcher):void {
@@ -200,59 +252,5 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                 });
             }
         );
-    }
-
-    sideEffects(state:WordFormsModelState, action:Action, dispatch:SEDispatcher):void {
-        switch (action.name) {
-            case GlobalActionName.RequestQueryResponse:
-                if (this.waitForTile !== null) {
-                    this.suspend({}, (action, syncData) => {
-                        if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
-                            if (action.error) {
-                                console.log(action.error);
-                                dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                    name: GlobalActionName.TileDataLoaded,
-                                    error: action.error,
-                                    payload: {
-                                        tileId: this.tileId,
-                                        queryId: 0,
-                                        isEmpty: true,
-                                        data: [],
-                                        subqueries: [],
-                                        lang1: null,
-                                        lang2: null
-                                    }
-                                });
-
-                            } else {
-                                const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
-                                this.fetchWordForms(
-                                    {
-                                        corpName: payload.corpusName,
-                                        subcorpName: payload.subcorpusName,
-                                        concPersistenceID: payload.concPersistenceIDs[0]
-                                    },
-                                    dispatch
-                                );
-                            }
-                            return null;
-                        }
-                        return syncData;
-                    });
-
-                } else {
-                    const variant = findCurrLemmaVariant(this.lemmas[0]);
-                    this.fetchWordForms(
-                        {
-                            lang: this.queryLang,
-                            lemma: variant.lemma,
-                            pos: variant.pos.map(v => v.value)
-                        },
-                        dispatch
-                    );
-                }
-
-            break;
-        }
     }
 }
