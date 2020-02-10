@@ -282,6 +282,7 @@ export interface ServerConf {
     toolbar:ToolbarDef;
     langCookie?:string;
     telemetryDB?:string;
+    logFile?:string;
 }
 
 export function getQueryTypeFreqDb(conf:ServerConf, queryType:QueryType):QueryModeWordDb {

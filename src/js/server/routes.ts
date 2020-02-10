@@ -27,7 +27,7 @@ import { concatMap, map, catchError, reduce, tap } from 'rxjs/operators';
 import { AppServices } from '../appServices';
 import { encodeArgs } from '../common/ajax';
 import { ErrorType, mapToStatusCode, newError } from '../common/errors';
-import { HostPageEnv, AvailableLanguage } from '../common/hostPage';
+import { HostPageEnv } from '../common/hostPage';
 import { QueryType, LemmaVariant, importQueryPos, QueryPoS, matchesPos, findMergeableLemmas, RecognizedQueries, importQueryTypeString } from '../common/query';
 import { UserConf, ClientStaticConf, ClientConf, emptyClientConf, getSupportedQueryTypes, emptyLayoutConf, getQueryTypeFreqDb, DEFAULT_WAIT_FOR_OTHER_TILES } from '../conf';
 import { GlobalComponents } from '../views/global';
@@ -47,6 +47,15 @@ import { ILogQueue } from './logging/abstract';
 import { TelemetryAction } from '../common/types';
 import { Dict, List, pipe } from '../common/collections';
 
+import * as winston from 'winston';
+
+
+const logger = winston.createLogger({
+    transports: [
+        new winston.transports.Console()
+    ],
+
+});
 
 
 function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, appServices:AppServices):Observable<ClientConf> {
@@ -206,7 +215,7 @@ function logRequest(logging:ILogQueue, datetime:string, req:Request, userConfig:
     }).pipe(
         catchError(
             (err) => {
-                console.error(err);
+                logger.error(err);
                 return rxOf(0);
             }
         )
@@ -362,7 +371,7 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
             }));
         },
         (err) => {
-            console.log(err);
+            logger.error(err);
             userConfig.error = String(err);
             const view = viewInit(viewUtils);
             res.send(renderResult({
@@ -384,7 +393,11 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
 }
 
 
-export const wdgRouter = (services:Services) => (app:Express) => {
+export const wdgRouter = (services:Services) => (app:Express) => {  
+    if (services.serverConf.logFile) {
+        logger.add(new winston.transports.File({filename: services.serverConf.logFile}));
+    }
+
     // endpoint to receive client telemetry
     app.post(HTTPAction.TELEMETRY, (req, res, next) => {
         const t1 = new Date().getTime();
