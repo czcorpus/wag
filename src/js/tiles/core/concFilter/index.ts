@@ -28,6 +28,7 @@ import { ViewMode } from '../../../common/api/abstract/concordance';
 import { LocalizedConfMsg } from '../../../common/types';
 import { SwitchMainCorpApi } from '../../../common/api/kontext/switchMainCorp';
 import { ISwitchMainCorpApi, SwitchMainCorpResponse } from '../../../common/api/abstract/switchMainCorp';
+import { TileWait } from '../../../models/tileSync';
 
 
 declare var require:(src:string)=>void;  // webpack
@@ -133,7 +134,7 @@ export class ConcFilterTile implements ITileProvider {
     }
 
     disable():void {
-        this.model.suspend({}, (_, syncData)=>syncData);
+        this.model.suspend(TileWait.create([], ()=>false), (_, syncData)=>syncData);
     }
 
     getWidthFract():number {

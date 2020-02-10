@@ -16,14 +16,13 @@
  * limitations under the License.
  */
 import { StatelessModel, SEDispatcher, Action, IActionQueue } from 'kombo';
-import { map } from 'rxjs/operators';
 
 import { AppServices } from '../../../appServices';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions, isTileSomeDataLoadedAction } from '../../../models/actions';
 import { SpeechDataPayload } from './actions';
 import { isSubqueryPayload } from '../../../common/query';
-import { SpeechesApi, SpeechReqArgs, SpeechResponse } from './api';
+import { SpeechesApi, SpeechReqArgs } from './api';
 import { SingleConcLoadedPayload } from '../../../common/api/abstract/concordance';
 import { SpeechesModelState, extractSpeeches, Expand, BacklinkArgs, Segment, PlayableSegment, normalizeSpeechesRange } from './modelDomain';
 import { HTTPMethod, SystemMessageType } from '../../../common/types';
@@ -32,7 +31,6 @@ import { normalizeConcDetailTypography } from '../../../common/models/concordanc
 import { IAudioUrlGenerator } from '../../../common/api/abstract/audio';
 import { AudioPlayer } from '../../../common/audioPlayer';
 import { pipe, List } from '../../../common/collections';
-import { isConcLoadedPayload } from '../concordance/actions';
 import { TileWait } from '../../../models/tileSync';
 
 

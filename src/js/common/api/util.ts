@@ -20,8 +20,17 @@ import { map } from 'rxjs/operators';
 
 import { DataApi } from '../types';
 
-export const callWithExtraVal = <T, U, V>(api:DataApi<T, U>, args:T, reqId:V):Observable<[U, V]> => {
+/**
+ * callWithExtraVal calls a DataApi<T, U> instance while also passing through
+ * addional value V. This can be used to create Observable pipes where we
+ * need to pass values not returned by the API but needed by one of subsequent
+ * operations (e.g. other APIs).
+ * @param api
+ * @param args API call arguments
+ * @param passThrough
+ */
+export const callWithExtraVal = <T, U, V>(api:DataApi<T, U>, args:T, passThrough:V):Observable<[U, V]> => {
     return api.call(args).pipe(
-        map(v => [v, reqId] as [U, V])
+        map(v => [v, passThrough] as [U, V])
     );
 }

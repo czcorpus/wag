@@ -52,6 +52,16 @@ export class TileWait<T> {
         return this;
     }
 
+    /**
+     * Set syncing object as 'changed'. This can be e.g. used
+     * to pass partial loads of the dependee tile through 'suspend()'
+     * function while not using it to synchronize (where "tile data loaded"
+     * is more suitable).
+     */
+    touch():void {
+        this.changed = true;
+    }
+
     tileIsRegistered(tileId:number):boolean {
         return this.data[tileId.toFixed()] !== undefined;
     }
