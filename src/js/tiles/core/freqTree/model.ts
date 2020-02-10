@@ -15,8 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
-import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
+import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { Observable, Observer, of } from 'rxjs';
 import { map, mergeMap, reduce } from 'rxjs/operators';
 
@@ -33,6 +32,7 @@ import { isConcLoadedPayload, ConcLoadedPayload } from '../concordance/actions';
 import { createInitialLinesData } from '../../../common/models/concordance';
 import { ViewMode, ConcResponse } from '../../../common/api/abstract/concordance';
 import { callWithExtraVal } from '../../../common/api/util';
+import { Dict, List, pipe } from '../../../common/collections';
 
 
 
@@ -148,21 +148,30 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                 if (action.payload.tileId === this.tileId) {
                     if (action.error) {
                         console.error(action.error);
-                        state.frequencyTree = state.fcritTrees.map(_ => ({
-                            data: {},
-                            ident: puid(),
-                            label: '`',
-                            isReady: true
-                        }) as FreqTreeDataBlock);
+                        state.frequencyTree = List.map(
+                            _ => ({
+                                data: {},
+                                ident: puid(),
+                                label: '`',
+                                isReady: true
+                            }) as FreqTreeDataBlock,
+                            state.fcritTrees
+                        ),
                         state.error = action.error.message;
                         state.isBusy = false;
+
                     } else {
-                        state.frequencyTree = action.payload.data.sortBy((_, key) => key).entrySeq().map(([blockId, data]) => ({
-                            data: data,
-                            ident: puid(),
-                            label: state.treeLabels ? state.treeLabels[blockId] : '',
-                            isReady: true,
-                        }) as FreqTreeDataBlock).toArray();
+                        state.frequencyTree = pipe(
+                            action.payload.data,
+                            Dict.toEntries(),
+                            List.sort(([key1,], [key2,]) => key1.localeCompare(key2)),
+                            List.map(([blockId, data]) => ({
+                                data: data,
+                                ident: puid(),
+                                label: state.treeLabels ? state.treeLabels[blockId] : '',
+                                isReady: true,
+                            }) as FreqTreeDataBlock)
+                        );
                         state.isBusy = false;
                         state.backlink = null;
                     }
@@ -286,9 +295,19 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                     map(resp2 => [resp2, args] as [APILeafResponse, {blockId:number; queryId:number; lemma:LemmaVariant; concId:string;}])
                 )
             ),
-            reduce<[APILeafResponse, {blockId:number; queryId:number; lemma:LemmaVariant; concId:string;}], {concIds: Array<string>, dataTree: Immutable.Map<string, any>}>((acc, [resp, args]) => {
-                acc.dataTree = acc.dataTree.mergeDeep(
-                    Immutable.fromJS({
+            reduce<[APILeafResponse, {blockId:number; queryId:number; lemma:LemmaVariant; concId:string;}], {concIds: Array<string>, dataTree: {[k:string]:any}}>((acc, [resp, args]) => {
+                // TODO fixed depth merging here
+                acc.dataTree = Dict.mergeDict(
+                    (oldVal:{}, newVal:{}) => Dict.mergeDict(
+                        (old2, new2) => Dict.mergeDict(
+                            (_:{}, new3:{}) => new3,
+                            new2,
+                            old2
+                        ),
+                        newVal,
+                        oldVal
+                    ),
+                    {
                         [args.blockId]:{
                             [args.lemma.word]:{
                                 [this.appServices.translateDbValue(
@@ -300,11 +319,12 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                                 ))
                             }
                         }
-                    })
+                    },
+                    acc.dataTree
                 );
                 acc.concIds[args.queryId] = args.concId;
                 return acc;
-            }, {concIds: state.lemmaVariants.map(_ => null), dataTree: Immutable.Map()})
+            }, {concIds: List.map(_ => null, state.lemmaVariants), dataTree: {}})
         ).subscribe(
             acc => {
                 dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({

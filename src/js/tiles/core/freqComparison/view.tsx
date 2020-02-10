@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Immutable from 'immutable';
 import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
@@ -25,38 +24,54 @@ import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
 import { GlobalComponents } from '../../../views/global';
 import { ActionName, Actions } from './actions';
 import { FreqComparisonModel, FreqComparisonModelState, MultiWordDataRow } from './model';
+import { pipe, List } from '../../../common/collections';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:FreqComparisonModel):TileComponent {
 
     const globComponents = ut.getComponents();
 
-    const processData = (data:Array<MultiWordDataRow>, words:Array<string>) => {
-        return Immutable.List(data).groupBy(x => x.name).map((values, name) => {
-            const totalIpm = values.reduce((acc, curr) => acc + curr.ipm, 0)
-            let wordData = {}
+    interface FreqItemProps {
+        name:string;
+        data:{[word:string]:{
+            main:number;
+            ipm:number;
+            freq:number;
+        }};
+    }
 
-            // calculate percentage from frequency
-            values.forEach(item => {
-                wordData[item.word] = (100*item.ipm/totalIpm).toFixed(2);
-                wordData[`${item.word}_ipm`] = item.ipm;
-                wordData[`${item.word}_abs`] = item.freq;
-            });
+    const processData = (data:Array<MultiWordDataRow>, words:Array<string>):Array<FreqItemProps> => {
+        return pipe(
+            data,
+            List.groupBy(x => x.name),
+            List.map(
+                ([name ,values]) => {
+                    const totalIpm = values.reduce((acc, curr) => acc + curr.ipm, 0)
+                    let wordData:FreqItemProps = {name: '', data: {}};
 
-            // add also words with no data
-            words.forEach(word => {
-                if (!Object.keys(wordData).includes(word)) {
-                    wordData[word] = 0;
-                    wordData[`${word}_ipm`] = 0;
-                    wordData[`${word}_abs`] = 0;
+                    // calculate percentage from frequency
+                    List.forEach(item => {
+                        wordData.data[item.word].main = (100 * item.ipm / totalIpm);
+                        wordData.data[item.word].ipm = item.ipm;
+                        wordData.data[item.word].freq = item.freq;
+                    }, values);
+
+                    // add also words with no data
+                    List.forEach(word => {
+                        if (!Object.keys(wordData).includes(word)) {
+                            wordData.data[word].main = 0;
+                            wordData.data[word].ipm = 0;
+                            wordData.data[word].freq = 0;
+                        }
+                    }, words);
+
+                    return {
+                        name: name,
+                        ...wordData
+                    }
                 }
-            });
-
-            return {
-                name: name,
-                ...wordData
-            }
-        });
+            )
+        );
     }
 
     // ------- <ChartWrapper /> ---------------------------------------------------
@@ -71,7 +86,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     }> = (props) => {
         if (props.isMobile) {
             return (
-                <BarChart data={processData(props.data, props.words).toArray()}
+                <BarChart data={processData(props.data, props.words)}
                         width={typeof props.width === 'string' ? parseInt(props.width) : props.width}
                         height={typeof props.height === 'string' ? parseInt(props.height) : props.height}
                         layout="vertical"
@@ -83,7 +98,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         } else {
             return (
                 <ResponsiveContainer width={props.width} height={props.height}>
-                    <BarChart data={processData(props.data, props.words).toArray()} layout="vertical">
+                    <BarChart data={processData(props.data, props.words)} layout="vertical">
                         {props.children}
                     </BarChart>
                 </ResponsiveContainer>
@@ -102,7 +117,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         isMobile:boolean;
     }> = (props) => {
         const processedData = processData(props.data, props.words);
-        const maxLabelWidth = processedData.max((v1, v2) => v1.name.length - v2.name.length).name.length;
+        const maxLabelWidth = List.maxItem(v => v.name.length, processedData).name.length;
         return (
             <div className="Chart">
                 <ChartWrapper data={props.data} words={props.words} isMobile={props.isMobile} width={props.width} height={props.height}>
@@ -143,17 +158,17 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 </tr>
             </thead>
             <tbody>
-                {processedData.entrySeq().map(([category, rows]) =>
+                {pipe(processedData, List.map((row, category) =>
                     <tr key={category}>
                         <td key={category}>{category}</td>
-                        <td key={`${category}Ipm`} className="num">{props.words.reduce((ipmSum, word) => ipmSum + rows[`${word}_ipm`], 0).toFixed(2)}</td>
-                        <td key={`${category}Abs`} className="num">{props.words.reduce((absSum, word) => absSum + rows[`${word}_abs`], 0)}</td>
+                        <td key={`${category}Ipm`} className="num">{props.words.reduce((ipmSum, word) => ipmSum + row[`${word}_ipm`], 0).toFixed(2)}</td>
+                        <td key={`${category}Abs`} className="num">{props.words.reduce((absSum, word) => absSum + row[`${word}_abs`], 0)}</td>
                         {props.words.reduce((acc, word) => [...acc,
-                            <td key={`${word}Ipm`} className="num">{rows[`${word}_ipm`]}<br/>({rows[`${word}`]}%)</td>,
-                            <td key={`${word}Abs`} className="num">{rows[`${word}_abs`]}</td>
+                            <td key={`${word}Ipm`} className="num">{row.data[word].ipm}<br/>({row.data[word].main}%)</td>,
+                            <td key={`${word}Abs`} className="num">{row.data[word].freq}</td>
                         ], [])}
                     </tr>
-                )}
+                ))}
             </tbody>
         </table>
     };
@@ -211,7 +226,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                         <div key={block.ident} style={{width: chartsViewBoxWidth, height: "100%"}}>
                                             <h3>{block.label}</h3>
                                             {block.data.length > 0 ?
-                                                <Chart data={block.data} words={block.words} width={chartWidth} height={70 + Immutable.List(block.data).groupBy(x => x.name).size * 25}
+                                                <Chart data={block.data} words={block.words} width={chartWidth}
+                                                            height={70 + List.groupBy(x => x.name, block.data).length * 25}
                                                         isMobile={this.props.isMobile} /> :
                                                 <p className="note" style={{textAlign: 'center'}}>No result</p>
                                             }

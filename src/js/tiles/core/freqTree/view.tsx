@@ -24,7 +24,8 @@ import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
 import { GlobalComponents } from '../../../views/global';
 import { ActionName, Actions } from './actions';
 import { FreqTreeModel, FreqTreeModelState } from './model';
-import { Dict } from '../../../common/collections';
+import { Dict, pipe, List } from '../../../common/collections';
+import { FreqTreeDataFreqs } from '../../../common/models/freqTree';
 
 type TreeData = {name: any; children:any[]}[];
 
@@ -32,18 +33,22 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const globComponents = ut.getComponents();
 
-    const transformData = (data:{}):TreeData => {
-        return []; // TODO
-        /*
-        return mapDictEntries(data, ([k1, v1]) => ({
+    const transformData = (data:FreqTreeDataFreqs):TreeData => Dict.mapEntries(
+        ([k1, v1]) => ({
             name: k1,
-            children: mapDictEntries(v1, ([k2, v2]) => ({
-                name: k2,
-                children: v2.sort((a, b) => a.name > b.name ? 1 : -1)
-            })).toArray().sort((a, b) => a.name > b.name ? 1 : -1)
-        }))
-        */
-    }
+            children: pipe(
+                {...v1},
+                Dict.mapEntries(
+                    ([k2, v2]) => ({
+                        name: k2,
+                        children: List.sort((v3a, v3b) => v3a.name.localeCompare(v3b.name), [...v2])
+                    })
+                ),
+                List.sortBy(v => v.name)
+            )
+        }),
+        data
+    );
 
     // ------- <TreeWrapper /> ---------------------------------------------------
 
@@ -205,45 +210,54 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         issueReportingUrl={this.props.issueReportingUrl}>
                     <div className="FreqTreeTile">
                         <div className={`charts${this.props.isBusy ? ' incomplete' : ''}`} ref={this.chartsRef} onScroll={this.handleScroll} style={{flexWrap: this.props.isMobile ? 'nowrap' : 'wrap'}}>
-                            {this.props.frequencyTree.filter(block => block.isReady).map((block, blockId) => {
-                                const chartWidth = this.props.isMobile ? (this.props.renderSize[0] * 0.9).toFixed() : "90%";
-                                const transformedData = block.data.length > 0 ? transformData(block.data) : null;
-                                return  (
-                                    <div key={block.ident} style={{width: chartsViewBoxWidth, height: "100%"}}>
-                                        <h3>{block.label}</h3>
-                                        {
-                                            this.props.lemmaVariants.map(lemma => lemma.word).map((word, variantId) => {
-                                                if (transformedData) {
-                                                    let variantData = transformedData.find(item => item.name === word).children;
-                                                    if (variantData) {
-                                                        // zooming category done by making children zero size
-                                                        // this will keep the same category colors and make nice transition animations
-                                                        const zoomCategory = this.props.zoomCategory[blockId][variantId];
-                                                        if (zoomCategory) {
-                                                            variantData = variantData.map(item =>
-                                                                item.name === zoomCategory ? item :
-                                                                {name: item.name, children: item.children.map(child =>
-                                                                    ({name: child.name, value: 0})
-                                                                )}
-                                                            );
+                            {pipe(
+                                this.props.frequencyTree,
+                                List.filter(block => block.isReady),
+                                List.map((block, blockId) => {
+                                    const chartWidth = this.props.isMobile ? (this.props.renderSize[0] * 0.9).toFixed() : "90%";
+                                    const transformedData = Dict.size(block.data) > 0 ? transformData(block.data) : null;
+                                    return  (
+                                        <div key={block.ident} style={{width: chartsViewBoxWidth, height: "100%"}}>
+                                            <h3>{block.label}</h3>
+                                            {
+                                                pipe(
+                                                    this.props.lemmaVariants,
+                                                    List.map(lemma => lemma.word),
+                                                    List.map((word, variantId) => {
+                                                        if (transformedData) {
+                                                            let variantData = List.find(item => item.name === word, transformedData).children;
+                                                            if (variantData) {
+                                                                // zooming category done by making children zero size
+                                                                // this will keep the same category colors and make nice transition animations
+                                                                const zoomCategory = this.props.zoomCategory[blockId][variantId];
+                                                                if (zoomCategory) {
+                                                                    variantData = variantData.map(item =>
+                                                                        item.name === zoomCategory ? item :
+                                                                        {name: item.name, children: item.children.map(child =>
+                                                                            ({name: child.name, value: 0})
+                                                                        )}
+                                                                    );
+                                                                }
+                                                                return <div key={word}>
+                                                                    <h4>{`[${variantId + 1}] ${word}`}</h4>
+                                                                    <Tree
+                                                                        data={variantData}
+                                                                        width={chartWidth}
+                                                                        height={250}
+                                                                        handleZoom={(category) => this.handleZoom(blockId, variantId, category)}
+                                                                        isMobile={this.props.isMobile} />
+                                                                </div>
+                                                            }
                                                         }
-                                                        return <div key={word}>
-                                                            <h4>{`[${variantId + 1}] ${word}`}</h4>
-                                                            <Tree
-                                                                data={variantData}
-                                                                width={chartWidth}
-                                                                height={250}
-                                                                handleZoom={(category) => this.handleZoom(blockId, variantId, category)}
-                                                                isMobile={this.props.isMobile} />
-                                                        </div>
-                                                    }
-                                                }
-                                                return <p className="note" style={{textAlign: 'center'}}>No result</p>
-                                            })
-                                        }
-                                    </div>
-                                );
-                            })}
+                                                        return <p className="note" style={{textAlign: 'center'}}>No result</p>
+                                                    })
+                                                )
+                                            }
+                                        </div>
+                                    );
+                                })
+                            )}
+
                         </div>
                         {this.props.isMobile && this.props.frequencyTree.length > 1 ?
                             <globComponents.HorizontalBlockSwitch htmlClass="ChartSwitch"

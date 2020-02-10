@@ -29,8 +29,10 @@ interface FreqTreeStateBase {
     fmaxitems:number;
 }
 
+export type FreqTreeDataFreqs = {[w1:string]:{[w2:string]:Array<{name:string; value:number}>}};
+
 export interface FreqTreeDataBlock {
-    data:Array<any>; // TODO type
+    data:FreqTreeDataFreqs;
     ident:string;
     label:string;
     isReady:boolean;
