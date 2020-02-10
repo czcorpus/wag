@@ -57,7 +57,6 @@
     "express": "^4.17.1",
     "express-session": "^1.17.0",
     "flatten-packages": "^0.1.4",
-    "immutable": "^3.8.2",
     "ioredis": "^4.14.1",
     "kombo": "^0.72.0",
     "react": "^16.12.0",

@@ -17,17 +17,13 @@
  */
 import { Action } from 'kombo';
 
-import * as Immuatable from 'immutable';
-
-
-
 export enum ActionName {
     SetActiveBlock = 'FREQ_TREE_SET_ACTIVE_BLOCK',
     SetZoom = 'FREQ_TREE_SET_ZOOM'
 }
 
 export interface DataLoadedPayload {
-    data:Immuatable.Map<string, any>;
+    data:{[k:string]:any};
     // this is to allow other tiles to use this one as source of concordances - ConcLoadedPayload
     concPersistenceIDs:Array<string>;
     corpusName:string;
