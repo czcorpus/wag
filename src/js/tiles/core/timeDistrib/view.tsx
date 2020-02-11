@@ -207,23 +207,27 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
 
         private zoomMouseDown(e) {
-            dispatcher.dispatch<Actions.ZoomMouseDown>({
-                name: ActionName.ZoomMouseDown,
-                payload: {
-                    tileId: this.props.tileId,
-                    value: Number(e.activeLabel)
-                }
-            });
+            if (e !== null) {
+                dispatcher.dispatch<Actions.ZoomMouseDown>({
+                    name: ActionName.ZoomMouseDown,
+                    payload: {
+                        tileId: this.props.tileId,
+                        value: Number(e.activeLabel)
+                    }
+                });
+            }
         }
 
         private zoomMouseMove(e) {
-            dispatcher.dispatch<Actions.ZoomMouseMove>({
-                name: ActionName.ZoomMouseMove,
-                payload: {
-                    tileId: this.props.tileId,
-                    value: Number(e.activeLabel)
-                }
-            });
+            if (this.props.refArea.some(v => v !== null)) {
+                dispatcher.dispatch<Actions.ZoomMouseMove>({
+                    name: ActionName.ZoomMouseMove,
+                    payload: {
+                        tileId: this.props.tileId,
+                        value: Number(e.activeLabel)
+                    }
+                });
+            }
         }
 
         private zoomMouseUp(e) {
@@ -250,11 +254,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
 
         render() {
-<<<<<<< HEAD
-            const data = mergeDataSets(this.props.data1, this.props.data2);
-=======
             const data = mergeDataSets(this.props.data1, this.props.data2).filter(v => Boolean(v.datetime));
->>>>>>> Zoom added to single word time distribution tile
             return (
                 <ResponsiveContainer width={this.props.isSmallWidth ? '100%' : '90%'} height={this.props.size[1]}>
                     <AreaChart
