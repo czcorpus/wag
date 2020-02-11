@@ -34,7 +34,7 @@ import { GlobalComponents } from '../views/global';
 import { init as viewInit, LayoutProps } from '../views/layout';
 import { ServerSideActionDispatcher } from './core';
 import { emptyValue } from './toolbar/empty';
-import { Services } from './actionServices';
+import { Services, WordDatabase } from './actionServices';
 import { getLemmas, getSimilarFreqWords, getWordForms } from './freqdb/freqdb';
 import { loadFile } from './files';
 import { HTTPAction } from './actions';
@@ -397,7 +397,7 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
 }
 
 
-export const wdgRouter = (services:Services) => (app:Express) => {  
+export const wdgRouter = (services:Services) => (app:Express) => {
     if (services.serverConf.logging) {
         if (services.serverConf.logging.rotation) {
             logger.add(new winston.transports.DailyRotateFile({
@@ -405,7 +405,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                     services.serverConf.logging.path :
                     services.serverConf.logging.path + '.%DATE%',
                 datePattern: 'YYYY-MM-DD'
-            }));    
+            }));
         } else {
             logger.add(new winston.transports.File({filename: services.serverConf.logging.path}));
         }
@@ -461,6 +461,40 @@ export const wdgRouter = (services:Services) => (app:Express) => {
 
     // host page generator with some React server rendering (testing phase)
     app.get(HTTPAction.MAIN, (req, res, next) => mainAction(services, false, req, res, next));
+
+
+    app.get(HTTPAction.GET_LEMMAS, (req, res, next) => {
+        const [,appServices] = createHelperServices(
+            services, getLangFromCookie(req, services.serverConf.langCookie, services.serverConf.languages));
+
+        new Observable<WordDatabase>((observer) => {
+            const db = services.db.getDatabase(QueryType.SINGLE_QUERY, req.query.lang);
+            if (db === undefined) {
+                observer.error(
+                    newError(ErrorType.BAD_REQUEST, `Frequency database for [${req.query.lang}] not defined`));
+
+            } else {
+                observer.next(db);
+                observer.complete();
+            }
+        }).pipe(
+            concatMap(
+                (db) => {
+                    return getLemmas(db, appServices, req.query.q, 1);
+                }
+            )
+        ).subscribe(
+            (data) => {
+                res.setHeader('Content-Type', 'application/json');
+                res.send(JSON.stringify({result: data}));
+            },
+            (err:Error) => {
+                res.status(mapToStatusCode(err.name)).send({
+                    message: err.message
+                });
+            }
+        );
+    });
 
     app.post(HTTPAction.SET_UI_LANG, (req, res, next) => {
         res.cookie(services.serverConf.langCookie, req.body.lang, {maxAge: 3600 * 24 * 365});

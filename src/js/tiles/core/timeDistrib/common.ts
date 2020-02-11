@@ -42,10 +42,11 @@ export interface TimeDistTileConf extends CorpSrchTileConf {
 
 export interface DataLoadedPayload {
     tileId:number;
-    isLast:boolean;
     data?:Array<DataItemWithWCI>;
     dataCmp?:Array<DataItemWithWCI>;
     wordMainLabel?:string;
+    concId?:string;
+    origQuery?:string;
 }
 
 

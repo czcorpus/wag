@@ -15,9 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
+import { SEDispatcher, StatelessModel, IActionQueue, Action } from 'kombo';
 import { Observable, Observer, of as rxOf } from 'rxjs';
-import { concatMap, map, mergeMap, reduce } from 'rxjs/operators';
+import { concatMap, map, mergeMap, reduce, tap, mapTo } from 'rxjs/operators';
 
 import { AppServices } from '../../../appServices';
 import { ConcApi, QuerySelector, mkMatchQuery } from '../../../common/api/kontext/concordance';
@@ -37,6 +37,7 @@ import { LemmaVariant, RecognizedQueries } from '../../../common/query';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { HTTPMethod } from '../../../common/types';
 import { Dict } from '../../../common/collections';
+import { TileWait } from '../../../models/tileSync';
 
 
 export const enum FreqFilterQuantity {
@@ -117,7 +118,7 @@ export interface TimeDistribModelArgs {
 /**
  *
  */
-export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
+export class TimeDistribModel extends StatelessModel<TimeDistribModelState, TileWait<boolean>> {
 
     private readonly api:KontextTimeDistribApi;
 
@@ -164,32 +165,35 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 );
             }
         );
+
         this.addActionHandler<GlobalActions.TileDataLoaded<DataLoadedPayload>>(
             GlobalActionName.TileDataLoaded,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
-                    if (action.payload.isLast) {
-                        state.isBusy = false;
-                    }
+                    state.isBusy = false;
                     if (action.error) {
-                        state.isBusy = false;
                         state.data = [];
                         state.dataCmp = [];
                         state.error = action.error.message;
-
-                    } else {
-                        if (action.payload.data) {
-                            state.data = this.mergeChunks(state.data, action.payload.data, state.alphaLevel);
-
-                        } else if (action.payload.dataCmp) {
-                            state.data = this.mergeChunks(state.dataCmp, action.payload.dataCmp, state.alphaLevel);
-                        }
-                        if (action.payload.wordMainLabel) {
-                            state.wordMainLabel = action.payload.wordMainLabel;
-                        }
                     }
-                    // TODO backlink !!!
-                    // state.backlink = this.createBackLink(newState, action.payload.concId, action.payload.origQuery);
+                }
+            }
+        );
+
+        this.addActionHandler<GlobalActions.TilePartialDataLoaded<DataLoadedPayload>>(
+            GlobalActionName.TilePartialDataLoaded,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {
+                    if (action.payload.data) {
+                        state.data = this.mergeChunks(state.data, action.payload.data, state.alphaLevel);
+
+                    } else if (action.payload.dataCmp) {
+                        state.dataCmp = this.mergeChunks(state.dataCmp, action.payload.dataCmp, state.alphaLevel);
+                    }
+                    if (action.payload.wordMainLabel) {
+                        state.wordMainLabel = action.payload.wordMainLabel;
+                    }
+                    state.backlink = this.createBackLink(state, action.payload.concId, action.payload.origQuery);
                 }
                 return state;
             }
@@ -315,7 +319,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             ActionName.ZoomReset,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
-                    state.zoom = [null, null]                    
+                    state.zoom = [null, null]
                 }
             }
         );
@@ -386,27 +390,39 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         ipm: -1,
                         ipmInterval: [-1, -1]
                     }));
+                    let ans:DataLoadedPayload = {
+                        tileId: this.tileId
+                    };
                     if (args.targetId === SubchartID.MAIN) {
-                        return {
-                            tileId: this.tileId,
-                            data: dataFull,
-                            wordMainLabel: args.wordMainLabel
-                        };
+                        ans.data = dataFull;
+                        ans.wordMainLabel = args.wordMainLabel;
 
                     } else if (args.targetId === SubchartID.SECONDARY) {
-                        return {
-                            tileId: this.tileId,
-                            dataCmp: dataFull
-                        };
+                        ans.dataCmp = dataFull;
                     }
-                    return {tileId: this.tileId};
+                    return ans;
                 }
             ),
+            tap(
+                data => {
+                    seDispatch<GlobalActions.TilePartialDataLoaded<DataLoadedPayload>>({
+                        name: GlobalActionName.TilePartialDataLoaded,
+                        payload: {...data}
+                    });
+                }
+            ),
+            reduce(
+                (acc, payload) => acc && (payload.dataCmp || payload.data || []).length === 0,
+                true
+            )
         ).subscribe(
-            data => {
+            isEmpty => {
                 seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
                     name: GlobalActionName.TileDataLoaded,
-                    payload: {...data, isLast: false, isEmpty: data.data.length > 0}
+                    payload:{
+                        tileId: this.tileId,
+                        isEmpty: isEmpty
+                    }
                 });
             },
             error => {
@@ -415,30 +431,9 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     name: GlobalActionName.TileDataLoaded,
                     payload: {
                         tileId: this.tileId,
-                        data: [],
-                        dataCmp: [],
-                        wordMainLabel: '??',
-                        isLast: false,
                         isEmpty: true
                     },
                     error: error
-                });
-            }
-        );
-        response.pipe(
-            reduce(
-                (acc, [v,]) => acc || v.data.length > 0,
-                true
-            )
-        ).subscribe(
-            (isEmpty) => {
-                seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                    name: GlobalActionName.TileDataLoaded,
-                    payload:{
-                        tileId: this.tileId,
-                        isEmpty: isEmpty,
-                        isLast: true
-                    }
                 });
             }
         );
@@ -497,43 +492,48 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private loadData(state:TimeDistribModelState, dispatch:SEDispatcher, target:SubchartID, lemmaVariant:Observable<LemmaVariant>):void {
         if (this.waitForTile > -1) { // in this case we rely on a concordance provided by other tile
-            this.suspend({}, (action, syncData) => {
-                if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
-                    const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
-                    const ans = lemmaVariant.pipe(
-                        concatMap(
-                            (lv) => {
-                                return new Observable((observer:Observer<DataFetchArgsForeignConc>) => {
-                                    if (action.error) {
-                                        observer.error(new Error(this.appServices.translate('global__failed_to_obtain_required_data')));
-
-                                    } else {
-                                        observer.next({
-                                            concId: payload.concPersistenceIDs[0],
-                                            subcName: payload.subcorpusName,
-                                            wordMainLabel: lv.lemma,
-                                            targetId: target
-                                        });
-                                        observer.complete();
-                                    }
-                                });
-                            }
-                        ),
-                        concatMap(args => callWithExtraVal(
-                            this.api,
-                            {
-                                corpName: state.corpname,
-                                subcorpName: state.subcnames[0],
-                                concIdent: `~${args.concId}`
-                            },
-                            args
-                        ))
-                    )
-                    this.getFreqs(ans, dispatch);
-                    return null;
+            const proc = this.suspend(TileWait.create([this.waitForTile], () => false), (action:Action<{tileId:number}>, syncData) => {
+                if (action.name === GlobalActionName.TileDataLoaded && syncData.tileIsRegistered(action.payload.tileId)) {
+                    syncData.setTileDone(action.payload.tileId, true);
                 }
-                return syncData;
-            });
+                return syncData.next(() => true);
+
+            }).pipe(
+                concatMap(
+                    action => {
+                        const payload = action.payload as ConcLoadedPayload;
+                        return lemmaVariant.pipe(
+                            map(v => {
+                                const ans:[LemmaVariant, string, string, string] = [
+                                    v, payload.concPersistenceIDs[0], payload.corpusName, payload.subcorpusName];
+                                return ans;
+                            })
+                        );
+                    },
+                ),
+                map(
+                    ([lv, concId, corpusName, subcorpName]) => {
+                        return {
+                            concId: concId,
+                            corpName: corpusName,
+                            subcName: subcorpName,
+                            wordMainLabel: lv.lemma,
+                            targetId: target
+                        };
+                    }
+                ),
+                tap(v => console.log('fuck: ', v)),
+                concatMap(args => callWithExtraVal(
+                    this.api,
+                    {
+                        corpName: args.corpName,
+                        subcorpName: args.subcName,
+                        concIdent: `~${args.concId}`
+                    },
+                    args
+                ))
+            );
+            this.getFreqs(proc, dispatch);
 
         } else { // here we must create our own concordance(s) if needed
             const data = lemmaVariant.pipe(

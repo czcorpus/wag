@@ -26,6 +26,7 @@ import { TimeDistTileConf, DataItemWithWCI } from './common';
 import { TimeDistribModel } from './model';
 import { AlphaLevel } from '../../../common/statistics';
 import { init as viewInit } from './view';
+import { TileWait } from '../../../models/tileSync';
 
 declare var require:(src:string)=>void;  // webpack
 require('./style.less');
@@ -132,7 +133,7 @@ export class TimeDistTile implements ITileProvider {
     }
 
     disable():void {
-        this.model.suspend({}, (_, syncData)=>syncData);
+        this.model.suspend(TileWait.create([], ()=>false), (_, syncData)=>syncData);
     }
 
     getWidthFract():number {
