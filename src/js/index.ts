@@ -35,7 +35,7 @@ import { GlobalComponents } from './views/global';
 import { createRootComponent } from './app';
 import { initStore } from './cacheDb';
 import { HTTPMethod, TelemetryAction } from './common/types';
-import { HTTPAction } from './server/actions';
+import { HTTPAction } from './server/routes/actions';
 import { MultiDict } from './common/data';
 
 declare var DocumentTouch;

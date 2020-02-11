@@ -24,9 +24,11 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as sqlite3 from 'sqlite3';
 import * as translations from 'translations';
+import * as winston from 'winston';
+import 'winston-daily-rotate-file';
 
 import { ClientStaticConf, ServerConf } from '../conf';
-import { wdgRouter } from './routes';
+import { wdgRouter } from './routes/index';
 import { createToolbarInstance } from './toolbar/factory';
 import { RedisLogQueue } from './logging/redisQueue';
 import { NullLogQueue } from './logging/nullQueue';
@@ -71,6 +73,31 @@ const db:WordDatabases = new WordDatabases(serverConf.freqDB);
 
 const toolbar = createToolbarInstance(serverConf.toolbar);
 
+const logger = winston.createLogger({
+    format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.json()
+    ),
+    transports: [
+        new winston.transports.Console()
+    ]
+});
+
+if (serverConf.logging) {
+    if (serverConf.logging.rotation) {
+        logger.add(new winston.transports.DailyRotateFile({
+            filename: serverConf.logging.path.includes('%DATE%') ?
+                serverConf.logging.path :
+                serverConf.logging.path + '.%DATE%',
+            datePattern: 'YYYY-MM-DD'
+        }));
+
+    } else {
+        logger.add(new winston.transports.File({filename: serverConf.logging.path}));
+    }
+}
+
+
 wdgRouter({
     serverConf: serverConf,
     clientConf: clientConf,
@@ -80,7 +107,8 @@ wdgRouter({
     toolbar: toolbar,
     logging: serverConf.logQueue ?
             new RedisLogQueue(serverConf.logQueue) :
-            new NullLogQueue()
+            new NullLogQueue(),
+    errorLog: logger
 })(app);
 
 const server = app.listen(serverConf.port, serverConf.address, () => {

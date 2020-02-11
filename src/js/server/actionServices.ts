@@ -20,6 +20,7 @@ import { Database } from 'sqlite3';
 import { IToolbarProvider } from '../common/hostPage';
 import { ILogQueue } from './logging/abstract';
 import { QueryType } from '../common/query';
+import * as winston from 'winston';
 
 
 export interface WordDatabase {
@@ -79,4 +80,5 @@ export interface Services {
     toolbar:IToolbarProvider;
     translations:{[loc:string]:{[key:string]:string}};
     logging:ILogQueue;
+    errorLog:winston.Logger;
 }
