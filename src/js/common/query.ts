@@ -29,7 +29,7 @@ export function importQueryTypeString(v:string, dflt:QueryType):QueryType {
     } else if (!v) {
         return dflt;
     }
-    throw new Error(`Unknown query type '${v}`);
+    throw new Error(`Unknown query type '${v}'`);
 }
 
 export interface SearchLanguage {

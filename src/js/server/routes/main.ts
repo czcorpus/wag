@@ -17,29 +17,26 @@
  */
 import { NextFunction } from 'connect';
 import { Request, Response } from 'express';
-import * as React from 'react';
-import { renderToString } from 'react-dom/server';
 import { Observable, forkJoin, of as rxOf } from 'rxjs';
 import { concatMap, map, catchError, reduce } from 'rxjs/operators';
 
 
 import { AppServices } from '../../appServices';
-import { HostPageEnv } from '../../common/hostPage';
-import { QueryType, LemmaVariant, QueryPoS, matchesPos, findMergeableLemmas, RecognizedQueries, importQueryTypeString } from '../../common/query';
-import { UserConf, ClientStaticConf, ClientConf, emptyClientConf, getSupportedQueryTypes, emptyLayoutConf, getQueryTypeFreqDb, DEFAULT_WAIT_FOR_OTHER_TILES } from '../../conf';
-import { init as viewInit, LayoutProps } from '../../views/layout';
+import { QueryType, LemmaVariant, QueryPoS, matchesPos, findMergeableLemmas, importQueryTypeString } from '../../common/query';
+import { UserConf, ClientStaticConf, ClientConf, emptyClientConf, getSupportedQueryTypes, emptyLayoutConf, errorUserConf,
+    getQueryTypeFreqDb, DEFAULT_WAIT_FOR_OTHER_TILES } from '../../conf';
+import { init as viewInit } from '../../views/layout';
+import { init as errPageInit } from '../../views/error';
 import { ServerSideActionDispatcher } from '../core';
 import { emptyValue } from '../toolbar/empty';
 import { Services  } from '../actionServices';
 import { getLemmas } from '../freqdb/freqdb';
 import { loadFile } from '../files';
 import { createRootComponent } from '../../app';
-import { WdglanceMainProps } from '../../views/main';
-import { TileGroup } from '../../layout';
 import { ActionName } from '../../models/actions';
 import { DummyCache } from '../../cacheDb';
-import { Dict, List, pipe } from '../../common/collections';
-import { getLangFromCookie, fetchReqArgArray, createHelperServices, mkReturnUrl, logRequest } from './common';
+import { Dict, pipe } from '../../common/collections';
+import { getLangFromCookie, fetchReqArgArray, createHelperServices, mkReturnUrl, logRequest, renderResult } from './common';
 
 
 
@@ -90,112 +87,84 @@ function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, appServices:App
     );
 }
 
-
-interface RenderResultArgs {
-    view:React.SFC<LayoutProps>;
-    services:Services;
-    toolbarData:HostPageEnv;
-    lemmas:RecognizedQueries;
-    userConfig:UserConf;
-    clientConfig:ClientConf;
-    returnUrl:string;
-    rootView:React.ComponentType<WdglanceMainProps>;
-    homepageSections:Array<{label:string; html:string}>;
-    layout:Array<TileGroup>;
-    isMobile:boolean;
-    isAnswerMode:boolean;
-}
-
-function renderResult({view, services, toolbarData, lemmas, userConfig, clientConfig, returnUrl,
-        rootView, layout, isMobile, isAnswerMode, homepageSections}:RenderResultArgs):string {
-    const appString = renderToString(
-        React.createElement<LayoutProps>(
-            view,
-            {
-                config: clientConfig,
-                userConfig: userConfig,
-                hostPageEnv: toolbarData,
-                lemmas: lemmas,
-                uiLanguages: pipe(userConfig.uiLanguages, Dict.mapEntries(v => v), List.map(([k, v]) => ({code: k, label: v}))),
-                uiLang: userConfig.uiLang,
-                returnUrl: returnUrl,
-                homepageTiles: [...clientConfig.homepage.tiles],
-                RootComponent: rootView,
-                layout: layout,
-                homepageSections: homepageSections,
-                isMobile: isMobile,
-                isAnswerMode: isAnswerMode
-            }
-        )
-    );
-    return `<!DOCTYPE html>\n${appString}`;
-}
-
-
 export function mainAction(services:Services, answerMode:boolean, req:Request, res:Response, next:NextFunction) {
-    // this just ensures backward compatibility
-    if (req.url.includes('q1=') || req.url.includes('q2=')) {
-        res.redirect(301, mkReturnUrl(req, services.clientConf.rootUrl).replace('q1=', 'q=').replace('q2=', 'q='));
-        return;
-    }
 
-    const queryType = importQueryTypeString(req.query['queryType'], QueryType.SINGLE_QUERY);
-    const minNumQueries = queryType === QueryType.CMP_QUERY ? 2 : 1;
-
-    const userConfig:UserConf = {
-        uiLang: getLangFromCookie(req, services.serverConf.langCookie, services.serverConf.languages),
-        uiLanguages: services.serverConf.languages,
-        query1Lang: req.query['lang1'] || 'cs',
-        query2Lang: req.query['lang2'] || 'en',
-        queryType: queryType,
-        queryPos: fetchReqArgArray(req, 'pos', minNumQueries).map(v => v.split(',') as Array<QueryPoS>),
-        queries: fetchReqArgArray(req, 'q', minNumQueries),
-        lemma: fetchReqArgArray(req, 'lemma', minNumQueries),
-        answerMode: answerMode
-    };
+    const uiLang = getLangFromCookie(req, services.serverConf.langCookie, services.serverConf.languages);
     const dispatcher = new ServerSideActionDispatcher();
-    const [viewUtils, appServices] = createHelperServices(services, userConfig.uiLang);
+    const [viewUtils, appServices] = createHelperServices(services, uiLang);
+    // until now there should be no exceptions throw
 
-    forkJoin({
-        userConf: new Observable<UserConf>(
-            (observer) => {
-                if (userConfig.queryType === QueryType.TRANSLAT_QUERY && userConfig.query1Lang === userConfig.query2Lang) {
-                    userConfig.error = appServices.translate('global__src_and_dst_langs_must_be_different');
+    new Observable<UserConf>(observer => {
+        try {
+            const queryType = importQueryTypeString(req.query['queryType'], QueryType.SINGLE_QUERY);
+            const minNumQueries = queryType === QueryType.CMP_QUERY ? 2 : 1;
+
+            const userConfNorm:UserConf = {
+                uiLang: uiLang,
+                uiLanguages: services.serverConf.languages,
+                query1Lang: req.query['lang1'] || 'cs', // TODO default
+                query2Lang: req.query['lang2'] || 'en', // TODO default
+                queryType: queryType,
+                queryPos: fetchReqArgArray(req, 'pos', minNumQueries).map(v => v.split(',') as Array<QueryPoS>),
+                queries: fetchReqArgArray(req, 'q', minNumQueries),
+                lemma: fetchReqArgArray(req, 'lemma', minNumQueries),
+                answerMode: answerMode,
+                error: null
+            };
+
+            observer.next(userConfNorm);
+            observer.complete();
+
+        } catch (err) {
+            observer.error(err);
+        }
+
+    }).pipe(
+        concatMap(userConf => forkJoin({
+            appServices: rxOf(appServices),
+            dispatcher: rxOf(dispatcher),
+            viewUtils: rxOf(viewUtils),
+            userConf: new Observable<UserConf>(
+                (observer) => {
+                    if (userConf.queryType === QueryType.TRANSLAT_QUERY && userConf.query1Lang === userConf.query2Lang) {
+                        userConf.error = [400, appServices.translate('global__src_and_dst_langs_must_be_different')];
+                    }
+                    observer.next(userConf);
+                    observer.complete();
                 }
-                observer.next(userConfig);
-                observer.complete();
-            }
-        ),
-        hostPageEnv: services.toolbar.get(userConfig.uiLang, mkReturnUrl(req, services.clientConf.rootUrl), req.cookies, viewUtils),
-        runtimeConf: mkRuntimeClientConf(services.clientConf, userConfig.query1Lang, appServices),
-        logReq: logRequest(
-            services.logging,
-            appServices.getISODatetime(),
-            req,
-            userConfig
-        ).pipe(catchError(
-            (err:Error) => {
-                services.errorLog.error(err.message, {trace: err.stack});
-                return rxOf(0);
-            }
-        )),
-        lemmasEachQuery: rxOf(...userConfig.queries
-                .map(query => answerMode ?
-                    getLemmas(
-                        services.db.getDatabase(userConfig.queryType, userConfig.query1Lang),
-                        appServices,
-                        query,
-                        getQueryTypeFreqDb(services.serverConf, userConfig.queryType).minLemmaFreq
-                    ) :
-                    rxOf<Array<LemmaVariant>>([])
+            ),
+            hostPageEnv: services.toolbar.get(userConf.uiLang, mkReturnUrl(req, services.clientConf.rootUrl), req.cookies, viewUtils),
+            runtimeConf: mkRuntimeClientConf(services.clientConf, userConf.query1Lang, appServices),
+            logReq: logRequest( // we don't need the return value much here (see subscribe)
+                services.logging,
+                appServices.getISODatetime(),
+                req,
+                userConf
+            ).pipe(catchError(
+                (err:Error) => {
+                    services.errorLog.error(err.message, {trace: err.stack});
+                    return rxOf(0);
+                }
+            )),
+            lemmasEachQuery: rxOf(...userConf.queries
+                    .map(query => answerMode ?
+                        getLemmas(
+                            services.db.getDatabase(userConf.queryType, userConf.query1Lang),
+                            appServices,
+                            query,
+                            getQueryTypeFreqDb(services.serverConf, userConf.queryType).minLemmaFreq
+                        ) :
+                        rxOf<Array<LemmaVariant>>([])
 
-                )).pipe(
-                    concatMap(v => v),
-                    reduce((acc:Array<Array<LemmaVariant>>, curr) => acc.concat([curr]), [])
+                    )).pipe(
+                        concatMap(v => v),
+                        reduce((acc:Array<Array<LemmaVariant>>, curr) => acc.concat([curr]), [])
 
-                )
-    }).subscribe(
-        ({userConf, hostPageEnv, runtimeConf, logReq, lemmasEachQuery}) => {
+                    )
+            })
+        )
+    ).subscribe(
+        ({userConf, hostPageEnv, runtimeConf, lemmasEachQuery, appServices, dispatcher, viewUtils}) => {
             const lemmasExtended = lemmasEachQuery.map((lemmas, queryIdx) => {
                 let mergedLemmas = findMergeableLemmas(lemmas);
                 if (mergedLemmas.length > 0) {
@@ -223,7 +192,7 @@ export function mainAction(services:Services, answerMode:boolean, req:Request, r
                 } else {
                     mergedLemmas = [{
                         lemma: null,
-                        word: userConfig.queries[queryIdx],
+                        word: userConf.queries[queryIdx],
                         pos: [],
                         abs: 0,
                         ipm: 0,
@@ -235,13 +204,13 @@ export function mainAction(services:Services, answerMode:boolean, req:Request, r
                 }
                 return mergedLemmas;
             });
-            const [rootView, layout, _] = createRootComponent({
+            const [rootView, layout,] = createRootComponent({
                 config: runtimeConf,
-                userSession: userConfig,
+                userSession: userConf,
                 lemmas: lemmasExtended,
                 appServices: appServices,
                 dispatcher: dispatcher,
-                onResize: new Observable((observer) => undefined),
+                onResize: new Observable((_) => undefined),
                 viewUtils: viewUtils,
                 cache: new DummyCache()
             });
@@ -268,26 +237,29 @@ export function mainAction(services:Services, answerMode:boolean, req:Request, r
                 layout: layout,
                 homepageSections: [...runtimeConf.homepage.tiles],
                 isMobile: false, // TODO should we detect the mode on server too
-                isAnswerMode: answerMode
+                isAnswerMode: answerMode,
+                error: null
             }));
         },
         (err:Error) => {
             services.errorLog.error(err.message, {trace: err.stack});
-            userConfig.error = String(err);
+            const userConf = errorUserConf(services.serverConf.languages, 400, String(err));
             const view = viewInit(viewUtils);
+            const errView = errPageInit(viewUtils);
             res.send(renderResult({
                 view: view,
                 services: services,
                 toolbarData: emptyValue(),
                 lemmas: [],
-                userConfig: userConfig,
+                userConfig: userConf,
                 clientConfig: emptyClientConf(services.clientConf),
                 returnUrl: mkReturnUrl(req, services.clientConf.rootUrl),
-                rootView: null,
+                rootView: errView,
                 layout: [],
                 homepageSections: [],
                 isMobile: false, // TODO should we detect the mode on server too
-                isAnswerMode: answerMode
+                isAnswerMode: false,
+                error: [400, err.message] // TODO code
             }));
         }
     );

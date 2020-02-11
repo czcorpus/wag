@@ -155,38 +155,41 @@ export const initClient = (mountElement:HTMLElement, config:ClientConf, userSess
         ).subscribe();
     }
 
-    ReactDOM.hydrate(
-        React.createElement(
-            WdglanceMain,
-            {
-                layout: currLayout,
-                homepageSections: [...config.homepage.tiles],
-                isMobile: appServices.isMobileMode(),
-                isAnswerMode: userSession.answerMode
-            }
-        ),
-        mountElement,
-        () => {
-            if (userSession.error) {
-                dispatcher.dispatch({
-                    name: ActionName.SetEmptyResult,
-                    payload: {
-                        error: userSession.error
+    if (!userSession.error || userSession.error[0] === 0) {
+        ReactDOM.hydrate(
+            React.createElement(
+                WdglanceMain,
+                {
+                    layout: currLayout,
+                    homepageSections: [...config.homepage.tiles],
+                    isMobile: appServices.isMobileMode(),
+                    isAnswerMode: userSession.answerMode,
+                    error: userSession.error
+                }
+            ),
+            mountElement,
+            () => {
+                if (userSession.error) {
+                    dispatcher.dispatch({
+                        name: ActionName.SetEmptyResult,
+                        payload: {
+                            error: userSession.error
+                        }
+                    });
+
+                } else if (userSession.answerMode) {
+                    if (lemmas[0].find(v => v.isCurrent)) {
+                        dispatcher.dispatch({
+                            name: ActionName.RequestQueryResponse
+                        });
+
+                    } else {
+                        dispatcher.dispatch({
+                            name: ActionName.SetEmptyResult
+                        });
                     }
-                });
-
-            } else if (userSession.answerMode) {
-                if (lemmas[0].find(v => v.isCurrent)) {
-                    dispatcher.dispatch({
-                        name: ActionName.RequestQueryResponse
-                    });
-
-                } else {
-                    dispatcher.dispatch({
-                        name: ActionName.SetEmptyResult
-                    });
                 }
             }
-        }
-    );
+        );
+    }
 }

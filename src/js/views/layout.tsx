@@ -26,6 +26,7 @@ import { ClientConf, UserConf } from '../conf';
 import { TileGroup } from '../layout';
 import { GlobalComponents } from './global';
 import { WdglanceMainProps } from './main';
+import { ErrPageProps } from './error';
 
 
 
@@ -38,11 +39,12 @@ export interface LayoutProps {
     homepageTiles:Array<{label:string; html:string}>;
     uiLang:string;
     returnUrl:string;
-    RootComponent:React.ComponentType<WdglanceMainProps>;
+    RootComponent:React.ComponentType<WdglanceMainProps|ErrPageProps>;
     layout:Array<TileGroup>;
     homepageSections:Array<{label:string; html:string}>;
     isMobile:boolean;
     isAnswerMode:boolean;
+    error:[number, string];
 }
 
 
@@ -91,7 +93,9 @@ export function init(ut:ViewUtils<GlobalComponents>):React.SFC<LayoutProps> {
                             layout={props.layout}
                             homepageSections={props.homepageSections}
                             isMobile={props.isMobile}
-                            isAnswerMode={props.isAnswerMode} />
+                            isAnswerMode={props.isAnswerMode}
+                            error={props.error}
+                             />
                     </section>
                     {props.hostPageEnv.scripts.map(script =>
                         <script key={script} type="text/javascript" src={script}></script>

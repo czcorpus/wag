@@ -100,10 +100,6 @@ export interface InitIntArgs {
 export function createRootComponent({config, userSession, lemmas, appServices, dispatcher,
     onResize, viewUtils, cache}:InitIntArgs):[React.FunctionComponent<WdglanceMainProps>, Array<TileGroup>, TileIdentMap] {
 
-    const qType = userSession.queryType as QueryType; // TODO validate
-    const isDictQuery = userSession.queryType === QueryType.CMP_QUERY ?
-            List.some(lvList => testIsDictQuery(lvList), lemmas) :
-            testIsDictQuery(lemmas[0]);
     const globalComponents = globalCompInit(dispatcher, viewUtils, onResize);
     viewUtils.attachComponents(globalComponents);
 
@@ -112,7 +108,7 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
     const layoutManager = new LayoutManager(config.layouts, tilesMap, appServices);
     const theme = new Theme(config.colors);
 
-    const retryLoadModel = new RetryTileLoad(dispatcher);
+    const qType = userSession.queryType as QueryType; // TODO validate
 
     const formModel = mainFormFactory({
         dispatcher: dispatcher,
@@ -143,12 +139,16 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
         cache
     );
 
+    const isDictQuery = (userSession.queryType === QueryType.CMP_QUERY || !userSession.answerMode) ?
+            List.some(lvList => testIsDictQuery(lvList), lemmas) :
+            testIsDictQuery(lemmas[0]);
     const attachTile = mkAttachTile(
         qType,
         isDictQuery,
         userSession.query1Lang,
         userSession.query2Lang
     );
+    const retryLoadModel = new RetryTileLoad(dispatcher);
     Object.keys(config.tiles).forEach(tileId => {
         const tile = factory(tileId, config.tiles[tileId]);
         attachTile({
