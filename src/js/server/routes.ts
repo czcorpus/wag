@@ -27,7 +27,7 @@ import { concatMap, map, catchError, reduce, tap } from 'rxjs/operators';
 import { AppServices } from '../appServices';
 import { encodeArgs } from '../common/ajax';
 import { ErrorType, mapToStatusCode, newError } from '../common/errors';
-import { HostPageEnv, AvailableLanguage } from '../common/hostPage';
+import { HostPageEnv } from '../common/hostPage';
 import { QueryType, LemmaVariant, importQueryPos, QueryPoS, matchesPos, findMergeableLemmas, RecognizedQueries, importQueryTypeString } from '../common/query';
 import { UserConf, ClientStaticConf, ClientConf, emptyClientConf, getSupportedQueryTypes, emptyLayoutConf, getQueryTypeFreqDb, DEFAULT_WAIT_FOR_OTHER_TILES } from '../conf';
 import { GlobalComponents } from '../views/global';
@@ -47,6 +47,19 @@ import { ILogQueue } from './logging/abstract';
 import { TelemetryAction } from '../common/types';
 import { Dict, List, pipe } from '../common/collections';
 
+import * as winston from 'winston';
+import 'winston-daily-rotate-file';
+
+
+const logger = winston.createLogger({
+    format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.json()
+    ),
+    transports: [
+        new winston.transports.Console()
+    ]
+});
 
 
 function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, appServices:AppServices):Observable<ClientConf> {
@@ -205,8 +218,8 @@ function logRequest(logging:ILogQueue, datetime:string, req:Request, userConfig:
         settings: {}
     }).pipe(
         catchError(
-            (err) => {
-                console.error(err);
+            (err:Error) => {
+                logger.error(err.message, {trace: err.stack});
                 return rxOf(0);
             }
         )
@@ -361,8 +374,8 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
                 isAnswerMode: answerMode
             }));
         },
-        (err) => {
-            console.log(err);
+        (err:Error) => {
+            logger.error(err.message, {trace: err.stack});
             userConfig.error = String(err);
             const view = viewInit(viewUtils);
             res.send(renderResult({
@@ -384,7 +397,20 @@ function mainAction(services:Services, answerMode:boolean, req:Request, res:Resp
 }
 
 
-export const wdgRouter = (services:Services) => (app:Express) => {
+export const wdgRouter = (services:Services) => (app:Express) => {  
+    if (services.serverConf.logging) {
+        if (services.serverConf.logging.rotation) {
+            logger.add(new winston.transports.DailyRotateFile({
+                filename: services.serverConf.logging.path.includes('%DATE%') ?
+                    services.serverConf.logging.path :
+                    services.serverConf.logging.path + '.%DATE%',
+                datePattern: 'YYYY-MM-DD'
+            }));    
+        } else {
+            logger.add(new winston.transports.File({filename: services.serverConf.logging.path}));
+        }
+    }
+
     // endpoint to receive client telemetry
     app.post(HTTPAction.TELEMETRY, (req, res, next) => {
         const t1 = new Date().getTime();
@@ -426,7 +452,10 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                 const t2 = new Date().getTime() - t1;
                 res.send({saved: true, procTimePerItem: t2 / total});
             },
-            (err) => res.status(500).send({saved: false, message: err})
+            (err:Error) => {
+                logger.error(err.message, {trace: err.stack});
+                res.status(500).send({saved: false, message: err});
+            }
         );
     });
 
@@ -515,6 +544,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                 res.send(JSON.stringify({result: data}));
             },
             (err:Error) => {
+                logger.error(err.message, {trace: err.stack});
                 res.status(mapToStatusCode(err.name)).send({
                     message: err.message
                 });
@@ -571,6 +601,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                 res.send(JSON.stringify({result: data}));
             },
             (err:Error) => {
+                logger.error(err.message, {trace: err.stack});
                 res.status(mapToStatusCode(err.name)).send({
                     message: err.message
                 });
