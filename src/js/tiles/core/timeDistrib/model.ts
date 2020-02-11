@@ -76,6 +76,8 @@ export interface TimeDistribModelState extends GeneralSingleCritFreqBarModelStat
     wordCmpInput:string;
     wordMainLabel:string; // a copy from mainform state used to attach a legend
     backlink:BacklinkWithArgs<BacklinkArgs>;
+    refArea:[number,number];
+    zoom:[number, number];
 }
 
 
@@ -268,6 +270,52 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                             });
                         }
                     );
+                }
+            }
+        );
+
+        this.addActionHandler<Actions.ZoomMouseLeave>(
+            ActionName.ZoomMouseLeave,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {
+                    state.refArea = [null, null];
+                }
+            }
+        );
+        this.addActionHandler<Actions.ZoomMouseDown>(
+            ActionName.ZoomMouseDown,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {
+                    state.refArea = [action.payload.value, action.payload.value];
+                }
+            }
+        );
+        this.addActionHandler<Actions.ZoomMouseMove>(
+            ActionName.ZoomMouseMove,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {
+                    state.refArea[1] = action.payload.value;
+                }
+            }
+        );
+        this.addActionHandler<Actions.ZoomMouseUp>(
+            ActionName.ZoomMouseUp,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {
+                    if (state.refArea[1] !== state.refArea[0]) {
+                        state.zoom = state.refArea[1] > state.refArea[0] ?
+                            [state.refArea[0], state.refArea[1]] :
+                            [state.refArea[1], state.refArea[0]];
+                    }
+                    state.refArea = [null, null];
+                }
+            }
+        );
+        this.addActionHandler<Actions.ZoomReset>(
+            ActionName.ZoomReset,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {
+                    state.zoom = [null, null]                    
                 }
             }
         );
