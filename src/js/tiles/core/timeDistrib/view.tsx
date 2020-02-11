@@ -250,7 +250,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
 
         render() {
+<<<<<<< HEAD
             const data = mergeDataSets(this.props.data1, this.props.data2);
+=======
+            const data = mergeDataSets(this.props.data1, this.props.data2).filter(v => Boolean(v.datetime));
+>>>>>>> Zoom added to single word time distribution tile
             return (
                 <ResponsiveContainer width={this.props.isSmallWidth ? '100%' : '90%'} height={this.props.size[1]}>
                     <AreaChart
