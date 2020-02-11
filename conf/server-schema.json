@@ -146,6 +146,21 @@
         "logQueue": {
             "$ref": "#/definitions/LogQueueConf"
         },
+        "logging": {
+            "properties": {
+                "path": {
+                    "type": "string"
+                },
+                "rotation": {
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "path",
+                "rotation"
+            ],
+            "type": "object"
+        },
         "port": {
             "type": "number"
         },
