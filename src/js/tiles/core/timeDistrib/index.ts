@@ -89,7 +89,9 @@ export class TimeDistTile implements ITileProvider {
                 isTweakMode: false,
                 wordMainLabel: '',
                 wordCmpInput: '',
-                wordCmp: ''
+                wordCmp: '',
+                zoom: [null, null],
+                refArea: [null, null]
             },
             tileId: tileId,
             waitForTile: waitForTiles[0] || -1,

@@ -52,6 +52,11 @@ export interface DataLoadedPayload {
 export enum ActionName {
     ChangeCmpWord = 'TIME_DISTRIB_CHANGE_CMP_WORD',
     SubmitCmpWord = 'TIME_DISTRIB_SUBMIT_CMP_WORD',
+    ZoomMouseLeave = 'MULTI_WORD_ZOOM_MOUSE_LEAVE',
+    ZoomMouseDown = 'MULTI_WORD_ZOOM_MOUSE_DOWN',
+    ZoomMouseMove = 'MULTI_WORD_ZOOM_MOUSE_MOVE',
+    ZoomMouseUp = 'MULTI_WORD_ZOOM_MOUSE_UP',
+    ZoomReset = 'MULTI_WORD_ZOOM_RESET'
 }
 
 export interface DataItemWithWCI {
@@ -77,6 +82,44 @@ export namespace Actions {
 
     }> {
         name:ActionName.SubmitCmpWord;
+    }
+
+    export interface ZoomMouseLeave extends Action<{
+        tileId:number;
+
+    }> {
+        name:ActionName.ZoomMouseLeave;
+    }
+
+    export interface ZoomMouseDown extends Action<{
+        tileId:number;
+        value:number;
+
+    }> {
+        name:ActionName.ZoomMouseDown;
+    }
+
+    export interface ZoomMouseMove extends Action<{
+        tileId:number;
+        value:number;
+
+    }> {
+        name:ActionName.ZoomMouseMove;
+    }
+
+    export interface ZoomMouseUp extends Action<{
+        tileId:number;
+        value:number;
+
+    }> {
+        name:ActionName.ZoomMouseUp;
+    }
+
+    export interface ZoomReset extends Action<{
+        tileId:number;
+
+    }> {
+        name:ActionName.ZoomReset;
     }
 }
 

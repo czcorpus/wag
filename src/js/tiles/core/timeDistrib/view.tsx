@@ -17,7 +17,7 @@
  */
 import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
-import { Area, AreaChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Area, AreaChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis, ReferenceArea } from 'recharts';
 
 import { Theme } from '../../../common/theme';
 import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
@@ -175,7 +175,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------- <Chart /> ------------------------------------------------------
 
-    const Chart:React.SFC<{
+    class Chart extends React.Component<{
         wordCmp:string;
         word:string;
         data1:Array<DataItemWithWCI>;
@@ -183,38 +183,124 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         size:[number, number];
         isPartial:boolean;
         isSmallWidth:boolean;
+        zoom:[number, number];
+        refArea:[number, number];
+        tileId:number;
 
-    }> = React.memo((props) => {
-        const data = mergeDataSets(props.data1, props.data2);
-        return (
-            <ResponsiveContainer width={props.isSmallWidth ? '100%' : '90%'} height={props.size[1]}>
-                <AreaChart data={data}
-                        margin={{top: 10, right: 30, left: 0, bottom: 0}}>
-                    <CartesianGrid strokeDasharray="1 1"/>
-                    <XAxis dataKey="datetime" interval="preserveStartEnd" minTickGap={0} type="category" />
-                    <YAxis />
-                    <Tooltip isAnimationActive={false} />
-                    <Area type="linear"
-                            dataKey="ipmInterval1"
-                            name={ut.translate('timeDistrib__estimated_interval_for_{word}', {word: props.word})}
-                            stroke={props.isPartial ? theme.unfinishedChartColor : theme.barColor(0)}
-                            fill={props.isPartial ? theme.unfinishedChartColorLight : theme.barColor(0)}
+    }> {
+        constructor(props) {
+            super(props);
+            this.zoomMouseLeave = this.zoomMouseLeave.bind(this);
+            this.zoomMouseDown = this.zoomMouseDown.bind(this);
+            this.zoomMouseMove = this.zoomMouseMove.bind(this);
+            this.zoomMouseUp = this.zoomMouseUp.bind(this);
+            this.zoomReset = this.zoomReset.bind(this);
+        }
+
+        private zoomMouseLeave() {
+            dispatcher.dispatch<Actions.ZoomMouseLeave>({
+                name: ActionName.ZoomMouseLeave,
+                payload: {
+                    tileId: this.props.tileId
+                }
+            });
+        }
+
+        private zoomMouseDown(e) {
+            dispatcher.dispatch<Actions.ZoomMouseDown>({
+                name: ActionName.ZoomMouseDown,
+                payload: {
+                    tileId: this.props.tileId,
+                    value: Number(e.activeLabel)
+                }
+            });
+        }
+
+        private zoomMouseMove(e) {
+            dispatcher.dispatch<Actions.ZoomMouseMove>({
+                name: ActionName.ZoomMouseMove,
+                payload: {
+                    tileId: this.props.tileId,
+                    value: Number(e.activeLabel)
+                }
+            });
+        }
+
+        private zoomMouseUp(e) {
+            if (e === null) {
+                this.zoomMouseLeave();
+            } else {
+                dispatcher.dispatch<Actions.ZoomMouseUp>({
+                    name: ActionName.ZoomMouseUp,
+                    payload: {
+                        tileId: this.props.tileId,
+                        value: Number(e.activeLabel)
+                    }
+                });
+            }
+        }
+
+        private zoomReset() {
+            dispatcher.dispatch<Actions.ZoomReset>({
+                name: ActionName.ZoomReset,
+                payload: {
+                    tileId: this.props.tileId
+                }
+            });
+        }
+
+        render() {
+            const data = mergeDataSets(this.props.data1, this.props.data2);
+            return (
+                <ResponsiveContainer width={this.props.isSmallWidth ? '100%' : '90%'} height={this.props.size[1]}>
+                    <AreaChart
+                        data={data.filter(v => this.props.zoom.every(v => v !== null) ? parseInt(v.datetime) >= this.props.zoom[0] && parseInt(v.datetime) <= this.props.zoom[1] : true)}
+                        margin={{top: 10, right: 30, left: 0, bottom: 0}}
+                        onMouseLeave = {this.zoomMouseLeave}
+                        onMouseDown = {this.zoomMouseDown}
+                        onMouseMove = {this.props.refArea[0] ? this.zoomMouseMove : null}
+                        onMouseUp = {this.zoomMouseUp}
+                    >
+                        <CartesianGrid strokeDasharray="1 1"/>
+                        <XAxis dataKey="datetime" interval="preserveStartEnd" minTickGap={0} type="category" />
+                        <YAxis />
+                        <Tooltip isAnimationActive={false} />
+                        <Area type="linear"
+                                dataKey="ipmInterval1"
+                                name={ut.translate('timeDistrib__estimated_interval_for_{word}', {word: this.props.word})}
+                                stroke={this.props.isPartial ? theme.unfinishedChartColor : theme.barColor(0)}
+                                fill={this.props.isPartial ? theme.unfinishedChartColorLight : theme.barColor(0)}
+                                strokeWidth={1}
+                                isAnimationActive={false}
+                                connectNulls={true} />
+                        <Area type="linear"
+                            dataKey="ipmInterval2"
+                            name={this.props.wordCmp ? ut.translate('timeDistrib__estimated_interval_for_{word}', {word: this.props.wordCmp}): undefined}
+                            stroke={this.props.isPartial ? theme.unfinishedChartColor : theme.barColor(1)}
+                            fill={this.props.isPartial ? theme.unfinishedChartColorLight : theme.barColor(1)}
                             strokeWidth={1}
                             isAnimationActive={false}
                             connectNulls={true} />
-                    <Area type="linear"
-                        dataKey="ipmInterval2"
-                        name={props.wordCmp ? ut.translate('timeDistrib__estimated_interval_for_{word}', {word: props.wordCmp}): undefined}
-                        stroke={props.isPartial ? theme.unfinishedChartColor : theme.barColor(1)}
-                        fill={props.isPartial ? theme.unfinishedChartColorLight : theme.barColor(1)}
-                        strokeWidth={1}
-                        isAnimationActive={false}
-                        connectNulls={true} />
-                    <Legend content={(props) => <ChartLegend metric={ut.translate('timeDistrib__ipm_human')} rcData={props} />} />
-                </AreaChart>
-            </ResponsiveContainer>
-        );
-    });
+                        {
+                            (this.props.refArea[0] && this.props.refArea[1]) ? 
+                            <ReferenceArea x1={this.props.refArea[0]} x2={this.props.refArea[1]}  strokeOpacity={0.3} /> :
+                            null    
+                        }
+                        <Legend content={(props) => <ChartLegend metric={ut.translate('timeDistrib__ipm_human')} rcData={props} />} />
+                        <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="30" y="20" viewBox="0 0 50 50" preserveAspectRatio="xMaxYMin meet">
+                            <g fill="black" fillOpacity="0" stroke={this.props.zoom.every(v => v === null) ? "lightgray" : "gray"} strokeWidth="3">
+                                <circle cx="20" cy="20" r="14"/>
+                                <line x1="30" y1="30" x2="42" y2="42" strokeLinecap="round"/>
+                                <line x1="15" y1="15" x2="25" y2="25" strokeLinecap="round"/>
+                                <line x1="25" y1="15" x2="15" y2="25" strokeLinecap="round"/>
+                            </g>
+                            <rect onClick={this.zoomReset} x1="5" y1="5" width="40" height="40" fillOpacity="0"/>
+                        </svg>
+                    </AreaChart>
+                </ResponsiveContainer>
+            );
+        }
+    }
 
     // -------------- <TimeDistribTile /> ------------------------------------------------------
 
@@ -245,7 +331,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             isPartial={props.isBusy}
                             word={props.wordMainLabel}
                             wordCmp={props.wordCmp}
-                            isSmallWidth={props.isMobile || props.widthFract < 2} />
+                            isSmallWidth={props.isMobile || props.widthFract < 2}
+                            zoom={props.zoom}
+                            refArea={props.refArea}
+                            tileId={props.tileId}/>
                 </div>
             </globComponents.TileWrapper>
         );
