@@ -142,23 +142,27 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
 
         private zoomMouseDown(e) {
-            dispatcher.dispatch<Actions.ZoomMouseDown>({
-                name: ActionName.ZoomMouseDown,
-                payload: {
-                    tileId: this.props.tileId,
-                    value: Number(e.activeLabel)
-                }
-            });
+            if (e !== null) {
+                dispatcher.dispatch<Actions.ZoomMouseDown>({
+                    name: ActionName.ZoomMouseDown,
+                    payload: {
+                        tileId: this.props.tileId,
+                        value: Number(e.activeLabel)
+                    }
+                });
+            }
         }
 
         private zoomMouseMove(e) {
-            dispatcher.dispatch<Actions.ZoomMouseMove>({
-                name: ActionName.ZoomMouseMove,
-                payload: {
-                    tileId: this.props.tileId,
-                    value: Number(e.activeLabel)
-                }
-            });
+            if (this.props.refArea.some(v => v !== null)) {
+                dispatcher.dispatch<Actions.ZoomMouseMove>({
+                    name: ActionName.ZoomMouseMove,
+                    payload: {
+                        tileId: this.props.tileId,
+                        value: Number(e.activeLabel)
+                    }
+                });
+            }
         }
 
         private zoomMouseUp(e) {
