@@ -17,10 +17,10 @@
  */
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { Ident } from 'cnc-tskit';
 
 import { cachedAjax$ } from '../../../common/ajax';
 import { DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../../common/types';
-import { puid } from '../../../common/util';
 import { DataHeading, DataRow } from '../../../common/api/abstract/collocations';
 import { CollApiArgs } from '../../../common/api/kontext/collocations';
 
@@ -86,7 +86,7 @@ export class KontextCollAPI implements DataApi<CollApiArgs, CollApiResponse> {
                         pfilter: item.pfilter,
                         nfilter: item.nfilter,
                         str: item.str,
-                        interactionId: puid()
+                        interactionId: Ident.puid()
                     }))
                 })
             )

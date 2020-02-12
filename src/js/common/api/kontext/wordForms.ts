@@ -17,12 +17,12 @@
  */
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { Ident } from 'cnc-tskit';
 
 import { LemmaVariant } from '../../query';
 import { WordFormsApi, RequestConcArgs, Response } from '../abstract/wordForms';
 import { HTTPHeaders, IAsyncKeyValueStore } from '../../types';
 import { FreqDistribAPI } from './freqs';
-import { puid } from '../../util';
 
 
 export interface HTTPResponse {
@@ -74,7 +74,7 @@ ml: 0
                             value: v.name,
                             freq: v.freq,
                             ratio: v.freq / total,
-                            interactionId: puid()
+                            interactionId: Ident.puid()
                         }))
                     };
                 }

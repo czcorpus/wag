@@ -18,7 +18,7 @@
 
 import { of as rxOf, Observable } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
-import { puid } from './util';
+import { Ident } from 'cnc-tskit';
 
 let soundManager:any;
 if (typeof window === 'undefined') {
@@ -75,7 +75,7 @@ export class AudioPlayer {
     }
 
     play<T extends {url:string}>(items:Array<T>):Observable<ChunkPlayback<T>> {
-        const sessionId = `playback:${puid()}`;
+        const sessionId = `playback:${Ident.puid()}`;
         const itemsToPlay:Array<ItemToPlay<T>> = items.map((v, i) => ({
             idx: i,
             total: items.length,

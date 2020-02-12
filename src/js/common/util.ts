@@ -16,47 +16,6 @@
  * limitations under the License.
  */
 
-export namespace KeyCodes {
-    export const ENTER = 13;
-    export const ESC = 27;
-    export const TAB = 9;
-    export const DOWN_ARROW = 40;
-    export const UP_ARROW = 38;
-    export const LEFT_ARROW = 37;
-    export const RIGHT_ARROW = 39;
-    export const BACKSPACE = 8;
-    export const DEL = 46;
-    export const HOME = 36;
-    export const END = 35;
-
-    export const isArrowKey = (code:number):boolean => {
-        return code === UP_ARROW || code === DOWN_ARROW ||
-                code === LEFT_ARROW || code === RIGHT_ARROW;
-    }
-}
-
-
-/**
- * pseudo uuid (aka good enough for the use)
- */
-export function puid():string {
-    const ab = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    const len = ab.length;
-    const ans:Array<string> = [];
-
-    let x = new Date().getTime();
-    while (x > 0) {
-        ans.push(ab[x % len]);
-        x = Math.floor(x / len);
-    }
-    x = Math.random() * 1e14;
-    while (x > 0) {
-        ans.push(ab[x % len]);
-        x = Math.floor(x / len);
-    }
-    return ans.join('').substr(0, 14);
-}
-
 
 export function calcPercentRatios<T, U>(values:Array<T>, get:(v:T)=>number, trans:(v:T, ratio:number)=>U):Array<U> {
     const sum = values.reduce((acc, curr) => acc + get(curr), 0);

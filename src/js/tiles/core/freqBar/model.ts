@@ -18,18 +18,16 @@
 import { Action, StatelessModel, IActionQueue } from 'kombo';
 import { Observable, Observer } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
+import { Dict, Ident } from 'cnc-tskit';
 
 import { AppServices } from '../../../appServices';
 import { BacklinkArgs, DataRow, MultiBlockFreqDistribAPI } from '../../../common/api/kontext/freqs';
 import { createBackLink, GeneralMultiCritFreqBarModelState, stateToAPIArgs } from '../../../common/models/freq';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
-import { puid } from '../../../common/util';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { ConcLoadedPayload } from '../concordance/actions';
 import { ActionName, Actions, DataLoadedPayload } from './actions';
 import { callWithExtraVal } from '../../../common/api/util';
-import { Dict } from 'cnc-tskit';
-
 
 
 export interface FreqBarModelState extends GeneralMultiCritFreqBarModelState<DataRow> {
@@ -167,7 +165,7 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState, {[tileId:str
                     if (action.error) {
                         state.blocks = state.fcrit.map((_, i) => ({
                             data: [],
-                            ident: puid(),
+                            ident: Ident.puid(),
                             label: this.appServices.importExternalMessage(action.payload.blockLabel ? action.payload.blockLabel : state.critLabels[i]),
                             isReady: true
                         }));
@@ -183,7 +181,7 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState, {[tileId:str
                                     ipm: v.ipm,
                                     norm: v.norm
                                 })) : null,
-                            ident: puid(),
+                            ident: Ident.puid(),
                             label: this.appServices.importExternalMessage(
                                 action.payload.blockLabel ?
                                     action.payload.blockLabel :

@@ -16,12 +16,12 @@
  * limitations under the License.
  */
 import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
+import { Ident } from 'cnc-tskit';
 
 import { AppServices } from '../../../appServices';
 import { LocalizedConfMsg } from '../../../common/types';
 import { QueryType } from '../../../common/query';
 import { TileComponent, TileConf, TileFactory, Backlink, ITileProvider } from '../../../common/tile';
-import { puid } from '../../../common/util';
 import { GlobalComponents } from '../../../views/global';
 import { factory as defaultModelFactory, FreqComparisonModel } from './model';
 import { init as viewInit } from './view';
@@ -97,7 +97,7 @@ export class FreqComparisonTile implements ITileProvider {
                 blocks: criteria.map(v => ({
                     data: [],
                     words: lemmas.map(_ => null),
-                    ident: puid(),
+                    ident: Ident.puid(),
                     isReady: false,
                     label: null
                 })),

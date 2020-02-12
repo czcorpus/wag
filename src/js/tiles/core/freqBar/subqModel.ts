@@ -18,6 +18,7 @@
 import { Action, SEDispatcher, IActionQueue } from 'kombo';
 import { Observable, merge } from 'rxjs';
 import { concatMap, map } from 'rxjs/operators';
+import { Dict, Ident } from 'cnc-tskit';
 
 import { AppServices } from '../../../appServices';
 import { ConcApi, QuerySelector, RequestArgs } from '../../../common/api/kontext/concordance';
@@ -30,8 +31,6 @@ import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../
 import { DataLoadedPayload } from './actions';
 import { FreqBarModel, FreqBarModelState } from './model';
 import { callWithExtraVal } from '../../../common/api/util';
-import { puid } from '../../../common/util';
-import { Dict } from 'cnc-tskit';
 
 
 export class SubqFreqBarModelArgs {
@@ -84,7 +83,7 @@ export class SubqFreqBarModel extends FreqBarModel {
                         .slice(0, this.subqConf.maxNumSubqueries)
                         .map(subq => ({
                             data: [],
-                            ident: puid(),
+                            ident: Ident.puid(),
                             label: subq.value,
                             isReady: false
                         }));

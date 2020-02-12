@@ -18,12 +18,12 @@
 import { ViewUtils, IActionDispatcher } from 'kombo';
 import * as React from 'react';
 import { Observable } from 'rxjs';
+import { Keyboard } from 'cnc-tskit';
 
 import { MultiDict } from '../common/data';
 import { SystemMessageType, SourceDetails } from '../common/types';
 import { ScreenProps } from '../common/hostPage';
 import { BacklinkWithArgs } from '../common/tile';
-import { KeyCodes } from '../common/util';
 import { ActionName, Actions } from '../models/actions';
 
 export interface SourceInfo {
@@ -403,7 +403,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
         }
 
         private handleKey(evt:React.KeyboardEvent) {
-            if (evt.keyCode === KeyCodes.ESC) {
+            if (evt.keyCode === Keyboard.Code.ESC) {
                 this.props.onCloseClick();
             }
         }
