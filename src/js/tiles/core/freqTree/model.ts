@@ -18,12 +18,12 @@
 import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { Observable, Observer, of } from 'rxjs';
 import { map, mergeMap, reduce } from 'rxjs/operators';
+import { Dict, List, pipe, Ident } from 'cnc-tskit';
 
 import { AppServices } from '../../../appServices';
 import { BacklinkArgs, FreqTreeAPI, APILeafResponse, APIVariantsResponse } from '../../../common/api/kontext/freqTree';
 import { GeneralCritFreqTreeModelState, stateToAPIArgs, FreqTreeDataBlock } from '../../../common/models/freqTree';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
-import { puid } from '../../../common/util';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { ActionName, Actions, DataLoadedPayload } from './actions';
 import { LemmaVariant } from '../../../common/query';
@@ -32,8 +32,6 @@ import { isConcLoadedPayload, ConcLoadedPayload } from '../concordance/actions';
 import { createInitialLinesData } from '../../../common/models/concordance';
 import { ViewMode, ConcResponse } from '../../../common/api/abstract/concordance';
 import { callWithExtraVal } from '../../../common/api/util';
-import { Dict, List, pipe } from 'cnc-tskit';
-
 
 
 export interface FreqTreeModelState extends GeneralCritFreqTreeModelState {
@@ -151,7 +149,7 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                         state.frequencyTree = List.map(
                             _ => ({
                                 data: {},
-                                ident: puid(),
+                                ident: Ident.puid(),
                                 label: '`',
                                 isReady: true
                             }) as FreqTreeDataBlock,
@@ -167,7 +165,7 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                             List.sort(([key1,], [key2,]) => key1.localeCompare(key2)),
                             List.map(([blockId, data]) => ({
                                 data: data,
-                                ident: puid(),
+                                ident: Ident.puid(),
                                 label: state.treeLabels ? state.treeLabels[blockId] : '',
                                 isReady: true,
                             }) as FreqTreeDataBlock)

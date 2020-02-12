@@ -17,10 +17,10 @@
  */
 import { Observable, of as rxOf } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { Ident } from 'cnc-tskit';
 
 import { cachedAjax$ } from '../../../common/ajax';
 import { HTTPHeaders, IAsyncKeyValueStore, SourceDetails } from '../../../common/types';
-import { puid } from '../../../common/util';
 import { CollApiResponse, CollocationApi } from '../abstract/collocations';
 import { CollocModelState } from '../../models/collocations';
 import { LemmaVariant } from '../../query';
@@ -101,7 +101,7 @@ export class LccCollAPI implements CollocationApi<CollRequestArgs> {
                         pfilter: null,
                         nfilter: null,
                         str: item.w2.word,
-                        interactionId: puid()
+                        interactionId: Ident.puid()
                     }))
                 })
             )

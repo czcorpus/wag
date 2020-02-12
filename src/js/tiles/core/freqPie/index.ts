@@ -15,13 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Ident } from 'cnc-tskit';
+
 import { AppServices } from '../../../appServices';
-import { MultiBlockFreqDistribAPI, FreqSort, DataRow } from '../../../common/api/kontext/freqs';
-import { FreqDataBlock, SubqueryModeConf } from '../../../common/models/freq';
+import { MultiBlockFreqDistribAPI, FreqSort } from '../../../common/api/kontext/freqs';
+import { SubqueryModeConf } from '../../../common/models/freq';
 import { LocalizedConfMsg } from '../../../common/types';
 import { QueryType } from '../../../common/query';
 import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../../common/tile';
-import { puid } from '../../../common/util';
 import { factory as defaultModelFactory, FreqBarModel } from '../freqBar/model';
 import { factory as subqModelFactory } from '../freqBar/subqModel';
 import { init as viewInit } from './view';
@@ -95,7 +96,7 @@ export class FreqPieTile implements ITileProvider {
                 error: null,
                 blocks: criteria.map(v => ({
                     data: [],
-                    ident: puid(),
+                    ident: Ident.puid(),
                     label: '',
                     isReady: false
                 })),

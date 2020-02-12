@@ -20,7 +20,7 @@ import { asyncScheduler, of as rxOf, Subject } from 'rxjs';
 import { delay, observeOn } from 'rxjs/operators';
 
 import { SystemMessageType } from './common/types';
-import { puid } from './common/util';
+import { Ident } from 'cnc-tskit';
 import { ActionName } from './models/actions';
 
 
@@ -87,7 +87,7 @@ export class SystemNotifications {
         }
 
         this.messageEvents.next({
-            ident: puid(),
+            ident: Ident.puid(),
             type: type,
             text: msg,
             ttl: SystemNotifications.DEFAULT_MESSAGE_TTL

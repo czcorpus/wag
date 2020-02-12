@@ -16,14 +16,14 @@
  * limitations under the License.
  */
 import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
+import { Ident } from 'cnc-tskit';
 
 import { AppServices } from '../../../appServices';
-import { DataRow, MultiBlockFreqDistribAPI, FreqSort } from '../../../common/api/kontext/freqs';
-import { FreqDataBlock, SubqueryModeConf } from '../../../common/models/freq';
+import { MultiBlockFreqDistribAPI, FreqSort } from '../../../common/api/kontext/freqs';
+import { SubqueryModeConf } from '../../../common/models/freq';
 import { LocalizedConfMsg } from '../../../common/types';
 import { QueryType } from '../../../common/query';
 import { TileComponent, TileConf, TileFactory, Backlink, ITileProvider } from '../../../common/tile';
-import { puid } from '../../../common/util';
 import { GlobalComponents } from '../../../views/global';
 import { factory as defaultModelFactory, FreqBarModel } from './model';
 import { factory as subqModelFactory } from './subqModel';
@@ -107,7 +107,7 @@ export class FreqBarTile implements ITileProvider {
                 error: null,
                 blocks: criteria.map(v => ({
                     data: [],
-                    ident: puid(),
+                    ident: Ident.puid(),
                     isReady: false,
                     label: ''
                 })),

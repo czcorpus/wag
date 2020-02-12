@@ -15,14 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
+import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { Observable, Observer } from 'rxjs';
 import { mergeMap, reduce, share } from 'rxjs/operators';
+import { Ident } from 'cnc-tskit';
 
 import { AppServices } from '../../../appServices';
 import { GeneralMultiCritFreqComparisonModelState, stateToAPIArgs } from '../../../common/models/freqComparison';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
-import { puid } from '../../../common/util';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { ActionName, Actions, DataLoadedPayload, LoadFinishedPayload } from './actions';
 import { findCurrLemmaVariant } from '../../../models/query';
@@ -137,7 +137,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                         state.blocks = state.fcrit.map(v => ({
                             data: [],
                             words: lemmas.map(_ => null),
-                            ident: puid(),
+                            ident: Ident.puid(),
                             isReady: false,
                             label: null
                         }))
@@ -157,7 +157,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                                 norm: data.norm
                             })
                         );
-                        state.blocks[action.payload.critId].ident = puid();
+                        state.blocks[action.payload.critId].ident = Ident.puid();
                         state.blocks[action.payload.critId].label = this.appServices.importExternalMessage(
                             action.payload.blockLabel ?
                             action.payload.blockLabel :

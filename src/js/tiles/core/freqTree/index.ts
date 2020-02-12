@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
+import { Ident } from 'cnc-tskit';
 
 import { AppServices } from '../../../appServices';
 import { FreqTreeAPI } from '../../../common/api/kontext/freqTree';
@@ -23,7 +24,6 @@ import { FreqTreeDataBlock } from '../../../common/models/freqTree';
 import { LocalizedConfMsg } from '../../../common/types';
 import { QueryType } from '../../../common/query';
 import { TileComponent, TileConf, TileFactory, Backlink, ITileProvider } from '../../../common/tile';
-import { puid } from '../../../common/util';
 import { GlobalComponents } from '../../../views/global';
 import { factory as defaultModelFactory, FreqTreeModel } from './model';
 import { init as viewInit } from './view';
@@ -93,7 +93,7 @@ export class FreqTreeTile implements ITileProvider {
                 error: null,
                 frequencyTree: conf.fcritTrees.map(_ => ({
                     data: {},
-                    ident: puid(),
+                    ident: Ident.puid(),
                     label: '',
                     isReady: false
                 }) as FreqTreeDataBlock),

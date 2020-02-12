@@ -16,11 +16,11 @@
  * limitations under the License.
  */
 import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
+import { Ident } from 'cnc-tskit';
 
 import { FreqDistribAPI } from '../../../common/api/kontext/freqs';
 import { QueryType } from '../../../common/query';
 import { Backlink, ITileProvider, TileComponent, TileConf, TileFactory } from '../../../common/tile';
-import { puid } from '../../../common/util';
 import { GlobalComponents } from '../../../views/global';
 import { MergeCorpFreqModel } from './model';
 import { init as viewInit } from './view';
@@ -123,7 +123,7 @@ export class MergeCorpFreqTile implements ITileProvider {
                     valuePlaceholder: src.valuePlaceholder ?
                             appServices.importExternalMessage(src.valuePlaceholder) :
                             null,
-                    uuid: puid(),
+                    uuid: Ident.puid(),
                     backlinkTpl: src.backlink || null,
                     backlink: null,
                     isSingleCategory: !!src.isSingleCategory

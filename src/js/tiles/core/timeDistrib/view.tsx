@@ -24,8 +24,7 @@ import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
 import { GlobalComponents } from '../../../views/global';
 import { DataItemWithWCI, ActionName, Actions } from './common';
 import { TimeDistribModel, TimeDistribModelState } from './model';
-import { KeyCodes } from '../../../common/util';
-import { List, pipe } from 'cnc-tskit';
+import { List, pipe, Keyboard } from 'cnc-tskit';
 
 
 const MIN_DATA_ITEMS_TO_SHOW = 2;
@@ -103,7 +102,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
 
         private handleInputKeyDown(e:React.KeyboardEvent) {
-            if (e.keyCode === KeyCodes.ENTER && !e.shiftKey && !e.ctrlKey) {
+            if (e.keyCode === Keyboard.Code.ENTER && !e.shiftKey && !e.ctrlKey) {
                 e.preventDefault();
                 e.stopPropagation();
                 dispatcher.dispatch<Actions.SubmitCmpWord>({

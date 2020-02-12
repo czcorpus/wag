@@ -17,12 +17,12 @@
  */
 import { Bound, BoundWithProps, IActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
+import { Keyboard } from 'cnc-tskit';
 
 import { Forms } from '../common/data';
 import { SystemMessageType, SourceDetails } from '../common/types';
 import { QueryType, LemmaVariant, QueryTypeMenuItem, SearchLanguage, RecognizedQueries } from '../common/query';
 import { TileFrameProps } from '../common/tile';
-import { KeyCodes } from '../common/util';
 import { TileGroup } from '../layout';
 import { ActionName, Actions } from '../models/actions';
 import { MessagesModel, MessagesState } from '../models/messages';
@@ -166,7 +166,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         };
 
         const handleKeyDown = (evt:React.KeyboardEvent):void => {
-            if (evt.keyCode === KeyCodes.ENTER) {
+            if (evt.keyCode === Keyboard.Code.ENTER) {
                 props.onEnter();
                 evt.stopPropagation();
                 evt.preventDefault();
