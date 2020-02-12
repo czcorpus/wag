@@ -21,7 +21,7 @@ import { ITranslator } from 'kombo';
 import { DbValueMapping, HTTPHeaders, SystemMessageType } from './common/types';
 import { LemmaDbApi, LemmaDbResponse } from './common/api/lemma';
 import { SystemNotifications } from './notifications';
-import { HTTPAction } from './server/actions';
+import { HTTPAction } from './server/routes/actions';
 import { AudioPlayer } from './common/audioPlayer';
 import { MultiDict } from './common/data';
 import { Dict } from './common/collections';

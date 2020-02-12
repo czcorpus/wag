@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { StatelessModel, IActionQueue, ActionDispatcher } from 'kombo';
+import { StatelessModel, IActionQueue } from 'kombo';
 
 import { AppServices } from '../appServices';
 import { Forms, MultiDict } from '../common/data';
@@ -24,7 +24,7 @@ import { SystemMessageType } from '../common/types';
 import { AvailableLanguage } from '../common/hostPage';
 import { QueryType, LemmaVariant, QueryTypeMenuItem, matchesPos, SearchLanguage, RecognizedQueries } from '../common/query';
 import { ActionName, Actions } from './actions';
-import { HTTPAction } from '../server/actions';
+import { HTTPAction } from '../server/routes/actions';
 import { LayoutManager } from '../layout';
 
 

@@ -38,6 +38,7 @@ export interface WdglanceMainProps {
     homepageSections:Array<{label:string; html:string}>;
     isMobile:boolean;
     isAnswerMode:boolean;
+    error:[number, string]|null;
 }
 
 
