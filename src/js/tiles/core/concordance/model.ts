@@ -21,10 +21,12 @@
 import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { Observable } from 'rxjs';
 import { mergeMap, tap, reduce } from 'rxjs/operators';
+import { HTTP } from 'cnc-tskit';
+
 import { AppServices } from '../../../appServices';
-import { IConcordanceApi, ConcResponse, SingleConcLoadedPayload } from '../../../common/api/abstract/concordance';
+import { IConcordanceApi, SingleConcLoadedPayload } from '../../../common/api/abstract/concordance';
 import { ConcordanceMinState, createInitialLinesData } from '../../../common/models/concordance';
-import { HTTPMethod, SystemMessageType } from '../../../common/types';
+import { SystemMessageType } from '../../../common/types';
 import { isSubqueryPayload, RecognizedQueries, QueryType } from '../../../common/query';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
@@ -291,7 +293,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
         return this.backlink && this.queryType !== QueryType.CMP_QUERY ?
             {
                 url: this.backlink.url,
-                method: this.backlink.method || HTTPMethod.GET,
+                method: this.backlink.method || HTTP.Method.GET,
                 label: this.backlink.label,
                 args: {
                     corpname: state.corpname,

@@ -28,7 +28,7 @@ import { isSubqueryPayload, RecognizedQueries } from '../../../common/query';
 import { isCollocSubqueryPayload } from '../../../common/api/abstract/collocations';
 import { TranslationSubset, TranslationsSubsetsModelState } from '../../../common/models/translations';
 import { AppServices } from '../../../appServices';
-import { pipe, List, Dict } from '../../../common/collections';
+import { pipe, List, Dict } from 'cnc-tskit';
 import { mergeMap, reduce, tap } from 'rxjs/operators';
 
 

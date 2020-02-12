@@ -18,7 +18,7 @@
 import { RGBAColor } from '../../../common/types';
 import { BacklinkWithArgs } from '../../../common/tile';
 import { LineElement } from '../../../common/api/abstract/concordance';
-import { pipe, Dict, List } from '../../../common/collections';
+import { pipe, Dict, List } from 'cnc-tskit';
 
 
 export type ConcDetailText = Array<LineElement>;

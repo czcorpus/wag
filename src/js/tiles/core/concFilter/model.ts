@@ -30,7 +30,7 @@ import { CollExamplesLoadedPayload } from './actions';
 import { Actions, ActionName } from './actions';
 import { normalizeTypography } from '../../../common/models/concordance/normalize';
 import { ISwitchMainCorpApi, SwitchMainCorpResponse } from '../../../common/api/abstract/switchMainCorp';
-import { Dict, pipe, List } from '../../../common/collections';
+import { Dict, pipe, List } from 'cnc-tskit';
 import { callWithExtraVal } from '../../../common/api/util';
 import { TileWait } from '../../../models/tileSync';
 

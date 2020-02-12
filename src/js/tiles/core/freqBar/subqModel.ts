@@ -31,7 +31,7 @@ import { DataLoadedPayload } from './actions';
 import { FreqBarModel, FreqBarModelState } from './model';
 import { callWithExtraVal } from '../../../common/api/util';
 import { puid } from '../../../common/util';
-import { Dict } from '../../../common/collections';
+import { Dict } from 'cnc-tskit';
 
 
 export class SubqFreqBarModelArgs {

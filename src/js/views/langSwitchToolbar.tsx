@@ -21,7 +21,7 @@ import { ViewUtils } from 'kombo';
 import { GlobalComponents } from './global';
 import { AvailableLanguage } from '../common/hostPage';
 import { HTTPAction } from '../server/routes/actions';
-import { List } from '../common/collections';
+import { List } from 'cnc-tskit';
 
 
 export function init(ut:ViewUtils<GlobalComponents>) {

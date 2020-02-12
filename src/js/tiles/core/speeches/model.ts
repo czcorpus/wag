@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 import { StatelessModel, SEDispatcher, Action, IActionQueue } from 'kombo';
+import { pipe, List, HTTP } from 'cnc-tskit';
 
 import { AppServices } from '../../../appServices';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
@@ -25,12 +26,11 @@ import { isSubqueryPayload } from '../../../common/query';
 import { SpeechesApi, SpeechReqArgs } from './api';
 import { SingleConcLoadedPayload } from '../../../common/api/abstract/concordance';
 import { SpeechesModelState, extractSpeeches, Expand, BacklinkArgs, Segment, PlayableSegment, normalizeSpeechesRange } from './modelDomain';
-import { HTTPMethod, SystemMessageType } from '../../../common/types';
+import { SystemMessageType } from '../../../common/types';
 import { ActionName, Actions } from './actions';
 import { normalizeConcDetailTypography } from '../../../common/models/concordance/normalize';
 import { IAudioUrlGenerator } from '../../../common/api/abstract/audio';
 import { AudioPlayer } from '../../../common/audioPlayer';
-import { pipe, List } from '../../../common/collections';
 import { TileWait } from '../../../models/tileSync';
 
 
@@ -440,7 +440,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState, TileWait<b
         return this.backlink ?
             {
                 url: this.backlink.url,
-                method: this.backlink.method || HTTPMethod.GET,
+                method: this.backlink.method || HTTP.Method.GET,
                 label: this.backlink.label,
                 args: {
                     corpname: state.corpname,

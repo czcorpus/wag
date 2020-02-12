@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { Dict, pipe, List } from '../common/collections';
+import { Dict, pipe, List } from 'cnc-tskit';
 
 export class TileWait<T> {
 

@@ -26,7 +26,7 @@ import { GlobalComponents, TooltipValues } from '../../../../views/global';
 import { ActionName, Actions } from '../actions';
 import { MultiWordGeoAreasModel, MultiWordGeoAreasModelState } from '../model';
 import { LemmaVariant } from '../../../../common/query';
-import { Dict, List, pipe } from '../../../../common/collections';
+import { Dict, List, pipe } from 'cnc-tskit';
 
 
 export interface TargetDataRow extends DataRow {

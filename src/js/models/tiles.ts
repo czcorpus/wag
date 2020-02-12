@@ -24,7 +24,7 @@ import { ajax$, ResponseType } from '../common/ajax';
 import { SystemMessageType, SourceDetails } from '../common/types';
 import { TileFrameProps } from '../common/tile';
 import { ActionName, Actions } from './actions';
-import { List, Dict, pipe } from '../common/collections';
+import { List, Dict, pipe } from 'cnc-tskit';
 
 
 

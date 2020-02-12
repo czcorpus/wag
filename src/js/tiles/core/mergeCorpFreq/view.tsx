@@ -25,7 +25,7 @@ import { GlobalComponents } from '../../../views/global';
 import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
 import { Theme } from '../../../common/theme';
 import { LemmaVariant } from '../../../common/query';
-import { List, pipe } from '../../../common/collections';
+import { List, pipe } from 'cnc-tskit';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:MergeCorpFreqModel):TileComponent {

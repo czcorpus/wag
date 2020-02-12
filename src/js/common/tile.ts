@@ -16,18 +16,19 @@
  * limitations under the License.
  */
 
-import { HTTPMethod, AnyInterface, LocalizedConfMsg, IAsyncKeyValueStore } from './types';
+import { AnyInterface, LocalizedConfMsg, IAsyncKeyValueStore } from './types';
 import { QueryType, RecognizedQueries } from './query';
 import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
 import { GlobalComponents } from '../views/global';
 import { Theme } from './theme';
 import { AppServices } from '../appServices';
+import { HTTP } from 'cnc-tskit';
 
 
 export interface Backlink {
     url:string;
     label:LocalizedConfMsg;
-    method?:HTTPMethod;
+    method?:HTTP.Method;
     subcname?:string; // in case a special subc. is needed for backlink
 }
 
@@ -35,7 +36,7 @@ export interface BacklinkWithArgs<T> {
     url:string;
     label:LocalizedConfMsg;
     args:AnyInterface<T>;
-    method:HTTPMethod;
+    method:HTTP.Method;
 }
 
 /**

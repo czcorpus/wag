@@ -22,7 +22,7 @@ import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../
 import { DataLoadedPayload } from './actions';
 import { RequestArgs, StrippedFreqResponse, SyDAPI } from './api';
 import { RecognizedQueries } from '../../../common/query';
-import { List, pipe } from '../../../common/collections';
+import { List, pipe } from 'cnc-tskit';
 
 
 export interface SydModelState {

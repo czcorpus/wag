@@ -17,7 +17,8 @@
  */
 
 import { Observable, of as rxOf } from 'rxjs';
-import { DataApi, IAsyncKeyValueStore, HTTPHeaders, HTTPMethod } from '../../../common/types';
+import { DataApi, IAsyncKeyValueStore, HTTPHeaders } from '../../../common/types';
+import { HTTP } from 'cnc-tskit'
 import { cachedAjax$ } from '../../../common/ajax';
 import { ConcDetailText } from './modelDomain';
 import { CorpusInfoAPI, APIResponse as CorpusInfoApiResponse } from '../../../common/api/kontext/corpusInfo';
@@ -77,7 +78,7 @@ export class SpeechesApi implements DataApi<SpeechReqArgs, SpeechResponse> {
     call(args:SpeechReqArgs):Observable<SpeechResponse> {
         if (args.pos !== undefined) {
             return cachedAjax$<SpeechResponse>(this.cache)(
-                HTTPMethod.GET,
+                HTTP.Method.GET,
                 this.apiUrl + '/widectx',
                 args,
                 {

@@ -17,7 +17,7 @@
  */
 import { StatelessModel, StatefulModel, Action, IFullActionControl } from 'kombo';
 import { ActionName} from '../models/actions';
-import { List, Dict } from '../common/collections';
+import { List, Dict } from 'cnc-tskit';
 
 
 

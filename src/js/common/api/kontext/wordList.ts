@@ -18,7 +18,8 @@
 import { Observable } from 'rxjs';
 
 import { ajax$ } from '../../ajax';
-import { DataApi, HTTPHeaders, HTTPMethod } from '../../types';
+import { DataApi, HTTPHeaders } from '../../types';
+import { HTTP } from 'cnc-tskit';
 
 
 export interface WordListArgs {
@@ -54,7 +55,7 @@ export class WordListAPI implements DataApi<WordListArgs, WordListResponse> {
 	call(args:WordListArgs):Observable<WordListResponse> {
 
 		return ajax$<WordListResponse>(
-			HTTPMethod.GET,
+			HTTP.Method.GET,
 			this.url + '/wordlist',
 			args,
 			{headers: this.customHeaders}

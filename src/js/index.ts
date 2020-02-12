@@ -34,9 +34,10 @@ import { SystemNotifications } from './notifications';
 import { GlobalComponents } from './views/global';
 import { createRootComponent } from './app';
 import { initStore } from './cacheDb';
-import { HTTPMethod, TelemetryAction } from './common/types';
+import { TelemetryAction } from './common/types';
 import { HTTPAction } from './server/routes/actions';
 import { MultiDict } from './common/data';
+import { HTTP } from 'cnc-tskit';
 
 declare var DocumentTouch;
 declare var require:(src:string)=>void;  // webpack
@@ -145,7 +146,7 @@ export const initClient = (mountElement:HTMLElement, config:ClientConf, userSess
             concatMap(
                 (data) => data.toDispatch.length > 0 ?
                     ajax$(
-                        HTTPMethod.POST,
+                        HTTP.Method.POST,
                         appServices.createActionUrl(HTTPAction.TELEMETRY),
                         {telemetry: data.toDispatch},
                         {contentType: 'application/json'}

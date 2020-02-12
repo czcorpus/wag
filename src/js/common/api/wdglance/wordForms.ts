@@ -19,7 +19,8 @@
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { DataApi, HTTPMethod, IAsyncKeyValueStore } from '../../types';
+import { DataApi, IAsyncKeyValueStore } from '../../types';
+import { HTTP } from 'cnc-tskit';
 import { cachedAjax$ } from '../../ajax';
 import { LemmaVariant } from '../../query';
 import { RequestArgs, Response } from '../../api/abstract/wordForms';
@@ -43,7 +44,7 @@ export class WordFormsWdglanceAPI implements DataApi<RequestArgs, Response> {
 
     call(args:RequestArgs):Observable<Response> {
         return cachedAjax$<HTTPResponse>(this.cache)(
-            HTTPMethod.GET,
+            HTTP.Method.GET,
             this.url,
             args
 

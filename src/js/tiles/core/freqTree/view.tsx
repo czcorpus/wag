@@ -24,7 +24,7 @@ import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
 import { GlobalComponents } from '../../../views/global';
 import { ActionName, Actions } from './actions';
 import { FreqTreeModel, FreqTreeModelState } from './model';
-import { Dict, pipe, List } from '../../../common/collections';
+import { Dict, pipe, List } from 'cnc-tskit';
 import { FreqTreeDataFreqs } from '../../../common/models/freqTree';
 
 type TreeData = {name: any; children:any[]}[];

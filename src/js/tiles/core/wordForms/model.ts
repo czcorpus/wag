@@ -26,7 +26,7 @@ import { ConcLoadedPayload } from '../concordance/actions';
 import { calcPercentRatios } from '../../../common/util';
 import { AlphaLevel, wilsonConfInterval } from '../../../common/statistics';
 import { RecognizedQueries } from '../../../common/query';
-import { List } from '../../../common/collections';
+import { List } from 'cnc-tskit';
 
 
 

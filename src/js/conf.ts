@@ -36,20 +36,20 @@ export interface UserConf {
 	query1Lang:string;
     query2Lang:string;
     answerMode:boolean;
-    error:[number, string]|null; // server error (e.g. bad request)
+    error?:[number, string]; // server error (e.g. bad request)
 }
 
-export function errorUserConf(uiLanguages:{[code:string]:string}, code:number, message:string):UserConf {
+export function errorUserConf(uiLanguages:{[code:string]:string}, error:[number, string], uiLang:string):UserConf {
     return {
         uiLanguages: uiLanguages,
-        uiLang: 'en_US', // TODO
+        uiLang: uiLang,
         queries: [],
         queryPos: [],
         queryType: QueryType.SINGLE_QUERY,
         query1Lang: '',
         query2Lang: '',
         answerMode: false, // ??
-        error: [code, message]
+        error: error
     };
 }
 

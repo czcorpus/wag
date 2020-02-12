@@ -35,7 +35,7 @@ import { callWithExtraVal } from '../../../common/api/util';
 import { LemmaVariant, RecognizedQueries } from '../../../common/query';
 import { createInitialLinesData } from '../../../common/models/concordance';
 import { ConcLoadedPayload, isConcLoadedPayload } from '../concordance/actions';
-import { Dict } from '../../../common/collections';
+import { Dict } from 'cnc-tskit';
 
 
 export interface TimeDistribModelState extends GeneralSingleCritFreqMultiQueryState<DataItemWithWCI> {
@@ -136,7 +136,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             ActionName.ZoomReset,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
-                    state.zoom = [null, null]                    
+                    state.zoom = [null, null]
                 }
             }
         );

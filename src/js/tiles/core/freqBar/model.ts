@@ -28,7 +28,7 @@ import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../
 import { ConcLoadedPayload } from '../concordance/actions';
 import { ActionName, Actions, DataLoadedPayload } from './actions';
 import { callWithExtraVal } from '../../../common/api/util';
-import { Dict } from '../../../common/collections';
+import { Dict } from 'cnc-tskit';
 
 
 
