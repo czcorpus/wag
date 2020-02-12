@@ -24,7 +24,7 @@ import { Theme } from '../../../common/theme';
 import { Speech, SpeechesModelState, Expand, SpeechLine, Segment } from './modelDomain';
 import { RGBAColor } from '../../../common/types';
 import { ActionName, Actions } from './actions';
-import { List, pipe } from '../../../common/collections';
+import { List, pipe } from 'cnc-tskit';
 
 
 

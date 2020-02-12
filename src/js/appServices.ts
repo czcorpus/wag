@@ -24,7 +24,7 @@ import { SystemNotifications } from './notifications';
 import { HTTPAction } from './server/routes/actions';
 import { AudioPlayer } from './common/audioPlayer';
 import { MultiDict } from './common/data';
-import { Dict } from './common/collections';
+import { Dict } from 'cnc-tskit';
 
 /**
  *

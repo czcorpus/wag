@@ -18,7 +18,8 @@
 
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { HTTPMethod, HTTPHeaders } from '../../../types';
+import { HTTPHeaders } from '../../../types';
+import { HTTP } from 'cnc-tskit';
 import { ConcResponse, Line, IConcordanceApi } from '../../../../common/api/abstract/concordance';
 import { XMLParser, XMLNode } from '../../../xml';
 import { ConcordanceMinState } from '../../../models/concordance';
@@ -174,7 +175,7 @@ export class FCS1SearchRetrieveAPI implements IConcordanceApi<FCS1Args> {
 
 	call(args:FCS1Args):Observable<ConcResponse> {
 		return ajax$(
-            HTTPMethod.GET,
+            HTTP.Method.GET,
             this.url,
             args,
             {

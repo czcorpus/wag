@@ -19,7 +19,7 @@ import { AppServices } from './appServices';
 import { QueryType, QueryTypeMenuItem } from './common/query';
 import { GroupLayoutConfig, LayoutsConfig, LayoutConfigCommon } from './conf';
 import { TileIdentMap } from './common/types';
-import { List, Dict, pipe } from './common/collections';
+import { List, Dict, pipe } from 'cnc-tskit';
 
 
 function itemIsGroupConf(v:string|GroupLayoutConfig):v is GroupLayoutConfig {

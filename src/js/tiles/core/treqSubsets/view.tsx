@@ -23,7 +23,7 @@ import { GlobalComponents, TooltipValues } from '../../../views/global';
 import { TreqSubsetModel, flipRowColMapper } from './model';
 import { Theme } from '../../../common/theme';
 import { TranslationSubset, TranslationsSubsetsModelState } from '../../../common/models/translations';
-import { List } from '../../../common/collections';
+import { List } from 'cnc-tskit';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:TreqSubsetModel):TileComponent {

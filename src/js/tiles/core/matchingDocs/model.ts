@@ -27,7 +27,7 @@ import { MatchingDocsModelState } from '../../../common/models/matchingDocs';
 import { MatchingDocsAPI, DataRow } from '../../../common/api/abstract/matchingDocs';
 import { findCurrLemmaVariant } from '../../../models/query';
 import { RecognizedQueries } from '../../../common/query';
-import { List, pipe, Dict } from '../../../common/collections';
+import { List, pipe, Dict } from 'cnc-tskit';
 
 
 export interface MatchingDocsModelArgs {

@@ -19,17 +19,16 @@
 import { StatelessModel, IActionQueue, SEDispatcher } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
 import { flatMap, concatMap, map, timeout, reduce, tap } from 'rxjs/operators';
+import { Dict, List, pipe, HTTP } from 'cnc-tskit';
 
 import { AppServices } from '../../../appServices';
 import { BacklinkArgs, DataRow, FreqDistribAPI, SingleCritQueryArgs, SourceMappedDataRow } from '../../../common/api/kontext/freqs';
 import { callWithExtraVal } from '../../../common/api/util';
-import { HTTPMethod } from '../../../common/types';
 import { BacklinkWithArgs } from '../../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { ConcApi, QuerySelector } from '../../../common/api/kontext/concordance';
 import { LemmaVariant } from '../../../common/query';
 import { ViewMode, SingleConcLoadedPayload } from '../../../common/api/abstract/concordance';
-import { Dict, List, pipe } from '../../../common/collections';
 import { DataLoadedPayload, ModelSourceArgs } from './common';
 import { createInitialLinesData } from '../../../common/models/concordance';
 
@@ -208,7 +207,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
         return source.backlinkTpl ?
             {
                 url: source.backlinkTpl.url,
-                method: source.backlinkTpl.method || HTTPMethod.GET,
+                method: source.backlinkTpl.method || HTTP.Method.GET,
                 label: source.backlinkTpl.label,
                 args: {
                     corpname: source.corpname,

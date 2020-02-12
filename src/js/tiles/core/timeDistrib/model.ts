@@ -16,8 +16,9 @@
  * limitations under the License.
  */
 import { SEDispatcher, StatelessModel, IActionQueue, Action } from 'kombo';
-import { Observable, Observer, of as rxOf } from 'rxjs';
-import { concatMap, map, mergeMap, reduce, tap, mapTo } from 'rxjs/operators';
+import { Observable, of as rxOf } from 'rxjs';
+import { concatMap, map, mergeMap, reduce, tap } from 'rxjs/operators';
+import { Dict, HTTP } from 'cnc-tskit';
 
 import { AppServices } from '../../../appServices';
 import { ConcApi, QuerySelector, mkMatchQuery } from '../../../common/api/kontext/concordance';
@@ -35,8 +36,6 @@ import { Actions, ActionName } from './common';
 import { callWithExtraVal } from '../../../common/api/util';
 import { LemmaVariant, RecognizedQueries } from '../../../common/query';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
-import { HTTPMethod } from '../../../common/types';
-import { Dict } from '../../../common/collections';
 import { TileWait } from '../../../models/tileSync';
 
 
@@ -329,7 +328,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
         return this.backlink ?
             {
                 url: this.backlink.url,
-                method: this.backlink.method || HTTPMethod.GET,
+                method: this.backlink.method || HTTP.Method.GET,
                 label: this.backlink.label,
                 args: origQuery ?
                     {

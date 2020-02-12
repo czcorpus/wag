@@ -81,7 +81,8 @@
         "global__some_results_ambiguous_msg_{num}": "Click to specify {num, plural, one{# ambiguous query} other{# ambiguous queries}}.",
         "global__modal_variants_confirm_btn": "Confirm",
         "global__server_error": "Error",
-        "global__go_to_main_page": "Go to main page"
+        "global__go_to_main_page": "Go to main page",
+        "global__action_not_found": "URL not found."
     },
     "cs-CZ": {
         "global__logo_file": "logo_cs.svg",
@@ -165,6 +166,7 @@
         "global__some_results_ambiguous_msg_{num}": "Klikněte pro upřesnění {num, plural, one{# víceznačného dotazu} other{# víceznačných dotazů}}.",
         "global__modal_variants_confirm_btn": "Potvrdit",
         "global__server_error": "Chyba",
-        "global__go_to_main_page": "Přejít na hlavní stránku"
+        "global__go_to_main_page": "Přejít na hlavní stránku",
+        "global__action_not_found": "URL nebyla nalezena."
     }
 }

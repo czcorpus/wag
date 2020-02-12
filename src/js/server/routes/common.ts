@@ -28,7 +28,7 @@ import { Services } from '../actionServices';
 import { ViewUtils } from 'kombo';
 import { GlobalComponents } from '../../views/global';
 import { AppServices } from '../../appServices';
-import { pipe, Dict, List } from '../../common/collections';
+import { pipe, Dict, List } from 'cnc-tskit';
 import { LayoutProps } from '../../views/layout';
 import { HostPageEnv } from '../../common/hostPage';
 import { RecognizedQueries } from '../../common/query';
@@ -141,7 +141,7 @@ interface RenderResultArgs {
     layout:Array<TileGroup>;
     isMobile:boolean;
     isAnswerMode:boolean;
-    error:[number, string]|null;
+    error?:[number, string];
 }
 
 

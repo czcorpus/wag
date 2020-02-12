@@ -18,7 +18,8 @@
 
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { DataApi, HTTPMethod, HTTPHeaders, SourceDetails } from '../../../types';
+import { DataApi, HTTPHeaders, SourceDetails } from '../../../types';
+import { HTTP } from 'cnc-tskit';
 import { XMLParser, XMLNode } from '../../../xml';
 import { ajax$, ResponseType } from '../../../ajax';
 
@@ -101,7 +102,7 @@ export class FCS1ExplainAPI implements DataApi<FCS1ExplainArgs, FCS1ExplainRespo
 
 	call(args:FCS1ExplainArgs):Observable<FCS1ExplainResponse> {
         return ajax$(
-            HTTPMethod.GET,
+            HTTP.Method.GET,
             this.url,
             {
                 'x-fcs-endpoint-description': args['x-fcs-endpoint-description']

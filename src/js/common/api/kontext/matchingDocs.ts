@@ -18,7 +18,8 @@ import { MatchingDocsModelState, KontextFreqBacklinkArgs } from '../../models/ma
 import { MatchingDocsAPI, APIResponse } from '../abstract/matchingDocs';
 import { cachedAjax$ } from '../../ajax';
 import { Observable } from 'rxjs';
-import { HTTPHeaders, IAsyncKeyValueStore, HTTPMethod } from '../../types';
+import { HTTPHeaders, IAsyncKeyValueStore } from '../../types';
+import { HTTP } from 'cnc-tskit';
 import { map } from 'rxjs/operators';
 import { SingleCritQueryArgs, HTTPResponse } from './freqs';
 import { CorpusInfoAPI, APIResponse as CorpusInfoApiResponse } from './corpusInfo';
@@ -46,7 +47,7 @@ export class KontextMatchingDocsAPI implements MatchingDocsAPI<SingleCritQueryAr
         return {
             url: this.apiURL,
 			label: "frekv. distribuce v KonTextu",
-			method: HTTPMethod.GET,
+			method: HTTP.Method.GET,
             args: {
                 corpname: state.corpname,
                 usesubcorp: state.subcname,

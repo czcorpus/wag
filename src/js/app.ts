@@ -39,7 +39,7 @@ import { ViewUtils, IFullActionControl } from 'kombo';
 import { AppServices } from './appServices';
 import { IAsyncKeyValueStore, TileIdentMap } from './common/types';
 import { mkTileFactory } from './tileLoader';
-import { List, pipe } from './common/collections';
+import { List, pipe } from 'cnc-tskit';
 
 
 interface AttachTileArgs {

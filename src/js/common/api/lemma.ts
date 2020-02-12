@@ -17,7 +17,8 @@
  */
 
 import { Observable } from 'rxjs';
-import { DataApi, HTTPMethod } from '../types';
+import { DataApi } from '../types';
+import { HTTP } from 'cnc-tskit';
 import { LemmaVariant } from '../query';
 import { ajax$ } from '../ajax';
 
@@ -43,7 +44,7 @@ export class LemmaDbApi implements DataApi<LemmaDbRequestArgs, LemmaDbResponse> 
 
     call(args:LemmaDbRequestArgs):Observable<LemmaDbResponse> {
         return ajax$<LemmaDbResponse>(
-            HTTPMethod.GET,
+            HTTP.Method.GET,
             this.url,
             args
         );

@@ -18,7 +18,8 @@
 
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { HTTPHeaders, HTTPMethod } from '../../types';
+import { HTTPHeaders } from '../../types';
+import { HTTP } from 'cnc-tskit';
 import { ajax$, encodeArgs } from '../../ajax';
 import { ISwitchMainCorpApi, SwitchMainCorpResponse } from '../abstract/switchMainCorp';
 
@@ -49,7 +50,7 @@ export class SwitchMainCorpApi implements ISwitchMainCorpApi {
     call(args:SwitchMainCorpArgs):Observable<SwitchMainCorpResponse> {
 
         return ajax$<HTTPResponse>(
-            HTTPMethod.POST,
+            HTTP.Method.POST,
             this.apiURL + '/switch_main_corp?' +
                 encodeArgs({
                     corpname: args.corpname,

@@ -16,10 +16,9 @@
  * limitations under the License.
  */
 import { BacklinkArgs, MultiCritQueryArgs, SingleCritQueryArgs, FreqSort } from '../api/kontext/freqs';
-import { HTTPMethod, LocalizedConfMsg } from '../types';
+import { LocalizedConfMsg } from '../types';
 import { Backlink, BacklinkWithArgs } from '../tile';
-
-
+import { HTTP } from 'cnc-tskit';
 
 export interface FreqBarModelStateBase {
     isBusy:boolean;
@@ -100,7 +99,7 @@ export const createBackLink = <T>(state:GeneralMultiCritFreqBarModelState<T>|Gen
     return backlink ?
         {
             url: backlink.url,
-            method: backlink.method || HTTPMethod.GET,
+            method: backlink.method || HTTP.Method.GET,
             label: backlink.label,
             args: {
                 corpname: state.corpname,

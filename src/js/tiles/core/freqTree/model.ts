@@ -32,7 +32,7 @@ import { isConcLoadedPayload, ConcLoadedPayload } from '../concordance/actions';
 import { createInitialLinesData } from '../../../common/models/concordance';
 import { ViewMode, ConcResponse } from '../../../common/api/abstract/concordance';
 import { callWithExtraVal } from '../../../common/api/util';
-import { Dict, List, pipe } from '../../../common/collections';
+import { Dict, List, pipe } from 'cnc-tskit';
 
 
 

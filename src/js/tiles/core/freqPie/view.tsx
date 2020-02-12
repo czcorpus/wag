@@ -26,7 +26,7 @@ import { ActionName } from './actions';
 import { FreqDataBlock } from '../../../common/models/freq';
 import { DataRow } from '../../../common/api/kontext/freqs';
 import { FreqBarModel, FreqBarModelState } from '../freqBar/model';
-import { List, pipe } from '../../../common/collections';
+import { List, pipe } from 'cnc-tskit';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:FreqBarModel):TileComponent {

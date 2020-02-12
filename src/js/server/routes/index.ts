@@ -37,6 +37,7 @@ import { init as viewInit, LayoutProps } from '../../views/layout';
 import { init as errPageInit, ErrPageProps } from '../../views/error';
 import { ServerSideActionDispatcher } from '../core';
 import { emptyValue } from '../toolbar/empty';
+import { HTTP } from 'cnc-tskit';
 
 
 export const wdgRouter = (services:Services) => (app:Express) => {
@@ -285,24 +286,26 @@ export const wdgRouter = (services:Services) => (app:Express) => {
     app.use(function (req, res, next) {
         const uiLang = getLangFromCookie(req, services.serverConf.langCookie, services.serverConf.languages);
         const [viewUtils,] = createHelperServices(services, uiLang);
-        const userConf = errorUserConf(services.serverConf.languages, 400, 'Action not found');
+        const error:[number, string] = [HTTP.Status.NotFound, viewUtils.translate('global__action_not_found')];
+        const userConf = errorUserConf(services.serverConf.languages, error, uiLang);
         const view = viewInit(viewUtils);
         const errView = errPageInit(viewUtils);
-        res.send(renderResult({
-            view: view,
-            services: services,
-            toolbarData: emptyValue(),
-            lemmas: [],
-            userConfig: userConf,
-            clientConfig: emptyClientConf(services.clientConf),
-            returnUrl: mkReturnUrl(req, services.clientConf.rootUrl),
-            rootView: errView,
-            layout: [],
-            homepageSections: [],
-            isMobile: false, // TODO should we detect the mode on server too
-            isAnswerMode: false,
-            error: [404, 'Action not found']
-        }));
-        res.status(404).send("Sorry can't find that!")
-    })
+        res
+            .status(HTTP.Status.NotFound)
+            .send(renderResult({
+                view: view,
+                services: services,
+                toolbarData: emptyValue(),
+                lemmas: [],
+                userConfig: userConf,
+                clientConfig: emptyClientConf(services.clientConf),
+                returnUrl: mkReturnUrl(req, services.clientConf.rootUrl),
+                rootView: errView,
+                layout: [],
+                homepageSections: [],
+                isMobile: false, // TODO should we detect the mode on server too
+                isAnswerMode: false,
+                error: [HTTP.Status.NotFound, viewUtils.translate('global__action_not_found')]
+            }));
+    });
 }

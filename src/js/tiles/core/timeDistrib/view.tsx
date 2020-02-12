@@ -25,7 +25,7 @@ import { GlobalComponents } from '../../../views/global';
 import { DataItemWithWCI, ActionName, Actions } from './common';
 import { TimeDistribModel, TimeDistribModelState } from './model';
 import { KeyCodes } from '../../../common/util';
-import { List, pipe } from '../../../common/collections';
+import { List, pipe } from 'cnc-tskit';
 
 
 const MIN_DATA_ITEMS_TO_SHOW = 2;
@@ -286,9 +286,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             isAnimationActive={false}
                             connectNulls={true} />
                         {
-                            (this.props.refArea[0] && this.props.refArea[1]) ? 
+                            (this.props.refArea[0] && this.props.refArea[1]) ?
                             <ReferenceArea x1={this.props.refArea[0]} x2={this.props.refArea[1]}  strokeOpacity={0.3} /> :
-                            null    
+                            null
                         }
                         <Legend content={(props) => <ChartLegend metric={ut.translate('timeDistrib__ipm_human')} rcData={props} />} />
                         <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="30" y="20" viewBox="0 0 50 50" preserveAspectRatio="xMaxYMin meet">

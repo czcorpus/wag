@@ -25,7 +25,7 @@ import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
 import { GlobalComponents } from '../../../views/global';
 import { LemmaData, Actions, ActionName } from './common';
 import { TimeDistribModel, TimeDistribModelState } from './model';
-import { List } from '../../../common/collections';
+import { List } from 'cnc-tskit';
 
 
 interface ChartDataPoint {
@@ -256,11 +256,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 connectNulls={true} />
                         )}
                         {
-                            (this.props.refArea[0] && this.props.refArea[1]) ? 
+                            (this.props.refArea[0] && this.props.refArea[1]) ?
                             <ReferenceArea x1={this.props.refArea[0]} x2={this.props.refArea[1]}  strokeOpacity={0.3} /> :
-                            null    
+                            null
                         }
-                        <Legend content={(props) => <ChartLegend metric={ut.translate('multiWordTimeDistrib__occurence_human')} rcData={props} />} />                     
+                        <Legend content={(props) => <ChartLegend metric={ut.translate('multiWordTimeDistrib__occurence_human')} rcData={props} />} />
                         <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="30" y="20" viewBox="0 0 50 50" preserveAspectRatio="xMaxYMin meet">
                             <g fill="black" fillOpacity="0" stroke={this.props.zoom.every(v => v === null) ? "lightgray" : "gray"} strokeWidth="3">
                                 <circle cx="20" cy="20" r="14"/>

@@ -32,7 +32,7 @@ import { callWithExtraVal } from '../../../common/api/util';
 import { ViewMode } from '../../../common/api/abstract/concordance';
 import { createInitialLinesData } from '../../../common/models/concordance';
 import { ConcLoadedPayload, isConcLoadedPayload } from '../concordance/actions';
-import { Dict } from '../../../common/collections';
+import { Dict } from 'cnc-tskit';
 
 /*
 oral2013:

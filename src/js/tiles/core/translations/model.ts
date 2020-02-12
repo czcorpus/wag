@@ -15,20 +15,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
+import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { map } from 'rxjs/operators';
+import { HTTP } from 'cnc-tskit'
 
-import { HTTPMethod } from '../../../common/types';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { findCurrLemmaVariant } from '../../../models/query';
 import { DataLoadedPayload } from './actions';
 import { ColorScaleFunctionGenerator } from '../../../common/theme';
-import { WordTranslation, TranslationAPI } from '../../../common/api/abstract/translations';
+import { TranslationAPI } from '../../../common/api/abstract/translations';
 import { TranslationsModelState } from '../../../common/models/translations';
 import { AppServices } from '../../../appServices';
 import { RecognizedQueries } from '../../../common/query';
-import { timeThursday } from 'd3';
 
 
 export type GeneralTranslationsModelState = TranslationsModelState<{}>;
@@ -153,7 +152,7 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
             {
                 url: this.backlink.url,
                 label: this.backlink.label,
-                method: this.backlink.method || HTTPMethod.GET,
+                method: this.backlink.method || HTTP.Method.GET,
                 args: this.api.stateToPageArgs(state, query)
             } :
             null;

@@ -35,7 +35,7 @@ import { loadFile } from '../files';
 import { createRootComponent } from '../../app';
 import { ActionName } from '../../models/actions';
 import { DummyCache } from '../../cacheDb';
-import { Dict, pipe } from '../../common/collections';
+import { Dict, pipe, HTTP } from 'cnc-tskit';
 import { getLangFromCookie, fetchReqArgArray, createHelperServices, mkReturnUrl, logRequest, renderResult } from './common';
 
 
@@ -108,8 +108,7 @@ export function mainAction(services:Services, answerMode:boolean, req:Request, r
                 queryPos: fetchReqArgArray(req, 'pos', minNumQueries).map(v => v.split(',') as Array<QueryPoS>),
                 queries: fetchReqArgArray(req, 'q', minNumQueries),
                 lemma: fetchReqArgArray(req, 'lemma', minNumQueries),
-                answerMode: answerMode,
-                error: null
+                answerMode: answerMode
             };
 
             observer.next(userConfNorm);
@@ -237,13 +236,13 @@ export function mainAction(services:Services, answerMode:boolean, req:Request, r
                 layout: layout,
                 homepageSections: [...runtimeConf.homepage.tiles],
                 isMobile: false, // TODO should we detect the mode on server too
-                isAnswerMode: answerMode,
-                error: null
+                isAnswerMode: answerMode
             }));
         },
         (err:Error) => {
             services.errorLog.error(err.message, {trace: err.stack});
-            const userConf = errorUserConf(services.serverConf.languages, 400, String(err));
+            const error:[number, string] = [HTTP.Status.BadRequest, err.message];
+            const userConf = errorUserConf(services.serverConf.languages, error, uiLang);
             const view = viewInit(viewUtils);
             const errView = errPageInit(viewUtils);
             res.send(renderResult({
@@ -259,7 +258,7 @@ export function mainAction(services:Services, answerMode:boolean, req:Request, r
                 homepageSections: [],
                 isMobile: false, // TODO should we detect the mode on server too
                 isAnswerMode: false,
-                error: [400, err.message] // TODO code
+                error: error
             }));
         }
     );
