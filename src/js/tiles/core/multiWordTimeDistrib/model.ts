@@ -16,9 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { SEDispatcher, StatelessModel, IActionQueue, Action } from 'kombo';
+import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
 import { concatMap, reduce, map, tap } from 'rxjs/operators';
+import { Dict, Maths } from 'cnc-tskit';
 
 import { AppServices } from '../../../appServices';
 import { ConcApi, QuerySelector, mkMatchQuery } from '../../../common/api/kontext/concordance';
@@ -30,18 +31,16 @@ import { GeneralSingleCritFreqMultiQueryState } from '../../../common/models/fre
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { findCurrLemmaVariant } from '../../../models/query';
 import { DataItemWithWCI, ActionName, Actions, DataLoadedPayload, DataFetchArgs } from './common';
-import { AlphaLevel, wilsonConfInterval } from '../../../common/statistics';
 import { callWithExtraVal } from '../../../common/api/util';
 import { LemmaVariant, RecognizedQueries } from '../../../common/query';
 import { createInitialLinesData } from '../../../common/models/concordance';
 import { ConcLoadedPayload, isConcLoadedPayload } from '../concordance/actions';
-import { Dict } from 'cnc-tskit';
 
 
 export interface TimeDistribModelState extends GeneralSingleCritFreqMultiQueryState<DataItemWithWCI> {
     subcnames:Array<string>;
     subcDesc:string;
-    alphaLevel:AlphaLevel;
+    alphaLevel:Maths.AlphaLevel;
     posQueryGenerator:[string, string];
     wordLabels:Array<string>;
     averagingYears:number;
@@ -275,7 +274,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         );
     }
 
-    private mergeChunks(currData:Array<DataItemWithWCI>, newChunk:Array<DataItemWithWCI>, alphaLevel:AlphaLevel):Array<DataItemWithWCI> {
+    private mergeChunks(currData:Array<DataItemWithWCI>, newChunk:Array<DataItemWithWCI>, alphaLevel:Maths.AlphaLevel):Array<DataItemWithWCI> {
         return Dict.toEntries(newChunk.reduce(
             (acc, curr) => {
                 if (acc[curr.datetime] !== undefined) {
@@ -284,13 +283,13 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     tmp.datetime = curr.datetime;
                     tmp.norm += curr.norm;
                     tmp.ipm = calcIPM(tmp, tmp.norm);
-                    const confInt = wilsonConfInterval(tmp.freq, tmp.norm, alphaLevel);
+                    const confInt = Maths.wilsonConfInterval(tmp.freq, tmp.norm, alphaLevel);
                     tmp.ipmInterval = [roundFloat(confInt[0] * 1e6), roundFloat(confInt[1] * 1e6)];
                     acc[tmp.datetime] = tmp;
                     return acc;
 
                 } else {
-                    const confInt = wilsonConfInterval(curr.freq, curr.norm, alphaLevel);
+                    const confInt = Maths.wilsonConfInterval(curr.freq, curr.norm, alphaLevel);
                     acc[curr.datetime] = {
                         datetime: curr.datetime,
                         freq: curr.freq,

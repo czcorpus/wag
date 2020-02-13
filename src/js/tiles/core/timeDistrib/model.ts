@@ -18,7 +18,7 @@
 import { SEDispatcher, StatelessModel, IActionQueue, Action } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
 import { concatMap, map, mergeMap, reduce, tap } from 'rxjs/operators';
-import { Dict, HTTP } from 'cnc-tskit';
+import { Dict, HTTP, Maths } from 'cnc-tskit';
 
 import { AppServices } from '../../../appServices';
 import { ConcApi, QuerySelector, mkMatchQuery } from '../../../common/api/kontext/concordance';
@@ -31,7 +31,6 @@ import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../
 import { findCurrLemmaVariant } from '../../../models/query';
 import { ConcLoadedPayload } from '../concordance/actions';
 import { DataItemWithWCI, SubchartID, DataLoadedPayload } from './common';
-import { AlphaLevel, wilsonConfInterval } from '../../../common/statistics';
 import { Actions, ActionName } from './common';
 import { callWithExtraVal } from '../../../common/api/util';
 import { LemmaVariant, RecognizedQueries } from '../../../common/query';
@@ -68,7 +67,7 @@ export interface BacklinkArgs {
 export interface TimeDistribModelState extends GeneralSingleCritFreqBarModelState<DataItemWithWCI> {
     subcnames:Array<string>;
     subcDesc:string;
-    alphaLevel:AlphaLevel;
+    alphaLevel:Maths.AlphaLevel;
     posQueryGenerator:[string, string];
     isTweakMode:boolean;
     dataCmp:Array<DataItemWithWCI>;
@@ -346,7 +345,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
             null;
     }
 
-    private mergeChunks(currData:Array<DataItemWithWCI>, newChunk:Array<DataItemWithWCI>, alphaLevel:AlphaLevel):Array<DataItemWithWCI> {
+    private mergeChunks(currData:Array<DataItemWithWCI>, newChunk:Array<DataItemWithWCI>, alphaLevel:Maths.AlphaLevel):Array<DataItemWithWCI> {
         return Dict.toEntries(newChunk.reduce(
             (acc, curr) => {
                 if (acc[curr.datetime] !== undefined) {
@@ -355,13 +354,13 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
                     tmp.datetime = curr.datetime;
                     tmp.norm += curr.norm;
                     tmp.ipm = calcIPM(tmp, tmp.norm);
-                    const confInt = wilsonConfInterval(tmp.freq, tmp.norm, alphaLevel);
+                    const confInt = Maths.wilsonConfInterval(tmp.freq, tmp.norm, alphaLevel);
                     tmp.ipmInterval = [roundFloat(confInt[0] * 1e6), roundFloat(confInt[1] * 1e6)];
                     acc[tmp.datetime] = tmp;
                     return acc;
 
                 } else {
-                    const confInt = wilsonConfInterval(curr.freq, curr.norm, alphaLevel);
+                    const confInt = Maths.wilsonConfInterval(curr.freq, curr.norm, alphaLevel);
                     acc[curr.datetime] = {
                         datetime: curr.datetime,
                         freq: curr.freq,
@@ -521,7 +520,6 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
                         };
                     }
                 ),
-                tap(v => console.log('fuck: ', v)),
                 concatMap(args => callWithExtraVal(
                     this.api,
                     {

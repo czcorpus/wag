@@ -67,7 +67,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         handleZoom:(category:string) => void;
     }> {
         render() {
-            const {root, depth, x, y, width, height, index, payload, rank, name, handleZoom} = this.props;
+            const {root, depth, x, y, width, height, index, name, handleZoom} = this.props;
             // leaf rect needs to be filled with color in order to show tooltip on mouse over
             return (
                 <g>
@@ -249,7 +249,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                                                 </div>
                                                             }
                                                         }
-                                                        return <p className="note" style={{textAlign: 'center'}}>No result</p>
+                                                        return <p key={`variant:${variantId}`} className="note" style={{textAlign: 'center'}}>
+                                                            {ut.translate('freqTree__no_result')}
+                                                        </p>
                                                     })
                                                 )
                                             }

@@ -260,8 +260,7 @@ export function extractSpeeches(state:SpeechesModelState, concDetail:ConcDetailT
             }
             if (state.spkOverlapMode === 'simple') {
                 const overlapSrch = new RegExp(`</?(${state.speechOverlapAttr[0]})(>|[^>]+>)`, 'g');
-                let srch;
-                let i = 0;
+                let srch:RegExpExecArray;
                 while ((srch = overlapSrch.exec(item.str)) !== null) {
                     if (srch[0].indexOf('</') === 0
                             && item.str.indexOf(`<${state.speakerIdAttr[0]}`) > 0) {
@@ -270,7 +269,6 @@ export function extractSpeeches(state:SpeechesModelState, concDetail:ConcDetailT
                     } else {
                         currSpeech.text.push({str: srch[0], class: item.class});
                     }
-                    i += 1;
                 }
             }
 

@@ -18,14 +18,12 @@
 import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 
 import { AppServices } from '../../../appServices';
-import { SystemMessageType } from '../../../common/types';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { DataLoadedPayload, HtmlModelState } from './common';
 import { RawHtmlAPI, WiktionaryHtmlAPI, GeneralHtmlAPI } from './service';
 import { findCurrLemmaVariant } from '../../../models/query';
 import { Observable, of as rxOf } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
-import { AjaxError } from 'rxjs/ajax';
 import { RecognizedQueries } from '../../../common/query';
 
 

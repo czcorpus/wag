@@ -1,8 +1,10 @@
 {
     "en-US": {
-        "freqTree__main_label": "Frequency tree"
+        "freqTree__main_label": "Frequency tree",
+        "freqTree__no_result": "No result"
     },
     "cs-CZ": {
-        "freqTree__main_label": "Frekvenční strom"
+        "freqTree__main_label": "Frekvenční strom",
+        "freqTree__no_result": "Žádný výsledek"
     }
 }

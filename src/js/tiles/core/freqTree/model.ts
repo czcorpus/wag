@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
-import { Observable, Observer, of } from 'rxjs';
-import { map, mergeMap, reduce } from 'rxjs/operators';
+import { Observable, Observer, of as rxOf } from 'rxjs';
+import { map, mergeMap, reduce, tap, concatMap } from 'rxjs/operators';
 import { Dict, List, pipe, Ident } from 'cnc-tskit';
 
 import { AppServices } from '../../../appServices';
@@ -53,6 +53,8 @@ export interface FreqComparisonModelArgs {
     backlink:Backlink|null;
     initState:FreqTreeModelState;
 }
+
+type SingleQuerySingleBlockArgs = {queryId:number; blockId:number; lemma:LemmaVariant; concId:string};
 
 
 export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
@@ -178,10 +180,10 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
         );
         this.addActionHandler<GlobalActions.GetSourceInfo>(
             GlobalActionName.GetSourceInfo,
-            (state, action) => {},
+            null,
             (state, action, dispatch) => {
                 if (action.payload.tileId === this.tileId) {
-                    this.freqTreeApi.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), state.corpname)
+                    this.concApi.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), state.corpname)
                     .subscribe(
                         (data) => {
                             dispatch({
@@ -196,24 +198,23 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                             dispatch({
                                 name: GlobalActionName.GetSourceInfoDone,
                                 error: err
+
                             });
                         }
                     );
                 }
             }
         );
-
     }
 
-    loadConcordances(state:FreqTreeModelState):Observable<[ConcResponse, {blockId:number; queryId:number; lemma:LemmaVariant; concId:string}]> {
-        return new Observable((observer:Observer<{blockId:number; queryId:number; lemma:LemmaVariant; concId:string}>) => {
-            state.fcritTrees.forEach((fcritTree, blockId) =>
-                state.lemmaVariants.forEach((lemma, queryId) => {
-                    observer.next({blockId: blockId, queryId: queryId, lemma: lemma, concId: null});
+    loadConcordances(state:FreqTreeModelState):Observable<[ConcResponse, SingleQuerySingleBlockArgs]> {
+       return rxOf(...state.lemmaVariants).pipe(
+            map(
+                (lv, i) => ({
+                   lemma: lv,
+                   queryId: i
                 })
-            );
-            observer.complete();
-        }).pipe(
+            ),
             mergeMap(args =>
                 callWithExtraVal(
                     this.concApi,
@@ -244,16 +245,33 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                     {
                         corpName: state.corpname,
                         subcName: null,
-                        blockId: args.blockId,
                         concId: null,
                         queryId: args.queryId,
                         origQuery: mkMatchQuery(args.lemma, state.posQueryGenerator),
                         lemma: args.lemma
                     }
                 )
+            ),
+            concatMap(
+                ([concResp, args]) => rxOf(...state.fcritTrees).pipe(
+                    map(
+                        (_, blockId) => {
+                            const ans:[ConcResponse, SingleQuerySingleBlockArgs] = [
+                                concResp,
+                                {
+                                    blockId: blockId,
+                                    queryId: args.queryId,
+                                    lemma: args.lemma,
+                                    concId: concResp.concPersistenceID
+                                }
+                            ];
+                            return ans;
+                        }
+                    )
+                )
             )
-        )
-    };
+        );
+    }
 
     composeConcordances(state:FreqTreeModelState, concIds: Array<string>):Observable<[{concPersistenceID:string;}, {blockId:number; queryId: number; lemma:LemmaVariant; concId:string;}]> {
         return new Observable((observer:Observer<[{concPersistenceID:string;}, {blockId: number; queryId: number; lemma:LemmaVariant; concId:string;}]>) => {
@@ -267,7 +285,7 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
             );
             observer.complete();
         })
-    };
+    }
 
     loadTreeData(concResp:Observable<[{concPersistenceID:string;}, {blockId:number; queryId:number; lemma:LemmaVariant; concId:string;}]> ,state:FreqTreeModelState, dispatch:SEDispatcher):void {
         concResp.pipe(
@@ -282,7 +300,7 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                 )
             }),
             mergeMap(([resp1, args]) =>
-                of(...resp1.fcritValues).pipe(
+                rxOf(...resp1.fcritValues).pipe(
                     mergeMap(fcritValue =>
                         this.freqTreeApi.call(
                             stateToAPIArgs(state, args.blockId, 1),

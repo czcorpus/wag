@@ -47,28 +47,29 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             List.map(
                 ([name ,values]) => {
                     const totalIpm = values.reduce((acc, curr) => acc + curr.ipm, 0)
-                    let wordData:FreqItemProps = {name: '', data: {}};
+                    let wordData:FreqItemProps = {name: name, data: {}};
 
                     // calculate percentage from frequency
                     List.forEach(item => {
-                        wordData.data[item.word].main = (100 * item.ipm / totalIpm);
-                        wordData.data[item.word].ipm = item.ipm;
-                        wordData.data[item.word].freq = item.freq;
+                        wordData.data[item.word] = {
+                            main: (100 * item.ipm / totalIpm),
+                            ipm: item.ipm,
+                            freq: item.freq
+                        };
                     }, values);
 
                     // add also words with no data
                     List.forEach(word => {
-                        if (!Object.keys(wordData).includes(word)) {
-                            wordData.data[word].main = 0;
-                            wordData.data[word].ipm = 0;
-                            wordData.data[word].freq = 0;
+                        if (!Object.keys(wordData.data).includes(word)) {
+                            wordData.data[word] = {
+                                main: 0,
+                                ipm: 0,
+                                freq: 0
+                            };
                         }
                     }, words);
 
-                    return {
-                        name: name,
-                        ...wordData
-                    }
+                    return wordData;
                 }
             )
         );
@@ -118,12 +119,15 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     }> = (props) => {
         const processedData = processData(props.data, props.words);
         const maxLabelWidth = List.maxItem(v => v.name.length, processedData).name.length;
+        const dataKeyFn = (word:string) => (item:FreqItemProps) => item.data[word].main;
         return (
             <div className="Chart">
                 <ChartWrapper data={props.data} words={props.words} isMobile={props.isMobile} width={props.width} height={props.height}>
                     <CartesianGrid />
-                    {props.words.map((word, index) =>
-                        <Bar key={word} dataKey={word} isAnimationActive={false} name={word} stackId='a' fill={theme.barColor(index)} />
+                    {List.map(
+                        (word, index) => <Bar key={`word:${index}`} dataKey={dataKeyFn(word)} isAnimationActive={false} name={word}
+                                                stackId='a' fill={theme.barColor(index)} />,
+                        props.words
                     )};
                     <XAxis type="number" unit="%" ticks={[0, 25, 50, 75, 100]} domain={[0, 100]} interval={0} />
                     <YAxis type="category" dataKey="name" width={Math.max(60, maxLabelWidth * 8)} interval={0} />

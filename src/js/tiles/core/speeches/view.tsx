@@ -51,60 +51,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
     }
 
-    // ------------------------- <ExpandSpeechesButton /> ---------------------------
-
-    const ExpandSpeechesButton:React.SFC<{
-        position:string;
-        tileId:number;
-
-    }> = (props) => {
-
-        const handleExpandClick = (position:Expand) => {
-            dispatcher.dispatch({
-                name: ActionName.ExpandSpeech,
-                payload: {
-                    tileId: props.tileId,
-                    position: position
-                }
-            });
-        };
-
-        const ifTopThenElseIfBottom = (val1:string, val2:string) => {
-            if (props.position === 'top') {
-                return val1;
-
-            } else if (props.position === 'bottom') {
-                return val2;
-            }
-        };
-
-        const createImgPath = () => {
-            return ut.createStaticUrl(ifTopThenElseIfBottom(
-                'triangle_up.svg', 'triangle_down.svg'
-            ));
-        };
-
-        const createImgAlt = () => {
-            return ut.translate(ifTopThenElseIfBottom(
-                'speeches__expand_up_symbol', 'speeches__expand_down_symbol'
-            ));
-        };
-
-        const createTitle = () => {
-            return ut.translate(ifTopThenElseIfBottom(
-                'speeches__click_to_expand_up', 'speeches__click_to_expand_down'
-            ));
-        };
-
-        return (
-            <a onClick={handleExpandClick.bind(null, props.position)}
-                    title={createTitle()}>
-                <img src={createImgPath()} alt={createImgAlt()} />
-            </a>
-        );
-    };
-
-
 
     // ------------------------- <SpeechText /> ---------------------------
 

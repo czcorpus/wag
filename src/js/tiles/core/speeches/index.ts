@@ -21,9 +21,8 @@ import { QueryType } from '../../../common/query';
 import { ITileProvider, TileComponent, TileConf, TileFactory, Backlink } from '../../../common/tile';
 import { SpeechesModel } from './model';
 import { init as viewInit } from './view';
-import { RGBAColor, LocalizedConfMsg } from '../../../common/types';
+import { LocalizedConfMsg } from '../../../common/types';
 import { SpeechesApi } from './api';
-import { ExpandArgs } from './modelDomain';
 import { createAudioUrlGeneratorInstance } from './impl';
 
 
