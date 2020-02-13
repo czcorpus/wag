@@ -249,7 +249,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                                                 </div>
                                                             }
                                                         }
-                                                        return <p className="note" style={{textAlign: 'center'}}>No result</p>
+                                                        return <p key={`variant:${variantId}`} className="note" style={{textAlign: 'center'}}>
+                                                            {ut.translate('freqTree__no_result')}
+                                                        </p>
                                                     })
                                                 )
                                             }
