@@ -33,9 +33,8 @@ import { WordDatabase, Services } from '../actionServices';
 import { HTTPAction } from './actions';
 import { TelemetryAction } from '../../common/types';
 import { errorUserConf, emptyClientConf } from '../../conf';
-import { init as viewInit, LayoutProps } from '../../views/layout';
-import { init as errPageInit, ErrPageProps } from '../../views/error';
-import { ServerSideActionDispatcher } from '../core';
+import { init as viewInit } from '../../views/layout';
+import { init as errPageInit } from '../../views/error';
 import { emptyValue } from '../toolbar/empty';
 import { HTTP } from 'cnc-tskit';
 
