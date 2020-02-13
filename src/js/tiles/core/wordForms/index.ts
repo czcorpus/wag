@@ -15,14 +15,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { StatelessModel } from 'kombo';
+import { Maths } from 'cnc-tskit';
+
 import { ITileProvider, TileFactory, TileComponent, TileConf } from '../../../common/tile';
 import { AppServices } from '../../../appServices';
-import { StatelessModel } from 'kombo';
 import { WordFormsModel } from './model';
 import { QueryType } from '../../../common/query';
 import { init as viewInit } from './views';
 import { createApiInstance } from './apiFactory';
-import { AlphaLevel } from '../../../common/statistics';
 
 
 export interface WordFormsTileConf extends TileConf {
@@ -30,7 +31,7 @@ export interface WordFormsTileConf extends TileConf {
     apiURL:string;
     corpname:string;
     corpusSize:number;
-    freqFilterAlphaLevel:AlphaLevel;
+    freqFilterAlphaLevel:Maths.AlphaLevel;
 }
 
 

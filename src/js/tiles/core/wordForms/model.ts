@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 import { map } from 'rxjs/operators';
+import { List, Maths } from 'cnc-tskit';
 
 import { StatelessModel, Action, SEDispatcher, IActionQueue } from 'kombo';
 import { WordFormItem, WordFormsApi, RequestConcArgs, RequestArgs } from '../../../common/api/abstract/wordForms';
@@ -23,10 +24,7 @@ import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../
 import { DataLoadedPayload } from './actions';
 import { findCurrLemmaVariant } from '../../../models/query';
 import { ConcLoadedPayload } from '../concordance/actions';
-import { calcPercentRatios } from '../../../common/util';
-import { AlphaLevel, wilsonConfInterval } from '../../../common/statistics';
 import { RecognizedQueries } from '../../../common/query';
-import { List } from 'cnc-tskit';
 
 
 
@@ -38,7 +36,7 @@ export interface WordFormsModelState {
     corpname:string;
     roundToPos:number; // 0 to N
     corpusSize:number;
-    freqFilterAlphaLevel:AlphaLevel;
+    freqFilterAlphaLevel:Maths.AlphaLevel;
     data:Array<WordFormItem>;
 }
 
@@ -49,7 +47,7 @@ export interface WordFormsModelState {
  * For each item we check whether the lower end of a respective
  * Wilson score interval is non-zero (after rounding).
  */
-function filterRareVariants(items:Array<WordFormItem>, corpSize:number, alpha:AlphaLevel):Array<WordFormItem> {
+function filterRareVariants(items:Array<WordFormItem>, corpSize:number, alpha:Maths.AlphaLevel):Array<WordFormItem> {
     const total = List.reduce(
         (acc, curr) => {
             return acc + curr.freq;
@@ -60,8 +58,8 @@ function filterRareVariants(items:Array<WordFormItem>, corpSize:number, alpha:Al
 
     return List.filter(
         (value) => {
-            const left = wilsonConfInterval(value.freq, total, alpha)[0] * 100;
-            const abs = wilsonConfInterval(value.freq, corpSize, alpha)[0] * corpSize;
+            const left = Maths.wilsonConfInterval(value.freq, total, alpha)[0] * 100;
+            const abs = Maths.wilsonConfInterval(value.freq, corpSize, alpha)[0] * corpSize;
             return Math.round(left) > 0 && Math.round(abs) > 0;
         },
         items
@@ -202,15 +200,15 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
     private fetchWordForms(args:RequestArgs|RequestConcArgs, dispatch:SEDispatcher):void {
         this.api.call(args).pipe(
             map((v => {
-                const updated = calcPercentRatios(
-                    v.forms,
+                const updated = Maths.calcPercentRatios(
                     (item) => item.freq,
                     (item, ratio) => ({
                         value: item.value,
                         freq: item.freq,
                         ratio: ratio,
                         interactionId: item.interactionId
-                    })
+                    }),
+                    v.forms
                 );
                 return {
                     forms: updated

@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 import { IActionDispatcher, StatelessModel } from 'kombo';
+import { Maths } from 'cnc-tskit';
 
 import { ConcApi } from '../../../common/api/kontext/concordance';
 import { FreqSort } from '../../../common/api/kontext/freqs';
@@ -24,7 +25,6 @@ import { QueryType } from '../../../common/query';
 import { ITileProvider, TileComponent, TileFactory } from '../../../common/tile';
 import { TimeDistTileConf } from './common';
 import { TimeDistribModel } from './model';
-import { AlphaLevel } from '../../../common/statistics';
 import { init as viewInit } from './view';
 import { findCurrLemmaVariant } from '../../../models/query';
 
@@ -83,7 +83,7 @@ export class MultiWordTimeDistTile implements ITileProvider {
                 fpage: 1,
                 fttIncludeEmpty: false,
                 fmaxitems: 100,
-                alphaLevel: AlphaLevel.LEVEL_0_1, // TODO conf/explain
+                alphaLevel: Maths.AlphaLevel.LEVEL_1, // TODO conf/explain
                 data: lemmas.map(_ => []),
                 posQueryGenerator: conf.posQueryGenerator,
                 wordLabels: lemmas.map(l => findCurrLemmaVariant(l).word),

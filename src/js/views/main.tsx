@@ -17,7 +17,7 @@
  */
 import { Bound, BoundWithProps, IActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
-import { Keyboard } from 'cnc-tskit';
+import { Keyboard, pipe, List } from 'cnc-tskit';
 
 import { Forms } from '../common/data';
 import { SystemMessageType, SourceDetails } from '../common/types';
@@ -952,16 +952,17 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             } else {
                 return (
                     <section className="tiles">
-                    {props.data.tiles
-                        .map(v => props.tileFrameProps[v.tileId])
-                        .map(tile => <TileContainer key={`tile:${tile.tileId}`} tile={tile}
+                    {pipe(
+                        props.data.tiles,
+                        List.map(v => props.tileFrameProps[v.tileId]),
+                        List.map(tile => <TileContainer key={`tile:${tile.tileId}`} tile={tile}
                                             isMobile={props.isMobile}
                                             helpURL={tile.helpURL}
                                             isTweakMode={props.tweakActiveTiles.some(v => v === tile.tileId)}
                                             isAltViewMode={props.altViewActiveTiles.find(v => v === tile.tileId) !== undefined}
                                             supportsCurrQuery={tile.supportsCurrQuery}
                                             tileResultFlag={props.tileResultFlags[tile.tileId]} />)
-                    }
+                    )}
                     </section>
                 );
             }
