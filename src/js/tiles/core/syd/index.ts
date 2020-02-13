@@ -18,7 +18,7 @@
 import { AppServices } from '../../../appServices';
 import { QueryType } from '../../../common/query';
 import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../../common/tile';
-import { StrippedFreqResponse, SyDAPI } from './api';
+import { SyDAPI } from './api';
 import { SydModel } from './model';
 import { init as viewInit } from './view';
 import { StatelessModel } from 'kombo';

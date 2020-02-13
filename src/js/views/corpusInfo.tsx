@@ -27,8 +27,6 @@ export interface CorpusInfoBoxProps {
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>):React.SFC<CorpusInfoBoxProps> {
 
-    const globalComponents = ut.getComponents();
-
     // ---------------------------- <ItemAndNumRow /> -----------------------------
 
     const ItemAndNumRow:React.SFC<{

@@ -22,7 +22,6 @@ import { SearchPackages } from '../../../common/api/treq';
 import { TranslationsModel } from './model';
 import { init as viewInit } from './view';
 import { StatelessModel } from 'kombo';
-import { WordTranslation } from '../../../common/api/abstract/translations';
 import { createInstance as createApiInstance } from './apiFactory';
 
 declare var require:any;

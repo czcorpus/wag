@@ -18,7 +18,7 @@
 import { IActionDispatcher, StatelessModel } from 'kombo';
 
 import { AppServices } from '../../../appServices';
-import { DataRow, FreqDistribAPI, FreqSort } from '../../../common/api/kontext/freqs';
+import { FreqDistribAPI, FreqSort } from '../../../common/api/kontext/freqs';
 import { QueryType } from '../../../common/query';
 import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../../common/tile';
 import { MultiWordGeoAreasModel } from './model';

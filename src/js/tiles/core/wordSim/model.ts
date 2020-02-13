@@ -20,7 +20,7 @@ import { StatelessModel, IActionDispatcher, Action, SEDispatcher } from 'kombo';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { DataLoadedPayload } from './actions';
 import { ActionName, Actions } from './actions';
-import { WordSimApi, WordSimWord } from '../../../common/api/abstract/wordSim';
+import { WordSimApi } from '../../../common/api/abstract/wordSim';
 import { WordSimModelState } from '../../../common/models/wordSim';
 import { LemmaVariant } from '../../../common/query';
 import { Observable, Observer } from 'rxjs';

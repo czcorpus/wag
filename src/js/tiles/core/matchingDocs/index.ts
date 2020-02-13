@@ -22,7 +22,6 @@ import { TileComponent, TileConf, TileFactory, ITileProvider } from '../../../co
 import { MatchingDocsModel } from './model';
 import { init as viewInit } from './view';
 import { createMatchingDocsApiInstance } from './apiFactory';
-import { DataRow } from '../../../common/api/abstract/matchingDocs';
 
 
 

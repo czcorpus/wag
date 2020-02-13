@@ -22,7 +22,7 @@ import { FreqSort } from '../../../common/api/kontext/freqs';
 import { createApiInstance } from './apiFactory';
 import { QueryType } from '../../../common/query';
 import { ITileProvider, TileComponent, TileFactory } from '../../../common/tile';
-import { TimeDistTileConf, DataItemWithWCI } from './common';
+import { TimeDistTileConf } from './common';
 import { TimeDistribModel } from './model';
 import { AlphaLevel } from '../../../common/statistics';
 import { init as viewInit } from './view';

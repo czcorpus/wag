@@ -20,8 +20,6 @@ import { share, map } from 'rxjs/operators';
 
 import { cachedAjax$ } from '../../ajax';
 import { DataApi, HTTPHeaders, SourceDetails, IAsyncKeyValueStore } from '../../types';
-import { AppServices } from '../../../appServices';
-import { parse } from 'querystring';
 
 
 

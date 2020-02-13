@@ -24,7 +24,7 @@ import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../
 import { ConcLoadedPayload } from '../concordance/actions';
 import { ActionName, Actions, DataLoadedPayload } from './actions';
 import { MatchingDocsModelState } from '../../../common/models/matchingDocs';
-import { MatchingDocsAPI, DataRow } from '../../../common/api/abstract/matchingDocs';
+import { MatchingDocsAPI } from '../../../common/api/abstract/matchingDocs';
 import { findCurrLemmaVariant } from '../../../models/query';
 import { RecognizedQueries } from '../../../common/query';
 import { List, pipe, Dict } from 'cnc-tskit';

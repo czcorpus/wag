@@ -23,8 +23,6 @@ import { TreqSubsetsAPI } from '../../../common/api/treq';
 import {init as viewInit} from './view';
 import { StatelessModel } from 'kombo';
 import { LocalizedConfMsg } from '../../../common/types';
-import { WordTranslation } from '../../../common/api/abstract/translations';
-import { TranslationSubset } from '../../../common/models/translations';
 import { List } from 'cnc-tskit';
 
 declare var require:any;

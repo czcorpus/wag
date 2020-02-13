@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Action, StatelessModel, IActionQueue } from 'kombo';
+import { StatelessModel, IActionQueue } from 'kombo';
 import { forkJoin, Observable, Observer, of as rxOf } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 

@@ -18,7 +18,6 @@
 import { Action } from 'kombo';
 
 import { ViewMode } from '../../../common/api/abstract/concordance';
-import { SubqueryPayload } from '../../../common/query';
 
 
 
