@@ -235,7 +235,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         return (
             <div className="AddCmpQueryField">
-                <button type="button" onClick={handleClick} title={ut.translate('global__add_query_field')}>+</button>
+                <button type="button" onClick={handleClick} title={ut.translate('global__add_query_field')}>
+                    <globalComponents.ImageWithMouseover file={'plus-icon.svg'} alt="plus symbol" />
+                </button>
             </div>
         );
     }

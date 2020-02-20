@@ -17,6 +17,7 @@
  */
 import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
+import { Color } from 'cnc-tskit';
 
 import { Theme } from '../../../common/theme';
 import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
@@ -123,6 +124,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 interactionId: v.interactionId
             });
 
+            const genColor = (groupIdx:number) => (idx:number) => {
+                const base = theme.barColor(groupIdx);
+                return Color.color2str(Color.luminosity(Color.importColor(base, 1), 1 + .04 * idx));
+            }
+
             return (
                 <globalCompontents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error} htmlClass="CollocTile"
                         hasData={this.props.data.some(data => data !== null && data.length > 0)} sourceIdent={{corp: this.props.corpname}}
@@ -142,9 +148,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                         <WordCloud width={width} height={height} data={data} isMobile={this.props.isMobile}
                                             style={this.props.isMobile ? {height: `${data.length * 30}px`} :
                                                 {height: `${data.length * 40}px`, width: '100%'}}
-                                                font="Roboto Condensed"
+                                                font={theme.infoGraphicsFont}
                                                 dataTransform={dataTransform}
-                                                selectedText={this.props.data.length > 1 ? this.props.selectedText : null} />
+                                                selectedText={this.props.data.length > 1 ? this.props.selectedText : null}
+                                                colors={genColor(index)} />
                                     </div>
                                 )} /> :
                                 <globalCompontents.ResponsiveWrapper key={`${index}empty`} render={() => data === null ? <p>Processing...</p> : <p>No data</p>} />
