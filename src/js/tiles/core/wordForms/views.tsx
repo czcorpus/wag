@@ -91,7 +91,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 <WordCloud width={width} height={height} data={this.props.data} isMobile={this.props.isMobile}
                                         style={this.props.isMobile ? {height: `${this.props.data.length * 30}px`} :
                                                 {height: `${this.props.data.length * 40}px`, width: '100%'}}
-                                                font="Roboto Condensed"
+                                                font={theme.infoGraphicsFont}
                                                 dataTransform={dataTransform} />
                                 )} />
                         }

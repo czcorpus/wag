@@ -59,6 +59,8 @@ export class Theme {
 
     private readonly catOtherColor:string;
 
+    public readonly infoGraphicsFont:string;
+
     constructor(conf:ColorsConf) {
         this.catColors = conf.category ? conf.category : [
             '#DD8959',
@@ -92,6 +94,7 @@ export class Theme {
         this.unfinishedChartColor = '#dddddd';
         this.unfinishedChartColorLight = '#eeeeee';
         this.catOtherColor = conf.categoryOther ? conf.categoryOther : '#494949';
+        this.infoGraphicsFont = 'Roboto Condensed';
     }
 
     categoryPalette(values:Array<string|number>) {

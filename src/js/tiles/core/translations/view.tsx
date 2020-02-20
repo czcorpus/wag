@@ -115,7 +115,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <globComponents.ResponsiveWrapper render={(width:number, height:number) => (
                                     <WordCloud width={width} height={height}
                                             style={style} isMobile={this.props.isMobile}
-                                            data={this.props.translations} font="Roboto Condensed"
+                                            data={this.props.translations} font={theme.infoGraphicsFont}
                                             dataTransform={dataTransform} />)} />
                     }
                 </globComponents.TileWrapper>

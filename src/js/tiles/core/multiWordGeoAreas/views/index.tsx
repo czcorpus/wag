@@ -220,18 +220,18 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             {props.data.map((targetData, target) => {
                                 const row = rows.find(row => row.target === target);
                                 return row ?
-                                    <>
-                                        <td key={`${area}${target}Ipm`} className="num">
+                                    <React.Fragment key={`${area}${target}Freqs`}>
+                                        <td  className="num">
                                             {row.ipm}
                                             <br />
                                             ({(100 * row.ipm / groupedAreaIpmNorms[area]).toFixed(2)}%)
                                         </td>
                                         <td key={`${area}${target}Abs`} className="num">{row.freq}</td>
-                                    </> :
-                                    <>
-                                        <td key={`${area}${target}Ipm`}></td>
-                                        <td key={`${area}${target}Abs`}></td>
-                                    </>
+                                    </React.Fragment> :
+                                    <React.Fragment key={`${area}${target}Freqs`}>
+                                        <td></td>
+                                        <td></td>
+                                    </React.Fragment>
                             })}
                         </tr>
                     )}
