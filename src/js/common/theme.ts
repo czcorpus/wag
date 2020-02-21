@@ -45,6 +45,40 @@ const brightnessAdjustHex = (hex:string, ratio:number):string => {
     return `#${mkColor(r)}${mkColor(g)}${mkColor(b)}`;
 }
 
+const defaultTheme = {
+    themeId: 'default',
+    category: [
+        '#DD8959',
+        '#1334FF',
+        '#3A9179',
+        '#FF3833',
+        '#2DE239',
+        '#07B4FF',
+        '#E52E92',
+        '#FFB700',
+        '#CE536B',
+        '#72BF4D'
+    ],
+    categoryOther: "#494949",
+    bar: [
+        '#7fc77e',
+        '#4AB2A1',
+        '#54A82C'
+    ],
+    scale: [
+        '#2a0017',
+        '#3e0022',
+        '#53002d',
+        '#670038',
+        '#7c0043',
+        '#90004e',
+        '#a50059',
+        '#b90064',
+        '#ce006f',
+        '#e2007a'
+    ]
+};
+
 export class Theme {
 
     private readonly catColors:Array<string>;
@@ -61,39 +95,14 @@ export class Theme {
 
     public readonly infoGraphicsFont:string;
 
-    constructor(conf:ColorsConf) {
-        this.catColors = conf.category ? conf.category : [
-            '#DD8959',
-            '#1334FF',
-            '#3A9179',
-            '#FF3833',
-            '#2DE239',
-            '#07B4FF',
-            '#E52E92',
-            '#FFB700',
-            '#CE536B',
-            '#72BF4D'
-        ];
-        this.barColors = conf.bar ? conf.bar : [
-            '#7fc77e',
-            '#4AB2A1',
-            '#54A82C'
-        ];
-        this.scaleColors = conf.scale ? conf.scale : [
-            '#2a0017',
-            '#3e0022',
-            '#53002d',
-            '#670038',
-            '#7c0043',
-            '#90004e',
-            '#a50059',
-            '#b90064',
-            '#ce006f',
-            '#e2007a'
-        ];
+    constructor(conf?:ColorsConf) {
+        const srcConf = conf ? conf : defaultTheme;
+        this.catColors = srcConf.category ? srcConf.category : defaultTheme.category;
+        this.barColors = srcConf.bar ? srcConf.bar : defaultTheme.bar;
+        this.scaleColors = srcConf.scale ? srcConf.scale : defaultTheme.scale;
         this.unfinishedChartColor = '#dddddd';
         this.unfinishedChartColorLight = '#eeeeee';
-        this.catOtherColor = conf.categoryOther ? conf.categoryOther : '#494949';
+        this.catOtherColor = srcConf.categoryOther ? srcConf.categoryOther : '#494949';
         this.infoGraphicsFont = 'Roboto Condensed';
     }
 
@@ -129,5 +138,4 @@ export class Theme {
             return this.scaleColors[idx] || '#dddddd';
         };
     }
-
 }

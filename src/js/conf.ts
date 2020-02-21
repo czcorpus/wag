@@ -19,6 +19,7 @@ import { DbValueMapping, HTTPHeaders, LocalizedConfMsg } from './common/types';
 import { QueryPoS, QueryType, SearchLanguage } from './common/query';
 import { TileConf } from './common/tile';
 import { CSSProperties } from 'react';
+import { List } from 'cnc-tskit';
 
 export const DEFAULT_WAIT_FOR_OTHER_TILES = 60;
 
@@ -59,10 +60,11 @@ export function errorUserConf(uiLanguages:{[code:string]:string}, error:[number,
  * (mainly chart colors).
  */
 export interface ColorsConf {
-    category:Array<string>;
-    categoryOther:string;
-    bar:Array<string>;
-    scale:Array<string>;
+    themeId:string;
+    category?:Array<string>;
+    categoryOther?:string;
+    bar?:Array<string>;
+    scale?:Array<string>;
 }
 
 
@@ -130,7 +132,7 @@ export interface ClientStaticConf {
     onLoadInit?:Array<string>;
     issueReportingUrl?:string;
     homepage:HomepageConf;
-    colors:ColorsConf;
+    colors:Array<ColorsConf>;
     searchLanguages:{[code:string]:string};
 
     // A list of URLs used to style specific content (e.g. HTML tiles)
@@ -201,7 +203,7 @@ export function emptyLayoutConf():LayoutsConfig {
     };
 }
 
-export function emptyClientConf(conf:ClientStaticConf):ClientConf {
+export function emptyClientConf(conf:ClientStaticConf, themeId:string):ClientConf {
     return {
         rootUrl: conf.rootUrl,
         hostUrl: conf.hostUrl,
@@ -212,7 +214,7 @@ export function emptyClientConf(conf:ClientStaticConf):ClientConf {
         dbValuesMapping: conf.dbValuesMapping,
         reqCacheTTL: conf.reqCacheTTL,
         onLoadInit: conf.onLoadInit || [],
-        colors: conf.colors,
+        colors: List.find(v => v.themeId === themeId, conf.colors),
         tiles: {},
         layouts: emptyLayoutConf(),
         homepage: {

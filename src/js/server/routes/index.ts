@@ -28,7 +28,7 @@ import { GlobalComponents } from '../../views/global';
 import { findQueryMatches, getSimilarFreqWords, getWordForms } from '../freqdb/freqdb';
 
 import { getLangFromCookie, fetchReqArgArray, createHelperServices, mkReturnUrl, renderResult } from './common';
-import { mainAction } from './main';
+import { mainAction, THEME_COOKIE_NAME } from './main';
 import { WordDatabase, Services } from '../actionServices';
 import { HTTPAction } from './actions';
 import { TelemetryAction } from '../../common/types';
@@ -282,6 +282,12 @@ export const wdgRouter = (services:Services) => (app:Express) => {
     });
 
 
+    app.post(HTTPAction.SET_THEME, (req, res) => {
+        res.cookie(THEME_COOKIE_NAME, req.body['themeId']);
+        res.send({ok: true});
+    });
+
+
     app.use(function (req, res, next) {
         const uiLang = getLangFromCookie(req, services.serverConf.langCookie, services.serverConf.languages);
         const [viewUtils,] = createHelperServices(services, uiLang);
@@ -297,7 +303,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                 toolbarData: emptyValue(),
                 lemmas: [],
                 userConfig: userConf,
-                clientConfig: emptyClientConf(services.clientConf),
+                clientConfig: emptyClientConf(services.clientConf, req.cookies[THEME_COOKIE_NAME] || ''),
                 returnUrl: mkReturnUrl(req, services.clientConf.rootUrl),
                 rootView: errView,
                 layout: [],
