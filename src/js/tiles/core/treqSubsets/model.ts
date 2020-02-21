@@ -21,7 +21,7 @@ import { StatelessModel, IActionQueue } from 'kombo';
 
 import { mkInterctionId, TreqSubsetsAPI } from '../../../common/api/treq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
-import { findCurrLemmaVariant } from '../../../models/query';
+import { findCurrQueryMatch } from '../../../models/query';
 import { DataLoadedPayload } from './actions';
 import { callWithExtraVal } from '../../../common/api/util';
 import { isSubqueryPayload, RecognizedQueries } from '../../../common/query';
@@ -144,7 +144,7 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
                 );
             },
             (state, action, dispatch) => {
-                const srchLemma = findCurrLemmaVariant(this.lemmas[0]);
+                const srchLemma = findCurrQueryMatch(this.lemmas[0]);
                 rxOf(...state.subsets).pipe(
                     mergeMap(subset =>
                         callWithExtraVal(
@@ -199,7 +199,7 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
                             payload: {
                                 tileId: this.tileId,
                                 isEmpty: true,
-                                query: findCurrLemmaVariant(this.lemmas[0]).word,
+                                query: findCurrQueryMatch(this.lemmas[0]).word,
                                 lines: [],
                                 sum: -1,
                                 subsetId: null

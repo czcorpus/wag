@@ -19,7 +19,7 @@
 import { Observable } from 'rxjs';
 import { DataApi } from '../types';
 import { HTTP } from 'cnc-tskit';
-import { LemmaVariant } from '../query';
+import { QueryMatch } from '../query';
 import { ajax$ } from '../ajax';
 
 
@@ -30,7 +30,7 @@ export interface LemmaDbRequestArgs {
 
 
 export interface LemmaDbResponse {
-    result:Array<LemmaVariant>;
+    result:Array<QueryMatch>;
 }
 
 

@@ -29,7 +29,7 @@ import { ConcordanceTileModel } from './model';
 import { init as viewInit } from './views';
 import { createApiInstance } from '../../../common/api/factory/concordance';
 import { createSourceInfoViewInstance } from './apiFactory';
-import { findCurrLemmaVariant } from '../../../models/query';
+import { findCurrQueryMatch } from '../../../models/query';
 import { createInitialLinesData } from '../../../common/models/concordance';
 
 
@@ -120,7 +120,7 @@ export class ConcordanceTile implements ITileProvider {
                 backlink: null,
                 posQueryGenerator: conf.posQueryGenerator,
                 disableViewModes: !!conf.disableViewModes,
-                queries: lemmas.map(lemmaGroup => findCurrLemmaVariant(lemmaGroup).word)
+                queries: lemmas.map(lemmaGroup => findCurrQueryMatch(lemmaGroup).word)
             }
         });
         this.label = appServices.importExternalMessage(conf.label || 'concordance__main_label');

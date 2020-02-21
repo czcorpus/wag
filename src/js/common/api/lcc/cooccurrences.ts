@@ -23,7 +23,7 @@ import { cachedAjax$ } from '../../../common/ajax';
 import { HTTPHeaders, IAsyncKeyValueStore, SourceDetails } from '../../../common/types';
 import { CollApiResponse, CollocationApi } from '../abstract/collocations';
 import { CollocModelState } from '../../models/collocations';
-import { LemmaVariant } from '../../query';
+import { QueryMatch } from '../../query';
 
 
 export interface CollRequestArgs {
@@ -58,7 +58,7 @@ export class LccCollAPI implements CollocationApi<CollRequestArgs> {
         this.cache = cache;
     }
 
-    stateToArgs(state:CollocModelState, dataSpec:LemmaVariant):CollRequestArgs {
+    stateToArgs(state:CollocModelState, dataSpec:QueryMatch):CollRequestArgs {
         return {
             corpus: state.corpname,
             word: dataSpec.lemma,

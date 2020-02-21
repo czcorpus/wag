@@ -21,7 +21,7 @@ import { Keyboard, pipe, List } from 'cnc-tskit';
 
 import { Forms } from '../common/data';
 import { SystemMessageType, SourceDetails } from '../common/types';
-import { QueryType, LemmaVariant, QueryTypeMenuItem, SearchLanguage, RecognizedQueries } from '../common/query';
+import { QueryType, QueryMatch, QueryTypeMenuItem, SearchLanguage, RecognizedQueries } from '../common/query';
 import { TileFrameProps } from '../common/tile';
 import { TileGroup } from '../layout';
 import { ActionName, Actions } from '../models/actions';
@@ -366,9 +366,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     }> = (props) => {
 
-        const mkHandleClick = (queryIdx:number, lemmaVar:LemmaVariant) => () => {
-            dispatcher.dispatch<Actions.ChangeCurrLemmaVariant>({
-                name: ActionName.ChangeCurrLemmaVariant,
+        const mkHandleClick = (queryIdx:number, lemmaVar:QueryMatch) => () => {
+            dispatcher.dispatch<Actions.ChangeCurrQueryMatch>({
+                name: ActionName.ChangeCurrQueryMatch,
                 payload: {
                     queryIdx: queryIdx,
                     word: lemmaVar.word,
@@ -378,7 +378,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             });
         };
 
-        const mkAltLabel = (v:LemmaVariant) => {
+        const mkAltLabel = (v:QueryMatch) => {
             if (v.pos.length > 1) {
                 return ut.translate('global__alt_expr_any');
 
@@ -390,19 +390,19 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         const handleCloseModal = () => {
             dispatcher.dispatch({
-                name: ActionName.HideLemmaVariantsModal
+                name: ActionName.HideQueryMatchModal
             });
         };
 
         const handleShowModal = () => {
             dispatcher.dispatch({
-                name: ActionName.ShowLemmaVariantsModal
+                name: ActionName.ShowQueryMatchModal
             });
         };
 
         const handleModalLemmaSelection = (queryIdx:number, variantIdx:number) => () => {
-            dispatcher.dispatch<Actions.SelectModalLemmaVariant>({
-                name: ActionName.SelectModalLemmaVariant,
+            dispatcher.dispatch<Actions.SelectModalQueryMatch>({
+                name: ActionName.SelectModalQueryMatch,
                 payload: {
                     queryIdx: queryIdx,
                     variantIdx: variantIdx
@@ -412,7 +412,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         const handleConfirmModalSelection = () => {
             dispatcher.dispatch({
-                name: ActionName.ApplyModalLemmaVariantSelection
+                name: ActionName.ApplyModalQueryMatchSelection
             });
         };
 

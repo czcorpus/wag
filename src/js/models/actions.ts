@@ -24,7 +24,7 @@ import { QueryType, QueryPoS } from '../common/query';
 
 export enum ActionName {
     ChangeQueryInput = 'MAIN_CHANGE_QUERY_INPUT',
-    ChangeCurrLemmaVariant = 'MAIN_CHANGE_CURR_LEMMA_VARIANT',
+    ChangeCurrQueryMatch = 'MAIN_CHANGE_CURR_QUERY_MATCH',
     RequestQueryResponse = 'MAIN_REQUEST_QUERY_RESPONSE',
     RetryTileLoad = 'MAIN_RETRY_TILE_LOAD',
     WakeSuspendedTiles = 'MAIN_WAKE_SUSPENDED_TILES',
@@ -60,10 +60,10 @@ export enum ActionName {
     HideAmbiguousResultHelp = 'MAIN_HIDE_AMBIGUOUS_TILE_HELP',
     AddCmpQueryInput = 'MAIN_ADD_CMP_QUERY_INPUT',
     RemoveCmpQueryInput = 'MAIN_REMOVE_CMP_QUERY_INPUT',
-    ShowLemmaVariantsModal = 'MAIN_SHOW_LEMMA_VARIANT_MODAL',
-    HideLemmaVariantsModal = 'MAIN_HIDE_LEMMA_VARIANT_MODAL',
-    SelectModalLemmaVariant = 'MAIN_SELECT_MODAL_LEMMA_VARIANT',
-    ApplyModalLemmaVariantSelection = 'MAIN_APPLY_MODAL_LEMMA_VARIANT_SELECTION'
+    ShowQueryMatchModal = 'MAIN_SHOW_QUERY_MATCH_MODAL',
+    HideQueryMatchModal = 'MAIN_HIDE_QUERY_MATCH_MODAL',
+    SelectModalQueryMatch = 'MAIN_SELECT_MODAL_QUERY_MATCH',
+    ApplyModalQueryMatchSelection = 'MAIN_APPLY_MODAL_QUERY_MATCH_SELECTION'
 }
 
 /**
@@ -121,14 +121,14 @@ export namespace Actions {
         name:ActionName.ChangeQueryInput;
     }
 
-    export interface ChangeCurrLemmaVariant extends Action<{
+    export interface ChangeCurrQueryMatch extends Action<{
         queryIdx:number;
         word:string;
         lemma:string;
         pos:Array<QueryPoS>;
 
     }> {
-        name:ActionName.ChangeCurrLemmaVariant;
+        name:ActionName.ChangeCurrQueryMatch;
     }
 
     // this action currently reload the page so we need
@@ -328,25 +328,25 @@ export namespace Actions {
         name:ActionName.RemoveCmpQueryInput;
     }
 
-    export interface ShowLemmaVariantsModal extends Action<{
+    export interface ShowQueryMatchModal extends Action<{
     }> {
-        name:ActionName.ShowLemmaVariantsModal;
+        name:ActionName.ShowQueryMatchModal;
     }
 
-    export interface HideLemmaVariantsModal extends Action<{
+    export interface HideQueryMatchModal extends Action<{
     }> {
-        name:ActionName.HideLemmaVariantsModal;
+        name:ActionName.HideQueryMatchModal;
     }
 
-    export interface SelectModalLemmaVariant extends Action<{
+    export interface SelectModalQueryMatch extends Action<{
         queryIdx:number;
         variantIdx:number;
     }> {
-        name:ActionName.SelectModalLemmaVariant;
+        name:ActionName.SelectModalQueryMatch;
     }
 
-    export interface ApplyModalLemmaVariantSelection extends Action<{
+    export interface ApplyModalQueryMatchSelection extends Action<{
     }> {
-        name:ActionName.ApplyModalLemmaVariantSelection;
+        name:ActionName.ApplyModalQueryMatchSelection;
     }
 }

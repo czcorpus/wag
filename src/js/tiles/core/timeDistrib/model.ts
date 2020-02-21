@@ -28,12 +28,12 @@ import { DataRow } from '../../../common/api/kontext/freqs';
 import { KontextTimeDistribApi } from '../../../common/api/kontext/timeDistrib';
 import { GeneralSingleCritFreqBarModelState } from '../../../common/models/freq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
-import { findCurrLemmaVariant } from '../../../models/query';
+import { findCurrQueryMatch } from '../../../models/query';
 import { ConcLoadedPayload } from '../concordance/actions';
 import { DataItemWithWCI, SubchartID, DataLoadedPayload } from './common';
 import { Actions, ActionName } from './common';
 import { callWithExtraVal } from '../../../common/api/util';
-import { LemmaVariant, RecognizedQueries } from '../../../common/query';
+import { QueryMatch, RecognizedQueries } from '../../../common/query';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { TileWait } from '../../../models/tileSync';
 
@@ -159,7 +159,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
                     state,
                     dispatch,
                     SubchartID.MAIN,
-                    rxOf(findCurrLemmaVariant(this.lemmas[0]))
+                    rxOf(findCurrQueryMatch(this.lemmas[0]))
                 );
             }
         );
@@ -437,7 +437,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
         );
     }
 
-    private loadConcordance(state:TimeDistribModelState, lemmaVariant:LemmaVariant, subcnames:Array<string>,
+    private loadConcordance(state:TimeDistribModelState, lemmaVariant:QueryMatch, subcnames:Array<string>,
             target:SubchartID):Observable<[ConcResponse, DataFetchArgsOwn]> {
         return rxOf(...subcnames).pipe(
             mergeMap(
@@ -488,7 +488,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
         );
     }
 
-    private loadData(state:TimeDistribModelState, dispatch:SEDispatcher, target:SubchartID, lemmaVariant:Observable<LemmaVariant>):void {
+    private loadData(state:TimeDistribModelState, dispatch:SEDispatcher, target:SubchartID, lemmaVariant:Observable<QueryMatch>):void {
         if (this.waitForTile > -1) { // in this case we rely on a concordance provided by other tile
             const proc = this.suspend(TileWait.create([this.waitForTile], () => false), (action:Action<{tileId:number}>, syncData) => {
                 if (action.name === GlobalActionName.TileDataLoaded && syncData.tileIsRegistered(action.payload.tileId)) {
@@ -502,7 +502,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
                         const payload = action.payload as ConcLoadedPayload;
                         return lemmaVariant.pipe(
                             map(v => {
-                                const ans:[LemmaVariant, string, string, string] = [
+                                const ans:[QueryMatch, string, string, string] = [
                                     v, payload.concPersistenceIDs[0], payload.corpusName, payload.subcorpusName];
                                 return ans;
                             })
@@ -534,7 +534,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
 
         } else { // here we must create our own concordance(s) if needed
             const data = lemmaVariant.pipe(
-                concatMap((lv:LemmaVariant) => {
+                concatMap((lv:QueryMatch) => {
                     if (lv) {
                         return this.loadConcordance(state, lv, state.subcnames, target);
                     }

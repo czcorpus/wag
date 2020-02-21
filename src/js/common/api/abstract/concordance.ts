@@ -17,7 +17,7 @@
  */
 
 import { ConcordanceMinState } from '../../models/concordance';
-import { LemmaVariant, SubqueryPayload } from '../../query';
+import { QueryMatch, SubqueryPayload } from '../../query';
 import { DataApi, SourceDetails } from '../../types';
 import { Observable } from 'rxjs';
 
@@ -76,7 +76,7 @@ export enum ViewMode {
 
 export interface IConcordanceApi<T> extends DataApi<T, ConcResponse> {
 
-    stateToArgs(state:ConcordanceMinState, lvar:LemmaVariant|null, lvarIdx:number, otherLangCql:string|null):T;
+    stateToArgs(state:ConcordanceMinState, lvar:QueryMatch|null, lvarIdx:number, otherLangCql:string|null):T;
 
     getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<SourceDetails>;
 

@@ -26,7 +26,7 @@ import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../
 import { ActionName, Actions, LoadFinishedPayload } from './actions';
 import { DataApi } from '../../../common/types';
 import { TooltipValues } from '../../../views/global';
-import { LemmaVariant } from '../../../common/query';
+import { QueryMatch } from '../../../common/query';
 import { ConcApi, QuerySelector, mkMatchQuery } from '../../../common/api/kontext/concordance';
 import { callWithExtraVal } from '../../../common/api/util';
 import { ViewMode } from '../../../common/api/abstract/concordance';
@@ -74,7 +74,7 @@ ORAL_V1:
 
 export interface MultiWordGeoAreasModelState extends FreqBarModelStateBase {
     fcrit:string;
-    currentLemmas:Array<LemmaVariant>;
+    currentLemmas:Array<QueryMatch>;
     data:Array<Array<DataRow>>;
     areaCodeMapping:{[key:string]:string};
     tooltipArea:{tooltipX:number; tooltipY:number, caption: string, data:TooltipValues}|null;
@@ -99,9 +99,9 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
 
     private readonly mapLoader:DataApi<string, string>;
 
-    private readonly lemmas:Array<Array<LemmaVariant>>;
+    private readonly lemmas:Array<Array<QueryMatch>>;
 
-    constructor(dispatcher:IActionQueue, tileId:number, waitForTile:number, appServices:AppServices, lemmas:Array<Array<LemmaVariant>>,
+    constructor(dispatcher:IActionQueue, tileId:number, waitForTile:number, appServices:AppServices, lemmas:Array<Array<QueryMatch>>,
                 concApi:ConcApi, freqApi:FreqDistribAPI, mapLoader:DataApi<string, string>, initState:MultiWordGeoAreasModelState) {
         super(dispatcher, initState);
         this.tileId = tileId;
@@ -262,7 +262,7 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
     private getConcordances(state:MultiWordGeoAreasModelState) {
         return zip(
             this.mapLoader.call('mapCzech.inline.svg').pipe(repeat(state.currentLemmas.length)),
-            rxOf(...state.currentLemmas.map((lemma, queryId) => [queryId, lemma] as [number, LemmaVariant])[Symbol.iterator]()).pipe(
+            rxOf(...state.currentLemmas.map((lemma, queryId) => [queryId, lemma] as [number, QueryMatch])[Symbol.iterator]()).pipe(
                 concatMap(([queryId, lemmaVariant]) =>
                     callWithExtraVal(
                         this.concApi,

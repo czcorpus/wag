@@ -26,7 +26,7 @@ import { GeneralCritFreqTreeModelState, stateToAPIArgs, FreqTreeDataBlock } from
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { ActionName, Actions, DataLoadedPayload } from './actions';
-import { LemmaVariant } from '../../../common/query';
+import { QueryMatch } from '../../../common/query';
 import { ConcApi, mkMatchQuery, QuerySelector } from '../../../common/api/kontext/concordance';
 import { isConcLoadedPayload, ConcLoadedPayload } from '../concordance/actions';
 import { createInitialLinesData } from '../../../common/models/concordance';
@@ -38,7 +38,7 @@ export interface FreqTreeModelState extends GeneralCritFreqTreeModelState {
     activeBlock:number;
     backlink:BacklinkWithArgs<BacklinkArgs>;
     maxChartsPerLine:number;
-    lemmaVariants:Array<LemmaVariant>;
+    lemmaVariants:Array<QueryMatch>;
     zoomCategory:Array<Array<string|null>>;
     posQueryGenerator:[string, string];
 }
@@ -54,7 +54,7 @@ export interface FreqComparisonModelArgs {
     initState:FreqTreeModelState;
 }
 
-type SingleQuerySingleBlockArgs = {queryId:number; blockId:number; lemma:LemmaVariant; concId:string};
+type SingleQuerySingleBlockArgs = {queryId:number; blockId:number; lemma:QueryMatch; concId:string};
 
 
 export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
@@ -273,8 +273,8 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
         );
     }
 
-    composeConcordances(state:FreqTreeModelState, concIds: Array<string>):Observable<[{concPersistenceID:string;}, {blockId:number; queryId: number; lemma:LemmaVariant; concId:string;}]> {
-        return new Observable((observer:Observer<[{concPersistenceID:string;}, {blockId: number; queryId: number; lemma:LemmaVariant; concId:string;}]>) => {
+    composeConcordances(state:FreqTreeModelState, concIds: Array<string>):Observable<[{concPersistenceID:string;}, {blockId:number; queryId: number; lemma:QueryMatch; concId:string;}]> {
+        return new Observable((observer:Observer<[{concPersistenceID:string;}, {blockId: number; queryId: number; lemma:QueryMatch; concId:string;}]>) => {
             state.fcritTrees.forEach((fcritTree, blockId) =>
                 state.lemmaVariants.forEach((lemma, queryId) => {
                     observer.next([
@@ -287,7 +287,7 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
         })
     }
 
-    loadTreeData(concResp:Observable<[{concPersistenceID:string;}, {blockId:number; queryId:number; lemma:LemmaVariant; concId:string;}]> ,state:FreqTreeModelState, dispatch:SEDispatcher):void {
+    loadTreeData(concResp:Observable<[{concPersistenceID:string;}, {blockId:number; queryId:number; lemma:QueryMatch; concId:string;}]> ,state:FreqTreeModelState, dispatch:SEDispatcher):void {
         concResp.pipe(
             mergeMap(([resp, args]) => {
                 args.concId = resp.concPersistenceID;
@@ -296,7 +296,7 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                     args.lemma,
                     resp.concPersistenceID
                 ).pipe(
-                    map(resp => [resp, args] as [APIVariantsResponse, {blockId:number; queryId:number; lemma:LemmaVariant; concId:string;}])
+                    map(resp => [resp, args] as [APIVariantsResponse, {blockId:number; queryId:number; lemma:QueryMatch; concId:string;}])
                 )
             }),
             mergeMap(([resp1, args]) =>
@@ -308,10 +308,10 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                             {[resp1.fcrit]: fcritValue}
                         )
                     ),
-                    map(resp2 => [resp2, args] as [APILeafResponse, {blockId:number; queryId:number; lemma:LemmaVariant; concId:string;}])
+                    map(resp2 => [resp2, args] as [APILeafResponse, {blockId:number; queryId:number; lemma:QueryMatch; concId:string;}])
                 )
             ),
-            reduce<[APILeafResponse, {blockId:number; queryId:number; lemma:LemmaVariant; concId:string;}], {concIds: Array<string>, dataTree: {[k:string]:any}}>((acc, [resp, args]) => {
+            reduce<[APILeafResponse, {blockId:number; queryId:number; lemma:QueryMatch; concId:string;}], {concIds: Array<string>, dataTree: {[k:string]:any}}>((acc, [resp, args]) => {
                 // TODO fixed depth merging here
                 acc.dataTree = Dict.mergeDict(
                     (oldVal:{}, newVal:{}) => Dict.mergeDict(

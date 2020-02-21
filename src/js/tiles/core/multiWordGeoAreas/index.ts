@@ -25,7 +25,7 @@ import { MultiWordGeoAreasModel } from './model';
 import { init as viewInit } from './views';
 import { MapLoader } from './mapLoader';
 import { ConcApi } from '../../../common/api/kontext/concordance';
-import { findCurrLemmaVariant } from '../../../models/query';
+import { findCurrQueryMatch } from '../../../models/query';
 
 
 declare var require:any;
@@ -97,7 +97,7 @@ export class MultiWordGeoAreasTile implements ITileProvider {
                 fmaxitems: 100,
                 isAltViewMode: false,
                 posQueryGenerator: conf.posQueryGenerator,
-                currentLemmas: lemmas.map(lemma => findCurrLemmaVariant(lemma))
+                currentLemmas: lemmas.map(lemma => findCurrQueryMatch(lemma))
             }
         );
         this.label = appServices.importExternalMessage(conf.label || 'geolocations__main_label');

@@ -30,7 +30,7 @@ import { SystemMessageType } from '../../../common/types';
 import { isSubqueryPayload, RecognizedQueries, QueryType } from '../../../common/query';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
-import { findCurrLemmaVariant } from '../../../models/query';
+import { findCurrQueryMatch } from '../../../models/query';
 import { importMessageType } from '../../../notifications';
 import { ActionName, Actions, ConcLoadedPayload } from './actions';
 import { normalizeTypography } from '../../../common/models/concordance/normalize';
@@ -310,7 +310,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 this.lemmas.slice(0, this.queryType !== QueryType.CMP_QUERY ? 1 : undefined).forEach((lemma, queryIdx) => {
                     observer.next({
                         apiArgs: this.service.stateToArgs(state, state.concordances[queryIdx].concId ?
-                                    null : findCurrLemmaVariant(lemma), queryIdx, otherLangCql),
+                                    null : findCurrQueryMatch(lemma), queryIdx, otherLangCql),
                         queryIdx: queryIdx
                     });
                 });

@@ -22,7 +22,7 @@ import { concatMap, map, catchError, reduce } from 'rxjs/operators';
 
 
 import { AppServices } from '../../appServices';
-import { QueryType, LemmaVariant, QueryPoS, matchesPos, findMergeableLemmas, importQueryTypeString } from '../../common/query';
+import { QueryType, QueryMatch, QueryPoS, matchesPos, findMergeableLemmas, importQueryTypeString } from '../../common/query';
 import { UserConf, ClientStaticConf, ClientConf, emptyClientConf, getSupportedQueryTypes, emptyLayoutConf, errorUserConf,
     getQueryTypeFreqDb, DEFAULT_WAIT_FOR_OTHER_TILES } from '../../conf';
 import { init as viewInit } from '../../views/layout';
@@ -153,11 +153,11 @@ export function mainAction(services:Services, answerMode:boolean, req:Request, r
                             query,
                             getQueryTypeFreqDb(services.serverConf, userConf.queryType).minLemmaFreq
                         ) :
-                        rxOf<Array<LemmaVariant>>([])
+                        rxOf<Array<QueryMatch>>([])
 
                     )).pipe(
                         concatMap(v => v),
-                        reduce((acc:Array<Array<LemmaVariant>>, curr) => acc.concat([curr]), [])
+                        reduce((acc:Array<Array<QueryMatch>>, curr) => acc.concat([curr]), [])
 
                     )
             })

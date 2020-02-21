@@ -20,7 +20,7 @@ import { map } from 'rxjs/operators';
 
 import { cachedAjax$ } from '../../../common/ajax';
 import { DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../../common/types';
-import { QueryPoS, LemmaVariant, matchesPos } from '../../../common/query';
+import { QueryPoS, QueryMatch, matchesPos } from '../../../common/query';
 import { MultiDict } from '../../../common/data';
 
 
@@ -50,7 +50,7 @@ export interface Response {
 }
 
 interface HTTPResponse {
-    result:Array<LemmaVariant>;
+    result:Array<QueryMatch>;
 }
 
 export class FreqDbAPI implements DataApi<RequestArgs, Response> {

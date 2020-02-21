@@ -67,7 +67,13 @@ export interface RangeRelatedSubqueryValue {
     context:[number, number];
 }
 
-export interface LemmaVariant {
+/**
+ * QueryMatch represents a single matching item
+ * for a query as processed by WaG internal word
+ * frequency database. The value can be ambiguous in
+ * terms of part of speech (see 'pos' as an Array).
+ */
+export interface QueryMatch {
     lemma:string;
     word:string;
     pos:Array<{value:QueryPoS; label:string}>;
@@ -83,23 +89,23 @@ export interface LemmaVariant {
  * For each query (1st array dimension) we provide possibly multiple
  * lemma variants (2nd array dimension).
  */
-export type RecognizedQueries = Array<Array<LemmaVariant>>;
+export type RecognizedQueries = Array<Array<QueryMatch>>;
 
 
-export function testIsDictQuery(lemmas:Array<LemmaVariant>|LemmaVariant):boolean {
+export function testIsDictQuery(lemmas:Array<QueryMatch>|QueryMatch):boolean {
     if (Array.isArray(lemmas)) {
-        const tmp = lemmas as Array<LemmaVariant>;
+        const tmp = lemmas as Array<QueryMatch>;
         return tmp.length > 1 || !tmp[0].isNonDict;
     }
-    return !(lemmas as LemmaVariant).isNonDict;
+    return !(lemmas as QueryMatch).isNonDict;
 }
 
-export function matchesPos(lv:LemmaVariant, pos:Array<QueryPoS>):boolean {
+export function matchesPos(lv:QueryMatch, pos:Array<QueryPoS>):boolean {
     return lv.pos.length === pos.length &&
         lv.pos.reduce((acc, curr) => acc && pos.indexOf(curr.value) > -1, true as boolean);
 }
 
-interface MergedLemmaVariant extends LemmaVariant {
+interface MergedQueryMatch extends QueryMatch {
     minAbs:number;
     maxAbs:number;
 }
@@ -107,12 +113,12 @@ interface MergedLemmaVariant extends LemmaVariant {
 const MERGE_CANDIDATE_MIN_DIFF_RATIO = 100;
 
 /**
- * Freq. database returns a list of LemmaVariant instances with 'pos' array of size 1,
- * i.e. items with the same 'lemma' and 'word' are separate LemmaVariant instances.
- * For further processing we have to merge those items into a single LemmaVariant instance
+ * Freq. database returns a list of QueryMatch instances with 'pos' array of size 1,
+ * i.e. items with the same 'lemma' and 'word' are separate QueryMatch instances.
+ * For further processing we have to merge those items into a single QueryMatch instance
  * with pos = [all the individual PoS values].
  */
-export function findMergeableLemmas(variants:Array<LemmaVariant>):Array<LemmaVariant> {
+export function findMergeableLemmas(variants:Array<QueryMatch>):Array<QueryMatch> {
     const mapping:{[key:string]:Array<{pos:{value:QueryPoS; label:string}; abs:number; form:string; arf:number}>} = {};
     variants.forEach(item => {
         if (!(item.lemma in mapping)) {
@@ -122,7 +128,7 @@ export function findMergeableLemmas(variants:Array<LemmaVariant>):Array<LemmaVar
             mapping[item.lemma].push({pos: p, abs: item.abs, form: item.word, arf: item.arf});
         });
     });
-    const merged:Array<MergedLemmaVariant> = Object.keys(mapping).filter(lm => mapping[lm].length > 1).map(lm => ({
+    const merged:Array<MergedQueryMatch> = Object.keys(mapping).filter(lm => mapping[lm].length > 1).map(lm => ({
         lemma: lm,
         word: mapping[lm][0].form, // should be the same for all 0...n
         pos: mapping[lm].map(v => v.pos),

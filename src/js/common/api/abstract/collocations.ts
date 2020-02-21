@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { SubqueryPayload, isSubqueryPayload, LemmaVariant, RangeRelatedSubqueryValue } from '../../query';
+import { SubqueryPayload, isSubqueryPayload, QueryMatch, RangeRelatedSubqueryValue } from '../../query';
 import { DataApi, SourceDetails } from '../../types';
 import { CollocModelState } from '../../models/collocations';
 import { Observable } from 'rxjs';
@@ -68,7 +68,7 @@ export interface CollocationApi<T> extends DataApi<T, CollApiResponse> {
     /**
      * @param dataSpec is either an ID of an existing concordance or a query
      */
-    stateToArgs(state:CollocModelState, dataSpec:LemmaVariant|string):T;
+    stateToArgs(state:CollocModelState, dataSpec:QueryMatch|string):T;
 
     supportsLeftRightContext():boolean;
 

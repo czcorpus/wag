@@ -29,7 +29,7 @@ import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { CollocationApi } from '../../../common/api/abstract/collocations';
 import { CollocModelState, ctxToRange } from '../../../common/models/collocations';
 import { CoreCollRequestArgs } from '../../../common/api/kontext/collocations';
-import { LemmaVariant, QueryType } from '../../../common/query';
+import { QueryMatch, QueryType } from '../../../common/query';
 import { ConcApi, QuerySelector, RequestArgs } from '../../../common/api/kontext/concordance';
 import { callWithExtraVal } from '../../../common/api/util';
 import { ViewMode, ConcResponse } from '../../../common/api/abstract/concordance';
@@ -51,7 +51,7 @@ export interface CollocModelArgs {
 }
 
 
-type FreqRequestArgs = [number, LemmaVariant, string];
+type FreqRequestArgs = [number, QueryMatch, string];
 
 
 export class CollocModel extends StatelessModel<CollocModelState> {
@@ -270,9 +270,9 @@ export class CollocModel extends StatelessModel<CollocModelState> {
 
 
     private loadConcs(state:CollocModelState):Observable<FreqRequestArgs> {
-        return rxOf(...List.map((v, i) => [i, v] as [number, LemmaVariant], state.lemmas)).pipe(
+        return rxOf(...List.map((v, i) => [i, v] as [number, QueryMatch], state.lemmas)).pipe(
             concatMap(([queryId, lemma]) =>
-                callWithExtraVal<RequestArgs, ConcResponse, [number, LemmaVariant]>(
+                callWithExtraVal<RequestArgs, ConcResponse, [number, QueryMatch]>(
                     this.concApi,
                     this.concApi.stateToArgs(
                         {

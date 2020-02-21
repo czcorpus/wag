@@ -22,7 +22,7 @@ import { DataLoadedPayload } from './actions';
 import { ActionName, Actions } from './actions';
 import { WordSimApi } from '../../../common/api/abstract/wordSim';
 import { WordSimModelState } from '../../../common/models/wordSim';
-import { LemmaVariant } from '../../../common/query';
+import { QueryMatch } from '../../../common/query';
 import { Observable, Observer } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
 import { callWithExtraVal } from '../../../common/api/util';
@@ -162,7 +162,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
     }
 
     getData(state:WordSimModelState, seDispatch:SEDispatcher):void {
-        new Observable((observer:Observer<{queryId:number; lemma:LemmaVariant}>) => {
+        new Observable((observer:Observer<{queryId:number; lemma:QueryMatch}>) => {
             state.lemmas.forEach((lemma, queryId) => {
                 observer.next({queryId: queryId, lemma: lemma});
             });

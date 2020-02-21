@@ -22,7 +22,7 @@ import { StatelessModel, Action, SEDispatcher, IActionQueue } from 'kombo';
 import { WordFormItem, WordFormsApi, RequestConcArgs, RequestArgs } from '../../../common/api/abstract/wordForms';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { DataLoadedPayload } from './actions';
-import { findCurrLemmaVariant } from '../../../models/query';
+import { findCurrQueryMatch } from '../../../models/query';
 import { ConcLoadedPayload } from '../concordance/actions';
 import { RecognizedQueries } from '../../../common/query';
 
@@ -160,7 +160,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                     });
 
                 } else {
-                    const variant = findCurrLemmaVariant(this.lemmas[0]);
+                    const variant = findCurrQueryMatch(this.lemmas[0]);
                     this.fetchWordForms(
                         {
                             lang: this.queryLang,

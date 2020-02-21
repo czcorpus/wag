@@ -23,8 +23,8 @@ import { AppServices } from '../../../appServices';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { DataLoadedPayload } from './actions';
 import { FreqDBRow, FreqDbAPI, FreqBand } from './api';
-import { findCurrLemmaVariant } from '../../../models/query';
-import { LemmaVariant, testIsDictQuery, RecognizedQueries } from '../../../common/query';
+import { findCurrQueryMatch } from '../../../models/query';
+import { QueryMatch, testIsDictQuery, RecognizedQueries } from '../../../common/query';
 
 export interface FlevelDistribItem {
     rel:number;
@@ -52,9 +52,9 @@ export interface SummaryModelState {
     flevelDistrb:Array<FlevelDistribItem>;
 }
 
-export function createInitialWordDataArray(lemmasAllQueries:Array<Array<LemmaVariant>>):Array<Array<FreqDBRow>> {
+export function createInitialWordDataArray(lemmasAllQueries:Array<Array<QueryMatch>>):Array<Array<FreqDBRow>> {
     return lemmasAllQueries.map(lemmasQuery => {
-        const curr = findCurrLemmaVariant(lemmasQuery);
+        const curr = findCurrQueryMatch(lemmasQuery);
         return [
             {
                 word: curr.word,
@@ -118,10 +118,10 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                 state.data = createInitialWordDataArray(lemmas);
             },
             (state, action, dispatch) => {
-                new Observable<{variant:LemmaVariant; lang:string}>((observer) => {
+                new Observable<{variant:QueryMatch; lang:string}>((observer) => {
                     try {
                         observer.next({
-                            variant: findCurrLemmaVariant(this.lemmas[0]),
+                            variant: findCurrQueryMatch(this.lemmas[0]),
                             lang: this.queryLang
                         });
                         observer.complete();
@@ -156,7 +156,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                         (data) => ({
                             data: data.result.map(v => {
                                 return {
-                                    word: v.isSearched ? findCurrLemmaVariant(this.lemmas[0]).word : '',
+                                    word: v.isSearched ? findCurrQueryMatch(this.lemmas[0]).word : '',
                                     lemma: v.lemma,
                                     pos: v.pos,
                                     abs: v.abs,

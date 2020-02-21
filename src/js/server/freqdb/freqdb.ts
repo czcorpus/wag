@@ -19,14 +19,14 @@ import { Observable, merge, of as rxOf } from 'rxjs';
 import { concatMap, reduce } from 'rxjs/operators';
 
 import { AppServices } from '../../appServices';
-import { importQueryPos, LemmaVariant, QueryPoS } from '../../common/query';
+import { importQueryPos, QueryMatch, QueryPoS } from '../../common/query';
 import { posTable } from './common';
 import { WordDatabase } from '../actionServices';
 
 
 
-export const getLemmas = (db:WordDatabase, appServices:AppServices, word:string, minFreq:number):Observable<Array<LemmaVariant>> => {
-    return new Observable<LemmaVariant>((observer) => {
+export const getLemmas = (db:WordDatabase, appServices:AppServices, word:string, minFreq:number):Observable<Array<QueryMatch>> => {
+    return new Observable<QueryMatch>((observer) => {
         const srchWord = word.toLowerCase();
         if(db.conn) {
             db.conn.serialize(() => {
@@ -79,14 +79,14 @@ export const getLemmas = (db:WordDatabase, appServices:AppServices, word:string,
 
     }).pipe(
         reduce(
-            (acc:Array<LemmaVariant>, curr:LemmaVariant) => acc.concat([curr]),
+            (acc:Array<QueryMatch>, curr:QueryMatch) => acc.concat([curr]),
             []
         )
     )
 };
 
 
-const exportRow = (row:{[key:string]:any}, appServices:AppServices, isCurrent:boolean, word:string=''):LemmaVariant => ({
+const exportRow = (row:{[key:string]:any}, appServices:AppServices, isCurrent:boolean, word:string=''):QueryMatch => ({
     word: word, // TODO different type here ?
     lemma: row['value'],
     abs: row['abs'],
@@ -107,9 +107,9 @@ const ntimesPlaceholder = (n:number):string => {
 }
 
 
-const getNearFreqItems = (db:WordDatabase, appServices:AppServices, val:LemmaVariant, whereSgn:number, limit:number):Observable<LemmaVariant> => {
+const getNearFreqItems = (db:WordDatabase, appServices:AppServices, val:QueryMatch, whereSgn:number, limit:number):Observable<QueryMatch> => {
 
-    return new Observable<LemmaVariant>((observer) => {
+    return new Observable<QueryMatch>((observer) => {
         db.conn.each(
             'SELECT value, pos, arf, `count` AS abs, CAST(count AS FLOAT) / ? * 1000000 AS ipm ' +
             'FROM lemma ' +
@@ -141,8 +141,8 @@ const getNearFreqItems = (db:WordDatabase, appServices:AppServices, val:LemmaVar
 }
 
 
-export const getSimilarFreqWords = (db:WordDatabase, appServices:AppServices, lemma:string, pos:Array<QueryPoS>, rng:number):Observable<Array<LemmaVariant>> => {
-    return new Observable<LemmaVariant>((observer) => {
+export const getSimilarFreqWords = (db:WordDatabase, appServices:AppServices, lemma:string, pos:Array<QueryPoS>, rng:number):Observable<Array<QueryMatch>> => {
+    return new Observable<QueryMatch>((observer) => {
         db.conn.get(
             `SELECT value, GROUP_CONCAT(pos) AS pos, SUM(\`count\`) AS abs, CAST(\`count\` AS FLOAT) / ? * 1000000 AS ipm, SUM(arf) AS arf
              FROM lemma
@@ -168,15 +168,15 @@ export const getSimilarFreqWords = (db:WordDatabase, appServices:AppServices, le
             )
         ),
         reduce(
-            (acc:Array<LemmaVariant>, curr:LemmaVariant) => acc.concat([curr]),
+            (acc:Array<QueryMatch>, curr:QueryMatch) => acc.concat([curr]),
             []
         )
     );
 };
 
 
-export const getWordForms = (db:WordDatabase, appServices:AppServices, lemma:string, pos:Array<QueryPoS>):Observable<Array<LemmaVariant>> => {
-    return new Observable<LemmaVariant>((observer) => {
+export const getWordForms = (db:WordDatabase, appServices:AppServices, lemma:string, pos:Array<QueryPoS>):Observable<Array<QueryMatch>> => {
+    return new Observable<QueryMatch>((observer) => {
         db.conn.each(
             'SELECT w.value AS value, w.pos, w.count AS abs, CAST(w.count AS FLOAT) / ? * 1000000 AS ipm ' +
             'FROM lemma AS m ' +
@@ -202,7 +202,7 @@ export const getWordForms = (db:WordDatabase, appServices:AppServices, lemma:str
         );
     }).pipe(
         reduce(
-            (acc:Array<LemmaVariant>, curr:LemmaVariant) => acc.concat([curr]),
+            (acc:Array<QueryMatch>, curr:QueryMatch) => acc.concat([curr]),
             []
         )
     );
