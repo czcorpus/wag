@@ -22,12 +22,12 @@ import { map } from 'rxjs/operators';
 import { DataApi, IAsyncKeyValueStore } from '../../types';
 import { HTTP } from 'cnc-tskit';
 import { cachedAjax$ } from '../../ajax';
-import { LemmaVariant } from '../../query';
+import { QueryMatch } from '../../query';
 import { RequestArgs, Response } from '../../api/abstract/wordForms';
 
 
 export interface HTTPResponse {
-    result:Array<LemmaVariant>;
+    result:Array<QueryMatch>;
 }
 
 

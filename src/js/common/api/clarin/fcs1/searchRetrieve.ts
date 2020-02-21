@@ -24,7 +24,7 @@ import { ConcResponse, Line, IConcordanceApi } from '../../../../common/api/abst
 import { XMLParser, XMLNode } from '../../../xml';
 import { ConcordanceMinState } from '../../../models/concordance';
 import { ajax$, ResponseType } from '../../../ajax';
-import { LemmaVariant } from '../../../query';
+import { QueryMatch } from '../../../query';
 import { FCS1ExplainAPI, FCS1ExplainResponse } from './explain';
 
 
@@ -153,7 +153,7 @@ export class FCS1SearchRetrieveAPI implements IConcordanceApi<FCS1Args> {
         this.srcInfoApi = new FCS1ExplainAPI(url, this.customHeaders);
     }
 
-    stateToArgs(state:ConcordanceMinState, lvar:LemmaVariant, lvarIdx:number, otherLangCql:string):FCS1Args {
+    stateToArgs(state:ConcordanceMinState, lvar:QueryMatch, lvarIdx:number, otherLangCql:string):FCS1Args {
         return {
             operation: 'searchRetrieve',
             query: lvar.lemma,

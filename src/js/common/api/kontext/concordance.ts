@@ -20,7 +20,7 @@ import { map } from 'rxjs/operators';
 
 import { cachedAjax$ } from '../../ajax';
 import { HTTPHeaders, IAsyncKeyValueStore } from '../../types';
-import { LemmaVariant } from '../../query';
+import { QueryMatch } from '../../query';
 import { posQueryFactory } from './posQuery';
 import { Line, ConcResponse, ViewMode, LineElement, IConcordanceApi } from '../abstract/concordance';
 import { ConcordanceMinState } from '../../models/concordance';
@@ -147,7 +147,7 @@ export const getQuery = (args:AnyQuery):string => {
 
 const escapeVal = (v:string) => v.replace(/"/, '\\"');
 
-function mkLemmaMatchQuery(lvar:LemmaVariant, generator:[string, string]):string {
+function mkLemmaMatchQuery(lvar:QueryMatch, generator:[string, string]):string {
     const fn = posQueryFactory(generator[1]);
     const posPart = lvar.pos.length > 0 ?
         ' & (' + lvar.pos.map(v => `${generator[0]}="${fn(v.value)}"`).join(' | ') + ')' :
@@ -155,11 +155,11 @@ function mkLemmaMatchQuery(lvar:LemmaVariant, generator:[string, string]):string
     return `[lemma="${escapeVal(lvar.lemma)}" ${posPart}]`; // TODO escape stuff !!!
 }
 
-function mkWordMatchQuery(lvar:LemmaVariant):string {
+function mkWordMatchQuery(lvar:QueryMatch):string {
     return lvar.word.split(' ').map(word => `[word="${escapeVal(word)}"]`).join('');
 }
 
-export function mkMatchQuery(lvar:LemmaVariant, generator:[string, string]):string {
+export function mkMatchQuery(lvar:QueryMatch, generator:[string, string]):string {
     if (lvar.pos.length > 0) {
         return mkLemmaMatchQuery(lvar, generator);
 
@@ -234,7 +234,7 @@ export class ConcApi implements IConcordanceApi<RequestArgs> {
         this.srcInfoService = new CorpusInfoAPI(cache, apiURL, customHeaders);
     }
 
-    stateToArgs(state:ConcordanceMinState, lvar:LemmaVariant, lvarIdx:number, otherLangCql:string):RequestArgs {
+    stateToArgs(state:ConcordanceMinState, lvar:QueryMatch, lvarIdx:number, otherLangCql:string):RequestArgs {
         if (state.otherCorpname) {
             const ans:PCRequestArgs = {
                 corpname: state.corpname,

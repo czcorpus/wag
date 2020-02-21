@@ -25,7 +25,7 @@ import { ConcLoadedPayload } from '../concordance/actions';
 import { ActionName, Actions, DataLoadedPayload } from './actions';
 import { MatchingDocsModelState } from '../../../common/models/matchingDocs';
 import { MatchingDocsAPI } from '../../../common/api/abstract/matchingDocs';
-import { findCurrLemmaVariant } from '../../../models/query';
+import { findCurrQueryMatch } from '../../../models/query';
 import { RecognizedQueries } from '../../../common/query';
 import { List, pipe, Dict } from 'cnc-tskit';
 
@@ -227,7 +227,7 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState, Mo
             });
 
         } else {
-            const variant = findCurrLemmaVariant(this.lemmas[0]);
+            const variant = findCurrQueryMatch(this.lemmas[0]);
             this.api.call(this.api.stateToArgs(state, variant.word))
             .subscribe(
                 (resp) => {

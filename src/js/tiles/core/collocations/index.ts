@@ -28,7 +28,7 @@ import { CollocationApi, SrchContextType } from '../../../common/api/abstract/co
 import { createInstance } from './apiFactory';
 import { CoreApiGroup } from '../../../common/api/coreGroups';
 import { ConcApi } from '../../../common/api/kontext/concordance';
-import { findCurrLemmaVariant } from '../../../models/query';
+import { findCurrQueryMatch } from '../../../models/query';
 
 
 declare var require:(src:string)=>void;  // webpack
@@ -109,7 +109,7 @@ export class CollocationsTile implements ITileProvider {
                 heading: [],
                 citemsperpage: conf.maxItems ? conf.maxItems : 10,
                 backlink: null,
-                lemmas: lemmas.map(findCurrLemmaVariant),
+                lemmas: lemmas.map(findCurrQueryMatch),
                 posQueryGenerator: conf.posQueryGenerator
             }
         });

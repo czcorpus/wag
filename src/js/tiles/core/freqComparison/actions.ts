@@ -18,7 +18,7 @@
 import { Action } from 'kombo';
 
 import { LocalizedConfMsg } from '../../../common/types';
-import { LemmaVariant } from '../../../common/query';
+import { QueryMatch } from '../../../common/query';
 import { ApiDataBlock } from '../../../common/api/kontext/freqs';
 
 
@@ -32,8 +32,8 @@ export interface DataLoadedPayload {
     block:ApiDataBlock;
     blockLabel?:LocalizedConfMsg;
     queryId:number;
-    lemma:LemmaVariant;
-    critId:number;    
+    lemma:QueryMatch;
+    critId:number;
 }
 
 // this is to allow other tiles to use this one as source of concordances - ConcLoadedPayload

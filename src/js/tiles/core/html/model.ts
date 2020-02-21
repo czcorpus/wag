@@ -21,7 +21,7 @@ import { AppServices } from '../../../appServices';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { DataLoadedPayload, HtmlModelState } from './common';
 import { RawHtmlAPI, WiktionaryHtmlAPI, GeneralHtmlAPI } from './service';
-import { findCurrLemmaVariant } from '../../../models/query';
+import { findCurrQueryMatch } from '../../../models/query';
 import { Observable, of as rxOf } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 import { RecognizedQueries } from '../../../common/query';
@@ -61,7 +61,7 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
                 state.error = null;
             },
             (state, action, seDispatch) => {
-                const variant = findCurrLemmaVariant(this.lemmas[0]);
+                const variant = findCurrQueryMatch(this.lemmas[0]);
                 this.requestData(state, variant.lemma, seDispatch);
             }
         )

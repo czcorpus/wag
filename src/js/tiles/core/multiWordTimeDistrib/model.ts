@@ -29,10 +29,10 @@ import { DataRow } from '../../../common/api/kontext/freqs';
 import { KontextTimeDistribApi } from '../../../common/api/kontext/timeDistrib';
 import { GeneralSingleCritFreqMultiQueryState } from '../../../common/models/freq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
-import { findCurrLemmaVariant } from '../../../models/query';
+import { findCurrQueryMatch } from '../../../models/query';
 import { DataItemWithWCI, ActionName, Actions, DataLoadedPayload, DataFetchArgs } from './common';
 import { callWithExtraVal } from '../../../common/api/util';
-import { LemmaVariant, RecognizedQueries } from '../../../common/query';
+import { QueryMatch, RecognizedQueries } from '../../../common/query';
 import { createInitialLinesData } from '../../../common/models/concordance';
 import { ConcLoadedPayload, isConcLoadedPayload } from '../concordance/actions';
 
@@ -183,9 +183,9 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                     [null],
                                     rxOf(...this.lemmas.map((lemma, queryId) => ({
                                         queryId: queryId,
-                                        lemma: findCurrLemmaVariant(lemma),
+                                        lemma: findCurrQueryMatch(lemma),
                                         concId: payload.concPersistenceIDs[queryId]
-                                    }))) as Observable<{queryId:number; lemma:LemmaVariant; concId:string;}>
+                                    }))) as Observable<{queryId:number; lemma:QueryMatch; concId:string;}>
                                 );
                             } else {
                                 this.loadData(
@@ -194,9 +194,9 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                     state.subcnames,
                                     rxOf(...this.lemmas.map((lemma, queryId) => ({
                                         queryId: queryId,
-                                        lemma: findCurrLemmaVariant(lemma),
+                                        lemma: findCurrQueryMatch(lemma),
                                         concId: null
-                                    }))) as Observable<{queryId:number; lemma:LemmaVariant; concId:string;}>
+                                    }))) as Observable<{queryId:number; lemma:QueryMatch; concId:string;}>
                                 );
                             }
                             return null;
@@ -211,9 +211,9 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         state.subcnames,
                         rxOf(...this.lemmas.map((lemma, queryId) => ({
                             queryId: queryId,
-                            lemma: findCurrLemmaVariant(lemma),
+                            lemma: findCurrQueryMatch(lemma),
                             concId: null
-                        }))) as Observable<{queryId:number; lemma:LemmaVariant; concId:string;}>
+                        }))) as Observable<{queryId:number; lemma:QueryMatch; concId:string;}>
                     );
                 }
             }
@@ -372,7 +372,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         );
     }
 
-    private loadConcordance(state:TimeDistribModelState, lemmaVariant:LemmaVariant, subcnames:Array<string>,
+    private loadConcordance(state:TimeDistribModelState, lemmaVariant:QueryMatch, subcnames:Array<string>,
             queryId:number):Observable<[ConcResponse, DataFetchArgs]> {
         return rxOf<string>(...subcnames).pipe(
             concatMap(
@@ -414,7 +414,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         );
     }
 
-    private loadData(state:TimeDistribModelState, dispatch:SEDispatcher, subcNames:Array<string>, lemmaVariant:Observable<{queryId:number; lemma:LemmaVariant; concId:string;}>):void {
+    private loadData(state:TimeDistribModelState, dispatch:SEDispatcher, subcNames:Array<string>, lemmaVariant:Observable<{queryId:number; lemma:QueryMatch; concId:string;}>):void {
         const resp = lemmaVariant.pipe(
             concatMap(args => {
                 if (!args.concId) {

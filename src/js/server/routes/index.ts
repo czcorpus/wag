@@ -23,7 +23,7 @@ import { concatMap, map, reduce, tap } from 'rxjs/operators';
 import { AppServices } from '../../appServices';
 import { encodeArgs } from '../../common/ajax';
 import { ErrorType, mapToStatusCode, newError } from '../../common/errors';
-import { QueryType, LemmaVariant, importQueryPos, QueryPoS } from '../../common/query';
+import { QueryType, QueryMatch, importQueryPos, QueryPoS } from '../../common/query';
 import { GlobalComponents } from '../../views/global';
 import { getLemmas, getSimilarFreqWords, getWordForms } from '../freqdb/freqdb';
 
@@ -202,7 +202,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                 }
             ),
             map(
-                (data) => data.sort((v1:LemmaVariant, v2:LemmaVariant) => {
+                (data) => data.sort((v1:QueryMatch, v2:QueryMatch) => {
                     if (v1.arf !== v2.arf) {
                         return v1.arf - v2.arf;
                     }

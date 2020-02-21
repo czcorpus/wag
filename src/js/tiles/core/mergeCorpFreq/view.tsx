@@ -24,7 +24,7 @@ import { SourceMappedDataRow } from '../../../common/api/kontext/freqs';
 import { GlobalComponents } from '../../../views/global';
 import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
 import { Theme } from '../../../common/theme';
-import { LemmaVariant } from '../../../common/query';
+import { QueryMatch } from '../../../common/query';
 import { List, pipe } from 'cnc-tskit';
 
 
@@ -32,7 +32,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const globComponents = ut.getComponents();
 
-    function transformData(data:Array<Array<SourceMappedDataRow>>, lemmas: Array<LemmaVariant>):Array<{name:string; ipm:Array<number>; freq:Array<number>}> {
+    function transformData(data:Array<Array<SourceMappedDataRow>>, lemmas: Array<QueryMatch>):Array<{name:string; ipm:Array<number>; freq:Array<number>}> {
         return pipe(
             data,
             List.flatMap((v, i) => v ? v.map<[SourceMappedDataRow, number]>(v => [v, i]) : []),
@@ -59,7 +59,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const TableView:React.SFC<{
         data:Array<Array<SourceMappedDataRow>>;
-        lemmas:Array<LemmaVariant>;
+        lemmas:Array<QueryMatch>;
 
     }> = (props) => {
         const transformedData = transformData(props.data, props.lemmas)
@@ -106,7 +106,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     const Chart:React.SFC<{
         data:Array<Array<SourceMappedDataRow>>;
         barGap:number;
-        lemmas:Array<LemmaVariant>;
+        lemmas:Array<QueryMatch>;
         isPartial:boolean;
     }> = (props) => {
         const queries = props.lemmas.length;

@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { WordSimWord } from '../api/abstract/wordSim';
-import { LemmaVariant } from '../query';
+import { QueryMatch } from '../query';
 
 export enum OperationMode {
     MeansLike = 'ml',
@@ -38,6 +38,6 @@ export interface WordSimModelState {
     data:Array<Array<WordSimWord>>;
     operationMode:OperationMode;
     corpus:string;
-    lemmas:Array<LemmaVariant>;
+    lemmas:Array<QueryMatch>;
     selectedText:string;
 }

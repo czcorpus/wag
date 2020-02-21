@@ -21,7 +21,7 @@ import { HTTP } from 'cnc-tskit'
 
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
-import { findCurrLemmaVariant } from '../../../models/query';
+import { findCurrQueryMatch } from '../../../models/query';
 import { DataLoadedPayload } from './actions';
 import { ColorScaleFunctionGenerator } from '../../../common/theme';
 import { TranslationAPI } from '../../../common/api/abstract/translations';
@@ -159,7 +159,7 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
     }
 
     private loadData(state:GeneralTranslationsModelState, dispatch:SEDispatcher):void {
-        const srchLemma = findCurrLemmaVariant(this.lemmas[0]);
+        const srchLemma = findCurrQueryMatch(this.lemmas[0]);
         this.api.call(this.api.stateToArgs(state, srchLemma.lemma))
             .pipe(
                 map(item => {
@@ -186,7 +186,7 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
                             tileId: this.tileId,
                             queryId: 0,
                             isEmpty: data.length === 0,
-                            query: findCurrLemmaVariant(this.lemmas[0]).lemma, // TODO switch to word and give up dict support
+                            query: findCurrQueryMatch(this.lemmas[0]).lemma, // TODO switch to word and give up dict support
                             subqueries: data.map(v => ({
                                 value: {
                                     value: v.firstTranslatLc,
@@ -208,7 +208,7 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
                             tileId: this.tileId,
                             queryId: 0,
                             isEmpty: true,
-                            query: findCurrLemmaVariant(this.lemmas[0]).lemma, // TODO switch to word and give up dict support
+                            query: findCurrQueryMatch(this.lemmas[0]).lemma, // TODO switch to word and give up dict support
                             subqueries: [],
                             lang1: state.lang1,
                             lang2: state.lang2,

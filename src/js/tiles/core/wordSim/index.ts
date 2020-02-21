@@ -25,7 +25,7 @@ import { QueryType } from '../../../common/query';
 import { createWordSimApiInstance } from './apiFactory';
 import { OperationMode } from '../../../common/models/wordSim';
 import { WordSimApi } from '../../../common/api/abstract/wordSim';
-import { findCurrLemmaVariant } from '../../../models/query';
+import { findCurrQueryMatch } from '../../../models/query';
 
 
 declare var require:(src:string)=>void;  // webpack
@@ -88,7 +88,7 @@ export class WordSimTile implements ITileProvider {
                 operationMode: OperationMode.MeansLike,
                 corpus: conf.corpname || '',
                 minScore: conf.minScore || 0,
-                lemmas: lemmas.map(lemma => findCurrLemmaVariant(lemma)),
+                lemmas: lemmas.map(lemma => findCurrQueryMatch(lemma)),
                 selectedText: null
             },
             tileId,

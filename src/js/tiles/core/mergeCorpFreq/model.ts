@@ -27,7 +27,7 @@ import { callWithExtraVal } from '../../../common/api/util';
 import { BacklinkWithArgs } from '../../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { ConcApi, QuerySelector } from '../../../common/api/kontext/concordance';
-import { LemmaVariant } from '../../../common/query';
+import { QueryMatch } from '../../../common/query';
 import { ViewMode, SingleConcLoadedPayload } from '../../../common/api/abstract/concordance';
 import { DataLoadedPayload, ModelSourceArgs } from './common';
 import { createInitialLinesData } from '../../../common/models/concordance';
@@ -41,7 +41,7 @@ export interface MergeCorpFreqModelState {
     sources:Array<ModelSourceArgs>;
     pixelsPerItem:number;
     barGap:number;
-    lemmas:Array<LemmaVariant>;
+    lemmas:Array<QueryMatch>;
 }
 
 interface SourceQueryProps {
@@ -225,7 +225,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
 
     private loadConcordances(state:MergeCorpFreqModelState):Observable<[number, ModelSourceArgs, string]> {
         return rxOf(...state.sources).pipe(
-            flatMap(source => rxOf(...state.lemmas.map((v, i) => [i, source, v] as [number, ModelSourceArgs, LemmaVariant]))),
+            flatMap(source => rxOf(...state.lemmas.map((v, i) => [i, source, v] as [number, ModelSourceArgs, QueryMatch]))),
             concatMap(([queryId, args, lemma]) =>
                 callWithExtraVal(
                     this.concApi,

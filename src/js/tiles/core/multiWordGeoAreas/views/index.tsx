@@ -25,7 +25,7 @@ import { CoreTileComponentProps, TileComponent } from '../../../../common/tile';
 import { GlobalComponents, TooltipValues } from '../../../../views/global';
 import { ActionName, Actions } from '../actions';
 import { MultiWordGeoAreasModel, MultiWordGeoAreasModelState } from '../model';
-import { LemmaVariant } from '../../../../common/query';
+import { QueryMatch } from '../../../../common/query';
 import { Dict, List, pipe } from 'cnc-tskit';
 
 
@@ -187,7 +187,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const DataTable:React.SFC<{
         data:Array<Array<DataRow>>;
-        lemmas:Array<LemmaVariant>;
+        lemmas:Array<QueryMatch>;
     }> = (props) => {
         const [groupedAreaData, groupedAreaIpmNorms, groupedAreaAbsFreqs] = groupData(props.data);
         return (

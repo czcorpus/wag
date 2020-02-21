@@ -22,7 +22,7 @@ import { AppServices } from '../appServices';
 import { Forms, MultiDict } from '../common/data';
 import { SystemMessageType } from '../common/types';
 import { AvailableLanguage } from '../common/hostPage';
-import { QueryType, LemmaVariant, QueryTypeMenuItem, matchesPos, SearchLanguage, RecognizedQueries } from '../common/query';
+import { QueryType, QueryMatch, QueryTypeMenuItem, matchesPos, SearchLanguage, RecognizedQueries } from '../common/query';
 import { ActionName, Actions } from './actions';
 import { HTTPAction } from '../server/routes/actions';
 import { LayoutManager } from '../layout';
@@ -47,7 +47,7 @@ export interface QueryFormModelState {
     modalSelections:Array<number>;
 }
 
-export const findCurrLemmaVariant = (lemmas:Array<LemmaVariant>):LemmaVariant => {
+export const findCurrQueryMatch = (lemmas:Array<QueryMatch>):QueryMatch => {
     const srch = lemmas.find(v => v.isCurrent);
     return srch ? srch : {
         lemma: undefined,
@@ -84,8 +84,8 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
             }
         );
 
-        this.addActionHandler<Actions.ChangeCurrLemmaVariant>(
-            ActionName.ChangeCurrLemmaVariant,
+        this.addActionHandler<Actions.ChangeCurrQueryMatch>(
+            ActionName.ChangeCurrQueryMatch,
             (state, action) => {
                 const group = state.lemmas[action.payload.queryIdx];
                 state.lemmas[action.payload.queryIdx] = group.map(v => ({
@@ -175,29 +175,29 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
         );
 
         this.addActionHandler(
-            ActionName.ShowLemmaVariantsModal,
-            (state, action:Actions.ShowLemmaVariantsModal) => {
+            ActionName.ShowQueryMatchModal,
+            (state, action:Actions.ShowQueryMatchModal) => {
                 state.lemmaSelectorModalVisible = true;
             }
         );
 
         this.addActionHandler(
-            ActionName.HideLemmaVariantsModal,
-            (state, action:Actions.HideLemmaVariantsModal) => {
+            ActionName.HideQueryMatchModal,
+            (state, action:Actions.HideQueryMatchModal) => {
                 state.lemmaSelectorModalVisible = false;
             }
         );
 
         this.addActionHandler(
-            ActionName.SelectModalLemmaVariant,
-            (state, action:Actions.SelectModalLemmaVariant) => {
+            ActionName.SelectModalQueryMatch,
+            (state, action:Actions.SelectModalQueryMatch) => {
                 state.modalSelections[action.payload.queryIdx] = action.payload.variantIdx;
             }
         );
 
         this.addActionHandler(
-            ActionName.ApplyModalLemmaVariantSelection,
-            (state, action:Actions.ApplyModalLemmaVariantSelection) => {
+            ActionName.ApplyModalQueryMatchSelection,
+            (state, action:Actions.ApplyModalQueryMatchSelection) => {
                 state.lemmaSelectorModalVisible = false;
                 state.modalSelections.forEach((sel, idx) => {
                     state.lemmas[idx] = state.lemmas[idx].map((v, i2) => ({
@@ -227,16 +227,16 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
         const args = new MultiDict();
         args.set('queryType', state.queryType);
         args.set('lang1', state.queryLanguage);
-        args.set('q', findCurrLemmaVariant(state.lemmas[0]).word);
-        args.set('pos', findCurrLemmaVariant(state.lemmas[0]).pos.map(v => v.value).join(','));
-        args.set('lemma', findCurrLemmaVariant(state.lemmas[0]).lemma);
+        args.set('q', findCurrQueryMatch(state.lemmas[0]).word);
+        args.set('pos', findCurrQueryMatch(state.lemmas[0]).pos.map(v => v.value).join(','));
+        args.set('lemma', findCurrQueryMatch(state.lemmas[0]).lemma);
 
         switch (state.queryType) {
             case QueryType.CMP_QUERY:
                 state.lemmas.slice(1).forEach(m => {
-                    args.add('q', findCurrLemmaVariant(m).word);
-                    args.add('pos', findCurrLemmaVariant(m).pos.map(v => v.value).join(','));
-                    args.add('lemma', findCurrLemmaVariant(m).lemma);
+                    args.add('q', findCurrQueryMatch(m).word);
+                    args.add('pos', findCurrQueryMatch(m).pos.map(v => v.value).join(','));
+                    args.add('lemma', findCurrQueryMatch(m).lemma);
                 });
             case QueryType.TRANSLAT_QUERY:
                 args.set('lang2', state.queryLanguage2);

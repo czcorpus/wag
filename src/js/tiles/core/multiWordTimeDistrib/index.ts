@@ -26,7 +26,7 @@ import { ITileProvider, TileComponent, TileFactory } from '../../../common/tile'
 import { TimeDistTileConf } from './common';
 import { TimeDistribModel } from './model';
 import { init as viewInit } from './view';
-import { findCurrLemmaVariant } from '../../../models/query';
+import { findCurrQueryMatch } from '../../../models/query';
 
 declare var require:(src:string)=>void;  // webpack
 require('./style.less');
@@ -86,7 +86,7 @@ export class MultiWordTimeDistTile implements ITileProvider {
                 alphaLevel: Maths.AlphaLevel.LEVEL_1, // TODO conf/explain
                 data: lemmas.map(_ => []),
                 posQueryGenerator: conf.posQueryGenerator,
-                wordLabels: lemmas.map(l => findCurrLemmaVariant(l).word),
+                wordLabels: lemmas.map(l => findCurrQueryMatch(l).word),
                 averagingYears: 0,
                 isTweakMode: false,
                 units: '%',

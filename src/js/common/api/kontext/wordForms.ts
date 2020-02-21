@@ -19,14 +19,14 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Ident } from 'cnc-tskit';
 
-import { LemmaVariant } from '../../query';
+import { QueryMatch } from '../../query';
 import { WordFormsApi, RequestConcArgs, Response } from '../abstract/wordForms';
 import { HTTPHeaders, IAsyncKeyValueStore } from '../../types';
 import { FreqDistribAPI } from './freqs';
 
 
 export interface HTTPResponse {
-    result:Array<LemmaVariant>;
+    result:Array<QueryMatch>;
 }
 
 

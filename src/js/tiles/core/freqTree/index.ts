@@ -28,7 +28,7 @@ import { GlobalComponents } from '../../../views/global';
 import { factory as defaultModelFactory, FreqTreeModel } from './model';
 import { init as viewInit } from './view';
 import { ConcApi } from '../../../common/api/kontext/concordance';
-import { findCurrLemmaVariant } from '../../../models/query';
+import { findCurrQueryMatch } from '../../../models/query';
 
 
 
@@ -107,7 +107,7 @@ export class FreqTreeTile implements ITileProvider {
                 fmaxitems: 100,
                 backlink: null,
                 maxChartsPerLine: conf.maxChartsPerLine ? conf.maxChartsPerLine : 3,
-                lemmaVariants: lemmas.map(lemma => findCurrLemmaVariant(lemma)),
+                lemmaVariants: lemmas.map(lemma => findCurrQueryMatch(lemma)),
                 zoomCategory: conf.fcritTrees.map(_ => lemmas.map(_ => null)),
                 posQueryGenerator: conf.posQueryGenerator
             }

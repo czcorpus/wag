@@ -25,8 +25,8 @@ import { GeneralMultiCritFreqComparisonModelState, stateToAPIArgs } from '../../
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { ActionName, Actions, DataLoadedPayload, LoadFinishedPayload } from './actions';
-import { findCurrLemmaVariant } from '../../../models/query';
-import { RecognizedQueries, LemmaVariant } from '../../../common/query';
+import { findCurrQueryMatch } from '../../../models/query';
+import { RecognizedQueries, QueryMatch } from '../../../common/query';
 import { ConcLoadedPayload, isConcLoadedPayload } from '../concordance/actions';
 import { ConcApi, QuerySelector, mkMatchQuery } from '../../../common/api/kontext/concordance';
 import { callWithExtraVal } from '../../../common/api/util';
@@ -227,11 +227,11 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
         );
     };
 
-    loadConcordances(state:FreqComparisonModelState):Observable<[{concPersistenceID:string;}, {critId:number; queryId: number; lemma:LemmaVariant; concId:string;}]> {
-        return new Observable((observer:Observer<{critId:number; queryId:number; lemma:LemmaVariant}>) => {
+    loadConcordances(state:FreqComparisonModelState):Observable<[{concPersistenceID:string;}, {critId:number; queryId: number; lemma:QueryMatch; concId:string;}]> {
+        return new Observable((observer:Observer<{critId:number; queryId:number; lemma:QueryMatch}>) => {
             state.fcrit.forEach((critName, critId) => {
                 this.lemmas.forEach((lemma, queryId) => {
-                    observer.next({critId: critId, queryId: queryId, lemma: findCurrLemmaVariant(lemma)});
+                    observer.next({critId: critId, queryId: queryId, lemma: findCurrQueryMatch(lemma)});
                 });
             });
             observer.complete();
@@ -280,13 +280,13 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
     composeConcordances(
         state:FreqComparisonModelState,
         concIds: Array<string>
-    ):Observable<[{concPersistenceID:string;}, {critId:number; queryId: number; lemma:LemmaVariant; concId:string;}]> {
-        return new Observable((observer:Observer<[{concPersistenceID:string;}, {critId:number; queryId: number; lemma:LemmaVariant; concId:string;}]>) => {
+    ):Observable<[{concPersistenceID:string;}, {critId:number; queryId: number; lemma:QueryMatch; concId:string;}]> {
+        return new Observable((observer:Observer<[{concPersistenceID:string;}, {critId:number; queryId: number; lemma:QueryMatch; concId:string;}]>) => {
             state.fcrit.forEach((critName, critId) => {
                 this.lemmas.forEach((lemma, queryId) => {
                     observer.next([
                         {concPersistenceID: concIds[queryId]},
-                        {critId: critId, queryId: queryId, lemma: findCurrLemmaVariant(lemma), concId: concIds[queryId]}
+                        {critId: critId, queryId: queryId, lemma: findCurrQueryMatch(lemma), concId: concIds[queryId]}
                     ]);
                 });
             });
@@ -295,7 +295,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
     };
 
     loadFreqs(
-        concResp:Observable<[{concPersistenceID:string;}, {critId:number; queryId: number; lemma:LemmaVariant; concId:string;}]>,
+        concResp:Observable<[{concPersistenceID:string;}, {critId:number; queryId: number; lemma:QueryMatch; concId:string;}]>,
         state:FreqComparisonModelState,
         dispatch:SEDispatcher
     ):void {

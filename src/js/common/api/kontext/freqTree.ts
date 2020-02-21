@@ -23,7 +23,7 @@ import { HTTPHeaders, IAsyncKeyValueStore } from '../../types';
 import { CorpusInfoAPI, APIResponse as CorpusInfoApiResponse } from './corpusInfo';
 import { ConcApi, QuerySelector } from './concordance';
 import { ViewMode } from '../abstract/concordance';
-import { LemmaVariant } from '../../query';
+import { QueryMatch } from '../../query';
 import { HTTPResponse } from './freqs';
 
 export enum FreqSort {
@@ -77,7 +77,7 @@ export interface WordDataApi<T, U> {
 export class FreqTreeAPI implements WordDataApi<SingleCritQueryArgs, APILeafResponse> {
 
     private readonly apiURL:string;
-    
+
     private readonly concApiFilter:ConcApi;
 
     private readonly customHeaders:HTTPHeaders;
@@ -102,7 +102,7 @@ export class FreqTreeAPI implements WordDataApi<SingleCritQueryArgs, APILeafResp
         });
     }
 
-    callVariants(args:SingleCritQueryArgs, lemma:LemmaVariant, concId: string):Observable<APIVariantsResponse> {
+    callVariants(args:SingleCritQueryArgs, lemma:QueryMatch, concId: string):Observable<APIVariantsResponse> {
         return cachedAjax$<HTTPResponse>(this.cache)(
             'GET',
             this.apiURL + '/freqs',
@@ -148,7 +148,7 @@ export class FreqTreeAPI implements WordDataApi<SingleCritQueryArgs, APILeafResp
                 map<HTTPResponse, APILeafResponse>(
                     resp => ({
                         filter: filter,
-                        data: resp.Blocks.map(block => 
+                        data: resp.Blocks.map(block =>
                             block.Items.map(v => ({
                                 name: v.Word.map(v => v.n).join(' '),
                                 value: v.rel

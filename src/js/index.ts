@@ -27,7 +27,7 @@ import * as translations from 'translations';
 import { AppServices } from './appServices';
 import { encodeArgs, ajax$, encodeURLParameters } from './common/ajax';
 import { ScreenProps } from './common/hostPage';
-import { LemmaVariant } from './common/query';
+import { QueryMatch } from './common/query';
 import { ClientConf, UserConf } from './conf';
 import { ActionName } from './models/actions';
 import { SystemNotifications } from './notifications';
@@ -49,7 +49,7 @@ require('../css/mobile-small.less');
 require('theme.less');
 
 
-export const initClient = (mountElement:HTMLElement, config:ClientConf, userSession:UserConf, lemmas:Array<Array<LemmaVariant>>) => {
+export const initClient = (mountElement:HTMLElement, config:ClientConf, userSession:UserConf, lemmas:Array<Array<QueryMatch>>) => {
     const dispatcher = new ActionDispatcher();
     const notifications = new SystemNotifications(dispatcher);
     const uiLangSel = userSession.uiLang || 'en-US';
