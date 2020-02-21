@@ -82,7 +82,8 @@
         "global__modal_variants_confirm_btn": "Confirm",
         "global__server_error": "Error",
         "global__go_to_main_page": "Go to main page",
-        "global__action_not_found": "URL not found."
+        "global__action_not_found": "URL not found.",
+        "global__color_themes": "color schemes"
     },
     "cs-CZ": {
         "global__logo_file": "logo_cs.svg",
@@ -167,6 +168,7 @@
         "global__modal_variants_confirm_btn": "Potvrdit",
         "global__server_error": "Chyba",
         "global__go_to_main_page": "Přejít na hlavní stránku",
-        "global__action_not_found": "URL nebyla nalezena."
+        "global__action_not_found": "URL nebyla nalezena.",
+        "global__color_themes": "barevná schémata"
     }
 }

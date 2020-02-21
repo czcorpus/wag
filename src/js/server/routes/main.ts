@@ -67,6 +67,7 @@ function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, themeId:string,
             onLoadInit: conf.onLoadInit,
             dbValuesMapping: conf.dbValuesMapping,
             colors: List.find(v => v.themeId === themeId, conf.colors),
+            colorThemes: List.map(v => ({themeId: v.themeId, themeLabel: v.themeLabel ? v.themeLabel : v.themeId}), conf.colors),
             tiles: typeof conf.tiles === 'string' ?
                 {} : // this should not happen at runtime (string has been already used as uri to load a nested conf)
                 pipe(
@@ -220,7 +221,7 @@ export function mainAction(services:Services, answerMode:boolean, req:Request, r
                 cache: new DummyCache()
             });
 
-            const view = viewInit(viewUtils);
+            const view = viewInit(viewUtils, runtimeConf.colorThemes, req.headers.referer);
             // Here we're going to use the fact that (the current)
             // server-side action dispatcher does not trigger side effects
             // so our models just set 'busy' state and nothing else happens.
@@ -249,7 +250,7 @@ export function mainAction(services:Services, answerMode:boolean, req:Request, r
             services.errorLog.error(err.message, {trace: err.stack});
             const error:[number, string] = [HTTP.Status.BadRequest, err.message];
             const userConf = errorUserConf(services.serverConf.languages, error, uiLang);
-            const view = viewInit(viewUtils);
+            const view = viewInit(viewUtils, [], req.headers.referer);
             const errView = errPageInit(viewUtils);
             res.send(renderResult({
                 view: view,

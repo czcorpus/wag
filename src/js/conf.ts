@@ -54,13 +54,17 @@ export function errorUserConf(uiLanguages:{[code:string]:string}, error:[number,
     };
 }
 
+export interface ColorThemeDesc {
+    themeId:string;
+    themeLabel:string;
+}
+
 /**
  * This specifies a 'theming' for
  * JavaScript generated stuff
  * (mainly chart colors).
  */
-export interface ColorsConf {
-    themeId:string;
+export interface ColorsConf extends ColorThemeDesc {
     category?:Array<string>;
     categoryOther?:string;
     bar?:Array<string>;
@@ -168,10 +172,11 @@ export interface ClientConf {
     rootUrl:string;
     hostUrl:string;
     favicon:FaviconConf|null;
-    logo:LogoConf|null;
 	corpInfoApiUrl:string;
     dbValuesMapping:DbValueMapping;
+    logo:LogoConf|null;
     colors:ColorsConf;
+    colorThemes:Array<ColorThemeDesc>;
     reqCacheTTL:number;
     onLoadInit:Array<string>;
     apiHeaders:{[urlPrefix:string]:HTTPHeaders};
@@ -215,6 +220,7 @@ export function emptyClientConf(conf:ClientStaticConf, themeId:string):ClientCon
         reqCacheTTL: conf.reqCacheTTL,
         onLoadInit: conf.onLoadInit || [],
         colors: List.find(v => v.themeId === themeId, conf.colors),
+        colorThemes: List.map(v => ({themeId: v.themeId, themeLabel: v.themeLabel ? v.themeLabel : v.themeLabel}), conf.colors),
         tiles: {},
         layouts: emptyLayoutConf(),
         homepage: {

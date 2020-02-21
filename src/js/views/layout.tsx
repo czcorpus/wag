@@ -22,11 +22,12 @@ import { resolve as urlResolve } from 'url';
 
 import { HostPageEnv, AvailableLanguage } from '../common/hostPage';
 import { RecognizedQueries } from '../common/query';
-import { ClientConf, UserConf } from '../conf';
+import { ClientConf, UserConf, ColorThemeDesc } from '../conf';
 import { TileGroup } from '../layout';
 import { GlobalComponents } from './global';
 import { WdglanceMainProps } from './main';
 import { ErrPageProps } from './error';
+import { List } from 'cnc-tskit';
 
 
 
@@ -48,7 +49,7 @@ export interface LayoutProps {
 }
 
 
-export function init(ut:ViewUtils<GlobalComponents>):React.SFC<LayoutProps> {
+export function init(ut:ViewUtils<GlobalComponents>, themes:Array<ColorThemeDesc>, currUrl:string):React.SFC<LayoutProps> {
 
     const Layout:React.SFC<LayoutProps> = (props) => {
 
@@ -104,13 +105,25 @@ export function init(ut:ViewUtils<GlobalComponents>):React.SFC<LayoutProps> {
                     <script type="text/javascript" src={`${urlResolve(props.config.hostUrl, 'dist/index.js')}`}></script>
                     <script type="text/javascript" dangerouslySetInnerHTML={{__html: createScriptStr()}} />
                     <footer>
-                        <p>
+                            <span>
                             {props.config.logo ?
-                                <span>Powered by <img src={ut.createStaticUrl('logo-small.svg')} className="logo" alt="WaG" /></span> :
+                                <span>Powered by <img src={ut.createStaticUrl('logo-small.svg')} className="logo" alt="WaG" />
+                                {'\u00a0|\u00a0'}</span> :
                                 null
                             }
+                            </span>
                             <span className="copy">&copy; Institute of the Czech National Corpus</span>
-                        </p>
+                            {'\u00a0|\u00a0'}<form className="color-theme-sel" method="post" action={ut.createActionUrl('set-theme')}>
+                                <input type="hidden" name="returnUrl" value={currUrl} />
+                                <span>{ut.translate('global__color_themes')}:{'\u00a0'}
+                                {List.map((v, i) => (
+                                    <React.Fragment key={`theme:${v.themeId}`}>
+                                        {i > 0 ? ', ' : ''}
+                                        <button type="submit"  name="themeId" value={v.themeId}>{v.themeLabel}</button>
+                                    </React.Fragment>
+                                ), themes)}
+                                </span>
+                            </form>
                     </footer>
                 </body>
             </html>
