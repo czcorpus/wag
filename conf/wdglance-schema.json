@@ -66,13 +66,13 @@
                         "type": "string"
                     },
                     "type": "array"
+                },
+                "themeId": {
+                    "type": "string"
                 }
             },
             "required": [
-                "bar",
-                "category",
-                "categoryOther",
-                "scale"
+                "themeId"
             ],
             "type": "object"
         },
@@ -7016,7 +7016,10 @@
             "type": "object"
         },
         "colors": {
-            "$ref": "#/definitions/ColorsConf"
+            "items": {
+                "$ref": "#/definitions/ColorsConf"
+            },
+            "type": "array"
         },
         "corpInfoApiUrl": {
             "type": "string"
