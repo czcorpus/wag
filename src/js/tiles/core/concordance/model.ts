@@ -65,7 +65,7 @@ export interface ConcordanceTileModelArgs {
     waitForTile:number;
     appServices:AppServices;
     service:IConcordanceApi<{}>;
-    lemmas:RecognizedQueries;
+    queryMatches:RecognizedQueries;
     initState:ConcordanceTileState;
     queryType:QueryType;
     backlink:Backlink;
@@ -76,7 +76,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
     private readonly service:IConcordanceApi<{}>;
 
-    private readonly lemmas:RecognizedQueries;
+    private readonly queryMatches:RecognizedQueries;
 
     private readonly appServices:AppServices;
 
@@ -90,10 +90,10 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
     public static readonly CTX_SIZES = [3, 3, 8, 12];
 
-    constructor({dispatcher, tileId, appServices, service, lemmas, initState, waitForTile, backlink, queryType}:ConcordanceTileModelArgs) {
+    constructor({dispatcher, tileId, appServices, service, queryMatches, initState, waitForTile, backlink, queryType}:ConcordanceTileModelArgs) {
         super(dispatcher, initState);
         this.service = service;
-        this.lemmas = lemmas;
+        this.queryMatches = queryMatches;
         this.appServices = appServices;
         this.tileId = tileId;
         this.backlink = backlink;
@@ -194,7 +194,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = false;
                     if (action.error) {
-                        state.concordances = createInitialLinesData(this.lemmas.length);
+                        state.concordances = createInitialLinesData(this.queryMatches.length);
                         state.error = this.appServices.decodeError(action.error);
 
                     } else {
@@ -305,12 +305,13 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
     }
 
     private reloadData(state:ConcordanceTileState, dispatch:SEDispatcher, otherLangCql:string):void {
+
         new Observable<{apiArgs:{}, queryIdx:number}>((observer) => {
             try {
-                this.lemmas.slice(0, this.queryType !== QueryType.CMP_QUERY ? 1 : undefined).forEach((lemma, queryIdx) => {
+                this.queryMatches.slice(0, this.queryType !== QueryType.CMP_QUERY ? 1 : undefined).forEach((queryMatch, queryIdx) => {
                     observer.next({
                         apiArgs: this.service.stateToArgs(state, state.concordances[queryIdx].concId ?
-                                    null : findCurrQueryMatch(lemma), queryIdx, otherLangCql),
+                                    null : findCurrQueryMatch(queryMatch), queryIdx, otherLangCql),
                         queryIdx: queryIdx
                     });
                 });

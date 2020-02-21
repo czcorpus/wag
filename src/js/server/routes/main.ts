@@ -30,7 +30,7 @@ import { init as errPageInit } from '../../views/error';
 import { ServerSideActionDispatcher } from '../core';
 import { emptyValue } from '../toolbar/empty';
 import { Services  } from '../actionServices';
-import { getLemmas } from '../freqdb/freqdb';
+import { findQueryMatches } from '../freqdb/freqdb';
 import { loadFile } from '../files';
 import { createRootComponent } from '../../app';
 import { ActionName } from '../../models/actions';
@@ -145,9 +145,9 @@ export function mainAction(services:Services, answerMode:boolean, req:Request, r
                     return rxOf(0);
                 }
             )),
-            lemmasEachQuery: rxOf(...userConf.queries
+            qMatchesEachQuery: rxOf(...userConf.queries
                     .map(query => answerMode ?
-                        getLemmas(
+                        findQueryMatches(
                             services.db.getDatabase(userConf.queryType, userConf.query1Lang),
                             appServices,
                             query,
@@ -158,28 +158,27 @@ export function mainAction(services:Services, answerMode:boolean, req:Request, r
                     )).pipe(
                         concatMap(v => v),
                         reduce((acc:Array<Array<QueryMatch>>, curr) => acc.concat([curr]), [])
-
                     )
             })
         )
     ).subscribe(
-        ({userConf, hostPageEnv, runtimeConf, lemmasEachQuery, appServices, dispatcher, viewUtils}) => {
-            const lemmasExtended = lemmasEachQuery.map((lemmas, queryIdx) => {
-                let mergedLemmas = findMergeableLemmas(lemmas);
-                if (mergedLemmas.length > 0) {
+        ({userConf, hostPageEnv, runtimeConf, qMatchesEachQuery, appServices, dispatcher, viewUtils}) => {
+            const lemmasExtended = qMatchesEachQuery.map((queryMatches, queryIdx) => {
+                let mergedMatches = findMergeableLemmas(queryMatches);
+                if (mergedMatches.length > 0) {
                     let matchIdx = 0;
                     if (userConf.queryPos[queryIdx]) {
-                        const srchIdx = mergedLemmas.findIndex(
+                        const srchIdx = mergedMatches.findIndex(
                             v => matchesPos(v, userConf.queryPos[queryIdx]) && (v.lemma === userConf.lemma[queryIdx] || !userConf.lemma[queryIdx]));
                         if (srchIdx >= 0) {
                             matchIdx = srchIdx;
                         }
                     }
-                    const v = mergedLemmas[matchIdx];
-                    mergedLemmas[matchIdx] = {
+                    const v = mergedMatches[matchIdx];
+                    mergedMatches[matchIdx] = {
                         lemma: v.lemma,
                         word: v.word,
-                        pos: v.pos.concat([]),
+                        pos: [...v.pos],
                         abs: v.abs,
                         ipm: v.ipm,
                         arf: v.arf,
@@ -189,7 +188,7 @@ export function mainAction(services:Services, answerMode:boolean, req:Request, r
                     };
 
                 } else {
-                    mergedLemmas = [{
+                    mergedMatches = [{
                         lemma: null,
                         word: userConf.queries[queryIdx],
                         pos: [],
@@ -201,7 +200,7 @@ export function mainAction(services:Services, answerMode:boolean, req:Request, r
                         isNonDict: true
                     }];
                 }
-                return mergedLemmas;
+                return mergedMatches;
             });
             const [rootView, layout,] = createRootComponent({
                 config: runtimeConf,

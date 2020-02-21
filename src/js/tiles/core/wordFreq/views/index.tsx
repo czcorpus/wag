@@ -38,7 +38,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     class WordFreqTileView extends React.PureComponent<SummaryModelState & CoreTileComponentProps> {
 
         render() {
-
             return (
                 <globalComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.data.length > 0} sourceIdent={{corp: this.props.corpname}}

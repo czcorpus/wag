@@ -89,7 +89,7 @@ export class ConcordanceTile implements ITileProvider {
             tileId,
             appServices,
             service: createApiInstance(cache, conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
-            lemmas,
+            queryMatches: lemmas,
             queryType,
             backlink: conf.backlink || null,
             waitForTile: Array.isArray(waitForTiles) ? waitForTiles[0] : waitForTiles,

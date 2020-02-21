@@ -109,7 +109,7 @@ export class CollocationsTile implements ITileProvider {
                 heading: [],
                 citemsperpage: conf.maxItems ? conf.maxItems : 10,
                 backlink: null,
-                lemmas: lemmas.map(findCurrQueryMatch),
+                queryMatches: lemmas.map(findCurrQueryMatch),
                 posQueryGenerator: conf.posQueryGenerator
             }
         });
