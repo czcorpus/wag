@@ -123,7 +123,7 @@ export class WordFormsTile implements ITileProvider {
         return this.waitForTiles;
     }
 
-    supportsNonDictQueries():boolean {
+    supportsMultiWordQueries():boolean {
         return false;
     }
 

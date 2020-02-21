@@ -109,7 +109,7 @@ export class CollocationsTile implements ITileProvider {
                 heading: [],
                 citemsperpage: conf.maxItems ? conf.maxItems : 10,
                 backlink: null,
-                lemmas: lemmas.map(findCurrQueryMatch),
+                queryMatches: lemmas.map(findCurrQueryMatch),
                 posQueryGenerator: conf.posQueryGenerator
             }
         });
@@ -166,8 +166,8 @@ export class CollocationsTile implements ITileProvider {
         return this.blockingTiles;
     }
 
-    supportsNonDictQueries():boolean {
-        return false;
+    supportsMultiWordQueries():boolean {
+        return this.api.supportsMultiWordQueries();
     }
 
     getIssueReportingUrl():null {

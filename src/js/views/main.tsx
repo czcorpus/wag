@@ -359,7 +359,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // --------------- <LemmaSelector /> -------------------------------------------
 
     const LemmaSelector:React.SFC<{
-        lemmas:RecognizedQueries;
+        matches:RecognizedQueries;
         queries:Array<string>;
         lemmaSelectorModalVisible:boolean;
         modalSelections:Array<number>;
@@ -417,23 +417,27 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         };
 
         if (props.queries.length === 1) {
-            if (props.lemmas[0].length > 0) {
-                const curr = props.lemmas[0].find(v => v.isCurrent == true);
+            if (props.matches[0].length > 0) {
+                const curr = List.find(v => v.isCurrent == true, props.matches[0]);
                 if (curr) {
                     return (
                         <div className="LemmaSelector">
                             {ut.translate('global__searching_by_pos')}:{'\u00a0'}
                             <span className="curr">{curr.isNonDict ? curr.word : curr.lemma} ({mkAltLabel(curr)})</span>
                             <br />
-                            {props.lemmas.length > 1 ?
+                            {props.matches[0].length > 1 ?
                                 <div className="variants">
                                     {ut.translate('global__multiple_words_for_query')}:{'\u00a0'}
                                     <ul>
-                                        {props.lemmas[0].filter(v => !v.isCurrent).map((v, i) =>
-                                            <li key={`${v.lemma}:${v.pos}:${i}`}>
-                                                {i > 0 ? <span>, </span> : null}
-                                                <a onClick={mkHandleClick(0, v)}>{v.lemma} ({mkAltLabel(v)})</a>
-                                            </li>
+                                        {pipe(
+                                            props.matches[0],
+                                            List.filter(v => !v.isCurrent),
+                                            List.map(
+                                                (v, i) => <li key={`${v.lemma}:${v.pos}:${i}`}>
+                                                    {i > 0 ? <span>, </span> : null}
+                                                    <a onClick={mkHandleClick(0, v)}>{v.lemma} ({mkAltLabel(v)})</a>
+                                                </li>
+                                            )
                                         )}
                                     </ul>
                                 </div>
@@ -451,7 +455,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <globalComponents.ModalBox onCloseClick={handleCloseModal}
                             title={ut.translate('global__query_specification')} tileClass="text">
                         <div className="LemmaSelector multiple-queries">
-                            {props.lemmas.map((lemmas, queryIdx) => (
+                            {props.matches.map((lemmas, queryIdx) => (
                                 <div key={`varGroup${queryIdx}`} className="variants">
                                     <h2 className="query-num">[{queryIdx + 1}]</h2>
                                     <ul>
@@ -479,7 +483,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 );
 
             } else {
-                const numAmbig = props.lemmas.reduce((acc, curr) => acc + (curr.length > 1 ? 1 : 0), 0);
+                const numAmbig = props.matches.reduce((acc, curr) => acc + (curr.length > 1 ? 1 : 0), 0);
                 return (
                     <div className="LemmaSelector">
                         {numAmbig > 0 ?
@@ -549,7 +553,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         </div>
                     </form>
                     {this.props.isAnswerMode ?
-                        <LemmaSelector lemmas={this.props.lemmas} queries={this.props.queries.map(v => v.value)}
+                        <LemmaSelector matches={this.props.lemmas} queries={this.props.queries.map(v => v.value)}
                                 lemmaSelectorModalVisible={this.props.lemmaSelectorModalVisible}
                                 modalSelections={this.props.modalSelections} /> :
                         null

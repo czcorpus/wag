@@ -129,7 +129,7 @@ export class TranslationsTile implements ITileProvider {
         return [];
     }
 
-    supportsNonDictQueries():boolean {
+    supportsMultiWordQueries():boolean {
         return true;
     }
 

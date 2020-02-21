@@ -85,7 +85,7 @@ export interface CollocModelState {
 
     backlink:BacklinkWithArgs<{}>;
 
-    lemmas:Array<QueryMatch>;
+    queryMatches:Array<QueryMatch>;
 
     posQueryGenerator: [string, string];
 }

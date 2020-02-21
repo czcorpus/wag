@@ -72,6 +72,8 @@ export interface CollocationApi<T> extends DataApi<T, CollApiResponse> {
 
     supportsLeftRightContext():boolean;
 
+    supportsMultiWordQueries():boolean;
+
     getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<SourceDetails>;
 
 }

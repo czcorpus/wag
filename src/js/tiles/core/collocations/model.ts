@@ -159,7 +159,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                     }).pipe(
                         concatMap(action => {
                             const payload = action.payload as ConcLoadedPayload;
-                            return rxOf(...List.map<string, FreqRequestArgs>((v, i) => [i, state.lemmas[i], v], payload.concPersistenceIDs))
+                            return rxOf(...List.map<string, FreqRequestArgs>((v, i) => [i, state.queryMatches[i], v], payload.concPersistenceIDs))
                         })
                     ) : this.loadConcs(state);
                 this.reloadAllData(state, conc$, seDispatch);
@@ -209,7 +209,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                 if (action.payload.tileId === this.tileId) {
                     this.reloadAllData(
                         state,
-                        rxOf(...List.map<string, FreqRequestArgs>((v, i) => [i, state.lemmas[i], v], state.concIds)),
+                        rxOf(...List.map<string, FreqRequestArgs>((v, i) => [i, state.queryMatches[i], v], state.concIds)),
                         seDispatch
                     );
                 }
@@ -270,7 +270,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
 
 
     private loadConcs(state:CollocModelState):Observable<FreqRequestArgs> {
-        return rxOf(...List.map((v, i) => [i, v] as [number, QueryMatch], state.lemmas)).pipe(
+        return rxOf(...List.map((v, i) => [i, v] as [number, QueryMatch], state.queryMatches)).pipe(
             concatMap(([queryId, lemma]) =>
                 callWithExtraVal<RequestArgs, ConcResponse, [number, QueryMatch]>(
                     this.concApi,
@@ -291,7 +291,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                             attrs: [],
                             metadataAttrs: [],
                             queries: [],
-                            concordances: createInitialLinesData(state.lemmas.length),
+                            concordances: createInitialLinesData(state.queryMatches.length),
                             posQueryGenerator: state.posQueryGenerator
                         },
                         lemma,

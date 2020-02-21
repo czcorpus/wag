@@ -50,7 +50,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     </thead>
                     <tbody>
                         {props.data.map(w => srchWord(w)).map((w, i) => (
-                            <React.Fragment key={`${w.lemma}:${w.pos}`}>
+                            <React.Fragment key={`${w.word}:${w.lemma}:${w.pos}`}>
                                 <tr>
                                     <th className="query-num">{i + 1}.</th>
                                     <td className="word">
@@ -71,8 +71,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                             }
                                         </dl>
                                     </td>
-                                    <td className="num ipm">{ut.formatNumber(w.ipm, 2)}</td>
-                                    <td className="band"><commonViews.Stars freqBand={w.flevel} /></td>
+                                        <td className="num ipm">{w.ipm > 0 ? ut.formatNumber(w.ipm, 2) : <span style={{whiteSpace: "nowrap"}}>--</span>}</td>
+                                    <td className="band">{w.ipm > 0 ? <commonViews.Stars freqBand={w.flevel} /> : <div>--</div>}</td>
                                 </tr>
                             </React.Fragment>
                         ))}

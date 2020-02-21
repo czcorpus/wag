@@ -261,7 +261,7 @@ export interface ITileProvider {
      */
     getBlockingTiles():Array<number>;
 
-    supportsNonDictQueries():boolean;
+    supportsMultiWordQueries():boolean;
 
     getIssueReportingUrl():string|null;
 }

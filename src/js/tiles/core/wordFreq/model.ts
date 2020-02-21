@@ -17,14 +17,15 @@
  */
 import { StatelessModel, IActionQueue } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
-import { map, concatMap } from 'rxjs/operators';
+import { map, concatMap, tap } from 'rxjs/operators';
 
 import { AppServices } from '../../../appServices';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { DataLoadedPayload } from './actions';
 import { FreqDBRow, FreqDbAPI, FreqBand } from './api';
 import { findCurrQueryMatch } from '../../../models/query';
-import { QueryMatch, testIsDictQuery, RecognizedQueries } from '../../../common/query';
+import { QueryMatch, testIsDictMatch, RecognizedQueries, QueryType } from '../../../common/query';
+import { List } from 'cnc-tskit';
 
 export interface FlevelDistribItem {
     rel:number;
@@ -41,9 +42,9 @@ export interface SummaryModelState {
 
     corpusSize:number;
     /**
-     * 1st dimension: searched word
+     * 1st dimension: data for a searched word[i]
      * 2nd dimension: list of words with similar freq. including the searched word
-     *   (for other than 1st word the list can be of size 1 - just the word)
+     *   (for other than 1st word the list can be of size 1 - just the word itself)
      */
     data:Array<Array<FreqDBRow>>;
 
@@ -52,7 +53,7 @@ export interface SummaryModelState {
     flevelDistrb:Array<FlevelDistribItem>;
 }
 
-export function createInitialWordDataArray(lemmasAllQueries:Array<Array<QueryMatch>>):Array<Array<FreqDBRow>> {
+export function createInitialWordDataArray(lemmasAllQueries:RecognizedQueries):Array<Array<FreqDBRow>> {
     return lemmasAllQueries.map(lemmasQuery => {
         const curr = findCurrQueryMatch(lemmasQuery);
         return [
@@ -85,8 +86,9 @@ export interface SummaryModelArgs {
     tileId:number;
     api:FreqDbAPI;
     appServices:AppServices;
-    lemmas:RecognizedQueries;
+    queryMatches:RecognizedQueries;
     queryLang:string;
+    queryType:QueryType;
 }
 
 
@@ -98,84 +100,41 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
 
     private readonly tileId:number;
 
-    private readonly lemmas:RecognizedQueries;
+    private readonly queryMatches:RecognizedQueries;
 
     private readonly queryLang:string;
 
-    constructor({dispatcher, initialState, tileId, api, appServices, lemmas, queryLang}:SummaryModelArgs) {
+    private readonly queryType:QueryType;
+
+    constructor({dispatcher, initialState, tileId, api, appServices, queryMatches, queryLang, queryType}:SummaryModelArgs) {
         super(dispatcher, initialState);
         this.tileId = tileId;
         this.api = api;
         this.appServices = appServices;
-        this.lemmas = lemmas;
+        this.queryMatches = queryMatches;
         this.queryLang = queryLang;
+        this.queryType = queryType;
 
         this.addActionHandler<GlobalActions.RequestQueryResponse>(
             GlobalActionName.RequestQueryResponse,
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
-                state.data = createInitialWordDataArray(lemmas);
+                state.data = createInitialWordDataArray(queryMatches);
             },
             (state, action, dispatch) => {
-                new Observable<{variant:QueryMatch; lang:string}>((observer) => {
-                    try {
-                        observer.next({
-                            variant: findCurrQueryMatch(this.lemmas[0]),
-                            lang: this.queryLang
-                        });
-                        observer.complete();
+                (this.queryType === QueryType.CMP_QUERY ?
+                    rxOf([]) :
+                    this.loadExtendedFreqInfo(state)
 
-                    } catch(err) {
-                        observer.error(err);
-                    }
-                }).pipe(
-                    concatMap(
-                        (args) => testIsDictQuery(args.variant) ?
-                            this.api.call({
-                                lang: args.lang,
-                                word: args.variant.word,
-                                lemma: args.variant.lemma,
-                                pos: args.variant.pos.map(v => v.value),
-                                srchRange: state.sfwRowRange
-                            }) :
-                            rxOf({
-                                result: [{
-                                    word: args.variant.word,
-                                    lemma: '?',
-                                    pos: [],
-                                    abs: 0,
-                                    ipm: 0,
-                                    arf: 0,
-                                    flevel: -1,
-                                    isSearched: true
-                                }]
-                            })
-                    ),
-                    map(
-                        (data) => ({
-                            data: data.result.map(v => {
-                                return {
-                                    word: v.isSearched ? findCurrQueryMatch(this.lemmas[0]).word : '',
-                                    lemma: v.lemma,
-                                    pos: v.pos,
-                                    abs: v.abs,
-                                    ipm: v.ipm,
-                                    arf: v.arf,
-                                    flevel: calcFreqBand(v.ipm),
-                                    isSearched: v.isSearched
-                                }
-                            })
-                        })
-                    )
                 ).subscribe(
                     (data) => {
                         dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
                             name: GlobalActionName.TileDataLoaded,
                             payload: {
                                 tileId: this.tileId,
-                                isEmpty: data.data.length === 0,
-                                data: data.data
+                                isEmpty: data.length === 0,
+                                data: data
                             }
                         });
                     },
@@ -203,7 +162,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                         state.error = action.error.message;
 
                     } else if (action.payload.data.length === 0) {
-                        state.data = createInitialWordDataArray(lemmas);
+                        state.data = createInitialWordDataArray(queryMatches);
 
                     } else {
                         state.data[0] = action.payload.data;
@@ -211,5 +170,58 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                 }
             }
         );
+    }
+
+    private loadExtendedFreqInfo(state:SummaryModelState):Observable<Array<FreqDBRow>> {
+        return new Observable<{variant:QueryMatch; lang:string}>((observer) => {
+            try {
+                observer.next({
+                    variant: findCurrQueryMatch(this.queryMatches[0]),
+                    lang: this.queryLang
+                });
+                observer.complete();
+
+            } catch(err) {
+                observer.error(err);
+            }
+        }).pipe(
+            concatMap(
+                (args) => testIsDictMatch(args.variant) ?
+                    this.api.call({
+                        lang: args.lang,
+                        word: args.variant.word,
+                        lemma: args.variant.lemma,
+                        pos: List.map(v => v.value, args.variant.pos),
+                        srchRange: state.sfwRowRange
+                    }) :
+                    rxOf({
+                        result: [{
+                            word: args.variant.word,
+                            lemma: '?',
+                            pos: [],
+                            abs: 0,
+                            ipm: 0,
+                            arf: 0,
+                            flevel: -1,
+                            isSearched: true
+                        }]
+                    })
+            ),
+            map(
+                (data) => List.map(
+                    v => ({
+                        word: v.isSearched ? findCurrQueryMatch(this.queryMatches[0]).word : '',
+                        lemma: v.lemma,
+                        pos: v.pos,
+                        abs: v.abs,
+                        ipm: v.ipm,
+                        arf: v.arf,
+                        flevel: calcFreqBand(v.ipm),
+                        isSearched: v.isSearched
+                    }),
+                    data.result
+                )
+            )
+        )
     }
 }

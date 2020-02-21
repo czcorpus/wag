@@ -1,3 +1,5 @@
+import { Dict, pipe, List } from "cnc-tskit";
+
 /*
  * Copyright 2018 Tomas Machalek <tomas.machalek@gmail.com>
  * Copyright 2018 Institute of the Czech National Corpus,
@@ -92,12 +94,23 @@ export interface QueryMatch {
 export type RecognizedQueries = Array<Array<QueryMatch>>;
 
 
-export function testIsDictQuery(lemmas:Array<QueryMatch>|QueryMatch):boolean {
+export function testIsDictMatch(lemmas:Array<QueryMatch>|QueryMatch):boolean {
     if (Array.isArray(lemmas)) {
         const tmp = lemmas as Array<QueryMatch>;
         return tmp.length > 1 || !tmp[0].isNonDict;
     }
     return !(lemmas as QueryMatch).isNonDict;
+}
+
+/**
+ * Test whether at least one of provided matches is a multi-word one.
+ */
+export function testIsMultiWordMode(queries:RecognizedQueries):boolean {
+    return pipe(
+        queries,
+        List.flatMap(v => v),
+        List.some(v => /\s/.test(v.word))
+    );
 }
 
 export function matchesPos(lv:QueryMatch, pos:Array<QueryPoS>):boolean {
@@ -120,36 +133,51 @@ const MERGE_CANDIDATE_MIN_DIFF_RATIO = 100;
  */
 export function findMergeableLemmas(variants:Array<QueryMatch>):Array<QueryMatch> {
     const mapping:{[key:string]:Array<{pos:{value:QueryPoS; label:string}; abs:number; form:string; arf:number}>} = {};
-    variants.forEach(item => {
-        if (!(item.lemma in mapping)) {
-            mapping[item.lemma] = [];
-        }
-        item.pos.forEach(p => {
-            mapping[item.lemma].push({pos: p, abs: item.abs, form: item.word, arf: item.arf});
-        });
-    });
-    const merged:Array<MergedQueryMatch> = Object.keys(mapping).filter(lm => mapping[lm].length > 1).map(lm => ({
-        lemma: lm,
-        word: mapping[lm][0].form, // should be the same for all 0...n
-        pos: mapping[lm].map(v => v.pos),
-        abs: mapping[lm].reduce((acc, curr) => acc + curr.abs, 0),
-        minAbs: mapping[lm].reduce((acc, curr) => acc < curr.abs ? acc : curr.abs, mapping[lm][0].abs),
-        maxAbs: mapping[lm].reduce((acc, curr) => acc > curr.abs ? acc : curr.abs, mapping[lm][0].abs),
-        ipm: -1,
-        arf: mapping[lm].reduce((acc, curr) => acc + curr.arf, 0),
-        flevel: -1,
-        isCurrent: false
-    }));
+    List.forEach(
+        item => {
+            if (!(item.lemma in mapping)) {
+                mapping[item.lemma] = [];
+            }
+            List.forEach(
+                p => {
+                    mapping[item.lemma].push({pos: p, abs: item.abs, form: item.word, arf: item.arf});
+                },
+                item.pos
+            );
+        },
+        variants
+    );
+    const merged:Array<MergedQueryMatch> = pipe(
+        mapping,
+        Dict.filter((v) => v.length > 1),
+        Dict.map((v, lm) => ({
+            lemma: lm,
+            word: v[0].form, // should be the same for all 0...n
+            pos: v.map(v => v.pos),
+            abs: v.reduce((acc, curr) => acc + curr.abs, 0),
+            minAbs: v.reduce((acc, curr) => acc < curr.abs ? acc : curr.abs, v[0].abs),
+            maxAbs: v.reduce((acc, curr) => acc > curr.abs ? acc : curr.abs, v[0].abs),
+            ipm: -1,
+            arf: v.reduce((acc, curr) => acc + curr.arf, 0),
+            flevel: -1,
+            isCurrent: false
+        })),
+        Dict.toEntries(),
+        List.map(([,v]) => v)
+    );
 
-    let ans = variants.concat([]);
-    merged.forEach(item => {
-        if (item.maxAbs / item.minAbs >= MERGE_CANDIDATE_MIN_DIFF_RATIO) {
-            ans.unshift(item);
+    const ans = [...variants];
+    List.forEach(
+        item => {
+            if (item.maxAbs / item.minAbs >= MERGE_CANDIDATE_MIN_DIFF_RATIO) {
+                ans.unshift(item);
 
-        } else {
-            ans.push(item);
-        }
-    });
+            } else {
+                ans.push(item);
+            }
+        },
+        merged
+    );
     return ans;
 }
 

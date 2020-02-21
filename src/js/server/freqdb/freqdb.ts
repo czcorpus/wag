@@ -25,7 +25,7 @@ import { WordDatabase } from '../actionServices';
 
 
 
-export const getLemmas = (db:WordDatabase, appServices:AppServices, word:string, minFreq:number):Observable<Array<QueryMatch>> => {
+export const findQueryMatches = (db:WordDatabase, appServices:AppServices, word:string, minFreq:number):Observable<Array<QueryMatch>> => {
     return new Observable<QueryMatch>((observer) => {
         const srchWord = word.toLowerCase();
         if(db.conn) {

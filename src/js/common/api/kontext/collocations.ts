@@ -104,6 +104,10 @@ export class KontextCollAPI implements CollocationApi<CollApiArgs> {
         return true;
     }
 
+    supportsMultiWordQueries():boolean {
+        return true;
+    }
+
     getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<SourceDetails> {
         return this.srcInfoService.call({
             tileId: tileId,

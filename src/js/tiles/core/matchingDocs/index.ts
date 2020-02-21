@@ -135,7 +135,7 @@ export class MatchingDocsTile implements ITileProvider {
         return this.blockingTiles;
     }
 
-    supportsNonDictQueries():boolean {
+    supportsMultiWordQueries():boolean {
         return false;
     }
 
