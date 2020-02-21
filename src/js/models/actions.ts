@@ -63,7 +63,8 @@ export enum ActionName {
     ShowQueryMatchModal = 'MAIN_SHOW_QUERY_MATCH_MODAL',
     HideQueryMatchModal = 'MAIN_HIDE_QUERY_MATCH_MODAL',
     SelectModalQueryMatch = 'MAIN_SELECT_MODAL_QUERY_MATCH',
-    ApplyModalQueryMatchSelection = 'MAIN_APPLY_MODAL_QUERY_MATCH_SELECTION'
+    ApplyModalQueryMatchSelection = 'MAIN_APPLY_MODAL_QUERY_MATCH_SELECTION',
+    SetColorTheme = 'MAIN_SET_COLOR_THEME'
 }
 
 /**
@@ -348,5 +349,11 @@ export namespace Actions {
     export interface ApplyModalQueryMatchSelection extends Action<{
     }> {
         name:ActionName.ApplyModalQueryMatchSelection;
+    }
+
+    export interface SetColorTheme extends Action<{
+        ident:string;
+    }> {
+        name:ActionName.SetColorTheme;
     }
 }

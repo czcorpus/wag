@@ -27,7 +27,6 @@ import * as translations from 'translations';
 import { AppServices } from './appServices';
 import { encodeArgs, ajax$, encodeURLParameters } from './common/ajax';
 import { ScreenProps } from './common/hostPage';
-import { QueryMatch } from './common/query';
 import { ClientConf, UserConf } from './conf';
 import { ActionName } from './models/actions';
 import { SystemNotifications } from './notifications';

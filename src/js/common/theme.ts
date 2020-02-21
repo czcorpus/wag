@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ColorsConf } from '../conf';
+import { ColorsConf, ColorThemeDesc } from '../conf';
 
 
 export enum SystemColor {
@@ -95,7 +95,7 @@ export class Theme {
 
     public readonly infoGraphicsFont:string;
 
-    constructor(conf?:ColorsConf) {
+    constructor(conf:ColorsConf) {
         const srcConf = conf ? conf : defaultTheme;
         this.catColors = srcConf.category ? srcConf.category : defaultTheme.category;
         this.barColors = srcConf.bar ? srcConf.bar : defaultTheme.bar;

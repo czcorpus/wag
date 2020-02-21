@@ -283,8 +283,8 @@ export const wdgRouter = (services:Services) => (app:Express) => {
 
 
     app.post(HTTPAction.SET_THEME, (req, res) => {
-        res.cookie(THEME_COOKIE_NAME, req.body['themeId']);
-        res.send({ok: true});
+        res.cookie(THEME_COOKIE_NAME, req.body.themeId, {expires: new Date(Date.now() + 3600 * 24 * 365)});
+        res.redirect(req.body.returnUrl);
     });
 
 
@@ -293,7 +293,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         const [viewUtils,] = createHelperServices(services, uiLang);
         const error:[number, string] = [HTTP.Status.NotFound, viewUtils.translate('global__action_not_found')];
         const userConf = errorUserConf(services.serverConf.languages, error, uiLang);
-        const view = viewInit(viewUtils);
+        const view = viewInit(viewUtils, [], req.headers.referer);
         const errView = errPageInit(viewUtils);
         res
             .status(HTTP.Status.NotFound)
