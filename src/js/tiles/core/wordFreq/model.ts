@@ -24,7 +24,7 @@ import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../
 import { DataLoadedPayload } from './actions';
 import { FreqDBRow, FreqDbAPI, FreqBand } from './api';
 import { findCurrQueryMatch } from '../../../models/query';
-import { QueryMatch, testIsDictQuery, RecognizedQueries, QueryType } from '../../../common/query';
+import { QueryMatch, testIsDictMatch, RecognizedQueries, QueryType } from '../../../common/query';
 import { List } from 'cnc-tskit';
 
 export interface FlevelDistribItem {
@@ -186,7 +186,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
             }
         }).pipe(
             concatMap(
-                (args) => testIsDictQuery(args.variant) ?
+                (args) => testIsDictMatch(args.variant) ?
                     this.api.call({
                         lang: args.lang,
                         word: args.variant.word,

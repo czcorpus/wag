@@ -77,7 +77,7 @@ export class EmptyTile implements ITileProvider {
         return [];
     }
 
-    supportsNonDictQueries():boolean {
+    supportsMultiWordQueries():boolean {
         return true;
     }
 

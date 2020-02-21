@@ -24,7 +24,7 @@ import * as React from 'react';
 import { Observable } from 'rxjs';
 import { Theme } from './common/theme';
 import { ScreenProps } from './common/hostPage';
-import { QueryType, testIsDictQuery, RecognizedQueries } from './common/query';
+import { QueryType, RecognizedQueries, testIsMultiWordMode } from './common/query';
 import { ITileProvider, TileFrameProps, TileConf } from './common/tile';
 import { ClientConf, UserConf } from './conf';
 import { LayoutManager, TileGroup, GroupedTileProps } from './layout';
@@ -39,7 +39,7 @@ import { ViewUtils, IFullActionControl } from 'kombo';
 import { AppServices } from './appServices';
 import { IAsyncKeyValueStore, TileIdentMap } from './common/types';
 import { mkTileFactory } from './tileLoader';
-import { List, pipe } from 'cnc-tskit';
+import { List, pipe, Dict } from 'cnc-tskit';
 
 
 interface AttachTileArgs {
@@ -51,9 +51,9 @@ interface AttachTileArgs {
     maxTileHeight:string;
 }
 
-const mkAttachTile = (queryType:QueryType, isDictQuery:boolean, lang1:string, lang2:string) =>
+const mkAttachTile = (queryType:QueryType, isMultiWordQuery:boolean, lang1:string, lang2:string) =>
     ({data, tileName, tile, helpURL, issueReportingURL, maxTileHeight}:AttachTileArgs):void => {
-        const support = tile.supportsQueryType(queryType, lang1, lang2) && (isDictQuery || tile.supportsNonDictQueries());
+        const support = tile.supportsQueryType(queryType, lang1, lang2) && (!isMultiWordQuery || tile.supportsMultiWordQueries());
         data.push({
             tileId: tile.getIdent(),
             tileName: tileName,
@@ -88,7 +88,7 @@ const attachNumericTileIdents = (config:{[ident:string]:TileConf}):{[ident:strin
 export interface InitIntArgs {
     config:ClientConf;
     userSession:UserConf;
-    lemmas:RecognizedQueries;
+    queryMatches:RecognizedQueries;
     appServices:AppServices;
     dispatcher:IFullActionControl;
     onResize:Observable<ScreenProps>;
@@ -97,7 +97,7 @@ export interface InitIntArgs {
 }
 
 
-export function createRootComponent({config, userSession, lemmas, appServices, dispatcher,
+export function createRootComponent({config, userSession, queryMatches, appServices, dispatcher,
     onResize, viewUtils, cache}:InitIntArgs):[React.FunctionComponent<WdglanceMainProps>, Array<TileGroup>, TileIdentMap] {
 
     const globalComponents = globalCompInit(dispatcher, viewUtils, onResize);
@@ -116,7 +116,7 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
         query1Lang: userSession.query1Lang || 'cs',
         query2Lang: userSession.query2Lang || '',
         queryType: qType,
-        lemmas: lemmas,
+        lemmas: queryMatches,
         isAnswerMode: userSession.answerMode,
         uiLanguages: Object.keys(userSession.uiLanguages).map(k => ({code: k, label: userSession.uiLanguages[k]})),
 
@@ -128,7 +128,7 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
     const factory = mkTileFactory(
         dispatcher,
         viewUtils,
-        lemmas,
+        queryMatches,
         appServices,
         theme,
         layoutManager,
@@ -139,37 +139,37 @@ export function createRootComponent({config, userSession, lemmas, appServices, d
         cache
     );
 
-    const isDictQuery = (userSession.queryType === QueryType.CMP_QUERY || !userSession.answerMode) ?
-            List.some(lvList => testIsDictQuery(lvList), lemmas) :
-            testIsDictQuery(lemmas[0]);
+    const isMultiWordQuery = testIsMultiWordMode(queryMatches);
     const attachTile = mkAttachTile(
         qType,
-        isDictQuery,
+        isMultiWordQuery,
         userSession.query1Lang,
         userSession.query2Lang
     );
     const retryLoadModel = new RetryTileLoad(dispatcher);
-    Object.keys(config.tiles).forEach(tileId => {
-        const tile = factory(tileId, config.tiles[tileId]);
-        attachTile({
-            data: tiles,
-            tileName: tileId,
-            tile,
-            helpURL: appServices.importExternalMessage(config.tiles[tileId].helpURL),
-            issueReportingURL: config.issueReportingUrl,
-            maxTileHeight: config.tiles[tileId].maxTileHeight
-        });
-        const model = tile.exposeModel();
-        retryLoadModel.registerModel(
-            tilesMap[tileId],
-            model,
-            tile.getBlockingTiles()
-        );
-        if (!isDictQuery && !tile.supportsNonDictQueries()) {
-            model.suspend({}, (_, syncData) => syncData);
-        }
-
-    });
+    Dict.forEach(
+        (tileConf, tileId) => {
+            const tile = factory(tileId, tileConf);
+            attachTile({
+                data: tiles,
+                tileName: tileId,
+                tile,
+                helpURL: appServices.importExternalMessage(tileConf.helpURL),
+                issueReportingURL: config.issueReportingUrl,
+                maxTileHeight: tileConf.maxTileHeight
+            });
+            const model = tile.exposeModel();
+            retryLoadModel.registerModel(
+                tilesMap[tileId],
+                model,
+                tile.getBlockingTiles()
+            );
+            if (isMultiWordQuery && !tile.supportsMultiWordQueries()) {
+                model.suspend({}, (_, syncData) => syncData);
+            }
+        },
+        config.tiles
+    );
 
     const tilesModel = new WdglanceTilesModel(
         dispatcher,

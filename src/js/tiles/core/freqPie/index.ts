@@ -169,7 +169,7 @@ export class FreqPieTile implements ITileProvider {
         return this.blockingTiles;
     }
 
-    supportsNonDictQueries():boolean {
+    supportsMultiWordQueries():boolean {
         return false;
     }
 

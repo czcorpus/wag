@@ -156,7 +156,7 @@ export class TimeDistTile implements ITileProvider {
         return this.blockingTiles;
     }
 
-    supportsNonDictQueries():boolean {
+    supportsMultiWordQueries():boolean {
         return false;
     }
 

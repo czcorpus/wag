@@ -145,7 +145,7 @@ export class HtmlTile implements ITileProvider {
         return [];
     }
 
-    supportsNonDictQueries():boolean {
+    supportsMultiWordQueries():boolean {
         return false;
     }
 

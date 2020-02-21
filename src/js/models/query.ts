@@ -26,6 +26,7 @@ import { QueryType, QueryMatch, QueryTypeMenuItem, matchesPos, SearchLanguage, R
 import { ActionName, Actions } from './actions';
 import { HTTPAction } from '../server/routes/actions';
 import { LayoutManager } from '../layout';
+import { pipe, List } from 'cnc-tskit';
 
 
 export interface QueryFormModelState {
@@ -123,9 +124,9 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
             ActionName.ChangeQueryType,
             (state, action) => {
                 state.queryType = action.payload.queryType;
-                if (state.isAnswerMode &&
-                        ((state.queryType !== QueryType.CMP_QUERY && state.queries[0].value !== '')
-                        || state.queries.slice(1).find(v => v.value !== ''))) {
+                const hasMoreQueries = pipe(state.queries, List.slice(1), List.some(v => v.value !== ''));
+                const allowsValidSingleQuery = state.queryType !== QueryType.CMP_QUERY && state.queries[0].value !== '';
+                if (state.isAnswerMode && (allowsValidSingleQuery || hasMoreQueries)) {
                     this.checkAndSubmitUserQuery(state);
                 }
 
@@ -263,6 +264,12 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
                 });
             }
             window.location.href = this.appServices.createActionUrl(HTTPAction.SEARCH, args);
+
+        } else {
+            List.forEach(
+                msg => this.appServices.showMessage(SystemMessageType.ERROR, msg),
+                state.errors
+            );
         }
     }
 

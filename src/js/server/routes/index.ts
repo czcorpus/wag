@@ -25,7 +25,7 @@ import { encodeArgs } from '../../common/ajax';
 import { ErrorType, mapToStatusCode, newError } from '../../common/errors';
 import { QueryType, QueryMatch, importQueryPos, QueryPoS } from '../../common/query';
 import { GlobalComponents } from '../../views/global';
-import { getLemmas, getSimilarFreqWords, getWordForms } from '../freqdb/freqdb';
+import { findQueryMatches, getSimilarFreqWords, getWordForms } from '../freqdb/freqdb';
 
 import { getLangFromCookie, fetchReqArgArray, createHelperServices, mkReturnUrl, renderResult } from './common';
 import { mainAction } from './main';
@@ -111,7 +111,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         }).pipe(
             concatMap(
                 (db) => {
-                    return getLemmas(db, appServices, req.query.q, 1);
+                    return findQueryMatches(db, appServices, req.query.q, 1);
                 }
             )
         ).subscribe(

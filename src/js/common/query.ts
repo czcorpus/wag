@@ -94,12 +94,23 @@ export interface QueryMatch {
 export type RecognizedQueries = Array<Array<QueryMatch>>;
 
 
-export function testIsDictQuery(lemmas:Array<QueryMatch>|QueryMatch):boolean {
+export function testIsDictMatch(lemmas:Array<QueryMatch>|QueryMatch):boolean {
     if (Array.isArray(lemmas)) {
         const tmp = lemmas as Array<QueryMatch>;
         return tmp.length > 1 || !tmp[0].isNonDict;
     }
     return !(lemmas as QueryMatch).isNonDict;
+}
+
+/**
+ * Test whether at least one of provided matches is a multi-word one.
+ */
+export function testIsMultiWordMode(queries:RecognizedQueries):boolean {
+    return pipe(
+        queries,
+        List.flatMap(v => v),
+        List.some(v => /\s/.test(v.word))
+    );
 }
 
 export function matchesPos(lv:QueryMatch, pos:Array<QueryPoS>):boolean {

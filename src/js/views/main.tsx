@@ -417,7 +417,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         };
 
         if (props.queries.length === 1) {
-            console.log('matches: ', props.matches);
             if (props.matches[0].length > 0) {
                 const curr = List.find(v => v.isCurrent == true, props.matches[0]);
                 if (curr) {

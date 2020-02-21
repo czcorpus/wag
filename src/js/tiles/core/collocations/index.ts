@@ -166,8 +166,8 @@ export class CollocationsTile implements ITileProvider {
         return this.blockingTiles;
     }
 
-    supportsNonDictQueries():boolean {
-        return false;
+    supportsMultiWordQueries():boolean {
+        return this.api.supportsMultiWordQueries();
     }
 
     getIssueReportingUrl():null {

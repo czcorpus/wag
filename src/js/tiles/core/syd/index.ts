@@ -129,7 +129,7 @@ export class SyDTile implements ITileProvider {
         return this.blockingTiles;
     }
 
-    supportsNonDictQueries():boolean {
+    supportsMultiWordQueries():boolean {
         return true;
     }
 

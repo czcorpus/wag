@@ -126,7 +126,7 @@ export class WordFreqTile implements ITileProvider {
         return [];
     }
 
-    supportsNonDictQueries():boolean {
+    supportsMultiWordQueries():boolean {
         return true;
     }
 

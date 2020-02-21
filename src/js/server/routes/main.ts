@@ -163,7 +163,7 @@ export function mainAction(services:Services, answerMode:boolean, req:Request, r
         )
     ).subscribe(
         ({userConf, hostPageEnv, runtimeConf, qMatchesEachQuery, appServices, dispatcher, viewUtils}) => {
-            const lemmasExtended = qMatchesEachQuery.map((queryMatches, queryIdx) => {
+            const queryMatchesExtended = qMatchesEachQuery.map((queryMatches, queryIdx) => {
                 let mergedMatches = findMergeableLemmas(queryMatches);
                 if (mergedMatches.length > 0) {
                     let matchIdx = 0;
@@ -205,7 +205,7 @@ export function mainAction(services:Services, answerMode:boolean, req:Request, r
             const [rootView, layout,] = createRootComponent({
                 config: runtimeConf,
                 userSession: userConf,
-                lemmas: lemmasExtended,
+                queryMatches: queryMatchesExtended,
                 appServices: appServices,
                 dispatcher: dispatcher,
                 onResize: new Observable((_) => undefined),
@@ -227,7 +227,7 @@ export function mainAction(services:Services, answerMode:boolean, req:Request, r
                 view: view,
                 services: services,
                 toolbarData: hostPageEnv,
-                lemmas: lemmasExtended,
+                lemmas: queryMatchesExtended,
                 userConfig: userConf,
                 clientConfig: runtimeConf,
                 returnUrl: mkReturnUrl(req, services.clientConf.rootUrl),

@@ -21,7 +21,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { fromEvent, Observable, interval, empty, of as rxOf, merge } from 'rxjs';
 import { debounceTime, map, concatMap, take, scan } from 'rxjs/operators';
-import { isSubqueryPayload } from './common/query';
+import { isSubqueryPayload, RecognizedQueries } from './common/query';
 import * as translations from 'translations';
 
 import { AppServices } from './appServices';
@@ -49,7 +49,7 @@ require('../css/mobile-small.less');
 require('theme.less');
 
 
-export const initClient = (mountElement:HTMLElement, config:ClientConf, userSession:UserConf, lemmas:Array<Array<QueryMatch>>) => {
+export const initClient = (mountElement:HTMLElement, config:ClientConf, userSession:UserConf, queryMatches:RecognizedQueries) => {
     const dispatcher = new ActionDispatcher();
     const notifications = new SystemNotifications(dispatcher);
     const uiLangSel = userSession.uiLang || 'en-US';
@@ -103,7 +103,7 @@ export const initClient = (mountElement:HTMLElement, config:ClientConf, userSess
     const [WdglanceMain, currLayout, tileMap] = createRootComponent({
         config: config,
         userSession: userSession,
-        lemmas: lemmas,
+        queryMatches: queryMatches,
         appServices: appServices,
         dispatcher: dispatcher,
         onResize: windowResize$,
@@ -179,7 +179,7 @@ export const initClient = (mountElement:HTMLElement, config:ClientConf, userSess
                     });
 
                 } else if (userSession.answerMode) {
-                    if (lemmas[0].find(v => v.isCurrent)) {
+                    if (queryMatches[0].find(v => v.isCurrent)) {
                         dispatcher.dispatch({
                             name: ActionName.RequestQueryResponse
                         });

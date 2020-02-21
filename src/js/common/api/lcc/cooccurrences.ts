@@ -70,6 +70,10 @@ export class LccCollAPI implements CollocationApi<CollRequestArgs> {
         return false;
     }
 
+    supportsMultiWordQueries():boolean {
+        return false;
+    }
+
     getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<SourceDetails> {
         return rxOf({
             tileId: tileId,
