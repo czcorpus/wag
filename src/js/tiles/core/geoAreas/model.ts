@@ -71,8 +71,6 @@ export interface GeoAreasModelState extends GeneralSingleCritFreqBarModelState<D
     areaCodeMapping:{[key:string]:string};
     tooltipArea:{tooltipX:number; tooltipY:number, data:TooltipValues}|null;
     mapSVG:string;
-    areaDiscFillColor:string;
-    areaDiscTextColor:string;
     isAltViewMode:boolean;
     frequencyDisplayLimit:number;
 }

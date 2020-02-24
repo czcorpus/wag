@@ -145,7 +145,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             A ${radius} ${radius} 0 ${longArc} 1 ${x1} ${y1}
                             L 0 0
                         `,
-                    'fill': theme.barColor(row.target),
+                    'fill': theme.cmpCategoryColor(row.target),
                     'stroke': 'black',
                     'opacity': '0.8'
                 }
@@ -351,7 +351,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             Object.entries(props.values || {}).map(([label, value], index) =>
                                 value === undefined ?
                                 null :
-                                <tr key={label} style={{color: theme.barColor(index)}}>
+                                <tr key={label} style={{color: theme.categoryColor(index)}}>
                                     <td>{label} : {value}</td>
                                 </tr>
                             )
@@ -397,7 +397,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 <div className="legend">
                                     {this.props.currentLemmas.map((lemma, index) =>
                                         <span key={`legend${index}`} style={{margin: '0 0.5em'}}>
-                                            <div className="legendColorBlock" style={{backgroundColor: theme.barColor(index)}} />
+                                            <div className="legendColorBlock" style={{backgroundColor: theme.categoryColor(index)}} />
                                             {`[${index + 1}] ${lemma.word}`}
                                         </span>
                                     )}

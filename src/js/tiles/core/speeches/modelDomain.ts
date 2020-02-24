@@ -15,10 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { RGBAColor } from '../../../common/types';
+
 import { BacklinkWithArgs } from '../../../common/tile';
 import { LineElement } from '../../../common/api/abstract/concordance';
-import { pipe, Dict, List } from 'cnc-tskit';
+import { pipe, Dict, List, Color } from 'cnc-tskit';
 
 
 export type ConcDetailText = Array<LineElement>;
@@ -38,7 +38,7 @@ export interface Speech {
     text:ConcDetailText;
     speakerId:string;
     segments:Array<Segment>;
-    colorCode:RGBAColor;
+    colorCode:Color.RGBA;
     metadata:{[k:string]:string};
 }
 
@@ -85,9 +85,9 @@ export interface SpeechesModelState {
     speechSegment:[string, string];
     speechOverlapAttr:[string, string];
     speechOverlapVal:string;
-    speakerColors:Array<RGBAColor>;
+    speakerColors:Array<Color.RGBA>;
     wideCtxGlobals:Array<[string, string]>;
-    speakerColorsAttachments:{[k:string]:RGBAColor};
+    speakerColorsAttachments:{[k:string]:Color.RGBA};
     spkOverlapMode:'full'|'simple';
     backlink:BacklinkWithArgs<BacklinkArgs>;
     maxNumSpeeches:number;
@@ -126,7 +126,7 @@ function parseTag(name:string, s:string):{[key:string]:string} {
     return null;
 }
 
-function createNewSpeech(state:SpeechesModelState, speakerId:string, colorCode:RGBAColor, metadata:{[attr:string]:string}):Speech {
+function createNewSpeech(state:SpeechesModelState, speakerId:string, colorCode:Color.RGBA, metadata:{[attr:string]:string}):Speech {
     const importedMetadata = pipe(
         metadata,
         Dict.filter((val, attr) => attr !== state.speechSegment[1] && attr !== state.speakerIdAttr[1])

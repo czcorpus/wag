@@ -15,7 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ColorsConf, ColorThemeDesc } from '../conf';
+import { ColorsConf } from '../conf';
+import { Dict, Color, pipe } from 'cnc-tskit';
 
 
 export enum SystemColor {
@@ -32,21 +33,13 @@ export enum SystemColor {
 
 
 export interface ColorScaleFunctionGenerator {
-    (min:number, max:number):(v:number)=>string;
+    (min?:number):(v:number)=>string;
 }
 
 
-const brightnessAdjustHex = (hex:string, ratio:number):string => {
-    const code = hex.length === 7 ? hex.substr(1) : hex.substr(1).replace(/(.)/g, '$1$1');
-    const r = parseInt(code.substr(0, 2), 16);
-    const g = parseInt(code.substr(2, 2), 16);
-    const b = parseInt(code.substr(4, 2), 16);
-    const mkColor = c => Math.round((1 << 8) + c + (256 - c) * ratio).toString(16).substr(1);
-    return `#${mkColor(r)}${mkColor(g)}${mkColor(b)}`;
-}
-
-const defaultTheme = {
+const defaultTheme:ColorsConf = {
     themeId: 'default',
+    themeLabel: 'Default',
     category: [
         '#DD8959',
         '#1334FF',
@@ -60,7 +53,7 @@ const defaultTheme = {
         '#72BF4D'
     ],
     categoryOther: "#494949",
-    bar: [
+    cmpCategory: [
         '#7fc77e',
         '#4AB2A1',
         '#54A82C'
@@ -76,14 +69,19 @@ const defaultTheme = {
         '#b90064',
         '#ce006f',
         '#e2007a'
-    ]
+    ],
+    geoAreaSpotFillColor: '#212F3C'
 };
 
+/**
+ * Theme class provides all the data-styling defined in
+ * a specific ColorsConf configuration.
+ */
 export class Theme {
 
     private readonly catColors:Array<string>;
 
-    private readonly barColors:Array<string>;
+    private readonly cmpCategoryColors:Array<string>;
 
     public readonly unfinishedChartColor:string;
 
@@ -91,51 +89,81 @@ export class Theme {
 
     private readonly scaleColors:Array<string>;
 
-    private readonly catOtherColor:string;
-
     public readonly infoGraphicsFont:string;
 
-    constructor(conf:ColorsConf) {
-        const srcConf = conf ? conf : defaultTheme;
-        this.catColors = srcConf.category ? srcConf.category : defaultTheme.category;
-        this.barColors = srcConf.bar ? srcConf.bar : defaultTheme.bar;
-        this.scaleColors = srcConf.scale ? srcConf.scale : defaultTheme.scale;
+    public readonly geoAreaSpotFillColor:string;
+
+    constructor(conf?:ColorsConf) {
+        const confSrc = conf && Dict.size<any, string>(conf) > 0 ? conf : defaultTheme;
+        this.catColors = confSrc.category || [];
+        this.cmpCategoryColors = confSrc.cmpCategory || [];
+        this.scaleColors = confSrc.scale || [];
         this.unfinishedChartColor = '#dddddd';
         this.unfinishedChartColorLight = '#eeeeee';
-        this.catOtherColor = srcConf.categoryOther ? srcConf.categoryOther : '#494949';
         this.infoGraphicsFont = 'Roboto Condensed';
+        this.geoAreaSpotFillColor = conf.geoAreaSpotFillColor;
     }
 
-    categoryPalette(values:Array<string|number>) {
-        const mapping = {};
+    categoryPalette = (values:Array<string|number>):(ident:string|number)=>string => {
+        const mapping:{[key:string]:string} = {};
         values.forEach((v, i) => {
             mapping[typeof v === 'string' ? v : v.toFixed()] = this.catColors[i % this.catColors.length];
         });
-        return (v:string|number) => mapping[typeof v === 'string' ? v : v.toFixed()];
+        return v => mapping[typeof v === 'string' ? v : v.toFixed()];
     }
 
-    categoryOtherColor():string {
-        return this.catOtherColor;
+    /**
+     * Generate category color out of catColors.
+     * This is intended to be used for 'single' and 'translat'
+     * modes.
+     */
+    categoryColor(idx:number):string {
+        return this.catColors[idx % this.catColors.length];
     }
 
-
-    barColor(idx:number, brightness?:number):string {
-        return brightness ?
-            brightnessAdjustHex(this.barColors[idx % this.barColors.length], brightness) :
-            this.barColors[idx % this.barColors.length];
+    /**
+     * Produce a category color for word comparison mode where
+     * each word data is expected to be of a specific color
+     * (i.e. 1st word => idx = 0, 2nd word => idx 1,...)
+     */
+    cmpCategoryColor(idx:number):string {
+        return this.cmpCategoryColors[idx % this.cmpCategoryColors.length];
     }
 
+    /**
+     * Map linearly any range min...max to defined 'scaleColors'.
+     */
     scaleColor = (min:number, max:number):(v:number)=>string => {
-
         const a = max !== min ? (this.scaleColors.length - 1) / (max - min) : 0;
         const b = -1 * a * min;
         return (v:number) => this.scaleColors[Math.round(a * v + b)];
-    }
+    };
 
-    scaleColorIndexed = (min:number, max:number):(v:number)=>string => {
+    /**
+     * Map values min, min+1, ..., min+N to color taken from
+     * 'scaleColors'. Anything below or above is replaced by
+     * a grey placeholder color.
+     */
+    scaleColorIndexed = (min:number=0):(v:number)=>string => {
         return (v:number) => {
             const idx = Math.max(v - min, 0);
             return this.scaleColors[idx] || '#dddddd';
         };
-    }
+    };
+
+    /**
+     * Produce a function which generates variants with
+     * different luminosity based on a color selected
+     * from "cmp" mode categories (barIdx). E.g. barIdx = 3 selects
+     * 4th color and individual values 'v' produce lighter
+     * variants as 'v' increases.
+     */
+    scaleColorCmpDerived = (barIdx:number) => (v:number) => {
+        return pipe(
+            this.cmpCategoryColor(barIdx),
+            Color.importColor(1),
+            Color.luminosity(1 + .04 * v),
+            Color.color2str()
+        );
+    };
 }

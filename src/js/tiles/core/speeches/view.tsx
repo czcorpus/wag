@@ -21,26 +21,15 @@ import { SpeechesModel } from './model';
 import { GlobalComponents } from '../../../views/global';
 import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
 import { Theme } from '../../../common/theme';
-import { Speech, SpeechesModelState, Expand, SpeechLine, Segment } from './modelDomain';
-import { RGBAColor } from '../../../common/types';
+import { Speech, SpeechesModelState, SpeechLine, Segment } from './modelDomain';
 import { ActionName, Actions } from './actions';
-import { List, pipe } from 'cnc-tskit';
+import { List, pipe, Color } from 'cnc-tskit';
 
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:SpeechesModel):TileComponent {
 
     const globComponents = ut.getComponents();
-
-    function color2str(c:RGBAColor):string {
-        return c !== null ? `rgba(${c[0]}, ${c[1]}, ${c[2]}, ${c[3]})` : 'transparent';
-    }
-
-    function calcTextColorFromBg(bgColor:RGBAColor):RGBAColor {
-        const color = bgColor ? bgColor : [255, 255, 255, 1];
-        const lum = 0.2126 * color[0] + 0.7152 * color[1] + 0.0722 * color[2];
-        return lum > 128 ? [1, 1, 1, 1] : [231, 231, 231, 1];
-    }
 
     function exportMetadata(data) {
         if (data.size > 0) {
@@ -83,8 +72,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     }> = (props) => {
         const style = {
-            backgroundColor: color2str(props.speech.colorCode),
-            color: color2str(calcTextColorFromBg(props.speech.colorCode))
+            backgroundColor: Color.color2str(props.speech.colorCode),
+            color: pipe(props.speech.colorCode, Color.textColorFromBg(), Color.color2str())
         };
         return (
             <>
@@ -102,7 +91,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 <dd className="speech">
                     <div className="text">
                         <SpeechText data={props.speech.text} key={props.idx}
-                                bulletColor={color2str(props.speech.colorCode)}
+                                bulletColor={Color.color2str(props.speech.colorCode)}
                                 isIncomplete={!props.speech.speakerId} />
                     </div>
                 </dd>
@@ -131,8 +120,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             acc.push(<span key={`p-${props.idx}:${i}`} className="plus">{'\u00a0'}+{'\u00a0'}</span>);
                         }
                         const css = {
-                            backgroundColor: color2str(speech.colorCode),
-                            color: color2str(calcTextColorFromBg(speech.colorCode))
+                            backgroundColor: Color.color2str(speech.colorCode),
+                            color: Color.color2str(Color.textColorFromBg(speech.colorCode))
                         };
                         acc.push(<strong key={`${props.idx}:${i}`} className="speaker"
                                         title={exportMetadata(speech.metadata)}
@@ -155,7 +144,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <div className="text">
                         {props.speeches.map((speech, i) => <SpeechText data={speech.text}
                                     key={`${props.idx}:${i}`}
-                                    bulletColor={color2str(speech.colorCode)}
+                                    bulletColor={Color.color2str(speech.colorCode)}
                                     isIncomplete={!speech.speakerId} />)}
                     </div>
                 </dd>

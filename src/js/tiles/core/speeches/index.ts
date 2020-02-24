@@ -24,6 +24,7 @@ import { init as viewInit } from './view';
 import { LocalizedConfMsg } from '../../../common/types';
 import { SpeechesApi } from './api';
 import { createAudioUrlGeneratorInstance } from './impl';
+import { pipe, Color, List } from 'cnc-tskit';
 
 
 declare var require:(src:string)=>void;  // webpack
@@ -44,19 +45,6 @@ export interface SpeechesTileConf extends TileConf {
     audioPlaybackUrl?:string;
     maxNumSpeeches?:number;
 }
-
-const BASE_COLOR_SCHEME:Array<[number, number, number, number]> = [
-    [ 31, 119, 180, 0.9],
-    [255, 127,  14, 0.9],
-    [ 44, 160,  44, 0.9],
-    [214,  39,  40, 0.9],
-    [148, 103, 189, 0.9],
-    [140,  86,  75, 0.9],
-    [227, 119, 194, 0.9],
-    [127, 127, 127, 0.9],
-    [188, 189,  34, 0.9],
-    [ 23, 190, 207, 0.9]
-];
 
 
 export class SpeechesTile implements ITileProvider {
@@ -82,6 +70,7 @@ export class SpeechesTile implements ITileProvider {
         this.widthFract = widthFract;
         this.label = appServices.importExternalMessage(conf.label);
         this.blockingTiles = waitForTiles;
+        const colorGen = theme.categoryPalette(List.repeat(v => v, 10));
         this.model = new SpeechesModel({
             dispatcher: dispatcher,
             tileId: tileId,
@@ -106,7 +95,10 @@ export class SpeechesTile implements ITileProvider {
                 speechSegment: [conf.speechSegment[0], conf.speechSegment[1]],
                 speechOverlapAttr: [conf.speechOverlapAttr[0], conf.speechOverlapAttr[1]],
                 speechOverlapVal: conf.speechOverlapVal,
-                speakerColors: [...BASE_COLOR_SCHEME],
+                speakerColors: pipe(
+                    List.repeat(v => v, 10),
+                    List.map(v => Color.importColor(0.9, colorGen(v)))
+                ),
                 wideCtxGlobals: [],
                 speakerColorsAttachments: {},
                 spkOverlapMode: (conf.speechOverlapAttr || [])[1] ? 'full' : 'simple',

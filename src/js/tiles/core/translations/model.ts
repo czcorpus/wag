@@ -166,7 +166,7 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
                     const lines = item.translations
                         .filter(x => x.freq >= state.minItemFreq)
                         .slice(0, state.maxNumLines);
-                    const colors = this.scaleColorGen(0, lines.length)
+                    const colors = this.scaleColorGen(0)
                     return lines.map((line, i) => ({
                             freq: line.freq,
                             score: line.score,

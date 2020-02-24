@@ -120,7 +120,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             <Bar
                                 key={index}
                                 dataKey={x => x.ipm[index]}
-                                fill={props.isPartial ? theme.unfinishedChartColor: theme.barColor(index)}
+                                fill={props.isPartial ? theme.unfinishedChartColor: theme.categoryColor(index)}
                                 isAnimationActive={false}
                                 name={queries === 1 ? ut.translate('mergeCorpFreq_rel_freq') : `[${index + 1}] ${props.lemmas[index].word}`} />
                         )}
