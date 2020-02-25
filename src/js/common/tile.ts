@@ -87,7 +87,7 @@ export interface TileConf {
      */
     waitFor?:string|Array<string>;
 
-    waitForTimeoutSecs:number;
+    waitForTimeoutSecs?:number;
 
     /**
      * In case we depend on multiple tiles and some of them are
