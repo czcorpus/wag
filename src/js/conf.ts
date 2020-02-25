@@ -19,9 +19,13 @@ import { DbValueMapping, HTTPHeaders, LocalizedConfMsg } from './common/types';
 import { QueryPoS, QueryType, SearchLanguage } from './common/query';
 import { TileConf } from './common/tile';
 import { CSSProperties } from 'react';
-import { List } from 'cnc-tskit';
+import { List, pipe } from 'cnc-tskit';
 
 export const DEFAULT_WAIT_FOR_OTHER_TILES = 60;
+
+export const THEME_COOKIE_NAME = 'wag_theme';
+export const THEME_DEFAULT_NAME = 'default';
+export const THEME_DEFAULT_LABEL = 'Default';
 
 /**
  * A page configuration based on
@@ -220,8 +224,12 @@ export function emptyClientConf(conf:ClientStaticConf, themeId:string):ClientCon
         dbValuesMapping: conf.dbValuesMapping,
         reqCacheTTL: conf.reqCacheTTL,
         onLoadInit: conf.onLoadInit || [],
-        colors: List.find(v => v.themeId === themeId, conf.colors),
-        colorThemes: List.map(v => ({themeId: v.themeId, themeLabel: v.themeLabel ? v.themeLabel : v.themeLabel}), conf.colors),
+        colors: List.find(v => v.themeId === themeId, conf.colors || []),
+        colorThemes: pipe(
+            conf.colors,
+            List.map(v => ({themeId: v.themeId, themeLabel: v.themeLabel ? v.themeLabel : v.themeId})),
+            List.concat([{themeId: THEME_DEFAULT_NAME, themeLabel: THEME_DEFAULT_LABEL}]),
+        ),
         tiles: {},
         layouts: emptyLayoutConf(),
         homepage: {

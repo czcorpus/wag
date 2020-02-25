@@ -24,7 +24,7 @@ import { concatMap, map, catchError, reduce } from 'rxjs/operators';
 import { AppServices } from '../../appServices';
 import { QueryType, QueryMatch, QueryPoS, matchesPos, findMergeableLemmas, importQueryTypeString } from '../../common/query';
 import { UserConf, ClientStaticConf, ClientConf, emptyClientConf, getSupportedQueryTypes, emptyLayoutConf, errorUserConf,
-    getQueryTypeFreqDb, DEFAULT_WAIT_FOR_OTHER_TILES } from '../../conf';
+    getQueryTypeFreqDb, DEFAULT_WAIT_FOR_OTHER_TILES, THEME_DEFAULT_LABEL, THEME_COOKIE_NAME, THEME_DEFAULT_NAME } from '../../conf';
 import { init as viewInit } from '../../views/layout';
 import { init as errPageInit } from '../../views/error';
 import { ServerSideActionDispatcher } from '../core';
@@ -37,9 +37,6 @@ import { ActionName } from '../../models/actions';
 import { DummyCache } from '../../cacheDb';
 import { Dict, pipe, HTTP, List } from 'cnc-tskit';
 import { getLangFromCookie, fetchReqArgArray, createHelperServices, mkReturnUrl, logRequest, renderResult } from './common';
-
-
-export const THEME_COOKIE_NAME = 'wag_theme';
 
 
 function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, themeId:string, appServices:AppServices):Observable<ClientConf> {
@@ -66,8 +63,12 @@ function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, themeId:string,
             reqCacheTTL: conf.reqCacheTTL,
             onLoadInit: conf.onLoadInit,
             dbValuesMapping: conf.dbValuesMapping,
-            colors: List.find(v => v.themeId === themeId, conf.colors),
-            colorThemes: List.map(v => ({themeId: v.themeId, themeLabel: v.themeLabel ? v.themeLabel : v.themeId}), conf.colors),
+            colors: List.find(v => v.themeId === themeId, conf.colors || []),
+            colorThemes: pipe(
+                conf.colors,
+                List.map(v => ({themeId: v.themeId, themeLabel: v.themeLabel ? v.themeLabel : v.themeId})),
+                List.concat([{themeId: THEME_DEFAULT_NAME, themeLabel: THEME_DEFAULT_LABEL}]),
+            ),
             tiles: typeof conf.tiles === 'string' ?
                 {} : // this should not happen at runtime (string has been already used as uri to load a nested conf)
                 pipe(
@@ -258,7 +259,7 @@ export function mainAction(services:Services, answerMode:boolean, req:Request, r
                 toolbarData: emptyValue(),
                 lemmas: [],
                 userConfig: userConf,
-                clientConfig: emptyClientConf(services.clientConf, req.cookies[THEME_COOKIE_NAME] || ''),
+                clientConfig: emptyClientConf(services.clientConf, req.cookies[THEME_COOKIE_NAME] || THEME_DEFAULT_NAME),
                 returnUrl: mkReturnUrl(req, services.clientConf.rootUrl),
                 rootView: errView,
                 layout: [],
