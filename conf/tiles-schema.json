@@ -133,8 +133,7 @@
                 }
             },
             "required": [
-                "tileType",
-                "waitForTimeoutSecs"
+                "tileType"
             ],
             "type": "object"
         }
