@@ -46,12 +46,6 @@
         "ColorsConf": {
             "description": "This specifies a 'theming' for\nJavaScript generated stuff\n(mainly chart colors).",
             "properties": {
-                "bar": {
-                    "items": {
-                        "type": "string"
-                    },
-                    "type": "array"
-                },
                 "category": {
                     "items": {
                         "type": "string"
@@ -59,6 +53,15 @@
                     "type": "array"
                 },
                 "categoryOther": {
+                    "type": "string"
+                },
+                "cmpCategory": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "geoAreaSpotFillColor": {
                     "type": "string"
                 },
                 "scale": {
@@ -69,10 +72,19 @@
                 },
                 "themeId": {
                     "type": "string"
+                },
+                "themeLabel": {
+                    "type": "string"
                 }
             },
             "required": [
-                "themeId"
+                "category",
+                "categoryOther",
+                "cmpCategory",
+                "geoAreaSpotFillColor",
+                "scale",
+                "themeId",
+                "themeLabel"
             ],
             "type": "object"
         },
