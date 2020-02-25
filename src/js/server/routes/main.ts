@@ -40,6 +40,7 @@ import { getLangFromCookie, fetchReqArgArray, createHelperServices, mkReturnUrl,
 
 
 function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, themeId:string, appServices:AppServices):Observable<ClientConf> {
+    const themeIdApplied = themeId ? themeId : conf.defaultColorScheme;
     return forkJoin(...conf.homepage.tiles.map(item =>
         appServices.importExternalText(
             item.contents,
@@ -63,7 +64,7 @@ function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, themeId:string,
             reqCacheTTL: conf.reqCacheTTL,
             onLoadInit: conf.onLoadInit,
             dbValuesMapping: conf.dbValuesMapping,
-            colors: List.find(v => v.themeId === themeId, conf.colors || []),
+            colors: List.find(v => v.themeId === themeIdApplied, conf.colors || []),
             colorThemes: pipe(
                 conf.colors,
                 List.map(v => ({themeId: v.themeId, themeLabel: v.themeLabel ? v.themeLabel : v.themeId})),
@@ -259,7 +260,7 @@ export function mainAction(services:Services, answerMode:boolean, req:Request, r
                 toolbarData: emptyValue(),
                 lemmas: [],
                 userConfig: userConf,
-                clientConfig: emptyClientConf(services.clientConf, req.cookies[THEME_COOKIE_NAME] || THEME_DEFAULT_NAME),
+                clientConfig: emptyClientConf(services.clientConf, req.cookies[THEME_COOKIE_NAME]),
                 returnUrl: mkReturnUrl(req, services.clientConf.rootUrl),
                 rootView: errView,
                 layout: [],

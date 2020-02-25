@@ -142,6 +142,7 @@ export interface ClientStaticConf {
     issueReportingUrl?:string;
     homepage:HomepageConf;
     colors:Array<ColorsConf>;
+    defaultColorScheme:string;
     searchLanguages:{[code:string]:string};
 
     // A list of URLs used to style specific content (e.g. HTML tiles)
@@ -213,7 +214,8 @@ export function emptyLayoutConf():LayoutsConfig {
     };
 }
 
-export function emptyClientConf(conf:ClientStaticConf, themeId:string):ClientConf {
+export function emptyClientConf(conf:ClientStaticConf, themeId:string|undefined):ClientConf {
+    const themeIdApplied = themeId ? themeId : conf.defaultColorScheme;
     return {
         rootUrl: conf.rootUrl,
         hostUrl: conf.hostUrl,
@@ -224,7 +226,7 @@ export function emptyClientConf(conf:ClientStaticConf, themeId:string):ClientCon
         dbValuesMapping: conf.dbValuesMapping,
         reqCacheTTL: conf.reqCacheTTL,
         onLoadInit: conf.onLoadInit || [],
-        colors: List.find(v => v.themeId === themeId, conf.colors || []),
+        colors: List.find(v => v.themeId === themeIdApplied, conf.colors || []),
         colorThemes: pipe(
             conf.colors,
             List.map(v => ({themeId: v.themeId, themeLabel: v.themeLabel ? v.themeLabel : v.themeId})),

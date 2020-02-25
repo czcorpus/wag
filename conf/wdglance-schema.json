@@ -7054,6 +7054,9 @@
             },
             "type": "object"
         },
+        "defaultColorScheme": {
+            "type": "string"
+        },
         "externalStyles": {
             "items": {
                 "type": "string"
@@ -7134,6 +7137,7 @@
         "colors",
         "corpInfoApiUrl",
         "dbValuesMapping",
+        "defaultColorScheme",
         "homepage",
         "hostUrl",
         "layouts",
