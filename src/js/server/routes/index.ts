@@ -28,11 +28,11 @@ import { GlobalComponents } from '../../views/global';
 import { findQueryMatches, getSimilarFreqWords, getWordForms } from '../freqdb/freqdb';
 
 import { getLangFromCookie, fetchReqArgArray, createHelperServices, mkReturnUrl, renderResult } from './common';
-import { mainAction, THEME_COOKIE_NAME } from './main';
+import { mainAction } from './main';
 import { WordDatabase, Services } from '../actionServices';
 import { HTTPAction } from './actions';
 import { TelemetryAction } from '../../common/types';
-import { errorUserConf, emptyClientConf } from '../../conf';
+import { errorUserConf, emptyClientConf, THEME_COOKIE_NAME, THEME_DEFAULT_NAME } from '../../conf';
 import { init as viewInit } from '../../views/layout';
 import { init as errPageInit } from '../../views/error';
 import { emptyValue } from '../toolbar/empty';
@@ -303,7 +303,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                 toolbarData: emptyValue(),
                 lemmas: [],
                 userConfig: userConf,
-                clientConfig: emptyClientConf(services.clientConf, req.cookies[THEME_COOKIE_NAME] || ''),
+                clientConfig: emptyClientConf(services.clientConf, req.cookies[THEME_COOKIE_NAME] || THEME_DEFAULT_NAME),
                 returnUrl: mkReturnUrl(req, services.clientConf.rootUrl),
                 rootView: errView,
                 layout: [],

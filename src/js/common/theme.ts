@@ -101,7 +101,7 @@ export class Theme {
         this.unfinishedChartColor = '#dddddd';
         this.unfinishedChartColorLight = '#eeeeee';
         this.infoGraphicsFont = 'Roboto Condensed';
-        this.geoAreaSpotFillColor = conf.geoAreaSpotFillColor;
+        this.geoAreaSpotFillColor = confSrc.geoAreaSpotFillColor;
     }
 
     categoryPalette = (values:Array<string|number>):(ident:string|number)=>string => {
