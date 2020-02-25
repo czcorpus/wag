@@ -32,23 +32,14 @@ import { List, pipe } from 'cnc-tskit';
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:FreqBarModel):TileComponent {
 
     const globalComponents = ut.getComponents();
-    const catList = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-    const colorPalette = theme.categoryPalette(catList);
 
-    const createColorMapping = (blocks:Array<FreqDataBlock<DataRow>>):{[v:string]:string} => {
-        const ans = {};
-        let i = 0;
-        pipe(
+    const createColorMapping = (blocks:Array<FreqDataBlock<DataRow>>):(v:number|string)=>string => {
+        return theme.categoryPalette(pipe(
             blocks,
             List.flatMap(block => block.data),
-            List.forEach(item => {
-                if (ans[item.name] === undefined) {
-                    ans[item.name] = colorPalette(`${i % catList.length}`);
-                    i += 1;
-                }
-            })
-        );
-        return ans;
+            List.groupBy(v => v.name),
+            List.map(([k,]) => k)
+        ));
     }
 
     // ------- <ChartWrapper /> ---------------------------------------------------
@@ -171,14 +162,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         const chartsViewBoxWidth = props.isMobile ? '100%' : `${100 / props.blocks.length}%`;
 
-        let paletteFn:(item:DataRow, i:number)=>string;
-        if (props.subqSyncPalette) {
-            const mapping = createColorMapping(props.blocks);
-            paletteFn = (item:DataRow, i:number) => mapping[item.name];
-
-        } else {
-            paletteFn = (_, i:number) => colorPalette(`${i}`);
-        }
+        const paletteFn:(item:DataRow, i:number)=>string =
+            props.subqSyncPalette ?
+                (d:DataRow, i:number) => createColorMapping(props.blocks)(d.name) :
+                (_, i:number) => theme.categoryColor(i);
 
         return (
             <globalComponents.TileWrapper tileId={props.tileId} isBusy={props.isBusy} error={props.error}

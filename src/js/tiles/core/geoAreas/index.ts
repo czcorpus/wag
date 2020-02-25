@@ -39,8 +39,6 @@ export interface GeoAreasTileConf extends TileConf {
     fpage:number;
     fttIncludeEmpty:boolean;
     areaCodeMapping:{[name:string]:string};
-    areaDiscFillColor:string;
-    areaDiscTextColor:string;
     frequencyDisplayLimit:number;
 }
 
@@ -92,8 +90,6 @@ export class GeoAreasTile implements ITileProvider {
                 fpage: conf.fpage,
                 fttIncludeEmpty: conf.fttIncludeEmpty,
                 fmaxitems: 100,
-                areaDiscFillColor: conf.areaDiscFillColor,
-                areaDiscTextColor: conf.areaDiscTextColor,
                 isAltViewMode: false,
                 frequencyDisplayLimit: conf.frequencyDisplayLimit
             }

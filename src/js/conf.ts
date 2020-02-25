@@ -65,10 +65,11 @@ export interface ColorThemeDesc {
  * (mainly chart colors).
  */
 export interface ColorsConf extends ColorThemeDesc {
-    category?:Array<string>;
-    categoryOther?:string;
-    bar?:Array<string>;
-    scale?:Array<string>;
+    category:Array<string>;
+    categoryOther:string;
+    cmpCategory:Array<string>;
+    scale:Array<string>;
+    geoAreaSpotFillColor:string;
 }
 
 

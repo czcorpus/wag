@@ -18,7 +18,7 @@
 import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { Observable, Observer } from 'rxjs';
 import { mergeMap, reduce, share } from 'rxjs/operators';
-import { Ident } from 'cnc-tskit';
+import { Ident, pipe, List, Maths } from 'cnc-tskit';
 
 import { AppServices } from '../../../appServices';
 import { GeneralMultiCritFreqComparisonModelState, stateToAPIArgs } from '../../../common/models/freqComparison';
@@ -152,7 +152,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                             state.blocks[action.payload.critId].data.push({
                                 name: this.appServices.translateDbValue(state.corpname, data.name),
                                 freq: data.freq,
-                                ipm: data.ipm,
+                                ipm: Maths.roundToPos(data.ipm, 2),
                                 word: action.payload.lemma.word,
                                 norm: data.norm
                             })
@@ -339,7 +339,20 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                     name: ActionName.PartialDataLoaded,
                     payload: {
                         tileId: this.tileId,
-                        block: {data: resp.blocks[0].data.sort((x1, x2) => x2.ipm - x1.ipm).slice(0, state.fmaxitems)},
+                        block: {
+                            data: pipe(
+                                resp.blocks[0].data,
+                                List.sort((x1, x2) => x2.ipm - x1.ipm),
+                                List.slice(0, state.fmaxitems),
+                                List.map(v => ({
+                                    freq: v.freq,
+                                    ipm: Maths.roundToPos(v.ipm, 2),
+                                    name: v.name,
+                                    norm: v.norm,
+                                    order: v.order
+                                }))
+                            )
+                        },
                         queryId: args.queryId,
                         lemma: args.lemma,
                         critId: args.critId

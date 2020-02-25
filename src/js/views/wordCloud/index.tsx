@@ -232,7 +232,7 @@ export function init<T>(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalCompone
 
             const style = Object.assign({}, this.props.style);
             style['minHeight'] = `${2 * (this.props.isMobile ? MAX_WC_FONT_SIZE_MOBILE : MAX_WC_FONT_SIZE)}px`;
-            const colors = this.props.colors ? this.props.colors : theme.scaleColorIndexed(0, 10);
+            const colors = this.props.colors ? this.props.colors : theme.scaleColorIndexed();
             return (
                 <div ref={this.chartContainer} style={style}>
                     <Tooltip x={this.state.tooltipPos[0]} y={this.state.tooltipPos[1]}

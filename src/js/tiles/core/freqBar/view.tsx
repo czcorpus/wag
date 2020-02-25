@@ -105,7 +105,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             <div className="Chart">
                 <ChartWrapper data={props.data} isMobile={props.isMobile} width={props.width} height={props.height}>
                     <CartesianGrid />
-                    <Bar data={props.data} dataKey="ipm" fill={theme.barColor(0)} isAnimationActive={false}
+                    <Bar data={props.data} dataKey="ipm" fill={theme.categoryColor(0)} isAnimationActive={false}
                             name={ut.translate('freqBar__rel_freq')} />
                     <XAxis type="number" />
                     <YAxis type="category" dataKey="name" width={Math.max(60, maxLabelWidth * 8)} />

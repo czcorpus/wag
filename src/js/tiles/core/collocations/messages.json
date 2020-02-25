@@ -4,13 +4,17 @@
         "collocations__search_in_context_label": "Searched context",
         "collocations__context_left": "left",
         "collocations__context_right": "right",
-        "collocations__context_both": "left and right"
+        "collocations__context_both": "left and right",
+        "collocations__processing": "Processing",
+        "collocations__no_data": "No data"
     },
     "cs-CZ": {
         "collocations__main_label": "Kolokace",
         "collocations__search_in_context_label": "Prohledávaný kontext",
         "collocations__context_left": "levý",
         "collocations__context_right": "pravý",
-        "collocations__context_both": "levý i pravý"
+        "collocations__context_both": "levý i pravý",
+        "collocations__processing": "Zpracovávám",
+        "collocations__no_data": "Žádná data"
     }
 }

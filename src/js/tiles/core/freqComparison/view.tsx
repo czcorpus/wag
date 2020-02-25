@@ -24,7 +24,7 @@ import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
 import { GlobalComponents } from '../../../views/global';
 import { ActionName, Actions } from './actions';
 import { FreqComparisonModel, FreqComparisonModelState, MultiWordDataRow } from './model';
-import { pipe, List } from 'cnc-tskit';
+import { pipe, List, Dict, Maths } from 'cnc-tskit';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:FreqComparisonModel):TileComponent {
@@ -46,13 +46,13 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             List.groupBy(x => x.name),
             List.map(
                 ([name ,values]) => {
-                    const totalIpm = values.reduce((acc, curr) => acc + curr.ipm, 0)
-                    let wordData:FreqItemProps = {name: name, data: {}};
+                    const totalIpm = List.reduce((acc, curr) => acc + curr.ipm, 0, values);
+                    const wordData:FreqItemProps = {name: name, data: {}};
 
                     // calculate percentage from frequency
                     List.forEach(item => {
                         wordData.data[item.word] = {
-                            main: (100 * item.ipm / totalIpm),
+                            main: Maths.roundToPos(100 * item.ipm / totalIpm, 2),
                             ipm: item.ipm,
                             freq: item.freq
                         };
@@ -60,7 +60,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
                     // add also words with no data
                     List.forEach(word => {
-                        if (!Object.keys(wordData.data).includes(word)) {
+                        if (!Dict.hasKey(word, wordData.data)) {
                             wordData.data[word] = {
                                 main: 0,
                                 ipm: 0,
@@ -126,13 +126,15 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <CartesianGrid />
                     {List.map(
                         (word, index) => <Bar key={`word:${index}`} dataKey={dataKeyFn(word)} isAnimationActive={false} name={word}
-                                                stackId='a' fill={theme.barColor(index)} />,
+                                                stackId='a' fill={theme.cmpCategoryColor(index)} />,
                         props.words
                     )};
                     <XAxis type="number" unit="%" ticks={[0, 25, 50, 75, 100]} domain={[0, 100]} interval={0} />
                     <YAxis type="category" dataKey="name" width={Math.max(60, maxLabelWidth * 8)} interval={0} />
                     <Legend />
-                    <Tooltip cursor={false} isAnimationActive={false} formatter={(value, name, props) => `${value} % (${props.payload[`${name}_ipm`]} ipm)`} />
+                    <Tooltip cursor={false} isAnimationActive={false}
+                        formatter={(value, name, props) =>
+                            `${value} % (${props.payload.data[name].ipm} ipm)`} />
                 </ChartWrapper>
             </div>
         );
@@ -150,27 +152,33 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 <tr>
                     <th key="category" rowSpan={2}>{ut.translate('freq_comparison__table_heading_category')}</th>
                     <th colSpan={2} key="totalOccurrence">{ut.translate('freq_comparison__table_heading_total_occurrence')}</th>
-                    {props.words.map(word => <th key={`${word}Occurrence`} colSpan={2}>{ut.translate('freq_comparison__table_heading_occurrence_of_{word}', {word: word})}</th>)}
+                    {List.map((word, idx) => <th key={`${word}Occurrence`} colSpan={2}>
+                        {`[${idx+1}] ${word}`}
+                    </th>, props.words)}
                 </tr>
                 <tr>
                     <th key={`totalIpm`}>{ut.translate('freq_comparison__table_heading_freq_rel')}</th>
                     <th key={`totalAbs`}>{ut.translate('freq_comparison__table_heading_freq_abs')}</th>
-                    {props.words.reduce((acc, word) => [...acc,
+                    {List.reduce((acc, word) => [...acc,
                         <th key={`${word}Ipm`}>{ut.translate('freq_comparison__table_heading_freq_rel')}</th>,
                         <th key={`${word}Abs`}>{ut.translate('freq_comparison__table_heading_freq_abs')}</th>
-                    ], [])}
+                    ], [], props.words)}
                 </tr>
             </thead>
             <tbody>
                 {pipe(processedData, List.map((row, category) =>
                     <tr key={category}>
-                        <td key={category}>{category}</td>
-                        <td key={`${category}Ipm`} className="num">{props.words.reduce((ipmSum, word) => ipmSum + row[`${word}_ipm`], 0).toFixed(2)}</td>
-                        <td key={`${category}Abs`} className="num">{props.words.reduce((absSum, word) => absSum + row[`${word}_abs`], 0)}</td>
-                        {props.words.reduce((acc, word) => [...acc,
+                        <td key={category}>{row.name}</td>
+                        <td key={`${category}Ipm`} className="num">
+                            {List.reduce((ipmSum, word) => ipmSum + row.data[word].ipm, 0, props.words).toFixed(2)}
+                        </td>
+                        <td key={`${category}Abs`} className="num">
+                            {List.reduce((absSum, word) => absSum + row.data[word].freq, 0, props.words)}
+                        </td>
+                        {List.reduce((acc, word) => [...acc,
                             <td key={`${word}Ipm`} className="num">{row.data[word].ipm}<br/>({row.data[word].main}%)</td>,
                             <td key={`${word}Abs`} className="num">{row.data[word].freq}</td>
-                        ], [])}
+                        ], [], props.words)}
                     </tr>
                 ))}
             </tbody>
@@ -210,39 +218,51 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             const chartsViewBoxWidth = this.props.isMobile ? '100%' : `${100 / Math.min(this.props.blocks.length, this.props.maxChartsPerLine)}%`;
             return (
                 <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
-                        hasData={this.props.blocks.find(v => v.isReady) !== undefined}
+                        hasData={List.find(v => v.isReady, this.props.blocks) !== undefined}
                         sourceIdent={{corp: this.props.corpname}}
                         backlink={this.props.backlink}
                         supportsTileReload={this.props.supportsReloadOnError}
                         issueReportingUrl={this.props.issueReportingUrl}>
                     <div className="FreqComparisonTile">
                         {this.props.isAltViewMode ?
-                            this.props.blocks.filter(block => block.isReady).map(block => {
-                                return <div key={`${block.label}Wrapper`} className="table">
-                                    <h3 key={`${block.label}Heading`} style={{textAlign: 'center'}}>{block.label}</h3>
-                                    <DataTable key={`${block.label}Table`} data={block.data} words={block.words}/>
-                                </div>
-                            }) :
-                            <div className={`charts${this.props.isBusy ? ' incomplete' : ''}`} ref={this.chartsRef} onScroll={this.handleScroll} style={{flexWrap: this.props.isMobile ? 'nowrap' : 'wrap'}}>
-                                {this.props.blocks.filter(block => block.isReady).map(block => {
-                                    const chartWidth = this.props.isMobile ? (this.props.renderSize[0] * 0.9).toFixed() : "90%";
-                                    return  (
-                                        <div key={block.ident} style={{width: chartsViewBoxWidth, height: "100%"}}>
-                                            <h3>{block.label}</h3>
-                                            {block.data.length > 0 ?
-                                                <Chart data={block.data} words={block.words} width={chartWidth}
-                                                            height={70 + List.groupBy(x => x.name, block.data).length * 25}
-                                                        isMobile={this.props.isMobile} /> :
-                                                <p className="note" style={{textAlign: 'center'}}>No result</p>
-                                            }
-                                        </div>
-                                    );
-                                })}
+                            pipe(
+                                this.props.blocks,
+                                List.filter(block => block.isReady),
+                                List.map(block => (
+                                    <div key={`${block.label}Wrapper`} className="table">
+                                        <h3 key={`${block.label}Heading`} style={{textAlign: 'center'}}>{block.label}</h3>
+                                        <DataTable key={`${block.label}Table`} data={block.data} words={block.words}/>
+                                    </div>
+                                 ))
+                            ) :
+                            <div className={`charts${this.props.isBusy ? ' incomplete' : ''}`}
+                                    ref={this.chartsRef} onScroll={this.handleScroll}
+                                    style={{flexWrap: this.props.isMobile ? 'nowrap' : 'wrap'}}>
+                                {pipe(
+                                    this.props.blocks,
+                                    List.filter(block => block.isReady),
+                                    List.map(block => {
+                                        const chartWidth = this.props.isMobile ? (this.props.renderSize[0] * 0.9).toFixed() : "90%";
+                                        return  (
+                                            <div key={block.ident} style={{width: chartsViewBoxWidth, height: "100%"}}>
+                                                <h3>{block.label}</h3>
+                                                {block.data.length > 0 ?
+                                                    <Chart data={block.data} words={block.words} width={chartWidth}
+                                                                height={70 + List.groupBy(x => x.name, block.data).length * 25}
+                                                            isMobile={this.props.isMobile} /> :
+                                                    <p className="note" style={{textAlign: 'center'}}>
+                                                        {ut.translate('freq_comparison__no_result')}
+                                                    </p>
+                                                }
+                                            </div>
+                                        );
+                                    })
+                                )}
                             </div>
                         }
                         {this.props.isMobile && this.props.blocks.length > 1 && !this.props.isAltViewMode ?
                             <globComponents.HorizontalBlockSwitch htmlClass="ChartSwitch"
-                                    blockIndices={this.props.blocks.map((_, i) => i)}
+                                    blockIndices={List.map((_, i) => i, this.props.blocks)}
                                     currentIdx={this.props.activeBlock}
                                     onChange={this.handleDotClick} /> :
                             null

@@ -25,6 +25,7 @@ import { CoreTileComponentProps, TileComponent } from '../../../../common/tile';
 import { GlobalComponents } from '../../../../views/global';
 import { ActionName, Actions } from '../actions';
 import { GeoAreasModel, GeoAreasModelState } from '../model';
+import { Color, pipe } from 'cnc-tskit';
 
 
 const createSVGElement = (parent:Element, name:string, attrs:{[name:string]:string}):SVGElement => {
@@ -121,7 +122,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -----------------
 
-    const drawLabels = (props:GeoAreasModelState, tileId:number, textColor:string, fillColor:string) => {
+    const drawLabels = (props:GeoAreasModelState, tileId:number, fillColor:string) => {
         const [min, max] = props.data.reduce(
             (acc, curr) => [Math.min(acc[0], curr.ipm), Math.max(acc[1], curr.ipm)],
             [props.data[0].ipm, props.data[0].ipm]
@@ -171,7 +172,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 'text-anchor': 'middle',
                                 'font-size': '4.5em',
                                 'font-weight': 'bold',
-                                'fill': textColor
+                                'fill': pipe(
+                                    theme.geoAreaSpotFillColor,
+                                    Color.importColor(1),
+                                    Color.textColorFromBg(),
+                                    Color.color2str()
+                                )
                             }
                         );
                         text.style.cssText = 'opacity: 1';
@@ -223,14 +229,14 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         componentDidMount() {
             if (this.props.data.length > 0) {
-                drawLabels(this.props, this.props.tileId, this.props.areaDiscTextColor, this.props.areaDiscFillColor);
+                drawLabels(this.props, this.props.tileId, theme.geoAreaSpotFillColor);
             }
         }
 
         componentDidUpdate(prevProps) {
             if (this.props.data.length > 0 && (prevProps.data !== this.props.data || prevProps.isAltViewMode !== this.props.isAltViewMode ||
                         prevProps.renderSize !== this.props.renderSize)) {
-                drawLabels(this.props, this.props.tileId, this.props.areaDiscTextColor, this.props.areaDiscFillColor);
+                drawLabels(this.props, this.props.tileId, theme.geoAreaSpotFillColor);
             }
         }
 

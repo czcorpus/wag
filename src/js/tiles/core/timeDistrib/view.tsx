@@ -271,16 +271,16 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <Area type="linear"
                                 dataKey="ipmInterval1"
                                 name={ut.translate('timeDistrib__estimated_interval_for_{word}', {word: this.props.word})}
-                                stroke={this.props.isPartial ? theme.unfinishedChartColor : theme.barColor(0)}
-                                fill={this.props.isPartial ? theme.unfinishedChartColorLight : theme.barColor(0)}
+                                stroke={this.props.isPartial ? theme.unfinishedChartColor : theme.categoryColor(0)}
+                                fill={this.props.isPartial ? theme.unfinishedChartColorLight : theme.categoryColor(0)}
                                 strokeWidth={1}
                                 isAnimationActive={false}
                                 connectNulls={true} />
                         <Area type="linear"
                             dataKey="ipmInterval2"
                             name={this.props.wordCmp ? ut.translate('timeDistrib__estimated_interval_for_{word}', {word: this.props.wordCmp}): undefined}
-                            stroke={this.props.isPartial ? theme.unfinishedChartColor : theme.barColor(1)}
-                            fill={this.props.isPartial ? theme.unfinishedChartColorLight : theme.barColor(1)}
+                            stroke={this.props.isPartial ? theme.unfinishedChartColor : theme.categoryColor(1)}
+                            fill={this.props.isPartial ? theme.unfinishedChartColorLight : theme.categoryColor(1)}
                             strokeWidth={1}
                             isAnimationActive={false}
                             connectNulls={true} />
@@ -324,7 +324,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         null
                     }
                     {props.wordCmp && props.dataCmp.length < MIN_DATA_ITEMS_TO_SHOW && !props.isBusy ?
-                        <p className="message" style={{color: theme.barColor(1)}}>
+                        <p className="message" style={{color: theme.categoryColor(1)}}>
                             {ut.translate('timeDistrib__no_data_found_for_{word}', {word: props.wordCmp})}
                         </p> :
                         ''

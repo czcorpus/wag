@@ -124,10 +124,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 interactionId: v.interactionId
             });
 
-            const genColor = (groupIdx:number) => (idx:number) => {
-                const base = theme.barColor(groupIdx);
-                return Color.color2str(Color.luminosity(Color.importColor(base, 1), 1 + .04 * idx));
-            }
+            const colorGen = this.props.data.length > 1 ? theme.scaleColorCmpDerived : (_:number) => theme.scaleColorIndexed();
 
             return (
                 <globalCompontents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error} htmlClass="CollocTile"
@@ -151,10 +148,13 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                                 font={theme.infoGraphicsFont}
                                                 dataTransform={dataTransform}
                                                 selectedText={this.props.data.length > 1 ? this.props.selectedText : null}
-                                                colors={genColor(index)} />
+                                                colors={colorGen(index)} />
                                     </div>
                                 )} /> :
-                                <globalCompontents.ResponsiveWrapper key={`${index}empty`} render={() => data === null ? <p>Processing...</p> : <p>No data</p>} />
+                                <globalCompontents.ResponsiveWrapper key={`${index}empty`}
+                                    render={() => data === null ?
+                                        <p>{ut.translate('collocations__processing') + '\u2026'}</p> :
+                                        <p>{ut.translate('collocations__no_data')}</p>} />
                         )}
                     </div>
                 </globalCompontents.TileWrapper>

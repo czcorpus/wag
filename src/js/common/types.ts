@@ -90,8 +90,6 @@ export interface IAsyncKeyValueStore {
     clearAll():Observable<number>;
 }
 
-export type RGBAColor = [number, number, number, number];
-
 
 export interface TelemetryAction {
     timestamp:number;

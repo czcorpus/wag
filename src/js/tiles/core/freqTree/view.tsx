@@ -78,7 +78,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         width={width}
                         height={height}
                         style={{
-                            fill: depth === 1 ? theme.barColor(index) : 'white',
+                            fill: depth === 1 ? theme.categoryColor(index) : 'white',
                             fillOpacity: depth > 1 ? 0 : 1,
                             stroke: '#fff',
                             strokeWidth: 2 / (depth + 1e-10),
