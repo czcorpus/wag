@@ -441,7 +441,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
             <div className={`HorizontalBlockSwitch${props.htmlClass ? ' ' + props.htmlClass : ''}`}>
                 {props.blockIndices.map(ident =>
                         <a key={ident} className={`${props.currentIdx === ident ? 'current' : ''}`}
-                                onClick={ident ? ()=>props.onChange(ident) : undefined}>{'\u25A0'}</a>)}
+                                onClick={ident != null ? ()=>props.onChange(ident) : undefined}>{'\u25A0'}</a>)}
             </div>
         );
     };
