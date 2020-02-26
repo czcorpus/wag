@@ -105,7 +105,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const Chart:React.SFC<{
         data:Array<Array<SourceMappedDataRow>>;
-        barGap:number;
+        barCategoryGap:number;
         lemmas:Array<QueryMatch>;
         isPartial:boolean;
     }> = (props) => {
@@ -114,7 +114,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         return (
             <div className="Chart" style={{height: '100%'}}>
                 <ResponsiveContainer width="90%" height="100%">
-                    <BarChart data={transformedData} layout="vertical">
+                    <BarChart data={transformedData} layout="vertical" barCategoryGap={props.barCategoryGap}>
                         <CartesianGrid />
                         {props.lemmas.map((_, index) =>
                             <Bar
@@ -147,11 +147,17 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 List.map(([x,v]) => v[0].backlink)
             ); // TODO
             const numCats = Math.max(0, ...this.props.data.map(v => v ? v.length : 0));
-            const minHeight = 70 + numCats * (this.props.pixelsPerCategory + this.props.barGap);
+            const barCategoryGap = Math.max(10, 40 - this.props.pixelsPerCategory);
+            const minHeight = 70 + numCats * (this.props.pixelsPerCategory + barCategoryGap);
             return (
                 <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.data.some(v => v && v.find(f => f.freq > 0))}
-                        sourceIdent={pipe(this.props.sources, List.groupBy(v => v.corpname), List.flatMap(([,v]) => v), List.map(v => ({corp: v.corpname})))}
+                        sourceIdent={pipe(
+                            this.props.sources,
+                            List.groupBy(v => v.corpname),
+                            List.flatMap(([,v]) => v),
+                            List.map(v => ({corp: v.corpname})))
+                        }
                         backlink={backlinks}
                         supportsTileReload={this.props.supportsReloadOnError}
                         issueReportingUrl={this.props.issueReportingUrl}>
@@ -160,7 +166,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <div className="MergeCorpFreqBarTile" style={{minHeight: `${minHeight}px`, height: `${height}px`}}>
                             {this.props.isAltViewMode ?
                                 <TableView data={this.props.data} lemmas={this.props.lemmas} /> :
-                                <Chart data={this.props.data} barGap={this.props.barGap} lemmas={this.props.lemmas} isPartial={this.props.isBusy} />
+                                <Chart data={this.props.data} barCategoryGap={barCategoryGap} lemmas={this.props.lemmas} isPartial={this.props.isBusy} />
                             }
                         </div>)}} />
                 </globComponents.TileWrapper>
