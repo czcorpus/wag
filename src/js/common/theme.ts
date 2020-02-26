@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ColorsConf } from '../conf';
+import { ColorTheme } from '../conf';
 import { Dict, Color, pipe } from 'cnc-tskit';
 
 
@@ -37,7 +37,7 @@ export interface ColorScaleFunctionGenerator {
 }
 
 
-const defaultTheme:ColorsConf = {
+const defaultTheme:ColorTheme = {
     themeId: 'default',
     themeLabel: 'Default',
     category: [
@@ -93,7 +93,7 @@ export class Theme {
 
     public readonly geoAreaSpotFillColor:string;
 
-    constructor(conf?:ColorsConf) {
+    constructor(conf?:ColorTheme) {
         const confSrc = conf && Dict.size<any, string>(conf) > 0 ? conf : defaultTheme;
         this.catColors = confSrc.category || [];
         this.cmpCategoryColors = confSrc.cmpCategory || [];

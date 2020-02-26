@@ -43,7 +43,7 @@
             ],
             "type": "object"
         },
-        "ColorsConf": {
+        "ColorTheme": {
             "description": "This specifies a 'theming' for\nJavaScript generated stuff\n(mainly chart colors).",
             "properties": {
                 "category": {
@@ -85,6 +85,24 @@
                 "scale",
                 "themeId",
                 "themeLabel"
+            ],
+            "type": "object"
+        },
+        "ColorsConf": {
+            "properties": {
+                "default": {
+                    "type": "string"
+                },
+                "themes": {
+                    "items": {
+                        "$ref": "#/definitions/ColorTheme"
+                    },
+                    "type": "array"
+                }
+            },
+            "required": [
+                "default",
+                "themes"
             ],
             "type": "object"
         },
@@ -7027,10 +7045,14 @@
             "type": "object"
         },
         "colors": {
-            "items": {
-                "$ref": "#/definitions/ColorsConf"
-            },
-            "type": "array"
+            "anyOf": [
+                {
+                    "$ref": "#/definitions/ColorsConf"
+                },
+                {
+                    "type": "string"
+                }
+            ]
         },
         "corpInfoApiUrl": {
             "type": "string"
@@ -7053,9 +7075,6 @@
                 "type": "object"
             },
             "type": "object"
-        },
-        "defaultColorScheme": {
-            "type": "string"
         },
         "externalStyles": {
             "items": {
@@ -7134,10 +7153,8 @@
     },
     "required": [
         "apiHeaders",
-        "colors",
         "corpInfoApiUrl",
         "dbValuesMapping",
-        "defaultColorScheme",
         "homepage",
         "hostUrl",
         "layouts",
