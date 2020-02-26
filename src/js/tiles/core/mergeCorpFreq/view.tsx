@@ -26,6 +26,7 @@ import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
 import { Theme } from '../../../common/theme';
 import { QueryMatch } from '../../../common/query';
 import { List, pipe } from 'cnc-tskit';
+import { makeShorthandText } from '../../../tools';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:MergeCorpFreqModel):TileComponent {
@@ -125,7 +126,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 name={queries === 1 ? ut.translate('mergeCorpFreq_rel_freq') : `[${index + 1}] ${props.lemmas[index].word}`} />
                         )}
                         <XAxis type="number" label={{value: queries > 1 ? ut.translate('mergeCorpFreq_rel_freq') : null, dy: 15}} />
-                        <YAxis type="category" dataKey="name" width={120} />
+                        <YAxis type="category" dataKey="name" width={120} tickFormatter={(value) => makeShorthandText(value)} />
                         <Legend wrapperStyle={{paddingTop: queries > 1 ? 15 : 0}}/>
                         <Tooltip cursor={false} isAnimationActive={false} />
                     </BarChart>

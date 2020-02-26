@@ -25,6 +25,7 @@ import { GlobalComponents } from '../../../views/global';
 import { ActionName, Actions } from './actions';
 import { FreqComparisonModel, FreqComparisonModelState, MultiWordDataRow } from './model';
 import { pipe, List, Dict, Maths } from 'cnc-tskit';
+import { makeShorthandText } from '../../../tools';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:FreqComparisonModel):TileComponent {
@@ -130,7 +131,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         props.words
                     )};
                     <XAxis type="number" unit="%" ticks={[0, 25, 50, 75, 100]} domain={[0, 100]} interval={0} />
-                    <YAxis type="category" dataKey="name" width={Math.max(60, maxLabelWidth * 8)} interval={0} />
+                    <YAxis type="category" dataKey="name" width={Math.max(60, maxLabelWidth * 8)} interval={0} tickFormatter={(value) => makeShorthandText(value)}/>
                     <Legend />
                     <Tooltip cursor={false} isAnimationActive={false}
                         formatter={(value, name, props) =>

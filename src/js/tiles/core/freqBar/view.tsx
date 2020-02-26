@@ -26,6 +26,7 @@ import { GlobalComponents } from '../../../views/global';
 import { ActionName, Actions } from './actions';
 import { FreqBarModel, FreqBarModelState } from './model';
 import { List } from 'cnc-tskit';
+import { makeShorthandText } from '../../../tools';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:FreqBarModel):TileComponent {
@@ -108,7 +109,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <Bar data={props.data} dataKey="ipm" fill={theme.categoryColor(0)} isAnimationActive={false}
                             name={ut.translate('freqBar__rel_freq')} />
                     <XAxis type="number" />
-                    <YAxis type="category" dataKey="name" width={Math.max(60, maxLabelWidth * 8)} />
+                    <YAxis type="category" dataKey="name" width={Math.max(60, maxLabelWidth * 8)} tickFormatter={(value) => makeShorthandText(value)}/>
                     <Legend />
                     <Tooltip cursor={false} isAnimationActive={false} />
                 </ChartWrapper>
