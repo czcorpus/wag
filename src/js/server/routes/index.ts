@@ -32,11 +32,11 @@ import { mainAction } from './main';
 import { WordDatabase, Services } from '../actionServices';
 import { HTTPAction } from './actions';
 import { TelemetryAction } from '../../common/types';
-import { errorUserConf, emptyClientConf, THEME_COOKIE_NAME } from '../../conf';
+import { errorUserConf, emptyClientConf, THEME_COOKIE_NAME, getThemeList } from '../../conf';
 import { init as viewInit } from '../../views/layout';
 import { init as errPageInit } from '../../views/error';
 import { emptyValue } from '../toolbar/empty';
-import { HTTP } from 'cnc-tskit';
+import { HTTP, List } from 'cnc-tskit';
 
 
 export const wdgRouter = (services:Services) => (app:Express) => {
@@ -293,6 +293,8 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         const [viewUtils,] = createHelperServices(services, uiLang);
         const error:[number, string] = [HTTP.Status.NotFound, viewUtils.translate('global__action_not_found')];
         const userConf = errorUserConf(services.serverConf.languages, error, uiLang);
+        const clientConfig = emptyClientConf(services.clientConf, req.cookies[THEME_COOKIE_NAME]);
+        clientConfig.colorThemes = [];
         const view = viewInit(viewUtils, [], req.headers.referer);
         const errView = errPageInit(viewUtils);
         res
@@ -303,7 +305,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                 toolbarData: emptyValue(),
                 lemmas: [],
                 userConfig: userConf,
-                clientConfig: emptyClientConf(services.clientConf, req.cookies[THEME_COOKIE_NAME]),
+                clientConfig: clientConfig,
                 returnUrl: mkReturnUrl(req, services.clientConf.rootUrl),
                 rootView: errView,
                 layout: [],

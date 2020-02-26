@@ -35,7 +35,7 @@ import { loadFile } from '../files';
 import { createRootComponent } from '../../app';
 import { ActionName } from '../../models/actions';
 import { DummyCache } from '../../cacheDb';
-import { Dict, pipe, HTTP } from 'cnc-tskit';
+import { Dict, pipe, HTTP, List } from 'cnc-tskit';
 import { getLangFromCookie, fetchReqArgArray, createHelperServices, mkReturnUrl, logRequest, renderResult } from './common';
 
 
@@ -64,7 +64,14 @@ function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, themeId:string,
             onLoadInit: conf.onLoadInit,
             dbValuesMapping: conf.dbValuesMapping,
             colors: getAppliedThemeConf(conf, themeId),
-            colorThemes: getThemeList(conf),
+            colorThemes: List.map(
+                v => ({
+                    themeId: v.themeId,
+                    themeLabel: appServices.importExternalMessage(v.themeLabel),
+                    description: appServices.importExternalMessage(v.description)
+                }),
+                getThemeList(conf)
+            ),
             tiles: typeof conf.tiles === 'string' ?
                 {} : // this should not happen at runtime (string has been already used as uri to load a nested conf)
                 pipe(
