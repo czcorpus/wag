@@ -35,7 +35,7 @@ require('./style.less');
 
 export interface MergeCorpFreqTileConf extends TileConf {
     apiURL:string;
-    pixelsPerItem?:number;
+    pixelsPerCategory?:number;
     sources:Array<{
 
         corpname:string;
@@ -128,8 +128,8 @@ export class MergeCorpFreqTile implements ITileProvider {
                     backlink: null,
                     isSingleCategory: !!src.isSingleCategory
                 })),
-                pixelsPerItem: conf.pixelsPerItem ? conf.pixelsPerItem : 30,
-                barGap: Math.max(10, 40 - conf.pixelsPerItem),
+                pixelsPerCategory: conf.pixelsPerCategory ? conf.pixelsPerCategory : 30,
+                barGap: Math.max(10, 40 - conf.pixelsPerCategory),
                 lemmas: lemmas.map(lemma => findCurrQueryMatch(lemma))
             }
         );

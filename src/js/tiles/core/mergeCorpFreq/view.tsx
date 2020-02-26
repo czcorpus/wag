@@ -114,7 +114,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         return (
             <div className="Chart" style={{height: '100%'}}>
                 <ResponsiveContainer width="90%" height="100%">
-                    <BarChart data={transformedData} layout="vertical" barCategoryGap={props.barGap}>
+                    <BarChart data={transformedData} layout="vertical">
                         <CartesianGrid />
                         {props.lemmas.map((_, index) =>
                             <Bar
@@ -147,7 +147,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 List.map(([x,v]) => v[0].backlink)
             ); // TODO
             const numCats = Math.max(0, ...this.props.data.map(v => v ? v.length : 0));
-            const minHeight = 70 + numCats * this.props.data.length * this.props.pixelsPerItem;
+            const minHeight = 70 + numCats * (this.props.pixelsPerCategory + this.props.barGap);
             return (
                 <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.data.some(v => v && v.find(f => f.freq > 0))}
