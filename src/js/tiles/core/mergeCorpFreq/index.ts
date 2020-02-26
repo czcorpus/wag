@@ -129,7 +129,6 @@ export class MergeCorpFreqTile implements ITileProvider {
                     isSingleCategory: !!src.isSingleCategory
                 })),
                 pixelsPerCategory: conf.pixelsPerCategory ? conf.pixelsPerCategory : 30,
-                barGap: Math.max(10, 40 - conf.pixelsPerCategory),
                 lemmas: lemmas.map(lemma => findCurrQueryMatch(lemma))
             }
         );

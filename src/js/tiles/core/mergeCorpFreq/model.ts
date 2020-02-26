@@ -40,7 +40,6 @@ export interface MergeCorpFreqModelState {
     data:Array<Array<SourceMappedDataRow>>;
     sources:Array<ModelSourceArgs>;
     pixelsPerCategory:number;
-    barGap:number;
     lemmas:Array<QueryMatch>;
 }
 
