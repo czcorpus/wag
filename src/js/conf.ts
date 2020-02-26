@@ -60,7 +60,8 @@ export function errorUserConf(uiLanguages:{[code:string]:string}, error:[number,
 
 export interface ColorThemeIdent {
     themeId:string;
-    themeLabel:string;
+    themeLabel:LocalizedConfMsg;
+    description?:LocalizedConfMsg;
 }
 
 /**
@@ -235,8 +236,17 @@ export function getAppliedThemeConf(conf:ClientStaticConf, themeId:string|undefi
 export function getThemeList(conf:ClientStaticConf):Array<ColorThemeIdent> {
     return pipe(
         typeof conf.colors === 'string' ? [] : conf.colors.themes,
-        List.map(v => ({themeId: v.themeId, themeLabel: v.themeLabel ? v.themeLabel : v.themeId})),
-        List.concat([{themeId: THEME_DEFAULT_NAME, themeLabel: THEME_DEFAULT_LABEL}]),
+        List.map(v => ({
+            themeId: v.themeId,
+            themeLabel: v.themeLabel ? v.themeLabel : v.themeId,
+            description: v.description
+        })),
+        List.concat<ColorThemeIdent>([
+            {
+                themeId: THEME_DEFAULT_NAME,
+                themeLabel: THEME_DEFAULT_LABEL
+            }
+        ]),
     );
 }
 

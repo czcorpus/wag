@@ -1,0 +1,67 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "definitions": {
+        "ColorTheme": {
+            "description": "This specifies a 'theming' for\nJavaScript generated stuff\n(mainly chart colors).",
+            "properties": {
+                "category": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "categoryOther": {
+                    "type": "string"
+                },
+                "cmpCategory": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "geoAreaSpotFillColor": {
+                    "type": "string"
+                },
+                "scale": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "themeId": {
+                    "type": "string"
+                },
+                "themeLabel": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "category",
+                "categoryOther",
+                "cmpCategory",
+                "geoAreaSpotFillColor",
+                "scale",
+                "themeId",
+                "themeLabel"
+            ],
+            "type": "object"
+        }
+    },
+    "properties": {
+        "default": {
+            "type": "string"
+        },
+        "themes": {
+            "items": {
+                "$ref": "#/definitions/ColorTheme"
+            },
+            "type": "array"
+        }
+    },
+    "required": [
+        "default",
+        "themes"
+    ],
+    "type": "object"
+}
+

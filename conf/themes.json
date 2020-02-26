@@ -1,0 +1,83 @@
+{
+    "default": "devel2",
+    "themes": [
+        {
+            "themeId": "devel1",
+            "themeLabel": "Devel 1",
+            "cmpCategory": [
+                "#009ee0",
+                "#6692eb",
+                "#a87fe1",
+                "#db66c1",
+                "#fa5090",
+                "#ff5056",
+                "#ea670c"
+            ],
+            "category": [
+                "#60CFFF",
+                "#94A3FF",
+                "#FFDC84",
+                "#FFB058",
+                "#53a82c",
+                "#8ADCFF",
+                "#C1C9FF",
+                "#FFEBB8",
+                "#FFC584"
+            ],
+            "categoryOther": "#494949",
+            "scale": [
+                "#60CFFF",
+                "#8ADCFF",
+                "#94A3FF",
+                "#C1C9FF",
+                "#FFDC84",
+                "#FFEBB8",
+                "#FFB058",
+                "#FFC584",
+                "#FFC584",
+                "#FFC584",
+                "#FFC584"
+            ],
+            "geoAreaSpotFillColor": "#E2007A"
+        },
+        {
+            "themeId": "devel2",
+            "themeLabel": "Devel 2",
+            "cmpCategory": [
+                "#F4917C",
+                "#EF8FA7",
+                "#C79DCD",
+                "#81B0DA",
+                "#32BCC2",
+                "#41C090",
+                "#84BA57"
+            ],
+            "category": [
+                "#60CFFF",
+                "#94A3FF",
+                "#FFDC84",
+                "#FFB058",
+                "#53a82c",
+                "#8ADCFF",
+                "#C1C9FF",
+                "#FFEBB8",
+                "#FFC584"
+           ],
+           "categoryOther": "#494949",
+           "scale": [
+                "#60CFFF",
+                "#8ADCFF",
+                "#94A3FF",
+                "#C1C9FF",
+                "#FFDC84",
+                "#FFEBB8",
+                "#FFB058",
+                "#FFC584",
+                "#FFC584",
+                "#FFC584",
+                "#FFC584"
+           ],
+           "geoAreaSpotFillColor": "#E2007A"
+        }
+    ]
+}
