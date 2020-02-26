@@ -238,7 +238,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 key={`${word}Values`}
                                 dataKey={keyFn1(index)}
                                 name={ut.translate('multiWordTimeDistrib__estimated_trend_for_{word}', {word: word})}
-                                stroke={this.props.isPartial ? '#dddddd' : theme.categoryColor(index)}
+                                stroke={this.props.isPartial ? '#dddddd' : theme.cmpCategoryColor(index)}
                                 fill={'rgba(0,0,0,0)'}  // transparent fill - only line
                                 strokeWidth={2}
                                 isAnimationActive={false}

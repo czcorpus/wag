@@ -348,12 +348,16 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <tbody>
                         {props.values === null ?
                             <tr><td>{ut.translate('multi_word_geolocations__not_enough_data')}</td></tr> :
-                            Object.entries(props.values || {}).map(([label, value], index) =>
-                                value === undefined ?
-                                null :
-                                <tr key={label} style={{color: theme.categoryColor(index)}}>
-                                    <td>{label} : {value}</td>
-                                </tr>
+                            pipe(
+                                props.values || {},
+                                Dict.toEntries(),
+                                List.map(([label, value], index) =>
+                                    value === undefined ?
+                                        null :
+                                        <tr key={label} style={{color: theme.cmpCategoryColor(index)}}>
+                                            <td>{label} : {value}</td>
+                                        </tr>
+                                )
                             )
                         }
                     </tbody>
@@ -397,7 +401,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 <div className="legend">
                                     {this.props.currentLemmas.map((lemma, index) =>
                                         <span key={`legend${index}`} style={{margin: '0 0.5em'}}>
-                                            <div className="legendColorBlock" style={{backgroundColor: theme.categoryColor(index)}} />
+                                            <div className="legendColorBlock" style={{backgroundColor: theme.cmpCategoryColor(index)}} />
                                             {`[${index + 1}] ${lemma.word}`}
                                         </span>
                                     )}
