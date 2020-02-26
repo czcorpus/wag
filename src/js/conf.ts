@@ -58,7 +58,7 @@ export function errorUserConf(uiLanguages:{[code:string]:string}, error:[number,
     };
 }
 
-export interface ColorThemeDesc {
+export interface ColorThemeIdent {
     themeId:string;
     themeLabel:string;
 }
@@ -68,12 +68,17 @@ export interface ColorThemeDesc {
  * JavaScript generated stuff
  * (mainly chart colors).
  */
-export interface ColorsConf extends ColorThemeDesc {
+export interface ColorTheme extends ColorThemeIdent {
     category:Array<string>;
     categoryOther:string;
     cmpCategory:Array<string>;
     scale:Array<string>;
     geoAreaSpotFillColor:string;
+}
+
+export interface ColorsConf {
+    themes:Array<ColorTheme>;
+    default:string;
 }
 
 
@@ -141,8 +146,7 @@ export interface ClientStaticConf {
     onLoadInit?:Array<string>;
     issueReportingUrl?:string;
     homepage:HomepageConf;
-    colors:Array<ColorsConf>;
-    defaultColorScheme:string;
+    colors?:ColorsConf|string;
     searchLanguages:{[code:string]:string};
 
     // A list of URLs used to style specific content (e.g. HTML tiles)
@@ -181,8 +185,8 @@ export interface ClientConf {
 	corpInfoApiUrl:string;
     dbValuesMapping:DbValueMapping;
     logo:LogoConf|null;
-    colors:ColorsConf;
-    colorThemes:Array<ColorThemeDesc>;
+    colors:ColorTheme;
+    colorThemes:Array<ColorThemeIdent>;
     reqCacheTTL:number;
     onLoadInit:Array<string>;
     apiHeaders:{[urlPrefix:string]:HTTPHeaders};
@@ -214,8 +218,29 @@ export function emptyLayoutConf():LayoutsConfig {
     };
 }
 
+export function getAppliedThemeConf(conf:ClientStaticConf, themeId:string|undefined):ColorTheme|undefined {
+    let ans:ColorTheme;
+    const colors = conf.colors;
+    if (typeof colors === 'object') {
+        if (themeId) {
+            ans = List.find(t => t.themeId === themeId, colors.themes);
+        }
+        if (!ans) {
+            ans = List.find(t => t.themeId === colors.default, colors.themes);
+        }
+    }
+    return ans;
+}
+
+export function getThemeList(conf:ClientStaticConf):Array<ColorThemeIdent> {
+    return pipe(
+        typeof conf.colors === 'string' ? [] : conf.colors.themes,
+        List.map(v => ({themeId: v.themeId, themeLabel: v.themeLabel ? v.themeLabel : v.themeId})),
+        List.concat([{themeId: THEME_DEFAULT_NAME, themeLabel: THEME_DEFAULT_LABEL}]),
+    );
+}
+
 export function emptyClientConf(conf:ClientStaticConf, themeId:string|undefined):ClientConf {
-    const themeIdApplied = themeId ? themeId : conf.defaultColorScheme;
     return {
         rootUrl: conf.rootUrl,
         hostUrl: conf.hostUrl,
@@ -226,12 +251,8 @@ export function emptyClientConf(conf:ClientStaticConf, themeId:string|undefined)
         dbValuesMapping: conf.dbValuesMapping,
         reqCacheTTL: conf.reqCacheTTL,
         onLoadInit: conf.onLoadInit || [],
-        colors: List.find(v => v.themeId === themeIdApplied, conf.colors || []),
-        colorThemes: pipe(
-            conf.colors,
-            List.map(v => ({themeId: v.themeId, themeLabel: v.themeLabel ? v.themeLabel : v.themeId})),
-            List.concat([{themeId: THEME_DEFAULT_NAME, themeLabel: THEME_DEFAULT_LABEL}]),
-        ),
+        colors: getAppliedThemeConf(conf, themeId),
+        colorThemes: getThemeList(conf),
         tiles: {},
         layouts: emptyLayoutConf(),
         homepage: {

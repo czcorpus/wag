@@ -22,7 +22,7 @@ import { resolve as urlResolve } from 'url';
 
 import { HostPageEnv, AvailableLanguage } from '../common/hostPage';
 import { RecognizedQueries } from '../common/query';
-import { ClientConf, UserConf, ColorThemeDesc } from '../conf';
+import { ClientConf, UserConf, ColorThemeIdent } from '../conf';
 import { TileGroup } from '../layout';
 import { GlobalComponents } from './global';
 import { WdglanceMainProps } from './main';
@@ -49,7 +49,7 @@ export interface LayoutProps {
 }
 
 
-export function init(ut:ViewUtils<GlobalComponents>, themes:Array<ColorThemeDesc>, currUrl:string):React.SFC<LayoutProps> {
+export function init(ut:ViewUtils<GlobalComponents>, themes:Array<ColorThemeIdent>, currUrl:string):React.SFC<LayoutProps> {
 
     const Layout:React.SFC<LayoutProps> = (props) => {
 

@@ -68,6 +68,9 @@ if (typeof clientConf.layouts === 'string') {
 if (typeof clientConf.tiles === 'string') {
 	clientConf.tiles = parseJsonConfig(clientConf.tiles);
 }
+if (typeof clientConf.colors === 'string') {
+    clientConf.colors = parseJsonConfig(clientConf.colors);
+}
 
 const db:WordDatabases = new WordDatabases(serverConf.freqDB);
 

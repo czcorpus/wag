@@ -24,7 +24,7 @@ import { concatMap, map, catchError, reduce } from 'rxjs/operators';
 import { AppServices } from '../../appServices';
 import { QueryType, QueryMatch, QueryPoS, matchesPos, findMergeableLemmas, importQueryTypeString } from '../../common/query';
 import { UserConf, ClientStaticConf, ClientConf, emptyClientConf, getSupportedQueryTypes, emptyLayoutConf, errorUserConf,
-    getQueryTypeFreqDb, DEFAULT_WAIT_FOR_OTHER_TILES, THEME_DEFAULT_LABEL, THEME_COOKIE_NAME, THEME_DEFAULT_NAME } from '../../conf';
+    getQueryTypeFreqDb, DEFAULT_WAIT_FOR_OTHER_TILES, THEME_COOKIE_NAME, getThemeList, getAppliedThemeConf } from '../../conf';
 import { init as viewInit } from '../../views/layout';
 import { init as errPageInit } from '../../views/error';
 import { ServerSideActionDispatcher } from '../core';
@@ -35,12 +35,11 @@ import { loadFile } from '../files';
 import { createRootComponent } from '../../app';
 import { ActionName } from '../../models/actions';
 import { DummyCache } from '../../cacheDb';
-import { Dict, pipe, HTTP, List } from 'cnc-tskit';
+import { Dict, pipe, HTTP } from 'cnc-tskit';
 import { getLangFromCookie, fetchReqArgArray, createHelperServices, mkReturnUrl, logRequest, renderResult } from './common';
 
 
 function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, themeId:string, appServices:AppServices):Observable<ClientConf> {
-    const themeIdApplied = themeId ? themeId : conf.defaultColorScheme;
     return forkJoin(...conf.homepage.tiles.map(item =>
         appServices.importExternalText(
             item.contents,
@@ -64,12 +63,8 @@ function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, themeId:string,
             reqCacheTTL: conf.reqCacheTTL,
             onLoadInit: conf.onLoadInit,
             dbValuesMapping: conf.dbValuesMapping,
-            colors: List.find(v => v.themeId === themeIdApplied, conf.colors || []),
-            colorThemes: pipe(
-                conf.colors,
-                List.map(v => ({themeId: v.themeId, themeLabel: v.themeLabel ? v.themeLabel : v.themeId})),
-                List.concat([{themeId: THEME_DEFAULT_NAME, themeLabel: THEME_DEFAULT_LABEL}]),
-            ),
+            colors: getAppliedThemeConf(conf, themeId),
+            colorThemes: getThemeList(conf),
             tiles: typeof conf.tiles === 'string' ?
                 {} : // this should not happen at runtime (string has been already used as uri to load a nested conf)
                 pipe(
