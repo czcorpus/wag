@@ -72,6 +72,8 @@ if (typeof clientConf.colors === 'string') {
     clientConf.colors = parseJsonConfig(clientConf.colors);
 }
 
+const pkgInfo = parseJsonConfig<{version:string, repository:{url:string}}>(path.resolve(__dirname, '../package.json'));
+
 const db:WordDatabases = new WordDatabases(serverConf.freqDB);
 
 const toolbar = createToolbarInstance(serverConf.toolbar);
@@ -111,7 +113,9 @@ wdgRouter({
     logging: serverConf.logQueue ?
             new RedisLogQueue(serverConf.logQueue) :
             new NullLogQueue(),
-    errorLog: logger
+    errorLog: logger,
+    version: pkgInfo.version,
+    repositoryUrl: pkgInfo.repository.url
 })(app);
 
 const server = app.listen(serverConf.port, serverConf.address, () => {

@@ -330,31 +330,53 @@ table.data {
 footer {
     font-size: 0.9em;
     text-align: center;
+    margin-top: 1.5em;
 
-    p {
-        margin-bottom: 0;
+    .separ {
+        display: inline-block;
+        margin: 0 0.7em;
+        color: @color-default-text;
     }
 
-    .copy {
-        padding-left: 0.7em;
+    section.copy-etc {
+        color: @color-light-text;
+
+        a {
+            color: @color-light-text;
+        }
     }
 
-    img.logo {
-        width: 3.1em;
+    section:not(:last-child) {
+        margin-bottom: 0.7em;
     }
 
+    section {
+
+        p {
+            margin-bottom: 0;
+        }
+
+        img.logo {
+            width: 3.1em;
+            margin-right: 0.7em;
+        }
+    }
 }
 
-.color-theme-sel {
-    display: inline;
+.ThemeSelection {
+    display: block;
 
     button {
         display: inline-block;
         border: none;
         background: none;
         cursor: pointer;
-        margin: 0 0.2em;
+        margin: 0 0.1em;
         padding: 0;
         font-size: 1em;
+    }
+
+    button.current {
+        text-decoration: underline;
     }
 }

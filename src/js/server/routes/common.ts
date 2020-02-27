@@ -20,7 +20,7 @@ import * as React from 'react';
 
 import { ILogQueue } from '../logging/abstract';
 import { HTTPAction } from './actions';
-import { UserConf, ClientConf } from '../../conf';
+import { UserConf, ClientConf, ColorThemeIdent } from '../../conf';
 import { Observable } from 'rxjs';
 import { Request } from 'express';
 import { encodeArgs } from '../../common/ajax';
@@ -136,37 +136,61 @@ interface RenderResultArgs {
     userConfig:UserConf;
     clientConfig:ClientConf;
     returnUrl:string;
+    themes:Array<ColorThemeIdent>;
+    currTheme:string;
     rootView:React.ComponentType<WdglanceMainProps|ErrPageProps>;
     homepageSections:Array<{label:string; html:string}>;
     layout:Array<TileGroup>;
     isMobile:boolean;
     isAnswerMode:boolean;
+    version:string;
+    repositoryUrl:string;
     error?:[number, string];
 }
 
 
-export function renderResult({view, toolbarData, lemmas, userConfig, clientConfig, returnUrl,
-    rootView, layout, isMobile, isAnswerMode, homepageSections, error}:RenderResultArgs):string {
-const appString = renderToString(
-    React.createElement<LayoutProps>(
+export function renderResult({
         view,
-        {
-            config: clientConfig,
-            userConfig: userConfig,
-            hostPageEnv: toolbarData,
-            lemmas: lemmas,
-            uiLanguages: pipe(userConfig.uiLanguages, Dict.mapEntries(v => v), List.map(([k, v]) => ({code: k, label: v}))),
-            uiLang: userConfig.uiLang,
-            returnUrl: returnUrl,
-            homepageTiles: [...clientConfig.homepage.tiles],
-            RootComponent: rootView,
-            layout: layout,
-            homepageSections: homepageSections,
-            isMobile: isMobile,
-            isAnswerMode: isAnswerMode,
-            error: error
-        }
-    )
-);
-return `<!DOCTYPE html>\n${appString}`;
+        toolbarData,
+        lemmas,
+        userConfig,
+        clientConfig,
+        returnUrl,
+        currTheme,
+        themes,
+        rootView,
+        layout,
+        isMobile,
+        isAnswerMode,
+        homepageSections,
+        version,
+        repositoryUrl,
+        error}:RenderResultArgs):string {
+
+    const appString = renderToString(
+        React.createElement<LayoutProps>(
+            view,
+            {
+                config: clientConfig,
+                userConfig,
+                hostPageEnv: toolbarData,
+                lemmas: lemmas,
+                uiLanguages: pipe(userConfig.uiLanguages, Dict.mapEntries(v => v), List.map(([k, v]) => ({code: k, label: v}))),
+                uiLang: userConfig.uiLang,
+                returnUrl,
+                currTheme,
+                themes,
+                homepageTiles: [...clientConfig.homepage.tiles],
+                RootComponent: rootView,
+                layout,
+                homepageSections,
+                isMobile,
+                isAnswerMode,
+                version,
+                repositoryUrl,
+                error
+            }
+        )
+    );
+    return `<!DOCTYPE html>\n${appString}`;
 }
