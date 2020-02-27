@@ -135,7 +135,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             <div className="tweak-box"><Controls tileId={this.props.tileId} value={this.props.srchRangeType} /></div> :
                         null
                     }
-                    <div className="boxes">
+                    <div className="boxes" style={{flexWrap: this.props.isMobile ? 'wrap' : 'nowrap'}}>
                         {this.props.data.map((data, index) => this.props.isAltViewMode ?
                             <TableView key={index} heading={this.props.heading} data={data} caption={this.props.data.length > 1 ? this.props.queryMatches[index].word : null} /> :
                             data ?
