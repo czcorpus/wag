@@ -119,7 +119,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         isMobile:boolean;
     }> = (props) => {
         const processedData = processData(props.data, props.words);
-        const maxLabelWidth = List.maxItem(v => v.name.length, processedData).name.length;
+        const maxLabelLength = (List.maxItem(
+            v => v.length,
+            props.isMobile ? processedData.reduce((acc, curr) => acc.concat(makeShorthandText(curr.name).split(' ')), []) : processedData.map(v => v.name)
+        ) as string).length;
         const dataKeyFn = (word:string) => (item:FreqItemProps) => item.data[word].main;
         return (
             <div className="Chart">
@@ -131,7 +134,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         props.words
                     )};
                     <XAxis type="number" unit="%" ticks={[0, 25, 50, 75, 100]} domain={[0, 100]} interval={0} />
-                    <YAxis type="category" dataKey="name" width={Math.max(60, maxLabelWidth * 8)} interval={0} tickFormatter={(value) => makeShorthandText(value)}/>
+                    <YAxis type="category" dataKey="name" width={Math.max(60, maxLabelLength * 7)} interval={0} tickFormatter={value => props.isMobile ? makeShorthandText(value) : value}/>
                     <Legend />
                     <Tooltip cursor={false} isAnimationActive={false}
                         formatter={(value, name, props) =>

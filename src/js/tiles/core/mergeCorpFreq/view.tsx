@@ -109,12 +109,17 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         barCategoryGap:number;
         lemmas:Array<QueryMatch>;
         isPartial:boolean;
+        isMobile:boolean;
     }> = (props) => {
         const queries = props.lemmas.length;
         const transformedData = transformData(props.data, props.lemmas);
+        const maxLabelLength = (List.maxItem(
+            v => v.length,
+            props.isMobile ? transformedData.reduce((acc, curr) => acc.concat(makeShorthandText(curr.name).split(' ')), []) : transformedData.map(v => v.name)
+        ) as string).length;
         return (
             <div className="Chart" style={{height: '100%'}}>
-                <ResponsiveContainer width="90%" height="100%">
+                <ResponsiveContainer width={props.isMobile ? "100%" : "90%"} height="100%">
                     <BarChart data={transformedData} layout="vertical" barCategoryGap={props.barCategoryGap}>
                         <CartesianGrid />
                         {props.lemmas.map((_, index) =>
@@ -126,7 +131,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 name={queries === 1 ? ut.translate('mergeCorpFreq_rel_freq') : `[${index + 1}] ${props.lemmas[index].word}`} />
                         )}
                         <XAxis type="number" label={{value: queries > 1 ? ut.translate('mergeCorpFreq_rel_freq') : null, dy: 15}} />
-                        <YAxis type="category" dataKey="name" width={120} tickFormatter={(value) => makeShorthandText(value)} />
+                        <YAxis type="category" dataKey="name" width={Math.max(60, maxLabelLength * 7)} tickFormatter={value => props.isMobile ? makeShorthandText(value) : value} />
                         <Legend wrapperStyle={{paddingTop: queries > 1 ? 15 : 0}}/>
                         <Tooltip cursor={false} isAnimationActive={false} />
                     </BarChart>
@@ -167,7 +172,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <div className="MergeCorpFreqBarTile" style={{minHeight: `${minHeight}px`, height: `${height}px`}}>
                             {this.props.isAltViewMode ?
                                 <TableView data={this.props.data} lemmas={this.props.lemmas} /> :
-                                <Chart data={this.props.data} barCategoryGap={barCategoryGap} lemmas={this.props.lemmas} isPartial={this.props.isBusy} />
+                                <Chart data={this.props.data} barCategoryGap={barCategoryGap} lemmas={this.props.lemmas} isPartial={this.props.isBusy} isMobile={this.props.isMobile} />
                             }
                         </div>)}} />
                 </globComponents.TileWrapper>
