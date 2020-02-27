@@ -219,7 +219,7 @@ export function emptyLayoutConf():LayoutsConfig {
     };
 }
 
-export function getAppliedThemeConf(conf:ClientStaticConf, themeId:string|undefined):ColorTheme|undefined {
+export function getAppliedThemeConf(conf:ClientStaticConf, themeId?:string):ColorTheme|undefined {
     let ans:ColorTheme;
     const colors = conf.colors;
     if (typeof colors === 'object') {

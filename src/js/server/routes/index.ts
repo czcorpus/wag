@@ -32,11 +32,11 @@ import { mainAction } from './main';
 import { WordDatabase, Services } from '../actionServices';
 import { HTTPAction } from './actions';
 import { TelemetryAction } from '../../common/types';
-import { errorUserConf, emptyClientConf, THEME_COOKIE_NAME, getThemeList } from '../../conf';
+import { errorUserConf, emptyClientConf, THEME_COOKIE_NAME } from '../../conf';
 import { init as viewInit } from '../../views/layout';
 import { init as errPageInit } from '../../views/error';
 import { emptyValue } from '../toolbar/empty';
-import { HTTP, List } from 'cnc-tskit';
+import { HTTP } from 'cnc-tskit';
 
 
 export const wdgRouter = (services:Services) => (app:Express) => {
@@ -295,15 +295,17 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         const userConf = errorUserConf(services.serverConf.languages, error, uiLang);
         const clientConfig = emptyClientConf(services.clientConf, req.cookies[THEME_COOKIE_NAME]);
         clientConfig.colorThemes = [];
-        const view = viewInit(viewUtils, [], req.headers.referer);
+        const view = viewInit(viewUtils);
         const errView = errPageInit(viewUtils);
         res
             .status(HTTP.Status.NotFound)
             .send(renderResult({
-                view: view,
+                view,
                 services: services,
                 toolbarData: emptyValue(),
                 lemmas: [],
+                themes: [],
+                currTheme: clientConfig.colors.themeId,
                 userConfig: userConf,
                 clientConfig: clientConfig,
                 returnUrl: mkReturnUrl(req, services.clientConf.rootUrl),
@@ -312,6 +314,8 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                 homepageSections: [],
                 isMobile: false, // TODO should we detect the mode on server too
                 isAnswerMode: false,
+                version: services.version,
+                repositoryUrl: services.repositoryUrl,
                 error: [HTTP.Status.NotFound, viewUtils.translate('global__action_not_found')]
             }));
     });

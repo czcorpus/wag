@@ -148,18 +148,22 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // ------------------ <QueryInput /> ------------------------------
 
     const QueryInput:React.SFC<{
+        idx:number;
         value:Forms.Input;
         wantsFocus:boolean;
+        allowRemoval:boolean;
         onContentChange:(s:string)=>void;
         onEnter:()=>void;
     }> = (props) => {
 
         const ref = React.useRef(null);
+
         React.useEffect(() => {
             if (ref.current !== null && props.wantsFocus) {
                 ref.current.focus();
             }
         }, []);
+
 
         const handleInput = (evt:React.ChangeEvent<HTMLInputElement>) => {
             props.onContentChange(evt.target.value);
@@ -173,10 +177,15 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             }
         };
 
-        return <input type="text" ref={ref} className={`QueryInput${props.value.isValid ? '' : ' invalid'}`}
-                aria-label={ut.translate('global__aria_searched_word')}
-                onChange={handleInput} value={props.value.value}
-                onKeyDown={handleKeyDown} />;
+        return (
+            <>
+                <input type="text" ref={ref} className={`QueryInput${props.value.isValid ? '' : ' invalid'}`}
+                    aria-label={ut.translate('global__aria_searched_word')}
+                    onChange={handleInput} value={props.value.value}
+                    onKeyDown={handleKeyDown} />
+                {props.allowRemoval ? <RemoveCmpQueryField queryIdx={props.idx} /> : null }
+            </>
+        );
     }
 
     // ------------------ <SubmitButton /> ------------------------------
@@ -234,11 +243,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         };
 
         return (
-            <div className="AddCmpQueryField">
+            <li className="AddCmpQueryField">
                 <button type="button" onClick={handleClick} title={ut.translate('global__add_query_field')}>
                     <globalComponents.ImageWithMouseover file={'plus-icon.svg'} alt="plus symbol" />
                 </button>
-            </div>
+            </li>
         );
     }
 
@@ -314,8 +323,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <QueryLangSelector value={props.queryLanguage} searchLanguages={props.searchLanguages}
                                 onChange={handleTargetLanguageChange(true)} queryType={QueryType.SINGLE_QUERY} />
                         <span className="input-row">
-                            <QueryInput value={props.queries[0]} onEnter={props.onEnterKey}
-                                    onContentChange={handleQueryInput(0)} wantsFocus={props.wantsFocus} />
+                            <QueryInput idx={0} value={props.queries[0]} onEnter={props.onEnterKey}
+                                    onContentChange={handleQueryInput(0)} wantsFocus={props.wantsFocus}
+                                    allowRemoval={false} />
                         </span>
                     </>
                 );
@@ -324,17 +334,16 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <>
                         <QueryLangSelector value={props.queryLanguage} searchLanguages={props.searchLanguages}
                                 onChange={handleTargetLanguageChange(true)} queryType={QueryType.CMP_QUERY} />
-                        <div className="input-group">
+                        <ul className="input-group">
                             {props.queries.map((query, queryIdx) => (
-                                <span className="input-row" key={`query:${queryIdx}`}>
-                                    <QueryInput value={query} onEnter={props.onEnterKey}
-                                        onContentChange={handleQueryInput(queryIdx)} wantsFocus={props.wantsFocus && query.value === ''} />
-                                    {queryIdx > 0 && props.queries.length > 2 ? <RemoveCmpQueryField queryIdx={queryIdx} /> : null}
-                                    <br />
-                                </span>
+                                <li className="input-row" key={`query:${queryIdx}`}>
+                                    <QueryInput idx={queryIdx} value={query} onEnter={props.onEnterKey}
+                                        onContentChange={handleQueryInput(queryIdx)} wantsFocus={props.wantsFocus && query.value === ''}
+                                        allowRemoval={true} />
+                                </li>
                             ))}
                             {props.queries.length < props.maxCmpQueries ? <AddCmpQueryField /> : null}
-                        </div>
+                        </ul>
                     </>
                 );
             case QueryType.TRANSLAT_QUERY:
@@ -347,8 +356,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 htmlClass="secondary"
                                 onChange={handleTargetLanguageChange(false)} queryType={QueryType.TRANSLAT_QUERY} />
                         <span className="input-row">
-                            <QueryInput value={props.queries[0]} onEnter={props.onEnterKey}
-                                    onContentChange={handleQueryInput(0)} wantsFocus={props.wantsFocus} />
+                            <QueryInput idx={0} value={props.queries[0]} onEnter={props.onEnterKey}
+                                    onContentChange={handleQueryInput(0)} wantsFocus={props.wantsFocus}
+                                    allowRemoval={false} />
                         </span>
                     </>
                 );

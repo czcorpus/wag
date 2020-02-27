@@ -73,6 +73,8 @@ export class WordDatabases {
 }
 
 export interface Services {
+    version:string;
+    repositoryUrl:string;
     serverConf:ServerConf;
     clientConf:ClientStaticConf;
     db:WordDatabases;

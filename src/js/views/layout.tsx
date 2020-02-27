@@ -40,16 +40,46 @@ export interface LayoutProps {
     homepageTiles:Array<{label:string; html:string}>;
     uiLang:string;
     returnUrl:string;
+    themes:Array<ColorThemeIdent>;
+    currTheme:string;
     RootComponent:React.ComponentType<WdglanceMainProps|ErrPageProps>;
     layout:Array<TileGroup>;
     homepageSections:Array<{label:string; html:string}>;
     isMobile:boolean;
     isAnswerMode:boolean;
     error:[number, string];
+    version:string;
+    repositoryUrl:string;
 }
 
 
-export function init(ut:ViewUtils<GlobalComponents>, themes:Array<ColorThemeIdent>, currUrl:string):React.SFC<LayoutProps> {
+export function init(ut:ViewUtils<GlobalComponents>):React.SFC<LayoutProps> {
+
+    // -------- <ThemeSelection /> -----------------------------
+
+    const ThemeSelection:React.SFC<{
+        themes:Array<ColorThemeIdent>;
+        currTheme:string;
+        returnUrl:string;
+
+    }> = (props) => {
+        return (
+            <form className="ThemeSelection" method="post" action={ut.createActionUrl('set-theme')}>
+                <input type="hidden" name="returnUrl" value={props.returnUrl} />
+                <span>{ut.translate('global__color_themes')}:{'\u00a0'}
+                {List.map((v, i) => (
+                    <React.Fragment key={`theme:${v.themeId}`}>
+                        {i > 0 ? ', ' : ''}
+                        <button type="submit"  name="themeId" value={v.themeId}
+                                className={v.themeId === props.currTheme ? 'current' : null}>{v.themeLabel}</button>
+                    </React.Fragment>
+                ), props.themes)}
+                </span>
+            </form>
+        );
+    }
+
+    // -------- <Layout /> -----------------------------
 
     const Layout:React.SFC<LayoutProps> = (props) => {
 
@@ -105,25 +135,20 @@ export function init(ut:ViewUtils<GlobalComponents>, themes:Array<ColorThemeIden
                     <script type="text/javascript" src={`${urlResolve(props.config.hostUrl, 'dist/index.js')}`}></script>
                     <script type="text/javascript" dangerouslySetInnerHTML={{__html: createScriptStr()}} />
                     <footer>
-                            <span>
+                        <section>
+                            <ThemeSelection returnUrl={props.returnUrl} themes={props.themes} currTheme={props.currTheme} />
+                        </section>
+                        <section className="copy-etc">
                             {props.config.logo ?
-                                <span>Powered by <img src={ut.createStaticUrl('logo-small.svg')} className="logo" alt="WaG" />
-                                {'\u00a0|\u00a0'}</span> :
+                                <span><img src={ut.createStaticUrl('logo-small.svg')} className="logo" alt="WaG" /></span> :
                                 null
                             }
-                            </span>
-                            <span className="copy">&copy; Institute of the Czech National Corpus</span>
-                            {'\u00a0|\u00a0'}<form className="color-theme-sel" method="post" action={ut.createActionUrl('set-theme')}>
-                                <input type="hidden" name="returnUrl" value={currUrl} />
-                                <span>{ut.translate('global__color_themes')}:{'\u00a0'}
-                                {List.map((v, i) => (
-                                    <React.Fragment key={`theme:${v.themeId}`}>
-                                        {i > 0 ? ', ' : ''}
-                                        <button type="submit"  name="themeId" value={v.themeId}>{v.themeLabel}</button>
-                                    </React.Fragment>
-                                ), themes)}
-                                </span>
-                            </form>
+                            <span>{ut.translate('global__powered_by_wag_{version}', {version: props.version})}</span>
+                            <span className="separ">|</span>
+                            <span><a href={props.returnUrl} target="_blank">{ut.translate('global__view_on_github')}</a></span>
+                            <span className="separ">|</span>
+                            <span className="copy">&copy; {ut.translate('global__institute_cnc')}</span>
+                        </section>
                     </footer>
                 </body>
             </html>

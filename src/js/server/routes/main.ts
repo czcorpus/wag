@@ -24,7 +24,7 @@ import { concatMap, map, catchError, reduce } from 'rxjs/operators';
 import { AppServices } from '../../appServices';
 import { QueryType, QueryMatch, QueryPoS, matchesPos, findMergeableLemmas, importQueryTypeString } from '../../common/query';
 import { UserConf, ClientStaticConf, ClientConf, emptyClientConf, getSupportedQueryTypes, emptyLayoutConf, errorUserConf,
-    getQueryTypeFreqDb, DEFAULT_WAIT_FOR_OTHER_TILES, THEME_COOKIE_NAME, getThemeList, getAppliedThemeConf } from '../../conf';
+    getQueryTypeFreqDb, DEFAULT_WAIT_FOR_OTHER_TILES, THEME_COOKIE_NAME, getThemeList, getAppliedThemeConf, THEME_DEFAULT_NAME } from '../../conf';
 import { init as viewInit } from '../../views/layout';
 import { init as errPageInit } from '../../views/error';
 import { ServerSideActionDispatcher } from '../core';
@@ -225,7 +225,7 @@ export function mainAction(services:Services, answerMode:boolean, req:Request, r
                 cache: new DummyCache()
             });
 
-            const view = viewInit(viewUtils, runtimeConf.colorThemes, req.headers.referer);
+            const view = viewInit(viewUtils);
             // Here we're going to use the fact that (the current)
             // server-side action dispatcher does not trigger side effects
             // so our models just set 'busy' state and nothing else happens.
@@ -240,6 +240,8 @@ export function mainAction(services:Services, answerMode:boolean, req:Request, r
                 services: services,
                 toolbarData: hostPageEnv,
                 lemmas: queryMatchesExtended,
+                themes: runtimeConf.colorThemes,
+                currTheme: runtimeConf.colors.themeId,
                 userConfig: userConf,
                 clientConfig: runtimeConf,
                 returnUrl: mkReturnUrl(req, services.clientConf.rootUrl),
@@ -247,20 +249,25 @@ export function mainAction(services:Services, answerMode:boolean, req:Request, r
                 layout: layout,
                 homepageSections: [...runtimeConf.homepage.tiles],
                 isMobile: false, // TODO should we detect the mode on server too
-                isAnswerMode: answerMode
+                isAnswerMode: answerMode,
+                version: services.version,
+                repositoryUrl: services.repositoryUrl
             }));
         },
         (err:Error) => {
             services.errorLog.error(err.message, {trace: err.stack});
             const error:[number, string] = [HTTP.Status.BadRequest, err.message];
             const userConf = errorUserConf(services.serverConf.languages, error, uiLang);
-            const view = viewInit(viewUtils, [], req.headers.referer);
+            const view = viewInit(viewUtils);
             const errView = errPageInit(viewUtils);
+            const currTheme = getAppliedThemeConf(services.clientConf);
             res.send(renderResult({
                 view: view,
                 services: services,
                 toolbarData: emptyValue(),
                 lemmas: [],
+                themes: [],
+                currTheme: currTheme ? currTheme.themeId : THEME_DEFAULT_NAME,
                 userConfig: userConf,
                 clientConfig: emptyClientConf(services.clientConf, req.cookies[THEME_COOKIE_NAME]),
                 returnUrl: mkReturnUrl(req, services.clientConf.rootUrl),
@@ -269,6 +276,8 @@ export function mainAction(services:Services, answerMode:boolean, req:Request, r
                 homepageSections: [],
                 isMobile: false, // TODO should we detect the mode on server too
                 isAnswerMode: false,
+                version: services.version,
+                repositoryUrl: services.repositoryUrl,
                 error: error
             }));
         }
