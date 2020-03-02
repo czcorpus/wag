@@ -81,6 +81,7 @@ export interface GlobalComponents {
 
     ResponsiveWrapper:React.ComponentClass<{
         render:(width:number, height:number)=>React.ReactElement<{width:number, height:number} & {}>;
+        minWidth?:number;
     }>;
 
     ElementTooltip:React.SFC<{
@@ -441,7 +442,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
             <div className={`HorizontalBlockSwitch${props.htmlClass ? ' ' + props.htmlClass : ''}`}>
                 {props.blockIndices.map(ident =>
                         <a key={ident} className={`${props.currentIdx === ident ? 'current' : ''}`}
-                                onClick={ident ? ()=>props.onChange(ident) : undefined}>{'\u25A0'}</a>)}
+                                onClick={ident != null ? ()=>props.onChange(ident) : undefined}>{'\u25A0'}</a>)}
             </div>
         );
     };
@@ -469,6 +470,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
 
     class ResponsiveWrapper extends React.Component<{
             render:(width:number, height:number)=>React.ReactElement<{width: number, height:number} & {}>;
+            minWidth?:number;
        },
        {
             width:number;
@@ -508,7 +510,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
 
         render() {
             return (
-                <div className="ResponsiveWrapper" style={{width: '100%', height: '100%'}} ref={this.ref}>
+                <div className="ResponsiveWrapper" style={{width: '100%', height: '100%', minWidth: this.props.minWidth}} ref={this.ref}>
                     {this.props.render(this.state.width, this.state.height)}
                 </div>
             );

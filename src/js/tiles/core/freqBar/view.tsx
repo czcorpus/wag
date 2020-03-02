@@ -26,6 +26,7 @@ import { GlobalComponents } from '../../../views/global';
 import { ActionName, Actions } from './actions';
 import { FreqBarModel, FreqBarModelState } from './model';
 import { List } from 'cnc-tskit';
+import { makeShorthandText } from '../../../tools';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:FreqBarModel):TileComponent {
@@ -100,7 +101,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         isMobile:boolean;
 
     }> = (props) => {
-        const maxLabelWidth = List.maxItem(v => v.name.length, props.data).name.length;
+        const maxLabelLength = (List.maxItem(
+            v => v.length,
+            props.isMobile ? props.data.reduce((acc, curr) => acc.concat(makeShorthandText(curr.name).split(' ')), []) : props.data.map(v => v.name)
+        ) as string).length;
         return (
             <div className="Chart">
                 <ChartWrapper data={props.data} isMobile={props.isMobile} width={props.width} height={props.height}>
@@ -108,7 +112,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <Bar data={props.data} dataKey="ipm" fill={theme.categoryColor(0)} isAnimationActive={false}
                             name={ut.translate('freqBar__rel_freq')} />
                     <XAxis type="number" />
-                    <YAxis type="category" dataKey="name" width={Math.max(60, maxLabelWidth * 8)} />
+                    <YAxis type="category" dataKey="name" width={Math.max(60, maxLabelLength * 7)} tickFormatter={value => props.isMobile ? makeShorthandText(value) : value}/>
                     <Legend />
                     <Tooltip cursor={false} isAnimationActive={false} />
                 </ChartWrapper>
