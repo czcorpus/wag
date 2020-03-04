@@ -161,6 +161,16 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             }
         };
 
+        const renderKeywords = () => {
+            if (props.data.keywords && props.data.keywords.length > 0) {
+                return props.data.keywords.map(kw =>
+                    <span key={kw.name} className="keyword" style={{backgroundColor: kw.color}}>{kw.name}</span>
+                );
+            } else {
+                return '-';
+            }
+        };
+
         const handleTabClick = () => {
             setState({activeTab: Math.abs(state.activeTab - 1)});
         };
@@ -194,6 +204,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             </dd>
                             <dt>{ut.translate('global__website')}:</dt>
                             <dd>{renderWebLink()}</dd>
+                            <dt>{ut.translate('global__keywords')}:</dt>
+                            <dd>{renderKeywords()}</dd>
                             <dt>{ut.translate('global__citation_info')}:</dt>
                             <dd className="references">
                                 <CorpusReference data={props.data.citationInfo} />

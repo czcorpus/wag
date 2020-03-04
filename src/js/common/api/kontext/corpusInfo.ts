@@ -36,6 +36,7 @@ interface HTTPResponse {
     };
     structlist:Array<{name:string; size:number}>;
     messages:Array<any>; // TODO
+    keywords:Array<{name:string, color:string}>;
 }
 
 export interface APIResponse extends SourceDetails {
@@ -48,6 +49,7 @@ export interface APIResponse extends SourceDetails {
         other_bibliography:string;
     };
     structList:Array<{name:string; size:number}>;
+    keywords:Array<{name:string, color:string}>;
 }
 
 export function isAPIResponse(v:SourceDetails):v is APIResponse {
@@ -93,7 +95,8 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, APIResponse> {
                     webURL: resp.web_url,
                     attrList: resp.attrlist,
                     citationInfo: resp.citation_info,
-                    structList: resp.structlist
+                    structList: resp.structlist,
+                    keywords: resp.keywords
                 })
             )
         );
