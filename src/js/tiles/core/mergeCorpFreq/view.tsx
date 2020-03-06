@@ -25,8 +25,9 @@ import { GlobalComponents } from '../../../views/global';
 import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
 import { Theme } from '../../../common/theme';
 import { QueryMatch } from '../../../common/query';
-import { List, pipe } from 'cnc-tskit';
-import { makeShorthandText } from '../../../tools';
+import { List, pipe, Strings } from 'cnc-tskit';
+
+const CHART_LABEL_MAX_LEN = 20;
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:MergeCorpFreqModel):TileComponent {
@@ -113,10 +114,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     }> = (props) => {
         const queries = props.lemmas.length;
         const transformedData = transformData(props.data, props.lemmas);
-        const maxLabelLength = (List.maxItem(
+        const maxLabelLength = List.maxItem(
             v => v.length,
-            props.isMobile ? transformedData.reduce((acc, curr) => acc.concat(makeShorthandText(curr.name).split(' ')), []) : transformedData.map(v => v.name)
-        ) as string).length;
+            props.isMobile ?
+                List.flatMap(item => [Strings.shortenText(item.name, CHART_LABEL_MAX_LEN)], transformedData) :
+                transformedData.map(v => v.name)
+        ).length;
         return (
             <div className="Chart" style={{height: '100%'}}>
                 <ResponsiveContainer width={props.isMobile ? "100%" : "90%"} height="100%">
@@ -131,7 +134,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 name={queries === 1 ? ut.translate('mergeCorpFreq_rel_freq') : `[${index + 1}] ${props.lemmas[index].word}`} />
                         )}
                         <XAxis type="number" label={{value: queries > 1 ? ut.translate('mergeCorpFreq_rel_freq') : null, dy: 15}} />
-                        <YAxis type="category" dataKey="name" width={Math.max(60, maxLabelLength * 7)} tickFormatter={value => props.isMobile ? makeShorthandText(value) : value} />
+                        <YAxis type="category" dataKey="name" width={Math.max(60, maxLabelLength * 7)}
+                                tickFormatter={value => props.isMobile ? Strings.shortenText(value, CHART_LABEL_MAX_LEN) : value} />
                         <Legend wrapperStyle={{paddingTop: queries > 1 ? 15 : 0}}/>
                         <Tooltip cursor={false} isAnimationActive={false} />
                     </BarChart>

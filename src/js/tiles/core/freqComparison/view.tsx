@@ -24,8 +24,10 @@ import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
 import { GlobalComponents } from '../../../views/global';
 import { ActionName, Actions } from './actions';
 import { FreqComparisonModel, FreqComparisonModelState, MultiWordDataRow } from './model';
-import { pipe, List, Dict, Maths } from 'cnc-tskit';
-import { makeShorthandText } from '../../../tools';
+import { pipe, List, Dict, Maths, Strings } from 'cnc-tskit';
+
+
+const CHART_LABEL_MAX_LEN = 20;
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:FreqComparisonModel):TileComponent {
@@ -121,7 +123,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         const processedData = processData(props.data, props.words);
         const maxLabelLength = (List.maxItem(
             v => v.length,
-            props.isMobile ? processedData.reduce((acc, curr) => acc.concat(makeShorthandText(curr.name).split(' ')), []) : processedData.map(v => v.name)
+            props.isMobile ? processedData.reduce((acc, curr) => acc.concat(Strings.shortenText(curr.name, CHART_LABEL_MAX_LEN).split(' ')), []) : processedData.map(v => v.name)
         ) as string).length;
         const dataKeyFn = (word:string) => (item:FreqItemProps) => item.data[word].main;
         return (
@@ -134,7 +136,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         props.words
                     )};
                     <XAxis type="number" unit="%" ticks={[0, 25, 50, 75, 100]} domain={[0, 100]} interval={0} />
-                    <YAxis type="category" dataKey="name" width={Math.max(60, maxLabelLength * 7)} interval={0} tickFormatter={value => props.isMobile ? makeShorthandText(value) : value}/>
+                    <YAxis type="category" dataKey="name" width={Math.max(60, maxLabelLength * 7)} interval={0}
+                            tickFormatter={value => props.isMobile ? Strings.shortenText(value, CHART_LABEL_MAX_LEN) : value}/>
                     <Legend />
                     <Tooltip cursor={false} isAnimationActive={false}
                         formatter={(value, name, props) =>
