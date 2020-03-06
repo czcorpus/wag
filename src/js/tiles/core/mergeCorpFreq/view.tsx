@@ -25,8 +25,9 @@ import { GlobalComponents } from '../../../views/global';
 import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
 import { Theme } from '../../../common/theme';
 import { QueryMatch } from '../../../common/query';
-import { List, pipe } from 'cnc-tskit';
-import { makeShorthandText } from '../../../tools';
+import { List, pipe, Strings } from 'cnc-tskit';
+
+const CHART_LABEL_MAX_LEN = 20;
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:MergeCorpFreqModel):TileComponent {
@@ -107,31 +108,39 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     const Chart:React.SFC<{
         data:Array<Array<SourceMappedDataRow>>;
         barCategoryGap:number;
-        lemmas:Array<QueryMatch>;
+        queryMatches:Array<QueryMatch>;
         isPartial:boolean;
         isMobile:boolean;
     }> = (props) => {
-        const queries = props.lemmas.length;
-        const transformedData = transformData(props.data, props.lemmas);
-        const maxLabelLength = (List.maxItem(
+        const queries = props.queryMatches.length;
+        const transformedData = transformData(props.data, props.queryMatches);
+        const maxLabelLength = List.maxItem(
             v => v.length,
-            props.isMobile ? transformedData.reduce((acc, curr) => acc.concat(makeShorthandText(curr.name).split(' ')), []) : transformedData.map(v => v.name)
-        ) as string).length;
+            props.isMobile ?
+                List.flatMap(item => [Strings.shortenText(item.name, CHART_LABEL_MAX_LEN)], transformedData) :
+                transformedData.map(v => v.name)
+        ).length;
+        const colorFn = props.queryMatches.length > 1 ?
+                (idx:number) => theme.cmpCategoryColor(idx) :
+                (idx:number) => theme.categoryColor(0);
         return (
             <div className="Chart" style={{height: '100%'}}>
                 <ResponsiveContainer width={props.isMobile ? "100%" : "90%"} height="100%">
                     <BarChart data={transformedData} layout="vertical" barCategoryGap={props.barCategoryGap}>
                         <CartesianGrid />
-                        {props.lemmas.map((_, index) =>
+                        {List.map(
+                            (_, index) =>
                             <Bar
                                 key={index}
                                 dataKey={x => x.ipm[index]}
-                                fill={props.isPartial ? theme.unfinishedChartColor: theme.cmpCategoryColor(index)}
+                                fill={props.isPartial ? theme.unfinishedChartColor: colorFn(index)}
                                 isAnimationActive={false}
-                                name={queries === 1 ? ut.translate('mergeCorpFreq_rel_freq') : `[${index + 1}] ${props.lemmas[index].word}`} />
+                                name={queries === 1 ? ut.translate('mergeCorpFreq_rel_freq') : `[${index + 1}] ${props.queryMatches[index].word}`} />,
+                            props.queryMatches
                         )}
                         <XAxis type="number" label={{value: queries > 1 ? ut.translate('mergeCorpFreq_rel_freq') : null, dy: 15}} />
-                        <YAxis type="category" dataKey="name" width={Math.max(60, maxLabelLength * 7)} tickFormatter={value => props.isMobile ? makeShorthandText(value) : value} />
+                        <YAxis type="category" dataKey="name" width={Math.max(60, maxLabelLength * 7)}
+                                tickFormatter={value => props.isMobile ? Strings.shortenText(value, CHART_LABEL_MAX_LEN) : value} />
                         <Legend wrapperStyle={{paddingTop: queries > 1 ? 15 : 0}}/>
                         <Tooltip cursor={false} isAnimationActive={false} />
                     </BarChart>
@@ -150,7 +159,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 List.filter(x => x !== undefined),
                 List.flatMap(v => v),
                 List.groupBy(v => v.sourceId),
-                List.map(([x,v]) => v[0].backlink)
+                List.map(([,v]) => v[0].backlink)
             ); // TODO
             const numCats = Math.max(0, ...this.props.data.map(v => v ? v.length : 0));
             const barCategoryGap = Math.max(10, 40 - this.props.pixelsPerCategory);
@@ -172,7 +181,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <div className="MergeCorpFreqBarTile" style={{minHeight: `${minHeight}px`, height: `${height}px`}}>
                             {this.props.isAltViewMode ?
                                 <TableView data={this.props.data} lemmas={this.props.lemmas} /> :
-                                <Chart data={this.props.data} barCategoryGap={barCategoryGap} lemmas={this.props.lemmas} isPartial={this.props.isBusy} isMobile={this.props.isMobile} />
+                                <Chart data={this.props.data} barCategoryGap={barCategoryGap} queryMatches={this.props.lemmas} isPartial={this.props.isBusy} isMobile={this.props.isMobile} />
                             }
                         </div>)}} />
                 </globComponents.TileWrapper>

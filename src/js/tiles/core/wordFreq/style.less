@@ -1,12 +1,5 @@
 @import '../../../../css/shared.less';
 
-.WordFreqTileView.mobile {
-    flex-direction: column;
-
-    > div.cell h3 {
-        margin-top: 1em;
-    }
-}
 
 .WordFreqTileView {
 
@@ -127,4 +120,17 @@
     background-color: #FFFFFF;
     border-radius: 2px;
     border: 1px solid @color-light-grey;
+}
+
+
+
+@media screen and (max-width: @media-small-screen) {
+
+    .WordFreqTileView {
+        flex-direction: column;
+
+        > div.cell h3 {
+            margin-top: 1em;
+        }
+    }
 }
