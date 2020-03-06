@@ -182,7 +182,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 <input type="text" ref={ref} className={`QueryInput${props.value.isValid ? '' : ' invalid'}`}
                     aria-label={ut.translate('global__aria_searched_word')}
                     onChange={handleInput} value={props.value.value}
-                    onKeyDown={handleKeyDown} />
+                    onKeyDown={handleKeyDown} tabIndex={props.idx+1} />
                 {props.allowRemoval ? <RemoveCmpQueryField queryIdx={props.idx} /> : null }
             </>
         );
@@ -330,6 +330,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     </>
                 );
             case QueryType.CMP_QUERY:
+                const focusOn = props.queries.findIndex((query, index) => query.value === '' || index === props.queries.length-1);
                 return (
                     <>
                         <QueryLangSelector value={props.queryLanguage} searchLanguages={props.searchLanguages}
@@ -338,7 +339,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             {props.queries.map((query, queryIdx) => (
                                 <li className="input-row" key={`query:${queryIdx}`}>
                                     <QueryInput idx={queryIdx} value={query} onEnter={props.onEnterKey}
-                                        onContentChange={handleQueryInput(queryIdx)} wantsFocus={props.wantsFocus && query.value === ''}
+                                        onContentChange={handleQueryInput(queryIdx)} wantsFocus={props.wantsFocus && queryIdx === focusOn}
                                         allowRemoval={true} />
                                 </li>
                             ))}
