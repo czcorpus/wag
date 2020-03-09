@@ -111,6 +111,19 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     }
 
 
+    // -------------------------- <BarShape /> --------------------------------------
+
+    const BarShape = (props) => {
+        const {
+          fill, x, y, width, height,
+        } = props;
+
+        return <g>
+            <rect x={x} y={y} width={width} height={height} stroke="none" fill={fill} />
+            <line x1={x+width-1} y1={y} x2={x+width-1} y2={y+height} stroke="black" strokeWidth={2} />
+        </g>
+    };
+
     // -------------------------- <Chart /> --------------------------------------
 
     const Chart:React.SFC<{
@@ -132,7 +145,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <CartesianGrid />
                     {List.map(
                         (word, index) => <Bar key={`word:${index}`} dataKey={dataKeyFn(word)} isAnimationActive={false} name={word}
-                                                stackId='a' fill={theme.cmpCategoryColor(index)} />,
+                                                stackId='a' fill={theme.cmpCategoryColor(index)} shape={<BarShape/>} />,
                         props.words
                     )};
                     <XAxis type="number" unit="%" ticks={[0, 25, 50, 75, 100]} domain={[0, 100]} interval={0} />
