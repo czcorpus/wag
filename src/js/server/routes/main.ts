@@ -89,7 +89,8 @@ function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, themeId:string,
             homepage: {
                 tiles: item
             },
-            telemetry: conf.telemetry
+            telemetry: conf.telemetry,
+            maxTileErrors: conf.maxTileErrors
         }))
     );
 }

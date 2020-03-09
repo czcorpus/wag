@@ -61,6 +61,19 @@
                     },
                     "type": "array"
                 },
+                "description": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                },
                 "geoAreaSpotFillColor": {
                     "type": "string"
                 },
@@ -74,7 +87,17 @@
                     "type": "string"
                 },
                 "themeLabel": {
-                    "type": "string"
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
                 }
             },
             "required": [
@@ -7107,6 +7130,9 @@
         "logo": {
             "$ref": "#/definitions/LogoConf"
         },
+        "maxTileErrors": {
+            "type": "number"
+        },
         "onLoadInit": {
             "items": {
                 "type": "string"
@@ -7158,6 +7184,7 @@
         "homepage",
         "hostUrl",
         "layouts",
+        "maxTileErrors",
         "reqCacheTTL",
         "rootUrl",
         "searchLanguages",

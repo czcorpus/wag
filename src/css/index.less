@@ -6,9 +6,22 @@ body {
     background-image: @main-background;
 }
 
-.NothingFoundBox {
+.NothingFoundBox,
+.TooManyErrorsBox {
     font-size: 130%;
     text-align: center;
+    max-width: 40em;
+    margin: 0 auto;
+}
+
+.TooManyErrorsBox .reload {
+
+    font-size: 130%;
+    margin-top: 2em;
+
+    a {
+        cursor: pointer;
+    }
 }
 
 section.TilesSections {

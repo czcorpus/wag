@@ -57,6 +57,9 @@ export interface WdglanceTilesState {
     datalessGroups:Array<number>;
     tileResultFlags:Array<TileResultFlagRec>;
     tileProps:Array<TileFrameProps>;
+    maxTileErrors:number;
+    numTileErrors:number;
+    issueReportingUrl:string|null;
 }
 
 
@@ -76,7 +79,7 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
         this.addActionHandler<Actions.SetTileRenderSize>(
             ActionName.SetTileRenderSize,
             (state, action) => {
-                const srchId = state.tileProps.findIndex(v => v.tileId === action.payload.tileId);
+                const srchId = List.findIndex(v => v.tileId === action.payload.tileId, state.tileProps);
                 if (srchId > -1) {
                     const tile = state.tileProps[srchId];
                     state.tileProps[srchId] = {
@@ -318,9 +321,14 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                         canBeAmbiguousResult: action.payload.canBeAmbiguousResult
                     };
                 }
-                if (this.allTileStatusFlagsWritten(state)) {
+                if (this.allTileStatusFlagsWritten(state)) { // to make sure we don't react to a particular load misusing TileDataLoaded
                     this.findEmptyGroups(state);
                 }
+                state.numTileErrors = List.foldl(
+                    (acc, v) => v.status === TileResultFlag.ERROR ? acc + 1 : acc,
+                    0,
+                    state.tileResultFlags
+                );
             }
         );
         this.addActionHandler<Actions.SetEmptyResult>(
@@ -371,7 +379,7 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
         return TileResultFlag.VALID_RESULT;
     }
 
-    private findEmptyGroups(state:WdglanceTilesState):void { // TODO
+    private findEmptyGroups(state:WdglanceTilesState):void {
         state.datalessGroups = pipe(
             state.tileResultFlags,
             List.groupBy(v => v.groupId.toString()),
