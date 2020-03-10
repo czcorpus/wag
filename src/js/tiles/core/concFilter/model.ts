@@ -22,7 +22,7 @@ import { StatelessModel, Action, SEDispatcher, IActionQueue } from 'kombo';
 import { AppServices } from '../../../appServices';
 import { ActionName as GlobalActionName, Actions as GlobalActions, isTileSomeDataLoadedAction } from '../../../models/actions';
 import { SubQueryItem, SubqueryPayload, RangeRelatedSubqueryValue, RecognizedQueries } from '../../../common/query';
-import { ConcApi, FilterRequestArgs, QuerySelector, FilterPCRequestArgs, QuickFilterRequestArgs } from '../../../common/api/kontext/concordance';
+import { ConcApi, FilterRequestArgs, QuerySelector, FilterPCRequestArgs, QuickFilterRequestArgs, mkContextFilter } from '../../../common/api/kontext/concordance';
 import { Line, ViewMode, ConcResponse } from '../../../common/api/abstract/concordance';
 import { Observable } from 'rxjs';
 import { isConcLoadedPayload } from '../concordance/actions';
@@ -240,12 +240,6 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
     }
 
     private mkConcArgs(state:ConcFilterModelState, subq:SubQueryItem<RangeRelatedSubqueryValue>, concId:string):FilterRequestArgs|FilterPCRequestArgs|QuickFilterRequestArgs {
-
-        const mkContextFilter = (ctx:[number, number], val:string):string =>
-            ctx[0] === 0 && ctx[1] === 0 ?
-                `p0 0>0 0 [lemma="${val}"]` :
-                `P${subq.value.context[0]} ${subq.value.context[1]} 1 [lemma="${subq.value.value}"]`;
-
         if (state.otherCorpname) {
             return {
                 queryselector: QuerySelector.CQL,
@@ -263,7 +257,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
                 viewmode: state.viewMode,
                 shuffle: 1,
                 q: '~' + concId,
-                q2: mkContextFilter(subq.value.context, subq.value.value),
+                q2: mkContextFilter(subq.value.context, subq.value.value, subq),
                 format: 'json',
             };
 
@@ -282,7 +276,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
                 viewmode: state.viewMode,
                 shuffle: 1,
                 q: '~' + concId,
-                q2: mkContextFilter(subq.value.context, subq.value.value),
+                q2: mkContextFilter(subq.value.context, subq.value.value, subq),
                 format: 'json'
             };
         }
