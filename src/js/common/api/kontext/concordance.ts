@@ -20,7 +20,7 @@ import { map } from 'rxjs/operators';
 
 import { cachedAjax$ } from '../../ajax';
 import { HTTPHeaders, IAsyncKeyValueStore } from '../../types';
-import { QueryMatch } from '../../query';
+import { QueryMatch, SubQueryItem, RangeRelatedSubqueryValue } from '../../query';
 import { posQueryFactory } from './posQuery';
 import { Line, ConcResponse, ViewMode, LineElement, IConcordanceApi } from '../abstract/concordance';
 import { ConcordanceMinState } from '../../models/concordance';
@@ -165,6 +165,14 @@ export function mkMatchQuery(lvar:QueryMatch, generator:[string, string]):string
 
     } else if (lvar.word) {
         return mkWordMatchQuery(lvar);
+    }
+}
+
+export function mkContextFilter(ctx:[number, number], val:string, subq:SubQueryItem<RangeRelatedSubqueryValue>):string {
+    if (ctx[0] === 0 && ctx[1] === 0) {
+        return `p0 0>0 0 [lemma="${escapeVal(val)}"]`;
+    } else {
+        return `P${subq.value.context[0]} ${subq.value.context[1]} 1 [lemma="${escapeVal(subq.value.value)}"]`;
     }
 }
 
