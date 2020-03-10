@@ -198,7 +198,10 @@ export function createRootComponent({config, userSession, queryMatches, appServi
             activeSourceInfo: null,
             activeGroupHelp: null,
             activeTileHelp: null,
-            showAmbiguousResultHelp: false
+            showAmbiguousResultHelp: false,
+            maxTileErrors: config.maxTileErrors,
+            numTileErrors: 0,
+            issueReportingUrl: config.issueReportingUrl || null
         },
         appServices
     );

@@ -1020,6 +1020,35 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         );
     };
 
+    // -------------------- <TooManyErrorsBox /> ----------------------------
+
+    const TooManyErrorsBox:React.SFC<{
+        reportHref:string;
+
+    }> = (props) => {
+        return (
+            <section className="group">
+                <section className="tiles">
+                    <section className="cnc-tile app-output span3">
+                        <div className="provider">
+                            <div className="TooManyErrorsBox">
+                                <div className="cnc-tile-body content">
+                                    {props.reportHref ?
+                                        <p dangerouslySetInnerHTML={{__html: ut.translate('global__too_many_tile_errors_{href}', {href: props.reportHref})}} /> :
+                                        <p>{ut.translate('global__too_many_tile_errors')}</p>
+                                    }
+                                    <p className="reload">
+                                        <a onClick={()=>window.location.reload()}>{ut.translate('global__retry_reload')} {'\u21bb'}</a>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </section>
+            </section>
+        );
+    };
+
     // -------------------- <SourceInfo /> -----------------------------
 
     const SourceInfo:React.SFC<{
@@ -1168,27 +1197,39 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             }
         }
 
+        private renderContents() {
+            if (this.props.numTileErrors > this.props.maxTileErrors) {
+                return <TooManyErrorsBox reportHref={this.props.issueReportingUrl} />;
+
+            } else if (this.props.datalessGroups.length >= this.props.layout.length) {
+                return <NothingFoundBox />;
+
+            } else {
+                return List.map(
+                    (group, groupIdx) => (
+                        <TileGroup
+                            key={`${group.groupLabel}:${groupIdx}`}
+                            data={group}
+                            idx={groupIdx}
+                            isHidden={List.some(v => v === groupIdx, this.props.hiddenGroups)}
+                            hasData={!List.some(v => v === groupIdx, this.props.datalessGroups)}
+                            isMobile={this.props.isMobile}
+                            tileFrameProps={this.props.tileProps}
+                            tweakActiveTiles={this.props.tweakActiveTiles}
+                            altViewActiveTiles={this.props.altViewActiveTiles}
+                            tileResultFlags={this.props.tileResultFlags} />
+
+                    ),
+                    this.props.layout
+                );
+            }
+        }
+
         render() {
             return (
                 <section className="TilesSections">
                     {this.props.isAnswerMode ?
-                        (this.props.datalessGroups.length < this.props.layout.length ?
-                            this.props.layout.map((group, groupIdx) => (
-                                <TileGroup
-                                    key={`${group.groupLabel}:${groupIdx}`}
-                                    data={group}
-                                    idx={groupIdx}
-                                    isHidden={this.props.hiddenGroups.some(v => v === groupIdx)}
-                                    hasData={!this.props.datalessGroups.some(v => v === groupIdx)}
-                                    isMobile={this.props.isMobile}
-                                    tileFrameProps={this.props.tileProps}
-                                    tweakActiveTiles={this.props.tweakActiveTiles}
-                                    altViewActiveTiles={this.props.altViewActiveTiles}
-                                    tileResultFlags={this.props.tileResultFlags} />
-
-                            )) :
-                            <NothingFoundBox />
-                        ) :
+                        this.renderContents() :
                         <section className="tiles"><InitialHelp sections={this.props.homepageSections} /></section>
                     }
                     {this.renderModal()}

@@ -146,6 +146,7 @@ export interface ClientStaticConf {
     reqCacheTTL:number;
     onLoadInit?:Array<string>;
     issueReportingUrl?:string;
+    maxTileErrors:number;
     homepage:HomepageConf;
     colors?:ColorsConf|string;
     searchLanguages:{[code:string]:string};
@@ -197,6 +198,7 @@ export interface ClientConf {
     layouts:LayoutsConfig;
     searchLanguages:Array<SearchLanguage>;
     externalStyles:Array<string>;
+    maxTileErrors:number;
     error?:Error;
     telemetry?:{
         sendIntervalSecs:number;
@@ -273,7 +275,8 @@ export function emptyClientConf(conf:ClientStaticConf, themeId:string|undefined)
             label: conf.searchLanguages[k],
             queryTypes: []
         })),
-        externalStyles: []
+        externalStyles: [],
+        maxTileErrors: 0
     };
 }
 
