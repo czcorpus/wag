@@ -17,7 +17,7 @@
  */
 import { IActionDispatcher } from 'kombo';
 import { asyncScheduler, of as rxOf, Subject } from 'rxjs';
-import { delay, observeOn } from 'rxjs/operators';
+import { delay, observeOn, share } from 'rxjs/operators';
 
 import { SystemMessageType } from './common/types';
 import { Ident } from 'cnc-tskit';
