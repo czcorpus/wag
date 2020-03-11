@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
-import { Ident } from 'cnc-tskit';
+import { Ident, List } from 'cnc-tskit';
 
 import { FreqDistribAPI } from '../../../common/api/kontext/freqs';
 import { QueryType } from '../../../common/query';
@@ -93,7 +93,7 @@ export class MergeCorpFreqTile implements ITileProvider {
     private readonly blockingTiles:Array<number>;
 
     constructor({dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, ut,
-                theme, appServices, widthFract, conf, isBusy, cache, lemmas}:TileFactory.Args<MergeCorpFreqTileConf>) {
+                theme, appServices, widthFract, conf, isBusy, cache, queryMatches}:TileFactory.Args<MergeCorpFreqTileConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
@@ -129,7 +129,7 @@ export class MergeCorpFreqTile implements ITileProvider {
                     isSingleCategory: !!src.isSingleCategory
                 })),
                 pixelsPerCategory: conf.pixelsPerCategory ? conf.pixelsPerCategory : 30,
-                lemmas: lemmas.map(lemma => findCurrQueryMatch(lemma))
+                queryMatches: List.map(lemma => findCurrQueryMatch(lemma), queryMatches)
             }
         );
         this.label = appServices.importExternalMessage(conf.label || 'mergeCorpFreq__main_label');

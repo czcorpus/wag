@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { IActionDispatcher, StatelessModel } from 'kombo';
-import { Maths } from 'cnc-tskit';
+import { List, Maths } from 'cnc-tskit';
 
 import { ConcApi } from '../../../common/api/kontext/concordance';
 import { FreqSort } from '../../../common/api/kontext/freqs';
@@ -63,7 +63,7 @@ export class MultiWordTimeDistTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({dispatcher, tileId, waitForTiles, ut, theme, appServices, widthFract, lemmas, lang1, conf, isBusy, cache}:TileFactory.Args<TimeDistTileConf>) {
+    constructor({dispatcher, tileId, waitForTiles, ut, theme, appServices, widthFract, queryMatches, lang1, conf, isBusy, cache}:TileFactory.Args<TimeDistTileConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
@@ -84,9 +84,9 @@ export class MultiWordTimeDistTile implements ITileProvider {
                 fttIncludeEmpty: false,
                 fmaxitems: 100,
                 alphaLevel: Maths.AlphaLevel.LEVEL_1, // TODO conf/explain
-                data: lemmas.map(_ => []),
+                data: List.map(_ => [], queryMatches),
                 posQueryGenerator: conf.posQueryGenerator,
-                wordLabels: lemmas.map(l => findCurrQueryMatch(l).word),
+                wordLabels: List.map(l => findCurrQueryMatch(l).word, queryMatches),
                 averagingYears: 0,
                 isTweakMode: false,
                 units: '%',
@@ -103,7 +103,7 @@ export class MultiWordTimeDistTile implements ITileProvider {
             ),
             concApi: conf.concApiURL ? new ConcApi(false, cache, conf.concApiURL, appServices.getApiHeaders(conf.apiURL)) : null,
             appServices: appServices,
-            lemmas: lemmas,
+            queryMatches,
             queryLang: lang1
         });
         this.label = appServices.importExternalMessage(conf.label || 'multiWordTimeDistrib__main_label');

@@ -303,7 +303,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                 view,
                 services: services,
                 toolbarData: emptyValue(),
-                lemmas: [],
+                queryMatches: [],
                 themes: [],
                 currTheme: clientConfig.colors.themeId,
                 userConfig: userConf,

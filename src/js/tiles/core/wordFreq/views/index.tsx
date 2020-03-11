@@ -46,7 +46,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <div className="WordFreqTileView">
                         {!this.props.isMobile && this.props.widthFract > 1 ?
                             <div className="chart">
-                            <Chart lemmaItems={this.props.data[0].filter(v => v.isSearched)} />
+                            <Chart queryMatches={this.props.data[0].filter(v => v.isSearched)} />
                             </div> :
                             null
                         }

@@ -38,7 +38,7 @@ export interface MatchingDocsModelArgs {
     appServices:AppServices;
     api:MatchingDocsAPI<{}>;
     initState:MatchingDocsModelState;
-    lemmas:RecognizedQueries;
+    queryMatches:RecognizedQueries;
 }
 
 export type ModelSyncData = {[tileId:string]:boolean};
@@ -46,7 +46,7 @@ export type ModelSyncData = {[tileId:string]:boolean};
 
 export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState, ModelSyncData> {
 
-    private readonly lemmas:RecognizedQueries;
+    private readonly queryMatches:RecognizedQueries;
 
     protected api:MatchingDocsAPI<{}>;
 
@@ -58,14 +58,14 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState, Mo
 
     protected readonly subqSourceTiles:Array<number>;
 
-    constructor({dispatcher, tileId, waitForTiles, subqSourceTiles, appServices, api, initState, lemmas}:MatchingDocsModelArgs) {
+    constructor({dispatcher, tileId, waitForTiles, subqSourceTiles, appServices, api, initState, queryMatches}:MatchingDocsModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.waitForTiles = [...waitForTiles];
         this.subqSourceTiles = [...subqSourceTiles];
         this.appServices = appServices;
         this.api = api;
-        this.lemmas = lemmas;
+        this.queryMatches = queryMatches;
 
         this.addActionHandler<GlobalActions.RequestQueryResponse>(
             GlobalActionName.RequestQueryResponse,
@@ -227,7 +227,7 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState, Mo
             });
 
         } else {
-            const variant = findCurrQueryMatch(this.lemmas[0]);
+            const variant = findCurrQueryMatch(this.queryMatches[0]);
             this.api.call(this.api.stateToArgs(state, variant.word))
             .subscribe(
                 (resp) => {

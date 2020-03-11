@@ -94,12 +94,12 @@ export interface QueryMatch {
 export type RecognizedQueries = Array<Array<QueryMatch>>;
 
 
-export function testIsDictMatch(lemmas:Array<QueryMatch>|QueryMatch):boolean {
-    if (Array.isArray(lemmas)) {
-        const tmp = lemmas as Array<QueryMatch>;
+export function testIsDictMatch(queryMatches:Array<QueryMatch>|QueryMatch):boolean {
+    if (Array.isArray(queryMatches)) {
+        const tmp = queryMatches as Array<QueryMatch>;
         return tmp.length > 1 || !tmp[0].isNonDict;
     }
-    return !(lemmas as QueryMatch).isNonDict;
+    return !(queryMatches as QueryMatch).isNonDict;
 }
 
 /**
@@ -131,7 +131,7 @@ const MERGE_CANDIDATE_MIN_DIFF_RATIO = 100;
  * For further processing we have to merge those items into a single QueryMatch instance
  * with pos = [all the individual PoS values].
  */
-export function findMergeableLemmas(variants:Array<QueryMatch>):Array<QueryMatch> {
+export function findMergeableQueryMatches(variants:Array<QueryMatch>):Array<QueryMatch> {
     const mapping:{[key:string]:Array<{pos:{value:QueryPoS; label:string}; abs:number; form:string; arf:number}>} = {};
     List.forEach(
         item => {

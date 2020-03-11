@@ -187,7 +187,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const DataTable:React.SFC<{
         data:Array<Array<DataRow>>;
-        lemmas:Array<QueryMatch>;
+        queryMatches:Array<QueryMatch>;
     }> = (props) => {
         const [groupedAreaData, groupedAreaIpmNorms, groupedAreaAbsFreqs] = groupData(props.data);
         return (
@@ -198,7 +198,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <th colSpan={2}>{ut.translate('multi_word_geolocations__table_heading_total_occurrence')}</th>
                         {props.data.map((targetData, target) => <th key={target} colSpan={2}>
                             {ut.translate('multi_word_geolocations__table_heading_occurrence_of_{word}',
-                                {word: props.lemmas[target].word})}</th>)}
+                                {word: props.queryMatches[target].word})}</th>)}
                     </tr>
                     <tr>
                         <th key={`totalIpm`}>{ut.translate('multi_word_geolocations__table_heading_freq_rel')}</th>
@@ -394,12 +394,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <div className="MultiWordGeoAreasTileView">
                         {this.props.isAltViewMode ?
                             <div style={{overflowX: 'auto'}}>
-                                <DataTable data={this.props.data} lemmas={this.props.currentLemmas}/>
+                                <DataTable data={this.props.data} queryMatches={this.props.currQueryMatches}/>
                             </div> :
                             <div className="flex-item" style={{width: areaWidth, height: '80%'}}>
                                 <div style={{cursor: 'default', width: '100%', height: '100%', overflowX: 'auto', textAlign: 'center'}} dangerouslySetInnerHTML={{__html: this.props.mapSVG}} />
                                 <div className="legend">
-                                    {this.props.currentLemmas.map((lemma, index) =>
+                                    {this.props.currQueryMatches.map((lemma, index) =>
                                         <span key={`legend${index}`} style={{margin: '0 0.5em'}}>
                                             <div className="legendColorBlock" style={{backgroundColor: theme.cmpCategoryColor(index)}} />
                                             {`[${index + 1}] ${lemma.word}`}

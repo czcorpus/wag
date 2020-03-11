@@ -33,13 +33,13 @@ export interface HtmlModelArgs {
     appServices:AppServices;
     service:RawHtmlAPI|WiktionaryHtmlAPI;
     initState:HtmlModelState;
-    lemmas:RecognizedQueries;
+    queryMatches:RecognizedQueries;
 }
 
 
 export class HtmlModel extends StatelessModel<HtmlModelState> {
 
-    private readonly lemmas:RecognizedQueries;
+    private readonly queryMatches:RecognizedQueries;
 
     private readonly service:GeneralHtmlAPI<{}>;
 
@@ -47,12 +47,12 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
 
     private readonly tileId:number;
 
-    constructor({dispatcher, tileId, appServices, service, initState, lemmas}:HtmlModelArgs) {
+    constructor({dispatcher, tileId, appServices, service, initState, queryMatches}:HtmlModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.appServices = appServices;
         this.service = service;
-        this.lemmas = lemmas;
+        this.queryMatches = queryMatches;
 
         this.addActionHandler<GlobalActions.RequestQueryResponse>(
             GlobalActionName.RequestQueryResponse,
@@ -61,7 +61,7 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
                 state.error = null;
             },
             (state, action, seDispatch) => {
-                const variant = findCurrQueryMatch(this.lemmas[0]);
+                const variant = findCurrQueryMatch(this.queryMatches[0]);
                 this.requestData(state, variant.lemma, seDispatch);
             }
         )

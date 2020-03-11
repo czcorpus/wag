@@ -56,13 +56,13 @@ export interface FreqComparisonModelArgs {
     freqApi:MultiBlockFreqDistribAPI;
     backlink:Backlink|null;
     initState:FreqComparisonModelState;
-    lemmas:RecognizedQueries;
+    queryMatches:RecognizedQueries;
 }
 
 
 export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState> {
 
-    private readonly lemmas:RecognizedQueries;
+    private readonly queryMatches:RecognizedQueries;
 
     protected readonly concApi:ConcApi;
 
@@ -76,7 +76,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
 
     private readonly backlink:Backlink|null;
 
-    constructor({dispatcher, tileId, waitForTiles, appServices, concApi, freqApi, backlink, initState, lemmas}:FreqComparisonModelArgs) {
+    constructor({dispatcher, tileId, waitForTiles, appServices, concApi, freqApi, backlink, initState, queryMatches}:FreqComparisonModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.waitForTiles = waitForTiles;
@@ -84,7 +84,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
         this.concApi = concApi;
         this.freqApi = freqApi;
         this.backlink = backlink;
-        this.lemmas = lemmas;
+        this.queryMatches = queryMatches;
 
         this.addActionHandler<GlobalActions.RequestQueryResponse>(
             GlobalActionName.RequestQueryResponse,
@@ -134,13 +134,16 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     if (action.error) {
-                        state.blocks = state.fcrit.map(v => ({
-                            data: [],
-                            words: lemmas.map(_ => null),
-                            ident: Ident.puid(),
-                            isReady: false,
-                            label: null
-                        }))
+                        state.blocks = List.map(
+                            v => ({
+                                data: [],
+                                words: List.map(_ => null, queryMatches),
+                                ident: Ident.puid(),
+                                isReady: false,
+                                label: null
+                            }),
+                            state.fcrit
+                        );
                         state.error = action.error.message;
                         state.isBusy = false;
 
@@ -230,7 +233,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
     loadConcordances(state:FreqComparisonModelState):Observable<[{concPersistenceID:string;}, {critId:number; queryId: number; lemma:QueryMatch; concId:string;}]> {
         return new Observable((observer:Observer<{critId:number; queryId:number; lemma:QueryMatch}>) => {
             state.fcrit.forEach((critName, critId) => {
-                this.lemmas.forEach((lemma, queryId) => {
+                this.queryMatches.forEach((lemma, queryId) => {
                     observer.next({critId: critId, queryId: queryId, lemma: findCurrQueryMatch(lemma)});
                 });
             });
@@ -256,7 +259,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                             attrs: [],
                             metadataAttrs: [],
                             queries: [],
-                            concordances: createInitialLinesData(this.lemmas.length),
+                            concordances: createInitialLinesData(this.queryMatches.length),
                             posQueryGenerator: state.posQueryGenerator
                         },
                         args.lemma,
@@ -283,7 +286,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
     ):Observable<[{concPersistenceID:string;}, {critId:number; queryId: number; lemma:QueryMatch; concId:string;}]> {
         return new Observable((observer:Observer<[{concPersistenceID:string;}, {critId:number; queryId: number; lemma:QueryMatch; concId:string;}]>) => {
             state.fcrit.forEach((critName, critId) => {
-                this.lemmas.forEach((lemma, queryId) => {
+                this.queryMatches.forEach((lemma, queryId) => {
                     observer.next([
                         {concPersistenceID: concIds[queryId]},
                         {critId: critId, queryId: queryId, lemma: findCurrQueryMatch(lemma), concId: concIds[queryId]}
@@ -317,7 +320,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                     acc.concIds[args.queryId] = resp.concId;
                     return acc;
                 },
-                {isEmpty: true, concIds: this.lemmas.map(_ => null), corpname: null}
+                {isEmpty: true, concIds: this.queryMatches.map(_ => null), corpname: null}
             )
         ).subscribe(
             acc => {
@@ -395,7 +398,7 @@ export const factory = (
     freqApi:MultiBlockFreqDistribAPI,
     backlink:Backlink|null,
     initState:FreqComparisonModelState,
-    lemmas:RecognizedQueries) => {
+    queryMatches:RecognizedQueries) => {
 
     return new FreqComparisonModel({
         dispatcher,
@@ -406,6 +409,6 @@ export const factory = (
         freqApi,
         backlink,
         initState,
-        lemmas
+        queryMatches
     });
 }

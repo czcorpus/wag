@@ -75,7 +75,7 @@ export interface ConcFilterModelArgs {
     api:ConcApi;
     switchMainCorpApi:ISwitchMainCorpApi;
     initState:ConcFilterModelState;
-    lemmas:RecognizedQueries;
+    queryMatches:RecognizedQueries;
 }
 
 
@@ -93,9 +93,9 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
 
     private readonly subqSourceTiles:Array<number>;
 
-    private readonly lemmas:RecognizedQueries;
+    private readonly queryMatches:RecognizedQueries;
 
-    constructor({dispatcher, tileId, waitForTiles, subqSourceTiles, appServices, api, switchMainCorpApi, initState, lemmas}:ConcFilterModelArgs) {
+    constructor({dispatcher, tileId, waitForTiles, subqSourceTiles, appServices, api, switchMainCorpApi, initState, queryMatches}:ConcFilterModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.api = api;
@@ -103,7 +103,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
         this.waitForTiles = [...waitForTiles];
         this.subqSourceTiles = [...subqSourceTiles];
         this.appServices = appServices;
-        this.lemmas = lemmas;
+        this.queryMatches = queryMatches;
 
         this.addActionHandler<GlobalActions.RequestQueryResponse>(
             GlobalActionName.RequestQueryResponse,
@@ -111,7 +111,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
                 state.isBusy = true;
                 state.error = null;
                 state.lines = [];
-                state.concPersistenceIds = List.repeat(() => '', this.lemmas.length);
+                state.concPersistenceIds = List.repeat(() => '', this.queryMatches.length);
             },
             (state, action, dispatch) => {
                 this.handleDataLoad(state, false, dispatch);

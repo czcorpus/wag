@@ -40,7 +40,7 @@ export interface MergeCorpFreqModelState {
     data:Array<Array<SourceMappedDataRow>>;
     sources:Array<ModelSourceArgs>;
     pixelsPerCategory:number;
-    lemmas:Array<QueryMatch>;
+    queryMatches:Array<QueryMatch>;
 }
 
 interface SourceQueryProps {
@@ -114,7 +114,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
                         if (action.name === GlobalActionName.TilePartialDataLoaded && waitForTiles.indexOf(action.payload['tileId']) > -1) {
                             const ans = {...syncData};
                             ans[action.payload['tileId'].toFixed()] += 1;
-                            return Dict.find(v => v < state.lemmas.length, ans) ? ans : null;
+                            return Dict.find(v => v < state.queryMatches.length, ans) ? ans : null;
                         }
                         return syncData;
 
@@ -224,7 +224,9 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
 
     private loadConcordances(state:MergeCorpFreqModelState):Observable<[number, ModelSourceArgs, string]> {
         return rxOf(...state.sources).pipe(
-            flatMap(source => rxOf(...state.lemmas.map((v, i) => [i, source, v] as [number, ModelSourceArgs, QueryMatch]))),
+            flatMap(source => rxOf(...List.map(
+                (v, i) => [i, source, v] as [number, ModelSourceArgs, QueryMatch],
+                state.queryMatches))),
             concatMap(([queryId, args, lemma]) =>
                 callWithExtraVal(
                     this.concApi,
@@ -245,7 +247,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
                             attrs: [],
                             metadataAttrs: [],
                             queries: [],
-                            concordances: createInitialLinesData(state.lemmas.length),
+                            concordances: createInitialLinesData(state.queryMatches.length),
                             posQueryGenerator: ['tag', 'ppTagset'] // TODO configuration
                         },
                         lemma,

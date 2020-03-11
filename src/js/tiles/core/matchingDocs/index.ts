@@ -56,7 +56,7 @@ export class MatchingDocsTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({dispatcher, tileId, waitForTiles, subqSourceTiles, ut, theme, appServices, widthFract, conf, isBusy, cache, lemmas}:TileFactory.Args<MatchingDocsTileConf>) {
+    constructor({dispatcher, tileId, waitForTiles, subqSourceTiles, ut, theme, appServices, widthFract, conf, isBusy, cache, queryMatches}:TileFactory.Args<MatchingDocsTileConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
@@ -85,7 +85,7 @@ export class MatchingDocsTile implements ITileProvider {
                 backlink: null,
                 subqSyncPalette: false
             },
-            lemmas
+            queryMatches
         });
         this.label = appServices.importExternalMessage(conf.label || 'matchingDocs__main_label');
         this.view = viewInit(this.dispatcher, ut, theme, this.model);

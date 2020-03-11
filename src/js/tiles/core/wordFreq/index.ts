@@ -55,7 +55,7 @@ export class WordFreqTile implements ITileProvider {
 
     private readonly view:TileComponent;
 
-    constructor({tileId, dispatcher, appServices, ut, lemmas, lang1, widthFract, conf, isBusy, cache, queryType}:TileFactory.Args<WordFreqTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, queryMatches, lang1, widthFract, conf, isBusy, cache, queryType}:TileFactory.Args<WordFreqTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
@@ -67,13 +67,13 @@ export class WordFreqTile implements ITileProvider {
                 error: null,
                 corpname: conf.corpname,
                 corpusSize: conf.corpusSize,
-                data: createInitialWordDataArray(lemmas),
+                data: createInitialWordDataArray(queryMatches),
                 sfwRowRange: conf.sfwRowRange,
                 flevelDistrb: conf.flevelDistrib ? conf.flevelDistrib : defaultFlevelDistrib
             },
             tileId,
             api: new FreqDbAPI(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
-            queryMatches: lemmas,
+            queryMatches: queryMatches,
             queryLang: lang1,
             queryType,
             appServices

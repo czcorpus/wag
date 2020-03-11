@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
-import { Ident } from 'cnc-tskit';
+import { Ident, List } from 'cnc-tskit';
 
 import { AppServices } from '../../../appServices';
 import { LocalizedConfMsg } from '../../../common/types';
@@ -68,7 +68,7 @@ export class FreqComparisonTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({dispatcher, tileId, waitForTiles, ut, theme, appServices, widthFract, conf, isBusy, cache, lemmas}:TileFactory.Args<FreqComparisonTileConf>) {
+    constructor({dispatcher, tileId, waitForTiles, ut, theme, appServices, widthFract, conf, isBusy, cache, queryMatches}:TileFactory.Args<FreqComparisonTileConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
@@ -94,13 +94,16 @@ export class FreqComparisonTile implements ITileProvider {
             {
                 isBusy: isBusy,
                 error: null,
-                blocks: criteria.map(v => ({
-                    data: [],
-                    words: lemmas.map(_ => null),
-                    ident: Ident.puid(),
-                    isReady: false,
-                    label: null
-                })),
+                blocks: List.map(
+                    v => ({
+                        data: [],
+                        words: List.map(_ => null, queryMatches),
+                        ident: Ident.puid(),
+                        isReady: false,
+                        label: null
+                    }),
+                    criteria
+                ),
                 activeBlock: 0,
                 corpname: conf.corpname,
                 fcrit: criteria,
@@ -115,7 +118,7 @@ export class FreqComparisonTile implements ITileProvider {
                 isAltViewMode: false,
                 posQueryGenerator: conf.posQueryGenerator
             },
-            lemmas
+            queryMatches
         );
         this.label = appServices.importExternalMessage(conf.label || 'freq_comparison__main_label');
         this.view = viewInit(this.dispatcher, ut, theme, this.model);

@@ -64,7 +64,7 @@ export interface TimeDistribModelArgs {
     api:KontextTimeDistribApi;
     concApi:ConcApi;
     appServices:AppServices;
-    lemmas:RecognizedQueries;
+    queryMatches:RecognizedQueries;
     queryLang:string;
 }
 
@@ -83,16 +83,16 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private readonly waitForTile:number;
 
-    private readonly lemmas:RecognizedQueries;
+    private readonly queryMatches:RecognizedQueries;
 
-    constructor({dispatcher, initState, tileId, waitForTile, api, concApi, appServices, lemmas}:TimeDistribModelArgs) {
+    constructor({dispatcher, initState, tileId, waitForTile, api, concApi, appServices, queryMatches}:TimeDistribModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.api = api;
         this.concApi = concApi;
         this.waitForTile = waitForTile;
         this.appServices = appServices;
-        this.lemmas = lemmas;
+        this.queryMatches = queryMatches;
 
         this.addActionHandler<Actions.ZoomMouseLeave>(
             ActionName.ZoomMouseLeave,
@@ -166,7 +166,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         this.addActionHandler<GlobalActions.RequestQueryResponse>(
             GlobalActionName.RequestQueryResponse,
             (state, action) => {
-                state.data = this.lemmas.map(_ => []);
+                state.data = this.queryMatches.map(_ => []);
                 state.isBusy = true;
                 state.error = null;
             },
@@ -181,7 +181,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                     state,
                                     dispatch,
                                     [null],
-                                    rxOf(...this.lemmas.map((lemma, queryId) => ({
+                                    rxOf(...this.queryMatches.map((lemma, queryId) => ({
                                         queryId: queryId,
                                         lemma: findCurrQueryMatch(lemma),
                                         concId: payload.concPersistenceIDs[queryId]
@@ -192,7 +192,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                     state,
                                     dispatch,
                                     state.subcnames,
-                                    rxOf(...this.lemmas.map((lemma, queryId) => ({
+                                    rxOf(...this.queryMatches.map((lemma, queryId) => ({
                                         queryId: queryId,
                                         lemma: findCurrQueryMatch(lemma),
                                         concId: null
@@ -209,7 +209,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         state,
                         dispatch,
                         state.subcnames,
-                        rxOf(...this.lemmas.map((lemma, queryId) => ({
+                        rxOf(...this.queryMatches.map((lemma, queryId) => ({
                             queryId: queryId,
                             lemma: findCurrQueryMatch(lemma),
                             concId: null
@@ -396,7 +396,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                             metadataAttrs: [],
                             queries: [],
                             posQueryGenerator: state.posQueryGenerator,
-                            concordances: createInitialLinesData(this.lemmas.length)
+                            concordances: createInitialLinesData(this.queryMatches.length)
                         },
                         lemmaVariant,
                         queryId,

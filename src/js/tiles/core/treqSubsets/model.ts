@@ -99,7 +99,7 @@ export interface TreqSubsetModelArgs {
     initialState:TranslationsSubsetsModelState;
     tileId:number;
     api:TreqSubsetsAPI;
-    lemmas:RecognizedQueries;
+    queryMatches:RecognizedQueries;
     waitForColorsTile:number;
 }
 
@@ -113,18 +113,18 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
 
     private readonly api:TreqSubsetsAPI;
 
-    private readonly lemmas:RecognizedQueries;
+    private readonly queryMatches:RecognizedQueries;
 
     private readonly waitForColorsTile:number;
 
     private readonly appServices:AppServices;
 
 
-    constructor({dispatcher, appServices, initialState, tileId, api, lemmas, waitForColorsTile}:TreqSubsetModelArgs) {
+    constructor({dispatcher, appServices, initialState, tileId, api, queryMatches, waitForColorsTile}:TreqSubsetModelArgs) {
         super(dispatcher, initialState);
         this.api = api;
         this.tileId = tileId;
-        this.lemmas = lemmas;
+        this.queryMatches = queryMatches;
         this.waitForColorsTile = waitForColorsTile;
         this.appServices = appServices;
 
@@ -144,7 +144,7 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
                 );
             },
             (state, action, dispatch) => {
-                const srchLemma = findCurrQueryMatch(this.lemmas[0]);
+                const srchLemma = findCurrQueryMatch(this.queryMatches[0]);
                 rxOf(...state.subsets).pipe(
                     mergeMap(subset =>
                         callWithExtraVal(
@@ -199,7 +199,7 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
                             payload: {
                                 tileId: this.tileId,
                                 isEmpty: true,
-                                query: findCurrQueryMatch(this.lemmas[0]).word,
+                                query: findCurrQueryMatch(this.queryMatches[0]).word,
                                 lines: [],
                                 sum: -1,
                                 subsetId: null

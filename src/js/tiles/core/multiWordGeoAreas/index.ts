@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { IActionDispatcher, StatelessModel } from 'kombo';
-
+import { List } from 'cnc-tskit';
 import { AppServices } from '../../../appServices';
 import { FreqDistribAPI, FreqSort } from '../../../common/api/kontext/freqs';
 import { QueryType } from '../../../common/query';
@@ -63,7 +63,7 @@ export class MultiWordGeoAreasTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({tileId, dispatcher, appServices, ut, theme, waitForTiles, widthFract, conf, isBusy, cache, lemmas}:TileFactory.Args<MultiWordGeoAreasTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, theme, waitForTiles, widthFract, conf, isBusy, cache, queryMatches}:TileFactory.Args<MultiWordGeoAreasTileConf>) {
         this.tileId = tileId;
         this.label = appServices.importExternalMessage(conf.label);
         this.dispatcher = dispatcher;
@@ -75,7 +75,7 @@ export class MultiWordGeoAreasTile implements ITileProvider {
             tileId,
             waitForTiles[0],
             appServices,
-            lemmas,
+            queryMatches,
             new ConcApi(false, cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             new FreqDistribAPI(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             new MapLoader(cache, appServices),
@@ -85,7 +85,7 @@ export class MultiWordGeoAreasTile implements ITileProvider {
                 areaCodeMapping: {...conf.areaCodeMapping},
                 mapSVG: '',
                 tooltipArea: null,
-                data: lemmas.map(_ => []),
+                data: List.map(_ => [], queryMatches),
                 corpname: conf.corpname,
                 concId: null,
                 fcrit: conf.fcrit,
@@ -97,7 +97,7 @@ export class MultiWordGeoAreasTile implements ITileProvider {
                 fmaxitems: 100,
                 isAltViewMode: false,
                 posQueryGenerator: conf.posQueryGenerator,
-                currentLemmas: lemmas.map(lemma => findCurrQueryMatch(lemma))
+                currQueryMatches: List.map(lemma => findCurrQueryMatch(lemma), queryMatches)
             }
         );
         this.label = appServices.importExternalMessage(conf.label || 'geolocations__main_label');

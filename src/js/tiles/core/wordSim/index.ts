@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { IActionDispatcher, StatelessModel } from 'kombo';
-
+import { List } from 'cnc-tskit';
 import { TileConf, ITileProvider, TileFactory, TileComponent } from '../../../common/tile';
 import { WordSimModel } from './model';
 import { AppServices } from '../../../appServices';
@@ -66,8 +66,8 @@ export class WordSimTile implements ITileProvider {
 
     private readonly api:WordSimApi<{}>;
 
-    constructor({tileId, waitForTiles, subqSourceTiles, dispatcher, appServices, ut, widthFract, conf, theme,
-            isBusy, cache, lang2, lemmas}:TileFactory.Args<WordSimTileConf>) {
+    constructor({tileId, waitForTiles, dispatcher, appServices, ut, widthFract, conf, theme,
+            isBusy, cache, queryMatches}:TileFactory.Args<WordSimTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.appServices = appServices;
@@ -83,12 +83,12 @@ export class WordSimTile implements ITileProvider {
                 isAltViewMode: false,
                 error: null,
                 isTweakMode: false,
-                data: lemmas.map(_ => null),
+                data: List.map(_ => null, queryMatches),
                 maxResultItems: conf.maxResultItems,
                 operationMode: OperationMode.MeansLike,
                 corpus: conf.corpname || '',
                 minScore: conf.minScore || 0,
-                lemmas: lemmas.map(lemma => findCurrQueryMatch(lemma)),
+                queryMatches: List.map(lemma => findCurrQueryMatch(lemma), queryMatches),
                 selectedText: null
             },
             tileId,

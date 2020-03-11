@@ -38,6 +38,6 @@ export interface WordSimModelState {
     data:Array<Array<WordSimWord>>;
     operationMode:OperationMode;
     corpus:string;
-    lemmas:Array<QueryMatch>;
+    queryMatches:Array<QueryMatch>;
     selectedText:string;
 }

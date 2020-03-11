@@ -112,11 +112,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 <div className="WordSimView">
                     {props.isTweakMode ? <Controls tileId={props.tileId} operationMode={props.operationMode} /> : null}
                     <div className="boxes" style={{flexWrap: props.isMobile ? 'wrap' : 'nowrap'}}>
-                        {props.data.map((data, index) => props.isAltViewMode ? <TableView data={data} caption={props.data.length > 1 ? props.lemmas[index].word : null} /> :
+                        {props.data.map((data, index) => props.isAltViewMode ? <TableView data={data} caption={props.data.length > 1 ? props.queryMatches[index].word : null} /> :
                         data ?
                             <globalCompontents.ResponsiveWrapper minWidth={props.isMobile ? undefined : 250} key={`${index}non-empty`} render={(width:number, height:number) => (
                                 <div className="sim-cloud">
-                                    <h2>{props.data.length > 1 ? `[${index + 1}] ${props.lemmas[index].word}` : null}</h2>
+                                    <h2>{props.data.length > 1 ? `[${index + 1}] ${props.queryMatches[index].word}` : null}</h2>
                                     <WordCloud width={width} height={height} data={data} isMobile={props.isMobile}
                                                     style={props.isMobile ? {height: `${data.length * 30}px`} :
                                                             {height: `${data.length * 40}px`, width: '100%'}}

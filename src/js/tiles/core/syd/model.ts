@@ -62,18 +62,18 @@ export class SydModel extends StatelessModel<SydModelState> {
 
     private readonly waitForTile:number;
 
-    private readonly lemmas:RecognizedQueries;
+    private readonly queryMatches:RecognizedQueries;
 
     private readonly api:SyDAPI;
 
     private readonly appServices:AppServices;
 
-    constructor(dispatcher:IActionQueue, initialState:SydModelState, tileId:number, waitForTile:number, lemmas:RecognizedQueries,
+    constructor(dispatcher:IActionQueue, initialState:SydModelState, tileId:number, waitForTile:number, queryMatches:RecognizedQueries,
                 appServices:AppServices, api:SyDAPI) {
         super(dispatcher, initialState);
         this.tileId = tileId;
         this.waitForTile = waitForTile;
-        this.lemmas = lemmas;
+        this.queryMatches = queryMatches;
         this.api = api;
         this.appServices = appServices;
 
@@ -87,8 +87,8 @@ export class SydModel extends StatelessModel<SydModelState> {
             (state, action, dispatch) => {
                 this.api.call(stateToArgs(
                     state,
-                    this.lemmas[0][0].word, // TODO !!!
-                    pipe(this.lemmas, List.slice(1), List.map(lvList => lvList[0].word)) // TODO
+                    this.queryMatches[0][0].word, // TODO !!!
+                    pipe(this.queryMatches, List.slice(1), List.map(lvList => lvList[0].word)) // TODO
                 ))
                 .subscribe(
                     (data) => {

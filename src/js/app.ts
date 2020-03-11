@@ -116,7 +116,7 @@ export function createRootComponent({config, userSession, queryMatches, appServi
         query1Lang: userSession.query1Lang || 'cs',
         query2Lang: userSession.query2Lang || '',
         queryType: qType,
-        lemmas: queryMatches,
+        queryMatches: queryMatches,
         isAnswerMode: userSession.answerMode,
         uiLanguages: Object.keys(userSession.uiLanguages).map(k => ({code: k, label: userSession.uiLanguages[k]})),
 

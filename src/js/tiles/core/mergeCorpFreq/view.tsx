@@ -34,14 +34,18 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const globComponents = ut.getComponents();
 
-    function transformData(data:Array<Array<SourceMappedDataRow>>, lemmas: Array<QueryMatch>):Array<{name:string; ipm:Array<number>; freq:Array<number>}> {
+    function transformData(data:Array<Array<SourceMappedDataRow>>, queryMatches: Array<QueryMatch>):Array<{name:string; ipm:Array<number>; freq:Array<number>}> {
         return pipe(
             data,
             List.flatMap((v, i) => v ? v.map<[SourceMappedDataRow, number]>(v => [v, i]) : []),
             List.reduce((acc, [row, queryIdx]) => {
                 const itemIndex = acc.findIndex(v => v.name === row.name);
                 if (itemIndex < 0) {
-                    const item = {name: row.name, ipm: lemmas.map(_ => 0), freq: lemmas.map(_ => 0)};
+                    const item = {
+                        name: row.name,
+                        ipm: List.map(_ => 0, queryMatches),
+                        freq: List.map(_ => 0, queryMatches)
+                    };
                     item.ipm[queryIdx] = row.ipm;
                     item.freq[queryIdx] = row.freq;
                     acc.push(item);
@@ -61,23 +65,23 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const TableView:React.SFC<{
         data:Array<Array<SourceMappedDataRow>>;
-        lemmas:Array<QueryMatch>;
+        queryMatches:Array<QueryMatch>;
 
     }> = (props) => {
-        const transformedData = transformData(props.data, props.lemmas)
+        const transformedData = transformData(props.data, props.queryMatches)
 
         return (
             <table className="data">
                 <thead>
-                    { props.lemmas.length > 1 ?
+                    { props.queryMatches.length > 1 ?
                         <tr>
                             <th />
-                            {props.lemmas.map((value, index) => <th key={value.lemma} colSpan={2}>{`[${index+1}] ${value.word}`}</th>)}
+                            {props.queryMatches.map((value, index) => <th key={value.lemma} colSpan={2}>{`[${index+1}] ${value.word}`}</th>)}
                         </tr> : null
                     }
                     <tr>
                         <th />
-                        {props.lemmas.map((lemma, idx) => (
+                        {props.queryMatches.map((lemma, idx) => (
                             <React.Fragment key={lemma.lemma}>
                                 <th>{ut.translate('mergeCorpFreq_abs_freq')}</th>
                                 <th>{ut.translate('mergeCorpFreq_rel_freq')}</th>
@@ -89,7 +93,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     {transformedData.map((row, i) => (
                         <tr key={`${i}:${row.name}`}>
                             <td className="word">{row.name}</td>
-                            {props.lemmas.map((v, index) =>
+                            {props.queryMatches.map((v, index) =>
                                 <React.Fragment key={v.lemma}>
                                     <td className="num">{ut.formatNumber(row.freq[index])}</td>
                                     <td className="num">{ut.formatNumber(row.ipm[index])}</td>
@@ -180,8 +184,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         return (
                         <div className="MergeCorpFreqBarTile" style={{minHeight: `${minHeight}px`, height: `${height}px`}}>
                             {this.props.isAltViewMode ?
-                                <TableView data={this.props.data} lemmas={this.props.lemmas} /> :
-                                <Chart data={this.props.data} barCategoryGap={barCategoryGap} queryMatches={this.props.lemmas} isPartial={this.props.isBusy} isMobile={this.props.isMobile} />
+                                <TableView data={this.props.data} queryMatches={this.props.queryMatches} /> :
+                                <Chart data={this.props.data} barCategoryGap={barCategoryGap} queryMatches={this.props.queryMatches} isPartial={this.props.isBusy} isMobile={this.props.isMobile} />
                             }
                         </div>)}} />
                 </globComponents.TileWrapper>

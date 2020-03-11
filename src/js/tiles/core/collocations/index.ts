@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { IActionDispatcher, StatelessModel } from 'kombo';
-
+import { List } from 'cnc-tskit';
 import { AppServices } from '../../../appServices';
 import { CorePosAttribute } from '../../../common/types';
 import { QueryType } from '../../../common/query';
@@ -70,7 +70,7 @@ export class CollocationsTile implements ITileProvider {
 
     private readonly api:CollocationApi<{}>;
 
-    constructor({tileId, dispatcher, appServices, ut, theme, waitForTiles, waitForTilesTimeoutSecs, widthFract, conf, isBusy, lemmas, cache, queryType}:TileFactory.Args<CollocationsTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, theme, waitForTiles, waitForTilesTimeoutSecs, widthFract, conf, isBusy, queryMatches, cache, queryType}:TileFactory.Args<CollocationsTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.appServices = appServices;
@@ -96,7 +96,7 @@ export class CollocationsTile implements ITileProvider {
                 widthFract: widthFract,
                 error: null,
                 corpname: conf.corpname,
-                concIds: lemmas.map(_ => null),
+                concIds: List.map(_ => null, queryMatches),
                 selectedText: null,
                 tokenAttr: CorePosAttribute.LEMMA,
                 srchRange: conf.rangeSize,
@@ -105,11 +105,11 @@ export class CollocationsTile implements ITileProvider {
                 minLocalAbsFreq: conf.minLocalFreq,
                 appliedMetrics: [CollocMetric.LOG_DICE, CollocMetric.MI, CollocMetric.T_SCORE],
                 sortByMetric: CollocMetric.LOG_DICE,
-                data: lemmas.map(_ => null),
+                data: List.map(_ => null, queryMatches),
                 heading: [],
                 citemsperpage: conf.maxItems ? conf.maxItems : 10,
                 backlink: null,
-                queryMatches: lemmas.map(findCurrQueryMatch),
+                queryMatches: List.map(findCurrQueryMatch, queryMatches),
                 posQueryGenerator: conf.posQueryGenerator
             }
         });
