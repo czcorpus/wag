@@ -85,7 +85,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 <div className={`wrapper cnc-msgbox ${classType}`}>
                     <div className="flex">
                         <globalComponents.MessageStatusIcon statusType={props.type} isInline={false} />
-                        <p>{props.text}</p>
+                        <p className="text">{props.text}</p>
                         <div className="close">
                             <a onClick={handleCloseClick}>
                                 <img src={ut.createStaticUrl('close-icon.svg')} />
@@ -857,10 +857,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 <div className="MessagesBox">
                 {this.props.systemMessages.length > 0 ?
                     <ul className="Messages">
-                        {this.props.systemMessages.map(
-                                msg => <SystemMessage key={msg.ident} type={msg.type} text={msg.text}
-                                                ident={msg.ident} />)
-                        }
+                        {List.map(
+                            msg => <SystemMessage key={msg.ident} type={msg.type} text={msg.text}
+                                                ident={msg.ident} />,
+                            this.props.systemMessages
+                        )}
                     </ul> :
                     null
                 }
