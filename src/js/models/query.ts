@@ -17,6 +17,7 @@
  */
 
 import { StatelessModel, IActionQueue } from 'kombo';
+import { pipe, List } from 'cnc-tskit';
 
 import { AppServices } from '../appServices';
 import { Forms, MultiDict } from '../common/data';
@@ -26,7 +27,6 @@ import { QueryType, QueryMatch, QueryTypeMenuItem, matchesPos, SearchLanguage, R
 import { ActionName, Actions } from './actions';
 import { HTTPAction } from '../server/routes/actions';
 import { LayoutManager } from '../layout';
-import { pipe, List } from 'cnc-tskit';
 
 
 export interface QueryFormModelState {
@@ -264,12 +264,6 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
                 });
             }
             window.location.href = this.appServices.createActionUrl(HTTPAction.SEARCH, args);
-
-        } else {
-            List.forEach(
-                msg => this.appServices.showMessage(SystemMessageType.ERROR, msg),
-                state.errors
-            );
         }
     }
 
@@ -287,14 +281,30 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
         return isValid;
     }
 
+    private findEqualQueries(state:QueryFormModelState):Array<string> {
+        return pipe(
+            state.queries,
+            List.groupBy(v => v.value),
+            List.filter(([,v]) => v.length > 1),
+            List.map(([k,]) => k)
+        );
+    }
+
     validateQuery(state:QueryFormModelState):void {
         if (state.queryType === QueryType.SINGLE_QUERY) {
             this.validateNthQuery(state, 0);
 
         } else if (state.queryType === QueryType.CMP_QUERY) {
-            state.queries.forEach((_, idx) => {
-                this.validateNthQuery(state, idx);
-            });
+            List.forEach(
+                (_, idx) => {
+                    this.validateNthQuery(state, idx);
+                },
+                state.queries
+            );
+            const eqQueries = this.findEqualQueries(state);
+            if (eqQueries.length > 0) {
+                state.errors.push(new Error(`Some of the entered queries are identical: ${eqQueries.join(', ')}`));
+            }
 
         } else if (state.queryType === QueryType.TRANSLAT_QUERY) {
             this.validateNthQuery(state, 0);

@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 import { StatelessModel, IActionQueue } from 'kombo';
+import { List } from 'cnc-tskit';
 
 import { AppServices } from '../appServices';
 import { SystemMessage } from '../notifications';
@@ -54,9 +55,9 @@ export class MessagesModel extends StatelessModel<MessagesState> {
         this.addActionHandler(
             ActionName.RemoveSystemMessage,
             (state, action:Actions.RemoveSystemMessage) => {
-                const srchIdx = state.systemMessages.findIndex(v => v.ident === action.payload.ident);
+                const srchIdx = List.findIndex(v => v.ident === action.payload.ident, state.systemMessages);
                 if (srchIdx > -1) {
-                    state.systemMessages = state.systemMessages.splice(srchIdx, 1);
+                    state.systemMessages.splice(srchIdx, 1);
                 }
             }
         );
