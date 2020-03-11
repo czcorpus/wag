@@ -27,16 +27,18 @@ import * as translations from 'translations';
 import { AppServices } from './appServices';
 import { encodeArgs, ajax$, encodeURLParameters } from './common/ajax';
 import { ScreenProps } from './common/hostPage';
-import { ClientConf, UserConf } from './conf';
+import { ClientConf, UserConf, HomepageTileConf } from './conf';
 import { ActionName } from './models/actions';
 import { SystemNotifications } from './notifications';
 import { GlobalComponents } from './views/global';
 import { createRootComponent } from './app';
 import { initStore } from './cacheDb';
-import { TelemetryAction } from './common/types';
+import { TelemetryAction, TileIdentMap } from './common/types';
 import { HTTPAction } from './server/routes/actions';
 import { MultiDict } from './common/data';
 import { HTTP } from 'cnc-tskit';
+import { WdglanceMainProps } from './views/main';
+import { TileGroup } from './layout';
 
 declare var DocumentTouch;
 declare var require:(src:string)=>void;  // webpack
@@ -48,7 +50,107 @@ require('../css/mobile-small.less');
 require('theme.less');
 
 
-export const initClient = (mountElement:HTMLElement, config:ClientConf, userSession:UserConf, queryMatches:RecognizedQueries) => {
+interface MountArgs {
+    userSession:UserConf;
+    component:React.SFC<WdglanceMainProps>;
+    layout:Array<TileGroup>;
+    appServices:AppServices;
+    mountElement:HTMLElement;
+    dispatcher:ActionDispatcher;
+    homepage:Array<HomepageTileConf>;
+    queryMatches:RecognizedQueries;
+}
+
+
+function mountReactComponent({component, mountElement, layout, dispatcher, appServices, queryMatches, homepage, userSession}:MountArgs) {
+    if (!userSession.error || userSession.error[0] === 0) {
+        ReactDOM.hydrate(
+            React.createElement(
+                component,
+                {
+                    layout: layout,
+                    homepageSections: homepage,
+                    isMobile: appServices.isMobileMode(),
+                    isAnswerMode: userSession.answerMode,
+                    error: userSession.error
+                }
+            ),
+            mountElement,
+            () => {
+                if (userSession.error) {
+                    dispatcher.dispatch({
+                        name: ActionName.SetEmptyResult,
+                        payload: {
+                            error: userSession.error
+                        }
+                    });
+
+                } else if (userSession.answerMode) {
+                    if (queryMatches[0].find(v => v.isCurrent)) {
+                        dispatcher.dispatch({
+                            name: ActionName.RequestQueryResponse
+                        });
+
+                    } else {
+                        dispatcher.dispatch({
+                            name: ActionName.SetEmptyResult
+                        });
+                    }
+                }
+            }
+        );
+    }
+}
+
+
+function initTelemetry(config:ClientConf, appServices:AppServices, dispatcher:ActionDispatcher, tileMap:TileIdentMap) {
+    // telemetry capture
+    if (config.telemetry && Math.random() < config.telemetry.participationProbability) {
+        merge(
+            new Observable<TelemetryAction>((observer) => {
+                dispatcher.registerActionListener((action, _) => {
+                    const payload = action.payload || {};
+                    observer.next({
+                        timestamp: Date.now(),
+                        actionName: action.name,
+                        isSubquery: isSubqueryPayload(payload) as boolean,
+                        isMobile: appServices.isMobileMode(),
+                        tileName: (Object.entries(tileMap).find(x => x[1] === payload['tileId']) || [null])[0]
+                    });
+                });
+            }),
+            rxOf(1, 1.2, 1.4, 1.6, 1.8, 2.0, 2.3, 2.6, 3, 4.0, 6, 10).pipe(
+                concatMap(v => interval(config.telemetry.sendIntervalSecs * v * 1000).pipe(take(1))),
+            )
+        ).pipe(
+            scan<number|TelemetryAction, {toDispatch: Array<TelemetryAction>, buffer:Array<TelemetryAction>}>(
+                (acc, curr) => typeof curr === 'number' ?
+                    {
+                        toDispatch: acc.buffer,
+                        buffer: []
+                    } :
+                    {
+                        toDispatch: [],
+                        buffer: acc.buffer.concat([curr])
+                    },
+                    {toDispatch: [], buffer: []}
+            ),
+            concatMap(
+                (data) => data.toDispatch.length > 0 ?
+                    ajax$(
+                        HTTP.Method.POST,
+                        appServices.createActionUrl(HTTPAction.TELEMETRY),
+                        {telemetry: data.toDispatch},
+                        {contentType: 'application/json'}
+                    ) :
+                    empty()
+            )
+        ).subscribe();
+    }
+}
+
+
+export function initClient(mountElement:HTMLElement, config:ClientConf, userSession:UserConf, queryMatches:RecognizedQueries) {
     const dispatcher = new ActionDispatcher();
     const notifications = new SystemNotifications(dispatcher);
     const uiLangSel = userSession.uiLang || 'en-US';
@@ -100,97 +202,35 @@ export const initClient = (mountElement:HTMLElement, config:ClientConf, userSess
         }))
     );
 
-    const [WdglanceMain, currLayout, tileMap] = createRootComponent({
-        config: config,
-        userSession: userSession,
-        queryMatches: queryMatches,
-        appServices: appServices,
-        dispatcher: dispatcher,
-        onResize: windowResize$,
-        viewUtils: viewUtils,
-        cache: initStore('requests', config.reqCacheTTL)
-    });
-    console.log('tile map: ', tileMap); // DEBUG TODO
+    try {
+        const [WdglanceMain, layout, tileMap] = createRootComponent({
+            config,
+            userSession,
+            queryMatches,
+            appServices,
+            dispatcher,
+            onResize: windowResize$,
+            viewUtils,
+            cache: initStore('requests', config.reqCacheTTL)
+        });
+        console.log('tile map: ', tileMap); // DEBUG TODO
 
-    // telemetry capture
-    if (config.telemetry && Math.random() < config.telemetry.participationProbability) {
-        merge(
-            new Observable<TelemetryAction>((observer) => {
-                dispatcher.registerActionListener((action, _) => {
-                    const payload = action.payload || {};
-                    observer.next({
-                        timestamp: Date.now(),
-                        actionName: action.name,
-                        isSubquery: isSubqueryPayload(payload) as boolean,
-                        isMobile: appServices.isMobileMode(),
-                        tileName: (Object.entries(tileMap).find(x => x[1] === payload['tileId']) || [null])[0]
-                    });
-                });
-            }),
-            rxOf(1, 1.2, 1.4, 1.6, 1.8, 2.0, 2.3, 2.6, 3, 4.0, 6, 10).pipe(
-                concatMap(v => interval(config.telemetry.sendIntervalSecs * v * 1000).pipe(take(1))),
-            )
-        ).pipe(
-            scan<number|TelemetryAction, {toDispatch: Array<TelemetryAction>, buffer:Array<TelemetryAction>}>(
-                (acc, curr) => typeof curr === 'number' ?
-                    {
-                        toDispatch: acc.buffer,
-                        buffer: []
-                    } :
-                    {
-                        toDispatch: [],
-                        buffer: acc.buffer.concat([curr])
-                    },
-                    {toDispatch: [], buffer: []}
-            ),
-            concatMap(
-                (data) => data.toDispatch.length > 0 ?
-                    ajax$(
-                        HTTP.Method.POST,
-                        appServices.createActionUrl(HTTPAction.TELEMETRY),
-                        {telemetry: data.toDispatch},
-                        {contentType: 'application/json'}
-                    ) :
-                    empty()
-            )
-        ).subscribe();
-    }
-
-    if (!userSession.error || userSession.error[0] === 0) {
-        ReactDOM.hydrate(
-            React.createElement(
-                WdglanceMain,
-                {
-                    layout: currLayout,
-                    homepageSections: [...config.homepage.tiles],
-                    isMobile: appServices.isMobileMode(),
-                    isAnswerMode: userSession.answerMode,
-                    error: userSession.error
-                }
-            ),
+        initTelemetry(config, appServices, dispatcher, tileMap);
+        mountReactComponent({
+            userSession,
+            component: WdglanceMain,
             mountElement,
-            () => {
-                if (userSession.error) {
-                    dispatcher.dispatch({
-                        name: ActionName.SetEmptyResult,
-                        payload: {
-                            error: userSession.error
-                        }
-                    });
+            layout,
+            dispatcher,
+            appServices,
+            queryMatches,
+            homepage: [...config.homepage.tiles]
+        });
 
-                } else if (userSession.answerMode) {
-                    if (queryMatches[0].find(v => v.isCurrent)) {
-                        dispatcher.dispatch({
-                            name: ActionName.RequestQueryResponse
-                        });
 
-                    } else {
-                        dispatcher.dispatch({
-                            name: ActionName.SetEmptyResult
-                        });
-                    }
-                }
-            }
-        );
+    } catch (e) {
+        // No need to do anything more as being
+        // here means the configuration is broken.
+        console.error(e);
     }
 }

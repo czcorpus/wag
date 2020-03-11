@@ -44,7 +44,12 @@ export interface CollocationsTileConf extends TileConf {
     rangeSize:number;
     maxItems?:number;
     backlink?:Backlink;
-    posQueryGenerator?:[string, string]; // a positional attribute name and a function to create a query value (e.g. ['tag', (v) => `${v}.+`])
+
+    /**
+     * A positional attribute name and a function to create a query value (e.g. ['tag', (v) => `${v}.+`]).
+     * In case waitForTile is not filled in then this must be present.
+     */
+    posQueryGenerator?:[string, string];
 }
 
 /**
@@ -77,6 +82,12 @@ export class CollocationsTile implements ITileProvider {
         this.widthFract = widthFract;
         this.blockingTiles = waitForTiles;
         this.api = createInstance(conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL), cache);
+        if (waitForTiles.length > 1) {
+            console.warn(`The ${TILE_TYPE} does support waiting for 0-1 other tiles`);
+        }
+        if (waitForTiles.length === 0 && !conf.posQueryGenerator) {
+            throw new Error(`The ${TILE_TYPE} requires either waitFor or posQueryGenerator configured`);
+        }
         this.model = new CollocModel({
             dispatcher: dispatcher,
             tileId: tileId,

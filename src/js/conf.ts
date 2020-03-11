@@ -112,13 +112,13 @@ export interface LayoutsConfig {
     translat?:LayoutConfigTranslatQuery;
 }
 
-export interface HomePageTileConf {
+export interface HomePageTileConfI18n {
     label:{[lang:string]:string};
     contents:{[lang:string]:string|{file:string}};
 }
 
-export interface HomepageConf {
-    tiles:Array<HomePageTileConf>;
+export interface HomepageConfI18n {
+    tiles:Array<HomePageTileConfI18n>;
 }
 
 export interface FaviconConf {
@@ -147,7 +147,7 @@ export interface ClientStaticConf {
     onLoadInit?:Array<string>;
     issueReportingUrl?:string;
     maxTileErrors:number;
-    homepage:HomepageConf;
+    homepage:HomepageConfI18n;
     colors?:ColorsConf|string;
     searchLanguages:{[code:string]:string};
 
@@ -175,6 +175,12 @@ export interface ClientStaticConf {
 export interface LanguageLayoutsConfig {[lang:string]:LayoutsConfig};
 export interface LanguageAnyTileConf {[lang:string]:{[ident:string]:TileConf}};
 
+
+export interface HomepageTileConf {
+    label:string;
+    html:string;
+}
+
 /**
  * Client side app configuration as generated
  * for a specific session (e.g. with tiles for
@@ -193,7 +199,7 @@ export interface ClientConf {
     onLoadInit:Array<string>;
     apiHeaders:{[urlPrefix:string]:HTTPHeaders};
     issueReportingUrl?:string;
-    homepage:{tiles:Array<{label:string; html:string}>};
+    homepage:{tiles:Array<HomepageTileConf>};
     tiles:{[ident:string]:TileConf};
     layouts:LayoutsConfig;
     searchLanguages:Array<SearchLanguage>;

@@ -87,5 +87,5 @@ export interface CollocModelState {
 
     queryMatches:Array<QueryMatch>;
 
-    posQueryGenerator: [string, string];
+    posQueryGenerator:[string, string];
 }
