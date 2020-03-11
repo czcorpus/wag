@@ -40,7 +40,7 @@ import { getLangFromCookie, fetchReqArgArray, createHelperServices, mkReturnUrl,
 
 
 function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, themeId:string, appServices:AppServices):Observable<ClientConf> {
-    return forkJoin(...conf.homepage.tiles.map(item =>
+    return forkJoin(...List.map(item =>
         appServices.importExternalText(
             item.contents,
             loadFile
@@ -50,9 +50,9 @@ function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, themeId:string,
                 label: appServices.importExternalMessage(item.label),
                 html: value
             }))
-        )
-
-    )).pipe(
+        ),
+        conf.homepage.tiles)
+    ).pipe(
         map((item:Array<{label:string; html: string}>) => ({
             rootUrl: conf.rootUrl,
             hostUrl: conf.hostUrl,

@@ -16,8 +16,10 @@
  * limitations under the License.
  */
 
-import { TileFactory, ITileProvider, TileConf } from './common/tile';
 import { IFullActionControl, ViewUtils } from 'kombo';
+import { List, Dict, pipe } from 'cnc-tskit';
+
+import { TileFactory, ITileProvider, TileConf } from './common/tile';
 import { GlobalComponents } from './views/global';
 import { AppServices } from './appServices';
 import { Theme } from './common/theme';
@@ -34,15 +36,14 @@ export interface DynamicTileModule {
 }
 
 const importDependentTilesList = (...d:Array<string|Array<string>>):Array<string> => {
-    const items = {};
-    d.forEach(chunk => {
-        if (chunk) {
-            (typeof chunk === 'string' ? [chunk] : chunk).forEach(val => {
-                items[val] = true;
-            })
-        }
-    });
-    return Object.keys(items);
+    return pipe(
+        d,
+        List.filter(v => !!v),
+        List.flatMap(v => typeof v === 'string' ? [v] : v),
+        List.map<string, [string, boolean]>(v => [v, true]),
+        Dict.fromEntries(),
+        Dict.keys()
+    );
 };
 
 type TileFactoryMap = {[tileType:string]:TileFactory.TileFactory<{}>};
@@ -99,9 +100,9 @@ export const mkTileFactory = (
                 lang1: lang1,
                 lang2: lang2,
                 queryType: queryType,
-                waitForTiles: importDependentTilesList(conf.waitFor, conf.readSubqFrom).map(v => tileIdentMap[v]),
+                waitForTiles: List.map(v => tileIdentMap[v], importDependentTilesList(conf.waitFor, conf.readSubqFrom)),
                 waitForTilesTimeoutSecs: conf.waitForTimeoutSecs,
-                subqSourceTiles: importDependentTilesList(conf.readSubqFrom).map(v => tileIdentMap[v]),
+                subqSourceTiles: List.map(v => tileIdentMap[v], importDependentTilesList(conf.readSubqFrom)),
                 widthFract: layoutManager.getTileWidthFract(queryType, tileIdentMap[confName]),
                 theme: theme,
                 conf: conf,

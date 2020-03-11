@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { map, concatMap, reduce, tap } from 'rxjs/operators';
+import { map, concatMap, reduce, tap, timeout } from 'rxjs/operators';
 import { of as rxOf } from 'rxjs';
 import { StatelessModel, Action, SEDispatcher, IActionQueue } from 'kombo';
 
@@ -69,6 +69,7 @@ interface SingleQueryFreqArgs {
 export interface ConcFilterModelArgs {
     tileId:number;
     waitForTiles:Array<number>;
+    waitForTilesTimeoutSecs:number;
     subqSourceTiles:Array<number>;
     dispatcher:IActionQueue;
     appServices:AppServices;
@@ -95,12 +96,15 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
 
     private readonly queryMatches:RecognizedQueries;
 
-    constructor({dispatcher, tileId, waitForTiles, subqSourceTiles, appServices, api, switchMainCorpApi, initState, queryMatches}:ConcFilterModelArgs) {
+    private readonly waitForTilesTimeoutSecs:number;
+
+    constructor({dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, subqSourceTiles, appServices, api, switchMainCorpApi, initState, queryMatches}:ConcFilterModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.api = api;
         this.switchMainCorpApi = switchMainCorpApi;
         this.waitForTiles = [...waitForTiles];
+        this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.subqSourceTiles = [...subqSourceTiles];
         this.appServices = appServices;
         this.queryMatches = queryMatches;
@@ -357,6 +361,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
             }
 
         ).pipe(
+            timeout(this.waitForTilesTimeoutSecs * 1000),
             reduce(
                 (acc, action) => {
                     const ans = {...acc};

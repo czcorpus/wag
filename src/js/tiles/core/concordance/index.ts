@@ -79,7 +79,7 @@ export class ConcordanceTile implements ITileProvider {
         this.widthFract = widthFract;
         this.appServices = appServices;
         this.blockingTiles = waitForTiles;
-        if (Array.isArray(waitForTiles) && waitForTiles.length > 1) {
+        if (waitForTiles.length > 1) {
             throw new Error('ConcordanceTile does not support waiting for multiple tiles. Only a single tile can be specified');
         }
         this.sourceInfoView = createSourceInfoViewInstance(conf.apiType, dispatcher, ut);
@@ -92,7 +92,7 @@ export class ConcordanceTile implements ITileProvider {
             queryMatches,
             queryType,
             backlink: conf.backlink || null,
-            waitForTile: Array.isArray(waitForTiles) ? waitForTiles[0] : waitForTiles,
+            waitForTile: waitForTiles[0],
             initState: {
                 tileId: tileId,
                 visibleQueryIdx: 0,
