@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
-import { Ident } from 'cnc-tskit';
+import { Ident, List } from 'cnc-tskit';
 
 import { AppServices } from '../../../appServices';
 import { FreqTreeAPI } from '../../../common/api/kontext/freqTree';
@@ -69,7 +69,7 @@ export class FreqTreeTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({dispatcher, tileId, waitForTiles, ut, theme, appServices, widthFract, conf, isBusy, cache, lemmas}:TileFactory.Args<FreqTreeTileConf>) {
+    constructor({dispatcher, tileId, waitForTiles, ut, theme, appServices, widthFract, conf, isBusy, cache, queryMatches}:TileFactory.Args<FreqTreeTileConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
@@ -107,8 +107,8 @@ export class FreqTreeTile implements ITileProvider {
                 fmaxitems: 100,
                 backlink: null,
                 maxChartsPerLine: conf.maxChartsPerLine ? conf.maxChartsPerLine : 3,
-                lemmaVariants: lemmas.map(lemma => findCurrQueryMatch(lemma)),
-                zoomCategory: conf.fcritTrees.map(_ => lemmas.map(_ => null)),
+                lemmaVariants: List.map(lemma => findCurrQueryMatch(lemma), queryMatches),
+                zoomCategory: conf.fcritTrees.map(_ => List.map(_ => null, queryMatches)),
                 posQueryGenerator: conf.posQueryGenerator
             }
         );

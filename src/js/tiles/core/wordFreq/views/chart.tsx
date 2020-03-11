@@ -34,7 +34,7 @@ interface ChartFreqDistItem {
 }
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>):React.SFC<{
-    lemmaItems:Array<FreqDBRow>;
+    queryMatches:Array<FreqDBRow>;
 }> {
 
     // -------------------- <LineDot /> -----------------------------------------------
@@ -69,11 +69,14 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------------- <Chart /> -----------------------------------------------
     const Chart:React.SFC<{
-        lemmaItems:Array<FreqDBRow>;
+        queryMatches:Array<FreqDBRow>;
         activeIdent:number;
     }> = (props) => {
-        const levels = [{ipm: 0.01, v: 1}, {ipm: 0.1, v: 2}, {ipm: 1, v: 3}, {ipm: 10, v: 4}, {ipm: 100, v: 5}, {ipm: 1000, v: 6}, {ipm: 10000, v: 7}];
-        const lemmas:Array<ChartFreqDistItem> = props.lemmaItems.map(v2 => ({
+        const levels = [
+            {ipm: 0.01, v: 1}, {ipm: 0.1, v: 2}, {ipm: 1, v: 3}, {ipm: 10, v: 4},
+            {ipm: 100, v: 5}, {ipm: 1000, v: 6}, {ipm: 10000, v: 7}
+        ];
+        const queryMatches:Array<ChartFreqDistItem> = props.queryMatches.map(v2 => ({
             ipm: v2.ipm,
             flevel: v2.flevel,
             abs: v2.abs,
@@ -83,7 +86,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }));
         const data = levels
             .map(v => ({ipm: v.ipm, flevel: v.v, abs: null, lemma: null, pos: null, color: '#8884d8'}))
-            .concat(lemmas)
+            .concat(queryMatches)
             .sort((v1, v2) => v1.flevel - v2.flevel);
         return (
             <LineChart width={340} height={250} data={data}>

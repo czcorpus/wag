@@ -35,7 +35,7 @@ export interface LayoutProps {
     config:ClientConf;
     userConfig:UserConf;
     hostPageEnv:HostPageEnv;
-    lemmas:RecognizedQueries;
+    queryMatches:RecognizedQueries;
     uiLanguages:Array<AvailableLanguage>;
     homepageTiles:Array<{label:string; html:string}>;
     uiLang:string;
@@ -85,7 +85,7 @@ export function init(ut:ViewUtils<GlobalComponents>):React.SFC<LayoutProps> {
 
         const createScriptStr = () => {
             return `indexPage.initClient(document.querySelector('.wdglance-mount'),
-                ${JSON.stringify(props.config)}, ${JSON.stringify(props.userConfig)}, ${JSON.stringify(props.lemmas)});`
+                ${JSON.stringify(props.config)}, ${JSON.stringify(props.userConfig)}, ${JSON.stringify(props.queryMatches)});`
         };
 
         const renderToolbar = () => {

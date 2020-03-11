@@ -466,23 +466,28 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <globalComponents.ModalBox onCloseClick={handleCloseModal}
                             title={ut.translate('global__query_specification')} tileClass="text">
                         <div className="LemmaSelector multiple-queries">
-                            {props.matches.map((lemmas, queryIdx) => (
-                                <div key={`varGroup${queryIdx}`} className="variants">
-                                    <h2 className="query-num">[{queryIdx + 1}]</h2>
-                                    <ul>
-                                        {lemmas.map((v, i) =>
-                                            <li key={`${v.lemma}:${v.pos}:${i}`}>
-                                                <label>
-                                                    <input type="radio" name={`lemma_${queryIdx}`}
-                                                            checked={props.modalSelections[queryIdx] === i}
-                                                            onChange={handleModalLemmaSelection(queryIdx, i)} />
-                                                    <em>{v.lemma}</em> ({mkAltLabel(v)})
-                                                </label>
-                                            </li>
-                                        )}
-                                    </ul>
-                                </div>
-                            ))}
+                            {List.map(
+                                (queryMatches, queryIdx) => (
+                                    <div key={`varGroup${queryIdx}`} className="variants">
+                                        <h2 className="query-num">[{queryIdx + 1}]</h2>
+                                        <ul>
+                                            {List.map(
+                                                (v, i) => (
+                                                    <li key={`${v.lemma}:${v.pos}:${i}`}>
+                                                        <label>
+                                                            <input type="radio" name={`lemma_${queryIdx}`}
+                                                                    checked={props.modalSelections[queryIdx] === i}
+                                                                    onChange={handleModalLemmaSelection(queryIdx, i)} />
+                                                            <em>{v.lemma}</em> ({mkAltLabel(v)})
+                                                        </label>
+                                                    </li>),
+                                                queryMatches
+                                            )}
+                                        </ul>
+                                    </div>
+                                ),
+                                props.matches
+                            )}
                             <p className="buttons">
                                 <button className="cnc-button cnc-button-primary" type="button" onClick={handleConfirmModalSelection}
                                         aria-label={ut.translate('global__aria_search_btn')}>
@@ -564,7 +569,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         </div>
                     </form>
                     {this.props.isAnswerMode ?
-                        <LemmaSelector matches={this.props.lemmas} queries={this.props.queries.map(v => v.value)}
+                        <LemmaSelector matches={this.props.queryMatches} queries={this.props.queries.map(v => v.value)}
                                 lemmaSelectorModalVisible={this.props.lemmaSelectorModalVisible}
                                 modalSelections={this.props.modalSelections} /> :
                         null

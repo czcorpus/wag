@@ -108,7 +108,7 @@ export interface TimeDistribModelArgs {
     api:KontextTimeDistribApi;
     concApi:ConcApi;
     appServices:AppServices;
-    lemmas:RecognizedQueries;
+    queryMatches:RecognizedQueries;
     backlink:Backlink;
     queryLang:string;
 }
@@ -128,7 +128,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
 
     private readonly waitForTile:number;
 
-    private readonly lemmas:RecognizedQueries;
+    private readonly queryMatches:RecognizedQueries;
 
     private readonly queryLang:string;
 
@@ -136,14 +136,14 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
 
 
     constructor({dispatcher, initState, tileId, waitForTile, api,
-                concApi, appServices, lemmas, queryLang, backlink}) {
+                concApi, appServices, queryMatches, queryLang, backlink}) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.api = api;
         this.concApi = concApi;
         this.waitForTile = waitForTile;
         this.appServices = appServices;
-        this.lemmas = lemmas;
+        this.queryMatches = queryMatches;
         this.queryLang = queryLang;
         this.backlink = backlink;
 
@@ -159,7 +159,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
                     state,
                     dispatch,
                     SubchartID.MAIN,
-                    rxOf(findCurrQueryMatch(this.lemmas[0]))
+                    rxOf(findCurrQueryMatch(this.queryMatches[0]))
                 );
             }
         );

@@ -74,14 +74,14 @@ export class ConcFilterTile implements ITileProvider {
     private readonly blockingTiles:Array<number>;
 
     constructor({tileId, waitForTiles, subqSourceTiles, dispatcher, appServices, ut, widthFract, conf, theme,
-            isBusy, cache, lang2, lemmas}:TileFactory.Args<ConcFilterTileConf>) {
+            isBusy, cache, lang2, queryMatches}:TileFactory.Args<ConcFilterTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.widthFract = widthFract;
         this.appServices = appServices;
         this.blockingTiles = waitForTiles;
         this.model = new ConcFilterModel({
-            lemmas,
+            queryMatches,
             dispatcher,
             tileId,
             waitForTiles,

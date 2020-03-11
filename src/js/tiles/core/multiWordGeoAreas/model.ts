@@ -74,7 +74,7 @@ ORAL_V1:
 
 export interface MultiWordGeoAreasModelState extends FreqBarModelStateBase {
     fcrit:string;
-    currentLemmas:Array<QueryMatch>;
+    currQueryMatches:Array<QueryMatch>;
     data:Array<Array<DataRow>>;
     areaCodeMapping:{[key:string]:string};
     tooltipArea:{tooltipX:number; tooltipY:number, caption: string, data:TooltipValues}|null;
@@ -99,15 +99,15 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
 
     private readonly mapLoader:DataApi<string, string>;
 
-    private readonly lemmas:Array<Array<QueryMatch>>;
+    private readonly queryMatches:Array<Array<QueryMatch>>;
 
-    constructor(dispatcher:IActionQueue, tileId:number, waitForTile:number, appServices:AppServices, lemmas:Array<Array<QueryMatch>>,
+    constructor(dispatcher:IActionQueue, tileId:number, waitForTile:number, appServices:AppServices, queryMatches:Array<Array<QueryMatch>>,
                 concApi:ConcApi, freqApi:FreqDistribAPI, mapLoader:DataApi<string, string>, initState:MultiWordGeoAreasModelState) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.waitForTile = waitForTile;
         this.appServices = appServices;
-        this.lemmas = lemmas;
+        this.queryMatches = queryMatches;
         this.concApi = concApi;
         this.freqApi = freqApi;
         this.mapLoader = mapLoader;
@@ -160,7 +160,7 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     if (action.error) {
-                        state.data = state.currentLemmas.map(_ => []);
+                        state.data = state.currQueryMatches.map(_ => []);
                         state.error = action.error.message;
 
                     } else if (action.payload.data.length === 0) {
@@ -206,7 +206,7 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                         tooltipY: action.payload.tooltipY,
                         caption: action.payload.areaName + (action.payload.areaData === null ? '' : ` (${action.payload.areaIpmNorm.toFixed(2)} ipm)`),
                         data: action.payload.areaData === null ? null :
-                        Dict.fromEntries(state.currentLemmas.map((lemma, index) => {
+                        Dict.fromEntries(state.currQueryMatches.map((lemma, index) => {
                             const areaData = action.payload.areaData.find(item => item.target === index);
                             return [
                                 lemma.word,
@@ -261,8 +261,8 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
 
     private getConcordances(state:MultiWordGeoAreasModelState) {
         return zip(
-            this.mapLoader.call('mapCzech.inline.svg').pipe(repeat(state.currentLemmas.length)),
-            rxOf(...state.currentLemmas.map((lemma, queryId) => [queryId, lemma] as [number, QueryMatch])[Symbol.iterator]()).pipe(
+            this.mapLoader.call('mapCzech.inline.svg').pipe(repeat(state.currQueryMatches.length)),
+            rxOf(...state.currQueryMatches.map((lemma, queryId) => [queryId, lemma] as [number, QueryMatch])[Symbol.iterator]()).pipe(
                 concatMap(([queryId, lemmaVariant]) =>
                     callWithExtraVal(
                         this.concApi,
@@ -283,7 +283,7 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                                 attrs: [],
                                 metadataAttrs: [],
                                 queries: [],
-                                concordances: createInitialLinesData(this.lemmas.length),
+                                concordances: createInitialLinesData(this.queryMatches.length),
                                 posQueryGenerator: state.posQueryGenerator
                             },
                             lemmaVariant,
@@ -351,7 +351,7 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                     acc.concIds[args.queryId] = args.concId;
                     return acc
                 },
-                {hasData: false, concIds: this.lemmas.map(_ => null)}
+                {hasData: false, concIds: this.queryMatches.map(_ => null)}
             )
         )
         .subscribe(acc =>

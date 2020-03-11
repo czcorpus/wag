@@ -51,9 +51,9 @@ export interface ConcordanceMinState {
 }
 
 
-export function createInitialLinesData(numLemmas:number):Array<ConcData> {
+export function createInitialLinesData(numQueryMatches:number):Array<ConcData> {
     const ans:Array<ConcData> = [];
-    for (let i = 0; i < numLemmas; i++) {
+    for (let i = 0; i < numQueryMatches; i++) {
         ans.push({
             concId: null,
             lines: [],

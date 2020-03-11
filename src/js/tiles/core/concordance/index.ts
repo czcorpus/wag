@@ -17,7 +17,7 @@
  */
 
 import { IActionDispatcher, StatelessModel } from 'kombo';
-
+import { List } from 'cnc-tskit';
 import { AppServices } from '../../../appServices';
 import { QuerySelector } from '../../../common/api/kontext/concordance';
 import { ViewMode } from '../../../common/api/abstract/concordance';
@@ -73,7 +73,7 @@ export class ConcordanceTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({tileId, dispatcher, appServices, ut, lemmas, widthFract, waitForTiles, conf, lang2, isBusy, cache, queryType}:TileFactory.Args<ConcordanceTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, queryMatches, widthFract, waitForTiles, conf, lang2, isBusy, cache, queryType}:TileFactory.Args<ConcordanceTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.widthFract = widthFract;
@@ -89,7 +89,7 @@ export class ConcordanceTile implements ITileProvider {
             tileId,
             appServices,
             service: createApiInstance(cache, conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
-            queryMatches: lemmas,
+            queryMatches,
             queryType,
             backlink: conf.backlink || null,
             waitForTile: Array.isArray(waitForTiles) ? waitForTiles[0] : waitForTiles,
@@ -103,7 +103,7 @@ export class ConcordanceTile implements ITileProvider {
                 widthFract: widthFract,
                 querySelector: QuerySelector.CQL,
                 pageSize: conf.pageSize,
-                concordances: createInitialLinesData(lemmas.length),
+                concordances: createInitialLinesData(queryMatches.length),
                 corpname: conf.corpname,
                 otherCorpname: conf.parallelLangMapping ? conf.parallelLangMapping[lang2] : null,
                 subcname: Array.isArray(conf.subcname) ? conf.subcname[0] : conf.subcname,
@@ -120,7 +120,7 @@ export class ConcordanceTile implements ITileProvider {
                 backlink: null,
                 posQueryGenerator: conf.posQueryGenerator,
                 disableViewModes: !!conf.disableViewModes,
-                queries: lemmas.map(lemmaGroup => findCurrQueryMatch(lemmaGroup).word)
+                queries: List.map(lemmaGroup => findCurrQueryMatch(lemmaGroup).word, queryMatches)
             }
         });
         this.label = appServices.importExternalMessage(conf.label || 'concordance__main_label');

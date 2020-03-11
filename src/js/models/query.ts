@@ -40,7 +40,7 @@ export interface QueryFormModelState {
     targetLanguages:{[k in QueryType]:Array<[string, string]>};
     queryTypesMenuItems:Array<QueryTypeMenuItem>;
     errors:Array<Error>;
-    lemmas:RecognizedQueries;
+    queryMatches:RecognizedQueries;
     isAnswerMode:boolean;
     uiLanguages:Array<AvailableLanguage>;
     maxCmpQueries:number;
@@ -48,8 +48,8 @@ export interface QueryFormModelState {
     modalSelections:Array<number>;
 }
 
-export const findCurrQueryMatch = (lemmas:Array<QueryMatch>):QueryMatch => {
-    const srch = lemmas.find(v => v.isCurrent);
+export const findCurrQueryMatch = (queryMatches:Array<QueryMatch>):QueryMatch => {
+    const srch = queryMatches.find(v => v.isCurrent);
     return srch ? srch : {
         lemma: undefined,
         word: undefined,
@@ -88,8 +88,8 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
         this.addActionHandler<Actions.ChangeCurrQueryMatch>(
             ActionName.ChangeCurrQueryMatch,
             (state, action) => {
-                const group = state.lemmas[action.payload.queryIdx];
-                state.lemmas[action.payload.queryIdx] = group.map(v => ({
+                const group = state.queryMatches[action.payload.queryIdx];
+                state.queryMatches[action.payload.queryIdx] = group.map(v => ({
                     lemma: v.lemma,
                     word: v.word,
                     pos: v.pos,
@@ -201,7 +201,7 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
             (state, action:Actions.ApplyModalQueryMatchSelection) => {
                 state.lemmaSelectorModalVisible = false;
                 state.modalSelections.forEach((sel, idx) => {
-                    state.lemmas[idx] = state.lemmas[idx].map((v, i2) => ({
+                    state.queryMatches[idx] = state.queryMatches[idx].map((v, i2) => ({
                         lemma: v.lemma,
                         word: v.word,
                         pos: v.pos,
@@ -228,13 +228,13 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
         const args = new MultiDict();
         args.set('queryType', state.queryType);
         args.set('lang1', state.queryLanguage);
-        args.set('q', findCurrQueryMatch(state.lemmas[0]).word);
-        args.set('pos', findCurrQueryMatch(state.lemmas[0]).pos.map(v => v.value).join(','));
-        args.set('lemma', findCurrQueryMatch(state.lemmas[0]).lemma);
+        args.set('q', findCurrQueryMatch(state.queryMatches[0]).word);
+        args.set('pos', findCurrQueryMatch(state.queryMatches[0]).pos.map(v => v.value).join(','));
+        args.set('lemma', findCurrQueryMatch(state.queryMatches[0]).lemma);
 
         switch (state.queryType) {
             case QueryType.CMP_QUERY:
-                state.lemmas.slice(1).forEach(m => {
+                state.queryMatches.slice(1).forEach(m => {
                     args.add('q', findCurrQueryMatch(m).word);
                     args.add('pos', findCurrQueryMatch(m).pos.map(v => v.value).join(','));
                     args.add('lemma', findCurrQueryMatch(m).lemma);
@@ -319,7 +319,7 @@ export interface DefaultFactoryArgs {
     query1Lang:string;
     query2Lang:string;
     queryType:QueryType;
-    lemmas:RecognizedQueries;
+    queryMatches:RecognizedQueries;
     isAnswerMode:boolean;
     uiLanguages:Array<AvailableLanguage>;
     searchLanguages:Array<SearchLanguage>;
@@ -327,14 +327,17 @@ export interface DefaultFactoryArgs {
     maxCmpQueries:number;
 }
 
-export const defaultFactory = ({dispatcher, appServices, query1Lang, query2Lang, queryType, lemmas,
+export const defaultFactory = ({dispatcher, appServices, query1Lang, query2Lang, queryType, queryMatches,
         isAnswerMode, uiLanguages, searchLanguages, layout, maxCmpQueries}:DefaultFactoryArgs) => {
 
     return new QueryFormModel(
         dispatcher,
         appServices,
         {
-            queries: lemmas.map((v, i) => Forms.newFormValue(v[0].word || '', i === 0)),
+            queries: List.map(
+                (v, i) => Forms.newFormValue(v[0].word || '', i === 0),
+                queryMatches
+            ),
             queryType: queryType,
             initialQueryType: queryType,
             queryTypesMenuItems: layout.getQueryTypesMenuItems(),
@@ -343,13 +346,16 @@ export const defaultFactory = ({dispatcher, appServices, query1Lang, query2Lang,
             searchLanguages: searchLanguages,
             targetLanguages: layout.getTargetLanguages(),
             errors: [],
-            lemmas: lemmas,
+            queryMatches: queryMatches,
             isAnswerMode: isAnswerMode,
             uiLanguages: uiLanguages,
             multiWordQuerySupport: layout.getMultiWordQuerySupport(),
             maxCmpQueries: maxCmpQueries,
             lemmaSelectorModalVisible: false,
-            modalSelections: lemmas.map(v => v.findIndex(v2 => v2.isCurrent))
+            modalSelections: List.map(
+                v => v.findIndex(v2 => v2.isCurrent),
+                queryMatches
+            )
         }
     );
 };

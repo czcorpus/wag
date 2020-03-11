@@ -72,7 +72,7 @@ export interface WordFormsModelArgs {
     initialState:WordFormsModelState;
     tileId:number;
     api:WordFormsApi;
-    lemmas:RecognizedQueries;
+    queryMatches:RecognizedQueries;
     queryLang:string;
     waitForTile:number|null;
 }
@@ -84,17 +84,17 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
 
     private readonly api:WordFormsApi;
 
-    private readonly lemmas:RecognizedQueries;
+    private readonly queryMatches:RecognizedQueries;
 
     private readonly queryLang:string;
 
     private readonly waitForTile:number|null;
 
-    constructor({dispatcher, initialState, tileId, api, lemmas, queryLang, waitForTile}:WordFormsModelArgs) {
+    constructor({dispatcher, initialState, tileId, api, queryMatches, queryLang, waitForTile}:WordFormsModelArgs) {
         super(dispatcher, initialState);
         this.tileId = tileId;
         this.api = api;
-        this.lemmas = lemmas;
+        this.queryMatches = queryMatches;
         this.queryLang = queryLang;
         this.waitForTile = waitForTile;
 
@@ -160,7 +160,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                     });
 
                 } else {
-                    const variant = findCurrQueryMatch(this.lemmas[0]);
+                    const variant = findCurrQueryMatch(this.queryMatches[0]);
                     this.fetchWordForms(
                         {
                             lang: this.queryLang,

@@ -107,7 +107,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = false;
                     if (action.error) {
-                        state.data = state.lemmas.map(_ => null);
+                        state.data = state.queryMatches.map(_ => null);
                         state.error = action.error.message;
 
                     } else {
@@ -123,7 +123,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = true;
                     state.operationMode = action.payload.value;
-                    state.data = state.lemmas.map(_ => null);
+                    state.data = state.queryMatches.map(_ => null);
                 }
             },
             (state, action, seDispatch) => {
@@ -163,7 +163,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
 
     getData(state:WordSimModelState, seDispatch:SEDispatcher):void {
         new Observable((observer:Observer<{queryId:number; lemma:QueryMatch}>) => {
-            state.lemmas.forEach((lemma, queryId) => {
+            state.queryMatches.forEach((lemma, queryId) => {
                 observer.next({queryId: queryId, lemma: lemma});
             });
             observer.complete();

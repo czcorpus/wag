@@ -53,9 +53,9 @@ export interface SummaryModelState {
     flevelDistrb:Array<FlevelDistribItem>;
 }
 
-export function createInitialWordDataArray(lemmasAllQueries:RecognizedQueries):Array<Array<FreqDBRow>> {
-    return lemmasAllQueries.map(lemmasQuery => {
-        const curr = findCurrQueryMatch(lemmasQuery);
+export function createInitialWordDataArray(queryMatches:RecognizedQueries):Array<Array<FreqDBRow>> {
+    return queryMatches.map(queryMatch => {
+        const curr = findCurrQueryMatch(queryMatch);
         return [
             {
                 word: curr.word,

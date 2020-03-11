@@ -58,7 +58,7 @@ export class TreqSubsetsTile implements ITileProvider {
 
     private static readonly DEFAULT_MIN_ITEM_FREQ = 1;
 
-    constructor({tileId, dispatcher, appServices, theme, ut, lang1, lang2, widthFract, waitForTiles, lemmas, conf, isBusy, cache}:TileFactory.Args<TreqSubsetsTileConf>) {
+    constructor({tileId, dispatcher, appServices, theme, ut, lang1, lang2, widthFract, waitForTiles, queryMatches, conf, isBusy, cache}:TileFactory.Args<TreqSubsetsTileConf>) {
         this.tileId = tileId;
         this.widthFract = widthFract;
         this.blockingTiles = waitForTiles;
@@ -88,7 +88,7 @@ export class TreqSubsetsTile implements ITileProvider {
             },
             tileId,
             api: new TreqSubsetsAPI(cache, conf.apiURL),
-            lemmas,
+            queryMatches,
             waitForColorsTile: waitForTiles[0]
         });
         this.label = appServices.importExternalMessage(conf.label || 'treqsubsets__main_label');

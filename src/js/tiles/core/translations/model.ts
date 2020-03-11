@@ -40,7 +40,7 @@ export interface TranslationModelArgs {
     tileId:number;
     api:TranslationAPI<{}, {}>;
     backlink:Backlink;
-    lemmas:RecognizedQueries;
+    queryMatches:RecognizedQueries;
     scaleColorGen:ColorScaleFunctionGenerator;
 }
 
@@ -51,7 +51,7 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
 
     private readonly api:TranslationAPI<{}, {}>;
 
-    private readonly lemmas:RecognizedQueries;
+    private readonly queryMatches:RecognizedQueries;
 
     private readonly backlink:Backlink;
 
@@ -59,12 +59,12 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
 
     private readonly appServices:AppServices;
 
-    constructor({dispatcher, appServices, initialState, tileId, api, backlink, lemmas,
+    constructor({dispatcher, appServices, initialState, tileId, api, backlink, queryMatches,
                 scaleColorGen}:TranslationModelArgs) {
         super(dispatcher, initialState);
         this.api = api;
         this.backlink = backlink;
-        this.lemmas = lemmas;
+        this.queryMatches = queryMatches;
         this.tileId = tileId;
         this.scaleColorGen = scaleColorGen;
         this.appServices = appServices;
@@ -159,7 +159,7 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
     }
 
     private loadData(state:GeneralTranslationsModelState, dispatch:SEDispatcher):void {
-        const srchLemma = findCurrQueryMatch(this.lemmas[0]);
+        const srchLemma = findCurrQueryMatch(this.queryMatches[0]);
         this.api.call(this.api.stateToArgs(state, srchLemma.lemma))
             .pipe(
                 map(item => {
@@ -186,7 +186,7 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
                             tileId: this.tileId,
                             queryId: 0,
                             isEmpty: data.length === 0,
-                            query: findCurrQueryMatch(this.lemmas[0]).lemma, // TODO switch to word and give up dict support
+                            query: findCurrQueryMatch(this.queryMatches[0]).lemma, // TODO switch to word and give up dict support
                             subqueries: data.map(v => ({
                                 value: {
                                     value: v.firstTranslatLc,
@@ -208,7 +208,7 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
                             tileId: this.tileId,
                             queryId: 0,
                             isEmpty: true,
-                            query: findCurrQueryMatch(this.lemmas[0]).lemma, // TODO switch to word and give up dict support
+                            query: findCurrQueryMatch(this.queryMatches[0]).lemma, // TODO switch to word and give up dict support
                             subqueries: [],
                             lang1: state.lang1,
                             lang2: state.lang2,

@@ -132,7 +132,7 @@ interface RenderResultArgs {
     view:React.SFC<LayoutProps>;
     services:Services;
     toolbarData:HostPageEnv;
-    lemmas:RecognizedQueries;
+    queryMatches:RecognizedQueries;
     userConfig:UserConf;
     clientConfig:ClientConf;
     returnUrl:string;
@@ -152,7 +152,7 @@ interface RenderResultArgs {
 export function renderResult({
         view,
         toolbarData,
-        lemmas,
+        queryMatches,
         userConfig,
         clientConfig,
         returnUrl,
@@ -174,7 +174,7 @@ export function renderResult({
                 config: clientConfig,
                 userConfig,
                 hostPageEnv: toolbarData,
-                lemmas: lemmas,
+                queryMatches: queryMatches,
                 uiLanguages: pipe(userConfig.uiLanguages, Dict.mapEntries(v => v), List.map(([k, v]) => ({code: k, label: v}))),
                 uiLang: userConfig.uiLang,
                 returnUrl,

@@ -22,7 +22,7 @@ import { concatMap, map, catchError, reduce } from 'rxjs/operators';
 
 
 import { AppServices } from '../../appServices';
-import { QueryType, QueryMatch, QueryPoS, matchesPos, findMergeableLemmas, importQueryTypeString } from '../../common/query';
+import { QueryType, QueryMatch, QueryPoS, matchesPos, findMergeableQueryMatches, importQueryTypeString } from '../../common/query';
 import { UserConf, ClientStaticConf, ClientConf, emptyClientConf, getSupportedQueryTypes, emptyLayoutConf, errorUserConf,
     getQueryTypeFreqDb, DEFAULT_WAIT_FOR_OTHER_TILES, THEME_COOKIE_NAME, getThemeList, getAppliedThemeConf, THEME_DEFAULT_NAME } from '../../conf';
 import { init as viewInit } from '../../views/layout';
@@ -177,7 +177,7 @@ export function mainAction(services:Services, answerMode:boolean, req:Request, r
     ).subscribe(
         ({userConf, hostPageEnv, runtimeConf, qMatchesEachQuery, appServices, dispatcher, viewUtils}) => {
             const queryMatchesExtended = qMatchesEachQuery.map((queryMatches, queryIdx) => {
-                let mergedMatches = findMergeableLemmas(queryMatches);
+                let mergedMatches = findMergeableQueryMatches(queryMatches);
                 if (mergedMatches.length > 0) {
                     let matchIdx = 0;
                     if (userConf.queryPos[queryIdx]) {
@@ -240,7 +240,7 @@ export function mainAction(services:Services, answerMode:boolean, req:Request, r
                 view: view,
                 services: services,
                 toolbarData: hostPageEnv,
-                lemmas: queryMatchesExtended,
+                queryMatches: queryMatchesExtended,
                 themes: runtimeConf.colorThemes,
                 currTheme: runtimeConf.colors.themeId,
                 userConfig: userConf,
@@ -266,7 +266,7 @@ export function mainAction(services:Services, answerMode:boolean, req:Request, r
                 view: view,
                 services: services,
                 toolbarData: emptyValue(),
-                lemmas: [],
+                queryMatches: [],
                 themes: [],
                 currTheme: currTheme ? currTheme.themeId : THEME_DEFAULT_NAME,
                 userConfig: userConf,
