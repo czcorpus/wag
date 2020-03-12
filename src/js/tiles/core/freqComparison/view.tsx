@@ -120,7 +120,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         return <g>
             <rect x={x} y={y} width={width} height={height} stroke="none" fill={fill} />
-            <line x1={x+width-1} y1={y} x2={x+width-1} y2={y+height} stroke="black" strokeWidth={2} />
+            <line x1={x} y1={y} x2={x} y2={y+height} stroke="white" strokeWidth={2} />
+            <line x1={x+width} y1={y} x2={x+width} y2={y+height} stroke="white" strokeWidth={2} />
         </g>
     };
 
@@ -142,7 +143,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         return (
             <div className="Chart">
                 <ChartWrapper data={props.data} words={props.words} isMobile={props.isMobile} width={props.width} height={props.height}>
-                    <CartesianGrid />
                     {List.map(
                         (word, index) => <Bar key={`word:${index}`} dataKey={dataKeyFn(word)} isAnimationActive={false} name={word}
                                                 stackId='a' fill={theme.cmpCategoryColor(index)} shape={<BarShape/>} />,
