@@ -189,7 +189,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
 
         render() {
-            const data = prepareChartData(this.props.data, this.props.averagingYears);
+            const data = prepareChartData(this.props.data, this.props.averagingYears)
+                .filter(v =>
+                    this.props.zoom.every(v => v !== null) ?
+                    v.year >= this.props.zoom[0] && v.year <= this.props.zoom[1] :
+                    true
+                );
             let domainY:[number, number]|[number, string];
             let tickFormatterY, tooltipFormatter;
             let keyFn1:(lemmaIdx:number)=>(v:ChartDataPoint)=>number;
@@ -198,9 +203,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 case '%':
                     keyFn1 = idx => v => v.fracValues[idx];
                     keyFn2 = idx => v => v.fracIntervals[idx];
-                    domainY = [0, 1];
+                    const domainMax =  Math.min(1, Math.round(Math.max(...data.map(v => Math.max(...v.fracValues)))*100)/100 + 0.05);
+                    domainY = [0, domainMax];
                     tickFormatterY = fracValue => `${fracValue * 100}%`;
-                    tooltipFormatter = (fracValue, name, formatterProps) => [`${(fracValue * 100).toFixed(2)} % (${(fracValue * formatterProps.payload.ipmNorm).toFixed(2)} ipm)`, name]
+                    tooltipFormatter = (fracValue, name, formatterProps) => [`${(fracValue * 100).toFixed(2)} % (${(fracValue * formatterProps.payload.ipmNorm).toFixed(2)} ipm)`, name];
                 break;
                 case 'ipm':
                     keyFn1 = idx => v => v.ipmValues[idx];
@@ -217,7 +223,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             return (
                 <ResponsiveContainer key='chartContainer' width={this.props.isSmallWidth ? '100%' : '90%'} height={this.props.size[1]}>
                     <AreaChart
-                        data={data.filter(v => this.props.zoom.every(v => v !== null) ? v.year >= this.props.zoom[0] && v.year <= this.props.zoom[1] : true)}
+                        data={data}
                         margin={{top: 10, right: 30, left: 0, bottom: 0}}
                         onMouseLeave = {this.zoomMouseLeave}
                         onMouseDown = {this.zoomMouseDown}
@@ -226,7 +232,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     >
                         <CartesianGrid strokeDasharray="1 1"/>
                         <XAxis dataKey="year" minTickGap={0} type="category" allowDataOverflow={true} />
-                        <YAxis allowDataOverflow={true} domain={domainY} tickFormatter={tickFormatterY}/>
+                        <YAxis allowDataOverflow={true} domain={domainY} tickFormatter={tickFormatterY} interval="preserveStart"/>
                         <Tooltip isAnimationActive={false} formatter={(value, name, formatterProps) => {
                             if (Array.isArray(value)) {
                                 return [null, null];
