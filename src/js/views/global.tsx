@@ -94,6 +94,8 @@ export interface GlobalComponents {
     SourceInfoBox:React.SFC<{
         data:SourceDetails;
     }>;
+
+    AlignedRechartsTooltip:React.SFC<any>;
 }
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Observable<ScreenProps>):GlobalComponents {
@@ -561,6 +563,38 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
         );
     }
 
+
+    // -------------------- <AlignedRechartsTooltip /> ----------------------------------------------
+
+
+    const AlignedRechartsTooltip:GlobalComponents['AlignedRechartsTooltip'] = (props) => {
+        const { active, payload, label, formatter, separator } = props;
+        if (active && payload) {
+            return (
+                <div style={{backgroundColor: 'white', padding: '0.5em', border: '1px solid lightgrey'}} >
+                    <table>
+                        <thead><tr><td colSpan={2}>{label}</td></tr></thead>
+                        <tbody>
+                        {payload.map(data => {
+                            const formated_value = formatter ? formatter(data.value, data.name, data) : [data.value, data.name];
+                            const [value, name] = typeof formated_value === "string" ? [formated_value, data.name] : formated_value;
+                            return ((Array.isArray(value) ? value.every(v => Boolean(v)) : value) && name) ?
+                                <tr key={name}>
+                                    <td key="name" style={{color: data.color}}>{`${name}${separator}`}</td>
+                                    <td key="value">{Array.isArray(value) ? value.join(" ~ ") : value}{data.unit}</td>
+                                </tr> :
+                                null;
+                        })}
+                        </tbody>
+                    </table>
+                </div>
+            );
+        }
+
+        return null;
+      };
+
+
     // ===================
 
     return {
@@ -573,6 +607,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
         ImageWithMouseover: ImageWithMouseover,
         ResponsiveWrapper: ResponsiveWrapper,
         ElementTooltip: ElementTooltip,
-        SourceInfoBox: SourceInfoBox
+        SourceInfoBox: SourceInfoBox,
+        AlignedRechartsTooltip: AlignedRechartsTooltip
     };
 }

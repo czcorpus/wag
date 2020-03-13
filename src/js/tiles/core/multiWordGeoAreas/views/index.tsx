@@ -354,8 +354,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 List.map(([label, value], index) =>
                                     value === undefined ?
                                         null :
-                                        <tr key={label} style={{color: theme.cmpCategoryColor(index)}}>
-                                            <td>{label} : {value}</td>
+                                        <tr key={label}>
+                                            <td style={{color: theme.cmpCategoryColor(index)}}>{label} : </td>
+                                            <td>{value}</td>
                                         </tr>
                                 )
                             )

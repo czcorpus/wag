@@ -275,13 +275,16 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     >
                         <CartesianGrid strokeDasharray="1 1"/>
                         <XAxis dataKey="year" minTickGap={0} type="category" allowDataOverflow={true} />
-                        <YAxis allowDataOverflow={true} domain={domainY} tickFormatter={tickFormatterY} interval="preserveStart"/>
-                        <Tooltip isAnimationActive={false} formatter={(value, name, formatterProps) => {
-                            if (Array.isArray(value)) {
-                                return [null, null];
-                            }
-                            return tooltipFormatter(value, name, formatterProps);
-                        }} />
+                        <YAxis allowDataOverflow={true} domain={domainY} tickFormatter={tickFormatterY} />
+                        <Tooltip isAnimationActive={false}
+                            formatter={(value, name, formatterProps) => {
+                                if (Array.isArray(value)) {
+                                    return [null, null];
+                                }
+                                return tooltipFormatter(value, name, formatterProps);
+                            }}
+                            content = {globComponents.AlignedRechartsTooltip}
+                        />
                         {List.map(
                             (word, index) =>
                                 <Area type="linear"

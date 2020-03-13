@@ -146,7 +146,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <YAxis type="category" dataKey="name" width={Math.max(60, maxLabelLength * 7)}
                                 tickFormatter={value => props.isMobile ? Strings.shortenText(value, CHART_LABEL_MAX_LEN) : value} />
                         <Legend wrapperStyle={{paddingTop: queries > 1 ? 15 : 0}}/>
-                        <Tooltip cursor={false} isAnimationActive={false} />
+                        <Tooltip cursor={false} isAnimationActive={false} content={globComponents.AlignedRechartsTooltip} />
                     </BarChart>
                 </ResponsiveContainer>
             </div>
