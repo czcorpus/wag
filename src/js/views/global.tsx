@@ -95,7 +95,13 @@ export interface GlobalComponents {
         data:SourceDetails;
     }>;
 
-    AlignedRechartsTooltip:React.SFC<any>;
+    AlignedRechartsTooltip:React.SFC<{
+        active:boolean;
+        payload:{[key:string]:any};
+        label:string;
+        separator:string;
+        formatter:(value:string,name:string,data:{[key:string]:any}) => string | [string, string];
+    }>;
 }
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Observable<ScreenProps>):GlobalComponents {
