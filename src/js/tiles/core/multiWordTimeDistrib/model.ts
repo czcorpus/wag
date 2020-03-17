@@ -61,8 +61,8 @@ export interface TimeDistribModelArgs {
     initState:TimeDistribModelState;
     tileId:number;
     waitForTile:number;
-    api:KontextTimeDistribApi;
-    concApi:ConcApi;
+    api:Array<KontextTimeDistribApi>;
+    concApi:Array<ConcApi>;
     appServices:AppServices;
     queryMatches:RecognizedQueries;
     queryLang:string;
@@ -73,9 +73,9 @@ export interface TimeDistribModelArgs {
  */
 export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
-    private readonly api:KontextTimeDistribApi;
+    private readonly api:Array<KontextTimeDistribApi>;
 
-    private readonly concApi:ConcApi|null;
+    private readonly concApi:Array<ConcApi>;
 
     private readonly appServices:AppServices;
 
@@ -247,7 +247,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             (state, action) => {},
             (state, action, dispatch) => {
                 if (action.payload['tileId'] === this.tileId) {
-                    this.api.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), action.payload['corpusId'])
+                    this.api[0].getSourceDescription(this.tileId, this.appServices.getISO639UILang(), action.payload['corpusId'])
                     .subscribe(
                         (data) => {
                             dispatch({
@@ -374,11 +374,12 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private loadConcordance(state:TimeDistribModelState, lemmaVariant:QueryMatch, subcnames:Array<string>,
             queryId:number):Observable<[ConcResponse, DataFetchArgs]> {
+        const apiCount = this.concApi.length;
         return rxOf<string>(...subcnames).pipe(
             concatMap(
                 subcname => callWithExtraVal(
-                    this.concApi,
-                    this.concApi.stateToArgs(
+                    this.concApi[(subcnames.indexOf(subcname) + subcnames.length*queryId) % apiCount],
+                    this.concApi[(subcnames.indexOf(subcname) + subcnames.length*queryId) % apiCount].stateToArgs(
                         {
                             querySelector: QuerySelector.CQL,
                             corpname: state.corpname,
@@ -443,10 +444,11 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             }),
             concatMap(
                 ([concResp, args]) => {
+                    const apiCount = this.api.length;
                     args.concId = concResp.concPersistenceID;
                     if (args.concId) {
                         return callWithExtraVal(
-                            this.api,
+                            this.api[(subcNames.indexOf(args.subcName) + subcNames.length*args.queryId) % apiCount],
                             {
                                 corpName: state.corpname,
                                 subcorpName: args.subcName,
