@@ -105,8 +105,8 @@ export interface TimeDistribModelArgs {
     initState:TimeDistribModelState;
     tileId:number;
     waitForTile:number;
-    api:KontextTimeDistribApi;
-    concApi:ConcApi;
+    api:Array<KontextTimeDistribApi>;
+    concApi:Array<ConcApi>;
     appServices:AppServices;
     queryMatches:RecognizedQueries;
     backlink:Backlink;
@@ -118,9 +118,9 @@ export interface TimeDistribModelArgs {
  */
 export class TimeDistribModel extends StatelessModel<TimeDistribModelState, TileWait<boolean>> {
 
-    private readonly api:KontextTimeDistribApi;
+    private readonly api:Array<KontextTimeDistribApi>;
 
-    private readonly concApi:ConcApi|null;
+    private readonly concApi:Array<ConcApi>;
 
     private readonly appServices:AppServices;
 
@@ -250,7 +250,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
             (state, action) => state,
             (state, action, dispatch) => {
                 if (action.payload['tileId'] === this.tileId) {
-                    this.api.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), action.payload['corpusId'])
+                    this.api[0].getSourceDescription(this.tileId, this.appServices.getISO639UILang(), action.payload['corpusId'])
                     .subscribe(
                         (data) => {
                             dispatch({
@@ -439,11 +439,12 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
 
     private loadConcordance(state:TimeDistribModelState, lemmaVariant:QueryMatch, subcnames:Array<string>,
             target:SubchartID):Observable<[ConcResponse, DataFetchArgsOwn]> {
+        const apiCount = this.concApi.length;
         return rxOf(...subcnames).pipe(
             mergeMap(
                 (subcname) => callWithExtraVal(
-                    this.concApi,
-                    this.concApi.stateToArgs(
+                    this.concApi[subcnames.indexOf(subcname) % apiCount],
+                    this.concApi[subcnames.indexOf(subcname) % apiCount].stateToArgs(
                         {
                             querySelector: QuerySelector.CQL,
                             corpname: state.corpname,
@@ -521,7 +522,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
                     }
                 ),
                 concatMap(args => callWithExtraVal(
-                    this.api,
+                    this.api[0],
                     {
                         corpName: args.corpName,
                         subcorpName: args.subcName,
@@ -565,7 +566,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
                         args.concId = concResp.concPersistenceID;
                         if (args.concId) {
                             return callWithExtraVal(
-                                this.api,
+                                this.api[state.subcnames.indexOf(args.subcName) % this.api.length],
                                 {
                                     corpName: state.corpname,
                                     subcorpName: args.subcName,

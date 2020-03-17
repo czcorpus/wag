@@ -444,11 +444,10 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             }),
             concatMap(
                 ([concResp, args]) => {
-                    const apiCount = this.api.length;
                     args.concId = concResp.concPersistenceID;
                     if (args.concId) {
                         return callWithExtraVal(
-                            this.api[(subcNames.indexOf(args.subcName) + subcNames.length*args.queryId) % apiCount],
+                            this.api[(subcNames.indexOf(args.subcName) + subcNames.length*args.queryId) % this.api.length],
                             {
                                 corpName: state.corpname,
                                 subcorpName: args.subcName,

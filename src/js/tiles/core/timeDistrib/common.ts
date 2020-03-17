@@ -23,9 +23,7 @@ export interface TimeDistTileConf extends CorpSrchTileConf {
 
     apiType:string;
 
-    apiURL:string;
-
-    concApiURL?:string;
+    apiURL:string|Array<string>;
 
     /**
      * E.g. doc.pubyear
