@@ -437,54 +437,63 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
         );
     }
 
+
+    private getApiId(state:TimeDistribModelState, subcname:string, apiCount:number):number {
+        return (subcname ? state.subcnames.indexOf(subcname) : 0) % apiCount;
+    }
+
+
     private loadConcordance(state:TimeDistribModelState, lemmaVariant:QueryMatch, subcnames:Array<string>,
             target:SubchartID):Observable<[ConcResponse, DataFetchArgsOwn]> {
         const apiCount = this.concApi.length;
         return rxOf(...subcnames).pipe(
             mergeMap(
-                (subcname) => callWithExtraVal(
-                    this.concApi[subcnames.indexOf(subcname) % apiCount],
-                    this.concApi[subcnames.indexOf(subcname) % apiCount].stateToArgs(
+                subcname => {
+                    const concApi = this.concApi[this.getApiId(state, subcname, apiCount)]
+                    return callWithExtraVal(
+                        concApi,
+                        concApi.stateToArgs(
+                            {
+                                querySelector: QuerySelector.CQL,
+                                corpname: state.corpname,
+                                otherCorpname: undefined,
+                                subcname: subcname,
+                                subcDesc: null,
+                                kwicLeftCtx: -1,
+                                kwicRightCtx: 1,
+                                pageSize: 10,
+                                concordances: [{
+                                    concsize: -1,
+                                    numPages: -1,
+                                    resultARF: -1,
+                                    resultIPM: -1,
+                                    currPage: 1,
+                                    loadPage: 1,
+                                    concId: null,
+                                    lines: []
+                                }],
+                                shuffle: false,
+                                attr_vmode: 'mouseover',
+                                viewMode: ViewMode.KWIC,
+                                tileId: this.tileId,
+                                attrs: ['word'],
+                                metadataAttrs: [],
+                                posQueryGenerator: state.posQueryGenerator,
+                                queries: []
+                            },
+                            lemmaVariant,
+                            0,
+                            null
+                        ),
                         {
-                            querySelector: QuerySelector.CQL,
-                            corpname: state.corpname,
-                            otherCorpname: undefined,
-                            subcname: subcname,
-                            subcDesc: null,
-                            kwicLeftCtx: -1,
-                            kwicRightCtx: 1,
-                            pageSize: 10,
-                            concordances: [{
-                                concsize: -1,
-                                numPages: -1,
-                                resultARF: -1,
-                                resultIPM: -1,
-                                currPage: 1,
-                                loadPage: 1,
-                                concId: null,
-                                lines: []
-                            }],
-                            shuffle: false,
-                            attr_vmode: 'mouseover',
-                            viewMode: ViewMode.KWIC,
-                            tileId: this.tileId,
-                            attrs: ['word'],
-                            metadataAttrs: [],
-                            posQueryGenerator: state.posQueryGenerator,
-                            queries: []
-                        },
-                        lemmaVariant,
-                        0,
-                        null
-                    ),
-                    {
-                        concId: null,
-                        subcName: subcname,
-                        wordMainLabel: lemmaVariant.lemma,
-                        targetId: target,
-                        origQuery: mkMatchQuery(lemmaVariant, state.posQueryGenerator)
-                    }
-                )
+                            concId: null,
+                            subcName: subcname,
+                            wordMainLabel: lemmaVariant.lemma,
+                            targetId: target,
+                            origQuery: mkMatchQuery(lemmaVariant, state.posQueryGenerator)
+                        }
+                    )
+                }
             )
         );
     }
@@ -566,7 +575,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
                         args.concId = concResp.concPersistenceID;
                         if (args.concId) {
                             return callWithExtraVal(
-                                this.api[state.subcnames.indexOf(args.subcName) % this.api.length],
+                                this.api[this.getApiId(state, args.subcName, this.api.length)],
                                 {
                                     corpName: state.corpname,
                                     subcorpName: args.subcName,
