@@ -230,9 +230,11 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         this.addActionHandler<GlobalActions.TileDataLoaded<DataLoadedPayload>>(
             GlobalActionName.TileDataLoaded,
             (state, action) => {
-                state.isBusy = false;
-                if (action.error) {
-                    state.error = action.error.message;
+                if (action.payload.tileId === this.tileId) {
+                    state.isBusy = false;
+                    if (action.error) {
+                        state.error = action.error.message;
+                    }
                 }
             }
         );

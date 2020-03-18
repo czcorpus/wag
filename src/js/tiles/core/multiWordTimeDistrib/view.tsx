@@ -385,35 +385,33 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------- <MultiWordTimeDistribTile /> ------------------------------------------------------
 
-    const MultiWordTimeDistribTile:React.SFC<TimeDistribModelState & CoreTileComponentProps> = (props) => {
-        return (
-            <globComponents.TileWrapper tileId={props.tileId} isBusy={props.isBusy} error={props.error}
-                        hasData={props.data.length > 0}
-                        sourceIdent={{corp: props.corpname, subcorp: props.subcDesc}}
-                        supportsTileReload={props.supportsReloadOnError}
-                        issueReportingUrl={props.issueReportingUrl}
-                        backlink={null}>
-                <div className="MultiWordTimeDistribTile">
-                    {props.isTweakMode ?
-                        <div className="tweak-box">
-                            <TweakControls averagingYears={props.averagingYears} tileId={props.tileId} units={props.units} />
-                        </div> :
-                        null
-                    }
-                    <Chart data={props.data}
-                            size={[props.renderSize[0], 300]}
-                            isPartial={props.isBusy}
-                            words={props.wordLabels}
-                            isSmallWidth={props.isMobile || props.widthFract < 2}
-                            averagingYears={props.averagingYears}
-                            units={props.units}
-                            zoom={props.zoom}
-                            refArea={props.refArea}
-                            tileId={props.tileId} />
-                </div>
-            </globComponents.TileWrapper>
-        );
-    }
+    const MultiWordTimeDistribTile:React.SFC<TimeDistribModelState & CoreTileComponentProps> = (props) => (
+        <globComponents.TileWrapper tileId={props.tileId} isBusy={props.isBusy} error={props.error}
+                    hasData={props.data.length > 0}
+                    sourceIdent={{corp: props.corpname, subcorp: props.subcDesc}}
+                    supportsTileReload={props.supportsReloadOnError}
+                    issueReportingUrl={props.issueReportingUrl}
+                    backlink={null}>
+            <div className="MultiWordTimeDistribTile">
+                {props.isTweakMode ?
+                    <div className="tweak-box">
+                        <TweakControls averagingYears={props.averagingYears} tileId={props.tileId} units={props.units} />
+                    </div> :
+                    null
+                }
+                <Chart data={props.data}
+                        size={[props.renderSize[0], 300]}
+                        isPartial={props.isBusy}
+                        words={props.wordLabels}
+                        isSmallWidth={props.isMobile || props.widthFract < 2}
+                        averagingYears={props.averagingYears}
+                        units={props.units}
+                        zoom={props.zoom}
+                        refArea={props.refArea}
+                        tileId={props.tileId} />
+            </div>
+        </globComponents.TileWrapper>
+    );
 
     return BoundWithProps(MultiWordTimeDistribTile, model);
 }
