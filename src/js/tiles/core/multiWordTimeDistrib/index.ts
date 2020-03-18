@@ -103,16 +103,16 @@ export class MultiWordTimeDistTile implements ITileProvider {
                     conf,
                     appServices.getApiHeaders(conf.apiURL)
                 )] :
-                conf.apiURL.map(url => createApiInstance(
+                List.map(url => createApiInstance(
                     conf.apiType,
                     cache,
                     url,
                     conf,
                     appServices.getApiHeaders(url)
-                )),
+                ), conf.apiURL),
             concApi: typeof conf.apiURL === 'string' ?
                 [new ConcApi(false, cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL))] :
-                conf.apiURL.map(url => new ConcApi(false, cache, url, appServices.getApiHeaders(url))),
+                List.map(url => new ConcApi(false, cache, url, appServices.getApiHeaders(url)), conf.apiURL),
             appServices: appServices,
             queryMatches,
             queryLang: lang1

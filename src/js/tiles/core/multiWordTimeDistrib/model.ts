@@ -388,45 +388,52 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         );
     }
 
+    private getApiId(state:TimeDistribModelState, subcname:string, queryId:number, apiCount:number) {
+        return ((subcname ? state.subcnames.indexOf(subcname) : 0) + (subcname ? state.subcnames.length : 1)*queryId) % apiCount;
+    }
+
     private loadConcordance(state:TimeDistribModelState, lemmaVariant:QueryMatch, subcnames:Array<string>,
             queryId:number):Observable<[ConcResponse, DataFetchArgs]> {
         const apiCount = this.concApi.length;
         return rxOf<string>(...subcnames).pipe(
             concatMap(
-                subcname => callWithExtraVal(
-                    this.concApi[(subcnames.indexOf(subcname) + subcnames.length * queryId) % apiCount],
-                    this.concApi[(subcnames.indexOf(subcname) + subcnames.length * queryId) % apiCount].stateToArgs(
+                subcname => {
+                    const concApi = this.concApi[this.getApiId(state, subcname, queryId, apiCount)];
+                    return callWithExtraVal(
+                        concApi,
+                        concApi.stateToArgs(
+                            {
+                                querySelector: QuerySelector.CQL,
+                                corpname: state.corpname,
+                                otherCorpname: undefined,
+                                subcname: subcname,
+                                subcDesc: null,
+                                kwicLeftCtx: -1,
+                                kwicRightCtx: 1,
+                                pageSize: 10,
+                                shuffle: false,
+                                attr_vmode: 'mouseover',
+                                viewMode: ViewMode.KWIC,
+                                tileId: this.tileId,
+                                attrs: [],
+                                metadataAttrs: [],
+                                queries: [],
+                                posQueryGenerator: state.posQueryGenerator,
+                                concordances: createInitialLinesData(this.queryMatches.length)
+                            },
+                            lemmaVariant,
+                            queryId,
+                            null
+                        ),
                         {
-                            querySelector: QuerySelector.CQL,
-                            corpname: state.corpname,
-                            otherCorpname: undefined,
-                            subcname: subcname,
-                            subcDesc: null,
-                            kwicLeftCtx: -1,
-                            kwicRightCtx: 1,
-                            pageSize: 10,
-                            shuffle: false,
-                            attr_vmode: 'mouseover',
-                            viewMode: ViewMode.KWIC,
-                            tileId: this.tileId,
-                            attrs: [],
-                            metadataAttrs: [],
-                            queries: [],
-                            posQueryGenerator: state.posQueryGenerator,
-                            concordances: createInitialLinesData(this.queryMatches.length)
-                        },
-                        lemmaVariant,
-                        queryId,
-                        null
-                    ),
-                    {
-                        corpName: state.corpname,
-                        subcName: subcname,
-                        concId: null,
-                        queryId: queryId,
-                        origQuery: mkMatchQuery(lemmaVariant, state.posQueryGenerator)
-                    }
-                )
+                            corpName: state.corpname,
+                            subcName: subcname,
+                            concId: null,
+                            queryId: queryId,
+                            origQuery: mkMatchQuery(lemmaVariant, state.posQueryGenerator)
+                        }
+                    )
+                }
             )
         );
     }
@@ -461,7 +468,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     args.concId = concResp.concPersistenceID;
                     if (args.concId) {
                         return callWithExtraVal(
-                            this.api[(subcNames.indexOf(args.subcName) + subcNames.length*args.queryId) % this.api.length],
+                            this.api[this.getApiId(state, args.subcName, args.queryId, this.api.length)],
                             {
                                 corpName: state.corpname,
                                 subcorpName: args.subcName,

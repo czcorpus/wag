@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { IActionDispatcher, StatelessModel } from 'kombo';
-import { Maths } from 'cnc-tskit';
+import { List, Maths } from 'cnc-tskit';
 
 import { ConcApi } from '../../../common/api/kontext/concordance';
 import { FreqSort } from '../../../common/api/kontext/freqs';
@@ -104,16 +104,16 @@ export class TimeDistTile implements ITileProvider {
                     conf,
                     appServices.getApiHeaders(conf.apiURL)
                 )] :
-                conf.apiURL.map(url => createApiInstance(
+                List.map(url => createApiInstance(
                     conf.apiType,
                     cache,
                     url,
                     conf,
                     appServices.getApiHeaders(url)
-                )),
+                ), conf.apiURL),
             concApi: typeof conf.apiURL === 'string' ?
                 [new ConcApi(false, cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL))] :
-                conf.apiURL.map(url => new ConcApi(false, cache, url, appServices.getApiHeaders(url))),
+                List.map(url => new ConcApi(false, cache, url, appServices.getApiHeaders(url)), conf.apiURL),
             appServices: appServices,
             queryMatches,
             queryLang: lang1,
