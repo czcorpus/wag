@@ -142,4 +142,7 @@ export class RetryTileLoad extends StatefulModel<RetryTileLoadState> {
         }
     }
 
+    unregister():void {
+    }
+
 }

@@ -46,9 +46,9 @@ export class ServerSideActionDispatcher implements IFullActionControl {
         return this.actions.subscribe((a:Action) => fn(a, seAction => this.inActions.next(seAction)));
     }
 
-    registerModel<T>(model: IStatelessModel<T>, initialState: T): BehaviorSubject<T> {
+    registerModel<T>(model: IStatelessModel<T>, initialState: T): [BehaviorSubject<T>, Subscription] {
         const state$ = new BehaviorSubject(initialState);
-        this.actions.pipe(
+        const subscr = this.actions.pipe(
             startWith(null),
             scan(
                 (state:T, action:Action<{}>) => {
@@ -63,10 +63,12 @@ export class ServerSideActionDispatcher implements IFullActionControl {
                 initialState
             )
         ).subscribe(state$);
-        return state$;
+        return [state$, subscr];
     }
 
     captureAction(actionName: string, capturer: IActionCapturer): void {
         // TODO
     }
+
+    unregister():void {}
 }
