@@ -21,13 +21,13 @@ import { TimeDistTileConf } from './common';
 import { CoreApiGroup, supportedCoreApiGroups } from '../../../common/api/coreGroups';
 import { HTTPHeaders, IAsyncKeyValueStore } from '../../../common/types';
 
-export function createApiInstance(apiIdent:string, cache:IAsyncKeyValueStore, conf:TimeDistTileConf, httpHeaders?:HTTPHeaders):KontextTimeDistribApi {
+export function createApiInstance(apiIdent:string, cache:IAsyncKeyValueStore, apiURL:string, conf:TimeDistTileConf, httpHeaders?:HTTPHeaders):KontextTimeDistribApi {
 
 	switch (apiIdent) {
 		case CoreApiGroup.KONTEXT:
 			return new KontextTimeDistribApi(
 				cache,
-                conf.apiURL,
+                apiURL,
                 httpHeaders,
                 conf.fcrit,
                 conf.flimit

@@ -19,12 +19,12 @@
 import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
 import { concatMap, reduce, map, tap } from 'rxjs/operators';
-import { Dict, Maths } from 'cnc-tskit';
+import { Dict, Maths, List, pipe } from 'cnc-tskit';
 
 import { AppServices } from '../../../appServices';
 import { ConcApi, QuerySelector, mkMatchQuery } from '../../../common/api/kontext/concordance';
 import { ConcResponse, ViewMode } from '../../../common/api/abstract/concordance';
-import { TimeDistribResponse } from '../../../common/api/abstract/timeDistrib';
+import { TimeDistribResponse, TimeDistribItem } from '../../../common/api/abstract/timeDistrib';
 import { DataRow } from '../../../common/api/kontext/freqs';
 import { KontextTimeDistribApi } from '../../../common/api/kontext/timeDistrib';
 import { GeneralSingleCritFreqMultiQueryState } from '../../../common/models/freq';
@@ -61,8 +61,8 @@ export interface TimeDistribModelArgs {
     initState:TimeDistribModelState;
     tileId:number;
     waitForTile:number;
-    api:KontextTimeDistribApi;
-    concApi:ConcApi;
+    api:Array<KontextTimeDistribApi>;
+    concApi:Array<ConcApi>;
     appServices:AppServices;
     queryMatches:RecognizedQueries;
     queryLang:string;
@@ -73,9 +73,9 @@ export interface TimeDistribModelArgs {
  */
 export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
-    private readonly api:KontextTimeDistribApi;
+    private readonly api:Array<KontextTimeDistribApi>;
 
-    private readonly concApi:ConcApi|null;
+    private readonly concApi:Array<ConcApi>;
 
     private readonly appServices:AppServices;
 
@@ -166,7 +166,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         this.addActionHandler<GlobalActions.RequestQueryResponse>(
             GlobalActionName.RequestQueryResponse,
             (state, action) => {
-                state.data = this.queryMatches.map(_ => []);
+                state.data = List.map(_ => [], this.queryMatches);
                 state.isBusy = true;
                 state.error = null;
             },
@@ -181,22 +181,27 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                     state,
                                     dispatch,
                                     [null],
-                                    rxOf(...this.queryMatches.map((lemma, queryId) => ({
-                                        queryId: queryId,
-                                        lemma: findCurrQueryMatch(lemma),
-                                        concId: payload.concPersistenceIDs[queryId]
-                                    }))) as Observable<{queryId:number; lemma:QueryMatch; concId:string;}>
+                                    rxOf<{queryId:number; lemma:QueryMatch; concId:string;}>(...List.map(
+                                        (lemma, queryId) => ({
+                                            queryId: queryId,
+                                            lemma: findCurrQueryMatch(lemma),
+                                            concId: payload.concPersistenceIDs[queryId]
+                                        }), this.queryMatches))
                                 );
                             } else {
                                 this.loadData(
                                     state,
                                     dispatch,
                                     state.subcnames,
-                                    rxOf(...this.queryMatches.map((lemma, queryId) => ({
-                                        queryId: queryId,
-                                        lemma: findCurrQueryMatch(lemma),
-                                        concId: null
-                                    }))) as Observable<{queryId:number; lemma:QueryMatch; concId:string;}>
+                                    rxOf<{queryId:number; lemma:QueryMatch; concId:string;}>(
+                                        ...List.map(
+                                            (lemma, queryId) => ({
+                                                queryId: queryId,
+                                                lemma: findCurrQueryMatch(lemma),
+                                                concId: null
+                                            }),
+                                            this.queryMatches
+                                    ))
                                 );
                             }
                             return null;
@@ -209,11 +214,15 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         state,
                         dispatch,
                         state.subcnames,
-                        rxOf(...this.queryMatches.map((lemma, queryId) => ({
-                            queryId: queryId,
-                            lemma: findCurrQueryMatch(lemma),
-                            concId: null
-                        }))) as Observable<{queryId:number; lemma:QueryMatch; concId:string;}>
+                        rxOf<{queryId:number; lemma:QueryMatch; concId:string;}>(
+                            ...List.map(
+                                (lemma, queryId) => ({
+                                    queryId: queryId,
+                                    lemma: findCurrQueryMatch(lemma),
+                                    concId: null
+                                }),
+                                this.queryMatches
+                        ))
                     );
                 }
             }
@@ -221,24 +230,24 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         this.addActionHandler<GlobalActions.TileDataLoaded<DataLoadedPayload>>(
             GlobalActionName.TileDataLoaded,
             (state, action) => {
+                state.isBusy = false;
+                if (action.error) {
+                    state.error = action.error.message;
+                }
+            }
+        );
+        this.addActionHandler<GlobalActions.TilePartialDataLoaded<DataLoadedPayload>>(
+            GlobalActionName.TilePartialDataLoaded,
+            (state, action) => {
                 if (action.payload.tileId === this.tileId) {
-                    if (action.payload.isLast) {
-                        state.isBusy = false;
-                    }
-                    if (action.error) {
-                        state.error = action.error.message;
-                        state.data = [];
-
-                    } else {
-                        const newData:Array<DataItemWithWCI> = action.error ?
-                            [] :
-                            this.mergeChunks(
-                                state.data[action.payload.queryId] || [],
-                                action.payload.data,
-                                state.alphaLevel
-                            );
-                        state.data[action.payload.queryId] = newData;
-                    }
+                    const newData:Array<DataItemWithWCI> = action.error ?
+                        [] :
+                        this.mergeChunks(
+                            state.data[action.payload.queryId] || [],
+                            action.payload.data,
+                            state.alphaLevel
+                        );
+                    state.data[action.payload.queryId] = newData;
                 }
             }
         );
@@ -247,7 +256,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             (state, action) => {},
             (state, action, dispatch) => {
                 if (action.payload['tileId'] === this.tileId) {
-                    this.api.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), action.payload['corpusId'])
+                    this.api[0].getSourceDescription(this.tileId, this.appServices.getISO639UILang(), action.payload['corpusId'])
                     .subscribe(
                         (data) => {
                             dispatch({
@@ -275,34 +284,43 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
     }
 
     private mergeChunks(currData:Array<DataItemWithWCI>, newChunk:Array<DataItemWithWCI>, alphaLevel:Maths.AlphaLevel):Array<DataItemWithWCI> {
-        return Dict.toEntries(newChunk.reduce(
-            (acc, curr) => {
-                if (acc[curr.datetime] !== undefined) {
-                    const tmp = acc[curr.datetime];
-                    tmp.freq += curr.freq;
-                    tmp.datetime = curr.datetime;
-                    tmp.norm += curr.norm;
-                    tmp.ipm = calcIPM(tmp, tmp.norm);
-                    const confInt = Maths.wilsonConfInterval(tmp.freq, tmp.norm, alphaLevel);
-                    tmp.ipmInterval = [roundFloat(confInt[0] * 1e6), roundFloat(confInt[1] * 1e6)];
-                    acc[tmp.datetime] = tmp;
-                    return acc;
+        return pipe(
+            newChunk,
+            List.foldl(
+                (acc, curr) => {
+                    if (acc[curr.datetime] !== undefined) {
+                        const tmp = acc[curr.datetime];
+                        tmp.freq += curr.freq;
+                        tmp.datetime = curr.datetime;
+                        tmp.norm += curr.norm;
+                        tmp.ipm = calcIPM(tmp, tmp.norm);
+                        const confInt = Maths.wilsonConfInterval(tmp.freq, tmp.norm, alphaLevel);
+                        tmp.ipmInterval = [roundFloat(confInt[0] * 1e6), roundFloat(confInt[1] * 1e6)];
+                        acc[tmp.datetime] = tmp;
+                        return acc;
 
-                } else {
-                    const confInt = Maths.wilsonConfInterval(curr.freq, curr.norm, alphaLevel);
-                    acc[curr.datetime] = {
-                        datetime: curr.datetime,
-                        freq: curr.freq,
-                        norm: curr.norm,
-                        ipm: calcIPM(curr, curr.norm),
-                        ipmInterval: [roundFloat(confInt[0] * 1e6), roundFloat(confInt[1] * 1e6)]
-                    };
-                    return acc;
-                }
-            },
-            Dict.fromEntries(currData.map(v => [v.datetime, v] as [string, DataItemWithWCI]))
-
-        )).map(([d, v]) => v).sort((x1, x2) => parseInt(x1.datetime) - parseInt(x2.datetime));
+                    } else {
+                        const confInt = Maths.wilsonConfInterval(curr.freq, curr.norm, alphaLevel);
+                        acc[curr.datetime] = {
+                            datetime: curr.datetime,
+                            freq: curr.freq,
+                            norm: curr.norm,
+                            ipm: calcIPM(curr, curr.norm),
+                            ipmInterval: [roundFloat(confInt[0] * 1e6), roundFloat(confInt[1] * 1e6)]
+                        };
+                        return acc;
+                    }
+                },
+                pipe(
+                    currData,
+                    List.map(v => [v.datetime, v] as [string, DataItemWithWCI]),
+                    Dict.fromEntries()
+                )
+            ),
+            Dict.toEntries(),
+            List.map(([,v]) => v),
+            List.sort((x1, x2) => parseInt(x1.datetime) - parseInt(x2.datetime))
+        )
     }
 
     private getFreqs(response:Observable<[TimeDistribResponse, DataFetchArgs]>, seDispatch:SEDispatcher) {
@@ -310,19 +328,19 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             map<[TimeDistribResponse, DataFetchArgs], DataLoadedPayload>(data => {
                 const [resp, args] = data;
 
-                const dataFull = resp.data.map<DataItemWithWCI>(v => {
-                    return {
+                const dataFull = List.map<TimeDistribItem, DataItemWithWCI>(
+                    v => ({
                         datetime: v.datetime,
                         freq: v.freq,
                         norm: v.norm,
                         ipm: -1,
                         ipmInterval: [-1, -1]
-                    };
-                });
+                    }),
+                    resp.data
+                );
 
                 return {
                     tileId: this.tileId,
-                    isLast: false,
                     data: dataFull,
                     queryId: args.queryId,
                     origQuery: args.origQuery
@@ -330,9 +348,9 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             }),
             tap(
                 data => {
-                    seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                        name: GlobalActionName.TileDataLoaded,
-                        payload: { ... data, isEmpty: data.data.length === 0}
+                    seDispatch<GlobalActions.TilePartialDataLoaded<DataLoadedPayload>>({
+                        name: GlobalActionName.TilePartialDataLoaded,
+                        payload: { ... data}
                     });
                 }
             ),
@@ -347,7 +365,6 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     payload:{
                         tileId: this.tileId,
                         isEmpty: isEmpty,
-                        isLast: true,
                         queryId: -1,
                         data: [],
                         origQuery: ''
@@ -362,7 +379,6 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         tileId: this.tileId,
                         data: [],
                         isEmpty: true,
-                        isLast: false,
                         queryId: -1,
                         origQuery: ''
                     },
@@ -374,11 +390,12 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private loadConcordance(state:TimeDistribModelState, lemmaVariant:QueryMatch, subcnames:Array<string>,
             queryId:number):Observable<[ConcResponse, DataFetchArgs]> {
+        const apiCount = this.concApi.length;
         return rxOf<string>(...subcnames).pipe(
             concatMap(
                 subcname => callWithExtraVal(
-                    this.concApi,
-                    this.concApi.stateToArgs(
+                    this.concApi[(subcnames.indexOf(subcname) + subcnames.length * queryId) % apiCount],
+                    this.concApi[(subcnames.indexOf(subcname) + subcnames.length * queryId) % apiCount].stateToArgs(
                         {
                             querySelector: QuerySelector.CQL,
                             corpname: state.corpname,
@@ -416,11 +433,9 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private loadData(state:TimeDistribModelState, dispatch:SEDispatcher, subcNames:Array<string>, lemmaVariant:Observable<{queryId:number; lemma:QueryMatch; concId:string;}>):void {
         const resp = lemmaVariant.pipe(
-            concatMap(args => {
-                if (!args.concId) {
-                    return this.loadConcordance(state, args.lemma, subcNames, args.queryId);
-                }
-                return rxOf<[ConcResponse, DataFetchArgs]>([
+            concatMap(args => !args.concId ?
+                this.loadConcordance(state, args.lemma, subcNames, args.queryId) :
+                rxOf<[ConcResponse, DataFetchArgs]>([
                     {
                         query: '',
                         corpName: state.corpname,
@@ -439,14 +454,14 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         queryId: args.queryId,
                         origQuery: mkMatchQuery(args.lemma, state.posQueryGenerator)
                     }
-                ]);
-            }),
+                ])
+            ),
             concatMap(
                 ([concResp, args]) => {
                     args.concId = concResp.concPersistenceID;
                     if (args.concId) {
                         return callWithExtraVal(
-                            this.api,
+                            this.api[(subcNames.indexOf(args.subcName) + subcNames.length*args.queryId) % this.api.length],
                             {
                                 corpName: state.corpname,
                                 subcorpName: args.subcName,

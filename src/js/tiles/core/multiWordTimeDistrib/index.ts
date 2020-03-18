@@ -95,13 +95,24 @@ export class MultiWordTimeDistTile implements ITileProvider {
             },
             tileId: tileId,
             waitForTile: waitForTiles[0] || -1,
-            api: createApiInstance(
-                conf.apiType,
-                cache,
-                conf,
-                appServices.getApiHeaders(conf.apiURL)
-            ),
-            concApi: conf.concApiURL ? new ConcApi(false, cache, conf.concApiURL, appServices.getApiHeaders(conf.apiURL)) : null,
+            api: typeof conf.apiURL === 'string' ?
+                [createApiInstance(
+                    conf.apiType,
+                    cache,
+                    conf.apiURL,
+                    conf,
+                    appServices.getApiHeaders(conf.apiURL)
+                )] :
+                conf.apiURL.map(url => createApiInstance(
+                    conf.apiType,
+                    cache,
+                    url,
+                    conf,
+                    appServices.getApiHeaders(url)
+                )),
+            concApi: typeof conf.apiURL === 'string' ?
+                [new ConcApi(false, cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL))] :
+                conf.apiURL.map(url => new ConcApi(false, cache, url, appServices.getApiHeaders(url))),
             appServices: appServices,
             queryMatches,
             queryLang: lang1
