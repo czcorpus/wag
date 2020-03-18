@@ -153,7 +153,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <span>
                             {props.payload.root.name}<br/>{' -> '}{props.payload.name}: {(100*value/props.payload.root.value).toFixed(2)} % ({value} ipm)
                         </span>
-                    }/>
+                    }
+                    content={globComponents.AlignedRechartsTooltip} />
             </TreeWrapper>
         );
     };

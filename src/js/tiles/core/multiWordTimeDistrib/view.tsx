@@ -25,7 +25,7 @@ import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
 import { GlobalComponents } from '../../../views/global';
 import { LemmaData, Actions, ActionName } from './common';
 import { TimeDistribModel, TimeDistribModelState } from './model';
-import { List } from 'cnc-tskit';
+import { List, pipe } from 'cnc-tskit';
 
 
 interface ChartDataPoint {
@@ -42,10 +42,10 @@ function prepareChartData(data:Array<LemmaData>, averagingYears:number):Array<Ch
     const mkDefaultDataPoint:()=>ChartDataPoint = () => ({
         year: 0,
         ipmNorm: 0,
-        fracValues: data.map(() => 0),
-        fracIntervals: data.map(() => [0, 0]),
-        ipmValues: data.map(() => 0),
-        ipmIntervals: data.map(() => [0, 0])
+        fracValues: List.map(() => 0, data),
+        fracIntervals: List.map(() => [0, 0], data),
+        ipmValues: List.map(() => 0, data),
+        ipmIntervals: List.map(() => [0, 0], data)
     });
 
     const zipped = List.zipByMappedKey(
@@ -61,21 +61,55 @@ function prepareChartData(data:Array<LemmaData>, averagingYears:number):Array<Ch
         data
     );
 
-    return zipped.map(
-        v => {
-            const window = zipped.filter(
-                wItem => wItem.year >= v.year - averagingYears && wItem.year <= v.year + averagingYears);
-            v.ipmIntervals = v.ipmIntervals.map((_, lemmaIdx) => [
-                window.reduce((acc, curr) => acc + curr.ipmIntervals[lemmaIdx][0] / window.length, 0),
-                window.reduce((acc, curr) => acc + curr.ipmIntervals[lemmaIdx][1] / window.length, 0)
-            ]);
-            v.ipmValues = v.ipmValues.map((_, lemmaIdx) => window.reduce((acc, curr) => acc + curr.ipmValues[lemmaIdx] / window.length, 0));
-            v.ipmNorm = window.reduce((acc, curr) => acc + curr.ipmNorm / window.length, 0);
-            v.fracIntervals = v.ipmIntervals.map(([v1, v2]) => [v1 / v.ipmNorm, v2 / v.ipmNorm]);
-            v.fracValues = v.ipmValues.map(vx => vx / v.ipmNorm);
-            return v;
-        }
-    ).sort((a, b) => a.year - b.year)
+    return pipe(
+        zipped,
+        List.map(
+            v => {
+                const window = List.filter(
+                    wItem => wItem.year >= v.year - averagingYears && wItem.year <= v.year + averagingYears,
+                    zipped
+                );
+                v.ipmIntervals = List.map(
+                    (_, lemmaIdx) => [
+                        List.foldl(
+                            (acc, curr) => acc + curr.ipmIntervals[lemmaIdx][0] / window.length,
+                            0,
+                            window
+                        ),
+                        List.foldl(
+                            (acc, curr) => acc + curr.ipmIntervals[lemmaIdx][1] / window.length,
+                            0,
+                            window
+                        )
+                    ],
+                    v.ipmIntervals
+                );
+                v.ipmValues = List.map(
+                    (_, lemmaIdx) => List.foldl(
+                        (acc, curr) => acc + curr.ipmValues[lemmaIdx] / window.length,
+                        0,
+                        window
+                    ),
+                    v.ipmValues
+                );
+                v.ipmNorm = List.foldl(
+                    (acc, curr) => acc + curr.ipmNorm / window.length,
+                    0,
+                    window
+                );
+                v.fracIntervals = List.map(
+                    ([v1, v2]) => [v1 / v.ipmNorm, v2 / v.ipmNorm],
+                    v.ipmIntervals
+                );
+                v.fracValues = List.map(
+                    vx => vx / v.ipmNorm,
+                    v.ipmValues
+                );
+                return v;
+            }
+        ),
+        List.sort((a, b) => a.year - b.year)
+    );
 
 }
 
@@ -98,13 +132,15 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         return (
             <p className="ChartLegend" style={{textAlign: 'center'}}>
-                {props.rcData.payload
-                    .filter(pitem => pitem.payload.name)
-                    .map((pitem, i) => (
+                {pipe(
+                    props.rcData.payload,
+                    List.filter(pitem => !!pitem.payload.name),
+                    List.map((pitem, i) => (
                         <span className="item" key={`${pitem.payload.name}:${i}`}><span className="box" style={mkBoxStyle(pitem.color)} />{pitem.payload.name}</span>
                     ))
-                }
-                <br />({props.metric})
+                )}
+                <br />
+                ({props.metric})
             </p>
         );
     }
@@ -191,22 +227,29 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         render() {
             const data = prepareChartData(this.props.data, this.props.averagingYears)
                 .filter(v =>
-                    this.props.zoom.every(v => v !== null) ?
+                    List.every(v => v !== null, this.props.zoom) ?
                     v.year >= this.props.zoom[0] && v.year <= this.props.zoom[1] :
                     true
                 );
             let domainY:[number, number]|[number, string];
-            let tickFormatterY, tooltipFormatter;
+            let tickFormatterY:(fracValue:number, name:string, formatterProps:any)=>string;
+            let tooltipFormatter:(fracValue:number, name:string, formatterProps:any)=>[string, string];
             let keyFn1:(lemmaIdx:number)=>(v:ChartDataPoint)=>number;
             let keyFn2:(lemmaIdx:number)=>(v:ChartDataPoint)=>[number, number];
             switch (this.props.units) {
                 case '%':
                     keyFn1 = idx => v => v.fracValues[idx];
                     keyFn2 = idx => v => v.fracIntervals[idx];
-                    const domainMax =  Math.min(1, Math.round(Math.max(...data.map(v => Math.max(...v.fracValues)))*100)/100 + 0.05);
+                    const domainMax =  Math.min(
+                        1,
+                        Math.round(Math.max(...List.map(v => Math.max(...v.fracValues), data)) * 100) / 100 + 0.05
+                    );
                     domainY = [0, domainMax];
                     tickFormatterY = fracValue => `${fracValue * 100}%`;
-                    tooltipFormatter = (fracValue, name, formatterProps) => [`${(fracValue * 100).toFixed(2)} % (${(fracValue * formatterProps.payload.ipmNorm).toFixed(2)} ipm)`, name];
+                    tooltipFormatter = (fracValue, name, formatterProps) => [
+                        `${(fracValue * 100).toFixed(2)} % (${(fracValue * formatterProps.payload.ipmNorm).toFixed(2)} ipm)`,
+                        name
+                    ];
                 break;
                 case 'ipm':
                     keyFn1 = idx => v => v.ipmValues[idx];
@@ -232,34 +275,41 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     >
                         <CartesianGrid strokeDasharray="1 1"/>
                         <XAxis dataKey="year" minTickGap={0} type="category" allowDataOverflow={true} />
-                        <YAxis allowDataOverflow={true} domain={domainY} tickFormatter={tickFormatterY} interval="preserveStart"/>
-                        <Tooltip isAnimationActive={false} formatter={(value, name, formatterProps) => {
-                            if (Array.isArray(value)) {
-                                return [null, null];
-                            }
-                            return tooltipFormatter(value, name, formatterProps);
-                        }} />
-                        {this.props.words.map((word, index) =>
-                            <Area type="linear"
-                                key={`${word}Values`}
-                                dataKey={keyFn1(index)}
-                                name={ut.translate('multiWordTimeDistrib__estimated_trend_for_{word}', {word: word})}
-                                stroke={this.props.isPartial ? '#dddddd' : theme.cmpCategoryColor(index)}
-                                fill={'rgba(0,0,0,0)'}  // transparent fill - only line
-                                strokeWidth={2}
-                                isAnimationActive={false}
-                                connectNulls={true} />
+                        <YAxis allowDataOverflow={true} domain={domainY} tickFormatter={tickFormatterY} />
+                        <Tooltip isAnimationActive={false}
+                            formatter={(value, name, formatterProps) => {
+                                if (Array.isArray(value)) {
+                                    return [null, null];
+                                }
+                                return tooltipFormatter(value, name, formatterProps);
+                            }}
+                            content = {globComponents.AlignedRechartsTooltip}
+                        />
+                        {List.map(
+                            (word, index) =>
+                                <Area type="linear"
+                                    key={`${word}Values`}
+                                    dataKey={keyFn1(index)}
+                                    name={ut.translate('multiWordTimeDistrib__estimated_trend_for_{word}', {word: word})}
+                                    stroke={this.props.isPartial ? '#dddddd' : theme.cmpCategoryColor(index)}
+                                    fill={'rgba(0,0,0,0)'}  // transparent fill - only line
+                                    strokeWidth={2}
+                                    isAnimationActive={false}
+                                    connectNulls={true} />,
+                            this.props.words
                         )}
-                        {this.props.words.map((word, index) =>
-                            <Area type="linear"
-                                key={`${word}Confidence`}
-                                dataKey={keyFn2(index)}
-                                name={null}
-                                stroke={null}
-                                fill={this.props.isPartial ? '#eeeeee' : theme.cmpCategoryColor(index)}
-                                strokeWidth={1}
-                                isAnimationActive={false}
-                                connectNulls={true} />
+                        {List.map(
+                            (word, index) =>
+                                <Area type="linear"
+                                    key={`${word}Confidence`}
+                                    dataKey={keyFn2(index)}
+                                    name={null}
+                                    stroke={null}
+                                    fill={this.props.isPartial ? '#eeeeee' : theme.cmpCategoryColor(index)}
+                                    strokeWidth={1}
+                                    isAnimationActive={false}
+                                    connectNulls={true} />,
+                            this.props.words
                         )}
                         {
                             (this.props.refArea[0] && this.props.refArea[1]) ?
@@ -268,7 +318,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         }
                         <Legend content={(props) => <ChartLegend metric={ut.translate('multiWordTimeDistrib__occurence_human')} rcData={props} />} />
                         <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="30" y="20" viewBox="0 0 50 50" preserveAspectRatio="xMaxYMin meet">
-                            <g fill="black" fillOpacity="0" stroke={this.props.zoom.every(v => v === null) ? "lightgray" : "gray"} strokeWidth="3">
+                            <g fill="black" fillOpacity="0" stroke={List.every(v => v === null, this.props.zoom) ? "lightgray" : "gray"} strokeWidth="3">
                                 <circle cx="20" cy="20" r="14"/>
                                 <line x1="30" y1="30" x2="42" y2="42" strokeLinecap="round"/>
                                 <line x1="15" y1="15" x2="25" y2="25" strokeLinecap="round"/>

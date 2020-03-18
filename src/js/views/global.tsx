@@ -18,7 +18,7 @@
 import { ViewUtils, IActionDispatcher } from 'kombo';
 import * as React from 'react';
 import { Observable } from 'rxjs';
-import { Keyboard } from 'cnc-tskit';
+import { List, Keyboard, pipe, Dict } from 'cnc-tskit';
 
 import { MultiDict } from '../common/data';
 import { SystemMessageType, SourceDetails } from '../common/types';
@@ -94,6 +94,14 @@ export interface GlobalComponents {
     SourceInfoBox:React.SFC<{
         data:SourceDetails;
     }>;
+
+    AlignedRechartsTooltip:React.SFC<{
+        active:boolean;
+        payload:Array<{[key:string]:any}>;
+        label:string;
+        separator:string;
+        formatter:(value:string,name:string,data:{[key:string]:any}) => string | [string, string];
+    }>;
 }
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Observable<ScreenProps>):GlobalComponents {
@@ -158,8 +166,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
     }> = (props) => {
         const args = new MultiDict(props.values.args);
         return <form className="BacklinkForm" action={props.values.url} method={props.values.method} target="_blank">
-            {args.items().filter(v => v[1] !== null && v[1] !== undefined).map(([k, v], i) =>
-                <input key={`arg:${i}:${k}`} type="hidden" name={k} value={v} />
+            {pipe(
+                args.items(),
+                List.filter(v => v[1] !== null && v[1] !== undefined),
+                List.map(([k, v], i) =>
+                    <input key={`arg:${i}:${k}`} type="hidden" name={k} value={v} />
+                )
             )}
             <button type="submit">
                 {props.values.label}
@@ -191,21 +203,23 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
             <div className="source">
                 {props.data ? ut.translate('global__source') + ':\u00a0' : null}
                 {props.data ?
-                    (Array.isArray(props.data) ? props.data : [props.data]).map((item, i) =>
-                        <React.Fragment key={`${item.corp}:${item.subcorp}`}>
-                            {i > 0 ? <span> + </span> : null}
-                            {item.corp ?
-                                <>
-                                <a onClick={handleClick(item.corp, item.subcorp)}>
-                                    {item.corp}
-                                </a>
-                                {item.subcorp ? <span> / {item.subcorp}</span> : null}
-                                </> :
-                                <a onClick={handleClick(item.corp, item.subcorp)}>
-                                    {ut.translate('global__click_for_details')}
-                                </a>
-                            }
-                        </React.Fragment>
+                    List.map(
+                        (item, i) =>
+                            <React.Fragment key={`${item.corp}:${item.subcorp}`}>
+                                {i > 0 ? <span> + </span> : null}
+                                {item.corp ?
+                                    <>
+                                    <a onClick={handleClick(item.corp, item.subcorp)}>
+                                        {item.corp}
+                                    </a>
+                                    {item.subcorp ? <span> / {item.subcorp}</span> : null}
+                                    </> :
+                                    <a onClick={handleClick(item.corp, item.subcorp)}>
+                                        {ut.translate('global__click_for_details')}
+                                    </a>
+                                }
+                            </React.Fragment>,
+                        Array.isArray(props.data) ? props.data : [props.data]
                     ) :
                     null
                 }
@@ -213,11 +227,15 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                     <>
                     ,{'\u00a0'}
                     {ut.translate('global__more_info')}:{'\u00a0'}
-                    {(Array.isArray(props.backlink) ? props.backlink : [props.backlink]).filter(v => !!v).map((item, i) =>
-                        <React.Fragment key={`${item.label}:${i}`}>
-                            {i > 0 ? <span>, </span> : null}
-                            <BacklinkForm values={item} />
-                        </React.Fragment>
+                    {pipe(
+                        Array.isArray(props.backlink) ? props.backlink : [props.backlink],
+                        List.filter(v => !!v),
+                        List.map((item, i) =>
+                            <React.Fragment key={`${item.label}:${i}`}>
+                                {i > 0 ? <span>, </span> : null}
+                                <BacklinkForm values={item} />
+                            </React.Fragment>
+                        )
                     )}
                     </> :
                     null
@@ -440,9 +458,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
     const HorizontalBlockSwitch:GlobalComponents['HorizontalBlockSwitch'] = (props) => {
         return (
             <div className={`HorizontalBlockSwitch${props.htmlClass ? ' ' + props.htmlClass : ''}`}>
-                {props.blockIndices.map(ident =>
+                {List.map(
+                    ident =>
                         <a key={ident} className={`${props.currentIdx === ident ? 'current' : ''}`}
-                                onClick={ident != null ? ()=>props.onChange(ident) : undefined}>{'\u25A0'}</a>)}
+                                onClick={ident != null ? ()=>props.onChange(ident) : undefined}>{'\u25A0'}</a>,
+                    props.blockIndices
+                )}
             </div>
         );
     };
@@ -543,23 +564,64 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
             <div className="wdg-tooltip" ref={ref} style={style}>
                 <table>
                     <tbody>
-                        {Object.keys(props.values || {}).map(label => {
-                            const v = props.values ? props.values[label] : '';
-                            return (
-                                <tr key={label}>
-                                <th>{label}:</th>
-                                {typeof v === 'number' ?
-                                    <td className="num">{ut.formatNumber(v, 1)}</td> :
-                                    <td>{v}</td>
+                        {pipe(
+                            props.values || {},
+                            Dict.keys(),
+                            List.map(
+                                label => {
+                                    const v = props.values ? props.values[label] : '';
+                                    return (
+                                        <tr key={label}>
+                                        <th>{label}:</th>
+                                        {typeof v === 'number' ?
+                                            <td className="num">{ut.formatNumber(v, 1)}</td> :
+                                            <td>{v}</td>
+                                        }
+                                        </tr>
+                                    );
                                 }
-                                </tr>
-                            );
-                        })}
+                            )
+                        )}
                     </tbody>
                 </table>
             </div>
         );
     }
+
+
+    // -------------------- <AlignedRechartsTooltip /> ----------------------------------------------
+
+
+    const AlignedRechartsTooltip:GlobalComponents['AlignedRechartsTooltip'] = (props) => {
+        const { active, payload, label, formatter, separator } = props;
+        if (active && payload) {
+            return (
+                <div style={{backgroundColor: 'white', padding: '0.5em', border: '1px solid lightgrey'}} >
+                    <table>
+                        <thead><tr><td colSpan={2}>{label}</td></tr></thead>
+                        <tbody>
+                        {List.map(
+                            data => {
+                                const formated_value = formatter ? formatter(data.value, data.name, data) : [data.value, data.name];
+                                const [value, name] = typeof formated_value === "string" ? [formated_value, data.name] : formated_value;
+                                return ((Array.isArray(value) ? value.every(v => Boolean(v)) : value) && name) ?
+                                    <tr key={name}>
+                                        <td key="name" style={{color: data.color}}>{`${name}${separator}`}</td>
+                                        <td key="value" className="num">{Array.isArray(value) ? value.join(" ~ ") : value}{data.unit}</td>
+                                    </tr> :
+                                    null;
+                            },
+                            payload
+                        )}
+                        </tbody>
+                    </table>
+                </div>
+            );
+        }
+
+        return null;
+      };
+
 
     // ===================
 
@@ -573,6 +635,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
         ImageWithMouseover: ImageWithMouseover,
         ResponsiveWrapper: ResponsiveWrapper,
         ElementTooltip: ElementTooltip,
-        SourceInfoBox: SourceInfoBox
+        SourceInfoBox: SourceInfoBox,
+        AlignedRechartsTooltip: AlignedRechartsTooltip
     };
 }
