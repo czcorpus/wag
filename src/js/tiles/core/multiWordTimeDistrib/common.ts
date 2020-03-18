@@ -61,7 +61,6 @@ export interface DataLoadedPayload {
     queryId:number;
     origQuery:string;
     data:Array<DataItemWithWCI>;
-    isLast:boolean;
 }
 
 export interface DataFetchArgs {
