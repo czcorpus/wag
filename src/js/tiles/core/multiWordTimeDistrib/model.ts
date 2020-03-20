@@ -288,7 +288,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             (state, action) => {},
             (state, action, dispatch) => {
                 if (action.payload['tileId'] === this.tileId) {
-                    this.apiFactory[0].value.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), action.payload['corpusId'])
+                    const [concApi,] = this.apiFactory.getHighestPriorityValue();
+                    concApi.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), action.payload['corpusId'])
                     .subscribe(
                         (data) => {
                             dispatch({

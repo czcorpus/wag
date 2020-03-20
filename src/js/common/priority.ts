@@ -24,7 +24,17 @@ interface ValueWithPriority<T> {
     priority:[number, number];
 }
 
-
+/**
+ * PriorityValueFactory allows defining of different
+ * priorities for objects 0,1,...,N and then adding
+ * those objects. Once ready, method getRandomValue()
+ * returns an object "i" with probability proportional
+ * to its priority.
+ *
+ * The units for priorities do not matter. Any numbers
+ * A0, A1, A2,...,An can be used. The priority is normalized
+ * as A_norm[i] = Ai / sum(A0,...,An).
+ */
 export class PriorityValueFactory<T> {
 
     private readonly priorities:Array<number>;
@@ -61,6 +71,10 @@ export class PriorityValueFactory<T> {
         }
         console.warn('Failed to fetch item by priority');
         return this.instances[0].value;
+    }
+
+    getHighestPriorityValue():T {
+        return List.maxItem(v => v.priority[1], this.instances).value;
     }
 
 }
