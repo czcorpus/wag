@@ -436,11 +436,12 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
         );
     }
 
-    private loadConcordance(state:TimeDistribModelState, concApi:ConcApi, freqApi:KontextTimeDistribApi, lemmaVariant:QueryMatch, subcnames:Array<string>,
+    private loadConcordance(state:TimeDistribModelState, lemmaVariant:QueryMatch, subcnames:Array<string>,
             target:SubchartID):Observable<[ConcResponse, DataFetchArgsOwn]> {
         return rxOf(...subcnames).pipe(
             mergeMap(
                 subcname => {
+                    const [concApi, freqApi] = this.apiFactory.getRandomValue();
                     return callWithExtraVal(
                         concApi,
                         concApi.stateToArgs(
@@ -539,11 +540,11 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
         } else { // here we must create our own concordance(s) if needed
             const data = lemmaVariant.pipe(
                 concatMap((lv:QueryMatch) => {
-                    const [concApi, freqApi] = this.apiFactory.getRandomValue();
                     if (lv) {
-                        return this.loadConcordance(state, concApi, freqApi, lv, state.subcnames, target);
+                        return this.loadConcordance(state, lv, state.subcnames, target);
 
                     } else {
+                        const [,freqApi] = this.apiFactory.getRandomValue();
                         return rxOf<[ConcResponse, DataFetchArgsOwn]>([
                             {
                                 query: '',

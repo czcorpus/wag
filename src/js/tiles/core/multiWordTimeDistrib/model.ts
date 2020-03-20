@@ -72,8 +72,6 @@ interface CalcArgs {
     queryId:number;
     lemma:QueryMatch;
     concId:string;
-    concApi:ConcApi;
-    freqApi:KontextTimeDistribApi;
 }
 
 export interface DataFetchArgs {
@@ -197,13 +195,10 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                     [null],
                                     rxOf<CalcArgs>(...List.map(
                                         (lemma, queryId) => {
-                                            const [concApi, freqApi] = this.apiFactory.getRandomValue();
                                             return {
                                                 queryId,
                                                 lemma: findCurrQueryMatch(lemma),
                                                 concId: payload.concPersistenceIDs[queryId],
-                                                concApi,
-                                                freqApi
                                             }
                                         },
                                         this.queryMatches))
@@ -216,13 +211,10 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                     rxOf<CalcArgs>(
                                         ...List.map(
                                             (lemma, queryId) => {
-                                                const [concApi, freqApi] = this.apiFactory.getRandomValue();
                                                 return {
                                                     queryId,
                                                     lemma: findCurrQueryMatch(lemma),
-                                                    concId: null,
-                                                    concApi,
-                                                    freqApi
+                                                    concId: null
                                                 }
                                             },
                                             this.queryMatches
@@ -242,13 +234,10 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         rxOf<CalcArgs>(
                             ...List.map(
                                 (lemma, queryId) => {
-                                    const [concApi, freqApi] = this.apiFactory.getRandomValue();
                                     return {
                                         queryId,
                                         lemma: findCurrQueryMatch(lemma),
-                                        concId: null,
-                                        concApi,
-                                        freqApi
+                                        concId: null
                                     }
                                 },
                                 this.queryMatches
@@ -421,14 +410,15 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         );
     }
 
-    private loadConcordance(state:TimeDistribModelState, api:ConcApi, freqApi:KontextTimeDistribApi, lemmaVariant:QueryMatch, subcnames:Array<string>,
+    private loadConcordance(state:TimeDistribModelState, lemmaVariant:QueryMatch, subcnames:Array<string>,
             queryId:number):Observable<[ConcResponse, DataFetchArgs]> {
         return rxOf<string>(...subcnames).pipe(
             mergeMap(
                 subcname => {
+                    const [concApi, freqApi] = this.apiFactory.getRandomValue();
                     return callWithExtraVal(
-                        api,
-                        api.stateToArgs(
+                        concApi,
+                        concApi.stateToArgs(
                             {
                                 querySelector: QuerySelector.CQL,
                                 corpname: state.corpname,
@@ -468,30 +458,34 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private loadData(state:TimeDistribModelState, dispatch:SEDispatcher, subcNames:Array<string>, lemmaVariant:Observable<CalcArgs>):void {
         const resp = lemmaVariant.pipe(
-            mergeMap(args => !args.concId ?
-                this.loadConcordance(state, args.concApi, args.freqApi, args.lemma, subcNames, args.queryId) :
-                rxOf<[ConcResponse, DataFetchArgs]>([
-                    {
-                        query: '',
-                        corpName: state.corpname,
-                        subcorpName: subcNames[0],
-                        lines: [],
-                        concsize: 0,
-                        arf: 0,
-                        ipm: 0,
-                        messages: [],
-                        concPersistenceID: args.concId
-                    },
-                    {
-                        corpName: state.corpname,
-                        subcName: subcNames[0],
-                        concId: args.concId,
-                        queryId: args.queryId,
-                        origQuery: mkMatchQuery(args.lemma, state.posQueryGenerator),
-                        freqApi: args.freqApi
-                    }
-                ])
-            ),
+            mergeMap(args => {
+                 if (args.concId) {
+                    const [,freqApi] = this.apiFactory.getRandomValue();
+                    rxOf<[ConcResponse, DataFetchArgs]>([
+                        {
+                            query: '',
+                            corpName: state.corpname,
+                            subcorpName: subcNames[0],
+                            lines: [],
+                            concsize: 0,
+                            arf: 0,
+                            ipm: 0,
+                            messages: [],
+                            concPersistenceID: args.concId
+                        },
+                        {
+                            corpName: state.corpname,
+                            subcName: subcNames[0],
+                            concId: args.concId,
+                            queryId: args.queryId,
+                            origQuery: mkMatchQuery(args.lemma, state.posQueryGenerator),
+                            freqApi: freqApi
+                        }
+                    ])
+                 } else {
+                    return this.loadConcordance(state, args.lemma, subcNames, args.queryId);
+                 }
+            }),
             mergeMap(
                 ([concResp, args]) => {
                     args.concId = concResp.concPersistenceID;
