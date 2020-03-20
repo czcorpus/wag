@@ -33,8 +33,6 @@ export interface TimeDistTileConf extends CorpSrchTileConf {
 
     apiType:string;
 
-    concApiURL:string|Array<string>;
-
     apiURL:string|Array<string>;
 
     apiPriority?:Array<number>;

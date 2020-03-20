@@ -199,7 +199,7 @@
             ],
             "type": "object"
         },
-        "HomePageTileConf": {
+        "HomePageTileConfI18n": {
             "properties": {
                 "contents": {
                     "additionalProperties": {
@@ -235,11 +235,11 @@
             ],
             "type": "object"
         },
-        "HomepageConf": {
+        "HomepageConfI18n": {
             "properties": {
                 "tiles": {
                     "items": {
-                        "$ref": "#/definitions/HomePageTileConf"
+                        "$ref": "#/definitions/HomePageTileConfI18n"
                     },
                     "type": "array"
                 }
@@ -2718,7 +2718,7 @@
                     "type": "string"
                 },
                 "aspectRatio": {
-                    "description": "The **`aspect-ratio`**    CSS property sets a _**preferred aspect ratio**_ for the box, which will be used in the calculation of auto sizes and some other layout functions.\n\n**Initial value**: `auto`",
+                    "description": "The **`aspect-ratio`**    CSS property sets a _**preferred aspect ratio**_ for the box, which will be used in the calculation of auto sizes and some other layout functions.\n\n**Initial value**: `auto`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n| **79** | **71**  |   No   |  No  | No  |",
                     "type": "string"
                 },
                 "backdropFilter": {
@@ -3373,7 +3373,7 @@
                     "type": "string"
                 },
                 "boxDecorationBreak": {
-                    "description": "The **`box-decoration-break`** CSS property specifies how an element's fragments should be rendered when broken across multiple lines, columns, or pages.\n\n**Initial value**: `slice`\n\n|    Chrome    | Firefox | Safari  | Edge | IE  |\n| :----------: | :-----: | :-----: | :--: | :-: |\n| **22** _-x-_ | **32**  | **6.1** |  No  | No  |",
+                    "description": "The **`box-decoration-break`** CSS property specifies how an element's fragments should be rendered when broken across multiple lines, columns, or pages.\n\n**Initial value**: `slice`\n\n|    Chrome    | Firefox |    Safari     | Edge | IE  |\n| :----------: | :-----: | :-----------: | :--: | :-: |\n| **22** _-x-_ | **32**  | **6.1** _-x-_ |  No  | No  |",
                     "enum": [
                         "-moz-initial",
                         "clone",
@@ -3696,10 +3696,10 @@
                             "type": "number"
                         }
                     ],
-                    "description": "The **`column-count`** CSS property breaks an element's content into the specified number of columns.\n\n**Initial value**: `auto`\n\n| Chrome  |  Firefox  | Safari  |  Edge  |   IE   |\n| :-----: | :-------: | :-----: | :----: | :----: |\n| **50**  |  **52**   |  **9**  | **12** | **10** |\n| 1 _-x-_ | 1.5 _-x-_ | 3 _-x-_ |        |        |"
+                    "description": "The **`column-count`** CSS property breaks an element's content into the specified number of columns.\n\n**Initial value**: `auto`\n\n| Chrome  | Firefox | Safari  |  Edge  |   IE   |\n| :-----: | :-----: | :-----: | :----: | :----: |\n| **50**  | **52**  |  **9**  | **12** | **10** |\n| 1 _-x-_ |         | 3 _-x-_ |        |        |"
                 },
                 "columnFill": {
-                    "description": "The **`column-fill`** CSS property controls how an element's contents are balanced when broken into columns.\n\n**Initial value**: `balance`\n\n| Chrome | Firefox  | Safari  |  Edge  |   IE   |\n| :----: | :------: | :-----: | :----: | :----: |\n| **50** |  **52**  |  **9**  | **12** | **10** |\n|        | 13 _-x-_ | 8 _-x-_ |        |        |",
+                    "description": "The **`column-fill`** CSS property controls how an element's contents are balanced when broken into columns.\n\n**Initial value**: `balance`\n\n| Chrome | Firefox | Safari  |  Edge  |   IE   |\n| :----: | :-----: | :-----: | :----: | :----: |\n| **50** | **52**  |  **9**  | **12** | **10** |\n|        |         | 8 _-x-_ |        |        |",
                     "enum": [
                         "-moz-initial",
                         "auto",
@@ -3713,29 +3713,29 @@
                     "type": "string"
                 },
                 "columnGap": {
-                    "description": "The **`column-gap`** CSS property sets the size of the gap (gutter) between an element's columns.\n\n**Initial value**: `normal`\n\n---\n\n_Supported in Flex Layout_\n\n| Chrome | Firefox |   Safari    | Edge | IE  |\n| :----: | :-----: | :---------: | :--: | :-: |\n|   No   | **63**  | **3** _-x-_ |  No  | No  |\n\n---\n\n_Supported in Grid Layout_\n\n|     Chrome      |     Firefox     |        Safari         |  Edge  | IE  |\n| :-------------: | :-------------: | :-------------------: | :----: | :-: |\n|     **66**      |     **61**      | **10.1** _(grid-gap)_ | **16** | No  |\n| 57 _(grid-gap)_ | 52 _(grid-gap)_ |                       |        |     |\n\n---\n\n_Supported in Multi-column Layout_\n\n| Chrome  |  Firefox  | Safari  |  Edge  |   IE   |\n| :-----: | :-------: | :-----: | :----: | :----: |\n| **50**  |  **52**   | **10**  | **12** | **10** |\n| 1 _-x-_ | 1.5 _-x-_ | 3 _-x-_ |        |        |\n\n---",
+                    "description": "The **`column-gap`** CSS property sets the size of the gap (gutter) between an element's columns.\n\n**Initial value**: `normal`\n\n---\n\n_Supported in Flex Layout_\n\n| Chrome | Firefox |   Safari    | Edge | IE  |\n| :----: | :-----: | :---------: | :--: | :-: |\n|   No   | **63**  | **3** _-x-_ |  No  | No  |\n\n---\n\n_Supported in Grid Layout_\n\n|     Chrome      |     Firefox     |        Safari         |  Edge  | IE  |\n| :-------------: | :-------------: | :-------------------: | :----: | :-: |\n|     **66**      |     **61**      | **10.1** _(grid-gap)_ | **16** | No  |\n| 57 _(grid-gap)_ | 52 _(grid-gap)_ |                       |        |     |\n\n---\n\n_Supported in Multi-column Layout_\n\n| Chrome  | Firefox | Safari  |  Edge  |   IE   |\n| :-----: | :-----: | :-----: | :----: | :----: |\n| **50**  | **52**  | **10**  | **12** | **10** |\n| 1 _-x-_ |         | 3 _-x-_ |        |        |\n\n---",
                     "type": [
                         "string",
                         "number"
                     ]
                 },
                 "columnRule": {
-                    "description": "The **`column-rule`** CSS property sets the width, style, and color of the rule (line) drawn between columns in a multi-column layout.\n\n| Chrome  |  Firefox  | Safari  |  Edge  |   IE   |\n| :-----: | :-------: | :-----: | :----: | :----: |\n| **50**  |  **52**   |  **9**  | **12** | **10** |\n| 1 _-x-_ | 3.5 _-x-_ | 3 _-x-_ |        |        |",
+                    "description": "The **`column-rule`** CSS property sets the width, style, and color of the rule (line) drawn between columns in a multi-column layout.\n\n| Chrome  | Firefox | Safari  |  Edge  |   IE   |\n| :-----: | :-----: | :-----: | :----: | :----: |\n| **50**  | **52**  |  **9**  | **12** | **10** |\n| 1 _-x-_ |         | 3 _-x-_ |        |        |",
                     "type": [
                         "string",
                         "number"
                     ]
                 },
                 "columnRuleColor": {
-                    "description": "The **`column-rule-color`** CSS property sets the color of the rule (line) drawn between columns in a multi-column layout.\n\n**Initial value**: `currentcolor`\n\n| Chrome  |  Firefox  | Safari  |  Edge  |   IE   |\n| :-----: | :-------: | :-----: | :----: | :----: |\n| **50**  |  **52**   |  **9**  | **12** | **10** |\n| 1 _-x-_ | 3.5 _-x-_ | 3 _-x-_ |        |        |",
+                    "description": "The **`column-rule-color`** CSS property sets the color of the rule (line) drawn between columns in a multi-column layout.\n\n**Initial value**: `currentcolor`\n\n| Chrome  | Firefox | Safari  |  Edge  |   IE   |\n| :-----: | :-----: | :-----: | :----: | :----: |\n| **50**  | **52**  |  **9**  | **12** | **10** |\n| 1 _-x-_ |         | 3 _-x-_ |        |        |",
                     "type": "string"
                 },
                 "columnRuleStyle": {
-                    "description": "The **`column-rule-style`** CSS property sets the style of the line drawn between columns in a multi-column layout.\n\n**Initial value**: `none`\n\n| Chrome  |  Firefox  | Safari  |  Edge  |   IE   |\n| :-----: | :-------: | :-----: | :----: | :----: |\n| **50**  |  **52**   |  **9**  | **12** | **10** |\n| 1 _-x-_ | 3.5 _-x-_ | 3 _-x-_ |        |        |",
+                    "description": "The **`column-rule-style`** CSS property sets the style of the line drawn between columns in a multi-column layout.\n\n**Initial value**: `none`\n\n| Chrome  | Firefox | Safari  |  Edge  |   IE   |\n| :-----: | :-----: | :-----: | :----: | :----: |\n| **50**  | **52**  |  **9**  | **12** | **10** |\n| 1 _-x-_ |         | 3 _-x-_ |        |        |",
                     "type": "string"
                 },
                 "columnRuleWidth": {
-                    "description": "The **`column-rule-width`** CSS property sets the width of the rule (line) drawn between columns in a multi-column layout.\n\n**Initial value**: `medium`\n\n| Chrome  |  Firefox  | Safari  |  Edge  |   IE   |\n| :-----: | :-------: | :-----: | :----: | :----: |\n| **50**  |  **52**   |  **9**  | **12** | **10** |\n| 1 _-x-_ | 3.5 _-x-_ | 3 _-x-_ |        |        |",
+                    "description": "The **`column-rule-width`** CSS property sets the width of the rule (line) drawn between columns in a multi-column layout.\n\n**Initial value**: `medium`\n\n| Chrome  | Firefox | Safari  |  Edge  |   IE   |\n| :-----: | :-----: | :-----: | :----: | :----: |\n| **50**  | **52**  |  **9**  | **12** | **10** |\n| 1 _-x-_ |         | 3 _-x-_ |        |        |",
                     "type": [
                         "string",
                         "number"
@@ -3755,14 +3755,14 @@
                     "type": "string"
                 },
                 "columnWidth": {
-                    "description": "The **`column-width`** CSS property specifies the ideal column width in a multi-column layout. The container will have as many columns as can fit without any of them having a width less than the `column-width` value. If the width of the container is narrower than the specified value, the single column's width will be smaller than the declared column width.\n\n**Initial value**: `auto`\n\n| Chrome  |  Firefox  | Safari  |  Edge  |   IE   |\n| :-----: | :-------: | :-----: | :----: | :----: |\n| **50**  |  **50**   |  **9**  | **12** | **10** |\n| 1 _-x-_ | 1.5 _-x-_ | 3 _-x-_ |        |        |",
+                    "description": "The **`column-width`** CSS property specifies the ideal column width in a multi-column layout. The container will have as many columns as can fit without any of them having a width less than the `column-width` value. If the width of the container is narrower than the specified value, the single column's width will be smaller than the declared column width.\n\n**Initial value**: `auto`\n\n| Chrome  | Firefox | Safari  |  Edge  |   IE   |\n| :-----: | :-----: | :-----: | :----: | :----: |\n| **50**  | **50**  |  **9**  | **12** | **10** |\n| 1 _-x-_ |         | 3 _-x-_ |        |        |",
                     "type": [
                         "string",
                         "number"
                     ]
                 },
                 "columns": {
-                    "description": "The **`columns`** CSS property sets the column width and column count of an element.\n\n| Chrome | Firefox | Safari  |  Edge  |   IE   |\n| :----: | :-----: | :-----: | :----: | :----: |\n| **50** | **52**  |  **9**  | **12** | **10** |\n|        | 9 _-x-_ | 3 _-x-_ |        |        |",
+                    "description": "The **`columns`** CSS property sets the column width and column count of an element.\n\n| Chrome | Firefox | Safari  |  Edge  |   IE   |\n| :----: | :-----: | :-----: | :----: | :----: |\n| **50** | **52**  |  **9**  | **12** | **10** |\n|        |         | 3 _-x-_ |        |        |",
                     "type": [
                         "string",
                         "number"
@@ -3888,7 +3888,7 @@
                     ]
                 },
                 "flexBasis": {
-                    "description": "The **`flex-basis`** CSS property sets the initial main size of a flex item. It sets the size of the content box unless otherwise set with `box-sizing`.\n\n**Initial value**: `auto`\n\n|  Chrome  | Firefox | Safari  |  Edge  |   IE   |\n| :------: | :-----: | :-----: | :----: | :----: |\n|  **29**  | **22**  |  **9**  | **12** | **11** |\n| 21 _-x-_ |         | 7 _-x-_ |        |        |",
+                    "description": "The **`flex-basis`** CSS property sets the initial main size of a flex item. It sets the size of the content box unless otherwise set with `box-sizing`.\n\n**Initial value**: `auto`\n\n|  Chrome  | Firefox | Safari  |  Edge  |   IE   |\n| :------: | :-----: | :-----: | :----: | :----: |\n|  **29**  | **22**  |  **9**  | **12** | **11** |\n| 22 _-x-_ |         | 7 _-x-_ |        |        |",
                     "type": [
                         "string",
                         "number"
@@ -3929,7 +3929,7 @@
                             "type": "number"
                         }
                     ],
-                    "description": "The **`flex-grow`** CSS property sets how much of the available space in the flex container should be assigned to that item (the flex grow factor). If all sibling items have the same flex grow factor, then all items will receive the same share of available space, otherwise it is distributed according to the ratio defined by the different flex grow factors.\n\n**Initial value**: `0`\n\n|  Chrome  | Firefox |  Safari   |  Edge  |            IE            |\n| :------: | :-----: | :-------: | :----: | :----------------------: |\n|  **29**  | **20**  |   **9**   | **12** |          **11**          |\n| 21 _-x-_ |         | 6.1 _-x-_ |        | 10 _(-ms-flex-positive)_ |"
+                    "description": "The **`flex-grow`** CSS property sets how much of the available space in the flex container should be assigned to that item (the flex grow factor). If all sibling items have the same flex grow factor, then all items will receive the same share of available space, otherwise it is distributed according to the ratio defined by the different flex grow factors.\n\n**Initial value**: `0`\n\n|  Chrome  | Firefox |  Safari   |  Edge  |            IE            |\n| :------: | :-----: | :-------: | :----: | :----------------------: |\n|  **29**  | **20**  |   **9**   | **12** |          **11**          |\n| 22 _-x-_ |         | 6.1 _-x-_ |        | 10 _(-ms-flex-positive)_ |"
                 },
                 "flexShrink": {
                     "anyOf": [
@@ -3947,7 +3947,7 @@
                             "type": "number"
                         }
                     ],
-                    "description": "The **`flex-shrink`** CSS property sets the flex shrink factor of a flex item. If the size of flex items is larger than the flex container, items shrink to fit according to `flex-shrink`.\n\n**Initial value**: `1`\n\n|  Chrome  | Firefox | Safari  |  Edge  |   IE   |\n| :------: | :-----: | :-----: | :----: | :----: |\n|  **29**  | **20**  |  **9**  | **12** | **10** |\n| 21 _-x-_ |         | 8 _-x-_ |        |        |"
+                    "description": "The **`flex-shrink`** CSS property sets the flex shrink factor of a flex item. If the size of flex items is larger than the flex container, items shrink to fit according to `flex-shrink`.\n\n**Initial value**: `1`\n\n|  Chrome  | Firefox | Safari  |  Edge  |   IE   |\n| :------: | :-----: | :-----: | :----: | :----: |\n|  **29**  | **20**  |  **9**  | **12** | **10** |\n| 22 _-x-_ |         | 8 _-x-_ |        |        |"
                 },
                 "flexWrap": {
                     "description": "The **`flex-wrap`** CSS property sets whether flex items are forced onto one line or can wrap onto multiple lines. If wrapping is allowed, it sets the direction that lines are stacked.\n\n**Initial value**: `nowrap`\n\n|  Chrome  | Firefox |  Safari   |  Edge  |   IE   |\n| :------: | :-----: | :-------: | :----: | :----: |\n|  **29**  | **28**  |   **9**   | **12** | **11** |\n| 21 _-x-_ |         | 6.1 _-x-_ |        |        |",
@@ -4319,7 +4319,6 @@
                     "enum": [
                         "-moz-crisp-edges",
                         "-moz-initial",
-                        "-o-crisp-edges",
                         "-webkit-optimize-contrast",
                         "auto",
                         "crisp-edges",
@@ -4829,25 +4828,25 @@
                     "type": "string"
                 },
                 "motion": {
-                    "description": "The **`offset`** CSS property is a shorthand property for animating an element along a defined path.\n\n|    Chrome     | Firefox | Safari | Edge | IE  |\n| :-----------: | :-----: | :----: | :--: | :-: |\n|    **55**     |   n/a   |   No   |  No  | No  |\n| 46 _(motion)_ |         |        |      |     |",
+                    "description": "The **`offset`** CSS property is a shorthand property for animating an element along a defined path.\n\n|    Chrome     | Firefox | Safari | Edge | IE  |\n| :-----------: | :-----: | :----: | :--: | :-: |\n|    **55**     | **72**  |   No   |  No  | No  |\n| 46 _(motion)_ |         |        |      |     |",
                     "type": [
                         "string",
                         "number"
                     ]
                 },
                 "motionDistance": {
-                    "description": "The **`offset-distance`** CSS property specifies a position along an `offset-path`.\n\n**Initial value**: `0`\n\n|         Chrome         | Firefox | Safari | Edge | IE  |\n| :--------------------: | :-----: | :----: | :--: | :-: |\n|         **55**         |   n/a   |   No   |  No  | No  |\n| 46 _(motion-distance)_ |         |        |      |     |",
+                    "description": "The **`offset-distance`** CSS property specifies a position along an `offset-path`.\n\n**Initial value**: `0`\n\n|         Chrome         | Firefox | Safari | Edge | IE  |\n| :--------------------: | :-----: | :----: | :--: | :-: |\n|         **55**         | **72**  |   No   |  No  | No  |\n| 46 _(motion-distance)_ |         |        |      |     |",
                     "type": [
                         "string",
                         "number"
                     ]
                 },
                 "motionPath": {
-                    "description": "The **`offset-path`** CSS property specifies a motion path for an element to follow and defines the element's positioning within the parent container or SVG coordinate system.\n\n**Initial value**: `none`\n\n|       Chrome       | Firefox | Safari | Edge | IE  |\n| :----------------: | :-----: | :----: | :--: | :-: |\n|       **55**       |   n/a   |   No   |  No  | No  |\n| 46 _(motion-path)_ |         |        |      |     |",
+                    "description": "The **`offset-path`** CSS property specifies a motion path for an element to follow and defines the element's positioning within the parent container or SVG coordinate system.\n\n**Initial value**: `none`\n\n|       Chrome       | Firefox | Safari | Edge | IE  |\n| :----------------: | :-----: | :----: | :--: | :-: |\n|       **55**       | **72**  |   No   |  No  | No  |\n| 46 _(motion-path)_ |         |        |      |     |",
                     "type": "string"
                 },
                 "motionRotation": {
-                    "description": "The **`offset-rotate`** CSS property defines the direction of the element while positioning along the offset path.\n\n**Initial value**: `auto`\n\n|         Chrome         | Firefox | Safari | Edge | IE  |\n| :--------------------: | :-----: | :----: | :--: | :-: |\n|         **56**         |   n/a   |   No   |  No  | No  |\n| 46 _(motion-rotation)_ |         |        |      |     |",
+                    "description": "The **`offset-rotate`** CSS property defines the direction of the element while positioning along the offset path.\n\n**Initial value**: `auto`\n\n|         Chrome         | Firefox | Safari | Edge | IE  |\n| :--------------------: | :-----: | :----: | :--: | :-: |\n|         **56**         | **72**  |   No   |  No  | No  |\n| 46 _(motion-rotation)_ |         |        |      |     |",
                     "type": "string"
                 },
                 "msAccelerator": {
@@ -5151,7 +5150,6 @@
                     "enum": [
                         "-moz-initial",
                         "auto",
-                        "clip",
                         "hidden",
                         "inherit",
                         "initial",
@@ -5167,7 +5165,6 @@
                     "enum": [
                         "-moz-initial",
                         "auto",
-                        "clip",
                         "hidden",
                         "inherit",
                         "initial",
@@ -5489,14 +5486,14 @@
                     ]
                 },
                 "offset": {
-                    "description": "The **`offset`** CSS property is a shorthand property for animating an element along a defined path.\n\n|    Chrome     | Firefox | Safari | Edge | IE  |\n| :-----------: | :-----: | :----: | :--: | :-: |\n|    **55**     |   n/a   |   No   |  No  | No  |\n| 46 _(motion)_ |         |        |      |     |",
+                    "description": "The **`offset`** CSS property is a shorthand property for animating an element along a defined path.\n\n|    Chrome     | Firefox | Safari | Edge | IE  |\n| :-----------: | :-----: | :----: | :--: | :-: |\n|    **55**     | **72**  |   No   |  No  | No  |\n| 46 _(motion)_ |         |        |      |     |",
                     "type": [
                         "string",
                         "number"
                     ]
                 },
                 "offsetAnchor": {
-                    "description": "**Initial value**: `auto`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n| **79** |   n/a   |   No   |  No  | No  |",
+                    "description": "**Initial value**: `auto`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n| **79** | **72**  |   No   |  No  | No  |",
                     "type": [
                         "string",
                         "number"
@@ -5524,7 +5521,7 @@
                     ]
                 },
                 "offsetDistance": {
-                    "description": "The **`offset-distance`** CSS property specifies a position along an `offset-path`.\n\n**Initial value**: `0`\n\n|         Chrome         | Firefox | Safari | Edge | IE  |\n| :--------------------: | :-----: | :----: | :--: | :-: |\n|         **55**         |   n/a   |   No   |  No  | No  |\n| 46 _(motion-distance)_ |         |        |      |     |",
+                    "description": "The **`offset-distance`** CSS property specifies a position along an `offset-path`.\n\n**Initial value**: `0`\n\n|         Chrome         | Firefox | Safari | Edge | IE  |\n| :--------------------: | :-----: | :----: | :--: | :-: |\n|         **55**         | **72**  |   No   |  No  | No  |\n| 46 _(motion-distance)_ |         |        |      |     |",
                     "type": [
                         "string",
                         "number"
@@ -5552,15 +5549,15 @@
                     ]
                 },
                 "offsetPath": {
-                    "description": "The **`offset-path`** CSS property specifies a motion path for an element to follow and defines the element's positioning within the parent container or SVG coordinate system.\n\n**Initial value**: `none`\n\n|       Chrome       | Firefox | Safari | Edge | IE  |\n| :----------------: | :-----: | :----: | :--: | :-: |\n|       **55**       |   n/a   |   No   |  No  | No  |\n| 46 _(motion-path)_ |         |        |      |     |",
+                    "description": "The **`offset-path`** CSS property specifies a motion path for an element to follow and defines the element's positioning within the parent container or SVG coordinate system.\n\n**Initial value**: `none`\n\n|       Chrome       | Firefox | Safari | Edge | IE  |\n| :----------------: | :-----: | :----: | :--: | :-: |\n|       **55**       | **72**  |   No   |  No  | No  |\n| 46 _(motion-path)_ |         |        |      |     |",
                     "type": "string"
                 },
                 "offsetRotate": {
-                    "description": "The **`offset-rotate`** CSS property defines the direction of the element while positioning along the offset path.\n\n**Initial value**: `auto`\n\n|         Chrome         | Firefox | Safari | Edge | IE  |\n| :--------------------: | :-----: | :----: | :--: | :-: |\n|         **56**         |   n/a   |   No   |  No  | No  |\n| 46 _(motion-rotation)_ |         |        |      |     |",
+                    "description": "The **`offset-rotate`** CSS property defines the direction of the element while positioning along the offset path.\n\n**Initial value**: `auto`\n\n|         Chrome         | Firefox | Safari | Edge | IE  |\n| :--------------------: | :-----: | :----: | :--: | :-: |\n|         **56**         | **72**  |   No   |  No  | No  |\n| 46 _(motion-rotation)_ |         |        |      |     |",
                     "type": "string"
                 },
                 "offsetRotation": {
-                    "description": "The **`offset-rotate`** CSS property defines the direction of the element while positioning along the offset path.\n\n**Initial value**: `auto`\n\n|         Chrome         | Firefox | Safari | Edge | IE  |\n| :--------------------: | :-----: | :----: | :--: | :-: |\n|         **56**         |   n/a   |   No   |  No  | No  |\n| 46 _(motion-rotation)_ |         |        |      |     |",
+                    "description": "The **`offset-rotate`** CSS property defines the direction of the element while positioning along the offset path.\n\n**Initial value**: `auto`\n\n|         Chrome         | Firefox | Safari | Edge | IE  |\n| :--------------------: | :-----: | :----: | :--: | :-: |\n|         **56**         | **72**  |   No   |  No  | No  |\n| 46 _(motion-rotation)_ |         |        |      |     |",
                     "type": "string"
                 },
                 "opacity": {
@@ -5716,7 +5713,6 @@
                     "enum": [
                         "-moz-initial",
                         "auto",
-                        "clip",
                         "hidden",
                         "inherit",
                         "initial",
@@ -5732,7 +5728,6 @@
                     "enum": [
                         "-moz-initial",
                         "auto",
-                        "clip",
                         "hidden",
                         "inherit",
                         "initial",
@@ -5745,6 +5740,34 @@
                 },
                 "overscrollBehavior": {
                     "description": "The **`overscroll-behavior`** CSS property sets what a browser does when reaching the boundary of a scrolling area. It's a shorthand for `overscroll-behavior-x` and `overscroll-behavior-y`.\n\n**Initial value**: `auto`\n\n| Chrome | Firefox | Safari |  Edge  | IE  |\n| :----: | :-----: | :----: | :----: | :-: |\n| **63** | **59**  |   No   | **18** | No  |",
+                    "type": "string"
+                },
+                "overscrollBehaviorBlock": {
+                    "description": "The **`overscroll-behavior-block`** CSS property sets the browser's behavior when the block direction boundary of a scrolling area is reached.\n\n**Initial value**: `auto`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n| **77** | **73**  |   No   |  No  | No  |",
+                    "enum": [
+                        "-moz-initial",
+                        "auto",
+                        "contain",
+                        "inherit",
+                        "initial",
+                        "none",
+                        "revert",
+                        "unset"
+                    ],
+                    "type": "string"
+                },
+                "overscrollBehaviorInline": {
+                    "description": "The **`overscroll-behavior-inline`** CSS property sets the browser's behavior when the inline direction boundary of a scrolling area is reached.\n\n**Initial value**: `auto`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n| **77** | **73**  |   No   |  No  | No  |",
+                    "enum": [
+                        "-moz-initial",
+                        "auto",
+                        "contain",
+                        "inherit",
+                        "initial",
+                        "none",
+                        "revert",
+                        "unset"
+                    ],
                     "type": "string"
                 },
                 "overscrollBehaviorX": {
@@ -5998,7 +6021,7 @@
                     ]
                 },
                 "rotate": {
-                    "description": "The **`rotate`** CSS property allows you to specify rotation transforms individually and independantly of the `transform` property. This maps better to typical user interface usage, and saves having to remember the exact order of transform functions to specify in the `transform` value.\n\n**Initial value**: `none`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n|   No   |   n/a   |   No   |  No  | No  |",
+                    "description": "The **`rotate`** CSS property allows you to specify rotation transforms individually and independantly of the `transform` property. This maps better to typical user interface usage, and saves having to remember the exact order of transform functions to specify in the `transform` value.\n\n**Initial value**: `none`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n|   No   | **72**  |   No   |  No  | No  |",
                     "type": "string"
                 },
                 "rowGap": {
@@ -6051,7 +6074,7 @@
                     "type": "string"
                 },
                 "scale": {
-                    "description": "The **`scale`** CSS property allows you to specify scale transforms individually and independantly of the `transform` property. This maps better to typical user interface usage, and saves having to remember the exact order of transform functions to specify in the `transform` value.\n\n**Initial value**: `none`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n|   No   |   n/a   |   No   |  No  | No  |",
+                    "description": "The **`scale`** CSS property allows you to specify scale transforms individually and independantly of the `transform` property. This maps better to typical user interface usage, and saves having to remember the exact order of transform functions to specify in the `transform` value.\n\n**Initial value**: `none`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n|   No   | **72**  |   No   |  No  | No  |",
                     "type": [
                         "string",
                         "number"
@@ -6297,6 +6320,10 @@
                 },
                 "scrollbarColor": {
                     "description": "The **`scrollbar-color`** CSS property sets the color of the scrollbar track and thumb.\n\n**Initial value**: `auto`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n|   No   | **64**  |   No   |  No  | No  |",
+                    "type": "string"
+                },
+                "scrollbarTrackColor": {
+                    "description": "The **`-ms-scrollbar-track-color`** CSS property is a Microsoft extension that specifies the color of the track element of a scrollbar.\n\n**Initial value**: `Scrollbar`",
                     "type": "string"
                 },
                 "scrollbarWidth": {
@@ -6762,7 +6789,7 @@
                     "type": "string"
                 },
                 "translate": {
-                    "description": "The **`translate`** CSS property allows you to specify translation transforms individually and independantly of the `transform` property. This maps better to typical user interface usage, and saves having to remember the exact order of transform functions to specify in the `transform` value.\n\n**Initial value**: `none`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n|   No   |   n/a   |   No   |  No  | No  |",
+                    "description": "The **`translate`** CSS property allows you to specify translation transforms individually and independantly of the `transform` property. This maps better to typical user interface usage, and saves having to remember the exact order of transform functions to specify in the `transform` value.\n\n**Initial value**: `none`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n|   No   | **72**  |   No   |  No  | No  |",
                     "type": [
                         "string",
                         "number"
@@ -7109,7 +7136,7 @@
             "$ref": "#/definitions/FaviconConf"
         },
         "homepage": {
-            "$ref": "#/definitions/HomepageConf"
+            "$ref": "#/definitions/HomepageConfI18n"
         },
         "hostUrl": {
             "type": "string"

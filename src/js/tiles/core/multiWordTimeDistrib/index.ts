@@ -74,10 +74,7 @@ export class MultiWordTimeDistTile implements ITileProvider {
         const apiUrlList = typeof conf.apiURL === 'string' ? [conf.apiURL] : conf.apiURL;
         const apiFactory = new PriorityValueFactory<[ConcApi, KontextTimeDistribApi]>(conf.apiPriority || List.repeat(() => 1, apiUrlList.length));
         pipe(
-            List.zip(
-                typeof conf.concApiURL === 'string' ? [conf.concApiURL] : conf.concApiURL,
-                apiUrlList
-            ),
+            apiUrlList,
             List.forEach(
                 ([concUrl, freqUrl], i) => apiFactory.addInstance(
                     i,

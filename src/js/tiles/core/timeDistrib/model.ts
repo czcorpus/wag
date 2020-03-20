@@ -36,6 +36,7 @@ import { callWithExtraVal } from '../../../common/api/util';
 import { QueryMatch, RecognizedQueries } from '../../../common/query';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { TileWait } from '../../../models/tileSync';
+import { PriorityValueFactory } from '../../../common/priority';
 
 
 export const enum FreqFilterQuantity {
@@ -91,6 +92,7 @@ interface DataFetchArgsOwn {
     targetId:SubchartID;
     concId:string;
     origQuery:string;
+    freqApi:KontextTimeDistribApi;
 }
 
 interface DataFetchArgsForeignConc {
@@ -98,6 +100,7 @@ interface DataFetchArgsForeignConc {
     wordMainLabel:string;
     targetId:SubchartID;
     concId:string;
+    freqApi:KontextTimeDistribApi;
 }
 
 export interface TimeDistribModelArgs {
@@ -105,8 +108,7 @@ export interface TimeDistribModelArgs {
     initState:TimeDistribModelState;
     tileId:number;
     waitForTile:number;
-    api:Array<KontextTimeDistribApi>;
-    concApi:Array<ConcApi>;
+    apiFactory:PriorityValueFactory<[ConcApi, KontextTimeDistribApi]>;
     appServices:AppServices;
     queryMatches:RecognizedQueries;
     backlink:Backlink;
@@ -118,9 +120,7 @@ export interface TimeDistribModelArgs {
  */
 export class TimeDistribModel extends StatelessModel<TimeDistribModelState, TileWait<boolean>> {
 
-    private readonly api:Array<KontextTimeDistribApi>;
-
-    private readonly concApi:Array<ConcApi>;
+    private readonly apiFactory:PriorityValueFactory<[ConcApi, KontextTimeDistribApi]>;
 
     private readonly appServices:AppServices;
 
@@ -135,12 +135,10 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
     private readonly backlink:Backlink;
 
 
-    constructor({dispatcher, initState, tileId, waitForTile, api,
-                concApi, appServices, queryMatches, queryLang, backlink}) {
+    constructor({dispatcher, initState, tileId, waitForTile, apiFactory, appServices, queryMatches, queryLang, backlink}) {
         super(dispatcher, initState);
         this.tileId = tileId;
-        this.api = api;
-        this.concApi = concApi;
+        this.apiFactory = apiFactory;
         this.waitForTile = waitForTile;
         this.appServices = appServices;
         this.queryMatches = queryMatches;
@@ -250,7 +248,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
             (state, action) => state,
             (state, action, dispatch) => {
                 if (action.payload['tileId'] === this.tileId) {
-                    this.api[0].getSourceDescription(this.tileId, this.appServices.getISO639UILang(), action.payload['corpusId'])
+                    const [concApi,] = this.apiFactory.getHighestPriorityValue();
+                    concApi.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), action.payload['corpusId'])
                     .subscribe(
                         (data) => {
                             dispatch({
@@ -437,19 +436,11 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
         );
     }
 
-
-    private getApiId(state:TimeDistribModelState, subcname:string, apiCount:number):number {
-        return (subcname ? state.subcnames.indexOf(subcname) : 0) % apiCount;
-    }
-
-
-    private loadConcordance(state:TimeDistribModelState, lemmaVariant:QueryMatch, subcnames:Array<string>,
+    private loadConcordance(state:TimeDistribModelState, concApi:ConcApi, freqApi:KontextTimeDistribApi, lemmaVariant:QueryMatch, subcnames:Array<string>,
             target:SubchartID):Observable<[ConcResponse, DataFetchArgsOwn]> {
-        const apiCount = this.concApi.length;
         return rxOf(...subcnames).pipe(
             mergeMap(
                 subcname => {
-                    const concApi = this.concApi[this.getApiId(state, subcname, apiCount)]
                     return callWithExtraVal(
                         concApi,
                         concApi.stateToArgs(
@@ -490,7 +481,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
                             subcName: subcname,
                             wordMainLabel: lemmaVariant.lemma,
                             targetId: target,
-                            origQuery: mkMatchQuery(lemmaVariant, state.posQueryGenerator)
+                            origQuery: mkMatchQuery(lemmaVariant, state.posQueryGenerator),
+                            freqApi
                         }
                     )
                 }
@@ -521,17 +513,19 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
                 ),
                 map(
                     ([lv, concId, corpusName, subcorpName]) => {
+                        const [,freqApi] = this.apiFactory.getRandomValue();
                         return {
                             concId: concId,
                             corpName: corpusName,
                             subcName: subcorpName,
                             wordMainLabel: lv.lemma,
-                            targetId: target
+                            targetId: target,
+                            freqApi
                         };
                     }
                 ),
                 concatMap(args => callWithExtraVal(
-                    this.api[0],
+                    args.freqApi,
                     {
                         corpName: args.corpName,
                         subcorpName: args.subcName,
@@ -545,29 +539,33 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
         } else { // here we must create our own concordance(s) if needed
             const data = lemmaVariant.pipe(
                 concatMap((lv:QueryMatch) => {
+                    const [concApi, freqApi] = this.apiFactory.getRandomValue();
                     if (lv) {
-                        return this.loadConcordance(state, lv, state.subcnames, target);
+                        return this.loadConcordance(state, concApi, freqApi, lv, state.subcnames, target);
+
+                    } else {
+                        return rxOf<[ConcResponse, DataFetchArgsOwn]>([
+                            {
+                                query: '',
+                                corpName: state.corpname,
+                                subcorpName: state.subcnames[0],
+                                lines: [],
+                                concsize: 0,
+                                arf: 0,
+                                ipm: 0,
+                                messages: [],
+                                concPersistenceID: null
+                            },
+                            {
+                                concId: null,
+                                subcName: state.subcnames[0],
+                                wordMainLabel: '',
+                                targetId: target,
+                                origQuery: '',
+                                freqApi
+                            }
+                        ]);
                     }
-                    return rxOf<[ConcResponse, DataFetchArgsOwn]>([
-                        {
-                            query: '',
-                            corpName: state.corpname,
-                            subcorpName: state.subcnames[0],
-                            lines: [],
-                            concsize: 0,
-                            arf: 0,
-                            ipm: 0,
-                            messages: [],
-                            concPersistenceID: null
-                        },
-                        {
-                            concId: null,
-                            subcName: state.subcnames[0],
-                            wordMainLabel: '',
-                            targetId: target,
-                            origQuery: ''
-                        }
-                    ]);
                 }),
                 concatMap(
                     (data) => {
@@ -575,7 +573,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
                         args.concId = concResp.concPersistenceID;
                         if (args.concId) {
                             return callWithExtraVal(
-                                this.api[this.getApiId(state, args.subcName, this.api.length)],
+                                args.freqApi,
                                 {
                                     corpName: state.corpname,
                                     subcorpName: args.subcName,
