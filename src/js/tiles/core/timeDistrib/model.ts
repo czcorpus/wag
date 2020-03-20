@@ -539,7 +539,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
 
         } else { // here we must create our own concordance(s) if needed
             const data = lemmaVariant.pipe(
-                concatMap((lv:QueryMatch) => {
+                mergeMap((lv:QueryMatch) => {
                     if (lv) {
                         return this.loadConcordance(state, lv, state.subcnames, target);
 
@@ -568,7 +568,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
                         ]);
                     }
                 }),
-                concatMap(
+                mergeMap(
                     (data) => {
                         const [concResp, args] = data;
                         args.concId = concResp.concPersistenceID;
