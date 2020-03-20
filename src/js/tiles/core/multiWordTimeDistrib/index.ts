@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { IActionDispatcher, StatelessModel } from 'kombo';
-import { List, Maths } from 'cnc-tskit';
+import { List, Maths, pipe } from 'cnc-tskit';
 
 import { ConcApi } from '../../../common/api/kontext/concordance';
 import { FreqSort } from '../../../common/api/kontext/freqs';
@@ -27,6 +27,8 @@ import { TimeDistTileConf } from './common';
 import { TimeDistribModel } from './model';
 import { init as viewInit } from './view';
 import { findCurrQueryMatch } from '../../../models/query';
+import { PriorityValueFactory } from '../../../common/priority';
+import { KontextTimeDistribApi } from '../../../common/api/kontext/timeDistrib';
 
 declare var require:(src:string)=>void;  // webpack
 require('./style.less');
@@ -68,6 +70,30 @@ export class MultiWordTimeDistTile implements ITileProvider {
         this.tileId = tileId;
         this.widthFract = widthFract;
         this.blockingTiles = waitForTiles;
+
+        const apiUrlList = typeof conf.apiURL === 'string' ? [conf.apiURL] : conf.apiURL;
+        const apiFactory = new PriorityValueFactory<[ConcApi, KontextTimeDistribApi]>(conf.apiPriority || List.repeat(() => 1, apiUrlList.length));
+        pipe(
+            List.zip(
+                typeof conf.concApiURL === 'string' ? [conf.concApiURL] : conf.concApiURL,
+                apiUrlList
+            ),
+            List.forEach(
+                ([concUrl, freqUrl], i) => apiFactory.addInstance(
+                    i,
+                    [
+                        new ConcApi(false, cache, concUrl, appServices.getApiHeaders(concUrl)),
+                        createApiInstance(
+                            conf.apiType,
+                            cache,
+                            freqUrl,
+                            conf,
+                            appServices.getApiHeaders(freqUrl)
+                        )
+                    ]
+                )
+            )
+        );
         this.model = new TimeDistribModel({
             dispatcher: dispatcher,
             initState: {
@@ -95,24 +121,7 @@ export class MultiWordTimeDistTile implements ITileProvider {
             },
             tileId: tileId,
             waitForTile: waitForTiles[0] || -1,
-            api: typeof conf.apiURL === 'string' ?
-                [createApiInstance(
-                    conf.apiType,
-                    cache,
-                    conf.apiURL,
-                    conf,
-                    appServices.getApiHeaders(conf.apiURL)
-                )] :
-                List.map(url => createApiInstance(
-                    conf.apiType,
-                    cache,
-                    url,
-                    conf,
-                    appServices.getApiHeaders(url)
-                ), conf.apiURL),
-            concApi: typeof conf.apiURL === 'string' ?
-                [new ConcApi(false, cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL))] :
-                List.map(url => new ConcApi(false, cache, url, appServices.getApiHeaders(url)), conf.apiURL),
+            apiFactory: apiFactory,
             appServices: appServices,
             queryMatches,
             queryLang: lang1

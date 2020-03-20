@@ -33,7 +33,11 @@ export interface TimeDistTileConf extends CorpSrchTileConf {
 
     apiType:string;
 
+    concApiURL:string|Array<string>;
+
     apiURL:string|Array<string>;
+
+    apiPriority?:Array<number>;
 
     /**
      * E.g. doc.pubyear
@@ -63,13 +67,6 @@ export interface DataLoadedPayload {
     data:Array<DataItemWithWCI>;
 }
 
-export interface DataFetchArgs {
-    corpName:string;
-    subcName:string;
-    concId:string;
-    queryId:number;
-    origQuery:string;
-}
 
 export namespace Actions {
 

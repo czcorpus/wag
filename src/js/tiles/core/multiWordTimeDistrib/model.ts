@@ -18,7 +18,7 @@
  */
 import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
-import { concatMap, reduce, map, tap } from 'rxjs/operators';
+import { reduce, map, tap, mergeMap } from 'rxjs/operators';
 import { Dict, Maths, List, pipe } from 'cnc-tskit';
 
 import { AppServices } from '../../../appServices';
@@ -30,11 +30,12 @@ import { KontextTimeDistribApi } from '../../../common/api/kontext/timeDistrib';
 import { GeneralSingleCritFreqMultiQueryState } from '../../../common/models/freq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { findCurrQueryMatch } from '../../../models/query';
-import { DataItemWithWCI, ActionName, Actions, DataLoadedPayload, DataFetchArgs } from './common';
+import { DataItemWithWCI, ActionName, Actions, DataLoadedPayload } from './common';
 import { callWithExtraVal } from '../../../common/api/util';
 import { QueryMatch, RecognizedQueries } from '../../../common/query';
 import { createInitialLinesData } from '../../../common/models/concordance';
 import { ConcLoadedPayload, isConcLoadedPayload } from '../concordance/actions';
+import { PriorityValueFactory } from '../../../common/priority';
 
 
 export interface TimeDistribModelState extends GeneralSingleCritFreqMultiQueryState<DataItemWithWCI> {
@@ -61,11 +62,27 @@ export interface TimeDistribModelArgs {
     initState:TimeDistribModelState;
     tileId:number;
     waitForTile:number;
-    api:Array<KontextTimeDistribApi>;
-    concApi:Array<ConcApi>;
+    apiFactory:PriorityValueFactory<[ConcApi, KontextTimeDistribApi]>;
     appServices:AppServices;
     queryMatches:RecognizedQueries;
     queryLang:string;
+}
+
+interface CalcArgs {
+    queryId:number;
+    lemma:QueryMatch;
+    concId:string;
+    concApi:ConcApi;
+    freqApi:KontextTimeDistribApi;
+}
+
+export interface DataFetchArgs {
+    corpName:string;
+    subcName:string;
+    concId:string;
+    queryId:number;
+    origQuery:string;
+    freqApi:KontextTimeDistribApi;
 }
 
 /**
@@ -73,9 +90,7 @@ export interface TimeDistribModelArgs {
  */
 export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
-    private readonly api:Array<KontextTimeDistribApi>;
-
-    private readonly concApi:Array<ConcApi>;
+    private readonly apiFactory:PriorityValueFactory<[ConcApi, KontextTimeDistribApi]>;
 
     private readonly appServices:AppServices;
 
@@ -85,11 +100,10 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private readonly queryMatches:RecognizedQueries;
 
-    constructor({dispatcher, initState, tileId, waitForTile, api, concApi, appServices, queryMatches}:TimeDistribModelArgs) {
+    constructor({dispatcher, initState, tileId, waitForTile, apiFactory, appServices, queryMatches}:TimeDistribModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
-        this.api = api;
-        this.concApi = concApi;
+        this.apiFactory = apiFactory;
         this.waitForTile = waitForTile;
         this.appServices = appServices;
         this.queryMatches = queryMatches;
@@ -181,25 +195,36 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                     state,
                                     dispatch,
                                     [null],
-                                    rxOf<{queryId:number; lemma:QueryMatch; concId:string;}>(...List.map(
-                                        (lemma, queryId) => ({
-                                            queryId: queryId,
-                                            lemma: findCurrQueryMatch(lemma),
-                                            concId: payload.concPersistenceIDs[queryId]
-                                        }), this.queryMatches))
+                                    rxOf<CalcArgs>(...List.map(
+                                        (lemma, queryId) => {
+                                            const [concApi, freqApi] = this.apiFactory.getRandomValue();
+                                            return {
+                                                queryId,
+                                                lemma: findCurrQueryMatch(lemma),
+                                                concId: payload.concPersistenceIDs[queryId],
+                                                concApi,
+                                                freqApi
+                                            }
+                                        },
+                                        this.queryMatches))
                                 );
                             } else {
                                 this.loadData(
                                     state,
                                     dispatch,
                                     state.subcnames,
-                                    rxOf<{queryId:number; lemma:QueryMatch; concId:string;}>(
+                                    rxOf<CalcArgs>(
                                         ...List.map(
-                                            (lemma, queryId) => ({
-                                                queryId: queryId,
-                                                lemma: findCurrQueryMatch(lemma),
-                                                concId: null
-                                            }),
+                                            (lemma, queryId) => {
+                                                const [concApi, freqApi] = this.apiFactory.getRandomValue();
+                                                return {
+                                                    queryId,
+                                                    lemma: findCurrQueryMatch(lemma),
+                                                    concId: null,
+                                                    concApi,
+                                                    freqApi
+                                                }
+                                            },
                                             this.queryMatches
                                     ))
                                 );
@@ -214,13 +239,18 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         state,
                         dispatch,
                         state.subcnames,
-                        rxOf<{queryId:number; lemma:QueryMatch; concId:string;}>(
+                        rxOf<CalcArgs>(
                             ...List.map(
-                                (lemma, queryId) => ({
-                                    queryId: queryId,
-                                    lemma: findCurrQueryMatch(lemma),
-                                    concId: null
-                                }),
+                                (lemma, queryId) => {
+                                    const [concApi, freqApi] = this.apiFactory.getRandomValue();
+                                    return {
+                                        queryId,
+                                        lemma: findCurrQueryMatch(lemma),
+                                        concId: null,
+                                        concApi,
+                                        freqApi
+                                    }
+                                },
                                 this.queryMatches
                         ))
                     );
@@ -258,7 +288,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             (state, action) => {},
             (state, action, dispatch) => {
                 if (action.payload['tileId'] === this.tileId) {
-                    this.api[0].getSourceDescription(this.tileId, this.appServices.getISO639UILang(), action.payload['corpusId'])
+                    this.apiFactory[0].value.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), action.payload['corpusId'])
                     .subscribe(
                         (data) => {
                             dispatch({
@@ -390,20 +420,14 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         );
     }
 
-    private getApiId(state:TimeDistribModelState, subcname:string, queryId:number, apiCount:number) {
-        return ((subcname ? state.subcnames.indexOf(subcname) : 0) + (subcname ? state.subcnames.length : 1)*queryId) % apiCount;
-    }
-
-    private loadConcordance(state:TimeDistribModelState, lemmaVariant:QueryMatch, subcnames:Array<string>,
+    private loadConcordance(state:TimeDistribModelState, api:ConcApi, freqApi:KontextTimeDistribApi, lemmaVariant:QueryMatch, subcnames:Array<string>,
             queryId:number):Observable<[ConcResponse, DataFetchArgs]> {
-        const apiCount = this.concApi.length;
         return rxOf<string>(...subcnames).pipe(
-            concatMap(
+            mergeMap(
                 subcname => {
-                    const concApi = this.concApi[this.getApiId(state, subcname, queryId, apiCount)];
                     return callWithExtraVal(
-                        concApi,
-                        concApi.stateToArgs(
+                        api,
+                        api.stateToArgs(
                             {
                                 querySelector: QuerySelector.CQL,
                                 corpname: state.corpname,
@@ -432,7 +456,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                             subcName: subcname,
                             concId: null,
                             queryId: queryId,
-                            origQuery: mkMatchQuery(lemmaVariant, state.posQueryGenerator)
+                            origQuery: mkMatchQuery(lemmaVariant, state.posQueryGenerator),
+                            freqApi
                         }
                     )
                 }
@@ -440,10 +465,10 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         );
     }
 
-    private loadData(state:TimeDistribModelState, dispatch:SEDispatcher, subcNames:Array<string>, lemmaVariant:Observable<{queryId:number; lemma:QueryMatch; concId:string;}>):void {
+    private loadData(state:TimeDistribModelState, dispatch:SEDispatcher, subcNames:Array<string>, lemmaVariant:Observable<CalcArgs>):void {
         const resp = lemmaVariant.pipe(
-            concatMap(args => !args.concId ?
-                this.loadConcordance(state, args.lemma, subcNames, args.queryId) :
+            mergeMap(args => !args.concId ?
+                this.loadConcordance(state, args.concApi, args.freqApi, args.lemma, subcNames, args.queryId) :
                 rxOf<[ConcResponse, DataFetchArgs]>([
                     {
                         query: '',
@@ -461,16 +486,17 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         subcName: subcNames[0],
                         concId: args.concId,
                         queryId: args.queryId,
-                        origQuery: mkMatchQuery(args.lemma, state.posQueryGenerator)
+                        origQuery: mkMatchQuery(args.lemma, state.posQueryGenerator),
+                        freqApi: args.freqApi
                     }
                 ])
             ),
-            concatMap(
+            mergeMap(
                 ([concResp, args]) => {
                     args.concId = concResp.concPersistenceID;
                     if (args.concId) {
                         return callWithExtraVal(
-                            this.api[this.getApiId(state, args.subcName, args.queryId, this.api.length)],
+                            args.freqApi,
                             {
                                 corpName: state.corpname,
                                 subcorpName: args.subcName,
