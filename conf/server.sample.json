@@ -3,6 +3,7 @@
     "address": "localhost",
     "port": 3000,
     "staticFilesUrl": "/wdg/assets/",
+    "distFilesUrl": "/wdg/dist/",
     "theme": "default.less",
     "langCookie": "wdg_ui_lang",
     "languages": {
@@ -22,22 +23,40 @@
             "minLemmaFreq": 2,
             "similarFreqWordsMaxCtx": 10,
             "databases": {
-                "cs": "/path/to/databases/czech-words.db",
-                "en": "/path/to/databases/eng-words.db"
+                "cs": {
+                    "path": "/path/to/databases/czech-words.db",
+                    "corpusSize": 12345
+                },
+                "en": {
+                    "path": "/path/to/databases/enf-words.db",
+                    "corpusSize": 12345
+                }
             }
         },
         "cmp": {
             "minLemmaFreq": 2,
             "databases": {
-                "cs": "/path/to/databases/czech-words.db",
-                "en": "/path/to/databases/eng-words.db"
+                "cs": {
+                    "path": "/path/to/databases/czech-words.db",
+                    "corpusSize": 12345
+                },
+                "en": {
+                    "path": "/path/to/databases/enf-words.db",
+                    "corpusSize": 12345
+                }
             }
         },
         "translat": {
             "minLemmaFreq": 2,
             "databases": {
-                "cs": "/path/to/databases/czech-words.db",
-                "en": "/path/to/databases/eng-words.db"
+                "cs": {
+                    "path": "/path/to/databases/czech-words.db",
+                    "corpusSize": 12345
+                },
+                "en": {
+                    "path": "/path/to/databases/enf-words.db",
+                    "corpusSize": 12345
+                }
             }
         }
     }
