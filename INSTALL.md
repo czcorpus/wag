@@ -10,7 +10,7 @@
 6) prepare your *server.json* config (TODO)
 7) define some services (you can look for examples in *conf/wdglance.sample.json*)
 8) install a proxy server (e.g. Nginx) to serve static files and handle the Node application
-9) run the service `node /path/to/wdglance/dist-server/service.json`
+9) run the service `node /path/to/wdglance/dist-server/service.js`
 
 
 ### Nginx as a proxy for wdglance

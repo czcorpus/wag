@@ -711,36 +711,7 @@
 			}
 		}
 	},
-	"colors": {
-		"scale": [
-			"#60CFFF",
-			"#94A3FF",
-			"#FFDC84",
-			"#FFB058",
-			"#8ADCFF",
-			"#C1C9FF",
-			"#FFEBB8",
-			"#FFC584"
-		],
-		"category": [
-			"#60CFFF",
-			"#94A3FF",
-			"#FFDC84",
-			"#FFB058",
-			"#53a82c",
-			"#8ADCFF",
-			"#C1C9FF",
-			"#FFEBB8",
-			"#FFC584"
-		],
-		"categoryOther": "#494949",
-		"bar": [
-			"#8addff",
-			"#f26e43",
-			"#70b3cf",
-			"#3a78eb"
-		]
-	},
+	"colors": "/opt/wdglance/conf/themes.json",
 	"dbValuesMapping": {
 		"syn2015": {
 			"FIC: beletrie": "Beletrie",
