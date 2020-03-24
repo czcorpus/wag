@@ -93,21 +93,21 @@ export const mkTileFactory = (
             }
             return initFn({
                 tileId: tileIdentMap[confName],
-                dispatcher: dispatcher,
+                dispatcher,
                 ut: viewUtils,
-                queryMatches: queryMatches,
-                appServices: appServices,
+                queryMatches,
+                appServices,
                 lang1: lang1,
                 lang2: lang2,
-                queryType: queryType,
+                queryType,
                 waitForTiles: List.map(v => tileIdentMap[v], importDependentTilesList(conf.waitFor, conf.readSubqFrom)),
                 waitForTilesTimeoutSecs: conf.waitForTimeoutSecs,
                 subqSourceTiles: List.map(v => tileIdentMap[v], importDependentTilesList(conf.readSubqFrom)),
                 widthFract: layoutManager.getTileWidthFract(queryType, tileIdentMap[confName]),
-                theme: theme,
-                conf: conf,
+                theme,
+                conf,
                 isBusy: true,
-                cache: cache
+                cache
             });
         }
 };

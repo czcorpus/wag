@@ -73,7 +73,8 @@ export class ConcordanceTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({tileId, dispatcher, appServices, ut, queryMatches, widthFract, waitForTiles, conf, lang2, isBusy, cache, queryType}:TileFactory.Args<ConcordanceTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, queryType, queryMatches, widthFract, waitForTiles, conf,
+            lang2, isBusy, cache}:TileFactory.Args<ConcordanceTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.widthFract = widthFract;

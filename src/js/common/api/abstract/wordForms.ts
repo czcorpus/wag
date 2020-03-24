@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-import { QueryPoS } from '../../query';
 import { DataApi } from '../../types';
+import { QueryPoS } from '../../query';
 
 
 export interface RequestArgs {

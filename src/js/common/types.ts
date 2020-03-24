@@ -90,7 +90,6 @@ export interface IAsyncKeyValueStore {
     clearAll():Observable<number>;
 }
 
-
 export interface TelemetryAction {
     timestamp:number;
     actionName:string;

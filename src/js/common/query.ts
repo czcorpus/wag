@@ -1,5 +1,3 @@
-import { Dict, pipe, List } from "cnc-tskit";
-
 /*
  * Copyright 2018 Tomas Machalek <tomas.machalek@gmail.com>
  * Copyright 2018 Institute of the Czech National Corpus,
@@ -18,10 +16,28 @@ import { Dict, pipe, List } from "cnc-tskit";
  * limitations under the License.
  */
 
+import { Dict, pipe, List } from 'cnc-tskit';
+
+
 export enum QueryType {
     SINGLE_QUERY = 'single',
     CMP_QUERY = 'cmp',
     TRANSLAT_QUERY = 'translat'
+}
+
+export enum QueryPoS {
+    NOUN = 'N',
+    ADJECTIVE = 'A',
+    PRONOUN = 'P',
+    NUMERAL = 'C',
+    VERB = 'V',
+    ADVERB = 'D',
+    PREPOSITION = 'R',
+    CONJUNCTION = 'J',
+    PARTICLE = 'T',
+    INTERJECTION = 'I',
+    PUNCTUATION = 'Z',
+    UNKNOWN = 'X'
 }
 
 export function importQueryTypeString(v:string, dflt:QueryType):QueryType {
@@ -179,21 +195,6 @@ export function findMergeableQueryMatches(variants:Array<QueryMatch>):Array<Quer
         merged
     );
     return ans;
-}
-
-export enum QueryPoS {
-    NOUN = 'N',
-    ADJECTIVE = 'A',
-    PRONOUN = 'P',
-    NUMERAL = 'C',
-    VERB = 'V',
-    ADVERB = 'D',
-    PREPOSITION = 'R',
-    CONJUNCTION = 'J',
-    PARTICLE = 'T',
-    INTERJECTION = 'I',
-    PUNCTUATION = 'Z',
-    UNKNOWN = 'X'
 }
 
 export const importQueryPos = (s:string):QueryPoS => {

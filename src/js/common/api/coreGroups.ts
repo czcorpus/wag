@@ -24,6 +24,11 @@ export enum CoreApiGroup {
 	DATAMUSE = 'datamuse',
 
 	/**
+	 * Elasticsearch API
+	 */
+	ELASTICSEARCH = 'elasticsearch',
+
+	/**
 	 * Clarin FCS Core 1 functions
 	 */
 	FCS_V1 = 'fcsv1',
@@ -39,6 +44,11 @@ export enum CoreApiGroup {
 	LCC = 'lcc',
 
 	/**
+	 * No Sketch Engine
+	 */
+	NOSKE = 'noske',
+
+	/**
 	 * Treq (CNC app)
 	 */
 	TREQ = 'treq',
@@ -46,12 +56,7 @@ export enum CoreApiGroup {
 	/**
 	 * Embedded API functions
 	 */
-	WDGLANCE = 'wdglance',
-
-	/**
-	 * Elasticsearch API
-	 */
-	ELASTICSEARCH = 'elasticsearch',
+	WDGLANCE = 'wdglance'
 }
 
 export function supportedCoreApiGroups() {
