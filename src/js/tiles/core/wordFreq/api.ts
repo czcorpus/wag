@@ -20,7 +20,7 @@ import { map } from 'rxjs/operators';
 
 import { cachedAjax$ } from '../../../common/ajax';
 import { DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../../common/types';
-import { QueryPoS, QueryMatch, matchesPos } from '../../../common/query';
+import { QueryMatch, matchesPos, QueryPoS } from '../../../common/query';
 import { MultiDict } from '../../../common/data';
 
 

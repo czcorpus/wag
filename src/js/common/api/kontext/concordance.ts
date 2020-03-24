@@ -21,10 +21,10 @@ import { map } from 'rxjs/operators';
 import { cachedAjax$ } from '../../ajax';
 import { HTTPHeaders, IAsyncKeyValueStore } from '../../types';
 import { QueryMatch, SubQueryItem, RangeRelatedSubqueryValue } from '../../query';
-import { posQueryFactory } from './posQuery';
 import { Line, ConcResponse, ViewMode, LineElement, IConcordanceApi } from '../abstract/concordance';
 import { ConcordanceMinState } from '../../models/concordance';
 import { CorpusInfoAPI, APIResponse as CorpusInfoApiResponse } from './corpusInfo';
+import { posQueryFactory } from '../../postag';
 
 
 
@@ -144,15 +144,16 @@ export const getQuery = (args:AnyQuery):string => {
     }
 };
 
-
-const escapeVal = (v:string) => v.replace(/"/, '\\"');
+function escapeVal(v:string) {
+    return v.replace(/"/, '\\"');
+}
 
 function mkLemmaMatchQuery(lvar:QueryMatch, generator:[string, string]):string {
     const fn = posQueryFactory(generator[1]);
     const posPart = lvar.pos.length > 0 ?
         ' & (' + lvar.pos.map(v => `${generator[0]}="${fn(v.value)}"`).join(' | ') + ')' :
         '';
-    return `[lemma="${escapeVal(lvar.lemma)}" ${posPart}]`; // TODO escape stuff !!!
+    return `[lemma="${escapeVal(lvar.lemma)}" ${posPart}]`;
 }
 
 function mkWordMatchQuery(lvar:QueryMatch):string {
@@ -197,9 +198,6 @@ export const setQuery = (args:AnyQuery, q:string):void => {
             throw new Error(`Unsupported query selector ${args.queryselector}`);
     }
 }
-
-
-
 
 
 export function convertLines(lines:Array<KontextLine>, metadataAttrs?:Array<string>):Array<Line> {
