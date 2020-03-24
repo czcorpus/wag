@@ -20,7 +20,7 @@ using miscellaneous online lingustic tools, corpora and databases.
 --------------------|-----------|---------|--------|--------|------------|------------|-------------|---------|
 | collocations      |           | :star:  |        |        |            |            |             | :star:  |
 | concFilter        |           | :star:  |        |        |            |            |             |         |
-| concordance       |           | :star:  |        |        | :star:     |            |             | :construction: |
+| concordance       |           | :star:  | :star: |        | :star:     |            |             | :construction: |
 | freqBar           |           | :star:  |        |        |            |            |             |         |
 | freqComparison    |           | :star:  |        |        |            |            |             |         |
 | freqPie           |           | :star:  |        |        |            |            |             |         |
