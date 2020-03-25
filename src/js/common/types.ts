@@ -17,6 +17,7 @@
  */
 import { Observable } from 'rxjs';
 import { Action } from 'kombo';
+import { SourceCitation } from './api/abstract/sourceInfo';
 
 
 export type AnyInterface<T> = {
@@ -75,8 +76,19 @@ export interface SourceDetails {
     description:string;
     author:string;
     href?:string;
+    citationInfo?:SourceCitation;
 }
 
+export interface CorpusDetails extends SourceDetails {
+    size:number;
+    attrList:Array<{name:string, size:number}>;
+    structList:Array<{name:string; size:number}>;
+    keywords:Array<{name:string, color:string}>;
+}
+
+export function isCorpusDetails(d:SourceDetails):d is CorpusDetails {
+    return typeof d['size'] === 'number' && Array.isArray(d['attrList']) && Array.isArray(d['structList']);
+}
 
 export interface TileError {
     message:string;

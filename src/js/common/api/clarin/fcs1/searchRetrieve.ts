@@ -125,7 +125,9 @@ function importResponse(root:XMLNode, query:string, corpName:string, subcorpName
         }
 
         const recordsRootNode = respNode.findChild(v => v.name === 'sru:records');
-        ans.lines = recordsRootNode.findAllChildren(v => v.name === 'sru:record').map(importRecord);
+        ans.lines = recordsRootNode ?
+            recordsRootNode.findAllChildren(v => v.name === 'sru:record').map(importRecord) :
+            [];
 
     } else {
         throw new Error('Unable to parse FCS response');

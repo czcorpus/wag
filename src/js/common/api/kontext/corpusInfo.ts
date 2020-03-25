@@ -19,8 +19,7 @@ import { Observable } from 'rxjs';
 import { share, map } from 'rxjs/operators';
 
 import { cachedAjax$ } from '../../ajax';
-import { DataApi, HTTPHeaders, SourceDetails, IAsyncKeyValueStore } from '../../types';
-
+import { DataApi, HTTPHeaders, IAsyncKeyValueStore, CorpusDetails } from '../../types';
 
 
 interface HTTPResponse {
@@ -39,30 +38,13 @@ interface HTTPResponse {
     keywords:Array<{name:string, color:string}>;
 }
 
-export interface APIResponse extends SourceDetails {
-    size:number;
-    webURL:string;
-    attrList:Array<{name:string, size:number}>;
-    citationInfo:{
-        article_ref:Array<string>;
-        default_ref:string;
-        other_bibliography:string;
-    };
-    structList:Array<{name:string; size:number}>;
-    keywords:Array<{name:string, color:string}>;
-}
-
-export function isAPIResponse(v:SourceDetails):v is APIResponse {
-    return 'size' in v && 'attrList' in v && 'structList' in v && 'citationInfo' in v;
-}
-
 export interface QueryArgs {
     tileId:number;
     corpname:string;
     format:'json';
 }
 
-export class CorpusInfoAPI implements DataApi<QueryArgs, APIResponse> {
+export class CorpusInfoAPI implements DataApi<QueryArgs, CorpusDetails> {
 
     private readonly apiURL:string;
 
@@ -76,7 +58,7 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, APIResponse> {
         this.customHeaders = customHeaders || {};
     }
 
-    call(args:QueryArgs):Observable<APIResponse> {
+    call(args:QueryArgs):Observable<CorpusDetails> {
         return cachedAjax$<HTTPResponse>(this.cache)(
             'GET',
             this.apiURL + '/corpora/ajax_get_corp_details',
@@ -92,9 +74,14 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, APIResponse> {
                     description: resp.description,
                     author: '', // TODO
                     size: resp.size,
-                    webURL: resp.web_url,
+                    href: resp.web_url,
                     attrList: resp.attrlist,
-                    citationInfo: resp.citation_info,
+                    citationInfo: {
+                        sourceName: resp.corpname,
+                        main: resp.citation_info.default_ref,
+                        papers: resp.citation_info.article_ref || [],
+                        otherBibliography: resp.citation_info.other_bibliography || undefined
+                    },
                     structList: resp.structlist,
                     keywords: resp.keywords
                 })

@@ -18,11 +18,13 @@
 import { IActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
 
-import { APIResponse as CorpusInfoResponse } from '../common/api/kontext/corpusInfo';
 import { GlobalComponents } from './global';
+import { SourceCitation } from '../common/api/abstract/sourceInfo';
+import { List } from 'cnc-tskit';
+import { CorpusDetails } from '../common/types';
 
 export interface CorpusInfoBoxProps {
-    data:CorpusInfoResponse;
+    data:CorpusDetails;
 }
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>):React.SFC<CorpusInfoBoxProps> {
@@ -113,29 +115,30 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // ---------------------- <CorpusReference /> ------------------------------------
 
     const CorpusReference:React.SFC<{
-        data:any; // TODO
+        data:SourceCitation;
 
     }> = (props) => {
-        if (props.data['article_ref'].length > 0 || props.data['default_ref']
-                || props.data['other_bibliography']) {
+        if (props.data.papers.length > 0 || props.data.main || props.data.otherBibliography) {
             return (
                 <>
                     <h4>
-                        {ut.translate('global__corpus_as_resource_{corpus}', {corpus: props.data.corpname})}:
+                        {ut.translate('global__corpus_as_resource_{corpus}', {corpus: props.data.sourceName})}:
                     </h4>
-                    <div className="html" dangerouslySetInnerHTML={{__html: props.data.default_ref}} />
-                    {props.data.article_ref.length > 0 ?
+                    <div className="html" dangerouslySetInnerHTML={{__html: props.data.main}} />
+                    {props.data.papers.length > 0 ?
                         (<>
                             <h4>{ut.translate('global__references')}:</h4>
-                            {props.data.article_ref.map((item, i) => {
-                                return <div key={i} className="html" dangerouslySetInnerHTML={{__html: item }} />;
-                            })}
+                            {List.map(
+                                (item, i) => <div key={i} className="html" dangerouslySetInnerHTML={{__html: item }} />,
+                                props.data.papers
+                            )}
                         </>) :
-                        null}
-                    {props.data.other_bibliography ?
+                        null
+                    }
+                    {props.data.otherBibliography ?
                         (<>
                             <h4>{ut.translate('global__general_references')}:</h4>
-                            <div className="html" dangerouslySetInnerHTML={{__html: props.data.other_bibliography}} />
+                            <div className="html" dangerouslySetInnerHTML={{__html: props.data.otherBibliography}} />
                         </>) :
                         null}
                 </>
@@ -153,8 +156,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         const [state, setState] = React.useState({activeTab: 0});
 
         const renderWebLink = () => {
-            if (props.data.webURL) {
-                return <a href={props.data.webURL} target="_blank">{props.data.webURL}</a>;
+            if (props.data.href) {
+                return <a href={props.data.href} target="_blank">{props.data.href}</a>;
 
             } else {
                 return '-';
@@ -195,7 +198,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 <dl>
                     {state.activeTab === 0 ?
                         <dl>
-                            <dt>{ut.translate('global__corpus_name')}:</dt>
+                            <dt>{ut.translate('global__source_name')}:</dt>
                             <dd>{props.data.title}</dd>
                             <dt>{ut.translate('global__description')}:</dt>
                             <dd>{props.data.description}</dd>
@@ -207,9 +210,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             <dt>{ut.translate('global__keywords')}:</dt>
                             <dd>{renderKeywords()}</dd>
                             <dt>{ut.translate('global__citation_info')}:</dt>
-                            <dd className="references">
-                                <CorpusReference data={props.data.citationInfo} />
-                            </dd>
+                            {props.data.citationInfo ?
+                                <dd className="references">
+                                    <CorpusReference data={props.data.citationInfo} />
+                                </dd> :
+                                null
+                            }
                         </dl> :
                         <div>
                             <table className="structs-and-attrs">

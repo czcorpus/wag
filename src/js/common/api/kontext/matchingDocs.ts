@@ -18,11 +18,11 @@ import { MatchingDocsModelState, KontextFreqBacklinkArgs } from '../../models/ma
 import { MatchingDocsAPI, APIResponse } from '../abstract/matchingDocs';
 import { cachedAjax$ } from '../../ajax';
 import { Observable } from 'rxjs';
-import { HTTPHeaders, IAsyncKeyValueStore } from '../../types';
+import { HTTPHeaders, IAsyncKeyValueStore, CorpusDetails } from '../../types';
 import { HTTP } from 'cnc-tskit';
 import { map } from 'rxjs/operators';
 import { SingleCritQueryArgs, HTTPResponse } from './freqs';
-import { CorpusInfoAPI, APIResponse as CorpusInfoApiResponse } from './corpusInfo';
+import { CorpusInfoAPI } from './corpusInfo';
 import { BacklinkWithArgs } from '../../tile';
 
 
@@ -79,7 +79,7 @@ export class KontextMatchingDocsAPI implements MatchingDocsAPI<SingleCritQueryAr
         };
     }
 
-    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<CorpusInfoApiResponse> {
+    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<CorpusDetails> {
         return this.srcInfoService.call({
             tileId: tileId,
             corpname: corpname,

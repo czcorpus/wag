@@ -20,7 +20,7 @@ import * as React from 'react';
 import { Keyboard, pipe, List } from 'cnc-tskit';
 
 import { Forms } from '../common/data';
-import { SystemMessageType, SourceDetails } from '../common/types';
+import { SystemMessageType, SourceDetails, isCorpusDetails } from '../common/types';
 import { QueryType, QueryMatch, QueryTypeMenuItem, SearchLanguage, RecognizedQueries } from '../common/query';
 import { TileFrameProps } from '../common/tile';
 import { TileGroup } from '../layout';
@@ -30,7 +30,6 @@ import { QueryFormModel, QueryFormModelState } from '../models/query';
 import { WdglanceTilesModel, WdglanceTilesState, TileResultFlagRec } from '../models/tiles';
 import { init as corpusInfoViewInit } from './corpusInfo';
 import { GlobalComponents } from './global';
-import { isAPIResponse as isCorpusBasedResponse } from '../common/api/kontext/corpusInfo'; // TODO generalize
 
 
 export interface WdglanceMainProps {
@@ -1067,12 +1066,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             if (!tile) {
                 throw new Error('Unable to get tile for loaded source info data');
             }
-
-            if (tile.SourceInfoComponent) {
-                return <div><tile.SourceInfoComponent data={props.data} /></div>;
-
-            } else if (isCorpusBasedResponse(props.data)) {
+            if (isCorpusDetails(props.data)) {
                 return <CorpusInfo data={props.data} />;
+
+            } else if (tile.SourceInfoComponent) {
+                return <div><tile.SourceInfoComponent data={props.data} /></div>;
 
             } else {
                 return <globalComponents.SourceInfoBox data={props.data} />;
