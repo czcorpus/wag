@@ -19,8 +19,8 @@ import { Observable } from 'rxjs';
 import { map, flatMap } from 'rxjs/operators';
 
 import { cachedAjax$ } from '../../ajax';
-import { HTTPHeaders, IAsyncKeyValueStore } from '../../types';
-import { CorpusInfoAPI, APIResponse as CorpusInfoApiResponse } from './corpusInfo';
+import { HTTPHeaders, IAsyncKeyValueStore, CorpusDetails } from '../../types';
+import { CorpusInfoAPI } from './corpusInfo';
 import { ConcApi, QuerySelector } from './concordance';
 import { ViewMode } from '../abstract/concordance';
 import { QueryMatch } from '../../query';
@@ -94,7 +94,7 @@ export class FreqTreeAPI implements WordDataApi<SingleCritQueryArgs, APILeafResp
         this.srcInfoService = new CorpusInfoAPI(cache, apiURL, customHeaders);
     }
 
-    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<CorpusInfoApiResponse> {
+    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<CorpusDetails> {
         return this.srcInfoService.call({
             tileId: tileId,
             corpname: corpname,

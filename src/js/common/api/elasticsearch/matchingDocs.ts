@@ -18,9 +18,8 @@ import { MatchingDocsModelState } from '../../models/matchingDocs';
 import { MatchingDocsAPI, APIResponse } from '../abstract/matchingDocs';
 import { cachedAjax$ } from '../../ajax';
 import { Observable } from 'rxjs';
-import { HTTPHeaders, IAsyncKeyValueStore } from '../../types';
+import { HTTPHeaders, IAsyncKeyValueStore, SourceDetails } from '../../types';
 import { map } from 'rxjs/operators';
-import { APIResponse as CorpusInfoApiResponse } from '../kontext/corpusInfo';
 
 
 export interface HTTPResponse {
@@ -80,7 +79,7 @@ export class ElasticsearchMatchingDocsAPI implements MatchingDocsAPI<Elasticsear
         }
     }
 
-    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<CorpusInfoApiResponse> {  // TODO elasticsearch source info
+    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<SourceDetails> {
         return null;
     }
 

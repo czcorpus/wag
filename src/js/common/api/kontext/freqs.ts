@@ -19,8 +19,8 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { cachedAjax$ } from '../../ajax';
-import { DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../types';
-import { CorpusInfoAPI, APIResponse as CorpusInfoApiResponse } from './corpusInfo';
+import { DataApi, HTTPHeaders, IAsyncKeyValueStore, CorpusDetails } from '../../types';
+import { CorpusInfoAPI } from './corpusInfo';
 import { BacklinkWithArgs } from '../../tile';
 
 export enum FreqSort {
@@ -140,7 +140,7 @@ export class FreqDistribAPI implements DataApi<SingleCritQueryArgs, APIResponse>
         this.srcInfoService = new CorpusInfoAPI(cache, apiURL, customHeaders);
     }
 
-    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<CorpusInfoApiResponse> {
+    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<CorpusDetails> {
         return this.srcInfoService.call({
             tileId: tileId,
             corpname: corpname,
@@ -197,7 +197,7 @@ export class MultiBlockFreqDistribAPI implements DataApi<MultiCritQueryArgs, API
         this.srcInfoService = new CorpusInfoAPI(cache, apiURL, customHeaders);
     }
 
-    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<CorpusInfoApiResponse> {
+    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<CorpusDetails> {
         return this.srcInfoService.call({
             tileId: tileId,
             corpname: corpname,

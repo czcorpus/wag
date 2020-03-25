@@ -19,11 +19,11 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { cachedAjax$ } from '../../ajax';
-import { HTTPHeaders, IAsyncKeyValueStore } from '../../types';
+import { HTTPHeaders, IAsyncKeyValueStore, CorpusDetails } from '../../types';
 import { QueryMatch, SubQueryItem, RangeRelatedSubqueryValue } from '../../query';
 import { Line, ConcResponse, ViewMode, LineElement, IConcordanceApi } from '../abstract/concordance';
 import { ConcordanceMinState } from '../../models/concordance';
-import { CorpusInfoAPI, APIResponse as CorpusInfoApiResponse } from './corpusInfo';
+import { CorpusInfoAPI } from './corpusInfo';
 import { posQueryFactory } from '../../postag';
 
 
@@ -298,7 +298,7 @@ export class ConcApi implements IConcordanceApi<RequestArgs> {
         }
     }
 
-    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<CorpusInfoApiResponse> {
+    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<CorpusDetails> {
         return this.srcInfoService.call({
             tileId: tileId,
             corpname: corpname,

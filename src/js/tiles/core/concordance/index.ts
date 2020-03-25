@@ -24,11 +24,10 @@ import { ViewMode } from '../../../common/api/abstract/concordance';
 
 import { LocalizedConfMsg } from '../../../common/types';
 import { QueryType } from '../../../common/query';
-import { Backlink, CorpSrchTileConf, ITileProvider, TileComponent, TileFactory, SourceInfoComponent } from '../../../common/tile';
+import { Backlink, CorpSrchTileConf, ITileProvider, TileComponent, TileFactory } from '../../../common/tile';
 import { ConcordanceTileModel } from './model';
 import { init as viewInit } from './views';
 import { createApiInstance } from '../../../common/api/factory/concordance';
-import { createSourceInfoViewInstance } from './apiFactory';
 import { findCurrQueryMatch } from '../../../models/query';
 import { createInitialLinesData } from '../../../common/models/concordance';
 
@@ -65,8 +64,6 @@ export class ConcordanceTile implements ITileProvider {
 
     private view:TileComponent;
 
-    private sourceInfoView:SourceInfoComponent;
-
     private readonly widthFract:number;
 
     private readonly label:string;
@@ -83,7 +80,6 @@ export class ConcordanceTile implements ITileProvider {
         if (waitForTiles.length > 1) {
             throw new Error('ConcordanceTile does not support waiting for multiple tiles. Only a single tile can be specified');
         }
-        this.sourceInfoView = createSourceInfoViewInstance(conf.apiType, dispatcher, ut);
 
         this.model = new ConcordanceTileModel({
             dispatcher: dispatcher,

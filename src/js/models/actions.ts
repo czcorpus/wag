@@ -17,8 +17,7 @@
  */
 import { Action } from 'kombo';
 
-import { APIResponse } from '../common/api/kontext/corpusInfo';
-import { SystemMessageType } from '../common/types';
+import { SystemMessageType, SourceDetails } from '../common/types';
 import { QueryType, QueryPoS } from '../common/query';
 
 
@@ -228,7 +227,7 @@ export namespace Actions {
     }
 
     export interface GetSourceInfoDone extends Action<{
-        data:APIResponse;
+        data:SourceDetails;
     }> {
         name:ActionName.GetSourceInfoDone;
     }

@@ -17,8 +17,8 @@
  */
 
 import { IConcordanceApi, ViewMode, ConcResponse, Line } from '../abstract/concordance';
-import { HTTPHeaders, IAsyncKeyValueStore } from '../../types';
-import { CorpusInfoAPI, APIResponse as CorpusInfoApiResponse } from './corpusInfo';
+import { HTTPHeaders, IAsyncKeyValueStore, CorpusDetails } from '../../types';
+import { CorpusInfoAPI } from './corpusInfo';
 import { ConcordanceMinState } from '../../models/concordance';
 import { QueryMatch } from '../../query';
 import { AnyQuery } from '../kontext/concordance';
@@ -27,6 +27,7 @@ import { cachedAjax$ } from '../../ajax';
 import { map } from 'rxjs/operators';
 import { posQueryFactory } from '../../postag';
 import { List, pipe } from 'cnc-tskit';
+import { HTTPApiResponse } from './common';
 
 
 export enum QuerySelector {
@@ -79,7 +80,7 @@ export interface ConcLine {
     Tbl_refs:Array<string>;
 }
 
-export interface HTTPResponse {
+interface HTTPResponse extends HTTPApiResponse {
     corpname:string;
     concsize:number;
     relsize:number; // ipm
@@ -230,10 +231,12 @@ export class ConcApi implements IConcordanceApi<RequestArgs> {
         )
     }
 
-    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<CorpusInfoApiResponse> {
+    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<CorpusDetails> {
         return this.srcInfoService.call({
             tileId: tileId,
             corpname: corpname,
+            struct_attr_stats: 1,
+            subcorpora: 1,
             format: 'json'
         });
     }
