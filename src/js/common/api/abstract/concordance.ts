@@ -31,9 +31,10 @@ export interface SingleConcLoadedPayload extends SubqueryPayload {
     data:ConcResponse;
 }
 
+export type LineElementType = ''|'strc'|'attr'|'str'|'coll';
 
 export interface LineElement {
-    'class':string;
+    type:LineElementType;
     str:string;
     mouseover?:Array<string>;
 }
@@ -49,7 +50,7 @@ export interface Line {
         toknum:number;
     }>;
     toknum:number;
-    metadata?:Array<{value:string; label:string}>;
+    metadata?:Array<{label:string; value:string}>;
     interactionId?:string;
     isHighlighted?:boolean;
 }
@@ -79,5 +80,10 @@ export interface IConcordanceApi<T> extends DataApi<T, ConcResponse> {
     stateToArgs(state:ConcordanceMinState, lvar:QueryMatch|null, lvarIdx:number, otherLangCql:string|null):T;
 
     getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<SourceDetails>;
+
+    /**
+     * Note: the first item will be set as an initial one
+     */
+    getSupportedViewModes():Array<ViewMode>;
 
 }

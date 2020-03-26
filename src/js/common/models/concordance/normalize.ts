@@ -40,17 +40,17 @@ function isRightSpaceEater(s:string):boolean {
 }
 
 function lastTextElement(elmList:Array<LineElement>):LineElement {
-    const tmp = elmList.filter(e => e.class !== 'strc' && e.class !== 'attr');
-    return tmp.length > 0 ? tmp[tmp.length - 1] : {'class': '', str: ''};
+    const tmp = elmList.filter(e => e.type !== 'strc' && e.type !== 'attr');
+    return tmp.length > 0 ? tmp[tmp.length - 1] : {'type': '', str: ''};
 }
 
 function firstTextElement(elmList:Array<LineElement>):LineElement {
-    const tmp = elmList.filter(e => e.class !== 'strc' && e.class !== 'attr');
-    return tmp.length > 0 ? tmp[0] : {'class': '', str: ''};
+    const tmp = elmList.filter(e => e.type !== 'strc' && e.type !== 'attr');
+    return tmp.length > 0 ? tmp[0] : {'type': '', str: ''};
 }
 
 function hasTextElements(elmList:Array<LineElement>):boolean {
-    return elmList.filter(e => e.class !== 'strc' && e.class !== 'attr').length > 0;
+    return elmList.filter(e => e.type !== 'strc' && e.type !== 'attr').length > 0;
 }
 
 function normalizeStringTypography(str:string):string {
@@ -73,11 +73,11 @@ function normalizeStringTypography(str:string):string {
 
 function normalizeLineChunkTypography(line:Array<LineElement>, removeNonText:boolean):Array<LineElement> {
 
-    const isText = (elm:LineElement) => elm.str !== '' && elm.class !== 'strc' && elm.class !== 'attr';
+    const isText = (elm:LineElement) => elm.str !== '' && elm.type !== 'strc' && elm.type !== 'attr';
 
     const tmp = line
         .map(elm => ({
-            'class': elm.class,
+            type: elm.type,
             str: normalizeStringTypography(elm.str),
             mouseover: elm.mouseover
         }))
@@ -91,7 +91,7 @@ function normalizeLineChunkTypography(line:Array<LineElement>, removeNonText:boo
                     return acc.concat([curr]);
 
                 } else {
-                    return acc.concat([{'class': '', str: ' '}, curr]);
+                    return acc.concat([{'type': '', str: ' '}, curr]);
                 }
             },
             []
@@ -106,14 +106,14 @@ function normalizeLineTypography(line:Line):{left:Array<LineElement>; kwic:Array
     const ans = {left: left, kwic: [], right: []};
     if (!(hasTextElements(kwic) && isLeftSpaceEater(firstTextElement(kwic).str)) && !(hasTextElements(left) &&
                 isRightSpaceEater(lastTextElement(left).str))) {
-        ans.kwic = [{'class': '', str: ' '}].concat(kwic);
+        ans.kwic = [{type: '', str: ' '}].concat(kwic);
 
     } else {
         ans.kwic = kwic;
     }
     if (!(hasTextElements(right) && isLeftSpaceEater(firstTextElement(right).str)) && !(hasTextElements(kwic) &&
                 isRightSpaceEater(lastTextElement(kwic).str))) {
-        ans.right = [{'class': '', str: ' '}].concat(right);
+        ans.right = [{type: '', str: ' '}].concat(right);
 
     } else {
         ans.right = right;

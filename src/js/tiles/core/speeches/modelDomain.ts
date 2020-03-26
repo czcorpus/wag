@@ -188,7 +188,7 @@ function detectKwicSpeech(data:Array<Array<Speech>>):number {
         .reduce(
             (acc, speechChunks, lineIdx) => speechChunks
                 .reduce<ConcDetailText>((acc, speech) => acc.concat(speech.text), [])
-                .find(x => x.class === 'coll') ?  lineIdx : acc,
+                .find(x => x.type === 'coll') ?  lineIdx : acc,
             -1
         );
 }
@@ -233,7 +233,7 @@ export function extractSpeeches(state:SpeechesModelState, concDetail:ConcDetailT
     const tmp:Array<Speech> = [];
 
     (concDetail || []).forEach((item, i) => {
-        if (item.class === 'strc') {
+        if (item.type === 'strc') {
             const attrs = parseTag(state.speakerIdAttr[0], item.str);
             if (attrs !== null && attrs[state.speakerIdAttr[1]]) {
                     tmp.push(currSpeech);
@@ -264,10 +264,10 @@ export function extractSpeeches(state:SpeechesModelState, concDetail:ConcDetailT
                 while ((srch = overlapSrch.exec(item.str)) !== null) {
                     if (srch[0].indexOf('</') === 0
                             && item.str.indexOf(`<${state.speakerIdAttr[0]}`) > 0) {
-                        prevSpeech.text.push({str: srch[0], class: item.class});
+                        prevSpeech.text.push({str: srch[0], type: item.type});
 
                     } else {
-                        currSpeech.text.push({str: srch[0], class: item.class});
+                        currSpeech.text.push({str: srch[0], type: item.type});
                     }
                 }
             }
@@ -275,7 +275,7 @@ export function extractSpeeches(state:SpeechesModelState, concDetail:ConcDetailT
         } else {
             currSpeech.text.push({
                 str: item.str,
-                class: item.class
+                type: item.type
             });
         }
     });

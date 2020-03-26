@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { IConcordanceApi, ViewMode, ConcResponse, Line } from '../abstract/concordance';
+import { IConcordanceApi, ViewMode, ConcResponse, Line, LineElementType } from '../abstract/concordance';
 import { HTTPHeaders, IAsyncKeyValueStore, CorpusDetails } from '../../types';
 import { CorpusInfoAPI } from './corpusInfo';
 import { ConcordanceMinState } from '../../models/concordance';
@@ -143,14 +143,26 @@ export function mkMatchQuery(lvar:QueryMatch, generator:[string, string]):string
 }
 
 function convertLines(lines:Array<ConcLine>, metadataAttrs?:Array<string>):Array<Line> {
-    return lines.map(line => ({
-        left: line.Left,
-        kwic: line.Kwic,
-        right: line.Right,
-        align: [], // TODO
-        toknum: line.toknum,
-        metadata: [{value: line.ref, label: 'metadata'}]
-    }));
+    return List.map(
+        line => ({
+            left: List.map(
+                v => ({type: v.class as LineElementType, str: v.str}),
+                line.Left
+            ),
+            kwic: List.map(
+                v => ({type: v.class as LineElementType, str: v.str}),
+                line.Kwic
+            ),
+            right: List.map(
+                v => ({type: v.class as LineElementType, str: v.str}),
+                line.Right
+            ),
+            align: [], // TODO
+            toknum: line.toknum,
+            metadata: [{value: line.ref, label: 'metadata'}]
+        }),
+        lines
+    );
 }
 
 export class ConcApi implements IConcordanceApi<RequestArgs> {
@@ -169,6 +181,10 @@ export class ConcApi implements IConcordanceApi<RequestArgs> {
         this.customHeaders = customHeaders || {};
         this.cache = cache;
         this.srcInfoService = new CorpusInfoAPI(cache, apiURL, customHeaders);
+    }
+
+    getSupportedViewModes():Array<ViewMode> {
+        return [ViewMode.KWIC, ViewMode.SENT];
     }
 
     stateToArgs(state:ConcordanceMinState, lvar:QueryMatch, lvarIdx:number, otherLangCql:string):RequestArgs {

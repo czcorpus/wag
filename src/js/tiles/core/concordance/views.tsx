@@ -17,6 +17,7 @@
  */
 import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
+import { List, Strings } from 'cnc-tskit';
 
 import { Line, LineElement, ViewMode } from '../../../common/api/abstract/concordance';
 import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
@@ -122,7 +123,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         return (
             <select value={props.currIdx} onChange={handleChange}>
-                {props.values.map((v, i) => (<option key={`${v}:${i}`} value={i}>{v}</option>))}
+                {List.map(
+                    (v, i) => <option key={`${v}:${i}`} value={i}>{v}</option>,
+                    props.values
+                )}
             </select>
         );
     }
@@ -173,25 +177,93 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         );
     };
 
+    // ------------------ <LineMetadata /> --------------------------------------------
+
+    const LineMetadata:React.SFC<{
+        data:Array<{value:string; label:string}>;
+
+    }> = (props) => {
+
+        const handleClick = (e:React.MouseEvent) => {
+            e.stopPropagation();
+        };
+
+        return (
+            <div className="LineMetadata" onClick={handleClick}>
+                <dl>
+                    {List.map(
+                        v => (
+                            <React.Fragment key={v.label}>
+                                <dt>{v.label}:</dt>
+                                <dd>{/^https?:\/\//.exec(v.value) ? <a href={v.value} title={v.value} target="_blank">{Strings.shortenText(v.value, 30)}</a> : v.value}</dd>
+                            </React.Fragment>
+                        ),
+                        props.data
+                    )}
+                </dl>
+            </div>
+        )
+    }
+
     // ------------------ <Row /> --------------------------------------------
 
     const Row:React.SFC<{
         data:Line;
         isParallel:boolean;
+        hasVisibleMetadata:boolean;
+        handleLineClick:(e:React.MouseEvent)=>void;
 
     }> = (props) => {
         return (
             <>
                 <tr className="Row">
-                    <td className="left">{props.data.left.map((s, i) => <RowItem key={`${props.data.toknum}:L${i}`} data={s} />)}</td>
-                    <td className="kwic">{props.data.kwic.map((s, i) => <RowItem key={`${props.data.toknum}:K${i}`} data={s} isKwic={true} />)}</td>
-                    <td className="right">{props.data.right.map((s, i) => <RowItem key={`${props.data.toknum}:R${i}`} data={s} />)}</td>
+                    <td>
+                        {props.hasVisibleMetadata ? <LineMetadata data={props.data.metadata} /> : null}
+                    </td>
+                    {props.data.metadata && props.data.metadata.length > 0 ?
+                        <td className="meta"><a className="info-click" onClick={props.handleLineClick}><img src={ut.createStaticUrl('info-icon.svg')} /></a></td> :
+                        null
+                    }
+                    <td className="left">
+                        {List.map(
+                            (s, i) => <RowItem key={`${props.data.toknum}:L${i}`} data={s} />,
+                            props.data.left
+                        )}
+                    </td>
+                    <td className="kwic">
+                        {List.map(
+                            (s, i) => <RowItem key={`${props.data.toknum}:K${i}`} data={s} isKwic={true} />,
+                            props.data.kwic
+                        )}
+                    </td>
+                    <td className="right">
+                        {List.map(
+                            (s, i) => <RowItem key={`${props.data.toknum}:R${i}`} data={s} />,
+                            props.data.right
+                        )}
+                    </td>
                 </tr>
                 {props.isParallel ?
                     <tr className="Row aligned">
-                        <td className="left">{props.data.align[0].left.map((s, i) => <RowItem key={`${props.data.align[0].toknum}:L${i}`} data={s} />)}</td>
-                        <td className="kwic">{props.data.align[0].kwic.map((s, i) => <RowItem key={`${props.data.align[0].toknum}:K${i}`} data={s} isKwic={true} />)}</td>
-                        <td className="right">{props.data.align[0].right.map((s, i) => <RowItem key={`${props.data.align[0].toknum}:R${i}`} data={s} />)}</td>
+                        <td colSpan={props.data.metadata.length > 0 ? 2 : 1} />
+                        <td className="left">
+                            {List.map(
+                                (s, i) => <RowItem key={`${props.data.align[0].toknum}:L${i}`} data={s} />,
+                                props.data.align[0].left
+                            )}
+                        </td>
+                        <td className="kwic">
+                            {List.map(
+                                (s, i) => <RowItem key={`${props.data.align[0].toknum}:K${i}`} data={s} isKwic={true} />,
+                                props.data.align[0].kwic
+                            )}
+                        </td>
+                        <td className="right">
+                            {List.map(
+                                (s, i) => <RowItem key={`${props.data.align[0].toknum}:R${i}`} data={s} />,
+                                props.data.align[0].right
+                            )}
+                        </td>
                     </tr> :
                     null
                 }
@@ -207,6 +279,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         constructor(props) {
             super(props);
             this.handleQueryVariantClick = this.handleQueryVariantClick.bind(this);
+            this.handleLineClick = this.handleLineClick.bind(this);
         }
 
         handleQueryVariantClick() {
@@ -216,6 +289,25 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     ident: this.props.tileId
                 }
             });
+        }
+
+        private handleLineClick(idx:number) {
+            return (e:React.MouseEvent) => {
+                if (this.props.visibleMetadataLine === idx) {
+                    dispatcher.dispatch<Actions.HideLineMetadata>({
+                        name: ActionName.HideLineMetadata
+                    });
+
+                } else {
+                    dispatcher.dispatch<Actions.ShowLineMetadata>({
+                        name: ActionName.ShowLineMetadata,
+                        payload: {
+                            idx: idx
+                        }
+                    });
+                }
+                e.stopPropagation();
+            }
         }
 
         render() {
@@ -281,7 +373,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         </dl>
                         <table className={tableClasses.join(' ')}>
                             <tbody>
-                                {conc.lines.map(line => <Row key={`${line.toknum}`} data={line} isParallel={!!this.props.otherCorpname} />)}
+                                {List.map(
+                                    (line, i) => <Row key={`${i}:${line.toknum}`} data={line} isParallel={!!this.props.otherCorpname}
+                                        hasVisibleMetadata={this.props.visibleMetadataLine === i} handleLineClick={this.handleLineClick(i)} />,
+                                    conc.lines
+                                )}
                             </tbody>
                         </table>
                     </div>

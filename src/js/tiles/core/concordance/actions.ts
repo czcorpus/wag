@@ -27,7 +27,9 @@ export enum ActionName {
     LoadPrevPage = 'CONCORDANCE_LOAD_PREV_PAGE',
     LoadPrevPageDone = 'CONCORDANCE_LOAD_PREV_PAGE_DONE',
     SetViewMode = 'CONCORDANCE_SET_VIEW_MODE',
-    SetVisibleQuery = 'CONCORDANCE_SET_VISIBLE_QUERY'
+    SetVisibleQuery = 'CONCORDANCE_SET_VISIBLE_QUERY',
+    HideLineMetadata = 'CONCORDANCE_HIDE_LINE_METADATA',
+    ShowLineMetadata = 'CONCORDANCE_SHOW_LINE_METADATA'
 }
 
 export interface ConcLoadedPayload {
@@ -66,5 +68,16 @@ export namespace Actions {
         queryIdx:number;
     }> {
         name:ActionName.SetVisibleQuery;
+    }
+
+    export interface ShowLineMetadata extends Action<{
+        idx:number;
+    }> {
+        name:ActionName.ShowLineMetadata;
+    }
+
+    export interface HideLineMetadata extends Action<{
+    }> {
+        name:ActionName.HideLineMetadata;
     }
 }

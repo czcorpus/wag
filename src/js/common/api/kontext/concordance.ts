@@ -240,6 +240,10 @@ export class ConcApi implements IConcordanceApi<RequestArgs> {
         this.srcInfoService = new CorpusInfoAPI(cache, apiURL, customHeaders);
     }
 
+    getSupportedViewModes():Array<ViewMode> {
+        return [ViewMode.ALIGN, ViewMode.KWIC, ViewMode.SENT];
+    }
+
     stateToArgs(state:ConcordanceMinState, lvar:QueryMatch, lvarIdx:number, otherLangCql:string):RequestArgs {
         if (state.otherCorpname) {
             const ans:PCRequestArgs = {

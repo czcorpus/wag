@@ -24,6 +24,7 @@ import { Theme } from '../../../common/theme';
 import { Speech, SpeechesModelState, SpeechLine, Segment } from './modelDomain';
 import { ActionName, Actions } from './actions';
 import { List, pipe, Color } from 'cnc-tskit';
+import { LineElement } from '../../../common/api/abstract/concordance';
 
 
 
@@ -45,7 +46,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const SpeechText:React.SFC<{
         bulletColor:string;
-        data:Array<{class:string; str:string}>;
+        data:Array<LineElement>;
         isIncomplete:boolean;
 
     }> = (props) => {
@@ -54,9 +55,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             <div className="speech-text">
                 <span style={{color: props.bulletColor}}>{'\u25cf\u00a0'}</span>
                 {props.isIncomplete ? '\u2026\u00a0' : null}
-                {props.data.map((item, i) => {
-                    return <span key={i} className={item.class ? item.class : null}>{item.str}</span>;
-                })}
+                {List.map(
+                    (item, i) => <span key={i} className={item.type ? item.type : null}>{item.str}</span>,
+                    props.data
+                )}
             </div>
         );
     };
