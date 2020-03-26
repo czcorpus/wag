@@ -80,8 +80,7 @@ export class LccCoocSimApi implements WordSimApi<LccCoocSimApiArgs> {
     call(queryArgs:LccCoocSimApiArgs):Observable<WordSimApiResponse> {
         return new Observable<string>(observer => {
             try {
-                const url = [this.apiURL, queryArgs.corpus, 'coocsim', queryArgs.word]
-                                .map(v => v.replace(/^\/.+\/$/, '')).join('/');
+                const url = this.apiURL + `/similarity/${queryArgs.corpus}/coocsim/${queryArgs.word}`;
                 observer.next(url);
                 observer.complete();
 

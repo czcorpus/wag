@@ -56,6 +56,7 @@ export interface ConcordanceTileState extends ConcordanceMinState {
     initialKwicRightCtx:number;
     backlink:BacklinkWithArgs<BacklinkArgs>;
     disableViewModes:boolean;
+    visibleMetadataLine:number;
 }
 
 
@@ -285,6 +286,29 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             ActionName.SetVisibleQuery,
             (state, action) => {
                 state.visibleQueryIdx = action.payload.queryIdx
+            }
+        );
+
+        this.addActionHandler<GlobalActions.TileAreaClicked>(
+            GlobalActionName.TileAreaClicked,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {
+                    state.visibleMetadataLine = -1;
+                }
+            }
+        );
+
+        this.addActionHandler<Actions.ShowLineMetadata>(
+            ActionName.ShowLineMetadata,
+            (state, action) => {
+                state.visibleMetadataLine = action.payload.idx;
+            }
+        );
+
+        this.addActionHandler<Actions.HideLineMetadata>(
+            ActionName.HideLineMetadata,
+            (state, action) => {
+                state.visibleMetadataLine = -1;
             }
         );
     }

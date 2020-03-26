@@ -20,7 +20,7 @@ import { IActionDispatcher, StatelessModel } from 'kombo';
 import { List } from 'cnc-tskit';
 import { AppServices } from '../../../appServices';
 import { QuerySelector } from '../../../common/api/kontext/concordance';
-import { ViewMode } from '../../../common/api/abstract/concordance';
+import { ViewMode, IConcordanceApi } from '../../../common/api/abstract/concordance';
 
 import { LocalizedConfMsg } from '../../../common/types';
 import { QueryType } from '../../../common/query';
@@ -47,6 +47,16 @@ export interface ConcordanceTileConf extends CorpSrchTileConf {
     parallelLangMapping?:{[lang:string]:string};
     disableViewModes?:boolean;
     metadataAttrs?:Array<{value:string; label:LocalizedConfMsg}>;
+}
+
+function determineViewMode(conf:ConcordanceTileConf, api:IConcordanceApi<{}>):ViewMode {
+    if (conf.parallelLangMapping) {
+        if (api.getSupportedViewModes().indexOf(ViewMode.SENT) === -1) {
+            throw new Error(`The ${api} does not support aligned concordances`);
+        }
+        return ViewMode.SENT;
+    }
+    return api.getSupportedViewModes()[0];
 }
 
 /**
@@ -80,12 +90,12 @@ export class ConcordanceTile implements ITileProvider {
         if (waitForTiles.length > 1) {
             throw new Error('ConcordanceTile does not support waiting for multiple tiles. Only a single tile can be specified');
         }
-
+        const api = createApiInstance(cache, conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL));
         this.model = new ConcordanceTileModel({
             dispatcher: dispatcher,
             tileId,
             appServices,
-            service: createApiInstance(cache, conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            service: api,
             queryMatches,
             queryType,
             backlink: conf.backlink || null,
@@ -111,12 +121,13 @@ export class ConcordanceTile implements ITileProvider {
                 kwicLeftCtx: appServices.isMobileMode() ? ConcordanceTileModel.CTX_SIZES[0] : this.calcContext(widthFract),
                 kwicRightCtx: appServices.isMobileMode() ? ConcordanceTileModel.CTX_SIZES[0] : this.calcContext(widthFract),
                 attr_vmode: 'mouseover',
-                viewMode: conf.parallelLangMapping ? ViewMode.SENT : ViewMode.KWIC,
+                viewMode: determineViewMode(conf, api),
                 attrs: conf.posAttrs,
                 metadataAttrs: (conf.metadataAttrs || []).map(v => ({value: v.value, label: appServices.importExternalMessage(v.label)})),
                 backlink: null,
                 posQueryGenerator: conf.posQueryGenerator,
-                disableViewModes: !!conf.disableViewModes,
+                disableViewModes: api.getSupportedViewModes().length < 2,
+                visibleMetadataLine: -1,
                 queries: List.map(lemmaGroup => findCurrQueryMatch(lemmaGroup).word, queryMatches)
             }
         });

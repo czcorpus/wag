@@ -20,7 +20,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { HTTPHeaders } from '../../../types';
 import { HTTP } from 'cnc-tskit';
-import { ConcResponse, Line, IConcordanceApi } from '../../../../common/api/abstract/concordance';
+import { ConcResponse, Line, IConcordanceApi, ViewMode } from '../../../../common/api/abstract/concordance';
 import { XMLParser, XMLNode } from '../../../xml';
 import { ConcordanceMinState } from '../../../models/concordance';
 import { ajax$, ResponseType } from '../../../ajax';
@@ -71,9 +71,9 @@ function importRecord(node:XMLNode, lineNum:number):Line {
     });
 
     return {
-        left: line.left.map(v => ({'class': 'str', str: v})),
-        kwic: line.kwic.map(v => ({'class': 'str', str: v})),
-        right: line.right.map(v => ({'class': 'str', str: v})),
+        left: line.left.map(v => ({type: 'str', str: v})),
+        kwic: line.kwic.map(v => ({type: 'str', str: v})),
+        right: line.right.map(v => ({type: 'str', str: v})),
         toknum: lineNum
     };
 }
@@ -153,6 +153,10 @@ export class FCS1SearchRetrieveAPI implements IConcordanceApi<FCS1Args> {
         this.customHeaders = customHeaders || {};
         this.parser = new XMLParser();
         this.srcInfoApi = new FCS1ExplainAPI(url, this.customHeaders);
+    }
+
+    getSupportedViewModes():Array<ViewMode> {
+        return [ViewMode.KWIC];
     }
 
     stateToArgs(state:ConcordanceMinState, lvar:QueryMatch, lvarIdx:number, otherLangCql:string):FCS1Args {

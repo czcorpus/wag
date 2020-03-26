@@ -19,6 +19,7 @@ import { DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../types';
 import { IConcordanceApi } from '../../api/abstract/concordance';
 import { ConcApi } from '../../api/kontext/concordance';
 import { ConcApi as NoskeConcApi } from '../../api/noske/concordance';
+import { ConcApi as LCCConcApi } from '../../api/lcc/concordance';
 import { FCS1SearchRetrieveAPI } from '../../api/clarin/fcs1/searchRetrieve';
 import { FCS1ExplainAPI } from '../../api/clarin/fcs1/explain';
 import { CoreApiGroup, supportedCoreApiGroups } from '../../api/coreGroups';
@@ -33,6 +34,8 @@ export function createApiInstance(cache:IAsyncKeyValueStore, apiIdent:string, ap
  			return new ConcApi(false, cache, apiURL, httpHeaders);
 		case CoreApiGroup.NOSKE:
 			return new NoskeConcApi(cache, apiURL, httpHeaders);
+		case CoreApiGroup.LCC:
+			return new LCCConcApi(cache, apiURL, httpHeaders);
  		default:
  			throw new Error(`Concordance tile API "${apiIdent}" not found. Supported values are: ${supportedCoreApiGroups().join(', ')}`);
  	}

@@ -87,8 +87,7 @@ export class LccCollAPI implements CollocationApi<CollRequestArgs> {
     call(queryArgs:CollRequestArgs):Observable<CollApiResponse> {
         return cachedAjax$<HttpApiResponse>(this.cache)(
             'GET',
-            [this.apiURL, queryArgs.corpus, 'cooccurrences', queryArgs.word]
-                .map(v => v.replace(/^\/.+\/$/, '')).join('/'),
+            this.apiURL + `/coocurrences/${queryArgs.corpus}/cooccurrences/${queryArgs.word}/`,
             {
                 limit: queryArgs.limit
             },

@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 import * as React from 'react';
+import { Strings, List } from 'cnc-tskit';
+
 import { IActionDispatcher, ViewUtils, BoundWithProps } from 'kombo';
 import { GlobalComponents } from '../../../views/global';
 import { Theme } from '../../../common/theme';
@@ -43,7 +45,15 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         return (
             <div className="LineMetadata" onClick={handleClick}>
                 <dl>
-                    {props.data.map(v => <React.Fragment key={v.label}><dt>{v.label}:</dt><dd>{v.value}</dd></React.Fragment>)}
+                    {List.map(
+                        v => (
+                            <React.Fragment key={v.label}>
+                                <dt>{v.label}:</dt>
+                                <dd>{/^https?:\/\//.exec(v.value) ? <a href={v.value} title={v.value} target="_blank">{Strings.shortenText(v.value, 30)}</a> : v.value}</dd>
+                            </React.Fragment>
+                        ),
+                        props.data
+                    )}
                 </dl>
             </div>
         )
@@ -74,10 +84,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             });
         };
 
-        const mkColloc = (side:'L'|'R') => (e:LineElement, i:number) => e.class === 'coll' ?
-            <a key={`${props.data.toknum}:${side}${i}`} data-value={e.str} onClick={handleWordClick} className={e.class}
+        const mkColloc = (side:'L'|'R') => (e:LineElement, i:number) => e.type === 'coll' ?
+            <a key={`${props.data.toknum}:${side}${i}`} data-value={e.str} onClick={handleWordClick} className={e.type}
                     title={ut.translate('global__click_to_query_word')}>{e.str}</a> :
-            <span key={`${props.data.toknum}:${side}${i}`} className={e.class}>{e.str}</span>;
+            <span key={`${props.data.toknum}:${side}${i}`} className={e.type}>{e.str}</span>;
 
         return (
             <div className="FilteredLine">
