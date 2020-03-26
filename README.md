@@ -11,6 +11,7 @@ using miscellaneous online lingustic tools, corpora and databases.
 ## Currently supported resources/services
 
  - [KonText](https://github.com/czcorpus/kontext)
+ - [NoSketch Engine](https://nlp.fi.muni.cz/trac/noske)
  - [Treq](https://treq.korpus.cz/)
  - [Clarin FCS Core 1](https://www.clarin.eu/content/federated-content-search-clarin-fcs)
  - [Datamuse API](https://www.datamuse.com/)
@@ -18,12 +19,12 @@ using miscellaneous online lingustic tools, corpora and databases.
 
 |                   | WaG       | KonText | NoSkE  | Treq   | Clarin FCS | Datamuse   | ElasticSearch | LCC   |
 --------------------|-----------|---------|--------|--------|------------|------------|-------------|---------|
-| collocations      |           | :star:  |        |        |            |            |             | :star:  |
+| collocations      |           | :star:  | :construction:       |        |            |            |             | :star:  |
 | concFilter        |           | :star:  |        |        |            |            |             |         |
-| concordance       |           | :star:  | :star: |        | :star:     |            |             | :construction: |
-| freqBar           |           | :star:  |        |        |            |            |             |         |
+| concordance       |           | :star:  | :star: |        | :star:     |            |             | :star:  |
+| freqBar           |           | :star:  | :construction:       |        |            |            |             |         |
 | freqComparison    |           | :star:  |        |        |            |            |             |         |
-| freqPie           |           | :star:  |        |        |            |            |             |         |
+| freqPie           |           | :star:  | :construction:       |        |            |            |             |         |
 | geoAreas          |           | :star:  |        |        |            |            |             |         |
 | html              |           | :star:  | :star: |        |            |            |             |         |
 | matchingDocuments |           | :star:  |        |        |            |            | :star:      |         |
