@@ -85,6 +85,21 @@
     table.conc-lines {
         font-family: @condensed-font-family;
         display: inline-block;
+
+        tr {
+            td a.info-click {
+                cursor: pointer;
+                display: inline-block;
+                margin-right: 0.7em;
+                vertical-align: middle;
+
+                img {
+                    display: block;
+                    margin: 0;
+                    width: 1em;
+                }
+            }
+        }
     }
 
     table.conc-lines.sent {
@@ -106,18 +121,7 @@
                 display: inline-block;
             }
 
-            td a.info-click {
-                cursor: pointer;
-                display: inline-block;
-                margin-right: 0.7em;
-                vertical-align: middle;
 
-                img {
-                    display: block;
-                    margin: 0;
-                    width: 1em;
-                }
-            }
         }
     }
 

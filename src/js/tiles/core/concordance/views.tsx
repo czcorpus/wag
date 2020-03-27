@@ -195,7 +195,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         v => (
                             <React.Fragment key={v.label}>
                                 <dt>{v.label}:</dt>
-                                <dd>{/^https?:\/\//.exec(v.value) ? <a href={v.value} title={v.value} target="_blank">{Strings.shortenText(v.value, 30)}</a> : v.value}</dd>
+                                <dd>
+                                    {/^https?:\/\//.exec(v.value) ?
+                                        <a href={v.value} title={v.value} target="_blank">{Strings.shortenText(v.value, 30)}</a> :
+                                        v.value
+                                    }
+                                </dd>
                             </React.Fragment>
                         ),
                         props.data
@@ -295,13 +300,17 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             return (e:React.MouseEvent) => {
                 if (this.props.visibleMetadataLine === idx) {
                     dispatcher.dispatch<Actions.HideLineMetadata>({
-                        name: ActionName.HideLineMetadata
+                        name: ActionName.HideLineMetadata,
+                        payload: {
+                            tileId: this.props.tileId
+                        }
                     });
 
                 } else {
                     dispatcher.dispatch<Actions.ShowLineMetadata>({
                         name: ActionName.ShowLineMetadata,
                         payload: {
+                            tileId: this.props.tileId,
                             idx: idx
                         }
                     });

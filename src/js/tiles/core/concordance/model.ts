@@ -301,14 +301,18 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
         this.addActionHandler<Actions.ShowLineMetadata>(
             ActionName.ShowLineMetadata,
             (state, action) => {
-                state.visibleMetadataLine = action.payload.idx;
+                if (action.payload.tileId === this.tileId) {
+                    state.visibleMetadataLine = action.payload.idx;
+                }
             }
         );
 
         this.addActionHandler<Actions.HideLineMetadata>(
             ActionName.HideLineMetadata,
             (state, action) => {
-                state.visibleMetadataLine = -1;
+                if (action.payload.tileId === this.tileId) {
+                    state.visibleMetadataLine = -1;
+                }
             }
         );
     }
