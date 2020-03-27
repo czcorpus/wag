@@ -133,13 +133,17 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             return (e:React.MouseEvent) => {
                 if (this.props.visibleMetadataLine === idx) {
                     dispatcher.dispatch<Actions.HideLineMetadata>({
-                        name: ActionName.HideLineMetadata
+                        name: ActionName.HideLineMetadata,
+                        payload: {
+                            tileId: this.props.tileId
+                        }
                     });
 
                 } else {
                     dispatcher.dispatch<Actions.ShowLineMetadata>({
                         name: ActionName.ShowLineMetadata,
                         payload: {
+                            tileId: this.props.tileId,
                             idx: idx
                         }
                     });

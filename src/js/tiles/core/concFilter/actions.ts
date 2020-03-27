@@ -32,12 +32,14 @@ export enum ActionName {
 export namespace Actions {
 
     export interface ShowLineMetadata extends Action<{
+        tileId:number;
         idx:number;
     }> {
         name:ActionName.ShowLineMetadata;
     }
 
     export interface HideLineMetadata extends Action<{
+        tileId:number;
     }> {
         name:ActionName.HideLineMetadata;
     }
