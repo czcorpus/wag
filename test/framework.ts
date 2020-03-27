@@ -6,12 +6,12 @@ export class TestModelWrapper<T> {
     lastAction: string;
     model;
 
-    constructor(modelType, args:T) {
+    constructor(modelType, modelArgs:T) {
         this.dispatcher = new ActionDispatcher();
         this.dispatcher.registerActionListener((action, dispatch) => {
             this.lastAction = action.name;
         });
-        this.model = new modelType({...args, dispatcher: this.dispatcher});
+        this.model = new modelType({...modelArgs, dispatcher: this.dispatcher});
     }
 
     checkState(evokeAction, checkAction: string, checkState: (state) => void) {
