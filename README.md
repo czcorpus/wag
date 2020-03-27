@@ -1,3 +1,5 @@
+![WaG screenshot](https://github.com/czcorpus/wdglance/blob/master/assets/screenshot1.jpg)
+
 # Word at a Glance (WaG)
 
 Obtain and compile information about:
@@ -35,7 +37,7 @@ using miscellaneous online lingustic tools, corpora and databases.
 | treqSubsets       |           |         |        | :star: |            |            |             |         |
 | wordForms         | :star:    | :star:  |        |        |            |            |             |         |
 | wordFreq          | :star:    | :star:  |        |        |            |            |             |         |
-| wordSim           | :star:    |    |        |        |            |  :star:    |             | :star: | 
+| wordSim           | :star:    |    |        |        |            |  :star:    |             | :star: |
 
 
 ## Requirements
