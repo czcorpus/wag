@@ -1,6 +1,6 @@
-![WaG screenshot](https://github.com/czcorpus/wdglance/blob/master/assets/screenshot1.jpg)
-
 # Word at a Glance (WaG)
+
+![WaG screenshot](https://github.com/czcorpus/wdglance/blob/master/assets/screenshot1.jpg)
 
 1. Use existing corpus/data search and retrieval software as backend,
 1. Obtain and compile information about:
