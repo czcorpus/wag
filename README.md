@@ -2,22 +2,24 @@
 
 # Word at a Glance (WaG)
 
-Obtain and compile information about:
+1. Use existing corpus/data search and retrieval software as backend,
+1. Obtain and compile information about:
+   1. single word,
+   1. two or more words compared with each other,
+   1. word translation.
+1. explore text metadata statistics, time-based trends, word cloud-based data and many more,
+1. combine statistics from different corpora,
+1. Use results of a resource as an input for other resource.
 
-1) a single word,
-2) two or more words compared with each other,
-3) a word translation
 
-using miscellaneous online lingustic tools, corpora and databases.
-
-## Currently supported resources/services
+## Currently supported resources
 
  - [KonText](https://github.com/czcorpus/kontext)
  - [NoSketch Engine](https://nlp.fi.muni.cz/trac/noske)
  - [Treq](https://treq.korpus.cz/)
  - [Clarin FCS Core 1](https://www.clarin.eu/content/federated-content-search-clarin-fcs)
  - [Datamuse API](https://www.datamuse.com/)
- - [REST API of the Leipzig Corpora Collection](http://api.corpora.uni-leipzig.de/ws/swagger-ui.html) (LCC)
+ - [Leipzig Corpora Collection (REST API)](http://api.corpora.uni-leipzig.de/ws/swagger-ui.html) (LCC)
 
 |                   | WaG       | KonText | NoSkE  | Treq   | Clarin FCS | Datamuse   | ElasticSearch | LCC   |
 --------------------|-----------|---------|--------|--------|------------|------------|-------------|---------|
