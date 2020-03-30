@@ -15,9 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { DbValueMapping, HTTPHeaders, LocalizedConfMsg } from './common/types';
-import { QueryType, SearchLanguage, QueryPoS } from './common/query';
-import { TileConf } from './common/tile';
+import { DbValueMapping, HTTPHeaders, LocalizedConfMsg } from '../common/types';
+import { QueryType, SearchLanguage, QueryPoS } from '../common/query';
+import { TileConf } from '../common/tile';
 import { CSSProperties } from 'react';
 import { List, pipe } from 'cnc-tskit';
 
@@ -156,7 +156,7 @@ export interface ClientStaticConf {
 
     // If string we expect this to be a fs path to another
     // JSON file containing just the 'tiles' configuration
-    tiles:LanguageAnyTileConf|string;
+    tiles?:LanguageAnyTileConf|string;
 
     // If string we expect this to be a fs path to another
     // JSON file containing just the 'layout' configuration.
@@ -337,6 +337,14 @@ export interface WordFreqDbConf {
     translat?:QueryModeWordDb;
 }
 
+export interface TileDbConf {
+    server:string; // e.g. http://foo:5984
+    db:string;
+    prefix:string; // e.g. 'cnc:wag-test'
+    username:string;
+    password:string; // please do not use admin credentials for this
+}
+
 /**
  * Server side app configuration.
  */
@@ -351,6 +359,7 @@ export interface ServerConf {
         urlRootPath:string;
     };
     freqDB:WordFreqDbConf;
+    tileDB?:TileDbConf;
     logQueue?:LogQueueConf;
     toolbar:ToolbarDef;
     langCookie?:string;

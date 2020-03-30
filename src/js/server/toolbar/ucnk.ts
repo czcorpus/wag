@@ -21,12 +21,12 @@
 // by CNC integration guidelines. For general use, please
 // look at the 'langSwitch' toolbar.
 
-import * as request from 'request';
 import { Observable } from 'rxjs';
 
 import { HostPageEnv, IToolbarProvider } from '../../common/hostPage';
 import { GlobalComponents } from '../../views/global';
 import { ViewUtils } from 'kombo';
+import axios from 'axios';
 
 
 interface ToolbarResponse {
@@ -83,38 +83,31 @@ export class UCNKToolbar implements IToolbarProvider {
             UCNKToolbar.PASS_ARGS.forEach(arg => {
                 args[arg.substr('cnc_toolbar_'.length)] = cookies[arg] || '';
             });
-            request
-                .get(
-                    {
-                        url: this.url,
-                        json: true,
-                        qs: args,
-                        headers: {}
-                    },
-                    (error, response, body:ToolbarResponse) => {
-                        if (error) {
-                            observer.error(error);
+            axios.post<ToolbarResponse>(this.url, args).then(
+                (response) => {
+                    if (response.status !== 200) {
+                        observer.error(
+                            new Error(`Toolbar loading failed with error: ${response.statusText} (code ${response.status})`));
 
-                        } else if (response.statusCode !== 200) {
-                            observer.error(new Error(`Toolbar loading failed with error: ${response.statusMessage} (code ${response.statusCode})`));
-
-                        } else {
-                            observer.next({
-                                styles: Object.entries(body.styles)
-                                    .sort((x1, x2) => parseInt(x1[0]) - parseInt(x2[0]))
-                                    .map(v => v[1].url),
-                                scripts: Object.entries(body.scripts.depends)
-                                    .sort((x1, x2) => parseInt(x1[0]) - parseInt(x2[0]))
-                                    .map(v => v[1].url)
-                                    .concat([body.scripts.main]),
-                                html: body.html,
-                                toolbarHeight: '50px'
-                            });
-                            observer.complete();
-                        }
+                    } else {
+                        observer.next({
+                            styles: Object.entries(response.data.styles)
+                                .sort((x1, x2) => parseInt(x1[0]) - parseInt(x2[0]))
+                                .map(v => v[1].url),
+                            scripts: Object.entries(response.data.scripts.depends)
+                                .sort((x1, x2) => parseInt(x1[0]) - parseInt(x2[0]))
+                                .map(v => v[1].url)
+                                .concat([response.data.scripts.main]),
+                            html: response.data.html,
+                            toolbarHeight: '50px'
+                        });
+                        observer.complete();
                     }
-                );
-            }
-        );
+                },
+                (err) => {
+                    observer.error(err);
+                }
+            );
+        });
     }
  }
