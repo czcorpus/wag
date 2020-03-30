@@ -8,11 +8,11 @@ devel-server :
 server :
 	nodejs node_modules/webpack/bin/webpack.js --config webpack.server.js
 configschemata :
-	./node_modules/typescript-json-schema/bin/typescript-json-schema src/js/conf.ts ServerConf --ignoreErrors --out conf/server-schema.json --required --strictNullChecks
-	./node_modules/typescript-json-schema/bin/typescript-json-schema src/js/conf.ts ClientStaticConf --ignoreErrors --out conf/wdglance-schema.json --required --strictNullChecks
-	./node_modules/typescript-json-schema/bin/typescript-json-schema src/js/conf.ts LanguageLayoutsConfig --ignoreErrors --out conf/layouts-schema.json --required --strictNullChecks
-	./node_modules/typescript-json-schema/bin/typescript-json-schema src/js/conf.ts LanguageAnyTileConf --ignoreErrors --out conf/tiles-schema.json --required --strictNullChecks
-	./node_modules/typescript-json-schema/bin/typescript-json-schema src/js/conf.ts ColorsConf --ignoreErrors --out conf/themes-schema.json --required --strictNullChecks
+	./node_modules/typescript-json-schema/bin/typescript-json-schema src/js/conf/index.ts ServerConf --ignoreErrors --out conf/server-schema.json --required --strictNullChecks
+	./node_modules/typescript-json-schema/bin/typescript-json-schema src/js/conf/index.ts ClientStaticConf --ignoreErrors --out conf/wdglance-schema.json --required --strictNullChecks
+	./node_modules/typescript-json-schema/bin/typescript-json-schema src/js/conf/index.ts LanguageLayoutsConfig --ignoreErrors --out conf/layouts-schema.json --required --strictNullChecks
+	./node_modules/typescript-json-schema/bin/typescript-json-schema src/js/conf/index.ts LanguageAnyTileConf --ignoreErrors --out conf/tiles-schema.json --required --strictNullChecks
+	./node_modules/typescript-json-schema/bin/typescript-json-schema src/js/conf/index.ts ColorsConf --ignoreErrors --out conf/themes-schema.json --required --strictNullChecks
 
 configtest :
 	nodejs node_modules/ajv-cli/index.js -s ./conf/server-schema.json -d ./conf/server.json
