@@ -15,7 +15,7 @@ describe('HtmlTile model', function () {
     let htmlApiStub;
     let testHtmlModel;
 
-    this.beforeAll(function () {
+    this.beforeEach(function () {
         htmlApiStub = sinon.createStubInstance(RawHtmlAPI, {
             call: of('fake html response')
         });
@@ -30,7 +30,7 @@ describe('HtmlTile model', function () {
         );
     });
 
-    this.afterAll(function () {
+    this.afterEach(function () {
         sinon.restore();
     });
 
