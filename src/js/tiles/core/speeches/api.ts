@@ -20,8 +20,8 @@ import { Observable, of as rxOf } from 'rxjs';
 import { DataApi, IAsyncKeyValueStore, HTTPHeaders, CorpusDetails } from '../../../common/types';
 import { HTTP } from 'cnc-tskit'
 import { cachedAjax$ } from '../../../common/ajax';
-import { ConcDetailText } from './modelDomain';
 import { CorpusInfoAPI } from '../../../common/api/kontext/corpusInfo';
+import { LineElementType } from '../../../common/api/abstract/concordance';
 
 
 
@@ -40,7 +40,11 @@ export interface SpeechReqArgs {
 
 export interface SpeechResponse {
     pos:number;
-    content:ConcDetailText;
+    content:Array<{
+        'class':LineElementType;
+        str:string;
+        mouseover?:Array<string>;
+    }>;
     expand_right_args:{detail_left_ctx:number; detail_right_ctx:number; pos:number}|null;
     expand_left_args:{detail_left_ctx:number; detail_right_ctx:number; pos:number}|null;
     widectx_globals:Array<[string, string]>;
