@@ -110,5 +110,11 @@ export interface TelemetryAction {
     isMobile:boolean;
 }
 
-
 export type TileIdentMap = {[ident:string]:number};
+
+export interface PackageInfo {
+    version:string;
+    repository:{
+        url:string
+    };
+}

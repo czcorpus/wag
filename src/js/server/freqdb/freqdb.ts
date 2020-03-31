@@ -22,6 +22,7 @@ import { AppServices } from '../../appServices';
 import { importQueryPos, QueryMatch, QueryPoS } from '../../common/query';
 import { posTable } from './common';
 import { WordDatabase } from '../actionServices';
+import { List } from 'cnc-tskit';
 
 
 
@@ -98,17 +99,12 @@ const exportRow = (row:{[key:string]:any}, appServices:AppServices, isCurrent:bo
 });
 
 
-const ntimesPlaceholder = (n:number):string => {
-    const ans = [];
-    for (let i = 0; i < n; i += 1) {
-        ans.push('?');
-    }
-    return ans.join(', ');
-}
+const ntimesPlaceholder = (n:number):string => List.repeat(() => '?', n).join(', ');
 
 
 const getNearFreqItems = (db:WordDatabase, appServices:AppServices, val:QueryMatch, whereSgn:number, limit:number):Observable<QueryMatch> => {
 
+    
     return new Observable<QueryMatch>((observer) => {
         db.conn.each(
             'SELECT value, pos, arf, `count` AS abs, CAST(count AS FLOAT) / ? * 1000000 AS ipm ' +
