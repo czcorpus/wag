@@ -22,8 +22,14 @@ import { pipe, List, Dict } from 'cnc-tskit';
 import * as path from 'path';
 import { LanguageLayoutsConfig, LanguageAnyTileConf, GroupItemConfig, TileDbConf } from './index';
 import { TileConf } from '../common/tile';
+import { Observable, of as rxOf } from 'rxjs';
+import { reduce, mergeMap } from 'rxjs/operators';
 
 
+/**
+ * StoredTileConf describes a JSON record for a tile
+ * configuration as stored in a CouchDB instance.
+ */
 interface StoredTileConf {
     _id:string;
     _rev:string;
@@ -32,18 +38,31 @@ interface StoredTileConf {
     conf:TileConf;
 }
 
+/**
+ * Load a locally stored general JSON file.
+ */
+export function parseJsonConfig<T>(confPath:string):Observable<T> {
+    return new Observable<T>((observer) => {
+        try {
+            console.log(`Loading configuration ${confPath}`);
+            fs.readFile(confPath, 'utf8', (err, data) => {
+                if (err) {
+                    observer.error(new Error(`Failed to read file ${confPath}: ${err}`));
 
-export function parseJsonConfig<T>(confPath:string):T {
-    try {
-        console.log(`Loading configuration ${confPath}`);
-        return JSON.parse(fs.readFileSync(confPath, 'utf8')) as T;
+                } else {
+                    observer.next(JSON.parse(data) as T);
+                    observer.complete();
+                }
+            });
 
-    } catch (e) {
-        throw new Error(`Failed to parse configuration ${path.basename(confPath)}: ${e}`)
-    }
+        } catch (e) {
+            observer.error(new Error(`Failed to parse configuration ${path.basename(confPath)}: ${e}`));
+        }
+    });
 }
 
-export async function loadTiles(layout:LanguageLayoutsConfig, tileDBConf:TileDbConf|undefined):Promise<LanguageAnyTileConf> {
+
+export function loadRemoteTileConf(layout:LanguageLayoutsConfig, tileDBConf:TileDbConf|undefined):Observable<LanguageAnyTileConf> {
     const tiles = pipe(
         layout,
         Dict.toEntries(),
@@ -65,11 +84,10 @@ export async function loadTiles(layout:LanguageLayoutsConfig, tileDBConf:TileDbC
             }
         )
     );
-
-    const tilesConf:LanguageAnyTileConf = {};
-    List.forEach(
-        async ([lang, tile]) => {
-            const resp = await axios.get<StoredTileConf>(
+    console.log(`Loading tile configuration from ${tileDBConf.server}/${tileDBConf.db}`);
+    return rxOf(...List.map<[string, string], Observable<[string, StoredTileConf]>>(
+        ([lang, tile]) => new Observable<[string, StoredTileConf]>((observer) => {
+            axios.get<StoredTileConf>(
                 `${tileDBConf.server}/${tileDBConf.db}/${tileDBConf.prefix ? tileDBConf.prefix + ':' : ''}${lang}:${tile}`,
                 {
                     auth: {
@@ -77,13 +95,34 @@ export async function loadTiles(layout:LanguageLayoutsConfig, tileDBConf:TileDbC
                         password: tileDBConf.password
                     }
                 }
+            ).then(
+                (resp) => {
+                    observer.next([lang, resp.data]);
+                    observer.complete();
+                },
+                (err) => {
+                    observer.error(new Error(`Failed to load a configuration for ${tile}: ${err}`));
+                }
             );
-            if (!Dict.hasKey(lang, tilesConf)) {
-                tilesConf[lang] = {};
-            }
-            tilesConf[lang][tile] = resp.data.conf;
-        },
+        }),
         tiles
+
+    )).pipe(
+        mergeMap(
+            v => v
+        ),
+        reduce(
+            (tilesConf, [lang, data]) => {
+                if (!Dict.hasKey(lang, tilesConf)) {
+                    tilesConf[lang] = {};
+                }
+                tilesConf[lang][data.ident] = data.conf;
+
+                return tilesConf;
+            },
+            {} as LanguageAnyTileConf
+        )
     );
-    return tilesConf;
+
+
 }
