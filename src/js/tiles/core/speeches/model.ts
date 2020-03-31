@@ -401,7 +401,14 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState, TileWait<b
                             isEmpty: payload.content.length === 0,
                             availableTokens: tokens,
                             concId: concId,
-                            data: payload.content,
+                            data: List.map(
+                                v => ({
+                                    str: v.str,
+                                    type: v.class,
+                                    mouseover: v.mouseover
+                                }),
+                                payload.content
+                            ),
                             expandLeftArgs: payload.expand_left_args ?
                                 {
                                     leftCtx: payload.expand_left_args.detail_left_ctx,
