@@ -21,7 +21,7 @@ import { Observable, of as rxOf } from 'rxjs';
 import { reduce, map, tap, mergeMap } from 'rxjs/operators';
 import { Dict, Maths, List, pipe } from 'cnc-tskit';
 
-import { AppServices } from '../../../appServices';
+import { IAppServices } from '../../../appServices';
 import { ConcApi, QuerySelector, mkMatchQuery } from '../../../common/api/kontext/concordance';
 import { ConcResponse, ViewMode } from '../../../common/api/abstract/concordance';
 import { TimeDistribResponse, TimeDistribItem } from '../../../common/api/abstract/timeDistrib';
@@ -63,7 +63,7 @@ export interface TimeDistribModelArgs {
     tileId:number;
     waitForTile:number;
     apiFactory:PriorityValueFactory<[ConcApi, KontextTimeDistribApi]>;
-    appServices:AppServices;
+    appServices:IAppServices;
     queryMatches:RecognizedQueries;
     queryLang:string;
 }
@@ -90,7 +90,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private readonly apiFactory:PriorityValueFactory<[ConcApi, KontextTimeDistribApi]>;
 
-    private readonly appServices:AppServices;
+    private readonly appServices:IAppServices;
 
     private readonly tileId:number;
 

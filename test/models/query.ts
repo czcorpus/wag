@@ -1,18 +1,35 @@
+/*
+ * Copyright 2020 Martin Zimandl <martin.zimandl@gmail.com>
+ * Copyright 2020 Institute of the Czech National Corpus,
+ *                Faculty of Arts, Charles University
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import { TestModelWrapper } from '../framework';
 
-import * as sinon from 'sinon';
+import { restore } from 'sinon';
 import { assert } from 'chai';
 import { List } from 'cnc-tskit';
 
 import { QueryFormModel, QueryFormModelState } from '../../src/js/models/query';
 import { ActionName } from '../../src/js/models/actions';
-import { QueryType, QueryMatch, SearchLanguage, QueryPoS } from '../../src/js/common/query';
+import { QueryType, QueryMatch, QueryPoS } from '../../src/js/common/query';
 import { Forms } from '../../src/js/common/data';
-import { AvailableLanguage } from '../../src/js/common/hostPage';
 import { SystemMessageType } from '../../src/js/common/types';
 
 
-describe('QueryFormModel', function () {    
+describe('QueryFormModel', function () {
     // destructured object parameters required for test model wrapper
     class QueryFormModelDestructured extends QueryFormModel {
         constructor({dispatcher, appServices, initState}) {
@@ -20,22 +37,41 @@ describe('QueryFormModel', function () {
         }
     }
 
-    function setupModel(initialStateOverrides = {}):TestModelWrapper {
+    function setupModel(initialStateOverrides = {}):TestModelWrapper<QueryFormModel, QueryFormModelState> {
         const initialQueryMatches = [[
             {word: 'test', lemma: 'test', pos: [], isCurrent: true} as QueryMatch,
             {word: 'test', lemma: 'test', pos: [{value: QueryPoS.VERB, label:'verb'}], isCurrent: false} as QueryMatch
         ]];
 
         return new TestModelWrapper(
-            QueryFormModelDestructured,
-            {
-                initState: {
+            (dispatcher, appServices) => new QueryFormModel(
+                dispatcher,
+                appServices,
+                {
+                    initialQueryType: QueryType.SINGLE_QUERY,
+                    queryLanguage: 'cs',
+                    queryLanguage2: 'en',
+                    searchLanguages: [{
+                        code: 'en',
+                        label: 'English',
+                        queryTypes: [QueryType.SINGLE_QUERY]
+                    }],
+                    targetLanguages: {
+                        [QueryType.SINGLE_QUERY]: [],
+                        [QueryType.CMP_QUERY]: [],
+                        [QueryType.TRANSLAT_QUERY]: []
+                    },
                     queries: List.map(
                         (v, i) => Forms.newFormValue(v[0].word || '', i === 0),
                         initialQueryMatches
                     ),
+                    queryTypesMenuItems: [],
                     queryType: QueryType.SINGLE_QUERY,
                     errors: [],
+                    uiLanguages: [],
+                    maxCmpQueries: 10,
+                    lemmaSelectorModalVisible: true,
+                    modalSelections: [],
                     queryMatches: initialQueryMatches,
                     isAnswerMode: false,
                     multiWordQuerySupport: {
@@ -44,8 +80,8 @@ describe('QueryFormModel', function () {
                         [QueryType.TRANSLAT_QUERY]: false,
                     },
                     ...initialStateOverrides
-                } as QueryFormModelState
-            },
+                }
+            ),
             {
                 createActionUrl: 'query submitted'
             }
@@ -57,7 +93,7 @@ describe('QueryFormModel', function () {
     });
 
     this.afterEach(function () {
-        sinon.restore();
+        restore();
     });
 
     describe('language change', function () {

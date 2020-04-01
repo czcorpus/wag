@@ -20,7 +20,7 @@ import { Observable, of as rxOf } from 'rxjs';
 import { concatMap, map, tap, reduce, timeout } from 'rxjs/operators';
 import { List, HTTP } from 'cnc-tskit';
 
-import { AppServices } from '../../../appServices';
+import { IAppServices } from '../../../appServices';
 import { SystemMessageType } from '../../../common/types';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { ConcLoadedPayload } from '../concordance/actions';
@@ -39,7 +39,7 @@ import { createInitialLinesData } from '../../../common/models/concordance';
 export interface CollocModelArgs {
     dispatcher:IActionQueue;
     tileId:number;
-    appServices:AppServices;
+    appServices:IAppServices;
     service:CollocationApi<{}>;
     concApi:ConcApi;
     initState:CollocModelState;
@@ -61,7 +61,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
 
     private readonly concApi:ConcApi;
 
-    private readonly appServices:AppServices;
+    private readonly appServices:IAppServices;
 
     private readonly tileId:number;
 

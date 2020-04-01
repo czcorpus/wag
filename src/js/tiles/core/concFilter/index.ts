@@ -18,7 +18,7 @@
 import { IActionDispatcher, StatelessModel } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
 
-import { AppServices } from '../../../appServices';
+import { IAppServices } from '../../../appServices';
 import { QueryType } from '../../../common/query';
 import { TileConf, ITileProvider, TileFactory, TileComponent } from '../../../common/tile';
 import { ConcFilterModel } from './model';
@@ -63,7 +63,7 @@ export class ConcFilterTile implements ITileProvider {
 
     private readonly model:ConcFilterModel;
 
-    private readonly appServices:AppServices;
+    private readonly appServices:IAppServices;
 
     private view:TileComponent;
 

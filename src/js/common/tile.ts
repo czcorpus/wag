@@ -21,7 +21,7 @@ import { QueryType, RecognizedQueries } from './query';
 import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
 import { GlobalComponents } from '../views/global';
 import { Theme } from './theme';
-import { AppServices } from '../appServices';
+import { IAppServices } from '../appServices';
 import { HTTP } from 'cnc-tskit';
 
 
@@ -283,7 +283,7 @@ export namespace TileFactory {
 
         theme:Theme,
 
-        appServices:AppServices;
+        appServices:IAppServices;
 
         queryMatches:RecognizedQueries;
 

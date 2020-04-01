@@ -18,7 +18,7 @@
 import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
 import { Ident, List } from 'cnc-tskit';
 
-import { AppServices } from '../../../appServices';
+import { IAppServices } from '../../../appServices';
 import { FreqTreeAPI } from '../../../common/api/kontext/freqTree';
 import { FreqTreeDataBlock } from '../../../common/models/freqTree';
 import { LocalizedConfMsg } from '../../../common/types';
@@ -65,7 +65,7 @@ export class FreqTreeTile implements ITileProvider {
 
     private readonly widthFract:number;
 
-    private readonly appServices:AppServices;
+    private readonly appServices:IAppServices;
 
     private readonly blockingTiles:Array<number>;
 

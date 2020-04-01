@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AppServices } from '../../../appServices';
+import { IAppServices } from '../../../appServices';
 import { QueryType } from '../../../common/query';
 import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../../common/tile';
 import { FreqDbAPI } from './api';
@@ -47,7 +47,7 @@ export class WordFreqTile implements ITileProvider {
 
     private readonly label:string;
 
-    private readonly appServices:AppServices;
+    private readonly appServices:IAppServices;
 
     private readonly model:SummaryModel;
 

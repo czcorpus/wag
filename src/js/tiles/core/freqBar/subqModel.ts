@@ -20,7 +20,7 @@ import { Observable, merge } from 'rxjs';
 import { concatMap, map } from 'rxjs/operators';
 import { Dict, Ident } from 'cnc-tskit';
 
-import { AppServices } from '../../../appServices';
+import { IAppServices } from '../../../appServices';
 import { ConcApi, QuerySelector, RequestArgs } from '../../../common/api/kontext/concordance';
 import { ViewMode, ConcResponse } from '../../../common/api/abstract/concordance';
 import { APIBlockResponse, MultiBlockFreqDistribAPI } from '../../../common/api/kontext/freqs';
@@ -37,7 +37,7 @@ export class SubqFreqBarModelArgs {
     dispatcher:IActionQueue;
     tileId:number;
     waitForTiles:Array<number>;
-    appServices:AppServices;
+    appServices:IAppServices;
     api:MultiBlockFreqDistribAPI;
     concApi:ConcApi;
     backlink:Backlink|null;
@@ -188,7 +188,7 @@ export const factory =
         tileId:number,
         waitForTiles:Array<number>,
         subqSourceTiles:Array<number>,
-        appServices:AppServices,
+        appServices:IAppServices,
         api:MultiBlockFreqDistribAPI,
         backlink:Backlink|null,
         initState:FreqBarModelState

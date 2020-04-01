@@ -21,7 +21,7 @@ import { map, catchError } from 'rxjs/operators';
 import { cachedAjax$, ResponseType } from '../../../common/ajax';
 import { DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../../common/types';
 import { HtmlApiArgs, WiktionaryApiArgs, HtmlModelState } from './common';
-import { AppServices } from '../../../appServices';
+import { IAppServices } from '../../../appServices';
 import { of as rxOf } from 'rxjs';
 import { AjaxError } from 'rxjs/ajax';
 
@@ -39,9 +39,9 @@ export class RawHtmlAPI implements GeneralHtmlAPI<HtmlApiArgs> {
 
     private readonly cache:IAsyncKeyValueStore;
 
-    private readonly appServices:AppServices;
+    private readonly appServices:IAppServices;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, appServices:AppServices, customHeaders?:HTTPHeaders) {
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, appServices:IAppServices, customHeaders?:HTTPHeaders) {
         this.apiURL = apiURL;
         this.appServices = appServices;
         this.customHeaders = customHeaders || {};
@@ -86,9 +86,9 @@ export class WiktionaryHtmlAPI implements GeneralHtmlAPI<WiktionaryApiArgs>  {
 
     private readonly cache:IAsyncKeyValueStore;
 
-    private readonly appServices:AppServices;
+    private readonly appServices:IAppServices;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, appServices:AppServices, customHeaders?:HTTPHeaders) {
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, appServices:IAppServices, customHeaders?:HTTPHeaders) {
         this.apiURL = apiURL;
         this.customHeaders = customHeaders || {};
         this.cache = cache;

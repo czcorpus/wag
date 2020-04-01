@@ -20,7 +20,7 @@ import { Observable, Observer, of as rxOf } from 'rxjs';
 import { map, mergeMap, reduce, tap, concatMap } from 'rxjs/operators';
 import { Dict, List, pipe, Ident } from 'cnc-tskit';
 
-import { AppServices } from '../../../appServices';
+import { IAppServices } from '../../../appServices';
 import { BacklinkArgs, FreqTreeAPI, APILeafResponse, APIVariantsResponse } from '../../../common/api/kontext/freqTree';
 import { GeneralCritFreqTreeModelState, stateToAPIArgs, FreqTreeDataBlock } from '../../../common/models/freqTree';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
@@ -47,7 +47,7 @@ export interface FreqComparisonModelArgs {
     dispatcher:IActionQueue;
     tileId:number;
     waitForTiles:Array<number>;
-    appServices:AppServices;
+    appServices:IAppServices;
     concApi:ConcApi;
     freqTreeApi:FreqTreeAPI;
     backlink:Backlink|null;
@@ -63,7 +63,7 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
 
     protected readonly freqTreeApi:FreqTreeAPI;
 
-    protected readonly appServices:AppServices;
+    protected readonly appServices:IAppServices;
 
     protected readonly tileId:number;
 
@@ -375,7 +375,7 @@ export const factory = (
     dispatcher:IActionQueue,
     tileId:number,
     waitForTiles:Array<number>,
-    appServices:AppServices,
+    appServices:IAppServices,
     concApi:ConcApi,
     freqTreeApi:FreqTreeAPI,
     backlink:Backlink|null,

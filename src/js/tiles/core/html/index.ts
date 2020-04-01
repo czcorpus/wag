@@ -17,7 +17,7 @@
  */
 import { IActionDispatcher, StatelessModel } from 'kombo';
 
-import { AppServices } from '../../../appServices';
+import { IAppServices } from '../../../appServices';
 import { QueryType } from '../../../common/query';
 import { HtmlModel } from './model';
 import { RawHtmlAPI, WiktionaryHtmlAPI } from './service';
@@ -50,7 +50,7 @@ export class HtmlTile implements ITileProvider {
 
     private readonly dispatcher:IActionDispatcher;
 
-    private readonly appServices:AppServices;
+    private readonly appServices:IAppServices;
 
     private readonly model:HtmlModel;
 

@@ -18,7 +18,7 @@
 import { StatelessModel, SEDispatcher, Action, IActionQueue } from 'kombo';
 import { pipe, List, HTTP } from 'cnc-tskit';
 
-import { AppServices } from '../../../appServices';
+import { IAppServices } from '../../../appServices';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions, isTileSomeDataLoadedAction } from '../../../models/actions';
 import { SpeechDataPayload } from './actions';
@@ -40,7 +40,7 @@ export interface SpeechesModelArgs {
     tileId:number;
     waitForTiles:Array<number>;
     subqSourceTiles:Array<number>;
-    appServices:AppServices;
+    appServices:IAppServices;
     api:SpeechesApi;
     initState:SpeechesModelState;
     backlink:Backlink;
@@ -52,7 +52,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState, TileWait<b
 
     private readonly api:SpeechesApi;
 
-    private readonly appServices:AppServices;
+    private readonly appServices:IAppServices;
 
     private readonly tileId:number;
 

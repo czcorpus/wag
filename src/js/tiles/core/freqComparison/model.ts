@@ -20,7 +20,7 @@ import { Observable, Observer } from 'rxjs';
 import { mergeMap, reduce, share } from 'rxjs/operators';
 import { Ident, pipe, List, Maths } from 'cnc-tskit';
 
-import { AppServices } from '../../../appServices';
+import { IAppServices } from '../../../appServices';
 import { GeneralMultiCritFreqComparisonModelState, stateToAPIArgs } from '../../../common/models/freqComparison';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
@@ -51,7 +51,7 @@ export interface FreqComparisonModelArgs {
     dispatcher:IActionQueue;
     tileId:number;
     waitForTiles:Array<number>;
-    appServices:AppServices;
+    appServices:IAppServices;
     concApi:ConcApi;
     freqApi:MultiBlockFreqDistribAPI;
     backlink:Backlink|null;
@@ -68,7 +68,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
 
     protected readonly freqApi:MultiBlockFreqDistribAPI;
 
-    protected readonly appServices:AppServices;
+    protected readonly appServices:IAppServices;
 
     protected readonly tileId:number;
 
@@ -393,7 +393,7 @@ export const factory = (
     dispatcher:IActionQueue,
     tileId:number,
     waitForTiles:Array<number>,
-    appServices:AppServices,
+    appServices:IAppServices,
     concApi:ConcApi,
     freqApi:MultiBlockFreqDistribAPI,
     backlink:Backlink|null,

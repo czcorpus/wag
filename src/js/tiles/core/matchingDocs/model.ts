@@ -19,7 +19,7 @@ import { Action, SEDispatcher, StatelessModel, IActionDispatcher } from 'kombo';
 import { Observable, Observer } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 
-import { AppServices } from '../../../appServices';
+import { IAppServices } from '../../../appServices';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { ConcLoadedPayload } from '../concordance/actions';
 import { ActionName, Actions, DataLoadedPayload } from './actions';
@@ -35,7 +35,7 @@ export interface MatchingDocsModelArgs {
     tileId:number;
     waitForTiles:Array<number>;
     subqSourceTiles:Array<number>;
-    appServices:AppServices;
+    appServices:IAppServices;
     api:MatchingDocsAPI<{}>;
     initState:MatchingDocsModelState;
     queryMatches:RecognizedQueries;
@@ -50,7 +50,7 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState, Mo
 
     protected api:MatchingDocsAPI<{}>;
 
-    protected readonly appServices:AppServices;
+    protected readonly appServices:IAppServices;
 
     protected readonly tileId:number;
 

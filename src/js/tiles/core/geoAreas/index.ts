@@ -17,7 +17,7 @@
  */
 import { IActionDispatcher, StatelessModel } from 'kombo';
 
-import { AppServices } from '../../../appServices';
+import { IAppServices } from '../../../appServices';
 import { FreqDistribAPI, FreqSort } from '../../../common/api/kontext/freqs';
 import { QueryType } from '../../../common/query';
 import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../../common/tile';
@@ -51,7 +51,7 @@ export class GeoAreasTile implements ITileProvider {
 
     private readonly dispatcher:IActionDispatcher;
 
-    private readonly appServices:AppServices;
+    private readonly appServices:IAppServices;
 
     private readonly model:GeoAreasModel;
 

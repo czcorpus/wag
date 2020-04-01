@@ -19,7 +19,7 @@ import { map, concatMap, reduce, tap, timeout } from 'rxjs/operators';
 import { of as rxOf } from 'rxjs';
 import { StatelessModel, Action, SEDispatcher, IActionQueue } from 'kombo';
 
-import { AppServices } from '../../../appServices';
+import { IAppServices } from '../../../appServices';
 import { ActionName as GlobalActionName, Actions as GlobalActions, isTileSomeDataLoadedAction } from '../../../models/actions';
 import { SubQueryItem, SubqueryPayload, RangeRelatedSubqueryValue, RecognizedQueries } from '../../../common/query';
 import { ConcApi, FilterRequestArgs, QuerySelector, FilterPCRequestArgs, QuickFilterRequestArgs, mkContextFilter } from '../../../common/api/kontext/concordance';
@@ -72,7 +72,7 @@ export interface ConcFilterModelArgs {
     waitForTilesTimeoutSecs:number;
     subqSourceTiles:Array<number>;
     dispatcher:IActionQueue;
-    appServices:AppServices;
+    appServices:IAppServices;
     api:ConcApi;
     switchMainCorpApi:ISwitchMainCorpApi;
     initState:ConcFilterModelState;
@@ -86,7 +86,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
 
     private readonly switchMainCorpApi:ISwitchMainCorpApi;
 
-    private readonly appServices:AppServices;
+    private readonly appServices:IAppServices;
 
     private readonly tileId:number;
 

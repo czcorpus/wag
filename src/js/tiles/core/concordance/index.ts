@@ -18,7 +18,7 @@
 
 import { IActionDispatcher, StatelessModel } from 'kombo';
 import { List } from 'cnc-tskit';
-import { AppServices } from '../../../appServices';
+import { IAppServices } from '../../../appServices';
 import { QuerySelector } from '../../../common/api/kontext/concordance';
 import { ViewMode, IConcordanceApi } from '../../../common/api/abstract/concordance';
 
@@ -70,7 +70,7 @@ export class ConcordanceTile implements ITileProvider {
 
     private readonly model:ConcordanceTileModel;
 
-    private readonly appServices:AppServices;
+    private readonly appServices:IAppServices;
 
     private view:TileComponent;
 

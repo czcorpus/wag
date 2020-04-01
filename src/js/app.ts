@@ -36,7 +36,7 @@ import { GlobalComponents, init as globalCompInit } from './views/global';
 import { init as viewInit, WdglanceMainProps } from './views/main';
 import { RetryTileLoad } from './models/retryLoad';
 import { ViewUtils, IFullActionControl } from 'kombo';
-import { AppServices } from './appServices';
+import { IAppServices } from './appServices';
 import { IAsyncKeyValueStore, TileIdentMap } from './common/types';
 import { mkTileFactory } from './tileLoader';
 import { List, pipe, Dict } from 'cnc-tskit';
@@ -89,7 +89,7 @@ export interface InitIntArgs {
     config:ClientConf;
     userSession:UserConf;
     queryMatches:RecognizedQueries;
-    appServices:AppServices;
+    appServices:IAppServices;
     dispatcher:IFullActionControl;
     onResize:Observable<ScreenProps>;
     viewUtils:ViewUtils<GlobalComponents>;

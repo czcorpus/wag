@@ -24,7 +24,7 @@ import { debounceTime, map, concatMap, take, scan } from 'rxjs/operators';
 import { isSubqueryPayload, RecognizedQueries } from './common/query';
 import * as translations from 'translations';
 
-import { AppServices } from './appServices';
+import { IAppServices, AppServices } from './appServices';
 import { encodeArgs, ajax$, encodeURLParameters } from './common/ajax';
 import { ScreenProps } from './common/hostPage';
 import { ClientConf, UserConf, HomepageTileConf } from './conf';
@@ -54,7 +54,7 @@ interface MountArgs {
     userSession:UserConf;
     component:React.SFC<WdglanceMainProps>;
     layout:Array<TileGroup>;
-    appServices:AppServices;
+    appServices:IAppServices;
     mountElement:HTMLElement;
     dispatcher:ActionDispatcher;
     homepage:Array<HomepageTileConf>;
@@ -103,7 +103,7 @@ function mountReactComponent({component, mountElement, layout, dispatcher, appSe
 }
 
 
-function initTelemetry(config:ClientConf, appServices:AppServices, dispatcher:ActionDispatcher, tileMap:TileIdentMap) {
+function initTelemetry(config:ClientConf, appServices:IAppServices, dispatcher:ActionDispatcher, tileMap:TileIdentMap) {
     // telemetry capture
     if (config.telemetry && Math.random() < config.telemetry.participationProbability) {
         merge(

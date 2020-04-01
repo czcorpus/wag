@@ -21,7 +21,7 @@ import { List, Dict, pipe } from 'cnc-tskit';
 
 import { TileFactory, ITileProvider, TileConf } from './common/tile';
 import { GlobalComponents } from './views/global';
-import { AppServices } from './appServices';
+import { IAppServices } from './appServices';
 import { Theme } from './common/theme';
 import { LayoutManager } from './layout';
 import { QueryType, RecognizedQueries } from './common/query';
@@ -69,7 +69,7 @@ export const mkTileFactory = (
     dispatcher:IFullActionControl,
     viewUtils:ViewUtils<GlobalComponents>,
     queryMatches:RecognizedQueries,
-    appServices:AppServices,
+    appServices:IAppServices,
     theme:Theme,
     layoutManager:LayoutManager,
     queryType:QueryType,

@@ -17,7 +17,7 @@
  */
 import { Ident } from 'cnc-tskit';
 
-import { AppServices } from '../../../appServices';
+import { IAppServices } from '../../../appServices';
 import { MultiBlockFreqDistribAPI, FreqSort } from '../../../common/api/kontext/freqs';
 import { SubqueryModeConf } from '../../../common/models/freq';
 import { LocalizedConfMsg } from '../../../common/types';
@@ -58,7 +58,7 @@ export class FreqPieTile implements ITileProvider {
 
     private readonly label:string;
 
-    private readonly appServices:AppServices;
+    private readonly appServices:IAppServices;
 
     private readonly model:FreqBarModel;
 

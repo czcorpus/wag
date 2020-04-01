@@ -17,9 +17,9 @@
  */
 import { StatelessModel, IActionQueue } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
-import { map, concatMap, tap } from 'rxjs/operators';
+import { map, concatMap } from 'rxjs/operators';
 
-import { AppServices } from '../../../appServices';
+import { IAppServices } from '../../../appServices';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { DataLoadedPayload } from './actions';
 import { FreqDBRow, FreqDbAPI, FreqBand } from './api';
@@ -85,7 +85,7 @@ export interface SummaryModelArgs {
     initialState:SummaryModelState;
     tileId:number;
     api:FreqDbAPI;
-    appServices:AppServices;
+    appServices:IAppServices;
     queryMatches:RecognizedQueries;
     queryLang:string;
     queryType:QueryType;
@@ -96,7 +96,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
 
     private readonly api:FreqDbAPI;
 
-    private readonly appServices:AppServices;
+    private readonly appServices:IAppServices;
 
     private readonly tileId:number;
 

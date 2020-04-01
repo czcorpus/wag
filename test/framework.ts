@@ -1,14 +1,40 @@
-import { ActionDispatcher } from 'kombo';
-import * as sinon from 'sinon';
+/*
+ * Copyright 2020 Martin Zimandl <martin.zimandl@gmail.com>
+ * Copyright 2020 Institute of the Czech National Corpus,
+ *                Faculty of Arts, Charles University
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-import { AppServices } from '../src/js/appServices';
+import { ActionDispatcher, IModel, IActionDispatcher, Action } from 'kombo';
+import { SinonStubbedInstance, createStubInstance } from 'sinon';
+
+import { IAppServices, AppServices } from '../src/js/appServices';
 
 
-export class TestModelWrapper<T = {}> {
-    appServicesStub: AppServices;
-    dispatcher: ActionDispatcher;
-    lastAction: string; // records last action name received by dispatcher
-    model;
+/**
+ * T = Model type
+ * U = Model state type
+ */
+export class TestModelWrapper<T extends IModel<U>, U> {
+
+    appServicesStub:SinonStubbedInstance<IAppServices>;
+
+    dispatcher:ActionDispatcher;
+
+    lastAction:string; // records last action name received by dispatcher
+
+    model:T;
 
     /**
      * Wrapper creates its own dispatcher and appServices stub and uses them to create model instance.
@@ -16,26 +42,26 @@ export class TestModelWrapper<T = {}> {
      * @param modelArgs arguments object to create model instance
      * @param appServicesOverrides object to specify appServices stub return values if necessary
      */
-    constructor(modelType, modelArgs:T, appServicesOverrides = {}) {
+    constructor(modelFactory:(dispatcher:IActionDispatcher, appServices:IAppServices)=>T, appServicesOverrides = {}) {
         this.dispatcher = new ActionDispatcher();
-        this.dispatcher.registerActionListener((action, dispatch) => {
+        this.dispatcher.registerActionListener((action, _) => {
             this.lastAction = action.name;
         });
-        this.appServicesStub = sinon.createStubInstance(AppServices, appServicesOverrides);
-        this.model = new modelType({...modelArgs, dispatcher: this.dispatcher, appServices: this.appServicesStub});
+        this.appServicesStub = createStubInstance(AppServices, appServicesOverrides);
+        this.model = modelFactory(this.dispatcher, this.appServicesStub);
     }
 
     /**
      * Method to test model state after dispatching and receiving action
      * @param evokeAction action to dispatch
      * @param checkActionName when this action occurrs call `checkState` function
-     * @param checkState function to check model state or called appServices 
+     * @param checkState function to check model state or called appServices
      */
-    checkState(evokeAction, checkActionName: string, checkState: (state, appServicesStub?) => void) {
+    checkState(evokeAction:Action, checkActionName:string,
+                checkState:(state:U, appServicesStub?:SinonStubbedInstance<IAppServices>) => void) {
         this.model.addListener(state => {
             if (this.lastAction === checkActionName) { checkState(state, this.appServicesStub); }
         });
-
         this.dispatcher.dispatch(evokeAction);
     }
 }
