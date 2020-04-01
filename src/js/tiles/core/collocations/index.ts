@@ -25,7 +25,7 @@ import { CollocModel } from './model';
 import { init as viewInit } from './views';
 import { TileConf, ITileProvider, TileComponent, TileFactory, Backlink } from '../../../common/tile';
 import { CollocationApi, SrchContextType } from '../../../common/api/abstract/collocations';
-import { createInstance } from './apiFactory';
+import { createInstance } from '../../../common/api/factory/collocations';
 import { CoreApiGroup } from '../../../common/api/coreGroups';
 import { ConcApi } from '../../../common/api/kontext/concordance';
 import { findCurrQueryMatch } from '../../../models/query';
