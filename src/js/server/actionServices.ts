@@ -15,50 +15,62 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import { Dict, List, pipe } from 'cnc-tskit';
+import * as winston from 'winston';
+
 import { ServerConf, ClientStaticConf, WordFreqDbConf, FreqDbConf } from '../conf';
-import { Database } from 'sqlite3';
 import { IToolbarProvider } from '../common/hostPage';
 import { ILogQueue } from './logging/abstract';
 import { QueryType } from '../common/query';
-import * as winston from 'winston';
+import { IFreqDB } from './freqdb/freqdb';
+import { createInstance, FreqDBType } from './freqdb/factory';
+import { Database } from 'sqlite3';
+import { IAppServices } from '../appServices';
 
-
-export interface WordDatabase {
-    conn:Database;
-    corpusSize:number;
-}
 
 
 export class WordDatabases {
 
-    private readonly single:{[lang:string]:WordDatabase};
+    private readonly single:{[lang:string]:IFreqDB};
 
-    private readonly cmp:{[lang:string]:WordDatabase};
+    private readonly cmp:{[lang:string]:IFreqDB};
 
-    private readonly translat:{[lang:string]:WordDatabase};
+    private readonly translat:{[lang:string]:IFreqDB};
 
     constructor(conf:WordFreqDbConf) {
         const uniqDb = {};
         this.single = {};
         this.cmp = {};
         this.translat = {};
-        [
+
+        const databases:Array<[{[lang:string]:FreqDbConf}, {[lang:string]:IFreqDB}, string]> = [
             [conf.single.databases || {}, this.single, 'single'],
             [conf.cmp.databases || {}, this.cmp, 'cmp'],
             [conf.translat.databases || {}, this.translat, 'translat']
-
-        ].forEach(([dbConf, targetConf, ident]) => {
-            Object.entries(dbConf).forEach(([lang, db]:[string, FreqDbConf]) => {
-                if (!uniqDb[db.path]) {
-                    uniqDb[db.path] = {conn: new Database(db.path), corpusSize: db.corpusSize};
-                }
-                targetConf[lang] = uniqDb[db.path];
-                console.log(`Initialized '${ident}' mode frequency database ${db.path} (corpus size: ${db.corpusSize})`);
-            });
+        ];
+        databases.forEach(([dbConf, targetConf, ident]) => {
+            pipe(
+                dbConf,
+                Dict.toEntries(),
+                List.forEach(
+                    ([lang, db]:[string, FreqDbConf]) => {
+                        if (!uniqDb[db.path]) {
+                            uniqDb[db.path] = createInstance(
+                                db.dbType as FreqDBType,
+                                db.path,
+                                db.corpusSize
+                            );
+                        }
+                        targetConf[lang] = uniqDb[db.path];
+                        console.log(`Initialized '${ident}' mode frequency database ${db.path} (corpus size: ${db.corpusSize})`);
+                    }
+                )
+            )
         });
     }
 
-    getDatabase(qType:QueryType, lang:string):WordDatabase {
+    getDatabase(qType:QueryType, lang:string):IFreqDB {
         switch (qType) {
             case QueryType.SINGLE_QUERY:
                 return this.single[lang];

@@ -318,6 +318,7 @@ export interface LogQueueConf {
 }
 
 export interface FreqDbConf {
+    dbType:string;
     path:string;
     corpusSize:number;
 }
