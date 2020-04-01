@@ -5,14 +5,18 @@ import { of } from 'rxjs';
 import * as rxjsAjax from 'rxjs/ajax';
 
 describe('ajax$', function () {
-    var ajaxStub = sinon.stub(rxjsAjax, 'ajax').returns(of({response: 'response'}));
+    let ajaxStub;
     
+    this.beforeAll(function () {
+        ajaxStub = sinon.stub(rxjsAjax, 'ajax').returns(of({response: 'response'}));
+    });
+
     this.beforeEach(function () {
         ajaxStub.resetHistory();
     });
     
-    this.afterAll(function () {
-        ajaxStub.restore();
+    this.afterAll(function () {        
+        sinon.restore();
     });
 
     it('wraps ajax() properly in case of a non-error response', function (done) {
