@@ -30,13 +30,6 @@ import { SystemMessageType } from '../../src/js/common/types';
 
 
 describe('QueryFormModel', function () {
-    // destructured object parameters required for test model wrapper
-    class QueryFormModelDestructured extends QueryFormModel {
-        constructor({dispatcher, appServices, initState}) {
-            super(dispatcher, appServices, initState);
-        }
-    }
-
     function setupModel(initialStateOverrides = {}):TestModelWrapper<QueryFormModel, QueryFormModelState> {
         const initialQueryMatches = [[
             {word: 'test', lemma: 'test', pos: [], isCurrent: true} as QueryMatch,
