@@ -18,7 +18,7 @@
 import { StatelessModel, IActionQueue } from 'kombo';
 import { List } from 'cnc-tskit';
 
-import { AppServices } from '../appServices';
+import { IAppServices } from '../appServices';
 import { SystemMessage } from '../notifications';
 import { ActionName, Actions } from './actions';
 
@@ -31,9 +31,9 @@ export interface MessagesState {
 
 export class MessagesModel extends StatelessModel<MessagesState> {
 
-    private readonly appServices:AppServices;
+    private readonly appServices:IAppServices;
 
-    constructor(dispatcher:IActionQueue, appServices:AppServices) {
+    constructor(dispatcher:IActionQueue, appServices:IAppServices) {
         super(
             dispatcher,
             {

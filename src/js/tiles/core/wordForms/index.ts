@@ -19,7 +19,7 @@ import { StatelessModel } from 'kombo';
 import { Maths } from 'cnc-tskit';
 
 import { ITileProvider, TileFactory, TileComponent, TileConf } from '../../../common/tile';
-import { AppServices } from '../../../appServices';
+import { IAppServices } from '../../../appServices';
 import { WordFormsModel } from './model';
 import { QueryType } from '../../../common/query';
 import { init as viewInit } from './views';
@@ -41,7 +41,7 @@ export class WordFormsTile implements ITileProvider {
 
     private readonly label:string;
 
-    private readonly appServices:AppServices;
+    private readonly appServices:IAppServices;
 
     private readonly model:WordFormsModel;
 

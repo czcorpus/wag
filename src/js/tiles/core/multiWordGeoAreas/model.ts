@@ -19,7 +19,7 @@ import { StatelessModel, IActionQueue, SEDispatcher } from 'kombo';
 import { Observable, of as rxOf, zip } from 'rxjs';
 import { concatMap, reduce, share, repeat } from 'rxjs/operators';
 
-import { AppServices } from '../../../appServices';
+import { IAppServices } from '../../../appServices';
 import { DataRow, FreqDistribAPI, APIResponse } from '../../../common/api/kontext/freqs';
 import { FreqBarModelStateBase, stateToAPIArgs } from '../../../common/models/freq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
@@ -91,7 +91,7 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
 
     private readonly waitForTile:number;
 
-    private readonly appServices:AppServices;
+    private readonly appServices:IAppServices;
 
     private readonly concApi:ConcApi;
 
@@ -101,7 +101,7 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
 
     private readonly queryMatches:Array<Array<QueryMatch>>;
 
-    constructor(dispatcher:IActionQueue, tileId:number, waitForTile:number, appServices:AppServices, queryMatches:Array<Array<QueryMatch>>,
+    constructor(dispatcher:IActionQueue, tileId:number, waitForTile:number, appServices:IAppServices, queryMatches:Array<Array<QueryMatch>>,
                 concApi:ConcApi, freqApi:FreqDistribAPI, mapLoader:DataApi<string, string>, initState:MultiWordGeoAreasModelState) {
         super(dispatcher, initState);
         this.tileId = tileId;

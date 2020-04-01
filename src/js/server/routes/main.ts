@@ -21,7 +21,7 @@ import { Observable, forkJoin, of as rxOf } from 'rxjs';
 import { concatMap, map, catchError, reduce } from 'rxjs/operators';
 
 
-import { AppServices } from '../../appServices';
+import { IAppServices } from '../../appServices';
 import { QueryType, QueryMatch, QueryPoS, matchesPos, findMergeableQueryMatches, importQueryTypeString } from '../../common/query';
 import { UserConf, ClientStaticConf, ClientConf, emptyClientConf, getSupportedQueryTypes, emptyLayoutConf, errorUserConf,
     getQueryTypeFreqDb, DEFAULT_WAIT_FOR_OTHER_TILES, THEME_COOKIE_NAME, getThemeList, getAppliedThemeConf, THEME_DEFAULT_NAME } from '../../conf';
@@ -39,7 +39,7 @@ import { Dict, pipe, HTTP, List } from 'cnc-tskit';
 import { getLangFromCookie, fetchReqArgArray, createHelperServices, mkReturnUrl, logRequest, renderResult } from './common';
 
 
-function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, themeId:string, appServices:AppServices):Observable<ClientConf> {
+function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, themeId:string, appServices:IAppServices):Observable<ClientConf> {
     return forkJoin(...List.map(item =>
         appServices.importExternalText(
             item.contents,

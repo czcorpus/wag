@@ -19,7 +19,7 @@ import { StatelessModel, IActionQueue } from 'kombo';
 import { forkJoin, Observable, Observer, of as rxOf } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 
-import { AppServices } from '../../../appServices';
+import { IAppServices } from '../../../appServices';
 import { FreqDistribAPI } from '../../../common/api/kontext/freqs';
 import { GeneralSingleCritFreqBarModelState, stateToAPIArgs } from '../../../common/models/freq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
@@ -82,13 +82,13 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
 
     private readonly waitForTile:number;
 
-    private readonly appServices:AppServices;
+    private readonly appServices:IAppServices;
 
     private readonly api:FreqDistribAPI;
 
     private readonly mapLoader:DataApi<string, string>;
 
-    constructor(dispatcher:IActionQueue, tileId:number, waitForTile:number, appServices:AppServices, api:FreqDistribAPI,
+    constructor(dispatcher:IActionQueue, tileId:number, waitForTile:number, appServices:IAppServices, api:FreqDistribAPI,
             mapLoader:DataApi<string, string>, initState:GeoAreasModelState) {
         super(dispatcher, initState);
         this.tileId = tileId;

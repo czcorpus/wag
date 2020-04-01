@@ -18,7 +18,7 @@
 import { Observable, merge, of as rxOf } from 'rxjs';
 import { concatMap, reduce } from 'rxjs/operators';
 
-import { AppServices } from '../../appServices';
+import { IAppServices } from '../../appServices';
 import { importQueryPos, QueryMatch, QueryPoS } from '../../common/query';
 import { posTable } from './common';
 import { WordDatabase } from '../actionServices';
@@ -26,7 +26,7 @@ import { List } from 'cnc-tskit';
 
 
 
-export const findQueryMatches = (db:WordDatabase, appServices:AppServices, word:string, minFreq:number):Observable<Array<QueryMatch>> => {
+export const findQueryMatches = (db:WordDatabase, appServices:IAppServices, word:string, minFreq:number):Observable<Array<QueryMatch>> => {
     return new Observable<QueryMatch>((observer) => {
         const srchWord = word.toLowerCase();
         if(db.conn) {
@@ -87,7 +87,7 @@ export const findQueryMatches = (db:WordDatabase, appServices:AppServices, word:
 };
 
 
-const exportRow = (row:{[key:string]:any}, appServices:AppServices, isCurrent:boolean, word:string=''):QueryMatch => ({
+const exportRow = (row:{[key:string]:any}, appServices:IAppServices, isCurrent:boolean, word:string=''):QueryMatch => ({
     word: word, // TODO different type here ?
     lemma: row['value'],
     abs: row['abs'],
@@ -102,9 +102,9 @@ const exportRow = (row:{[key:string]:any}, appServices:AppServices, isCurrent:bo
 const ntimesPlaceholder = (n:number):string => List.repeat(() => '?', n).join(', ');
 
 
-const getNearFreqItems = (db:WordDatabase, appServices:AppServices, val:QueryMatch, whereSgn:number, limit:number):Observable<QueryMatch> => {
+const getNearFreqItems = (db:WordDatabase, appServices:IAppServices, val:QueryMatch, whereSgn:number, limit:number):Observable<QueryMatch> => {
 
-    
+
     return new Observable<QueryMatch>((observer) => {
         db.conn.each(
             'SELECT value, pos, arf, `count` AS abs, CAST(count AS FLOAT) / ? * 1000000 AS ipm ' +
@@ -137,7 +137,7 @@ const getNearFreqItems = (db:WordDatabase, appServices:AppServices, val:QueryMat
 }
 
 
-export const getSimilarFreqWords = (db:WordDatabase, appServices:AppServices, lemma:string, pos:Array<QueryPoS>, rng:number):Observable<Array<QueryMatch>> => {
+export const getSimilarFreqWords = (db:WordDatabase, appServices:IAppServices, lemma:string, pos:Array<QueryPoS>, rng:number):Observable<Array<QueryMatch>> => {
     return new Observable<QueryMatch>((observer) => {
         db.conn.get(
             `SELECT value, GROUP_CONCAT(pos) AS pos, SUM(\`count\`) AS abs, CAST(\`count\` AS FLOAT) / ? * 1000000 AS ipm, SUM(arf) AS arf
@@ -171,7 +171,7 @@ export const getSimilarFreqWords = (db:WordDatabase, appServices:AppServices, le
 };
 
 
-export const getWordForms = (db:WordDatabase, appServices:AppServices, lemma:string, pos:Array<QueryPoS>):Observable<Array<QueryMatch>> => {
+export const getWordForms = (db:WordDatabase, appServices:IAppServices, lemma:string, pos:Array<QueryPoS>):Observable<Array<QueryMatch>> => {
     return new Observable<QueryMatch>((observer) => {
         db.conn.each(
             'SELECT w.value AS value, w.pos, w.count AS abs, CAST(w.count AS FLOAT) / ? * 1000000 AS ipm ' +

@@ -17,10 +17,10 @@
  */
 import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 
-import { AppServices } from '../../../appServices';
+import { IAppServices } from '../../../appServices';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { DataLoadedPayload, HtmlModelState } from './common';
-import { RawHtmlAPI, WiktionaryHtmlAPI, GeneralHtmlAPI } from './service';
+import { GeneralHtmlAPI } from './service';
 import { findCurrQueryMatch } from '../../../models/query';
 import { Observable, of as rxOf } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
@@ -30,8 +30,8 @@ import { RecognizedQueries } from '../../../common/query';
 export interface HtmlModelArgs {
     dispatcher:IActionQueue;
     tileId:number;
-    appServices:AppServices;
-    service:RawHtmlAPI|WiktionaryHtmlAPI;
+    appServices:IAppServices;
+    service:GeneralHtmlAPI<{}>;
     initState:HtmlModelState;
     queryMatches:RecognizedQueries;
 }
@@ -43,7 +43,7 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
 
     private readonly service:GeneralHtmlAPI<{}>;
 
-    private readonly appServices:AppServices;
+    private readonly appServices:IAppServices;
 
     private readonly tileId:number;
 

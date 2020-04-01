@@ -17,7 +17,7 @@
  */
 import { StatelessModel, IActionQueue } from 'kombo';
 
-import { AppServices } from '../../../appServices';
+import { IAppServices } from '../../../appServices';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { DataLoadedPayload } from './actions';
 import { RequestArgs, StrippedFreqResponse, SyDAPI } from './api';
@@ -66,10 +66,10 @@ export class SydModel extends StatelessModel<SydModelState> {
 
     private readonly api:SyDAPI;
 
-    private readonly appServices:AppServices;
+    private readonly appServices:IAppServices;
 
     constructor(dispatcher:IActionQueue, initialState:SydModelState, tileId:number, waitForTile:number, queryMatches:RecognizedQueries,
-                appServices:AppServices, api:SyDAPI) {
+                appServices:IAppServices, api:SyDAPI) {
         super(dispatcher, initialState);
         this.tileId = tileId;
         this.waitForTile = waitForTile;

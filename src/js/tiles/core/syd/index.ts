@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AppServices } from '../../../appServices';
+import { IAppServices } from '../../../appServices';
 import { QueryType } from '../../../common/query';
 import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../../common/tile';
 import { SyDAPI } from './api';
@@ -46,7 +46,7 @@ export class SyDTile implements ITileProvider {
 
     private readonly model:SydModel;
 
-    private readonly appServices:AppServices;
+    private readonly appServices:IAppServices;
 
     private readonly widthFract:number;
 

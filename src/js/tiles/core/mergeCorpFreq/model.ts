@@ -21,7 +21,7 @@ import { Observable, of as rxOf } from 'rxjs';
 import { flatMap, concatMap, map, timeout, reduce, tap } from 'rxjs/operators';
 import { Dict, List, pipe, HTTP } from 'cnc-tskit';
 
-import { AppServices } from '../../../appServices';
+import { IAppServices } from '../../../appServices';
 import { BacklinkArgs, DataRow, FreqDistribAPI, SingleCritQueryArgs, SourceMappedDataRow } from '../../../common/api/kontext/freqs';
 import { callWithExtraVal } from '../../../common/api/util';
 import { BacklinkWithArgs } from '../../../common/tile';
@@ -65,7 +65,7 @@ const sourceToAPIArgs = (src:ModelSourceArgs, concId:string):SingleCritQueryArgs
 
 export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, {[key:string]:number}> {
 
-    private readonly appServices:AppServices;
+    private readonly appServices:IAppServices;
 
     private readonly tileId:number;
 
@@ -75,7 +75,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
 
     private readonly waitForTilesTimeoutSecs:number;
 
-    constructor(dispatcher:IActionQueue, tileId:number, waitForTiles:Array<number>, waitForTilesTimeoutSecs:number, appServices:AppServices,
+    constructor(dispatcher:IActionQueue, tileId:number, waitForTiles:Array<number>, waitForTilesTimeoutSecs:number, appServices:IAppServices,
                     concApi:ConcApi, freqApi:FreqDistribAPI, initState:MergeCorpFreqModelState) {
         super(dispatcher, initState);
         this.tileId = tileId;

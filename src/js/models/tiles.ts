@@ -19,7 +19,7 @@ import { StatelessModel, IActionDispatcher } from 'kombo';
 import { Observable } from 'rxjs';
 import { concatMap, map } from 'rxjs/operators';
 
-import { AppServices } from '../appServices';
+import { IAppServices } from '../appServices';
 import { ajax$, ResponseType } from '../common/ajax';
 import { SystemMessageType, SourceDetails } from '../common/types';
 import { TileFrameProps } from '../common/tile';
@@ -65,9 +65,9 @@ export interface WdglanceTilesState {
 
 export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
 
-    private readonly appServices:AppServices;
+    private readonly appServices:IAppServices;
 
-    constructor(dispatcher:IActionDispatcher, initialState:WdglanceTilesState, appServices:AppServices) {
+    constructor(dispatcher:IActionDispatcher, initialState:WdglanceTilesState, appServices:IAppServices) {
         super(dispatcher, initialState);
         this.appServices = appServices;
         this.addActionHandler<Actions.SetScreenMode>(

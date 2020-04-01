@@ -41,10 +41,49 @@ export interface AppServicesArgs {
     mobileModeTest:()=>boolean;
 }
 
+export interface IAppServices {
+
+    showMessage(type:SystemMessageType, text:string|Error):void;
+
+    translate(key:string, args?:{[key: string]:string;}):string;
+
+    getLanguageName(langCode:string):string;
+
+    importExternalMessage(label:string|{[lang:string]:string}):string;
+
+    importExternalText(ident:string|{[lang:string]:string|{file:string}}, readResource:(path:string)=>Observable<string>):Observable<string>;
+
+    formatDate(d: Date, timeFormat?: number):string;
+
+    createStaticUrl(path:string):string;
+
+    createActionUrl(path:string, args?:{[k:string]:string|Array<string>}|Array<[string, string]>|MultiDict):string;
+
+    forceMobileMode():void;
+
+    isMobileMode():boolean;
+
+    translateDbValue(corpname:string, value:string):string;
+
+    getApiHeaders(apiUrl:string):HTTPHeaders;
+
+    queryLemmaDbApi(lang:string, q:string):Observable<LemmaDbResponse>;
+
+    getISO639UILang():string;
+
+    getUILang():string;
+
+    getISODatetime():string;
+
+    getAudioPlayer():AudioPlayer;
+
+    decodeError(err:Error):string;
+}
+
 /**
  *
  */
-export class AppServices {
+export class AppServices implements IAppServices {
 
     private readonly notifications:SystemNotifications;
 

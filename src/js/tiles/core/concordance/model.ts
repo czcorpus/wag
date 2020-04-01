@@ -23,7 +23,7 @@ import { Observable } from 'rxjs';
 import { mergeMap, tap, reduce } from 'rxjs/operators';
 import { HTTP } from 'cnc-tskit';
 
-import { AppServices } from '../../../appServices';
+import { IAppServices } from '../../../appServices';
 import { IConcordanceApi, SingleConcLoadedPayload } from '../../../common/api/abstract/concordance';
 import { ConcordanceMinState, createInitialLinesData } from '../../../common/models/concordance';
 import { SystemMessageType } from '../../../common/types';
@@ -64,7 +64,7 @@ export interface ConcordanceTileModelArgs {
     dispatcher:IActionQueue;
     tileId:number;
     waitForTile:number;
-    appServices:AppServices;
+    appServices:IAppServices;
     service:IConcordanceApi<{}>;
     queryMatches:RecognizedQueries;
     initState:ConcordanceTileState;
@@ -79,7 +79,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
     private readonly queryMatches:RecognizedQueries;
 
-    private readonly appServices:AppServices;
+    private readonly appServices:IAppServices;
 
     private readonly tileId:number;
 

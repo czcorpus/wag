@@ -17,7 +17,7 @@
  */
 import { IActionDispatcher, StatelessModel } from 'kombo';
 import { List } from 'cnc-tskit';
-import { AppServices } from '../../../appServices';
+import { IAppServices } from '../../../appServices';
 import { FreqDistribAPI, FreqSort } from '../../../common/api/kontext/freqs';
 import { QueryType } from '../../../common/query';
 import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../../common/tile';
@@ -53,7 +53,7 @@ export class MultiWordGeoAreasTile implements ITileProvider {
 
     private readonly dispatcher:IActionDispatcher;
 
-    private readonly appServices:AppServices;
+    private readonly appServices:IAppServices;
 
     private readonly model:MultiWordGeoAreasModel;
 

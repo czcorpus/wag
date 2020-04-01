@@ -26,7 +26,7 @@ import { DataLoadedPayload } from './actions';
 import { ColorScaleFunctionGenerator } from '../../../common/theme';
 import { TranslationAPI } from '../../../common/api/abstract/translations';
 import { TranslationsModelState } from '../../../common/models/translations';
-import { AppServices } from '../../../appServices';
+import { IAppServices } from '../../../appServices';
 import { RecognizedQueries } from '../../../common/query';
 
 
@@ -35,7 +35,7 @@ export type GeneralTranslationsModelState = TranslationsModelState<{}>;
 
 export interface TranslationModelArgs {
     dispatcher:IActionQueue;
-    appServices:AppServices;
+    appServices:IAppServices;
     initialState:GeneralTranslationsModelState;
     tileId:number;
     api:TranslationAPI<{}, {}>;
@@ -57,7 +57,7 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
 
     private readonly scaleColorGen:ColorScaleFunctionGenerator;
 
-    private readonly appServices:AppServices;
+    private readonly appServices:IAppServices;
 
     constructor({dispatcher, appServices, initialState, tileId, api, backlink, queryMatches,
                 scaleColorGen}:TranslationModelArgs) {

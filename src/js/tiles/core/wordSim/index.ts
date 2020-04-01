@@ -19,7 +19,7 @@ import { IActionDispatcher, StatelessModel } from 'kombo';
 import { List } from 'cnc-tskit';
 import { TileConf, ITileProvider, TileFactory, TileComponent } from '../../../common/tile';
 import { WordSimModel } from './model';
-import { AppServices } from '../../../appServices';
+import { IAppServices } from '../../../appServices';
 import { init as viewInit } from './view';
 import { QueryType } from '../../../common/query';
 import { createWordSimApiInstance } from './apiFactory';
@@ -52,7 +52,7 @@ export class WordSimTile implements ITileProvider {
 
     private readonly model:WordSimModel;
 
-    private readonly appServices:AppServices;
+    private readonly appServices:IAppServices;
 
     private readonly view:TileComponent;
 

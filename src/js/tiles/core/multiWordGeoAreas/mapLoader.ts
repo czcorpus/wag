@@ -18,15 +18,15 @@
 import { Observable } from 'rxjs';
 import { DataApi, IAsyncKeyValueStore } from '../../../common/types';
 import { cachedAjax$, ResponseType } from '../../../common/ajax';
-import { AppServices } from '../../../appServices';
+import { IAppServices } from '../../../appServices';
 
 export class MapLoader implements DataApi<string, string> {
 
-    private readonly appServices:AppServices;
+    private readonly appServices:IAppServices;
 
     private readonly cache:IAsyncKeyValueStore;
 
-    constructor(cache:IAsyncKeyValueStore, appServices:AppServices) {
+    constructor(cache:IAsyncKeyValueStore, appServices:IAppServices) {
         this.cache = cache;
         this.appServices = appServices;
     }

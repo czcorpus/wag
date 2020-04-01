@@ -17,7 +17,7 @@
  */
 import { IActionDispatcher, StatelessModel } from 'kombo';
 import { List } from 'cnc-tskit';
-import { AppServices } from '../../../appServices';
+import { IAppServices } from '../../../appServices';
 import { CorePosAttribute } from '../../../common/types';
 import { QueryType } from '../../../common/query';
 import { CollocMetric } from './common';
@@ -61,7 +61,7 @@ export class CollocationsTile implements ITileProvider {
 
     private readonly dispatcher:IActionDispatcher;
 
-    private readonly appServices:AppServices;
+    private readonly appServices:IAppServices;
 
     private readonly model:CollocModel;
 

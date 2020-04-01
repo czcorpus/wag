@@ -27,7 +27,7 @@ import { callWithExtraVal } from '../../../common/api/util';
 import { isSubqueryPayload, RecognizedQueries } from '../../../common/query';
 import { isCollocSubqueryPayload } from '../../../common/api/abstract/collocations';
 import { TranslationSubset, TranslationsSubsetsModelState } from '../../../common/models/translations';
-import { AppServices } from '../../../appServices';
+import { IAppServices } from '../../../appServices';
 import { pipe, List, Dict } from 'cnc-tskit';
 import { mergeMap, reduce, tap } from 'rxjs/operators';
 
@@ -95,7 +95,7 @@ export const flipRowColMapper = <T>(subsets:Array<TranslationSubset>, maxNumLine
 
 export interface TreqSubsetModelArgs {
     dispatcher:IActionQueue;
-    appServices:AppServices;
+    appServices:IAppServices;
     initialState:TranslationsSubsetsModelState;
     tileId:number;
     api:TreqSubsetsAPI;
@@ -117,7 +117,7 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
 
     private readonly waitForColorsTile:number;
 
-    private readonly appServices:AppServices;
+    private readonly appServices:IAppServices;
 
 
     constructor({dispatcher, appServices, initialState, tileId, api, queryMatches, waitForColorsTile}:TreqSubsetModelArgs) {

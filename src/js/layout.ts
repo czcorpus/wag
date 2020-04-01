@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AppServices } from './appServices';
+import { IAppServices } from './appServices';
 import { QueryType, QueryTypeMenuItem } from './common/query';
 import { GroupLayoutConfig, LayoutsConfig, LayoutConfigCommon } from './conf';
 import { TileIdentMap } from './common/types';
@@ -71,7 +71,7 @@ function layoutIsEmpty(layout:LayoutCore):boolean {
 
 
 function importLayout(gc:LayoutConfigCommon|undefined, tileMap:TileIdentMap,
-            appServices:AppServices):LayoutCore {
+            appServices:IAppServices):LayoutCore {
     return gc !== undefined ?
         {
             groups: (gc.groups || []).filter(itemIsGroupConf).map<TileGroup>(group => ({
@@ -100,7 +100,7 @@ export class LayoutManager {
 
     private readonly queryTypes:Array<QueryTypeMenuItem>;
 
-    constructor(layouts:LayoutsConfig, tileMap:TileIdentMap, appServices:AppServices) {
+    constructor(layouts:LayoutsConfig, tileMap:TileIdentMap, appServices:IAppServices) {
 
         this.layoutSingle = importLayout(layouts.single, tileMap, appServices);
         this.layoutCmp = importLayout(layouts.cmp, tileMap, appServices);

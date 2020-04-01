@@ -18,7 +18,7 @@
 import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
 import { Ident, List } from 'cnc-tskit';
 
-import { AppServices } from '../../../appServices';
+import { IAppServices } from '../../../appServices';
 import { LocalizedConfMsg } from '../../../common/types';
 import { QueryType } from '../../../common/query';
 import { TileComponent, TileConf, TileFactory, Backlink, ITileProvider } from '../../../common/tile';
@@ -64,7 +64,7 @@ export class FreqComparisonTile implements ITileProvider {
 
     private readonly widthFract:number;
 
-    private readonly appServices:AppServices;
+    private readonly appServices:IAppServices;
 
     private readonly blockingTiles:Array<number>;
 
