@@ -25,11 +25,11 @@ import { encodeArgs } from '../../common/ajax';
 import { ErrorType, mapToStatusCode, newError } from '../../common/errors';
 import { QueryType, QueryMatch, importQueryPos, QueryPoS } from '../../common/query';
 import { GlobalComponents } from '../../views/global';
-import { findQueryMatches, getSimilarFreqWords, getWordForms } from '../freqdb/freqdb';
+import { IFreqDB } from '../freqdb/freqdb';
 
 import { getLangFromCookie, fetchReqArgArray, createHelperServices, mkReturnUrl, renderResult } from './common';
 import { mainAction } from './main';
-import { WordDatabase, Services } from '../actionServices';
+import { Services } from '../actionServices';
 import { HTTPAction } from './actions';
 import { TelemetryAction } from '../../common/types';
 import { errorUserConf, emptyClientConf, THEME_COOKIE_NAME } from '../../conf';
@@ -98,7 +98,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         const [,appServices] = createHelperServices(
             services, getLangFromCookie(req, services.serverConf.langCookie, services.serverConf.languages));
 
-        new Observable<WordDatabase>((observer) => {
+        new Observable<IFreqDB>((observer) => {
             const db = services.db.getDatabase(QueryType.SINGLE_QUERY, req.query.lang);
             if (db === undefined) {
                 observer.error(
@@ -111,7 +111,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         }).pipe(
             concatMap(
                 (db) => {
-                    return findQueryMatches(db, appServices, req.query.q, 1);
+                    return db.findQueryMatches(appServices, req.query.q, 1);
                 }
             )
         ).subscribe(
@@ -191,15 +191,14 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             }
         }).pipe(
             concatMap(
-                (data) => {
-                    return getSimilarFreqWords(
-                        services.db.getDatabase(QueryType.SINGLE_QUERY, data.lang),
+                (data) => services.db
+                    .getDatabase(QueryType.SINGLE_QUERY, data.lang)
+                    .getSimilarFreqWords(
                         appServices,
                         data.lemma,
                         data.pos,
                         data.rng
-                    );
-                }
+                    )
             ),
             map(
                 (data) => data.sort((v1:QueryMatch, v2:QueryMatch) => {
@@ -259,12 +258,13 @@ export const wdgRouter = (services:Services) => (app:Express) => {
 
         }).pipe(
             concatMap(
-                (args) => getWordForms(
-                    services.db.getDatabase(QueryType.SINGLE_QUERY, args.lang),
-                    appServices,
-                    args.lemma,
-                    args.pos
-                )
+                (args) => services.db
+                    .getDatabase(QueryType.SINGLE_QUERY, args.lang)
+                    .getWordForms(
+                        appServices,
+                        args.lemma,
+                        args.pos
+                    )
             )
 
         ).subscribe(

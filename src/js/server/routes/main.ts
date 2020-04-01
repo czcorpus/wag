@@ -30,7 +30,6 @@ import { init as errPageInit } from '../../views/error';
 import { ServerSideActionDispatcher } from '../core';
 import { emptyValue } from '../toolbar/empty';
 import { Services  } from '../actionServices';
-import { findQueryMatches } from '../freqdb/freqdb';
 import { loadFile } from '../files';
 import { createRootComponent } from '../../app';
 import { ActionName } from '../../models/actions';
@@ -160,13 +159,14 @@ export function mainAction(services:Services, answerMode:boolean, req:Request, r
             )),
             qMatchesEachQuery: rxOf(...userConf.queries
                     .map(query => answerMode ?
-                        findQueryMatches(
-                            services.db.getDatabase(userConf.queryType, userConf.query1Lang),
-                            appServices,
-                            query,
-                            getQueryTypeFreqDb(services.serverConf, userConf.queryType).minLemmaFreq
-                        ) :
-                        rxOf<Array<QueryMatch>>([])
+                            services.db
+                                .getDatabase(userConf.queryType, userConf.query1Lang)
+                                .findQueryMatches(
+                                    appServices,
+                                    query,
+                                    getQueryTypeFreqDb(services.serverConf, userConf.queryType).minLemmaFreq
+                                ) :
+                            rxOf<Array<QueryMatch>>([])
 
                     )).pipe(
                         concatMap(v => v),
