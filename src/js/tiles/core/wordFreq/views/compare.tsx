@@ -19,8 +19,9 @@ import { IActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
 
 import { GlobalComponents } from '../../../../views/global';
-import { FreqDBRow } from '../api';
 import { init as commonViewInit } from './common'
+import { QueryMatch } from '../../../../common/query';
+import { List } from 'cnc-tskit';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>) {
@@ -30,11 +31,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // -------------------- <MultiWordProfile /> ---------------------------------------------------
 
     const MultiWordProfile:React.SFC<{
-        data:Array<Array<FreqDBRow>>;
+        matches:Array<QueryMatch>;
 
     }> = (props) => {
-
-        const srchWord = (words:Array<FreqDBRow>) => words.find(v => v.isSearched);
 
         return (
             <div className="MultiWordProfile">
@@ -49,33 +48,36 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         </tr>
                     </thead>
                     <tbody>
-                        {props.data.map(w => srchWord(w)).map((w, i) => (
-                            <React.Fragment key={`${w.word}:${w.lemma}:${w.pos}`}>
-                                <tr>
-                                    <th className="query-num">{i + 1}.</th>
-                                    <td className="word">
-                                        <dl className="info">
-                                            <dt>{ut.translate('wordfreq_searched_form')}:</dt>
-                                            <dd>{w.word}</dd>
-                                            {w.pos.length > 0 ?
-                                                <>
-                                                    <dt>lemma:</dt>
-                                                    <dd><strong>{w.lemma}</strong></dd>
-                                                    <dt>{ut.translate('wordfreq__pos')}:</dt>
-                                                    <dd>{w.pos.map(v => v.label).join(', ')}</dd>
-                                                </> :
-                                                <>
-                                                    <dt>{ut.translate('wordfreq__note')}:</dt>
-                                                    <dd>{ut.translate('wordfreq__not_in_dict')}</dd>
-                                                </>
-                                            }
-                                        </dl>
-                                    </td>
-                                        <td className="num ipm">{w.ipm > 0 ? ut.formatNumber(w.ipm, 2) : <span style={{whiteSpace: "nowrap"}}>--</span>}</td>
-                                    <td className="band">{w.ipm > 0 ? <commonViews.Stars freqBand={w.flevel} /> : <div>--</div>}</td>
-                                </tr>
-                            </React.Fragment>
-                        ))}
+                        {List.map(
+                            (w, i) => (
+                                <React.Fragment key={`${w.word}:${w.lemma}:${w.pos}`}>
+                                    <tr>
+                                        <th className="query-num">{i + 1}.</th>
+                                        <td className="word">
+                                            <dl className="info">
+                                                <dt>{ut.translate('wordfreq_searched_form')}:</dt>
+                                                <dd>{w.word}</dd>
+                                                {w.pos.length > 0 ?
+                                                    <>
+                                                        <dt>lemma:</dt>
+                                                        <dd><strong>{w.lemma}</strong></dd>
+                                                        <dt>{ut.translate('wordfreq__pos')}:</dt>
+                                                        <dd>{w.pos.map(v => v.label).join(', ')}</dd>
+                                                    </> :
+                                                    <>
+                                                        <dt>{ut.translate('wordfreq__note')}:</dt>
+                                                        <dd>{ut.translate('wordfreq__not_in_dict')}</dd>
+                                                    </>
+                                                }
+                                            </dl>
+                                        </td>
+                                            <td className="num ipm">{w.ipm > 0 ? ut.formatNumber(w.ipm, 2) : <span style={{whiteSpace: "nowrap"}}>--</span>}</td>
+                                        <td className="band">{w.ipm > 0 ? <commonViews.Stars freqBand={w.flevel} /> : <div>--</div>}</td>
+                                    </tr>
+                                </React.Fragment>
+                            ),
+                            props.matches
+                        )}
                     </tbody>
                 </table>
             </div>

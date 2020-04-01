@@ -317,10 +317,16 @@ export interface LogQueueConf {
     key:string;
 }
 
+export interface FreqDbOptions {
+    urlArgs?:{[key:string]:string};
+    httpHeaders?:{[key:string]:string};
+}
+
 export interface FreqDbConf {
     dbType:string;
     path:string;
     corpusSize:number;
+    options?:FreqDbOptions;
 }
 
 export interface QueryModeWordDb {

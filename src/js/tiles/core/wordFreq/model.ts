@@ -22,10 +22,10 @@ import { map, concatMap } from 'rxjs/operators';
 import { IAppServices } from '../../../appServices';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { DataLoadedPayload } from './actions';
-import { FreqDBRow, FreqDbAPI, FreqBand } from './api';
+import { SimilarFreqWord, SimilarFreqDbAPI } from '../../../common/api/abstract/similarFreq';
 import { findCurrQueryMatch } from '../../../models/query';
-import { QueryMatch, testIsDictMatch, RecognizedQueries, QueryType } from '../../../common/query';
-import { List } from 'cnc-tskit';
+import { QueryMatch, testIsDictMatch, RecognizedQueries, QueryType, calcFreqBand } from '../../../common/query';
+import { List, pipe } from 'cnc-tskit';
 
 export interface FlevelDistribItem {
     rel:number;
@@ -41,60 +41,43 @@ export interface SummaryModelState {
     corpname:string;
 
     corpusSize:number;
-    /**
-     * 1st dimension: data for a searched word[i]
-     * 2nd dimension: list of words with similar freq. including the searched word
-     *   (for other than 1st word the list can be of size 1 - just the word itself)
-     */
-    data:Array<Array<FreqDBRow>>;
+
+    similarFreqWords:Array<Array<SimilarFreqWord>>;
+
+    queryMatches:Array<QueryMatch>;
 
     sfwRowRange:number;
 
     flevelDistrb:Array<FlevelDistribItem>;
 }
 
-export function createInitialWordDataArray(queryMatches:RecognizedQueries):Array<Array<FreqDBRow>> {
-    return queryMatches.map(queryMatch => {
-        const curr = findCurrQueryMatch(queryMatch);
-        return [
-            {
-                word: curr.word,
-                lemma: curr.lemma,
-                pos: curr.pos,
-                abs: curr.abs,
-                ipm: curr.ipm,
-                arf: curr.arf,
-                flevel: calcFreqBand(curr.ipm),
-                isSearched: true
-            }
-        ];
-    });
-
-}
-
-const calcFreqBand = (ipm:number):FreqBand => {
-    if (ipm < 1) return 1;
-    if (ipm < 10) return 2;
-    if (ipm < 100) return 3;
-    if (ipm < 1000) return 4;
-    return 5;
-}
 
 export interface SummaryModelArgs {
     dispatcher:IActionQueue;
     initialState:SummaryModelState;
     tileId:number;
-    api:FreqDbAPI;
+    api:SimilarFreqDbAPI;
     appServices:IAppServices;
     queryMatches:RecognizedQueries;
     queryLang:string;
     queryType:QueryType;
 }
 
+export function findCurrentMatches(matches:RecognizedQueries):Array<QueryMatch> {
+    return pipe(
+        matches,
+        List.flatMap(v => v),
+        List.filter(v => v.isCurrent)
+    );
+}
+
+export function mkEmptySimilarWords(queryMatches:RecognizedQueries):Array<Array<SimilarFreqWord>> {
+    return List.repeat(_ => [], queryMatches.length);
+}
 
 export class SummaryModel extends StatelessModel<SummaryModelState> {
 
-    private readonly api:FreqDbAPI;
+    private readonly api:SimilarFreqDbAPI;
 
     private readonly appServices:IAppServices;
 
@@ -120,7 +103,8 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
-                state.data = createInitialWordDataArray(queryMatches);
+                state.similarFreqWords = mkEmptySimilarWords(queryMatches);
+                state.queryMatches = findCurrentMatches(queryMatches);
             },
             (state, action, dispatch) => {
                 (this.queryType === QueryType.CMP_QUERY ?
@@ -133,7 +117,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                             name: GlobalActionName.TileDataLoaded,
                             payload: {
                                 tileId: this.tileId,
-                                isEmpty: data.length === 0,
+                                isEmpty: false,
                                 data: data
                             }
                         });
@@ -162,17 +146,17 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                         state.error = action.error.message;
 
                     } else if (action.payload.data.length === 0) {
-                        state.data = createInitialWordDataArray(queryMatches);
+                        state.similarFreqWords = mkEmptySimilarWords(queryMatches);
 
                     } else {
-                        state.data[0] = action.payload.data;
+                        state.similarFreqWords[0] = action.payload.data;
                     }
                 }
             }
         );
     }
 
-    private loadExtendedFreqInfo(state:SummaryModelState):Observable<Array<FreqDBRow>> {
+    private loadExtendedFreqInfo(state:SummaryModelState):Observable<Array<SimilarFreqWord>> {
         return new Observable<{variant:QueryMatch; lang:string}>((observer) => {
             try {
                 observer.next({
@@ -194,30 +178,22 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                         pos: List.map(v => v.value, args.variant.pos),
                         srchRange: state.sfwRowRange
                     }) :
-                    rxOf({
+                    rxOf<{result:Array<SimilarFreqWord>}>({
                         result: [{
-                            word: args.variant.word,
                             lemma: '?',
                             pos: [],
-                            abs: 0,
                             ipm: 0,
-                            arf: 0,
-                            flevel: -1,
-                            isSearched: true
+                            flevel: null
                         }]
                     })
             ),
             map(
                 (data) => List.map(
                     v => ({
-                        word: v.isSearched ? findCurrQueryMatch(this.queryMatches[0]).word : '',
                         lemma: v.lemma,
                         pos: v.pos,
-                        abs: v.abs,
                         ipm: v.ipm,
-                        arf: v.arf,
-                        flevel: calcFreqBand(v.ipm),
-                        isSearched: v.isSearched
+                        flevel: calcFreqBand(v.ipm)
                     }),
                     data.result
                 )

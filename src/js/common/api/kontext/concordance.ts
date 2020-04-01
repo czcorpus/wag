@@ -144,7 +144,7 @@ export const getQuery = (args:AnyQuery):string => {
     }
 };
 
-function escapeVal(v:string) {
+export function escapeVal(v:string) {
     return v.replace(/"/, '\\"');
 }
 

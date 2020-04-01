@@ -86,21 +86,48 @@ export interface RangeRelatedSubqueryValue {
 }
 
 /**
+ * FreqBand is an arbitrary frequency band
+ */
+export type FreqBand = 1|2|3|4|5;
+
+/**
+ * calcFreqBand calculates a FreqBand based
+ * on provided ipm (instances per million tokens):
+ * [0, 1) => 1
+ * [1, 10) => 2
+ * [10, 100) => 3
+ * [100, 1000) => 4
+ * [1000, 1000000] => 5
+ */
+export function calcFreqBand(ipm:number):FreqBand {
+    if (ipm < 1) return 1;
+    if (ipm < 10) return 2;
+    if (ipm < 100) return 3;
+    if (ipm < 1000) return 4;
+    return 5;
+}
+
+
+export interface QueryMatchCore {
+    lemma:string;
+    pos:Array<{value:QueryPoS; label:string}>;
+    ipm:number;
+    flevel:FreqBand|null;
+    isNonDict?:boolean;
+}
+
+
+/**
  * QueryMatch represents a single matching item
  * for a query as processed by WaG internal word
  * frequency database. The value can be ambiguous in
  * terms of part of speech (see 'pos' as an Array).
  */
-export interface QueryMatch {
-    lemma:string;
+export interface QueryMatch extends QueryMatchCore {
     word:string;
-    pos:Array<{value:QueryPoS; label:string}>;
     abs:number;
-    ipm:number;
     arf:number;
-    flevel:number;
     isCurrent:boolean;
-    isNonDict?:boolean;
 }
 
 /**
@@ -129,7 +156,7 @@ export function testIsMultiWordMode(queries:RecognizedQueries):boolean {
     );
 }
 
-export function matchesPos(lv:QueryMatch, pos:Array<QueryPoS>):boolean {
+export function matchesPos(lv:QueryMatchCore, pos:Array<QueryPoS>):boolean {
     return lv.pos.length === pos.length &&
         lv.pos.reduce((acc, curr) => acc && pos.indexOf(curr.value) > -1, true as boolean);
 }
@@ -166,18 +193,21 @@ export function findMergeableQueryMatches(variants:Array<QueryMatch>):Array<Quer
     const merged:Array<MergedQueryMatch> = pipe(
         mapping,
         Dict.filter((v) => v.length > 1),
-        Dict.map((v, lm) => ({
-            lemma: lm,
-            word: v[0].form, // should be the same for all 0...n
-            pos: v.map(v => v.pos),
-            abs: v.reduce((acc, curr) => acc + curr.abs, 0),
-            minAbs: v.reduce((acc, curr) => acc < curr.abs ? acc : curr.abs, v[0].abs),
-            maxAbs: v.reduce((acc, curr) => acc > curr.abs ? acc : curr.abs, v[0].abs),
-            ipm: -1,
-            arf: v.reduce((acc, curr) => acc + curr.arf, 0),
-            flevel: -1,
-            isCurrent: false
-        })),
+        Dict.map((v, lm) => {
+            const ans:MergedQueryMatch = {
+                lemma: lm,
+                word: v[0].form, // should be the same for all 0...n
+                pos: v.map(v => v.pos),
+                abs: v.reduce((acc, curr) => acc + curr.abs, 0),
+                minAbs: v.reduce((acc, curr) => acc < curr.abs ? acc : curr.abs, v[0].abs),
+                maxAbs: v.reduce((acc, curr) => acc > curr.abs ? acc : curr.abs, v[0].abs),
+                ipm: -1,
+                arf: v.reduce((acc, curr) => acc + curr.arf, 0),
+                flevel: null,
+                isCurrent: false
+            }
+            return ans;
+        }),
         Dict.toEntries(),
         List.map(([,v]) => v)
     );

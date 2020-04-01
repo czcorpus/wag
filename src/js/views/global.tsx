@@ -309,9 +309,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
         if (props.isBusy && !props.hasData) {
             return (
                 <div className="TileWrapper">
-                    <p>
-                        <AjaxLoader htmlClass="centered" />
-                    </p>
+                    <div className="cnc-tile-body content">
+                        <p>
+                            <AjaxLoader htmlClass="centered" />
+                        </p>
+                    </div>
                 </div>
             );
 
