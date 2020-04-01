@@ -26,8 +26,7 @@ import { init as viewInit } from './views';
 import { TileConf, ITileProvider, TileComponent, TileFactory, Backlink } from '../../../common/tile';
 import { CollocationApi, SrchContextType } from '../../../common/api/abstract/collocations';
 import { createInstance } from '../../../common/api/factory/collocations';
-import { CoreApiGroup } from '../../../common/api/coreGroups';
-import { ConcApi } from '../../../common/api/kontext/concordance';
+import { createApiInstance } from '../../../common/api/factory/concordance';
 import { findCurrQueryMatch } from '../../../models/query';
 
 
@@ -95,7 +94,7 @@ export class CollocationsTile implements ITileProvider {
             waitForTilesTimeoutSecs: waitForTilesTimeoutSecs,
             appServices: appServices,
             service: this.api,
-            concApi: conf.apiType === CoreApiGroup.KONTEXT ? new ConcApi(false, cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)) : null,
+            concApi: createApiInstance(cache, conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             backlink: conf.backlink || null,
             queryType: queryType,
             apiType: conf.apiType,
