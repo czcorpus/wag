@@ -1,0 +1,19 @@
+{
+  "menu": {
+    "schemata:Config schemata actions menu...": {
+      "description": "config schemata action",
+      "configtest": "schemata:configtest",
+      "sampletest": "schemata:sampletest",
+      "make": "schemata:make"
+    },
+    "build:Build menu...": {
+      "description": "build action",
+      "devel": "build:devel",
+      "production": "build:production",
+      "server": "build:server"
+    },    
+    "devel-server:starts a development server": "devel-server",
+    "server:starts WaG web server": "server",
+    "test:runs tests": "test"
+  }
+}
