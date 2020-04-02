@@ -20,19 +20,18 @@ import { Observable, of as rxOf, zip } from 'rxjs';
 import { concatMap, reduce, share, repeat } from 'rxjs/operators';
 
 import { IAppServices } from '../../../appServices';
-import { DataRow, FreqDistribAPI, APIResponse } from '../../../common/api/kontext/freqs';
 import { FreqBarModelStateBase, stateToAPIArgs } from '../../../common/models/freq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { ActionName, Actions, LoadFinishedPayload } from './actions';
 import { DataApi } from '../../../common/types';
 import { TooltipValues } from '../../../views/global';
 import { QueryMatch } from '../../../common/query';
-import { ConcApi, QuerySelector, mkMatchQuery } from '../../../common/api/kontext/concordance';
 import { callWithExtraVal } from '../../../common/api/util';
-import { ViewMode } from '../../../common/api/abstract/concordance';
+import { ViewMode, IConcordanceApi } from '../../../common/api/abstract/concordance';
 import { createInitialLinesData } from '../../../common/models/concordance';
 import { ConcLoadedPayload, isConcLoadedPayload } from '../concordance/actions';
 import { Dict } from 'cnc-tskit';
+import { DataRow, IFreqDistribAPI, APIResponse } from '../../../common/api/abstract/freqs';
 
 /*
 oral2013:
@@ -93,16 +92,16 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
 
     private readonly appServices:IAppServices;
 
-    private readonly concApi:ConcApi;
+    private readonly concApi:IConcordanceApi<{}>;
 
-    private readonly freqApi:FreqDistribAPI;
+    private readonly freqApi:IFreqDistribAPI<{}>;
 
     private readonly mapLoader:DataApi<string, string>;
 
     private readonly queryMatches:Array<Array<QueryMatch>>;
 
     constructor(dispatcher:IActionQueue, tileId:number, waitForTile:number, appServices:IAppServices, queryMatches:Array<Array<QueryMatch>>,
-                concApi:ConcApi, freqApi:FreqDistribAPI, mapLoader:DataApi<string, string>, initState:MultiWordGeoAreasModelState) {
+                concApi:IConcordanceApi<{}>, freqApi:IFreqDistribAPI<{}>, mapLoader:DataApi<string, string>, initState:MultiWordGeoAreasModelState) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.waitForTile = waitForTile;
@@ -268,7 +267,6 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                         this.concApi,
                         this.concApi.stateToArgs(
                             {
-                                querySelector: QuerySelector.CQL,
                                 corpname: state.corpname,
                                 otherCorpname: undefined,
                                 subcname: null,
@@ -295,7 +293,7 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                             subcName: null,
                             concId: null,
                             queryId: queryId,
-                            origQuery: mkMatchQuery(lemmaVariant, state.posQueryGenerator)
+                            origQuery: this.concApi.mkMatchQuery(lemmaVariant, state.posQueryGenerator)
                         }
                     )
                 ),

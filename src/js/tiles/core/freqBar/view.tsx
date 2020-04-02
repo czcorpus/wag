@@ -19,13 +19,13 @@ import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
-import { DataRow } from '../../../common/api/kontext/freqs';
 import { Theme } from '../../../common/theme';
 import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
 import { GlobalComponents } from '../../../views/global';
 import { ActionName, Actions } from './actions';
 import { FreqBarModel, FreqBarModelState } from './model';
 import { List, Strings } from 'cnc-tskit';
+import { DataRow } from '../../../common/api/abstract/freqs';
 
 
 const CHART_LABEL_MAX_LEN = 20;

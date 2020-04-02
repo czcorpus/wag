@@ -22,10 +22,8 @@ import { reduce, map, tap, mergeMap } from 'rxjs/operators';
 import { Dict, Maths, List, pipe } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
-import { ConcApi, QuerySelector, mkMatchQuery } from '../../../common/api/kontext/concordance';
-import { ConcResponse, ViewMode } from '../../../common/api/abstract/concordance';
+import { ConcResponse, ViewMode, IConcordanceApi } from '../../../common/api/abstract/concordance';
 import { TimeDistribResponse, TimeDistribItem } from '../../../common/api/abstract/timeDistrib';
-import { DataRow } from '../../../common/api/kontext/freqs';
 import { KontextTimeDistribApi } from '../../../common/api/kontext/timeDistrib';
 import { GeneralSingleCritFreqMultiQueryState } from '../../../common/models/freq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
@@ -36,6 +34,7 @@ import { QueryMatch, RecognizedQueries } from '../../../common/query';
 import { createInitialLinesData } from '../../../common/models/concordance';
 import { ConcLoadedPayload, isConcLoadedPayload } from '../concordance/actions';
 import { PriorityValueFactory } from '../../../common/priority';
+import { DataRow } from '../../../common/api/abstract/freqs';
 
 
 export interface TimeDistribModelState extends GeneralSingleCritFreqMultiQueryState<DataItemWithWCI> {
@@ -62,7 +61,7 @@ export interface TimeDistribModelArgs {
     initState:TimeDistribModelState;
     tileId:number;
     waitForTile:number;
-    apiFactory:PriorityValueFactory<[ConcApi, KontextTimeDistribApi]>;
+    apiFactory:PriorityValueFactory<[IConcordanceApi<{}>, KontextTimeDistribApi]>;
     appServices:IAppServices;
     queryMatches:RecognizedQueries;
     queryLang:string;
@@ -88,7 +87,7 @@ export interface DataFetchArgs {
  */
 export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
-    private readonly apiFactory:PriorityValueFactory<[ConcApi, KontextTimeDistribApi]>;
+    private readonly apiFactory:PriorityValueFactory<[IConcordanceApi<{}>, KontextTimeDistribApi]>;
 
     private readonly appServices:IAppServices;
 
@@ -420,7 +419,6 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         concApi,
                         concApi.stateToArgs(
                             {
-                                querySelector: QuerySelector.CQL,
                                 corpname: state.corpname,
                                 otherCorpname: undefined,
                                 subcname: subcname,
@@ -447,7 +445,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                             subcName: subcname,
                             concId: null,
                             queryId: queryId,
-                            origQuery: mkMatchQuery(lemmaVariant, state.posQueryGenerator),
+                            origQuery: concApi.mkMatchQuery(lemmaVariant, state.posQueryGenerator),
                             freqApi
                         }
                     )
@@ -460,7 +458,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         const resp = lemmaVariant.pipe(
             mergeMap(args => {
                  if (args.concId) {
-                    const [,freqApi] = this.apiFactory.getRandomValue();
+                    const [concApi, freqApi] = this.apiFactory.getRandomValue();
                     rxOf<[ConcResponse, DataFetchArgs]>([
                         {
                             query: '',
@@ -478,7 +476,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                             subcName: subcNames[0],
                             concId: args.concId,
                             queryId: args.queryId,
-                            origQuery: mkMatchQuery(args.lemma, state.posQueryGenerator),
+                            origQuery: concApi.mkMatchQuery(args.lemma, state.posQueryGenerator),
                             freqApi: freqApi
                         }
                     ])

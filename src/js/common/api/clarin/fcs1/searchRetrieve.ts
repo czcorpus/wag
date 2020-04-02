@@ -159,6 +159,10 @@ export class FCS1SearchRetrieveAPI implements IConcordanceApi<FCS1Args> {
         return [ViewMode.KWIC];
     }
 
+    mkMatchQuery(lvar:QueryMatch, generator:[string, string]):string {
+        return lvar.word;
+    }
+
     stateToArgs(state:ConcordanceMinState, lvar:QueryMatch, lvarIdx:number, otherLangCql:string):FCS1Args {
         return {
             operation: 'searchRetrieve',

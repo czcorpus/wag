@@ -26,7 +26,9 @@ import { GlobalComponents } from '../../../views/global';
 import { factory as defaultModelFactory, FreqComparisonModel } from './model';
 import { init as viewInit } from './view';
 import { ConcApi } from '../../../common/api/kontext/concordance';
-import { MultiBlockFreqDistribAPI, FreqSort } from '../../../common/api/kontext/freqs';
+import { FreqSort } from '../../../common/api/kontext/freqs';
+import { createMultiBlockApiInstance as createFreqsApiInstance } from '../../../common/api/factory/freqs';
+import { createApiInstance as createConcApiInstance } from '../../../common/api/factory/concordance';
 
 
 
@@ -35,6 +37,7 @@ require('./style.less');
 
 export interface FreqComparisonTileConf extends TileConf {
     apiURL:string;
+    apiType:string;
     corpname:string;
     fcrit:string|Array<string>;
     critLabels:LocalizedConfMsg|Array<LocalizedConfMsg>;
@@ -88,8 +91,8 @@ export class FreqComparisonTile implements ITileProvider {
             tileId,
             waitForTiles,
             appServices,
-            new ConcApi(false, cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
-            new MultiBlockFreqDistribAPI(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            createConcApiInstance(cache, conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            createFreqsApiInstance(cache, conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             conf.backlink || null,
             {
                 isBusy: isBusy,

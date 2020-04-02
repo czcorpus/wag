@@ -108,7 +108,6 @@ export class ConcordanceTile implements ITileProvider {
                 isTweakMode: false,
                 isMobile: appServices.isMobileMode(),
                 widthFract: widthFract,
-                querySelector: QuerySelector.CQL,
                 pageSize: conf.pageSize,
                 concordances: createInitialLinesData(queryMatches.length),
                 corpname: conf.corpname,

@@ -19,7 +19,7 @@ import { Action } from 'kombo';
 
 import { LocalizedConfMsg } from '../../../common/types';
 import { QueryMatch } from '../../../common/query';
-import { ApiDataBlock } from '../../../common/api/kontext/freqs';
+import { ApiDataBlock } from '../../../common/api/abstract/freqs';
 
 
 

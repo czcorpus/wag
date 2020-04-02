@@ -81,6 +81,8 @@ export interface IConcordanceApi<T> extends DataApi<T, ConcResponse> {
 
     getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<SourceDetails>;
 
+    mkMatchQuery(lvar:QueryMatch, generator:[string, string]):string;
+
     /**
      * Note: the first item will be set as an initial one
      */

@@ -18,7 +18,6 @@
 import { IActionDispatcher, StatelessModel } from 'kombo';
 import { List, Maths, pipe } from 'cnc-tskit';
 
-import { ConcApi } from '../../../common/api/kontext/concordance';
 import { FreqSort } from '../../../common/api/kontext/freqs';
 import { createApiInstance } from './apiFactory';
 import { QueryType } from '../../../common/query';
@@ -29,6 +28,8 @@ import { init as viewInit } from './view';
 import { findCurrQueryMatch } from '../../../models/query';
 import { PriorityValueFactory } from '../../../common/priority';
 import { KontextTimeDistribApi } from '../../../common/api/kontext/timeDistrib';
+import { createApiInstance as createConcApiInstance } from '../../../common/api/factory/concordance';
+import { IConcordanceApi } from '../../../common/api/abstract/concordance';
 
 declare var require:(src:string)=>void;  // webpack
 require('./style.less');
@@ -72,14 +73,14 @@ export class MultiWordTimeDistTile implements ITileProvider {
         this.blockingTiles = waitForTiles;
 
         const apiUrlList = typeof conf.apiURL === 'string' ? [conf.apiURL] : conf.apiURL;
-        const apiFactory = new PriorityValueFactory<[ConcApi, KontextTimeDistribApi]>(conf.apiPriority || List.repeat(() => 1, apiUrlList.length));
+        const apiFactory = new PriorityValueFactory<[IConcordanceApi<{}>, KontextTimeDistribApi]>(conf.apiPriority || List.repeat(() => 1, apiUrlList.length));
         pipe(
             apiUrlList,
             List.forEach(
                 (url, i) => apiFactory.addInstance(
                     i,
                     [
-                        new ConcApi(false, cache, url, appServices.getApiHeaders(url)),
+                        createConcApiInstance(cache, conf.apiType, url, appServices.getApiHeaders(url)),
                         createApiInstance(
                             conf.apiType,
                             cache,

@@ -277,7 +277,6 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                     this.concApi,
                     this.concApi.stateToArgs(
                         {
-                            querySelector: QuerySelector.CQL,
                             corpname: state.corpname,
                             otherCorpname: undefined,
                             subcname: null,

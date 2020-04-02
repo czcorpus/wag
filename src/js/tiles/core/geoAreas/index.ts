@@ -18,12 +18,13 @@
 import { IActionDispatcher, StatelessModel } from 'kombo';
 
 import { IAppServices } from '../../../appServices';
-import { FreqDistribAPI, FreqSort } from '../../../common/api/kontext/freqs';
+import { FreqSort } from '../../../common/api/kontext/freqs';
 import { QueryType } from '../../../common/query';
 import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../../common/tile';
 import { GeoAreasModel } from './model';
 import { init as viewInit } from './views';
 import { MapLoader } from './mapLoader';
+import { createApiInstance } from '../../../common/api/factory/freqs';
 
 
 declare var require:any;
@@ -32,6 +33,7 @@ require('./style.less');
 
 export interface GeoAreasTileConf extends TileConf {
     apiURL:string;
+    apiType:string;
     corpname:string;
     fcrit:string;
     flimit:number;
@@ -73,7 +75,7 @@ export class GeoAreasTile implements ITileProvider {
             tileId,
             waitForTiles[0],
             appServices,
-            new FreqDistribAPI(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            createApiInstance(cache, conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             new MapLoader(cache, appServices),
             {
                 isBusy: isBusy,

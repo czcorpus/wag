@@ -15,8 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { DataRow, MultiCritQueryArgs, FreqSort } from '../api/kontext/freqs';
+import { MultiCritQueryArgs, FreqSort } from '../api/kontext/freqs';
 import { LocalizedConfMsg } from '../types';
+import { DataRow } from '../api/abstract/freqs';
 
 
 

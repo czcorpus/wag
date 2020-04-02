@@ -19,9 +19,10 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { cachedAjax$ } from '../../ajax';
-import { DataApi, HTTPHeaders, IAsyncKeyValueStore, CorpusDetails } from '../../types';
+import { HTTPHeaders, IAsyncKeyValueStore, CorpusDetails } from '../../types';
 import { CorpusInfoAPI } from './corpusInfo';
 import { BacklinkWithArgs } from '../../tile';
+import { APIResponse, APIBlockResponse, IMultiBlockFreqDistribAPI, IFreqDistribAPI } from '../abstract/freqs';
 
 export enum FreqSort {
     REL = 'rel'
@@ -49,15 +50,6 @@ export interface HTTPResponse {
     }>;
 }
 
-
-export interface DataRow {
-    name:string;
-    freq:number;
-    ipm:number;
-    norm:number;
-    order?:number;
-}
-
 export interface SourceMappedDataRow {
     sourceId:string;
     error?:Error;
@@ -69,23 +61,7 @@ export interface SourceMappedDataRow {
     backlink:BacklinkWithArgs<BacklinkArgs>|null;
 }
 
-export interface APIResponse {
-    concId:string;
-    corpname:string;
-    concsize:number;
-    usesubcorp:string|null;
-    data:Array<DataRow>;
-}
 
-export interface ApiDataBlock {
-    data:Array<DataRow>;
-}
-
-export interface APIBlockResponse {
-    concId:string;
-    corpname:string;
-    blocks:Array<ApiDataBlock>;
-}
 
 
 export interface BacklinkArgs {
@@ -123,7 +99,7 @@ export interface SingleCritQueryArgs extends CoreQueryArgs {
  * converts KonText's original response to a nicer form
  * (no multiple data blocks as they are not needed).
  */
-export class FreqDistribAPI implements DataApi<SingleCritQueryArgs, APIResponse> {
+export class KontextFreqDistribAPI implements IFreqDistribAPI<SingleCritQueryArgs> {
 
     private readonly apiURL:string;
 
@@ -180,7 +156,7 @@ export interface MultiCritQueryArgs extends CoreQueryArgs {
  * MultiBlockFreqDistribAPI creates requests with multiple freq. distrib.
  * criteria.
  */
-export class MultiBlockFreqDistribAPI implements DataApi<MultiCritQueryArgs, APIBlockResponse> {
+export class KontextMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAPI<MultiCritQueryArgs> {
 
     private readonly apiURL:string;
 

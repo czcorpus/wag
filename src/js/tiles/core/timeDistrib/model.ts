@@ -21,10 +21,8 @@ import { concatMap, map, mergeMap, reduce, tap } from 'rxjs/operators';
 import { Dict, HTTP, Maths } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
-import { ConcApi, QuerySelector, mkMatchQuery } from '../../../common/api/kontext/concordance';
-import { ConcResponse, ViewMode } from '../../../common/api/abstract/concordance';
+import { ConcResponse, ViewMode, IConcordanceApi } from '../../../common/api/abstract/concordance';
 import { TimeDistribResponse } from '../../../common/api/abstract/timeDistrib';
-import { DataRow } from '../../../common/api/kontext/freqs';
 import { KontextTimeDistribApi } from '../../../common/api/kontext/timeDistrib';
 import { GeneralSingleCritFreqBarModelState } from '../../../common/models/freq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
@@ -37,6 +35,7 @@ import { QueryMatch, RecognizedQueries } from '../../../common/query';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { TileWait } from '../../../models/tileSync';
 import { PriorityValueFactory } from '../../../common/priority';
+import { DataRow } from '../../../common/api/abstract/freqs';
 
 
 export const enum FreqFilterQuantity {
@@ -108,7 +107,7 @@ export interface TimeDistribModelArgs {
     initState:TimeDistribModelState;
     tileId:number;
     waitForTile:number;
-    apiFactory:PriorityValueFactory<[ConcApi, KontextTimeDistribApi]>;
+    apiFactory:PriorityValueFactory<[IConcordanceApi<{}>, KontextTimeDistribApi]>;
     appServices:IAppServices;
     queryMatches:RecognizedQueries;
     backlink:Backlink;
@@ -120,7 +119,7 @@ export interface TimeDistribModelArgs {
  */
 export class TimeDistribModel extends StatelessModel<TimeDistribModelState, TileWait<boolean>> {
 
-    private readonly apiFactory:PriorityValueFactory<[ConcApi, KontextTimeDistribApi]>;
+    private readonly apiFactory:PriorityValueFactory<[IConcordanceApi<{}>, KontextTimeDistribApi]>;
 
     private readonly appServices:IAppServices;
 
@@ -446,7 +445,6 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
                         concApi,
                         concApi.stateToArgs(
                             {
-                                querySelector: QuerySelector.CQL,
                                 corpname: state.corpname,
                                 otherCorpname: undefined,
                                 subcname: subcname,
@@ -482,7 +480,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
                             subcName: subcname,
                             wordMainLabel: lemmaVariant.lemma,
                             targetId: target,
-                            origQuery: mkMatchQuery(lemmaVariant, state.posQueryGenerator),
+                            origQuery: concApi.mkMatchQuery(lemmaVariant, state.posQueryGenerator),
                             freqApi
                         }
                     )

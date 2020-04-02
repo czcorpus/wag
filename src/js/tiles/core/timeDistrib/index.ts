@@ -29,6 +29,8 @@ import { init as viewInit } from './view';
 import { TileWait } from '../../../models/tileSync';
 import { PriorityValueFactory } from '../../../common/priority';
 import { KontextTimeDistribApi } from '../../../common/api/kontext/timeDistrib';
+import { IConcordanceApi } from '../../../common/api/abstract/concordance';
+import { createApiInstance as createConcApiInstance } from '../../../common/api/factory/concordance';
 
 declare var require:(src:string)=>void;  // webpack
 require('./style.less');
@@ -72,14 +74,14 @@ export class TimeDistTile implements ITileProvider {
         this.blockingTiles = waitForTiles;
 
         const apiUrlList = typeof conf.apiURL === 'string' ? [conf.apiURL] : conf.apiURL;
-        const apiFactory = new PriorityValueFactory<[ConcApi, KontextTimeDistribApi]>(conf.apiPriority || List.repeat(() => 1, apiUrlList.length));
+        const apiFactory = new PriorityValueFactory<[IConcordanceApi<{}>, KontextTimeDistribApi]>(conf.apiPriority || List.repeat(() => 1, apiUrlList.length));
         pipe(
             apiUrlList,
             List.forEach(
                 (url, i) => apiFactory.addInstance(
                     i,
                     [
-                        new ConcApi(false, cache, url, appServices.getApiHeaders(url)),
+                        createConcApiInstance(cache, conf.apiType, url, appServices.getApiHeaders(url)),
                         createApiInstance(
                             conf.apiType,
                             cache,

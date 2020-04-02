@@ -20,14 +20,13 @@ import { forkJoin, Observable, Observer, of as rxOf } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 
 import { IAppServices } from '../../../appServices';
-import { FreqDistribAPI } from '../../../common/api/kontext/freqs';
 import { GeneralSingleCritFreqBarModelState, stateToAPIArgs } from '../../../common/models/freq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { ConcLoadedPayload } from '../concordance/actions';
 import { ActionName, Actions, DataLoadedPayload } from './actions';
 import { DataApi } from '../../../common/types';
 import { TooltipValues } from '../../../views/global';
-import { DataRow } from '../../../common/api/kontext/freqs';
+import { IFreqDistribAPI, DataRow } from '../../../common/api/abstract/freqs';
 
 /*
 oral2013:
@@ -84,11 +83,11 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
 
     private readonly appServices:IAppServices;
 
-    private readonly api:FreqDistribAPI;
+    private readonly api:IFreqDistribAPI<{}>;
 
     private readonly mapLoader:DataApi<string, string>;
 
-    constructor(dispatcher:IActionQueue, tileId:number, waitForTile:number, appServices:IAppServices, api:FreqDistribAPI,
+    constructor(dispatcher:IActionQueue, tileId:number, waitForTile:number, appServices:IAppServices, api:IFreqDistribAPI<{}>,
             mapLoader:DataApi<string, string>, initState:GeoAreasModelState) {
         super(dispatcher, initState);
         this.tileId = tileId;
