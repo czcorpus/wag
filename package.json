@@ -4,7 +4,8 @@
   "description": "Word At a Glance",
   "main": "index.js",
   "scripts": {
-    "test": "TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\"}' NODE_ENV=test node_modules/mocha/bin/mocha --require ts-node/register './test/**/*.ts'"
+    "test": "TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\"}' NODE_ENV=test node_modules/mocha/bin/mocha --require ts-node/register './test/**/*.ts'",
+    "start": "launch"
   },
   "author": "",
   "license": "Apache-2.0",
@@ -34,6 +35,7 @@
     "null-loader": "^3.0.0",
     "optimize-css-assets-webpack-plugin": "^5.0.3",
     "progress-bar-webpack-plugin": "^2.1.0",
+    "script-launcher": "^1.27.2",
     "sinon": "^9.0.1",
     "source-map-loader": "^0.2.4",
     "style-loader": "^1.1.3",
