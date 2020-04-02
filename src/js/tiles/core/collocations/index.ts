@@ -90,7 +90,7 @@ export class CollocationsTile implements ITileProvider {
         this.model = new CollocModel({
             dispatcher: dispatcher,
             tileId: tileId,
-            waitForTile: waitForTiles[0],
+            waitForTile: waitForTiles.length > 0 ? waitForTiles[0] : -1,
             waitForTilesTimeoutSecs: waitForTilesTimeoutSecs,
             appServices: appServices,
             service: this.api,

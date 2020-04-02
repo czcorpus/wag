@@ -121,7 +121,7 @@ export class TimeDistTile implements ITileProvider {
                 refArea: [null, null]
             },
             tileId: tileId,
-            waitForTile: waitForTiles[0] || -1,
+            waitForTile: waitForTiles.length > 0 ? waitForTiles[0] : -1,
             apiFactory,
             appServices: appServices,
             queryMatches,

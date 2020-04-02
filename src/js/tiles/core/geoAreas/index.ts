@@ -73,7 +73,7 @@ export class GeoAreasTile implements ITileProvider {
         this.model = new GeoAreasModel(
             dispatcher,
             tileId,
-            waitForTiles[0],
+            waitForTiles.length > 0 ? waitForTiles[0] : -1,
             appServices,
             createApiInstance(cache, conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             new MapLoader(cache, appServices),

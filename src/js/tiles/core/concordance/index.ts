@@ -99,7 +99,7 @@ export class ConcordanceTile implements ITileProvider {
             queryMatches,
             queryType,
             backlink: conf.backlink || null,
-            waitForTile: waitForTiles[0],
+            waitForTile: waitForTiles.length > 0 ? waitForTiles[0] : -1,
             initState: {
                 tileId: tileId,
                 visibleQueryIdx: 0,

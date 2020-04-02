@@ -124,7 +124,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                 state.data = [];
             },
             (state, action, dispatch) => {
-                if (this.waitForTile !== null) {
+                if (this.waitForTile >= 0) {
                     this.suspend({}, (action:Action<{tileId:number}>, syncData) => {
                         if (action.name === GlobalActionName.TileDataLoaded && action.payload.tileId === this.waitForTile) {
                             if (action.error) {

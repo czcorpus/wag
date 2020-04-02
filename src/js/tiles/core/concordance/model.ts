@@ -148,7 +148,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 state.error = null;
             },
             (state, action, dispatch) => {
-                if (this.waitForTile) {
+                if (this.waitForTile >= 0) {
                     this.suspend({}, (action:GlobalActions.TileDataLoaded<{}>, syncData) => {
                         if (action.name === GlobalActionName.TileDataLoaded && action.payload.tileId === this.waitForTile) {
                             if (isCollocSubqueryPayload(action.payload)) {
