@@ -23,7 +23,7 @@
 
 |                   | WaG       | KonText | NoSkE  | Treq   | Clarin FCS | Datamuse   | ElasticSearch | LCC   |
 --------------------|-----------|---------|--------|--------|------------|------------|-------------|---------|
-| collocations      |           | :star:  | :construction:       |        |            |            |             | :star:  |
+| collocations      |           | :star:  | :star: |        |            |            |             | :star:  |
 | concFilter        |           | :star:  |        |        |            |            |             |         |
 | concordance       |           | :star:  | :star: |        | :star:     |            |             | :star:  |
 | freqBar           |           | :star:  | :construction:       |        |            |            |             |         |

@@ -30,9 +30,9 @@ import { CollocationApi } from '../../../common/api/abstract/collocations';
 import { CollocModelState, ctxToRange } from '../../../common/models/collocations';
 import { CoreCollRequestArgs } from '../../../common/api/kontext/collocations';
 import { QueryMatch, QueryType } from '../../../common/query';
-import { ConcApi, QuerySelector, RequestArgs } from '../../../common/api/kontext/concordance';
+import { QuerySelector, RequestArgs } from '../../../common/api/kontext/concordance';
 import { callWithExtraVal } from '../../../common/api/util';
-import { ViewMode, ConcResponse } from '../../../common/api/abstract/concordance';
+import { ViewMode, ConcResponse, IConcordanceApi } from '../../../common/api/abstract/concordance';
 import { createInitialLinesData } from '../../../common/models/concordance';
 
 
@@ -41,7 +41,7 @@ export interface CollocModelArgs {
     tileId:number;
     appServices:IAppServices;
     service:CollocationApi<{}>;
-    concApi:ConcApi;
+    concApi:IConcordanceApi<{}>;
     initState:CollocModelState;
     waitForTile:number;
     waitForTilesTimeoutSecs:number;
@@ -59,7 +59,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
 
     private readonly service:CollocationApi<{}>;
 
-    private readonly concApi:ConcApi;
+    private readonly concApi:IConcordanceApi<{}>;
 
     private readonly appServices:IAppServices;
 
@@ -273,7 +273,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
     private loadConcs(state:CollocModelState):Observable<FreqRequestArgs> {
         return rxOf(...List.map((v, i) => [i, v] as [number, QueryMatch], state.queryMatches)).pipe(
             concatMap(([queryId, lemma]) =>
-                callWithExtraVal<RequestArgs, ConcResponse, [number, QueryMatch]>(
+                callWithExtraVal<{}, ConcResponse, [number, QueryMatch]>(
                     this.concApi,
                     this.concApi.stateToArgs(
                         {
