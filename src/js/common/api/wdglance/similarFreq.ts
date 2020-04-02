@@ -15,45 +15,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Observable } from 'rxjs';
+import { Observable, of as rxOf } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { cachedAjax$ } from '../../../common/ajax';
-import { DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../../common/types';
-import { QueryMatch, matchesPos, QueryPoS } from '../../../common/query';
+import { HTTPHeaders, IAsyncKeyValueStore } from '../../../common/types';
+import { QueryMatch, matchesPos, calcFreqBand } from '../../../common/query';
 import { MultiDict } from '../../../common/data';
+import { SimilarFreqDbAPI, RequestArgs, Response } from '../../../common/api/abstract/similarFreq';
+import { pipe, List } from 'cnc-tskit';
 
-
-export interface RequestArgs {
-    lang:string;
-    word:string;
-    lemma:string;
-    pos:Array<QueryPoS>;
-    srchRange:number;
-}
-
-export type FreqBand = 1|2|3|4|5;
-
-export interface FreqDBRow {
-    word:string;
-    lemma:string;
-    pos:Array<{value:QueryPoS; label:string}>;
-    abs:number;
-    ipm:number;
-    arf:number;
-    flevel:FreqBand|null;
-    isSearched:boolean;
-}
-
-export interface Response {
-    result:Array<FreqDBRow>;
-}
 
 interface HTTPResponse {
     result:Array<QueryMatch>;
 }
 
-export class FreqDbAPI implements DataApi<RequestArgs, Response> {
+export class SimilarFreqWordsNullAPI implements SimilarFreqDbAPI {
+
+
+    call(args:RequestArgs):Observable<Response> {
+        return rxOf({result: []});
+    }
+
+}
+
+export class SimilarFreqWordsAPI implements SimilarFreqDbAPI {
 
     private readonly apiURL:string;
 
@@ -82,16 +68,18 @@ export class FreqDbAPI implements DataApi<RequestArgs, Response> {
 
         ).pipe(
             map(data => ({
-                result: data.result.map(v => ({
-                    word: v.word,
-                    lemma: v.lemma,
-                    pos: v.pos,
-                    abs: v.abs,
-                    ipm: v.ipm,
-                    arf: v.arf,
-                    flevel: null,
-                    isSearched: v.lemma === args.lemma && matchesPos(v, args.pos) ? true : false
-                }))
+                result: pipe(
+                    data.result,
+                    List.map(
+                        v => ({
+                            lemma: v.lemma,
+                            pos: v.pos,
+                            ipm: v.ipm,
+                            flevel: calcFreqBand(v.ipm)
+                        })
+                    ),
+                    List.filter(item => item.lemma !== args.lemma || !matchesPos(item, args.pos))
+                )
             }))
         );
     }

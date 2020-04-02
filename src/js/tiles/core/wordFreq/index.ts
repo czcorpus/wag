@@ -18,17 +18,17 @@
 import { IAppServices } from '../../../appServices';
 import { QueryType } from '../../../common/query';
 import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../../common/tile';
-import { FreqDbAPI } from './api';
-import { FlevelDistribItem, SummaryModel, createInitialWordDataArray } from './model';
+import { FlevelDistribItem, SummaryModel, findCurrentMatches, mkEmptySimilarWords } from './model';
 import { init as viewInit } from './views';
 import { StatelessModel } from 'kombo';
+import { SimilarFreqWordsNullAPI, SimilarFreqWordsAPI } from '../../../common/api/wdglance/similarFreq';
 
 declare var require:(src:string)=>void;  // webpack
 require('./style.less');
 
 
 export interface WordFreqTileConf extends TileConf {
-    apiURL:string;
+    apiURL?:string;
     corpname:string;
     corpusSize:number;
     sfwRowRange:number;
@@ -67,12 +67,15 @@ export class WordFreqTile implements ITileProvider {
                 error: null,
                 corpname: conf.corpname,
                 corpusSize: conf.corpusSize,
-                data: createInitialWordDataArray(queryMatches),
+                similarFreqWords: mkEmptySimilarWords(queryMatches),
+                queryMatches: findCurrentMatches(queryMatches),
                 sfwRowRange: conf.sfwRowRange,
                 flevelDistrb: conf.flevelDistrib ? conf.flevelDistrib : defaultFlevelDistrib
             },
             tileId,
-            api: new FreqDbAPI(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            api: conf.apiURL ?
+                new SimilarFreqWordsAPI(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)) :
+                new SimilarFreqWordsNullAPI(),
             queryMatches: queryMatches,
             queryLang: lang1,
             queryType,

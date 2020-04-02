@@ -57,7 +57,7 @@ export const findCurrQueryMatch = (queryMatches:Array<QueryMatch>):QueryMatch =>
         abs: -1,
         ipm: -1,
         arf: -1,
-        flevel: -1,
+        flevel: null,
         isCurrent: true
     };
 };

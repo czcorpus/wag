@@ -208,7 +208,7 @@ export function mainAction(services:Services, answerMode:boolean, req:Request, r
                         abs: 0,
                         ipm: 0,
                         arf: 0,
-                        flevel: 0,
+                        flevel: null,
                         isCurrent: true,
                         isNonDict: true
                     }];

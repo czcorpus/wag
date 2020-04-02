@@ -41,8 +41,6 @@ export interface IFreqDB {
 
     findQueryMatches(appServices:IAppServices, word:string, minFreq:number):Observable<Array<QueryMatch>>;
 
-    getNearFreqItems(appServices:IAppServices, val:QueryMatch, whereSgn:number, limit:number):Observable<QueryMatch>;
-
     getSimilarFreqWords(appServices:IAppServices, lemma:string, pos:Array<QueryPoS>, rng:number):Observable<Array<QueryMatch>>;
 
     getWordForms(appServices:IAppServices, lemma:string, pos:Array<QueryPoS>):Observable<Array<QueryMatch>>;

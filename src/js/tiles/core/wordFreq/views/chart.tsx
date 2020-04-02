@@ -20,21 +20,20 @@ import { IActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
 import { CartesianGrid, Dot, Label, Line, LineChart, XAxis, YAxis } from 'recharts';
 import { GlobalComponents } from '../../../../views/global';
-import { FreqDBRow } from '../api';
 import { QueryPoS } from '../../../../common/query';
+import { SimilarFreqWord } from '../../../../common/api/abstract/similarFreq';
 
 
 interface ChartFreqDistItem {
     ipm:number;
     flevel:number;
-    abs:number;
     lemma:string;
     pos:Array<{value:QueryPoS; label:string}>;
     color:string;
 }
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>):React.SFC<{
-    queryMatches:Array<FreqDBRow>;
+    queryMatches:Array<SimilarFreqWord>;
 }> {
 
     // -------------------- <LineDot /> -----------------------------------------------
@@ -69,7 +68,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------------- <Chart /> -----------------------------------------------
     const Chart:React.SFC<{
-        queryMatches:Array<FreqDBRow>;
+        queryMatches:Array<SimilarFreqWord>;
         activeIdent:number;
     }> = (props) => {
         const levels = [
@@ -79,13 +78,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         const queryMatches:Array<ChartFreqDistItem> = props.queryMatches.map(v2 => ({
             ipm: v2.ipm,
             flevel: v2.flevel,
-            abs: v2.abs,
             lemma: v2.lemma,
             pos: v2.pos,
             color: '#E2007A'
         }));
         const data = levels
-            .map(v => ({ipm: v.ipm, flevel: v.v, abs: null, lemma: null, pos: null, color: '#8884d8'}))
+            .map(v => ({ipm: v.ipm, flevel: v.v, lemma: null, pos: null, color: '#8884d8'}))
             .concat(queryMatches)
             .sort((v1, v2) => v1.flevel - v2.flevel);
         return (

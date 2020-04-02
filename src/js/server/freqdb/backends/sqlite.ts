@@ -20,9 +20,9 @@ import { concatMap, reduce } from 'rxjs/operators';
 import { Database } from 'sqlite3';
 import { List } from 'cnc-tskit';
 
-import { IAppServices } from '../../appServices';
-import { importQueryPos, QueryMatch, QueryPoS } from '../../common/query';
-import { IFreqDB, posTable } from './freqdb';
+import { IAppServices } from '../../../appServices';
+import { importQueryPos, QueryMatch, QueryPoS, calcFreqBand } from '../../../common/query';
+import { IFreqDB, posTable } from '../freqdb';
 
 
 function ntimesPlaceholder(n:number):string {
@@ -49,7 +49,7 @@ export class SqliteFreqDB implements IFreqDB {
             abs: row['abs'],
             arf: row['arf'],
             ipm: row['ipm'] !== undefined ? row['ipm'] : -1,
-            flevel: -1,
+            flevel: null,
             pos: List.map<QueryPoS, {value:QueryPoS; label:string}>(
                 v => ({
                     value: v,
@@ -92,7 +92,7 @@ export class SqliteFreqDB implements IFreqDB {
                                             value: pos,
                                             label: appServices.importExternalMessage(posTable[pos])
                                         }],
-                                        flevel: -1,
+                                        flevel: calcFreqBand(row['ipm']),
                                         isCurrent: false
                                     });
 
@@ -124,7 +124,7 @@ export class SqliteFreqDB implements IFreqDB {
         )
     }
 
-    getNearFreqItems(appServices:IAppServices, val:QueryMatch, whereSgn:number, limit:number):Observable<QueryMatch> {
+    private getNearFreqItems(appServices:IAppServices, val:QueryMatch, whereSgn:number, limit:number):Observable<QueryMatch> {
         return new Observable<QueryMatch>((observer) => {
             this.db.each(
                 'SELECT value, pos, arf, `count` AS abs, CAST(count AS FLOAT) / ? * 1000000 AS ipm ' +

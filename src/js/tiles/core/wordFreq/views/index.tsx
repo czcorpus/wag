@@ -35,30 +35,26 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------------- <WordFreqTileView /> -----------------------------------------------
 
-    class WordFreqTileView extends React.PureComponent<SummaryModelState & CoreTileComponentProps> {
-
-        render() {
-            return (
-                <globalComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
-                        hasData={this.props.data.length > 0} sourceIdent={{corp: this.props.corpname}}
-                        supportsTileReload={this.props.supportsReloadOnError}
-                        issueReportingUrl={this.props.issueReportingUrl}>
-                    <div className="WordFreqTileView">
-                        {!this.props.isMobile && this.props.widthFract > 1 ?
-                            <div className="chart">
-                            <Chart queryMatches={this.props.data[0].filter(v => v.isSearched)} />
-                            </div> :
-                            null
-                        }
-                        {this.props.data.length === 1 ?
-                            <SingleWordProfile data={this.props.data[0]} /> :
-                            <MultiWordProfile data={this.props.data} />
-                        }
-                    </div>
-                </globalComponents.TileWrapper>
-            );
-        }
-    }
+    const WordFreqTileView:React.SFC<SummaryModelState & CoreTileComponentProps> = (props) => (
+        <globalComponents.TileWrapper tileId={props.tileId} isBusy={props.isBusy} error={props.error}
+                hasData={props.queryMatches.length > 0} sourceIdent={{corp: props.corpname}}
+                supportsTileReload={props.supportsReloadOnError}
+                issueReportingUrl={props.issueReportingUrl}>
+            <div className="WordFreqTileView">
+                {!props.isMobile && props.widthFract > 1 ?
+                    <div className="chart">
+                        <Chart queryMatches={props.queryMatches} />
+                    </div> :
+                    null
+                }
+                {props.queryMatches.length === 1 ?
+                    <SingleWordProfile searchedWord={props.queryMatches[0]}
+                        similarFreqWords={props.similarFreqWords[0]} /> :
+                    <MultiWordProfile matches={props.queryMatches} />
+                }
+            </div>
+        </globalComponents.TileWrapper>
+    );
 
     return BoundWithProps(WordFreqTileView, model);
 }

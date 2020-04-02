@@ -20,8 +20,9 @@ import * as React from 'react';
 
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../../models/actions';
 import { GlobalComponents } from '../../../../views/global';
-import { FreqDBRow } from '../api';
 import { init as commonViewInit } from './common';
+import { SimilarFreqWord } from '../../../../common/api/abstract/similarFreq';
+import { QueryMatch } from '../../../../common/query';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>) {
@@ -32,7 +33,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // -------------------- <SimilarFreqWords /> -----------------------------------------------
 
     const SimilarFreqWords:React.SFC<{
-        data:Array<FreqDBRow>;
+        data:Array<SimilarFreqWord>;
 
     }> = (props) => {
 
@@ -68,7 +69,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // -------------------- <SrchWordInfo /> ---------------------------------------------------
 
     const SrchWordInfo:React.SFC<{
-        data:FreqDBRow;
+        data:QueryMatch;
 
     }> = (props) => (
         <>
@@ -96,22 +97,17 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // -------------------- <SingleWordProfile /> ---------------------------------------------------
 
     const SingleWordProfile:React.SFC<{
-        data:Array<FreqDBRow>;
+        similarFreqWords:Array<SimilarFreqWord>;
+        searchedWord:QueryMatch;
 
-    }> = (props) => {
-
-        const srchWord = props.data.find(v => v.isSearched);
-        const similarFreqWords = props.data.filter(v => !v.isSearched);
-
-        return (
-            <div className="SingleWordProfile">
-                <dl className="info">
-                    {srchWord ? <SrchWordInfo data={srchWord} /> : null}
-                    {similarFreqWords.length > 0 ? <SimilarFreqWords data={similarFreqWords} /> : null}
-                </dl>
-            </div>
-        );
-    }
+    }> = (props) => (
+        <div className="SingleWordProfile">
+            <dl className="info">
+                {props.searchedWord ? <SrchWordInfo data={props.searchedWord} /> : null}
+                {props.similarFreqWords.length > 0 ? <SimilarFreqWords data={props.similarFreqWords} /> : null}
+            </dl>
+        </div>
+    );
 
     return SingleWordProfile;
 }

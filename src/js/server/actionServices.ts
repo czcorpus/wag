@@ -26,7 +26,6 @@ import { QueryType } from '../common/query';
 import { IFreqDB } from './freqdb/freqdb';
 import { createInstance, FreqDBType } from './freqdb/factory';
 import { Database } from 'sqlite3';
-import { IAppServices } from '../appServices';
 
 
 
@@ -59,7 +58,8 @@ export class WordDatabases {
                             uniqDb[db.path] = createInstance(
                                 db.dbType as FreqDBType,
                                 db.path,
-                                db.corpusSize
+                                db.corpusSize,
+                                db.options || {}
                             );
                         }
                         targetConf[lang] = uniqDb[db.path];

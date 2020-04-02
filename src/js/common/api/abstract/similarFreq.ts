@@ -16,8 +16,29 @@
  * limitations under the License.
  */
 
-import { SimilarFreqWord } from '../../../common/api/abstract/similarFreq';
+import { QueryPoS, FreqBand } from '../../query';
+import { DataApi } from '../../types';
 
-export interface DataLoadedPayload {
-    data:Array<SimilarFreqWord>;
+
+export interface RequestArgs {
+    lang:string;
+    word:string;
+    lemma:string;
+    pos:Array<QueryPoS>;
+    srchRange:number;
+}
+
+export interface SimilarFreqWord {
+    lemma:string;
+    pos:Array<{value:QueryPoS; label:string}>;
+    ipm:number;
+    flevel:FreqBand|null;
+}
+
+export interface Response {
+    result:Array<SimilarFreqWord>;
+}
+
+export interface SimilarFreqDbAPI extends DataApi<RequestArgs, Response> {
+
 }
