@@ -1,12 +1,4 @@
-.PHONY: production devel devel-server configtest configtest-samples configschemata
-production :
-	nodejs node_modules/webpack/bin/webpack.js --config webpack.prod.js
-devel :
-	nodejs node_modules/webpack/bin/webpack.js --config webpack.dev.js
-devel-server :
-	nodejs node_modules/webpack-dev-server/bin/webpack-dev-server.js --config webpack.dev.js
-server :
-	nodejs node_modules/webpack/bin/webpack.js --config webpack.server.js
+.PHONY: configtest configtest-samples configschemata
 configschemata :
 	./node_modules/typescript-json-schema/bin/typescript-json-schema src/js/conf/index.ts ServerConf --ignoreErrors --out conf/server-schema.json --required --strictNullChecks
 	./node_modules/typescript-json-schema/bin/typescript-json-schema src/js/conf/index.ts ClientStaticConf --ignoreErrors --out conf/wdglance-schema.json --required --strictNullChecks

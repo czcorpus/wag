@@ -4,7 +4,12 @@
   "description": "Word At a Glance",
   "main": "index.js",
   "scripts": {
-    "test": "TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\"}' NODE_ENV=test node_modules/mocha/bin/mocha --require ts-node/register './test/**/*.ts'"
+    "test": "TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\"}' NODE_ENV=test node_modules/mocha/bin/mocha --require ts-node/register './test/**/*.ts'",
+    "start": "node dist-server/service.js",
+    "server": "webpack --config webpack.server.js",
+    "production": "webpack --config webpack.prod.js",
+    "devel": "webpack --config webpack.dev.js",
+    "devel-server": "webpack-dev-server --config webpack.dev.js"
   },
   "author": "",
   "license": "Apache-2.0",
