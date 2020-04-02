@@ -18,7 +18,7 @@
 import { IActionDispatcher, StatelessModel } from 'kombo';
 import { List } from 'cnc-tskit';
 import { IAppServices } from '../../../appServices';
-import { FreqDistribAPI, FreqSort } from '../../../common/api/kontext/freqs';
+import { FreqSort } from '../../../common/api/kontext/freqs';
 import { QueryType } from '../../../common/query';
 import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../../common/tile';
 import { MultiWordGeoAreasModel } from './model';
@@ -26,6 +26,8 @@ import { init as viewInit } from './views';
 import { MapLoader } from './mapLoader';
 import { ConcApi } from '../../../common/api/kontext/concordance';
 import { findCurrQueryMatch } from '../../../models/query';
+import { createApiInstance } from '../../../common/api/factory/freqs';
+import { createApiInstance as createConcApiInstance } from '../../../common/api/factory/concordance';
 
 
 declare var require:any;
@@ -34,6 +36,7 @@ require('./style.less');
 
 export interface MultiWordGeoAreasTileConf extends TileConf {
     apiURL:string;
+    apiType:string;
     corpname:string;
     fcrit:string;
     freqSort:FreqSort;
@@ -76,8 +79,8 @@ export class MultiWordGeoAreasTile implements ITileProvider {
             waitForTiles[0],
             appServices,
             queryMatches,
-            new ConcApi(false, cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
-            new FreqDistribAPI(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            createConcApiInstance(cache, conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            createApiInstance(cache, conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             new MapLoader(cache, appServices),
             {
                 isBusy: isBusy,

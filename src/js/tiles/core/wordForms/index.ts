@@ -73,7 +73,7 @@ export class WordFormsTile implements ITileProvider {
             api: createApiInstance(conf.apiType, cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             queryMatches,
             queryLang: lang1,
-            waitForTile: waitForTiles.length > 0 ? waitForTiles[0] : null
+            waitForTile: waitForTiles.length > 0 ? waitForTiles[0] : -1
         });
         this.view = viewInit(dispatcher, ut, theme, this.model);
     }

@@ -21,13 +21,14 @@ import { concatMap } from 'rxjs/operators';
 import { Dict, Ident } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
-import { BacklinkArgs, DataRow, MultiBlockFreqDistribAPI } from '../../../common/api/kontext/freqs';
+import { BacklinkArgs } from '../../../common/api/kontext/freqs';
 import { createBackLink, GeneralMultiCritFreqBarModelState, stateToAPIArgs } from '../../../common/models/freq';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { ConcLoadedPayload } from '../concordance/actions';
 import { ActionName, Actions, DataLoadedPayload } from './actions';
 import { callWithExtraVal } from '../../../common/api/util';
+import { DataRow, IMultiBlockFreqDistribAPI } from '../../../common/api/abstract/freqs';
 
 
 export interface FreqBarModelState extends GeneralMultiCritFreqBarModelState<DataRow> {
@@ -44,7 +45,7 @@ export interface FreqBarModelArgs {
     waitForTiles:Array<number>;
     subqSourceTiles:Array<number>;
     appServices:IAppServices;
-    api:MultiBlockFreqDistribAPI;
+    api:IMultiBlockFreqDistribAPI<{}>;
     backlink:Backlink|null;
     initState:FreqBarModelState;
 }
@@ -52,7 +53,7 @@ export interface FreqBarModelArgs {
 
 export class FreqBarModel extends StatelessModel<FreqBarModelState, {[tileId:string]:boolean}> {
 
-    protected api:MultiBlockFreqDistribAPI;
+    protected api:IMultiBlockFreqDistribAPI<{}>;
 
     protected readonly appServices:IAppServices;
 
@@ -234,7 +235,7 @@ export const factory = (
     waitForTiles:Array<number>,
     subqSourceTiles:Array<number>,
     appServices:IAppServices,
-    api:MultiBlockFreqDistribAPI,
+    api:IMultiBlockFreqDistribAPI<{}>,
     backlink:Backlink|null,
     initState:FreqBarModelState) => {
 

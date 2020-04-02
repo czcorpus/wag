@@ -160,15 +160,6 @@ function mkWordMatchQuery(lvar:QueryMatch):string {
     return lvar.word.split(' ').map(word => `[word="${escapeVal(word)}"]`).join('');
 }
 
-export function mkMatchQuery(lvar:QueryMatch, generator:[string, string]):string {
-    if (lvar.pos.length > 0) {
-        return mkLemmaMatchQuery(lvar, generator);
-
-    } else if (lvar.word) {
-        return mkWordMatchQuery(lvar);
-    }
-}
-
 export function mkContextFilter(ctx:[number, number], val:string, subq:SubQueryItem<RangeRelatedSubqueryValue>):string {
     if (ctx[0] === 0 && ctx[1] === 0) {
         return `p0 0>0 0 [lemma="${escapeVal(val)}"]`;
@@ -244,6 +235,15 @@ export class ConcApi implements IConcordanceApi<RequestArgs> {
         return [ViewMode.ALIGN, ViewMode.KWIC, ViewMode.SENT];
     }
 
+    mkMatchQuery(lvar:QueryMatch, generator:[string, string]):string {
+        if (lvar.pos.length > 0) {
+            return mkLemmaMatchQuery(lvar, generator);
+
+        } else if (lvar.word) {
+            return mkWordMatchQuery(lvar);
+        }
+    }
+
     stateToArgs(state:ConcordanceMinState, lvar:QueryMatch, lvarIdx:number, otherLangCql:string):RequestArgs {
         if (state.otherCorpname) {
             const ans:PCRequestArgs = {
@@ -251,7 +251,7 @@ export class ConcApi implements IConcordanceApi<RequestArgs> {
                 maincorp: state.corpname,
                 align: state.otherCorpname,
                 usesubcorp: state.subcname,
-                queryselector: state.querySelector,
+                queryselector: QuerySelector.CQL,
                 kwicleftctx: (-1 * state.kwicLeftCtx).toFixed(),
                 kwicrightctx: state.kwicRightCtx.toFixed(),
                 async: '0',
@@ -268,7 +268,7 @@ export class ConcApi implements IConcordanceApi<RequestArgs> {
             ans[`queryselector_${state.otherCorpname}`] = 'cqlrow';
             ans[`cql_${state.otherCorpname}`] = otherLangCql || '';
             if (lvar) {
-                setQuery(ans, mkMatchQuery(lvar, state.posQueryGenerator));
+                setQuery(ans, this.mkMatchQuery(lvar, state.posQueryGenerator));
 
             } else {
                 ans.q = `~${state.concordances[lvarIdx].concId}`;
@@ -279,7 +279,7 @@ export class ConcApi implements IConcordanceApi<RequestArgs> {
             const ans:RequestArgs = {
                 corpname: state.corpname,
                 usesubcorp: state.subcname,
-                queryselector: state.querySelector,
+                queryselector: QuerySelector.CQL,
                 kwicleftctx: (-1 * state.kwicLeftCtx).toFixed(),
                 kwicrightctx: state.kwicRightCtx.toFixed(),
                 async: '0',
@@ -293,7 +293,7 @@ export class ConcApi implements IConcordanceApi<RequestArgs> {
                 format:'json'
             };
             if (lvar) {
-                setQuery(ans, mkMatchQuery(lvar, state.posQueryGenerator));
+                setQuery(ans, this.mkMatchQuery(lvar, state.posQueryGenerator));
 
             } else {
                 ans.q = `~${state.concordances[lvarIdx].concId}`;

@@ -18,15 +18,15 @@
 import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
 import { Ident, List } from 'cnc-tskit';
 
-import { FreqDistribAPI } from '../../../common/api/kontext/freqs';
 import { QueryType } from '../../../common/query';
 import { Backlink, ITileProvider, TileComponent, TileConf, TileFactory } from '../../../common/tile';
 import { GlobalComponents } from '../../../views/global';
 import { MergeCorpFreqModel } from './model';
 import { init as viewInit } from './view';
 import { LocalizedConfMsg } from '../../../common/types';
-import { ConcApi } from '../../../common/api/kontext/concordance';
 import { findCurrQueryMatch } from '../../../models/query';
+import { createApiInstance as createConcApiInstance } from '../../../common/api/factory/concordance';
+import { createApiInstance as createFreqApiInstance } from '../../../common/api/factory/freqs';
 
 
 declare var require:(src:string)=>void;  // webpack
@@ -35,6 +35,7 @@ require('./style.less');
 
 export interface MergeCorpFreqTileConf extends TileConf {
     apiURL:string;
+    apiType:string;
     pixelsPerCategory?:number;
     sources:Array<{
 
@@ -105,8 +106,8 @@ export class MergeCorpFreqTile implements ITileProvider {
             waitForTiles,
             waitForTilesTimeoutSecs,
             appServices,
-            new ConcApi(false, cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
-            new FreqDistribAPI(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            createConcApiInstance(cache, conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            createFreqApiInstance(cache, conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             {
                 isBusy: isBusy,
                 isAltViewMode: false,

@@ -28,11 +28,12 @@ import { ActionName, Actions, DataLoadedPayload, LoadFinishedPayload } from './a
 import { findCurrQueryMatch } from '../../../models/query';
 import { RecognizedQueries, QueryMatch } from '../../../common/query';
 import { ConcLoadedPayload, isConcLoadedPayload } from '../concordance/actions';
-import { ConcApi, QuerySelector, mkMatchQuery } from '../../../common/api/kontext/concordance';
+import { ConcApi } from '../../../common/api/kontext/concordance';
 import { callWithExtraVal } from '../../../common/api/util';
-import { ViewMode } from '../../../common/api/abstract/concordance';
+import { ViewMode, IConcordanceApi } from '../../../common/api/abstract/concordance';
 import { createInitialLinesData } from '../../../common/models/concordance';
-import { MultiBlockFreqDistribAPI, BacklinkArgs, DataRow } from '../../../common/api/kontext/freqs';
+import { BacklinkArgs } from '../../../common/api/kontext/freqs';
+import { DataRow, IMultiBlockFreqDistribAPI } from '../../../common/api/abstract/freqs';
 
 
 export interface MultiWordDataRow extends DataRow {
@@ -52,8 +53,8 @@ export interface FreqComparisonModelArgs {
     tileId:number;
     waitForTiles:Array<number>;
     appServices:IAppServices;
-    concApi:ConcApi;
-    freqApi:MultiBlockFreqDistribAPI;
+    concApi:IConcordanceApi<{}>;
+    freqApi:IMultiBlockFreqDistribAPI<{}>;
     backlink:Backlink|null;
     initState:FreqComparisonModelState;
     queryMatches:RecognizedQueries;
@@ -64,9 +65,9 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
 
     private readonly queryMatches:RecognizedQueries;
 
-    protected readonly concApi:ConcApi;
+    protected readonly concApi:IConcordanceApi<{}>;
 
-    protected readonly freqApi:MultiBlockFreqDistribAPI;
+    protected readonly freqApi:IMultiBlockFreqDistribAPI<{}>;
 
     protected readonly appServices:IAppServices;
 
@@ -244,7 +245,6 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                     this.concApi,
                     this.concApi.stateToArgs(
                         {
-                            querySelector: QuerySelector.CQL,
                             corpname: state.corpname,
                             otherCorpname: undefined,
                             subcname: null,
@@ -271,7 +271,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                         subcName: null,
                         concId: null,
                         queryId: args.queryId,
-                        origQuery: mkMatchQuery(args.lemma, state.posQueryGenerator),
+                        origQuery: this.concApi.mkMatchQuery(args.lemma, state.posQueryGenerator),
                         critId: args.critId,
                         lemma: args.lemma
                     }
@@ -394,8 +394,8 @@ export const factory = (
     tileId:number,
     waitForTiles:Array<number>,
     appServices:IAppServices,
-    concApi:ConcApi,
-    freqApi:MultiBlockFreqDistribAPI,
+    concApi:IConcordanceApi<{}>,
+    freqApi:IMultiBlockFreqDistribAPI<{}>,
     backlink:Backlink|null,
     initState:FreqComparisonModelState,
     queryMatches:RecognizedQueries) => {

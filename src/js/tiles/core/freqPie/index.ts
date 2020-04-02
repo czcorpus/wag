@@ -18,7 +18,7 @@
 import { Ident } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
-import { MultiBlockFreqDistribAPI, FreqSort } from '../../../common/api/kontext/freqs';
+import { FreqSort } from '../../../common/api/kontext/freqs';
 import { SubqueryModeConf } from '../../../common/models/freq';
 import { LocalizedConfMsg } from '../../../common/types';
 import { QueryType } from '../../../common/query';
@@ -28,6 +28,7 @@ import { factory as subqModelFactory } from '../freqBar/subqModel';
 import { init as viewInit } from './view';
 import { StatelessModel } from 'kombo';
 import { ConcApi } from '../../../common/api/kontext/concordance';
+import { createMultiBlockApiInstance } from '../../../common/api/factory/freqs';
 
 declare var require:any;
 require('./style.less');
@@ -35,6 +36,7 @@ require('./style.less');
 
 export interface FreqPieTileConf extends TileConf {
     apiURL:string;
+    apiType:string;
     corpname:string|null; // null can be used in case subqueryMode is enabled
     fcrit:string|Array<string>;
     critLabels:LocalizedConfMsg|Array<LocalizedConfMsg>;
@@ -89,7 +91,7 @@ export class FreqPieTile implements ITileProvider {
             waitForTiles,
             subqSourceTiles,
             appServices,
-            new MultiBlockFreqDistribAPI(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            createMultiBlockApiInstance(cache, conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             conf.backlink || null,
             {
                 isBusy: isBusy,

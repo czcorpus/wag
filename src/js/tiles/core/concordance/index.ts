@@ -99,7 +99,7 @@ export class ConcordanceTile implements ITileProvider {
             queryMatches,
             queryType,
             backlink: conf.backlink || null,
-            waitForTile: waitForTiles[0],
+            waitForTile: waitForTiles.length > 0 ? waitForTiles[0] : -1,
             initState: {
                 tileId: tileId,
                 visibleQueryIdx: 0,
@@ -108,7 +108,6 @@ export class ConcordanceTile implements ITileProvider {
                 isTweakMode: false,
                 isMobile: appServices.isMobileMode(),
                 widthFract: widthFract,
-                querySelector: QuerySelector.CQL,
                 pageSize: conf.pageSize,
                 concordances: createInitialLinesData(queryMatches.length),
                 corpname: conf.corpname,

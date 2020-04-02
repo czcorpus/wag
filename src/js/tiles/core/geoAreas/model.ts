@@ -20,14 +20,13 @@ import { forkJoin, Observable, Observer, of as rxOf } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 
 import { IAppServices } from '../../../appServices';
-import { FreqDistribAPI } from '../../../common/api/kontext/freqs';
 import { GeneralSingleCritFreqBarModelState, stateToAPIArgs } from '../../../common/models/freq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { ConcLoadedPayload } from '../concordance/actions';
 import { ActionName, Actions, DataLoadedPayload } from './actions';
 import { DataApi } from '../../../common/types';
 import { TooltipValues } from '../../../views/global';
-import { DataRow } from '../../../common/api/kontext/freqs';
+import { IFreqDistribAPI, DataRow } from '../../../common/api/abstract/freqs';
 
 /*
 oral2013:
@@ -84,11 +83,11 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
 
     private readonly appServices:IAppServices;
 
-    private readonly api:FreqDistribAPI;
+    private readonly api:IFreqDistribAPI<{}>;
 
     private readonly mapLoader:DataApi<string, string>;
 
-    constructor(dispatcher:IActionQueue, tileId:number, waitForTile:number, appServices:IAppServices, api:FreqDistribAPI,
+    constructor(dispatcher:IActionQueue, tileId:number, waitForTile:number, appServices:IAppServices, api:IFreqDistribAPI<{}>,
             mapLoader:DataApi<string, string>, initState:GeoAreasModelState) {
         super(dispatcher, initState);
         this.tileId = tileId;
@@ -104,55 +103,70 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                 state.error = null;
             },
             (state, action, dispatch) => {
-                this.suspend({}, (action, syncStatus) => {
-                    if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
-                        const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
+                if (this.waitForTile > -1) {
+                    this.suspend({}, (action, syncStatus) => {
+                        if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
+                            const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
 
-                        forkJoin(
-                            new Observable((observer:Observer<{}>) => {
-                                if (action.error) {
-                                    observer.error(new Error(this.appServices.translate('global__failed_to_obtain_required_data')));
+                            forkJoin(
+                                new Observable((observer:Observer<{}>) => {
+                                    if (action.error) {
+                                        observer.error(new Error(this.appServices.translate('global__failed_to_obtain_required_data')));
 
-                                } else {
-                                    observer.next({});
-                                    observer.complete();
-                                }
-                            }).pipe(
-                                concatMap(args => this.api.call(stateToAPIArgs(state, payload.concPersistenceIDs[0])))
-                            ),
-                            state.mapSVG ? rxOf(null) : this.mapLoader.call('mapCzech.inline.svg')
-                        )
-                        .subscribe(
-                            resp => {
-                                dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                    name: GlobalActionName.TileDataLoaded,
-                                    payload: {
-                                        tileId: this.tileId,
-                                        isEmpty: resp[0].data.length === 0,
-                                        data: resp[0].data,
-                                        mapSVG: resp[1],
-                                        concId: resp[0].concId
+                                    } else {
+                                        observer.next({});
+                                        observer.complete();
                                     }
-                                });
-                            },
-                            error => {
-                                dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                    name: GlobalActionName.TileDataLoaded,
-                                    payload: {
-                                        tileId: this.tileId,
-                                        isEmpty: true,
-                                        data: null,
-                                        mapSVG: null,
-                                        concId: null
-                                    },
-                                    error: error
-                                });
-                            }
-                        );
-                        return null;
-                    }
-                    return syncStatus;
-                });
+                                }).pipe(
+                                    concatMap(args => this.api.call(stateToAPIArgs(state, payload.concPersistenceIDs[0])))
+                                ),
+                                state.mapSVG ? rxOf(null) : this.mapLoader.call('mapCzech.inline.svg')
+                            )
+                            .subscribe(
+                                resp => {
+                                    dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                        name: GlobalActionName.TileDataLoaded,
+                                        payload: {
+                                            tileId: this.tileId,
+                                            isEmpty: resp[0].data.length === 0,
+                                            data: resp[0].data,
+                                            mapSVG: resp[1],
+                                            concId: resp[0].concId
+                                        }
+                                    });
+                                },
+                                error => {
+                                    dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                        name: GlobalActionName.TileDataLoaded,
+                                        payload: {
+                                            tileId: this.tileId,
+                                            isEmpty: true,
+                                            data: null,
+                                            mapSVG: null,
+                                            concId: null
+                                        },
+                                        error: error
+                                    });
+                                }
+                            );
+                            return null;
+                        }
+                        return syncStatus;
+                    });
+
+                } else {
+                    dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                        name: GlobalActionName.TileDataLoaded,
+                        payload: {
+                            tileId: this.tileId,
+                            isEmpty: true,
+                            data: null,
+                            mapSVG: null,
+                            concId: null
+                        },
+                        error: new Error('GeoAreasModel cannot load its own concordance')
+                    });
+                }
             }
         );
 

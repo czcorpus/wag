@@ -22,7 +22,7 @@ import { Ident } from 'cnc-tskit';
 import { QueryMatch } from '../../query';
 import { WordFormsApi, RequestConcArgs, Response } from '../abstract/wordForms';
 import { HTTPHeaders, IAsyncKeyValueStore } from '../../types';
-import { FreqDistribAPI } from './freqs';
+import { KontextFreqDistribAPI } from './freqs';
 
 
 export interface HTTPResponse {
@@ -32,10 +32,10 @@ export interface HTTPResponse {
 
 export class WordFormsAPI implements WordFormsApi {
 
-    fapi:FreqDistribAPI;
+    fapi:KontextFreqDistribAPI;
 
     constructor(cache:IAsyncKeyValueStore, apiURL:string, customHeaders?:HTTPHeaders) {
-        this.fapi = new FreqDistribAPI(cache, apiURL, customHeaders);
+        this.fapi = new KontextFreqDistribAPI(cache, apiURL, customHeaders);
     }
 
     /*

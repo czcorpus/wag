@@ -19,7 +19,6 @@ import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 import { fromEvent } from 'rxjs';
 
-import { DataRow } from '../../../../common/api/kontext/freqs';
 import { Theme } from '../../../../common/theme';
 import { CoreTileComponentProps, TileComponent } from '../../../../common/tile';
 import { GlobalComponents, TooltipValues } from '../../../../views/global';
@@ -27,6 +26,7 @@ import { ActionName, Actions } from '../actions';
 import { MultiWordGeoAreasModel, MultiWordGeoAreasModelState } from '../model';
 import { QueryMatch } from '../../../../common/query';
 import { Dict, List, pipe } from 'cnc-tskit';
+import { DataRow } from '../../../../common/api/abstract/freqs';
 
 
 export interface TargetDataRow extends DataRow {

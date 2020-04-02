@@ -19,9 +19,10 @@
 import { TimeDistribApi, TimeDistribArgs, TimeDistribResponse } from '../abstract/timeDistrib';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { FreqDistribAPI, FreqSort } from './freqs';
+import { FreqSort, KontextFreqDistribAPI } from './freqs';
 import { HTTPHeaders, IAsyncKeyValueStore, CorpusDetails } from '../../types';
 import { CorpusInfoAPI } from './corpusInfo';
+import { IFreqDistribAPI } from '../abstract/freqs';
 
 
 /**
@@ -30,7 +31,7 @@ import { CorpusInfoAPI } from './corpusInfo';
  */
 export class KontextTimeDistribApi implements TimeDistribApi {
 
-    private readonly freqApi:FreqDistribAPI;
+    private readonly freqApi:IFreqDistribAPI<{}>;
 
     private readonly fcrit:string;
 
@@ -39,7 +40,7 @@ export class KontextTimeDistribApi implements TimeDistribApi {
     private readonly srcInfoService:CorpusInfoAPI;
 
     constructor(cache:IAsyncKeyValueStore, apiURL:string, customHeaders:HTTPHeaders, fcrit:string, flimit:number) {
-        this.freqApi = new FreqDistribAPI(cache, apiURL, customHeaders);
+        this.freqApi = new KontextFreqDistribAPI(cache, apiURL, customHeaders);
         this.fcrit = fcrit;
         this.flimit = flimit;
         this.srcInfoService = new CorpusInfoAPI(cache, apiURL, customHeaders);

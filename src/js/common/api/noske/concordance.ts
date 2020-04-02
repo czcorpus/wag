@@ -133,15 +133,6 @@ function mkWordMatchQuery(lvar:QueryMatch):string {
     return lvar.word.split(' ').map(word => `[word="${escapeVal(word)}"]`).join('');
 }
 
-export function mkMatchQuery(lvar:QueryMatch, generator:[string, string]):string {
-    if (lvar.pos.length > 0) {
-        return mkLemmaMatchQuery(lvar, generator);
-
-    } else if (lvar.word) {
-        return mkWordMatchQuery(lvar);
-    }
-}
-
 function convertLines(lines:Array<ConcLine>, metadataAttrs?:Array<string>):Array<Line> {
     return List.map(
         line => ({
@@ -187,11 +178,20 @@ export class ConcApi implements IConcordanceApi<RequestArgs> {
         return [ViewMode.KWIC, ViewMode.SENT];
     }
 
+    mkMatchQuery(lvar:QueryMatch, generator:[string, string]):string {
+        if (lvar.pos.length > 0) {
+            return mkLemmaMatchQuery(lvar, generator);
+
+        } else if (lvar.word) {
+            return mkWordMatchQuery(lvar);
+        }
+    }
+
     stateToArgs(state:ConcordanceMinState, lvar:QueryMatch, lvarIdx:number, otherLangCql:string):RequestArgs {
         const ans:RequestArgs = {
             corpname: state.corpname,
             usesubcorp: state.subcname,
-            queryselector: state.querySelector,
+            queryselector: QuerySelector.CQL,
             kwicleftctx: (-1 * state.kwicLeftCtx).toFixed(),
             kwicrightctx: state.kwicRightCtx.toFixed(),
             async: '0',
@@ -206,7 +206,7 @@ export class ConcApi implements IConcordanceApi<RequestArgs> {
             format:'json'
         };
         if (lvar) {
-            setQuery(ans, mkMatchQuery(lvar, state.posQueryGenerator));
+            setQuery(ans, this.mkMatchQuery(lvar, state.posQueryGenerator));
 
         } else {
             ans.q = pipe(

@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { QuerySelector} from '../../api/kontext/concordance';
+
 import { ViewMode, Line } from '../../api/abstract/concordance';
 
 
@@ -33,7 +33,6 @@ export interface ConcData {
 export interface ConcordanceMinState {
     tileId:number;
     queries:Array<string>;
-    querySelector:QuerySelector;
     corpname:string;
     otherCorpname:string;
     subcname:string;

@@ -22,15 +22,16 @@ import { flatMap, concatMap, map, timeout, reduce, tap } from 'rxjs/operators';
 import { Dict, List, pipe, HTTP } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
-import { BacklinkArgs, DataRow, FreqDistribAPI, SingleCritQueryArgs, SourceMappedDataRow } from '../../../common/api/kontext/freqs';
+import { BacklinkArgs, SingleCritQueryArgs, SourceMappedDataRow } from '../../../common/api/kontext/freqs';
 import { callWithExtraVal } from '../../../common/api/util';
 import { BacklinkWithArgs } from '../../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
-import { ConcApi, QuerySelector } from '../../../common/api/kontext/concordance';
+import { ConcApi } from '../../../common/api/kontext/concordance';
 import { QueryMatch } from '../../../common/query';
-import { ViewMode, SingleConcLoadedPayload } from '../../../common/api/abstract/concordance';
+import { ViewMode, SingleConcLoadedPayload, IConcordanceApi } from '../../../common/api/abstract/concordance';
 import { DataLoadedPayload, ModelSourceArgs } from './common';
 import { createInitialLinesData } from '../../../common/models/concordance';
+import { IFreqDistribAPI, DataRow } from '../../../common/api/abstract/freqs';
 
 
 export interface MergeCorpFreqModelState {
@@ -69,14 +70,14 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
 
     private readonly tileId:number;
 
-    private readonly concApi:ConcApi;
+    private readonly concApi:IConcordanceApi<{}>;
 
-    private readonly freqApi:FreqDistribAPI;
+    private readonly freqApi:IFreqDistribAPI<{}>;
 
     private readonly waitForTilesTimeoutSecs:number;
 
     constructor(dispatcher:IActionQueue, tileId:number, waitForTiles:Array<number>, waitForTilesTimeoutSecs:number, appServices:IAppServices,
-                    concApi:ConcApi, freqApi:FreqDistribAPI, initState:MergeCorpFreqModelState) {
+                    concApi:IConcordanceApi<{}>, freqApi:IFreqDistribAPI<{}>, initState:MergeCorpFreqModelState) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.appServices = appServices;
@@ -232,7 +233,6 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
                     this.concApi,
                     this.concApi.stateToArgs(
                         {
-                            querySelector: QuerySelector.CQL,
                             corpname: args.corpname,
                             otherCorpname: undefined,
                             subcname: null,

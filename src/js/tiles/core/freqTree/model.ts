@@ -27,10 +27,9 @@ import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { ActionName, Actions, DataLoadedPayload } from './actions';
 import { QueryMatch } from '../../../common/query';
-import { ConcApi, mkMatchQuery, QuerySelector } from '../../../common/api/kontext/concordance';
 import { isConcLoadedPayload, ConcLoadedPayload } from '../concordance/actions';
 import { createInitialLinesData } from '../../../common/models/concordance';
-import { ViewMode, ConcResponse } from '../../../common/api/abstract/concordance';
+import { ViewMode, ConcResponse, IConcordanceApi } from '../../../common/api/abstract/concordance';
 import { callWithExtraVal } from '../../../common/api/util';
 
 
@@ -48,7 +47,7 @@ export interface FreqComparisonModelArgs {
     tileId:number;
     waitForTiles:Array<number>;
     appServices:IAppServices;
-    concApi:ConcApi;
+    concApi:IConcordanceApi<{}>;
     freqTreeApi:FreqTreeAPI;
     backlink:Backlink|null;
     initState:FreqTreeModelState;
@@ -59,7 +58,7 @@ type SingleQuerySingleBlockArgs = {queryId:number; blockId:number; lemma:QueryMa
 
 export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
 
-    protected readonly concApi:ConcApi;
+    protected readonly concApi:IConcordanceApi<{}>;
 
     protected readonly freqTreeApi:FreqTreeAPI;
 
@@ -220,7 +219,6 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                     this.concApi,
                     this.concApi.stateToArgs(
                         {
-                            querySelector: QuerySelector.CQL,
                             corpname: state.corpname,
                             otherCorpname: undefined,
                             subcname: null,
@@ -247,7 +245,7 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                         subcName: null,
                         concId: null,
                         queryId: args.queryId,
-                        origQuery: mkMatchQuery(args.lemma, state.posQueryGenerator),
+                        origQuery: this.concApi.mkMatchQuery(args.lemma, state.posQueryGenerator),
                         lemma: args.lemma
                     }
                 )
@@ -376,7 +374,7 @@ export const factory = (
     tileId:number,
     waitForTiles:Array<number>,
     appServices:IAppServices,
-    concApi:ConcApi,
+    concApi:IConcordanceApi<{}>,
     freqTreeApi:FreqTreeAPI,
     backlink:Backlink|null,
     initState:FreqTreeModelState) => {

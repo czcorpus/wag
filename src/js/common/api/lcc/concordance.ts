@@ -98,6 +98,10 @@ export class ConcApi implements IConcordanceApi<RequestArgs> {
         return [ViewMode.SENT];
     }
 
+    mkMatchQuery(lvar:QueryMatch, generator:[string, string]):string {
+        return lvar.word;
+    }
+
     stateToArgs(state:ConcordanceMinState, lvar:QueryMatch, lvarIdx:number, otherLangCql:string):RequestArgs {
         return {
             corpname: state.corpname,

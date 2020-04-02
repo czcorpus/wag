@@ -23,7 +23,6 @@ import { Dict, Ident } from 'cnc-tskit';
 import { IAppServices } from '../../../appServices';
 import { ConcApi, QuerySelector, RequestArgs } from '../../../common/api/kontext/concordance';
 import { ViewMode, ConcResponse } from '../../../common/api/abstract/concordance';
-import { APIBlockResponse, MultiBlockFreqDistribAPI } from '../../../common/api/kontext/freqs';
 import { stateToAPIArgs, SubqueryModeConf } from '../../../common/models/freq';
 import { isSubqueryPayload, SubqueryPayload, SubQueryItem } from '../../../common/query';
 import { Backlink } from '../../../common/tile';
@@ -31,6 +30,7 @@ import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../
 import { DataLoadedPayload } from './actions';
 import { FreqBarModel, FreqBarModelState } from './model';
 import { callWithExtraVal } from '../../../common/api/util';
+import { IMultiBlockFreqDistribAPI, APIBlockResponse } from '../../../common/api/abstract/freqs';
 
 
 export class SubqFreqBarModelArgs {
@@ -38,7 +38,7 @@ export class SubqFreqBarModelArgs {
     tileId:number;
     waitForTiles:Array<number>;
     appServices:IAppServices;
-    api:MultiBlockFreqDistribAPI;
+    api:IMultiBlockFreqDistribAPI<{}>;
     concApi:ConcApi;
     backlink:Backlink|null;
     initState:FreqBarModelState;
@@ -189,7 +189,7 @@ export const factory =
         waitForTiles:Array<number>,
         subqSourceTiles:Array<number>,
         appServices:IAppServices,
-        api:MultiBlockFreqDistribAPI,
+        api:IMultiBlockFreqDistribAPI<{}>,
         backlink:Backlink|null,
         initState:FreqBarModelState
     ) => {
