@@ -20,7 +20,7 @@ import { Observable, of as rxOf, zip } from 'rxjs';
 import { concatMap, reduce, share, repeat } from 'rxjs/operators';
 
 import { IAppServices } from '../../../appServices';
-import { FreqBarModelStateBase, stateToAPIArgs } from '../../../common/models/freq';
+import { FreqBarModelStateBase } from '../../../common/models/freq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { ActionName, Actions, LoadFinishedPayload } from './actions';
 import { DataApi } from '../../../common/types';
@@ -130,7 +130,7 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                                     .pipe(
                                         concatMap(([queryId, concId]) => callWithExtraVal(
                                             this.freqApi,
-                                            stateToAPIArgs(state, concId),
+                                            this.freqApi.stateToArgs(state, concId),
                                             {
                                                 concId: concId,
                                                 queryId: queryId
@@ -301,7 +301,7 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                     args.concId = resp.concPersistenceID;
                     return callWithExtraVal(
                         this.freqApi,
-                        stateToAPIArgs(state, args.concId),
+                        this.freqApi.stateToArgs(state, args.concId),
                         args
                     )
                 })

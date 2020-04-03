@@ -26,7 +26,6 @@ import { BacklinkArgs, SingleCritQueryArgs, SourceMappedDataRow } from '../../..
 import { callWithExtraVal } from '../../../common/api/util';
 import { BacklinkWithArgs } from '../../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
-import { ConcApi } from '../../../common/api/kontext/concordance';
 import { QueryMatch } from '../../../common/query';
 import { ViewMode, SingleConcLoadedPayload, IConcordanceApi } from '../../../common/api/abstract/concordance';
 import { DataLoadedPayload, ModelSourceArgs } from './common';

@@ -21,16 +21,20 @@ import { map } from 'rxjs/operators';
 import { cachedAjax$ } from '../../ajax';
 import { HTTPHeaders, IAsyncKeyValueStore, CorpusDetails } from '../../types';
 import { CorpusInfoAPI } from './corpusInfo';
-import { BacklinkWithArgs } from '../../tile';
+import { BacklinkWithArgs, Backlink } from '../../tile';
 import { APIResponse, APIBlockResponse, IMultiBlockFreqDistribAPI, IFreqDistribAPI } from '../abstract/freqs';
+import { GeneralSingleCritFreqBarModelState, GeneralMultiCritFreqBarModelState } from '../../models/freq';
+import { HTTP, pipe, List } from 'cnc-tskit';
 
 export enum FreqSort {
     REL = 'rel'
 }
 
 export interface HTTPResponse {
-    conc_persistence_op_id:string;
+    request:{q:string};
     concsize:number;
+    lastpage:number;
+    paging:number;
     Blocks:Array<{
         Head:Array<{s:string; n:string}>;
         Items:Array<{
@@ -45,8 +49,8 @@ export interface HTTPResponse {
             rel:number;
             relbar:number;
         }>;
-        Total:number;
-        TotalPages:number;
+        total:number;
+        totalfrq:number;
     }>;
 }
 
@@ -67,12 +71,11 @@ export interface SourceMappedDataRow {
 export interface BacklinkArgs {
     corpname:string;
     usesubcorp:string;
-    q:string;
+    q:Array<string>;
     fcrit:Array<string>;
     flimit:number;
     freq_sort:string;
     fpage:number;
-    ftt_include_empty:number;
 }
 
 
@@ -80,11 +83,10 @@ interface CoreQueryArgs {
     corpname:string;
     usesubcorp?:string;
     pagesize?:number;
-    q:string;
+    q:Array<string>;
     flimit:number;
     freq_sort:string;
     fpage:number;
-    ftt_include_empty:number;
     format:'json';
 }
 
@@ -126,6 +128,48 @@ export class NoskeFreqDistribAPI implements IFreqDistribAPI<SingleCritQueryArgs>
         });
     }
 
+    createBacklink(state:GeneralSingleCritFreqBarModelState<any>, backlink:Backlink, concId:string):BacklinkWithArgs<BacklinkArgs> {
+        return backlink ?
+        {
+            url: backlink.url,
+            method: backlink.method || HTTP.Method.GET,
+            label: backlink.label,
+            args: {
+                corpname: state.corpname,
+                usesubcorp: null,
+                q: pipe(
+                    concId.split('&'),
+                    List.map(v => v.split('=').slice(0, 2)),
+                    List.filter(([k, v]) => k === 'q'),
+                    List.map(([,v]) => decodeURIComponent(v.replace(/\++/g, ' ')))
+                ),
+                fcrit: [state.fcrit],
+                flimit: state.flimit,
+                freq_sort: state.freqSort,
+                fpage: state.fpage
+            }
+        } :
+        null;
+    }
+
+    stateToArgs(state:GeneralSingleCritFreqBarModelState<any>, concId:string, critIdx?:number, subcname?:string):SingleCritQueryArgs {
+        return {
+            corpname: state.corpname,
+            usesubcorp: subcname,
+            q: pipe(
+                concId.split('&'),
+                List.map(v => v.split('=').slice(0, 2)),
+                List.filter(([k, v]) => k === 'q'),
+                List.map(([,v]) => decodeURIComponent(v.replace(/\++/g, ' ')))
+            ),
+            fcrit: state.fcrit,
+            flimit: state.flimit,
+            freq_sort: state.freqSort,
+            fpage: state.fpage,
+            format: 'json'
+        };
+    }
+
     call(args:SingleCritQueryArgs):Observable<APIResponse> {
         return cachedAjax$<HTTPResponse>(this.cache)(
             'GET',
@@ -141,7 +185,7 @@ export class NoskeFreqDistribAPI implements IFreqDistribAPI<SingleCritQueryArgs>
                         ipm: v.rel,
                         norm: v.norm
                 })),
-                concId: resp.conc_persistence_op_id,
+                concId: resp.request.q,
                 corpname: args.corpname,
                 usesubcorp: args.usesubcorp || null,
                 concsize: resp.concsize
@@ -185,6 +229,48 @@ export class NoskeMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAPI<
         });
     }
 
+    createBacklink(state:GeneralMultiCritFreqBarModelState<any>, backlink:Backlink, concId:string):BacklinkWithArgs<BacklinkArgs> {
+        return backlink ?
+        {
+            url: backlink.url,
+            method: backlink.method || HTTP.Method.GET,
+            label: backlink.label,
+            args: {
+                corpname: state.corpname,
+                usesubcorp: null,
+                q: pipe(
+                    concId.split('&'),
+                    List.map(v => v.split('=').slice(0, 2)),
+                    List.filter(([k, v]) => k === 'q'),
+                    List.map(([,v]) => decodeURIComponent(v.replace(/\++/g, ' ')))
+                ),
+                fcrit: state.fcrit,
+                flimit: state.flimit,
+                freq_sort: state.freqSort,
+                fpage: state.fpage
+            }
+        } :
+        null;
+    }
+
+    stateToArgs(state:GeneralMultiCritFreqBarModelState<any>, concId:string, critIdx?:number, subcname?:string):MultiCritQueryArgs {
+        return {
+            corpname: state.corpname,
+            usesubcorp: subcname,
+            q: pipe(
+                concId.split('&'),
+                List.map(v => v.split('=').slice(0, 2)),
+                List.filter(([k, v]) => k === 'q'),
+                List.map(([,v]) => decodeURIComponent(v.replace(/\++/g, ' ')))
+            ),
+            fcrit: critIdx !== undefined ? [state.fcrit[critIdx]] : state.fcrit,
+            flimit: state.flimit,
+            freq_sort: state.freqSort,
+            fpage: state.fpage,
+            format: 'json'
+        };
+    }
+
     call(args:MultiCritQueryArgs):Observable<APIBlockResponse> {
         return cachedAjax$<HTTPResponse>(this.cache)(
             'GET',
@@ -206,7 +292,7 @@ export class NoskeMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAPI<
                                 order: i
                             }))
                     })),
-                    concId: resp.conc_persistence_op_id,
+                    concId: resp.request.q,
                     corpname: args.corpname
                 })
             )

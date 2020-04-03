@@ -15,10 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { BacklinkArgs, MultiCritQueryArgs, SingleCritQueryArgs, FreqSort } from '../api/kontext/freqs';
+import { FreqSort } from '../api/kontext/freqs';
 import { LocalizedConfMsg } from '../types';
-import { Backlink, BacklinkWithArgs } from '../tile';
-import { HTTP } from 'cnc-tskit';
 
 export interface FreqBarModelStateBase {
     isBusy:boolean;
@@ -42,10 +40,6 @@ export interface GeneralSingleCritFreqMultiQueryState<T> extends FreqBarModelSta
     data:Array<Array<T>>;
 }
 
-function isMultiCritState<T>(state:GeneralSingleCritFreqBarModelState<T>|GeneralMultiCritFreqBarModelState<T>): state is GeneralMultiCritFreqBarModelState<T> {
-    return (<GeneralMultiCritFreqBarModelState<T>>state).blocks !== undefined;
-}
-
 export interface FreqDataBlock<T> {
     data:Array<T>;
     ident:string;
@@ -58,62 +52,6 @@ export interface GeneralMultiCritFreqBarModelState<T> extends FreqBarModelStateB
     critLabels:Array<LocalizedConfMsg>;
     blocks:Array<FreqDataBlock<T>>;
 }
-
-
-
-export function stateToAPIArgs<T>(state:GeneralSingleCritFreqBarModelState<T>, concId:string, critIdx?:number, subcname?:string):SingleCritQueryArgs;
-export function stateToAPIArgs<T>(state:GeneralMultiCritFreqBarModelState<T>, concId:string, critIdx?:number, subcname?:string):MultiCritQueryArgs;
-export function stateToAPIArgs<T>(state:GeneralSingleCritFreqBarModelState<T>|GeneralMultiCritFreqBarModelState<T>, concId:string, critIdx:number, subcname:string) {
-
-    if (isMultiCritState(state)) {
-        return {
-            corpname: state.corpname,
-            usesubcorp: subcname,
-            q: `~${concId ? concId : state.concId}`,
-            fcrit: critIdx !== undefined ? state.fcrit[critIdx] : state.fcrit,
-            flimit: state.flimit,
-            freq_sort: state.freqSort,
-            fpage: state.fpage,
-            ftt_include_empty: state.fttIncludeEmpty ? 1 : 0,
-            format: 'json'
-        } as MultiCritQueryArgs;
-
-    } else {
-        return {
-            corpname: state.corpname,
-            usesubcorp: subcname,
-            q: `~${concId ? concId : state.concId}`,
-            fcrit: state.fcrit,
-            flimit: state.flimit,
-            freq_sort: state.freqSort,
-            fpage: state.fpage,
-            ftt_include_empty: state.fttIncludeEmpty ? 1 : 0,
-            format: 'json'
-        } as SingleCritQueryArgs;
-    }
-};
-
-
-export const createBackLink = <T>(state:GeneralMultiCritFreqBarModelState<T>|GeneralSingleCritFreqBarModelState<T>,
-            backlink:Backlink, concId:string):BacklinkWithArgs<BacklinkArgs> => {
-    return backlink ?
-        {
-            url: backlink.url,
-            method: backlink.method || HTTP.Method.GET,
-            label: backlink.label,
-            args: {
-                corpname: state.corpname,
-                usesubcorp: null,
-                q: `~${concId}`,
-                fcrit: isMultiCritState(state) ? state.fcrit : [state.fcrit],
-                flimit: state.flimit,
-                freq_sort: state.freqSort,
-                fpage: state.fpage,
-                ftt_include_empty: state.fttIncludeEmpty ? 1 : 0
-            }
-        } :
-        null;
-};
 
 /**
  * SubqueryModeConf defines a special part

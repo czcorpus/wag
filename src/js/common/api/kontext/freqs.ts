@@ -21,8 +21,10 @@ import { map } from 'rxjs/operators';
 import { cachedAjax$ } from '../../ajax';
 import { HTTPHeaders, IAsyncKeyValueStore, CorpusDetails } from '../../types';
 import { CorpusInfoAPI } from './corpusInfo';
-import { BacklinkWithArgs } from '../../tile';
+import { BacklinkWithArgs, Backlink } from '../../tile';
 import { APIResponse, APIBlockResponse, IMultiBlockFreqDistribAPI, IFreqDistribAPI } from '../abstract/freqs';
+import { GeneralSingleCritFreqBarModelState, GeneralMultiCritFreqBarModelState } from '../../models/freq';
+import { HTTP } from 'cnc-tskit';
 
 export enum FreqSort {
     REL = 'rel'
@@ -124,6 +126,40 @@ export class KontextFreqDistribAPI implements IFreqDistribAPI<SingleCritQueryArg
         });
     }
 
+    createBacklink(state:GeneralSingleCritFreqBarModelState<any>, backlink:Backlink, concId:string):BacklinkWithArgs<BacklinkArgs> {
+        return backlink ?
+        {
+            url: backlink.url,
+            method: backlink.method || HTTP.Method.GET,
+            label: backlink.label,
+            args: {
+                corpname: state.corpname,
+                usesubcorp: null,
+                q: `~${concId}`,
+                fcrit: [state.fcrit],
+                flimit: state.flimit,
+                freq_sort: state.freqSort,
+                fpage: state.fpage,
+                ftt_include_empty: state.fttIncludeEmpty ? 1 : 0
+            }
+        } :
+        null;
+    };
+
+    stateToArgs(state:GeneralSingleCritFreqBarModelState<any>, concId:string, critIdx?:number, subcname?:string):SingleCritQueryArgs {
+        return {
+            corpname: state.corpname,
+            usesubcorp: subcname,
+            q: `~${concId ? concId : state.concId}`,
+            fcrit: state.fcrit,
+            flimit: state.flimit,
+            freq_sort: state.freqSort,
+            fpage: state.fpage,
+            ftt_include_empty: state.fttIncludeEmpty ? 1 : 0,
+            format: 'json'
+        };
+    }
+
     call(args:SingleCritQueryArgs):Observable<APIResponse> {
         return cachedAjax$<HTTPResponse>(this.cache)(
             'GET',
@@ -179,6 +215,40 @@ export class KontextMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAP
             corpname: corpname,
             format: 'json'
         });
+    }
+
+    createBacklink(state:GeneralMultiCritFreqBarModelState<any>, backlink:Backlink, concId:string):BacklinkWithArgs<BacklinkArgs> {
+        return backlink ?
+        {
+            url: backlink.url,
+            method: backlink.method || HTTP.Method.GET,
+            label: backlink.label,
+            args: {
+                corpname: state.corpname,
+                usesubcorp: null,
+                q: `~${concId}`,
+                fcrit: state.fcrit,
+                flimit: state.flimit,
+                freq_sort: state.freqSort,
+                fpage: state.fpage,
+                ftt_include_empty: state.fttIncludeEmpty ? 1 : 0
+            }
+        } :
+        null;
+    };
+
+    stateToArgs(state:GeneralMultiCritFreqBarModelState<any>, concId:string, critIdx?:number, subcname?:string):MultiCritQueryArgs {
+        return {
+            corpname: state.corpname,
+            usesubcorp: subcname,
+            q: `~${concId ? concId : state.concId}`,
+            fcrit: critIdx !== undefined ? [state.fcrit[critIdx]] : state.fcrit,
+            flimit: state.flimit,
+            freq_sort: state.freqSort,
+            fpage: state.fpage,
+            ftt_include_empty: state.fttIncludeEmpty ? 1 : 0,
+            format: 'json'
+        };
     }
 
     call(args:MultiCritQueryArgs):Observable<APIBlockResponse> {

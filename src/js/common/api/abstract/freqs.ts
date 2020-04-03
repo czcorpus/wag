@@ -18,6 +18,8 @@
 
 import { DataApi, SourceDetails } from '../../types';
 import { Observable } from 'rxjs';
+import { Backlink } from '../../tile';
+import { GeneralSingleCritFreqBarModelState, GeneralMultiCritFreqBarModelState } from '../../models/freq';
 
 
 export interface DataRow {
@@ -39,11 +41,14 @@ export interface APIResponse {
 
 
 export interface IFreqDistribAPI<T> extends DataApi<T, APIResponse> {
-
+    stateToArgs(state:GeneralSingleCritFreqBarModelState<any>, concId:string, critIdx?:number, subcname?:string):T;
 
     call(args:T):Observable<APIResponse>;
 
     getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<SourceDetails>;
+
+    createBacklink(state, backlink:Backlink, concId:string);
+
 }
 
 
@@ -59,10 +64,12 @@ export interface APIBlockResponse {
 }
 
 
-export interface  IMultiBlockFreqDistribAPI<T> extends DataApi<T, APIBlockResponse> {
+export interface IMultiBlockFreqDistribAPI<T> extends DataApi<T, APIBlockResponse> {
+    stateToArgs(state:GeneralMultiCritFreqBarModelState<any>, concId:string, critIdx?:number, subcname?:string):T;
 
     call(args:T):Observable<APIBlockResponse>;
 
     getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<SourceDetails>;
 
+    createBacklink(state, backlink:Backlink, concId:string);
 }

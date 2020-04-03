@@ -26,9 +26,9 @@
 | collocations      |           | :star:  | :star: |        |            |            |             | :star:  |
 | concFilter        |           | :star:  |        |        |            |            |             |         |
 | concordance       |           | :star:  | :star: |        | :star:     |            |             | :star:  |
-| freqBar           |           | :star:  | :construction:       |        |            |            |             |         |
+| freqBar           |           | :star:  | :star  |        |            |            |             |         |
 | freqComparison    |           | :star:  |        |        |            |            |             |         |
-| freqPie           |           | :star:  | :construction:       |        |            |            |             |         |
+| freqPie           |           | :star:  | :star: |        |            |            |             |         |
 | geoAreas          |           | :star:  |        |        |            |            |             |         |
 | html              |           | :star:  | :star: |        |            |            |             |         |
 | matchingDocuments |           | :star:  |        |        |            |            | :star:      |         |
