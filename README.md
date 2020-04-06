@@ -26,7 +26,7 @@
 | collocations      |           | :star:  | :star: |        |            |            |             | :star:  |
 | concFilter        |           | :star:  |        |        |            |            |             |         |
 | concordance       |           | :star:  | :star: |        | :star:     |            |             | :star:  |
-| freqBar           |           | :star:  | :star  |        |            |            |             |         |
+| freqBar           |           | :star:  | :star:  |        |            |            |             |         |
 | freqComparison    |           | :star:  |        |        |            |            |             |         |
 | freqPie           |           | :star:  | :star: |        |            |            |             |         |
 | geoAreas          |           | :star:  | :star: |        |            |            |             |         |
