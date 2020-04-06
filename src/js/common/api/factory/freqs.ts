@@ -20,6 +20,7 @@ import { IAsyncKeyValueStore, HTTPHeaders } from '../../types';
 import { IFreqDistribAPI, IMultiBlockFreqDistribAPI } from '../abstract/freqs';
 import { CoreApiGroup } from '../coreGroups';
 import { KontextFreqDistribAPI, KontextMultiBlockFreqDistribAPI } from '../kontext/freqs';
+import { NoskeFreqDistribAPI, NoskeMultiBlockFreqDistribAPI } from '../noske/freqs';
 
 
 export function createApiInstance(cache:IAsyncKeyValueStore, apiIdent:string, apiURL:string, httpHeaders?:HTTPHeaders):IFreqDistribAPI<{}> {
@@ -27,6 +28,7 @@ export function createApiInstance(cache:IAsyncKeyValueStore, apiIdent:string, ap
         case CoreApiGroup.KONTEXT:
             return new KontextFreqDistribAPI(cache, apiURL, httpHeaders);
         case CoreApiGroup.NOSKE:
+            return new NoskeFreqDistribAPI(cache, apiURL, httpHeaders);
         default:
             throw new Error(`Freq API ${apiIdent} not implemented`);
     }
@@ -38,6 +40,7 @@ export function createMultiBlockApiInstance(cache:IAsyncKeyValueStore, apiIdent:
         case CoreApiGroup.KONTEXT:
             return new KontextMultiBlockFreqDistribAPI(cache, apiURL, httpHeaders);
         case CoreApiGroup.NOSKE:
+            return new NoskeMultiBlockFreqDistribAPI(cache, apiURL, httpHeaders);
         default:
             throw new Error(`Multi-block freq API ${apiIdent} not implemented`);
     }

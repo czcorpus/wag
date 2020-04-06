@@ -22,7 +22,7 @@ import { Dict, Ident } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
 import { BacklinkArgs } from '../../../common/api/kontext/freqs';
-import { createBackLink, GeneralMultiCritFreqBarModelState, stateToAPIArgs } from '../../../common/models/freq';
+import { GeneralMultiCritFreqBarModelState } from '../../../common/models/freq';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { ConcLoadedPayload } from '../concordance/actions';
@@ -111,7 +111,7 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState, {[tileId:str
                         }).pipe(
                             concatMap(critIdx => callWithExtraVal(
                                     this.api,
-                                    stateToAPIArgs(state, payload.concPersistenceIDs[0], critIdx),
+                                    this.api.stateToArgs(state, payload.concPersistenceIDs[0], critIdx),
                                     critIdx
                             ))
                         )
@@ -191,7 +191,7 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState, {[tileId:str
                             isReady: true
                         };
                         state.isBusy = state.blocks.some(v => !v.isReady);
-                        state.backlink = createBackLink(state, this.backlink, action.payload.concId);
+                        state.backlink = this.api.createBacklink(state, this.backlink, action.payload.concId);
                     }
                 }
             }

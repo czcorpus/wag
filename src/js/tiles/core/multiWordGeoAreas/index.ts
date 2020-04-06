@@ -24,7 +24,6 @@ import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../../co
 import { MultiWordGeoAreasModel } from './model';
 import { init as viewInit } from './views';
 import { MapLoader } from './mapLoader';
-import { ConcApi } from '../../../common/api/kontext/concordance';
 import { findCurrQueryMatch } from '../../../models/query';
 import { createApiInstance } from '../../../common/api/factory/freqs';
 import { createApiInstance as createConcApiInstance } from '../../../common/api/factory/concordance';

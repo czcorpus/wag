@@ -26,15 +26,17 @@
 | collocations      |           | :star:  | :star: |        |            |            |             | :star:  |
 | concFilter        |           | :star:  |        |        |            |            |             |         |
 | concordance       |           | :star:  | :star: |        | :star:     |            |             | :star:  |
-| freqBar           |           | :star:  | :construction:       |        |            |            |             |         |
+| freqBar           |           | :star:  | :star  |        |            |            |             |         |
 | freqComparison    |           | :star:  |        |        |            |            |             |         |
-| freqPie           |           | :star:  | :construction:       |        |            |            |             |         |
-| geoAreas          |           | :star:  |        |        |            |            |             |         |
+| freqPie           |           | :star:  | :star: |        |            |            |             |         |
+| geoAreas          |           | :star:  | :star: |        |            |            |             |         |
+| multiWordGeoAreas          |           | :star:  | :star: |        |            |            |             |         |
 | html              |           | :star:  | :star: |        |            |            |             |         |
 | matchingDocuments |           | :star:  |        |        |            |            | :star:      |         |
 | mergeCorpFreq     |           | :star:  |        |        |            |            |             |         |
 | speeches          |           | :star:  |        |        |            |            |             |         |
 | timeDistrib       |           | :star:  |        |        |            |            |             |         |
+| multiWordtimeDistrib       |           | :star:  |        |        |            |            |             |         |
 | translations      |           |         |        | :star: |            |            |             |         |
 | treqSubsets       |           |         |        | :star: |            |            |             |         |
 | wordForms         | :star:    | :star:  |        |        |            |            |             |         |

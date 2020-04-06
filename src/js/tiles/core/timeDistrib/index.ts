@@ -18,7 +18,6 @@
 import { IActionDispatcher, StatelessModel } from 'kombo';
 import { List, Maths, pipe } from 'cnc-tskit';
 
-import { ConcApi } from '../../../common/api/kontext/concordance';
 import { FreqSort } from '../../../common/api/kontext/freqs';
 import { createApiInstance } from './apiFactory';
 import { QueryType } from '../../../common/query';

@@ -1,6 +1,6 @@
 /*
- * Copyright 2018 Tomas Machalek <tomas.machalek@gmail.com>
- * Copyright 2018 Institute of the Czech National Corpus,
+ * Copyright 2020 Martin Zimandl <martin.zimandl@gmail.com>
+ * Copyright 2020 Institute of the Czech National Corpus,
  *                Faculty of Arts, Charles University
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,15 +24,17 @@ import { CorpusInfoAPI } from './corpusInfo';
 import { BacklinkWithArgs, Backlink } from '../../tile';
 import { APIResponse, APIBlockResponse, IMultiBlockFreqDistribAPI, IFreqDistribAPI } from '../abstract/freqs';
 import { GeneralSingleCritFreqBarModelState, GeneralMultiCritFreqBarModelState } from '../../models/freq';
-import { HTTP } from 'cnc-tskit';
+import { HTTP, pipe, List } from 'cnc-tskit';
 
 export enum FreqSort {
     REL = 'rel'
 }
 
 export interface HTTPResponse {
-    conc_persistence_op_id:string;
+    request:{q:string};
     concsize:number;
+    lastpage:number;
+    paging:number;
     Blocks:Array<{
         Head:Array<{s:string; n:string}>;
         Items:Array<{
@@ -47,8 +49,8 @@ export interface HTTPResponse {
             rel:number;
             relbar:number;
         }>;
-        Total:number;
-        TotalPages:number;
+        total:number;
+        totalfrq:number;
     }>;
 }
 
@@ -69,12 +71,11 @@ export interface SourceMappedDataRow {
 export interface BacklinkArgs {
     corpname:string;
     usesubcorp:string;
-    q:string;
+    q:Array<string>;
     fcrit:Array<string>;
     flimit:number;
     freq_sort:string;
     fpage:number;
-    ftt_include_empty:number;
 }
 
 
@@ -82,11 +83,10 @@ interface CoreQueryArgs {
     corpname:string;
     usesubcorp?:string;
     pagesize?:number;
-    q:string;
+    q:Array<string>;
     flimit:number;
     freq_sort:string;
     fpage:number;
-    ftt_include_empty:number;
     format:'json';
 }
 
@@ -101,7 +101,7 @@ export interface SingleCritQueryArgs extends CoreQueryArgs {
  * converts KonText's original response to a nicer form
  * (no multiple data blocks as they are not needed).
  */
-export class KontextFreqDistribAPI implements IFreqDistribAPI<SingleCritQueryArgs> {
+export class NoskeFreqDistribAPI implements IFreqDistribAPI<SingleCritQueryArgs> {
 
     private readonly apiURL:string;
 
@@ -122,7 +122,9 @@ export class KontextFreqDistribAPI implements IFreqDistribAPI<SingleCritQueryArg
         return this.srcInfoService.call({
             tileId: tileId,
             corpname: corpname,
-            format: 'json'
+            struct_attr_stats: 1,
+            subcorpora: 1,
+            format: 'json',
         });
     }
 
@@ -135,27 +137,35 @@ export class KontextFreqDistribAPI implements IFreqDistribAPI<SingleCritQueryArg
             args: {
                 corpname: state.corpname,
                 usesubcorp: null,
-                q: `~${concId}`,
+                q: pipe(
+                    concId.split('&'),
+                    List.map(v => v.split('=').slice(0, 2)),
+                    List.filter(([k, v]) => k === 'q'),
+                    List.map(([,v]) => decodeURIComponent(v.replace(/\++/g, ' ')))
+                ),
                 fcrit: [state.fcrit],
                 flimit: state.flimit,
                 freq_sort: state.freqSort,
-                fpage: state.fpage,
-                ftt_include_empty: state.fttIncludeEmpty ? 1 : 0
+                fpage: state.fpage
             }
         } :
         null;
-    };
+    }
 
     stateToArgs(state:GeneralSingleCritFreqBarModelState<any>, concId:string, subcname?:string):SingleCritQueryArgs {
         return {
             corpname: state.corpname,
             usesubcorp: subcname,
-            q: `~${concId ? concId : state.concId}`,
+            q: pipe(
+                concId.split('&'),
+                List.map(v => v.split('=').slice(0, 2)),
+                List.filter(([k, v]) => k === 'q'),
+                List.map(([,v]) => decodeURIComponent(v.replace(/\++/g, ' ')))
+            ),
             fcrit: state.fcrit,
             flimit: state.flimit,
             freq_sort: state.freqSort,
             fpage: state.fpage,
-            ftt_include_empty: state.fttIncludeEmpty ? 1 : 0,
             format: 'json'
         };
     }
@@ -175,7 +185,7 @@ export class KontextFreqDistribAPI implements IFreqDistribAPI<SingleCritQueryArg
                         ipm: v.rel,
                         norm: v.norm
                 })),
-                concId: resp.conc_persistence_op_id,
+                concId: resp.request.q,
                 corpname: args.corpname,
                 usesubcorp: args.usesubcorp || null,
                 concsize: resp.concsize
@@ -192,7 +202,7 @@ export interface MultiCritQueryArgs extends CoreQueryArgs {
  * MultiBlockFreqDistribAPI creates requests with multiple freq. distrib.
  * criteria.
  */
-export class KontextMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAPI<MultiCritQueryArgs> {
+export class NoskeMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAPI<MultiCritQueryArgs> {
 
     private readonly apiURL:string;
 
@@ -213,7 +223,9 @@ export class KontextMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAP
         return this.srcInfoService.call({
             tileId: tileId,
             corpname: corpname,
-            format: 'json'
+            struct_attr_stats: 1,
+            subcorpora: 1,
+            format: 'json',
         });
     }
 
@@ -226,27 +238,35 @@ export class KontextMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAP
             args: {
                 corpname: state.corpname,
                 usesubcorp: null,
-                q: `~${concId}`,
+                q: pipe(
+                    concId.split('&'),
+                    List.map(v => v.split('=').slice(0, 2)),
+                    List.filter(([k, v]) => k === 'q'),
+                    List.map(([,v]) => decodeURIComponent(v.replace(/\++/g, ' ')))
+                ),
                 fcrit: state.fcrit,
                 flimit: state.flimit,
                 freq_sort: state.freqSort,
-                fpage: state.fpage,
-                ftt_include_empty: state.fttIncludeEmpty ? 1 : 0
+                fpage: state.fpage
             }
         } :
         null;
-    };
+    }
 
     stateToArgs(state:GeneralMultiCritFreqBarModelState<any>, concId:string, critIdx?:number, subcname?:string):MultiCritQueryArgs {
         return {
             corpname: state.corpname,
             usesubcorp: subcname,
-            q: `~${concId ? concId : state.concId}`,
+            q: pipe(
+                concId.split('&'),
+                List.map(v => v.split('=').slice(0, 2)),
+                List.filter(([k, v]) => k === 'q'),
+                List.map(([,v]) => decodeURIComponent(v.replace(/\++/g, ' ')))
+            ),
             fcrit: critIdx !== undefined ? [state.fcrit[critIdx]] : state.fcrit,
             flimit: state.flimit,
             freq_sort: state.freqSort,
             fpage: state.fpage,
-            ftt_include_empty: state.fttIncludeEmpty ? 1 : 0,
             format: 'json'
         };
     }
@@ -272,7 +292,7 @@ export class KontextMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAP
                                 order: i
                             }))
                     })),
-                    concId: resp.conc_persistence_op_id,
+                    concId: resp.request.q,
                     corpname: args.corpname
                 })
             )

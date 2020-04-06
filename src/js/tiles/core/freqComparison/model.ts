@@ -28,7 +28,6 @@ import { ActionName, Actions, DataLoadedPayload, LoadFinishedPayload } from './a
 import { findCurrQueryMatch } from '../../../models/query';
 import { RecognizedQueries, QueryMatch } from '../../../common/query';
 import { ConcLoadedPayload, isConcLoadedPayload } from '../concordance/actions';
-import { ConcApi } from '../../../common/api/kontext/concordance';
 import { callWithExtraVal } from '../../../common/api/util';
 import { ViewMode, IConcordanceApi } from '../../../common/api/abstract/concordance';
 import { createInitialLinesData } from '../../../common/models/concordance';

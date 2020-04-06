@@ -20,7 +20,7 @@ import { forkJoin, Observable, Observer, of as rxOf } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 
 import { IAppServices } from '../../../appServices';
-import { GeneralSingleCritFreqBarModelState, stateToAPIArgs } from '../../../common/models/freq';
+import { GeneralSingleCritFreqBarModelState } from '../../../common/models/freq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { ConcLoadedPayload } from '../concordance/actions';
 import { ActionName, Actions, DataLoadedPayload } from './actions';
@@ -118,7 +118,9 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                                         observer.complete();
                                     }
                                 }).pipe(
-                                    concatMap(args => this.api.call(stateToAPIArgs(state, payload.concPersistenceIDs[0])))
+                                    concatMap(args => this.api.call(
+                                        this.api.stateToArgs(state, payload.concPersistenceIDs[0])
+                                    ))
                                 ),
                                 state.mapSVG ? rxOf(null) : this.mapLoader.call('mapCzech.inline.svg')
                             )

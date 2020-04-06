@@ -23,7 +23,7 @@ import { Dict, Ident } from 'cnc-tskit';
 import { IAppServices } from '../../../appServices';
 import { ConcApi, QuerySelector, RequestArgs } from '../../../common/api/kontext/concordance';
 import { ViewMode, ConcResponse } from '../../../common/api/abstract/concordance';
-import { stateToAPIArgs, SubqueryModeConf } from '../../../common/models/freq';
+import { SubqueryModeConf } from '../../../common/models/freq';
 import { isSubqueryPayload, SubqueryPayload, SubQueryItem } from '../../../common/query';
 import { Backlink } from '../../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
@@ -112,7 +112,7 @@ export class SubqFreqBarModel extends FreqBarModel {
         .pipe(
             concatMap((v:ConcResponse) => callWithExtraVal(
                 this.api,
-                stateToAPIArgs(state, v.concPersistenceID, 0), // in subq-mode we accept only a single crit.
+                this.api.stateToArgs(state, v.concPersistenceID, 0), // in subq-mode we accept only a single crit.
                 phrase
             )),
             map(v => ({
