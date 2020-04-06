@@ -5,12 +5,12 @@
 1) Install Node.js version 8 or newer.
 2) Clone wdglance repository: `git clone https://github.com/czcorpus/wdglance.git`
 3) run `npm install`
-4) build the project `make server && make production`
+4) build the project `npm start build:server && make start build:production`
 5) prepare word database or a service able to provide word frequency information (TODO)
 6) prepare your *server.json* config (TODO)
 7) define some services (you can look for examples in *conf/wdglance.sample.json*)
 8) install a proxy server (e.g. Nginx) to serve static files and handle the Node application
-9) run the service `node /path/to/wdglance/dist-server/service.js`
+9) run the service `npm start server`
 
 
 ### Nginx as a proxy for wdglance
@@ -82,7 +82,7 @@ Second, update your app's configuration - i.e. at least define a tile instance a
 Third, build the project.
 
 ```
-make server && make production
+npm start build:server && make start build:production
 ```
 
 Now restart the server and the tile should appear on the page (based on the layout you've put the tile in).
@@ -104,11 +104,11 @@ It is also possible to generate your local version of the schemata and refer the
 local path.
 
 ```
-make configschemata
+npm start schemata:make
 ```
 
 You can always validate your configuration:
 
 ```
-make configtest
+make start schemata:configtest
 ```
