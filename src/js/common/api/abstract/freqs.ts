@@ -41,7 +41,7 @@ export interface APIResponse {
 
 
 export interface IFreqDistribAPI<T> extends DataApi<T, APIResponse> {
-    stateToArgs(state:GeneralSingleCritFreqBarModelState<any>, concId:string, critIdx?:number, subcname?:string):T;
+    stateToArgs(state:GeneralSingleCritFreqBarModelState<any>, concId:string, subcname?:string):T;
 
     call(args:T):Observable<APIResponse>;
 

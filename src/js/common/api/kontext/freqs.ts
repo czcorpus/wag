@@ -146,7 +146,7 @@ export class KontextFreqDistribAPI implements IFreqDistribAPI<SingleCritQueryArg
         null;
     };
 
-    stateToArgs(state:GeneralSingleCritFreqBarModelState<any>, concId:string, critIdx?:number, subcname?:string):SingleCritQueryArgs {
+    stateToArgs(state:GeneralSingleCritFreqBarModelState<any>, concId:string, subcname?:string):SingleCritQueryArgs {
         return {
             corpname: state.corpname,
             usesubcorp: subcname,

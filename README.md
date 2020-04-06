@@ -29,12 +29,14 @@
 | freqBar           |           | :star:  | :star  |        |            |            |             |         |
 | freqComparison    |           | :star:  |        |        |            |            |             |         |
 | freqPie           |           | :star:  | :star: |        |            |            |             |         |
-| geoAreas          |           | :star:  |        |        |            |            |             |         |
+| geoAreas          |           | :star:  | :star: |        |            |            |             |         |
+| multiWordGeoAreas          |           | :star:  | :star: |        |            |            |             |         |
 | html              |           | :star:  | :star: |        |            |            |             |         |
 | matchingDocuments |           | :star:  |        |        |            |            | :star:      |         |
 | mergeCorpFreq     |           | :star:  |        |        |            |            |             |         |
 | speeches          |           | :star:  |        |        |            |            |             |         |
 | timeDistrib       |           | :star:  |        |        |            |            |             |         |
+| multiWordtimeDistrib       |           | :star:  |        |        |            |            |             |         |
 | translations      |           |         |        | :star: |            |            |             |         |
 | treqSubsets       |           |         |        | :star: |            |            |             |         |
 | wordForms         | :star:    | :star:  |        |        |            |            |             |         |
