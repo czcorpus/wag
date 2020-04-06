@@ -23,7 +23,7 @@ import { HTTPHeaders, IAsyncKeyValueStore, CorpusDetails } from '../../types';
 import { CorpusInfoAPI } from './corpusInfo';
 import { BacklinkWithArgs, Backlink } from '../../tile';
 import { APIResponse, APIBlockResponse, IMultiBlockFreqDistribAPI, IFreqDistribAPI } from '../abstract/freqs';
-import { GeneralSingleCritFreqBarModelState, GeneralMultiCritFreqBarModelState } from '../../models/freq';
+import { SingleCritStateMixin, MultiCritStateMixin } from '../../models/freq';
 import { HTTP, pipe, List } from 'cnc-tskit';
 
 export enum FreqSort {
@@ -128,7 +128,7 @@ export class NoskeFreqDistribAPI implements IFreqDistribAPI<SingleCritQueryArgs>
         });
     }
 
-    createBacklink(state:GeneralSingleCritFreqBarModelState<any>, backlink:Backlink, concId:string):BacklinkWithArgs<BacklinkArgs> {
+    createBacklink(state:SingleCritStateMixin, backlink:Backlink, concId:string):BacklinkWithArgs<BacklinkArgs> {
         return backlink ?
         {
             url: backlink.url,
@@ -152,7 +152,7 @@ export class NoskeFreqDistribAPI implements IFreqDistribAPI<SingleCritQueryArgs>
         null;
     }
 
-    stateToArgs(state:GeneralSingleCritFreqBarModelState<any>, concId:string, subcname?:string):SingleCritQueryArgs {
+    stateToArgs(state:SingleCritStateMixin, concId:string, subcname?:string):SingleCritQueryArgs {
         return {
             corpname: state.corpname,
             usesubcorp: subcname,
@@ -229,7 +229,7 @@ export class NoskeMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAPI<
         });
     }
 
-    createBacklink(state:GeneralMultiCritFreqBarModelState<any>, backlink:Backlink, concId:string):BacklinkWithArgs<BacklinkArgs> {
+    createBacklink(state:MultiCritStateMixin, backlink:Backlink, concId:string):BacklinkWithArgs<BacklinkArgs> {
         return backlink ?
         {
             url: backlink.url,
@@ -253,7 +253,7 @@ export class NoskeMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAPI<
         null;
     }
 
-    stateToArgs(state:GeneralMultiCritFreqBarModelState<any>, concId:string, critIdx?:number, subcname?:string):MultiCritQueryArgs {
+    stateToArgs(state:MultiCritStateMixin, concId:string, critIdx?:number, subcname?:string):MultiCritQueryArgs {
         return {
             corpname: state.corpname,
             usesubcorp: subcname,

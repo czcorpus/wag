@@ -20,7 +20,7 @@ import { Observable, of as rxOf, zip } from 'rxjs';
 import { concatMap, reduce, share, repeat } from 'rxjs/operators';
 
 import { IAppServices } from '../../../appServices';
-import { FreqBarModelStateBase } from '../../../common/models/freq';
+import { GeneralSingleCritFreqMultiQueryState } from '../../../common/models/freq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { ActionName, Actions, LoadFinishedPayload } from './actions';
 import { DataApi } from '../../../common/types';
@@ -71,10 +71,8 @@ ORAL_V1:
 "neznámé": "naUNK"
 */
 
-export interface MultiWordGeoAreasModelState extends FreqBarModelStateBase {
-    fcrit:string;
+export interface MultiWordGeoAreasModelState extends GeneralSingleCritFreqMultiQueryState<DataRow> {
     currQueryMatches:Array<QueryMatch>;
-    data:Array<Array<DataRow>>;
     areaCodeMapping:{[key:string]:string};
     tooltipArea:{tooltipX:number; tooltipY:number, caption: string, data:TooltipValues}|null;
     mapSVG:string;
