@@ -23,33 +23,35 @@ export interface FreqBarModelStateBase {
     corpname:string;
 }
 
-export interface SingleCritStateMixin {
+// these represent state parameters required to use freq APIs `stateToArgs` method
+
+export interface MinSingleCritFreqState {
     corpname:string;
     fcrit:string;
     flimit:number;
     freqSort:string;
     fpage:number;
-    fttIncludeEmpty:boolean;
+    fttIncludeEmpty?:boolean;
     fmaxitems?:number;
     concId?:string;
 }
 
-export interface MultiCritStateMixin {
+export interface MinMultiCritFreqState {
     corpname:string;
     fcrit:Array<string>;
     flimit:number;
     freqSort:string;
     fpage:number;
-    fttIncludeEmpty:boolean;
+    fttIncludeEmpty?:boolean;
     fmaxitems?:number;
     concId?:string;
 }
 
-export interface GeneralSingleCritFreqBarModelState<T> extends FreqBarModelStateBase, SingleCritStateMixin {
+export interface GeneralSingleCritFreqBarModelState<T> extends FreqBarModelStateBase, MinSingleCritFreqState {
     data:Array<T>;
 }
 
-export interface GeneralSingleCritFreqMultiQueryState<T> extends FreqBarModelStateBase, SingleCritStateMixin {
+export interface GeneralSingleCritFreqMultiQueryState<T> extends FreqBarModelStateBase, MinSingleCritFreqState {
     data:Array<Array<T>>;
 }
 
@@ -60,7 +62,7 @@ export interface FreqDataBlock<T> {
     isReady:boolean;
 }
 
-export interface GeneralMultiCritFreqBarModelState<T> extends FreqBarModelStateBase, MultiCritStateMixin {
+export interface GeneralMultiCritFreqBarModelState<T> extends FreqBarModelStateBase, MinMultiCritFreqState {
     critLabels:Array<LocalizedConfMsg>;
     blocks:Array<FreqDataBlock<T>>;
 }

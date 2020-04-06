@@ -21,7 +21,7 @@ import { mergeMap, reduce, share } from 'rxjs/operators';
 import { Ident, pipe, List, Maths } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
-import { GeneralMultiCritFreqComparisonModelState, stateToAPIArgs } from '../../../common/models/freqComparison';
+import { GeneralMultiCritFreqComparisonModelState } from '../../../common/models/freqComparison';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { ActionName, Actions, DataLoadedPayload, LoadFinishedPayload } from './actions';
@@ -306,7 +306,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                 args.concId = resp.concPersistenceID;
                 return callWithExtraVal(
                     this.freqApi,
-                    stateToAPIArgs(state, resp.concPersistenceID, args.critId),
+                    this.freqApi.stateToArgs(state, resp.concPersistenceID, args.critId),
                     args
                 )
             }),
