@@ -81,7 +81,7 @@ export interface ConcLine {
 }
 
 interface HTTPResponse extends HTTPApiResponse {
-    corpname:string;
+    request:{corpname:string};
     concsize:number;
     relsize:number; // ipm
     Lines:Array<ConcLine>;
@@ -234,7 +234,7 @@ export class ConcApi implements IConcordanceApi<RequestArgs> {
             map(
                 resp => ({
                     query: '',
-                    corpName: resp.corpname,
+                    corpName: resp.request.corpname,
                     subcorpName: args.usesubcorp,
                     lines: convertLines(resp.Lines),
                     concsize: resp.concsize,

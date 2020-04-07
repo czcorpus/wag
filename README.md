@@ -27,13 +27,13 @@
 | concFilter        |           | :star:  |        |        |            |            |             |         |
 | concordance       |           | :star:  | :star: |        | :star:     |            |             | :star:  |
 | freqBar           |           | :star:  | :star:  |        |            |            |             |         |
-| freqComparison    |           | :star:  |        |        |            |            |             |         |
+| freqComparison    |           | :star:  | :star: |        |            |            |             |         |
 | freqPie           |           | :star:  | :star: |        |            |            |             |         |
 | geoAreas          |           | :star:  | :star: |        |            |            |             |         |
 | multiWordGeoAreas          |           | :star:  | :star: |        |            |            |             |         |
 | html              |           | :star:  | :star: |        |            |            |             |         |
 | matchingDocuments |           | :star:  |        |        |            |            | :star:      |         |
-| mergeCorpFreq     |           | :star:  |        |        |            |            |             |         |
+| mergeCorpFreq     |           | :star:  | :star: |        |            |            |             |         |
 | speeches          |           | :star:  |        |        |            |            |             |         |
 | timeDistrib       |           | :star:  |        |        |            |            |             |         |
 | multiWordtimeDistrib       |           | :star:  |        |        |            |            |             |         |

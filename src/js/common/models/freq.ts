@@ -15,28 +15,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { FreqSort } from '../api/kontext/freqs';
 import { LocalizedConfMsg } from '../types';
 
 export interface FreqBarModelStateBase {
     isBusy:boolean;
     error:string;
     corpname:string;
-    concId:string;
-    flimit:number;
-    freqSort:FreqSort;
-    fpage:number;
-    fttIncludeEmpty:boolean;
-    fmaxitems:number;
 }
 
-export interface GeneralSingleCritFreqBarModelState<T> extends FreqBarModelStateBase {
+// these represent state parameters required to use freq APIs `stateToArgs` method
+
+export interface MinSingleCritFreqState {
+    corpname:string;
     fcrit:string;
+    flimit:number;
+    freqSort:string;
+    fpage:number;
+    fttIncludeEmpty?:boolean;
+    fmaxitems?:number;
+    concId?:string;
+}
+
+export interface MinMultiCritFreqState {
+    corpname:string;
+    fcrit:Array<string>;
+    flimit:number;
+    freqSort:string;
+    fpage:number;
+    fttIncludeEmpty?:boolean;
+    fmaxitems?:number;
+    concId?:string;
+}
+
+export interface GeneralSingleCritFreqBarModelState<T> extends FreqBarModelStateBase, MinSingleCritFreqState {
     data:Array<T>;
 }
 
-export interface GeneralSingleCritFreqMultiQueryState<T> extends FreqBarModelStateBase {
-    fcrit:string;
+export interface GeneralSingleCritFreqMultiQueryState<T> extends FreqBarModelStateBase, MinSingleCritFreqState {
     data:Array<Array<T>>;
 }
 
@@ -47,8 +62,7 @@ export interface FreqDataBlock<T> {
     isReady:boolean;
 }
 
-export interface GeneralMultiCritFreqBarModelState<T> extends FreqBarModelStateBase {
-    fcrit:Array<string>;
+export interface GeneralMultiCritFreqBarModelState<T> extends FreqBarModelStateBase, MinMultiCritFreqState {
     critLabels:Array<LocalizedConfMsg>;
     blocks:Array<FreqDataBlock<T>>;
 }
