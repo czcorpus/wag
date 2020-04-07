@@ -34,6 +34,7 @@ export interface MatchingDocsModelArgs {
     dispatcher:IActionDispatcher;
     tileId:number;
     waitForTiles:Array<number>;
+    waitForTilesTimeoutSecs:number;
     subqSourceTiles:Array<number>;
     appServices:IAppServices;
     api:MatchingDocsAPI<{}>;
@@ -54,14 +55,18 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState, Mo
 
     protected readonly tileId:number;
 
-    protected waitForTiles:Array<number>;
+    protected readonly waitForTiles:Array<number>;
+
+    protected readonly waitForTilesTimeoutSecs:number;
 
     protected readonly subqSourceTiles:Array<number>;
 
-    constructor({dispatcher, tileId, waitForTiles, subqSourceTiles, appServices, api, initState, queryMatches}:MatchingDocsModelArgs) {
+    constructor({dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, subqSourceTiles, appServices,
+            api, initState, queryMatches}:MatchingDocsModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.waitForTiles = [...waitForTiles];
+        this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.subqSourceTiles = [...subqSourceTiles];
         this.appServices = appServices;
         this.api = api;
@@ -180,51 +185,55 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState, Mo
 
     private handleDataLoad(state:MatchingDocsModelState, action:Action, dispatch:SEDispatcher):void {
         if (this.waitForTiles.length > 0) {
-            this.suspend(pipe(this.waitForTiles, List.map<number, [string, boolean]>(v => [v.toFixed(), true]), Dict.fromEntries()), (action, syncStatus) => {
-                if (action.name === GlobalActionName.TileDataLoaded && this.waitForTiles.indexOf(action.payload['tileId']) > -1) {
-                    const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
-                    new Observable((observer:Observer<boolean>) => {
-                        if (action.error) {
-                            observer.error(new Error(this.appServices.translate('global__failed_to_obtain_required_data')));
+            this.suspendWithTimeout(
+                this.waitForTilesTimeoutSecs * 1000,
+                pipe(this.waitForTiles, List.map<number, [string, boolean]>(v => [v.toFixed(), true]), Dict.fromEntries()),
+                (action, syncStatus) => {
+                    if (action.name === GlobalActionName.TileDataLoaded && this.waitForTiles.indexOf(action.payload['tileId']) > -1) {
+                        const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
+                        new Observable((observer:Observer<boolean>) => {
+                            if (action.error) {
+                                observer.error(new Error(this.appServices.translate('global__failed_to_obtain_required_data')));
 
-                        } else {
-                            observer.next(true);
-                            observer.complete();
-                        }
+                            } else {
+                                observer.next(true);
+                                observer.complete();
+                            }
 
-                    }).pipe(
-                        concatMap(_ => this.api.call(this.api.stateToArgs(state, payload.concPersistenceIDs[0])))
+                        }).pipe(
+                            concatMap(_ => this.api.call(this.api.stateToArgs(state, payload.concPersistenceIDs[0])))
 
-                    ).subscribe(
-                        (resp) => {
-                            dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                name: GlobalActionName.TileDataLoaded,
-                                payload: {
-                                    tileId: this.tileId,
-                                    isEmpty: resp.data.length === 0,
-                                    data: resp.data.sort((x1, x2) => x2.score - x1.score).slice(0, state.maxNumCategories),
-                                    backlink: this.api.stateToBacklink(state, payload.concPersistenceIDs[0])
-                                }
-                            });
-                        },
-                        error => {
-                            dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                name: GlobalActionName.TileDataLoaded,
-                                payload: {
-                                    tileId: this.tileId,
-                                    isEmpty: true,
-                                    data: null,
-                                    backlink: null
-                                },
-                                error: error
-                            });
-                        }
-                    );
-                    const ans = {...syncStatus, [payload.tileId]: false};
-                    return Dict.hasValue(true, ans) ? ans : null;
+                        ).subscribe(
+                            (resp) => {
+                                dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                    name: GlobalActionName.TileDataLoaded,
+                                    payload: {
+                                        tileId: this.tileId,
+                                        isEmpty: resp.data.length === 0,
+                                        data: resp.data.sort((x1, x2) => x2.score - x1.score).slice(0, state.maxNumCategories),
+                                        backlink: this.api.stateToBacklink(state, payload.concPersistenceIDs[0])
+                                    }
+                                });
+                            },
+                            error => {
+                                dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                    name: GlobalActionName.TileDataLoaded,
+                                    payload: {
+                                        tileId: this.tileId,
+                                        isEmpty: true,
+                                        data: null,
+                                        backlink: null
+                                    },
+                                    error: error
+                                });
+                            }
+                        );
+                        const ans = {...syncStatus, [payload.tileId]: false};
+                        return Dict.hasValue(true, ans) ? ans : null;
+                    }
+                    return syncStatus;
                 }
-                return syncStatus;
-            });
+            );
 
         } else {
             const variant = findCurrQueryMatch(this.queryMatches[0]);

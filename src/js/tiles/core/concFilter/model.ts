@@ -347,7 +347,10 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
     }
 
     private handleDataLoad(state:ConcFilterModelState, ignoreConc:boolean, seDispatch:SEDispatcher) {
-        this.suspend(TileWait.create(this.waitForTiles, ()=>false), (action:Action<{tileId:number}>, syncData) => {
+        this.suspendWithTimeout(
+            this.waitForTilesTimeoutSecs * 1000,
+            TileWait.create(this.waitForTiles, ()=>false),
+            (action:Action<{tileId:number}>, syncData) => {
                 if (isTileSomeDataLoadedAction(action) && syncData.tileIsRegistered(action.payload.tileId)) {
                     if (action.error) {
                         throw action.error;
@@ -365,7 +368,6 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
             }
 
         ).pipe(
-            timeout(this.waitForTilesTimeoutSecs * 1000),
             reduce(
                 (acc, action) => {
                     const ans = {...acc};

@@ -63,21 +63,23 @@ export class GeoAreasTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({tileId, dispatcher, appServices, ut, theme, waitForTiles, widthFract, conf, isBusy, cache}:TileFactory.Args<GeoAreasTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, theme, waitForTiles, waitForTilesTimeoutSecs, widthFract, conf,
+            isBusy, cache}:TileFactory.Args<GeoAreasTileConf>) {
         this.tileId = tileId;
         this.label = appServices.importExternalMessage(conf.label);
         this.dispatcher = dispatcher;
         this.appServices = appServices;
         this.widthFract = widthFract;
         this.blockingTiles = waitForTiles;
-        this.model = new GeoAreasModel(
+        this.model = new GeoAreasModel({
             dispatcher,
             tileId,
-            waitForTiles.length > 0 ? waitForTiles[0] : -1,
+            waitForTile: waitForTiles.length > 0 ? waitForTiles[0] : -1,
+            waitForTilesTimeoutSecs,
             appServices,
-            createApiInstance(cache, conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
-            new MapLoader(cache, appServices),
-            {
+            api: createApiInstance(cache, conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            mapLoader: new MapLoader(cache, appServices),
+            initState: {
                 isBusy: isBusy,
                 error: null,
                 areaCodeMapping: {...conf.areaCodeMapping},
@@ -95,7 +97,7 @@ export class GeoAreasTile implements ITileProvider {
                 isAltViewMode: false,
                 frequencyDisplayLimit: conf.frequencyDisplayLimit
             }
-        );
+        });
         this.label = appServices.importExternalMessage(conf.label || 'geolocations__main_label');
         this.view = viewInit(this.dispatcher, ut, theme, this.model);
     }

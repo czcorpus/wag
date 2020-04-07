@@ -43,6 +43,7 @@ export interface FreqBarModelArgs {
     dispatcher:IActionQueue;
     tileId:number;
     waitForTiles:Array<number>;
+    waitForTilesTimeoutSecs:number;
     subqSourceTiles:Array<number>;
     appServices:IAppServices;
     api:IMultiBlockFreqDistribAPI<{}>;
@@ -61,14 +62,18 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState, {[tileId:str
 
     protected waitForTiles:{[tileId:string]:boolean};
 
+    protected waitForTilesTimeoutSecs:number;
+
     protected subqSourceTiles:{[tileId:string]:boolean};
 
     private readonly backlink:Backlink|null;
 
-    constructor({dispatcher, tileId, waitForTiles, subqSourceTiles, appServices, api, backlink, initState}:FreqBarModelArgs) {
+    constructor({dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, subqSourceTiles, appServices,
+            api, backlink, initState}:FreqBarModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.waitForTiles = Dict.fromEntries(waitForTiles.map(v => [v.toFixed(), false]));
+        this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.subqSourceTiles = Dict.fromEntries(subqSourceTiles.map(v => [v.toFixed(), true]));
         this.appServices = appServices;
         this.api = api;
@@ -97,60 +102,64 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState, {[tileId:str
                 state.error = null;
             },
             (state, action, dispatch) => {
-                this.suspend(Dict.map(_ => true, this.waitForTiles), (action:Action, syncData) => {
-                    if (action.name === GlobalActionName.TileDataLoaded && this.waitForTiles[action.payload['tileId']] !== undefined) {
-                        const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
-                        new Observable((observer:Observer<number>) => {
-                            if (action.error) {
-                                observer.error(new Error(this.appServices.translate('global__failed_to_obtain_required_data')));
+                this.suspendWithTimeout(
+                    this.waitForTilesTimeoutSecs * 1000,
+                    Dict.map(_ => true, this.waitForTiles),
+                    (action:Action, syncData) => {
+                        if (action.name === GlobalActionName.TileDataLoaded && this.waitForTiles[action.payload['tileId']] !== undefined) {
+                            const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
+                            new Observable((observer:Observer<number>) => {
+                                if (action.error) {
+                                    observer.error(new Error(this.appServices.translate('global__failed_to_obtain_required_data')));
 
-                            } else {
-                                state.fcrit.forEach((_, critIdx) => observer.next(critIdx));
-                                observer.complete();
-                            }
-                        }).pipe(
-                            concatMap(critIdx => callWithExtraVal(
-                                    this.api,
-                                    this.api.stateToArgs(state, payload.concPersistenceIDs[0], critIdx),
-                                    critIdx
-                            ))
-                        )
-                        .subscribe(
-                            ([resp, critIdx]) => {
-                                dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                    name: GlobalActionName.TileDataLoaded,
-                                    payload: {
-                                        tileId: this.tileId,
-                                        isEmpty: resp.blocks.every(v => v.data.length === 0),
-                                        block: resp.blocks.length > 0 ?
-                                            {data: resp.blocks[0].data.sort((x1, x2) => x2.ipm - x1.ipm).slice(0, state.maxNumCategories)} :
-                                            null,
-                                        concId: resp.concId,
-                                        critIdx: critIdx
-                                    }
-                                });
-                            },
-                            error => {
-                                dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                    name: GlobalActionName.TileDataLoaded,
-                                    payload: {
-                                        tileId: this.tileId,
-                                        isEmpty: true,
-                                        block: null,
-                                        concId: null,
-                                        critIdx: null
-                                    },
-                                    error: error
-                                });
-                            }
-                        );
+                                } else {
+                                    state.fcrit.forEach((_, critIdx) => observer.next(critIdx));
+                                    observer.complete();
+                                }
+                            }).pipe(
+                                concatMap(critIdx => callWithExtraVal(
+                                        this.api,
+                                        this.api.stateToArgs(state, payload.concPersistenceIDs[0], critIdx),
+                                        critIdx
+                                ))
+                            )
+                            .subscribe(
+                                ([resp, critIdx]) => {
+                                    dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                        name: GlobalActionName.TileDataLoaded,
+                                        payload: {
+                                            tileId: this.tileId,
+                                            isEmpty: resp.blocks.every(v => v.data.length === 0),
+                                            block: resp.blocks.length > 0 ?
+                                                {data: resp.blocks[0].data.sort((x1, x2) => x2.ipm - x1.ipm).slice(0, state.maxNumCategories)} :
+                                                null,
+                                            concId: resp.concId,
+                                            critIdx: critIdx
+                                        }
+                                    });
+                                },
+                                error => {
+                                    dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                        name: GlobalActionName.TileDataLoaded,
+                                        payload: {
+                                            tileId: this.tileId,
+                                            isEmpty: true,
+                                            block: null,
+                                            concId: null,
+                                            critIdx: null
+                                        },
+                                        error: error
+                                    });
+                                }
+                            );
 
-                        const ans = {...syncData};
-                        ans[payload.tileId.toFixed()] = false;
-                        return Dict.hasValue(true, ans) ? ans : null;
+                            const ans = {...syncData};
+                            ans[payload.tileId.toFixed()] = false;
+                            return Dict.hasValue(true, ans) ? ans : null;
+                        }
+                        return syncData;
                     }
-                    return syncData;
-                });
+                );
             }
         );
         this.addActionHandler<Actions.SetActiveBlock>(
@@ -233,6 +242,7 @@ export const factory = (
     dispatcher:IActionQueue,
     tileId:number,
     waitForTiles:Array<number>,
+    waitForTilesTimeoutSecs:number,
     subqSourceTiles:Array<number>,
     appServices:IAppServices,
     api:IMultiBlockFreqDistribAPI<{}>,
@@ -243,6 +253,7 @@ export const factory = (
         dispatcher,
         tileId,
         waitForTiles,
+        waitForTilesTimeoutSecs,
         subqSourceTiles,
         appServices,
         api,

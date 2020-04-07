@@ -39,6 +39,7 @@ export interface SpeechesModelArgs {
     dispatcher:IActionQueue;
     tileId:number;
     waitForTiles:Array<number>;
+    waitForTilesTimeoutSecs:number;
     subqSourceTiles:Array<number>;
     appServices:IAppServices;
     api:SpeechesApi;
@@ -60,18 +61,21 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState, TileWait<b
 
     private readonly waitForTiles:Array<number>;
 
+    private readonly waitForTilesTimeoutSecs:number;
+
     private readonly subqSourceTiles:Array<number>;
 
     private readonly audioLinkGenerator:IAudioUrlGenerator|null;
 
-    constructor({dispatcher, tileId, appServices, api, initState, waitForTiles, subqSourceTiles,
-                backlink, audioLinkGenerator}:SpeechesModelArgs) {
+    constructor({dispatcher, tileId, appServices, api, initState, waitForTiles, waitForTilesTimeoutSecs,
+                subqSourceTiles, backlink, audioLinkGenerator}:SpeechesModelArgs) {
         super(dispatcher, initState);
         this.api = api;
         this.appServices = appServices;
         this.tileId = tileId;
         this.backlink = backlink;
         this.waitForTiles = [...waitForTiles];
+        this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.subqSourceTiles = [...subqSourceTiles];
         this.audioLinkGenerator = audioLinkGenerator;
 
@@ -85,14 +89,18 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState, TileWait<b
             },
             (state, action, dispatch) => {
                 if (this.waitForTiles.length > 0) {
-                    this.suspend(TileWait.create(this.waitForTiles, (v)=>false), (action:Action<{tileId:number}>, syncData) => {
-                        if (isTileSomeDataLoadedAction(action) && syncData.tileIsRegistered(action.payload.tileId)) {
-                            syncData.setTileDone(action.payload.tileId, true);
-                            return syncData.next(v => v === true);
-                        }
-                        return syncData;
+                    this.suspendWithTimeout(
+                        this.waitForTilesTimeoutSecs * 1000,
+                        TileWait.create(this.waitForTiles, (v)=>false),
+                        (action:Action<{tileId:number}>, syncData) => {
+                            if (isTileSomeDataLoadedAction(action) && syncData.tileIsRegistered(action.payload.tileId)) {
+                                syncData.setTileDone(action.payload.tileId, true);
+                                return syncData.next(v => v === true);
+                            }
+                            return syncData;
 
-                    }).subscribe(
+                        }
+                    ).subscribe(
                         action => {
                             if (isSubqueryPayload(action.payload)) {
                                 const payload = action.payload as SingleConcLoadedPayload; // TODO

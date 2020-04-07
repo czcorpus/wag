@@ -25,7 +25,7 @@ import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../
 import { ActionName, Actions, LoadFinishedPayload } from './actions';
 import { DataApi } from '../../../common/types';
 import { TooltipValues } from '../../../views/global';
-import { QueryMatch } from '../../../common/query';
+import { QueryMatch, RecognizedQueries } from '../../../common/query';
 import { callWithExtraVal } from '../../../common/api/util';
 import { ViewMode, IConcordanceApi } from '../../../common/api/abstract/concordance';
 import { createInitialLinesData } from '../../../common/models/concordance';
@@ -83,12 +83,26 @@ export interface MultiWordGeoAreasModelState extends FreqBarModelStateBase {
     frequencyDisplayLimit:number;
 }
 
+interface MultiWordGeoAreasModelArgs {
+    dispatcher:IActionQueue;
+    tileId:number;
+    waitForTile:number;
+    waitForTilesTimeoutSecs:number;
+    appServices:IAppServices;
+    queryMatches:RecognizedQueries;
+    concApi:IConcordanceApi<{}>;
+    freqApi:IFreqDistribAPI<{}>;
+    mapLoader:DataApi<string, string>;
+    initState:MultiWordGeoAreasModelState;
+}
 
 export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasModelState> {
 
     private readonly tileId:number;
 
     private readonly waitForTile:number;
+
+    private readonly waitForTilesTimeoutSecs:number;
 
     private readonly appServices:IAppServices;
 
@@ -100,11 +114,12 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
 
     private readonly queryMatches:Array<Array<QueryMatch>>;
 
-    constructor(dispatcher:IActionQueue, tileId:number, waitForTile:number, appServices:IAppServices, queryMatches:Array<Array<QueryMatch>>,
-                concApi:IConcordanceApi<{}>, freqApi:IFreqDistribAPI<{}>, mapLoader:DataApi<string, string>, initState:MultiWordGeoAreasModelState) {
+    constructor({dispatcher, tileId, waitForTile, waitForTilesTimeoutSecs, appServices, queryMatches,
+                concApi, freqApi, mapLoader, initState}:MultiWordGeoAreasModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.waitForTile = waitForTile;
+        this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.appServices = appServices;
         this.queryMatches = queryMatches;
         this.concApi = concApi;
@@ -119,34 +134,38 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
             },
             (state, action, dispatch) => {
                 if (this.waitForTile) {
-                    this.suspend({}, (action, syncData) => {
-                        if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
-                            let dataStream;
-                            if (isConcLoadedPayload(action.payload)) {
-                                const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
-                                dataStream = zip(
-                                    this.mapLoader.call('mapCzech.inline.svg').pipe(repeat(payload.concPersistenceIDs.length)),
-                                    rxOf(...payload.concPersistenceIDs.map((concId, queryId) => [queryId, concId] as [number, string]))
-                                    .pipe(
-                                        concatMap(([queryId, concId]) => callWithExtraVal(
-                                            this.freqApi,
-                                            this.freqApi.stateToArgs(state, concId),
-                                            {
-                                                concId: concId,
-                                                queryId: queryId
-                                            }
-                                        ))
-                                    )
-                                );
-                            } else {
-                                dataStream = this.getConcordances(state);
-                            }
+                    this.suspendWithTimeout(
+                        this.waitForTilesTimeoutSecs * 1000,
+                        {},
+                        (action, syncData) => {
+                            if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
+                                let dataStream;
+                                if (isConcLoadedPayload(action.payload)) {
+                                    const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
+                                    dataStream = zip(
+                                        this.mapLoader.call('mapCzech.inline.svg').pipe(repeat(payload.concPersistenceIDs.length)),
+                                        rxOf(...payload.concPersistenceIDs.map((concId, queryId) => [queryId, concId] as [number, string]))
+                                        .pipe(
+                                            concatMap(([queryId, concId]) => callWithExtraVal(
+                                                this.freqApi,
+                                                this.freqApi.stateToArgs(state, concId),
+                                                {
+                                                    concId: concId,
+                                                    queryId: queryId
+                                                }
+                                            ))
+                                        )
+                                    );
+                                } else {
+                                    dataStream = this.getConcordances(state);
+                                }
 
-                            this.handleLoad(dataStream, state, dispatch);
-                            return null;
+                                this.handleLoad(dataStream, state, dispatch);
+                                return null;
+                            }
+                            return syncData;
                         }
-                        return syncData;
-                    });
+                    );
 
                 } else {
                     const dataStream = this.getConcordances(state);

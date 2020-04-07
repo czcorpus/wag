@@ -66,7 +66,8 @@ export class TimeDistTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({dispatcher, tileId, waitForTiles, ut, theme, appServices, widthFract, queryMatches, lang1, conf, isBusy, cache}:TileFactory.Args<TimeDistTileConf>) {
+    constructor({dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, ut, theme, appServices, widthFract, queryMatches,
+            lang1, conf, isBusy, cache}:TileFactory.Args<TimeDistTileConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
@@ -117,10 +118,12 @@ export class TimeDistTile implements ITileProvider {
                 wordCmpInput: '',
                 wordCmp: '',
                 zoom: [null, null],
-                refArea: [null, null]
+                refArea: [null, null],
+                backlink: null
             },
             tileId: tileId,
             waitForTile: waitForTiles.length > 0 ? waitForTiles[0] : -1,
+            waitForTilesTimeoutSecs,
             apiFactory,
             appServices: appServices,
             queryMatches,

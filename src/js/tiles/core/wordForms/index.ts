@@ -51,7 +51,8 @@ export class WordFormsTile implements ITileProvider {
 
     private readonly waitForTiles:Array<number>;
 
-    constructor({tileId, dispatcher, appServices, ut, queryMatches, lang1, widthFract, conf, isBusy, waitForTiles, theme, cache}:TileFactory.Args<WordFormsTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, queryMatches, lang1, widthFract, conf, isBusy, waitForTiles,
+            waitForTilesTimeoutSecs, theme, cache}:TileFactory.Args<WordFormsTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
@@ -73,7 +74,8 @@ export class WordFormsTile implements ITileProvider {
             api: createApiInstance(conf.apiType, cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             queryMatches,
             queryLang: lang1,
-            waitForTile: waitForTiles.length > 0 ? waitForTiles[0] : -1
+            waitForTile: waitForTiles.length > 0 ? waitForTiles[0] : -1,
+            waitForTilesTimeoutSecs
         });
         this.view = viewInit(dispatcher, ut, theme, this.model);
     }

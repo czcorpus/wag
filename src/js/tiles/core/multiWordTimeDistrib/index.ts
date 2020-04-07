@@ -66,7 +66,8 @@ export class MultiWordTimeDistTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({dispatcher, tileId, waitForTiles, ut, theme, appServices, widthFract, queryMatches, lang1, conf, isBusy, cache}:TileFactory.Args<TimeDistTileConf>) {
+    constructor({dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, ut, theme, appServices, widthFract,
+            queryMatches, lang1, conf, isBusy, cache}:TileFactory.Args<TimeDistTileConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
@@ -119,6 +120,7 @@ export class MultiWordTimeDistTile implements ITileProvider {
             },
             tileId: tileId,
             waitForTile: waitForTiles[0] || -1,
+            waitForTilesTimeoutSecs,
             apiFactory: apiFactory,
             appServices: appServices,
             queryMatches,

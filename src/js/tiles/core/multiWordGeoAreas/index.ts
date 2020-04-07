@@ -65,23 +65,25 @@ export class MultiWordGeoAreasTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({tileId, dispatcher, appServices, ut, theme, waitForTiles, widthFract, conf, isBusy, cache, queryMatches}:TileFactory.Args<MultiWordGeoAreasTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, theme, waitForTiles, waitForTilesTimeoutSecs, widthFract, conf,
+            isBusy, cache, queryMatches}:TileFactory.Args<MultiWordGeoAreasTileConf>) {
         this.tileId = tileId;
         this.label = appServices.importExternalMessage(conf.label);
         this.dispatcher = dispatcher;
         this.appServices = appServices;
         this.widthFract = widthFract;
         this.blockingTiles = waitForTiles;
-        this.model = new MultiWordGeoAreasModel(
+        this.model = new MultiWordGeoAreasModel({
             dispatcher,
             tileId,
-            waitForTiles[0],
+            waitForTile: waitForTiles[0],
+            waitForTilesTimeoutSecs,
             appServices,
             queryMatches,
-            createConcApiInstance(cache, conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
-            createApiInstance(cache, conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
-            new MapLoader(cache, appServices),
-            {
+            concApi: createConcApiInstance(cache, conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            freqApi: createApiInstance(cache, conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            mapLoader: new MapLoader(cache, appServices),
+            initState: {
                 isBusy: isBusy,
                 error: null,
                 areaCodeMapping: {...conf.areaCodeMapping},
@@ -101,7 +103,7 @@ export class MultiWordGeoAreasTile implements ITileProvider {
                 posQueryGenerator: conf.posQueryGenerator,
                 currQueryMatches: List.map(lemma => findCurrQueryMatch(lemma), queryMatches)
             }
-        );
+        });
         this.label = appServices.importExternalMessage(conf.label || 'geolocations__main_label');
         this.view = viewInit(this.dispatcher, ut, theme, this.model);
     }
