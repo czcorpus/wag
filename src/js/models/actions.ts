@@ -45,6 +45,9 @@ export enum ActionName {
     GetSourceInfoDone = 'MAIN_GET_SOURCE_INFO_DONE',
     CloseSourceInfo = 'MAIN_CLOSE_SOURCE_INFO',
     ToggleGroupVisibility = 'MAIN_TOGGLE_GROUP_VISIBILITY',
+    OpenGroupAndHighlightTile = 'MAIN_OPEN_GROUP_AND_FOCUS_TILE',
+    HighlightTile = 'MAIN_FOCUS_TILE',
+    DehighlightTile = 'MAIN_UNFOCUS_TILE',
     ShowGroupHelp = 'MAIN_SHOW_GROUP_HELP',
     ShowGroupHelpDone = 'MAIN_SHOW_GROUP_HELP_DONE',
     HideGroupHelp = 'MAIN_HIDE_GROUP_HELP',
@@ -236,6 +239,25 @@ export namespace Actions {
         groupIdx:number;
     }> {
         name:ActionName.ToggleGroupVisibility;
+    }
+
+    export interface OpenGroupAndHighlightTile extends Action<{
+        groupIdx:number;
+        tileId:number;
+    }> {
+        name:ActionName.OpenGroupAndHighlightTile;
+    }
+
+    export interface HighlightTile extends Action<{
+        tileId:number;
+    }> {
+        name:ActionName.HighlightTile;
+    }
+
+    export interface DehighlightTile extends Action<{
+        tileId:number;
+    }> {
+        name:ActionName.DehighlightTile;
     }
 
     export interface ShowGroupHelp extends Action<{

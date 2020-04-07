@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 import { StatelessModel, IActionDispatcher } from 'kombo';
-import { Observable } from 'rxjs';
-import { concatMap, map } from 'rxjs/operators';
+import { Observable, interval } from 'rxjs';
+import { concatMap, map, tap, take } from 'rxjs/operators';
 
 import { IAppServices } from '../appServices';
 import { ajax$, ResponseType } from '../common/ajax';
@@ -60,6 +60,7 @@ export interface WdglanceTilesState {
     maxTileErrors:number;
     numTileErrors:number;
     issueReportingUrl:string|null;
+    highlightedTileId:number;
 }
 
 
@@ -229,12 +230,61 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
         this.addActionHandler<Actions.ToggleGroupVisibility>(
             ActionName.ToggleGroupVisibility,
             (state, action) => {
-                if (state.hiddenGroups.some(v => v === action.payload.groupIdx)) {
-                    state.hiddenGroups = List.removeValue(action.payload.groupIdx, state.hiddenGroups);
+                state.hiddenGroups =
+                        List.some(v => v === action.payload.groupIdx, state.hiddenGroups) ?
+                        List.removeValue(action.payload.groupIdx, state.hiddenGroups) :
+                        List.addUnique(action.payload.groupIdx, state.hiddenGroups);
+            }
+        );
+        this.addActionHandler<Actions.OpenGroupAndHighlightTile>(
+            ActionName.OpenGroupAndHighlightTile,
+            (state, action) => {
+                List.removeValue(action.payload.groupIdx, state.hiddenGroups);
+            },
+            (state, action, dispatch) => {
+                interval(100).pipe(
+                    take(13)
+                ).subscribe(
+                    v => {
+                        if (v % 2 == 1 || v < 6) {
+                            dispatch({
+                                name: ActionName.HighlightTile,
+                                payload: {
+                                    tileId: action.payload.tileId
+                                }
+                            });
 
-                } else {
-                    state.hiddenGroups = List.addUnique(action.payload.groupIdx, state.hiddenGroups);
-                }
+                        } else {
+                            dispatch({
+                                name: ActionName.DehighlightTile,
+                                payload: {
+                                    tileId: action.payload.tileId
+                                }
+                            });
+                        }
+                    },
+                    err => {},
+                    () => {
+                        dispatch({
+                            name: ActionName.DehighlightTile,
+                            payload: {
+                                tileId: action.payload.tileId
+                            }
+                        });
+                    }
+                );
+            }
+        );
+        this.addActionHandler<Actions.HighlightTile>(
+            ActionName.HighlightTile,
+            (state, action) => {
+                state.highlightedTileId = action.payload.tileId;
+            }
+        );
+        this.addActionHandler<Actions.DehighlightTile>(
+            ActionName.DehighlightTile,
+            (state, action) => {
+                state.highlightedTileId = -1;
             }
         );
         this.addActionHandler<Actions.ShowGroupHelp>(
