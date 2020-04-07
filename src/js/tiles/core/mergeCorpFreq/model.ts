@@ -19,12 +19,11 @@
 import { StatelessModel, IActionQueue, SEDispatcher } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
 import { flatMap, concatMap, map, timeout, reduce, tap } from 'rxjs/operators';
-import { Dict, List, pipe, HTTP } from 'cnc-tskit';
+import { Dict, List, pipe } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
-import { BacklinkArgs, SingleCritQueryArgs, SourceMappedDataRow } from '../../../common/api/kontext/freqs';
+import { SourceMappedDataRow } from '../../../common/api/kontext/freqs';
 import { callWithExtraVal } from '../../../common/api/util';
-import { BacklinkWithArgs } from '../../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { QueryMatch } from '../../../common/query';
 import { ViewMode, SingleConcLoadedPayload, IConcordanceApi } from '../../../common/api/abstract/concordance';
@@ -51,16 +50,6 @@ interface SourceQueryProps {
 
 type LoadedConcProps = [number, ModelSourceArgs, string];
 
-const sourceToAPIArgs = (src:ModelSourceArgs, concId:string):SingleCritQueryArgs => ({
-    corpname: src.corpname,
-    q: `~${concId}`,
-    fcrit: src.fcrit,
-    flimit: src.flimit,
-    freq_sort: src.freqSort,
-    fpage: src.fpage,
-    ftt_include_empty: src.fttIncludeEmpty ? 1 : 0,
-    format: 'json'
-});
 
 export interface MergeCorpFreqModelArgs {
     dispatcher:IActionQueue;
@@ -218,26 +207,6 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
         );
     }
 
-    private createBackLink(source:ModelSourceArgs, concId:string):BacklinkWithArgs<BacklinkArgs> {
-        return source.backlinkTpl ?
-            {
-                url: source.backlinkTpl.url,
-                method: source.backlinkTpl.method || HTTP.Method.GET,
-                label: source.backlinkTpl.label,
-                args: {
-                    corpname: source.corpname,
-                    usesubcorp: null,
-                    q: `~${concId}`,
-                    fcrit: [source.fcrit],
-                    flimit: source.flimit,
-                    freq_sort: source.freqSort,
-                    fpage: source.fpage,
-                    ftt_include_empty: source.fttIncludeEmpty ? 1 : 0
-                }
-            } :
-            null;
-    }
-
     private loadConcordances(state:MergeCorpFreqModelState):Observable<[number, ModelSourceArgs, string]> {
         return rxOf(...state.sources).pipe(
             flatMap(source => rxOf(...List.map(
@@ -280,7 +249,6 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
 
     private loadFreqs(conc$:Observable<[number, ModelSourceArgs, string]>, dispatch:SEDispatcher):void {
         conc$.pipe(
-            timeout(this.waitForTilesTimeoutSecs * 1000),
             flatMap(([queryId, sourceArgs, concId]) => {
                 const auxArgs:SourceQueryProps = {
                     sourceArgs: sourceArgs,
@@ -289,7 +257,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
                 };
                 return callWithExtraVal(
                     this.freqApi,
-                    sourceToAPIArgs(sourceArgs, concId),
+                    this.freqApi.stateToArgs(sourceArgs, concId),
                     auxArgs
                 );
             }),
@@ -332,7 +300,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
                                     {
                                         sourceId: props.sourceArgs.uuid,
                                         queryId: props.queryId,
-                                        backlink: this.createBackLink(props.sourceArgs, props.concId),
+                                        backlink: this.freqApi.createBacklink(props.sourceArgs, props.sourceArgs.backlinkTpl, props.concId),
                                         freq: row.freq,
                                         ipm: row.ipm,
                                         norm: row.norm,
@@ -341,7 +309,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
                                     {
                                         sourceId: props.sourceArgs.uuid,
                                         queryId: props.queryId,
-                                        backlink: this.createBackLink(props.sourceArgs, props.concId),
+                                        backlink: this.freqApi.createBacklink(props.sourceArgs, props.sourceArgs.backlinkTpl, props.concId),
                                         freq: row.freq,
                                         ipm: Math.round(row.freq / props.sourceArgs.corpusSize * 1e8) / 100,
                                         norm: row.norm,

@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { MultiCritQueryArgs, FreqSort } from '../api/kontext/freqs';
 import { LocalizedConfMsg } from '../types';
 import { DataRow } from '../api/abstract/freqs';
 
@@ -26,7 +25,7 @@ interface FreqComparisonStateBase {
     error:string;
     corpname:string;
     flimit:number;
-    freqSort:FreqSort;
+    freqSort:string;
     fpage:number;
     fttIncludeEmpty:boolean;
     fmaxitems:number;
@@ -45,19 +44,3 @@ export interface GeneralMultiCritFreqComparisonModelState<T=DataRow> extends Fre
     critLabels:Array<LocalizedConfMsg>;
     blocks:Array<FreqComparisonDataBlock<T>>;
 }
-
-
-
-export function stateToAPIArgs<T>(state:GeneralMultiCritFreqComparisonModelState<T>, concId: string, critId?:number, subcname?:string):MultiCritQueryArgs {
-    return {
-        corpname: state.corpname,
-        usesubcorp: subcname,
-        fcrit: critId !== undefined ? state.fcrit[critId] : state.fcrit,
-        flimit: state.flimit,
-        freq_sort: state.freqSort,
-        fpage: state.fpage,
-        ftt_include_empty: state.fttIncludeEmpty ? 1 : 0,
-        format: 'json',
-        q: `~${concId}`
-    } as MultiCritQueryArgs;
-};

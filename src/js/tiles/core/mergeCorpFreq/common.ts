@@ -18,14 +18,11 @@
 
 import { SourceMappedDataRow } from '../../../common/api/kontext/freqs';
 import { Backlink } from '../../../common/tile';
+import { MinSingleCritFreqState } from '../../../common/models/freq';
 
-export interface ModelSourceArgs {
-
-    corpname:string;
+export interface ModelSourceArgs extends MinSingleCritFreqState {
 
     corpusSize:number;
-
-    fcrit:string;
 
     /**
      * In case 'fcrit' describes a positional
@@ -36,14 +33,6 @@ export interface ModelSourceArgs {
      * by something more specific (e.g. 'social media')
      */
     valuePlaceholder:string|null;
-
-    flimit:number;
-
-    freqSort:string;
-
-    fpage:number;
-
-    fttIncludeEmpty:boolean;
 
     backlinkTpl:Backlink;
 
