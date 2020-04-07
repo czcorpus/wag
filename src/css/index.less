@@ -244,6 +244,26 @@ section.TilesSections {
     > section.group:not(:first-child) {
         margin-top: 1.7em;
     }
+
+    ul.MinimizedGroup {
+        background-color: #FFFFFF;
+        border-radius: 0.25em;
+
+        list-style-type: none;
+        margin: 0;
+        padding: 1.25em;
+
+        li {
+            a {
+                color: @color-logo-blue;
+                cursor: pointer;
+            }
+        }
+
+        li:not(:last-child) {
+            margin-bottom: 0.3em;
+        }
+    }
 }
 
 input.invalid, textarea.invalid {

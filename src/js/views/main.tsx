@@ -23,7 +23,7 @@ import { Forms } from '../common/data';
 import { SystemMessageType, SourceDetails, isCorpusDetails } from '../common/types';
 import { QueryType, QueryMatch, QueryTypeMenuItem, SearchLanguage, RecognizedQueries } from '../common/query';
 import { TileFrameProps } from '../common/tile';
-import { TileGroup } from '../layout';
+import { TileGroup, GroupedTileProps } from '../layout';
 import { ActionName, Actions } from '../models/actions';
 import { MessagesModel, MessagesState } from '../models/messages';
 import { QueryFormModel, QueryFormModelState } from '../models/query';
@@ -38,6 +38,11 @@ export interface WdglanceMainProps {
     isMobile:boolean;
     isAnswerMode:boolean;
     error:[number, string]|null;
+}
+
+
+function mkTileHrefId(tileId:string):string {
+    return `tile-${tileId}`;
 }
 
 
@@ -758,6 +763,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         tile:TileFrameProps;
         supportsCurrQuery:boolean;
         tileResultFlag:TileResultFlagRec;
+        isHighlighted:boolean;
+
     }, {}> {
 
         private ref:React.RefObject<HTMLDivElement>;
@@ -786,6 +793,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             if (!this.props.isMobile) {
                 ans.push(`span${this.props.tile.widthFract}`);
             }
+            if (this.props.isHighlighted) {
+                ans.push('highlighted');
+            }
             return ans.join(' ');
         }
 
@@ -793,6 +803,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             return (
                 <section key={`tile-ident-${this.props.tile.tileId}`}
                         className={this.getHTMLClass()}>
+                    <a id={mkTileHrefId(this.props.tile.tileName)}></a>
                     <header className="cnc-tile-header panel">
                         <h2>{this.props.tile.label}</h2>
                         <div className="window-buttons">
@@ -912,10 +923,42 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         );
     };
 
+    // -------------------- <MinimizedGroup /> ------------------------
 
-    // -------------------- <TileGroup /> -----------------------------
+    const MinimizedGroup:React.SFC<{
+        groupIdx:number;
+        tiles:Array<TileFrameProps>;
 
-    const TileGroup:React.SFC<{
+    }> = (props) => {
+
+        const handleClick = (tileId:number) => () => {
+            dispatcher.dispatch<Actions.OpenGroupAndHighlightTile>({
+                name: ActionName.OpenGroupAndHighlightTile,
+                payload: {
+                    groupIdx: props.groupIdx,
+                    tileId: tileId
+                }
+            });
+        };
+
+        return (
+            <ul className="MinimizedGroup">
+            {List.map(
+                item => (
+                    <li key={`tile:${item.tileId}`}>
+                        <a href={`#${mkTileHrefId(item.tileName)}`} onClick={handleClick(item.tileId)}>{item.label}</a>
+                    </li>
+                ),
+                props.tiles
+            )}
+            </ul>
+        );
+    };
+
+
+    // -------------------- <TileGroupSection /> -----------------------------
+
+    const TileGroupSection:React.SFC<{
         data:TileGroup;
         idx:number;
         isHidden:boolean;
@@ -925,6 +968,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         tweakActiveTiles:Array<number>;
         altViewActiveTiles:Array<number>;
         tileResultFlags:Array<TileResultFlagRec>;
+        highlightedTileId:number;
 
     }> = (props) => {
 
@@ -969,7 +1013,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 );
 
             } else if (props.isHidden) {
-                return null;
+                return <MinimizedGroup
+                    groupIdx={props.idx}
+                    tiles={List.map(v => props.tileFrameProps[v.tileId], props.data.tiles)} />
 
             } else {
                 return (
@@ -983,7 +1029,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                             isTweakMode={props.tweakActiveTiles.some(v => v === tile.tileId)}
                                             isAltViewMode={props.altViewActiveTiles.find(v => v === tile.tileId) !== undefined}
                                             supportsCurrQuery={tile.supportsCurrQuery}
-                                            tileResultFlag={props.tileResultFlags[tile.tileId]} />)
+                                            tileResultFlag={props.tileResultFlags[tile.tileId]}
+                                            isHighlighted={props.highlightedTileId === tile.tileId} />)
                     )}
                     </section>
                 );
@@ -1211,7 +1258,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             } else {
                 return List.map(
                     (group, groupIdx) => (
-                        <TileGroup
+                        <TileGroupSection
                             key={`${group.groupLabel}:${groupIdx}`}
                             data={group}
                             idx={groupIdx}
@@ -1221,7 +1268,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             tileFrameProps={this.props.tileProps}
                             tweakActiveTiles={this.props.tweakActiveTiles}
                             altViewActiveTiles={this.props.altViewActiveTiles}
-                            tileResultFlags={this.props.tileResultFlags} />
+                            tileResultFlags={this.props.tileResultFlags}
+                            highlightedTileId={this.props.highlightedTileId} />
 
                     ),
                     this.props.layout

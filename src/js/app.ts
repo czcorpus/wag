@@ -201,7 +201,8 @@ export function createRootComponent({config, userSession, queryMatches, appServi
             showAmbiguousResultHelp: false,
             maxTileErrors: config.maxTileErrors,
             numTileErrors: 0,
-            issueReportingUrl: config.issueReportingUrl || null
+            issueReportingUrl: config.issueReportingUrl || null,
+            highlightedTileId: -1
         },
         appServices
     );
