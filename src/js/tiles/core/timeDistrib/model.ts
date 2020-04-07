@@ -107,6 +107,7 @@ export interface TimeDistribModelArgs {
     initState:TimeDistribModelState;
     tileId:number;
     waitForTile:number;
+    waitForTilesTimeoutSecs:number;
     apiFactory:PriorityValueFactory<[IConcordanceApi<{}>, KontextTimeDistribApi]>;
     appServices:IAppServices;
     queryMatches:RecognizedQueries;
@@ -127,6 +128,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
 
     private readonly waitForTile:number;
 
+    private readonly waitForTilesTimeoutSecs:number;
+
     private readonly queryMatches:RecognizedQueries;
 
     private readonly queryLang:string;
@@ -134,11 +137,13 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
     private readonly backlink:Backlink;
 
 
-    constructor({dispatcher, initState, tileId, waitForTile, apiFactory, appServices, queryMatches, queryLang, backlink}) {
+    constructor({dispatcher, initState, tileId, waitForTile, waitForTilesTimeoutSecs, apiFactory, appServices,
+                queryMatches, queryLang, backlink}:TimeDistribModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.apiFactory = apiFactory;
         this.waitForTile = waitForTile;
+        this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.appServices = appServices;
         this.queryMatches = queryMatches;
         this.queryLang = queryLang;
@@ -491,13 +496,17 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
 
     private loadData(state:TimeDistribModelState, dispatch:SEDispatcher, target:SubchartID, lemmaVariant:Observable<QueryMatch>):void {
         if (this.waitForTile > -1) { // in this case we rely on a concordance provided by other tile
-            const proc = this.suspend(TileWait.create([this.waitForTile], () => false), (action:Action<{tileId:number}>, syncData) => {
-                if (action.name === GlobalActionName.TileDataLoaded && syncData.tileIsRegistered(action.payload.tileId)) {
-                    syncData.setTileDone(action.payload.tileId, true);
-                }
-                return syncData.next(() => true);
+            const proc = this.suspendWithTimeout(
+                this.waitForTilesTimeoutSecs * 1000,
+                TileWait.create([this.waitForTile], () => false),
+                (action:Action<{tileId:number}>, syncData) => {
+                    if (action.name === GlobalActionName.TileDataLoaded && syncData.tileIsRegistered(action.payload.tileId)) {
+                        syncData.setTileDone(action.payload.tileId, true);
+                    }
+                    return syncData.next(() => true);
 
-            }).pipe(
+                }
+            ).pipe(
                 concatMap(
                     action => {
                         const payload = action.payload as ConcLoadedPayload;

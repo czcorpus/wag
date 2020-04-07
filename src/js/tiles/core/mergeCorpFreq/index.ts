@@ -100,15 +100,15 @@ export class MergeCorpFreqTile implements ITileProvider {
         this.widthFract = widthFract;
         this.label = appServices.importExternalMessage(conf.label);
         this.blockingTiles = waitForTiles;
-        this.model = new MergeCorpFreqModel(
-            this.dispatcher,
+        this.model = new MergeCorpFreqModel({
+            dispatcher: this.dispatcher,
             tileId,
             waitForTiles,
             waitForTilesTimeoutSecs,
             appServices,
-            createConcApiInstance(cache, conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
-            createFreqApiInstance(cache, conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
-            {
+            concApi: createConcApiInstance(cache, conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            freqApi: createFreqApiInstance(cache, conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            initState: {
                 isBusy: isBusy,
                 isAltViewMode: false,
                 error: null,
@@ -132,7 +132,7 @@ export class MergeCorpFreqTile implements ITileProvider {
                 pixelsPerCategory: conf.pixelsPerCategory ? conf.pixelsPerCategory : 30,
                 queryMatches: List.map(lemma => findCurrQueryMatch(lemma), queryMatches)
             }
-        );
+        });
         this.label = appServices.importExternalMessage(conf.label || 'mergeCorpFreq__main_label');
         this.view = viewInit(this.dispatcher, ut, theme, this.model);
     }

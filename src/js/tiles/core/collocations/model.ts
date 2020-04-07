@@ -17,7 +17,7 @@
  */
 import { Action, SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
-import { concatMap, map, tap, reduce, timeout } from 'rxjs/operators';
+import { concatMap, map, tap, reduce } from 'rxjs/operators';
 import { List, HTTP } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
@@ -149,14 +149,13 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             },
             (state, action, seDispatch) => {
                 const conc$ = this.waitForTile >= 0 ?
-                    this.suspend({}, (action:Action, syncData) => {
+                    this.suspendWithTimeout(this.waitForTilesTimeoutSecs * 1000, {}, (action:Action, syncData) => {
                         if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
                             return null;
                         }
                         return syncData;
 
                     }).pipe(
-                        timeout(this.waitForTilesTimeoutSecs * 1000),
                         concatMap(action => {
                             const payload = action.payload as ConcLoadedPayload;
                             return rxOf(...List.map<string, FreqRequestArgs>((v, i) => [i, state.queryMatches[i], v], payload.concPersistenceIDs))

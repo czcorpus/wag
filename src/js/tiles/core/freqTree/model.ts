@@ -46,6 +46,7 @@ export interface FreqComparisonModelArgs {
     dispatcher:IActionQueue;
     tileId:number;
     waitForTiles:Array<number>;
+    waitForTilesTimeoutSecs:number;
     appServices:IAppServices;
     concApi:IConcordanceApi<{}>;
     freqTreeApi:FreqTreeAPI;
@@ -68,12 +69,16 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
 
     protected readonly waitForTiles:Array<number>;
 
+    protected readonly waitForTilesTimeoutSecs:number;
+
     private readonly backlink:Backlink|null;
 
-    constructor({dispatcher, tileId, waitForTiles, appServices, concApi, freqTreeApi, backlink, initState}:FreqComparisonModelArgs) {
+    constructor({dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, appServices, concApi,
+            freqTreeApi, backlink, initState}:FreqComparisonModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.waitForTiles = waitForTiles;
+        this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.appServices = appServices;
         this.concApi = concApi;
         this.freqTreeApi = freqTreeApi;
@@ -87,34 +92,38 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
             },
             (state, action, dispatch) => {
                 if (this.waitForTiles.length > 0) {
-                    this.suspend({}, (action, syncData) => {
-                        if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTiles[0]) {
-                            if (isConcLoadedPayload(action.payload)) {
-                                const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
-                                if (action.error) {
-                                    dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                        name: GlobalActionName.TileDataLoaded,
-                                        payload: {
-                                            tileId: this.tileId,
-                                            isEmpty: true,
-                                            data: null,
-                                            concPersistenceIDs: null,
-                                            corpusName: state.corpname
-                                        },
-                                        error: new Error(this.appServices.translate('global__failed_to_obtain_required_data')),
-                                    });
-                                    return null;
-                                }
-                                this.loadTreeData(this.composeConcordances(state, payload.concPersistenceIDs), state, dispatch);
+                    this.suspendWithTimeout(
+                        this.waitForTilesTimeoutSecs * 1000,
+                        {},
+                        (action, syncData) => {
+                            if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTiles[0]) {
+                                if (isConcLoadedPayload(action.payload)) {
+                                    const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
+                                    if (action.error) {
+                                        dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                            name: GlobalActionName.TileDataLoaded,
+                                            payload: {
+                                                tileId: this.tileId,
+                                                isEmpty: true,
+                                                data: null,
+                                                concPersistenceIDs: null,
+                                                corpusName: state.corpname
+                                            },
+                                            error: new Error(this.appServices.translate('global__failed_to_obtain_required_data')),
+                                        });
+                                        return null;
+                                    }
+                                    this.loadTreeData(this.composeConcordances(state, payload.concPersistenceIDs), state, dispatch);
 
-                            } else {
-                                // if foreign tile response does not send concordances, load as standalone tile
-                                this.loadTreeData(this.loadConcordances(state), state, dispatch);
+                                } else {
+                                    // if foreign tile response does not send concordances, load as standalone tile
+                                    this.loadTreeData(this.loadConcordances(state), state, dispatch);
+                                }
+                                return null;
                             }
-                            return null;
+                            return syncData;
                         }
-                        return syncData;
-                    });
+                    );
 
                 } else {
                     this.loadTreeData(this.loadConcordances(state), state, dispatch);
@@ -373,6 +382,7 @@ export const factory = (
     dispatcher:IActionQueue,
     tileId:number,
     waitForTiles:Array<number>,
+    waitForTilesTimeoutSecs:number,
     appServices:IAppServices,
     concApi:IConcordanceApi<{}>,
     freqTreeApi:FreqTreeAPI,
@@ -383,6 +393,7 @@ export const factory = (
         dispatcher,
         tileId,
         waitForTiles,
+        waitForTilesTimeoutSecs,
         appServices,
         concApi,
         freqTreeApi,

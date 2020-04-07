@@ -62,6 +62,16 @@ const sourceToAPIArgs = (src:ModelSourceArgs, concId:string):SingleCritQueryArgs
     format: 'json'
 });
 
+export interface MergeCorpFreqModelArgs {
+    dispatcher:IActionQueue;
+    tileId:number;
+    waitForTiles:Array<number>;
+    waitForTilesTimeoutSecs:number;
+    appServices:IAppServices;
+    concApi:IConcordanceApi<{}>;
+    freqApi:IFreqDistribAPI<{}>;
+    initState:MergeCorpFreqModelState;
+}
 
 export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, {[key:string]:number}> {
 
@@ -73,13 +83,16 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
 
     private readonly freqApi:IFreqDistribAPI<{}>;
 
+    private readonly waitForTiles:Array<number>;
+
     private readonly waitForTilesTimeoutSecs:number;
 
-    constructor(dispatcher:IActionQueue, tileId:number, waitForTiles:Array<number>, waitForTilesTimeoutSecs:number, appServices:IAppServices,
-                    concApi:IConcordanceApi<{}>, freqApi:IFreqDistribAPI<{}>, initState:MergeCorpFreqModelState) {
+    constructor({dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, appServices,
+                concApi, freqApi, initState}:MergeCorpFreqModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.appServices = appServices;
+        this.waitForTiles = waitForTiles;
         this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.concApi = concApi;
         this.freqApi = freqApi;
@@ -109,16 +122,20 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
                 state.error = null;
             },
             (state, action, dispatch) => {
-                const conc$ = waitForTiles.length > 0 ?
-                    this.suspend(Dict.fromEntries(waitForTiles.map(v => [v.toFixed(), 0])), (action, syncData) => {
-                        if (action.name === GlobalActionName.TilePartialDataLoaded && waitForTiles.indexOf(action.payload['tileId']) > -1) {
-                            const ans = {...syncData};
-                            ans[action.payload['tileId'].toFixed()] += 1;
-                            return Dict.find(v => v < state.queryMatches.length, ans) ? ans : null;
-                        }
-                        return syncData;
+                const conc$ = this.waitForTiles.length > 0 ?
+                    this.suspendWithTimeout(
+                        this.waitForTilesTimeoutSecs * 1000,
+                        Dict.fromEntries(this.waitForTiles.map(v => [v.toFixed(), 0])),
+                        (action, syncData) => {
+                            if (action.name === GlobalActionName.TilePartialDataLoaded && this.waitForTiles.indexOf(action.payload['tileId']) > -1) {
+                                const ans = {...syncData};
+                                ans[action.payload['tileId'].toFixed()] += 1;
+                                return Dict.find(v => v < state.queryMatches.length, ans) ? ans : null;
+                            }
+                            return syncData;
 
-                    }).pipe(
+                        }
+                    ).pipe(
                         map(action => {
                             const payload = (action as GlobalActions.TilePartialDataLoaded<SingleConcLoadedPayload>).payload;
                             const src = state.sources.find(v => v.corpname === payload.data.corpName);
@@ -126,7 +143,6 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
                         })
                     ) :
                     this.loadConcordances(state);
-
                 this.loadFreqs(conc$, dispatch);
             }
         );

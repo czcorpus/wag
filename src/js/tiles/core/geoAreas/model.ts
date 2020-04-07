@@ -74,6 +74,17 @@ export interface GeoAreasModelState extends GeneralSingleCritFreqBarModelState<D
     frequencyDisplayLimit:number;
 }
 
+export interface GeoAreasModelArgs {
+    dispatcher:IActionQueue;
+    tileId:number;
+    waitForTile:number;
+    waitForTilesTimeoutSecs:number;
+    appServices:IAppServices;
+    api:IFreqDistribAPI<{}>;
+    mapLoader:DataApi<string, string>;
+    initState:GeoAreasModelState;
+}
+
 
 export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
 
@@ -81,17 +92,20 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
 
     private readonly waitForTile:number;
 
+    private readonly waitForTilesTimeoutSecs:number;
+
     private readonly appServices:IAppServices;
 
     private readonly api:IFreqDistribAPI<{}>;
 
     private readonly mapLoader:DataApi<string, string>;
 
-    constructor(dispatcher:IActionQueue, tileId:number, waitForTile:number, appServices:IAppServices, api:IFreqDistribAPI<{}>,
-            mapLoader:DataApi<string, string>, initState:GeoAreasModelState) {
+    constructor({dispatcher, tileId, waitForTile, waitForTilesTimeoutSecs, appServices,
+            api, mapLoader, initState}:GeoAreasModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.waitForTile = waitForTile;
+        this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.appServices = appServices;
         this.api = api;
         this.mapLoader = mapLoader;
@@ -104,57 +118,61 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
             },
             (state, action, dispatch) => {
                 if (this.waitForTile > -1) {
-                    this.suspend({}, (action, syncStatus) => {
-                        if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
-                            const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
+                    this.suspendWithTimeout(
+                        this.waitForTilesTimeoutSecs * 1000,
+                        {},
+                        (action, syncStatus) => {
+                            if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
+                                const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
 
-                            forkJoin(
-                                new Observable((observer:Observer<{}>) => {
-                                    if (action.error) {
-                                        observer.error(new Error(this.appServices.translate('global__failed_to_obtain_required_data')));
+                                forkJoin(
+                                    new Observable((observer:Observer<{}>) => {
+                                        if (action.error) {
+                                            observer.error(new Error(this.appServices.translate('global__failed_to_obtain_required_data')));
 
-                                    } else {
-                                        observer.next({});
-                                        observer.complete();
-                                    }
-                                }).pipe(
-                                    concatMap(args => this.api.call(
-                                        this.api.stateToArgs(state, payload.concPersistenceIDs[0])
-                                    ))
-                                ),
-                                state.mapSVG ? rxOf(null) : this.mapLoader.call('mapCzech.inline.svg')
-                            )
-                            .subscribe(
-                                resp => {
-                                    dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                        name: GlobalActionName.TileDataLoaded,
-                                        payload: {
-                                            tileId: this.tileId,
-                                            isEmpty: resp[0].data.length === 0,
-                                            data: resp[0].data,
-                                            mapSVG: resp[1],
-                                            concId: resp[0].concId
+                                        } else {
+                                            observer.next({});
+                                            observer.complete();
                                         }
-                                    });
-                                },
-                                error => {
-                                    dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                        name: GlobalActionName.TileDataLoaded,
-                                        payload: {
-                                            tileId: this.tileId,
-                                            isEmpty: true,
-                                            data: null,
-                                            mapSVG: null,
-                                            concId: null
-                                        },
-                                        error: error
-                                    });
-                                }
-                            );
-                            return null;
+                                    }).pipe(
+                                        concatMap(args => this.api.call(
+                                            this.api.stateToArgs(state, payload.concPersistenceIDs[0])
+                                        ))
+                                    ),
+                                    state.mapSVG ? rxOf(null) : this.mapLoader.call('mapCzech.inline.svg')
+                                )
+                                .subscribe(
+                                    resp => {
+                                        dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                            name: GlobalActionName.TileDataLoaded,
+                                            payload: {
+                                                tileId: this.tileId,
+                                                isEmpty: resp[0].data.length === 0,
+                                                data: resp[0].data,
+                                                mapSVG: resp[1],
+                                                concId: resp[0].concId
+                                            }
+                                        });
+                                    },
+                                    error => {
+                                        dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                            name: GlobalActionName.TileDataLoaded,
+                                            payload: {
+                                                tileId: this.tileId,
+                                                isEmpty: true,
+                                                data: null,
+                                                mapSVG: null,
+                                                concId: null
+                                            },
+                                            error: error
+                                        });
+                                    }
+                                );
+                                return null;
+                            }
+                            return syncStatus;
                         }
-                        return syncStatus;
-                    });
+                    );
 
                 } else {
                     dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({

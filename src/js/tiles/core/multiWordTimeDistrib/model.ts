@@ -61,6 +61,7 @@ export interface TimeDistribModelArgs {
     initState:TimeDistribModelState;
     tileId:number;
     waitForTile:number;
+    waitForTilesTimeoutSecs:number;
     apiFactory:PriorityValueFactory<[IConcordanceApi<{}>, KontextTimeDistribApi]>;
     appServices:IAppServices;
     queryMatches:RecognizedQueries;
@@ -95,13 +96,17 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private readonly waitForTile:number;
 
+    private readonly waitForTilesTimeoutSecs:number;
+
     private readonly queryMatches:RecognizedQueries;
 
-    constructor({dispatcher, initState, tileId, waitForTile, apiFactory, appServices, queryMatches}:TimeDistribModelArgs) {
+    constructor({dispatcher, initState, tileId, waitForTile, waitForTilesTimeoutSecs,
+            apiFactory, appServices, queryMatches}:TimeDistribModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.apiFactory = apiFactory;
         this.waitForTile = waitForTile;
+        this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.appServices = appServices;
         this.queryMatches = queryMatches;
 
@@ -184,46 +189,50 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             (state, action, dispatch) => {
                 // we can propagate concordances only for one corpus (subcorpus)
                 if (this.waitForTile > -1 && state.subcnames.length === 1) {
-                    this.suspend({}, (action, syncData) => {
-                        if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
-                            if (isConcLoadedPayload(action.payload)) {
-                                const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
-                                this.loadData(
-                                    state,
-                                    dispatch,
-                                    [null],
-                                    rxOf<CalcArgs>(...List.map(
-                                        (lemma, queryId) => {
-                                            return {
-                                                queryId,
-                                                lemma: findCurrQueryMatch(lemma),
-                                                concId: payload.concPersistenceIDs[queryId],
-                                            }
-                                        },
-                                        this.queryMatches))
-                                );
-                            } else {
-                                this.loadData(
-                                    state,
-                                    dispatch,
-                                    state.subcnames,
-                                    rxOf<CalcArgs>(
-                                        ...List.map(
+                    this.suspendWithTimeout(
+                        this.waitForTilesTimeoutSecs,
+                        {},
+                        (action, syncData) => {
+                            if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
+                                if (isConcLoadedPayload(action.payload)) {
+                                    const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
+                                    this.loadData(
+                                        state,
+                                        dispatch,
+                                        [null],
+                                        rxOf<CalcArgs>(...List.map(
                                             (lemma, queryId) => {
                                                 return {
                                                     queryId,
                                                     lemma: findCurrQueryMatch(lemma),
-                                                    concId: null
+                                                    concId: payload.concPersistenceIDs[queryId],
                                                 }
                                             },
-                                            this.queryMatches
-                                    ))
-                                );
+                                            this.queryMatches))
+                                    );
+                                } else {
+                                    this.loadData(
+                                        state,
+                                        dispatch,
+                                        state.subcnames,
+                                        rxOf<CalcArgs>(
+                                            ...List.map(
+                                                (lemma, queryId) => {
+                                                    return {
+                                                        queryId,
+                                                        lemma: findCurrQueryMatch(lemma),
+                                                        concId: null
+                                                    }
+                                                },
+                                                this.queryMatches
+                                        ))
+                                    );
+                                }
+                                return null;
                             }
-                            return null;
+                            return syncData;
                         }
-                        return syncData;
-                    });
+                    );
 
                 } else {
                     this.loadData(

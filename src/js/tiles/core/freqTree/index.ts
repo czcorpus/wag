@@ -69,7 +69,8 @@ export class FreqTreeTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({dispatcher, tileId, waitForTiles, ut, theme, appServices, widthFract, conf, isBusy, cache, queryMatches}:TileFactory.Args<FreqTreeTileConf>) {
+    constructor({dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, ut, theme, appServices, widthFract,
+            conf, isBusy, cache, queryMatches}:TileFactory.Args<FreqTreeTileConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
@@ -84,6 +85,7 @@ export class FreqTreeTile implements ITileProvider {
             this.dispatcher,
             tileId,
             waitForTiles,
+            waitForTilesTimeoutSecs,
             appServices,
             new ConcApi(false, cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             new FreqTreeAPI(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),

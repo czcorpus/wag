@@ -70,7 +70,8 @@ export class FreqComparisonTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({dispatcher, tileId, waitForTiles, ut, theme, appServices, widthFract, conf, isBusy, cache, queryMatches}:TileFactory.Args<FreqComparisonTileConf>) {
+    constructor({dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, ut, theme, appServices, widthFract,
+            conf, isBusy, cache, queryMatches}:TileFactory.Args<FreqComparisonTileConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
@@ -89,6 +90,7 @@ export class FreqComparisonTile implements ITileProvider {
             this.dispatcher,
             tileId,
             waitForTiles,
+            waitForTilesTimeoutSecs,
             appServices,
             createConcApiInstance(cache, conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             createFreqsApiInstance(cache, conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),

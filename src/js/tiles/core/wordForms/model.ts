@@ -75,6 +75,7 @@ export interface WordFormsModelArgs {
     queryMatches:RecognizedQueries;
     queryLang:string;
     waitForTile:number|null;
+    waitForTilesTimeoutSecs:number;
 }
 
 
@@ -90,13 +91,17 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
 
     private readonly waitForTile:number|null;
 
-    constructor({dispatcher, initialState, tileId, api, queryMatches, queryLang, waitForTile}:WordFormsModelArgs) {
+    private readonly waitForTilesTimeoutSecs:number;
+
+    constructor({dispatcher, initialState, tileId, api, queryMatches, queryLang, waitForTile,
+            waitForTilesTimeoutSecs}:WordFormsModelArgs) {
         super(dispatcher, initialState);
         this.tileId = tileId;
         this.api = api;
         this.queryMatches = queryMatches;
         this.queryLang = queryLang;
         this.waitForTile = waitForTile;
+        this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
 
         this.addActionHandler<GlobalActions.EnableAltViewMode>(
             GlobalActionName.EnableAltViewMode,
@@ -125,39 +130,43 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
             },
             (state, action, dispatch) => {
                 if (this.waitForTile >= 0) {
-                    this.suspend({}, (action:Action<{tileId:number}>, syncData) => {
-                        if (action.name === GlobalActionName.TileDataLoaded && action.payload.tileId === this.waitForTile) {
-                            if (action.error) {
-                                console.log(action.error);
-                                dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                    name: GlobalActionName.TileDataLoaded,
-                                    error: action.error,
-                                    payload: {
-                                        tileId: this.tileId,
-                                        queryId: 0,
-                                        isEmpty: true,
-                                        data: [],
-                                        subqueries: [],
-                                        lang1: null,
-                                        lang2: null
-                                    }
-                                });
+                    this.suspendWithTimeout(
+                        this.waitForTilesTimeoutSecs * 1000,
+                        {},
+                        (action:Action<{tileId:number}>, syncData) => {
+                            if (action.name === GlobalActionName.TileDataLoaded && action.payload.tileId === this.waitForTile) {
+                                if (action.error) {
+                                    console.log(action.error);
+                                    dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                        name: GlobalActionName.TileDataLoaded,
+                                        error: action.error,
+                                        payload: {
+                                            tileId: this.tileId,
+                                            queryId: 0,
+                                            isEmpty: true,
+                                            data: [],
+                                            subqueries: [],
+                                            lang1: null,
+                                            lang2: null
+                                        }
+                                    });
 
-                            } else {
-                                const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
-                                this.fetchWordForms(
-                                    {
-                                        corpName: payload.corpusName,
-                                        subcorpName: payload.subcorpusName,
-                                        concPersistenceID: payload.concPersistenceIDs[0]
-                                    },
-                                    dispatch
-                                );
+                                } else {
+                                    const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
+                                    this.fetchWordForms(
+                                        {
+                                            corpName: payload.corpusName,
+                                            subcorpName: payload.subcorpusName,
+                                            concPersistenceID: payload.concPersistenceIDs[0]
+                                        },
+                                        dispatch
+                                    );
+                                }
+                                return null;
                             }
-                            return null;
+                            return syncData;
                         }
-                        return syncData;
-                    });
+                    );
 
                 } else {
                     const variant = findCurrQueryMatch(this.queryMatches[0]);

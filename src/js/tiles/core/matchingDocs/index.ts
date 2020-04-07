@@ -56,7 +56,8 @@ export class MatchingDocsTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({dispatcher, tileId, waitForTiles, subqSourceTiles, ut, theme, appServices, widthFract, conf, isBusy, cache, queryMatches}:TileFactory.Args<MatchingDocsTileConf>) {
+    constructor({dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, subqSourceTiles, ut, theme, appServices,
+            widthFract, conf, isBusy, cache, queryMatches}:TileFactory.Args<MatchingDocsTileConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
@@ -66,6 +67,7 @@ export class MatchingDocsTile implements ITileProvider {
             dispatcher: this.dispatcher,
             tileId,
             waitForTiles,
+            waitForTilesTimeoutSecs,
             subqSourceTiles,
             appServices,
             api: createMatchingDocsApiInstance(conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL), cache),

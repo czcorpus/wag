@@ -37,6 +37,7 @@ export class SubqFreqBarModelArgs {
     dispatcher:IActionQueue;
     tileId:number;
     waitForTiles:Array<number>;
+    waitForTilesTimeoutSecs:number;
     appServices:IAppServices;
     api:IMultiBlockFreqDistribAPI<{}>;
     concApi:ConcApi;
@@ -70,8 +71,10 @@ export class SubqFreqBarModel extends FreqBarModel {
 
     private readonly concApi:ConcApi;
 
-    constructor({dispatcher, tileId, waitForTiles, subqSourceTiles, appServices, api, concApi, backlink, initState, subqConf}:SubqFreqBarModelArgs) {
-        super({dispatcher, tileId, waitForTiles, subqSourceTiles, appServices, api, backlink, initState});
+    constructor({dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, subqSourceTiles, appServices,
+            api, concApi, backlink, initState, subqConf}:SubqFreqBarModelArgs) {
+        super({dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, subqSourceTiles, appServices,
+            api, backlink, initState});
         this.subqConf = subqConf;
         this.concApi = concApi;
         this.extendActionHandler<GlobalActions.TileDataLoaded<DataLoadedPayload>>(
@@ -126,56 +129,60 @@ export class SubqFreqBarModel extends FreqBarModel {
     sideEffects(state:FreqBarModelState, action:Action, dispatch:SEDispatcher):void {
         switch (action.name) {
             case GlobalActionName.RequestQueryResponse:
-                this.suspend(Dict.map(_ => true, this.waitForTiles), (action, syncData) => {
-                    if (action.name === GlobalActionName.TileDataLoaded &&
-                            Dict.hasKey(action.payload['tileId'].toFixed()) && isSubqueryPayload(action.payload), this.subqSourceTiles) {
-                        const payload = action.payload as SubqueryPayload;
-                        const subqueries:Array<{critIdx:number; v:SubQueryItem<string>}> = payload.subqueries
-                                .slice(0, this.subqConf.maxNumSubqueries)
-                                .map((v, i) => ({critIdx: i, v: v}));
+                this.suspendWithTimeout(
+                    this.waitForTilesTimeoutSecs * 1000,
+                    Dict.map(_ => true, this.waitForTiles),
+                    (action, syncData) => {
+                        if (action.name === GlobalActionName.TileDataLoaded &&
+                                Dict.hasKey(action.payload['tileId'].toFixed()) && isSubqueryPayload(action.payload), this.subqSourceTiles) {
+                            const payload = action.payload as SubqueryPayload;
+                            const subqueries:Array<{critIdx:number; v:SubQueryItem<string>}> = payload.subqueries
+                                    .slice(0, this.subqConf.maxNumSubqueries)
+                                    .map((v, i) => ({critIdx: i, v: v}));
 
-                        merge(...subqueries.map(
-                            subq => this.loadFreq(state, state.corpname, subq.v.value, subq.critIdx))
+                            merge(...subqueries.map(
+                                subq => this.loadFreq(state, state.corpname, subq.v.value, subq.critIdx))
 
-                        ).subscribe(
-                            (data:FreqLoadResult) => {
-                                    const block = data.resp.blocks[0];
+                            ).subscribe(
+                                (data:FreqLoadResult) => {
+                                        const block = data.resp.blocks[0];
+                                        dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
+                                            name: GlobalActionName.TileDataLoaded,
+                                            payload: {
+                                                tileId: this.tileId,
+                                                isEmpty: !block,
+                                                block: {
+                                                    data: block ?
+                                                            block.data.sort(((x1, x2) => x1.freq - x2.freq)).slice(0, state.maxNumCategories) :
+                                                            null
+                                                },
+                                                blockLabel: data.query,
+                                                concId: null, // TODO do we need this?
+                                                critIdx: data.critIdx
+                                            }
+                                        });
+                                },
+                                (err) => {
                                     dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
                                         name: GlobalActionName.TileDataLoaded,
                                         payload: {
                                             tileId: this.tileId,
-                                            isEmpty: !block,
-                                            block: {
-                                                data: block ?
-                                                        block.data.sort(((x1, x2) => x1.freq - x2.freq)).slice(0, state.maxNumCategories) :
-                                                        null
-                                            },
-                                            blockLabel: data.query,
-                                            concId: null, // TODO do we need this?
-                                            critIdx: data.critIdx
+                                            isEmpty: true,
+                                            block: null,
+                                            blockLabel: null,
+                                            concId: null,
+                                            critIdx: null
                                         }
                                     });
-                            },
-                            (err) => {
-                                dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                    name: GlobalActionName.TileDataLoaded,
-                                    payload: {
-                                        tileId: this.tileId,
-                                        isEmpty: true,
-                                        block: null,
-                                        blockLabel: null,
-                                        concId: null,
-                                        critIdx: null
-                                    }
-                                });
-                                console.log('err: ', err);
-                            }
-                        );
-                        const ans = {...syncData, ...{[payload.tileId.toFixed()]: false}};
-                        return Dict.hasValue(true, ans) ? ans : null;
+                                    console.log('err: ', err);
+                                }
+                            );
+                            const ans = {...syncData, ...{[payload.tileId.toFixed()]: false}};
+                            return Dict.hasValue(true, ans) ? ans : null;
+                        }
+                        return syncData;
                     }
-                    return syncData;
-                });
+                );
             break;
         }
     }
@@ -187,6 +194,7 @@ export const factory =
         dispatcher:IActionQueue,
         tileId:number,
         waitForTiles:Array<number>,
+        waitForTilesTimeoutSecs:number,
         subqSourceTiles:Array<number>,
         appServices:IAppServices,
         api:IMultiBlockFreqDistribAPI<{}>,
@@ -194,16 +202,17 @@ export const factory =
         initState:FreqBarModelState
     ) => {
         return new SubqFreqBarModel({
-            dispatcher: dispatcher,
-            tileId: tileId,
-            waitForTiles: waitForTiles,
-            appServices: appServices,
-            api: api,
-            concApi: concApi,
-            backlink: backlink,
-            initState: initState,
-            subqConf: subqConf,
-            subqSourceTiles: subqSourceTiles
+            dispatcher,
+            tileId,
+            waitForTiles,
+            waitForTilesTimeoutSecs,
+            appServices,
+            api,
+            concApi,
+            backlink,
+            initState,
+            subqConf,
+            subqSourceTiles
         });
 
     };

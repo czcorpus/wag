@@ -64,6 +64,7 @@ export interface ConcordanceTileModelArgs {
     dispatcher:IActionQueue;
     tileId:number;
     waitForTile:number;
+    waitForTilesTimeoutSecs:number;
     appServices:IAppServices;
     service:IConcordanceApi<{}>;
     queryMatches:RecognizedQueries;
@@ -89,9 +90,12 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
     private readonly queryType:QueryType;
 
+    private readonly waitForTilesTimeoutSecs:number;
+
     public static readonly CTX_SIZES = [3, 3, 8, 12];
 
-    constructor({dispatcher, tileId, appServices, service, queryMatches, initState, waitForTile, backlink, queryType}:ConcordanceTileModelArgs) {
+    constructor({dispatcher, tileId, appServices, service, queryMatches, initState, waitForTile,
+            waitForTilesTimeoutSecs, backlink, queryType}:ConcordanceTileModelArgs) {
         super(dispatcher, initState);
         this.service = service;
         this.queryMatches = queryMatches;
@@ -99,6 +103,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
         this.tileId = tileId;
         this.backlink = backlink;
         this.waitForTile = waitForTile;
+        this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.queryType = queryType;
 
         this.addActionHandler<GlobalActions.SetScreenMode>(
@@ -149,20 +154,24 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             },
             (state, action, dispatch) => {
                 if (this.waitForTile >= 0) {
-                    this.suspend({}, (action:GlobalActions.TileDataLoaded<{}>, syncData) => {
-                        if (action.name === GlobalActionName.TileDataLoaded && action.payload.tileId === this.waitForTile) {
-                            if (isCollocSubqueryPayload(action.payload)) {
-                                const cql = `[word="${action.payload.subqueries.map(v => v.value.value).join('|')}"]`; // TODO escape
-                                this.reloadData(state, dispatch, cql);
+                    this.suspendWithTimeout(
+                        this.waitForTilesTimeoutSecs,
+                        {},
+                        (action:GlobalActions.TileDataLoaded<{}>, syncData) => {
+                            if (action.name === GlobalActionName.TileDataLoaded && action.payload.tileId === this.waitForTile) {
+                                if (isCollocSubqueryPayload(action.payload)) {
+                                    const cql = `[word="${action.payload.subqueries.map(v => v.value.value).join('|')}"]`; // TODO escape
+                                    this.reloadData(state, dispatch, cql);
 
-                            } else if (isSubqueryPayload(action.payload)) {
-                                const cql = `[word="${action.payload.subqueries.map(v => v.value).join('|')}"]`; // TODO escape
-                                this.reloadData(state, dispatch, cql);
+                                } else if (isSubqueryPayload(action.payload)) {
+                                    const cql = `[word="${action.payload.subqueries.map(v => v.value).join('|')}"]`; // TODO escape
+                                    this.reloadData(state, dispatch, cql);
+                                }
+                                return null;
                             }
-                            return null;
+                            return syncData;
                         }
-                        return syncData;
-                    });
+                    );
                 } else {
                     this.reloadData(state, dispatch, null);
                 }

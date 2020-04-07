@@ -78,7 +78,8 @@ export class FreqBarTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({dispatcher, tileId, waitForTiles, subqSourceTiles, ut, theme, appServices, widthFract, conf, isBusy, cache}:TileFactory.Args<FreqBarTileConf>) {
+    constructor({dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, subqSourceTiles, ut, theme,
+            appServices, widthFract, conf, isBusy, cache}:TileFactory.Args<FreqBarTileConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
@@ -100,6 +101,7 @@ export class FreqBarTile implements ITileProvider {
             this.dispatcher,
             tileId,
             waitForTiles,
+            waitForTilesTimeoutSecs,
             subqSourceTiles,
             appServices,
             createMultiBlockApiInstance(cache, conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
