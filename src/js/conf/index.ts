@@ -320,6 +320,8 @@ export interface LogQueueConf {
 export interface FreqDbOptions {
     urlArgs?:{[key:string]:string};
     httpHeaders?:{[key:string]:string};
+    username?:string;
+    password?:string;
 }
 
 export interface FreqDbConf {
