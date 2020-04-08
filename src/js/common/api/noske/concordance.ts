@@ -27,7 +27,7 @@ import { cachedAjax$ } from '../../ajax';
 import { map } from 'rxjs/operators';
 import { posQueryFactory } from '../../postag';
 import { List, pipe } from 'cnc-tskit';
-import { HTTPApiResponse } from './common';
+import { HTTPApiResponse, processConcId } from './common';
 
 
 export enum QuerySelector {
@@ -209,12 +209,7 @@ export class ConcApi implements IConcordanceApi<RequestArgs> {
             setQuery(ans, this.mkMatchQuery(lvar, state.posQueryGenerator));
 
         } else {
-            ans.q = pipe(
-                state.concordances[lvarIdx].concId.split('&'),
-                List.map(v => v.split('=').slice(0, 2)),
-                List.filter(([k, v]) => k === 'q'),
-                List.map(([,v]) => decodeURIComponent(v).replace(/\++/g, ' '))
-            );
+            ans.q = processConcId(state.concordances[lvarIdx].concId);
         }
         return ans;
     }

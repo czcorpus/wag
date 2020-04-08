@@ -19,17 +19,18 @@
 import { TimeDistribApi, TimeDistribArgs, TimeDistribResponse } from '../abstract/timeDistrib';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { FreqSort, KontextFreqDistribAPI } from './freqs';
+import { NoskeFreqDistribAPI } from './freqs';
 import { HTTPHeaders, IAsyncKeyValueStore, CorpusDetails } from '../../types';
 import { CorpusInfoAPI } from './corpusInfo';
 import { IFreqDistribAPI } from '../abstract/freqs';
+import { processConcId } from './common';
 
 
 /**
- * This is the main TimeDistrib API for KonText. It should work in any
+ * This is the main TimeDistrib API for NoSke engine. It should work in any
  * case.
  */
-export class KontextTimeDistribApi implements TimeDistribApi {
+export class NoskeTimeDistribApi implements TimeDistribApi {
 
     private readonly freqApi:IFreqDistribAPI<{}>;
 
@@ -40,7 +41,7 @@ export class KontextTimeDistribApi implements TimeDistribApi {
     private readonly srcInfoService:CorpusInfoAPI;
 
     constructor(cache:IAsyncKeyValueStore, apiURL:string, customHeaders:HTTPHeaders, fcrit:string, flimit:number) {
-        this.freqApi = new KontextFreqDistribAPI(cache, apiURL, customHeaders);
+        this.freqApi = new NoskeFreqDistribAPI(cache, apiURL, customHeaders);
         this.fcrit = fcrit;
         this.flimit = flimit;
         this.srcInfoService = new CorpusInfoAPI(cache, apiURL, customHeaders);
@@ -50,20 +51,23 @@ export class KontextTimeDistribApi implements TimeDistribApi {
         return this.srcInfoService.call({
             tileId: tileId,
             corpname: corpname,
-            format: 'json'
+            struct_attr_stats: 1,
+            subcorpora: 1,
+            format: 'json',
         });
     }
 
     call(queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
+        console.log(queryArgs);
+        
         return this.freqApi.call({
             corpname: queryArgs.corpName,
             usesubcorp: queryArgs.subcorpName,
-            q: `~${queryArgs.concIdent}`,
+            q: processConcId(queryArgs.concIdent),
             fcrit: this.fcrit,
             flimit: this.flimit,
-            freq_sort: FreqSort.REL,
+            freq_sort: 'rel',
             fpage: 1,
-            ftt_include_empty: 0,
             format: 'json'
         }).pipe(
             map(
