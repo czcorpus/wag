@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Martin Zimandl <martin.zimandl@gmail.com>
+ * Copyright 2019 Tomas Machalek <tomas.machalek@gmail.com>
  * Copyright 2019 Institute of the Czech National Corpus,
  *                Faculty of Arts, Charles University
  *
@@ -17,11 +17,17 @@
  */
 
 import { KontextTimeDistribApi } from '../../../common/api/kontext/timeDistrib';
-import { TimeDistTileConf } from './common';
 import { CoreApiGroup, supportedCoreApiGroups } from '../../../common/api/coreGroups';
 import { HTTPHeaders, IAsyncKeyValueStore } from '../../../common/types';
+import { NoskeTimeDistribApi } from '../../../common/api/noske/timeDistrib';
+import { TimeDistribApi } from '../../../common/api/abstract/timeDistrib';
 
-export function createApiInstance(apiIdent:string, cache:IAsyncKeyValueStore, apiURL:string, conf:TimeDistTileConf, httpHeaders?:HTTPHeaders):KontextTimeDistribApi {
+interface ApiConf {
+	fcrit:string;
+	flimit:number;
+}
+
+export function createApiInstance(apiIdent:string, cache:IAsyncKeyValueStore, apiURL:string, conf:ApiConf, httpHeaders?:HTTPHeaders):TimeDistribApi {
 
 	switch (apiIdent) {
 		case CoreApiGroup.KONTEXT:
@@ -31,9 +37,17 @@ export function createApiInstance(apiIdent:string, cache:IAsyncKeyValueStore, ap
                 httpHeaders,
                 conf.fcrit,
                 conf.flimit
-            );
+			);
+		case CoreApiGroup.NOSKE:
+			return new NoskeTimeDistribApi(
+				cache,
+				apiURL,
+				httpHeaders,
+				conf.fcrit,
+				conf.flimit
+			);
 		default:
-			throw new Error(`TimeDistrib tile API "${apiIdent}" not found. Supported values are: ${supportedCoreApiGroups().join(', ')}`);
+			throw new Error(`TimeDistrib API "${apiIdent}" not found. Supported values are: ${supportedCoreApiGroups().join(', ')}`);
 	}
 
 }

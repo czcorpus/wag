@@ -25,6 +25,7 @@ import { BacklinkWithArgs, Backlink } from '../../tile';
 import { APIResponse, APIBlockResponse, IMultiBlockFreqDistribAPI, IFreqDistribAPI } from '../abstract/freqs';
 import { MinSingleCritFreqState, MinMultiCritFreqState } from '../../models/freq';
 import { HTTP, pipe, List } from 'cnc-tskit';
+import { processConcId } from './common';
 
 export enum FreqSort {
     REL = 'rel'
@@ -137,12 +138,7 @@ export class NoskeFreqDistribAPI implements IFreqDistribAPI<SingleCritQueryArgs>
             args: {
                 corpname: state.corpname,
                 usesubcorp: null,
-                q: pipe(
-                    concId.split('&'),
-                    List.map(v => v.split('=').slice(0, 2)),
-                    List.filter(([k, v]) => k === 'q'),
-                    List.map(([,v]) => decodeURIComponent(v.replace(/\++/g, ' ')))
-                ),
+                q: processConcId(concId),
                 fcrit: [state.fcrit],
                 flimit: state.flimit,
                 freq_sort: state.freqSort,
@@ -156,12 +152,7 @@ export class NoskeFreqDistribAPI implements IFreqDistribAPI<SingleCritQueryArgs>
         return {
             corpname: state.corpname,
             usesubcorp: subcname,
-            q: pipe(
-                concId.split('&'),
-                List.map(v => v.split('=').slice(0, 2)),
-                List.filter(([k, v]) => k === 'q'),
-                List.map(([,v]) => decodeURIComponent(v.replace(/\++/g, ' ')))
-            ),
+            q: processConcId(concId),
             fcrit: state.fcrit,
             flimit: state.flimit,
             freq_sort: state.freqSort,
@@ -238,12 +229,7 @@ export class NoskeMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAPI<
             args: {
                 corpname: state.corpname,
                 usesubcorp: null,
-                q: pipe(
-                    concId.split('&'),
-                    List.map(v => v.split('=').slice(0, 2)),
-                    List.filter(([k, v]) => k === 'q'),
-                    List.map(([,v]) => decodeURIComponent(v.replace(/\++/g, ' ')))
-                ),
+                q: processConcId(concId),
                 fcrit: state.fcrit,
                 flimit: state.flimit,
                 freq_sort: state.freqSort,
@@ -257,12 +243,7 @@ export class NoskeMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAPI<
         return {
             corpname: state.corpname,
             usesubcorp: subcname,
-            q: pipe(
-                concId.split('&'),
-                List.map(v => v.split('=').slice(0, 2)),
-                List.filter(([k, v]) => k === 'q'),
-                List.map(([,v]) => decodeURIComponent(v.replace(/\++/g, ' ')))
-            ),
+            q: processConcId(concId),
             fcrit: critIdx !== undefined ? [state.fcrit[critIdx]] : state.fcrit,
             flimit: state.flimit,
             freq_sort: state.freqSort,

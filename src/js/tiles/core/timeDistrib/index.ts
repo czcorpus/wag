@@ -19,7 +19,7 @@ import { IActionDispatcher, StatelessModel } from 'kombo';
 import { List, Maths, pipe } from 'cnc-tskit';
 
 import { FreqSort } from '../../../common/api/kontext/freqs';
-import { createApiInstance } from './apiFactory';
+import { createApiInstance as createFreqApiInstance } from '../../../common/api/factory/timeDistrib';
 import { QueryType } from '../../../common/query';
 import { ITileProvider, TileComponent, TileFactory } from '../../../common/tile';
 import { TimeDistTileConf } from './common';
@@ -27,9 +27,9 @@ import { TimeDistribModel } from './model';
 import { init as viewInit } from './view';
 import { TileWait } from '../../../models/tileSync';
 import { PriorityValueFactory } from '../../../common/priority';
-import { KontextTimeDistribApi } from '../../../common/api/kontext/timeDistrib';
 import { IConcordanceApi } from '../../../common/api/abstract/concordance';
 import { createApiInstance as createConcApiInstance } from '../../../common/api/factory/concordance';
+import { TimeDistribApi } from '../../../common/api/abstract/timeDistrib';
 
 declare var require:(src:string)=>void;  // webpack
 require('./style.less');
@@ -74,7 +74,7 @@ export class TimeDistTile implements ITileProvider {
         this.blockingTiles = waitForTiles;
 
         const apiUrlList = typeof conf.apiURL === 'string' ? [conf.apiURL] : conf.apiURL;
-        const apiFactory = new PriorityValueFactory<[IConcordanceApi<{}>, KontextTimeDistribApi]>(conf.apiPriority || List.repeat(() => 1, apiUrlList.length));
+        const apiFactory = new PriorityValueFactory<[IConcordanceApi<{}>, TimeDistribApi]>(conf.apiPriority || List.repeat(() => 1, apiUrlList.length));
         pipe(
             apiUrlList,
             List.forEach(
@@ -82,7 +82,7 @@ export class TimeDistTile implements ITileProvider {
                     i,
                     [
                         createConcApiInstance(cache, conf.apiType, url, appServices.getApiHeaders(url)),
-                        createApiInstance(
+                        createFreqApiInstance(
                             conf.apiType,
                             cache,
                             url,

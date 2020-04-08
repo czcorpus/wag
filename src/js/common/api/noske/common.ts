@@ -16,6 +16,17 @@
  * limitations under the License.
  */
 
+import { pipe, List } from "cnc-tskit";
+
 export interface HTTPApiResponse {
     api_version:string;
+}
+
+export function processConcId(concId: string):Array<string> {
+    return pipe(
+        concId.split('&'),
+        List.map(v => v.split('=').slice(0, 2)),
+        List.filter(([k, v]) => k === 'q'),
+        List.map(([,v]) => decodeURIComponent(v.replace(/\++/g, ' ')))
+    )
 }

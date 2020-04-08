@@ -22,8 +22,7 @@ import { Dict, HTTP, Maths } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
 import { ConcResponse, ViewMode, IConcordanceApi } from '../../../common/api/abstract/concordance';
-import { TimeDistribResponse } from '../../../common/api/abstract/timeDistrib';
-import { KontextTimeDistribApi } from '../../../common/api/kontext/timeDistrib';
+import { TimeDistribResponse, TimeDistribApi } from '../../../common/api/abstract/timeDistrib';
 import { GeneralSingleCritFreqBarModelState } from '../../../common/models/freq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { findCurrQueryMatch } from '../../../models/query';
@@ -91,7 +90,7 @@ interface DataFetchArgsOwn {
     targetId:SubchartID;
     concId:string;
     origQuery:string;
-    freqApi:KontextTimeDistribApi;
+    freqApi:TimeDistribApi;
 }
 
 interface DataFetchArgsForeignConc {
@@ -99,7 +98,7 @@ interface DataFetchArgsForeignConc {
     wordMainLabel:string;
     targetId:SubchartID;
     concId:string;
-    freqApi:KontextTimeDistribApi;
+    freqApi:TimeDistribApi;
 }
 
 export interface TimeDistribModelArgs {
@@ -108,7 +107,7 @@ export interface TimeDistribModelArgs {
     tileId:number;
     waitForTile:number;
     waitForTilesTimeoutSecs:number;
-    apiFactory:PriorityValueFactory<[IConcordanceApi<{}>, KontextTimeDistribApi]>;
+    apiFactory:PriorityValueFactory<[IConcordanceApi<{}>, TimeDistribApi]>;
     appServices:IAppServices;
     queryMatches:RecognizedQueries;
     backlink:Backlink;
@@ -120,7 +119,7 @@ export interface TimeDistribModelArgs {
  */
 export class TimeDistribModel extends StatelessModel<TimeDistribModelState, TileWait<boolean>> {
 
-    private readonly apiFactory:PriorityValueFactory<[IConcordanceApi<{}>, KontextTimeDistribApi]>;
+    private readonly apiFactory:PriorityValueFactory<[IConcordanceApi<{}>, TimeDistribApi]>;
 
     private readonly appServices:IAppServices;
 
@@ -585,7 +584,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
                                 {
                                     corpName: state.corpname,
                                     subcorpName: args.subcName,
-                                    concIdent: `~${args.concId}`
+                                    concIdent: args.concId
                                 },
                                 args
                             );

@@ -35,8 +35,8 @@
 | matchingDocuments |           | :star:  |        |        |            |            | :star:      |         |
 | mergeCorpFreq     |           | :star:  | :star: |        |            |            |             |         |
 | speeches          |           | :star:  |        |        |            |            |             |         |
-| timeDistrib       |           | :star:  |        |        |            |            |             |         |
-| multiWordtimeDistrib       |           | :star:  |        |        |            |            |             |         |
+| timeDistrib       |           | :star:  | :star: |        |            |            |             |         |
+| multiWordtimeDistrib       |           | :star:  | :star: |        |            |            |             |         |
 | translations      |           |         |        | :star: |            |            |             |         |
 | treqSubsets       |           |         |        | :star: |            |            |             |         |
 | wordForms         | :star:    | :star:  |        |        |            |            |             |         |

@@ -24,6 +24,7 @@ import { HTTPHeaders, IAsyncKeyValueStore, SourceDetails } from '../../../common
 import { CollApiResponse, CollocationApi } from '../abstract/collocations';
 import { CollocModelState, ctxToRange } from '../../models/collocations';
 import { CorpusInfoAPI } from './corpusInfo';
+import { processConcId } from './common';
 
 
 
@@ -87,12 +88,7 @@ export class NoskeCollAPI implements CollocationApi<CollApiArgs> {
         const [cfromw, ctow] = ctxToRange(state.srchRangeType, state.srchRange);
         return {
             corpname: state.corpname,
-            q: pipe(
-                concId.split('&'),
-                List.map(v => v.split('=').slice(0, 2)),
-                List.filter(([k, v]) => k === 'q'),
-                List.map(([,v]) => decodeURIComponent(v.replace(/\++/g, ' ')))
-            ),
+            q: processConcId(concId),
             cattr: state.tokenAttr,
             cfromw: cfromw,
             ctow: ctow,
