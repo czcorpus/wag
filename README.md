@@ -51,5 +51,9 @@ For the self-hosted variant the following is needed:
 
 - Node.JS + NPM package manager
 - HTTP proxy server (Nginx, HAProxy, Apache)
+- a core word frequency database (one of):
+  - sqlite3 database
+  - [CouchDB](https://couchdb.apache.org/) database
+  - [KonText](https://github.com/czcorpus/kontext) instance
 
 Please refer for more information to the [INSTALL.md](./INSTALL.md).
