@@ -23,7 +23,17 @@ import { FreqSort, KontextFreqDistribAPI } from './freqs';
 import { HTTPHeaders, IAsyncKeyValueStore, CorpusDetails } from '../../types';
 import { CorpusInfoAPI } from './corpusInfo';
 import { IFreqDistribAPI } from '../abstract/freqs';
+import { Backlink, BacklinkWithArgs } from '../../tile';
+import { HTTP } from 'cnc-tskit';
 
+
+interface BacklinkArgs {
+    corpname:string;
+    usesubcorp:string;
+    q?:string;
+    cql?:string;
+    queryselector?:'cqlrow';
+}
 
 /**
  * This is the main TimeDistrib API for KonText. It should work in any
@@ -52,6 +62,30 @@ export class KontextTimeDistribApi implements TimeDistribApi {
             corpname: corpname,
             format: 'json'
         });
+    }
+
+    createBackLink(backlink:Backlink, corpname:string, concId:string, origQuery:string):BacklinkWithArgs<BacklinkArgs> {
+        console.log(backlink, corpname, concId, origQuery);
+        
+        return backlink ?
+            {
+                url: backlink.url,
+                method: backlink.method || HTTP.Method.GET,
+                label: backlink.label,
+                args: origQuery ?
+                    {
+                        corpname: corpname,
+                        usesubcorp: backlink.subcname,
+                        cql: origQuery,
+                        queryselector: 'cqlrow'
+                    } :
+                    {
+                        corpname: corpname,
+                        usesubcorp: backlink.subcname,
+                        q: `~${concId}`
+                    }
+            } :
+            null;
     }
 
     call(queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {

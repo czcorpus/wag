@@ -18,7 +18,7 @@
 import { SEDispatcher, StatelessModel, IActionQueue, Action } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
 import { concatMap, map, mergeMap, reduce, tap } from 'rxjs/operators';
-import { Dict, HTTP, Maths } from 'cnc-tskit';
+import { Dict, Maths } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
 import { ConcResponse, ViewMode, IConcordanceApi } from '../../../common/api/abstract/concordance';
@@ -55,13 +55,6 @@ export const enum Dimension {
 }
 
 
-export interface BacklinkArgs {
-    corpname:string;
-    usesubcorp:string;
-    q?:string;
-    cql?:string;
-    queryselector?:'cqlrow';
-}
 
 export interface TimeDistribModelState extends GeneralSingleCritFreqBarModelState<DataItemWithWCI> {
     subcnames:Array<string>;
@@ -73,7 +66,7 @@ export interface TimeDistribModelState extends GeneralSingleCritFreqBarModelStat
     wordCmp:string;
     wordCmpInput:string;
     wordMainLabel:string; // a copy from mainform state used to attach a legend
-    backlink:BacklinkWithArgs<BacklinkArgs>;
+    backlink:BacklinkWithArgs<{}>;
     refArea:[number,number];
     zoom:[number, number];
 }
@@ -192,7 +185,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
                     if (action.payload.wordMainLabel) {
                         state.wordMainLabel = action.payload.wordMainLabel;
                     }
-                    state.backlink = this.createBackLink(state, action.payload.concId, action.payload.origQuery);
+                    state.backlink = this.apiFactory.getRandomValue()[1].createBackLink(this.backlink, state.corpname, action.payload.concId, action.payload.origQuery);
                 }
                 return state;
             }
@@ -325,28 +318,6 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
         );
     }
 
-    private createBackLink(state:TimeDistribModelState, concId:string, origQuery:string):BacklinkWithArgs<BacklinkArgs> {
-        return this.backlink ?
-            {
-                url: this.backlink.url,
-                method: this.backlink.method || HTTP.Method.GET,
-                label: this.backlink.label,
-                args: origQuery ?
-                    {
-                        corpname: state.corpname,
-                        usesubcorp: this.backlink.subcname,
-                        cql: origQuery,
-                        queryselector: 'cqlrow'
-                    } :
-                    {
-                        corpname: state.corpname,
-                        usesubcorp: this.backlink.subcname,
-                        q: `~${concId}`
-                    }
-            } :
-            null;
-    }
-
     private mergeChunks(currData:Array<DataItemWithWCI>, newChunk:Array<DataItemWithWCI>, alphaLevel:Maths.AlphaLevel):Array<DataItemWithWCI> {
         return Dict.toEntries(newChunk.reduce(
             (acc, curr) => {
@@ -391,7 +362,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
                         ipmInterval: [-1, -1]
                     }));
                     let ans:DataLoadedPayload = {
-                        tileId: this.tileId
+                        tileId: this.tileId,
+                        concId: args.concId
                     };
                     if (args.targetId === SubchartID.MAIN) {
                         ans.data = dataFull;

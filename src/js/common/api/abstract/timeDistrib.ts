@@ -20,6 +20,7 @@
 // tile-compatible resource access.
 
 import { DataApi } from '../../types';
+import { BacklinkWithArgs, Backlink } from '../../tile';
 
 
 export interface TimeDistribArgs {
@@ -65,4 +66,6 @@ export interface TimeDistribResponse {
 /**
  * A general bare-bones interface for TimeDistrib function.
  */
-export type TimeDistribApi = DataApi<TimeDistribArgs, TimeDistribResponse>;
+export interface TimeDistribApi extends DataApi<TimeDistribArgs, TimeDistribResponse> {
+    createBackLink(backlink:Backlink, corpname:string, concId:string, origQuery?:string):BacklinkWithArgs<{}>
+}

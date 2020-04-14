@@ -24,7 +24,15 @@ import { HTTPHeaders, IAsyncKeyValueStore, CorpusDetails } from '../../types';
 import { CorpusInfoAPI } from './corpusInfo';
 import { IFreqDistribAPI } from '../abstract/freqs';
 import { processConcId } from './common';
+import { Backlink, BacklinkWithArgs } from '../../tile';
+import { HTTP } from 'cnc-tskit';
 
+
+interface BacklinkArgs {
+    corpname:string;
+    usesubcorp:string;
+    q:string[];
+}
 
 /**
  * This is the main TimeDistrib API for NoSke engine. It should work in any
@@ -55,6 +63,21 @@ export class NoskeTimeDistribApi implements TimeDistribApi {
             subcorpora: 1,
             format: 'json',
         });
+    }
+
+    createBackLink(backlink:Backlink, corpname:string, concId:string, origQuery:string):BacklinkWithArgs<BacklinkArgs> {
+        return backlink ?
+            {
+                url: backlink.url,
+                method: backlink.method || HTTP.Method.GET,
+                label: backlink.label,
+                args: {
+                    corpname: corpname,
+                    usesubcorp: backlink.subcname,
+                    q: processConcId(concId)
+                }
+            } :
+            null;
     }
 
     call(queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
