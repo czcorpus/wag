@@ -25,6 +25,7 @@ import { Line, ConcResponse, ViewMode, LineElement, IConcordanceApi } from '../a
 import { ConcordanceMinState } from '../../models/concordance';
 import { CorpusInfoAPI } from './corpusInfo';
 import { posQueryFactory } from '../../postag';
+import { List, pipe } from 'cnc-tskit';
 
 
 
@@ -148,16 +149,53 @@ export function escapeVal(v:string) {
     return v.replace(/"/, '\\"');
 }
 
+/**
+ * Transform a provided QueryMatch into a valid CQL query.
+ * Due to the recommendation mentioned on the CQL documentation
+ * page (see https://www.sketchengine.eu/documentation/cql-basics/#token)
+ * the function produces different CQL for multi-word variant and for
+ * a single-word one:
+ *
+ * a) single-value lemma like e.g.: lemma='bar', tag=['B', 'C']
+ *    is transformed into [lemma="bar" & tag="B|C"]
+ *    which should be quite fast
+ * b) multi-value lemma like e.g.: lemma='foo bar', tag=['A B', 'A C']
+ *    is transformed into:
+ *    ( [lemma="foo" & tag="A"] [lemma="bar" & tag="B"] ) | ([lemma="foo" & tag="A"] [lemma="bar" & tag="C"])
+ *    which typically takes longer time to execute (but there is no alternative here)
+ */
 function mkLemmaMatchQuery(lvar:QueryMatch, generator:[string, string]):string {
+
+    const lemmas = lvar.lemma.split(' ');
     const fn = posQueryFactory(generator[1]);
-    const posPart = lvar.pos.length > 0 ?
-        ' & (' + lvar.pos.map(v => `${generator[0]}="${fn(v.value)}"`).join(' | ') + ')' :
-        '';
-    return `[lemma="${escapeVal(lvar.lemma)}" ${posPart}]`;
+
+    if (lemmas.length > 1) {
+        return pipe(
+            lvar.pos,
+            List.map(
+                pos => {
+                    const expr = List.map(
+                        ([lemma, pos]) => `[lemma="${escapeVal(lemma)}" & ${generator[0]}="${fn(pos)}"]`,
+                        List.zip<string, string>(pos.value.split(' '), lemmas)
+                    ).join(' ');
+                    return `(${expr})`;
+                }
+            )
+        ).join(' | ');
+
+    } else {
+        const posPart = lvar.pos.length > 0 ?
+            ' & (' + lvar.pos.map(v => `${generator[0]}="${fn(v.value)}"`).join(' | ') + ')' :
+            '';
+        return `[lemma="${escapeVal(lvar.lemma)}" ${posPart}]`;
+    }
 }
 
 function mkWordMatchQuery(lvar:QueryMatch):string {
-    return lvar.word.split(' ').map(word => `[word="${escapeVal(word)}"]`).join('');
+    return List.map(
+        word => `[word="${escapeVal(word)}"]`,
+        lvar.word.split(' ')
+    ).join('');
 }
 
 export function mkContextFilter(ctx:[number, number], val:string, subq:SubQueryItem<RangeRelatedSubqueryValue>):string {

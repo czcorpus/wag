@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { QueryPoS } from './query';
+import { PoSValues, QueryPoS } from './query';
 
 
 export interface PosQueryExport {
@@ -31,25 +31,25 @@ const ppTagset:PosQueryExport = (pos) => `${pos.toUpperCase()}.+`;
 const pennTreebank:PosQueryExport = (pos) => {
     // source: https://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html
     return {
-        [QueryPoS.CONJUNCTION]: 'CC',
-        [QueryPoS.NUMERAL]: 'CD',
+        [PoSValues.CONJUNCTION]: 'CC',
+        [PoSValues.NUMERAL]: 'CD',
         //DT	Determiner
         //EX	Existential there
         //FW	Foreign word
-        [QueryPoS.PREPOSITION]: 'IN',
-        [QueryPoS.ADJECTIVE]: 'J.*',
+        [PoSValues.PREPOSITION]: 'IN',
+        [PoSValues.ADJECTIVE]: 'J.*',
         //LS	List item marker
         //MD	Modal
-        [QueryPoS.NOUN]: 'N.*',
+        [PoSValues.NOUN]: 'N.*',
         //PDT	Predeterminer
         //POS	Possessive ending
-        [QueryPoS.PRONOUN]: 'PRP.*',
-        [QueryPoS.ADVERB]: 'R.*',
-        [QueryPoS.PARTICLE]: 'RP',
+        [PoSValues.PRONOUN]: 'PRP.*',
+        [PoSValues.ADVERB]: 'R.*',
+        [PoSValues.PARTICLE]: 'RP',
         //SYM	Symbol
         //TO	to
-        [QueryPoS.INTERJECTION]: 'UH', //	Interjection
-        [QueryPoS.VERB]: 'V.*'
+        [PoSValues.INTERJECTION]: 'UH', //	Interjection
+        [PoSValues.VERB]: 'V.*'
         //WDT	Wh-determiner
         //WP	Wh-pronoun
         //WP$	Possessive wh-pronoun

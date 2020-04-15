@@ -17,6 +17,7 @@
  */
 
 import { Dict, pipe, List } from 'cnc-tskit';
+import { IAppServices } from '../appServices';
 
 
 export enum QueryType {
@@ -25,7 +26,13 @@ export enum QueryType {
     TRANSLAT_QUERY = 'translat'
 }
 
-export enum QueryPoS {
+/**
+ * Any PoS encoding, including multi-word one
+ * (e.g. 'A N', 'V').
+ */
+export type QueryPoS = string;
+
+export enum PoSValues {
     NOUN = 'N',
     ADJECTIVE = 'A',
     PRONOUN = 'P',
@@ -227,9 +234,43 @@ export function findMergeableQueryMatches(variants:Array<QueryMatch>):Array<Quer
     return ans;
 }
 
-export const importQueryPos = (s:string):QueryPoS => {
-    if (['n', 'a', 'p', 'c', 'v', 'd', 'r', 'j', 't', 'i', 'z', 'x'].indexOf(s.toLowerCase()) > -1) {
-        return s.toUpperCase() as QueryPoS;
-    }
-    throw new Error(`Invalid PoS value [${s}]`);
-};
+export function importQueryPos(s:string):QueryPoS {
+    return List.map(
+        v => {
+            if (['n', 'a', 'p', 'c', 'v', 'd', 'r', 'j', 't', 'i', 'z', 'x'].indexOf(v.toLowerCase()) > -1) {
+                return v.toUpperCase() as QueryPoS;
+            }
+            throw new Error(`Invalid PoS value [${v}]`);
+        },
+        s.split(' ')
+    ).join(' ');
+}
+
+/**
+
+ */
+export function importQueryPosWithLabel(s:string, appServices:IAppServices):{value:string; label:string} {
+    return pipe(
+        s.split(' '),
+        List.map(
+            v => {
+                if (['n', 'a', 'p', 'c', 'v', 'd', 'r', 'j', 't', 'i', 'z', 'x'].indexOf(v.toLowerCase()) > -1) {
+                    const ident = v.toUpperCase();
+                    return {
+                        value: ident,
+                        label: appServices.importExternalMessage(ident)
+                    };
+                }
+                throw new Error(`Invalid PoS value [${v}]`);
+            }
+        ),
+        List.foldl(
+            (acc, curr) => ({
+                value: acc.value + ' ' + curr.value,
+                label: acc.label + ' ' + curr.label
+            }),
+            {value: '', label: ''}
+        )
+    );
+}
+
