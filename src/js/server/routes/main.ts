@@ -35,7 +35,7 @@ import { createRootComponent } from '../../app';
 import { ActionName } from '../../models/actions';
 import { DummyCache } from '../../cacheDb';
 import { Dict, pipe, HTTP, List } from 'cnc-tskit';
-import { getLangFromCookie, fetchReqArgArray, createHelperServices, mkReturnUrl, logRequest, renderResult } from './common';
+import { getLangFromCookie, fetchReqArgArray, createHelperServices, mkReturnUrl, logRequest, renderResult, queryValues } from './common';
 
 
 function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, themeId:string, appServices:IAppServices):Observable<ClientConf> {
@@ -103,14 +103,14 @@ export function mainAction(services:Services, answerMode:boolean, req:Request, r
 
     new Observable<UserConf>(observer => {
         try {
-            const queryType = importQueryTypeString(req.query['queryType'], QueryType.SINGLE_QUERY);
+            const queryType = importQueryTypeString(queryValues(req, 'queryType')[0], QueryType.SINGLE_QUERY);
             const minNumQueries = queryType === QueryType.CMP_QUERY ? 2 : 1;
 
             const userConfNorm:UserConf = {
                 uiLang: uiLang,
                 uiLanguages: services.serverConf.languages,
-                query1Lang: req.query['lang1'] || 'cs', // TODO default
-                query2Lang: req.query['lang2'] || 'en', // TODO default
+                query1Lang: queryValues(req, 'lang1', 'cs')[0], // TODO default
+                query2Lang: queryValues(req, 'lang2', 'en')[0], // TODO default
                 queryType: queryType,
                 queryPos: fetchReqArgArray(req, 'pos', minNumQueries).map(v => v.split(',') as Array<QueryPoS>),
                 queries: fetchReqArgArray(req, 'q', minNumQueries),

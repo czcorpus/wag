@@ -27,7 +27,7 @@ import { QueryType, QueryMatch, importQueryPos, QueryPoS } from '../../common/qu
 import { GlobalComponents } from '../../views/global';
 import { IFreqDB } from '../freqdb/freqdb';
 
-import { getLangFromCookie, fetchReqArgArray, createHelperServices, mkReturnUrl, renderResult } from './common';
+import { getLangFromCookie, fetchReqArgArray, createHelperServices, mkReturnUrl, renderResult, queryValues } from './common';
 import { mainAction } from './main';
 import { Services } from '../actionServices';
 import { HTTPAction } from './actions';
@@ -36,7 +36,7 @@ import { errorUserConf, emptyClientConf, THEME_COOKIE_NAME } from '../../conf';
 import { init as viewInit } from '../../views/layout';
 import { init as errPageInit } from '../../views/error';
 import { emptyValue } from '../toolbar/empty';
-import { HTTP } from 'cnc-tskit';
+import { HTTP, List } from 'cnc-tskit';
 
 
 export const wdgRouter = (services:Services) => (app:Express) => {
@@ -99,7 +99,8 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             services, getLangFromCookie(req, services.serverConf.langCookie, services.serverConf.languages));
 
         new Observable<IFreqDB>((observer) => {
-            const db = services.db.getDatabase(QueryType.SINGLE_QUERY, req.query.lang);
+            const x = req.query;
+            const db = services.db.getDatabase(QueryType.SINGLE_QUERY, queryValues(req, 'lang')[0]);
             if (db === undefined) {
                 observer.error(
                     newError(ErrorType.BAD_REQUEST, `Frequency database for [${req.query.lang}] not defined`));
@@ -111,7 +112,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         }).pipe(
             concatMap(
                 (db) => {
-                    return db.findQueryMatches(appServices, req.query.q, 1);
+                    return db.findQueryMatches(appServices, queryValues(req, 'q')[0], 1);
                 }
             )
         ).subscribe(
@@ -166,22 +167,22 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         });
 
         new Observable<{lang:string; word:string; lemma:string; pos:Array<QueryPoS>; rng:number}>((observer) => {
-            if (isNaN(parseInt(req.query.srchRange))) {
+            if (isNaN(parseInt(queryValues(req, 'srchRange')[0]))) {
                 observer.error(
                     newError(ErrorType.BAD_REQUEST, `Invalid range provided, srchRange = ${req.query.srchRange}`));
 
-            } else if (services.db.getDatabase(QueryType.SINGLE_QUERY, req.query.lang) === undefined) {
+            } else if (services.db.getDatabase(QueryType.SINGLE_QUERY, queryValues(req, 'lang')[0]) === undefined) {
                 observer.error(
                     newError(ErrorType.BAD_REQUEST, `Frequency database for [${req.query.lang}] not defined`));
 
             } else {
                 observer.next({
-                    lang: req.query.lang,
-                    word: req.query.word,
-                    lemma: req.query.lemma,
-                    pos: pos.map(importQueryPos),
+                    lang: queryValues(req, 'lang')[0],
+                    word: queryValues(req, 'word')[0],
+                    lemma: queryValues(req, 'lemma')[0],
+                    pos: List.map(v => importQueryPos(v), pos),
                     rng: Math.min(
-                        req.query.srchRange,
+                        parseInt(queryValues(req, 'srchRange')[0]),
                         services.serverConf.freqDB.single ?
                             services.serverConf.freqDB.single.similarFreqWordsMaxCtx :
                             0
@@ -244,16 +245,16 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         });
 
         new Observable<{lang:string; word:string; lemma:string; pos:Array<QueryPoS>}>((observer) => {
-            const freqDb = services.db.getDatabase(QueryType.SINGLE_QUERY, req.query.lang);
+            const freqDb = services.db.getDatabase(QueryType.SINGLE_QUERY, queryValues(req, 'lang')[0]);
             if (freqDb === undefined) {
                 observer.error(
                     newError(ErrorType.BAD_REQUEST, `Frequency database for [${req.query.lang}] not defined`));
             }
             observer.next({
-                lang: req.query.lang,
-                word: req.query.word,
-                lemma: req.query.lemma,
-                pos: (Array.isArray(req.query.pos) ? req.query.pos : [req.query.pos]).map(importQueryPos)
+                lang: queryValues(req, 'lang')[0],
+                word: queryValues(req, 'word')[0],
+                lemma: queryValues(req, 'lemma')[0],
+                pos: List.map(v => importQueryPos(v)[0], queryValues(req, 'pos'))
             });
 
         }).pipe(

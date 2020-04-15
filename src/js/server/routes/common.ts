@@ -37,6 +37,18 @@ import { ErrPageProps } from '../../views/error';
 import { TileGroup } from '../../layout';
 
 
+export function queryValues(req:Request, name:string, dflt?:string):Array<string> {
+    const val = req.query[name];
+    if (typeof val === 'string') {
+        return [val];
+
+    } else if (Array.isArray(val)) {
+        return List.map(v => v + '', val);
+    }
+    return typeof dflt !== 'undefined' ? [dflt] : [];
+}
+
+
 export function getLangFromCookie(req:Request, cookieName:string, languages:{[code:string]:string}):string {
     const ans = req.cookies[cookieName] || 'en-US';
     if (languages.hasOwnProperty(ans)) {
@@ -74,21 +86,19 @@ export function logRequest(logging:ILogQueue, datetime:string, req:Request, user
     })
 }
 
-export function fetchReqArgArray<T extends string>(req:Request, arg:string, minLen:number):Array<T> {
+export function fetchReqArgArray(req:Request, arg:string, minLen:number):Array<string> {
 
     const mkEmpty = (len:number) => {
-        const ans = [];
+        const ans:Array<string> = [];
         for (let i = 0; i < len; i += 1) {
             ans.push('');
         }
         return ans;
     }
 
-    if (Array.isArray(req.query[arg])) {
-        return req.query[arg].concat(mkEmpty(minLen - req.query[arg].length));
-
-    } else if (req.query[arg]) {
-        return [req.query[arg]].concat(mkEmpty(minLen - 1));
+    const values = queryValues(req, arg);
+    if (Array.isArray(values)) {
+        return values.concat(mkEmpty(minLen - values.length));
     }
     return mkEmpty(minLen);
 }
