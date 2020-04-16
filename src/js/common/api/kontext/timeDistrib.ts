@@ -65,8 +65,6 @@ export class KontextTimeDistribApi implements TimeDistribApi {
     }
 
     createBackLink(backlink:Backlink, corpname:string, concId:string, origQuery:string):BacklinkWithArgs<BacklinkArgs> {
-        console.log(backlink, corpname, concId, origQuery);
-        
         return backlink ?
             {
                 url: backlink.url,
