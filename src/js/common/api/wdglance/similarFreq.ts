@@ -61,7 +61,7 @@ export class SimilarFreqWordsAPI implements SimilarFreqDbAPI {
                 ['lang', args.lang],
                 ['word', args.word],
                 ['lemma', args.lemma],
-                ['pos', args.pos.join(',')],
+                ['pos', List.map(v => v.join(' '), args.pos).join(',')],
                 ['srchRange', args.srchRange]
             ]),
             {headers: this.customHeaders}

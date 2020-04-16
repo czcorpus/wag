@@ -176,7 +176,7 @@ function mkLemmaMatchQuery(lvar:QueryMatch, generator:[string, string]):string {
                 pos => {
                     const expr = List.map(
                         ([lemma, pos]) => `[lemma="${escapeVal(lemma)}" & ${generator[0]}="${fn(pos)}"]`,
-                        List.zip<string, string>(pos.value.split(' '), lemmas)
+                        List.zip<string, string>(pos.value, lemmas)
                     ).join(' ');
                     return `(${expr})`;
                 }
@@ -185,7 +185,7 @@ function mkLemmaMatchQuery(lvar:QueryMatch, generator:[string, string]):string {
 
     } else {
         const posPart = lvar.pos.length > 0 ?
-            ' & (' + lvar.pos.map(v => `${generator[0]}="${fn(v.value)}"`).join(' | ') + ')' :
+            ' & (' + lvar.pos.map(v => `${generator[0]}="${fn(v.value[0])}"`).join(' | ') + ')' :
             '';
         return `[lemma="${escapeVal(lvar.lemma)}" ${posPart}]`;
     }

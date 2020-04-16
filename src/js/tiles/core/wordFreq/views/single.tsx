@@ -23,6 +23,7 @@ import { GlobalComponents } from '../../../../views/global';
 import { init as commonViewInit } from './common';
 import { SimilarFreqWord } from '../../../../common/api/abstract/similarFreq';
 import { QueryMatch } from '../../../../common/query';
+import { List } from 'cnc-tskit';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>) {
@@ -77,10 +78,38 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             <dd>{props.data.word}</dd>
             {props.data.pos.length > 0 ?
                 <>
-                    <dt>lemma:</dt>
+                    <dt>
+                        {props.data.lemma.split(' ').length > 1 ?
+                            ut.translate('wordfreq__lemmatized_variant') :
+                            'lemma'
+                        }:
+                    </dt>
                     <dd><strong>{props.data.lemma}</strong></dd>
-                    <dt>{ut.translate('wordfreq__pos')}:</dt>
-                    <dd>{props.data.pos.map(v => v.label).join(', ')}</dd>
+                    <dt>{ut.translate('wordfreq__pos')}
+                        {props.data.pos.length > 1 ? ' (' + ut.translate('wordfreq__multiple_variants') + ')' : ''}:
+                    </dt>
+                    <dd>
+                        {List.map(
+                            (v, i) => {
+                                return (
+                                    <React.Fragment key={`${i}:${v.value}`}>
+                                        {List.map(
+                                            (label, i) => (
+                                                <React.Fragment key={label}>
+                                                    {i > 0 ? '\u00a0' : ''}
+                                                    <span className="squareb">[</span>
+                                                        {label}
+                                                    <span className="squareb">]</span>
+                                                </React.Fragment>
+                                            ),
+                                            v.label
+                                        )}
+                                    </React.Fragment>
+                                )
+                            },
+                            props.data.pos
+                        )}
+                    </dd>
                     <dt>{ut.translate('wordfreq__freq_bands')}:</dt>
                     <dd><commonViews.Stars freqBand={props.data.flevel} /></dd>
                     <dt>{ut.translate('wordfreq__ipm')}:</dt>

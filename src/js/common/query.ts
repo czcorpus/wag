@@ -17,7 +17,7 @@
  */
 
 import { Dict, pipe, List } from 'cnc-tskit';
-import { IAppServices } from '../appServices';
+import { PosItem, posTagsEqual } from './postag';
 
 
 export enum QueryType {
@@ -31,21 +31,6 @@ export enum QueryType {
  * (e.g. 'A N', 'V').
  */
 export type QueryPoS = string;
-
-export enum PoSValues {
-    NOUN = 'N',
-    ADJECTIVE = 'A',
-    PRONOUN = 'P',
-    NUMERAL = 'C',
-    VERB = 'V',
-    ADVERB = 'D',
-    PREPOSITION = 'R',
-    CONJUNCTION = 'J',
-    PARTICLE = 'T',
-    INTERJECTION = 'I',
-    PUNCTUATION = 'Z',
-    UNKNOWN = 'X'
-}
 
 export function importQueryTypeString(v:string, dflt:QueryType):QueryType {
     if (v === QueryType.SINGLE_QUERY || v === QueryType.CMP_QUERY || v === QueryType.TRANSLAT_QUERY) {
@@ -117,7 +102,7 @@ export function calcFreqBand(ipm:number):FreqBand {
 
 export interface QueryMatchCore {
     lemma:string;
-    pos:Array<{value:QueryPoS; label:string}>;
+    pos:Array<PosItem>;
     ipm:number;
     flevel:FreqBand|null;
     isNonDict?:boolean;
@@ -163,9 +148,12 @@ export function testIsMultiWordMode(queries:RecognizedQueries):boolean {
     );
 }
 
-export function matchesPos(lv:QueryMatchCore, pos:Array<QueryPoS>):boolean {
+export function matchesPos(lv:QueryMatchCore, pos:Array<Array<QueryPoS>>):boolean {
     return lv.pos.length === pos.length &&
-        lv.pos.reduce((acc, curr) => acc && pos.indexOf(curr.value) > -1, true as boolean);
+        List.foldl(
+            (acc, [pos, qPos]) => acc && posTagsEqual(pos, qPos.value), true as boolean,
+            List.zip<Array<string>, PosItem>(lv.pos, pos)
+        );
 }
 
 interface MergedQueryMatch extends QueryMatch {
@@ -182,7 +170,7 @@ const MERGE_CANDIDATE_MIN_DIFF_RATIO = 100;
  * with pos = [all the individual PoS values].
  */
 export function findMergeableQueryMatches(variants:Array<QueryMatch>):Array<QueryMatch> {
-    const mapping:{[key:string]:Array<{pos:{value:QueryPoS; label:string}; abs:number; form:string; arf:number}>} = {};
+    const mapping:{[key:string]:Array<{pos:PosItem; abs:number; form:string; arf:number; ipm:number}>} = {};
     List.forEach(
         item => {
             if (!(item.lemma in mapping)) {
@@ -190,7 +178,13 @@ export function findMergeableQueryMatches(variants:Array<QueryMatch>):Array<Quer
             }
             List.forEach(
                 p => {
-                    mapping[item.lemma].push({pos: p, abs: item.abs, form: item.word, arf: item.arf});
+                    mapping[item.lemma].push({
+                        pos: p,
+                        abs: item.abs,
+                        form: item.word,
+                        ipm: item.ipm,
+                        arf: item.arf
+                    });
                 },
                 item.pos
             );
@@ -201,16 +195,17 @@ export function findMergeableQueryMatches(variants:Array<QueryMatch>):Array<Quer
         mapping,
         Dict.filter((v) => v.length > 1),
         Dict.map((v, lm) => {
+            const ipm = List.foldl((acc, curr) => acc + curr.ipm, 0, v);
             const ans:MergedQueryMatch = {
                 lemma: lm,
                 word: v[0].form, // should be the same for all 0...n
-                pos: v.map(v => v.pos),
-                abs: v.reduce((acc, curr) => acc + curr.abs, 0),
-                minAbs: v.reduce((acc, curr) => acc < curr.abs ? acc : curr.abs, v[0].abs),
-                maxAbs: v.reduce((acc, curr) => acc > curr.abs ? acc : curr.abs, v[0].abs),
-                ipm: -1,
-                arf: v.reduce((acc, curr) => acc + curr.arf, 0),
-                flevel: null,
+                pos: List.map(v => v.pos, v),
+                abs: List.foldl((acc, curr) => acc + curr.abs, 0, v),
+                minAbs: List.foldl((acc, curr) => acc < curr.abs ? acc : curr.abs, v[0].abs, v),
+                maxAbs: List.foldl((acc, curr) => acc > curr.abs ? acc : curr.abs, v[0].abs, v),
+                ipm: ipm,
+                arf: List.foldl((acc, curr) => acc + curr.arf, 0, v),
+                flevel: calcFreqBand(ipm),
                 isCurrent: false
             }
             return ans;
@@ -233,44 +228,3 @@ export function findMergeableQueryMatches(variants:Array<QueryMatch>):Array<Quer
     );
     return ans;
 }
-
-export function importQueryPos(s:string):QueryPoS {
-    return List.map(
-        v => {
-            if (['n', 'a', 'p', 'c', 'v', 'd', 'r', 'j', 't', 'i', 'z', 'x'].indexOf(v.toLowerCase()) > -1) {
-                return v.toUpperCase() as QueryPoS;
-            }
-            throw new Error(`Invalid PoS value [${v}]`);
-        },
-        s.split(' ')
-    ).join(' ');
-}
-
-/**
-
- */
-export function importQueryPosWithLabel(s:string, appServices:IAppServices):{value:string; label:string} {
-    return pipe(
-        s.split(' '),
-        List.map(
-            v => {
-                if (['n', 'a', 'p', 'c', 'v', 'd', 'r', 'j', 't', 'i', 'z', 'x'].indexOf(v.toLowerCase()) > -1) {
-                    const ident = v.toUpperCase();
-                    return {
-                        value: ident,
-                        label: appServices.importExternalMessage(ident)
-                    };
-                }
-                throw new Error(`Invalid PoS value [${v}]`);
-            }
-        ),
-        List.foldl(
-            (acc, curr) => ({
-                value: acc.value + ' ' + curr.value,
-                label: acc.label + ' ' + curr.label
-            }),
-            {value: '', label: ''}
-        )
-    );
-}
-

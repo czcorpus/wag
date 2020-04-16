@@ -81,8 +81,7 @@ export class NoskeTimeDistribApi implements TimeDistribApi {
     }
 
     call(queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
-        console.log(queryArgs);
-        
+
         return this.freqApi.call({
             corpname: queryArgs.corpName,
             usesubcorp: queryArgs.subcorpName,

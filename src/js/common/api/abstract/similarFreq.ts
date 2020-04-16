@@ -18,19 +18,20 @@
 
 import { QueryPoS, FreqBand } from '../../query';
 import { DataApi } from '../../types';
+import { PosItem } from '../../postag';
 
 
 export interface RequestArgs {
     lang:string;
     word:string;
     lemma:string;
-    pos:Array<QueryPoS>;
+    pos:Array<Array<QueryPoS>>;
     srchRange:number;
 }
 
 export interface SimilarFreqWord {
     lemma:string;
-    pos:Array<{value:QueryPoS; label:string}>;
+    pos:Array<PosItem>;
     ipm:number;
     flevel:FreqBand|null;
 }

@@ -122,11 +122,29 @@ function escapeVal(v:string) {
 }
 
 function mkLemmaMatchQuery(lvar:QueryMatch, generator:[string, string]):string {
+    const lemmas = lvar.lemma.split(' ');
     const fn = posQueryFactory(generator[1]);
-    const posPart = lvar.pos.length > 0 ?
-        ' & (' + lvar.pos.map(v => `${generator[0]}="${fn(v.value)}"`).join(' | ') + ')' :
-        '';
-    return `[lemma="${escapeVal(lvar.lemma)}" ${posPart}]`;
+
+    if (lemmas.length > 1) {
+        return pipe(
+            lvar.pos,
+            List.map(
+                pos => {
+                    const expr = List.map(
+                        ([lemma, pos]) => `[lemma="${escapeVal(lemma)}" & ${generator[0]}="${fn(pos)}"]`,
+                        List.zip<string, string>(pos.value, lemmas)
+                    ).join(' ');
+                    return `(${expr})`;
+                }
+            )
+        ).join(' | ');
+
+    } else {
+        const posPart = lvar.pos.length > 0 ?
+            ' & (' + lvar.pos.map(v => `${generator[0]}="${fn(v.value[0])}"`).join(' | ') + ')' :
+            '';
+        return `[lemma="${escapeVal(lvar.lemma)}" ${posPart}]`;
+    }
 }
 
 function mkWordMatchQuery(lvar:QueryMatch):string {

@@ -17,24 +17,8 @@
  */
 import { Observable } from 'rxjs';
 
-import { QueryMatch, PoSValues, QueryPoS } from '../../common/query';
+import { QueryMatch, QueryPoS } from '../../common/query';
 import { IAppServices } from '../../appServices';
-
-
-export const posTable = {
-    [PoSValues.NOUN]: {'cs-CZ': 'podstatné jméno', 'en-US': 'noun'},
-	[PoSValues.ADJECTIVE]: {'cs-CZ': 'přídavné jméno', 'en-US': 'adjective'},
-	[PoSValues.PRONOUN]: {'cs-CZ': 'zájmeno', 'en-US': 'pronoun'},
-	[PoSValues.NUMERAL]: {'cs-CZ': 'číslovka, nebo číselný výraz s číslicemi', 'en-US': 'numeral'},
-	[PoSValues.VERB]: {'cs-CZ': 'sloveso', 'en-US': 'verb'},
-	[PoSValues.ADVERB]: {'cs-CZ': 'příslovce', 'en-US': 'adverb'},
-	[PoSValues.PREPOSITION]: {'cs-CZ': 'předložka', 'en-US': 'preposition'},
-	[PoSValues.CONJUNCTION]: {'cs-CZ': 'spojka', 'en-US': 'conjunction'},
-	[PoSValues.PARTICLE]: {'cs-CZ': 'částice', 'en-US': 'particle'},
-	[PoSValues.INTERJECTION]: {'cs-CZ': 'citoslovce', 'en-US': 'interjection'},
-	[PoSValues.PUNCTUATION]: {'cs-CZ': 'interpunkce', 'en-US': 'punctuation'},
-    [PoSValues.UNKNOWN]: {'cs-CZ': 'neznámý nebo neurčený slovní druh', 'en-US': 'unknown or undetermined part of speech'}
-};
 
 
 export interface IFreqDB {
