@@ -23,7 +23,7 @@ import { concatMap, map, reduce, tap } from 'rxjs/operators';
 import { AppServices } from '../../appServices';
 import { encodeArgs } from '../../common/ajax';
 import { ErrorType, mapToStatusCode, newError } from '../../common/errors';
-import { QueryType, QueryMatch, importQueryPos, QueryPoS } from '../../common/query';
+import { QueryType, QueryMatch, QueryPoS } from '../../common/query';
 import { GlobalComponents } from '../../views/global';
 import { IFreqDB } from '../freqdb/freqdb';
 
@@ -37,6 +37,7 @@ import { init as viewInit } from '../../views/layout';
 import { init as errPageInit } from '../../views/error';
 import { emptyValue } from '../toolbar/empty';
 import { HTTP, List } from 'cnc-tskit';
+import { importQueryPos } from '../../common/postag';
 
 
 export const wdgRouter = (services:Services) => (app:Express) => {

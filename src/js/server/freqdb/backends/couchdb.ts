@@ -22,8 +22,9 @@ import axios from 'axios';
 
 import { IAppServices } from '../../../appServices';
 import { QueryMatch, QueryPoS, calcFreqBand } from '../../../common/query';
-import { IFreqDB, posTable } from '../freqdb';
+import { IFreqDB } from '../freqdb';
 import { FreqDbOptions } from '../../../conf';
+import { importQueryPosWithLabel, posTable } from '../../../common/postag';
 
 
 /*
@@ -147,10 +148,7 @@ export class CouchFreqDB implements IFreqDB {
             List.map<HTTPResponseDoc, QueryMatch>(v => ({
                 word: word,
                 lemma: v.lemma,
-                pos: [{
-                        value: v.pos as QueryPoS,
-                        label: appServices.importExternalMessage(posTable[v.pos])
-                }],
+                pos: [importQueryPosWithLabel(v.pos, posTable, appServices)],
                 abs: v.count,
                 ipm: v.count / this.corpusSize * 1e6,
                 flevel: calcFreqBand(v.count / this.corpusSize * 1e6),
@@ -209,10 +207,7 @@ export class CouchFreqDB implements IFreqDB {
                 values => List.map(
                     v => ({
                         lemma: v.lemma,
-                        pos: [{
-                            value: v.pos as QueryPoS,
-                            label: appServices.importExternalMessage(posTable[v.pos])
-                        }],
+                        pos: [importQueryPosWithLabel(v.pos, posTable, appServices)],
                         ipm: v.count / this.corpusSize * 1e6,
                         flevel: calcFreqBand(v.count / this.corpusSize * 1e6),
                         word: lemma,
@@ -234,10 +229,7 @@ export class CouchFreqDB implements IFreqDB {
                     List.map(
                         form => ({
                             lemma: lemma,
-                            pos: [{
-                                value: srch.doc.pos as QueryPoS,
-                                label: appServices.importExternalMessage(posTable[srch.doc.pos])
-                            }],
+                            pos: [importQueryPosWithLabel(srch.doc.pos, posTable, appServices)],
                             ipm: form.count / this.corpusSize * 1e6,
                             flevel: calcFreqBand(form.count / this.corpusSize * 1e6),
                             word: form.word,

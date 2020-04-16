@@ -388,7 +388,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     queryIdx: queryIdx,
                     word: lemmaVar.word,
                     lemma: lemmaVar.lemma,
-                    pos: lemmaVar.pos.map(p => p.value)
+                    pos: List.map(p => p.value, lemmaVar.pos)
                 }
             });
         };
@@ -398,7 +398,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 return ut.translate('global__alt_expr_any');
 
             } else if (v.pos.length === 1) {
-                return v.pos[0].label;
+                return v.pos[0].label.join(' ');
             }
             return ut.translate('global__alt_expr_nondict');
         };

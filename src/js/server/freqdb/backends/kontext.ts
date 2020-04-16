@@ -18,7 +18,7 @@
 
 import axios from 'axios';
 
-import { IFreqDB, posTable } from '../freqdb';
+import { IFreqDB } from '../freqdb';
 import { IAppServices } from '../../../appServices';
 import { Observable } from 'rxjs';
 import { QueryMatch, QueryPoS, calcFreqBand } from '../../../common/query';
@@ -27,6 +27,7 @@ import { HTTPResponse as FreqsHttpResponse } from '../../../common/api/kontext/f
 import { map, concatMap } from 'rxjs/operators';
 import { List } from 'cnc-tskit';
 import { FreqDbOptions } from '../../../conf';
+import { importQueryPosWithLabel, posTable } from '../../../common/postag';
 
 export class KontextFreqDB implements IFreqDB {
 
@@ -121,10 +122,7 @@ export class KontextFreqDB implements IFreqDB {
                     const ans:QueryMatch = {
                         lemma: item.Word[0].n,
                         word: word,
-                        pos: [{
-                            value: pos,
-                            label: appServices.importExternalMessage(posTable[pos])
-                        }],
+                        pos: [importQueryPosWithLabel(pos, posTable, appServices)],
                         abs: item.freq,
                         ipm: ipm,
                         arf: -1,

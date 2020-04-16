@@ -174,7 +174,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                         {
                             lang: this.queryLang,
                             lemma: variant.lemma,
-                            pos: variant.pos.map(v => v.value)
+                            pos: List.map(v => v.value.join(' '), variant.pos)
                         },
                         dispatch
                     );

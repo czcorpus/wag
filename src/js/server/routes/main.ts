@@ -182,7 +182,8 @@ export function mainAction(services:Services, answerMode:boolean, req:Request, r
                     let matchIdx = 0;
                     if (userConf.queryPos[queryIdx]) {
                         const srchIdx = mergedMatches.findIndex(
-                            v => matchesPos(v, userConf.queryPos[queryIdx]) && (v.lemma === userConf.lemma[queryIdx] || !userConf.lemma[queryIdx]));
+                            v => matchesPos(v, List.map(x => x.split(' '), userConf.queryPos[queryIdx]))
+                                    && (v.lemma === userConf.lemma[queryIdx] || !userConf.lemma[queryIdx]));
                         if (srchIdx >= 0) {
                             matchIdx = srchIdx;
                         }

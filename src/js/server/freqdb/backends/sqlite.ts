@@ -21,8 +21,9 @@ import { Database } from 'sqlite3';
 import { List } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
-import { importQueryPos, QueryMatch, QueryPoS, calcFreqBand } from '../../../common/query';
-import { IFreqDB, posTable } from '../freqdb';
+import { QueryMatch, QueryPoS, calcFreqBand } from '../../../common/query';
+import { IFreqDB } from '../freqdb';
+import { importQueryPos, importQueryPosWithLabel, PosItem, posTable } from '../../../common/postag';
 
 
 function ntimesPlaceholder(n:number):string {
@@ -50,11 +51,8 @@ export class SqliteFreqDB implements IFreqDB {
             arf: row['arf'],
             ipm: row['ipm'] !== undefined ? row['ipm'] : -1,
             flevel: null,
-            pos: List.map<QueryPoS, {value:QueryPoS; label:string}>(
-                v => ({
-                    value: v,
-                    label: appServices.importExternalMessage(posTable[v])
-                }),
+            pos: List.map<QueryPoS, PosItem>(
+                v => importQueryPosWithLabel(v, posTable, appServices),
                 row['pos'].split(',')
             ),
             isCurrent: isCurrent
@@ -88,10 +86,7 @@ export class SqliteFreqDB implements IFreqDB {
                                         abs: row['abs'],
                                         ipm: row['ipm'],
                                         arf: row['arf'],
-                                        pos: [{
-                                            value: pos,
-                                            label: appServices.importExternalMessage(posTable[pos])
-                                        }],
+                                        pos: [importQueryPosWithLabel(pos, posTable, appServices)],
                                         flevel: calcFreqBand(row['ipm']),
                                         isCurrent: false
                                     });

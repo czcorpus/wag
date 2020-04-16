@@ -20,15 +20,15 @@ import { IActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
 import { CartesianGrid, Dot, Label, Line, LineChart, XAxis, YAxis } from 'recharts';
 import { GlobalComponents } from '../../../../views/global';
-import { QueryPoS } from '../../../../common/query';
 import { SimilarFreqWord } from '../../../../common/api/abstract/similarFreq';
+import { PosItem } from '../../../../common/postag';
 
 
 interface ChartFreqDistItem {
     ipm:number;
     flevel:number;
     lemma:string;
-    pos:Array<{value:QueryPoS; label:string}>;
+    pos:Array<PosItem>;
     color:string;
 }
 
