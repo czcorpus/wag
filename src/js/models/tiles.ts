@@ -17,7 +17,7 @@
  */
 import { StatelessModel, IActionDispatcher } from 'kombo';
 import { Observable, interval } from 'rxjs';
-import { concatMap, map, tap, take } from 'rxjs/operators';
+import { concatMap, map, take } from 'rxjs/operators';
 
 import { IAppServices } from '../appServices';
 import { ajax$, ResponseType } from '../common/ajax';
