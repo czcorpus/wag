@@ -24,7 +24,7 @@ import { List } from 'cnc-tskit';
 
 import { QueryFormModel, QueryFormModelState } from '../../src/js/models/query';
 import { ActionName } from '../../src/js/models/actions';
-import { QueryType, QueryMatch, QueryPoS } from '../../src/js/common/query';
+import { QueryType, QueryMatch, PoSValues } from '../../src/js/common/query';
 import { Forms } from '../../src/js/common/data';
 import { SystemMessageType } from '../../src/js/common/types';
 
@@ -33,7 +33,7 @@ describe('QueryFormModel', function () {
     function setupModel(initialStateOverrides = {}):TestModelWrapper<QueryFormModel, QueryFormModelState> {
         const initialQueryMatches = [[
             {word: 'test', lemma: 'test', pos: [], isCurrent: true} as QueryMatch,
-            {word: 'test', lemma: 'test', pos: [{value: QueryPoS.VERB, label:'verb'}], isCurrent: false} as QueryMatch
+            {word: 'test', lemma: 'test', pos: [{value: PoSValues.VERB, label:'verb'}], isCurrent: false} as QueryMatch
         ]];
 
         return new TestModelWrapper(
@@ -342,7 +342,7 @@ describe('QueryFormModel', function () {
         it('changes query match and submits', function (done) {
             setupModel()
             .checkState(
-                {name: ActionName.ChangeCurrQueryMatch, payload: {queryIdx: 0, word: 'test', lemma: 'test', pos: [QueryPoS.VERB]}},
+                {name: ActionName.ChangeCurrQueryMatch, payload: {queryIdx: 0, word: 'test', lemma: 'test', pos: [PoSValues.VERB]}},
                 ActionName.ChangeCurrQueryMatch,
                 state => {
                     assert.isFalse(state.queryMatches[0][0].isCurrent);
