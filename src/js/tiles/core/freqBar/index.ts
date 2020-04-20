@@ -180,7 +180,7 @@ export class FreqBarTile implements ITileProvider {
     }
 
     supportsMultiWordQueries():boolean {
-        return false;
+        return true;
     }
 
     getIssueReportingUrl():null {

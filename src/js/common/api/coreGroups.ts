@@ -56,7 +56,9 @@ export enum CoreApiGroup {
 	/**
 	 * Embedded API functions
 	 */
-	WDGLANCE = 'wdglance'
+	WDGLANCE = 'wdglance',
+
+	WIKTIONARY = 'wiktionary'
 }
 
 export function supportedCoreApiGroups() {

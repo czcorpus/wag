@@ -16,19 +16,42 @@
  * limitations under the License.
  */
 
+/**
+ * This module contains miscellaneous definitions and utilities for
+ * working with Part of Speech tags. In WaG we're interested only
+ * in the actual "part of speech" part (i.e. no other token meta-information
+ * is used in WaG).
+ */
+
 import { IAppServices } from '../appServices';
 import { pipe, List } from 'cnc-tskit';
 
-
+/**
+ * PosQueryExport exports a normalized part of speech value
+ * (e.g. N, V, A) to a query form able to be inserted as part
+ * of a query (e.g. 'N.*', 'V.*', 'A.*). The concrete solution
+ * depends on actual tagset.
+ */
 export interface PosQueryExport {
     (pos:string):string;
 }
 
+/**
+ * A complete description of a part
+ * of speech item, including localized
+ * label. List of values is used for
+ * both value and label to be compatible
+ * with multi-word queries.
+ */
 export interface PosItem {
     label:Array<string>;
     value:Array<string>;
 }
 
+/**
+ * A lisit of common single-letter
+ * codes for different part of speech types.
+ */
 export enum PoSValues {
     NOUN = 'N',
     ADJECTIVE = 'A',
@@ -44,19 +67,59 @@ export enum PoSValues {
     UNKNOWN = 'X'
 }
 
+/**
+ * A mapping between single-code part of speech
+ * codes and their respective labels in different
+ * languages.
+ */
 export const posTable = {
-    [PoSValues.NOUN]: {'cs-CZ': 'podstatné jméno', 'en-US': 'noun'},
-	[PoSValues.ADJECTIVE]: {'cs-CZ': 'přídavné jméno', 'en-US': 'adjective'},
-	[PoSValues.PRONOUN]: {'cs-CZ': 'zájmeno', 'en-US': 'pronoun'},
-	[PoSValues.NUMERAL]: {'cs-CZ': 'číslovka, nebo číselný výraz s číslicemi', 'en-US': 'numeral'},
-	[PoSValues.VERB]: {'cs-CZ': 'sloveso', 'en-US': 'verb'},
-	[PoSValues.ADVERB]: {'cs-CZ': 'příslovce', 'en-US': 'adverb'},
-	[PoSValues.PREPOSITION]: {'cs-CZ': 'předložka', 'en-US': 'preposition'},
-	[PoSValues.CONJUNCTION]: {'cs-CZ': 'spojka', 'en-US': 'conjunction'},
-	[PoSValues.PARTICLE]: {'cs-CZ': 'částice', 'en-US': 'particle'},
-	[PoSValues.INTERJECTION]: {'cs-CZ': 'citoslovce', 'en-US': 'interjection'},
-	[PoSValues.PUNCTUATION]: {'cs-CZ': 'interpunkce', 'en-US': 'punctuation'},
-    [PoSValues.UNKNOWN]: {'cs-CZ': 'neznámý nebo neurčený slovní druh', 'en-US': 'unknown or undetermined part of speech'}
+    [PoSValues.NOUN]: {
+        'cs-CZ': 'podstatné jméno',
+        'en-US': 'noun'
+    },
+	[PoSValues.ADJECTIVE]: {
+        'cs-CZ': 'přídavné jméno',
+        'en-US': 'adjective'},
+	[PoSValues.PRONOUN]: {
+        'cs-CZ': 'zájmeno',
+        'en-US': 'pronoun'
+    },
+	[PoSValues.NUMERAL]: {
+        'cs-CZ': 'číslovka, nebo číselný výraz s číslicemi',
+        'en-US': 'numeral'
+    },
+	[PoSValues.VERB]: {
+        'cs-CZ': 'sloveso',
+        'en-US': 'verb'
+    },
+	[PoSValues.ADVERB]: {
+        'cs-CZ': 'příslovce',
+        'en-US': 'adverb'
+    },
+	[PoSValues.PREPOSITION]: {
+        'cs-CZ': 'předložka',
+        'en-US': 'preposition'
+    },
+	[PoSValues.CONJUNCTION]: {
+        'cs-CZ': 'spojka',
+        'en-US': 'conjunction'
+    },
+	[PoSValues.PARTICLE]: {
+        'cs-CZ': 'částice',
+        'en-US': 'particle'
+    },
+	[PoSValues.INTERJECTION]: {
+        'cs-CZ': 'citoslovce',
+        'en-US': 'interjection'
+    },
+	[PoSValues.PUNCTUATION]: {
+        'cs-CZ': 'interpunkce',
+        'en-US': 'punctuation'
+    },
+    [PoSValues.UNKNOWN]: {
+        'cs-CZ': 'neznámý nebo neurčený slovní druh',
+        'en-US': 'unknown or undetermined part of speech'
+    }
 };
 
 // source: https://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html
@@ -93,6 +156,11 @@ const ppTagset:PosQueryExport = (pos) => `${pos.toUpperCase()}.+`;
 const pennTreebank:PosQueryExport = (pos) => pennTreebankLabels[pos];
 
 
+/**
+ * Test two multi-word PoS tags whether they are equal.
+ * E.g. ['A', 'N'] is equal to ['A', 'N'] but
+ * ['A', 'A', 'N'] is not equal ['A', 'N']
+ */
 export function posTagsEqual(tag1:Array<string>, tag2:Array<string>):boolean {
     for (let i = 0; i < Math.max(tag1.length, tag2.length); i++) {
         if (tag1[i] !== tag2[i]) {
@@ -102,8 +170,16 @@ export function posTagsEqual(tag1:Array<string>, tag2:Array<string>):boolean {
     return true;
 }
 
-
-export const posQueryFactory = (fnName:string):PosQueryExport => {
+/**
+ * Returns a function producing proper PoS tag query
+ * based on provided PoS tag type.
+ *
+ * Currently supported:
+ *  - Prague positional tagset (ppTagset)
+ *  - Penn Treebank (pennTreebank)
+ *  - direct (directPos)
+ */
+export function posQueryFactory(fnName:string):PosQueryExport {
     switch (fnName) {
         case 'ppTagset':
             return ppTagset;
@@ -115,10 +191,17 @@ export const posQueryFactory = (fnName:string):PosQueryExport => {
     }
 }
 
+/**
+ * Imports a string-encoded, possibly multi-word-based
+ * PoS encoding (e.g. "A A N") by validating individual
+ * values. In normal case the returned value is equal
+ * to the entered one.
+ */
 export function importQueryPos(s:string):string {
     return List.map(
         v => {
-            if (['n', 'a', 'p', 'c', 'v', 'd', 'r', 'j', 't', 'i', 'z', 'x'].indexOf(v.toLowerCase()) > -1) {
+            Object.values(PoSValues).indexOf
+            if (Object.values<string>(PoSValues).indexOf(v.toUpperCase()) > -1) {
                 return v.toUpperCase();
             }
             throw new Error(`Invalid PoS value [${v}]`);
@@ -128,14 +211,15 @@ export function importQueryPos(s:string):string {
 }
 
 /**
-
+ * Imports a string-encoded, possibly multi-word-based PoS
+ * along with localized label.
  */
 export function importQueryPosWithLabel(s:string, postable:{[key:string]:{[lang:string]:string}}, appServices:IAppServices):PosItem {
     return pipe(
         s.split(' '),
         List.map(
             v => {
-                if (['n', 'a', 'p', 'c', 'v', 'd', 'r', 'j', 't', 'i', 'z', 'x'].indexOf(v.toLowerCase()) > -1) {
+                if (Object.values<string>(PoSValues).indexOf(v.toUpperCase()) > -1) {
                     const ident = v.toUpperCase();
                     return {
                         value: ident,

@@ -155,7 +155,7 @@ export class MultiWordGeoAreasTile implements ITileProvider {
     }
 
     supportsMultiWordQueries():boolean {
-        return false;
+        return true;
     }
 
     getIssueReportingUrl():null {
