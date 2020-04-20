@@ -120,7 +120,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 data ?
                                     <globalCompontents.ResponsiveWrapper minWidth={props.isMobile ? undefined : 250} key={`${matchIdx}non-empty`} render={(width:number, height:number) => (
                                         <div className="sim-cloud">
-                                            <h2>{props.data.length > 1 ? `[${matchIdx + 1}] ${props.queryMatches[matchIdx].word}` : null}</h2>
+                                            {props.data.length > 1 ?
+                                                <h2>{`[${matchIdx + 1}] ${props.queryMatches[matchIdx].word}`}</h2> :
+                                                null
+                                            }
                                             <WordCloud width={width} height={height} data={data} isMobile={props.isMobile}
                                                             style={props.isMobile ? {height: `${data.length * 30}px`} :
                                                                     {height: `${data.length * 40}px`, width: '100%'}}
@@ -130,7 +133,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                             />
                                         </div>
                                     )}/> :
-                                    <globalCompontents.ResponsiveWrapper key={`${matchIdx}empty`} render={() => data === null ? <p>Processing...</p> : <p>No data</p>} />,
+                                    <globalCompontents.ResponsiveWrapper key={`${matchIdx}empty`} render={() => data === null ?
+                                        <p>{ut.translate('global__alt_loading')}...</p> : <p>No data</p>} />,
                             props.data
                         )}
                     </div>
