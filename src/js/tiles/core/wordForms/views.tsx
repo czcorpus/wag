@@ -24,6 +24,7 @@ import { TileComponent, CoreTileComponentProps } from '../../../common/tile';
 import { init as wcloudViewInit } from '../../../views/wordCloud/index';
 import { WordFormItem } from '../../../common/api/abstract/wordForms';
 import { Theme } from '../../../common/theme';
+import { List } from 'cnc-tskit';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:WordFormsModel):TileComponent {
@@ -55,13 +56,16 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     </tr>
                 </thead>
                 <tbody>
-                    {props.data.sort((x1, x2) => x2.freq - x1.freq).map((row, i) => (
-                        <tr key={`${i}:${row.value}`}>
-                            <td>{row.value}</td>
-                            <td className="num">{ut.formatNumber(row.freq)}</td>
-                            <td className="num">{extFormatNum(row.ratio, props.roundToPos)}%</td>
-                        </tr>
-                    ))}
+                    {List.map(
+                        (row, i) => (
+                            <tr key={`${i}:${row.value}`}>
+                                <td>{row.value}</td>
+                                <td className="num">{ut.formatNumber(row.freq)}</td>
+                                <td className="num">{extFormatNum(row.ratio, props.roundToPos)}%</td>
+                            </tr>
+                        ),
+                        props.data
+                    )}
                 </tbody>
             </table>
         );
