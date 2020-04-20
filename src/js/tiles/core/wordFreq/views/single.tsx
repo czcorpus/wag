@@ -95,7 +95,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                     <React.Fragment key={`${i}:${v.value}`}>
                                         {List.map(
                                             (label, i) => (
-                                                <React.Fragment key={label}>
+                                                <React.Fragment key={`${i}:${label}`}>
                                                     {i > 0 ? '\u00a0' : ''}
                                                     <span className="squareb">[</span>
                                                         {label}

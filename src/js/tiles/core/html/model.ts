@@ -20,18 +20,18 @@ import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { IAppServices } from '../../../appServices';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { DataLoadedPayload, HtmlModelState } from './common';
-import { GeneralHtmlAPI } from './service';
 import { findCurrQueryMatch } from '../../../models/query';
 import { Observable, of as rxOf } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 import { RecognizedQueries } from '../../../common/query';
+import { IGeneralHtmlAPI } from '../../../common/api/abstract/html';
 
 
 export interface HtmlModelArgs {
     dispatcher:IActionQueue;
     tileId:number;
     appServices:IAppServices;
-    service:GeneralHtmlAPI<{}>;
+    service:IGeneralHtmlAPI<{}>;
     initState:HtmlModelState;
     queryMatches:RecognizedQueries;
 }
@@ -41,7 +41,7 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
 
     private readonly queryMatches:RecognizedQueries;
 
-    private readonly service:GeneralHtmlAPI<{}>;
+    private readonly service:IGeneralHtmlAPI<{}>;
 
     private readonly appServices:IAppServices;
 
@@ -84,8 +84,12 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
     private requestData(state:HtmlModelState, variant:string, seDispatch:SEDispatcher):void {
         this.service.call(this.service.stateToArgs(state, variant)).pipe(
             concatMap(
-                (ans:string) => {
-                    return state.sanitizeHTML ? new Observable<any>((observer) => {
+                (ans:string) => new Observable<any>((observer) => {
+                    if (ans === null) {
+                        observer.next(this.appServices.translate('html__entry_not_found_message'));
+                        observer.complete();
+
+                    } else if (state.sanitizeHTML) {
                         import(/* webpackChunkName: "sanitize-html" */ 'sanitize-html').then(
                             (sanitizeHtml) => {
                                 observer.next(sanitizeHtml['default'](ans, {
@@ -97,8 +101,11 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
                                 observer.error(err);
                             }
                         )
-                    }) : rxOf(ans);
-                }
+                    } else {
+                        observer.next(ans);
+                        observer.complete();
+                    }
+                })
             )
         ).subscribe(
             (data) => {

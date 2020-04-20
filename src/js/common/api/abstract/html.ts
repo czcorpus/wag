@@ -1,5 +1,6 @@
 /*
  * Copyright 2019 Tomas Machalek <tomas.machalek@gmail.com>
+ * Copyright 2019 Martin Zimandl <martin.zimandl@gmail.com>
  * Copyright 2019 Institute of the Czech National Corpus,
  *                Faculty of Arts, Charles University
  *
@@ -16,18 +17,18 @@
  * limitations under the License.
  */
 
-export interface HtmlModelState {
-    isBusy:boolean;
-    tileId:number;
-    error:string|null;
-    widthFract:number;
-    data:string|null;
-    args:{[key:string]:string};
-    lemmaArg:string;
-    sanitizeHTML:boolean;
-}
+import { DataApi } from '../../../common/types';
 
 
-export interface DataLoadedPayload {
-    data:string;
+/**
+ * General HTML api describes an API for fetching data in an HTML
+ * form which are injected into a tile. Please note that in general
+ * this can be dangerous from the security point of view as the injected
+ * code becomes part of the page with full access. Use this only
+ * along with a service you can fully trust (e.g. your own service
+ * or a service from a trusted partner).
+ */
+export interface IGeneralHtmlAPI<T> extends DataApi<T, string|null> {
+    stateToArgs(state:{}, query:string):T;
+    supportsMultiWordQueries():boolean;
 }

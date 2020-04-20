@@ -126,7 +126,7 @@ export class WordFormsTile implements ITileProvider {
     }
 
     supportsMultiWordQueries():boolean {
-        return false;
+        return true;
     }
 
     getIssueReportingUrl():null {

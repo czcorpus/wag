@@ -20,29 +20,29 @@ import { IActionDispatcher, StatelessModel } from 'kombo';
 import { IAppServices } from '../../../appServices';
 import { QueryType } from '../../../common/query';
 import { HtmlModel } from './model';
-import { RawHtmlAPI, WiktionaryHtmlAPI } from './service';
 import { init as viewInit } from './views';
 import { TileConf, ITileProvider, TileComponent, TileFactory } from '../../../common/tile';
+import { CoreApiGroup } from '../../../common/api/coreGroups';
+import { createApiInstance } from '../../../common/api/factory/html';
+import { IGeneralHtmlAPI } from '../../../common/api/abstract/html';
 
 
 declare var require:(src:string)=>void;  // webpack
 require('./style.less');
 
-export enum HtmlApiType {
-    RAW = 'raw',
-    WIKTIONARY = 'wiktionary'
-}
 
 export interface HtmlTileConf extends TileConf {
     apiURL:string;
-    apiType:HtmlApiType;
+    apiType:CoreApiGroup;
     sanitizeHTML?:boolean;
     args?:{[key:string]:string};
     lemmaArg?:string;
 }
 
 /**
- *
+ * This tile provides general HTML injection from an external
+ * service into the tile. Please use only with trusted APIs and
+ * services.
  */
 export class HtmlTile implements ITileProvider {
 
@@ -58,28 +58,21 @@ export class HtmlTile implements ITileProvider {
 
     private readonly label:string;
 
+    private readonly api:IGeneralHtmlAPI<{}>;
+
     private view:TileComponent;
 
-    constructor({tileId, dispatcher, appServices, ut, theme, widthFract, conf, isBusy, cache, queryMatches}:TileFactory.Args<HtmlTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, theme, widthFract, conf, isBusy, cache, queryMatches,}:TileFactory.Args<HtmlTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.appServices = appServices;
         this.widthFract = widthFract;
-
-        let ServiceClass = null;
-        switch (conf.apiType) {
-            case HtmlApiType.WIKTIONARY:
-                ServiceClass = WiktionaryHtmlAPI;
-                break;
-            default:
-                ServiceClass = RawHtmlAPI;
-        }
-
+        this.api = createApiInstance(cache, conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL));
         this.model = new HtmlModel({
             dispatcher: dispatcher,
             tileId: tileId,
             appServices: appServices,
-            service: new ServiceClass(cache, conf.apiURL, appServices),
+            service: this.api,
             queryMatches,
             initState: {
                 isBusy: isBusy,
@@ -146,7 +139,7 @@ export class HtmlTile implements ITileProvider {
     }
 
     supportsMultiWordQueries():boolean {
-        return false;
+        return this.api.supportsMultiWordQueries();
     }
 
     getIssueReportingUrl():null {
