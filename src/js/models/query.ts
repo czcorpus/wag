@@ -32,7 +32,7 @@ import { LayoutManager } from '../layout';
 export interface QueryFormModelState {
     queries:Array<Forms.Input>;
     initialQueryType:QueryType;
-    multiWordQuerySupport:{[k in QueryType]:boolean};
+    multiWordQuerySupport:{[k in QueryType]:number};
     queryType:QueryType;
     queryLanguage:string;
     queryLanguage2:string;
@@ -273,8 +273,10 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
             state.errors.push(new Error(this.appServices.translate('global__query_contains_unsupported_chars')));
             isValid = false;
         }
-        if (state.multiWordQuerySupport[state.queryType] === false && /\s/.exec(state.queries[idx].value)) {
-            state.errors.push(new Error(this.appServices.translate('global__query_cannot_be_multi_word')));
+        const spaceMatch = state.queries[idx].value.match(/\s/g);
+        const spaceCount = spaceMatch ? spaceMatch.length : 0;
+        if (spaceCount > state.multiWordQuerySupport[state.queryType]) {
+            state.errors.push(new Error(this.appServices.translate('global__query_words_exceded')));
             isValid = false;
         }
         state.queries[idx] = Forms.updateFormInput(state.queries[idx], {isValid: isValid});
