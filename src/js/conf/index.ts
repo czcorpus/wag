@@ -94,7 +94,7 @@ export type GroupItemConfig = GroupLayoutConfig|string;
 
 export interface LayoutConfigCommon {
     groups:Array<GroupItemConfig>;
-    allowMultiWordQuery?:boolean;
+    maxQueryWords?:number;
 }
 
 export interface LayoutConfigSingleQuery extends LayoutConfigCommon {}

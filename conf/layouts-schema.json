@@ -61,9 +61,6 @@
         },
         "LayoutConfigCmpQuery": {
             "properties": {
-                "allowMultiWordQuery": {
-                    "type": "boolean"
-                },
                 "groups": {
                     "items": {
                         "anyOf": [
@@ -76,6 +73,9 @@
                         ]
                     },
                     "type": "array"
+                },
+                "maxQueryWords": {
+                    "type": "number"
                 }
             },
             "required": [
@@ -85,9 +85,6 @@
         },
         "LayoutConfigSingleQuery": {
             "properties": {
-                "allowMultiWordQuery": {
-                    "type": "boolean"
-                },
                 "groups": {
                     "items": {
                         "anyOf": [
@@ -100,6 +97,9 @@
                         ]
                     },
                     "type": "array"
+                },
+                "maxQueryWords": {
+                    "type": "number"
                 }
             },
             "required": [
@@ -109,9 +109,6 @@
         },
         "LayoutConfigTranslatQuery": {
             "properties": {
-                "allowMultiWordQuery": {
-                    "type": "boolean"
-                },
                 "groups": {
                     "items": {
                         "anyOf": [
@@ -124,6 +121,9 @@
                         ]
                     },
                     "type": "array"
+                },
+                "maxQueryWords": {
+                    "type": "number"
                 },
                 "targetLanguages": {
                     "items": {

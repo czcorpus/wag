@@ -46,7 +46,7 @@ export interface TileGroup {
 interface LayoutCore {
     groups:Array<TileGroup>;
     services:Array<number>;
-    supportsMultiWordQuery:boolean;
+    maxQueryWords:number;
 }
 
 
@@ -80,12 +80,12 @@ function importLayout(gc:LayoutConfigCommon|undefined, tileMap:TileIdentMap,
                     tiles: group.tiles.map(v => ({tileId: tileMap[v.tile], width: v.width}))
                 })),
             services: (gc.groups || []).filter(itemIsServiceConf).map(v => tileMap[v]),
-            supportsMultiWordQuery: !!gc.allowMultiWordQuery
+            maxQueryWords: gc.maxQueryWords ? gc.maxQueryWords : 1
         } :
         {
             groups: [],
             services: [],
-            supportsMultiWordQuery: false
+            maxQueryWords: 1
         };
 }
 
@@ -177,11 +177,11 @@ export class LayoutManager {
         return srch ? srch.width : null;
     }
 
-    getMultiWordQuerySupport():{[k in QueryType]:boolean} {
+    getMultiWordQuerySupport():{[k in QueryType]:number} {
         return Dict.fromEntries([
-            [QueryType.SINGLE_QUERY, this.getLayout(QueryType.SINGLE_QUERY).supportsMultiWordQuery],
-            [QueryType.CMP_QUERY, this.getLayout(QueryType.CMP_QUERY).supportsMultiWordQuery],
-            [QueryType.TRANSLAT_QUERY, this.getLayout(QueryType.TRANSLAT_QUERY).supportsMultiWordQuery]
+            [QueryType.SINGLE_QUERY, this.getLayout(QueryType.SINGLE_QUERY).maxQueryWords],
+            [QueryType.CMP_QUERY, this.getLayout(QueryType.CMP_QUERY).maxQueryWords],
+            [QueryType.TRANSLAT_QUERY, this.getLayout(QueryType.TRANSLAT_QUERY).maxQueryWords]
         ]);
     }
 
