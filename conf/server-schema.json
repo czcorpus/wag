@@ -1,0 +1,249 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "definitions": {
+        "FreqDbConf": {
+            "properties": {
+                "corpusSize": {
+                    "type": "number"
+                },
+                "dbType": {
+                    "type": "string"
+                },
+                "options": {
+                    "$ref": "#/definitions/FreqDbOptions"
+                },
+                "path": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "corpusSize",
+                "dbType",
+                "path"
+            ],
+            "type": "object"
+        },
+        "FreqDbOptions": {
+            "properties": {
+                "httpHeaders": {
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "type": "object"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "urlArgs": {
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "type": "object"
+                },
+                "username": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "LogQueueConf": {
+            "properties": {
+                "db": {
+                    "type": "number"
+                },
+                "host": {
+                    "type": "string"
+                },
+                "key": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "db",
+                "host",
+                "key",
+                "port"
+            ],
+            "type": "object"
+        },
+        "QueryModeWordDb": {
+            "properties": {
+                "databases": {
+                    "additionalProperties": {
+                        "$ref": "#/definitions/FreqDbConf"
+                    },
+                    "type": "object"
+                },
+                "minLemmaFreq": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "databases",
+                "minLemmaFreq"
+            ],
+            "type": "object"
+        },
+        "SingleModeWordDb": {
+            "properties": {
+                "databases": {
+                    "additionalProperties": {
+                        "$ref": "#/definitions/FreqDbConf"
+                    },
+                    "type": "object"
+                },
+                "minLemmaFreq": {
+                    "type": "number"
+                },
+                "similarFreqWordsMaxCtx": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "databases",
+                "minLemmaFreq",
+                "similarFreqWordsMaxCtx"
+            ],
+            "type": "object"
+        },
+        "TileDbConf": {
+            "properties": {
+                "db": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "prefix": {
+                    "type": "string"
+                },
+                "server": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "db",
+                "password",
+                "prefix",
+                "server",
+                "username"
+            ],
+            "type": "object"
+        },
+        "ToolbarDef": {
+            "properties": {
+                "type": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "type"
+            ],
+            "type": "object"
+        },
+        "WordFreqDbConf": {
+            "properties": {
+                "cmp": {
+                    "$ref": "#/definitions/QueryModeWordDb"
+                },
+                "single": {
+                    "$ref": "#/definitions/SingleModeWordDb"
+                },
+                "translat": {
+                    "$ref": "#/definitions/QueryModeWordDb"
+                }
+            },
+            "type": "object"
+        }
+    },
+    "description": "Server side app configuration.",
+    "properties": {
+        "address": {
+            "type": "string"
+        },
+        "develServer": {
+            "properties": {
+                "port": {
+                    "type": "number"
+                },
+                "urlRootPath": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "port",
+                "urlRootPath"
+            ],
+            "type": "object"
+        },
+        "distFilesUrl": {
+            "type": "string"
+        },
+        "freqDB": {
+            "$ref": "#/definitions/WordFreqDbConf"
+        },
+        "langCookie": {
+            "type": "string"
+        },
+        "languages": {
+            "additionalProperties": {
+                "type": "string"
+            },
+            "type": "object"
+        },
+        "logQueue": {
+            "$ref": "#/definitions/LogQueueConf"
+        },
+        "logging": {
+            "properties": {
+                "path": {
+                    "type": "string"
+                },
+                "rotation": {
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "path",
+                "rotation"
+            ],
+            "type": "object"
+        },
+        "port": {
+            "type": "number"
+        },
+        "staticFilesUrl": {
+            "type": "string"
+        },
+        "telemetryDB": {
+            "type": "string"
+        },
+        "tileDB": {
+            "$ref": "#/definitions/TileDbConf"
+        },
+        "toolbar": {
+            "$ref": "#/definitions/ToolbarDef"
+        }
+    },
+    "required": [
+        "address",
+        "develServer",
+        "distFilesUrl",
+        "freqDB",
+        "languages",
+        "port",
+        "staticFilesUrl",
+        "toolbar"
+    ],
+    "type": "object"
+}
+

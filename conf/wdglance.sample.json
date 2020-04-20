@@ -90,7 +90,7 @@
 				]
 			},
 			"cmp": {
-				"allowMultiWordQuery": true,
+				"maxQueryWords": 5,
 				"groups": [
 					{
 						"groupLabel": "Data ze SyDu",
