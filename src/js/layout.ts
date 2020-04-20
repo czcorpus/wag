@@ -80,7 +80,7 @@ function importLayout(gc:LayoutConfigCommon|undefined, tileMap:TileIdentMap,
                     tiles: group.tiles.map(v => ({tileId: tileMap[v.tile], width: v.width}))
                 })),
             services: (gc.groups || []).filter(itemIsServiceConf).map(v => tileMap[v]),
-            maxQueryWords: gc.maxQueryWords
+            maxQueryWords: gc.maxQueryWords ? gc.maxQueryWords : 1
         } :
         {
             groups: [],
