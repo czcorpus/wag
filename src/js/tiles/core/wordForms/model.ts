@@ -232,11 +232,17 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                         tileId: this.tileId,
                         queryId: 0,
                         isEmpty: false,
-                        data: data.forms,
-                        subqueries: data.forms.map(v => ({
-                            value: v.value,
-                            interactionId: v.interactionId
-                        })),
+                        data: List.sortBy(
+                            x => -x.freq,
+                            data.forms
+                        ),
+                        subqueries: List.map(
+                            v => ({
+                                value: v.value,
+                                interactionId: v.interactionId
+                            }),
+                            data.forms
+                        ),
                         lang1: null,
                         lang2: null
                     }
