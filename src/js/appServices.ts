@@ -45,7 +45,7 @@ export interface IAppServices {
 
     showMessage(type:SystemMessageType, text:string|Error):void;
 
-    translate(key:string, args?:{[key: string]:string;}):string;
+    translate(key:string, args?:{[key: string]:string|number;}):string;
 
     getLanguageName(langCode:string):string;
 
@@ -129,7 +129,7 @@ export class AppServices implements IAppServices {
         this.notifications.showMessage(type, text);
     }
 
-    translate(key:string, args?:{[key: string]:string;}): string {
+    translate(key:string, args?:{[key: string]:string|number;}): string {
         return this.translator.translate(key, args);
     }
 
