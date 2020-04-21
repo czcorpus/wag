@@ -18,7 +18,7 @@
 import { SEDispatcher, StatelessModel, IActionQueue, Action } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
 import { concatMap, map, mergeMap, reduce, tap } from 'rxjs/operators';
-import { Dict, Maths } from 'cnc-tskit';
+import { Dict, Maths, pipe, List } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
 import { ConcResponse, ViewMode, IConcordanceApi } from '../../../common/api/abstract/concordance';
@@ -105,6 +105,21 @@ export interface TimeDistribModelArgs {
     queryMatches:RecognizedQueries;
     backlink:Backlink;
     queryLang:string;
+}
+
+function dateToSortNumber(s:string):number {
+    const coeff = [9, 5, 0];
+    if (/^\d{4}-\d{2}(-\d{2})?$/.exec(s)) {
+        return List.reduce<string, number>(
+            (acc, v, i) => acc + (parseInt(v) << coeff[i]),
+            0,
+            s.split('-')
+        );
+    }
+    if (!/^\d+$/.exec(s)) {
+        console.warn(`Invalid datetime value ${s}`);
+    }
+    return parseInt(s);
 }
 
 /**
@@ -319,34 +334,39 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
     }
 
     private mergeChunks(currData:Array<DataItemWithWCI>, newChunk:Array<DataItemWithWCI>, alphaLevel:Maths.AlphaLevel):Array<DataItemWithWCI> {
-        return Dict.toEntries(newChunk.reduce(
-            (acc, curr) => {
-                if (acc[curr.datetime] !== undefined) {
-                    const tmp = acc[curr.datetime];
-                    tmp.freq += curr.freq;
-                    tmp.datetime = curr.datetime;
-                    tmp.norm += curr.norm;
-                    tmp.ipm = calcIPM(tmp, tmp.norm);
-                    const confInt = Maths.wilsonConfInterval(tmp.freq, tmp.norm, alphaLevel);
-                    tmp.ipmInterval = [roundFloat(confInt[0] * 1e6), roundFloat(confInt[1] * 1e6)];
-                    acc[tmp.datetime] = tmp;
-                    return acc;
+        return pipe(
+            newChunk,
+            List.foldl(
+                (acc, curr) => {
+                    if (acc[curr.datetime] !== undefined) {
+                        const tmp = acc[curr.datetime];
+                        tmp.freq += curr.freq;
+                        tmp.datetime = curr.datetime;
+                        tmp.norm += curr.norm;
+                        tmp.ipm = calcIPM(tmp, tmp.norm);
+                        const confInt = Maths.wilsonConfInterval(tmp.freq, tmp.norm, alphaLevel);
+                        tmp.ipmInterval = [roundFloat(confInt[0] * 1e6), roundFloat(confInt[1] * 1e6)];
+                        acc[tmp.datetime] = tmp;
+                        return acc;
 
-                } else {
-                    const confInt = Maths.wilsonConfInterval(curr.freq, curr.norm, alphaLevel);
-                    acc[curr.datetime] = {
-                        datetime: curr.datetime,
-                        freq: curr.freq,
-                        norm: curr.norm,
-                        ipm: calcIPM(curr, curr.norm),
-                        ipmInterval: [roundFloat(confInt[0] * 1e6), roundFloat(confInt[1] * 1e6)]
-                    };
-                    return acc;
-                }
-            },
-            Dict.fromEntries(currData.map(v => [v.datetime, v] as [string, DataItemWithWCI]))
-
-        )).map(([,v]) => v).sort((x1, x2) => parseInt(x1.datetime) - parseInt(x2.datetime));
+                    } else {
+                        const confInt = Maths.wilsonConfInterval(curr.freq, curr.norm, alphaLevel);
+                        acc[curr.datetime] = {
+                            datetime: curr.datetime,
+                            freq: curr.freq,
+                            norm: curr.norm,
+                            ipm: calcIPM(curr, curr.norm),
+                            ipmInterval: [roundFloat(confInt[0] * 1e6), roundFloat(confInt[1] * 1e6)]
+                        };
+                        return acc;
+                    }
+                },
+                Dict.fromEntries(List.map(v => [v.datetime, v] as [string, DataItemWithWCI], currData))
+            ),
+            Dict.toEntries(),
+            List.map(([,v]) => v),
+            List.sortBy(x => dateToSortNumber(x.datetime))
+        );
     }
 
 
