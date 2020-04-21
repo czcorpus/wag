@@ -276,7 +276,8 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
         const spaceMatch = state.queries[idx].value.match(/\s/g);
         const spaceCount = spaceMatch ? spaceMatch.length : 0;
         if (spaceCount+1 > state.multiWordQuerySupport[state.queryType]) {
-            state.errors.push(new Error(this.appServices.translate('global__query_words_exceded')));
+            state.errors.push(new Error(this.appServices.translate('global__query_words_exceeded_{num_words}',
+                {num_words: state.multiWordQuerySupport[state.queryType]})));
             isValid = false;
         }
         state.queries[idx] = Forms.updateFormInput(state.queries[idx], {isValid: isValid});
