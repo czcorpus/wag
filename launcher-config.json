@@ -1,5 +1,13 @@
 {
   "scripts": {
+    "schemata:make-tiles": [
+      {
+        "repeater": "$launch_setting_tiles",
+        "sequential": [
+          "typescript-json-schema src/js/tiles/${_path}/index.ts $_conf_name --ignoreErrors --out conf/tile-schemata/${_tile_type}.json --required --strictNullChecks"
+        ]
+      }
+    ],
     "schemata:make": [
       "typescript-json-schema src/js/conf/index.ts ServerConf --ignoreErrors --out conf/server-schema.json --required --strictNullChecks",
       "typescript-json-schema src/js/conf/index.ts ClientStaticConf --ignoreErrors --out conf/wdglance-schema.json --required --strictNullChecks",
@@ -27,5 +35,114 @@
     "devel-server": "webpack-dev-server --config webpack.dev.js",
     "server": "node dist-server/service.js",
     "test": "npm test"
+  },
+  "settings": {
+    "tiles": [
+      {
+        "path": "core/collocations",
+        "tile_type": "CollocTile",
+        "conf_name": "CollocationsTileConf"
+      },
+      {
+        "path": "core/concFilter",
+        "tile_type": "ConcFilterTile",
+        "conf_name": "ConcFilterTileConf"
+      },
+      {
+        "path": "core/concordance",
+        "tile_type": "ConcordanceTile",
+        "conf_name": "ConcordanceTileConf"
+      },
+      {
+        "path": "core/freqBar",
+        "tile_type": "FreqBarTile",
+        "conf_name": "FreqBarTileConf"
+      },
+      {
+        "path": "core/freqComparison",
+        "tile_type": "FreqComparisonTile",
+        "conf_name": "FreqComparisonTileConf"
+      },
+      {
+        "path": "core/freqPie",
+        "tile_type": "FreqPieTile",
+        "conf_name": "FreqPieTileConf"
+      },
+      {
+        "path": "core/freqTree",
+        "tile_type": "FreqTreeTile",
+        "conf_name": "FreqTreeTileConf"
+      },
+      {
+        "path": "core/geoAreas",
+        "tile_type": "GeoAreasTile",
+        "conf_name": "GeoAreasTileConf"
+      },
+      {
+        "path": "core/html",
+        "tile_type": "HtmlTile",
+        "conf_name": "HtmlTileConf"
+      },
+      {
+        "path": "core/matchingDocs",
+        "tile_type": "MatchingDocsTile",
+        "conf_name": "MatchingDocsTileConf"
+      },
+      {
+        "path": "core/mergeCorpFreq",
+        "tile_type": "MergeCorpFreqTile",
+        "conf_name": "MergeCorpFreqTileConf"
+      },
+      {
+        "path": "core/multiWordGeoAreas",
+        "tile_type": "MultiWordGeoAreasTile",
+        "conf_name": "MultiWordGeoAreasTileConf"
+      },
+      {
+        "path": "core/multiWordTimeDistrib",
+        "tile_type": "MultiWordTimeDistribTile",
+        "conf_name": "TimeDistTileConf"
+      },
+      {
+        "path": "core/speeches",
+        "tile_type": "SpeechesTile",
+        "conf_name": "SpeechesTileConf"
+      },
+      {
+        "path": "core/syd",
+        "tile_type": "SyDTile",
+        "conf_name": "SyDTileConf"
+      },
+      {
+        "path": "core/timeDistrib",
+        "tile_type": "TimeDistribTile",
+        "conf_name": "TimeDistTileConf"
+      },
+      {
+        "path": "core/translations",
+        "tile_type": "TranslationsTile",
+        "conf_name": "TranslationsTileConf"
+      },
+      {
+        "path": "core/treqSubsets",
+        "tile_type": "TreqSubsetsTile",
+        "conf_name": "TreqSubsetsTileConf"
+      },
+      {
+        "path": "core/wordForms",
+        "tile_type": "WordFormsTile",
+        "conf_name": "WordFormsTileConf"
+      },
+      {
+        "path": "core/wordFreq",
+        "tile_type": "WordFreqTile",
+        "conf_name": "WordFreqTileConf"
+      },
+      {
+        "path": "core/wordSim",
+        "tile_type": "WordSimTile",
+        "conf_name": "WordSimTileConf"
+      }
+    ]
   }
 }

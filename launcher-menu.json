@@ -4,7 +4,8 @@
       "description": "config schemata action",
       "configtest": "schemata:configtest",
       "sampletest": "schemata:sampletest",
-      "make": "schemata:make"
+      "make": "schemata:make",
+      "make-tiles": "schemata:make-tiles"
     },
     "build:Build menu...": {
       "description": "build action",
