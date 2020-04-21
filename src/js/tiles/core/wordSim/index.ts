@@ -22,10 +22,10 @@ import { WordSimModel } from './model';
 import { IAppServices } from '../../../appServices';
 import { init as viewInit } from './view';
 import { QueryType } from '../../../common/query';
-import { createWordSimApiInstance } from './apiFactory';
 import { OperationMode } from '../../../common/models/wordSim';
-import { WordSimApi } from '../../../common/api/abstract/wordSim';
+import { IWordSimApi } from '../../../common/api/abstract/wordSim';
 import { findCurrQueryMatch } from '../../../models/query';
+import { createApiInstance } from '../../../common/api/factory/wordSim';
 
 
 declare var require:(src:string)=>void;  // webpack
@@ -64,7 +64,7 @@ export class WordSimTile implements ITileProvider {
 
     private readonly widthFract:number;
 
-    private readonly api:WordSimApi<{}>;
+    private readonly api:IWordSimApi<{}>;
 
     constructor({tileId, waitForTiles, dispatcher, appServices, ut, widthFract, conf, theme,
             isBusy, cache, queryMatches}:TileFactory.Args<WordSimTileConf>) {
@@ -74,7 +74,7 @@ export class WordSimTile implements ITileProvider {
         this.blockingTiles = waitForTiles;
         this.widthFract = widthFract;
         this.label = appServices.importExternalMessage(conf.label || 'wordsim__main_label');
-        this.api = createWordSimApiInstance(conf.apiType, conf.apiURL, conf.srcInfoURL, appServices.getApiHeaders(conf.apiURL), cache);
+        this.api = createApiInstance(conf.apiType, conf.apiURL, conf.srcInfoURL, appServices.getApiHeaders(conf.apiURL), cache);
         this.model = new WordSimModel({
             dispatcher,
             initState: {
@@ -143,7 +143,7 @@ export class WordSimTile implements ITileProvider {
     }
 
     supportsMultiWordQueries():boolean {
-        return true;
+        return this.api.supportsMultiWordQueries();
     }
 
     getIssueReportingUrl():null {

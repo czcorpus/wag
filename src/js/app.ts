@@ -51,9 +51,17 @@ interface AttachTileArgs {
     maxTileHeight:string;
 }
 
-const mkAttachTile = (queryType:QueryType, isMultiWordQuery:boolean, lang1:string, lang2:string) =>
+const mkAttachTile = (queryType:QueryType, isMultiWordQuery:boolean, lang1:string, lang2:string, appServices:IAppServices) =>
     ({data, tileName, tile, helpURL, issueReportingURL, maxTileHeight}:AttachTileArgs):void => {
         const support = tile.supportsQueryType(queryType, lang1, lang2) && (!isMultiWordQuery || tile.supportsMultiWordQueries());
+        let reasonDisabled = undefined;
+        if (!tile.supportsQueryType(queryType, lang1, lang2)) {
+            reasonDisabled = appServices.translate('global__query_type_not_supported');
+
+        } else if (isMultiWordQuery && !tile.supportsMultiWordQueries()) {
+            reasonDisabled = appServices.translate('global__multi_word_query_not_supported');
+        }
+
         data.push({
             tileId: tile.getIdent(),
             tileName: tileName,
@@ -63,6 +71,7 @@ const mkAttachTile = (queryType:QueryType, isMultiWordQuery:boolean, lang1:strin
             supportsTweakMode: tile.supportsTweakMode(),
             issueReportingUrl: tile.getIssueReportingUrl() || issueReportingURL,
             supportsCurrQuery: support,
+            reasonTileDisabled: reasonDisabled,
             supportsHelpView: !!helpURL,
             supportsAltView: tile.supportsAltView(),
             renderSize: [50, 50],
@@ -144,7 +153,8 @@ export function createRootComponent({config, userSession, queryMatches, appServi
         qType,
         isMultiWordQuery,
         userSession.query1Lang,
-        userSession.query2Lang
+        userSession.query2Lang,
+        appServices
     );
     const retryLoadModel = new RetryTileLoad(dispatcher);
     Dict.forEach(

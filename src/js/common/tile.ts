@@ -161,6 +161,8 @@ export interface TileFrameProps {
 
     supportsCurrQuery:boolean;
 
+    reasonTileDisabled?:string;
+
     supportsHelpView:boolean;
 
     supportsAltView:boolean;

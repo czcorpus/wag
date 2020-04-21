@@ -750,7 +750,27 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 ))}
             </>
         );
-    }
+    };
+
+    // ------------- <DisabledTile /> --------------------------------------
+
+    const DisabledTile:React.SFC<{
+        reason:string;
+
+    }> = (props) => (
+        <div className="TileWrapper empty">
+            <div className="loader-wrapper"></div>
+            <div className="cnc-tile-body content empty">
+                <div className="message">
+                    <globalComponents.MessageStatusIcon statusType={SystemMessageType.INFO} isInline={false} />
+                    <p>
+                        {props.reason}
+                    </p>
+                </div>
+                <p className="not-applicable" title={ut.translate('global__not_applicable')}>N/A</p>
+            </div>
+        </div>
+    );
 
 
     // ------------- <TileContainer /> --------------------------------------
@@ -837,17 +857,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                             widthFract={this.props.tile.widthFract}
                                             supportsReloadOnError={this.props.tile.supportsReloadOnError}
                                             issueReportingUrl={this.props.tile.issueReportingUrl} /> :
-                                    <div className="TileWrapper empty">
-                                        <div className="loader-wrapper"></div>
-                                        <div className="cnc-tile-body content empty">
-                                            <div className="message">
-                                                <globalComponents.MessageStatusIcon statusType={SystemMessageType.WARNING} isInline={false} />
-                                                <p>
-                                                    {ut.translate('global__query_not_supported')}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <DisabledTile reason={this.props.tile.reasonTileDisabled} />
                                 }
                             </globalComponents.ErrorBoundary>
                         </div>

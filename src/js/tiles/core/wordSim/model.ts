@@ -20,7 +20,7 @@ import { StatelessModel, IActionDispatcher, Action, SEDispatcher } from 'kombo';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { DataLoadedPayload } from './actions';
 import { ActionName, Actions } from './actions';
-import { WordSimApi } from '../../../common/api/abstract/wordSim';
+import { IWordSimApi } from '../../../common/api/abstract/wordSim';
 import { WordSimModelState } from '../../../common/models/wordSim';
 import { QueryMatch } from '../../../common/query';
 import { Observable, Observer } from 'rxjs';
@@ -32,7 +32,7 @@ export interface WordSimModelArgs {
     dispatcher:IActionDispatcher;
     initState:WordSimModelState;
     tileId:number;
-    api:WordSimApi<{}>;
+    api:IWordSimApi<{}>;
 }
 
 
@@ -40,7 +40,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
 
     private readonly tileId:number;
 
-    private readonly api:WordSimApi<{}>;
+    private readonly api:IWordSimApi<{}>;
 
     constructor({dispatcher, initState, tileId, api}:WordSimModelArgs) {
         super(dispatcher, initState);

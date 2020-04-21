@@ -20,7 +20,7 @@ import { Ident } from 'cnc-tskit';
 
 import { cachedAjax$ } from '../../ajax';
 import { HTTPHeaders, IAsyncKeyValueStore, SourceDetails } from '../../types';
-import { WordSimApiResponse, WordSimApi } from '../abstract/wordSim';
+import { WordSimApiResponse, IWordSimApi } from '../abstract/wordSim';
 import { map } from 'rxjs/operators';
 import { WordSimModelState } from '../../models/wordSim';
 import { CorpusInfoAPI } from '../kontext/corpusInfo';
@@ -42,7 +42,7 @@ type HTTPResponse = Array<{
  * This is a client for CNC's Word-Sim-Service (https://is.korpus.cz/git/machalek/word-sim-service)
  * which is just a glue for http server and word2vec handling libraries.
  */
-export class CNCWord2VecSimApi implements WordSimApi<CNCWord2VecSimApiArgs> {
+export class CNCWord2VecSimApi implements IWordSimApi<CNCWord2VecSimApiArgs> {
 
     private readonly apiURL:string;
 
@@ -69,6 +69,10 @@ export class CNCWord2VecSimApi implements WordSimApi<CNCWord2VecSimApiArgs> {
     }
 
     supportsTweaking():boolean {
+        return false;
+    }
+
+    supportsMultiWordQueries():boolean {
         return false;
     }
 
