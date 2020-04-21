@@ -12,7 +12,8 @@
         "wordfreq__freq_bands_condensed": "freq. band",
         "wordfreq__main_label": "words with similar frequency",
         "wordfreq__note": "note",
-        "wordfreq__not_in_dict": "No information about the word."
+        "wordfreq__not_in_dict": "No information about the word.",
+        "wordfreq__word_known_but_nothing_more": "The word exists but we have not enough data for reliable frequency information."
     },
     "cs-CZ": {
         "wordfreq_searched_form": "zadaný tvar",
@@ -27,6 +28,7 @@
         "wordfreq__freq_bands_condensed": "frekv. pásmo",
         "wordfreq__main_label": "slova s podobně častým výskytem",
         "wordfreq__note": "poznámka",
-        "wordfreq__not_in_dict": "Ke slovu nejsou k dispozici žádné informace."
+        "wordfreq__not_in_dict": "Ke slovu nejsou k dispozici žádné informace.",
+        "wordfreq__word_known_but_nothing_more": "Slovo existuje, avšak nemáme dostatek dat pro jeho frekvenční popis."
     }
 }
