@@ -18,7 +18,7 @@
 import { Observable, of as rxOf } from 'rxjs';
 import { cachedAjax$ } from '../../ajax';
 import { HTTPHeaders, IAsyncKeyValueStore, SourceDetails } from '../../types';
-import { WordSimApiResponse, WordSimApi } from '../abstract/wordSim';
+import { WordSimApiResponse, IWordSimApi } from '../abstract/wordSim';
 import { map, concatMap } from 'rxjs/operators';
 import { WordSimModelState } from '../../models/wordSim';
 
@@ -40,7 +40,7 @@ type HTTPResponse = Array<{
     measure:string;
 }>;
 
-export class LccCoocSimApi implements WordSimApi<LccCoocSimApiArgs> {
+export class LccCoocSimApi implements IWordSimApi<LccCoocSimApiArgs> {
 
     private readonly apiURL:string;
 
@@ -64,6 +64,10 @@ export class LccCoocSimApi implements WordSimApi<LccCoocSimApiArgs> {
     }
 
     supportsTweaking():boolean {
+        return false;
+    }
+
+    supportsMultiWordQueries():boolean {
         return false;
     }
 

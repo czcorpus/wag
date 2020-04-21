@@ -17,14 +17,14 @@
  */
 
 import { IAsyncKeyValueStore, HTTPHeaders } from '../../../common/types';
-import { CoreApiGroup } from '../../../common/api/coreGroups';
-import { DatamuseMLApi } from '../../../common/api/datamuse/wordSim';
-import { WordSimApi } from '../../../common/api/abstract/wordSim';
-import { LccCoocSimApi } from '../../../common/api/lcc/wordSim';
-import { CNCWord2VecSimApi } from '../../../common/api/wdglance/wordSim';
+import { CoreApiGroup } from '../coreGroups';
+import { DatamuseMLApi } from '../datamuse/wordSim';
+import { IWordSimApi } from '../abstract/wordSim';
+import { LccCoocSimApi } from '../lcc/wordSim';
+import { CNCWord2VecSimApi } from '../wdglance/wordSim';
 
 
-export function createWordSimApiInstance(apiIdent:string, apiURL:string, srcInfoURL:string, apiHeaders:HTTPHeaders, cache:IAsyncKeyValueStore):WordSimApi<{}> {
+export function createApiInstance(apiIdent:string, apiURL:string, srcInfoURL:string, apiHeaders:HTTPHeaders, cache:IAsyncKeyValueStore):IWordSimApi<{}> {
 	switch (apiIdent) {
 		case CoreApiGroup.WDGLANCE:
 			return new CNCWord2VecSimApi(cache, apiURL, srcInfoURL, apiHeaders);

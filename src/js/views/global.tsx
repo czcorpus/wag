@@ -357,7 +357,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                                             {ut.translate('global__not_enough_data_to_show_result')}
                                         </p>
                                     </div>
-                                    <div />
+                                    <p className="not-applicable">N/A</p>
                                 </>
                             }
                         </div>

@@ -36,11 +36,13 @@ export interface WordSimApiResponse {
     words:Array<WordSimWord>;
 }
 
-export interface WordSimApi<T> extends DataApi<T, WordSimApiResponse> {
+export interface IWordSimApi<T> extends DataApi<T, WordSimApiResponse> {
 
     stateToArgs(state:WordSimModelState, query:string):T;
 
     supportsTweaking():boolean;
+
+    supportsMultiWordQueries():boolean;
 
     getSourceDescription(tileId:number, corpname:string):Observable<SourceDetails>;
 }

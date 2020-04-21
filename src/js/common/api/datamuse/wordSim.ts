@@ -18,7 +18,7 @@
 import { Observable, of as rxOf } from 'rxjs';
 import { cachedAjax$ } from '../../ajax';
 import { HTTPHeaders, IAsyncKeyValueStore, SourceDetails } from '../../types';
-import { WordSimApiResponse, WordSimWord, WordSimApi } from '../abstract/wordSim';
+import { WordSimApiResponse, WordSimWord, IWordSimApi } from '../abstract/wordSim';
 import { map } from 'rxjs/operators';
 import { WordSimModelState, OperationMode } from '../../models/wordSim';
 
@@ -39,7 +39,7 @@ export interface DatamuseSLApiArgs {
 export type DatamuseApiArgs = DatamuseMLApiArgs | DatamuseSLApiArgs;
 
 
-export class DatamuseMLApi implements WordSimApi<DatamuseMLApiArgs|DatamuseSLApiArgs> {
+export class DatamuseMLApi implements IWordSimApi<DatamuseMLApiArgs|DatamuseSLApiArgs> {
 
     private readonly apiURL:string;
 
@@ -64,6 +64,10 @@ export class DatamuseMLApi implements WordSimApi<DatamuseMLApiArgs|DatamuseSLApi
 
     supportsTweaking():boolean {
         return true;
+    }
+
+    supportsMultiWordQueries():boolean {
+        return false;
     }
 
     getSourceDescription(tileId:number, corpname:string):Observable<SourceDetails> {

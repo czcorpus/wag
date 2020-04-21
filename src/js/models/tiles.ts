@@ -83,23 +83,7 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                 const srchId = List.findIndex(v => v.tileId === action.payload.tileId, state.tileProps);
                 if (srchId > -1) {
                     const tile = state.tileProps[srchId];
-                    state.tileProps[srchId] = {
-                        tileId: tile.tileId,
-                        tileName: tile.tileName,
-                        Component: tile.Component,
-                        SourceInfoComponent: tile.SourceInfoComponent,
-                        label: tile.label,
-                        supportsTweakMode: tile.supportsTweakMode,
-                        supportsCurrQuery: tile.supportsCurrQuery,
-                        supportsHelpView: tile.supportsHelpView,
-                        supportsAltView: tile.supportsAltView,
-                        renderSize: [action.payload.size[0] + tile.tileId, action.payload.size[1]],
-                        widthFract: tile.widthFract,
-                        maxTileHeight: tile.maxTileHeight,
-                        helpURL: tile.helpURL,
-                        supportsReloadOnError: tile.supportsReloadOnError,
-                        issueReportingUrl: tile.issueReportingUrl
-                    }
+                    state.tileProps[srchId] = {...tile, renderSize: [action.payload.size[0] + tile.tileId, action.payload.size[1]]};
                 };
             }
         );

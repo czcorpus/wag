@@ -43,7 +43,8 @@
         "global__show_tile_help": "Show tile help",
         "global__failed_to_obtain_required_data": "Failed to obtain data required for the calculation.",
         "global__not_enought_data_for_group": "Not enough data to display any result in this section",
-        "global__query_not_supported": "Cannot provide result for this query",
+        "global__query_type_not_supported": "The tile does not provide results for this kind of query and/or search language",
+        "global__multi_word_query_not_supported": "The tile does not provide results for multi-word queries",
         "global__func_not_avail": "Function not available in this case",
         "global__multiple_words_for_query": "Alternatives",
         "global__searching_by_pos": "Showing results for",
@@ -89,7 +90,8 @@
         "global__color_themes": "color schemes",
         "global__institute_cnc": "Institute of the Czech National Corpus",
         "global__powered_by_wag_{version}": "Powered by WaG version {version}",
-        "global__view_on_github": "View on GitHub"
+        "global__view_on_github": "View on GitHub",
+        "global__not_applicable": "Not applicable"
     },
     "cs-CZ": {
         "global__logo_file": "logo_cs.svg",
@@ -135,7 +137,8 @@
         "global__show_tile_help": "Ukázat nápovědu k dlaždici",
         "global__failed_to_obtain_required_data": "Nepodařilo se získat data potřebná k výpočtu.",
         "global__not_enought_data_for_group": "Pro zobrazení výsledků v této části není dostatek dat",
-        "global__query_not_supported": "Pro tento dotaz nelze poskytnout žádný výsledek.",
+        "global__query_type_not_supported": "Pro tento typ dotazu nebo zvolený jazyk dlaždice neumí poskytnout žádné informace",
+        "global__multi_word_query_not_supported": "Dlaždice neumí poskytnout informace pro víceslovné dotazy",
         "global__func_not_avail": "Funkce zde není k dispozici",
         "global__multiple_words_for_query": "Alternativy",
         "global__searching_by_pos": "Zobrazuji výsledky pro",
@@ -181,6 +184,7 @@
         "global__color_themes": "barevná schémata",
         "global__institute_cnc": "Ústav Českého národního korpusu",
         "global__powered_by_wag_{version}": "Powered by WaG version {version}",
-        "global__view_on_github": "Prohlédnout na GitHubu"
+        "global__view_on_github": "Prohlédnout na GitHubu",
+        "global__not_applicable": "Nedostupné"
     }
 }
