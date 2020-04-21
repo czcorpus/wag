@@ -413,7 +413,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
 
     private loadConcordance(state:TimeDistribModelState, lemmaVariant:QueryMatch, subcnames:Array<string>,
             target:SubchartID):Observable<[ConcResponse, DataFetchArgsOwn]> {
-        return rxOf(...subcnames).pipe(
+        return rxOf(...(subcnames.length > 0 ? subcnames : [undefined])).pipe(
             mergeMap(
                 subcname => {
                     const [concApi, freqApi] = this.apiFactory.getRandomValue();
