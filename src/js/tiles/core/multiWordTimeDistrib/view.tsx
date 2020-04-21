@@ -387,7 +387,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const MultiWordTimeDistribTile:React.SFC<TimeDistribModelState & CoreTileComponentProps> = (props) => (
         <globComponents.TileWrapper tileId={props.tileId} isBusy={props.isBusy} error={props.error}
-                    hasData={props.data.length > 0}
+                    hasData={List.some(v => v.length > 0, props.data)}
                     sourceIdent={{corp: props.corpname, subcorp: props.subcDesc}}
                     supportsTileReload={props.supportsReloadOnError}
                     issueReportingUrl={props.issueReportingUrl}

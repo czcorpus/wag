@@ -82,11 +82,15 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
     }
 
     private requestData(state:HtmlModelState, variant:string, seDispatch:SEDispatcher):void {
-        this.service.call(this.service.stateToArgs(state, variant)).pipe(
+        (variant ?
+            this.service.call(this.service.stateToArgs(state, variant)) :
+            rxOf(null)
+
+        ).pipe(
             concatMap(
-                (ans:string) => new Observable<any>((observer) => {
+                (ans:string) => new Observable<string|null>((observer) => {
                     if (ans === null) {
-                        observer.next(this.appServices.translate('html__entry_not_found_message'));
+                        observer.next(null);
                         observer.complete();
 
                     } else if (state.sanitizeHTML) {
