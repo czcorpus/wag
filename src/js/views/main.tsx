@@ -761,13 +761,15 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         <div className="TileWrapper empty">
             <div className="loader-wrapper"></div>
             <div className="cnc-tile-body content empty">
-                <div className="message">
-                    <globalComponents.MessageStatusIcon statusType={SystemMessageType.INFO} isInline={false} />
-                    <p>
-                        {props.reason}
-                    </p>
+                <div className="not-applicable-box">
+                    <div className="message">
+                        <globalComponents.MessageStatusIcon statusType={SystemMessageType.INFO} isInline={false} />
+                        <p>
+                            {props.reason}
+                        </p>
+                    </div>
+                    <p className="not-applicable" title={ut.translate('global__not_applicable')}><span>N/A</span></p>
                 </div>
-                <p className="not-applicable" title={ut.translate('global__not_applicable')}>N/A</p>
             </div>
         </div>
     );

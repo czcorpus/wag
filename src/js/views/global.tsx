@@ -350,15 +350,15 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                         <div style={{height: '100%'}}>
                             {props.hasData ?
                                 props.children :
-                                <>
+                                <div className="not-applicable-box">
                                     <div className="message">
                                         <MessageStatusIcon statusType={SystemMessageType.WARNING} isInline={false} />
                                         <p>
                                             {ut.translate('global__not_enough_data_to_show_result')}
                                         </p>
                                     </div>
-                                    <p className="not-applicable">N/A</p>
-                                </>
+                                    <p className="not-applicable"><span>N/A</span></p>
+                                </div>
                             }
                         </div>
                     </div>

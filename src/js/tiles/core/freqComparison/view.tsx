@@ -17,7 +17,7 @@
  */
 import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
-import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Bar, BarChart, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 import { Theme } from '../../../common/theme';
 import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
@@ -135,10 +135,16 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         isMobile:boolean;
     }> = (props) => {
         const processedData = processData(props.data, props.words);
-        const maxLabelLength = (List.maxItem(
+        const maxLabelLength = List.maxItem(
             v => v.length,
-            props.isMobile ? processedData.reduce((acc, curr) => acc.concat(Strings.shortenText(curr.name, CHART_LABEL_MAX_LEN).split(' ')), []) : processedData.map(v => v.name)
-        ) as string).length;
+            props.isMobile ?
+                List.foldl(
+                    (acc, curr) => acc.concat(Strings.shortenText(curr.name, CHART_LABEL_MAX_LEN).split(' ')),
+                    [],
+                    processedData
+                ) :
+                processedData.map(v => v.name)
+        ).length;
         const dataKeyFn = (word:string) => (item:FreqItemProps) => item.data[word].main;
         return (
             <div className="Chart">
@@ -239,7 +245,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             const chartsViewBoxWidth = this.props.isMobile ? '100%' : `${100 / Math.min(this.props.blocks.length, this.props.maxChartsPerLine)}%`;
             return (
                 <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
-                        hasData={List.find(v => v.isReady, this.props.blocks) !== undefined}
+                        hasData={List.find(v => v.isReady && v.data.length > 0, this.props.blocks) !== undefined}
                         sourceIdent={{corp: this.props.corpname}}
                         backlink={this.props.backlink}
                         supportsTileReload={this.props.supportsReloadOnError}

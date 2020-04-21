@@ -64,10 +64,28 @@
         }
     }
 
-    .empty p.not-applicable {
-        color: @color-superlight-grey;
-        font-size: 9em;
-        text-align: center;
+    .empty {
+
+        .not-applicable-box {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+
+            p.not-applicable {
+                display: flex;
+                flex-grow: 1;
+                margin: 0;
+                color: @color-superlight-grey;
+                font-size: 9em;
+                text-align: center;
+                justify-content: center;
+                align-items: center;
+
+                span {
+
+                }
+            }
+        }
     }
 }
 

@@ -155,7 +155,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             const chartsViewBoxWidth = this.props.isMobile ? '100%' : `${100 / this.props.blocks.length}%`;
             return (
                 <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
-                        hasData={this.props.blocks.find(v => v.isReady) !== undefined}
+                        hasData={List.some(v => v.isReady && v.data.length > 0, this.props.blocks)}
                         sourceIdent={{corp: this.props.corpname}}
                         backlink={this.props.backlink}
                         supportsTileReload={this.props.supportsReloadOnError}
