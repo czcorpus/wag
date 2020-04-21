@@ -113,10 +113,18 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             props.data.pos
                         )}
                     </dd>
-                    <dt>{ut.translate('wordfreq__freq_bands')}:</dt>
-                    <dd><commonViews.Stars freqBand={props.data.flevel} /></dd>
-                    <dt>{ut.translate('wordfreq__ipm')}:</dt>
-                    <dd>{ut.formatNumber(props.data.ipm, 2)}</dd>
+                    {props.data.abs > 0 ?
+                        <>
+                            <dt>{ut.translate('wordfreq__freq_bands')}:</dt>
+                            <dd><commonViews.Stars freqBand={props.data.flevel} /></dd>
+                            <dt>{ut.translate('wordfreq__ipm')}:</dt>
+                            <dd>{ut.formatNumber(props.data.ipm, 2)}</dd>
+                        </> :
+                        <>
+                            <dt>{ut.translate('wordfreq__note')}:</dt>
+                            <dd>{ut.translate('wordfreq__word_known_but_nothing_more')}</dd>
+                        </>
+                    }
                 </> :
                 <>
                     <dt>{ut.translate('wordfreq__note')}:</dt>
@@ -136,7 +144,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         <div className="SingleWordProfile">
             <dl className="info">
                 {props.searchedWord ? <SrchWordInfo data={props.searchedWord} /> : null}
-                {props.similarFreqWords.length > 0 ? <SimilarFreqWords data={props.similarFreqWords} /> : null}
+                {props.similarFreqWords.length > 0 && props.searchedWord.abs > 0 ? <SimilarFreqWords data={props.similarFreqWords} /> : null}
             </dl>
         </div>
     );
