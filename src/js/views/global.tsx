@@ -251,10 +251,13 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
 
     }> = (props) => {
         return (
-            <div>
+            <div className="SourceInfoBox">
                 <h2>{props.data.title}</h2>
-                {props.data.href ? <p><a href={props.data.href} target="_blank">{props.data.href}</a></p> : null}
                 <p>{props.data.description}</p>
+                {props.data.href ?
+                    <p>{ut.translate('global__more_info')}: <a className="external" href={props.data.href} target="_blank">{props.data.href}</a></p> :
+                    null
+                }
             </div>
         );
     };
