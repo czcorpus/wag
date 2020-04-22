@@ -42,30 +42,33 @@ Document structure:
     "is_pname":false,
     "count":66556
 }
-
-Required views:
-
-1) by-arf
-
-function (doc) {
-   emit(doc.arf, 1);
-}
-
-2) by-lemma
-
-function (doc) {
-  emit(doc.lemma, doc.count);
-}
-
-3) by-word
-
-function (doc) {
-  doc.forms.forEach(function (v) {
-    emit(v.word, v.count);
-  });
-}
-
 */
+
+enum Views {
+
+    /*
+    function (doc) {
+    emit(doc.arf, 1);
+    }
+    */
+    BY_ARF = 'by-arf',
+
+    /*
+    function (doc) {
+    emit(doc.lemma, doc.count);
+    }
+    */
+    BY_LEMMA = 'by-lemma',
+
+    /*
+    function (doc) {
+        doc.forms.forEach(function (v) {
+            emit(v.word, v.count);
+        });
+    }
+    */
+   BY_WORD = 'by-word'
+}
 
 interface HTTPResponseDoc {
     _id:string;
@@ -160,29 +163,29 @@ export class CouchFreqDB implements IFreqDB {
 
     findQueryMatches(appServices:IAppServices, word:string, minFreq:number):Observable<Array<QueryMatch>> {
         return forkJoin(
-            this.queryExact('by-word', word),
-            this.queryExact('by-lemma', word)
+            this.queryExact(Views.BY_WORD, word),
+            this.queryExact(Views.BY_LEMMA, word)
         ).pipe(
             map(([resp1, resp2]) => this.mergeDocs(List.concat(resp1.rows, resp2.rows), word, appServices))
         )
     }
 
     getSimilarFreqWords(appServices:IAppServices, lemma:string, pos:Array<QueryPoS>, rng:number):Observable<Array<QueryMatch>> {
-        return this.queryExact('by-lemma', lemma).pipe(
+        return this.queryExact(Views.BY_LEMMA, lemma).pipe(
             concatMap(
                 resp => {
                     const srch = List.find(v => v.doc.lemma === lemma && pos.indexOf(v.doc.pos as QueryPoS) > -1, resp.rows);
                     return pos.length === 1 && srch ?
                         merge(
                             this.queryServer(
-                                'by-arf',
+                                Views.BY_ARF,
                                 {
                                     startkey: srch.doc.arf,
                                     limit: rng
                                 }
                             ),
                             this.queryServer(
-                                'by-arf',
+                                Views.BY_ARF,
                                 {
                                     startkey: srch.doc.arf,
                                     limit: rng,
@@ -222,7 +225,7 @@ export class CouchFreqDB implements IFreqDB {
     }
 
     getWordForms(appServices:IAppServices, lemma:string, pos:Array<QueryPoS>):Observable<Array<QueryMatch>> {
-        return this.queryExact('by-lemma', lemma).pipe(
+        return this.queryExact(Views.BY_LEMMA, lemma).pipe(
             map(resp => {
                 const srch = List.find(v => v.doc.lemma === lemma && pos.indexOf(v.doc.pos as QueryPoS) > -1, resp.rows);
                 return pos.length === 1 && srch ?
