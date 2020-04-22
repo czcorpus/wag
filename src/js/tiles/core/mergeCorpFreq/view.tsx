@@ -118,11 +118,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     }> = (props) => {
         const queries = props.queryMatches.length;
         const transformedData = transformData(props.data, props.queryMatches);
-        const maxLabelLength = List.maxItem(
+        const maxLabelLength = List.maxItem<string>(
             v => v.length,
             props.isMobile ?
                 List.flatMap(item => [Strings.shortenText(item.name, CHART_LABEL_MAX_LEN)], transformedData) :
-                transformedData.map(v => v.name)
+                List.map(v => v.name, transformedData)
         ).length;
         const colorFn = props.queryMatches.length > 1 ?
                 (idx:number) => theme.cmpCategoryColor(idx) :
@@ -170,7 +170,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             const minHeight = 70 + numCats * (this.props.pixelsPerCategory + barCategoryGap);
             return (
                 <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
-                        hasData={this.props.data.some(v => v && v.find(f => f.freq > 0))}
+                        hasData={List.some(v => v && List.some(f => f.freq > 0, v), this.props.data)}
                         sourceIdent={pipe(
                             this.props.sources,
                             List.groupBy(v => v.corpname),
