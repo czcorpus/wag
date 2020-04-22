@@ -83,7 +83,7 @@ export class WordSimTile implements ITileProvider {
                 isAltViewMode: false,
                 error: null,
                 isTweakMode: false,
-                data: List.map(_ => null, queryMatches),
+                data: List.repeat(_ => [], queryMatches.length),
                 maxResultItems: conf.maxResultItems,
                 operationMode: OperationMode.MeansLike,
                 corpus: conf.corpname || '',

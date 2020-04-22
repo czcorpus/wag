@@ -25,7 +25,7 @@ import { init as wcloudViewInit } from '../../../views/wordCloud/index';
 import { ActionName } from './actions';
 import { WordSimWord } from '../../../common/api/abstract/wordSim';
 import { OperationMode, WordSimModelState } from '../../../common/models/wordSim';
-import { List } from 'cnc-tskit';
+import { List, pipe } from 'cnc-tskit';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:WordSimModel):TileComponent  {
@@ -101,13 +101,13 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         const dataTransform = (v:WordSimWord) => ({
             text: v.word,
             value: v.score,
-            tooltip: [{label: ut.translate('wordsim__attr_score'), value: v.score, round: 1}],
+            tooltip: [{label: ut.translate('wordsim__attr_score'), value: ut.formatNumber(v.score)}],
             interactionId: v.interactionId
         });
 
         return (
             <globalCompontents.TileWrapper tileId={props.tileId} isBusy={props.isBusy} error={props.error}
-                    hasData={props.data.some(d => d)}
+                    hasData={pipe(props.data, List.some(d => d.length > 0))}
                     sourceIdent={{corp: null}}
                     supportsTileReload={props.supportsReloadOnError}
                     issueReportingUrl={props.issueReportingUrl}>

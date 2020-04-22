@@ -16,14 +16,15 @@
  * limitations under the License.
  */
 import { Observable, of as rxOf } from 'rxjs';
-import { Ident } from 'cnc-tskit';
+import { Ident, HTTP } from 'cnc-tskit';
 
 import { cachedAjax$ } from '../../ajax';
 import { HTTPHeaders, IAsyncKeyValueStore, SourceDetails } from '../../types';
 import { WordSimApiResponse, IWordSimApi } from '../abstract/wordSim';
-import { map } from 'rxjs/operators';
+import { map, catchError } from 'rxjs/operators';
 import { WordSimModelState } from '../../models/wordSim';
 import { CorpusInfoAPI } from '../kontext/corpusInfo';
+import { AjaxError } from 'rxjs/ajax';
 
 
 export interface CNCWord2VecSimApiArgs {
@@ -104,6 +105,14 @@ export class CNCWord2VecSimApi implements IWordSimApi<CNCWord2VecSimApiArgs> {
             {headers: this.customHeaders}
 
         ).pipe(
+            catchError(
+                (err:AjaxError) => {
+                    if (err.status === HTTP.Status.NotFound) {
+                        return rxOf<HTTPResponse>([]);
+                    }
+                    throw err;
+                }
+            ),
             map(
                 (ans) => ({words: ans.map(v => ({
                     word: v.word,
