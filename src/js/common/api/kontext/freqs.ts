@@ -24,7 +24,7 @@ import { CorpusInfoAPI } from './corpusInfo';
 import { BacklinkWithArgs, Backlink } from '../../tile';
 import { APIResponse, APIBlockResponse, IMultiBlockFreqDistribAPI, IFreqDistribAPI } from '../abstract/freqs';
 import { MinSingleCritFreqState, MinMultiCritFreqState } from '../../models/freq';
-import { HTTP } from 'cnc-tskit';
+import { HTTP, List, pipe } from 'cnc-tskit';
 
 export enum FreqSort {
     REL = 'rel'
@@ -261,17 +261,22 @@ export class KontextMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAP
         ).pipe(
             map<HTTPResponse, APIBlockResponse>(
                 resp => ({
-                    blocks: resp.Blocks.map(block => ({
-                        data: block.Items
-                            .sort((x1, x2) => x2.freq - x1.freq)
-                            .map((v,  i) => ({
-                                name: v.Word.map(v => v.n).join(' '),
-                                freq: v.freq,
-                                ipm: v.rel,
-                                norm: v.norm,
-                                order: i
-                            }))
-                    })),
+                    blocks: List.map(
+                        block => ({
+                            data: pipe(
+                                block.Items,
+                                List.sortBy(x => x.freq),
+                                List.map((v,  i) => ({
+                                    name: List.map(v => v.n, v.Word).join(' '),
+                                    freq: v.freq,
+                                    ipm: v.rel,
+                                    norm: v.norm,
+                                    order: i
+                                }))
+                            )
+                        }),
+                        resp.Blocks
+                    ),
                     concId: resp.conc_persistence_op_id,
                     corpname: args.corpname
                 })

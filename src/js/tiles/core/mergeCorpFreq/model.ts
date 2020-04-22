@@ -18,7 +18,7 @@
 
 import { StatelessModel, IActionQueue, SEDispatcher } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
-import { flatMap, concatMap, map, timeout, reduce, tap } from 'rxjs/operators';
+import { flatMap, concatMap, map, reduce, tap } from 'rxjs/operators';
 import { Dict, List, pipe } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
@@ -114,7 +114,11 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
                 const conc$ = this.waitForTiles.length > 0 ?
                     this.suspendWithTimeout(
                         this.waitForTilesTimeoutSecs * 1000,
-                        Dict.fromEntries(this.waitForTiles.map(v => [v.toFixed(), 0])),
+                        pipe(
+                            this.waitForTiles,
+                            List.map<number, [string, number]>(v => [v.toFixed(), 0]),
+                            Dict.fromEntries()
+                        ),
                         (action, syncData) => {
                             if (action.name === GlobalActionName.TilePartialDataLoaded && this.waitForTiles.indexOf(action.payload['tileId']) > -1) {
                                 const ans = {...syncData};
@@ -127,7 +131,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
                     ).pipe(
                         map(action => {
                             const payload = (action as GlobalActions.TilePartialDataLoaded<SingleConcLoadedPayload>).payload;
-                            const src = state.sources.find(v => v.corpname === payload.data.corpName);
+                            const src = List.find(v => v.corpname === payload.data.corpName, state.sources);
                             return [payload.queryId, src, payload.data.concPersistenceID] as LoadedConcProps;
                         })
                     ) :
@@ -144,8 +148,9 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
                         state.data[action.payload.queryId] = [];
                     }
 
-                    state.data[action.payload.queryId] = List.concat(
-                        (action.payload.data.length > 0 ?
+                    state.data[action.payload.queryId] = pipe(
+                        state.data[action.payload.queryId],
+                        List.concat(action.payload.data.length > 0 ?
                             action.payload.data :
                             [{
                                 sourceId: action.payload.sourceId,
@@ -156,7 +161,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
                                 backlink: null
                             }]
                         ),
-                        state.data[action.payload.queryId]
+                        List.filter(v =>  !!v.name)
                     );
                 }
             }
