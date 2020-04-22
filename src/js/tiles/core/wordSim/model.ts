@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { StatelessModel, IActionDispatcher, Action, SEDispatcher } from 'kombo';
+import { StatelessModel, IActionDispatcher, SEDispatcher } from 'kombo';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { DataLoadedPayload } from './actions';
 import { ActionName, Actions } from './actions';
@@ -26,6 +26,7 @@ import { QueryMatch } from '../../../common/query';
 import { Observable, Observer } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
 import { callWithExtraVal } from '../../../common/api/util';
+import { List } from 'cnc-tskit';
 
 
 export interface WordSimModelArgs {
@@ -107,7 +108,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = false;
                     if (action.error) {
-                        state.data = state.queryMatches.map(_ => null);
+                        state.data = List.map(_ => null, state.queryMatches);
                         state.error = action.error.message;
 
                     } else {
@@ -177,27 +178,31 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
             )
         ).subscribe(
             ([data, args]) => {
-                seDispatch<Action<DataLoadedPayload>>({
+                seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
                     name: GlobalActionName.TileDataLoaded,
                     payload: {
                         tileId: this.tileId,
                         queryId: args.queryId,
                         words: data.words,
-                        subqueries: data.words.map(v => ({
-                            value: {
-                                value: v.word,
-                                context: [-5, 5] // TODO
-                            },
-                            interactionId: v.interactionId
-                        })),
+                        subqueries: List.map(
+                            v => ({
+                                value: {
+                                    value: v.word,
+                                    context: [-5, 5] // TODO
+                                },
+                                interactionId: v.interactionId
+                            }),
+                            data.words
+                        ),
                         lang1: null,
-                        lang2: null
+                        lang2: null,
+                        isEmpty: data.words.length === 0
                     }
                 });
 
             },
             (err) => {
-                seDispatch<Action<DataLoadedPayload>>({
+                seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
                     name: GlobalActionName.TileDataLoaded,
                     payload: {
                         tileId: this.tileId,
@@ -205,7 +210,8 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                         words: [],
                         subqueries: [],
                         lang1: null,
-                        lang2: null
+                        lang2: null,
+                        isEmpty: true
                     },
                     error: err
                 })
