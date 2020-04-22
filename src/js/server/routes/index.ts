@@ -36,7 +36,7 @@ import { errorUserConf, emptyClientConf, THEME_COOKIE_NAME } from '../../conf';
 import { init as viewInit } from '../../views/layout';
 import { init as errPageInit } from '../../views/error';
 import { emptyValue } from '../toolbar/empty';
-import { HTTP, List } from 'cnc-tskit';
+import { HTTP, List, pipe, Dict } from 'cnc-tskit';
 import { importQueryPos } from '../../common/postag';
 
 
@@ -236,7 +236,11 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         const appServices = new AppServices({
             notifications: null, // TODO
             uiLang: uiLang,
-            searchLanguages: Object.keys(services.clientConf.searchLanguages).map(k => [k, services.clientConf.searchLanguages[k]]),
+            searchLanguages: pipe(
+                services.clientConf.searchLanguages,
+                Dict.keys(),
+                List.map(k => [k, services.clientConf.searchLanguages[k]])
+            ),
             translator: viewUtils,
             staticUrlCreator: viewUtils.createStaticUrl,
             actionUrlCreator: viewUtils.createActionUrl,
@@ -245,8 +249,9 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             mobileModeTest: ()=>false
         });
 
+        const freqDb = services.db.getDatabase(QueryType.SINGLE_QUERY, queryValues(req, 'lang')[0]);
+
         new Observable<{lang:string; word:string; lemma:string; pos:Array<QueryPoS>}>((observer) => {
-            const freqDb = services.db.getDatabase(QueryType.SINGLE_QUERY, queryValues(req, 'lang')[0]);
             if (freqDb === undefined) {
                 observer.error(
                     newError(ErrorType.BAD_REQUEST, `Frequency database for [${req.query.lang}] not defined`));
@@ -255,13 +260,12 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                 lang: queryValues(req, 'lang')[0],
                 word: queryValues(req, 'word')[0],
                 lemma: queryValues(req, 'lemma')[0],
-                pos: List.map(v => importQueryPos(v)[0], queryValues(req, 'pos'))
+                pos: List.map(v => importQueryPos(v), queryValues(req, 'pos'))
             });
 
         }).pipe(
             concatMap(
-                (args) => services.db
-                    .getDatabase(QueryType.SINGLE_QUERY, args.lang)
+                (args) => freqDb
                     .getWordForms(
                         appServices,
                         args.lemma,
