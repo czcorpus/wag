@@ -74,16 +74,42 @@ class TreqAPICaller {
 
     private readonly apiURL:string;
 
+    private readonly titleI18n:{[lang:string]:string};
+
+    private readonly descI18n:{[lang:string]:string};
+
     constructor(cache:IAsyncKeyValueStore, apiURL:string) {
         this.cache = cache;
         this.apiURL = apiURL;
+        this.titleI18n = {
+            'cs-CZ': 'InterCorp - mnohojazyčný paralelní korpus',
+            'en-US': 'InterCorp - a multilingual parallel corpus',
+        };
+        this.descI18n = {
+            'cs-CZ': 'Projekt spravovaný Ústavem Českého národního korpusu',
+            'en-US': 'A project managed by the Institute of the Czech National Corpus',
+        };
+    }
+
+    private translateText(data:{[lang:string]:string}, lang:string):string {
+        if (data[lang]) {
+            return data[lang];
+        }
+        const langGen = lang.split('-')[0];
+        for (let k in data) {
+            const kGen = k.split('-')[0];
+            if (kGen === langGen) {
+                return data[k];
+            }
+        }
+        return data['en-US'];
     }
 
     getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<SourceDetails> {
         return rxOf({
             tileId: tileId,
-            title: 'InterCorp',
-            description: '',
+            title: this.translateText(this.titleI18n, uiLang),
+            description: this.translateText(this.descI18n, uiLang),
             author: 'Czech National Corpus',
             href: 'https://wiki.korpus.cz/doku.php/cnk:intercorp'
         });
