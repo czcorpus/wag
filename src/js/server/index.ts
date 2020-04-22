@@ -28,7 +28,7 @@ import { forkJoin, of as rxOf } from 'rxjs';
 import { concatMap, map } from 'rxjs/operators';
 import 'winston-daily-rotate-file';
 
-import { ClientStaticConf, ServerConf, LanguageLayoutsConfig } from '../conf';
+import { ClientStaticConf, ServerConf, LanguageLayoutsConfig, LanguageAnyTileConf } from '../conf';
 import { parseJsonConfig, loadRemoteTileConf } from '../conf/loader';
 import { wdgRouter } from './routes/index';
 import { createToolbarInstance } from './toolbar/factory';
@@ -36,7 +36,10 @@ import { RedisLogQueue } from './logging/redisQueue';
 import { NullLogQueue } from './logging/nullQueue';
 import { WordDatabases } from './actionServices';
 import { PackageInfo } from '../common/types';
-import { Ident } from 'cnc-tskit';
+import { Ident, Dict } from 'cnc-tskit';
+
+import * as ajv from 'ajv';
+import * as fs from 'fs';
 
 forkJoin(
     parseJsonConfig<ServerConf>(process.env.SERVER_CONF ?
@@ -88,7 +91,30 @@ forkJoin(
     )
 
 ).subscribe(
-    ([serverConf, clientConf, pkgInfo]) => {
+    ([serverConf, clientConf, pkgInfo]) => {        
+        const validator = new ajv();
+        let validationError = false;
+        console.log('Validating tiles configuration');
+        Dict.forEach((tiles, lang) => {
+            Dict.forEach((tileConf, tileName) => {
+                const schema = JSON.parse(fs.readFileSync(
+                    path.resolve(__dirname, `../conf/tile-schemata/${tileConf.tileType}.json`),
+                    'utf-8'
+                ));
+                if (!validator.validate(schema, tileConf)) {
+                    console.log('Invalid tile config: ', lang, tileName);
+                    console.log(validator.errors);
+                    validationError = true;
+                } else {
+                    console.log('Tile valid: ', lang, tileName);
+                }
+            }, tiles);
+        }, clientConf.tiles as LanguageAnyTileConf);
+        if (validationError) {
+            throw Error('Invalid tile config found!');
+        } else {
+            console.log('All tiles valid');
+        }
 
         const app = express();
         app.use(cookieParser());
