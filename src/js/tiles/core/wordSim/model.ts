@@ -172,7 +172,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
             mergeMap(args =>
                 callWithExtraVal(
                     this.api,
-                    this.api.stateToArgs(state, args.lemma.lemma),
+                    this.api.stateToArgs(state, args.lemma),
                     args
                 )
             )

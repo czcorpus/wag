@@ -25,11 +25,14 @@ import { map, catchError } from 'rxjs/operators';
 import { WordSimModelState } from '../../models/wordSim';
 import { CorpusInfoAPI } from '../kontext/corpusInfo';
 import { AjaxError } from 'rxjs/ajax';
+import { QueryMatch } from '../../query';
 
 
 export interface CNCWord2VecSimApiArgs {
     corpus:string;
+    model:string;
     word:string;
+    pos:string;
     minScore:number; // default 0
     limit:number; // default 10
 }
@@ -60,10 +63,12 @@ export class CNCWord2VecSimApi implements IWordSimApi<CNCWord2VecSimApiArgs> {
         this.srcInfoApi = srcInfoURL ? new CorpusInfoAPI(cache, srcInfoURL, customHeaders) : null;
     }
 
-    stateToArgs(state:WordSimModelState, query:string):CNCWord2VecSimApiArgs {
+    stateToArgs(state:WordSimModelState, queryMatch:QueryMatch):CNCWord2VecSimApiArgs {
         return {
             corpus: state.corpus,
-            word: query,
+            model: state.model,
+            word: queryMatch.lemma,
+            pos: queryMatch.pos[0].value[0], // TODO is the first zero OK? (i.e. we ignore other variants)
             limit: state.maxResultItems,
             minScore: state.minScore
         };
@@ -94,7 +99,7 @@ export class CNCWord2VecSimApi implements IWordSimApi<CNCWord2VecSimApiArgs> {
     }
 
     call(queryArgs:CNCWord2VecSimApiArgs):Observable<WordSimApiResponse> {
-        const url = this.apiURL + '/corpora/' + queryArgs.corpus + '/similarWords/' + queryArgs.word;
+        const url = this.apiURL + '/corpora/' + queryArgs.corpus + '/similarWords/' + queryArgs.model + '/' + queryArgs.word + '/' + queryArgs.pos;
         return cachedAjax$<HTTPResponse>(this.cache)(
             'GET',
             url,

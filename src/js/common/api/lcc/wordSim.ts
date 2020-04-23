@@ -21,6 +21,7 @@ import { HTTPHeaders, IAsyncKeyValueStore, SourceDetails } from '../../types';
 import { WordSimApiResponse, IWordSimApi } from '../abstract/wordSim';
 import { map, concatMap } from 'rxjs/operators';
 import { WordSimModelState } from '../../models/wordSim';
+import { QueryMatch } from '../../query';
 
 
 export interface LccCoocSimApiArgs {
@@ -54,10 +55,10 @@ export class LccCoocSimApi implements IWordSimApi<LccCoocSimApiArgs> {
         this.cache = cache;
     }
 
-    stateToArgs(state:WordSimModelState, query:string):LccCoocSimApiArgs {
+    stateToArgs(state:WordSimModelState, queryMatch:QueryMatch):LccCoocSimApiArgs {
         return {
             corpus: state.corpus,
-            word: query,
+            word: queryMatch.lemma,
             limit: state.maxResultItems,
             minSim: state.minScore
         };

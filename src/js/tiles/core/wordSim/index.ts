@@ -38,6 +38,7 @@ export interface WordSimTileConf extends TileConf {
     maxResultItems:number;
     minScore?:number;
     corpname?:string;
+    model?:string;
 }
 
 
@@ -87,6 +88,7 @@ export class WordSimTile implements ITileProvider {
                 maxResultItems: conf.maxResultItems,
                 operationMode: OperationMode.MeansLike,
                 corpus: conf.corpname || '',
+                model: conf.model || '',
                 minScore: conf.minScore || 0,
                 queryMatches: List.map(lemma => findCurrQueryMatch(lemma), queryMatches),
                 selectedText: null

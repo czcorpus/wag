@@ -19,7 +19,7 @@
 import { Observable } from 'rxjs';
 import { DataApi, SourceDetails } from '../../types';
 import { WordSimModelState } from '../../models/wordSim';
-import { SubqueryPayload, RangeRelatedSubqueryValue } from '../../query';
+import { SubqueryPayload, RangeRelatedSubqueryValue, QueryMatch } from '../../query';
 
 
 export type WordSimSubqueryPayload = SubqueryPayload<RangeRelatedSubqueryValue>;
@@ -38,7 +38,7 @@ export interface WordSimApiResponse {
 
 export interface IWordSimApi<T> extends DataApi<T, WordSimApiResponse> {
 
-    stateToArgs(state:WordSimModelState, query:string):T;
+    stateToArgs(state:WordSimModelState, queryMatch:QueryMatch):T;
 
     supportsTweaking():boolean;
 
