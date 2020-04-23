@@ -21,6 +21,7 @@ import { HTTPHeaders, IAsyncKeyValueStore, SourceDetails } from '../../types';
 import { WordSimApiResponse, WordSimWord, IWordSimApi } from '../abstract/wordSim';
 import { map } from 'rxjs/operators';
 import { WordSimModelState, OperationMode } from '../../models/wordSim';
+import { QueryMatch } from '../../query';
 
 
 type DatamuseMLApiResponse = Array<WordSimWord>;
@@ -53,12 +54,12 @@ export class DatamuseMLApi implements IWordSimApi<DatamuseMLApiArgs|DatamuseSLAp
         this.cache = cache;
     }
 
-    stateToArgs(state:WordSimModelState, query:string):DatamuseMLApiArgs|DatamuseSLApiArgs {
+    stateToArgs(state:WordSimModelState, queryMatch:QueryMatch):DatamuseMLApiArgs|DatamuseSLApiArgs {
         switch (state.operationMode) {
             case OperationMode.MeansLike:
-                return {ml: query, max: state.maxResultItems};
+                return {ml: queryMatch.lemma, max: state.maxResultItems};
             case OperationMode.SoundsLike:
-                return {sl: query, max: state.maxResultItems};
+                return {sl: queryMatch.lemma, max: state.maxResultItems};
         }
     }
 
