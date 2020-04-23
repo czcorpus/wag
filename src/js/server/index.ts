@@ -36,10 +36,8 @@ import { RedisLogQueue } from './logging/redisQueue';
 import { NullLogQueue } from './logging/nullQueue';
 import { WordDatabases } from './actionServices';
 import { PackageInfo } from '../common/types';
-import { Ident, Dict } from 'cnc-tskit';
-
-import * as ajv from 'ajv';
-import * as fs from 'fs';
+import { Ident } from 'cnc-tskit';
+import { validateTilesConf } from './configValidation';
 
 forkJoin(
     parseJsonConfig<ServerConf>(process.env.SERVER_CONF ?
@@ -91,30 +89,9 @@ forkJoin(
     )
 
 ).subscribe(
-    ([serverConf, clientConf, pkgInfo]) => {        
-        const validator = new ajv();
-        let validationError = false;
-        console.log('Validating tiles configuration');
-        Dict.forEach((tiles, lang) => {
-            Dict.forEach((tileConf, tileName) => {
-                const schema = JSON.parse(fs.readFileSync(
-                    path.resolve(__dirname, `../conf/tile-schemata/${tileConf.tileType}.json`),
-                    'utf-8'
-                ));
-                if (!validator.validate(schema, tileConf)) {
-                    console.log('Invalid tile config: ', lang, tileName);
-                    console.log(validator.errors);
-                    validationError = true;
-                } else {
-                    console.log('Tile valid: ', lang, tileName);
-                }
-            }, tiles);
-        }, clientConf.tiles as LanguageAnyTileConf);
-        if (validationError) {
-            throw Error('Invalid tile config found!');
-        } else {
-            console.log('All tiles valid');
-        }
+    ([serverConf, clientConf, pkgInfo]) => {
+
+        validateTilesConf(clientConf.tiles as LanguageAnyTileConf);
 
         const app = express();
         app.use(cookieParser());

@@ -4,7 +4,7 @@
       {
         "repeater": "$launch_setting_tiles",
         "sequential": [
-          "typescript-json-schema src/js/tiles/${_path}/index.ts $_conf_name --ignoreErrors --out conf/tile-schemata/${_tile_type}.json --required --strictNullChecks"
+          "typescript-json-schema src/js/tiles/${_path}/index.ts $_conf_name --ignoreErrors --out src/js/tiles/${_path}/config-schema.json --required --strictNullChecks"
         ]
       }
     ],
@@ -39,108 +39,87 @@
   "settings": {
     "tiles": [
       {
-        "path": "core/collocations",
-        "tile_type": "CollocTile",
+        "path": "core/collocTile",
         "conf_name": "CollocationsTileConf"
       },
       {
-        "path": "core/concFilter",
-        "tile_type": "ConcFilterTile",
+        "path": "core/concFilterTole",
         "conf_name": "ConcFilterTileConf"
       },
       {
-        "path": "core/concordance",
-        "tile_type": "ConcordanceTile",
+        "path": "core/concordanceTile",
         "conf_name": "ConcordanceTileConf"
       },
       {
-        "path": "core/freqBar",
-        "tile_type": "FreqBarTile",
+        "path": "core/freqBarTile",
         "conf_name": "FreqBarTileConf"
       },
       {
-        "path": "core/freqComparison",
-        "tile_type": "FreqComparisonTile",
+        "path": "core/freqComparisonTile",
         "conf_name": "FreqComparisonTileConf"
       },
       {
-        "path": "core/freqPie",
-        "tile_type": "FreqPieTile",
+        "path": "core/freqPieTile",
         "conf_name": "FreqPieTileConf"
       },
       {
-        "path": "core/freqTree",
-        "tile_type": "FreqTreeTile",
+        "path": "core/freqTreeTile",
         "conf_name": "FreqTreeTileConf"
       },
       {
-        "path": "core/geoAreas",
-        "tile_type": "GeoAreasTile",
+        "path": "core/geoAreasTile",
         "conf_name": "GeoAreasTileConf"
       },
       {
-        "path": "core/html",
-        "tile_type": "HtmlTile",
+        "path": "core/htmlTile",
         "conf_name": "HtmlTileConf"
       },
       {
-        "path": "core/matchingDocs",
-        "tile_type": "MatchingDocsTile",
+        "path": "core/matchingDocsTile",
         "conf_name": "MatchingDocsTileConf"
       },
       {
-        "path": "core/mergeCorpFreq",
-        "tile_type": "MergeCorpFreqTile",
+        "path": "core/mergeCorpFreqTile",
         "conf_name": "MergeCorpFreqTileConf"
       },
       {
-        "path": "core/multiWordGeoAreas",
-        "tile_type": "MultiWordGeoAreasTile",
+        "path": "core/multiWordGeoAreasTile",
         "conf_name": "MultiWordGeoAreasTileConf"
       },
       {
-        "path": "core/multiWordTimeDistrib",
-        "tile_type": "MultiWordTimeDistribTile",
+        "path": "core/multiWordTimeDistribTile",
         "conf_name": "TimeDistTileConf"
       },
       {
-        "path": "core/speeches",
-        "tile_type": "SpeechesTile",
+        "path": "core/speechesTile",
         "conf_name": "SpeechesTileConf"
       },
       {
-        "path": "core/syd",
-        "tile_type": "SyDTile",
+        "path": "core/syDTile",
         "conf_name": "SyDTileConf"
       },
       {
-        "path": "core/timeDistrib",
-        "tile_type": "TimeDistribTile",
+        "path": "core/timeDistribTile",
         "conf_name": "TimeDistTileConf"
       },
       {
-        "path": "core/translations",
-        "tile_type": "TranslationsTile",
+        "path": "core/translationsTile",
         "conf_name": "TranslationsTileConf"
       },
       {
-        "path": "core/treqSubsets",
-        "tile_type": "TreqSubsetsTile",
+        "path": "core/treqSubsetsTile",
         "conf_name": "TreqSubsetsTileConf"
       },
       {
-        "path": "core/wordForms",
-        "tile_type": "WordFormsTile",
+        "path": "core/wordFormsTile",
         "conf_name": "WordFormsTileConf"
       },
       {
-        "path": "core/wordFreq",
-        "tile_type": "WordFreqTile",
+        "path": "core/wordFreqTile",
         "conf_name": "WordFreqTileConf"
       },
       {
-        "path": "core/wordSim",
-        "tile_type": "WordSimTile",
+        "path": "core/wordSimTile",
         "conf_name": "WordSimTileConf"
       }
     ]
