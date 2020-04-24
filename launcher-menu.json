@@ -2,10 +2,10 @@
   "menu": {
     "schemata:Config schemata actions menu...": {
       "description": "config schemata action",
-      "configtest": "schemata:configtest",
-      "sampletest": "schemata:sampletest",
-      "make": "schemata:make",
-      "make-tiles": "schemata:make-tiles"
+      "configtest:Tests config files": "schemata:configtest",
+      "sampletest:Tests sample config files": "schemata:sampletest",
+      "make:Generates config schemata": "schemata:make",
+      "make-tiles:Generates core tiles schemata": "schemata:make-tiles"
     },
     "build:Build menu...": {
       "description": "build action",

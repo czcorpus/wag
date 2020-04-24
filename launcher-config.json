@@ -3,10 +3,11 @@
     "schemata:make-tiles": [
       {
         "repeater": "$launch_setting_tiles",
-        "sequential": [
-          "typescript-json-schema src/js/tiles/${_path}/index.ts $_conf_name --ignoreErrors --out src/js/tiles/${_path}/config-schema.json --required --strictNullChecks"
-        ]
+        "sequential": ["schemata:make-tile $_path $_conf_name"]
       }
+    ],
+    "schemata:make-tile": [
+      "typescript-json-schema src/js/tiles/$1/index.ts $2 --ignoreErrors --out src/js/tiles/$1/config-schema.json --required --strictNullChecks"
     ],
     "schemata:make": [
       "typescript-json-schema src/js/conf/index.ts ServerConf --ignoreErrors --out conf/server-schema.json --required --strictNullChecks",
@@ -43,7 +44,7 @@
         "conf_name": "CollocationsTileConf"
       },
       {
-        "path": "core/concFilterTole",
+        "path": "core/concFilterTile",
         "conf_name": "ConcFilterTileConf"
       },
       {
