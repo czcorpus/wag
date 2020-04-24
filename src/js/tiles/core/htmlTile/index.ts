@@ -147,6 +147,4 @@ export class HtmlTile implements ITileProvider {
     }
 }
 
-export const TILE_TYPE = 'HtmlTile';
-
 export const init:TileFactory.TileFactory<HtmlTileConf> = (args) => new HtmlTile(args);

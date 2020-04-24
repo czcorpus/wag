@@ -73,11 +73,11 @@ WaG allows you to create also completely custom tiles without need to modify the
 
 First, put a directory to the `src/js/tiles/custom` along with `index.ts` file. The `index.ts` file must:
 
-1) export its tile type:  e.g. `export const TILE_TYPE = 'MyTileType';`
-2) export `init()` factory function, e.g.: `export const init:TileFactory.TileFactory<MyTileConf> = (args) => new MyTile(args);`
+1) export `init()` factory function, e.g.: `export const init:TileFactory.TileFactory<MyTileConf> = (args) => new MyTile(args);`
     1) the type returned by the `init()` function must implement `ITileProvider`
 
 Second, update your app's configuration - i.e. at least define a tile instance and put it in the layout.
+In tile configuration `tileType` is the capitalised folder name of your tile in `src/js/tiles/custom`.
 
 Third, build the project.
 

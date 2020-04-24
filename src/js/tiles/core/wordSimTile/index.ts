@@ -153,6 +153,4 @@ export class WordSimTile implements ITileProvider {
     }
 }
 
-export const TILE_TYPE = 'WordSimTile';
-
 export const init:TileFactory.TileFactory<WordSimTileConf> = (args) => new WordSimTile(args);

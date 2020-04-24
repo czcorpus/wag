@@ -163,6 +163,4 @@ export class MultiWordGeoAreasTile implements ITileProvider {
     }
 }
 
-export const TILE_TYPE = 'MultiWordGeoAreasTile';
-
 export const init:TileFactory.TileFactory<MultiWordGeoAreasTileConf>  = (args) => new MultiWordGeoAreasTile(args);

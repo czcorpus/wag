@@ -138,6 +138,4 @@ export class TranslationsTile implements ITileProvider {
     }
 }
 
-export const TILE_TYPE = 'TranslationsTile';
-
 export const init:TileFactory.TileFactory<TranslationsTileConf> = (args) => new TranslationsTile(args);

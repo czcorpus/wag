@@ -82,10 +82,10 @@ export class CollocationsTile implements ITileProvider {
         this.blockingTiles = waitForTiles;
         this.api = createInstance(conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL), cache);
         if (waitForTiles.length > 1) {
-            console.warn(`The ${TILE_TYPE} does support waiting for 0-1 other tiles`);
+            console.warn(`The collocation tile does support waiting for 0-1 other tiles`);
         }
         if (waitForTiles.length === 0 && !conf.posQueryGenerator) {
-            throw new Error(`The ${TILE_TYPE} requires either waitFor or posQueryGenerator configured`);
+            throw new Error(`The collocation tile requires either waitFor or posQueryGenerator configured`);
         }
         this.model = new CollocModel({
             dispatcher: dispatcher,
@@ -184,7 +184,5 @@ export class CollocationsTile implements ITileProvider {
         return null;
     }
 }
-
-export const TILE_TYPE = 'CollocTile';
 
 export const init:TileFactory.TileFactory<CollocationsTileConf> = (args) => new CollocationsTile(args);

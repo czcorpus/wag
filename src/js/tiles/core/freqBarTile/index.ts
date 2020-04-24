@@ -189,6 +189,4 @@ export class FreqBarTile implements ITileProvider {
 
 }
 
-export const TILE_TYPE = 'FreqBarTile';
-
 export const init:TileFactory.TileFactory<FreqBarTileConf>  = (args) => new FreqBarTile(args);

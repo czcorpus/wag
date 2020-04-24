@@ -150,6 +150,4 @@ export class TreqSubsetsTile implements ITileProvider {
     }
 }
 
-export const TILE_TYPE = 'TreqSubsetsTile';
-
 export const init:TileFactory.TileFactory<TreqSubsetsTileConf> = (args) => new TreqSubsetsTile(args);

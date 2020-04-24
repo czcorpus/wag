@@ -183,6 +183,4 @@ export class MultiWordTimeDistTile implements ITileProvider {
     }
 }
 
-export const TILE_TYPE = 'MultiWordTimeDistribTile';
-
 export const init:TileFactory.TileFactory<TimeDistTileConf>  = (args) => new MultiWordTimeDistTile(args);

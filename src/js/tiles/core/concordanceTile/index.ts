@@ -192,6 +192,4 @@ export class ConcordanceTile implements ITileProvider {
     }
 }
 
-export const TILE_TYPE = 'ConcordanceTile';
-
 export const init:TileFactory.TileFactory<ConcordanceTileConf> = (args) => new ConcordanceTile(args);

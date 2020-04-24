@@ -185,6 +185,4 @@ export class FreqComparisonTile implements ITileProvider {
     }
 }
 
-export const TILE_TYPE = 'FreqComparisonTile';
-
 export const init:TileFactory.TileFactory<FreqComparisonTileConf>  = (args) => new FreqComparisonTile(args);

@@ -171,6 +171,4 @@ export class SpeechesTile implements ITileProvider {
     }
 }
 
-export const TILE_TYPE = 'SpeechesTile';
-
 export const init:TileFactory.TileFactory<SpeechesTileConf>  = (args) => new SpeechesTile(args);

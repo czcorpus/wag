@@ -134,6 +134,4 @@ export class WordFormsTile implements ITileProvider {
     }
 }
 
-export const TILE_TYPE = 'WordFormsTile';
-
 export const init:TileFactory.TileFactory<WordFormsTileConf> = (args) => new WordFormsTile(args);

@@ -167,6 +167,4 @@ export class ConcFilterTile implements ITileProvider {
     }
 }
 
-export const TILE_TYPE = 'ConcFilterTile';
-
 export const init:TileFactory.TileFactory<ConcFilterTileConf> = (args) => new ConcFilterTile(args);

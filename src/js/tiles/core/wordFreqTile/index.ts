@@ -138,6 +138,4 @@ export class WordFreqTile implements ITileProvider {
     }
 }
 
-export const TILE_TYPE = 'WordFreqTile';
-
 export const init:TileFactory.TileFactory<WordFreqTileConf> = (args) => new WordFreqTile(args);

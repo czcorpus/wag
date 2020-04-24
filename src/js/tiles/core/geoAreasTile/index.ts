@@ -157,6 +157,4 @@ export class GeoAreasTile implements ITileProvider {
     }
 }
 
-export const TILE_TYPE = 'GeoAreasTile';
-
 export const init:TileFactory.TileFactory<GeoAreasTileConf>  = (args) => new GeoAreasTile(args);

@@ -147,6 +147,4 @@ export class MatchingDocsTile implements ITileProvider {
 
 }
 
-export const TILE_TYPE = 'MatchingDocsTile';
-
 export const init:TileFactory.TileFactory<MatchingDocsTileConf>  = (args) => new MatchingDocsTile(args);

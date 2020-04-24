@@ -32,7 +32,6 @@ declare var require:any;
 
 export interface DynamicTileModule {
     init:TileFactory.TileFactory<{}>;
-    TILE_TYPE:string;
 }
 
 const importDependentTilesList = (...d:Array<string|Array<string>>):Array<string> => {
@@ -50,12 +49,14 @@ type TileFactoryMap = {[tileType:string]:TileFactory.TileFactory<{}>};
 
 const tileFactories:TileFactoryMap = {};
 
-const applyContext = (ctx:any, tfMap:TileFactoryMap) => {
-    (ctx.keys().map(ctx) as Array<DynamicTileModule>).forEach(m => {
-        if (tfMap[m.TILE_TYPE]) {
-            throw new Error(`Tile type name collision. Value ${m.TILE_TYPE} cannot be used`);
+const applyContext = (ctx:any, tfMap:TileFactoryMap) => {  
+    ctx.keys().forEach(path => {
+        const tileFolder = path.split('/').slice(-2)[0];
+        const tileType = tileFolder[0].toUpperCase() + tileFolder.slice(1);
+        if (tfMap[tileType]) {
+            throw new Error(`Tile type name collision. Value ${tileType} cannot be used`);
         }
-        tfMap[m.TILE_TYPE] = m.init;
+        tfMap[tileType] = (ctx(path) as DynamicTileModule).init;
     });
 };
 
