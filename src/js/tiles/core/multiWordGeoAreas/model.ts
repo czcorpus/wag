@@ -29,7 +29,7 @@ import { QueryMatch, RecognizedQueries } from '../../../common/query';
 import { callWithExtraVal } from '../../../common/api/util';
 import { ViewMode, IConcordanceApi } from '../../../common/api/abstract/concordance';
 import { createInitialLinesData } from '../../../common/models/concordance';
-import { ConcLoadedPayload, isConcLoadedPayload } from '../concordanceTile/actions';
+import { ConcLoadedPayload, isConcLoadedPayload } from '../concordance/actions';
 import { Dict } from 'cnc-tskit';
 import { DataRow, IFreqDistribAPI, APIResponse } from '../../../common/api/abstract/freqs';
 

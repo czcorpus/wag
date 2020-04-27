@@ -23,7 +23,7 @@ import { WordFormItem, WordFormsApi, RequestConcArgs, RequestArgs } from '../../
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { DataLoadedPayload } from './actions';
 import { findCurrQueryMatch } from '../../../models/query';
-import { ConcLoadedPayload } from '../concordanceTile/actions';
+import { ConcLoadedPayload } from '../concordance/actions';
 import { RecognizedQueries } from '../../../common/query';
 
 

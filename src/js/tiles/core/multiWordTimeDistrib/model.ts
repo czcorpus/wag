@@ -31,7 +31,7 @@ import { DataItemWithWCI, ActionName, Actions, DataLoadedPayload } from './commo
 import { callWithExtraVal } from '../../../common/api/util';
 import { QueryMatch, RecognizedQueries } from '../../../common/query';
 import { createInitialLinesData } from '../../../common/models/concordance';
-import { ConcLoadedPayload, isConcLoadedPayload } from '../concordanceTile/actions';
+import { ConcLoadedPayload, isConcLoadedPayload } from '../concordance/actions';
 import { PriorityValueFactory } from '../../../common/priority';
 import { DataRow } from '../../../common/api/abstract/freqs';
 

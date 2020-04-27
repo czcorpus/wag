@@ -21,7 +21,7 @@ import { concatMap } from 'rxjs/operators';
 
 import { IAppServices } from '../../../appServices';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
-import { ConcLoadedPayload } from '../concordanceTile/actions';
+import { ConcLoadedPayload } from '../concordance/actions';
 import { ActionName, Actions, DataLoadedPayload } from './actions';
 import { MatchingDocsModelState } from '../../../common/models/matchingDocs';
 import { MatchingDocsAPI } from '../../../common/api/abstract/matchingDocs';

@@ -40,87 +40,87 @@
   "settings": {
     "tiles": [
       {
-        "path": "core/collocTile",
+        "path": "core/colloc",
         "conf_name": "CollocationsTileConf"
       },
       {
-        "path": "core/concFilterTile",
+        "path": "core/concFilter",
         "conf_name": "ConcFilterTileConf"
       },
       {
-        "path": "core/concordanceTile",
+        "path": "core/concordance",
         "conf_name": "ConcordanceTileConf"
       },
       {
-        "path": "core/freqBarTile",
+        "path": "core/freqBar",
         "conf_name": "FreqBarTileConf"
       },
       {
-        "path": "core/freqComparisonTile",
+        "path": "core/freqComparison",
         "conf_name": "FreqComparisonTileConf"
       },
       {
-        "path": "core/freqPieTile",
+        "path": "core/freqPie",
         "conf_name": "FreqPieTileConf"
       },
       {
-        "path": "core/freqTreeTile",
+        "path": "core/freqTree",
         "conf_name": "FreqTreeTileConf"
       },
       {
-        "path": "core/geoAreasTile",
+        "path": "core/geoAreas",
         "conf_name": "GeoAreasTileConf"
       },
       {
-        "path": "core/htmlTile",
+        "path": "core/html",
         "conf_name": "HtmlTileConf"
       },
       {
-        "path": "core/matchingDocsTile",
+        "path": "core/matchingDocs",
         "conf_name": "MatchingDocsTileConf"
       },
       {
-        "path": "core/mergeCorpFreqTile",
+        "path": "core/mergeCorpFreq",
         "conf_name": "MergeCorpFreqTileConf"
       },
       {
-        "path": "core/multiWordGeoAreasTile",
+        "path": "core/multiWordGeoAreas",
         "conf_name": "MultiWordGeoAreasTileConf"
       },
       {
-        "path": "core/multiWordTimeDistribTile",
+        "path": "core/multiWordTimeDistrib",
         "conf_name": "TimeDistTileConf"
       },
       {
-        "path": "core/speechesTile",
+        "path": "core/speeches",
         "conf_name": "SpeechesTileConf"
       },
       {
-        "path": "core/syDTile",
+        "path": "core/syD",
         "conf_name": "SyDTileConf"
       },
       {
-        "path": "core/timeDistribTile",
+        "path": "core/timeDistrib",
         "conf_name": "TimeDistTileConf"
       },
       {
-        "path": "core/translationsTile",
+        "path": "core/translations",
         "conf_name": "TranslationsTileConf"
       },
       {
-        "path": "core/treqSubsetsTile",
+        "path": "core/treqSubsets",
         "conf_name": "TreqSubsetsTileConf"
       },
       {
-        "path": "core/wordFormsTile",
+        "path": "core/wordForms",
         "conf_name": "WordFormsTileConf"
       },
       {
-        "path": "core/wordFreqTile",
+        "path": "core/wordFreq",
         "conf_name": "WordFreqTileConf"
       },
       {
-        "path": "core/wordSimTile",
+        "path": "core/wordSim",
         "conf_name": "WordSimTileConf"
       }
     ]

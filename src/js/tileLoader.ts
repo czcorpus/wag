@@ -52,7 +52,7 @@ const tileFactories:TileFactoryMap = {};
 const applyContext = (ctx:any, tfMap:TileFactoryMap) => {  
     ctx.keys().forEach(path => {
         const tileFolder = path.split('/').slice(-2)[0];
-        const tileType = tileFolder[0].toUpperCase() + tileFolder.slice(1);
+        const tileType = tileFolder[0].toUpperCase() + tileFolder.slice(1) + 'Tile';
         if (tfMap[tileType]) {
             throw new Error(`Tile type name collision. Value ${tileType} cannot be used`);
         }

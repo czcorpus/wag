@@ -25,7 +25,7 @@ import { SubQueryItem, SubqueryPayload, RangeRelatedSubqueryValue, RecognizedQue
 import { ConcApi, FilterRequestArgs, QuerySelector, FilterPCRequestArgs, QuickFilterRequestArgs, mkContextFilter } from '../../../common/api/kontext/concordance';
 import { Line, ViewMode, ConcResponse } from '../../../common/api/abstract/concordance';
 import { Observable } from 'rxjs';
-import { isConcLoadedPayload } from '../concordanceTile/actions';
+import { isConcLoadedPayload } from '../concordance/actions';
 import { CollExamplesLoadedPayload } from './actions';
 import { Actions, ActionName } from './actions';
 import { normalizeTypography } from '../../../common/models/concordance/normalize';

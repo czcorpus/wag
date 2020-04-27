@@ -11,16 +11,17 @@ export function validateTilesConf(tilesConf: LanguageAnyTileConf) {
     console.log('Validating tiles configuration');
     Dict.forEach((tiles, lang) => {
         Dict.forEach((tileConf, tileName) => {
+            const folderName = tileConf.tileType[0].toLowerCase() + tileConf.tileType.slice(1).split('Tile')[0];
             let configSchema;
-            if (fs.existsSync(path.resolve(__dirname, `../src/js/tiles/core/${tileConf.tileType[0].toLowerCase() + tileConf.tileType.slice(1)}/config-schema.json`))) {
+            if (fs.existsSync(path.resolve(__dirname, `../src/js/tiles/core/${folderName}/config-schema.json`))) {
                 configSchema = JSON.parse(fs.readFileSync(
-                    path.resolve(__dirname, `../src/js/tiles/core/${tileConf.tileType[0].toLowerCase() + tileConf.tileType.slice(1)}/config-schema.json`),
+                    path.resolve(__dirname, `../src/js/tiles/core/${folderName}/config-schema.json`),
                     'utf-8'
                 ));
 
-            } else if (fs.existsSync(path.resolve(__dirname, `../src/js/tiles/custom/${tileConf.tileType[0].toLowerCase() + tileConf.tileType.slice(1)}/config-schema.json`))) {
+            } else if (fs.existsSync(path.resolve(__dirname, `../src/js/tiles/custom/${folderName}/config-schema.json`))) {
                 configSchema = JSON.parse(fs.readFileSync(
-                    path.resolve(__dirname, `../src/js/tiles/custom/${tileConf.tileType[0].toLowerCase() + tileConf.tileType.slice(1)}/config-schema.json`),
+                    path.resolve(__dirname, `../src/js/tiles/custom/${folderName}/config-schema.json`),
                     'utf-8'
                 ));
 

@@ -25,7 +25,7 @@ import { BacklinkArgs } from '../../../common/api/kontext/freqs';
 import { GeneralMultiCritFreqBarModelState } from '../../../common/models/freq';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
-import { ConcLoadedPayload } from '../concordanceTile/actions';
+import { ConcLoadedPayload } from '../concordance/actions';
 import { ActionName, Actions, DataLoadedPayload } from './actions';
 import { callWithExtraVal } from '../../../common/api/util';
 import { DataRow, IMultiBlockFreqDistribAPI } from '../../../common/api/abstract/freqs';

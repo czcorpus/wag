@@ -23,7 +23,7 @@ import { List, HTTP } from 'cnc-tskit';
 import { IAppServices } from '../../../appServices';
 import { SystemMessageType } from '../../../common/types';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
-import { ConcLoadedPayload } from '../concordanceTile/actions';
+import { ConcLoadedPayload } from '../concordance/actions';
 import { ActionName, Actions, DataLoadedPayload } from './common';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { CollocationApi } from '../../../common/api/abstract/collocations';
