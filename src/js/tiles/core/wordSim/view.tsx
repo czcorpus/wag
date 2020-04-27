@@ -125,8 +125,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                                 null
                                             }
                                             <WordCloud width={width} height={height} data={data} isMobile={props.isMobile}
-                                                            style={props.isMobile ? {height: `${data.length * 30}px`} :
-                                                                    {height: `${data.length * 40}px`, width: '100%'}}
                                                             font={theme.infoGraphicsFont}
                                                             dataTransform={dataTransform}
                                                             selectedText={props.data.length > 1 ? props.selectedText : null}
