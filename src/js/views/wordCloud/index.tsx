@@ -27,7 +27,7 @@ export type WordCloudItem = WordCloudItemCalc;
 
 
 export interface WordCloudProps<T> {
-    style:{[prop:string]:string};
+    style?:{[prop:string]:string};
     isMobile:boolean;
     width:number;
     height:number;
@@ -230,7 +230,7 @@ export function init<T>(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalCompone
                 this.props.font
             );
 
-            const style = Object.assign({}, this.props.style);
+            const style = Object.assign({width: '100%'}, this.props.style);
             style['minHeight'] = `${2 * (this.props.isMobile ? MAX_WC_FONT_SIZE_MOBILE : MAX_WC_FONT_SIZE)}px`;
             const colors = this.props.colors ? this.props.colors : theme.scaleColorIndexed();
             return (

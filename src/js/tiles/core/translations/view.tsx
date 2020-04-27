@@ -100,9 +100,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 color: t.color
             });
 
-            const style = this.props.isMobile ? {height: `${this.props.translations.length * 30}px`} :
-                                                {height: `${this.props.translations.length * 40}px`, width: '100%'};
-
             return (
                 <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
                             hasData={this.props.translations.length > 0}
@@ -114,7 +111,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <TranslationsTable translations={this.props.translations} /> :
                         <globComponents.ResponsiveWrapper render={(width:number, height:number) => (
                                     <WordCloud width={width} height={height}
-                                            style={style} isMobile={this.props.isMobile}
+                                            isMobile={this.props.isMobile}
                                             data={this.props.translations} font={theme.infoGraphicsFont}
                                             dataTransform={dataTransform} />)} />
                     }
