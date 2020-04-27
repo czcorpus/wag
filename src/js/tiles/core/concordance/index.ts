@@ -43,7 +43,7 @@ export interface ConcordanceTileConf extends CorpSrchTileConf {
     backlink?:Backlink;
     pageSize:number;
     posAttrs:Array<string>;
-    posQueryGenerator:[string, string]; // a positional attribute name and a function to create a query value (e.g. ['tag', (v) => `${v}.+`])
+    posQueryGenerator?:[string, string]; // a positional attribute name and a function to create a query value (e.g. ['tag', (v) => `${v}.+`])
     parallelLangMapping?:{[lang:string]:string};
     disableViewModes?:boolean;
     metadataAttrs?:Array<{value:string; label:LocalizedConfMsg}>;

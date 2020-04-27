@@ -21,7 +21,7 @@
 import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { Observable } from 'rxjs';
 import { mergeMap, tap, reduce } from 'rxjs/operators';
-import { HTTP } from 'cnc-tskit';
+import { HTTP, List, pipe } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
 import { IConcordanceApi, SingleConcLoadedPayload } from '../../../common/api/abstract/concordance';
@@ -345,13 +345,17 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
         new Observable<{apiArgs:{}, queryIdx:number}>((observer) => {
             try {
-                this.queryMatches.slice(0, this.queryType !== QueryType.CMP_QUERY ? 1 : undefined).forEach((queryMatch, queryIdx) => {
-                    observer.next({
-                        apiArgs: this.service.stateToArgs(state, state.concordances[queryIdx].concId ?
-                                    null : findCurrQueryMatch(queryMatch), queryIdx, otherLangCql),
-                        queryIdx: queryIdx
-                    });
-                });
+                pipe(
+                    this.queryMatches,
+                    List.slice(0, this.queryType !== QueryType.CMP_QUERY ? 1 : this.queryMatches.length),
+                    List.forEach((queryMatch, queryIdx) => {
+                        observer.next({
+                            apiArgs: this.service.stateToArgs(state, state.concordances[queryIdx].concId ?
+                                        null : findCurrQueryMatch(queryMatch), queryIdx, otherLangCql),
+                            queryIdx: queryIdx
+                        });
+                    })
+                );
                 observer.complete();
 
             } catch (e) {
@@ -368,7 +372,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                             tileId: this.tileId,
                             queryId: curr,
                             data: resp,
-                            subqueries: resp.lines.map(v => ({value: `${v.toknum}`, interactionId: v.interactionId})),
+                            subqueries: List.map(v => ({value: `${v.toknum}`, interactionId: v.interactionId}), resp.lines),
                             lang1: null,
                             lang2: null
                         }
@@ -377,7 +381,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             ),
             reduce(
                 (acc, [resp,]) => ({
-                    concIds: acc.concIds.concat(resp.concPersistenceID),
+                    concIds: List.concat([resp.concPersistenceID], acc.concIds),
                     isEmpty: acc.isEmpty && resp.lines.length === 0
                 }),
                 {concIds: [], isEmpty: true}

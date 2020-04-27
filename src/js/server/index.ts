@@ -25,10 +25,12 @@ import * as sqlite3 from 'sqlite3';
 import * as translations from 'translations';
 import * as winston from 'winston';
 import { forkJoin, of as rxOf } from 'rxjs';
-import { concatMap, map } from 'rxjs/operators';
+import { concatMap, map, tap } from 'rxjs/operators';
+import { Ident } from 'cnc-tskit';
 import 'winston-daily-rotate-file';
 
 import { ClientStaticConf, ServerConf, LanguageLayoutsConfig, LanguageAnyTileConf } from '../conf';
+import { validateTilesConf } from '../conf/validation';
 import { parseJsonConfig, loadRemoteTileConf } from '../conf/loader';
 import { wdgRouter } from './routes/index';
 import { createToolbarInstance } from './toolbar/factory';
@@ -36,8 +38,6 @@ import { RedisLogQueue } from './logging/redisQueue';
 import { NullLogQueue } from './logging/nullQueue';
 import { WordDatabases } from './actionServices';
 import { PackageInfo } from '../common/types';
-import { Ident } from 'cnc-tskit';
-import { validateTilesConf } from './configValidation';
 
 forkJoin(
     parseJsonConfig<ServerConf>(process.env.SERVER_CONF ?
@@ -84,15 +84,19 @@ forkJoin(
                     const ans:[ServerConf, ClientStaticConf, PackageInfo] = [serverConf, clientConf, pkgInfo];
                     return ans;
                 }
+            ),
+            tap(
+                ([,clientConf,]) => {
+                    if (!validateTilesConf(clientConf.tiles as LanguageAnyTileConf)) {
+                        throw Error('\uD83D\uDC4E Invalid tile config found!');
+                    }
+                }
             )
         )
     )
 
 ).subscribe(
     ([serverConf, clientConf, pkgInfo]) => {
-
-        validateTilesConf(clientConf.tiles as LanguageAnyTileConf);
-
         const app = express();
         app.use(cookieParser());
         app.use(bodyParser.json());
