@@ -17,7 +17,7 @@
  */
 import { SrchContextType, DataRow, DataHeading } from '../api/abstract/collocations';
 import { BacklinkWithArgs } from '../tile';
-import { CollocMetric } from '../../tiles/core/collocations/common';
+import { CollocMetric } from '../../tiles/core/collocTile/common';
 import { QueryMatch } from '../query';
 
 

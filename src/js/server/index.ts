@@ -28,7 +28,7 @@ import { forkJoin, of as rxOf } from 'rxjs';
 import { concatMap, map } from 'rxjs/operators';
 import 'winston-daily-rotate-file';
 
-import { ClientStaticConf, ServerConf, LanguageLayoutsConfig } from '../conf';
+import { ClientStaticConf, ServerConf, LanguageLayoutsConfig, LanguageAnyTileConf } from '../conf';
 import { parseJsonConfig, loadRemoteTileConf } from '../conf/loader';
 import { wdgRouter } from './routes/index';
 import { createToolbarInstance } from './toolbar/factory';
@@ -37,6 +37,7 @@ import { NullLogQueue } from './logging/nullQueue';
 import { WordDatabases } from './actionServices';
 import { PackageInfo } from '../common/types';
 import { Ident } from 'cnc-tskit';
+import { validateTilesConf } from './configValidation';
 
 forkJoin(
     parseJsonConfig<ServerConf>(process.env.SERVER_CONF ?
@@ -89,6 +90,8 @@ forkJoin(
 
 ).subscribe(
     ([serverConf, clientConf, pkgInfo]) => {
+
+        validateTilesConf(clientConf.tiles as LanguageAnyTileConf);
 
         const app = express();
         app.use(cookieParser());
