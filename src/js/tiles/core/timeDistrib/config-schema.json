@@ -206,7 +206,6 @@
         }
     },
     "required": [
-        "apiPriority",
         "apiType",
         "apiURL",
         "corpname",

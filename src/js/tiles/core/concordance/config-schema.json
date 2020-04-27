@@ -234,7 +234,6 @@
         "corpname",
         "pageSize",
         "posAttrs",
-        "posQueryGenerator",
         "tileType"
     ],
     "type": "object"
