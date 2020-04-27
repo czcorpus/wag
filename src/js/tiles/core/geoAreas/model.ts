@@ -22,7 +22,7 @@ import { concatMap } from 'rxjs/operators';
 import { IAppServices } from '../../../appServices';
 import { GeneralSingleCritFreqBarModelState } from '../../../common/models/freq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
-import { ConcLoadedPayload } from '../concordanceTile/actions';
+import { ConcLoadedPayload } from '../concordance/actions';
 import { ActionName, Actions, DataLoadedPayload } from './actions';
 import { DataApi } from '../../../common/types';
 import { TooltipValues } from '../../../views/global';

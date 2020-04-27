@@ -26,7 +26,7 @@ import { TimeDistribResponse, TimeDistribApi } from '../../../common/api/abstrac
 import { GeneralSingleCritFreqBarModelState } from '../../../common/models/freq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { findCurrQueryMatch } from '../../../models/query';
-import { ConcLoadedPayload } from '../concordanceTile/actions';
+import { ConcLoadedPayload } from '../concordance/actions';
 import { DataItemWithWCI, SubchartID, DataLoadedPayload } from './common';
 import { Actions, ActionName } from './common';
 import { callWithExtraVal } from '../../../common/api/util';

@@ -24,7 +24,7 @@ import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
 import { GlobalComponents } from '../../../views/global';
 import { ActionName } from './actions';
 import { FreqDataBlock } from '../../../common/models/freq';
-import { FreqBarModel, FreqBarModelState } from '../freqBarTile/model';
+import { FreqBarModel, FreqBarModelState } from '../freqBar/model';
 import { List, pipe } from 'cnc-tskit';
 import { DataRow } from '../../../common/api/abstract/freqs';
 
