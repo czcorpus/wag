@@ -19,7 +19,6 @@
 import { IActionDispatcher, StatelessModel } from 'kombo';
 import { List } from 'cnc-tskit';
 import { IAppServices } from '../../../appServices';
-import { QuerySelector } from '../../../common/api/kontext/concordance';
 import { ViewMode, IConcordanceApi } from '../../../common/api/abstract/concordance';
 
 import { LocalizedConfMsg } from '../../../common/types';

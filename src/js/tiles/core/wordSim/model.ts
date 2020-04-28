@@ -108,7 +108,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = false;
                     if (action.error) {
-                        state.data = List.map(_ => null, state.queryMatches);
+                        state.data = List.map(_ => [], state.queryMatches);
                         state.error = action.error.message;
 
                     } else {
@@ -124,7 +124,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = true;
                     state.operationMode = action.payload.value;
-                    state.data = state.queryMatches.map(_ => null);
+                    state.data = state.queryMatches.map(_ => []);
                 }
             },
             (state, action, seDispatch) => {
