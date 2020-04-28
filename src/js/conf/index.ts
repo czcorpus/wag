@@ -173,7 +173,9 @@ export interface ClientStaticConf {
  * using Makefile for tiles and layouts only
  */
 export interface LanguageLayoutsConfig {[lang:string]:LayoutsConfig};
+
 export interface LanguageAnyTileConf {[lang:string]:{[ident:string]:TileConf}};
+
 export interface TileDbConf {
     server:string; // e.g. http://foo:5984
     db:string;
@@ -181,6 +183,11 @@ export interface TileDbConf {
     username:string;
     password:string; // please do not use admin credentials for this
 }
+
+export function isTileDBConf(tiles: TileDbConf|LanguageAnyTileConf):tiles is TileDbConf {
+    return (tiles as TileDbConf).server !== undefined;
+}
+
 type MultiSourceTileConf = LanguageAnyTileConf|string|TileDbConf;
 
 
