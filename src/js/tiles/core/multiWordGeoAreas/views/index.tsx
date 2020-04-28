@@ -146,8 +146,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             L 0 0
                         `,
                     'fill': theme.cmpCategoryColor(row.target),
-                    'stroke': 'black',
-                    'opacity': '0.8'
+                    'stroke': 'white',
+                    'stroke-width': '6',
+                    'opacity': '1'
                 }
             );
 
@@ -265,7 +266,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
                         if (notEnoughData) {
                             areaIpmNorm = 0;
-                            scale = 0.75;
+                            scale = 0.9;
 
                             pieChart = createSVGEmptyCircle(
                                 element,
@@ -273,7 +274,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             );
                         } else {
                             areaIpmNorm = groupedAreaIpmNorms[areaName];
-                            scale = 0.75 + ((areaIpmNorm - minIpmNorm)/(maxIpmNorm - minIpmNorm))/2;
+                            scale = 0.9 + ((areaIpmNorm - minIpmNorm)/(maxIpmNorm - minIpmNorm))/5;
 
                             pieChart = createSVGPieChart(
                                 element,
@@ -284,6 +285,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         }
                         // scaling pie chart according to relative ipm norm
                         pieChart.setAttribute('transform', `scale(${scale} ${scale})`);
+                        pieChart.setAttribute('style', `filter: drop-shadow(0px 0px 20px black);`);
 
                         fromEvent(pieChart, 'mousemove')
                             .subscribe((e:MouseEvent) => {
