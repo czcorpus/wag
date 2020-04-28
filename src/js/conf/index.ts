@@ -156,7 +156,7 @@ export interface ClientStaticConf {
 
     // If string we expect this to be a fs path to another
     // JSON file containing just the 'tiles' configuration
-    tiles:TileDbConf|LanguageAnyTileConf|string;
+    tiles:MultiSourceTileConf;
 
     // If string we expect this to be a fs path to another
     // JSON file containing just the 'layout' configuration.
@@ -174,6 +174,14 @@ export interface ClientStaticConf {
  */
 export interface LanguageLayoutsConfig {[lang:string]:LayoutsConfig};
 export interface LanguageAnyTileConf {[lang:string]:{[ident:string]:TileConf}};
+export interface TileDbConf {
+    server:string; // e.g. http://foo:5984
+    db:string;
+    prefix:string; // e.g. 'cnc:wag-test'
+    username:string;
+    password:string; // please do not use admin credentials for this
+}
+type MultiSourceTileConf = LanguageAnyTileConf|string|TileDbConf;
 
 
 export interface HomepageTileConf {
@@ -344,14 +352,6 @@ export interface WordFreqDbConf {
     single?:SingleModeWordDb;
     cmp?:QueryModeWordDb;
     translat?:QueryModeWordDb;
-}
-
-export interface TileDbConf {
-    server:string; // e.g. http://foo:5984
-    db:string;
-    prefix:string; // e.g. 'cnc:wag-test'
-    username:string;
-    password:string; // please do not use admin credentials for this
 }
 
 /**
