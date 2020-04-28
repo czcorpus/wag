@@ -20,7 +20,7 @@ import { Dict, List } from 'cnc-tskit';
 import * as path from 'path';
 import * as ajv from 'ajv';
 import * as fs from 'fs';
-import { LanguageAnyTileConf } from '.';
+import { LanguageAnyTileConf, TileDbConf } from '.';
 
 
 const CORE_TILES_ROOT_DIR = path.resolve(__dirname, '../src/js/tiles/core');
@@ -76,4 +76,8 @@ export function validateTilesConf(tilesConf:LanguageAnyTileConf):boolean {
     }
     console.log('...\uD83D\uDC4D All the tiles are valid');
     return true;
+}
+
+export function isTileDBConf(tiles: TileDbConf|LanguageAnyTileConf):tiles is TileDbConf {
+    return (tiles as TileDbConf).server !== undefined;
 }

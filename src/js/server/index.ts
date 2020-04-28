@@ -30,7 +30,7 @@ import { Ident } from 'cnc-tskit';
 import 'winston-daily-rotate-file';
 
 import { ClientStaticConf, ServerConf, LanguageLayoutsConfig, LanguageAnyTileConf } from '../conf';
-import { validateTilesConf } from '../conf/validation';
+import { validateTilesConf, isTileDBConf } from '../conf/validation';
 import { parseJsonConfig, loadRemoteTileConf } from '../conf/loader';
 import { wdgRouter } from './routes/index';
 import { createToolbarInstance } from './toolbar/factory';
@@ -66,12 +66,12 @@ forkJoin(
         ([serverConf, clientConf, pkgInfo]) => forkJoin(
             typeof clientConf.tiles === 'string' ?
                 parseJsonConfig(clientConf.tiles) :
-                clientConf.tiles ?
-                    rxOf(clientConf.tiles) :
+                isTileDBConf(clientConf.tiles) ?
                     loadRemoteTileConf(
                         clientConf.layouts as LanguageLayoutsConfig,
-                        serverConf.tileDB
-                    ),
+                        clientConf.tiles
+                    ) :
+                    rxOf(clientConf.tiles),
             typeof clientConf.colors === 'string' ?
                 parseJsonConfig(clientConf.colors) :
                 rxOf(clientConf.colors)

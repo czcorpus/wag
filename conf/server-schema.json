@@ -109,33 +109,6 @@
             ],
             "type": "object"
         },
-        "TileDbConf": {
-            "properties": {
-                "db": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "prefix": {
-                    "type": "string"
-                },
-                "server": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
-                }
-            },
-            "required": [
-                "db",
-                "password",
-                "prefix",
-                "server",
-                "username"
-            ],
-            "type": "object"
-        },
         "ToolbarDef": {
             "properties": {
                 "type": {
@@ -226,9 +199,6 @@
         },
         "telemetryDB": {
             "type": "string"
-        },
-        "tileDB": {
-            "$ref": "#/definitions/TileDbConf"
         },
         "toolbar": {
             "$ref": "#/definitions/ToolbarDef"
