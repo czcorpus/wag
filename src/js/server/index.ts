@@ -29,8 +29,8 @@ import { concatMap, map, tap } from 'rxjs/operators';
 import { Ident } from 'cnc-tskit';
 import 'winston-daily-rotate-file';
 
-import { ClientStaticConf, ServerConf, LanguageLayoutsConfig, LanguageAnyTileConf } from '../conf';
-import { validateTilesConf, isTileDBConf } from '../conf/validation';
+import { ClientStaticConf, ServerConf, LanguageLayoutsConfig, LanguageAnyTileConf, isTileDBConf } from '../conf';
+import { validateTilesConf } from '../conf/validation';
 import { parseJsonConfig, loadRemoteTileConf } from '../conf/loader';
 import { wdgRouter } from './routes/index';
 import { createToolbarInstance } from './toolbar/factory';

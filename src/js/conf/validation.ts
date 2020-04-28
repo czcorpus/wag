@@ -77,7 +77,3 @@ export function validateTilesConf(tilesConf:LanguageAnyTileConf):boolean {
     console.log('...\uD83D\uDC4D All the tiles are valid');
     return true;
 }
-
-export function isTileDBConf(tiles: TileDbConf|LanguageAnyTileConf):tiles is TileDbConf {
-    return (tiles as TileDbConf).server !== undefined;
-}
