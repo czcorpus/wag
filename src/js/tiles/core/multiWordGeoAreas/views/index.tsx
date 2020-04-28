@@ -114,17 +114,13 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     const createSVGPieChart = (parent:Element, areaIpmNorm:number, areaData:Array<TargetDataRow>, radius:number):SVGElement => {
         const chart = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         const pieSlices = createSVGElement(chart, 'g', {});
-        const pieText = createSVGElement(chart, 'g', {});
 
         let ipmFracAgg = 0;
         areaData.forEach(row => {
             const ipmFrac = row.ipm/areaIpmNorm;
             const x0 = radius * Math.sin(2*Math.PI * ipmFracAgg);
             const y0 = -radius * Math.cos(2*Math.PI * ipmFracAgg);
-            ipmFracAgg += ipmFrac/2;
-            const xText = radius * Math.sin(2*Math.PI * ipmFracAgg);
-            const yText = -radius * Math.cos(2*Math.PI * ipmFracAgg);
-            ipmFracAgg += ipmFrac/2;
+            ipmFracAgg += ipmFrac;
             const x1 = radius * Math.sin(2*Math.PI * ipmFracAgg);
             const y1 = -radius * Math.cos(2*Math.PI * ipmFracAgg);
             const longArc = (ipmFrac) > 0.5 ? 1 : 0;
@@ -151,21 +147,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     'opacity': '1'
                 }
             );
-
-            const text = createSVGElement(
-                pieText,
-                'text',
-                {
-                    'transform': ipmFrac === 1 ? 'translate(0, 15)' : `translate(${0.5 * xText}, ${0.5 * yText + 15})`,
-                    'text-anchor': 'middle',
-                    'font-size': '4em',
-                    'fill': 'black',
-                    // hide labels with values smaller than 10%
-                    'visibility': ipmFrac < 0.1 ? 'hidden' : 'visible'
-                }
-            );
-            text.style.cssText = 'opacity: 1';
-            text.textContent = `${ut.formatNumber(ipmFrac * 100, 1)}%`;
 
             // overlay to improve mouse over behaviour
             createSVGElement(
