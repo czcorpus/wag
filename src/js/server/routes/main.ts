@@ -24,7 +24,7 @@ import { concatMap, map, catchError, reduce } from 'rxjs/operators';
 import { IAppServices } from '../../appServices';
 import { QueryType, QueryMatch, QueryPoS, matchesPos, findMergeableQueryMatches, importQueryTypeString } from '../../common/query';
 import { UserConf, ClientStaticConf, ClientConf, emptyClientConf, getSupportedQueryTypes, emptyLayoutConf, errorUserConf,
-    getQueryTypeFreqDb, DEFAULT_WAIT_FOR_OTHER_TILES, THEME_COOKIE_NAME, getThemeList, getAppliedThemeConf, THEME_DEFAULT_NAME } from '../../conf';
+    getQueryTypeFreqDb, DEFAULT_WAIT_FOR_OTHER_TILES, THEME_COOKIE_NAME, getThemeList, getAppliedThemeConf, THEME_DEFAULT_NAME, LanguageAnyTileConf } from '../../conf';
 import { init as viewInit } from '../../views/layout';
 import { init as errPageInit } from '../../views/error';
 import { ServerSideActionDispatcher } from '../core';
@@ -36,6 +36,8 @@ import { ActionName } from '../../models/actions';
 import { DummyCache } from '../../cacheDb';
 import { Dict, pipe, HTTP, List } from 'cnc-tskit';
 import { getLangFromCookie, fetchReqArgArray, createHelperServices, mkReturnUrl, logRequest, renderResult, queryValues } from './common';
+import { TileConf } from '../../common/tile';
+import { isTileDBConf } from '../../conf/validation';
 
 
 function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, themeId:string, appServices:IAppServices):Observable<ClientConf> {
@@ -71,8 +73,8 @@ function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, themeId:string,
                 }),
                 getThemeList(conf)
             ),
-            tiles: typeof conf.tiles === 'string' ?
-                {} : // this should not happen at runtime (string has been already used as uri to load a nested conf)
+            tiles: (typeof conf.tiles === 'string' || isTileDBConf(conf.tiles)) ?
+                {} : // this should not happen at runtime (string or db config has been already used as uri to load a nested conf)
                 pipe(
                     conf.tiles[lang],
                     Dict.map(item => ({waitForTimeoutSecs: DEFAULT_WAIT_FOR_OTHER_TILES, ...item}))

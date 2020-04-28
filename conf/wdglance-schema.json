@@ -7121,6 +7121,33 @@
                 "tileType"
             ],
             "type": "object"
+        },
+        "TileDbConf": {
+            "properties": {
+                "db": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "prefix": {
+                    "type": "string"
+                },
+                "server": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "db",
+                "password",
+                "prefix",
+                "server",
+                "username"
+            ],
+            "type": "object"
         }
     },
     "description": "Client side app configuration as present in wdglance.json\nconfiguration file.",
@@ -7239,6 +7266,9 @@
                     "$ref": "#/definitions/LanguageAnyTileConf"
                 },
                 {
+                    "$ref": "#/definitions/TileDbConf"
+                },
+                {
                     "type": "string"
                 }
             ]
@@ -7254,7 +7284,8 @@
         "maxTileErrors",
         "reqCacheTTL",
         "rootUrl",
-        "searchLanguages"
+        "searchLanguages",
+        "tiles"
     ],
     "type": "object"
 }
