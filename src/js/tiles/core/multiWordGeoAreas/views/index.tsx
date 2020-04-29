@@ -114,17 +114,13 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     const createSVGPieChart = (parent:Element, areaIpmNorm:number, areaData:Array<TargetDataRow>, radius:number):SVGElement => {
         const chart = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         const pieSlices = createSVGElement(chart, 'g', {});
-        const pieText = createSVGElement(chart, 'g', {});
 
         let ipmFracAgg = 0;
         areaData.forEach(row => {
             const ipmFrac = row.ipm/areaIpmNorm;
             const x0 = radius * Math.sin(2*Math.PI * ipmFracAgg);
             const y0 = -radius * Math.cos(2*Math.PI * ipmFracAgg);
-            ipmFracAgg += ipmFrac/2;
-            const xText = radius * Math.sin(2*Math.PI * ipmFracAgg);
-            const yText = -radius * Math.cos(2*Math.PI * ipmFracAgg);
-            ipmFracAgg += ipmFrac/2;
+            ipmFracAgg += ipmFrac;
             const x1 = radius * Math.sin(2*Math.PI * ipmFracAgg);
             const y1 = -radius * Math.cos(2*Math.PI * ipmFracAgg);
             const longArc = (ipmFrac) > 0.5 ? 1 : 0;
@@ -146,25 +142,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             L 0 0
                         `,
                     'fill': theme.cmpCategoryColor(row.target),
-                    'stroke': 'black',
-                    'opacity': '0.8'
+                    'stroke': 'white',
+                    'stroke-width': '6',
+                    'opacity': '1'
                 }
             );
-
-            const text = createSVGElement(
-                pieText,
-                'text',
-                {
-                    'transform': ipmFrac === 1 ? 'translate(0, 15)' : `translate(${0.5 * xText}, ${0.5 * yText + 15})`,
-                    'text-anchor': 'middle',
-                    'font-size': '4em',
-                    'fill': 'black',
-                    // hide labels with values smaller than 10%
-                    'visibility': ipmFrac < 0.1 ? 'hidden' : 'visible'
-                }
-            );
-            text.style.cssText = 'opacity: 1';
-            text.textContent = `${ut.formatNumber(ipmFrac * 100, 1)}%`;
 
             // overlay to improve mouse over behaviour
             createSVGElement(
@@ -181,6 +163,51 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         })
         parent.appendChild(chart);
         return chart;
+    }
+
+    const createSVGLegend = (parent:Element, currentQueryMatches:Array<QueryMatch>):SVGElement => {
+        const legend = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        let width = 0;
+
+        currentQueryMatches.forEach((match, index) => {
+            const legendItem = createSVGElement(legend, 'g', {
+                'transform': `translate(${width}, 0)`,
+            });
+            
+            createSVGElement(
+                legendItem,
+                'rect',
+                {
+                    'x': '0',
+                    'y': '0',
+                    'width': '100',
+                    'height': '100',
+                    'rx': '10',
+                    'stroke-opacity': '0',
+                    'fill': theme.cmpCategoryColor(index)
+                }
+            );
+
+            const text = createSVGElement(
+                legendItem,
+                'text',
+                {
+                    'dominant-baseline': 'middle',
+                    'transform': 'translate(140, 60)',
+                    'font-size': '4.5em',
+                    'font-weight': 'bold',
+                }
+            );
+            text.style.cssText = 'opacity: 1';
+            text.textContent = match.word;
+
+            width += 160 + match.word.length * 40;
+        });
+
+        // center legend
+        legend.setAttribute('transform', `translate(${-width/2}, 0)`);
+        parent.appendChild(legend);
+        return legend;
     }
 
     // -------------- <DataTable /> ---------------------------------------------
@@ -242,7 +269,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -----------------
 
-    const drawLabels = (tileId:number, areaCodeMapping:{[key:string]:string}, data:Array<Array<DataRow>>, frequencyDisplayLimit: number) => {
+    const drawLabels = (tileId:number, areaCodeMapping:{[key:string]:string}, currentQueryMatches:Array<QueryMatch>, data:Array<Array<DataRow>>, frequencyDisplayLimit: number) => {
         const [groupedAreaData, groupedAreaIpmNorms, groupedAreaAbsFreqs] = groupData(data);
         const maxIpmNorm = Math.max(...Dict.toEntries(groupedAreaIpmNorms).map(([, v]) => v));
         const minIpmNorm = Math.min(...Dict.toEntries(groupedAreaIpmNorms).map(([, v]) => v));
@@ -253,6 +280,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 elm.removeChild(elm.firstChild);
             }
         });
+
         // insert data
         Dict.forEach(
             (areaData, areaName) => {
@@ -265,7 +293,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
                         if (notEnoughData) {
                             areaIpmNorm = 0;
-                            scale = 0.75;
+                            scale = 0.9;
 
                             pieChart = createSVGEmptyCircle(
                                 element,
@@ -273,7 +301,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             );
                         } else {
                             areaIpmNorm = groupedAreaIpmNorms[areaName];
-                            scale = 0.75 + ((areaIpmNorm - minIpmNorm)/(maxIpmNorm - minIpmNorm))/2;
+                            scale = 0.9 + ((areaIpmNorm - minIpmNorm)/(maxIpmNorm - minIpmNorm))/5;
 
                             pieChart = createSVGPieChart(
                                 element,
@@ -284,6 +312,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         }
                         // scaling pie chart according to relative ipm norm
                         pieChart.setAttribute('transform', `scale(${scale} ${scale})`);
+                        pieChart.setAttribute('style', `filter: drop-shadow(0px 0px 20px #222222);`);
 
                         fromEvent(pieChart, 'mousemove')
                             .subscribe((e:MouseEvent) => {
@@ -314,6 +343,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             },
             groupedAreaData
         );
+
+        // insert legend
+        const legendHolder = document.querySelector('#legend-g');
+        createSVGLegend(legendHolder, currentQueryMatches);
     }
 
     // -------------- <Tooltip /> ---------------------------------------------
@@ -343,11 +376,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         return (
             <div className="map-tooltip" ref={ref} style={style}>
-                <p>{ut.translate('multi_word_geolocations__table_heading_area')}: {props.caption}</p>
                 <table>
                     <tbody>
+                        <tr><th colSpan={3}>{props.caption}</th></tr>
                         {props.values === null ?
-                            <tr><td>{ut.translate('multi_word_geolocations__not_enough_data')}</td></tr> :
+                            <tr><td colSpan={3}>{ut.translate('multi_word_geolocations__not_enough_data')}</td></tr> :
                             pipe(
                                 props.values || {},
                                 Dict.toEntries(),
@@ -355,8 +388,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                     value === undefined ?
                                         null :
                                         <tr key={label}>
-                                            <td style={{color: theme.cmpCategoryColor(index)}}>{label} : </td>
-                                            <td>{value}</td>
+                                            <td style={{fontWeight: 900, color: 'white', backgroundColor: theme.cmpCategoryColor(index)}}>{label}</td>
+                                            <td>{value[0]}</td>
+                                            <td>{value[1]}</td>
                                         </tr>
                                 )
                             )
@@ -372,15 +406,17 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     class MultiWordGeoAreasTileView extends React.PureComponent<MultiWordGeoAreasModelState & CoreTileComponentProps> {
 
         componentDidMount() {
-            if (this.props.data.some(v => v.length > 0)) {
-                drawLabels(this.props.tileId, this.props.areaCodeMapping, this.props.data, this.props.frequencyDisplayLimit);
+            if (this.props.data.some(v => v.length > 0) && !this.props.isAltViewMode) {
+                drawLabels(this.props.tileId, this.props.areaCodeMapping, this.props.currQueryMatches, this.props.data, this.props.frequencyDisplayLimit);
             }
         }
 
         componentDidUpdate(prevProps) {
             if (this.props.data.some(v => v.length > 0) && (prevProps.data !== this.props.data || prevProps.isAltViewMode !== this.props.isAltViewMode ||
                         prevProps.renderSize !== this.props.renderSize)) {
-                drawLabels(this.props.tileId, this.props.areaCodeMapping, this.props.data, this.props.frequencyDisplayLimit);
+                if (!this.props.isAltViewMode) {
+                    drawLabels(this.props.tileId, this.props.areaCodeMapping, this.props.currQueryMatches, this.props.data, this.props.frequencyDisplayLimit);
+                }
             }
         }
 
@@ -399,17 +435,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             </div> :
                             <div className="flex-item" style={{width: areaWidth, height: '80%'}}>
                                 <div style={{cursor: 'default', width: '100%', height: '100%', overflowX: 'auto', textAlign: 'center'}} dangerouslySetInnerHTML={{__html: this.props.mapSVG}} />
-                                <div className="legend">
-                                    {this.props.currQueryMatches.map((lemma, index) =>
-                                        <span key={`legend${index}`} style={{margin: '0 0.5em'}}>
-                                            <div className="legendColorBlock" style={{backgroundColor: theme.cmpCategoryColor(index)}} />
-                                            {`[${index + 1}] ${lemma.word}`}
-                                        </span>
-                                    )}
-                                    <br/>
-                                    {ut.translate('multi_word_geolocations__map_legend')}
-                                </div>
-
                                 {this.props.tooltipArea !== null ?
                                     <Tooltip
                                         x={this.props.tooltipArea.tooltipX}

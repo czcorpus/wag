@@ -31,7 +31,7 @@ export interface SourceInfo {
     subcorp?:string;
 }
 
-export type TooltipValues = {[key:string]:number|string}|null;
+export type TooltipValues = {[key:string]:number|string|Array<string|number>}|null;
 
 export interface GlobalComponents {
 
