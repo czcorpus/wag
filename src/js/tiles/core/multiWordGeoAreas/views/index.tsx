@@ -312,7 +312,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         }
                         // scaling pie chart according to relative ipm norm
                         pieChart.setAttribute('transform', `scale(${scale} ${scale})`);
-                        pieChart.setAttribute('style', `filter: drop-shadow(0px 0px 20px black);`);
+                        pieChart.setAttribute('style', `filter: drop-shadow(0px 0px 20px #222222);`);
 
                         fromEvent(pieChart, 'mousemove')
                             .subscribe((e:MouseEvent) => {
@@ -376,11 +376,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         return (
             <div className="map-tooltip" ref={ref} style={style}>
-                <p>{ut.translate('multi_word_geolocations__table_heading_area')}: {props.caption}</p>
                 <table>
                     <tbody>
+                        <tr><th colSpan={3}>{props.caption}</th></tr>
                         {props.values === null ?
-                            <tr><td>{ut.translate('multi_word_geolocations__not_enough_data')}</td></tr> :
+                            <tr><td colSpan={3}>{ut.translate('multi_word_geolocations__not_enough_data')}</td></tr> :
                             pipe(
                                 props.values || {},
                                 Dict.toEntries(),
@@ -388,8 +388,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                     value === undefined ?
                                         null :
                                         <tr key={label}>
-                                            <td style={{color: theme.cmpCategoryColor(index)}}>{label} : </td>
-                                            <td>{value}</td>
+                                            <td style={{fontWeight: 900, color: 'white', backgroundColor: theme.cmpCategoryColor(index)}}>{label}</td>
+                                            <td>{value[0]}</td>
+                                            <td>{value[1]}</td>
                                         </tr>
                                 )
                             )
