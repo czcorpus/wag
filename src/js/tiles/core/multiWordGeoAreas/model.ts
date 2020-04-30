@@ -227,7 +227,7 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                             return [
                                 lemma.word,
                                 areaData ?
-                                    [`${(100*areaData.ipm/action.payload.areaIpmNorm).toFixed(2)} %`, `${areaData.ipm} ipm`] :
+                                    [`${(100*areaData.ipm/action.payload.areaIpmNorm).toFixed(1)} %`, `${areaData.ipm} ipm`] :
                                     undefined
                             ]
                         }))
