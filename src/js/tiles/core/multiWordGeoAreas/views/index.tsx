@@ -173,7 +173,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             const legendItem = createSVGElement(legend, 'g', {
                 'transform': `translate(${width}, 0)`,
             });
-            
+
             createSVGElement(
                 legendItem,
                 'rect',
@@ -242,18 +242,18 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     {Dict.toEntries(groupedAreaData).sort(([area1,], [area2,]) => area1.localeCompare(area2)).map(([area, rows]) =>
                         <tr key={area}>
                             <td key={area}>{area}</td>
-                            <td key={`${area}Ipm`} className="num">{groupedAreaIpmNorms[area].toFixed(2)}</td>
-                            <td key={`${area}Abs`} className="num">{groupedAreaAbsFreqs[area]}</td>
+                            <td key={`${area}Ipm`} className="num">{groupedAreaIpmNorms[area].toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                            <td key={`${area}Abs`} className="num">{groupedAreaAbsFreqs[area].toLocaleString()}</td>
                             {props.data.map((targetData, target) => {
                                 const row = rows.find(row => row.target === target);
                                 return row ?
                                     <React.Fragment key={`${area}${target}Freqs`}>
                                         <td  className="num">
-                                            {row.ipm}
+                                            {row.ipm.toLocaleString()}
                                             <br />
-                                            ({(100 * row.ipm / groupedAreaIpmNorms[area]).toFixed(2)}%)
+                                            ({(100 * row.ipm / groupedAreaIpmNorms[area]).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}%)
                                         </td>
-                                        <td key={`${area}${target}Abs`} className="num">{row.freq}</td>
+                                        <td key={`${area}${target}Abs`} className="num">{row.freq.toLocaleString()}</td>
                                     </React.Fragment> :
                                     <React.Fragment key={`${area}${target}Freqs`}>
                                         <td></td>
@@ -389,8 +389,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                         null :
                                         <tr key={label}>
                                             <td style={{fontWeight: 900, color: 'white', backgroundColor: theme.cmpCategoryColor(index)}}>{label}</td>
-                                            <td>{value[0]}</td>
-                                            <td>{value[1]}</td>
+                                            <td className='num'>{value[0]}</td>
+                                            <td className='num'>{value[1]}</td>
                                         </tr>
                                 )
                             )

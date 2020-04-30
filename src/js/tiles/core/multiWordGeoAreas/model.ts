@@ -220,14 +220,17 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                     state.tooltipArea = {
                         tooltipX: action.payload.tooltipX,
                         tooltipY: action.payload.tooltipY,
-                        caption: action.payload.areaName + (action.payload.areaData === null ? '' : ` (${action.payload.areaIpmNorm.toFixed(2)} ipm)`),
+                        caption: action.payload.areaName + (action.payload.areaData === null ? '' : ` (${action.payload.areaIpmNorm.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} ipm)`),
                         data: action.payload.areaData === null ? null :
                         Dict.fromEntries(state.currQueryMatches.map((lemma, index) => {
                             const areaData = action.payload.areaData.find(item => item.target === index);
                             return [
                                 lemma.word,
                                 areaData ?
-                                    [`${(100*areaData.ipm/action.payload.areaIpmNorm).toFixed(1)} %`, `${areaData.ipm} ipm`] :
+                                    [
+                                        `${(100*areaData.ipm/action.payload.areaIpmNorm).toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 1})} %`,
+                                        `${areaData.ipm.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} ipm`
+                                    ] :
                                     undefined
                             ]
                         }))
