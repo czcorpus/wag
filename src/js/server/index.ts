@@ -24,12 +24,12 @@ import * as path from 'path';
 import * as sqlite3 from 'sqlite3';
 import * as translations from 'translations';
 import * as winston from 'winston';
-import { forkJoin, of as rxOf } from 'rxjs';
+import { forkJoin, of as rxOf, Observable } from 'rxjs';
 import { concatMap, map, tap } from 'rxjs/operators';
 import { Ident } from 'cnc-tskit';
 import 'winston-daily-rotate-file';
 
-import { ClientStaticConf, ServerConf, LanguageLayoutsConfig, LanguageAnyTileConf, isTileDBConf } from '../conf';
+import { ClientStaticConf, ServerConf, LanguageLayoutsConfig, LanguageAnyTileConf, isTileDBConf, ColorsConf } from '../conf';
 import { validateTilesConf } from '../conf/validation';
 import { parseJsonConfig, loadRemoteTileConf } from '../conf/loader';
 import { wdgRouter } from './routes/index';
@@ -38,6 +38,30 @@ import { RedisLogQueue } from './logging/redisQueue';
 import { NullLogQueue } from './logging/nullQueue';
 import { WordDatabases } from './actionServices';
 import { PackageInfo } from '../common/types';
+
+
+function loadTilesConf(clientConf:ClientStaticConf):Observable<LanguageAnyTileConf> {
+    if (typeof clientConf.tiles === 'string') {
+        return parseJsonConfig(clientConf.tiles);
+
+    } else if (isTileDBConf(clientConf.tiles)) {
+        return loadRemoteTileConf(
+            clientConf.layouts as LanguageLayoutsConfig,
+            clientConf.tiles
+        );
+
+    } else {
+        return rxOf(clientConf.tiles);
+    }
+}
+
+
+function loadColorsConf(clientConf:ClientStaticConf):Observable<ColorsConf> {
+    return typeof clientConf.colors === 'string' ?
+        parseJsonConfig(clientConf.colors) :
+        rxOf(clientConf.colors);
+}
+
 
 forkJoin(
     parseJsonConfig<ServerConf>(process.env.SERVER_CONF ?
@@ -64,17 +88,8 @@ forkJoin(
     ),
     concatMap(
         ([serverConf, clientConf, pkgInfo]) => forkJoin(
-            typeof clientConf.tiles === 'string' ?
-                parseJsonConfig(clientConf.tiles) :
-                isTileDBConf(clientConf.tiles) ?
-                    loadRemoteTileConf(
-                        clientConf.layouts as LanguageLayoutsConfig,
-                        clientConf.tiles
-                    ) :
-                    rxOf(clientConf.tiles),
-            typeof clientConf.colors === 'string' ?
-                parseJsonConfig(clientConf.colors) :
-                rxOf(clientConf.colors)
+            loadTilesConf(clientConf),
+            loadColorsConf(clientConf)
 
         ).pipe(
             map(
