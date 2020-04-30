@@ -23,7 +23,7 @@ import { Theme } from '../../../common/theme';
 import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
 import { GlobalComponents } from '../../../views/global';
 import { DataItemWithWCI, ActionName, Actions } from './common';
-import { TimeDistribModel, TimeDistribModelState } from './model';
+import { TimeDistribModel, TimeDistribModelState, LoadingStatus } from './model';
 import { List, pipe, Keyboard } from 'cnc-tskit';
 
 
@@ -180,7 +180,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         data1:Array<DataItemWithWCI>;
         data2:Array<DataItemWithWCI>;
         size:[number, number];
-        isPartial:boolean;
+        loadingStatus:LoadingStatus;
         isSmallWidth:boolean;
         zoom:[number, number];
         refArea:[number, number];
@@ -271,16 +271,16 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <Area type="linear"
                                 dataKey="ipmInterval1"
                                 name={ut.translate('timeDistrib__estimated_interval_for_{word}', {word: this.props.word})}
-                                stroke={this.props.isPartial ? theme.unfinishedChartColor : theme.categoryColor(0)}
-                                fill={this.props.isPartial ? theme.unfinishedChartColorLight : theme.categoryColor(0)}
+                                stroke={this.props.loadingStatus === LoadingStatus.BUSY_LOADING_MAIN ? theme.unfinishedChartColor : theme.categoryColor(0)}
+                                fill={this.props.loadingStatus === LoadingStatus.BUSY_LOADING_MAIN ? theme.unfinishedChartColorLight : theme.categoryColor(0)}
                                 strokeWidth={1}
                                 isAnimationActive={false}
                                 connectNulls={true} />
                         <Area type="linear"
                             dataKey="ipmInterval2"
                             name={this.props.wordCmp ? ut.translate('timeDistrib__estimated_interval_for_{word}', {word: this.props.wordCmp}): undefined}
-                            stroke={this.props.isPartial ? theme.unfinishedChartColor : theme.categoryColor(1)}
-                            fill={this.props.isPartial ? theme.unfinishedChartColorLight : theme.categoryColor(1)}
+                            stroke={this.props.loadingStatus === LoadingStatus.BUSY_LOADING_CMP ? theme.unfinishedChartColor : theme.categoryColor(1)}
+                            fill={this.props.loadingStatus === LoadingStatus.BUSY_LOADING_CMP ? theme.unfinishedChartColorLight : theme.categoryColor(1)}
                             strokeWidth={1}
                             isAnimationActive={false}
                             connectNulls={true} />
@@ -310,7 +310,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     const TimeDistribTile:React.SFC<TimeDistribModelState & CoreTileComponentProps> = (props) => {
 
         return (
-            <globComponents.TileWrapper tileId={props.tileId} isBusy={props.isBusy} error={props.error}
+            <globComponents.TileWrapper tileId={props.tileId} isBusy={props.loadingStatus !== LoadingStatus.IDLE} error={props.error}
                         hasData={props.data.length >= MIN_DATA_ITEMS_TO_SHOW}
                         sourceIdent={{corp: props.corpname, subcorp: props.subcDesc}}
                         supportsTileReload={props.supportsReloadOnError}
@@ -323,7 +323,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         </div> :
                         null
                     }
-                    {props.wordCmp && props.dataCmp.length < MIN_DATA_ITEMS_TO_SHOW && !props.isBusy ?
+                    {props.wordCmp && props.dataCmp.length < MIN_DATA_ITEMS_TO_SHOW && props.loadingStatus === LoadingStatus.IDLE ?
                         <p className="message" style={{color: theme.categoryColor(1)}}>
                             {ut.translate('timeDistrib__no_data_found_for_{word}', {word: props.wordCmp})}
                         </p> :
@@ -331,7 +331,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     }
                     <Chart data1={props.data} data2={props.dataCmp}
                             size={[props.renderSize[0], 300]}
-                            isPartial={props.isBusy}
+                            loadingStatus={props.loadingStatus}
                             word={props.wordMainLabel}
                             wordCmp={props.wordCmp}
                             isSmallWidth={props.isMobile || props.widthFract < 2}

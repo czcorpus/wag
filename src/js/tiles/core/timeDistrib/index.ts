@@ -23,7 +23,7 @@ import { createApiInstance as createFreqApiInstance } from '../../../common/api/
 import { QueryType } from '../../../common/query';
 import { ITileProvider, TileComponent, TileFactory } from '../../../common/tile';
 import { TimeDistTileConf } from './common';
-import { TimeDistribModel } from './model';
+import { TimeDistribModel, LoadingStatus } from './model';
 import { init as viewInit } from './view';
 import { TileWait } from '../../../models/tileSync';
 import { PriorityValueFactory } from '../../../common/priority';
@@ -97,7 +97,7 @@ export class TimeDistTile implements ITileProvider {
         this.model = new TimeDistribModel({
             dispatcher: dispatcher,
             initState: {
-                isBusy: isBusy,
+                loadingStatus: isBusy ? LoadingStatus.BUSY_LOADING_MAIN : LoadingStatus.IDLE,
                 error: null,
                 corpname: conf.corpname,
                 subcnames: Array.isArray(conf.subcname) ? [...conf.subcname] : [conf.subcname],

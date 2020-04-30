@@ -23,7 +23,7 @@ import { Dict, Maths, pipe, List } from 'cnc-tskit';
 import { IAppServices } from '../../../appServices';
 import { ConcResponse, ViewMode, IConcordanceApi } from '../../../common/api/abstract/concordance';
 import { TimeDistribResponse, TimeDistribApi } from '../../../common/api/abstract/timeDistrib';
-import { GeneralSingleCritFreqBarModelState } from '../../../common/models/freq';
+import { GeneralSingleCritFreqBarModelState, MinSingleCritFreqState } from '../../../common/models/freq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { findCurrQueryMatch } from '../../../models/query';
 import { ConcLoadedPayload } from '../concordance/actions';
@@ -54,14 +54,21 @@ export const enum Dimension {
     SECOND = 2
 }
 
+export enum LoadingStatus {
+    IDLE = 0,
+    BUSY_LOADING_MAIN = 1,
+    BUSY_LOADING_CMP = 2,
+}
 
-
-export interface TimeDistribModelState extends GeneralSingleCritFreqBarModelState<DataItemWithWCI> {
+export interface TimeDistribModelState extends MinSingleCritFreqState {
+    error:string;
+    corpname:string;
     subcnames:Array<string>;
     subcDesc:string;
     alphaLevel:Maths.AlphaLevel;
     posQueryGenerator:[string, string];
     isTweakMode:boolean;
+    data:Array<DataItemWithWCI>;
     dataCmp:Array<DataItemWithWCI>;
     wordCmp:string;
     wordCmpInput:string;
@@ -69,6 +76,7 @@ export interface TimeDistribModelState extends GeneralSingleCritFreqBarModelStat
     backlink:BacklinkWithArgs<{}>;
     refArea:[number,number];
     zoom:[number, number];
+    loadingStatus:LoadingStatus; // this is little bit redundant with isBusy but we need this
 }
 
 
@@ -160,7 +168,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
             GlobalActionName.RequestQueryResponse,
             (state, action) => {
                 state.data = [];
-                state.isBusy = true;
+                state.dataCmp = [];
+                state.loadingStatus = LoadingStatus.BUSY_LOADING_MAIN;
                 state.error = null;
             },
             (state, action, dispatch) => {
@@ -177,7 +186,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
             GlobalActionName.TileDataLoaded,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
-                    state.isBusy = false;
+                    state.loadingStatus = LoadingStatus.IDLE;
                     if (action.error) {
                         state.data = [];
                         state.dataCmp = [];
@@ -237,7 +246,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
             ActionName.SubmitCmpWord,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
-                    state.isBusy = true;
+                    state.loadingStatus = LoadingStatus.BUSY_LOADING_CMP;
                     state.wordCmp = state.wordCmpInput.trim();
                     state.dataCmp = []
                 }
