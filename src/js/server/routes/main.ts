@@ -78,12 +78,16 @@ function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, themeId:string,
                     conf.tiles[lang],
                     Dict.map(item => ({waitForTimeoutSecs: DEFAULT_WAIT_FOR_OTHER_TILES, ...item}))
                 ),
-            layouts: Object.assign(emptyLayoutConf(), conf.layouts[lang]),
-            searchLanguages: Object.keys(conf.searchLanguages).map(k => ({
-                code: k,
-                label: conf.searchLanguages[k],
-                queryTypes: getSupportedQueryTypes(conf, k)
-            })),
+            layouts: {...emptyLayoutConf(), ...conf.layouts[lang]},
+            searchLanguages: pipe(
+                conf.searchLanguages,
+                Dict.keys(),
+                List.map(k => ({
+                    code: k,
+                    label: conf.searchLanguages[k],
+                    queryTypes: getSupportedQueryTypes(conf, k)
+                }))
+            ),
             externalStyles: conf.externalStyles || [],
             issueReportingUrl: conf.issueReportingUrl,
             homepage: {
