@@ -25,7 +25,7 @@ import { GlobalComponents, TooltipValues } from '../../../../views/global';
 import { ActionName, Actions } from '../actions';
 import { MultiWordGeoAreasModel, MultiWordGeoAreasModelState } from '../model';
 import { QueryMatch } from '../../../../common/query';
-import { Dict, List, pipe } from 'cnc-tskit';
+import { Dict, List, pipe, tuple } from 'cnc-tskit';
 import { DataRow } from '../../../../common/api/abstract/freqs';
 
 
@@ -36,15 +36,30 @@ export interface TargetDataRow extends DataRow {
 const groupData = (data:Array<Array<DataRow>>):[{[area:string]:Array<TargetDataRow>}, {[area:string]:number}, {[area:string]:number}] => {
     const groupedData = pipe(
         data,
-        List.flatMap((targetData, queryId) =>
-            targetData.map(item => ({
-            ...item,
-            target: queryId
-            } as TargetDataRow))),
+        List.flatMap(
+            (targetData, queryId) =>
+                List.map(
+                    item => ({
+                        ...item,
+                        target: queryId
+                    }),
+                    targetData
+                )
+        ),
         List.groupBy(item => item['name'])
     );
-    const groupedIpmNorms = Dict.fromEntries(groupedData.map(([area, data]) => [area, data.reduce((acc, curr) => acc + curr.ipm, 0)]));
-    const groupedAreaAbsFreqs = Dict.fromEntries(groupedData.map(([area, data]) => [area, data.reduce((acc, curr) => acc + curr.freq, 0)]));
+    const groupedIpmNorms = pipe(
+        groupedData,
+        List.map(
+            ([area, data]) => tuple(area, data.reduce((acc, curr) => acc + curr.ipm, 0))
+        ),
+        Dict.fromEntries()
+    );
+    const groupedAreaAbsFreqs = pipe(
+        groupedData,
+        List.map(([area, data]) => tuple(area, data.reduce((acc, curr) => acc + curr.freq, 0))),
+        Dict.fromEntries()
+    );
     return [Dict.fromEntries(groupedData), groupedIpmNorms, groupedAreaAbsFreqs]
 }
 
@@ -116,51 +131,54 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         const pieSlices = createSVGElement(chart, 'g', {});
 
         let ipmFracAgg = 0;
-        areaData.forEach(row => {
-            const ipmFrac = row.ipm/areaIpmNorm;
-            const x0 = radius * Math.sin(2*Math.PI * ipmFracAgg);
-            const y0 = -radius * Math.cos(2*Math.PI * ipmFracAgg);
-            ipmFracAgg += ipmFrac;
-            const x1 = radius * Math.sin(2*Math.PI * ipmFracAgg);
-            const y1 = -radius * Math.cos(2*Math.PI * ipmFracAgg);
-            const longArc = (ipmFrac) > 0.5 ? 1 : 0;
+        List.forEach(
+            row => {
+                const ipmFrac = row.ipm / areaIpmNorm;
+                const x0 = radius * Math.sin(2 * Math.PI * ipmFracAgg);
+                const y0 = -radius * Math.cos(2 * Math.PI * ipmFracAgg);
+                ipmFracAgg += ipmFrac;
+                const x1 = radius * Math.sin(2 * Math.PI * ipmFracAgg);
+                const y1 = -radius * Math.cos(2 * Math.PI * ipmFracAgg);
+                const longArc = (ipmFrac) > 0.5 ? 1 : 0;
 
-            createSVGElement(
-                pieSlices,
-                'path',
-                {
-                    'd': ipmFrac === 1 ?
-                        // circle needs to be created using 2 arcs, there are problems with drawing 360 arc
-                        `
-                            M 0 -${radius}
-                            A ${radius} ${radius} 0 0 1 0 ${radius}
-                            A ${radius} ${radius} 0 0 1 0 -${radius}
-                        ` : `
-                            M 0 0
-                            L ${x0} ${y0}
-                            A ${radius} ${radius} 0 ${longArc} 1 ${x1} ${y1}
-                            L 0 0
-                        `,
-                    'fill': theme.cmpCategoryColor(row.target),
-                    'stroke': 'white',
-                    'stroke-width': '6',
-                    'opacity': '1'
-                }
-            );
+                createSVGElement(
+                    pieSlices,
+                    'path',
+                    {
+                        'd': ipmFrac === 1 ?
+                            // circle needs to be created using 2 arcs, there are problems with drawing 360 arc
+                            `
+                                M 0 -${radius}
+                                A ${radius} ${radius} 0 0 1 0 ${radius}
+                                A ${radius} ${radius} 0 0 1 0 -${radius}
+                            ` : `
+                                M 0 0
+                                L ${x0} ${y0}
+                                A ${radius} ${radius} 0 ${longArc} 1 ${x1} ${y1}
+                                L 0 0
+                            `,
+                        'fill': theme.cmpCategoryColor(row.target),
+                        'stroke': 'white',
+                        'stroke-width': '6',
+                        'opacity': '1'
+                    }
+                );
 
-            // overlay to improve mouse over behaviour
-            createSVGElement(
-                chart,
-                'circle',
-                {
-                    'cx': '0',
-                    'cy': '0',
-                    'r': radius.toString(),
-                    'fill-opacity': '0',
-                    'stroke-opacity': '0'
-                }
-            );
-        })
+                // overlay to improve mouse over behaviour
+                createSVGElement(
+                    chart,
+                    'circle',
+                    {
+                        'cx': '0',
+                        'cy': '0',
+                        'r': radius.toString(),
+                        'fill-opacity': '0',
+                        'stroke-opacity': '0'
+                    }
+                );
+            },
+            areaData
+        );
         parent.appendChild(chart);
         return chart;
     }
@@ -173,7 +191,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             const legendItem = createSVGElement(legend, 'g', {
                 'transform': `translate(${width}, 0)`,
             });
-            
+
             createSVGElement(
                 legendItem,
                 'rect',
@@ -239,28 +257,38 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     </tr>
                 </thead>
                 <tbody>
-                    {Dict.toEntries(groupedAreaData).sort(([area1,], [area2,]) => area1.localeCompare(area2)).map(([area, rows]) =>
-                        <tr key={area}>
-                            <td key={area}>{area}</td>
-                            <td key={`${area}Ipm`} className="num">{groupedAreaIpmNorms[area].toFixed(2)}</td>
-                            <td key={`${area}Abs`} className="num">{groupedAreaAbsFreqs[area]}</td>
-                            {props.data.map((targetData, target) => {
-                                const row = rows.find(row => row.target === target);
-                                return row ?
-                                    <React.Fragment key={`${area}${target}Freqs`}>
-                                        <td  className="num">
-                                            {row.ipm}
-                                            <br />
-                                            ({(100 * row.ipm / groupedAreaIpmNorms[area]).toFixed(2)}%)
-                                        </td>
-                                        <td key={`${area}${target}Abs`} className="num">{row.freq}</td>
-                                    </React.Fragment> :
-                                    <React.Fragment key={`${area}${target}Freqs`}>
-                                        <td></td>
-                                        <td></td>
-                                    </React.Fragment>
-                            })}
-                        </tr>
+                    {pipe(
+                        groupedAreaData,
+                        Dict.toEntries(),
+                        List.sort(
+                            ([area1,], [area2,]) => area1.localeCompare(area2)
+                        ),
+                        List.map(([area, rows]) =>
+                            <tr key={area}>
+                                <td key={area}>{area}</td>
+                                <td key={`${area}Ipm`} className="num">{ut.formatNumber(groupedAreaIpmNorms[area], 2)}</td>
+                                <td key={`${area}Abs`} className="num">{ut.formatNumber(groupedAreaAbsFreqs[area], 2)}</td>
+                                {List.map(
+                                    (_, target) => {
+                                        const row = rows.find(row => row.target === target);
+                                        return row ?
+                                            <React.Fragment key={`${area}${target}Freqs`}>
+                                                <td  className="num">
+                                                    {ut.formatNumber(row.ipm, 2)}
+                                                    <br />
+                                                    ({ut.formatNumber(100 * row.ipm / groupedAreaIpmNorms[area], 2)}%)
+                                                </td>
+                                                <td key={`${area}${target}Abs`} className="num">{ut.formatNumber(row.freq, 2)}</td>
+                                            </React.Fragment> :
+                                            <React.Fragment key={`${area}${target}Freqs`}>
+                                                <td></td>
+                                                <td></td>
+                                            </React.Fragment>
+                                    },
+                                    props.data
+                                )}
+                            </tr>
+                        )
                     )}
                 </tbody>
             </table>
@@ -312,7 +340,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         }
                         // scaling pie chart according to relative ipm norm
                         pieChart.setAttribute('transform', `scale(${scale} ${scale})`);
-                        pieChart.setAttribute('style', `filter: drop-shadow(0px 0px 20px #222222);`);
+                        pieChart.setAttribute('style', 'filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.75));');
 
                         fromEvent(pieChart, 'mousemove')
                             .subscribe((e:MouseEvent) => {
@@ -389,8 +417,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                         null :
                                         <tr key={label}>
                                             <td style={{fontWeight: 900, color: 'white', backgroundColor: theme.cmpCategoryColor(index)}}>{label}</td>
-                                            <td>{value[0]}</td>
-                                            <td>{value[1]}</td>
+                                            <td className='num'>{value[0]}</td>
+                                            <td className='num'>{value[1]}</td>
                                         </tr>
                                 )
                             )

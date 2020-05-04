@@ -18,6 +18,7 @@
 import { StatelessModel, IActionQueue, SEDispatcher } from 'kombo';
 import { Observable, of as rxOf, zip } from 'rxjs';
 import { concatMap, reduce, share, repeat } from 'rxjs/operators';
+import { Dict, List, pipe, tuple } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
 import { GeneralSingleCritFreqMultiQueryState } from '../../../common/models/freq';
@@ -30,7 +31,6 @@ import { callWithExtraVal } from '../../../common/api/util';
 import { ViewMode, IConcordanceApi } from '../../../common/api/abstract/concordance';
 import { createInitialLinesData } from '../../../common/models/concordance';
 import { ConcLoadedPayload, isConcLoadedPayload } from '../concordance/actions';
-import { Dict } from 'cnc-tskit';
 import { DataRow, IFreqDistribAPI, APIResponse } from '../../../common/api/abstract/freqs';
 
 /*
@@ -220,17 +220,28 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                     state.tooltipArea = {
                         tooltipX: action.payload.tooltipX,
                         tooltipY: action.payload.tooltipY,
-                        caption: action.payload.areaName + (action.payload.areaData === null ? '' : ` (${action.payload.areaIpmNorm.toFixed(2)} ipm)`),
-                        data: action.payload.areaData === null ? null :
-                        Dict.fromEntries(state.currQueryMatches.map((lemma, index) => {
-                            const areaData = action.payload.areaData.find(item => item.target === index);
-                            return [
-                                lemma.word,
-                                areaData ?
-                                    [`${(100*areaData.ipm/action.payload.areaIpmNorm).toFixed(2)} %`, `${areaData.ipm} ipm`] :
-                                    undefined
-                            ]
-                        }))
+                        caption: action.payload.areaName
+                            + (action.payload.areaData === null ?
+                                '' :
+                                ` (${this.appServices.formatNumber(action.payload.areaIpmNorm)} ipm)`),
+                        data: action.payload.areaData === null ?
+                            null :
+                            pipe(
+                                state.currQueryMatches,
+                                List.map((lemma, index) => {
+                                    const areaData = action.payload.areaData.find(item => item.target === index);
+                                    return tuple(
+                                        lemma.word,
+                                        areaData ?
+                                            tuple(
+                                                `${this.appServices.formatNumber(100 * areaData.ipm / action.payload.areaIpmNorm, 1)} %`,
+                                                `${this.appServices.formatNumber(areaData.ipm)} ipm`
+                                            ) :
+                                            undefined
+                                    )
+                                }),
+                                Dict.fromEntries()
+                            )
                     }
                 }
             }

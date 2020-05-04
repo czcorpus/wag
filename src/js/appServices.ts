@@ -53,7 +53,9 @@ export interface IAppServices {
 
     importExternalText(ident:string|{[lang:string]:string|{file:string}}, readResource:(path:string)=>Observable<string>):Observable<string>;
 
-    formatDate(d: Date, timeFormat?: number):string;
+    formatDate(d:Date, timeFormat?:number):string;
+
+    formatNumber(v:number, fractionDigits?:number):string;
 
     createStaticUrl(path:string):string;
 
@@ -172,6 +174,10 @@ export class AppServices implements IAppServices {
 
     formatDate(d: Date, timeFormat?: number): string {
         return this.translator.formatDate(d, timeFormat);
+    }
+
+    formatNumber(v:number, fractionDigits?:number):string {
+        return this.translator.formatNumber(v, fractionDigits);
     }
 
     createStaticUrl(path:string):string {
