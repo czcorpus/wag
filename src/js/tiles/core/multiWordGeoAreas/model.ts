@@ -223,7 +223,7 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                         caption: action.payload.areaName
                             + (action.payload.areaData === null ?
                                 '' :
-                                ` (${this.appServices.formatNumber(action.payload.areaIpmNorm)} ipm)`),
+                                ` (${this.appServices.formatNumber(action.payload.areaIpmNorm, 1)} ipm)`),
                         data: action.payload.areaData === null ?
                             null :
                             pipe(
@@ -235,7 +235,7 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                                         areaData ?
                                             tuple(
                                                 `${this.appServices.formatNumber(100 * areaData.ipm / action.payload.areaIpmNorm, 1)} %`,
-                                                `${this.appServices.formatNumber(areaData.ipm)} ipm`
+                                                `${this.appServices.formatNumber(areaData.ipm, 1)} ipm`
                                             ) :
                                             undefined
                                     )
