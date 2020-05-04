@@ -611,7 +611,7 @@
 				"apiType": "kontext",
 				"apiURL": "/kontext/widectx",
 				"corpname": "oral_v1",
-				"subcDesc": "some fucking subcorpus description",
+				"subcDesc": "some subcorpus description",
 				"speakerIdAttr": ["sp", "nickname"],
 				"speechSegment": ["seg", "soundfile"],
 				"speechOverlapAttr": ["sp", "overlap"],
