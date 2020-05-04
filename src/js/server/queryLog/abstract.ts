@@ -17,17 +17,35 @@
  */
 
 import { Observable } from 'rxjs';
-import { ILogQueue, LogRecord } from './abstract';
 
+/**
+ * The format is intentionally based on KonText log format to make
+ * ETL and subsequent analysis easier.
+ */
+export interface QueryLogRecord {
+    user_id:number;
+    proc_time:number;
+    date:string;
+    action:string;
+    request:{
+        HTTP_X_FORWARDED_FOR:string;
+	    HTTP_USER_AGENT:string;
+	    HTTP_REMOTE_ADDR:string;
+	    REMOTE_ADDR:string;
+    };
+    params:{
+        uiLang:string;
+        queryType:string;
+        query1Lang:string;
+        query2Lang:string|null;
+        queryPos:Array<string>|null;
+        query:Array<string>|null;
+        error:string|null;
+   };
+   pid:number;
+   settings:{};
+}
 
-export class NullLogQueue implements ILogQueue {
-
-    put(value:LogRecord):Observable<number> {
-        return new Observable<number>(
-            (observer) => {
-                observer.next(0);
-                observer.complete();
-            }
-        );
-    }
+export interface IQueryLog {
+    put(rec:QueryLogRecord):Observable<number>;
 }

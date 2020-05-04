@@ -18,7 +18,7 @@
 import { renderToString } from 'react-dom/server';
 import * as React from 'react';
 
-import { ILogQueue } from '../logging/abstract';
+import { IQueryLog } from '../queryLog/abstract';
 import { HTTPAction } from './actions';
 import { UserConf, ClientConf, ColorThemeIdent } from '../../conf';
 import { Observable } from 'rxjs';
@@ -60,7 +60,7 @@ export function getLangFromCookie(req:Request, cookieName:string, languages:{[co
     }
 }
 
-export function logRequest(logging:ILogQueue, datetime:string, req:Request, userConfig:UserConf):Observable<number> {
+export function logRequest(logging:IQueryLog, datetime:string, req:Request, userConfig:UserConf):Observable<number> {
     return logging.put({
         user_id: 1,
         proc_time: -1,

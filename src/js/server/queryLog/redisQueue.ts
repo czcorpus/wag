@@ -17,11 +17,11 @@
  */
 import { Observable } from 'rxjs';
 import { share } from 'rxjs/operators';
-import { ILogQueue, LogRecord } from './abstract';
+import { IQueryLog, QueryLogRecord } from './abstract';
 import { LogQueueConf } from '../../conf';
 
 
-export class RedisLogQueue implements ILogQueue {
+export class RedisQueryLog implements IQueryLog {
 
     private client;
 
@@ -43,7 +43,7 @@ export class RedisLogQueue implements ILogQueue {
         this.queueKey = conf.key;
     }
 
-    put(value:LogRecord):Observable<number> {
+    put(value:QueryLogRecord):Observable<number> {
         return new Observable<number>(
             (observer) => {
                 if (this.client !== undefined) {
