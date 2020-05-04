@@ -128,7 +128,7 @@ export namespace Actions {
         queryIdx:number;
         word:string;
         lemma:string;
-        pos:Array<Array<QueryPoS>>;
+        pos:Array<QueryPoS>;
 
     }> {
         name:ActionName.ChangeCurrQueryMatch;

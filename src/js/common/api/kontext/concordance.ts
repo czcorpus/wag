@@ -151,44 +151,21 @@ export function escapeVal(v:string) {
 
 /**
  * Transform a provided QueryMatch into a valid CQL query.
- * Due to the recommendation mentioned on the CQL documentation
- * page (see https://www.sketchengine.eu/documentation/cql-basics/#token)
- * the function produces different CQL for multi-word variant and for
- * a single-word one:
  *
- * a) single-value lemma like e.g.: lemma='bar', tag=['B', 'C']
- *    is transformed into [lemma="bar" & tag="B|C"]
- *    which should be quite fast
- * b) multi-value lemma like e.g.: lemma='foo bar', tag=['A B', 'A C']
- *    is transformed into:
- *    ( [lemma="foo" & tag="A"] [lemma="bar" & tag="B"] ) | ([lemma="foo" & tag="A"] [lemma="bar" & tag="C"])
- *    which typically takes longer time to execute (but there is no alternative here)
+ * a) lemma with a PoS information like e.g.: lemma='foo bar', tag=['A', 'B']
+ * is transformed into: [lemma="foo" & tag="A"] [lemma="bar" & tag="B"].
+ * b) lemma without a PoS information, e.g.: lemma='foo bar'
+ * is transformed into: [lemma="foo"] [lemma="bar"]
  */
 function mkLemmaMatchQuery(lvar:QueryMatch, generator:[string, string]):string {
 
-    const lemmas = lvar.lemma.split(' ');
     const fn = posQueryFactory(generator[1]);
-
-    if (lemmas.length > 1) {
-        return pipe(
-            lvar.pos,
-            List.map(
-                pos => {
-                    const expr = List.map(
-                        ([lemma, pos]) => `[lemma="${escapeVal(lemma)}" & ${generator[0]}="${fn(pos)}"]`,
-                        List.zip<string, string>(pos.value, lemmas)
-                    ).join(' ');
-                    return `(${expr})`;
-                }
-            )
-        ).join(' | ');
-
-    } else {
-        const posPart = lvar.pos.length > 0 ?
-            ' & (' + lvar.pos.map(v => `${generator[0]}="${fn(v.value[0])}"`).join(' | ') + ')' :
-            '';
-        return `[lemma="${escapeVal(lvar.lemma)}" ${posPart}]`;
-    }
+    return pipe(
+        lvar.lemma.split(' '),
+        List.map((lemma, i) => lvar.pos[i] !== undefined ?
+            `[lemma="${escapeVal(lemma)}" & ${generator[0]}="${fn(lvar.pos[i].value)}"]` :
+            `[lemma="${escapeVal(lemma)}"]`)
+    ).join(' ');
 }
 
 function mkWordMatchQuery(lvar:QueryMatch):string {

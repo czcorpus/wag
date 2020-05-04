@@ -77,7 +77,6 @@ export function logRequest(logging:ILogQueue, datetime:string, req:Request, user
             queryType: userConfig.queryType,
             query1Lang: userConfig.query1Lang,
             query2Lang: userConfig.query2Lang ? userConfig.query2Lang : null,
-            queryPos: userConfig.queryPos ? userConfig.queryPos.map(v => v.join(',')) : null,
             query: userConfig.queries,
             error: userConfig.error ? userConfig.error.join(': ') : null
         },

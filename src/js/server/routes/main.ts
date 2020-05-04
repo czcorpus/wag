@@ -19,13 +19,13 @@ import { NextFunction } from 'connect';
 import { Request, Response } from 'express';
 import { Observable, forkJoin, of as rxOf } from 'rxjs';
 import { concatMap, map, catchError, reduce } from 'rxjs/operators';
-
+import { Dict, pipe, HTTP, List } from 'cnc-tskit';
 
 import { IAppServices } from '../../appServices';
-import { QueryType, QueryMatch, QueryPoS, matchesPos, findMergeableQueryMatches, importQueryTypeString } from '../../common/query';
+import { QueryType, QueryMatch, matchesPos, importQueryTypeString, addWildcardMatches } from '../../common/query';
 import { UserConf, ClientStaticConf, ClientConf, emptyClientConf, getSupportedQueryTypes,
          emptyLayoutConf, errorUserConf, getQueryTypeFreqDb, isTileDBConf, DEFAULT_WAIT_FOR_OTHER_TILES,
-         THEME_COOKIE_NAME, getThemeList, getAppliedThemeConf, THEME_DEFAULT_NAME } from '../../conf';
+         THEME_COOKIE_NAME, getThemeList, getAppliedThemeConf, THEME_DEFAULT_NAME, UserQuery } from '../../conf';
 import { init as viewInit } from '../../views/layout';
 import { init as errPageInit } from '../../views/error';
 import { ServerSideActionDispatcher } from '../core';
@@ -35,7 +35,6 @@ import { loadFile } from '../files';
 import { createRootComponent } from '../../app';
 import { ActionName } from '../../models/actions';
 import { DummyCache } from '../../cacheDb';
-import { Dict, pipe, HTTP, List } from 'cnc-tskit';
 import { getLangFromCookie, fetchReqArgArray, createHelperServices, mkReturnUrl, logRequest, renderResult, queryValues } from './common';
 
 
@@ -99,6 +98,14 @@ function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, themeId:string,
     );
 }
 
+function compileQueries(q:Array<string>, pos:Array<Array<string>>, lemma:Array<string>):Array<UserQuery> {
+    const ans:Array<UserQuery> = [];
+    for (let i = 0; i < Math.max(q.length, pos.length, lemma.length); i++) {
+        ans.push({word: q[i], pos: pos[i], lemma: lemma[i]});
+    }
+    return ans;
+}
+
 export function mainAction(services:Services, answerMode:boolean, req:Request, res:Response, next:NextFunction) {
 
     const uiLang = getLangFromCookie(req, services.serverConf.langCookie, services.serverConf.languages);
@@ -110,16 +117,20 @@ export function mainAction(services:Services, answerMode:boolean, req:Request, r
         try {
             const queryType = importQueryTypeString(queryValues(req, 'queryType')[0], QueryType.SINGLE_QUERY);
             const minNumQueries = queryType === QueryType.CMP_QUERY ? 2 : 1;
-
             const userConfNorm:UserConf = {
                 uiLang: uiLang,
                 uiLanguages: services.serverConf.languages,
                 query1Lang: queryValues(req, 'lang1', 'cs')[0], // TODO default
                 query2Lang: queryValues(req, 'lang2', 'en')[0], // TODO default
                 queryType: queryType,
-                queryPos: fetchReqArgArray(req, 'pos', minNumQueries).map(v => v.split(',') as Array<QueryPoS>),
-                queries: fetchReqArgArray(req, 'q', minNumQueries),
-                lemma: fetchReqArgArray(req, 'lemma', minNumQueries),
+                queries: compileQueries(
+                    fetchReqArgArray(req, 'q', minNumQueries),
+                    List.map(
+                        v => List.filter(v => !!v, v.split(' ')),
+                        fetchReqArgArray(req, 'pos', minNumQueries)
+                    ),
+                    fetchReqArgArray(req, 'lemma', minNumQueries)
+                ),
                 answerMode: answerMode
             };
 
@@ -168,7 +179,7 @@ export function mainAction(services:Services, answerMode:boolean, req:Request, r
                                 .getDatabase(userConf.queryType, userConf.query1Lang)
                                 .findQueryMatches(
                                     appServices,
-                                    query,
+                                    query.word,
                                     getQueryTypeFreqDb(services.serverConf, userConf.queryType).minLemmaFreq
                                 ) :
                             rxOf<Array<QueryMatch>>([])
@@ -181,46 +192,40 @@ export function mainAction(services:Services, answerMode:boolean, req:Request, r
         )
     ).subscribe(
         ({userConf, hostPageEnv, runtimeConf, qMatchesEachQuery, appServices, dispatcher, viewUtils}) => {
-            const queryMatchesExtended = qMatchesEachQuery.map((queryMatches, queryIdx) => {
-                let mergedMatches = findMergeableQueryMatches(queryMatches);
-                if (mergedMatches.length > 0) {
-                    let matchIdx = 0;
-                    if (userConf.queryPos[queryIdx]) {
-                        const srchIdx = mergedMatches.findIndex(
-                            v => matchesPos(v, List.map(x => x.split(' '), userConf.queryPos[queryIdx]))
-                                    && (v.lemma === userConf.lemma[queryIdx] || !userConf.lemma[queryIdx]));
-                        if (srchIdx >= 0) {
-                            matchIdx = srchIdx;
+            const queryMatchesExtended = List.map(
+                (queryMatches, queryIdx) => {
+                    const mergedMatches = addWildcardMatches([...queryMatches]);
+                    if (mergedMatches.length > 0) {
+                        let matchIdx = 0;
+                        if (userConf.queries[queryIdx]) {
+                            const srchIdx = List.findIndex(
+                                v => matchesPos(v, userConf.queries[queryIdx].pos)
+                                        && (v.lemma === userConf.queries[queryIdx].lemma || !userConf.queries[queryIdx].lemma),
+                                mergedMatches
+                            );
+                            if (srchIdx >= 0) {
+                                matchIdx = srchIdx;
+                            }
                         }
-                    }
-                    const v = mergedMatches[matchIdx];
-                    mergedMatches[matchIdx] = {
-                        lemma: v.lemma,
-                        word: v.word,
-                        pos: [...v.pos],
-                        abs: v.abs,
-                        ipm: v.ipm,
-                        arf: v.arf,
-                        flevel: v.flevel,
-                        isCurrent: true,
-                        isNonDict: v.isNonDict
-                    };
+                        mergedMatches[matchIdx] = {...mergedMatches[matchIdx], isCurrent: true};
+                        return mergedMatches;
 
-                } else {
-                    mergedMatches = [{
-                        lemma: null,
-                        word: userConf.queries[queryIdx],
-                        pos: [],
-                        abs: 0,
-                        ipm: 0,
-                        arf: 0,
-                        flevel: null,
-                        isCurrent: true,
-                        isNonDict: true
-                    }];
-                }
-                return mergedMatches;
-            });
+                    } else {
+                        return [{
+                            lemma: null,
+                            word: userConf.queries[queryIdx].word,
+                            pos: [],
+                            abs: 0,
+                            ipm: 0,
+                            arf: 0,
+                            flevel: null,
+                            isCurrent: true,
+                            isNonDict: true
+                        }];
+                    }
+                },
+                qMatchesEachQuery
+            );
             const [rootView, layout,] = createRootComponent({
                 config: runtimeConf,
                 userSession: userConf,

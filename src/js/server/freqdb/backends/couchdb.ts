@@ -151,7 +151,7 @@ export class CouchFreqDB implements IFreqDB {
             List.map<HTTPResponseDoc, QueryMatch>(v => ({
                 word: word,
                 lemma: v.lemma,
-                pos: [importQueryPosWithLabel(v.pos, posTable, appServices)],
+                pos: importQueryPosWithLabel(v.pos, posTable, appServices),
                 abs: v.count,
                 ipm: v.count / this.corpusSize * 1e6,
                 flevel: calcFreqBand(v.count / this.corpusSize * 1e6),
@@ -210,7 +210,7 @@ export class CouchFreqDB implements IFreqDB {
                 values => List.map(
                     v => ({
                         lemma: v.lemma,
-                        pos: [importQueryPosWithLabel(v.pos, posTable, appServices)],
+                        pos: importQueryPosWithLabel(v.pos, posTable, appServices),
                         ipm: v.count / this.corpusSize * 1e6,
                         flevel: calcFreqBand(v.count / this.corpusSize * 1e6),
                         word: lemma,
@@ -232,7 +232,7 @@ export class CouchFreqDB implements IFreqDB {
                     List.map(
                         form => ({
                             lemma: lemma,
-                            pos: [importQueryPosWithLabel(srch.doc.pos, posTable, appServices)],
+                            pos: importQueryPosWithLabel(srch.doc.pos, posTable, appServices),
                             ipm: form.count / this.corpusSize * 1e6,
                             flevel: calcFreqBand(form.count / this.corpusSize * 1e6),
                             word: form.word,

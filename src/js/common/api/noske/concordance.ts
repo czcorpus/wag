@@ -121,30 +121,23 @@ function escapeVal(v:string) {
     return v.replace(/"/, '\\"');
 }
 
+/**
+ * Transform a provided QueryMatch into a valid CQL query.
+ *
+ * a) lemma with a PoS information like e.g.: lemma='foo bar', tag=['A', 'B']
+ * is transformed into: [lemma="foo" & tag="A"] [lemma="bar" & tag="B"].
+ * b) lemma without a PoS information, e.g.: lemma='foo bar'
+ * is transformed into: [lemma="foo"] [lemma="bar"]
+ */
 function mkLemmaMatchQuery(lvar:QueryMatch, generator:[string, string]):string {
-    const lemmas = lvar.lemma.split(' ');
+
     const fn = posQueryFactory(generator[1]);
-
-    if (lemmas.length > 1) {
-        return pipe(
-            lvar.pos,
-            List.map(
-                pos => {
-                    const expr = List.map(
-                        ([lemma, pos]) => `[lemma="${escapeVal(lemma)}" & ${generator[0]}="${fn(pos)}"]`,
-                        List.zip<string, string>(pos.value, lemmas)
-                    ).join(' ');
-                    return `(${expr})`;
-                }
-            )
-        ).join(' | ');
-
-    } else {
-        const posPart = lvar.pos.length > 0 ?
-            ' & (' + lvar.pos.map(v => `${generator[0]}="${fn(v.value[0])}"`).join(' | ') + ')' :
-            '';
-        return `[lemma="${escapeVal(lvar.lemma)}" ${posPart}]`;
-    }
+    return pipe(
+        lvar.lemma.split(' '),
+        List.map((lemma, i) => lvar.pos[i] !== undefined ?
+            `[lemma="${escapeVal(lemma)}" & ${generator[0]}="${fn(lvar.pos[i].value)}"]` :
+            `[lemma="${escapeVal(lemma)}"]`)
+    ).join(' ');
 }
 
 function mkWordMatchQuery(lvar:QueryMatch):string {

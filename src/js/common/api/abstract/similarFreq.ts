@@ -25,7 +25,7 @@ export interface RequestArgs {
     lang:string;
     word:string;
     lemma:string;
-    pos:Array<Array<QueryPoS>>;
+    pos:Array<string>;
     srchRange:number;
 }
 

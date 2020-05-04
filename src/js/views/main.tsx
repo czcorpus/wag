@@ -394,13 +394,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         };
 
         const mkAltLabel = (v:QueryMatch) => {
-            if (v.pos.length > 1) {
+            if (v.pos.length === 0) {
                 return ut.translate('global__alt_expr_any');
 
-            } else if (v.pos.length === 1) {
-                return v.pos[0].label.join(' ');
+            } else {
+                return List.map(v => v.label, v.pos).join(' ');
             }
-            return ut.translate('global__alt_expr_nondict');
         };
 
         const handleCloseModal = () => {

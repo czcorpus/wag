@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { Dict, pipe, List } from 'cnc-tskit';
+import { pipe, List } from 'cnc-tskit';
 import { PosItem, posTagsEqual } from './postag';
 
 
@@ -101,8 +101,8 @@ export function calcFreqBand(ipm:number):FreqBand {
 
 
 export interface QueryMatchCore {
-    lemma:string;
-    pos:Array<PosItem>;
+    lemma:string; // space-based value for a multi-word query
+    pos:Array<PosItem>; // each word of a multi-word query
     ipm:number;
     flevel:FreqBand|null;
     isNonDict?:boolean;
@@ -148,83 +148,31 @@ export function testIsMultiWordMode(queries:RecognizedQueries):boolean {
     );
 }
 
-export function matchesPos(lv:QueryMatchCore, pos:Array<Array<QueryPoS>>):boolean {
-    return lv.pos.length === pos.length &&
-        List.foldl(
-            (acc, [pos, qPos]) => acc && posTagsEqual(pos, qPos.value), true as boolean,
-            List.zip<Array<string>, PosItem>(lv.pos, pos)
-        );
+export function matchesPos(lv:QueryMatchCore, pos:Array<string>):boolean {
+    return posTagsEqual(List.map(v => v.value, lv.pos), pos);
 }
 
-interface MergedQueryMatch extends QueryMatch {
-    minAbs:number;
-    maxAbs:number;
-}
-
-const MERGE_CANDIDATE_MIN_DIFF_RATIO = 100;
-
-/**
- * Freq. database returns a list of QueryMatch instances with 'pos' array of size 1,
- * i.e. items with the same 'lemma' and 'word' are separate QueryMatch instances.
- * For further processing we have to merge those items into a single QueryMatch instance
- * with pos = [all the individual PoS values].
- */
-export function findMergeableQueryMatches(variants:Array<QueryMatch>):Array<QueryMatch> {
-    const mapping:{[key:string]:Array<{pos:PosItem; abs:number; form:string; arf:number; ipm:number}>} = {};
-    List.forEach(
-        item => {
-            if (!(item.lemma in mapping)) {
-                mapping[item.lemma] = [];
+export function addWildcardMatches(qm:Array<QueryMatch>):Array<QueryMatch> {
+    return pipe(
+        qm,
+        List.groupBy((match) => match.lemma),
+        List.map(([, matches]) => {
+            if (matches.length > 1) {
+                const wildCard:QueryMatch = {
+                    lemma: matches[0].lemma,
+                    pos: [],
+                    ipm: List.foldl((acc, m) => acc + m.ipm, 0, matches),
+                    flevel: calcFreqBand(List.foldl((acc, m) => acc + m.ipm, 0, matches)),
+                    isNonDict: true,
+                    word: matches[0].word,
+                    abs: List.foldl((acc, m) => acc + m.abs, 0, matches),
+                    arf: -1,
+                    isCurrent: false
+                };
+                return [...matches, wildCard];
             }
-            List.forEach(
-                p => {
-                    mapping[item.lemma].push({
-                        pos: p,
-                        abs: item.abs,
-                        form: item.word,
-                        ipm: item.ipm,
-                        arf: item.arf
-                    });
-                },
-                item.pos
-            );
-        },
-        variants
-    );
-    const merged:Array<MergedQueryMatch> = pipe(
-        mapping,
-        Dict.filter((v) => v.length > 1),
-        Dict.map((v, lm) => {
-            const ipm = List.foldl((acc, curr) => acc + curr.ipm, 0, v);
-            const ans:MergedQueryMatch = {
-                lemma: lm,
-                word: v[0].form, // should be the same for all 0...n
-                pos: List.map(v => v.pos, v),
-                abs: List.foldl((acc, curr) => acc + curr.abs, 0, v),
-                minAbs: List.foldl((acc, curr) => acc < curr.abs ? acc : curr.abs, v[0].abs, v),
-                maxAbs: List.foldl((acc, curr) => acc > curr.abs ? acc : curr.abs, v[0].abs, v),
-                ipm: ipm,
-                arf: List.foldl((acc, curr) => acc + curr.arf, 0, v),
-                flevel: calcFreqBand(ipm),
-                isCurrent: false
-            }
-            return ans;
+            return matches;
         }),
-        Dict.toEntries(),
-        List.map(([,v]) => v)
+        List.flatMap(v => v)
     );
-
-    const ans = [...variants];
-    List.forEach(
-        item => {
-            if (item.maxAbs / item.minAbs >= MERGE_CANDIDATE_MIN_DIFF_RATIO) {
-                ans.unshift(item);
-
-            } else {
-                ans.push(item);
-            }
-        },
-        merged
-    );
-    return ans;
 }

@@ -23,7 +23,7 @@ import { IAppServices } from '../appServices';
 import { Forms, MultiDict } from '../common/data';
 import { SystemMessageType } from '../common/types';
 import { AvailableLanguage } from '../common/hostPage';
-import { QueryType, QueryMatch, QueryTypeMenuItem, matchesPos, SearchLanguage, RecognizedQueries } from '../common/query';
+import { QueryType, QueryMatch, QueryTypeMenuItem, matchesPos, SearchLanguage, RecognizedQueries, calcFreqBand } from '../common/query';
 import { ActionName, Actions } from './actions';
 import { HTTPAction } from '../server/routes/actions';
 import { LayoutManager } from '../layout';
@@ -229,14 +229,14 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
         args.set('queryType', state.queryType);
         args.set('lang1', state.queryLanguage);
         args.set('q', findCurrQueryMatch(state.queryMatches[0]).word);
-        args.set('pos', findCurrQueryMatch(state.queryMatches[0]).pos.map(v => v.value).join(','));
+        args.set('pos', findCurrQueryMatch(state.queryMatches[0]).pos.map(v => v.value).join(' '));
         args.set('lemma', findCurrQueryMatch(state.queryMatches[0]).lemma);
 
         switch (state.queryType) {
             case QueryType.CMP_QUERY:
                 state.queryMatches.slice(1).forEach(m => {
                     args.add('q', findCurrQueryMatch(m).word);
-                    args.add('pos', findCurrQueryMatch(m).pos.map(v => v.value).join(','));
+                    args.add('pos', findCurrQueryMatch(m).pos.map(v => v.value).join(' '));
                     args.add('lemma', findCurrQueryMatch(m).lemma);
                 });
             case QueryType.TRANSLAT_QUERY:
