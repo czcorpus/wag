@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Redis from 'ioredis';
 import { Observable } from 'rxjs';
 import { share } from 'rxjs/operators';
 import { ILogQueue, LogRecord } from './abstract';
@@ -24,31 +23,43 @@ import { LogQueueConf } from '../../conf';
 
 export class RedisLogQueue implements ILogQueue {
 
-    private readonly client:Redis.Redis;
+    private client;
 
     private readonly queueKey:string;
 
     constructor(conf:LogQueueConf) {
-        this.client = new Redis({
-            port: conf.port,
-            host: conf.host,
-            db: conf.db
-        });
+        import(/* webpackChunkName: "ioredis" */ 'ioredis').then(
+            (ioredis) => {
+                this.client = new ioredis({
+                    port: conf.port,
+                    host: conf.host,
+                    db: conf.db
+                });
+            },
+            (err) => {
+                console.log(err);
+            }
+        );
         this.queueKey = conf.key;
     }
 
     put(value:LogRecord):Observable<number> {
         return new Observable<number>(
             (observer) => {
-                this.client.rpush(this.queueKey, JSON.stringify(value)).then(
-                    (res) => {
-                        observer.next(res);
-                        observer.complete();
-                    },
-                    (err) => {
-                        observer.error(err);
-                    }
-                );
+                if (this.client !== undefined) {
+                    this.client.rpush(this.queueKey, JSON.stringify(value)).then(
+                        (res) => {
+                            observer.next(res);
+                            observer.complete();
+                        },
+                        (err) => {
+                            observer.error(err);
+                        }
+                    )
+                } else {
+                    observer.next(0);
+                    observer.complete();
+                };
             }
         ).pipe(
             share()
