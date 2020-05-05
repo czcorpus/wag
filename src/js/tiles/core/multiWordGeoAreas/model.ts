@@ -234,8 +234,8 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                                         lemma.word,
                                         areaData ?
                                             tuple(
-                                                `${this.appServices.formatNumber(100 * areaData.ipm / action.payload.areaIpmNorm, 1)} %`,
-                                                `${this.appServices.formatNumber(areaData.ipm, 1)} ipm`
+                                                100 * areaData.ipm / action.payload.areaIpmNorm,
+                                                areaData.ipm
                                             ) :
                                             undefined
                                     )
