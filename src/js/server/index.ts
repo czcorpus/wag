@@ -26,7 +26,7 @@ import * as translations from 'translations';
 import * as winston from 'winston';
 import { forkJoin, of as rxOf, Observable } from 'rxjs';
 import { concatMap, map, tap } from 'rxjs/operators';
-import { Ident } from 'cnc-tskit';
+import { Ident, tuple } from 'cnc-tskit';
 import 'winston-daily-rotate-file';
 
 import { ClientStaticConf, ServerConf, LanguageLayoutsConfig, LanguageAnyTileConf, isTileDBConf, ColorsConf } from '../conf';
@@ -38,6 +38,7 @@ import { RedisQueryLog } from './queryLog/redisQueue';
 import { NullQueryLog } from './queryLog/nullQueue';
 import { WordDatabases } from './actionServices';
 import { PackageInfo } from '../common/types';
+import { createQueryLogInstance } from './queryLog/factory';
 
 
 function loadTilesConf(clientConf:ClientStaticConf):Observable<LanguageAnyTileConf> {
@@ -63,7 +64,7 @@ function loadColorsConf(clientConf:ClientStaticConf):Observable<ColorsConf> {
 }
 
 
-forkJoin(
+forkJoin( // load core configs
     parseJsonConfig<ServerConf>(process.env.SERVER_CONF ?
         process.env.SERVER_CONF :
         path.resolve(__dirname, '../conf/server.json')),
@@ -73,7 +74,7 @@ forkJoin(
     parseJsonConfig<PackageInfo>(path.resolve(__dirname, '../package.json'))
 
 ).pipe(
-    concatMap(
+    concatMap( // load layouts config
         ([serverConf, clientConf, pkgInfo]) => (typeof clientConf.layouts === 'string' ?
             parseJsonConfig<LanguageLayoutsConfig>(clientConf.layouts) :
             rxOf(clientConf.layouts)
@@ -86,7 +87,7 @@ forkJoin(
             )
         )
     ),
-    concatMap(
+    concatMap( // load tile and theme definitions
         ([serverConf, clientConf, pkgInfo]) => forkJoin(
             loadTilesConf(clientConf),
             loadColorsConf(clientConf)
@@ -100,7 +101,7 @@ forkJoin(
                     return ans;
                 }
             ),
-            tap(
+            tap( // validate tiles
                 ([,clientConf,]) => {
                     if (!validateTilesConf(clientConf.tiles as LanguageAnyTileConf)) {
                         throw Error('\uD83D\uDC4E Invalid tile config found!');
@@ -108,10 +109,15 @@ forkJoin(
                 }
             )
         )
+    ),
+    concatMap( // initiate query log
+        ([serverConf, clientConf, pkgInfo]) => createQueryLogInstance(serverConf).pipe(
+            map(queryLog => tuple(serverConf, clientConf, pkgInfo, queryLog))
+        )
     )
 
 ).subscribe(
-    ([serverConf, clientConf, pkgInfo]) => {
+    ([serverConf, clientConf, pkgInfo, queryLog]) => {
         const app = express();
         app.use(cookieParser());
         app.use(bodyParser.json());
@@ -157,9 +163,7 @@ forkJoin(
             telemetryDB: serverConf.telemetryDB ? new sqlite3.Database(serverConf.telemetryDB) : null,
             translations: translations,
             toolbar: toolbar,
-            queryLog: serverConf.logQueue ?
-                    new RedisQueryLog(serverConf.logQueue) :
-                    new NullQueryLog(),
+            queryLog: queryLog,
             errorLog: logger,
             version: pkgInfo.version,
             repositoryUrl: pkgInfo.repository.url

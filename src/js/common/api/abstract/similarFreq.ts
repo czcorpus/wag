@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { QueryPoS, FreqBand } from '../../query';
+import { FreqBand } from '../../query';
 import { DataApi } from '../../types';
 import { PosItem } from '../../postag';
 

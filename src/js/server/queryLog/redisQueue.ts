@@ -27,19 +27,12 @@ export class RedisQueryLog implements IQueryLog {
 
     private readonly queueKey:string;
 
-    constructor(conf:LogQueueConf) {
-        import(/* webpackChunkName: "ioredis" */ 'ioredis').then(
-            (ioredis) => {
-                this.client = new ioredis({
-                    port: conf.port,
-                    host: conf.host,
-                    db: conf.db
-                });
-            },
-            (err) => {
-                console.log(err);
-            }
-        );
+    constructor(conf:LogQueueConf, ioredisConstructor:any) {
+        this.client = new ioredisConstructor({
+            port: conf.port,
+            host: conf.host,
+            db: conf.db
+        });
         this.queueKey = conf.key;
     }
 
