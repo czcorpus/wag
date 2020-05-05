@@ -402,6 +402,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             left: calcXPos()
         };
 
+        const decimalSeparator = ut.formatNumber(0.1).slice(1, -1);
+
         return (
             <div className="map-tooltip" ref={ref} style={style}>
                 <table>
@@ -412,15 +414,23 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             pipe(
                                 props.values || {},
                                 Dict.toEntries(),
-                                List.map(([label, value], index) =>
-                                    value === undefined ?
-                                        null :
-                                        <tr key={label}>
-                                            <td style={{fontWeight: 900, color: 'white', backgroundColor: theme.cmpCategoryColor(index)}}>{label}</td>
-                                            <td className='num'>{value[0]}</td>
-                                            <td className='num'>{value[1]}</td>
+                                List.map(([label, value], index) => {                                    
+                                    if (value) {
+                                        const [percWh, percDec] = ut.formatNumber(value[0], 1).split(decimalSeparator);
+                                        const [ipmWh, ipmDec] = ut.formatNumber(value[1], 1).split(decimalSeparator);
+                                        return <tr key={label}>
+                                            <td className='label' style={{backgroundColor: theme.cmpCategoryColor(index)}}>{label}</td>
+                                            <td className='numWhole'>{percWh}</td>
+                                            <td className='numDec'>{percDec ? decimalSeparator + percDec : null}</td>
+                                            <td className='unit'>%</td>
+                                            <td className='numWhole'>{ipmWh}</td>
+                                            <td className='numDec'>{ipmDec ? decimalSeparator + ipmDec : null}</td>
+                                            <td className='unit'>ipm</td>
                                         </tr>
-                                )
+                                    } else {
+                                        return null;
+                                    }
+                                })
                             )
                         }
                     </tbody>

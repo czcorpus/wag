@@ -10,7 +10,7 @@
         display: none;
         background-color: #FFFFFF;
         z-index: 10000;
-        padding: 0.3em 1em;
+        padding: 0.3em 1em 1.3em 1em;
         border: 1px solid @color-light-grey;
         border-radius: 3px;
         border-spacing: 0;
@@ -27,14 +27,25 @@
                 padding: 10px 0;
             }
 
-            td {
-                font-weight: normal;
-                text-align: left;
-                padding: 0 10px;
+            td.label {
+                font-weight: 900;
+                color: white;
+                text-align: center;
+                padding: 0 10px 0 10px;
             }
 
-            td.num {
+            td.numWhole {
                 text-align: right;
+                padding: 0 0 0 10px;
+            }
+            
+            td.numDec {
+                text-align: left;
+                padding: 0;
+            }
+
+            td.unit {
+                text-align: center;
             }
 
         }
