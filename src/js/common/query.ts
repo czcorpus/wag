@@ -26,12 +26,6 @@ export enum QueryType {
     TRANSLAT_QUERY = 'translat'
 }
 
-/**
- * Any PoS encoding, including multi-word one
- * (e.g. 'A N', 'V').
- */
-export type QueryPoS = string;
-
 export function importQueryTypeString(v:string, dflt:QueryType):QueryType {
     if (v === QueryType.SINGLE_QUERY || v === QueryType.CMP_QUERY || v === QueryType.TRANSLAT_QUERY) {
         return v as QueryType;

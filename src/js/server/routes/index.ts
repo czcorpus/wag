@@ -23,7 +23,7 @@ import { concatMap, map, reduce, tap } from 'rxjs/operators';
 import { AppServices } from '../../appServices';
 import { encodeArgs } from '../../common/ajax';
 import { ErrorType, mapToStatusCode, newError } from '../../common/errors';
-import { QueryType, QueryMatch, QueryPoS } from '../../common/query';
+import { QueryType, QueryMatch } from '../../common/query';
 import { GlobalComponents } from '../../views/global';
 import { IFreqDB } from '../freqdb/freqdb';
 
@@ -36,7 +36,7 @@ import { errorUserConf, emptyClientConf, THEME_COOKIE_NAME } from '../../conf';
 import { init as viewInit } from '../../views/layout';
 import { init as errPageInit } from '../../views/error';
 import { emptyValue } from '../toolbar/empty';
-import { HTTP, List, pipe, Dict } from 'cnc-tskit';
+import { HTTP, List, pipe, Dict, tuple } from 'cnc-tskit';
 import { importQueryPos } from '../../common/postag';
 
 
@@ -158,7 +158,11 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         const appServices = new AppServices({
             notifications: null, // TODO
             uiLang: uiLang,
-            searchLanguages: Object.keys(services.clientConf.searchLanguages).map(k => [k, services.clientConf.searchLanguages[k]]),
+            searchLanguages: pipe(
+                services.clientConf.searchLanguages,
+                Dict.keys(),
+                List.map(k => tuple(k, services.clientConf.searchLanguages[k]))
+            ),
             translator: viewUtils,
             staticUrlCreator: viewUtils.createStaticUrl,
             actionUrlCreator: viewUtils.createActionUrl,
@@ -167,7 +171,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             mobileModeTest: ()=>false
         });
 
-        new Observable<{lang:string; word:string; lemma:string; pos:Array<QueryPoS>; rng:number}>((observer) => {
+        new Observable<{lang:string; word:string; lemma:string; pos:Array<string>; rng:number}>((observer) => {
             if (isNaN(parseInt(queryValues(req, 'srchRange')[0]))) {
                 observer.error(
                     newError(ErrorType.BAD_REQUEST, `Invalid range provided, srchRange = ${req.query.srchRange}`));
@@ -251,7 +255,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
 
         const freqDb = services.db.getDatabase(QueryType.SINGLE_QUERY, queryValues(req, 'lang')[0]);
 
-        new Observable<{lang:string; word:string; lemma:string; pos:Array<QueryPoS>}>((observer) => {
+        new Observable<{lang:string; word:string; lemma:string; pos:Array<string>}>((observer) => {
             if (freqDb === undefined) {
                 observer.error(
                     newError(ErrorType.BAD_REQUEST, `Frequency database for [${req.query.lang}] not defined`));

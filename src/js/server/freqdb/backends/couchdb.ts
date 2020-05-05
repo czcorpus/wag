@@ -21,7 +21,7 @@ import { List, pipe } from 'cnc-tskit';
 import axios from 'axios';
 
 import { IAppServices } from '../../../appServices';
-import { QueryMatch, QueryPoS, calcFreqBand } from '../../../common/query';
+import { QueryMatch, calcFreqBand } from '../../../common/query';
 import { IFreqDB } from '../freqdb';
 import { FreqDbOptions } from '../../../conf';
 import { importQueryPosWithLabel, posTable } from '../../../common/postag';
@@ -170,11 +170,11 @@ export class CouchFreqDB implements IFreqDB {
         )
     }
 
-    getSimilarFreqWords(appServices:IAppServices, lemma:string, pos:Array<QueryPoS>, rng:number):Observable<Array<QueryMatch>> {
+    getSimilarFreqWords(appServices:IAppServices, lemma:string, pos:Array<string>, rng:number):Observable<Array<QueryMatch>> {
         return this.queryExact(Views.BY_LEMMA, lemma).pipe(
             concatMap(
                 resp => {
-                    const srch = List.find(v => v.doc.lemma === lemma && pos.indexOf(v.doc.pos as QueryPoS) > -1, resp.rows);
+                    const srch = List.find(v => v.doc.lemma === lemma && pos.indexOf(v.doc.pos as string) > -1, resp.rows);
                     return pos.length === 1 && srch ?
                         merge(
                             this.queryServer(
@@ -224,10 +224,10 @@ export class CouchFreqDB implements IFreqDB {
         );
     }
 
-    getWordForms(appServices:IAppServices, lemma:string, pos:Array<QueryPoS>):Observable<Array<QueryMatch>> {
+    getWordForms(appServices:IAppServices, lemma:string, pos:Array<string>):Observable<Array<QueryMatch>> {
         return this.queryExact(Views.BY_LEMMA, lemma).pipe(
             map(resp => {
-                const srch = List.find(v => v.doc.lemma === lemma && pos.indexOf(v.doc.pos as QueryPoS) > -1, resp.rows);
+                const srch = List.find(v => v.doc.lemma === lemma && pos.join(' ') === v.doc.pos, resp.rows);
                 return pos.length === 1 && srch ?
                     List.map(
                         form => ({

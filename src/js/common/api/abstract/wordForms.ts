@@ -17,13 +17,12 @@
  */
 
 import { DataApi } from '../../types';
-import { QueryPoS } from '../../query';
 
 
 export interface RequestArgs {
     lang:string;
     lemma:string;
-    pos:Array<QueryPoS>;
+    pos:Array<string>;
 }
 
 export function isRequestArgs(v:RequestArgs|RequestConcArgs):v is RequestArgs {
