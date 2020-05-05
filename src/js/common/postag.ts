@@ -37,15 +37,11 @@ export interface PosQueryExport {
 }
 
 /**
- * A complete description of a part
- * of speech item, including localized
- * label. List of values is used for
- * both value and label to be compatible
- * with multi-word queries.
+ * A PoS description of a single-word token
  */
 export interface PosItem {
-    label:Array<string>;
-    value:Array<string>;
+    label:string;
+    value:string;
 }
 
 /**
@@ -214,7 +210,7 @@ export function importQueryPos(s:string):string {
  * Imports a string-encoded, possibly multi-word-based PoS
  * along with localized label.
  */
-export function importQueryPosWithLabel(s:string, postable:{[key:string]:{[lang:string]:string}}, appServices:IAppServices):PosItem {
+export function importQueryPosWithLabel(s:string, postable:{[key:string]:{[lang:string]:string}}, appServices:IAppServices):Array<PosItem> {
     return pipe(
         s.split(' '),
         List.map(
@@ -230,11 +226,11 @@ export function importQueryPosWithLabel(s:string, postable:{[key:string]:{[lang:
             }
         ),
         List.foldl(
-            (acc, curr) => ({
-                value: acc.value.concat([curr.value]),
-                label: acc.label.concat([curr.label])
-            }),
-            {value: [], label: []}
+            (acc, curr) => acc.concat([{
+                value: curr.value,
+                label: curr.label
+            }]),
+            [] as Array<PosItem>
         )
     );
 }

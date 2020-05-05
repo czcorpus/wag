@@ -122,7 +122,7 @@ export class KontextFreqDB implements IFreqDB {
                     const ans:QueryMatch = {
                         lemma: item.Word[0].n,
                         word: word,
-                        pos: [importQueryPosWithLabel(pos, posTable, appServices)],
+                        pos: importQueryPosWithLabel(pos, posTable, appServices),
                         abs: item.freq,
                         ipm: ipm,
                         arf: -1,

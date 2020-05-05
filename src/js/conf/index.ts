@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { DbValueMapping, HTTPHeaders, LocalizedConfMsg } from '../common/types';
-import { QueryType, SearchLanguage, QueryPoS } from '../common/query';
+import { QueryType, SearchLanguage } from '../common/query';
 import { TileConf } from '../common/tile';
 import { CSSProperties } from 'react';
 import { List, pipe } from 'cnc-tskit';
@@ -27,6 +27,12 @@ export const THEME_COOKIE_NAME = 'wag_theme';
 export const THEME_DEFAULT_NAME = 'default';
 export const THEME_DEFAULT_LABEL = 'Default';
 
+export interface UserQuery {
+    word:string;
+    pos:Array<string>;
+    lemma?:string;
+}
+
 /**
  * A page configuration based on
  * user specific information/input.
@@ -34,9 +40,7 @@ export const THEME_DEFAULT_LABEL = 'Default';
 export interface UserConf {
     uiLanguages:{[code:string]:string};
     uiLang:string;
-    queries:Array<string>;
-    queryPos:Array<Array<QueryPoS>>;
-    lemma?:Array<string>;
+    queries:Array<UserQuery>;
     queryType:QueryType;
 	query1Lang:string;
     query2Lang:string;
@@ -49,7 +53,6 @@ export function errorUserConf(uiLanguages:{[code:string]:string}, error:[number,
         uiLanguages: uiLanguages,
         uiLang: uiLang,
         queries: [],
-        queryPos: [],
         queryType: QueryType.SINGLE_QUERY,
         query1Lang: '',
         query2Lang: '',

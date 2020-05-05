@@ -51,10 +51,7 @@ export class SqliteFreqDB implements IFreqDB {
             arf: row['arf'],
             ipm: row['ipm'] !== undefined ? row['ipm'] : -1,
             flevel: null,
-            pos: List.map<QueryPoS, PosItem>(
-                v => importQueryPosWithLabel(v, posTable, appServices),
-                row['pos'].split(',')
-            ),
+            pos: importQueryPosWithLabel(row['pos'], posTable, appServices),
             isCurrent: isCurrent
         };
     }
@@ -86,7 +83,7 @@ export class SqliteFreqDB implements IFreqDB {
                                         abs: row['abs'],
                                         ipm: row['ipm'],
                                         arf: row['arf'],
-                                        pos: [importQueryPosWithLabel(pos, posTable, appServices)],
+                                        pos: importQueryPosWithLabel(pos, posTable, appServices),
                                         flevel: calcFreqBand(row['ipm']),
                                         isCurrent: false
                                     });
@@ -154,9 +151,9 @@ export class SqliteFreqDB implements IFreqDB {
     getSimilarFreqWords(appServices:IAppServices, lemma:string, pos:Array<QueryPoS>, rng:number):Observable<Array<QueryMatch>> {
         return new Observable<QueryMatch>((observer) => {
             this.db.get(
-                `SELECT value, GROUP_CONCAT(pos) AS pos, SUM(\`count\`) AS abs, CAST(\`count\` AS FLOAT) / ? * 1000000 AS ipm, SUM(arf) AS arf
+                `SELECT value, pos, SUM(\`count\`) AS abs, CAST(\`count\` AS FLOAT) / ? * 1000000 AS ipm, SUM(arf) AS arf
                 FROM lemma
-                WHERE value = ? AND pos IN (${ntimesPlaceholder(pos.length)}) GROUP BY value`,
+                WHERE value = ? AND pos IN (${ntimesPlaceholder(pos.length)})`,
                 [this.corpusSize, lemma, ...pos],
                 (err, row) => {
                     if (err) {

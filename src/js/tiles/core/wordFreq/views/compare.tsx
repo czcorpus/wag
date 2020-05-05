@@ -70,25 +70,17 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                                         </dd>
                                                         <dt>{ut.translate('wordfreq__pos')}:{w.pos.length > 1 ? ' (' + ut.translate('wordfreq__multiple_variants') + ')' : ''}:</dt>
                                                         <dd>
-                                                        {List.map(
-                                                            (v, i) => {
-                                                                return (
-                                                                    <React.Fragment key={`${i}:${v.value}`}>
-                                                                        {List.map(
-                                                                            (label, i) => (
-                                                                                <React.Fragment key={label}>
-                                                                                    {i > 0 ? '\u00a0' : ''}
-                                                                                    <span className="squareb">[</span>
-                                                                                        {label}
-                                                                                    <span className="squareb">]</span>
-                                                                                </React.Fragment>
-                                                                            ),
-                                                                            v.label
-                                                                        )}
+                                                            {List.map(
+                                                                (pos, i) => (
+                                                                    <React.Fragment key={pos.value}>
+                                                                        {i > 0 ? '\u00a0' : ''}
+                                                                        <span className="squareb">[</span>
+                                                                            {pos.label}
+                                                                        <span className="squareb">]</span>
                                                                     </React.Fragment>
-                                                                )
-                                                            },
-                                                            w.pos
+                                                                ),
+                                                                w.pos
+                                                            )}
                                                         )}
                                                         </dd>
                                                     </> :

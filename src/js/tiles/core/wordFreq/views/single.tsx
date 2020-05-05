@@ -92,26 +92,17 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         {props.data.pos.length > 1 ? ' (' + ut.translate('wordfreq__multiple_variants') + ')' : ''}:
                     </dt>
                     <dd>
-                        {List.map(
-                            (v, i) => {
-                                return (
-                                    <React.Fragment key={`${i}:${v.value}`}>
-                                        {List.map(
-                                            (label, i) => (
-                                                <React.Fragment key={`${i}:${label}`}>
-                                                    {i > 0 ? '\u00a0' : ''}
-                                                    <span className="squareb">[</span>
-                                                        {label}
-                                                    <span className="squareb">]</span>
-                                                </React.Fragment>
-                                            ),
-                                            v.label
-                                        )}
-                                    </React.Fragment>
-                                )
-                            },
-                            props.data.pos
-                        )}
+                    {List.map(
+                        (pos, i) => (
+                            <React.Fragment key={`${i}:${pos.value}`}>
+                                {i > 0 ? '\u00a0' : ''}
+                                <span className="squareb">[</span>
+                                    {pos.label}
+                                <span className="squareb">]</span>
+                            </React.Fragment>
+                        ),
+                        props.data.pos
+                    )}
                     </dd>
                     {props.data.abs > 0 ?
                         <>
