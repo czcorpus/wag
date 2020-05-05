@@ -71,7 +71,7 @@ module.exports = (env) => ({
     },
     optimization: {
         splitChunks: {
-            chunks: 'all',
+            chunks: (chunk) => chunk.name !== 'sanitize-html' || chunk.name !== 'ioredis',
             name: 'common'
         },
         minimizer: [] // no big deal on server-side (code is loaded once)
