@@ -163,7 +163,7 @@ export function mainAction(services:Services, answerMode:boolean, req:Request, r
                 appServices
             ),
             logReq: logRequest( // we don't need the return value much here (see subscribe)
-                services.logging,
+                services.queryLog,
                 appServices.getISODatetime(),
                 req,
                 userConf

@@ -118,7 +118,7 @@ module.exports = (env) => ({
     },
     optimization: {
         splitChunks: {
-            chunks: (chunk) => chunk.name !== 'sanitize-html',
+            chunks: (chunk) => chunk.name !== 'sanitize-html' || chunk.name !== 'ioredis',
             name: 'common'
         },
         minimizer: [

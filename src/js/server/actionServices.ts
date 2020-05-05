@@ -21,7 +21,7 @@ import * as winston from 'winston';
 
 import { ServerConf, ClientStaticConf, WordFreqDbConf, FreqDbConf } from '../conf';
 import { IToolbarProvider } from '../common/hostPage';
-import { ILogQueue } from './logging/abstract';
+import { IQueryLog } from './queryLog/abstract';
 import { QueryType } from '../common/query';
 import { IFreqDB } from './freqdb/freqdb';
 import { createInstance, FreqDBType } from './freqdb/factory';
@@ -93,6 +93,6 @@ export interface Services {
     telemetryDB:Database;
     toolbar:IToolbarProvider;
     translations:{[loc:string]:{[key:string]:string}};
-    logging:ILogQueue;
+    queryLog:IQueryLog;
     errorLog:winston.Logger;
 }

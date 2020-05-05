@@ -34,8 +34,8 @@ import { validateTilesConf } from '../conf/validation';
 import { parseJsonConfig, loadRemoteTileConf } from '../conf/loader';
 import { wdgRouter } from './routes/index';
 import { createToolbarInstance } from './toolbar/factory';
-import { RedisLogQueue } from './logging/redisQueue';
-import { NullLogQueue } from './logging/nullQueue';
+import { RedisQueryLog } from './queryLog/redisQueue';
+import { NullQueryLog } from './queryLog/nullQueue';
 import { WordDatabases } from './actionServices';
 import { PackageInfo } from '../common/types';
 
@@ -157,9 +157,9 @@ forkJoin(
             telemetryDB: serverConf.telemetryDB ? new sqlite3.Database(serverConf.telemetryDB) : null,
             translations: translations,
             toolbar: toolbar,
-            logging: serverConf.logQueue ?
-                    new RedisLogQueue(serverConf.logQueue) :
-                    new NullLogQueue(),
+            queryLog: serverConf.logQueue ?
+                    new RedisQueryLog(serverConf.logQueue) :
+                    new NullQueryLog(),
             errorLog: logger,
             version: pkgInfo.version,
             repositoryUrl: pkgInfo.repository.url
