@@ -21,7 +21,7 @@ import axios from 'axios';
 import { IFreqDB } from '../freqdb';
 import { IAppServices } from '../../../appServices';
 import { Observable } from 'rxjs';
-import { QueryMatch, QueryPoS, calcFreqBand } from '../../../common/query';
+import { QueryMatch, calcFreqBand } from '../../../common/query';
 import { QuerySelector, HTTPResponse as ConcHTTPResponse, escapeVal } from '../../../common/api/kontext/concordance';
 import { HTTPResponse as FreqsHttpResponse } from '../../../common/api/kontext/freqs';
 import { map, concatMap } from 'rxjs/operators';
@@ -117,7 +117,7 @@ export class KontextFreqDB implements IFreqDB {
             concatMap(v => this.loadFreqs(v.conc_persistence_op_id)),
             map(v => List.map(
                 item => {
-                    const pos = item.Word[1].n as QueryPoS; // TODO maybe we should validate just to be sure
+                    const pos = item.Word[1].n; // TODO maybe we should validate just to be sure
                     const ipm = item.freq / this.corpusSize * 1e6;
                     const ans:QueryMatch = {
                         lemma: item.Word[0].n,
@@ -136,14 +136,18 @@ export class KontextFreqDB implements IFreqDB {
         )
     }
 
-    getSimilarFreqWords(appServices:IAppServices, lemma:string, pos:Array<QueryPoS>, rng:number):Observable<Array<QueryMatch>> {
+    getSimilarFreqWords(appServices:IAppServices, lemma:string, pos:Array<string>, rng:number):Observable<Array<QueryMatch>> {
         return new Observable<Array<QueryMatch>>((observer) => {
             observer.next([]);
             observer.complete();
         });
     }
 
-    getWordForms(appServices:IAppServices, lemma:string, pos:Array<QueryPoS>):Observable<Array<QueryMatch>> {
+    /**
+     * Because Manatee does not provide such a functionality,
+     * we return an empty array here.
+     */
+    getWordForms(appServices:IAppServices, lemma:string, pos:Array<string>):Observable<Array<QueryMatch>> {
         return new Observable<Array<QueryMatch>>((observer) => {
             observer.next([]);
             observer.complete();

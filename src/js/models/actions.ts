@@ -18,7 +18,7 @@
 import { Action } from 'kombo';
 
 import { SystemMessageType, SourceDetails } from '../common/types';
-import { QueryType, QueryPoS } from '../common/query';
+import { QueryType } from '../common/query';
 
 
 export enum ActionName {
@@ -128,7 +128,7 @@ export namespace Actions {
         queryIdx:number;
         word:string;
         lemma:string;
-        pos:Array<QueryPoS>;
+        pos:Array<string>;
 
     }> {
         name:ActionName.ChangeCurrQueryMatch;

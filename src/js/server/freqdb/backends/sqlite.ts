@@ -21,9 +21,9 @@ import { Database } from 'sqlite3';
 import { List } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
-import { QueryMatch, QueryPoS, calcFreqBand } from '../../../common/query';
+import { QueryMatch, calcFreqBand } from '../../../common/query';
 import { IFreqDB } from '../freqdb';
-import { importQueryPos, importQueryPosWithLabel, PosItem, posTable } from '../../../common/postag';
+import { importQueryPos, importQueryPosWithLabel, posTable } from '../../../common/postag';
 
 
 function ntimesPlaceholder(n:number):string {
@@ -148,7 +148,7 @@ export class SqliteFreqDB implements IFreqDB {
         });
     }
 
-    getSimilarFreqWords(appServices:IAppServices, lemma:string, pos:Array<QueryPoS>, rng:number):Observable<Array<QueryMatch>> {
+    getSimilarFreqWords(appServices:IAppServices, lemma:string, pos:Array<string>, rng:number):Observable<Array<QueryMatch>> {
         return new Observable<QueryMatch>((observer) => {
             this.db.get(
                 `SELECT value, pos, SUM(\`count\`) AS abs, CAST(\`count\` AS FLOAT) / ? * 1000000 AS ipm, SUM(arf) AS arf
@@ -181,14 +181,14 @@ export class SqliteFreqDB implements IFreqDB {
         );
     }
 
-    getWordForms(appServices:IAppServices, lemma:string, pos:Array<QueryPoS>):Observable<Array<QueryMatch>> {
+    getWordForms(appServices:IAppServices, lemma:string, pos:Array<string>):Observable<Array<QueryMatch>> {
         return new Observable<QueryMatch>((observer) => {
             this.db.each(
                 'SELECT w.value AS value, w.pos, w.count AS abs, CAST(w.count AS FLOAT) / ? * 1000000 AS ipm ' +
                 'FROM lemma AS m ' +
                 'JOIN word AS w ON m.value = w.lemma AND m.pos = w.pos ' +
-                `WHERE m.value = ? AND m.pos IN (${ntimesPlaceholder(pos.length)})`,
-                [this.corpusSize, lemma, ...pos],
+                `WHERE m.value = ? AND m.pos = ?`,
+                [this.corpusSize, lemma, pos.join(' ')],
                 (err, row) => {
                     if (err) {
                         observer.error(err);

@@ -23,7 +23,7 @@ import { IAppServices } from '../../../appServices';
 import { WordFormsModel } from './model';
 import { QueryType } from '../../../common/query';
 import { init as viewInit } from './views';
-import { createApiInstance } from './apiFactory';
+import { createApiInstance } from '../../../common/api/factory/wordForms';
 
 
 export interface WordFormsTileConf extends TileConf {
