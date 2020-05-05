@@ -174,20 +174,30 @@ export class CouchFreqDB implements IFreqDB {
         return this.queryExact(Views.BY_LEMMA, lemma).pipe(
             concatMap(
                 resp => {
-                    const srch = List.find(v => v.doc.lemma === lemma && pos.indexOf(v.doc.pos as string) > -1, resp.rows);
+                    const srch = List.find(v => v.doc.lemma === lemma && pos.join(' ') === v.doc.pos, resp.rows);
                     return pos.length === 1 && srch ?
                         merge(
+                            // we must search for exact frequency separately to prevent
+                            // finding the same results in the next two searches and
+                            // (worse) by exhausting the search items limit.
                             this.queryServer(
                                 Views.BY_ARF,
                                 {
-                                    startkey: srch.doc.arf,
+                                    key: srch.doc.arf,
                                     limit: rng
                                 }
                             ),
                             this.queryServer(
                                 Views.BY_ARF,
                                 {
-                                    startkey: srch.doc.arf,
+                                    startkey: srch.doc.arf + srch.doc.arf / 1e5,
+                                    limit: rng
+                                }
+                            ),
+                            this.queryServer(
+                                Views.BY_ARF,
+                                {
+                                    startkey: srch.doc.arf - srch.doc.arf / 1e6,
                                     limit: rng,
                                     descending: 'true'
                                 }

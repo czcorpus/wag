@@ -122,11 +122,11 @@ export class SqliteFreqDB implements IFreqDB {
                 'SELECT value, pos, arf, `count` AS abs, CAST(count AS FLOAT) / ? * 1000000 AS ipm ' +
                 'FROM lemma ' +
                 (whereSgn > 0 ?
-                    `WHERE is_pname = 0 AND arf >= ? AND (value <> ? OR pos NOT IN (${ntimesPlaceholder(val.pos.length)})) ORDER BY arf ASC` :
+                    `WHERE is_pname = 0 AND arf >= ? AND (value <> ? OR pos <> ?)) ORDER BY arf ASC` :
                     'WHERE is_pname = 0 AND arf < ? ORDER BY arf DESC') + ' ' +
                 'LIMIT ?',
                 whereSgn > 0 ?
-                    [this.corpusSize, val.arf, val.lemma, ...val.pos.map(v => v.value), limit] :
+                    [this.corpusSize, val.arf, val.lemma, ...val.pos.map(v => v.value).join(' '), limit] :
                     [this.corpusSize, val.arf, limit],
                 (err, row) => {
                     if (err) {
@@ -153,8 +153,8 @@ export class SqliteFreqDB implements IFreqDB {
             this.db.get(
                 `SELECT value, pos, SUM(\`count\`) AS abs, CAST(\`count\` AS FLOAT) / ? * 1000000 AS ipm, SUM(arf) AS arf
                 FROM lemma
-                WHERE value = ? AND pos IN (${ntimesPlaceholder(pos.length)})`,
-                [this.corpusSize, lemma, ...pos],
+                WHERE value = ? AND pos = ?)`,
+                [this.corpusSize, lemma, pos.join(' ')],
                 (err, row) => {
                     if (err) {
                         observer.error(err);
