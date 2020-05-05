@@ -132,6 +132,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         return (
             <p className="ChartLegend" style={{textAlign: 'center'}}>
+                <b>{
+                    ut.translate('multiWordTimeDistrib__estimated_trend_for')[0].toUpperCase() +
+                    ut.translate('multiWordTimeDistrib__estimated_trend_for').slice(1)
+                }</b>
+                <br />
                 {pipe(
                     props.rcData.payload,
                     List.filter(pitem => !!pitem.payload.name),
