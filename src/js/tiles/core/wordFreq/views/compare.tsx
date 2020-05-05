@@ -81,7 +81,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                                                 ),
                                                                 w.pos
                                                             )}
-                                                        )}
                                                         </dd>
                                                     </> :
                                                     <>
