@@ -1,3 +1,5 @@
+@import '../../../../css/shared.less';
+
 .MultiWordTimeDistribTile {
     position: relative;
 
@@ -10,14 +12,16 @@
     .ChartLegend {
 
         .item {
+            font-weight: bold;
 
             .box {
                 display: inline-block;
-                margin-right: 0.4em;
-                margin-bottom: 0.2em;
-                width: 0.9em;
-                height: 0.9em;
+                margin-right: 0.5em;
+                margin-bottom: 0.25em;
+                width: 1.5em;
+                height: 1.5em;
                 vertical-align: middle;
+                border-radius: 2px;
             }
 
         }
@@ -60,6 +64,50 @@
             #intervalSelect {
                 margin-left: 0.7em;
             }
+        }
+    }
+
+    .chart-tooltip {
+
+        background-color: #FFFFFF;
+        padding: 0.3em 1em 1.3em 1em;
+        border: 1px solid @color-light-grey;
+        border-radius: 3px;
+        border-spacing: 0;
+        border-collapse: collapse;
+        line-height: 1.2em;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.25);
+        //pointer-events: 'none';
+
+        table {
+
+            th {
+                font-weight: bolder;
+                text-align: left;
+                padding: 10px 0;
+            }
+
+            td.label {
+                font-weight: 900;
+                color: white;
+                text-align: center;
+                padding: 0 10px 0 10px;
+            }
+
+            td.numWhole {
+                text-align: right;
+                padding: 0 0 0 10px;
+            }
+            
+            td.numDec {
+                text-align: left;
+                padding: 0;
+            }
+
+            td.unit {
+                text-align: center;
+            }
+
         }
     }
 }

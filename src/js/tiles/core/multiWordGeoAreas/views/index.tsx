@@ -408,9 +408,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             <div className="map-tooltip" ref={ref} style={style}>
                 <table>
                     <tbody>
-                        <tr><th colSpan={3}>{props.caption}</th></tr>
+                        <tr><th colSpan={7}>{props.caption}</th></tr>
                         {props.values === null ?
-                            <tr><td colSpan={3}>{ut.translate('multi_word_geolocations__not_enough_data')}</td></tr> :
+                            <tr><td colSpan={7}>{ut.translate('multi_word_geolocations__not_enough_data')}</td></tr> :
                             pipe(
                                 props.values || {},
                                 Dict.toEntries(),

@@ -8,8 +8,8 @@
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="720"
-   height="430"
-   viewBox="0 0 3600 2150"
+   height="460"
+   viewBox="0 0 3600 2300"
    id="svg-graph-p"
    version="1.1"
    sodipodi:docname="mapCzech.inline_V6.svg"
@@ -1013,4 +1013,8 @@
      id="naZAC-g"
      class="label-mount"
      transform="translate(765,1200)" />
+   <g
+     id="legend-g"
+     class="label-mount"
+     transform="translate(1800,2200)" />
 </svg>

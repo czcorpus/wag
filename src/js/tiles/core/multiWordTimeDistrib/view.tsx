@@ -25,7 +25,7 @@ import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
 import { GlobalComponents } from '../../../views/global';
 import { LemmaData, Actions, ActionName } from './common';
 import { TimeDistribModel, TimeDistribModelState } from './model';
-import { List, pipe } from 'cnc-tskit';
+import { List, pipe, tuple } from 'cnc-tskit';
 
 
 interface ChartDataPoint {
@@ -132,6 +132,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         return (
             <p className="ChartLegend" style={{textAlign: 'center'}}>
+                <b>{
+                    ut.translate('multiWordTimeDistrib__estimated_trend_for')[0].toUpperCase() +
+                    ut.translate('multiWordTimeDistrib__estimated_trend_for').slice(1)
+                }</b>
+                <br />
                 {pipe(
                     props.rcData.payload,
                     List.filter(pitem => !!pitem.payload.name),
@@ -143,6 +148,49 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 ({props.metric})
             </p>
         );
+    }
+
+    // -------------------------- <ChartTooltip /> --------------------------------------
+
+    const ChartTooltip:React.SFC<{
+        active:boolean;
+        payload:Array<{[key:string]:any}>;
+        label:string;
+        formatter:(value:string,name:string,data:{[key:string]:any}) => [number, number, string];
+    }> = (props) => {
+
+        if (props.active && props.payload) {
+            const decimalSeparator = ut.formatNumber(0.1).slice(1, -1);
+            return <div className="chart-tooltip">
+                <table>
+                    <tbody>
+                        <tr><th colSpan={7}>{props.label} - {ut.translate('multiWordTimeDistrib__estimated_trend_for')}</th></tr>
+                        {List.map(
+                            data => {
+                                const [percValue, ipmValue, name] = props.formatter(data.value, data.name, data);
+                                if (!name) {
+                                    return null;
+                                }
+                                const [percWh, percDec] = ut.formatNumber(percValue, 1).split(decimalSeparator);
+                                const [ipmWh, ipmDec] = ut.formatNumber(ipmValue, 1).split(decimalSeparator);
+                                return <tr key={name}>
+                                    <td className='label' style={{backgroundColor: data.color}}>{name}</td>
+                                    <td className='numWhole'>{percWh}</td>
+                                    <td className='numDec'>{percDec ? decimalSeparator + percDec : null}</td>
+                                    <td className='unit'>%</td>
+                                    <td className='numWhole'>{ipmWh}</td>
+                                    <td className='numDec'>{ipmDec ? decimalSeparator + ipmDec : null}</td>
+                                    <td className='unit'>ipm</td>
+                                </tr>
+                            },
+                            props.payload
+                        )}
+                    </tbody>
+                </table>
+            </div>;
+        }
+
+        return null;
     }
 
     // -------------- <Chart /> ------------------------------------------------------
@@ -233,7 +281,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 );
             let domainY:[number, number]|[number, string];
             let tickFormatterY:(fracValue:number, name:string, formatterProps:any)=>string;
-            let tooltipFormatter:(fracValue:number, name:string, formatterProps:any)=>[string, string];
+            let tooltipFormatter:(fracValue:number, name:string, formatterProps:any)=>[number, number, string];
             let keyFn1:(lemmaIdx:number)=>(v:ChartDataPoint)=>number;
             let keyFn2:(lemmaIdx:number)=>(v:ChartDataPoint)=>[number, number];
             switch (this.props.units) {
@@ -246,10 +294,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     );
                     domainY = [0, domainMax];
                     tickFormatterY = fracValue => `${fracValue * 100}%`;
-                    tooltipFormatter = (fracValue, name, formatterProps) => [
-                        `${(fracValue * 100).toFixed(2)} % (${(fracValue * formatterProps.payload.ipmNorm).toFixed(2)} ipm)`,
+                    tooltipFormatter = (fracValue, name, formatterProps) => tuple(
+                        100 * fracValue,
+                        formatterProps.payload.ipmNorm * fracValue,
                         name
-                    ];
+                    );
                 break;
                 case 'ipm':
                     keyFn1 = idx => v => v.ipmValues[idx];
@@ -257,7 +306,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     domainY = [0, 'auto'];
                     tickFormatterY = ipmValue => `${ipmValue} ipm`;
                     tooltipFormatter = (ipmValue, name, formatterProps) => [
-                        `${ipmValue.toFixed(2)} ipm (${(ipmValue * 100 / formatterProps.payload.ipmNorm).toFixed(2)} %)`,
+                        100 * ipmValue/formatterProps.payload.ipmNorm,
+                        ipmValue,
                         name
                     ];
                 break;
@@ -279,18 +329,18 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <Tooltip isAnimationActive={false}
                             formatter={(value, name, formatterProps) => {
                                 if (Array.isArray(value)) {
-                                    return [null, null];
+                                    return [null, null, null];
                                 }
                                 return tooltipFormatter(value, name, formatterProps);
                             }}
-                            content = {globComponents.AlignedRechartsTooltip}
+                            content = {ChartTooltip}
                         />
                         {List.map(
                             (word, index) =>
                                 <Area type="linear"
                                     key={`${word}Values`}
                                     dataKey={keyFn1(index)}
-                                    name={ut.translate('multiWordTimeDistrib__estimated_trend_for_{word}', {word: word})}
+                                    name={word}
                                     stroke={this.props.isPartial ? '#dddddd' : theme.cmpCategoryColor(index)}
                                     fill={'rgba(0,0,0,0)'}  // transparent fill - only line
                                     strokeWidth={2}
