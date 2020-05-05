@@ -24,7 +24,7 @@ import sys
 import couchdb
 import sqlite3
 
-DB_NAME = 'freqdb3g'
+DB_NAME = 'freqdb3g_v2'
 
 
 class DummyDB2():
@@ -41,8 +41,8 @@ class DummyDB2():
 
 def select_lines(db1):
     cursor = db1.cursor()
-    cursor.execute('SELECT w.value, w.lemma, w.pos, w.count, w.arf, m.pos as lemma_pos, m.count as lemma_count, m.arf as lemma_arf, m.is_pname as lemma_is_pname '
-                   'FROM word AS w JOIN lemma AS m ON m.value = w.lemma WHERE w.value = \'bydlím u\' ORDER BY w.lemma, m.pos, w.value')
+    cursor.execute('SELECT w.value, w.lemma, w.pos, w.count, w.arf, w.pos as lemma_pos, m.count as lemma_count, m.arf as lemma_arf, m.is_pname as lemma_is_pname '
+                   'FROM word AS w JOIN lemma AS m ON m.value = w.lemma ORDER BY w.lemma, w.pos, w.value')
     return cursor
 
 KEY_ALPHABET = ['%d' % i for i in range(10)] + [chr(x) for x in range(ord('a'), ord('z') + 1)] + [chr(x) for x in range(ord('A'), ord('Z') + 1)]
