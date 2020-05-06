@@ -57,12 +57,16 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 <dt>{ut.translate('wordfreq__main_label')}:</dt>
                 <dd className="word-list">
                 {List.map(
-                    (word, i) => (
-                        <React.Fragment key={`w:${word.lemma}:${i}`}>
+                    (word, i) => {
+                        const lemmaCount = List.filter(v => v.lemma === word.lemma, props.data).length;
+                        return <React.Fragment key={`w:${word.lemma}:${i}`}>
                         {i > 0 ? ', ' : ''}
-                        <a data-value={word.lemma} onClick={handleWordClick} title={ut.translate('global__click_to_query_word')}>{word.lemma}</a>
+                        <a data-value={word.lemma} onClick={handleWordClick} title={ut.translate('global__click_to_query_word')}>
+                            {word.lemma}
+                            {lemmaCount > 1 ? ` [${List.map(v => v.value, word.pos).join(' ')}]` : null}
+                        </a>
                         </React.Fragment>
-                    ),
+                    },
                     props.data
                 )}
                 </dd>
