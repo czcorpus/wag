@@ -59,7 +59,7 @@ export function encodeArgs(obj:{}):string {
     const ans:Array<string> = [];
     let p:string; // ES5 issue
     for (p in obj) {
-        if (obj.hasOwnProperty(p) && obj[p] !== undefined) {
+        if (obj[p] !== undefined) {
             const val = obj[p] !== null ? obj[p] : '';
             if (Array.isArray(val)) {
                 val.forEach(item => {

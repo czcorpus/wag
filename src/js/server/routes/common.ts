@@ -38,7 +38,10 @@ import { TileGroup } from '../../layout';
 
 
 export function queryValues(req:Request, name:string, dflt?:string):Array<string> {
-    const val = req.query[name];
+    // here we use the 'simple' query string parser so we don't need those
+    // fancy crazy types provided by @type/express
+    // see https://nodejs.org/api/querystring.html
+    const val = req.query[name] as {[k:string]:string|Array<string>};
     if (typeof val === 'string') {
         return [val];
 
