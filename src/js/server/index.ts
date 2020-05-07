@@ -119,6 +119,7 @@ forkJoin( // load core configs
 ).subscribe(
     ([serverConf, clientConf, pkgInfo, queryLog]) => {
         const app = express();
+        app.set('query parser', 'simple');
         app.use(cookieParser());
         app.use(bodyParser.json());
         app.use(bodyParser.urlencoded({ extended: true }));
