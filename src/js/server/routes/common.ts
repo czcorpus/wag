@@ -44,7 +44,7 @@ export function getQueryValue(req:Request, name:string, dflt?:string):Array<stri
     // here we use the 'simple' query string parser so we don't need those
     // fancy crazy types provided by @type/express
     // see https://nodejs.org/api/querystring.html
-    const val = req.query[name] as {[k:string]:string|Array<string>};
+    const val = (req.query as {[k:string]:string|Array<string>})[name];
     if (typeof val === 'string') {
         return [val];
 
