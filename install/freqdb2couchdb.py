@@ -17,7 +17,9 @@
 # limitations under the License.
 
 """
-Convert sqlite3-based word frequency database to CouchDB
+Convert sqlite3-based word frequency database to CouchDB.
+Please note that this is still an ad-hoc script which may
+not work for your user case (e.g. the character filtering).
 """
 
 import sys
@@ -66,24 +68,25 @@ def convert(db1, db2):
     i = 0
     id_base = 0
     for row in select_lines(db1):
-        new_lemma, new_pos = row['lemma'], row['lemma_pos']
-        if curr_lemma is None or new_lemma != curr_lemma['lemma'] or new_pos != curr_lemma['pos']:
-            if curr_lemma != None:
-                buff.append(curr_lemma)
-            curr_lemma = {
-                '_id': mk_id(id_base),
-                'lemma': new_lemma,
-                'forms': [],
-                'pos': new_pos,
-                'arf': row['lemma_arf'],
-                'is_pname': bool(row['lemma_is_pname']),
-                'count': row['lemma_count']
-            }
-            id_base += 1
-        curr_lemma['forms'].append({'word': row['value'], 'count': row['count'], 'arf': row['arf']})
-        if len(buff) == 10000:
-            db2.update(buff)
-            buff = []
+        if re.match(r'^[\sA-Za-z0-9áÁéÉěĚšŠčČřŘžŽýÝíÍúÚůťŤďĎňŇóÓ-]+$', row['lemma']):
+            new_lemma, new_pos = row['lemma'], row['lemma_pos']
+            if curr_lemma is None or new_lemma != curr_lemma['lemma'] or new_pos != curr_lemma['pos']:
+                if curr_lemma != None:
+                    buff.append(curr_lemma)
+                curr_lemma = {
+                    '_id': mk_id(id_base),
+                    'lemma': new_lemma,
+                    'forms': [],
+                    'pos': new_pos,
+                    'arf': row['lemma_arf'],
+                    'is_pname': bool(row['lemma_is_pname']),
+                    'count': row['lemma_count']
+                }
+                id_base += 1
+            curr_lemma['forms'].append({'word': row['value'], 'count': row['count'], 'arf': row['arf']})
+            if len(buff) == 10000:
+                db2.update(buff)
+                buff = []
         i += 1
         if i % 100000 == 0:
             print('Processed {} records'.format(i))
