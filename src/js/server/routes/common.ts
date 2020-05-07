@@ -36,8 +36,11 @@ import { WdglanceMainProps } from '../../views/main';
 import { ErrPageProps } from '../../views/error';
 import { TileGroup } from '../../layout';
 
-
-export function queryValues(req:Request, name:string, dflt?:string):Array<string> {
+/**
+ * Obtain value (or values if a key is provided multiple times) from
+ * a URL query string as stored in the 'req' argument.
+ */
+export function getQueryValue(req:Request, name:string, dflt?:string):Array<string> {
     // here we use the 'simple' query string parser so we don't need those
     // fancy crazy types provided by @type/express
     // see https://nodejs.org/api/querystring.html
@@ -98,7 +101,7 @@ export function fetchReqArgArray(req:Request, arg:string, minLen:number):Array<s
         return ans;
     }
 
-    const values = queryValues(req, arg);
+    const values = getQueryValue(req, arg);
     if (Array.isArray(values)) {
         return values.concat(mkEmpty(minLen - values.length));
     }

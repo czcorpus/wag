@@ -27,7 +27,7 @@ import { QueryType, QueryMatch } from '../../common/query';
 import { GlobalComponents } from '../../views/global';
 import { IFreqDB } from '../freqdb/freqdb';
 
-import { getLangFromCookie, fetchReqArgArray, createHelperServices, mkReturnUrl, renderResult, queryValues } from './common';
+import { getLangFromCookie, fetchReqArgArray, createHelperServices, mkReturnUrl, renderResult, getQueryValue } from './common';
 import { mainAction } from './main';
 import { Services } from '../actionServices';
 import { HTTPAction } from './actions';
@@ -101,7 +101,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
 
         new Observable<IFreqDB>((observer) => {
             const x = req.query;
-            const db = services.db.getDatabase(QueryType.SINGLE_QUERY, queryValues(req, 'lang')[0]);
+            const db = services.db.getDatabase(QueryType.SINGLE_QUERY, getQueryValue(req, 'lang')[0]);
             if (db === undefined) {
                 observer.error(
                     newError(ErrorType.BAD_REQUEST, `Frequency database for [${req.query.lang}] not defined`));
@@ -113,7 +113,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         }).pipe(
             concatMap(
                 (db) => {
-                    return db.findQueryMatches(appServices, queryValues(req, 'q')[0], 1);
+                    return db.findQueryMatches(appServices, getQueryValue(req, 'q')[0], 1);
                 }
             )
         ).subscribe(
@@ -172,22 +172,22 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         });
 
         new Observable<{lang:string; word:string; lemma:string; pos:Array<string>; rng:number}>((observer) => {
-            if (isNaN(parseInt(queryValues(req, 'srchRange')[0]))) {
+            if (isNaN(parseInt(getQueryValue(req, 'srchRange')[0]))) {
                 observer.error(
                     newError(ErrorType.BAD_REQUEST, `Invalid range provided, srchRange = ${req.query.srchRange}`));
 
-            } else if (services.db.getDatabase(QueryType.SINGLE_QUERY, queryValues(req, 'lang')[0]) === undefined) {
+            } else if (services.db.getDatabase(QueryType.SINGLE_QUERY, getQueryValue(req, 'lang')[0]) === undefined) {
                 observer.error(
                     newError(ErrorType.BAD_REQUEST, `Frequency database for [${req.query.lang}] not defined`));
 
             } else {
                 observer.next({
-                    lang: queryValues(req, 'lang')[0],
-                    word: queryValues(req, 'word')[0],
-                    lemma: queryValues(req, 'lemma')[0],
+                    lang: getQueryValue(req, 'lang')[0],
+                    word: getQueryValue(req, 'word')[0],
+                    lemma: getQueryValue(req, 'lemma')[0],
                     pos: List.map(v => importQueryPos(v), pos),
                     rng: Math.min(
-                        parseInt(queryValues(req, 'srchRange')[0]),
+                        parseInt(getQueryValue(req, 'srchRange')[0]),
                         services.serverConf.freqDB.single ?
                             services.serverConf.freqDB.single.similarFreqWordsMaxCtx :
                             0
@@ -253,7 +253,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             mobileModeTest: ()=>false
         });
 
-        const freqDb = services.db.getDatabase(QueryType.SINGLE_QUERY, queryValues(req, 'lang')[0]);
+        const freqDb = services.db.getDatabase(QueryType.SINGLE_QUERY, getQueryValue(req, 'lang')[0]);
 
         new Observable<{lang:string; word:string; lemma:string; pos:Array<string>}>((observer) => {
             if (freqDb === undefined) {
@@ -261,10 +261,10 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                     newError(ErrorType.BAD_REQUEST, `Frequency database for [${req.query.lang}] not defined`));
             }
             observer.next({
-                lang: queryValues(req, 'lang')[0],
-                word: queryValues(req, 'word')[0],
-                lemma: queryValues(req, 'lemma')[0],
-                pos: List.map(v => importQueryPos(v), queryValues(req, 'pos'))
+                lang: getQueryValue(req, 'lang')[0],
+                word: getQueryValue(req, 'word')[0],
+                lemma: getQueryValue(req, 'lemma')[0],
+                pos: List.map(v => importQueryPos(v), getQueryValue(req, 'pos'))
             });
 
         }).pipe(
