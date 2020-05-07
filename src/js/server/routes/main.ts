@@ -35,7 +35,7 @@ import { loadFile } from '../files';
 import { createRootComponent } from '../../app';
 import { ActionName } from '../../models/actions';
 import { DummyCache } from '../../cacheDb';
-import { getLangFromCookie, fetchReqArgArray, createHelperServices, mkReturnUrl, logRequest, renderResult, queryValues } from './common';
+import { getLangFromCookie, fetchReqArgArray, createHelperServices, mkReturnUrl, logRequest, renderResult, getQueryValue } from './common';
 
 
 function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, themeId:string, appServices:IAppServices):Observable<ClientConf> {
@@ -115,13 +115,13 @@ export function mainAction(services:Services, answerMode:boolean, req:Request, r
 
     new Observable<UserConf>(observer => {
         try {
-            const queryType = importQueryTypeString(queryValues(req, 'queryType')[0], QueryType.SINGLE_QUERY);
+            const queryType = importQueryTypeString(getQueryValue(req, 'queryType')[0], QueryType.SINGLE_QUERY);
             const minNumQueries = queryType === QueryType.CMP_QUERY ? 2 : 1;
             const userConfNorm:UserConf = {
                 uiLang: uiLang,
                 uiLanguages: services.serverConf.languages,
-                query1Lang: queryValues(req, 'lang1', 'cs')[0], // TODO default
-                query2Lang: queryValues(req, 'lang2', 'en')[0], // TODO default
+                query1Lang: getQueryValue(req, 'lang1', 'cs')[0], // TODO default
+                query2Lang: getQueryValue(req, 'lang2', 'en')[0], // TODO default
                 queryType: queryType,
                 queries: compileQueries(
                     fetchReqArgArray(req, 'q', minNumQueries),
