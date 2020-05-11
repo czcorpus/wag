@@ -18,20 +18,22 @@
 
 import { TestModelWrapper } from '../../../framework';
 
-import { createStubInstance, restore } from 'sinon';
+import { createStubInstance, restore, stub } from 'sinon';
 import { assert } from 'chai';
 import { of as rxOf } from 'rxjs';
 
 import { HtmlModel } from '../../../../src/js/tiles/core/html/model';
-import { GeneralHtmlAPI, RawHtmlAPI } from '../../../../src/js/tiles/core/html/service';
-import { HtmlModelState, HtmlApiArgs } from '../../../../src/js/tiles/core/html/common';
+import { RawHtmlAPI, HtmlApiArgs } from '../../../../src/js/common/api/wdglance/html';
+import { IGeneralHtmlAPI } from '../../../../src/js/common/api/abstract/html';
+import { HtmlModelState } from '../../../../src/js/tiles/core/html/common';
 import { QueryMatch } from '../../../../src/js/common/query';
 import { ActionName } from '../../../../src/js/models/actions';
+import * as query from '../../../../src/js/models/query';
 
 
 describe('HtmlTile model', function () {
 
-    let htmlApiStub:GeneralHtmlAPI<HtmlApiArgs>;
+    let htmlApiStub:IGeneralHtmlAPI<HtmlApiArgs>;
 
     let testHtmlModel:TestModelWrapper<HtmlModel, HtmlModelState>;
 
@@ -39,6 +41,7 @@ describe('HtmlTile model', function () {
         htmlApiStub = createStubInstance(RawHtmlAPI, {
             call: rxOf('fake html response')
         });
+        stub(query, 'findCurrQueryMatch').returns({lemma: 'anything'} as QueryMatch);
 
         testHtmlModel = new TestModelWrapper<HtmlModel, HtmlModelState>(
             (dispatcher, appServices) => new HtmlModel({
