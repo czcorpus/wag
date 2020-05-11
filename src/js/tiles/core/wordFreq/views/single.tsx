@@ -83,7 +83,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         <>
             <dt>{ut.translate('wordfreq_searched_form')}:</dt>
             <dd>{props.data.word}</dd>
-            {props.data.pos.length > 0 ?
+            {props.data.lemma ?
                 <>
                     <dt>
                         {props.data.lemma.split(' ').length > 1 ?
@@ -96,17 +96,20 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         {props.data.pos.length > 1 ? ' (' + ut.translate('wordfreq__multiple_variants') + ')' : ''}:
                     </dt>
                     <dd>
-                    {List.map(
-                        (pos, i) => (
-                            <React.Fragment key={`${i}:${pos.value}`}>
-                                {i > 0 ? '\u00a0' : ''}
-                                <span className="squareb">[</span>
-                                    {pos.label}
-                                <span className="squareb">]</span>
-                            </React.Fragment>
-                        ),
-                        props.data.pos
-                    )}
+                    {props.data.pos.length > 0 ?
+                        List.map(
+                            (pos, i) => (
+                                <React.Fragment key={`${i}:${pos.value}`}>
+                                    {i > 0 ? '\u00a0' : ''}
+                                    <span className="squareb">[</span>
+                                        {pos.label}
+                                    <span className="squareb">]</span>
+                                </React.Fragment>
+                            ),
+                            props.data.pos
+                        ) :
+                        ut.translate('wordfreq__pos_not_specified')
+                    }
                     </dd>
                     {props.data.abs > 0 ?
                         <>

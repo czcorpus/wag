@@ -123,12 +123,8 @@ export interface QueryMatch extends QueryMatchCore {
 export type RecognizedQueries = Array<Array<QueryMatch>>;
 
 
-export function testIsDictMatch(queryMatches:Array<QueryMatch>|QueryMatch):boolean {
-    if (Array.isArray(queryMatches)) {
-        const tmp = queryMatches as Array<QueryMatch>;
-        return tmp.length > 1 || !tmp[0].isNonDict;
-    }
-    return !(queryMatches as QueryMatch).isNonDict;
+export function testIsDictMatch(queryMatche:QueryMatch):boolean {
+    return !queryMatche.isNonDict;
 }
 
 /**
@@ -157,7 +153,7 @@ export function addWildcardMatches(qm:Array<QueryMatch>):Array<QueryMatch> {
                     pos: [],
                     ipm: List.foldl((acc, m) => acc + m.ipm, 0, matches),
                     flevel: calcFreqBand(List.foldl((acc, m) => acc + m.ipm, 0, matches)),
-                    isNonDict: true,
+                    isNonDict: false,
                     word: matches[0].word,
                     abs: List.foldl((acc, m) => acc + m.abs, 0, matches),
                     arf: -1,

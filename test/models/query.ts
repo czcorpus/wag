@@ -24,9 +24,10 @@ import { List } from 'cnc-tskit';
 
 import { QueryFormModel, QueryFormModelState } from '../../src/js/models/query';
 import { ActionName } from '../../src/js/models/actions';
-import { QueryType, QueryMatch, PoSValues } from '../../src/js/common/query';
+import { QueryType, QueryMatch } from '../../src/js/common/query';
 import { Forms } from '../../src/js/common/data';
 import { SystemMessageType } from '../../src/js/common/types';
+import { PoSValues } from '../../src/js/common/postag';
 
 
 describe('QueryFormModel', function () {
