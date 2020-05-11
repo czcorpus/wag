@@ -25,9 +25,9 @@ import { List } from 'cnc-tskit';
 import { QueryFormModel, QueryFormModelState } from '../../src/js/models/query';
 import { ActionName } from '../../src/js/models/actions';
 import { QueryType, QueryMatch } from '../../src/js/common/query';
+import { PoSValues } from '../../src/js/common/postag';
 import { Forms } from '../../src/js/common/data';
 import { SystemMessageType } from '../../src/js/common/types';
-import { PoSValues } from '../../src/js/common/postag';
 
 
 describe('QueryFormModel', function () {
@@ -69,9 +69,9 @@ describe('QueryFormModel', function () {
                     queryMatches: initialQueryMatches,
                     isAnswerMode: false,
                     multiWordQuerySupport: {
-                        [QueryType.SINGLE_QUERY]: false,
-                        [QueryType.CMP_QUERY]: true,
-                        [QueryType.TRANSLAT_QUERY]: false,
+                        [QueryType.SINGLE_QUERY]: 1,
+                        [QueryType.CMP_QUERY]: 2,
+                        [QueryType.TRANSLAT_QUERY]: 1,
                     },
                     ...initialStateOverrides
                 }
@@ -243,7 +243,7 @@ describe('QueryFormModel', function () {
                 });
 
                 it('has multiword support', function (done) {
-                    setupModel({queryType: QueryType.SINGLE_QUERY, queries: [{value: 'two words', isValid: true}], multiWordQuerySupport: {[QueryType.SINGLE_QUERY]: true}})
+                    setupModel({queryType: QueryType.SINGLE_QUERY, queries: [{value: 'two words', isValid: true}], multiWordQuerySupport: {[QueryType.SINGLE_QUERY]: 2}})
                     .checkState(
                         {name: ActionName.SubmitQuery},
                         ActionName.SubmitQuery,
