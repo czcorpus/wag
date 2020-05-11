@@ -24,6 +24,7 @@ import { init as commonViewInit } from './common';
 import { SimilarFreqWord } from '../../../../common/api/abstract/similarFreq';
 import { QueryMatch } from '../../../../common/query';
 import { List, pipe } from 'cnc-tskit';
+import { Actions, ActionName } from '../actions';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>) {
@@ -35,6 +36,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const SimilarFreqWords:React.SFC<{
         data:Array<SimilarFreqWord>;
+        expandLemmaPos:string;
+        tileId:number;
 
     }> = (props) => {
 
@@ -52,6 +55,27 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             });
         };
 
+        const selectLemma = (e:React.MouseEvent<HTMLAnchorElement>) => {
+            const word = (e.target as Element).getAttribute('data-value');
+            dispatcher.dispatch<Actions.ExpandLemmaPos>({
+                name: ActionName.ExpandLemmaPos,
+                payload: {
+                    tileId: props.tileId,
+                    lemma: word
+                }
+            });
+        };
+
+        const deselectLemma = (e:React.MouseEvent<HTMLAnchorElement>) => {
+            dispatcher.dispatch<Actions.ExpandLemmaPos>({
+                name: ActionName.ExpandLemmaPos,
+                payload: {
+                    tileId: props.tileId,
+                    lemma: null
+                }
+            });
+        };
+
         return (
             <>
                 <dt>{ut.translate('wordfreq__main_label')}:</dt>
@@ -62,19 +86,19 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     List.map(([lemma, words], i) => 
                         <React.Fragment key={`w:${lemma}`}>
                             {i > 0 ? ', ' : ''}
-                            <a data-value={lemma} onClick={handleWordClick} title={ut.translate('global__click_to_query_word')}>
+                            <a data-value={lemma} onClick={handleWordClick} onMouseEnter={words.length > 1 ? selectLemma : null} onMouseLeave={words.length > 1 ? deselectLemma : null} title={ut.translate('global__click_to_query_word')}>
                                 {lemma}
                                 {
                                     words.length > 1 ?
-                                    <React.Fragment key={`w:${lemma}:pos`}>
+                                    <span key={`w:${lemma}:pos`}>
                                         <span className="squareb"> [</span>
                                         {pipe(
                                             words,
                                             List.map(word => word.pos),
-                                            List.map(wordPos => List.map(pos => pos.value, wordPos).join(' '))
+                                            List.map(wordPos => List.map(pos => lemma === props.expandLemmaPos ? pos.label : pos.value, wordPos).join(' '))
                                         ).join(', ')}
                                         <span className="squareb">]</span>
-                                    </React.Fragment>:
+                                    </span> :
                                     null
                                 }
                             </a>
@@ -149,12 +173,14 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     const SingleWordProfile:React.SFC<{
         similarFreqWords:Array<SimilarFreqWord>;
         searchedWord:QueryMatch;
+        expandLemmaPos:string;
+        tileId:number;
 
     }> = (props) => (
         <div className="SingleWordProfile">
             <dl className="info">
                 {props.searchedWord ? <SrchWordInfo data={props.searchedWord} /> : null}
-                {props.similarFreqWords.length > 0 && props.searchedWord.abs > 0 ? <SimilarFreqWords data={props.similarFreqWords} /> : null}
+                {props.similarFreqWords.length > 0 && props.searchedWord.abs > 0 ? <SimilarFreqWords data={props.similarFreqWords} expandLemmaPos={props.expandLemmaPos} tileId={props.tileId} /> : null}
             </dl>
         </div>
     );

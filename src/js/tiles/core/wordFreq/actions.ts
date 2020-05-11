@@ -17,7 +17,22 @@
  */
 
 import { SimilarFreqWord } from '../../../common/api/abstract/similarFreq';
+import { Action } from 'kombo';
 
 export interface DataLoadedPayload {
     data:Array<SimilarFreqWord>;
+}
+
+export enum ActionName {
+    ExpandLemmaPos = 'FREQ_COMPARISON_SET_ACTIVE_BLOCK'
+}
+
+export namespace Actions {
+
+    export interface ExpandLemmaPos extends Action<{
+        lemma:string;
+        tileId:number;
+    }> {
+        name: ActionName.ExpandLemmaPos;
+    }
 }
