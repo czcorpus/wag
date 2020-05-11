@@ -23,7 +23,7 @@ import { GlobalComponents } from '../../../../views/global';
 import { init as commonViewInit } from './common';
 import { SimilarFreqWord } from '../../../../common/api/abstract/similarFreq';
 import { QueryMatch } from '../../../../common/query';
-import { List } from 'cnc-tskit';
+import { List, pipe } from 'cnc-tskit';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>) {
@@ -56,18 +56,30 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             <>
                 <dt>{ut.translate('wordfreq__main_label')}:</dt>
                 <dd className="word-list">
-                {List.map(
-                    (word, i) => {
-                        const lemmaCount = List.filter(v => v.lemma === word.lemma, props.data).length;
-                        return <React.Fragment key={`w:${word.lemma}:${i}`}>
-                        {i > 0 ? ', ' : ''}
-                        <a data-value={word.lemma} onClick={handleWordClick} title={ut.translate('global__click_to_query_word')}>
-                            {word.lemma}
-                            {lemmaCount > 1 ? ` [${List.map(v => v.value, word.pos).join(' ')}]` : null}
-                        </a>
+                {pipe(
+                    props.data,
+                    List.groupBy(v => v.lemma),
+                    List.map(([lemma, words], i) => 
+                        <React.Fragment key={`w:${lemma}`}>
+                            {i > 0 ? ', ' : ''}
+                            <a data-value={lemma} onClick={handleWordClick} title={ut.translate('global__click_to_query_word')}>
+                                {lemma}
+                                {
+                                    words.length > 1 ?
+                                    <React.Fragment key={`w:${lemma}:pos`}>
+                                        <span className="squareb"> [</span>
+                                        {pipe(
+                                            words,
+                                            List.map(word => word.pos),
+                                            List.map(wordPos => List.map(pos => pos.value, wordPos).join(' '))
+                                        ).join(', ')}
+                                        <span className="squareb">]</span>
+                                    </React.Fragment>:
+                                    null
+                                }
+                            </a>
                         </React.Fragment>
-                    },
-                    props.data
+                    )
                 )}
                 </dd>
             </>
