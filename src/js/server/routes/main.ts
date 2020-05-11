@@ -116,7 +116,7 @@ export function mainAction(services:Services, answerMode:boolean, req:Request, r
     new Observable<UserConf>(observer => {
         try {
             const queryType = importQueryTypeString(getQueryValue(req, 'queryType')[0], QueryType.SINGLE_QUERY);
-            const minNumQueries = queryType === QueryType.CMP_QUERY ? 2 : 1;
+            const queries = fetchReqArgArray(req, 'q', queryType === QueryType.CMP_QUERY ? 2 : 1);
             const userConfNorm:UserConf = {
                 uiLang: uiLang,
                 uiLanguages: services.serverConf.languages,
@@ -124,12 +124,12 @@ export function mainAction(services:Services, answerMode:boolean, req:Request, r
                 query2Lang: getQueryValue(req, 'lang2', 'en')[0], // TODO default
                 queryType: queryType,
                 queries: compileQueries(
-                    fetchReqArgArray(req, 'q', minNumQueries),
+                    fetchReqArgArray(req, 'q', queries.length),
                     List.map(
                         v => List.filter(v => !!v, v.split(' ')),
-                        fetchReqArgArray(req, 'pos', minNumQueries)
+                        fetchReqArgArray(req, 'pos', queries.length)
                     ),
-                    fetchReqArgArray(req, 'lemma', minNumQueries)
+                    fetchReqArgArray(req, 'lemma', queries.length)
                 ),
                 answerMode: answerMode
             };
@@ -173,21 +173,22 @@ export function mainAction(services:Services, answerMode:boolean, req:Request, r
                     return rxOf(0);
                 }
             )),
-            qMatchesEachQuery: rxOf(...userConf.queries
-                    .map(query => answerMode ?
-                            services.db
-                                .getDatabase(userConf.queryType, userConf.query1Lang)
-                                .findQueryMatches(
-                                    appServices,
-                                    query.word,
-                                    getQueryTypeFreqDb(services.serverConf, userConf.queryType).minLemmaFreq
-                                ) :
-                            rxOf<Array<QueryMatch>>([])
+            qMatchesEachQuery: rxOf(...List.map(
+                    query => answerMode ?
+                        services.db
+                            .getDatabase(userConf.queryType, userConf.query1Lang)
+                            .findQueryMatches(
+                                appServices,
+                                query.word,
+                                getQueryTypeFreqDb(services.serverConf, userConf.queryType).minLemmaFreq
+                            ) :
+                        rxOf<Array<QueryMatch>>([]),
+                    userConf.queries
 
-                    )).pipe(
-                        concatMap(v => v),
-                        reduce((acc:Array<Array<QueryMatch>>, curr) => acc.concat([curr]), [])
-                    )
+                )).pipe(
+                    concatMap(v => v),
+                    reduce((acc:Array<Array<QueryMatch>>, curr) => acc.concat([curr]), [])
+                )
             })
         )
     ).subscribe(
