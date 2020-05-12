@@ -49,7 +49,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 }
                 {props.queryMatches.length === 1 ?
                     <SingleWordProfile searchedWord={props.queryMatches[0]}
-                        similarFreqWords={props.similarFreqWords[0]} /> :
+                        similarFreqWords={props.similarFreqWords[0]}
+                        expandLemmaPos={props.expandLemmaPos}
+                        tileId={props.tileId} /> :
                     <MultiWordProfile matches={props.queryMatches} />
                 }
             </div>

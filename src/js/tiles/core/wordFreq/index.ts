@@ -70,7 +70,8 @@ export class WordFreqTile implements ITileProvider {
                 similarFreqWords: mkEmptySimilarWords(queryMatches),
                 queryMatches: findCurrentMatches(queryMatches),
                 sfwRowRange: conf.sfwRowRange,
-                flevelDistrb: conf.flevelDistrib ? conf.flevelDistrib : defaultFlevelDistrib
+                flevelDistrb: conf.flevelDistrib ? conf.flevelDistrib : defaultFlevelDistrib,
+                expandLemmaPos: null,
             },
             tileId,
             api: conf.apiURL ?

@@ -21,7 +21,7 @@ import { map, concatMap } from 'rxjs/operators';
 
 import { IAppServices } from '../../../appServices';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
-import { DataLoadedPayload } from './actions';
+import { DataLoadedPayload, Actions, ActionName } from './actions';
 import { SimilarFreqWord, SimilarFreqDbAPI } from '../../../common/api/abstract/similarFreq';
 import { findCurrQueryMatch } from '../../../models/query';
 import { QueryMatch, testIsDictMatch, RecognizedQueries, QueryType, calcFreqBand } from '../../../common/query';
@@ -49,6 +49,8 @@ export interface SummaryModelState {
     sfwRowRange:number;
 
     flevelDistrb:Array<FlevelDistribItem>;
+
+    expandLemmaPos:string;
 }
 
 
@@ -151,6 +153,14 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                     } else {
                         state.similarFreqWords[0] = action.payload.data;
                     }
+                }
+            }
+        );
+        this.addActionHandler<Actions.ExpandLemmaPos>(
+            ActionName.ExpandLemmaPos,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {
+                    state.expandLemmaPos = action.payload.lemma;
                 }
             }
         );
