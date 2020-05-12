@@ -565,6 +565,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
             left: calcXPos()
         };
 
+        const decimalSeparator = ut.formatNumber(0.1).slice(1, -1);
+
         return (
             <div className="wdg-tooltip" ref={ref} style={style}>
                 <table>
@@ -573,17 +575,32 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                             props.values || {},
                             Dict.keys(),
                             List.map(
-                                label => {
+                                (label, i) => {
                                     const v = props.values ? props.values[label] : '';
-                                    return (
-                                        <tr key={label}>
-                                        <th>{label}:</th>
-                                        {typeof v === 'number' ?
-                                            <td className="num">{ut.formatNumber(v, 1)}</td> :
-                                            <td>{v}</td>
-                                        }
+                                    if (i === 0) {
+                                        return label ?
+                                            <tr key={label}>
+                                                <th className='label'>{label}</th>
+                                                <th className='value' colSpan={2}>{v}</th>
+                                            </tr> :
+                                            <tr key={label}>
+                                                <th className='value' colSpan={3}>{v}</th>
+                                            </tr>
+                                    }
+
+                                    if (typeof v === 'number') {
+                                        const [numWh, numDec] = ut.formatNumber(v, 1).split(decimalSeparator);
+                                        return <tr key={label}>
+                                            <td className='label'>{label}:</td>
+                                            <td className='value numWh'>{numWh}</td>
+                                            <td className='value numDec'>{numDec ? decimalSeparator + numDec : null}</td>
                                         </tr>
-                                    );
+                                    } else {
+                                        return <tr key={label}>
+                                            <td className='label'>{label}:</td>
+                                            <td className='value' colSpan={2}>{v}</td>
+                                        </tr>
+                                    }
                                 }
                             )
                         )}
