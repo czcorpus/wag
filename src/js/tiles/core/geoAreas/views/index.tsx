@@ -149,21 +149,21 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     if (v.freq < props.frequencyDisplayLimit) {
                         label = createSVGEmptyCircle(elm, mkSize(0));
                     } else {
-                        createSVGElement(
+                        const circle = createSVGElement(
                             elm,
-                            'ellipse',
+                            'circle',
                             {
-                                'rx': mkSize(v.ipm).toFixed(1),
-                                'ry': (mkSize(v.ipm) / 1.5).toFixed(1),
+                                'r': mkSize(v.ipm).toFixed(1),
                                 'cx': '0',
                                 'cy': '0',
                                 'stroke': fillColor,
                                 'stroke-width': '3',
                                 'fill': fillColor,
                                 'pointer-events': 'fill',
-                                'opacity': '0.8'
                             }
                         );
+                        circle.setAttribute('style', 'filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.75));');
+
                         const text = createSVGElement(
                             elm,
                             'text',
@@ -184,10 +184,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         text.textContent = ut.formatNumber(v.ipm, v.ipm >= 100 ? 0 : 1);
                         label = createSVGElement(
                             elm,
-                            'ellipse',
+                            'circle',
                             {
-                                'rx': mkSize(v.ipm).toFixed(1),
-                                'ry': (mkSize(v.ipm) / 1.5).toFixed(1),
+                                'r': mkSize(v.ipm).toFixed(1),
                                 'cx': '0',
                                 'cy': '0',
                                 'fill': 'white',
