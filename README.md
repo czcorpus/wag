@@ -1,4 +1,4 @@
-# Word at a Glance (WaG)
+# WaG - Word at a Glance
 
 ![WaG screenshot](https://github.com/czcorpus/wdglance/blob/master/assets/screenshot1.jpg)
 
