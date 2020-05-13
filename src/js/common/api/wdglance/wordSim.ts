@@ -68,7 +68,7 @@ export class CNCWord2VecSimApi implements IWordSimApi<CNCWord2VecSimApiArgs> {
             corpus: state.corpus,
             model: state.model,
             word: queryMatch.lemma,
-            pos: queryMatch.pos[0].value[0], // TODO is the first zero OK? (i.e. we ignore other variants)
+            pos: queryMatch.pos.length > 0 ? queryMatch.pos[0].value[0]: '', // TODO is the first zero OK? (i.e. we ignore other variants)
             limit: state.maxResultItems,
             minScore: state.minScore
         };
