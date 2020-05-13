@@ -99,7 +99,8 @@ export class CNCWord2VecSimApi implements IWordSimApi<CNCWord2VecSimApiArgs> {
     }
 
     call(queryArgs:CNCWord2VecSimApiArgs):Observable<WordSimApiResponse> {
-        const url = this.apiURL + '/corpora/' + queryArgs.corpus + '/similarWords/' + queryArgs.model + '/' + queryArgs.word + '/' + queryArgs.pos;
+        const url = this.apiURL + '/corpora/' + queryArgs.corpus + '/similarWords/' + queryArgs.model +
+                '/' + queryArgs.word + (queryArgs.pos ? '/' + queryArgs.pos : '');
         return cachedAjax$<HTTPResponse>(this.cache)(
             'GET',
             url,
