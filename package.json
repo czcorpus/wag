@@ -1,5 +1,5 @@
 {
-  "name": "wdglance",
+  "name": "wag",
   "version": "0.6.0",
   "description": "Word At a Glance",
   "main": "index.js",
@@ -11,7 +11,7 @@
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/czcorpus/wdglance"
+    "url": "https://github.com/czcorpus/wag"
   },
   "sideEffects": false,
   "devDependencies": {
