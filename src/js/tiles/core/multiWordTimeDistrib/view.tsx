@@ -131,22 +131,22 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         });
 
         return (
-            <p className="ChartLegend" style={{textAlign: 'center'}}>
-                <b>{
+            <div className="ChartLegend">
+                <span className="caption">{
                     ut.translate('multiWordTimeDistrib__estimated_trend_for')[0].toUpperCase() +
                     ut.translate('multiWordTimeDistrib__estimated_trend_for').slice(1)
-                }</b>
-                <br />
-                {pipe(
-                    props.rcData.payload,
-                    List.filter(pitem => !!pitem.payload.name),
-                    List.map((pitem, i) => (
-                        <span className="item" key={`${pitem.payload.name}:${i}`}><span className="box" style={mkBoxStyle(pitem.color)} />{pitem.payload.name}</span>
-                    ))
-                )}
-                <br />
-                ({props.metric})
-            </p>
+                }</span>
+                <div className="items">
+                    {pipe(
+                        props.rcData.payload,
+                        List.filter(pitem => !!pitem.payload.name),
+                        List.map((pitem, i) => (
+                            <span className="item" key={`${pitem.payload.name}:${i}`}><span className="box" style={mkBoxStyle(pitem.color)} />{pitem.payload.name}</span>
+                        ))
+                    )}
+                </div>
+                <span>({props.metric})</span>
+            </div>
         );
     }
 
@@ -164,7 +164,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             return <div className="chart-tooltip">
                 <table>
                     <tbody>
-                        <tr><th colSpan={7}>{props.label} - {ut.translate('multiWordTimeDistrib__estimated_trend_for')}</th></tr>
+                        <tr><th colSpan={7}>{props.label} — {ut.translate('multiWordTimeDistrib__estimated_trend_for')}</th></tr>
                         {List.map(
                             data => {
                                 const [percValue, ipmValue, name] = props.formatter(data.value, data.name, data);

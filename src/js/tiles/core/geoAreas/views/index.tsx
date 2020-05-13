@@ -162,7 +162,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 'pointer-events': 'fill',
                             }
                         );
-                        circle.setAttribute('style', 'filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.75));');
+                        circle.setAttribute('style', 'filter: drop-shadow(0px 0px 5px rgba(0, 0, 0, 0.7));');
 
                         const text = createSVGElement(
                             elm,
