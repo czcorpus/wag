@@ -340,7 +340,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         }
                         // scaling pie chart according to relative ipm norm
                         pieChart.setAttribute('transform', `scale(${scale} ${scale})`);
-                        pieChart.setAttribute('style', 'filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.75));');
+                        pieChart.setAttribute('style', 'filter: drop-shadow(0px 0px 5px rgba(0, 0, 0, 0.7));');
 
                         fromEvent(pieChart, 'mousemove')
                             .subscribe((e:MouseEvent) => {
