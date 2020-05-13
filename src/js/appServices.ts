@@ -51,6 +51,8 @@ export interface IAppServices {
 
     importExternalMessage(label:string|{[lang:string]:string}):string;
 
+    externalMessageIsDefined(label:string|{[lang:string]:string}):boolean;
+
     importExternalText(ident:string|{[lang:string]:string|{file:string}}, readResource:(path:string)=>Observable<string>):Observable<string>;
 
     formatDate(d:Date, timeFormat?:number):string;
@@ -161,6 +163,15 @@ export class AppServices implements IAppServices {
             }
         }
         return '??';
+    }
+
+    externalMessageIsDefined(label:string|{[lang:string]:string}):boolean {
+        if (typeof label === 'string') {
+            return !!label;
+
+         } else {
+             return Dict.size(label) > 0;
+         }
     }
 
     importExternalMessage(label:string|{[lang:string]:string}):string {
