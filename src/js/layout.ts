@@ -17,7 +17,7 @@
  */
 import { IAppServices } from './appServices';
 import { QueryType, QueryTypeMenuItem } from './common/query';
-import { GroupLayoutConfig, LayoutsConfig, LayoutConfigCommon } from './conf';
+import { GroupLayoutConfig, LayoutsConfig, LayoutConfigCommon, GroupItemConfig } from './conf';
 import { TileIdentMap } from './common/types';
 import { List, Dict, pipe } from 'cnc-tskit';
 
@@ -74,12 +74,34 @@ function importLayout(gc:LayoutConfigCommon|undefined, tileMap:TileIdentMap,
             appServices:IAppServices):LayoutCore {
     return gc !== undefined ?
         {
-            groups: (gc.groups || []).filter(itemIsGroupConf).map<TileGroup>(group => ({
-                    groupLabel: appServices.importExternalMessage(group.groupLabel),
-                    groupDescURL: appServices.importExternalMessage(group.groupDescURL || {}),
-                    tiles: group.tiles.map(v => ({tileId: tileMap[v.tile], width: v.width}))
-                })),
-            services: (gc.groups || []).filter(itemIsServiceConf).map(v => tileMap[v]),
+            groups: pipe(
+                    gc.groups || [],
+                    List.map(group => {
+                        if (itemIsGroupConf(group)) {
+                            const descUrl = group.groupDescURL || {};
+                            return {
+                                groupLabel: appServices.importExternalMessage(group.groupLabel),
+                                groupDescURL: appServices.externalMessageIsDefined(descUrl) ? appServices.importExternalMessage(descUrl) : null,
+                                tiles: List.map(
+                                    v => ({tileId: tileMap[v.tile], width: v.width}),
+                                    group.tiles
+                                )
+                            };
+                        }
+                        return null;
+                    }),
+                    List.filter(v =>  v !== null)
+            ),
+            services: pipe(
+                gc.groups || [],
+                List.map(v => {
+                    if (itemIsServiceConf(v)) {
+                        return tileMap[v];
+                    }
+                    return null;
+                }),
+                List.filter(v => v !== null)
+            ),
             maxQueryWords: gc.maxQueryWords ? gc.maxQueryWords : 1
         } :
         {
