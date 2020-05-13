@@ -93,6 +93,8 @@ export class Theme {
 
     public readonly geoAreaSpotFillColor:string;
 
+    public readonly geoAreaSpotTextColor:string;
+
     constructor(conf?:ColorTheme) {
         const confSrc = conf && Dict.size<any, string>(conf) > 0 ? conf : defaultTheme;
         this.catColors = confSrc.category || [];
@@ -102,6 +104,14 @@ export class Theme {
         this.unfinishedChartColorLight = '#eeeeee';
         this.infoGraphicsFont = 'Roboto Condensed';
         this.geoAreaSpotFillColor = confSrc.geoAreaSpotFillColor;
+        this.geoAreaSpotTextColor = confSrc.geoAreaSpotTextColor ?
+            conf.geoAreaSpotTextColor :
+            pipe(
+                this.geoAreaSpotFillColor,
+                Color.importColor(1),
+                Color.textColorFromBg(),
+                Color.color2str()
+            );
     }
 
     categoryPalette = (values:Array<string|number>):(ident:string|number)=>string => {

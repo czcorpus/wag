@@ -24,7 +24,6 @@ import { CoreTileComponentProps, TileComponent } from '../../../../common/tile';
 import { GlobalComponents } from '../../../../views/global';
 import { ActionName, Actions } from '../actions';
 import { GeoAreasModel, GeoAreasModelState } from '../model';
-import { Color, pipe } from 'cnc-tskit';
 import { DataRow } from '../../../../common/api/abstract/freqs';
 
 
@@ -172,12 +171,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 'text-anchor': 'middle',
                                 'font-size': '4.5em',
                                 'font-weight': 'bold',
-                                'fill': pipe(
-                                    theme.geoAreaSpotFillColor,
-                                    Color.importColor(1),
-                                    Color.textColorFromBg(),
-                                    Color.color2str()
-                                )
+                                'fill': theme.geoAreaSpotTextColor
                             }
                         );
                         text.style.cssText = 'opacity: 1';

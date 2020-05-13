@@ -78,6 +78,7 @@ export interface ColorTheme extends ColorThemeIdent {
     cmpCategory:Array<string>;
     scale:Array<string>;
     geoAreaSpotFillColor:string;
+    geoAreaSpotTextColor?:string;
 }
 
 export interface ColorsConf {

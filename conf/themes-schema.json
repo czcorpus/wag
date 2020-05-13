@@ -35,6 +35,9 @@
                 "geoAreaSpotFillColor": {
                     "type": "string"
                 },
+                "geoAreaSpotTextColor": {
+                    "type": "string"
+                },
                 "scale": {
                     "items": {
                         "type": "string"
