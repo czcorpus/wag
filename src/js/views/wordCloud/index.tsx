@@ -132,7 +132,12 @@ export function init<T>(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalCompone
                 <div ref={this.elmRef} className="wdg-tooltip" style={style}>
                     <table>
                         <tbody>
-                            {(this.props.data || []).map((v, i) => <tr key={`${v.label}:${i}`}><th>{v.label}</th><td>{v.value}</td></tr>)}
+                            {(this.props.data || []).map((v, i) =>
+                                <tr key={`${v.label}:${i}`}>
+                                    <td className="label">{v.label}</td>
+                                    <td className="value">{v.value}</td>
+                                </tr>
+                            )}
                         </tbody>
                     </table>
                 </div>
