@@ -20,11 +20,11 @@
       "ajv -s ./conf/server-schema.json -d ./conf/server.json",
       "ajv -s ./conf/wdglance-schema.json -d ./conf/wdglance.json",
       "LAYOUTS_PATH=\"$(node -pe 'JSON.parse(fs.readFileSync(\"conf/wdglance.json\", \"utf8\")).layouts')\"",
-      "if test -f \"$LAYOUTS_PATH\" 2> /dev/null; then ajv -s ./conf/tiles-schema.json -d $LAYOUTS_PATH; else echo \"layouts config file not found\"; fi",
+      "if test -f \"$LAYOUTS_PATH\" 2> /dev/null; then ajv -s ./conf/layouts-schema.json -d $LAYOUTS_PATH; else echo \"layouts config file not found\"; fi",
       "TILES_PATH=\"$(node -pe 'JSON.parse(fs.readFileSync(\"conf/wdglance.json\", \"utf8\")).tiles')\"",
       "if test -f \"$TILES_PATH\" 2> /dev/null; then ajv -s ./conf/tiles-schema.json -d $TILES_PATH; else echo \"tiles config file not found\"; fi",
       "THEMES_PATH=\"$(node -pe 'JSON.parse(fs.readFileSync(\"conf/wdglance.json\", \"utf8\")).colors')\"",
-      "if test -f \"$THEMES_PATH\" 2> /dev/null; then ajv -s ./conf/tiles-schema.json -d $THEMES_PATH; else echo \"themes config file not found\"; fi"
+      "if test -f \"$THEMES_PATH\" 2> /dev/null; then ajv -s ./conf/themes-schema.json -d $THEMES_PATH; else echo \"themes config file not found\"; fi"
     ],
     "schemata:sampletest": [
       "ajv -s ./conf/server-schema.json -d ./conf/server.sample.json",
