@@ -617,21 +617,34 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
     const AlignedRechartsTooltip:GlobalComponents['AlignedRechartsTooltip'] = (props) => {
         const { active, payload, label, formatter, separator } = props;
         if (active && payload) {
+            const decimalSeparator = ut.formatNumber(0.1).slice(1, -1);
             return (
-                <div style={{backgroundColor: 'white', padding: '0.5em', border: '1px solid lightgrey'}} >
+                <div className="wdg-tooltip" style={{display: 'block', position: 'relative'}}>
                     <table>
-                        <thead><tr><td colSpan={2}>{label}</td></tr></thead>
+                        <thead><tr><th className="value" colSpan={4}>{label}</th></tr></thead>
                         <tbody>
                         {List.map(
                             data => {
                                 const formated_value = formatter ? formatter(data.value, data.name, data) : [data.value, data.name];
                                 const [value, name] = typeof formated_value === "string" ? [formated_value, data.name] : formated_value;
-                                return ((Array.isArray(value) ? value.every(v => Boolean(v)) : value) && name) ?
-                                    <tr key={name}>
-                                        <td key="name" style={{color: data.color}}>{`${name}${separator}`}</td>
-                                        <td key="value" className="num">{Array.isArray(value) ? value.join(" ~ ") : value}{data.unit}</td>
-                                    </tr> :
-                                    null;
+                                if (Array.isArray(value)) {
+                                    return (value.every(v => Boolean(v)) && name) ?
+                                        <tr key={name}>
+                                            <td key="name" className="label">{name}</td>
+                                            <td key="value" className="value" colSpan={2}>{value.join(" ~ ")}</td>
+                                            <td key="unit" className="value">{data.unit}</td>
+                                        </tr> :
+                                        null;
+                                } else if (value && name) {
+                                    const [numWh, numDec] = ut.formatNumber(value, 1).split(decimalSeparator);
+                                    return <tr key={name}>
+                                        <td key="name" className="label">{name}</td>
+                                        <td key="valueWh" className="value numWh">{numWh}</td>
+                                        <td key="valueDec" className="value numDec">{numDec ? decimalSeparator + numDec : null}</td>
+                                        <td key="unit" className="value">{data.unit}</td>
+                                    </tr>
+                                }
+                                return null;
                             },
                             payload
                         )}
