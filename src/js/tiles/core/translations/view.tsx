@@ -93,7 +93,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 value: t.score,
                 tooltip: [
                     {label: ut.translate('treq__abs_freq'), value: t.freq},
-                    {label: ut.translate('treq__rel_freq'), value: ut.formatNumber(t.score, 1), round: 1},
+                    {label: ut.translate('treq__rel_freq'), value: t.score, round: 1},
                     {label: ut.translate('treq__found_variants'), value: t.translations.join(', ')}
                 ],
                 interactionId: t.interactionId,

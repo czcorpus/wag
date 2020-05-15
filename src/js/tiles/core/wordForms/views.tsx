@@ -80,7 +80,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 value: v.freq,
                 tooltip: [{
                     label: ut.translate('wordforms__item_ratio'),
-                    value: `${ut.formatNumber(v.ratio, this.props.roundToPos)}%`}],
+                    value: v.ratio,
+                    unit: '%',
+                    round: this.props.roundToPos
+                }],
                 interactionId: null
             });
 

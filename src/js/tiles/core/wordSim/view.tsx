@@ -101,7 +101,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         const dataTransform = (v:WordSimWord) => ({
             text: v.word,
             value: v.score,
-            tooltip: [{label: ut.translate('wordsim__attr_score'), value: ut.formatNumber(v.score)}],
+            tooltip: [{label: ut.translate('wordsim__attr_score'), value: v.score}],
             interactionId: v.interactionId
         });
 
