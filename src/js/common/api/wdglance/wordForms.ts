@@ -24,6 +24,7 @@ import { HTTP } from 'cnc-tskit';
 import { cachedAjax$ } from '../../ajax';
 import { QueryMatch } from '../../query';
 import { RequestArgs, Response } from '../../api/abstract/wordForms';
+import { HTTPAction } from '../../../server/routes/actions';
 
 
 export interface HTTPResponse {
@@ -33,19 +34,19 @@ export interface HTTPResponse {
 
 export class WordFormsWdglanceAPI implements DataApi<RequestArgs, Response> {
 
-    url:string;
+    apiUrl:string;
 
     cache:IAsyncKeyValueStore;
 
     constructor(cache:IAsyncKeyValueStore, url:string) {
         this.cache = cache;
-        this.url = url;
+        this.apiUrl = url;
     }
 
     call(args:RequestArgs):Observable<Response> {
         return cachedAjax$<HTTPResponse>(this.cache)(
             HTTP.Method.GET,
-            this.url,
+            this.apiUrl + HTTPAction.WORD_FORMS,
             args
 
         ).pipe(

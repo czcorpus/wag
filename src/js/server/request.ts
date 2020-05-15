@@ -1,0 +1,72 @@
+/*
+ * Copyright 2020 Tomas Machalek <tomas.machalek@gmail.com>
+ * Copyright 2020 Institute of the Czech National Corpus,
+ *                Faculty of Arts, Charles University
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import { Observable } from 'rxjs';
+import { HTTP } from 'cnc-tskit';
+import axios, { Method, AxiosError } from 'axios';
+
+export interface ServerHTTPRequestConf {
+    url:string;
+    method:HTTP.Method;
+    params?:{[k:string]:string|number|boolean};
+    data?:{[k:string]:string|number|boolean};
+    auth?:{username:string, password: string};
+    headers?:{[k:string]:string};
+}
+
+export class ServerHTTPRequestError extends Error {
+
+    readonly message:string;
+
+    readonly status:HTTP.Status;
+
+    readonly statusText:string;
+
+    constructor(message:string, status:HTTP.Status, statusText:string) {
+        super(message);
+        this.message = message;
+        this.status = status;
+        this.statusText = statusText;
+    }
+}
+
+export function serverHttpRequest<T>({url, method, params, data, auth, headers}:ServerHTTPRequestConf):Observable<T> {
+    return new Observable<T>((observer) => {
+        axios.request({
+            method: method as Method, // here we assume that HTTP.Method is a subset of Method
+            url: url,
+            params: params,
+            data: data,
+            auth: auth,
+            headers: headers
+
+        }).then(
+            (resp) => {
+                observer.next(resp.data);
+                observer.complete();
+            },
+            (err:AxiosError) => {
+                observer.error(new ServerHTTPRequestError(
+                    `Request failed: ${err.message}`,
+                    err.response ? err.response.status : -1,
+                    err.response ? err.response.statusText : '-'
+                ));
+            }
+        );
+    });
+}

@@ -24,11 +24,28 @@ import { IAppServices } from '../../../appServices';
 import { QueryMatch, calcFreqBand } from '../../../common/query';
 import { IFreqDB } from '../freqdb';
 import { importQueryPos, importQueryPosWithLabel, posTable } from '../../../common/postag';
+import { SourceDetails } from '../../../common/types';
 
 
-function ntimesPlaceholder(n:number):string {
-    return List.repeat(() => '?', n).join(', ');
-}
+/*
+For source information, the following table with proper data is needed:
+
+CREATE TABLE source_info (
+    corpname TEXT,
+    ui_lang TEXT,
+    title TEXT,
+    description TEXT,
+    author TEXT,
+    href TEXT,
+    citation_source_name TEXT,
+    citation_main TEXT,
+    citation_paper1 TEXT,
+    citation_paper2 TEXT,
+    citation_paper3 TEXT,
+    citation_other_bibliography TEXT,
+    PRIMARY KEY (corpname, ui_lang)
+);
+*/
 
 
 export class SqliteFreqDB implements IFreqDB {
@@ -118,16 +135,33 @@ export class SqliteFreqDB implements IFreqDB {
 
     private getNearFreqItems(appServices:IAppServices, val:QueryMatch, whereSgn:number, limit:number):Observable<QueryMatch> {
         return new Observable<QueryMatch>((observer) => {
-            this.db.each(
-                'SELECT value, pos, arf, `count` AS abs, CAST(count AS FLOAT) / ? * 1000000 AS ipm ' +
-                'FROM lemma ' +
-                (whereSgn > 0 ?
-                    `WHERE is_pname = 0 AND arf >= ? AND (value <> ? OR pos <> ?)) ORDER BY arf ASC` :
-                    'WHERE is_pname = 0 AND arf < ? ORDER BY arf DESC') + ' ' +
-                'LIMIT ?',
-                whereSgn > 0 ?
-                    [this.corpusSize, val.arf, val.lemma, ...val.pos.map(v => v.value).join(' '), limit] :
-                    [this.corpusSize, val.arf, limit],
+            const sql = ['SELECT value, pos, arf, `count` AS abs, CAST(count AS FLOAT) / ? * 1000000 AS ipm FROM lemma WHERE is_pname = 0'];
+            const args:Array<any> = [this.corpusSize];
+            if (val.pos.length > 0) {
+                sql.push('AND (value <> ? OR pos <> ?)');
+                args.push(val.lemma, List.map(v => v.value, val.pos).join(' '));
+
+            } else {
+                sql.push('AND value <> ?');
+                args.push(val.lemma);
+            }
+            if (whereSgn > 0) {
+                sql.push('AND arf >= ?');
+                args.push(val.arf);
+
+            } else {
+                sql.push('AND arf < ?');
+                args.push(val.arf);
+            }
+            if (whereSgn > 0) {
+                sql.push('ORDER BY arf ASC');
+
+            } else {
+                sql.push('ORDER BY arf DESC');
+            }
+            sql.push('LIMIT ?');
+            args.push(limit);
+            this.db.each(sql.join(' '), args,
                 (err, row) => {
                     if (err) {
                         observer.error(err);
@@ -150,11 +184,15 @@ export class SqliteFreqDB implements IFreqDB {
 
     getSimilarFreqWords(appServices:IAppServices, lemma:string, pos:Array<string>, rng:number):Observable<Array<QueryMatch>> {
         return new Observable<QueryMatch>((observer) => {
+            const sql = ['SELECT value, pos, SUM(`count`) AS abs, CAST(`count` AS FLOAT) / ? * 1000000 AS ipm, SUM(arf) AS arf ' +
+                            'FROM lemma WHERE value = ?'];
+            const args:Array<any> = [this.corpusSize, lemma];
+            if (pos.length > 0) {
+                sql.push('AND pos = ?');
+                args.push(pos.join(' '));
+            }
             this.db.get(
-                `SELECT value, pos, SUM(\`count\`) AS abs, CAST(\`count\` AS FLOAT) / ? * 1000000 AS ipm, SUM(arf) AS arf
-                FROM lemma
-                WHERE value = ? AND pos = ?)`,
-                [this.corpusSize, lemma, pos.join(' ')],
+                sql.join(' '), args,
                 (err, row) => {
                     if (err) {
                         observer.error(err);
@@ -212,5 +250,46 @@ export class SqliteFreqDB implements IFreqDB {
                 []
             )
         );
+    }
+
+    getSourceDescription(uiLang:string, corpname:string):Observable<SourceDetails> {
+        return new Observable<SourceDetails>((observer) => {
+            this.db.each(
+                'SELECT corpname, ui_lang, title, description, author, href, citation_source_name, ' +
+                'citation_paper1, citation_paper2, citation_paper3, citation_main, citation_other_bibliography ' +
+                'FROM source_info ' +
+                `WHERE corpname = ? AND ui_lang = ?`,
+                [corpname, uiLang],
+                (err, row) => {
+                    if (err) {
+                        observer.error(err);
+
+                    } else {
+                        observer.next({
+                            tileId: -1,
+                            title: row['title'],
+                            description: row[''],
+                            author:  row[''],
+                            href: row[''],
+                            citationInfo: {
+                                sourceName: row['citation_source_name'],
+                                main: row['citation_main'],
+                                papers: List.filter(v => !!v, [row['citation_paper1'], row['citation_paper2'], row['citation_paper3']]),
+                                otherBibliography: row['citation_other_bibliography']
+                            }
+                        });
+                        observer.complete();
+                    }
+                },
+                (err) => {
+                    if (err) {
+                        observer.error(err);
+
+                    } else {
+                        observer.error(`Unknown freq. db. error for arguments uiLang: ${uiLang}, corpname: ${corpname}`);
+                    }
+                }
+            );
+        });
     }
 }

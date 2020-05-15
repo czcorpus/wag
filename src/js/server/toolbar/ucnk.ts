@@ -26,7 +26,10 @@ import { Observable } from 'rxjs';
 import { HostPageEnv, IToolbarProvider } from '../../common/hostPage';
 import { GlobalComponents } from '../../views/global';
 import { ViewUtils } from 'kombo';
-import axios from 'axios';
+import { AxiosError } from 'axios';
+import { serverHttpRequest, ServerHTTPRequestError } from '../request';
+import { HTTP } from 'cnc-tskit';
+import { map, catchError } from 'rxjs/operators';
 
 
 interface ToolbarResponse {
@@ -75,39 +78,40 @@ export class UCNKToolbar implements IToolbarProvider {
     }
 
     get(uiLang:string, returnUrl:string, cookies:{[key:string]:string}, ut:ViewUtils<GlobalComponents>):Observable<HostPageEnv> {
-        return new Observable<HostPageEnv>((observer) => {
-            const args = {
-                continue: returnUrl,
-                current: UCNKToolbar.TOOLBAR_APP_IDENT
-            };
-            UCNKToolbar.PASS_ARGS.forEach(arg => {
-                args[arg.substr('cnc_toolbar_'.length)] = cookies[arg] || '';
-            });
-            axios.post<ToolbarResponse>(this.url, args).then(
-                (response) => {
-                    if (response.status !== 200) {
-                        observer.error(
-                            new Error(`Toolbar loading failed with error: ${response.statusText} (code ${response.status})`));
-
-                    } else {
-                        observer.next({
-                            styles: Object.entries(response.data.styles)
-                                .sort((x1, x2) => parseInt(x1[0]) - parseInt(x2[0]))
-                                .map(v => v[1].url),
-                            scripts: Object.entries(response.data.scripts.depends)
-                                .sort((x1, x2) => parseInt(x1[0]) - parseInt(x2[0]))
-                                .map(v => v[1].url)
-                                .concat([response.data.scripts.main]),
-                            html: response.data.html,
-                            toolbarHeight: '50px'
-                        });
-                        observer.complete();
-                    }
-                },
-                (err) => {
-                    observer.error(err);
-                }
-            );
+        const args = {
+            continue: returnUrl,
+            current: UCNKToolbar.TOOLBAR_APP_IDENT
+        };
+        UCNKToolbar.PASS_ARGS.forEach(arg => {
+            args[arg.substr('cnc_toolbar_'.length)] = cookies[arg] || '';
         });
+
+        return serverHttpRequest<ToolbarResponse>({
+            url: this.url,
+            method: HTTP.Method.POST,
+            params: args
+
+        }).pipe(
+            catchError(
+                (err:Error) => {
+                    throw err instanceof ServerHTTPRequestError ?
+                        new Error(`Toolbar loading failed with error: ${err.statusText} (code ${err.status})`) :
+                        err
+                }
+            ),
+            map<ToolbarResponse, HostPageEnv>(
+                response => ({
+                    styles: Object.entries(response.styles)
+                        .sort((x1, x2) => parseInt(x1[0]) - parseInt(x2[0]))
+                        .map(v => v[1].url),
+                    scripts: Object.entries(response.scripts.depends)
+                        .sort((x1, x2) => parseInt(x1[0]) - parseInt(x2[0]))
+                        .map(v => v[1].url)
+                        .concat([response.scripts.main]),
+                    html: response.html,
+                    toolbarHeight: '50px'
+                })
+            )
+        );
     }
  }

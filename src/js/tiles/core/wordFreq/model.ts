@@ -26,6 +26,7 @@ import { SimilarFreqWord, SimilarFreqDbAPI } from '../../../common/api/abstract/
 import { findCurrQueryMatch } from '../../../models/query';
 import { QueryMatch, testIsDictMatch, RecognizedQueries, QueryType, calcFreqBand } from '../../../common/query';
 import { List, pipe } from 'cnc-tskit';
+import { FreqDbSourceInfoApi } from '../../../common/api/wdglance/freqDbSourceInfo';
 
 export interface FlevelDistribItem {
     rel:number;
@@ -59,6 +60,7 @@ export interface SummaryModelArgs {
     initialState:SummaryModelState;
     tileId:number;
     api:SimilarFreqDbAPI;
+    sourceInfoApi:FreqDbSourceInfoApi;
     appServices:IAppServices;
     queryMatches:RecognizedQueries;
     queryLang:string;
@@ -81,6 +83,8 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
 
     private readonly api:SimilarFreqDbAPI;
 
+    private readonly sourceInfoApi:FreqDbSourceInfoApi;
+
     private readonly appServices:IAppServices;
 
     private readonly tileId:number;
@@ -91,10 +95,11 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
 
     private readonly queryType:QueryType;
 
-    constructor({dispatcher, initialState, tileId, api, appServices, queryMatches, queryLang, queryType}:SummaryModelArgs) {
+    constructor({dispatcher, initialState, tileId, api, sourceInfoApi, appServices, queryMatches, queryLang, queryType}:SummaryModelArgs) {
         super(dispatcher, initialState);
         this.tileId = tileId;
         this.api = api;
+        this.sourceInfoApi = sourceInfoApi;
         this.appServices = appServices;
         this.queryMatches = queryMatches;
         this.queryLang = queryLang;
@@ -161,6 +166,42 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.expandLemmaPos = action.payload.lemma;
+                }
+            }
+        );
+
+        this.addActionHandler<GlobalActions.GetSourceInfo>(
+            GlobalActionName.GetSourceInfo,
+            null,
+            (state, action, dispatch) => {
+                if (action.payload.tileId === this.tileId) {
+                    this.sourceInfoApi.call({
+                        tileId: this.tileId,
+                        queryType: queryType,
+                        lang: queryLang,
+                        corpname: state.corpname,
+
+                    }).subscribe(
+                        (data) => {
+                            dispatch({
+                                name: GlobalActionName.GetSourceInfoDone,
+                                payload: {
+                                    tileId: this.tileId,
+                                    data: data
+                                }
+                            });
+                        },
+                        (err) => {
+                            console.error(err);
+                            dispatch({
+                                name: GlobalActionName.GetSourceInfoDone,
+                                error: err,
+                                payload: {
+                                    tileId: this.tileId,
+                                }
+                            });
+                        }
+                    );
                 }
             }
         );
