@@ -127,17 +127,28 @@ export function init<T>(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalCompone
                 top: `${this.calcYPos()}px`,
                 display: this.props.data && this.props.data.length > 0 ? 'block' : 'none'
             };
+            const decimalSeparator = ut.formatNumber(0.1).slice(1, -1);
 
             return (
                 <div ref={this.elmRef} className="wdg-tooltip" style={style}>
                     <table>
                         <tbody>
-                            {(this.props.data || []).map((v, i) =>
-                                <tr key={`${v.label}:${i}`}>
-                                    <td className="label">{v.label}</td>
-                                    <td className="value">{v.value}</td>
-                                </tr>
-                            )}
+                            {(this.props.data || []).map((v, i) => {
+                                if (typeof v.value === 'string') {
+                                    return <tr key={`${v.label}:${i}`}>
+                                        <td key="label" className="label">{v.label}</td>
+                                        <td key="value" className="value" colSpan={3}>{v.value}</td>
+                                    </tr>
+                                } else {
+                                    const [numWh, numDec] = ut.formatNumber(v.value, v.round).split(decimalSeparator);
+                                    return <tr key={`${v.label}:${i}`}>
+                                        <td key="label" className="label">{v.label}</td>
+                                        <td key="valueWh" className="value numWh">{numWh}</td>
+                                        <td key="valueDec" className="value numDec">{numDec ? decimalSeparator + numDec : null}</td>
+                                        <td key="unit" className="value unit">{v.unit}</td>
+                                    </tr>
+                                }
+                            })}
                         </tbody>
                     </table>
                 </div>

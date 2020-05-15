@@ -17,7 +17,6 @@
  */
 import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
-import { Color } from 'cnc-tskit';
 
 import { Theme } from '../../../common/theme';
 import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
@@ -120,7 +119,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             const dataTransform = (v:DataRow) => ({
                 text: v.str,
                 value: sortItemIdx > 0 ? v.stats[sortItemIdx - 1] : v.freq, // abs attr is not in the stats array (=> -1)
-                tooltip: v.stats.map((v, i) => ({label: this.props.heading[i+1].label,  value: v, round: 1})),
+                tooltip: v.stats.map((v, i) => ({label: this.props.heading[i+1].label,  value: v, round: 3})),
                 interactionId: v.interactionId
             });
 

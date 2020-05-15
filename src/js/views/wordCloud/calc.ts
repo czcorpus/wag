@@ -56,7 +56,7 @@ const WC_ITEM_MARGIN_X = 15;
 const WC_ITEM_MARGIN_Y = 10;
 
 
-export type TooltipData = Array<{label:string; value:string|number; round?:number}>;
+export type TooltipData = Array<{label:string; value:string|number; unit?:string; round?:number}>;
 
 
 function adjustFontSize(isMobile:boolean, v:number):number {
