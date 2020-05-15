@@ -25,6 +25,7 @@ not work for your user case (e.g. the character filtering).
 import sys
 import couchdb
 import sqlite3
+import re
 
 DB_NAME = 'freqdb3g_v3'
 
