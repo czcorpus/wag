@@ -537,7 +537,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
                     {
                         corpName: args.corpName,
                         subcorpName: args.subcName,
-                        concIdent: `~${args.concId}`
+                        concIdent: args.concId
                     },
                     args
                 ))
