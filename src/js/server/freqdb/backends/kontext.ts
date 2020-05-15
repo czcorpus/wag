@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-import axios from 'axios';
-
 import { IFreqDB } from '../freqdb';
 import { IAppServices } from '../../../appServices';
 import { Observable } from 'rxjs';
@@ -25,13 +23,20 @@ import { QueryMatch, calcFreqBand } from '../../../common/query';
 import { QuerySelector, HTTPResponse as ConcHTTPResponse, escapeVal } from '../../../common/api/kontext/concordance';
 import { HTTPResponse as FreqsHttpResponse } from '../../../common/api/kontext/freqs';
 import { map, concatMap } from 'rxjs/operators';
-import { List } from 'cnc-tskit';
+import { List, HTTP } from 'cnc-tskit';
 import { FreqDbOptions } from '../../../conf';
 import { importQueryPosWithLabel, posTable } from '../../../common/postag';
+import { CorpusInfoAPI } from '../../../common/api/kontext/corpusInfo';
+import { DummyCache } from '../../../cacheDb';
+import { CorpusDetails } from '../../../common/types';
+import { serverHttpRequest } from '../../request';
+
 
 export class KontextFreqDB implements IFreqDB {
 
     private readonly apiURL:string;
+
+    private readonly srcInfoService:CorpusInfoAPI;
 
     private readonly corpusSize:number;
 
@@ -41,74 +46,51 @@ export class KontextFreqDB implements IFreqDB {
 
     constructor(apiUrl:string, corpusSize:number, options:FreqDbOptions) {
         this.apiURL = apiUrl;
+        this.srcInfoService = new CorpusInfoAPI(new DummyCache(), apiUrl, options.httpHeaders);
         this.corpusSize = corpusSize;
         this.corpname = options.urlArgs.corpname;
         this.customHeaders = options.httpHeaders || {};
     }
 
     private loadConcordance(word:string):Observable<ConcHTTPResponse> {
-        return new Observable<ConcHTTPResponse>((observer) => {
-            axios.get<ConcHTTPResponse>(
-                this.apiURL + 'first',
-                {
-                    params: {
-                        corpname: this.corpname,
-                        queryselector: QuerySelector.CQL,
-                        cql: `[word="${escapeVal(word)}" | lemma="${escapeVal(word)}"]`,
-                        kwicleftctx: 1,
-                        kwicrightctx: 1,
-                        async: '0',
-                        pagesize: 1,
-                        fromp: 1,
-                        attr_vmode: 'direct',
-                        attrs: 'word',
-                        refs: '',
-                        viewmode: 'kwic',
-                        shuffle: 0,
-                        format:'json'
-                    },
-                    headers: this.customHeaders
-                }
-            ).then(
-                (resp) => {
-                    observer.next(resp.data);
-                    observer.complete();
-
-                },
-                (err) => {
-                    observer.error(err);
-                }
-            );
+        return serverHttpRequest<ConcHTTPResponse>({
+            url: this.apiURL + 'first',
+            method: HTTP.Method.GET,
+            params: {
+                corpname: this.corpname,
+                queryselector: QuerySelector.CQL,
+                cql: `[word="${escapeVal(word)}" | lemma="${escapeVal(word)}"]`,
+                kwicleftctx: 1,
+                kwicrightctx: 1,
+                async: '0',
+                pagesize: 1,
+                fromp: 1,
+                attr_vmode: 'direct',
+                attrs: 'word',
+                refs: '',
+                viewmode: 'kwic',
+                shuffle: 0,
+                format:'json'
+            },
+            headers: this.customHeaders
         });
     }
 
     private loadFreqs(concId:string):Observable<FreqsHttpResponse> {
-        return new Observable<FreqsHttpResponse>((observer) => {
-            axios.get<FreqsHttpResponse>(
-                this.apiURL + 'freqs',
-                {
-                    params: {
-                        corpname: this.corpname,
-                        q: '~' + concId,
-                        flimit: 1,
-                        freq_sort: '',
-                        fpage: 1,
-                        ftt_include_empty: 0,
-                        fcrit: 'lemma/e 0<0 pos/e 0<0',
-                        format:'json'
-                    },
-                    headers: this.customHeaders
-                }
-            ).then(
-                (resp) => {
-                    observer.next(resp.data);
-                    observer.complete();
-
-                },
-                (err) => {
-                    observer.error(err);
-                }
-            );
+        return serverHttpRequest<FreqsHttpResponse>({
+            url: this.apiURL + 'freqs',
+            method: HTTP.Method.GET,
+            params: {
+                corpname: this.corpname,
+                q: '~' + concId,
+                flimit: 1,
+                freq_sort: '',
+                fpage: 1,
+                ftt_include_empty: 0,
+                fcrit: 'lemma/e 0<0 pos/e 0<0',
+                format:'json'
+            },
+            headers: this.customHeaders
         });
     }
 
@@ -153,5 +135,14 @@ export class KontextFreqDB implements IFreqDB {
             observer.complete();
         });
     }
+
+    getSourceDescription(uiLang:string, corpname:string):Observable<CorpusDetails> {
+        return this.srcInfoService.call({
+            tileId: -1,
+            corpname: corpname,
+            format: 'json'
+        });
+    }
+
 
 }

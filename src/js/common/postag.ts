@@ -211,26 +211,28 @@ export function importQueryPos(s:string):string {
  * along with localized label.
  */
 export function importQueryPosWithLabel(s:string, postable:{[key:string]:{[lang:string]:string}}, appServices:IAppServices):Array<PosItem> {
-    return pipe(
-        s.split(' '),
-        List.map(
-            v => {
-                if (Object.values<string>(PoSValues).indexOf(v.toUpperCase()) > -1) {
-                    const ident = v.toUpperCase();
-                    return {
-                        value: ident,
-                        label: appServices.importExternalMessage(postable[ident])
-                    };
+    return s ?
+        pipe(
+            s.split(' '),
+            List.map(
+                v => {
+                    if (Object.values<string>(PoSValues).indexOf(v.toUpperCase()) > -1) {
+                        const ident = v.toUpperCase();
+                        return {
+                            value: ident,
+                            label: appServices.importExternalMessage(postable[ident])
+                        };
+                    }
+                    throw new Error(`Invalid PoS value [${v}]`);
                 }
-                throw new Error(`Invalid PoS value [${v}]`);
-            }
-        ),
-        List.foldl(
-            (acc, curr) => acc.concat([{
-                value: curr.value,
-                label: curr.label
-            }]),
-            [] as Array<PosItem>
-        )
-    );
+            ),
+            List.foldl(
+                (acc, curr) => acc.concat([{
+                    value: curr.value,
+                    label: curr.label
+                }]),
+                [] as Array<PosItem>
+            )
+        ) :
+        [{value: null, label: ''}];
 }

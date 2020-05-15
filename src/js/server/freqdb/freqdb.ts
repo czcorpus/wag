@@ -19,6 +19,7 @@ import { Observable } from 'rxjs';
 
 import { QueryMatch } from '../../common/query';
 import { IAppServices } from '../../appServices';
+import { SourceDetails } from '../../common/types';
 
 
 export interface IFreqDB {
@@ -33,4 +34,6 @@ export interface IFreqDB {
      * we use array type).
      */
     getWordForms(appServices:IAppServices, lemma:string, pos:Array<string>):Observable<Array<QueryMatch>>;
+
+    getSourceDescription(uiLang:string, corpname:string):Observable<SourceDetails>;
 }

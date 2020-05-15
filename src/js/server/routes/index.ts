@@ -23,7 +23,7 @@ import { concatMap, map, reduce, tap } from 'rxjs/operators';
 import { AppServices } from '../../appServices';
 import { encodeArgs } from '../../common/ajax';
 import { ErrorType, mapToStatusCode, newError } from '../../common/errors';
-import { QueryType, QueryMatch } from '../../common/query';
+import { QueryType, QueryMatch, importQueryTypeString } from '../../common/query';
 import { GlobalComponents } from '../../views/global';
 import { IFreqDB } from '../freqdb/freqdb';
 
@@ -98,13 +98,12 @@ export const wdgRouter = (services:Services) => (app:Express) => {
     app.get(HTTPAction.GET_LEMMAS, (req, res, next) => {
         const [,appServices] = createHelperServices(
             services, getLangFromCookie(req, services.serverConf.langCookie, services.serverConf.languages));
-
+        const queryLang = getQueryValue(req, 'lang')[0];
         new Observable<IFreqDB>((observer) => {
-            const x = req.query;
-            const db = services.db.getDatabase(QueryType.SINGLE_QUERY, getQueryValue(req, 'lang')[0]);
+            const db = services.db.getDatabase(QueryType.SINGLE_QUERY, queryLang);
             if (db === undefined) {
                 observer.error(
-                    newError(ErrorType.BAD_REQUEST, `Frequency database for [${req.query.lang}] not defined`));
+                    newError(ErrorType.BAD_REQUEST, `Frequency database for [${queryLang}] not defined`));
 
             } else {
                 observer.next(db);
@@ -171,15 +170,16 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             apiHeadersMapping: services.clientConf.apiHeaders || {},
             mobileModeTest: ()=>false
         });
+        const queryLang = getQueryValue(req, 'lang')[0];
 
         new Observable<{lang:string; word:string; lemma:string; pos:Array<string>; rng:number}>((observer) => {
             if (isNaN(parseInt(getQueryValue(req, 'srchRange')[0]))) {
                 observer.error(
                     newError(ErrorType.BAD_REQUEST, `Invalid range provided, srchRange = ${req.query.srchRange}`));
 
-            } else if (services.db.getDatabase(QueryType.SINGLE_QUERY, getQueryValue(req, 'lang')[0]) === undefined) {
+            } else if (services.db.getDatabase(QueryType.SINGLE_QUERY, queryLang) === undefined) {
                 observer.error(
-                    newError(ErrorType.BAD_REQUEST, `Frequency database for [${req.query.lang}] not defined`));
+                    newError(ErrorType.BAD_REQUEST, `Frequency database for [${queryLang}] not defined`));
 
             } else {
                 observer.next({
@@ -298,6 +298,39 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         res.redirect(req.body.returnUrl);
     });
 
+    app.get(HTTPAction.SOURCE_INFO, (req, res) => {
+        const uiLang = getLangFromCookie(req, services.serverConf.langCookie, services.serverConf.languages).split('-')[0];
+        const queryType = importQueryTypeString(getQueryValue(req, 'queryType')[0], QueryType.SINGLE_QUERY);
+        const queryLang = getQueryValue(req, 'lang')[0];
+
+        new Observable<IFreqDB>((observer) => {
+            const db = services.db.getDatabase(queryType, queryLang);
+            if (db === undefined) {
+                observer.error(
+                    newError(ErrorType.BAD_REQUEST, `Frequency database for [${queryLang}] not defined`));
+
+            } else {
+                observer.next(db);
+                observer.complete();
+            }
+        }).pipe(
+            concatMap(
+                (db) => {
+                    return db.getSourceDescription(uiLang, getQueryValue(req, 'corpname')[0]);
+                }
+            )
+        ).subscribe(
+            (data) => {
+                res.setHeader('Content-Type', 'application/json');
+                res.send(JSON.stringify({result: data}));
+            },
+            (err:Error) => {
+                res.status(mapToStatusCode(err.name)).send({
+                    message: err.message
+                });
+            }
+        );
+    })
 
     app.use(function (req, res, next) {
         const uiLang = getLangFromCookie(req, services.serverConf.langCookie, services.serverConf.languages);

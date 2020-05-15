@@ -15,16 +15,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Observable, merge, empty, forkJoin } from 'rxjs';
-import { concatMap, reduce, map } from 'rxjs/operators';
-import { List, pipe } from 'cnc-tskit';
-import axios from 'axios';
+import { Observable, merge, empty, forkJoin, of as rxOf } from 'rxjs';
+import { concatMap, reduce, map, catchError } from 'rxjs/operators';
+import { List, pipe, HTTP } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
 import { QueryMatch, calcFreqBand } from '../../../common/query';
 import { IFreqDB } from '../freqdb';
 import { FreqDbOptions } from '../../../conf';
+import { serverHttpRequest } from '../../request';
 import { importQueryPosWithLabel, posTable } from '../../../common/postag';
+import { SourceDetails } from '../../../common/types';
 
 
 /*
@@ -70,7 +71,7 @@ enum Views {
    BY_WORD = 'by-word'
 }
 
-interface HTTPResponseDoc {
+interface HTTPNgramDoc {
     _id:string;
     _rev:string;
     lemma:string;
@@ -84,14 +85,47 @@ interface HTTPResponseDoc {
     }>;
 }
 
-interface HTTPResponse {
+interface HTTPNgramResponse {
     total_rows:number;
     offset:number;
     rows:Array<{
         id:string;
         key:string;
         value:number;
-        doc:HTTPResponseDoc;
+        doc:HTTPNgramDoc;
+    }>;
+}
+
+
+interface HTTPSourceInfoDoc {
+    _id:string;
+    _rev:string;
+    uiLang:string;
+    data:{
+        corpname:string;
+        description:string;
+        size:number;
+        web_url:string;
+        attrlist:Array<{name:string, size:number}>;
+        citation_info:{
+            article_ref:Array<string>;
+            default_ref:string;
+            other_bibliography:string;
+        };
+        structlist:Array<{name:string; size:number}>;
+        keywords:Array<{name:string, color:string}>;
+    }
+}
+
+
+interface HTTPSourceInfoResponse {
+    total_rows:number;
+    offset:number;
+    rows:Array<{
+        id:string;
+        key:string;
+        value:number;
+        doc:HTTPSourceInfoDoc;
     }>;
 }
 
@@ -100,6 +134,8 @@ interface HTTPResponse {
 export class CouchFreqDB implements IFreqDB {
 
     private readonly dbUrl:string;
+
+    private readonly sourceDbUrl:string|null;
 
     private readonly dbUser:string;
 
@@ -110,45 +146,41 @@ export class CouchFreqDB implements IFreqDB {
 
     constructor(dbPath:string, corpusSize:number, options:FreqDbOptions) {
         this.dbUrl = dbPath;
+        this.sourceDbUrl = options.sourceInfoUrl || null;
         this.dbUser = options.username;
         this.dbPassword = options.password;
         this.corpusSize = corpusSize;
     }
 
-    private queryExact(view:string, value:string):Observable<HTTPResponse> {
+    private queryExact(view:string, value:string):Observable<HTTPNgramResponse> {
         return this.queryServer(view, {key: `"${value}"`});
     }
 
-    private queryServer(view:string, args:{[key:string]:number|string}):Observable<HTTPResponse> {
-        return new Observable<HTTPResponse>((observer) => {
-            axios.get<HTTPResponse>(
-                this.dbUrl + view,
-                {
-                    params: {...args, include_docs: 'true'},
-                    auth: {
-                        username: this.dbUser,
-                        password: this.dbPassword
-                    }
-                }
-            ).then(
-                (resp) => {
-                    observer.next(resp.data);
-                    observer.complete();
-                },
+    private queryServer(view:string, args:{[key:string]:number|string}):Observable<HTTPNgramResponse> {
+        return serverHttpRequest<HTTPNgramResponse>({
+            url: this.dbUrl + view,
+            method: HTTP.Method.GET,
+            params: {...args, include_docs: 'true'},
+            auth: {
+                username: this.dbUser,
+                password: this.dbPassword
+            }
+        }).pipe(
+            catchError(
                 (err) => {
-                    observer.error(new Error(`Failed to fetch frequency information for ${args}: ${err}`));
+                    throw new Error(`Failed to fetch frequency information for ${args}: ${err}`);
                 }
-            );
-        });
+            )
+        );
     }
 
-    private mergeDocs(items:Array<{doc:HTTPResponseDoc}>, word:string, appServices:IAppServices):Array<QueryMatch> {
+    private mergeDocs(items:Array<{doc:HTTPNgramDoc}>, word:string, appServices:IAppServices):Array<QueryMatch> {
         return pipe(
             items,
             List.map(v => v.doc),
             List.groupBy(v => v._id),
             List.map(([,v]) => v[0]),
-            List.map<HTTPResponseDoc, QueryMatch>(v => ({
+            List.map<HTTPNgramDoc, QueryMatch>(v => ({
                 word: word,
                 lemma: v.lemma,
                 pos: importQueryPosWithLabel(v.pos, posTable, appServices),
@@ -214,7 +246,7 @@ export class CouchFreqDB implements IFreqDB {
             ),
             reduce(
                 (acc, v) => acc.concat(v),
-                [] as Array<HTTPResponseDoc>
+                [] as Array<HTTPNgramDoc>
             ),
             map(
                 values => List.map(
@@ -256,5 +288,53 @@ export class CouchFreqDB implements IFreqDB {
             })
         );
     }
+
+    getSourceDescription(uiLang:string, corpname:string):Observable<SourceDetails> {
+        return this.sourceDbUrl ?
+        serverHttpRequest<HTTPSourceInfoResponse>({
+            url: this.sourceDbUrl,
+            method: HTTP.Method.GET,
+            params: {
+                key: `"${uiLang}:${corpname}"`,
+                include_docs: true
+            },
+            auth: {
+                username: this.dbUser,
+                password: this.dbPassword
+            }
+        }).pipe(
+                catchError(
+                    (err) => {
+                        throw new Error(`Failed to fetch source information for ${uiLang}:${corpname}: ${err}`);
+                    }
+                ),
+                map(resp => {
+                    if (resp.rows.length > 0) {
+                        return resp.rows[0].doc;
+                    }
+                    throw new Error(`Failed to find source information for ${corpname}`);
+                }),
+                map(
+                    doc => ({
+                        tileId: -1,
+                        title: corpname,
+                        description: doc.data.description,
+                        author: '',
+                        citationInfo: {
+                            sourceName: doc.data.corpname,
+                            main: doc.data.citation_info.default_ref,
+                            papers: doc.data.citation_info.article_ref,
+                            otherBibliography: doc.data.citation_info.other_bibliography
+                        }
+                    })
+                )
+            ) :
+            rxOf({
+                tileId: -1,
+                title: corpname,
+                description: 'No detailed information available',
+                author: 'not specified'
+            })
+        }
 
 }

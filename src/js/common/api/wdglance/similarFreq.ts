@@ -17,13 +17,14 @@
  */
 import { Observable, of as rxOf } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { pipe, List } from 'cnc-tskit';
 
 import { cachedAjax$ } from '../../../common/ajax';
-import { HTTPHeaders, IAsyncKeyValueStore } from '../../../common/types';
+import { HTTPHeaders, IAsyncKeyValueStore, SourceDetails } from '../../../common/types';
 import { QueryMatch, matchesPos, calcFreqBand } from '../../../common/query';
 import { MultiDict } from '../../../common/data';
 import { SimilarFreqDbAPI, RequestArgs, Response } from '../../../common/api/abstract/similarFreq';
-import { pipe, List } from 'cnc-tskit';
+import { HTTPAction } from '../../../server/routes/actions';
 
 
 interface HTTPResponse {
@@ -32,12 +33,11 @@ interface HTTPResponse {
 
 export class SimilarFreqWordsNullAPI implements SimilarFreqDbAPI {
 
-
     call(args:RequestArgs):Observable<Response> {
         return rxOf({result: []});
     }
-
 }
+
 
 export class SimilarFreqWordsAPI implements SimilarFreqDbAPI {
 
@@ -56,7 +56,7 @@ export class SimilarFreqWordsAPI implements SimilarFreqDbAPI {
     call(args:RequestArgs):Observable<Response> {
         return cachedAjax$<HTTPResponse>(this.cache)(
             'GET',
-            this.apiURL,
+            this.apiURL + '/' + HTTPAction.SIMILAR_FREQ_WORDS,
             new MultiDict([
                 ['lang', args.lang],
                 ['word', args.word],

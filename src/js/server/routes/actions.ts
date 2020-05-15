@@ -24,5 +24,6 @@ export enum HTTPAction {
     SIMILAR_FREQ_WORDS = '/similar-freq-words/',
     WORD_FORMS = '/word-forms/',
     TELEMETRY = '/telemetry/',
-    SET_THEME = '/set-theme/'
+    SET_THEME = '/set-theme/',
+    SOURCE_INFO = '/source-info',
 }

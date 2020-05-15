@@ -339,6 +339,7 @@ export interface LogQueueConf {
 export interface FreqDbOptions {
     urlArgs?:{[key:string]:string};
     httpHeaders?:{[key:string]:string};
+    sourceInfoUrl?:string;
     username?:string;
     password?:string;
 }

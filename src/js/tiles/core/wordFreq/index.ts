@@ -22,6 +22,7 @@ import { FlevelDistribItem, SummaryModel, findCurrentMatches, mkEmptySimilarWord
 import { init as viewInit } from './views';
 import { StatelessModel } from 'kombo';
 import { SimilarFreqWordsNullAPI, SimilarFreqWordsAPI } from '../../../common/api/wdglance/similarFreq';
+import { FreqDbSourceInfoApi } from '../../../common/api/wdglance/freqDbSourceInfo';
 
 declare var require:(src:string)=>void;  // webpack
 require('./style.less');
@@ -77,6 +78,7 @@ export class WordFreqTile implements ITileProvider {
             api: conf.apiURL ?
                 new SimilarFreqWordsAPI(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)) :
                 new SimilarFreqWordsNullAPI(),
+            sourceInfoApi: new FreqDbSourceInfoApi(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
             queryMatches: queryMatches,
             queryLang: lang1,
             queryType,

@@ -41,5 +41,4 @@ export interface Response {
 }
 
 export interface SimilarFreqDbAPI extends DataApi<RequestArgs, Response> {
-
 }
