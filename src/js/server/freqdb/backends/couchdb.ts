@@ -60,8 +60,6 @@ enum Views {
 
     BY_ARF_3G = '3g-by-arf',
 
-    BY_ARF_4G = '4g-by-arf',
-
     /*
     function (doc) {
     emit(doc.lemma, doc.count);
@@ -158,18 +156,19 @@ export class CouchFreqDB implements IFreqDB {
         this.dbUser = options.username;
         this.dbPassword = options.password;
         this.corpusSize = corpusSize;
+        if (options.maxSingleTypeNgramArf && options.maxSingleTypeNgramArf > 3) {
+            throw new Error('maxSingleTypeNgramArf can be only from {0, 1, 2, 3}');
+        }
         this.maxSingleTypeNgramArf = options.maxSingleTypeNgramArf || 0;
     }
 
-    private getViewByLemmaWords(lemma:string):Views.BY_ARF|Views.BY_ARF_1G|Views.BY_ARF_2G|Views.BY_ARF_3G|Views.BY_ARF_4G {
-        if (this.maxSingleTypeNgramArf) {
-            switch (lemma.split(' ').length) {
-                case 1: return Views.BY_ARF_1G
-                case 2: return Views.BY_ARF_2G
-                case 3: return Views.BY_ARF_3G
-                case 4: return Views.BY_ARF_4G
-                default:
-                    throw new Error(`maxSingleTypeNgramArf can be 0, 1, 2, 3, 4 (found: ${this.maxSingleTypeNgramArf})`);
+    private getViewByLemmaWords(lemma:string):Views.BY_ARF|Views.BY_ARF_1G|Views.BY_ARF_2G|Views.BY_ARF_3G {
+        const lemmaLen = lemma.split(' ').length;
+        if (lemmaLen <= this.maxSingleTypeNgramArf) {
+            switch (lemmaLen) {
+                case 1: return Views.BY_ARF_1G;
+                case 2: return Views.BY_ARF_2G;
+                case 3: return Views.BY_ARF_3G;
             }
         }
         return Views.BY_ARF;
