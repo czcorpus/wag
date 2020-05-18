@@ -48,4 +48,4 @@ export interface Response {
 }
 
 
-export type WordFormsApi = DataApi<RequestArgs|RequestConcArgs, Response>;
+export type IWordFormsApi = DataApi<RequestArgs|RequestConcArgs, Response>;

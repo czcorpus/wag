@@ -17,14 +17,14 @@
  */
 import { Observable, merge, empty, forkJoin, of as rxOf } from 'rxjs';
 import { concatMap, reduce, map, catchError } from 'rxjs/operators';
-import { List, pipe, HTTP } from 'cnc-tskit';
+import { List, pipe, HTTP, tuple } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
 import { QueryMatch, calcFreqBand } from '../../../common/query';
 import { IFreqDB } from '../freqdb';
 import { FreqDbOptions } from '../../../conf';
 import { serverHttpRequest } from '../../request';
-import { importQueryPosWithLabel, posTable } from '../../../common/postag';
+import { importQueryPosWithLabel, posTable, posTagsEqual } from '../../../common/postag';
 import { SourceDetails } from '../../../common/types';
 
 
@@ -168,7 +168,7 @@ export class CouchFreqDB implements IFreqDB {
         }).pipe(
             catchError(
                 (err) => {
-                    throw new Error(`Failed to fetch frequency information for ${args}: ${err}`);
+                    throw new Error(`Failed to fetch frequency information (view: ${view}): ${err}`);
                 }
             )
         );
@@ -269,22 +269,36 @@ export class CouchFreqDB implements IFreqDB {
     getWordForms(appServices:IAppServices, lemma:string, pos:Array<string>):Observable<Array<QueryMatch>> {
         return this.queryExact(Views.BY_LEMMA, lemma).pipe(
             map(resp => {
-                const srch = List.find(v => v.doc.lemma === lemma && pos.join(' ') === v.doc.pos, resp.rows);
-                return pos.length === 1 && srch ?
+                const srch = pos.length === 0 ?
+                    List.filter(
+                        v => v.doc.lemma === lemma,
+                        resp.rows
+                    ) :
+                    List.filter(
+                        v => v.doc.lemma === lemma && (posTagsEqual(pos, v.doc.pos.split(' '))),
+                        resp.rows
+                );
+                return pipe(
+                    srch,
+                    List.flatMap(
+                        v => List.map(form => tuple(v.doc.pos, form), v.doc.forms)
+                    ),
+                    List.sortBy(
+                        ([,form]) => form.count
+                    ),
                     List.map(
-                        form => ({
+                        ([pos, form]) => ({
                             lemma: lemma,
-                            pos: importQueryPosWithLabel(srch.doc.pos, posTable, appServices),
+                            pos: importQueryPosWithLabel(pos, posTable, appServices),
                             ipm: form.count / this.corpusSize * 1e6,
                             flevel: calcFreqBand(form.count / this.corpusSize * 1e6),
                             word: form.word,
                             abs: form.count,
                             arf: form.arf,
                             isCurrent: false
-                        }),
-                        srch.doc.forms
-                    ) :
-                    [];
+                        })
+                    )
+                )
             })
         );
     }
