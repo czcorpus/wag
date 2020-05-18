@@ -19,7 +19,7 @@ import { map } from 'rxjs/operators';
 import { List, Maths } from 'cnc-tskit';
 
 import { StatelessModel, Action, SEDispatcher, IActionQueue } from 'kombo';
-import { WordFormItem, WordFormsApi, RequestConcArgs, RequestArgs } from '../../../common/api/abstract/wordForms';
+import { WordFormItem, IWordFormsApi, RequestConcArgs, RequestArgs } from '../../../common/api/abstract/wordForms';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { DataLoadedPayload } from './actions';
 import { findCurrQueryMatch } from '../../../models/query';
@@ -71,7 +71,7 @@ export interface WordFormsModelArgs {
     dispatcher:IActionQueue;
     initialState:WordFormsModelState;
     tileId:number;
-    api:WordFormsApi;
+    api:IWordFormsApi;
     queryMatches:RecognizedQueries;
     queryLang:string;
     waitForTile:number|null;
@@ -83,7 +83,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
 
     private readonly tileId:number;
 
-    private readonly api:WordFormsApi;
+    private readonly api:IWordFormsApi;
 
     private readonly queryMatches:RecognizedQueries;
 

@@ -16,14 +16,14 @@
  * limitations under the License.
  */
 
-import { WordFormsApi } from '../../../common/api/abstract/wordForms';
+import { IWordFormsApi } from '../../../common/api/abstract/wordForms';
 import { WordFormsAPI as WordFormsKontextApi } from '../../../common/api/kontext/wordForms';
 import { HTTPHeaders, IAsyncKeyValueStore } from '../../../common/types';
 import { CoreApiGroup, supportedCoreApiGroups } from '../../../common/api/coreGroups';
 import { WordFormsWdglanceAPI } from '../../../common/api/wdglance/wordForms';
 
 
-export function createApiInstance(apiIdent:string, cache:IAsyncKeyValueStore, apiURL:string, httpHeaders?:HTTPHeaders):WordFormsApi {
+export function createApiInstance(apiIdent:string, cache:IAsyncKeyValueStore, apiURL:string, httpHeaders?:HTTPHeaders):IWordFormsApi {
     switch (apiIdent) {
         case CoreApiGroup.WDGLANCE:
             return new WordFormsWdglanceAPI(cache, apiURL);

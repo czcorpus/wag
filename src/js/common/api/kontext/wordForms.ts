@@ -20,7 +20,7 @@ import { map } from 'rxjs/operators';
 import { Ident } from 'cnc-tskit';
 
 import { QueryMatch } from '../../query';
-import { WordFormsApi, RequestConcArgs, Response } from '../abstract/wordForms';
+import { IWordFormsApi, RequestConcArgs, Response } from '../abstract/wordForms';
 import { HTTPHeaders, IAsyncKeyValueStore } from '../../types';
 import { KontextFreqDistribAPI } from './freqs';
 
@@ -30,7 +30,7 @@ export interface HTTPResponse {
 }
 
 
-export class WordFormsAPI implements WordFormsApi {
+export class WordFormsAPI implements IWordFormsApi {
 
     fapi:KontextFreqDistribAPI;
 
