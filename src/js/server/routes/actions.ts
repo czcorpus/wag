@@ -26,4 +26,6 @@ export enum HTTPAction {
     TELEMETRY = '/telemetry/',
     SET_THEME = '/set-theme/',
     SOURCE_INFO = '/source-info',
+    TRANSLATE = '/translate',
+    COMPARE = '/compare'
 }
