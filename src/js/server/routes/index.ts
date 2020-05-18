@@ -133,24 +133,15 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         res.redirect(req.body.returnUrl);
     });
 
-    // legacy url TODO
-    app.get(HTTPAction.SEARCH, (req, res, next) => {
-        // this just ensures backward compatibility
-        if (req.url.includes('q1=') || req.url.includes('q2=')) {
-            res.redirect(301, mkReturnUrl(req, services.clientConf.rootUrl).replace('q1=', 'q=').replace('q2=', 'q='));
-            return;
-        }
-    });
-
-    app.get(`${HTTPAction.SEARCH}/:lang/:query`, (req, res, next) => {
+    app.get(`${HTTPAction.SEARCH}:lang/:query`, (req, res, next) => {
         queryAction(services, true, QueryType.SINGLE_QUERY, req, res, next);
     });
 
-    app.get(`${HTTPAction.COMPARE}/:lang/:query`, (req, res, next) => {
+    app.get(`${HTTPAction.COMPARE}:lang/:query`, (req, res, next) => {
         queryAction(services, true, QueryType.CMP_QUERY, req, res, next);
     });
 
-    app.get(`${HTTPAction.TRANSLATE}/:lang/:query`, (req, res, next) => {
+    app.get(`${HTTPAction.TRANSLATE}:lang/:query`, (req, res, next) => {
         queryAction(services, true, QueryType.TRANSLAT_QUERY, req, res, next);
     });
 

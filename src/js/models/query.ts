@@ -17,7 +17,7 @@
  */
 
 import { StatelessModel, IActionQueue } from 'kombo';
-import { pipe, List, HTTP } from 'cnc-tskit';
+import { pipe, List } from 'cnc-tskit';
 
 import { IAppServices } from '../appServices';
 import { Forms, MultiDict } from '../common/data';
@@ -265,20 +265,20 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
             state.queryType === QueryType.CMP_QUERY ? HTTPAction.COMPARE :
             HTTPAction.TRANSLATE
         );
-        
+
         const langs = [state.queryLanguage];
         if (state.queryType === QueryType.TRANSLAT_QUERY) {
             langs.push(state.queryLanguage2);
         }
 
-        const queries = [state.queries[0].value.replace(this.hyphenChars, '-')];            
+        const queries = [state.queries[0].value.replace(this.hyphenChars, '-')];
         if (state.queryType === QueryType.CMP_QUERY) {
             state.queries.slice(1).forEach(v => {
                 queries.push(v.value.replace(this.hyphenChars, '-'));
             });
         }
 
-        return [action, langs.join('--'), queries.join('--')].join('/');
+        return `${action}${langs.join('--')}/${queries.join('--')}`;
     }
 
     private validateNthQuery(state:QueryFormModelState, idx:number):boolean {

@@ -24,8 +24,8 @@ export enum HTTPAction {
     WORD_FORMS = '/word-forms/',
     TELEMETRY = '/telemetry/',
     SET_THEME = '/set-theme/',
-    SOURCE_INFO = '/source-info',
-    SEARCH = '/search',
-    TRANSLATE = '/translate',
-    COMPARE = '/compare'
+    SOURCE_INFO = '/source-info/',
+    SEARCH = '/search/',
+    TRANSLATE = '/translate/',
+    COMPARE = '/compare/'
 }
