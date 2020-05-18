@@ -17,7 +17,7 @@
  */
 
 import { StatelessModel, IActionQueue } from 'kombo';
-import { pipe, List } from 'cnc-tskit';
+import { pipe, List, HTTP } from 'cnc-tskit';
 
 import { IAppServices } from '../appServices';
 import { Forms, MultiDict } from '../common/data';
@@ -236,23 +236,18 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
 
     private submitCurrLemma(state:QueryFormModelState):void {
         const args = new MultiDict();
-        args.set('queryType', state.queryType);
-        args.set('lang1', state.queryLanguage);
-        args.set('q', findCurrQueryMatch(state.queryMatches[0]).word);
         args.set('pos', findCurrQueryMatch(state.queryMatches[0]).pos.map(v => v.value).join(' '));
         args.set('lemma', findCurrQueryMatch(state.queryMatches[0]).lemma);
 
         switch (state.queryType) {
             case QueryType.CMP_QUERY:
                 state.queryMatches.slice(1).forEach(m => {
-                    args.add('q', findCurrQueryMatch(m).word);
                     args.add('pos', findCurrQueryMatch(m).pos.map(v => v.value).join(' '));
                     args.add('lemma', findCurrQueryMatch(m).lemma);
                 });
-            case QueryType.TRANSLAT_QUERY:
-                args.set('lang2', state.queryLanguage2);
         }
-        window.location.href = this.appServices.createActionUrl(HTTPAction.SEARCH, args);
+
+        window.location.href = this.appServices.createActionUrl(this.buildQueryPath(state), args);
     }
 
     private checkAndSubmitUserQuery(state:QueryFormModelState):void {
@@ -260,21 +255,30 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
         state.errors = [];
         this.validateQuery(state);
         if (state.errors.length === 0) { // we leave the page here, TODO: use some kind of routing
-            const args:Array<[string, string]> = [
-                ['queryType', state.queryType],
-                ['lang1', state.queryLanguage]
-            ];
-            if (QueryType.TRANSLAT_QUERY) {
-                args.push(['lang2', state.queryLanguage2]);
-            }
-            args.push(['q', state.queries[0].value.replace(this.hyphenChars, '-')]);
-            if (state.queryType === QueryType.CMP_QUERY) {
-                state.queries.slice(1).forEach(v => {
-                    args.push(['q', v.value.replace(this.hyphenChars, '-')]);
-                });
-            }
-            window.location.href = this.appServices.createActionUrl(HTTPAction.SEARCH, args);
+            window.location.href = this.appServices.createActionUrl(this.buildQueryPath(state));
         }
+    }
+
+    private buildQueryPath(state:QueryFormModelState):string {
+        const action = (
+            state.queryType === QueryType.SINGLE_QUERY ? HTTPAction.SEARCH :
+            state.queryType === QueryType.CMP_QUERY ? HTTPAction.COMPARE :
+            HTTPAction.TRANSLATE
+        );
+        
+        const langs = [state.queryLanguage];
+        if (state.queryType === QueryType.TRANSLAT_QUERY) {
+            langs.push(state.queryLanguage2);
+        }
+
+        const queries = [state.queries[0].value.replace(this.hyphenChars, '-')];            
+        if (state.queryType === QueryType.CMP_QUERY) {
+            state.queries.slice(1).forEach(v => {
+                queries.push(v.value.replace(this.hyphenChars, '-'));
+            });
+        }
+
+        return [action, langs.join('--'), queries.join('--')].join('/');
     }
 
     private validateNthQuery(state:QueryFormModelState, idx:number):boolean {
