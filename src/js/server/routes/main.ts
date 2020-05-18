@@ -35,7 +35,7 @@ import { loadFile } from '../files';
 import { createRootComponent } from '../../app';
 import { ActionName } from '../../models/actions';
 import { DummyCache } from '../../cacheDb';
-import { getLangFromCookie, fetchReqArgArray, createHelperServices, mkReturnUrl, logRequest, renderResult, getQueryValue } from './common';
+import { getLangFromCookie, fetchReqArgArray, createHelperServices, mkReturnUrl, logRequest, renderResult, getQueryValue, fetchUrlParamArray } from './common';
 
 
 function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, themeId:string, appServices:IAppServices):Observable<ClientConf> {
@@ -106,7 +106,7 @@ function compileQueries(q:Array<string>, pos:Array<Array<string>>, lemma:Array<s
     return ans;
 }
 
-export function mainAction(services:Services, answerMode:boolean, req:Request, res:Response, next:NextFunction) {
+export function queryAction(services:Services, answerMode:boolean, queryType:QueryType, req:Request, res:Response, next:NextFunction) {
 
     const uiLang = getLangFromCookie(req, services.serverConf.langCookie, services.serverConf.languages);
     const dispatcher = new ServerSideActionDispatcher();
@@ -115,16 +115,16 @@ export function mainAction(services:Services, answerMode:boolean, req:Request, r
 
     new Observable<UserConf>(observer => {
         try {
-            const queryType = importQueryTypeString(getQueryValue(req, 'queryType')[0], QueryType.SINGLE_QUERY);
-            const queries = fetchReqArgArray(req, 'q', queryType === QueryType.CMP_QUERY ? 2 : 1);
+            const queries = fetchUrlParamArray(req, 'query', queryType === QueryType.CMP_QUERY ? 2 : 1);
+            const queryLang = fetchUrlParamArray(req, 'lang', queryType === QueryType.TRANSLAT_QUERY ? 2 : 1);
             const userConfNorm:UserConf = {
                 uiLang: uiLang,
                 uiLanguages: services.serverConf.languages,
-                query1Lang: getQueryValue(req, 'lang1', 'cs')[0], // TODO default
-                query2Lang: getQueryValue(req, 'lang2', 'en')[0], // TODO default
+                query1Lang: queryLang[0] ? queryLang[0] : 'cs', // TODO default
+                query2Lang: queryLang[1] ? queryLang[1] : 'en', // TODO default
                 queryType: queryType,
                 queries: compileQueries(
-                    fetchReqArgArray(req, 'q', queries.length),
+                    queries,
                     List.map(
                         v => List.filter(v => !!v, v.split(' ')),
                         fetchReqArgArray(req, 'pos', queries.length)
