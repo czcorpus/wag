@@ -342,6 +342,16 @@ export interface FreqDbOptions {
     sourceInfoUrl?:string;
     username?:string;
     password?:string;
+
+    /**
+     * If N, then for any 1, 2,...,N-gram type, the database
+     * is able to provide similar ARF frequency. I.e. it won't
+     * mix e.g. 2-grams and 3-grams. If 0 or omitted then we assume that
+     * we are not able to support such a feature and the datase
+     * returns just any 1, 2,...N-grams matching entered
+     * ARF. This is only supported for 1, 2, 3, 4-grams.
+     */
+    maxSingleTypeNgramArf?:number;
 }
 
 export interface FreqDbConf {

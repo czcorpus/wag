@@ -54,6 +54,14 @@ enum Views {
     */
     BY_ARF = 'by-arf',
 
+    BY_ARF_1G = '1g-by-arf',
+
+    BY_ARF_2G = '2g-by-arf',
+
+    BY_ARF_3G = '3g-by-arf',
+
+    BY_ARF_4G = '4g-by-arf',
+
     /*
     function (doc) {
     emit(doc.lemma, doc.count);
@@ -130,7 +138,6 @@ interface HTTPSourceInfoResponse {
 }
 
 
-
 export class CouchFreqDB implements IFreqDB {
 
     private readonly dbUrl:string;
@@ -143,6 +150,7 @@ export class CouchFreqDB implements IFreqDB {
 
     private readonly corpusSize:number;
 
+    private readonly maxSingleTypeNgramArf:number;
 
     constructor(dbPath:string, corpusSize:number, options:FreqDbOptions) {
         this.dbUrl = dbPath;
@@ -150,6 +158,21 @@ export class CouchFreqDB implements IFreqDB {
         this.dbUser = options.username;
         this.dbPassword = options.password;
         this.corpusSize = corpusSize;
+        this.maxSingleTypeNgramArf = options.maxSingleTypeNgramArf || 0;
+    }
+
+    private getViewByLemmaWords(lemma:string):Views.BY_ARF|Views.BY_ARF_1G|Views.BY_ARF_2G|Views.BY_ARF_3G|Views.BY_ARF_4G {
+        if (this.maxSingleTypeNgramArf) {
+            switch (lemma.split(' ').length) {
+                case 1: return Views.BY_ARF_1G
+                case 2: return Views.BY_ARF_2G
+                case 3: return Views.BY_ARF_3G
+                case 4: return Views.BY_ARF_4G
+                default:
+                    throw new Error(`maxSingleTypeNgramArf can be 0, 1, 2, 3, 4 (found: ${this.maxSingleTypeNgramArf})`);
+            }
+        }
+        return Views.BY_ARF;
     }
 
     private queryExact(view:string, value:string):Observable<HTTPNgramResponse> {
@@ -203,6 +226,7 @@ export class CouchFreqDB implements IFreqDB {
     }
 
     getSimilarFreqWords(appServices:IAppServices, lemma:string, pos:Array<string>, rng:number):Observable<Array<QueryMatch>> {
+        const view = this.getViewByLemmaWords(lemma);
         return this.queryExact(Views.BY_LEMMA, lemma).pipe(
             concatMap(
                 resp => {
@@ -213,21 +237,21 @@ export class CouchFreqDB implements IFreqDB {
                             // finding the same results in the next two searches and
                             // (worse) by exhausting the search items limit.
                             this.queryServer(
-                                Views.BY_ARF,
+                                view,
                                 {
                                     key: srch.doc.arf,
                                     limit: rng
                                 }
                             ),
                             this.queryServer(
-                                Views.BY_ARF,
+                                view,
                                 {
                                     startkey: srch.doc.arf + srch.doc.arf / 1e5,
                                     limit: rng
                                 }
                             ),
                             this.queryServer(
-                                Views.BY_ARF,
+                                view,
                                 {
                                     startkey: srch.doc.arf - srch.doc.arf / 1e6,
                                     limit: rng,

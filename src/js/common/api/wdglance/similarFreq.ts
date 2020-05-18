@@ -56,7 +56,7 @@ export class SimilarFreqWordsAPI implements SimilarFreqDbAPI {
     call(args:RequestArgs):Observable<Response> {
         return cachedAjax$<HTTPResponse>(this.cache)(
             'GET',
-            this.apiURL + '/' + HTTPAction.SIMILAR_FREQ_WORDS,
+            this.apiURL + HTTPAction.SIMILAR_FREQ_WORDS,
             new MultiDict([
                 ['lang', args.lang],
                 ['word', args.word],
