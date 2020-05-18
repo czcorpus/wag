@@ -19,11 +19,13 @@
 export enum HTTPAction {
     MAIN = '/',
     SET_UI_LANG = '/set-ui-lang/',
-    SEARCH = '/search/',
     GET_LEMMAS = '/get-lemmas/',
     SIMILAR_FREQ_WORDS = '/similar-freq-words/',
     WORD_FORMS = '/word-forms/',
     TELEMETRY = '/telemetry/',
     SET_THEME = '/set-theme/',
     SOURCE_INFO = '/source-info',
+    SEARCH = '/search',
+    TRANSLATE = '/translate',
+    COMPARE = '/compare'
 }

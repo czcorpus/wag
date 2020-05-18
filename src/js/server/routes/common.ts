@@ -55,6 +55,17 @@ export function getQueryValue(req:Request, name:string, dflt?:string):Array<stri
 }
 
 
+export function getQueryParam(req:Request, name:string, dflt?:string):Array<string> {
+    // we assume `--` as parameter separator
+    const val = req.params[name];
+    if (typeof val === 'string') {
+        return val.split('--');
+    }
+
+    return typeof dflt !== 'undefined' ? [dflt] : [];
+}
+
+
 export function getLangFromCookie(req:Request, cookieName:string, languages:{[code:string]:string}):string {
     const ans = req.cookies[cookieName] || 'en-US';
     if (languages.hasOwnProperty(ans)) {
@@ -102,6 +113,24 @@ export function fetchReqArgArray(req:Request, arg:string, minLen:number):Array<s
     }
 
     const values = getQueryValue(req, arg);
+    if (Array.isArray(values)) {
+        return values.concat(mkEmpty(minLen - values.length));
+    }
+    return mkEmpty(minLen);
+}
+
+
+export function fetchUrlParamArray(req:Request, param:string, minLen:number):Array<string> {
+
+    const mkEmpty = (len:number) => {
+        const ans:Array<string> = [];
+        for (let i = 0; i < len; i += 1) {
+            ans.push('');
+        }
+        return ans;
+    }
+
+    const values = getQueryParam(req, param);
     if (Array.isArray(values)) {
         return values.concat(mkEmpty(minLen - values.length));
     }
