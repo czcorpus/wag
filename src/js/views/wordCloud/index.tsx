@@ -122,10 +122,11 @@ export function init<T>(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalCompone
         }
 
         render() {
-            const style = {
+            const style:React.CSSProperties = {
                 left: `${this.calcXPos()}px`,
                 top: `${this.calcYPos()}px`,
-                display: this.props.data && this.props.data.length > 0 ? 'block' : 'none'
+                display: this.props.data && this.props.data.length > 0 ? 'block' : 'none',
+                position: 'absolute'
             };
             const decimalSeparator = ut.formatNumber(0.1).slice(1, -1);
 

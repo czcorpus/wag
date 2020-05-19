@@ -159,9 +159,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             tickFormatter={value => props.isMobile ? Strings.shortenText(value, CHART_LABEL_MAX_LEN) : value}/>
                     <Legend />
                     <Tooltip cursor={false} isAnimationActive={false}
-                        content={globComponents.AlignedRechartsTooltip}
-                        formatter={(value, name, props) =>
-                            `${value} % (${props.payload.data[name].ipm} ipm)`} />
+                        content={<globComponents.AlignedRechartsTooltip multiWord={true} theme={theme}/>}
+                        formatter={(value, name, props) => ([[[value, '%'], [props.payload.data[name].ipm, 'ipm']], name])} />
                 </ChartWrapper>
             </div>
         );

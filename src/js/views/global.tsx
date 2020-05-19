@@ -25,6 +25,7 @@ import { SystemMessageType, SourceDetails } from '../common/types';
 import { ScreenProps } from '../common/hostPage';
 import { BacklinkWithArgs } from '../common/tile';
 import { ActionName, Actions } from '../models/actions';
+import { Theme } from '../common/theme';
 
 export interface SourceInfo {
     corp:string;
@@ -96,11 +97,13 @@ export interface GlobalComponents {
     }>;
 
     AlignedRechartsTooltip:React.SFC<{
-        active:boolean;
-        payload:Array<{[key:string]:any}>;
-        label:string;
-        separator:string;
-        formatter:(value:string,name:string,data:{[key:string]:any}) => string | [string, string];
+        active?:boolean;
+        payload?:Array<{[key:string]:any}>;
+        label?:string;
+        formatter?:(value:string,name:string,data:{[key:string]:any}) => string | [string, string];
+        
+        multiWord?:boolean;
+        theme?:Theme;
     }>;
 }
 
@@ -561,6 +564,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
         const style:React.CSSProperties = {
             display: props.visible ? 'block' : 'none',
             visibility: ref.current ? 'visible' : 'hidden',
+            position: 'absolute',
             top: calcYPos(),
             left: calcXPos()
         };
@@ -614,37 +618,57 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
     // -------------------- <AlignedRechartsTooltip /> ----------------------------------------------
 
 
-    const AlignedRechartsTooltip:GlobalComponents['AlignedRechartsTooltip'] = (props) => {
-        const { active, payload, label, formatter, separator } = props;
+    const AlignedRechartsTooltip:GlobalComponents['AlignedRechartsTooltip'] = (props?) => {
+       
+        const { active, payload, label, formatter, multiWord, theme} = props;
         if (active && payload) {
             const decimalSeparator = ut.formatNumber(0.1).slice(1, -1);
             return (
-                <div className="wdg-tooltip" style={{display: 'block', position: 'relative'}}>
+                <div className={multiWord ? 'wdg-multi-word-tooltip' : 'wdg-tooltip'}>
                     <table>
                         <thead><tr><th className="value" colSpan={4}>{label}</th></tr></thead>
                         <tbody>
                         {List.map(
-                            data => {
+                            (data, index) => {
                                 const formated_value = formatter ? formatter(data.value, data.name, data) : [data.value, data.name];
-                                const [value, name] = typeof formated_value === "string" ? [formated_value, data.name] : formated_value;
-                                if (Array.isArray(value)) {
-                                    return (value.every(v => Boolean(v)) && name) ?
-                                        <tr key={name}>
-                                            <td key="name" className="label">{name}</td>
-                                            <td key="value" className="value" colSpan={2}>{value.join(" ~ ")}</td>
+                                const [value, label] = Array.isArray(formated_value) ? formated_value : [formated_value, data.name];
+                                const labelTheme = multiWord && theme ? {backgroundColor: theme.cmpCategoryColor(index)} : null;
+                                
+                                if (value && label) {
+                                    if (typeof value === 'string') {
+                                        return <tr key={label}>
+                                            <td key="name" className="label" style={labelTheme}>{label}</td>
+                                            <td key="value" className="value" colSpan={2}>{value}</td>
                                             <td key="unit" className="value">{data.unit}</td>
-                                        </tr> :
-                                        null;
-                                } else if (value && name) {
-                                    const [numWh, numDec] = ut.formatNumber(value, 1).split(decimalSeparator);
-                                    return <tr key={name}>
-                                        <td key="name" className="label">{name}</td>
-                                        <td key="valueWh" className="value numWh">{numWh}</td>
-                                        <td key="valueDec" className="value numDec">{numDec ? decimalSeparator + numDec : null}</td>
-                                        <td key="unit" className="value">{data.unit}</td>
-                                    </tr>
+                                        </tr>
+                                    
+                                    } else if (Array.isArray(value)) {
+                                        return <tr key={label}>
+                                            <td key="name" className="label" style={labelTheme}>{label}</td>
+                                            {List.map(
+                                                ([val, unit]) => {
+                                                    const [numWh, numDec] = ut.formatNumber(val, 1).split(decimalSeparator);
+                                                    return <>
+                                                        <td key="valueWh" className="value numWh">{numWh}</td>
+                                                        <td key="valueDec" className="value numDec">{numDec ? decimalSeparator + numDec : null}</td>
+                                                        <td key="unit" className="value">{unit}</td>
+                                                    </>
+                                                },
+                                                value
+                                            )}
+                                        </tr>
+                                    
+                                    } else if (typeof value === 'number') {
+                                        const [numWh, numDec] = ut.formatNumber(value, 1).split(decimalSeparator);
+                                        return <tr key={label}>
+                                            <td key="name" className="label" style={labelTheme}>{label}</td>
+                                            <td key="valueWh" className="value numWh">{numWh}</td>
+                                            <td key="valueDec" className="value numDec">{numDec ? decimalSeparator + numDec : null}</td>
+                                            <td key="unit" className="value">{data.unit}</td>
+                                        </tr>
+                                    }
                                 }
-                                return null;
+                                return null
                             },
                             payload
                         )}
@@ -655,8 +679,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
         }
 
         return null;
-      };
-
+    };
 
     // ===================
 

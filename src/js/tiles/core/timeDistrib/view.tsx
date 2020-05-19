@@ -267,7 +267,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <CartesianGrid strokeDasharray="1 1"/>
                         <XAxis dataKey="datetime" interval="preserveStartEnd" minTickGap={0} type="category" />
                         <YAxis />
-                        <Tooltip isAnimationActive={false} content={globComponents.AlignedRechartsTooltip} />
+                        <Tooltip isAnimationActive={false}
+                                formatter={(value, name, data) => (value.every(v => Boolean(v)) ? [value.join(' ~ '), name] : null)}
+                                content={globComponents.AlignedRechartsTooltip} />
                         <Area type="linear"
                                 dataKey="ipmInterval1"
                                 name={ut.translate('timeDistrib__estimated_interval_for_{word}', {word: this.props.word})}

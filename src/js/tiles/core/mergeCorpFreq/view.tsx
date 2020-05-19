@@ -124,7 +124,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 List.flatMap(item => [Strings.shortenText(item.name, CHART_LABEL_MAX_LEN)], transformedData) :
                 List.map(v => v.name, transformedData)
         ).length;
-        const colorFn = props.queryMatches.length > 1 ?
+        const colorFn = queries > 1 ?
                 (idx:number) => theme.cmpCategoryColor(idx) :
                 (idx:number) => theme.categoryColor(0);
         return (
@@ -139,14 +139,14 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 dataKey={x => x.ipm[index]}
                                 fill={props.isPartial ? theme.unfinishedChartColor: colorFn(index)}
                                 isAnimationActive={false}
-                                name={queries === 1 ? ut.translate('mergeCorpFreq_rel_freq') : `[${index + 1}] ${props.queryMatches[index].word}`} />,
+                                name={queries === 1 ? ut.translate('mergeCorpFreq_rel_freq') : props.queryMatches[index].word} />,
                             props.queryMatches
                         )}
                         <XAxis type="number" label={{value: queries > 1 ? ut.translate('mergeCorpFreq_rel_freq') : null, dy: 15}} />
                         <YAxis type="category" dataKey="name" width={Math.max(60, maxLabelLength * 7)}
                                 tickFormatter={value => props.isMobile ? Strings.shortenText(value, CHART_LABEL_MAX_LEN) : value} />
                         <Legend wrapperStyle={{paddingTop: queries > 1 ? 15 : 0}}/>
-                        <Tooltip cursor={false} isAnimationActive={false} content={globComponents.AlignedRechartsTooltip} />
+                        <Tooltip cursor={false} isAnimationActive={false} content={<globComponents.AlignedRechartsTooltip multiWord={queries>1} theme={theme} />} />
                     </BarChart>
                 </ResponsiveContainer>
             </div>
