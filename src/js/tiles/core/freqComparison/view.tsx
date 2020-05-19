@@ -160,8 +160,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <Legend />
                     <Tooltip cursor={false} isAnimationActive={false}
                         content={<globComponents.AlignedRechartsTooltip multiWord={true} theme={theme}/>}
-                        formatter={(value, name, props) =>
-                            `${value} % (${props.payload.data[name].ipm} ipm)`} />
+                        formatter={(value, name, props) => ([[[value, '%'], [props.payload.data[name].ipm, 'ipm']], name])} />
                 </ChartWrapper>
             </div>
         );

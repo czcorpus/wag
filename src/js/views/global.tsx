@@ -631,33 +631,44 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                         {List.map(
                             (data, index) => {
                                 const formated_value = formatter ? formatter(data.value, data.name, data) : [data.value, data.name];
-                                const [value, label] = typeof formated_value === "string" ? [formated_value, data.name] : formated_value;
+                                const [value, label] = Array.isArray(formated_value) ? formated_value : [formated_value, data.name];
                                 const labelTheme = multiWord && theme ? {backgroundColor: theme.cmpCategoryColor(index)} : null;
-                                if (Array.isArray(value)) {
-                                    return (value.every(v => Boolean(v)) && label) ?
-                                        <tr key={label}>
-                                            <td key="name" className="label" style={labelTheme}>{label}</td>
-                                            <td key="value" className="value" colSpan={2}>{value.join(" ~ ")}</td>
-                                            <td key="unit" className="value">{data.unit}</td>
-                                        </tr> :
-                                        null;
-                                } else if (value && label) {
+                                
+                                if (value && label) {
                                     if (typeof value === 'string') {
                                         return <tr key={label}>
                                             <td key="name" className="label" style={labelTheme}>{label}</td>
                                             <td key="value" className="value" colSpan={2}>{value}</td>
                                             <td key="unit" className="value">{data.unit}</td>
                                         </tr>
+                                    
+                                    } else if (Array.isArray(value)) {
+                                        return <tr key={label}>
+                                            <td key="name" className="label" style={labelTheme}>{label}</td>
+                                            {List.map(
+                                                ([val, unit]) => {
+                                                    const [numWh, numDec] = ut.formatNumber(val, 1).split(decimalSeparator);
+                                                    return <>
+                                                        <td key="valueWh" className="value numWh">{numWh}</td>
+                                                        <td key="valueDec" className="value numDec">{numDec ? decimalSeparator + numDec : null}</td>
+                                                        <td key="unit" className="value">{unit}</td>
+                                                    </>
+                                                },
+                                                value
+                                            )}
+                                        </tr>
+                                    
+                                    } else if (typeof value === 'number') {
+                                        const [numWh, numDec] = ut.formatNumber(value, 1).split(decimalSeparator);
+                                        return <tr key={label}>
+                                            <td key="name" className="label" style={labelTheme}>{label}</td>
+                                            <td key="valueWh" className="value numWh">{numWh}</td>
+                                            <td key="valueDec" className="value numDec">{numDec ? decimalSeparator + numDec : null}</td>
+                                            <td key="unit" className="value">{data.unit}</td>
+                                        </tr>
                                     }
-                                    const [numWh, numDec] = ut.formatNumber(value, 1).split(decimalSeparator);
-                                    return <tr key={label}>
-                                        <td key="name" className="label" style={labelTheme}>{label}</td>
-                                        <td key="valueWh" className="value numWh">{numWh}</td>
-                                        <td key="valueDec" className="value numDec">{numDec ? decimalSeparator + numDec : null}</td>
-                                        <td key="unit" className="value">{data.unit}</td>
-                                    </tr>
                                 }
-                                return null;
+                                return null
                             },
                             payload
                         )}
