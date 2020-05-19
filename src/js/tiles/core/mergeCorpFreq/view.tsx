@@ -139,7 +139,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 dataKey={x => x.ipm[index]}
                                 fill={props.isPartial ? theme.unfinishedChartColor: colorFn(index)}
                                 isAnimationActive={false}
-                                name={queries === 1 ? ut.translate('mergeCorpFreq_rel_freq') : `[${index + 1}] ${props.queryMatches[index].word}`} />,
+                                name={queries === 1 ? ut.translate('mergeCorpFreq_rel_freq') : props.queryMatches[index].word} />,
                             props.queryMatches
                         )}
                         <XAxis type="number" label={{value: queries > 1 ? ut.translate('mergeCorpFreq_rel_freq') : null, dy: 15}} />
