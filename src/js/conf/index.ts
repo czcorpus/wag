@@ -24,8 +24,6 @@ import { List, pipe } from 'cnc-tskit';
 export const DEFAULT_WAIT_FOR_OTHER_TILES = 60;
 
 export const THEME_COOKIE_NAME = 'wag_theme';
-export const THEME_DEFAULT_NAME = 'default';
-export const THEME_DEFAULT_LABEL = 'Default';
 
 export interface UserQuery {
     word:string;
@@ -256,6 +254,9 @@ export function getAppliedThemeConf(conf:ClientStaticConf, themeId?:string):Colo
         if (!ans) {
             ans = List.find(t => t.themeId === colors.default, colors.themes);
         }
+        if (!ans) {
+            throw new Error('Color theme misconfiguration - no default found');
+        }
     }
     return ans;
 }
@@ -267,13 +268,7 @@ export function getThemeList(conf:ClientStaticConf):Array<ColorThemeIdent> {
             themeId: v.themeId,
             themeLabel: v.themeLabel ? v.themeLabel : v.themeId,
             description: v.description
-        })),
-        List.concat<ColorThemeIdent>([
-            {
-                themeId: THEME_DEFAULT_NAME,
-                themeLabel: THEME_DEFAULT_LABEL
-            }
-        ]),
+        }))
     );
 }
 

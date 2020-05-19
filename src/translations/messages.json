@@ -86,10 +86,10 @@
         "global__server_error": "Error",
         "global__go_to_main_page": "Go to main page",
         "global__action_not_found": "URL not found.",
-        "global__color_themes": "color schemes",
+        "global__color_themes": "chart color schemes",
         "global__institute_cnc": "Institute of the Czech National Corpus",
         "global__powered_by_wag_{version}": "Powered by WaG version {version}",
-        "global__view_on_github": "View on GitHub",
+        "global__view_on_github": "view on GitHub",
         "global__not_applicable": "Not applicable"
     },
     "cs-CZ": {
@@ -179,10 +179,10 @@
         "global__server_error": "Chyba",
         "global__go_to_main_page": "Přejít na hlavní stránku",
         "global__action_not_found": "URL nebyla nalezena.",
-        "global__color_themes": "barevná schémata",
+        "global__color_themes": "barevná schémata grafů",
         "global__institute_cnc": "Ústav Českého národního korpusu",
-        "global__powered_by_wag_{version}": "Powered by WaG version {version}",
-        "global__view_on_github": "Prohlédnout na GitHubu",
+        "global__powered_by_wag_{version}": "Běží v aplikaci WaG verze {version}",
+        "global__view_on_github": "prohlédnout na GitHubu",
         "global__not_applicable": "Nedostupné"
     }
 }

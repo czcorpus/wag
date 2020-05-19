@@ -143,11 +143,16 @@ export function init(ut:ViewUtils<GlobalComponents>):React.SFC<LayoutProps> {
                                 <span><img src={ut.createStaticUrl('logo-small.svg')} className="logo" alt="WaG" /></span> :
                                 null
                             }
-                            <span>{ut.translate('global__powered_by_wag_{version}', {version: props.version})}</span>
+                            <span>{ut.translate('global__powered_by_wag_{version}', {version: props.version})}
+                                {'\u00a0'}
+                                (<a href={props.repositoryUrl} target="_blank">{ut.translate('global__view_on_github')}</a>)
+                            </span>
                             <span className="separ">|</span>
-                            <span><a href={props.repositoryUrl} target="_blank">{ut.translate('global__view_on_github')}</a></span>
-                            <span className="separ">|</span>
-                            <span className="copy">&copy; {ut.translate('global__institute_cnc')}</span>
+                            <span className="copy">
+                                &copy; <a href="https://ucnk.ff.cuni.cz/" target="_blank">
+                                    {ut.translate('global__institute_cnc')}
+                                    </a>
+                            </span>
                         </section>
                     </footer>
                 </body>
