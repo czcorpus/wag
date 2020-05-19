@@ -3,6 +3,7 @@
 body {
     font-family: @default-font-family;
     font-size: 1em;
+    font-display: swap;
     background-image: @main-background;
 }
 
@@ -391,6 +392,11 @@ footer {
 
         a {
             color: @color-light-text;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
         }
     }
 

@@ -26,7 +26,7 @@ import { QueryType, QueryMatch, matchesPos, addWildcardMatches } from '../../com
 import { QueryValidator } from '../../common/query/valitation';
 import { UserConf, ClientStaticConf, ClientConf, emptyClientConf, getSupportedQueryTypes,
          emptyLayoutConf, errorUserConf, getQueryTypeFreqDb, isTileDBConf, DEFAULT_WAIT_FOR_OTHER_TILES,
-         THEME_COOKIE_NAME, getThemeList, getAppliedThemeConf, THEME_DEFAULT_NAME, UserQuery } from '../../conf';
+         THEME_COOKIE_NAME, getThemeList, getAppliedThemeConf, UserQuery } from '../../conf';
 import { init as viewInit } from '../../views/layout';
 import { init as errPageInit } from '../../views/error';
 import { ServerSideActionDispatcher } from '../core';
@@ -310,7 +310,7 @@ export function queryAction(services:Services, answerMode:boolean, queryType:Que
                 toolbarData: emptyValue(),
                 queryMatches: [],
                 themes: [],
-                currTheme: currTheme ? currTheme.themeId : THEME_DEFAULT_NAME,
+                currTheme: currTheme.themeId,
                 userConfig: userConf,
                 clientConfig: emptyClientConf(services.clientConf, req.cookies[THEME_COOKIE_NAME]),
                 returnUrl: mkReturnUrl(req, services.clientConf.rootUrl),
