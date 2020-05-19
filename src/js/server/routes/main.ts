@@ -108,15 +108,18 @@ function compileQueries(q:Array<string>, pos:Array<Array<string>>, lemma:Array<s
     return ans;
 }
 
-export function queryAction(services:Services, answerMode:boolean, queryType:QueryType, req:Request, res:Response, next:NextFunction) {
+interface ImportQueryReqArgs {
+    services:Services;
+    appServices:IAppServices;
+    req:Request;
+    queryType:QueryType;
+    uiLang:string;
+    answerMode:boolean;
+}
 
-    const uiLang = getLangFromCookie(req, services.serverConf.langCookie, services.serverConf.languages);
-    const dispatcher = new ServerSideActionDispatcher();
-    const [viewUtils, appServices] = createHelperServices(services, uiLang);
+export function importQueryRequest({services, appServices, req, queryType, uiLang, answerMode}:ImportQueryReqArgs):Observable<UserConf> {
     const validator = new QueryValidator(appServices);
-    // until now there should be no exceptions throw
-
-    new Observable<UserConf>(observer => {
+    return new Observable<UserConf>(observer => {
         try {
             const queries = fetchUrlParamArray(req, 'query', queryType === QueryType.CMP_QUERY ? 2 : 1);
             const queryLang = fetchUrlParamArray(req, 'lang', queryType === QueryType.TRANSLAT_QUERY ? 2 : 1);
@@ -157,7 +160,17 @@ export function queryAction(services:Services, answerMode:boolean, queryType:Que
         } catch (err) {
             observer.error(err);
         }
+    })
+}
 
+export function queryAction(services:Services, answerMode:boolean, queryType:QueryType, req:Request, res:Response, next:NextFunction) {
+
+    const uiLang = getLangFromCookie(req, services.serverConf.langCookie, services.serverConf.languages);
+    const dispatcher = new ServerSideActionDispatcher();
+    const [viewUtils, appServices] = createHelperServices(services, uiLang);
+    // until now there should be no exceptions throw
+    importQueryRequest({
+        services, appServices, req, queryType, uiLang, answerMode
     }).pipe(
         concatMap(userConf => forkJoin({
             appServices: rxOf(appServices),
