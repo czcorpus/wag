@@ -161,7 +161,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         if (props.active && props.payload) {
             const decimalSeparator = ut.formatNumber(0.1).slice(1, -1);
-            return <div className="chart-tooltip">
+            return <div className="wdg-multi-word-tooltip">
                 <table>
                     <tbody>
                         <tr><th colSpan={7}>{props.label} — {ut.translate('multiWordTimeDistrib__estimated_trend_for')}</th></tr>
@@ -175,10 +175,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 const [ipmWh, ipmDec] = ut.formatNumber(ipmValue, 1).split(decimalSeparator);
                                 return <tr key={name}>
                                     <td className='label' style={{backgroundColor: data.color}}>{name}</td>
-                                    <td className='numWhole'>{percWh}</td>
+                                    <td className='numWh'>{percWh}</td>
                                     <td className='numDec'>{percDec ? decimalSeparator + percDec : null}</td>
                                     <td className='unit'>%</td>
-                                    <td className='numWhole'>{ipmWh}</td>
+                                    <td className='numWh'>{ipmWh}</td>
                                     <td className='numDec'>{ipmDec ? decimalSeparator + ipmDec : null}</td>
                                     <td className='unit'>ipm</td>
                                 </tr>

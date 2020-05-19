@@ -397,6 +397,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         const style:React.CSSProperties = {
             display: props.visible ? 'block' : 'none',
+            position: 'absolute',
             visibility: ref.current ? 'visible' : 'hidden',
             top: calcYPos(),
             left: calcXPos()
@@ -405,7 +406,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         const decimalSeparator = ut.formatNumber(0.1).slice(1, -1);
 
         return (
-            <div className="map-tooltip" ref={ref} style={style}>
+            <div className="wdg-multi-word-tooltip" ref={ref} style={style}>
                 <table>
                     <tbody>
                         <tr><th colSpan={7}>{props.caption}</th></tr>
@@ -420,10 +421,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                         const [ipmWh, ipmDec] = ut.formatNumber(value[1], 1).split(decimalSeparator);
                                         return <tr key={label}>
                                             <td className='label' style={{backgroundColor: theme.cmpCategoryColor(index)}}>{label}</td>
-                                            <td className='numWhole'>{percWh}</td>
+                                            <td className='numWh'>{percWh}</td>
                                             <td className='numDec'>{percDec ? decimalSeparator + percDec : null}</td>
                                             <td className='unit'>%</td>
-                                            <td className='numWhole'>{ipmWh}</td>
+                                            <td className='numWh'>{ipmWh}</td>
                                             <td className='numDec'>{ipmDec ? decimalSeparator + ipmDec : null}</td>
                                             <td className='unit'>ipm</td>
                                         </tr>

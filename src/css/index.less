@@ -322,9 +322,6 @@ table.data {
 }
 
 .wdg-tooltip {
-
-    position: absolute;
-    display: none;
     background-color: #FFFFFF;
     z-index: 10000;
     padding: 1em;
@@ -361,13 +358,63 @@ table.data {
         }
 
         td.numDec {
-            text-align: left;
             padding: 0;
         }
 
         td.unit {
             text-align: center;
         }
+    }
+}
+
+.wdg-multi-word-tooltip {
+
+    background-color: #FFFFFF;
+    z-index: 10000;
+    padding: 0.3em 1em 1.3em 1em;
+    border: 1px solid @color-light-grey;
+    border-radius: 3px;
+    border-spacing: 0;
+    border-collapse: collapse;
+    line-height: 1.2em;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.25);
+    //pointer-events: 'none';
+
+    table {
+        .value {
+            text-align: left;
+        }
+
+        .label {
+            font-weight: 900;
+            color: white;
+            text-align: center;
+            padding: 0 10px 0 10px;
+        }
+
+        th {
+            font-weight: bolder;
+            text-align: left;
+            padding: 10px 0;
+        }
+
+        td {
+            text-align: left;
+        }
+
+        td.numWh {
+            text-align: right;
+            padding: 0 0 0 10px;
+        }
+        
+        td.numDec {
+            padding: 0;
+        }
+
+        td.unit {
+            text-align: center;
+        }
+
     }
 }
 

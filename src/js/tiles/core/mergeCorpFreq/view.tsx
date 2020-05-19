@@ -124,7 +124,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 List.flatMap(item => [Strings.shortenText(item.name, CHART_LABEL_MAX_LEN)], transformedData) :
                 List.map(v => v.name, transformedData)
         ).length;
-        const colorFn = props.queryMatches.length > 1 ?
+        const colorFn = queries > 1 ?
                 (idx:number) => theme.cmpCategoryColor(idx) :
                 (idx:number) => theme.categoryColor(0);
         return (
@@ -146,7 +146,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <YAxis type="category" dataKey="name" width={Math.max(60, maxLabelLength * 7)}
                                 tickFormatter={value => props.isMobile ? Strings.shortenText(value, CHART_LABEL_MAX_LEN) : value} />
                         <Legend wrapperStyle={{paddingTop: queries > 1 ? 15 : 0}}/>
-                        <Tooltip cursor={false} isAnimationActive={false} content={globComponents.AlignedRechartsTooltip} />
+                        <Tooltip cursor={false} isAnimationActive={false} content={<globComponents.AlignedRechartsTooltip multiWord={queries>1} theme={theme} />} />
                     </BarChart>
                 </ResponsiveContainer>
             </div>
