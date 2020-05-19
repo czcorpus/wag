@@ -157,7 +157,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         const renderWebLink = () => {
             if (props.data.href) {
-                return <a href={props.data.href} target="_blank">{props.data.href}</a>;
+                return <a href={props.data.href} target="_blank" rel="noopener">{props.data.href}</a>;
 
             } else {
                 return '-';

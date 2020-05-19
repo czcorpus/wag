@@ -145,11 +145,11 @@ export function init(ut:ViewUtils<GlobalComponents>):React.SFC<LayoutProps> {
                             }
                             <span>{ut.translate('global__powered_by_wag_{version}', {version: props.version})}
                                 {'\u00a0'}
-                                (<a href={props.repositoryUrl} target="_blank">{ut.translate('global__view_on_github')}</a>)
+                                (<a href={props.repositoryUrl} target="_blank" rel="noopener">{ut.translate('global__view_on_github')}</a>)
                             </span>
                             <span className="separ">|</span>
                             <span className="copy">
-                                &copy; <a href="https://ucnk.ff.cuni.cz/" target="_blank">
+                                &copy; <a href="https://ucnk.ff.cuni.cz/" target="_blank" rel="noopener">
                                     {ut.translate('global__institute_cnc')}
                                     </a>
                             </span>

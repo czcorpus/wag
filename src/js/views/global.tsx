@@ -255,7 +255,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                 <h2>{props.data.title}</h2>
                 <p>{props.data.description}</p>
                 {props.data.href ?
-                    <p>{ut.translate('global__more_info')}: <a className="external" href={props.data.href} target="_blank">{props.data.href}</a></p> :
+                    <p>{ut.translate('global__more_info')}: <a className="external" href={props.data.href} target="_blank" rel="noopener">{props.data.href}</a></p> :
                     null
                 }
             </div>
@@ -291,7 +291,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
     }> = (props) => {
         return (
             <p className="report">
-                <a href={props.url} target="_blank">{ut.translate('global__report_the_problem')}</a>
+                <a href={props.url} target="_blank" rel="noopener">{ut.translate('global__report_the_problem')}</a>
             </p>
         );
     };
