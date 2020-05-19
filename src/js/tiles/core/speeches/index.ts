@@ -17,7 +17,7 @@
  */
 import { StatelessModel } from 'kombo';
 
-import { QueryType } from '../../../common/query';
+import { QueryType } from '../../../common/query/index';
 import { ITileProvider, TileComponent, TileConf, TileFactory, Backlink } from '../../../common/tile';
 import { SpeechesModel } from './model';
 import { init as viewInit } from './view';

@@ -21,7 +21,7 @@ import { IAppServices } from '../../../appServices';
 import { FreqSort } from '../../../common/api/kontext/freqs';
 import { SubqueryModeConf } from '../../../common/models/freq';
 import { LocalizedConfMsg } from '../../../common/types';
-import { QueryType } from '../../../common/query';
+import { QueryType } from '../../../common/query/index';
 import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../../common/tile';
 import { factory as defaultModelFactory, FreqBarModel } from '../freqBar/model';
 import { factory as subqModelFactory } from '../freqBar/subqModel';

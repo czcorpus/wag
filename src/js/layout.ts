@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 import { IAppServices } from './appServices';
-import { QueryType, QueryTypeMenuItem } from './common/query';
-import { GroupLayoutConfig, LayoutsConfig, LayoutConfigCommon, GroupItemConfig } from './conf';
+import { QueryType, QueryTypeMenuItem } from './common/query/index';
+import { GroupLayoutConfig, LayoutsConfig, LayoutConfigCommon, LayoutConfigSingleQuery, LayoutConfigCmpQuery, LayoutConfigTranslatQuery } from './conf';
 import { TileIdentMap } from './common/types';
 import { List, Dict, pipe } from 'cnc-tskit';
 
@@ -60,6 +60,18 @@ interface LayoutOfQueryTypeTranslat extends LayoutCore {
     translatTargetLanguages:Array<[string, string]>;
 }
 
+export function maxQueryWordsForQueryType(conf:LayoutsConfig, qt:QueryType):number {
+    switch (qt) {
+        case QueryType.SINGLE_QUERY:
+            return conf?.single?.maxQueryWords || 1;
+        case QueryType.CMP_QUERY:
+            return conf?.cmp?.maxQueryWords || 1;
+        case QueryType.TRANSLAT_QUERY:
+            return conf?.translat?.maxQueryWords || 1;
+        default:
+            throw new Error(`Unknown query type ${qt}`);
+    }
+}
 
 function concatLayouts(...layouts:Array<LayoutCore>):Array<TileGroup> {
     return List.flatMap(t => t, layouts.map(t => t.groups));

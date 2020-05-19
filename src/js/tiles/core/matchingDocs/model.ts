@@ -26,7 +26,7 @@ import { ActionName, Actions, DataLoadedPayload } from './actions';
 import { MatchingDocsModelState } from '../../../common/models/matchingDocs';
 import { MatchingDocsAPI } from '../../../common/api/abstract/matchingDocs';
 import { findCurrQueryMatch } from '../../../models/query';
-import { RecognizedQueries } from '../../../common/query';
+import { RecognizedQueries } from '../../../common/query/index';
 import { List, pipe, Dict } from 'cnc-tskit';
 
 

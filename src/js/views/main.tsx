@@ -21,7 +21,7 @@ import { Keyboard, pipe, List } from 'cnc-tskit';
 
 import { Forms } from '../common/data';
 import { SystemMessageType, SourceDetails, isCorpusDetails } from '../common/types';
-import { QueryType, QueryMatch, QueryTypeMenuItem, SearchLanguage, RecognizedQueries } from '../common/query';
+import { QueryType, QueryMatch, QueryTypeMenuItem, SearchLanguage, RecognizedQueries } from '../common/query/index';
 import { TileFrameProps } from '../common/tile';
 import { TileGroup, GroupedTileProps } from '../layout';
 import { ActionName, Actions } from '../models/actions';

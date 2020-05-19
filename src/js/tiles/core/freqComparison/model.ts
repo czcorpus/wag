@@ -26,7 +26,7 @@ import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { ActionName, Actions, DataLoadedPayload, LoadFinishedPayload } from './actions';
 import { findCurrQueryMatch } from '../../../models/query';
-import { RecognizedQueries, QueryMatch } from '../../../common/query';
+import { RecognizedQueries, QueryMatch } from '../../../common/query/index';
 import { ConcLoadedPayload, isConcLoadedPayload } from '../concordance/actions';
 import { callWithExtraVal } from '../../../common/api/util';
 import { ViewMode, IConcordanceApi } from '../../../common/api/abstract/concordance';

@@ -17,7 +17,7 @@
  */
 import { IActionDispatcher, StatelessModel } from 'kombo';
 
-import { QueryType } from '../../../common/query';
+import { QueryType } from '../../../common/query/index';
 import { TileComponent, TileConf, TileFactory, ITileProvider } from '../../../common/tile';
 import { MatchingDocsModel } from './model';
 import { init as viewInit } from './view';

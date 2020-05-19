@@ -29,7 +29,7 @@ import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { CollocationApi } from '../../../common/api/abstract/collocations';
 import { CollocModelState, ctxToRange } from '../../../common/models/collocations';
 import { CoreCollRequestArgs } from '../../../common/api/kontext/collocations';
-import { QueryMatch, QueryType } from '../../../common/query';
+import { QueryMatch, QueryType } from '../../../common/query/index';
 import { callWithExtraVal } from '../../../common/api/util';
 import { ViewMode, ConcResponse, IConcordanceApi } from '../../../common/api/abstract/concordance';
 import { createInitialLinesData } from '../../../common/models/concordance';

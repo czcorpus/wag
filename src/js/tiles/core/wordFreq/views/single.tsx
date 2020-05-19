@@ -22,7 +22,7 @@ import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../
 import { GlobalComponents } from '../../../../views/global';
 import { init as commonViewInit } from './common';
 import { SimilarFreqWord } from '../../../../common/api/abstract/similarFreq';
-import { QueryMatch } from '../../../../common/query';
+import { QueryMatch } from '../../../../common/query/index';
 import { List, pipe } from 'cnc-tskit';
 import { Actions, ActionName } from '../actions';
 
@@ -83,7 +83,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 {pipe(
                     props.data,
                     List.groupBy(v => v.lemma),
-                    List.map(([lemma, words], i) => 
+                    List.map(([lemma, words], i) =>
                         <React.Fragment key={`w:${lemma}`}>
                             {i > 0 ? ', ' : ''}
                             <a data-value={lemma} onClick={handleWordClick} onMouseEnter={words.length > 1 ? selectLemma : null} onMouseLeave={words.length > 1 ? deselectLemma : null} title={ut.translate('global__click_to_query_word')}>

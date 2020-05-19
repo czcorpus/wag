@@ -17,7 +17,7 @@
  */
 import { Action } from 'kombo';
 import { DataRow, DataHeading, SrchContextType } from '../../../common/api/abstract/collocations';
-import { SubqueryPayload, RangeRelatedSubqueryValue } from '../../../common/query';
+import { SubqueryPayload, RangeRelatedSubqueryValue } from '../../../common/query/index';
 
 
 export enum CollocMetric {

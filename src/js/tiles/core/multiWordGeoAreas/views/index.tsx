@@ -24,7 +24,7 @@ import { CoreTileComponentProps, TileComponent } from '../../../../common/tile';
 import { GlobalComponents, TooltipValues } from '../../../../views/global';
 import { ActionName, Actions } from '../actions';
 import { MultiWordGeoAreasModel, MultiWordGeoAreasModelState } from '../model';
-import { QueryMatch } from '../../../../common/query';
+import { QueryMatch } from '../../../../common/query/index';
 import { Dict, List, pipe, tuple } from 'cnc-tskit';
 import { DataRow } from '../../../../common/api/abstract/freqs';
 
@@ -414,7 +414,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             pipe(
                                 props.values || {},
                                 Dict.toEntries(),
-                                List.map(([label, value], index) => {                                    
+                                List.map(([label, value], index) => {
                                     if (value) {
                                         const [percWh, percDec] = ut.formatNumber(value[0], 1).split(decimalSeparator);
                                         const [ipmWh, ipmDec] = ut.formatNumber(value[1], 1).split(decimalSeparator);

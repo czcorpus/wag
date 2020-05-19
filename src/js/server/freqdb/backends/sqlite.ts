@@ -21,7 +21,7 @@ import { Database } from 'sqlite3';
 import { List } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
-import { QueryMatch, calcFreqBand } from '../../../common/query';
+import { QueryMatch, calcFreqBand } from '../../../common/query/index';
 import { IFreqDB } from '../freqdb';
 import { importQueryPos, importQueryPosWithLabel, posTable } from '../../../common/postag';
 import { SourceDetails } from '../../../common/types';

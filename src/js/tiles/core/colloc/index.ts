@@ -19,7 +19,7 @@ import { IActionDispatcher, StatelessModel } from 'kombo';
 import { List } from 'cnc-tskit';
 import { IAppServices } from '../../../appServices';
 import { CorePosAttribute } from '../../../common/types';
-import { QueryType } from '../../../common/query';
+import { QueryType } from '../../../common/query/index';
 import { CollocMetric } from './common';
 import { CollocModel } from './model';
 import { init as viewInit } from './views';

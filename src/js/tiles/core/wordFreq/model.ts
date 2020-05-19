@@ -24,7 +24,7 @@ import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../
 import { DataLoadedPayload, Actions, ActionName } from './actions';
 import { SimilarFreqWord, SimilarFreqDbAPI } from '../../../common/api/abstract/similarFreq';
 import { findCurrQueryMatch } from '../../../models/query';
-import { QueryMatch, testIsDictMatch, RecognizedQueries, QueryType, calcFreqBand } from '../../../common/query';
+import { QueryMatch, testIsDictMatch, RecognizedQueries, QueryType, calcFreqBand } from '../../../common/query/index';
 import { List, pipe } from 'cnc-tskit';
 import { FreqDbSourceInfoApi } from '../../../common/api/wdglance/freqDbSourceInfo';
 

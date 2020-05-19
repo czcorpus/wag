@@ -21,7 +21,7 @@ import * as React from 'react';
 import { resolve as urlResolve } from 'url';
 
 import { HostPageEnv, AvailableLanguage } from '../common/hostPage';
-import { RecognizedQueries } from '../common/query';
+import { RecognizedQueries } from '../common/query/index';
 import { ClientConf, UserConf, ColorThemeIdent } from '../conf';
 import { TileGroup } from '../layout';
 import { GlobalComponents } from './global';

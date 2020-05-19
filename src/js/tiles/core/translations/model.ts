@@ -27,7 +27,7 @@ import { ColorScaleFunctionGenerator } from '../../../common/theme';
 import { TranslationAPI } from '../../../common/api/abstract/translations';
 import { TranslationsModelState } from '../../../common/models/translations';
 import { IAppServices } from '../../../appServices';
-import { RecognizedQueries } from '../../../common/query';
+import { RecognizedQueries } from '../../../common/query/index';
 
 
 export type GeneralTranslationsModelState = TranslationsModelState<{}>;

@@ -21,7 +21,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { fromEvent, Observable, interval, empty, of as rxOf, merge } from 'rxjs';
 import { debounceTime, map, concatMap, take, scan } from 'rxjs/operators';
-import { isSubqueryPayload, RecognizedQueries } from './common/query';
+import { isSubqueryPayload, RecognizedQueries } from './common/query/index';
 import * as translations from 'translations';
 
 import { IAppServices, AppServices } from './appServices';

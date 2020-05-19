@@ -21,7 +21,7 @@ import { pipe, List } from 'cnc-tskit';
 
 import { cachedAjax$ } from '../../../common/ajax';
 import { HTTPHeaders, IAsyncKeyValueStore, SourceDetails } from '../../../common/types';
-import { QueryMatch, matchesPos, calcFreqBand } from '../../../common/query';
+import { QueryMatch, matchesPos, calcFreqBand } from '../../../common/query/index';
 import { MultiDict } from '../../../common/data';
 import { SimilarFreqDbAPI, RequestArgs, Response } from '../../../common/api/abstract/similarFreq';
 import { HTTPAction } from '../../../server/routes/actions';

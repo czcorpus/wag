@@ -30,7 +30,7 @@ import { ConcLoadedPayload } from '../concordance/actions';
 import { DataItemWithWCI, SubchartID, DataLoadedPayload } from './common';
 import { Actions, ActionName } from './common';
 import { callWithExtraVal } from '../../../common/api/util';
-import { QueryMatch, RecognizedQueries } from '../../../common/query';
+import { QueryMatch, RecognizedQueries } from '../../../common/query/index';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { TileWait } from '../../../models/tileSync';
 import { PriorityValueFactory } from '../../../common/priority';

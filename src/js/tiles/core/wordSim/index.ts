@@ -21,7 +21,7 @@ import { TileConf, ITileProvider, TileFactory, TileComponent } from '../../../co
 import { WordSimModel } from './model';
 import { IAppServices } from '../../../appServices';
 import { init as viewInit } from './view';
-import { QueryType } from '../../../common/query';
+import { QueryType } from '../../../common/query/index';
 import { OperationMode } from '../../../common/models/wordSim';
 import { IWordSimApi } from '../../../common/api/abstract/wordSim';
 import { findCurrQueryMatch } from '../../../models/query';

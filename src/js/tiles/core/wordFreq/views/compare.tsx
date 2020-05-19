@@ -20,7 +20,7 @@ import * as React from 'react';
 
 import { GlobalComponents } from '../../../../views/global';
 import { init as commonViewInit } from './common'
-import { QueryMatch } from '../../../../common/query';
+import { QueryMatch } from '../../../../common/query/index';
 import { List } from 'cnc-tskit';
 
 

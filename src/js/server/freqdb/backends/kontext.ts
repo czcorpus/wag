@@ -19,7 +19,7 @@
 import { IFreqDB } from '../freqdb';
 import { IAppServices } from '../../../appServices';
 import { Observable } from 'rxjs';
-import { QueryMatch, calcFreqBand } from '../../../common/query';
+import { QueryMatch, calcFreqBand } from '../../../common/query/index';
 import { QuerySelector, HTTPResponse as ConcHTTPResponse, escapeVal } from '../../../common/api/kontext/concordance';
 import { HTTPResponse as FreqsHttpResponse } from '../../../common/api/kontext/freqs';
 import { map, concatMap } from 'rxjs/operators';

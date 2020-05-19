@@ -21,7 +21,7 @@ import { Maths } from 'cnc-tskit';
 import { ITileProvider, TileFactory, TileComponent, TileConf } from '../../../common/tile';
 import { IAppServices } from '../../../appServices';
 import { WordFormsModel } from './model';
-import { QueryType } from '../../../common/query';
+import { QueryType } from '../../../common/query/index';
 import { init as viewInit } from './views';
 import { createApiInstance } from '../../../common/api/factory/wordForms';
 

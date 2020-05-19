@@ -17,7 +17,7 @@
  */
 import { Observable } from 'rxjs';
 
-import { QueryMatch } from '../../common/query';
+import { QueryMatch } from '../../common/query/index';
 import { IAppServices } from '../../appServices';
 import { SourceDetails } from '../../common/types';
 

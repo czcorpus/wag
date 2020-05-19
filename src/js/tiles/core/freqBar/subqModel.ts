@@ -24,7 +24,7 @@ import { IAppServices } from '../../../appServices';
 import { ConcApi, QuerySelector, RequestArgs } from '../../../common/api/kontext/concordance';
 import { ViewMode, ConcResponse } from '../../../common/api/abstract/concordance';
 import { SubqueryModeConf } from '../../../common/models/freq';
-import { isSubqueryPayload, SubqueryPayload, SubQueryItem } from '../../../common/query';
+import { isSubqueryPayload, SubqueryPayload, SubQueryItem } from '../../../common/query/index';
 import { Backlink } from '../../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { DataLoadedPayload } from './actions';
