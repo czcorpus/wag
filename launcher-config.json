@@ -31,8 +31,14 @@
       "ajv -s ./conf/wdglance-schema.json -d ./conf/wdglance.sample.json"
     ],
     "build:devel": "webpack --config webpack.dev.js",
-    "build:production": "webpack --config webpack.prod.js",
-    "build:server": "webpack --config webpack.server.js",
+    "build:production": [
+      "npm test",
+      "webpack --config webpack.prod.js"
+    ],
+    "build:server": [
+      "npm test",
+      "webpack --config webpack.server.js"
+    ],
     "devel-server": "webpack-dev-server --config webpack.dev.js",
     "server": "node dist-server/service.js",
     "test": "npm test"
