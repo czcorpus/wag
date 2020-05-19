@@ -19,6 +19,7 @@ import { Express } from 'express';
 import { ViewUtils } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
 import { concatMap, map, reduce, tap } from 'rxjs/operators';
+import { HTTP, List, pipe, Dict, tuple } from 'cnc-tskit';
 
 import { AppServices } from '../../appServices';
 import { encodeArgs } from '../../common/ajax';
@@ -28,7 +29,7 @@ import { GlobalComponents } from '../../views/global';
 import { IFreqDB } from '../freqdb/freqdb';
 
 import { getLangFromCookie, fetchReqArgArray, createHelperServices, mkReturnUrl, renderResult, getQueryValue } from './common';
-import { queryAction } from './main';
+import { queryAction, importQueryRequest } from './main';
 import { Services } from '../actionServices';
 import { HTTPAction } from './actions';
 import { TelemetryAction } from '../../common/types';
@@ -36,8 +37,8 @@ import { errorUserConf, emptyClientConf, THEME_COOKIE_NAME } from '../../conf';
 import { init as viewInit } from '../../views/layout';
 import { init as errPageInit } from '../../views/error';
 import { emptyValue } from '../toolbar/empty';
-import { HTTP, List, pipe, Dict, tuple } from 'cnc-tskit';
 import { importQueryPos } from '../../common/postag';
+import { ServerSideActionDispatcher } from '../core';
 
 
 export const wdgRouter = (services:Services) => (app:Express) => {
@@ -135,6 +136,30 @@ export const wdgRouter = (services:Services) => (app:Express) => {
 
     app.get(`${HTTPAction.SEARCH}:lang/:query`, (req, res, next) => {
         queryAction(services, true, QueryType.SINGLE_QUERY, req, res, next);
+    });
+
+    app.get(`/embedded${HTTPAction.SEARCH}:lang/:query`, (req, res, next) => {
+        const uiLang = getLangFromCookie(req, services.serverConf.langCookie, services.serverConf.languages);
+        const [,appServices] = createHelperServices(services, uiLang);
+        importQueryRequest({
+            services, appServices, req, queryType: QueryType.SINGLE_QUERY, uiLang, answerMode: true
+
+        }).subscribe(
+            (conf) => {
+                res.setHeader('Content-Type', 'application/json');
+                res.send(JSON.stringify({
+                    resultURL: appServices.createActionUrl(`${HTTPAction.SEARCH}${conf.query1Lang}/${conf.queries[0].word}`),
+                    error: null
+                }));
+            },
+            (err:Error) => {
+                res.setHeader('Content-Type', 'application/json');
+                res.status(HTTP.Status.BadRequest).send({
+                    resultURL: null,
+                    error: err.message
+                });
+            }
+        )
     });
 
     app.get(`${HTTPAction.COMPARE}:lang/:query`, (req, res, next) => {
