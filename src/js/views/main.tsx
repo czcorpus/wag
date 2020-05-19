@@ -719,6 +719,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             if (ref.current !== null) {
                 ref.current.querySelectorAll('a').forEach(((elm:HTMLAnchorElement) => {
                     elm.target = '_blank';
+                    elm.rel = 'noopener';
                 }))
             }
         });
@@ -1165,6 +1166,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             if (ref.current !== null) {
                 ref.current.querySelectorAll('a').forEach(((elm:HTMLAnchorElement) => {
                     elm.target = '_blank';
+                    elm.rel = 'noopener';
                 }))
             }
         });

@@ -197,7 +197,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 <dt>{v.label}:</dt>
                                 <dd>
                                     {/^https?:\/\//.exec(v.value) ?
-                                        <a href={v.value} title={v.value} target="_blank">{Strings.shortenText(v.value, 30)}</a> :
+                                        <a href={v.value} title={v.value} target="_blank" rel="noopener">{Strings.shortenText(v.value, 30)}</a> :
                                         v.value
                                     }
                                 </dd>
