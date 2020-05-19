@@ -20,7 +20,7 @@ import { concatMap, reduce, map, catchError } from 'rxjs/operators';
 import { List, pipe, HTTP, tuple } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
-import { QueryMatch, calcFreqBand } from '../../../common/query';
+import { QueryMatch, calcFreqBand } from '../../../common/query/index';
 import { IFreqDB } from '../freqdb';
 import { FreqDbOptions } from '../../../conf';
 import { serverHttpRequest } from '../../request';
@@ -190,7 +190,7 @@ export class CouchFreqDB implements IFreqDB {
         }).pipe(
             catchError(
                 (err) => {
-                    throw new Error(`Failed to fetch frequency information (view: ${view}): ${err}`);
+                    throw new Error(`Failed to fetch frequency information (view: ${view}, key: ${args['key'] || '??'}): ${err}`);
                 }
             )
         );

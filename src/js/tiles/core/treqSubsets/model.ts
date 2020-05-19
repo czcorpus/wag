@@ -24,7 +24,7 @@ import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../
 import { findCurrQueryMatch } from '../../../models/query';
 import { DataLoadedPayload } from './actions';
 import { callWithExtraVal } from '../../../common/api/util';
-import { isSubqueryPayload, RecognizedQueries } from '../../../common/query';
+import { isSubqueryPayload, RecognizedQueries } from '../../../common/query/index';
 import { isCollocSubqueryPayload } from '../../../common/api/abstract/collocations';
 import { TranslationSubset, TranslationsSubsetsModelState } from '../../../common/models/translations';
 import { IAppServices } from '../../../appServices';

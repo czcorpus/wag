@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { IAppServices } from '../../../appServices';
-import { QueryType } from '../../../common/query';
+import { QueryType } from '../../../common/query/index';
 import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../../common/tile';
 import { FlevelDistribItem, SummaryModel, findCurrentMatches, mkEmptySimilarWords } from './model';
 import { init as viewInit } from './views';

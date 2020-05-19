@@ -19,7 +19,7 @@ import { IActionDispatcher, StatelessModel } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
 
 import { IAppServices } from '../../../appServices';
-import { QueryType } from '../../../common/query';
+import { QueryType } from '../../../common/query/index';
 import { TileConf, ITileProvider, TileFactory, TileComponent } from '../../../common/tile';
 import { ConcFilterModel } from './model';
 import { init as viewInit } from './view';

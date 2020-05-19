@@ -26,7 +26,7 @@ import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../
 import { ActionName, Actions, LoadFinishedPayload } from './actions';
 import { DataApi } from '../../../common/types';
 import { TooltipValues } from '../../../views/global';
-import { QueryMatch, RecognizedQueries } from '../../../common/query';
+import { QueryMatch, RecognizedQueries } from '../../../common/query/index';
 import { callWithExtraVal } from '../../../common/api/util';
 import { ViewMode, IConcordanceApi } from '../../../common/api/abstract/concordance';
 import { createInitialLinesData } from '../../../common/models/concordance';

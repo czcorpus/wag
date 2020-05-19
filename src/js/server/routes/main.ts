@@ -22,7 +22,8 @@ import { concatMap, map, catchError, reduce } from 'rxjs/operators';
 import { Dict, pipe, HTTP, List } from 'cnc-tskit';
 
 import { IAppServices } from '../../appServices';
-import { QueryType, QueryMatch, matchesPos, importQueryTypeString, addWildcardMatches } from '../../common/query';
+import { QueryType, QueryMatch, matchesPos, addWildcardMatches } from '../../common/query/index';
+import { QueryValidator } from '../../common/query/valitation';
 import { UserConf, ClientStaticConf, ClientConf, emptyClientConf, getSupportedQueryTypes,
          emptyLayoutConf, errorUserConf, getQueryTypeFreqDb, isTileDBConf, DEFAULT_WAIT_FOR_OTHER_TILES,
          THEME_COOKIE_NAME, getThemeList, getAppliedThemeConf, THEME_DEFAULT_NAME, UserQuery } from '../../conf';
@@ -35,7 +36,8 @@ import { loadFile } from '../files';
 import { createRootComponent } from '../../app';
 import { ActionName } from '../../models/actions';
 import { DummyCache } from '../../cacheDb';
-import { getLangFromCookie, fetchReqArgArray, createHelperServices, mkReturnUrl, logRequest, renderResult, getQueryValue, fetchUrlParamArray } from './common';
+import { getLangFromCookie, fetchReqArgArray, createHelperServices, mkReturnUrl, logRequest, renderResult, fetchUrlParamArray } from './common';
+import { maxQueryWordsForQueryType } from '../../layout';
 
 
 function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, themeId:string, appServices:IAppServices):Observable<ClientConf> {
@@ -111,12 +113,27 @@ export function queryAction(services:Services, answerMode:boolean, queryType:Que
     const uiLang = getLangFromCookie(req, services.serverConf.langCookie, services.serverConf.languages);
     const dispatcher = new ServerSideActionDispatcher();
     const [viewUtils, appServices] = createHelperServices(services, uiLang);
+    const validator = new QueryValidator(appServices);
     // until now there should be no exceptions throw
 
     new Observable<UserConf>(observer => {
         try {
             const queries = fetchUrlParamArray(req, 'query', queryType === QueryType.CMP_QUERY ? 2 : 1);
             const queryLang = fetchUrlParamArray(req, 'lang', queryType === QueryType.TRANSLAT_QUERY ? 2 : 1);
+            const layouts = services.clientConf.layouts;
+            if (answerMode && typeof layouts !== 'string') { // the type check is always true here (bad type design...)
+                const maxQueryWords = maxQueryWordsForQueryType(layouts[queryLang[0]], queryType);
+                List.forEach(
+                    query => {
+                        const validErrs = validator.validateQuery(query, maxQueryWords);
+                        if (validErrs.length > 0) {
+                            throw validErrs[0]; // we use only first error here
+                        }
+                    },
+                    queries
+                )
+            }
+
             const userConfNorm:UserConf = {
                 uiLang: uiLang,
                 uiLanguages: services.serverConf.languages,

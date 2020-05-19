@@ -22,7 +22,7 @@ import { IAppServices } from '../../../appServices';
 import { ViewMode, IConcordanceApi } from '../../../common/api/abstract/concordance';
 
 import { LocalizedConfMsg } from '../../../common/types';
-import { QueryType } from '../../../common/query';
+import { QueryType } from '../../../common/query/index';
 import { Backlink, CorpSrchTileConf, ITileProvider, TileComponent, TileFactory } from '../../../common/tile';
 import { ConcordanceTileModel } from './model';
 import { init as viewInit } from './views';

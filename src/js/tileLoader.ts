@@ -24,7 +24,7 @@ import { GlobalComponents } from './views/global';
 import { IAppServices } from './appServices';
 import { Theme } from './common/theme';
 import { LayoutManager } from './layout';
-import { QueryType, RecognizedQueries } from './common/query';
+import { QueryType, RecognizedQueries } from './common/query/index';
 import { IAsyncKeyValueStore } from './common/types';
 import { EmptyTile } from './tiles/core/empty';
 
@@ -49,7 +49,7 @@ type TileFactoryMap = {[tileType:string]:TileFactory.TileFactory<{}>};
 
 const tileFactories:TileFactoryMap = {};
 
-const applyContext = (ctx:any, tfMap:TileFactoryMap) => {  
+const applyContext = (ctx:any, tfMap:TileFactoryMap) => {
     ctx.keys().forEach(path => {
         const tileFolder = path.split('/').slice(-2)[0];
         const tileType = tileFolder[0].toUpperCase() + tileFolder.slice(1) + 'Tile';

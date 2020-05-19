@@ -24,7 +24,7 @@ import * as React from 'react';
 import { Observable } from 'rxjs';
 import { Theme } from './common/theme';
 import { ScreenProps } from './common/hostPage';
-import { QueryType, RecognizedQueries, testIsMultiWordMode } from './common/query';
+import { QueryType, RecognizedQueries, testIsMultiWordMode } from './common/query/index';
 import { ITileProvider, TileFrameProps, TileConf } from './common/tile';
 import { ClientConf, UserConf } from './conf';
 import { LayoutManager, TileGroup, GroupedTileProps } from './layout';

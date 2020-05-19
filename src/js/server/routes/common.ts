@@ -31,7 +31,7 @@ import { AppServices } from '../../appServices';
 import { pipe, Dict, List } from 'cnc-tskit';
 import { LayoutProps } from '../../views/layout';
 import { HostPageEnv } from '../../common/hostPage';
-import { RecognizedQueries } from '../../common/query';
+import { RecognizedQueries } from '../../common/query/index';
 import { WdglanceMainProps } from '../../views/main';
 import { ErrPageProps } from '../../views/error';
 import { TileGroup } from '../../layout';

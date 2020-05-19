@@ -24,7 +24,7 @@ import { SourceMappedDataRow } from '../../../common/api/kontext/freqs';
 import { GlobalComponents } from '../../../views/global';
 import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
 import { Theme } from '../../../common/theme';
-import { QueryMatch } from '../../../common/query';
+import { QueryMatch } from '../../../common/query/index';
 import { List, pipe, Strings } from 'cnc-tskit';
 
 const CHART_LABEL_MAX_LEN = 20;

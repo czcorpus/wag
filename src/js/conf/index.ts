@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { DbValueMapping, HTTPHeaders, LocalizedConfMsg } from '../common/types';
-import { QueryType, SearchLanguage } from '../common/query';
+import { QueryType, SearchLanguage } from '../common/query/index';
 import { TileConf } from '../common/tile';
 import { CSSProperties } from 'react';
 import { List, pipe } from 'cnc-tskit';

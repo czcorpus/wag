@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { QueryType } from '../../../common/query';
+import { QueryType } from '../../../common/query/index';
 import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../../common/tile';
 import { TreqSubsetModel } from './model';
 import { TreqSubsetsAPI } from '../../../common/api/treq';

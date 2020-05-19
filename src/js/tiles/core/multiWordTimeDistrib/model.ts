@@ -29,7 +29,7 @@ import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../
 import { findCurrQueryMatch } from '../../../models/query';
 import { DataItemWithWCI, ActionName, Actions, DataLoadedPayload } from './common';
 import { callWithExtraVal } from '../../../common/api/util';
-import { QueryMatch, RecognizedQueries } from '../../../common/query';
+import { QueryMatch, RecognizedQueries } from '../../../common/query/index';
 import { createInitialLinesData } from '../../../common/models/concordance';
 import { ConcLoadedPayload, isConcLoadedPayload } from '../concordance/actions';
 import { PriorityValueFactory } from '../../../common/priority';

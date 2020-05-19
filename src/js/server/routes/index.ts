@@ -23,7 +23,7 @@ import { concatMap, map, reduce, tap } from 'rxjs/operators';
 import { AppServices } from '../../appServices';
 import { encodeArgs } from '../../common/ajax';
 import { ErrorType, mapToStatusCode, newError } from '../../common/errors';
-import { QueryType, QueryMatch, importQueryTypeString } from '../../common/query';
+import { QueryType, QueryMatch, importQueryTypeString } from '../../common/query/index';
 import { GlobalComponents } from '../../views/global';
 import { IFreqDB } from '../freqdb/freqdb';
 

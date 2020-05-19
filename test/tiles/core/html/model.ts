@@ -26,7 +26,7 @@ import { HtmlModel } from '../../../../src/js/tiles/core/html/model';
 import { RawHtmlAPI, HtmlApiArgs } from '../../../../src/js/common/api/wdglance/html';
 import { IGeneralHtmlAPI } from '../../../../src/js/common/api/abstract/html';
 import { HtmlModelState } from '../../../../src/js/tiles/core/html/common';
-import { QueryMatch } from '../../../../src/js/common/query';
+import { QueryMatch } from '../../../../src/js/common/query/index';
 import { ActionName } from '../../../../src/js/models/actions';
 import * as query from '../../../../src/js/models/query';
 

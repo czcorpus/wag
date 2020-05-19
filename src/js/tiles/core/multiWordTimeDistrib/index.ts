@@ -20,7 +20,7 @@ import { List, Maths, pipe } from 'cnc-tskit';
 
 import { FreqSort } from '../../../common/api/kontext/freqs';
 import { createApiInstance as createFreqApiInstance } from '../../../common/api/factory/timeDistrib';
-import { QueryType } from '../../../common/query';
+import { QueryType } from '../../../common/query/index';
 import { ITileProvider, TileComponent, TileFactory } from '../../../common/tile';
 import { TimeDistTileConf } from './common';
 import { TimeDistribModel } from './model';

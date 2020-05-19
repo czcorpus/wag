@@ -26,7 +26,7 @@ import { GeneralCritFreqTreeModelState, stateToAPIArgs, FreqTreeDataBlock } from
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { ActionName, Actions, DataLoadedPayload } from './actions';
-import { QueryMatch } from '../../../common/query';
+import { QueryMatch } from '../../../common/query/index';
 import { isConcLoadedPayload, ConcLoadedPayload } from '../concordance/actions';
 import { createInitialLinesData } from '../../../common/models/concordance';
 import { ViewMode, ConcResponse, IConcordanceApi } from '../../../common/api/abstract/concordance';

@@ -17,7 +17,7 @@
  */
 
 import { pipe, List } from 'cnc-tskit';
-import { PosItem, posTagsEqual } from './postag';
+import { PosItem, posTagsEqual } from '../postag';
 
 
 export enum QueryType {

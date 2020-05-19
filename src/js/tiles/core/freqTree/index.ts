@@ -22,7 +22,7 @@ import { IAppServices } from '../../../appServices';
 import { FreqTreeAPI } from '../../../common/api/kontext/freqTree';
 import { FreqTreeDataBlock } from '../../../common/models/freqTree';
 import { LocalizedConfMsg } from '../../../common/types';
-import { QueryType } from '../../../common/query';
+import { QueryType } from '../../../common/query/index';
 import { TileComponent, TileConf, TileFactory, Backlink, ITileProvider } from '../../../common/tile';
 import { GlobalComponents } from '../../../views/global';
 import { factory as defaultModelFactory, FreqTreeModel } from './model';

@@ -22,7 +22,7 @@ import * as winston from 'winston';
 import { ServerConf, ClientStaticConf, WordFreqDbConf, FreqDbConf } from '../conf';
 import { IToolbarProvider } from '../common/hostPage';
 import { IQueryLog } from './queryLog/abstract';
-import { QueryType } from '../common/query';
+import { QueryType } from '../common/query/index';
 import { IFreqDB } from './freqdb/freqdb';
 import { createInstance, FreqDBType } from './freqdb/factory';
 import { Database } from 'sqlite3';

@@ -22,7 +22,7 @@ import { DataLoadedPayload } from './actions';
 import { ActionName, Actions } from './actions';
 import { IWordSimApi } from '../../../common/api/abstract/wordSim';
 import { WordSimModelState } from '../../../common/models/wordSim';
-import { QueryMatch } from '../../../common/query';
+import { QueryMatch } from '../../../common/query/index';
 import { Observable, Observer } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
 import { callWithExtraVal } from '../../../common/api/util';

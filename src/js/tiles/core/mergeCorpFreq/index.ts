@@ -18,7 +18,7 @@
 import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
 import { Ident, List } from 'cnc-tskit';
 
-import { QueryType } from '../../../common/query';
+import { QueryType } from '../../../common/query/index';
 import { Backlink, ITileProvider, TileComponent, TileConf, TileFactory } from '../../../common/tile';
 import { GlobalComponents } from '../../../views/global';
 import { MergeCorpFreqModel } from './model';

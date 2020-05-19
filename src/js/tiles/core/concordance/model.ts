@@ -27,7 +27,7 @@ import { IAppServices } from '../../../appServices';
 import { IConcordanceApi, SingleConcLoadedPayload } from '../../../common/api/abstract/concordance';
 import { ConcordanceMinState, createInitialLinesData } from '../../../common/models/concordance';
 import { SystemMessageType } from '../../../common/types';
-import { isSubqueryPayload, RecognizedQueries, QueryType } from '../../../common/query';
+import { isSubqueryPayload, RecognizedQueries, QueryType } from '../../../common/query/index';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { findCurrQueryMatch } from '../../../models/query';

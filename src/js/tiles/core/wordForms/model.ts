@@ -24,7 +24,7 @@ import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../
 import { DataLoadedPayload } from './actions';
 import { findCurrQueryMatch } from '../../../models/query';
 import { ConcLoadedPayload } from '../concordance/actions';
-import { RecognizedQueries } from '../../../common/query';
+import { RecognizedQueries } from '../../../common/query/index';
 
 
 
