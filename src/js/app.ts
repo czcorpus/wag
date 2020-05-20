@@ -212,7 +212,9 @@ export function createRootComponent({config, userSession, queryMatches, appServi
             maxTileErrors: config.maxTileErrors,
             numTileErrors: 0,
             issueReportingUrl: config.issueReportingUrl || null,
-            highlightedTileId: -1
+            highlightedTileId: -1,
+            scrollToTileId: -1,
+            allTilesLoaded: false
         },
         appServices
     );

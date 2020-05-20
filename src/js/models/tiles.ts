@@ -15,8 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { StatelessModel, IActionDispatcher } from 'kombo';
-import { Observable, interval } from 'rxjs';
+import { StatelessModel, IActionDispatcher, SEDispatcher } from 'kombo';
+import { Observable, interval, of as rxOf } from 'rxjs';
 import { concatMap, map, take } from 'rxjs/operators';
 
 import { IAppServices } from '../appServices';
@@ -61,9 +61,55 @@ export interface WdglanceTilesState {
     numTileErrors:number;
     issueReportingUrl:string|null;
     highlightedTileId:number;
+    scrollToTileId:number;
+    allTilesLoaded:boolean;
 }
 
+/**
+ *
+ * Blink a tile highlighting shadow several times and finish
+ * with highlight status disabled. If appendTo Observable is
+ * provided then the action is chanied to it.
+ */
+export function blinkAndDehighlight(tileId:number, someDispatcher:SEDispatcher|IActionDispatcher, appendTo?:Observable<any>):void {
+    const dispatch = typeof someDispatcher === 'function' ? someDispatcher : someDispatcher.dispatch;
+    (appendTo ? appendTo : rxOf(null)).pipe(
+        concatMap(() => interval(100)),
+        take(13)
+    ).subscribe(
+        v => {
+            if (v % 2 == 1 || v < 6) {
+                dispatch({
+                    name: ActionName.HighlightTile,
+                    payload: {
+                        tileId: tileId
+                    }
+                });
 
+            } else {
+                dispatch({
+                    name: ActionName.DehighlightTile,
+                    payload: {
+                        tileId: tileId
+                    }
+                });
+            }
+        },
+        err => {},
+        () => {
+            dispatch({
+                name: ActionName.DehighlightTile,
+                payload: {
+                    tileId: tileId
+                }
+            });
+        }
+    );
+}
+
+/**
+ * General tile model handling common tile actions.
+ */
 export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
 
     private readonly appServices:IAppServices;
@@ -214,6 +260,8 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
         this.addActionHandler<Actions.ToggleGroupVisibility>(
             ActionName.ToggleGroupVisibility,
             (state, action) => {
+                state.highlightedTileId = -1;
+                state.scrollToTileId = -1;
                 state.hiddenGroups =
                         List.some(v => v === action.payload.groupIdx, state.hiddenGroups) ?
                         List.removeValue(action.payload.groupIdx, state.hiddenGroups) :
@@ -226,37 +274,7 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                 List.removeValue(action.payload.groupIdx, state.hiddenGroups);
             },
             (state, action, dispatch) => {
-                interval(100).pipe(
-                    take(13)
-                ).subscribe(
-                    v => {
-                        if (v % 2 == 1 || v < 6) {
-                            dispatch({
-                                name: ActionName.HighlightTile,
-                                payload: {
-                                    tileId: action.payload.tileId
-                                }
-                            });
-
-                        } else {
-                            dispatch({
-                                name: ActionName.DehighlightTile,
-                                payload: {
-                                    tileId: action.payload.tileId
-                                }
-                            });
-                        }
-                    },
-                    err => {},
-                    () => {
-                        dispatch({
-                            name: ActionName.DehighlightTile,
-                            payload: {
-                                tileId: action.payload.tileId
-                            }
-                        });
-                    }
-                );
+                blinkAndDehighlight(action.payload.tileId, dispatch);
             }
         );
         this.addActionHandler<Actions.HighlightTile>(
@@ -269,6 +287,7 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
             ActionName.DehighlightTile,
             (state, action) => {
                 state.highlightedTileId = -1;
+                state.scrollToTileId = -1;
             }
         );
         this.addActionHandler<Actions.ShowGroupHelp>(
@@ -327,9 +346,17 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                 state.activeGroupHelp = null;
             }
         );
-        this.addActionHandler(
+        this.addActionHandler<Actions.RequestQueryResponse>(
             ActionName.RequestQueryResponse,
             (state, action) => {
+                if (action.payload?.focusedTile) {
+                    const scrollToTile = List.find(v => v.tileName === action.payload.focusedTile, state.tileProps);
+                    if (scrollToTile) {
+                        state.scrollToTileId = scrollToTile.tileId;
+                        state.highlightedTileId = scrollToTile.tileId;
+                    }
+                }
+                state.allTilesLoaded = false;
                 state.tileResultFlags = List.map(
                     v => ({
                         tileId: v.tileId,
@@ -356,6 +383,7 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                     };
                 }
                 if (this.allTileStatusFlagsWritten(state)) { // to make sure we don't react to a particular load misusing TileDataLoaded
+                    state.allTilesLoaded = true;
                     this.findEmptyGroups(state);
                 }
                 state.numTileErrors = List.foldl(
