@@ -18,18 +18,20 @@
 import { Bound, BoundWithProps, IActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
 import { Keyboard, pipe, List } from 'cnc-tskit';
+import { tap } from 'rxjs/operators';
 
 import { Forms } from '../common/data';
 import { SystemMessageType, SourceDetails, isCorpusDetails } from '../common/types';
 import { QueryType, QueryMatch, QueryTypeMenuItem, SearchLanguage, RecognizedQueries } from '../common/query/index';
 import { TileFrameProps } from '../common/tile';
-import { TileGroup, GroupedTileProps } from '../layout';
+import { TileGroup } from '../layout';
 import { ActionName, Actions } from '../models/actions';
 import { MessagesModel, MessagesState } from '../models/messages';
 import { QueryFormModel, QueryFormModelState } from '../models/query';
-import { WdglanceTilesModel, WdglanceTilesState, TileResultFlagRec } from '../models/tiles';
+import { WdglanceTilesModel, WdglanceTilesState, TileResultFlagRec, blinkAndDehighlight } from '../models/tiles';
 import { init as corpusInfoViewInit } from './corpusInfo';
 import { GlobalComponents } from './global';
+import { timer } from 'rxjs';
 
 
 export interface WdglanceMainProps {
@@ -40,8 +42,7 @@ export interface WdglanceMainProps {
     error:[number, string]|null;
 }
 
-
-function mkTileHrefId(tileId:string):string {
+function mkTileSectionId(tileId:number):string {
     return `tile-${tileId}`;
 }
 
@@ -823,9 +824,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         render() {
             return (
-                <section key={`tile-ident-${this.props.tile.tileId}`}
+                <section id={mkTileSectionId(this.props.tile.tileId)} key={`tile-ident-${this.props.tile.tileId}`}
                         className={this.getHTMLClass()}>
-                    <a id={mkTileHrefId(this.props.tile.tileName)}></a>
                     <header className="cnc-tile-header panel">
                         <h2>{this.props.tile.label}</h2>
                         <div className="window-buttons">
@@ -958,7 +958,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             {List.map(
                 item => (
                     <li key={`tile:${item.tileId}`}>
-                        <a href={`#${mkTileHrefId(item.tileName)}`} onClick={handleClick(item.tileId)}>{item.label}</a>
+                        <a onClick={handleClick(item.tileId)}>{item.label}</a>
                     </li>
                 ),
                 props.tiles
@@ -1286,6 +1286,25 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
                     ),
                     this.props.layout
+                );
+            }
+        }
+
+        componentDidUpdate() {
+            if (this.props.allTilesLoaded && this.props.scrollToTileId > -1) {
+                blinkAndDehighlight(
+                    this.props.scrollToTileId,
+                    dispatcher,
+                    timer(0).pipe(
+                        tap(
+                            () => {
+                                const elm = window.document.getElementById(mkTileSectionId(this.props.highlightedTileId));
+                                if (elm) {
+                                    elm.scrollIntoView();
+                                }
+                            }
+                        )
+                    )
                 );
             }
         }

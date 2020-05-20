@@ -28,7 +28,7 @@ import { IAppServices, AppServices } from './appServices';
 import { encodeArgs, ajax$, encodeURLParameters } from './common/ajax';
 import { ScreenProps } from './common/hostPage';
 import { ClientConf, UserConf, HomepageTileConf } from './conf';
-import { ActionName } from './models/actions';
+import { ActionName, Actions } from './models/actions';
 import { SystemNotifications } from './notifications';
 import { GlobalComponents } from './views/global';
 import { createRootComponent } from './app';
@@ -87,8 +87,11 @@ function mountReactComponent({component, mountElement, layout, dispatcher, appSe
 
                 } else if (userSession.answerMode) {
                     if (queryMatches[0].find(v => v.isCurrent)) {
-                        dispatcher.dispatch({
-                            name: ActionName.RequestQueryResponse
+                        dispatcher.dispatch<Actions.RequestQueryResponse>({
+                            name: ActionName.RequestQueryResponse,
+                            payload:{
+                                focusedTile: window.location.hash.replace('#', '') || undefined
+                            }
                         });
 
                     } else {

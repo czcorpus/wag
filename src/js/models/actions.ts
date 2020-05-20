@@ -80,6 +80,8 @@ export function isTileSomeDataLoadedAction(action:Action):boolean {
 export namespace Actions {
 
     export interface RequestQueryResponse extends Action<{
+        focusedTile?:string;
+
     }> {
         name:ActionName.RequestQueryResponse;
     }
