@@ -38,8 +38,8 @@ import { init as viewInit } from '../../views/layout';
 import { init as errPageInit } from '../../views/error';
 import { emptyValue } from '../toolbar/empty';
 import { importQueryPos } from '../../common/postag';
-import { ServerSideActionDispatcher } from '../core';
 
+const LANG_COOKIE_TTL = 3600 * 24 * 365;
 
 export const wdgRouter = (services:Services) => (app:Express) => {
 
@@ -130,11 +130,15 @@ export const wdgRouter = (services:Services) => (app:Express) => {
     });
 
     app.post(HTTPAction.SET_UI_LANG, (req, res, next) => {
-        res.cookie(services.serverConf.langCookie, req.body.lang, {maxAge: 3600 * 24 * 365});
+        res.cookie(services.serverConf.langCookie, req.body.lang, {maxAge: LANG_COOKIE_TTL});
         res.redirect(req.body.returnUrl);
     });
 
     app.get(`${HTTPAction.SEARCH}:lang/:query`, (req, res, next) => {
+        const langOverride = getQueryValue(req, 'uiLang');
+        if (langOverride) {
+            res.cookie(services.serverConf.langCookie, req.body.lang, {maxAge: LANG_COOKIE_TTL});
+        }
         queryAction(services, true, QueryType.SINGLE_QUERY, req, res, next);
     });
 
