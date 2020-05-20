@@ -92,7 +92,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <p className="text">{props.text}</p>
                         <div className="close">
                             <a onClick={handleCloseClick}>
-                                <img src={ut.createStaticUrl('close-icon.svg')} />
+                                <img src={ut.createStaticUrl('close-icon.svg')} alt={ut.translate('global__img_alt_close_icon')} />
                             </a>
                         </div>
                     </div>
@@ -249,7 +249,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         return (
             <li className="AddCmpQueryField">
                 <button type="button" onClick={handleClick} title={ut.translate('global__add_query_field')}>
-                    <globalComponents.ImageWithMouseover file={'plus-icon.svg'} alt="plus symbol" />
+                    <globalComponents.ImageWithMouseover file={'plus-icon.svg'}
+                            alt={ut.translate('global__img_alt_plus_icon')} />
                 </button>
             </li>
         );

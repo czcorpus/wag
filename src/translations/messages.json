@@ -1,7 +1,8 @@
 {
     "en-US": {
         "global__logo_file": "logo_en.svg",
-        "global__wdglance_title": "Word At a Glance",
+        "global__wdglance_title": "Word at a Glance",
+        "global__meta_desc": "Word at a Glance - a Modular Word Profile Aggregator",
         "global__corpus": "corpus",
         "global__search": "Search",
         "global__single_word_sel": "Find a word",
@@ -90,11 +91,18 @@
         "global__institute_cnc": "Institute of the Czech National Corpus",
         "global__powered_by_wag_{version}": "Powered by WaG version {version}",
         "global__view_on_github": "view on GitHub",
-        "global__not_applicable": "Not applicable"
+        "global__not_applicable": "Not applicable",
+        "global__img_alt_triable_left": "Triangle left arrow",
+        "global__img_alt_triable_right": "Triangle right arrow",
+        "global__img_alt_info_icon": "Ikonka informace",
+        "global__img_alt_play_audio": "Ikonka přehrání audia",
+        "global__img_alt_close_icon": "Ikonka zavření okna",
+        "global__img_alt_plus_icon": "Symbol plus"
     },
     "cs-CZ": {
         "global__logo_file": "logo_cs.svg",
         "global__wdglance_title": "Slovo v kostce",
+        "global__meta_desc": "Slovo v kostce - modulární agregátor profilu slova",
         "global__corpus": "korpus",
         "global__search": "Hledat",
         "global__single_word_sel": "Vyhledat slovo",
@@ -183,6 +191,12 @@
         "global__institute_cnc": "Ústav Českého národního korpusu",
         "global__powered_by_wag_{version}": "Běží v aplikaci WaG verze {version}",
         "global__view_on_github": "prohlédnout na GitHubu",
-        "global__not_applicable": "Nedostupné"
+        "global__not_applicable": "Nedostupné",
+        "global__img_alt_triable_left": "Trojúhelníková šipka doleva",
+        "global__img_alt_triable_right": "Trojúhelníková šipka doprava",
+        "global__img_alt_info_icon": "Information icon",
+        "global__img_alt_play_audio": "Audio playback icon",
+        "global__img_alt_close_icon": "Window close icon",
+        "global__img_alt_plus_icon": "Symbol plus"
     }
 }

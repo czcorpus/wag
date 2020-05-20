@@ -201,7 +201,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         return (
             <a className="PlayerIcon" onClick={handleClick}>
-                <img src={ut.createStaticUrl(props.isPlaying ? 'audio-3w.svg' : 'audio-0w.svg')} />
+                <img src={ut.createStaticUrl(props.isPlaying ? 'audio-3w.svg' : 'audio-0w.svg')}
+                        alt={ut.translate('global__img_alt_play_audio')} />
             </a>
         )
     }

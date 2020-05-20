@@ -101,7 +101,7 @@ export interface GlobalComponents {
         payload?:Array<{[key:string]:any}>;
         label?:string;
         formatter?:(value:string,name:string,data:{[key:string]:any}) => string | [string, string];
-        
+
         multiWord?:boolean;
         theme?:Theme;
     }>;
@@ -448,7 +448,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                                     onClick={this.props.onCloseClick}
                                     onKeyDown={this.handleKey}
                                     title={ut.translate('global__close_modal')}>
-                                <img src={ut.createStaticUrl('close-icon.svg')} alt="close icon" />
+                                <img src={ut.createStaticUrl('close-icon.svg')} alt={ut.translate('global__img_alt_close_icon')} />
                             </button>
                         </header>
                         <div className={tileClasses}>
@@ -491,7 +491,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
         return (
             <img src={ut.createStaticUrl(is2ndState ? file2 : props.file)}
                     onMouseOver={()=>set2ndState(!is2ndState)}
-                    onMouseOut={()=>set2ndState(!is2ndState)} />
+                    onMouseOut={()=>set2ndState(!is2ndState)}
+                    alt={props.alt} />
         );
     };
 
@@ -619,7 +620,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
 
 
     const AlignedRechartsTooltip:GlobalComponents['AlignedRechartsTooltip'] = (props?) => {
-       
+
         const { active, payload, label, formatter, multiWord, theme} = props;
         if (active && payload) {
             const decimalSeparator = ut.formatNumber(0.1).slice(1, -1);
@@ -633,7 +634,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                                 const formated_value = formatter ? formatter(data.value, data.name, data) : [data.value, data.name];
                                 const [value, label] = Array.isArray(formated_value) ? formated_value : [formated_value, data.name];
                                 const labelTheme = multiWord && theme ? {backgroundColor: theme.cmpCategoryColor(index)} : null;
-                                
+
                                 if (value && label) {
                                     if (typeof value === 'string') {
                                         return <tr key={label}>
@@ -641,7 +642,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                                             <td key="value" className="value" colSpan={2}>{value}</td>
                                             <td key="unit" className="value">{data.unit}</td>
                                         </tr>
-                                    
+
                                     } else if (Array.isArray(value)) {
                                         return <tr key={label}>
                                             <td key="name" className="label" style={labelTheme}>{label}</td>
@@ -657,7 +658,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                                                 value
                                             )}
                                         </tr>
-                                    
+
                                     } else if (typeof value === 'number') {
                                         const [numWh, numDec] = ut.formatNumber(value, 1).split(decimalSeparator);
                                         return <tr key={label}>
