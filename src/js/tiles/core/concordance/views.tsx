@@ -66,11 +66,13 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         return (
             <span className="Paginator">
                 <a onClick={handlePrevPage} className={`${props.page === 1 ? 'disabled' : null}`}>
-                    <img className="arrow" src={ut.createStaticUrl(props.page === 1 ? 'triangle_left_gr.svg' : 'triangle_left.svg')} />
+                    <img className="arrow" src={ut.createStaticUrl(props.page === 1 ? 'triangle_left_gr.svg' : 'triangle_left.svg')}
+                        alt={ut.translate('global__img_alt_triable_left')} />
                 </a>
                 <input className="page" type="text" readOnly={true} value={props.page} />
                 <a onClick={handleNextPage} className={`${props.page === props.numPages ? 'disabled' : null}`}>
-                    <img className="arrow" src={ut.createStaticUrl(props.page === props.numPages ? 'triangle_right_gr.svg' : 'triangle_right.svg')} />
+                    <img className="arrow" src={ut.createStaticUrl(props.page === props.numPages ? 'triangle_right_gr.svg' : 'triangle_right.svg')}
+                        alt={ut.translate('global__img_alt_triable_right')} />
                 </a>
             </span>
         );
@@ -226,7 +228,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         {props.hasVisibleMetadata ? <LineMetadata data={props.data.metadata} /> : null}
                     </td>
                     {props.data.metadata && props.data.metadata.length > 0 ?
-                        <td className="meta"><a className="info-click" onClick={props.handleLineClick}><img src={ut.createStaticUrl('info-icon.svg')} /></a></td> :
+                        <td className="meta">
+                            <a className="info-click" onClick={props.handleLineClick}>
+                                <img src={ut.createStaticUrl('info-icon.svg')} alt={ut.translate('global__img_alt_info_icon')} />
+                            </a>
+                        </td> :
                         null
                     }
                     <td className="left">
