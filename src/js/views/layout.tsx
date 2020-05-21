@@ -137,7 +137,10 @@ export function init(ut:ViewUtils<GlobalComponents>):React.SFC<LayoutProps> {
                     <script type="text/javascript" dangerouslySetInnerHTML={{__html: createScriptStr()}} />
                     <footer>
                         <section>
-                            <ThemeSelection returnUrl={props.returnUrl} themes={props.themes} currTheme={props.currTheme} />
+                            {props.themes.length > 0 ?
+                                <ThemeSelection returnUrl={props.returnUrl} themes={props.themes} currTheme={props.currTheme} /> :
+                                null
+                            }
                         </section>
                         <section className="copy-etc">
                             {props.config.logo ?
