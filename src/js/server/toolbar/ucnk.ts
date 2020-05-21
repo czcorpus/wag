@@ -28,7 +28,7 @@ import { GlobalComponents } from '../../views/global';
 import { ViewUtils } from 'kombo';
 import { AxiosError } from 'axios';
 import { serverHttpRequest, ServerHTTPRequestError } from '../request';
-import { HTTP } from 'cnc-tskit';
+import { HTTP, pipe, Dict, List } from 'cnc-tskit';
 import { map, catchError } from 'rxjs/operators';
 
 
@@ -82,9 +82,13 @@ export class UCNKToolbar implements IToolbarProvider {
             continue: returnUrl,
             current: UCNKToolbar.TOOLBAR_APP_IDENT
         };
-        UCNKToolbar.PASS_ARGS.forEach(arg => {
-            args[arg.substr('cnc_toolbar_'.length)] = cookies[arg] || '';
-        });
+        List.forEach(
+            arg => {
+                args[arg.substr('cnc_toolbar_'.length)] = cookies[arg] || '';
+            },
+            UCNKToolbar.PASS_ARGS
+        );
+        args['cnc_toolbar_lang'] = uiLang.split('-')[0];
 
         return serverHttpRequest<ToolbarResponse>({
             url: this.url,
@@ -101,13 +105,19 @@ export class UCNKToolbar implements IToolbarProvider {
             ),
             map<ToolbarResponse, HostPageEnv>(
                 response => ({
-                    styles: Object.entries(response.styles)
-                        .sort((x1, x2) => parseInt(x1[0]) - parseInt(x2[0]))
-                        .map(v => v[1].url),
-                    scripts: Object.entries(response.scripts.depends)
-                        .sort((x1, x2) => parseInt(x1[0]) - parseInt(x2[0]))
-                        .map(v => v[1].url)
-                        .concat([response.scripts.main]),
+                    styles: pipe(
+                        response.styles,
+                        Dict.toEntries(),
+                        List.sortBy(x => parseInt(x[0])),
+                        List.map(v => v[1].url)
+                    ),
+                    scripts: pipe(
+                        response.scripts.depends,
+                        Dict.toEntries(),
+                        List.sortBy(x => parseInt(x[0])),
+                        List.map(v => v[1].url),
+                        List.concat([response.scripts.main])
+                    ),
                     html: response.html,
                     toolbarHeight: '50px'
                 })
