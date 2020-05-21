@@ -139,9 +139,10 @@ export function fetchUrlParamArray(req:Request, param:string, minLen:number):Arr
 
 
 export function mkReturnUrl(req:Request, rootUrl:string):string {
+    const args = Dict.filter((_ ,k) => k !== 'uiLang', req.query);
     return rootUrl.replace(/\/$/, '') +
         req.path +
-        (req.query && Object.keys(req.query).length > 0 ? '?' + encodeArgs(req.query) : '');
+        (req.query && Dict.keys(args).length > 0 ? '?' + encodeArgs(args) : '');
 }
 
 

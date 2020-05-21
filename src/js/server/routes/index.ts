@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Express } from 'express';
+import { Express, Request, Response } from 'express';
 import { ViewUtils } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
 import { concatMap, map, reduce, tap } from 'rxjs/operators';
@@ -40,6 +40,46 @@ import { emptyValue } from '../toolbar/empty';
 import { importQueryPos } from '../../common/postag';
 
 const LANG_COOKIE_TTL = 3600 * 24 * 365;
+
+interface ErrorPageArgs {
+    req:Request;
+    res:Response;
+    uiLang:string;
+    services:Services;
+    viewUtils:ViewUtils<GlobalComponents>;
+    error:[number, string];
+}
+
+export function errorPage({req, res, uiLang, services, viewUtils, error}:ErrorPageArgs):void {
+    const userConf = errorUserConf(services.serverConf.languages, error, uiLang);
+    const clientConfig = emptyClientConf(services.clientConf, req.cookies[THEME_COOKIE_NAME]);
+    clientConfig.colorThemes = [];
+    const view = viewInit(viewUtils);
+    const errView = errPageInit(viewUtils);
+    res
+        .status(HTTP.Status.NotFound)
+        .send(renderResult({
+            view,
+            services: services,
+            toolbarData: emptyValue(),
+            queryMatches: [],
+            themes: [],
+            currTheme: clientConfig.colors.themeId,
+            userConfig: userConf,
+            clientConfig: clientConfig,
+            returnUrl: mkReturnUrl(req, services.clientConf.rootUrl),
+            rootView: errView,
+            layout: [],
+            homepageSections: [],
+            isMobile: false, // TODO should we detect the mode on server too
+            isAnswerMode: false,
+            version: services.version,
+            repositoryUrl: services.repositoryUrl,
+            error: error
+        }));
+}
+
+
 
 export const wdgRouter = (services:Services) => (app:Express) => {
 
@@ -93,7 +133,8 @@ export const wdgRouter = (services:Services) => (app:Express) => {
 
     // host page generator with some React server rendering (testing phase)
     app.get(HTTPAction.MAIN, (req, res, next) => {
-        queryAction(services, false, QueryType.SINGLE_QUERY, req, res, next);
+        let uiLang = getLangFromCookie(req, services.serverConf.langCookie, services.serverConf.languages);
+        queryAction({services, answerMode: false, queryType: QueryType.SINGLE_QUERY, uiLang, req, res, next});
     });
 
     app.get(HTTPAction.GET_LEMMAS, (req, res, next) => {
@@ -130,16 +171,47 @@ export const wdgRouter = (services:Services) => (app:Express) => {
     });
 
     app.post(HTTPAction.SET_UI_LANG, (req, res, next) => {
-        res.cookie(services.serverConf.langCookie, req.body.lang, {maxAge: LANG_COOKIE_TTL});
-        res.redirect(req.body.returnUrl);
+        const newUiLang = req.body.lang;
+        if (Dict.hasKey(newUiLang, services.serverConf.languages)) {
+            res.cookie(services.serverConf.langCookie, newUiLang, {maxAge: LANG_COOKIE_TTL});
+            res.redirect(req.body.returnUrl);
+
+        } else {
+            const uiLang = getLangFromCookie(req, services.serverConf.langCookie, services.serverConf.languages);
+            const [viewUtils,] = createHelperServices(services, uiLang);
+            const error:[number, string] = [
+                HTTP.Status.BadRequest,
+                viewUtils.translate(
+                    'global__invalid_ui_lang_{lang}{avail}',
+                    {lang: newUiLang, avail: Dict.keys(services.serverConf.languages).join(', ')}
+                )
+            ];
+            errorPage({req, res, uiLang, services, viewUtils, error});
+        }
     });
 
     app.get(`${HTTPAction.SEARCH}:lang/:query`, (req, res, next) => {
+        let uiLang = getLangFromCookie(req, services.serverConf.langCookie, services.serverConf.languages);
         const langOverride = getQueryValue(req, 'uiLang');
-        if (langOverride) {
-            res.cookie(services.serverConf.langCookie, req.body.lang, {maxAge: LANG_COOKIE_TTL});
+        if (langOverride.length > 0) {
+            if (Dict.hasKey(langOverride[0], services.serverConf.languages)) {
+                res.cookie(services.serverConf.langCookie, langOverride[0], {maxAge: LANG_COOKIE_TTL});
+                uiLang = langOverride[0];
+
+            } else {
+                const [viewUtils,] = createHelperServices(services, uiLang);
+                const error:[number, string] = [
+                    HTTP.Status.BadRequest,
+                    viewUtils.translate(
+                        'global__invalid_ui_lang_{lang}{avail}',
+                        {lang: langOverride[0], avail: Dict.keys(services.serverConf.languages).join(', ')}
+                    )
+                ];
+                errorPage({req, res, uiLang, services, viewUtils, error});
+                return;
+            }
         }
-        queryAction(services, true, QueryType.SINGLE_QUERY, req, res, next);
+        queryAction({services, answerMode: true, queryType: QueryType.SINGLE_QUERY, uiLang, req, res, next});
     });
 
     app.get(`/embedded${HTTPAction.SEARCH}:lang/:query`, (req, res, next) => {
@@ -167,11 +239,13 @@ export const wdgRouter = (services:Services) => (app:Express) => {
     });
 
     app.get(`${HTTPAction.COMPARE}:lang/:query`, (req, res, next) => {
-        queryAction(services, true, QueryType.CMP_QUERY, req, res, next);
+        const uiLang = getLangFromCookie(req, services.serverConf.langCookie, services.serverConf.languages);
+        queryAction({services, answerMode: true, queryType: QueryType.CMP_QUERY, uiLang, req, res, next});
     });
 
     app.get(`${HTTPAction.TRANSLATE}:lang/:query`, (req, res, next) => {
-        queryAction(services, true, QueryType.TRANSLAT_QUERY, req, res, next);
+        const uiLang = getLangFromCookie(req, services.serverConf.langCookie, services.serverConf.languages);
+        queryAction({services, answerMode: true, queryType: QueryType.TRANSLAT_QUERY, uiLang, req, res, next});
     });
 
     // Find words with similar frequency
@@ -368,31 +442,6 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         const uiLang = getLangFromCookie(req, services.serverConf.langCookie, services.serverConf.languages);
         const [viewUtils,] = createHelperServices(services, uiLang);
         const error:[number, string] = [HTTP.Status.NotFound, viewUtils.translate('global__action_not_found')];
-        const userConf = errorUserConf(services.serverConf.languages, error, uiLang);
-        const clientConfig = emptyClientConf(services.clientConf, req.cookies[THEME_COOKIE_NAME]);
-        clientConfig.colorThemes = [];
-        const view = viewInit(viewUtils);
-        const errView = errPageInit(viewUtils);
-        res
-            .status(HTTP.Status.NotFound)
-            .send(renderResult({
-                view,
-                services: services,
-                toolbarData: emptyValue(),
-                queryMatches: [],
-                themes: [],
-                currTheme: clientConfig.colors.themeId,
-                userConfig: userConf,
-                clientConfig: clientConfig,
-                returnUrl: mkReturnUrl(req, services.clientConf.rootUrl),
-                rootView: errView,
-                layout: [],
-                homepageSections: [],
-                isMobile: false, // TODO should we detect the mode on server too
-                isAnswerMode: false,
-                version: services.version,
-                repositoryUrl: services.repositoryUrl,
-                error: [HTTP.Status.NotFound, viewUtils.translate('global__action_not_found')]
-            }));
+        errorPage({req, res, uiLang, services, viewUtils, error});
     });
 }

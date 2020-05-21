@@ -163,9 +163,18 @@ export function importQueryRequest({services, appServices, req, queryType, uiLan
     })
 }
 
-export function queryAction(services:Services, answerMode:boolean, queryType:QueryType, req:Request, res:Response, next:NextFunction) {
 
-    const uiLang = getLangFromCookie(req, services.serverConf.langCookie, services.serverConf.languages);
+export interface QueryActionArgs {
+    services:Services;
+    answerMode:boolean;
+    queryType:QueryType;
+    uiLang:string;
+    req:Request;
+    res:Response;
+    next:NextFunction;
+}
+
+export function queryAction({services, answerMode, queryType, uiLang, req, res, next}:QueryActionArgs) {
     const dispatcher = new ServerSideActionDispatcher();
     const [viewUtils, appServices] = createHelperServices(services, uiLang);
     // until now there should be no exceptions throw
