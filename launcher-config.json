@@ -39,6 +39,7 @@
       "npm test",
       "webpack --config webpack.server.js"
     ],
+    "create:custom-tile": "ts-node ./scripts/create-tile.ts $1",
     "devel-server": "webpack-dev-server --config webpack.dev.js",
     "server": "node dist-server/service.js",
     "test": "npm test"

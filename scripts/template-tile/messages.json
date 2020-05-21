@@ -1,0 +1,14 @@
+{
+    "en-US": {
+        "template__main_label": "Selected Words",
+        "template__tweak_panel": "This is tweak panel",
+        "template__alt_view": "This is alternative view",
+        "template__main_view": "This is main view"
+    },
+    "cs-CZ": {
+        "template__main_label": "Vybraná slova",
+        "template__tweak_panel": "Toto je panel nastavení",
+        "template__alt_view": "Toto je alternativní pohled",
+        "template__main_view": "Toto je hlavní pohled"
+    }
+}

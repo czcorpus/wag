@@ -12,6 +12,9 @@
       "devel": "build:devel",
       "production": "build:production",
       "server": "build:server"
+    },
+    "create:Create menu...": {
+      "custom-tile": "create:custom-tile"
     },    
     "devel-server:starts a development server": "devel-server",
     "server:starts WaG web server": "server",
