@@ -196,7 +196,7 @@ function setValue(db$:Observable<IDBDatabase>, storeName:string, key:string, val
 
 
 export function initStore(storeName:string, maxAge:number):IAsyncKeyValueStore {
-    if (window && window.indexedDB !== undefined && maxAge > 0) {
+    if (window && window.indexedDB !== undefined && navigator.storage !== undefined && maxAge > 0) {
         const db$ = openDb(storeName);
         return {
             get: <T>(key:string) => getValue<T>(db$, maxAge, storeName, key),
