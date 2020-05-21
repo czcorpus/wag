@@ -124,4 +124,17 @@ export class UCNKToolbar implements IToolbarProvider {
             )
         );
     }
+
+    importLangCode(uiLang:string):string {
+        return uiLang.split('-')[0];
+    }
+
+    exportLangCode(uiLang:string, avail:{[code:string]:string}):string {
+        const srch = pipe(avail, Dict.keys(), List.find(v => v.split('-')[0] === uiLang));
+        return srch ? srch : this.defaultHostLangCode();
+    }
+
+    defaultHostLangCode():string {
+        return 'en';
+    }
  }
