@@ -133,13 +133,12 @@ export const wdgRouter = (services:Services) => (app:Express) => {
 
     // host page generator with some React server rendering (testing phase)
     app.get(HTTPAction.MAIN, (req, res, next) => {
-        let uiLang = getLangFromCookie(req, services.serverConf.langCookie, services.serverConf.languages);
+        const uiLang = getLangFromCookie(req, services);
         queryAction({services, answerMode: false, queryType: QueryType.SINGLE_QUERY, uiLang, req, res, next});
     });
 
     app.get(HTTPAction.GET_LEMMAS, (req, res, next) => {
-        const [,appServices] = createHelperServices(
-            services, getLangFromCookie(req, services.serverConf.langCookie, services.serverConf.languages));
+        const [,appServices] = createHelperServices(services, getLangFromCookie(req, services));
         const queryLang = getQueryValue(req, 'lang')[0];
         new Observable<IFreqDB>((observer) => {
             const db = services.db.getDatabase(QueryType.SINGLE_QUERY, queryLang);
@@ -173,11 +172,11 @@ export const wdgRouter = (services:Services) => (app:Express) => {
     app.post(HTTPAction.SET_UI_LANG, (req, res, next) => {
         const newUiLang = req.body.lang;
         if (Dict.hasKey(newUiLang, services.serverConf.languages)) {
-            res.cookie(services.serverConf.langCookie, newUiLang, {maxAge: LANG_COOKIE_TTL});
+            res.cookie(services.serverConf.langCookie, services.toolbar.importLangCode(newUiLang), {maxAge: LANG_COOKIE_TTL});
             res.redirect(req.body.returnUrl);
 
         } else {
-            const uiLang = getLangFromCookie(req, services.serverConf.langCookie, services.serverConf.languages);
+            const uiLang = getLangFromCookie(req, services);
             const [viewUtils,] = createHelperServices(services, uiLang);
             const error:[number, string] = [
                 HTTP.Status.BadRequest,
@@ -191,11 +190,11 @@ export const wdgRouter = (services:Services) => (app:Express) => {
     });
 
     app.get(`${HTTPAction.SEARCH}:lang/:query`, (req, res, next) => {
-        let uiLang = getLangFromCookie(req, services.serverConf.langCookie, services.serverConf.languages);
+        let uiLang = getLangFromCookie(req, services);
         const langOverride = getQueryValue(req, 'uiLang');
         if (langOverride.length > 0) {
             if (Dict.hasKey(langOverride[0], services.serverConf.languages)) {
-                res.cookie(services.serverConf.langCookie, langOverride[0], {maxAge: LANG_COOKIE_TTL});
+                res.cookie(services.serverConf.langCookie, services.toolbar.importLangCode(langOverride[0]), {maxAge: LANG_COOKIE_TTL});
                 uiLang = langOverride[0];
 
             } else {
@@ -215,7 +214,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
     });
 
     app.get(`/embedded${HTTPAction.SEARCH}:lang/:query`, (req, res, next) => {
-        const uiLang = getLangFromCookie(req, services.serverConf.langCookie, services.serverConf.languages);
+        const uiLang = getLangFromCookie(req, services);
         const [,appServices] = createHelperServices(services, uiLang);
         importQueryRequest({
             services, appServices, req, queryType: QueryType.SINGLE_QUERY, uiLang, answerMode: true
@@ -239,12 +238,12 @@ export const wdgRouter = (services:Services) => (app:Express) => {
     });
 
     app.get(`${HTTPAction.COMPARE}:lang/:query`, (req, res, next) => {
-        const uiLang = getLangFromCookie(req, services.serverConf.langCookie, services.serverConf.languages);
+        const uiLang = getLangFromCookie(req, services);
         queryAction({services, answerMode: true, queryType: QueryType.CMP_QUERY, uiLang, req, res, next});
     });
 
     app.get(`${HTTPAction.TRANSLATE}:lang/:query`, (req, res, next) => {
-        const uiLang = getLangFromCookie(req, services.serverConf.langCookie, services.serverConf.languages);
+        const uiLang = getLangFromCookie(req, services);
         queryAction({services, answerMode: true, queryType: QueryType.TRANSLAT_QUERY, uiLang, req, res, next});
     });
 
@@ -253,7 +252,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
 
         const posRaw = fetchReqArgArray(req, 'pos', 0)[0];
         const pos:Array<string> = posRaw !== '' ? posRaw.split(',') :  [];
-        const uiLang = getLangFromCookie(req, services.serverConf.langCookie, services.serverConf.languages);
+        const uiLang = getLangFromCookie(req, services);
 
         const viewUtils = new ViewUtils<GlobalComponents>({
             uiLang: uiLang,
@@ -337,7 +336,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
     });
 
     app.get(HTTPAction.WORD_FORMS, (req, res) => {
-        const uiLang = getLangFromCookie(req, services.serverConf.langCookie, services.serverConf.languages);
+        const uiLang = getLangFromCookie(req, services);
         const viewUtils = new ViewUtils<GlobalComponents>({
             uiLang: uiLang,
             translations: services.translations,
@@ -405,7 +404,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
     });
 
     app.get(HTTPAction.SOURCE_INFO, (req, res) => {
-        const uiLang = getLangFromCookie(req, services.serverConf.langCookie, services.serverConf.languages).split('-')[0];
+        const uiLang = getLangFromCookie(req, services).split('-')[0];
         const queryType = importQueryTypeString(getQueryValue(req, 'queryType')[0], QueryType.SINGLE_QUERY);
         const queryLang = getQueryValue(req, 'lang')[0];
 
@@ -439,7 +438,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
     })
 
     app.use(function (req, res, next) {
-        const uiLang = getLangFromCookie(req, services.serverConf.langCookie, services.serverConf.languages);
+        const uiLang = getLangFromCookie(req, services);
         const [viewUtils,] = createHelperServices(services, uiLang);
         const error:[number, string] = [HTTP.Status.NotFound, viewUtils.translate('global__action_not_found')];
         errorPage({req, res, uiLang, services, viewUtils, error});

@@ -50,6 +50,20 @@ export interface IToolbarProvider {
      * @param ut view utils
      */
     get(uiLang:string, returnUrl:string, cookies:{[key:string]:string}, ut:ViewUtils<GlobalComponents>):Observable<HostPageEnv|null>;
+
+    /**
+     * Import WaG language code into a host environment one
+     * (e.g. "en-US" -> "en" in case the environment uses two letter format).
+     */
+    importLangCode(uiLang:string):string;
+
+    /**
+     * Export host environment language code into WaG one
+     * (.e.g. "en" --> "en-US")
+     */
+    exportLangCode(uiLang:string, avail:{[code:string]:string}):string;
+
+    defaultHostLangCode():string;
 }
 
 

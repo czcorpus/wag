@@ -37,4 +37,16 @@ export class LangSwitchToolbar implements IToolbarProvider {
             toolbarHeight: null
         });
     }
+
+    importLangCode(uiLang:string):string {
+        return uiLang;
+    }
+
+    exportLangCode(uiLang:string, avail:{[code:string]:string}):string {
+        return uiLang;
+    }
+
+    defaultHostLangCode():string {
+        return 'en-US';
+    }
 }

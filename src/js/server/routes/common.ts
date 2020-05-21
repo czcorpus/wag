@@ -30,7 +30,7 @@ import { GlobalComponents } from '../../views/global';
 import { AppServices } from '../../appServices';
 import { pipe, Dict, List } from 'cnc-tskit';
 import { LayoutProps } from '../../views/layout';
-import { HostPageEnv } from '../../common/hostPage';
+import { HostPageEnv, IToolbarProvider } from '../../common/hostPage';
 import { RecognizedQueries } from '../../common/query/index';
 import { WdglanceMainProps } from '../../views/main';
 import { ErrPageProps } from '../../views/error';
@@ -66,15 +66,9 @@ export function getQueryParam(req:Request, name:string, dflt?:string):Array<stri
 }
 
 
-export function getLangFromCookie(req:Request, cookieName:string, languages:{[code:string]:string}):string {
-    const ans = req.cookies[cookieName] || 'en-US';
-    if (languages.hasOwnProperty(ans)) {
-        return ans;
-
-    } else {
-        const srch = Object.keys(languages).find(k => k.split('-')[0] === ans.split('-')[0]);
-        return srch ? srch : 'en-US';
-    }
+export function getLangFromCookie(req:Request, services:Services):string {
+    const ans = req.cookies[services.serverConf.langCookie] || services.toolbar.defaultHostLangCode();
+    return services.toolbar.exportLangCode(ans, services.serverConf.languages);
 }
 
 export function logRequest(logging:IQueryLog, datetime:string, req:Request, userConfig:UserConf):Observable<number> {

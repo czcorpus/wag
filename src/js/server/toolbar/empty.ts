@@ -36,4 +36,16 @@ export class EmptyToolbar implements IToolbarProvider {
     get(uiLang:string, returnUrl:string, cookies:{[key:string]:string}, ut:ViewUtils<GlobalComponents>):Observable<HostPageEnv> {
         return rxOf(emptyValue());
     }
+
+    importLangCode(uiLang:string):string {
+        return uiLang;
+    }
+
+    exportLangCode(uiLang:string, avail:{[code:string]:string}):string {
+        return uiLang;
+    }
+
+    defaultHostLangCode():string {
+        return 'en-US';
+    }
 }
