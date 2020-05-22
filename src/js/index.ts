@@ -32,7 +32,7 @@ import { ActionName, Actions } from './models/actions';
 import { SystemNotifications } from './notifications';
 import { GlobalComponents } from './views/global';
 import { createRootComponent } from './app';
-import { initStore } from './cacheDb';
+import { initStore } from './cache';
 import { TelemetryAction, TileIdentMap } from './common/types';
 import { HTTPAction } from './server/routes/actions';
 import { MultiDict } from './common/data';

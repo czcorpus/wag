@@ -35,7 +35,7 @@ import { Services  } from '../actionServices';
 import { loadFile } from '../files';
 import { createRootComponent } from '../../app';
 import { ActionName } from '../../models/actions';
-import { DummyCache } from '../../cacheDb';
+import { initDummyStore } from '../../cache/index';
 import { getLangFromCookie, fetchReqArgArray, createHelperServices, mkReturnUrl, logRequest, renderResult, fetchUrlParamArray } from './common';
 import { maxQueryWordsForQueryType } from '../../layout';
 
@@ -274,7 +274,7 @@ export function queryAction({services, answerMode, queryType, uiLang, req, res, 
                 dispatcher: dispatcher,
                 onResize: new Observable((_) => undefined),
                 viewUtils: viewUtils,
-                cache: new DummyCache()
+                cache: initDummyStore('dummy-server-store')
             });
 
             const view = viewInit(viewUtils);
