@@ -15,21 +15,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Observable } from 'rxjs';
+import { map, concatMap } from 'rxjs/operators';
+import { List, HTTP } from 'cnc-tskit';
 
 import { IFreqDB } from '../freqdb';
 import { IAppServices } from '../../../appServices';
-import { Observable } from 'rxjs';
 import { QueryMatch, calcFreqBand } from '../../../common/query/index';
 import { QuerySelector, HTTPResponse as ConcHTTPResponse, escapeVal } from '../../../common/api/kontext/concordance';
 import { HTTPResponse as FreqsHttpResponse } from '../../../common/api/kontext/freqs';
-import { map, concatMap } from 'rxjs/operators';
-import { List, HTTP } from 'cnc-tskit';
 import { FreqDbOptions } from '../../../conf';
 import { importQueryPosWithLabel, posTable } from '../../../common/postag';
 import { CorpusInfoAPI } from '../../../common/api/kontext/corpusInfo';
-import { DummyCache } from '../../../cacheDb';
 import { CorpusDetails } from '../../../common/types';
 import { serverHttpRequest } from '../../request';
+import { initDummyStore } from '../../../cache/index';
 
 
 export class KontextFreqDB implements IFreqDB {
@@ -46,7 +46,7 @@ export class KontextFreqDB implements IFreqDB {
 
     constructor(apiUrl:string, corpusSize:number, options:FreqDbOptions) {
         this.apiURL = apiUrl;
-        this.srcInfoService = new CorpusInfoAPI(new DummyCache(), apiUrl, options.httpHeaders);
+        this.srcInfoService = new CorpusInfoAPI(initDummyStore('kontext-freqdb'), apiUrl, options.httpHeaders);
         this.corpusSize = corpusSize;
         this.corpname = options.urlArgs.corpname;
         this.customHeaders = options.httpHeaders || {};

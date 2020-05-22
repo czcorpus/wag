@@ -17,8 +17,10 @@
  */
 
 import { Observable, of as rxOf } from 'rxjs';
-import { concatMap, map, share } from 'rxjs/operators';
-import { IAsyncKeyValueStore } from './common/types';
+import { concatMap, map, share, catchError, shareReplay } from 'rxjs/operators';
+import { IAsyncKeyValueStore } from '../common/types';
+import { ILocalDatabase, ILocalStore } from './common';
+import { DummyLocalDb } from './dummy';
 
 
 const DB_VERSION = 1;
@@ -32,44 +34,49 @@ interface CachedRecord<T> {
 }
 
 
-export class DummyCache implements IAsyncKeyValueStore {
+/**
+ * Create a ILocaDatabase instance which is (in ideal case)
+ * an instance of IDBDatabase. In case the function cannot
+ * detect a compatible environment or in case something
+ * goes wrong (e.g. Firefox vs. incognito mode) a DummyLocalDb
+ * is returned.
+ */
+export function openDb(storeName:string, maxAge:number):Observable<ILocalDatabase> {
+    if (window?.indexedDB !== undefined && maxAge > 0) {
+        return new Observable<ILocalDatabase>(
+            (observer) => {
+                const req = window.indexedDB.open(DB_NAME, DB_VERSION);
+                req.addEventListener('success', () => {
+                    observer.next(req.result);
+                    observer.complete();
+                });
+                req.addEventListener('error', () => {
+                    observer.error(req.error);
+                });
+                req.addEventListener('upgradeneeded', () => {
+                    req.result.createObjectStore(storeName);
+                });
+            }
+        ).pipe(
+            catchError(
+                (err) => {
+                    console.log(`error opening IndexedDB, using a dummy replacement (err: ${err})`);
+                    return rxOf(new DummyLocalDb());
+                }
+            ),
+            shareReplay()
+        );
 
-    get<T>(key:string):Observable<T> {
-        return rxOf(undefined);
-    }
-
-    set(key:string, value:any):Observable<string> {
-        return rxOf(key);
-    }
-
-    clearAll() {
-        return rxOf(0);
+    } else {
+        console.warn('local data caching disabled');
+        return rxOf(new DummyLocalDb()).pipe(share());
     }
 }
 
-
-function openDb(storeName:string):Observable<IDBDatabase> {
-    return new Observable<IDBDatabase>(
-        (observer) => {
-            const req = window.indexedDB.open(DB_NAME, DB_VERSION);
-            req.addEventListener('success', () => {
-                observer.next(req.result);
-                observer.complete();
-            });
-            req.addEventListener('error', () => {
-                observer.error(req.error);
-            });
-            req.addEventListener('upgradeneeded', () => {
-                req.result.createObjectStore(storeName);
-            });
-        }
-    ).pipe(share());
-}
-
-function begin(db$:Observable<IDBDatabase>, storeName:string, mode:'readonly'|'readwrite'):Observable<IDBObjectStore> {
+function begin(db$:Observable<ILocalDatabase>, storeName:string, mode:'readonly'|'readwrite'):Observable<ILocalStore> {
     return db$.pipe(
         concatMap(
-            (db) => new Observable<IDBObjectStore>(
+            (db) => new Observable<ILocalStore>(
                 (observer) => {
                     const transaction = db.transaction(storeName, mode);
                     transaction.addEventListener('complete', () => {
@@ -90,7 +97,7 @@ function begin(db$:Observable<IDBDatabase>, storeName:string, mode:'readonly'|'r
 }
 
 
-function getValue<T>(db$:Observable<IDBDatabase>, maxAge:number, storeName:string, key:string):Observable<T> {
+function getValue<T>(db$:Observable<ILocalDatabase>, maxAge:number, storeName:string, key:string):Observable<T> {
     return begin(db$, storeName, 'readonly').pipe(
         concatMap(
             (store) => new Observable<CachedRecord<T>>(
@@ -121,7 +128,7 @@ function getValue<T>(db$:Observable<IDBDatabase>, maxAge:number, storeName:strin
 }
 
 
-function removeValue(db$:Observable<IDBDatabase>, storeName:string, key:string):Observable<string> {
+function removeValue(db$:Observable<ILocalDatabase>, storeName:string, key:string):Observable<string> {
     return begin(db$, storeName, 'readwrite').pipe(
         concatMap(
             (store) => new Observable<any>(
@@ -141,10 +148,10 @@ function removeValue(db$:Observable<IDBDatabase>, storeName:string, key:string):
 }
 
 
-function clearAllValues(db$:Observable<IDBDatabase>, storeName:string):Observable<number> {
+function clearAllValues(db$:Observable<ILocalDatabase>, storeName:string):Observable<number> {
     return begin(db$, storeName, 'readwrite').pipe(
         concatMap(
-            (store) => new Observable<{count:number; store:IDBObjectStore}>(
+            (store) => new Observable<{count:number; store:ILocalStore}>(
                 (observer) => {
                     const req = store.count();
                     req.addEventListener('error', () => {
@@ -175,7 +182,7 @@ function clearAllValues(db$:Observable<IDBDatabase>, storeName:string):Observabl
 }
 
 
-function setValue(db$:Observable<IDBDatabase>, storeName:string, key:string, value:any):Observable<string> {
+function setValue(db$:Observable<ILocalDatabase>, storeName:string, key:string, value:any):Observable<string> {
     return begin(db$, storeName, 'readwrite').pipe(
         concatMap(
             (store) => new Observable<any>(
@@ -196,15 +203,19 @@ function setValue(db$:Observable<IDBDatabase>, storeName:string, key:string, val
 
 
 export function initStore(storeName:string, maxAge:number):IAsyncKeyValueStore {
-    if (window && window.indexedDB !== undefined && navigator.storage !== undefined && maxAge > 0) {
-        const db$ = openDb(storeName);
-        return {
-            get: <T>(key:string) => getValue<T>(db$, maxAge, storeName, key),
-            set: (key:string, value:any) => setValue(db$, storeName, key, value),
-            clearAll: () => clearAllValues(db$, storeName)
-        };
+    const db$ = openDb(storeName, maxAge);
+    return {
+        get: <T>(key:string) => getValue<T>(db$, maxAge, storeName, key),
+        set: (key:string, value:any) => setValue(db$, storeName, key, value),
+        clearAll: () => clearAllValues(db$, storeName)
+    };
+}
 
-    } else {
-        return new DummyCache();
-    }
+export function initDummyStore(storeName:string):IAsyncKeyValueStore {
+    const db$ = rxOf(new DummyLocalDb()).pipe(share());
+    return {
+        get: <T>(key:string) => getValue<T>(db$, 0, storeName, key),
+        set: (key:string, value:any) => setValue(db$, storeName, key, value),
+        clearAll: () => clearAllValues(db$, storeName)
+    };
 }
