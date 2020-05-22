@@ -60,6 +60,15 @@ export interface DataApi<T, U> {
     call(queryArgs:T):Observable<U>;
 }
 
+/**
+ * ResourceApi describes a resource API which is
+ * able to provide additional information about itself.
+ */
+export interface ResourceApi<T, U> extends DataApi<T, U> {
+
+    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<SourceDetails>;
+}
+
 
 export type LocalizedConfMsg = string|{[lang:string]:string};
 

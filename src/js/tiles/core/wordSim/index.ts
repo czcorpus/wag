@@ -68,7 +68,7 @@ export class WordSimTile implements ITileProvider {
     private readonly api:IWordSimApi<{}>;
 
     constructor({tileId, waitForTiles, dispatcher, appServices, ut, widthFract, conf, theme,
-            isBusy, cache, queryMatches}:TileFactory.Args<WordSimTileConf>) {
+            isBusy, cache, queryMatches, lang1}:TileFactory.Args<WordSimTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.appServices = appServices;
@@ -94,7 +94,8 @@ export class WordSimTile implements ITileProvider {
                 selectedText: null
             },
             tileId,
-            api: this.api
+            api: this.api,
+            queryLang: lang1
         });
         this.view = viewInit(dispatcher, ut, theme, this.model);
     }

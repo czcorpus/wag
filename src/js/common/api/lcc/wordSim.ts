@@ -72,7 +72,7 @@ export class LccCoocSimApi implements IWordSimApi<LccCoocSimApiArgs> {
         return false;
     }
 
-    getSourceDescription(tileId:number, corpname:string):Observable<SourceDetails> {
+    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<SourceDetails> {
         return rxOf({
             tileId: tileId,
             title: 'REST API of the Leipzig Corpora Collection / Projekt Deutscher Wortschatz',

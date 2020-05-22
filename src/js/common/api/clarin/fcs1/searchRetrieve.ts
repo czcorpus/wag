@@ -175,10 +175,10 @@ export class FCS1SearchRetrieveAPI implements IConcordanceApi<FCS1Args> {
         };
     }
 
-    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<FCS1ExplainResponse> {
+    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<FCS1ExplainResponse> {
         return this.srcInfoApi.call({
             tileId: tileId,
-            uiLang: uiLang,
+            uiLang: lang,
             'x-fcs-endpoint-description': 'true' // TODO
         });
     }

@@ -108,7 +108,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         return (
             <globalCompontents.TileWrapper tileId={props.tileId} isBusy={props.isBusy} error={props.error}
                     hasData={pipe(props.data, List.some(d => d.length > 0))}
-                    sourceIdent={{corp: null}}
+                    sourceIdent={{corp: props.corpus}}
                     supportsTileReload={props.supportsReloadOnError}
                     issueReportingUrl={props.issueReportingUrl}>
                 <div className="WordSimView">

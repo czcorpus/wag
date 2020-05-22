@@ -23,7 +23,6 @@ import { HTTP, List, pipe, Dict, tuple } from 'cnc-tskit';
 
 import { AppServices } from '../../appServices';
 import { encodeArgs } from '../../common/ajax';
-import { ErrorType, mapToStatusCode, newError } from '../../common/errors';
 import { QueryType, QueryMatch, importQueryTypeString } from '../../common/query/index';
 import { GlobalComponents } from '../../views/global';
 import { IFreqDB } from '../freqdb/freqdb';
@@ -38,6 +37,7 @@ import { init as viewInit } from '../../views/layout';
 import { init as errPageInit } from '../../views/error';
 import { emptyValue } from '../toolbar/empty';
 import { importQueryPos } from '../../common/postag';
+import { ServerHTTPRequestError } from '../request';
 
 const LANG_COOKIE_TTL = 3600 * 24 * 365;
 
@@ -79,6 +79,19 @@ export function errorPage({req, res, uiLang, services, viewUtils, error}:ErrorPa
         }));
 }
 
+
+function jsonOutputError(res:Response, err:Error):void {
+    if (err instanceof ServerHTTPRequestError) {
+        res.status(err.status).send({
+            message: err.statusText
+        });
+
+    } else {
+        res.status(HTTP.Status.InternalServerError).send({
+            message: err.message
+        });
+    }
+}
 
 
 export const wdgRouter = (services:Services) => (app:Express) => {
@@ -144,7 +157,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             const db = services.db.getDatabase(QueryType.SINGLE_QUERY, queryLang);
             if (db === undefined) {
                 observer.error(
-                    newError(ErrorType.BAD_REQUEST, `Frequency database for [${queryLang}] not defined`));
+                    new ServerHTTPRequestError(HTTP.Status.BadRequest, `Frequency database for [${queryLang}] not defined`));
 
             } else {
                 observer.next(db);
@@ -162,9 +175,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                 res.send(JSON.stringify({result: data}));
             },
             (err:Error) => {
-                res.status(mapToStatusCode(err.name)).send({
-                    message: err.message
-                });
+                jsonOutputError(res, err);
             }
         );
     });
@@ -280,11 +291,11 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         new Observable<{lang:string; word:string; lemma:string; pos:Array<string>; rng:number}>((observer) => {
             if (isNaN(parseInt(getQueryValue(req, 'srchRange')[0]))) {
                 observer.error(
-                    newError(ErrorType.BAD_REQUEST, `Invalid range provided, srchRange = ${req.query.srchRange}`));
+                    new ServerHTTPRequestError(HTTP.Status.BadRequest, `Invalid range provided, srchRange = ${req.query.srchRange}`));
 
             } else if (services.db.getDatabase(QueryType.SINGLE_QUERY, queryLang) === undefined) {
                 observer.error(
-                    newError(ErrorType.BAD_REQUEST, `Frequency database for [${queryLang}] not defined`));
+                    new ServerHTTPRequestError(HTTP.Status.BadRequest, `Frequency database for [${queryLang}] not defined`));
 
             } else {
                 observer.next({
@@ -327,10 +338,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                 res.send(JSON.stringify({result: data}));
             },
             (err:Error) => {
-                services.errorLog.error(err.message, {trace: err.stack});
-                res.status(mapToStatusCode(err.name)).send({
-                    message: err.message
-                });
+                jsonOutputError(res, err);
             }
         );
     });
@@ -364,7 +372,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         new Observable<{lang:string; word:string; lemma:string; pos:Array<string>}>((observer) => {
             if (freqDb === undefined) {
                 observer.error(
-                    newError(ErrorType.BAD_REQUEST, `Frequency database for [${req.query.lang}] not defined`));
+                    new ServerHTTPRequestError(HTTP.Status.BadRequest, `Frequency database for [${req.query.lang}] not defined`));
             }
             observer.next({
                 lang: getQueryValue(req, 'lang')[0],
@@ -389,10 +397,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                 res.send(JSON.stringify({result: data}));
             },
             (err:Error) => {
-                services.errorLog.error(err.message, {trace: err.stack});
-                res.status(mapToStatusCode(err.name)).send({
-                    message: err.message
-                });
+                jsonOutputError(res, err);
             }
         );
     });
@@ -412,7 +417,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             const db = services.db.getDatabase(queryType, queryLang);
             if (db === undefined) {
                 observer.error(
-                    newError(ErrorType.BAD_REQUEST, `Frequency database for [${queryLang}] not defined`));
+                    new ServerHTTPRequestError(HTTP.Status.BadRequest, `Frequency database for [${queryLang}] not defined`));
 
             } else {
                 observer.next(db);
@@ -430,9 +435,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                 res.send(JSON.stringify({result: data}));
             },
             (err:Error) => {
-                res.status(mapToStatusCode(err.name)).send({
-                    message: err.message
-                });
+                jsonOutputError(res, err);
             }
         );
     })

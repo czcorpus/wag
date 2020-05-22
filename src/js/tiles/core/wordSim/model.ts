@@ -34,6 +34,7 @@ export interface WordSimModelArgs {
     initState:WordSimModelState;
     tileId:number;
     api:IWordSimApi<{}>;
+    queryLang:string;
 }
 
 
@@ -43,10 +44,13 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
 
     private readonly api:IWordSimApi<{}>;
 
-    constructor({dispatcher, initState, tileId, api}:WordSimModelArgs) {
+    private readonly queryLang:string;
+
+    constructor({dispatcher, initState, tileId, api, queryLang}:WordSimModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.api = api;
+        this.queryLang = queryLang;
 
         this.addActionHandler<GlobalActions.SubqItemHighlighted>(
             GlobalActionName.SubqItemHighlighted,
@@ -136,7 +140,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
             (state, action) => {},
             (state, action, seDispatch) => {
                 if (action.payload['tileId'] === this.tileId) {
-                    this.api.getSourceDescription(this.tileId, state.corpus).subscribe(
+                    this.api.getSourceDescription(this.tileId, this.queryLang, state.corpus).subscribe(
                         (data) => {
                             seDispatch({
                                 name: GlobalActionName.GetSourceInfoDone,

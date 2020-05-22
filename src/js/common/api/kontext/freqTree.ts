@@ -94,7 +94,7 @@ export class FreqTreeAPI implements WordDataApi<SingleCritQueryArgs, APILeafResp
         this.srcInfoService = new CorpusInfoAPI(cache, apiURL, customHeaders);
     }
 
-    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<CorpusDetails> {
+    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
         return this.srcInfoService.call({
             tileId: tileId,
             corpname: corpname,

@@ -22,6 +22,7 @@ import { cachedAjax$ } from '../../ajax';
 import { IAsyncKeyValueStore, SourceDetails } from '../../types';
 import { WordTranslation, TranslationAPI, TranslationResponse, TranslationSubsetsAPI } from '../abstract/translations';
 import { TranslationsModelState, TranslationsSubsetsModelState } from '../../models/translations';
+import { IAppServices } from '../../../appServices';
 
 
 export type SearchPackages = {[lang2:string]:Array<string>};
@@ -78,9 +79,12 @@ class TreqAPICaller {
 
     private readonly descI18n:{[lang:string]:string};
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string) {
+    private readonly appServices:IAppServices;
+
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, appServices:IAppServices) {
         this.cache = cache;
         this.apiURL = apiURL;
+        this.appServices = appServices;
         this.titleI18n = {
             'cs-CZ': 'InterCorp - mnohojazyčný paralelní korpus',
             'en-US': 'InterCorp - a multilingual parallel corpus',
@@ -105,11 +109,11 @@ class TreqAPICaller {
         return data['en-US'];
     }
 
-    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<SourceDetails> {
+    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<SourceDetails> {
         return rxOf({
             tileId: tileId,
-            title: this.translateText(this.titleI18n, uiLang),
-            description: this.translateText(this.descI18n, uiLang),
+            title: this.translateText(this.titleI18n, this.appServices.getUILang()),
+            description: this.translateText(this.descI18n, this.appServices.getUILang()),
             author: 'Czech National Corpus',
             href: 'https://wiki.korpus.cz/doku.php/cnk:intercorp'
         });
@@ -169,8 +173,8 @@ class TreqAPICaller {
 
 export class TreqAPI extends TreqAPICaller implements TranslationAPI<RequestArgs, PageArgs> {
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string) {
-        super(cache, apiURL);
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, appServices:IAppServices) {
+        super(cache, apiURL, appServices);
     }
 
     stateToArgs(state:TranslationsModelState<PageArgs>, query:string):RequestArgs {

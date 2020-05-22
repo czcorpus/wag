@@ -74,7 +74,7 @@ export class LccCollAPI implements CollocationApi<CollRequestArgs> {
         return false;
     }
 
-    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<SourceDetails> {
+    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<SourceDetails> {
         return rxOf({
             tileId: tileId,
             title: 'Leipzig Corpora Collection',

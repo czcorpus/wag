@@ -17,7 +17,7 @@
  */
 
 import { SubqueryPayload, isSubqueryPayload, QueryMatch, RangeRelatedSubqueryValue } from '../../query';
-import { DataApi, SourceDetails } from '../../types';
+import { SourceDetails, ResourceApi } from '../../types';
 import { CollocModelState } from '../../models/collocations';
 import { Observable } from 'rxjs';
 
@@ -63,7 +63,7 @@ export enum SrchContextType {
 }
 
 
-export interface CollocationApi<T> extends DataApi<T, CollApiResponse> {
+export interface CollocationApi<T> extends ResourceApi<T, CollApiResponse> {
 
     /**
      * @param dataSpec is either an ID of an existing concordance or a query
@@ -74,6 +74,6 @@ export interface CollocationApi<T> extends DataApi<T, CollApiResponse> {
 
     supportsMultiWordQueries():boolean;
 
-    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<SourceDetails>;
+    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<SourceDetails>;
 
 }

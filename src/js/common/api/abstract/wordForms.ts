@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { DataApi } from '../../types';
+import { ResourceApi } from '../../types';
 
 
 export interface RequestArgs {
@@ -48,4 +48,4 @@ export interface Response {
 }
 
 
-export type IWordFormsApi = DataApi<RequestArgs|RequestConcArgs, Response>;
+export type IWordFormsApi = ResourceApi<RequestArgs|RequestConcArgs, Response>;

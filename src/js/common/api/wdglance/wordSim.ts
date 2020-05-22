@@ -23,9 +23,9 @@ import { HTTPHeaders, IAsyncKeyValueStore, SourceDetails } from '../../types';
 import { WordSimApiResponse, IWordSimApi } from '../abstract/wordSim';
 import { map, catchError } from 'rxjs/operators';
 import { WordSimModelState } from '../../models/wordSim';
-import { CorpusInfoAPI } from '../kontext/corpusInfo';
 import { AjaxError } from 'rxjs/ajax';
-import { QueryMatch } from '../../query';
+import { QueryMatch, QueryType } from '../../query';
+import { InternalResourceInfoApi } from './freqDbSourceInfo';
 
 
 export interface CNCWord2VecSimApiArgs {
@@ -54,13 +54,13 @@ export class CNCWord2VecSimApi implements IWordSimApi<CNCWord2VecSimApiArgs> {
 
     private readonly cache:IAsyncKeyValueStore;
 
-    private readonly srcInfoApi:CorpusInfoAPI;
+    private readonly srcInfoApi:InternalResourceInfoApi;
 
     constructor(cache:IAsyncKeyValueStore, apiURL:string, srcInfoURL:string, customHeaders?:HTTPHeaders) {
         this.apiURL = apiURL;
         this.customHeaders = customHeaders || {};
         this.cache = cache;
-        this.srcInfoApi = srcInfoURL ? new CorpusInfoAPI(cache, srcInfoURL, customHeaders) : null;
+        this.srcInfoApi = srcInfoURL ? new InternalResourceInfoApi(cache, srcInfoURL, customHeaders) : null;
     }
 
     stateToArgs(state:WordSimModelState, queryMatch:QueryMatch):CNCWord2VecSimApiArgs {
@@ -82,12 +82,13 @@ export class CNCWord2VecSimApi implements IWordSimApi<CNCWord2VecSimApiArgs> {
         return false;
     }
 
-    getSourceDescription(tileId:number, corpname:string):Observable<SourceDetails> {
+    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<SourceDetails> {
         return this.srcInfoApi ?
             this.srcInfoApi.call({
                 tileId: tileId,
                 corpname: corpname,
-                format: 'json'
+                lang: lang,
+                queryType: QueryType.SINGLE_QUERY
             }) :
              rxOf({
                 tileId: tileId,

@@ -17,7 +17,7 @@
  */
 
 import { Observable } from 'rxjs';
-import { DataApi, SourceDetails } from '../../types';
+import { DataApi, SourceDetails, ResourceApi } from '../../types';
 import { TranslationsModelState, TranslationsSubsetsModelState } from '../../models/translations';
 
 
@@ -37,13 +37,13 @@ export interface TranslationResponse {
 }
 
 
-export interface TranslationAPI<T, U> extends DataApi<T, TranslationResponse> {
+export interface TranslationAPI<T, U> extends ResourceApi<T, TranslationResponse> {
 
     stateToArgs(state:TranslationsModelState<U>, query:string):T;
 
     stateToPageArgs(state:TranslationsModelState<U>, query:string):U;
 
-    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<SourceDetails>;
+    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<SourceDetails>;
 }
 
 

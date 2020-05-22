@@ -17,7 +17,7 @@
  */
 
 import { Observable, of as rxOf } from 'rxjs';
-import { DataApi, IAsyncKeyValueStore, HTTPHeaders, CorpusDetails } from '../../../common/types';
+import { IAsyncKeyValueStore, HTTPHeaders, CorpusDetails, ResourceApi } from '../../../common/types';
 import { HTTP } from 'cnc-tskit'
 import { cachedAjax$ } from '../../../common/ajax';
 import { CorpusInfoAPI } from '../../../common/api/kontext/corpusInfo';
@@ -54,7 +54,7 @@ export interface SpeechResponse {
 /**
  *
  */
-export class SpeechesApi implements DataApi<SpeechReqArgs, SpeechResponse> {
+export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechResponse> {
 
     private readonly cache:IAsyncKeyValueStore;
 
@@ -71,7 +71,7 @@ export class SpeechesApi implements DataApi<SpeechReqArgs, SpeechResponse> {
         this.srcInfoService = new CorpusInfoAPI(cache, apiUrl, headers);
     }
 
-    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<CorpusDetails> {
+    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
         return this.srcInfoService.call({
             tileId: tileId,
             corpname: corpname,

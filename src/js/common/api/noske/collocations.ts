@@ -109,7 +109,7 @@ export class NoskeCollAPI implements CollocationApi<CollApiArgs> {
         return true;
     }
 
-    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<SourceDetails> {
+    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<SourceDetails> {
         return this.srcInfoService.call({
             tileId: tileId,
             corpname: corpname,

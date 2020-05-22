@@ -79,7 +79,7 @@ export class ElasticsearchMatchingDocsAPI implements MatchingDocsAPI<Elasticsear
         }
     }
 
-    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<SourceDetails> {
+    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<SourceDetails> {
         return null;
     }
 

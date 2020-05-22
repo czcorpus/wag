@@ -37,11 +37,11 @@ export class ServerHTTPRequestError extends Error {
 
     readonly statusText:string;
 
-    constructor(message:string, status:HTTP.Status, statusText:string) {
+    constructor(status:HTTP.Status, statusText:string, message?:string) {
         super(message);
-        this.message = message;
         this.status = status;
         this.statusText = statusText;
+        this.message = message ?? statusText;
     }
 }
 
@@ -62,9 +62,9 @@ export function serverHttpRequest<T>({url, method, params, data, auth, headers}:
             },
             (err:AxiosError) => {
                 observer.error(new ServerHTTPRequestError(
-                    `Request failed: ${err.message}`,
                     err.response ? err.response.status : -1,
-                    err.response ? err.response.statusText : '-'
+                    err.response ? err.response.statusText : '-',
+                    `Request failed: ${err.message}`,
                 ));
             }
         );
