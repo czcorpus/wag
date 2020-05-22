@@ -87,7 +87,7 @@ export class TreqSubsetsTile implements ITileProvider {
                 minItemFreq: conf.minItemFreq || TreqSubsetsTile.DEFAULT_MIN_ITEM_FREQ
             },
             tileId,
-            api: new TreqSubsetsAPI(cache, conf.apiURL),
+            api: new TreqSubsetsAPI(cache, conf.apiURL, appServices),
             queryMatches,
             waitForColorsTile: waitForTiles[0]
         });

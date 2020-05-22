@@ -31,7 +31,7 @@ export interface FreqDbSourceInfoArgs {
     corpname:string;
 }
 
-export class FreqDbSourceInfoApi implements DataApi<FreqDbSourceInfoArgs, SourceDetails> {
+export class InternalResourceInfoApi implements DataApi<FreqDbSourceInfoArgs, SourceDetails> {
 
     private readonly apiURL:string;
 

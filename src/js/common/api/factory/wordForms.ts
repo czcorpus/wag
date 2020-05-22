@@ -23,10 +23,20 @@ import { CoreApiGroup, supportedCoreApiGroups } from '../../../common/api/coreGr
 import { WordFormsWdglanceAPI } from '../../../common/api/wdglance/wordForms';
 
 
-export function createApiInstance(apiIdent:string, cache:IAsyncKeyValueStore, apiURL:string, httpHeaders?:HTTPHeaders):IWordFormsApi {
+export interface ApiFactoryArgs {
+    apiIdent:string;
+    cache:IAsyncKeyValueStore;
+    srcInfoURL:string;
+    apiHeaders:HTTPHeaders;
+    apiURL:string;
+    httpHeaders?:HTTPHeaders;
+}
+
+
+export function createApiInstance({apiIdent, cache, srcInfoURL, apiHeaders, apiURL, httpHeaders}:ApiFactoryArgs):IWordFormsApi {
     switch (apiIdent) {
         case CoreApiGroup.WDGLANCE:
-            return new WordFormsWdglanceAPI(cache, apiURL);
+            return new WordFormsWdglanceAPI(cache, apiURL, srcInfoURL, apiHeaders);
         case CoreApiGroup.KONTEXT:
             return new WordFormsKontextApi(cache, apiURL, httpHeaders);
         default:

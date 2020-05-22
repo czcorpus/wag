@@ -25,6 +25,7 @@ import { DataLoadedPayload } from './actions';
 import { findCurrQueryMatch } from '../../../models/query';
 import { ConcLoadedPayload } from '../concordance/actions';
 import { RecognizedQueries } from '../../../common/query/index';
+import { IAppServices } from '../../../appServices';
 
 
 
@@ -76,6 +77,7 @@ export interface WordFormsModelArgs {
     queryLang:string;
     waitForTile:number|null;
     waitForTilesTimeoutSecs:number;
+    appServices:IAppServices;
 }
 
 
@@ -93,8 +95,10 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
 
     private readonly waitForTilesTimeoutSecs:number;
 
+    private readonly appServices:IAppServices;
+
     constructor({dispatcher, initialState, tileId, api, queryMatches, queryLang, waitForTile,
-            waitForTilesTimeoutSecs}:WordFormsModelArgs) {
+            waitForTilesTimeoutSecs, appServices}:WordFormsModelArgs) {
         super(dispatcher, initialState);
         this.tileId = tileId;
         this.api = api;
@@ -102,6 +106,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
         this.queryLang = queryLang;
         this.waitForTile = waitForTile;
         this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
+        this.appServices = appServices;
 
         this.addActionHandler<GlobalActions.EnableAltViewMode>(
             GlobalActionName.EnableAltViewMode,
@@ -201,6 +206,36 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                             state.freqFilterAlphaLevel
                         );
                     }
+                }
+            }
+        );
+
+        this.addActionHandler<GlobalActions.GetSourceInfo>(
+            GlobalActionName.GetSourceInfo,
+            (state, action) => {},
+            (state, action, seDispatch) => {
+                if (action.payload['tileId'] === this.tileId) {
+                    this.api.getSourceDescription(this.tileId,  this.queryLang, state.corpname).subscribe(
+                        (data) => {
+                            seDispatch({
+                                name: GlobalActionName.GetSourceInfoDone,
+                                payload: {
+                                    tileId: this.tileId,
+                                    data: data
+                                }
+                            });
+                        },
+                        (err) => {
+                            seDispatch({
+                                name: GlobalActionName.GetSourceInfoDone,
+                                payload: {
+                                    tileId: this.tileId,
+                                    data: null
+                                },
+                                error: err
+                            });
+                        }
+                    );
                 }
             }
         );

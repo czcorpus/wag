@@ -26,7 +26,7 @@ import { SimilarFreqWord, SimilarFreqDbAPI } from '../../../common/api/abstract/
 import { findCurrQueryMatch } from '../../../models/query';
 import { QueryMatch, testIsDictMatch, RecognizedQueries, QueryType, calcFreqBand } from '../../../common/query/index';
 import { List, pipe } from 'cnc-tskit';
-import { FreqDbSourceInfoApi } from '../../../common/api/wdglance/freqDbSourceInfo';
+import { InternalResourceInfoApi } from '../../../common/api/wdglance/freqDbSourceInfo';
 
 export interface FlevelDistribItem {
     rel:number;
@@ -60,7 +60,7 @@ export interface SummaryModelArgs {
     initialState:SummaryModelState;
     tileId:number;
     api:SimilarFreqDbAPI;
-    sourceInfoApi:FreqDbSourceInfoApi;
+    sourceInfoApi:InternalResourceInfoApi;
     appServices:IAppServices;
     queryMatches:RecognizedQueries;
     queryLang:string;
@@ -83,7 +83,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
 
     private readonly api:SimilarFreqDbAPI;
 
-    private readonly sourceInfoApi:FreqDbSourceInfoApi;
+    private readonly sourceInfoApi:InternalResourceInfoApi;
 
     private readonly appServices:IAppServices;
 
@@ -178,7 +178,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                     this.sourceInfoApi.call({
                         tileId: this.tileId,
                         queryType: queryType,
-                        lang: queryLang,
+                        lang: this.queryLang,
                         corpname: state.corpname,
 
                     }).subscribe(

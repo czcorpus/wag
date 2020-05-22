@@ -19,13 +19,14 @@ import { Observable, merge, empty, forkJoin, of as rxOf } from 'rxjs';
 import { concatMap, reduce, map, catchError } from 'rxjs/operators';
 import { List, pipe, HTTP, tuple } from 'cnc-tskit';
 
-import { IAppServices } from '../../../appServices';
-import { QueryMatch, calcFreqBand } from '../../../common/query/index';
-import { IFreqDB } from '../freqdb';
-import { FreqDbOptions } from '../../../conf';
-import { serverHttpRequest } from '../../request';
-import { importQueryPosWithLabel, posTable, posTagsEqual } from '../../../common/postag';
-import { SourceDetails } from '../../../common/types';
+import { IAppServices } from '../../../../appServices';
+import { QueryMatch, calcFreqBand } from '../../../../common/query/index';
+import { IFreqDB } from '../../freqdb';
+import { FreqDbOptions } from '../../../../conf';
+import { serverHttpRequest } from '../../../request';
+import { importQueryPosWithLabel, posTable, posTagsEqual } from '../../../../common/postag';
+import { SourceDetails } from '../../../../common/types';
+import { CouchStoredSourceInfo } from './sourceInfo';
 
 
 /*
@@ -43,21 +44,45 @@ Document structure:
     "is_pname":false,
     "count":66556
 }
+
+Please note that specific views must be defined to make
+the database functional along with WaG (see below).
 */
 
 enum Views {
 
     /*
     function (doc) {
-    emit(doc.arf, 1);
+        emit(doc.arf, 1);
     }
     */
     BY_ARF = 'by-arf',
 
+    /*
+    function (doc) {
+        if (doc.lemma.split(' ').length === 1) {
+            emit(doc.arf, null);
+        }
+    }
+    */
     BY_ARF_1G = '1g-by-arf',
 
+   /*
+    function (doc) {
+        if (doc.lemma.split(' ').length === 2) {
+            emit(doc.arf, null);
+        }
+    }
+    */
     BY_ARF_2G = '2g-by-arf',
 
+    /*
+    function (doc) {
+        if (doc.lemma.split(' ').length === 3) {
+            emit(doc.arf, null);
+        }
+    }
+    */
     BY_ARF_3G = '3g-by-arf',
 
     /*
@@ -103,44 +128,11 @@ interface HTTPNgramResponse {
 }
 
 
-interface HTTPSourceInfoDoc {
-    _id:string;
-    _rev:string;
-    uiLang:string;
-    data:{
-        corpname:string;
-        description:string;
-        size:number;
-        web_url:string;
-        attrlist:Array<{name:string, size:number}>;
-        citation_info:{
-            article_ref:Array<string>;
-            default_ref:string;
-            other_bibliography:string;
-        };
-        structlist:Array<{name:string; size:number}>;
-        keywords:Array<{name:string, color:string}>;
-    }
-}
-
-
-interface HTTPSourceInfoResponse {
-    total_rows:number;
-    offset:number;
-    rows:Array<{
-        id:string;
-        key:string;
-        value:number;
-        doc:HTTPSourceInfoDoc;
-    }>;
-}
-
-
 export class CouchFreqDB implements IFreqDB {
 
     private readonly dbUrl:string;
 
-    private readonly sourceDbUrl:string|null;
+    private readonly sourceDbApi:CouchStoredSourceInfo|null;
 
     private readonly dbUser:string;
 
@@ -152,7 +144,13 @@ export class CouchFreqDB implements IFreqDB {
 
     constructor(dbPath:string, corpusSize:number, options:FreqDbOptions) {
         this.dbUrl = dbPath;
-        this.sourceDbUrl = options.sourceInfoUrl || null;
+        this.sourceDbApi = options.sourceInfoUrl ?
+            new CouchStoredSourceInfo(
+                options.sourceInfoUrl,
+                options.username,
+                options.password
+            ) :
+            null;
         this.dbUser = options.username;
         this.dbPassword = options.password;
         this.corpusSize = corpusSize;
@@ -327,51 +325,15 @@ export class CouchFreqDB implements IFreqDB {
     }
 
     getSourceDescription(uiLang:string, corpname:string):Observable<SourceDetails> {
-        return this.sourceDbUrl ?
-        serverHttpRequest<HTTPSourceInfoResponse>({
-            url: this.sourceDbUrl,
-            method: HTTP.Method.GET,
-            params: {
-                key: `"${uiLang}:${corpname}"`,
-                include_docs: true
-            },
-            auth: {
-                username: this.dbUser,
-                password: this.dbPassword
-            }
-        }).pipe(
-                catchError(
-                    (err) => {
-                        throw new Error(`Failed to fetch source information for ${uiLang}:${corpname}: ${err}`);
-                    }
-                ),
-                map(resp => {
-                    if (resp.rows.length > 0) {
-                        return resp.rows[0].doc;
-                    }
-                    throw new Error(`Failed to find source information for ${corpname}`);
-                }),
-                map(
-                    doc => ({
-                        tileId: -1,
-                        title: corpname,
-                        description: doc.data.description,
-                        author: '',
-                        citationInfo: {
-                            sourceName: doc.data.corpname,
-                            main: doc.data.citation_info.default_ref,
-                            papers: doc.data.citation_info.article_ref,
-                            otherBibliography: doc.data.citation_info.other_bibliography
-                        }
-                    })
-                )
-            ) :
+        return this.sourceDbApi ?
+            this.sourceDbApi.getSourceDescription(uiLang, corpname) :
             rxOf({
                 tileId: -1,
-                title: corpname,
-                description: 'No detailed information available',
-                author: 'not specified'
-            })
-        }
+                title: 'Unknown resource',
+                description: '',
+                author: 'unknown'
+            });
+    }
+
 
 }

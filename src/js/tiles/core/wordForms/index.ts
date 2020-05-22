@@ -71,11 +71,18 @@ export class WordFormsTile implements ITileProvider {
                 data: []
             },
             tileId,
-            api: createApiInstance(conf.apiType, cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            api: createApiInstance({
+                apiIdent: conf.apiType,
+                cache,
+                apiURL: conf.apiURL,
+                srcInfoURL: conf.srcInfoURL,
+                apiHeaders: appServices.getApiHeaders(conf.apiURL)
+            }),
             queryMatches,
             queryLang: lang1,
             waitForTile: waitForTiles.length > 0 ? waitForTiles[0] : -1,
-            waitForTilesTimeoutSecs
+            waitForTilesTimeoutSecs,
+            appServices
         });
         this.view = viewInit(dispatcher, ut, theme, this.model);
     }

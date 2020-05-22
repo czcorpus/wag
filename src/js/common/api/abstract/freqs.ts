@@ -16,7 +16,7 @@
 * limitations under the License.
 */
 
-import { DataApi, SourceDetails } from '../../types';
+import { SourceDetails, ResourceApi } from '../../types';
 import { Observable } from 'rxjs';
 import { Backlink } from '../../tile';
 import { MinMultiCritFreqState, MinSingleCritFreqState } from '../../models/freq';
@@ -40,13 +40,13 @@ export interface APIResponse {
 }
 
 
-export interface IFreqDistribAPI<T> extends DataApi<T, APIResponse> {
+export interface IFreqDistribAPI<T> extends ResourceApi<T, APIResponse> {
 
     stateToArgs(state:MinSingleCritFreqState, concId:string, subcname?:string):T;
 
     call(args:T):Observable<APIResponse>;
 
-    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<SourceDetails>;
+    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<SourceDetails>;
 
     createBacklink(state:MinSingleCritFreqState, backlink:Backlink, concId:string);
 
@@ -65,12 +65,12 @@ export interface APIBlockResponse {
 }
 
 
-export interface IMultiBlockFreqDistribAPI<T> extends DataApi<T, APIBlockResponse> {
+export interface IMultiBlockFreqDistribAPI<T> extends ResourceApi<T, APIBlockResponse> {
     stateToArgs(state:MinMultiCritFreqState, concId:string, critIdx?:number, subcname?:string):T;
 
     call(args:T):Observable<APIBlockResponse>;
 
-    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<SourceDetails>;
+    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<SourceDetails>;
 
     createBacklink(state:MinMultiCritFreqState, backlink:Backlink, concId:string);
 }

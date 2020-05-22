@@ -17,7 +17,7 @@
  */
 
 import { Observable } from 'rxjs';
-import { DataApi, SourceDetails } from '../../types';
+import { SourceDetails, ResourceApi } from '../../types';
 import { WordSimModelState } from '../../models/wordSim';
 import { SubqueryPayload, RangeRelatedSubqueryValue, QueryMatch } from '../../query';
 
@@ -36,13 +36,11 @@ export interface WordSimApiResponse {
     words:Array<WordSimWord>;
 }
 
-export interface IWordSimApi<T> extends DataApi<T, WordSimApiResponse> {
+export interface IWordSimApi<T> extends ResourceApi<T, WordSimApiResponse> {
 
     stateToArgs(state:WordSimModelState, queryMatch:QueryMatch):T;
 
     supportsTweaking():boolean;
 
     supportsMultiWordQueries():boolean;
-
-    getSourceDescription(tileId:number, corpname:string):Observable<SourceDetails>;
 }

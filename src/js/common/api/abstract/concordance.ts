@@ -18,7 +18,7 @@
 
 import { ConcordanceMinState } from '../../models/concordance';
 import { QueryMatch, SubqueryPayload } from '../../query';
-import { DataApi, SourceDetails } from '../../types';
+import { SourceDetails, ResourceApi } from '../../types';
 import { Observable } from 'rxjs';
 
 
@@ -75,11 +75,11 @@ export enum ViewMode {
 }
 
 
-export interface IConcordanceApi<T> extends DataApi<T, ConcResponse> {
+export interface IConcordanceApi<T> extends ResourceApi<T, ConcResponse> {
 
     stateToArgs(state:ConcordanceMinState, lvar:QueryMatch|null, lvarIdx:number, otherLangCql:string|null):T;
 
-    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<SourceDetails>;
+    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<SourceDetails>;
 
     mkMatchQuery(lvar:QueryMatch, generator:[string, string]):string;
 

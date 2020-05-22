@@ -76,7 +76,7 @@ export class TranslationsTile implements ITileProvider {
                 lang2: lang2
             },
             tileId,
-            api: createApiInstance(conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.srcInfoURL), cache),
+            api: createApiInstance(conf.apiType, conf.apiURL, appServices, cache),
             backlink: conf.backlink || null,
             queryMatches,
             scaleColorGen: theme.scaleColorIndexed

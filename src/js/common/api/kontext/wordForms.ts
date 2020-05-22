@@ -21,8 +21,9 @@ import { Ident } from 'cnc-tskit';
 
 import { QueryMatch } from '../../query';
 import { IWordFormsApi, RequestConcArgs, Response } from '../abstract/wordForms';
-import { HTTPHeaders, IAsyncKeyValueStore } from '../../types';
+import { HTTPHeaders, IAsyncKeyValueStore, CorpusDetails } from '../../types';
 import { KontextFreqDistribAPI } from './freqs';
+import { CorpusInfoAPI } from './corpusInfo';
 
 
 export interface HTTPResponse {
@@ -32,26 +33,14 @@ export interface HTTPResponse {
 
 export class WordFormsAPI implements IWordFormsApi {
 
-    fapi:KontextFreqDistribAPI;
+    private readonly fapi:KontextFreqDistribAPI;
+
+    private readonly srcInfoService:CorpusInfoAPI;
 
     constructor(cache:IAsyncKeyValueStore, apiURL:string, customHeaders?:HTTPHeaders) {
         this.fapi = new KontextFreqDistribAPI(cache, apiURL, customHeaders);
+        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, customHeaders);
     }
-
-    /*
-    ctxattrs: word,lemma,tag,afun
-attr_vmode: mixed
-pagesize: 25
-refs: #,=doc.title
-q: ~YIHxYd9Ey5cl
-viewmode: kwic
-attrs: word,lemma,tag,afun
-corpname: syn2015
-structs: doc,s
-attr_allpos: all
-fcrit: word/ie 0~0>0
-ml: 0
-*/
 
     call(args:RequestConcArgs):Observable<Response> {
         return this.fapi.call({
@@ -80,6 +69,14 @@ ml: 0
                 }
             )
         );
+    }
+
+    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
+        return this.srcInfoService.call({
+            tileId: tileId,
+            corpname: corpname,
+            format: 'json'
+        });
     }
 
 }

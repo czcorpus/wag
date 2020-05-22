@@ -119,7 +119,7 @@ export class NoskeFreqDistribAPI implements IFreqDistribAPI<SingleCritQueryArgs>
         this.srcInfoService = new CorpusInfoAPI(cache, apiURL, customHeaders);
     }
 
-    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<CorpusDetails> {
+    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
         return this.srcInfoService.call({
             tileId: tileId,
             corpname: corpname,
@@ -148,7 +148,7 @@ export class NoskeFreqDistribAPI implements IFreqDistribAPI<SingleCritQueryArgs>
         null;
     }
 
-    stateToArgs(state:MinSingleCritFreqState, concId:string, subcname?:string):SingleCritQueryArgs {      
+    stateToArgs(state:MinSingleCritFreqState, concId:string, subcname?:string):SingleCritQueryArgs {
         return {
             corpname: state.corpname,
             usesubcorp: subcname,
@@ -210,7 +210,7 @@ export class NoskeMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAPI<
         this.srcInfoService = new CorpusInfoAPI(cache, apiURL, customHeaders);
     }
 
-    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<CorpusDetails> {
+    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
         return this.srcInfoService.call({
             tileId: tileId,
             corpname: corpname,

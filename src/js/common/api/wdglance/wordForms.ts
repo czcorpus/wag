@@ -16,15 +16,16 @@
  * limitations under the License.
  */
 
-import { Observable } from 'rxjs';
+import { Observable, of as rxOf } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { DataApi, IAsyncKeyValueStore } from '../../types';
+import { IAsyncKeyValueStore, HTTPHeaders, SourceDetails, ResourceApi } from '../../types';
 import { HTTP } from 'cnc-tskit';
 import { cachedAjax$ } from '../../ajax';
-import { QueryMatch } from '../../query';
+import { QueryMatch, QueryType } from '../../query';
 import { RequestArgs, Response } from '../../api/abstract/wordForms';
 import { HTTPAction } from '../../../server/routes/actions';
+import { InternalResourceInfoApi } from './freqDbSourceInfo';
 
 
 export interface HTTPResponse {
@@ -32,15 +33,18 @@ export interface HTTPResponse {
 }
 
 
-export class WordFormsWdglanceAPI implements DataApi<RequestArgs, Response> {
+export class WordFormsWdglanceAPI implements ResourceApi<RequestArgs, Response> {
 
-    apiUrl:string;
+    private readonly apiUrl:string;
 
-    cache:IAsyncKeyValueStore;
+    private readonly cache:IAsyncKeyValueStore;
 
-    constructor(cache:IAsyncKeyValueStore, url:string) {
+    private readonly srcInfoApi:InternalResourceInfoApi;
+
+    constructor(cache:IAsyncKeyValueStore, url:string, srcInfoURL:string, customHeaders?:HTTPHeaders) {
         this.cache = cache;
         this.apiUrl = url;
+        this.srcInfoApi = srcInfoURL ? new InternalResourceInfoApi(cache, srcInfoURL, customHeaders) : null;
     }
 
     call(args:RequestArgs):Observable<Response> {
@@ -63,6 +67,23 @@ export class WordFormsWdglanceAPI implements DataApi<RequestArgs, Response> {
                 }
             )
         );
+    }
+
+    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<SourceDetails> {
+        return this.srcInfoApi ?
+            this.srcInfoApi.call({
+                tileId: tileId,
+                corpname: corpname,
+                queryType: QueryType.SINGLE_QUERY,
+                lang: lang
+            }) :
+             rxOf({
+                tileId: tileId,
+                title: 'Word forms generated from an internal database (no additional details available)',
+                description: '',
+                author: '',
+                href: ''
+            });
     }
 
 }

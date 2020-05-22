@@ -16,7 +16,7 @@
 */
 
 import { Observable } from 'rxjs';
-import { DataApi, SourceDetails } from '../../types';
+import { SourceDetails, ResourceApi } from '../../types';
 import { MatchingDocsModelState } from '../../models/matchingDocs';
 import { BacklinkWithArgs } from '../../tile';
 
@@ -30,11 +30,11 @@ export interface APIResponse {
     data:Array<DataRow>;
 }
 
-export interface MatchingDocsAPI<T> extends DataApi<T, APIResponse> {
+export interface MatchingDocsAPI<T> extends ResourceApi<T, APIResponse> {
 
     stateToBacklink(state:MatchingDocsModelState, query:string):BacklinkWithArgs<{}>|null;
 
     stateToArgs(state:MatchingDocsModelState, query:string):T;
 
-    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<SourceDetails>;
+    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<SourceDetails>;
 }

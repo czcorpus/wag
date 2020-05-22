@@ -253,7 +253,7 @@ export class ConcApi implements IConcordanceApi<RequestArgs> {
         )
     }
 
-    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<CorpusDetails> {
+    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
         return this.srcInfoService.call({
             tileId: tileId,
             corpname: corpname,

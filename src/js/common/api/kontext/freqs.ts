@@ -118,7 +118,7 @@ export class KontextFreqDistribAPI implements IFreqDistribAPI<SingleCritQueryArg
         this.srcInfoService = new CorpusInfoAPI(cache, apiURL, customHeaders);
     }
 
-    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<CorpusDetails> {
+    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
         return this.srcInfoService.call({
             tileId: tileId,
             corpname: corpname,
@@ -209,7 +209,7 @@ export class KontextMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAP
         this.srcInfoService = new CorpusInfoAPI(cache, apiURL, customHeaders);
     }
 
-    getSourceDescription(tileId:number, uiLang:string, corpname:string):Observable<CorpusDetails> {
+    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
         return this.srcInfoService.call({
             tileId: tileId,
             corpname: corpname,
