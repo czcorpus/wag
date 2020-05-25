@@ -97,6 +97,9 @@
             "description": "Defines tile max height using a css value (e.g. '10em', '130px').\nIf other tiles in the row enforce more height, the value is ignored\n(but a possible scrollbar is still applied if needed).",
             "type": "string"
         },
+        "minMatchFreq": {
+            "type": "number"
+        },
         "minScore": {
             "type": "number"
         },
@@ -147,6 +150,7 @@
         "apiType",
         "apiURL",
         "maxResultItems",
+        "minMatchFreq",
         "tileType"
     ],
     "type": "object"

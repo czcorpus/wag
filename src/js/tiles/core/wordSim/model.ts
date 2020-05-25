@@ -16,17 +16,18 @@
  * limitations under the License.
  */
 
+import { Observable, Observer, of as rxOf } from 'rxjs';
+import { mergeMap, tap } from 'rxjs/operators';
+import { List, tuple } from 'cnc-tskit';
+
 import { StatelessModel, IActionDispatcher, SEDispatcher } from 'kombo';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { DataLoadedPayload } from './actions';
 import { ActionName, Actions } from './actions';
-import { IWordSimApi } from '../../../common/api/abstract/wordSim';
+import { IWordSimApi, WordSimWord } from '../../../common/api/abstract/wordSim';
 import { WordSimModelState } from '../../../common/models/wordSim';
 import { QueryMatch } from '../../../common/query/index';
-import { Observable, Observer } from 'rxjs';
-import { mergeMap } from 'rxjs/operators';
 import { callWithExtraVal } from '../../../common/api/util';
-import { List } from 'cnc-tskit';
 
 
 export interface WordSimModelArgs {
@@ -167,26 +168,28 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
     }
 
     getData(state:WordSimModelState, seDispatch:SEDispatcher):void {
-        new Observable((observer:Observer<{queryId:number; lemma:QueryMatch}>) => {
-            state.queryMatches.forEach((lemma, queryId) => {
-                observer.next({queryId: queryId, lemma: lemma});
+        new Observable((observer:Observer<[number, QueryMatch]>) => {
+            state.queryMatches.forEach((queryMatch, queryId) => {
+                observer.next(tuple(queryId, queryMatch));
             });
             observer.complete();
+
         }).pipe(
-            mergeMap(args =>
+            mergeMap(([queryId, queryMatch]) => queryMatch.abs >= state.minMatchFreq ?
                 callWithExtraVal(
                     this.api,
-                    this.api.stateToArgs(state, args.lemma),
-                    args
-                )
+                    this.api.stateToArgs(state, queryMatch),
+                    queryId
+                ) :
+                rxOf(tuple({words: [] as Array<WordSimWord>}, queryId))
             )
         ).subscribe(
-            ([data, args]) => {
+            ([data, queryId]) => {
                 seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
                     name: GlobalActionName.TileDataLoaded,
                     payload: {
                         tileId: this.tileId,
-                        queryId: args.queryId,
+                        queryId: queryId,
                         words: data.words,
                         subqueries: List.map(
                             v => ({

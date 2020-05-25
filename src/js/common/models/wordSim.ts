@@ -35,6 +35,7 @@ export interface WordSimModelState {
     error:string;
     maxResultItems:number;
     minScore:number;
+    minMatchFreq:number;
     data:Array<Array<WordSimWord>>;
     operationMode:OperationMode;
     corpus:string;

@@ -227,7 +227,8 @@ export function renderResult({
                 isAnswerMode,
                 version,
                 repositoryUrl,
-                error
+                error,
+                issueReportingUrl: clientConfig.issueReportingUrl
             }
         )
     );
