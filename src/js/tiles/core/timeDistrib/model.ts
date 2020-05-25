@@ -23,7 +23,7 @@ import { Dict, Maths, pipe, List } from 'cnc-tskit';
 import { IAppServices } from '../../../appServices';
 import { ConcResponse, ViewMode, IConcordanceApi } from '../../../common/api/abstract/concordance';
 import { TimeDistribResponse, TimeDistribApi } from '../../../common/api/abstract/timeDistrib';
-import { GeneralSingleCritFreqBarModelState, MinSingleCritFreqState } from '../../../common/models/freq';
+import { MinSingleCritFreqState } from '../../../common/models/freq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { findCurrQueryMatch } from '../../../models/query';
 import { ConcLoadedPayload } from '../concordance/actions';
@@ -440,7 +440,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
         );
     }
 
-    private loadConcordance(state:TimeDistribModelState, lemmaVariant:QueryMatch, subcnames:Array<string>,
+    private loadConcordance(state:TimeDistribModelState, queryMatch:QueryMatch, subcnames:Array<string>,
             target:SubchartID):Observable<[ConcResponse, DataFetchArgsOwn]> {
         return rxOf(...(subcnames.length > 0 ? subcnames : [undefined])).pipe(
             mergeMap(
@@ -476,16 +476,16 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
                                 posQueryGenerator: state.posQueryGenerator,
                                 queries: []
                             },
-                            lemmaVariant,
+                            queryMatch,
                             0,
                             null
                         ),
                         {
                             concId: null,
                             subcName: subcname,
-                            wordMainLabel: lemmaVariant.lemma,
+                            wordMainLabel: queryMatch.pos.length > 0 ? queryMatch.lemma : queryMatch.word,
                             targetId: target,
-                            origQuery: concApi.mkMatchQuery(lemmaVariant, state.posQueryGenerator),
+                            origQuery: concApi.mkMatchQuery(queryMatch, state.posQueryGenerator),
                             freqApi
                         }
                     )
