@@ -34,7 +34,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         matches:Array<QueryMatch>;
 
     }> = (props) => {
-
         return (
             <div className="MultiWordProfile">
                 <table>
@@ -68,7 +67,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                                         <dd>
                                                             <strong>{w.lemma}</strong>
                                                         </dd>
-                                                        <dt>{ut.translate('wordfreq__pos')}:{w.pos.length > 1 ? ' (' + ut.translate('wordfreq__multiple_variants') + ')' : ''}:</dt>
+                                                        <dt>{ut.translate('wordfreq__pos')}:</dt>
                                                         <dd>
                                                             {List.map(
                                                                 (pos, i) => (

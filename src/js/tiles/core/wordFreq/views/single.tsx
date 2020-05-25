@@ -128,9 +128,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         }:
                     </dt>
                     <dd><strong>{props.data.lemma}</strong></dd>
-                    <dt>{ut.translate('wordfreq__pos')}
-                        {props.data.pos.length > 1 ? ' (' + ut.translate('wordfreq__multiple_variants') + ')' : ''}:
-                    </dt>
+                    <dt>{ut.translate('wordfreq__pos')}:</dt>
                     <dd>
                     {props.data.pos.length > 0 ?
                         List.map(
