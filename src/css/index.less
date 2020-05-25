@@ -407,7 +407,7 @@ table.data {
             text-align: right;
             padding: 0 0 0 10px;
         }
-        
+
         td.numDec {
             padding: 0;
         }
@@ -442,13 +442,17 @@ footer {
             text-decoration: none;
         }
 
+        a.action {
+            color: @color-default-text;
+        }
+
         a:hover {
             text-decoration: underline;
         }
     }
 
     section:not(:last-child) {
-        margin-bottom: 0.7em;
+        margin-bottom: 0.9em;
     }
 
     section {
@@ -466,6 +470,7 @@ footer {
 
 .ThemeSelection {
     display: block;
+    color: @color-light-text;
 
     button {
         display: inline-block;
@@ -478,6 +483,7 @@ footer {
     }
 
     button.current {
-        text-decoration: underline;
+        color: @color-logo-blue;
+        cursor: default;
     }
 }

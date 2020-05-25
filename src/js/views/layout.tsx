@@ -50,6 +50,7 @@ export interface LayoutProps {
     error:[number, string];
     version:string;
     repositoryUrl:string;
+    issueReportingUrl?:string;
 }
 
 
@@ -71,6 +72,7 @@ export function init(ut:ViewUtils<GlobalComponents>):React.SFC<LayoutProps> {
                     <React.Fragment key={`theme:${v.themeId}`}>
                         {i > 0 ? ', ' : ''}
                         <button type="submit"  name="themeId" value={v.themeId}
+                                disabled={v.themeId === props.currTheme}
                                 className={v.themeId === props.currTheme ? 'current' : null}>{v.themeLabel}</button>
                     </React.Fragment>
                 ), props.themes)}
@@ -143,20 +145,30 @@ export function init(ut:ViewUtils<GlobalComponents>):React.SFC<LayoutProps> {
                             }
                         </section>
                         <section className="copy-etc">
-                            {props.config.logo ?
-                                <span><img src={ut.createStaticUrl('logo-small.svg')} className="logo" alt="WaG" /></span> :
-                                null
-                            }
-                            <span>{ut.translate('global__powered_by_wag_{version}', {version: props.version})}
-                                {'\u00a0'}
-                                (<a href={props.repositoryUrl} target="_blank" rel="noopener">{ut.translate('global__view_on_github')}</a>)
-                            </span>
-                            <span className="separ">|</span>
                             <span className="copy">
                                 &copy; <a href="https://ucnk.ff.cuni.cz/" target="_blank" rel="noopener">
                                     {ut.translate('global__institute_cnc')}
                                     </a>
                             </span>
+                            {props.config.logo ?
+                                <span><img src={ut.createStaticUrl('logo-small.svg')} className="logo" alt="WaG" /></span> :
+                                null
+                            }
+                            <span className="separ">|</span>
+                            <span>{ut.translate('global__powered_by_wag_{version}', {version: props.version})}</span>
+                            <span className="separ">|</span>
+                            <span>
+                                <a className="action" target="_blank" rel="noopener" href={props.repositoryUrl}>{ut.translate('global__view_on_github')}</a>
+                            </span>
+                            {props.issueReportingUrl ?
+                                <>
+                                    <span className="separ">|</span>
+                                    <span className="report-error">
+                                        <a className="action" target="_blank" rel="noopener" href={props.issueReportingUrl}>{ut.translate('global__report_a_problem')}</a>
+                                    </span>
+                                </> :
+                                null
+                            }
                         </section>
                     </footer>
                 </body>
