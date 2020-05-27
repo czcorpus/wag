@@ -25,6 +25,7 @@ export interface SpeechDataPayload {
     isEmpty:boolean;
     availableTokens:Array<number>;
     concId:string|null;
+    kwicNumTokens:number;
     data:ConcDetailText|null;
     expandRightArgs:ExpandArgs|null;
     expandLeftArgs:ExpandArgs|null;

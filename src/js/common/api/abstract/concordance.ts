@@ -66,6 +66,7 @@ export interface ConcResponse {
     ipm:number;
     messages:Array<[string, string]>;
     concPersistenceID:string;
+    kwicNumTokens?:number;
 }
 
 export enum ViewMode {

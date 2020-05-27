@@ -113,6 +113,7 @@ interface KontextLine {
         toknum:number;
     }>;
     toknum:number;
+    kwiclen:string;
     ref:Array<string>;
     interactionId?:string;
     isHighlighted?:boolean;
@@ -349,6 +350,7 @@ export class ConcApi implements IConcordanceApi<RequestArgs> {
                         args.refs.split(',').map(v => v.replace(/^=/, '')) :
                         undefined
                 ),
+                kwicNumTokens: data.Lines.length > 0 ? parseInt(data.Lines[0].kwiclen) : 1,
                 concsize: data.concsize,
                 arf: data.result_arf,
                 ipm: data.result_relative_freq,

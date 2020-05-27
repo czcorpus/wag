@@ -48,6 +48,14 @@ export interface SpeechesModelArgs {
     audioLinkGenerator:IAudioUrlGenerator;
 }
 
+interface ReloadDataArgs {
+    state:SpeechesModelState;
+    dispatch:SEDispatcher;
+    tokens:Array<number>|null;
+    concId:string|null;
+    kwicNumTokens:number;
+    expand?:Expand;
+}
 
 export class SpeechesModel extends StatelessModel<SpeechesModelState, TileWait<boolean>> {
 
@@ -104,21 +112,35 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState, TileWait<b
                         action => {
                             if (isSubqueryPayload(action.payload)) {
                                 const payload = action.payload as SingleConcLoadedPayload; // TODO
-                                this.reloadData(
+                                this.reloadData({
                                     state,
                                     dispatch,
-                                    action.payload.subqueries.map(v => parseInt(v.value)),
-                                    payload.data.concPersistenceID
-                                );
+                                    tokens: action.payload.subqueries.map(v => parseInt(v.value)),
+                                    concId: payload.data.concPersistenceID,
+                                    kwicNumTokens: payload.data.kwicNumTokens || 1
+                                });
 
                             } else {
-                                this.reloadData(state, dispatch, null, null);
+                                this.reloadData({
+                                    state,
+                                    dispatch,
+                                    tokens: null,
+                                    concId: null,
+                                    kwicNumTokens: 1
+                                });
                             }
                         }
                     );
 
                 } else {
-                    this.reloadData(state, dispatch, null, null);
+                    // TODO load conc here
+                    this.reloadData({
+                        state,
+                        dispatch,
+                        tokens: null,
+                        concId: null,
+                        kwicNumTokens: 1
+                    });
                 }
             }
         );
@@ -135,6 +157,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState, TileWait<b
                         if (action.payload.concId !== null) {
                             state.concId = action.payload.concId;
                         }
+                        state.kwicNumTokens = action.payload.kwicNumTokens || 1;
 
                         state.data = normalizeSpeechesRange(
                             extractSpeeches(state, normalizeConcDetailTypography(action.payload.data)),
@@ -198,7 +221,14 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState, TileWait<b
                         this.appServices.getAudioPlayer().stop(state.playback.currPlaybackSession);
                         this.dispatchPlayStop(dispatch);
                     }
-                    this.reloadData(state, dispatch, null, null, action.payload.position);
+                    this.reloadData({
+                        state,
+                        dispatch,
+                        tokens: null,
+                        concId: state.concId,
+                        expand: action.payload.position,
+                        kwicNumTokens: state.kwicNumTokens
+                    });
                 }
             }
         );
@@ -220,7 +250,14 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState, TileWait<b
                         this.appServices.getAudioPlayer().stop(state.playback.currPlaybackSession);
                         this.dispatchPlayStop(dispatch);
                     }
-                    this.reloadData(state, dispatch, null, null, Expand.RELOAD);
+                    this.reloadData({
+                        state,
+                        dispatch,
+                        tokens: null,
+                        concId: state.concId,
+                        kwicNumTokens: state.kwicNumTokens,
+                        expand: Expand.RELOAD
+                    });
                 }
             }
         );
@@ -360,14 +397,14 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState, TileWait<b
         );
     }
 
-    private createArgs(state:SpeechesModelState, pos:number, expand:Expand):SpeechReqArgs {
-        const kwicLength = 1; // TODO
+    private createArgs(state:SpeechesModelState, pos:number, kwicNumTokens:number, expand:Expand):SpeechReqArgs {
         const args:SpeechReqArgs = {
             attrs: 'word',
             attr_allpos: 'all',
             ctxattrs: 'word',
             corpname: state.corpname,
             pos: pos,
+            hitlen: kwicNumTokens,
             structs: [
                 state.speakerIdAttr[0] + '.' + state.speakerIdAttr[1],
                 state.speechOverlapAttr[0] + '.' + state.speechOverlapAttr[1],
@@ -375,10 +412,6 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState, TileWait<b
             ].join(','),
             format: 'json'
         };
-
-        if (kwicLength > 1) {
-            args.hitlen = kwicLength;
-        }
 
         if (expand === Expand.TOP) {
             args.detail_left_ctx = List.get(-1, state.expandLeftArgs).leftCtx;
@@ -397,9 +430,9 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState, TileWait<b
         return args;
     }
 
-    private reloadData(state:SpeechesModelState, dispatch:SEDispatcher, tokens:Array<number>|null, concId:string|null, expand?:Expand):void {
+    private reloadData({state, dispatch, tokens, concId, expand, kwicNumTokens}:ReloadDataArgs):void {
         this.api
-            .call(this.createArgs(state, (tokens || state.availTokens)[state.tokenIdx], expand))
+            .call(this.createArgs(state, (tokens || state.availTokens)[state.tokenIdx], kwicNumTokens, expand))
             .subscribe(
                 (payload) => {
                     dispatch<GlobalActions.TileDataLoaded<SpeechDataPayload>>({
@@ -409,6 +442,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState, TileWait<b
                             isEmpty: payload.content.length === 0,
                             availableTokens: tokens,
                             concId: concId,
+                            kwicNumTokens: kwicNumTokens,
                             data: List.map(
                                 v => ({
                                     str: v.str,
@@ -440,6 +474,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState, TileWait<b
                         payload: {
                             tileId: this.tileId,
                             concId: null,
+                            kwicNumTokens: 1,
                             availableTokens: [],
                             isEmpty: true,
                             data: null,
