@@ -357,6 +357,7 @@ export interface FreqDbConf {
 }
 
 export interface QueryModeWordDb {
+    maxQueryWords:number;
     minLemmaFreq:number;
     databases:{[lang:string]:FreqDbConf};
 };
@@ -398,11 +399,11 @@ export interface ServerConf {
 export function getQueryTypeFreqDb(conf:ServerConf, queryType:QueryType):QueryModeWordDb {
     switch (queryType) {
         case QueryType.SINGLE_QUERY:
-            return conf.freqDB.single || {minLemmaFreq: 0, databases: {}, similarFreqWordsMaxCtx: 0};
+            return conf.freqDB.single || {minLemmaFreq: 0, databases: {}, similarFreqWordsMaxCtx: 0, maxQueryWords: 1};
         case QueryType.CMP_QUERY:
-            return conf.freqDB.cmp || {minLemmaFreq: 0, databases: {}};
+            return conf.freqDB.cmp || {minLemmaFreq: 0, databases: {}, maxQueryWords: 1};
         case QueryType.TRANSLAT_QUERY:
-            return conf.freqDB.translat || {minLemmaFreq: 0, databases: {}};
+            return conf.freqDB.translat || {minLemmaFreq: 0, databases: {}, maxQueryWords: 1};
         default:
             throw new Error(`Unknown query type ${queryType}`);
     }
