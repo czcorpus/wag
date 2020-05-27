@@ -46,7 +46,6 @@ export interface TileGroup {
 interface LayoutCore {
     groups:Array<TileGroup>;
     services:Array<number>;
-    maxQueryWords:number;
 }
 
 
@@ -100,13 +99,11 @@ function importLayout(gc:LayoutConfigCommon|undefined, tileMap:TileIdentMap,
                     return null;
                 }),
                 List.filter(v => v !== null)
-            ),
-            maxQueryWords: gc.maxQueryWords ? gc.maxQueryWords : 1
+            )
         } :
         {
             groups: [],
-            services: [],
-            maxQueryWords: 1
+            services: []
         };
 }
 
@@ -196,14 +193,6 @@ export class LayoutManager {
                 List.find(v => v.tileId === tileId)
         );
         return srch ? srch.width : null;
-    }
-
-    getMultiWordQuerySupport():{[k in QueryType]:number} {
-        return Dict.fromEntries([
-            [QueryType.SINGLE_QUERY, this.getLayout(QueryType.SINGLE_QUERY).maxQueryWords],
-            [QueryType.CMP_QUERY, this.getLayout(QueryType.CMP_QUERY).maxQueryWords],
-            [QueryType.TRANSLAT_QUERY, this.getLayout(QueryType.TRANSLAT_QUERY).maxQueryWords]
-        ]);
     }
 
     private isServiceOf(queryType:QueryType, tileId:number):boolean {

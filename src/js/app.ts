@@ -131,7 +131,8 @@ export function createRootComponent({config, userSession, queryMatches, appServi
 
         searchLanguages: config.searchLanguages,
         layout: layoutManager,
-        maxCmpQueries: 10
+        maxCmpQueries: 10,
+        maxQueryWords: config.maxQueryWords
     });
 
     const factory = mkTileFactory(

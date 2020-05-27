@@ -26,7 +26,7 @@ import { QueryType, QueryMatch, matchesPos, addWildcardMatches } from '../../com
 import { QueryValidator } from '../../common/query/validation';
 import { UserConf, ClientStaticConf, ClientConf, emptyClientConf, getSupportedQueryTypes,
          emptyLayoutConf, errorUserConf, getQueryTypeFreqDb, isTileDBConf, DEFAULT_WAIT_FOR_OTHER_TILES,
-         THEME_COOKIE_NAME, getThemeList, getAppliedThemeConf, UserQuery } from '../../conf';
+         THEME_COOKIE_NAME, getThemeList, getAppliedThemeConf, UserQuery, ServerConf } from '../../conf';
 import { init as viewInit } from '../../views/layout';
 import { init as errPageInit } from '../../views/error';
 import { ServerSideActionDispatcher } from '../core';
@@ -40,7 +40,7 @@ import { fetchReqArgArray, createHelperServices, mkReturnUrl, logRequest, render
 import { maxQueryWordsForQueryType } from '../../conf/validation';
 
 
-function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, themeId:string, appServices:IAppServices):Observable<ClientConf> {
+function mkRuntimeClientConf(conf:ClientStaticConf, serverConf:ServerConf, lang:string, themeId:string, appServices:IAppServices):Observable<ClientConf> {
     return forkJoin(...List.map(item =>
         appServices.importExternalText(
             item.contents,
@@ -54,49 +54,58 @@ function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, themeId:string,
         ),
         conf.homepage.tiles)
     ).pipe(
-        map((item:Array<{label:string; html: string}>) => ({
-            rootUrl: conf.rootUrl,
-            hostUrl: conf.hostUrl,
-            favicon: conf.favicon,
-            logo: conf.logo,
-            corpInfoApiUrl: conf.corpInfoApiUrl,
-            apiHeaders: conf.apiHeaders,
-            reqCacheTTL: conf.reqCacheTTL,
-            onLoadInit: conf.onLoadInit,
-            dbValuesMapping: conf.dbValuesMapping,
-            colors: getAppliedThemeConf(conf, themeId),
-            colorThemes: List.map(
-                v => ({
-                    themeId: v.themeId,
-                    themeLabel: appServices.importExternalMessage(v.themeLabel),
-                    description: appServices.importExternalMessage(v.description)
-                }),
-                getThemeList(conf)
-            ),
-            tiles: (typeof conf.tiles === 'string' || isTileDBConf(conf.tiles)) ?
-                {} : // this should not happen at runtime (string or db config has been already used as uri to load a nested conf)
-                pipe(
-                    conf.tiles[lang],
-                    Dict.map(item => ({waitForTimeoutSecs: DEFAULT_WAIT_FOR_OTHER_TILES, ...item}))
+        map((item:Array<{label:string; html: string}>) => {
+            let maxQueryWords = {};
+            for (let queryType in QueryType) {
+                const qt = QueryType[queryType]
+                maxQueryWords[qt] = serverConf.freqDB[qt] ? serverConf.freqDB[qt].maxQueryWords : 1;
+            }
+
+            return {
+                rootUrl: conf.rootUrl,
+                hostUrl: conf.hostUrl,
+                favicon: conf.favicon,
+                logo: conf.logo,
+                corpInfoApiUrl: conf.corpInfoApiUrl,
+                apiHeaders: conf.apiHeaders,
+                reqCacheTTL: conf.reqCacheTTL,
+                onLoadInit: conf.onLoadInit,
+                dbValuesMapping: conf.dbValuesMapping,
+                colors: getAppliedThemeConf(conf, themeId),
+                colorThemes: List.map(
+                    v => ({
+                        themeId: v.themeId,
+                        themeLabel: appServices.importExternalMessage(v.themeLabel),
+                        description: appServices.importExternalMessage(v.description)
+                    }),
+                    getThemeList(conf)
                 ),
-            layouts: {...emptyLayoutConf(), ...conf.layouts[lang]},
-            searchLanguages: pipe(
-                conf.searchLanguages,
-                Dict.keys(),
-                List.map(k => ({
-                    code: k,
-                    label: conf.searchLanguages[k],
-                    queryTypes: getSupportedQueryTypes(conf, k)
-                }))
-            ),
-            externalStyles: conf.externalStyles || [],
-            issueReportingUrl: conf.issueReportingUrl,
-            homepage: {
-                tiles: item
-            },
-            telemetry: conf.telemetry,
-            maxTileErrors: conf.maxTileErrors
-        }))
+                tiles: (typeof conf.tiles === 'string' || isTileDBConf(conf.tiles)) ?
+                    {} : // this should not happen at runtime (string or db config has been already used as uri to load a nested conf)
+                    pipe(
+                        conf.tiles[lang],
+                        Dict.map(item => ({waitForTimeoutSecs: DEFAULT_WAIT_FOR_OTHER_TILES, ...item}))
+                    ),
+                layouts: {...emptyLayoutConf(), ...conf.layouts[lang]},
+                searchLanguages: pipe(
+                    conf.searchLanguages,
+                    Dict.keys(),
+                    List.map(k => ({
+                        code: k,
+                        label: conf.searchLanguages[k],
+                        queryTypes: getSupportedQueryTypes(conf, k)
+                    }))
+                ),
+                externalStyles: conf.externalStyles || [],
+                issueReportingUrl: conf.issueReportingUrl,
+                homepage: {
+                    tiles: item
+                },
+                telemetry: conf.telemetry,
+                maxTileErrors: conf.maxTileErrors,
+                maxQueryWords: maxQueryWords
+            }
+        })
     );
 }
 
@@ -197,6 +206,7 @@ export function queryAction({services, answerMode, queryType, uiLang, req, res, 
             hostPageEnv: services.toolbar.get(userConf.uiLang, mkReturnUrl(req, services.clientConf.rootUrl), req.cookies, viewUtils),
             runtimeConf: mkRuntimeClientConf(
                 services.clientConf,
+                services.serverConf,
                 userConf.query1Lang,
                 req.cookies[THEME_COOKIE_NAME] || '',
                 appServices

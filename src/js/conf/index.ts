@@ -96,7 +96,6 @@ export type GroupItemConfig = GroupLayoutConfig|string;
 
 export interface LayoutConfigCommon {
     groups:Array<GroupItemConfig>;
-    maxQueryWords?:number;
 }
 
 export interface LayoutConfigSingleQuery extends LayoutConfigCommon {}
@@ -227,6 +226,7 @@ export interface ClientConf {
         sendIntervalSecs:number;
         participationProbability:number;
     };
+    maxQueryWords:{[k in QueryType]?:number};
 }
 
 export function emptyLayoutConf():LayoutsConfig {
@@ -296,7 +296,8 @@ export function emptyClientConf(conf:ClientStaticConf, themeId:string|undefined)
             queryTypes: []
         })),
         externalStyles: [],
-        maxTileErrors: 0
+        maxTileErrors: 0,
+        maxQueryWords: {}
     };
 }
 
