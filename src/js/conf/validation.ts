@@ -20,7 +20,8 @@ import { Dict, List } from 'cnc-tskit';
 import * as path from 'path';
 import * as ajv from 'ajv';
 import * as fs from 'fs';
-import { LanguageAnyTileConf, TileDbConf } from '.';
+import { LanguageAnyTileConf, ServerConf } from '.';
+import { QueryType } from '../common/query';
 
 
 const CORE_TILES_ROOT_DIR = path.resolve(__dirname, '../src/js/tiles/core');
@@ -76,4 +77,17 @@ export function validateTilesConf(tilesConf:LanguageAnyTileConf):boolean {
     }
     console.log('...\uD83D\uDC4D All the tiles are valid');
     return true;
+}
+
+export function maxQueryWordsForQueryType(conf:ServerConf, qt:QueryType):number {
+    switch (qt) {
+        case QueryType.SINGLE_QUERY:
+            return conf?.freqDB?.single?.maxQueryWords || 1;
+        case QueryType.CMP_QUERY:
+            return conf?.freqDB?.cmp?.maxQueryWords || 1;
+        case QueryType.TRANSLAT_QUERY:
+            return conf?.freqDB?.translat?.maxQueryWords || 1;
+        default:
+            throw new Error(`Unknown query type ${qt}`);
+    }
 }

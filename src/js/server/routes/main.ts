@@ -36,8 +36,8 @@ import { loadFile } from '../files';
 import { createRootComponent } from '../../app';
 import { ActionName } from '../../models/actions';
 import { initDummyStore } from '../../cache/index';
-import { getLangFromCookie, fetchReqArgArray, createHelperServices, mkReturnUrl, logRequest, renderResult, fetchUrlParamArray } from './common';
-import { maxQueryWordsForQueryType } from '../../layout';
+import { fetchReqArgArray, createHelperServices, mkReturnUrl, logRequest, renderResult, fetchUrlParamArray } from './common';
+import { maxQueryWordsForQueryType } from '../../conf/validation';
 
 
 function mkRuntimeClientConf(conf:ClientStaticConf, lang:string, themeId:string, appServices:IAppServices):Observable<ClientConf> {
@@ -125,7 +125,7 @@ export function importQueryRequest({services, appServices, req, queryType, uiLan
             const queryLang = fetchUrlParamArray(req, 'lang', queryType === QueryType.TRANSLAT_QUERY ? 2 : 1);
             const layouts = services.clientConf.layouts;
             if (answerMode && typeof layouts !== 'string') { // the type check is always true here (bad type design...)
-                const maxQueryWords = maxQueryWordsForQueryType(layouts[queryLang[0]], queryType);
+                const maxQueryWords = maxQueryWordsForQueryType(services.serverConf, queryType);
                 List.forEach(
                     query => {
                         const validErrs = validator.validateQuery(query, maxQueryWords);
