@@ -108,6 +108,7 @@ export class SpeechesTile implements ITileProvider {
                 data: [],
                 availTokens: [],
                 tokenIdx: 0,
+                kwicNumTokens: 1,
                 backlink: null,
                 playback: null,
                 maxNumSpeeches: conf.maxNumSpeeches || SpeechesTile.DEFAULT_MAX_NUM_SPEECHES

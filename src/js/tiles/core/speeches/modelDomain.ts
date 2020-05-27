@@ -78,6 +78,7 @@ export interface SpeechesModelState {
     concId:string;
     availTokens:Array<number>;
     tokenIdx:number;
+    kwicNumTokens:number;
     data:SpeechLines;
     expandLeftArgs:Array<ExpandArgs>;
     expandRightArgs:Array<ExpandArgs>;
