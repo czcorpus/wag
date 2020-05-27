@@ -23,7 +23,7 @@ import { Dict, pipe, HTTP, List } from 'cnc-tskit';
 
 import { IAppServices } from '../../appServices';
 import { QueryType, QueryMatch, matchesPos, addWildcardMatches } from '../../common/query/index';
-import { QueryValidator } from '../../common/query/valitation';
+import { QueryValidator } from '../../common/query/validation';
 import { UserConf, ClientStaticConf, ClientConf, emptyClientConf, getSupportedQueryTypes,
          emptyLayoutConf, errorUserConf, getQueryTypeFreqDb, isTileDBConf, DEFAULT_WAIT_FOR_OTHER_TILES,
          THEME_COOKIE_NAME, getThemeList, getAppliedThemeConf, UserQuery } from '../../conf';

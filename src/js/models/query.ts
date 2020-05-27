@@ -24,7 +24,7 @@ import { Forms, MultiDict } from '../common/data';
 import { SystemMessageType } from '../common/types';
 import { AvailableLanguage } from '../common/hostPage';
 import { QueryType, QueryMatch, QueryTypeMenuItem, matchesPos, SearchLanguage, RecognizedQueries } from '../common/query/index';
-import { QueryValidator } from '../common/query/valitation';
+import { QueryValidator } from '../common/query/validation';
 import { ActionName, Actions } from './actions';
 import { HTTPAction } from '../server/routes/actions';
 import { LayoutManager } from '../layout';
