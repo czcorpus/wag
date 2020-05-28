@@ -27,7 +27,7 @@ import { QueryType, QueryMatch, importQueryTypeString } from '../../common/query
 import { GlobalComponents } from '../../views/global';
 import { IFreqDB } from '../freqdb/freqdb';
 
-import { getLangFromCookie, fetchReqArgArray, createHelperServices, mkReturnUrl, renderResult, getQueryValue } from './common';
+import { getLangFromCookie, fetchReqArgArray, createHelperServices, mkPageReturnUrl, renderResult, getQueryValue } from './common';
 import { queryAction, importQueryRequest } from './main';
 import { Services } from '../actionServices';
 import { HTTPAction } from './actions';
@@ -67,7 +67,7 @@ export function errorPage({req, res, uiLang, services, viewUtils, error}:ErrorPa
             currTheme: clientConfig.colors.themeId,
             userConfig: userConf,
             clientConfig: clientConfig,
-            returnUrl: mkReturnUrl(req, services.clientConf.rootUrl),
+            returnUrl: mkPageReturnUrl(req, services.clientConf.rootUrl),
             rootView: errView,
             layout: [],
             homepageSections: [],
@@ -91,6 +91,27 @@ function jsonOutputError(res:Response, err:Error):void {
             message: err.message
         });
     }
+}
+
+interface LangSwitchErrorArgs {
+    req:Request;
+    res:Response;
+    services:Services;
+    /**
+     * untraslated message / message key
+     */
+    messageKey:string;
+    messageArgs?:{[k:string]:any};
+}
+
+function langSwitchError({req, res, services, messageKey, messageArgs}:LangSwitchErrorArgs):void {
+    const uiLang = getLangFromCookie(req, services);
+    const [viewUtils,] = createHelperServices(services, uiLang);
+    const error:[number, string] = [
+        HTTP.Status.BadRequest,
+        viewUtils.translate(messageKey, messageArgs)
+    ];
+    errorPage({req, res, uiLang, services, viewUtils, error});
 }
 
 
@@ -182,42 +203,76 @@ export const wdgRouter = (services:Services) => (app:Express) => {
 
     app.post(HTTPAction.SET_UI_LANG, (req, res, next) => {
         const newUiLang = req.body.lang;
-        if (Dict.hasKey(newUiLang, services.serverConf.languages)) {
-            res.cookie(services.serverConf.langCookie, services.toolbar.importLangCode(newUiLang), {maxAge: LANG_COOKIE_TTL});
+        const cookieName = services.serverConf.langCookie?.name;
+        const cookieDomain = services.serverConf.langCookie?.domain;
+
+        if (!cookieName) {
+            langSwitchError({req, res, services, messageKey: 'global__language_switching_not_conf'});
+
+        } else if (Dict.hasKey(newUiLang, services.serverConf.languages)) {
+            res.cookie(
+                cookieName,
+                services.toolbar.importLangCode(newUiLang),
+                {
+                    maxAge: LANG_COOKIE_TTL,
+                    domain: cookieDomain
+                }
+            );
             res.redirect(req.body.returnUrl);
 
         } else {
-            const uiLang = getLangFromCookie(req, services);
-            const [viewUtils,] = createHelperServices(services, uiLang);
-            const error:[number, string] = [
-                HTTP.Status.BadRequest,
-                viewUtils.translate(
-                    'global__invalid_ui_lang_{lang}{avail}',
-                    {lang: newUiLang, avail: Dict.keys(services.serverConf.languages).join(', ')}
-                )
-            ];
-            errorPage({req, res, uiLang, services, viewUtils, error});
+            langSwitchError({
+                req,
+                res,
+                services,
+                messageKey: 'global__invalid_ui_lang_{lang}{avail}',
+                messageArgs: {
+                    lang: newUiLang,
+                    avail: Dict.keys(services.serverConf.languages).join(', ')
+                }
+            });
         }
     });
 
     app.get(`${HTTPAction.SEARCH}:lang/:query`, (req, res, next) => {
         let uiLang = getLangFromCookie(req, services);
         const langOverride = getQueryValue(req, 'uiLang');
+
         if (langOverride.length > 0) {
-            if (Dict.hasKey(langOverride[0], services.serverConf.languages)) {
-                res.cookie(services.serverConf.langCookie, services.toolbar.importLangCode(langOverride[0]), {maxAge: LANG_COOKIE_TTL});
+            const cookieName = services.serverConf.langCookie?.name;
+            const cookieDomain = services.serverConf.langCookie?.domain;
+            if (!cookieName) {
+                langSwitchError({
+                    req,
+                    res,
+                    services,
+                    messageKey: 'global__language_switching_not_conf'
+                })
+
+            } else if (Dict.hasKey(langOverride[0], services.serverConf.languages)) {
+                res.cookie(
+                    cookieName,
+                    services.toolbar.importLangCode(langOverride[0]),
+                    {
+                        maxAge: LANG_COOKIE_TTL,
+                        domain: cookieDomain
+                    }
+                );
                 uiLang = langOverride[0];
+                res.redirect(mkPageReturnUrl(req, services.clientConf.rootUrl));
+                return;
 
             } else {
-                const [viewUtils,] = createHelperServices(services, uiLang);
-                const error:[number, string] = [
-                    HTTP.Status.BadRequest,
-                    viewUtils.translate(
-                        'global__invalid_ui_lang_{lang}{avail}',
-                        {lang: langOverride[0], avail: Dict.keys(services.serverConf.languages).join(', ')}
-                    )
-                ];
-                errorPage({req, res, uiLang, services, viewUtils, error});
+                langSwitchError({
+                    req,
+                    res,
+                    services,
+                    messageKey: 'global__invalid_ui_lang_{lang}{avail}',
+                    messageArgs: {
+                        lang: langOverride[0],
+                        avail: Dict.keys(services.serverConf.languages).join(', ')
+                    }
+                });
                 return;
             }
         }

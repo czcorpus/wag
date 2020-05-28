@@ -99,7 +99,8 @@
         "global__img_alt_play_audio": "Ikonka přehrání audia",
         "global__img_alt_close_icon": "Ikonka zavření okna",
         "global__img_alt_plus_icon": "Symbol plus",
-        "global__invalid_ui_lang_{lang}{avail}": "Invalid user interface language {lang} (avail. values: {avail})"
+        "global__invalid_ui_lang_{lang}{avail}": "Invalid user interface language {lang} (avail. values: {avail})",
+        "global__language_switching_not_conf": "User interface localization switching is not configured"
     },
     "cs-CZ": {
         "global__logo_file": "logo_cs.svg",
@@ -201,6 +202,7 @@
         "global__img_alt_play_audio": "Audio playback icon",
         "global__img_alt_close_icon": "Window close icon",
         "global__img_alt_plus_icon": "Symbol plus",
-        "global__invalid_ui_lang_{lang}{avail}": "Neplatný jazyk uživatelského rozhraní {lang} (k dispozici: {avail})"
+        "global__invalid_ui_lang_{lang}{avail}": "Neplatný jazyk uživatelského rozhraní {lang} (k dispozici: {avail})",
+        "global__language_switching_not_conf": "Přepínání lokalizace uživatelského rozhraní není nakonfigurováno"
     }
 }

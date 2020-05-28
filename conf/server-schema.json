@@ -53,6 +53,20 @@
             },
             "type": "object"
         },
+        "LangCookieSetup": {
+            "properties": {
+                "domain": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "name"
+            ],
+            "type": "object"
+        },
         "LogQueueConf": {
             "properties": {
                 "db": {
@@ -180,7 +194,7 @@
             "$ref": "#/definitions/WordFreqDbConf"
         },
         "langCookie": {
-            "type": "string"
+            "$ref": "#/definitions/LangCookieSetup"
         },
         "languages": {
             "additionalProperties": {

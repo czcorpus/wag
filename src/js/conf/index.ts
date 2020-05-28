@@ -373,6 +373,11 @@ export interface WordFreqDbConf {
     translat?:QueryModeWordDb;
 }
 
+export interface LangCookieSetup {
+    name:string;
+    domain?:string;
+}
+
 /**
  * Server side app configuration.
  */
@@ -389,7 +394,7 @@ export interface ServerConf {
     freqDB:WordFreqDbConf;
     logQueue?:LogQueueConf;
     toolbar:ToolbarDef;
-    langCookie?:string;
+    langCookie?:LangCookieSetup;
     telemetryDB?:string;
     logging?:{
         path:string;
