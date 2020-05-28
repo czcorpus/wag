@@ -22,7 +22,7 @@ import { SearchPackages } from '../../../common/api/treq';
 import { TranslationsModel } from './model';
 import { init as viewInit } from './view';
 import { StatelessModel } from 'kombo';
-import { createInstance as createApiInstance } from './apiFactory';
+import { createInstance as createApiInstance } from '../../../common/api/factory/translations';
 
 declare var require:any;
 require('./style.less');

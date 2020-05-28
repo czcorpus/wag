@@ -16,10 +16,10 @@
  * limitations under the License.
  */
 
-import { IAsyncKeyValueStore } from '../../../common/types';
-import { TranslationAPI } from '../../../common/api/abstract/translations';
-import { TreqAPI } from '../../../common/api/treq';
-import { CoreApiGroup } from '../../../common/api/coreGroups';
+import { IAsyncKeyValueStore } from '../../types';
+import { TranslationAPI } from '../abstract/translations';
+import { TreqAPI } from '../treq';
+import { CoreApiGroup } from '../coreGroups';
 import { IAppServices } from '../../../appServices';
 
 
