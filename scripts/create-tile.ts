@@ -39,8 +39,8 @@ if (process.argv.length === 3) {
     createTile(process.argv[2]);
 
 } else if (process.argv.length === 2) {
-    let readline = require('readline');
-    let rl = readline.createInterface({
+    const readline = require('readline');
+    const rl = readline.createInterface({
         input: process.stdin,
         output: process.stdout
     });

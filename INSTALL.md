@@ -81,13 +81,13 @@ You have to generate tile schema using `npm start schemata:make-tile {tiles path
 E.g. `npm start schemata:make-tile core/htmlTile HtmlTileConf`.
 
 Second, update your app's configuration - i.e. at least define a tile instance and put it in the layout.
-In tile configuration `tileType` is derived from tile folder name in the following way: 
+In tile configuration `tileType` is derived from tile folder name in the following way:
 `src/js/tiles/custom/myAwesome <---> MyAwesomeTile`.
 
-Third, build the project. 
+Third, build the project.
 
 ```
-npm start build:server && make start build:production
+npm start build:server && npm start build:production
 ```
 
 Now restart the server and the tile should appear on the page (based on the layout you've put the tile in).
@@ -109,11 +109,11 @@ It is also possible to generate your local version of the schemata and refer the
 local path.
 
 ```
-npm start schemata:make
+npm start schemata:make-conf
 ```
 
 You can always validate your configuration:
 
 ```
-make start schemata:configtest
+make start schemata:check-conf
 ```

@@ -1,22 +1,20 @@
 {
   "scripts": {
-    "schemata:make-tiles": [
+    "schemata:make-core-tiles": [
       {
         "repeater": "$launch_setting_tiles",
-        "sequential": ["schemata:make-tile $_path $_conf_name"]
+        "sequential": "schemata:make-tile $_path $_conf_name"
       }
     ],
-    "schemata:make-tile": [
-      "typescript-json-schema src/js/tiles/$1/index.ts $2 --ignoreErrors --out src/js/tiles/$1/config-schema.json --required --strictNullChecks"
-    ],
-    "schemata:make": [
+    "schemata:make-tile": "ts-node ./scripts/create-tile-schema.ts $1 $2",
+    "schemata:make-conf": [
       "typescript-json-schema src/js/conf/index.ts ServerConf --ignoreErrors --out conf/server-schema.json --required --strictNullChecks",
       "typescript-json-schema src/js/conf/index.ts ClientStaticConf --ignoreErrors --out conf/wdglance-schema.json --required --strictNullChecks",
       "typescript-json-schema src/js/conf/index.ts LanguageLayoutsConfig --ignoreErrors --out conf/layouts-schema.json --required --strictNullChecks",
       "typescript-json-schema src/js/conf/index.ts LanguageAnyTileConf --ignoreErrors --out conf/tiles-schema.json --required --strictNullChecks",
       "typescript-json-schema src/js/conf/index.ts ColorsConf --ignoreErrors --out conf/themes-schema.json --required --strictNullChecks"
     ],
-    "schemata:configtest": [
+    "schemata:check-conf": [
       "ajv -s ./conf/server-schema.json -d ./conf/server.json",
       "ajv -s ./conf/wdglance-schema.json -d ./conf/wdglance.json",
       "LAYOUTS_PATH=\"$(node -pe 'JSON.parse(fs.readFileSync(\"conf/wdglance.json\", \"utf8\")).layouts')\"",
@@ -26,7 +24,7 @@
       "THEMES_PATH=\"$(node -pe 'JSON.parse(fs.readFileSync(\"conf/wdglance.json\", \"utf8\")).colors')\"",
       "if test -f \"$THEMES_PATH\" 2> /dev/null; then ajv -s ./conf/themes-schema.json -d $THEMES_PATH; else echo \"themes config file not found\"; fi"
     ],
-    "schemata:sampletest": [
+    "schemata:check-samples": [
       "ajv -s ./conf/server-schema.json -d ./conf/server.sample.json",
       "ajv -s ./conf/wdglance-schema.json -d ./conf/wdglance.sample.json"
     ],
