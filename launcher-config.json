@@ -41,7 +41,10 @@
     ],
     "create:custom-tile": "ts-node ./scripts/create-tile.ts $1",
     "devel-server": "webpack-dev-server --config webpack.dev.js",
-    "server": "node dist-server/service.js",
+    "server": [
+      "ajv -s ./conf/server-schema.json -d ./conf/server.json",
+      "node dist-server/service.js"
+    ],
     "test": "npm test"
   },
   "settings": {
