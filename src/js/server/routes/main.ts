@@ -36,7 +36,7 @@ import { loadFile } from '../files';
 import { createRootComponent } from '../../app';
 import { ActionName } from '../../models/actions';
 import { initDummyStore } from '../../cache/index';
-import { fetchReqArgArray, createHelperServices, mkReturnUrl, logRequest, renderResult, fetchUrlParamArray } from './common';
+import { fetchReqArgArray, createHelperServices, mkPageReturnUrl, logRequest, renderResult, fetchUrlParamArray } from './common';
 import { maxQueryWordsForQueryType } from '../../conf/validation';
 
 
@@ -203,7 +203,7 @@ export function queryAction({services, answerMode, queryType, uiLang, req, res, 
                     observer.complete();
                 }
             ),
-            hostPageEnv: services.toolbar.get(userConf.uiLang, mkReturnUrl(req, services.clientConf.rootUrl), req.cookies, viewUtils),
+            hostPageEnv: services.toolbar.get(userConf.uiLang, mkPageReturnUrl(req, services.clientConf.rootUrl), req.cookies, viewUtils),
             runtimeConf: mkRuntimeClientConf(
                 services.clientConf,
                 services.serverConf,
@@ -306,7 +306,7 @@ export function queryAction({services, answerMode, queryType, uiLang, req, res, 
                 currTheme: runtimeConf.colors.themeId,
                 userConfig: userConf,
                 clientConfig: runtimeConf,
-                returnUrl: mkReturnUrl(req, services.clientConf.rootUrl),
+                returnUrl: mkPageReturnUrl(req, services.clientConf.rootUrl),
                 rootView: rootView,
                 layout: layout,
                 homepageSections: [...runtimeConf.homepage.tiles],
@@ -332,7 +332,7 @@ export function queryAction({services, answerMode, queryType, uiLang, req, res, 
                 currTheme: currTheme.themeId,
                 userConfig: userConf,
                 clientConfig: emptyClientConf(services.clientConf, req.cookies[THEME_COOKIE_NAME]),
-                returnUrl: mkReturnUrl(req, services.clientConf.rootUrl),
+                returnUrl: mkPageReturnUrl(req, services.clientConf.rootUrl),
                 rootView: errView,
                 layout: [],
                 homepageSections: [],

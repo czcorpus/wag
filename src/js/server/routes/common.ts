@@ -67,7 +67,8 @@ export function getQueryParam(req:Request, name:string, dflt?:string):Array<stri
 
 
 export function getLangFromCookie(req:Request, services:Services):string {
-    const ans = req.cookies[services.serverConf.langCookie] || services.toolbar.defaultHostLangCode();
+    const cookieName = services.serverConf.langCookie?.name;
+    const ans = cookieName && req.cookies[cookieName] ? req.cookies[cookieName] : services.toolbar.defaultHostLangCode();
     return services.toolbar.exportLangCode(ans, services.serverConf.languages);
 }
 
@@ -132,7 +133,7 @@ export function fetchUrlParamArray(req:Request, param:string, minLen:number):Arr
 }
 
 
-export function mkReturnUrl(req:Request, rootUrl:string):string {
+export function mkPageReturnUrl(req:Request, rootUrl:string):string {
     const args = Dict.filter((_ ,k) => k !== 'uiLang', req.query);
     return rootUrl.replace(/\/$/, '') +
         req.path +
