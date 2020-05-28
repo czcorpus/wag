@@ -238,16 +238,17 @@ export function init<T>(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalCompone
         }
 
         render() {
+            const boxWidth = 200;
             const vboxAspectRatio = this.props.width / this.props.height;
             const wcloud = createWordCloud(
                 this.props.data.map(this.props.dataTransform),
-                200,
-                200 / vboxAspectRatio,
+                boxWidth,
+                boxWidth / vboxAspectRatio,
                 this.props.isMobile,
                 this.props.font
             );
 
-            const style = Object.assign({width: '100%'}, this.props.style);
+            const style = {...this.props.style, width: '100%'};
             style['minHeight'] = `${2 * (this.props.isMobile ? MAX_WC_FONT_SIZE_MOBILE : MAX_WC_FONT_SIZE)}px`;
             const colors = this.props.colors ? this.props.colors : theme.scaleColorIndexed();
             return (
@@ -255,7 +256,7 @@ export function init<T>(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalCompone
                     <Tooltip x={this.state.tooltipPos[0]} y={this.state.tooltipPos[1]}
                             data={this.state.activeItem ? this.state.activeItem.tooltip : []} />
                     <svg width="100%" height="100%" preserveAspectRatio="xMinYMid meet"
-                            viewBox={`0 0 200 ${(200 / vboxAspectRatio).toFixed()}`}>
+                            viewBox={`0 0 ${boxWidth} ${(boxWidth / vboxAspectRatio).toFixed()}`}>
                         <g transform={wcloud.transform}>
                             {wcloud.rectangles.map((r, i) =>
                                 <Word key={`${r.x}:${r.y}:${r.w}:${r.h}`}
