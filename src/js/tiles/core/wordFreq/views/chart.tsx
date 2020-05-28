@@ -77,7 +77,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         queryMatches:Array<SimilarFreqWord>;
         activeIdent:number;
     }> = (props) => {
-
+        const fBands = [0, 1, 10, 100, 1000, 10000, 100000];
         const queryMatches:Array<ChartFreqDistItem> = pipe(
             props.queryMatches,
             List.map(
@@ -92,7 +92,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             List.sortBy(v => v.ipm)
         );
         const dataAll = pipe(
-            [0, 1, 10, 100, 1000, 10000, 100000],
+            fBands,
             List.map(
                 (ipm, i) => ({
                     ipm: ipm,
@@ -107,12 +107,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             List.sortBy(v => v.ipm)
         );
 
-        const itemLimitIdx = List.findIndex(v => v.ipm > queryMatches[queryMatches.length - 1].ipm, dataAll) + 1;
-        const data = List.slice(0, itemLimitIdx, dataAll);
-
-        const xTicks = List.repeat(x => x + 1, itemLimitIdx);
-        const yTicks = [0, 1, 10, 100, 1000, 10000, 100000];
-        const yLimit = List.findIndex(v =>  v > queryMatches[queryMatches.length - 1].ipm, yTicks) + 1;
+        const dataLimitIdx = List.findIndex(v => v.ipm > queryMatches[queryMatches.length - 1].ipm, dataAll) + 1;
+        const bandTickLimitIdx = List.findIndex(v => v > queryMatches[queryMatches.length - 1].ipm, fBands) + 1;
+        const data = List.slice(0, dataLimitIdx, dataAll);
+        const xTicks = List.repeat(x => x + 1, bandTickLimitIdx);
+        const yLimit = List.findIndex(v =>  v > queryMatches[queryMatches.length - 1].ipm, fBands) + 1;
 
         return (
             <globalCompontents.ResponsiveWrapper minWidth={250} render={(width:number, height:number) => (
@@ -121,7 +120,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <XAxis dataKey="flevel" type="number" domain={[1, xTicks[xTicks.length - 1]]} ticks={xTicks}>
                         <Label value={ut.translate('wordfreq__freq_bands')} offset={0} position="insideBottom" />
                     </XAxis>
-                    <YAxis dataKey="ipm" type="number" ticks={List.slice(0, yLimit, yTicks)}>
+                    <YAxis dataKey="ipm" type="number" ticks={List.slice(0, yLimit, fBands)}>
                         <Label value={ut.translate('wordfreq__ipm')} offset={5} angle={-90} position="insideBottomLeft" />
                     </YAxis>
                     <Tooltip isAnimationActive={false} />
