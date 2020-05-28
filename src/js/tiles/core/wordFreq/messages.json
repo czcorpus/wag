@@ -13,7 +13,8 @@
         "wordfreq__note": "note",
         "wordfreq__not_in_dict": "No information about the word.",
         "wordfreq__word_known_but_nothing_more": "Not enough data for reliable frequency information.",
-        "wordfreq__pos_not_specified": "not specified / multiple at once"
+        "wordfreq__pos_not_specified": "not specified / multiple at once",
+        "wordfreq__freqband_chart_label": "Freq. bands and their relation to relative frequency"
     },
     "cs-CZ": {
         "wordfreq_searched_form": "zadaný tvar",
@@ -29,6 +30,7 @@
         "wordfreq__note": "poznámka",
         "wordfreq__not_in_dict": "Ke slovu nejsou k dispozici žádné informace.",
         "wordfreq__word_known_but_nothing_more": "Není dostatek dat pro spolehlivý frekvenční popis.",
-        "wordfreq__pos_not_specified": "neurčeno / více najednou"
+        "wordfreq__pos_not_specified": "neurčeno / více najednou",
+        "wordfreq__freqband_chart_label": "Frekv. pásma a jejich vztah k relativní frekvenci"
     }
 }

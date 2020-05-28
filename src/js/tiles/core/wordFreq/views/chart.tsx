@@ -18,10 +18,11 @@
 
 import { IActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
-import { CartesianGrid, Dot, Label, Line, LineChart, XAxis, YAxis } from 'recharts';
+import { CartesianGrid, Dot, Tooltip, Label, Line, LineChart, XAxis, YAxis } from 'recharts';
 import { GlobalComponents } from '../../../../views/global';
 import { SimilarFreqWord } from '../../../../common/api/abstract/similarFreq';
 import { PosItem } from '../../../../common/postag';
+import { List, pipe, Maths } from 'cnc-tskit';
 
 
 interface ChartFreqDistItem {
@@ -33,8 +34,12 @@ interface ChartFreqDistItem {
 }
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>):React.SFC<{
+    tileName:string;
     queryMatches:Array<SimilarFreqWord>;
+    activeIdent:number;
 }> {
+
+    const globalCompontents = ut.getComponents();
 
     // -------------------- <LineDot /> -----------------------------------------------
 
@@ -68,39 +73,65 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------------- <Chart /> -----------------------------------------------
     const Chart:React.SFC<{
+        tileName:string;
         queryMatches:Array<SimilarFreqWord>;
         activeIdent:number;
     }> = (props) => {
-        const levels = [
-            {ipm: 0.01, v: 1}, {ipm: 0.1, v: 2}, {ipm: 1, v: 3}, {ipm: 10, v: 4},
-            {ipm: 100, v: 5}, {ipm: 1000, v: 6}, {ipm: 10000, v: 7}
-        ];
-        const queryMatches:Array<ChartFreqDistItem> = props.queryMatches.map(v2 => ({
-            ipm: v2.ipm,
-            flevel: v2.flevel,
-            lemma: v2.lemma,
-            pos: v2.pos,
-            color: '#E2007A'
-        }));
-        const data = levels
-            .map(v => ({ipm: v.ipm, flevel: v.v, lemma: null, pos: null, color: '#8884d8'}))
-            .concat(queryMatches)
-            .sort((v1, v2) => v1.flevel - v2.flevel);
+
+        const queryMatches:Array<ChartFreqDistItem> = pipe(
+            props.queryMatches,
+            List.map(
+                v2 => ({
+                    ipm: Maths.roundToPos(v2.ipm, 2),
+                    flevel: Maths.roundToPos(Math.log10(v2.ipm) + 2, 2),
+                    lemma: v2.lemma,
+                    pos: v2.pos,
+                    color: '#E2007A'
+                })
+            ),
+            List.sortBy(v => v.ipm)
+        );
+        const dataAll = pipe(
+            [0, 1, 10, 100, 1000, 10000, 100000],
+            List.map(
+                (ipm, i) => ({
+                    ipm: ipm,
+                    flevel: i + 1,
+                    lemma: '',
+                    pos: [],
+                    color: ''
+                }),
+
+            ),
+            List.concat(queryMatches),
+            List.sortBy(v => v.ipm)
+        );
+
+        const itemLimitIdx = List.findIndex(v => v.ipm > queryMatches[queryMatches.length - 1].ipm, dataAll) + 1;
+        const data = List.slice(0, itemLimitIdx, dataAll);
+
+        const xTicks = List.repeat(x => x + 1, itemLimitIdx);
+        const yTicks = [0, 1, 10, 100, 1000, 10000, 100000];
+        const yLimit = List.findIndex(v =>  v > queryMatches[queryMatches.length - 1].ipm, yTicks) + 1;
+
         return (
-            <LineChart width={340} height={250} data={data}>
-                <CartesianGrid stroke="#eee" strokeDasharray="5 5"/>
-                <XAxis dataKey="flevel" type="number" domain={[1, 7]} ticks={[1, 2, 3, 4, 5, 6, 7]}>
-                    <Label value={ut.translate('wordfreq__freq_bands')} offset={0} position="insideBottom" />
-                </XAxis>
-                <YAxis dataKey="ipm" type="number">
-                    <Label value={ut.translate('wordfreq__ipm')} angle={-90} position="insideBottomLeft" />
-                </YAxis>
-                <Line  type="monotone" dataKey="ipm" stroke="#8884d8"
-                    isAnimationActive={false}
-                    dot={({cx, cy, stroke, payload, value}) =>
-                            <LineDot key={`ld:${cx}:${cy}`} cx={cx} cy={cy} stroke={stroke} payload={payload} value={value}
-                                        active={payload.ident === props.activeIdent} />} />
-            </LineChart>
+            <globalCompontents.ResponsiveWrapper minWidth={250} render={(width:number, height:number) => (
+                <LineChart id={`word-freq-chart-${props.tileName}`} data={data} width={width} height={height}>
+                    <CartesianGrid stroke="#eee" strokeDasharray="5 5"/>
+                    <XAxis dataKey="flevel" type="number" domain={[1, xTicks[xTicks.length - 1]]} ticks={xTicks}>
+                        <Label value={ut.translate('wordfreq__freq_bands')} offset={0} position="insideBottom" />
+                    </XAxis>
+                    <YAxis dataKey="ipm" type="number" ticks={List.slice(0, yLimit, yTicks)}>
+                        <Label value={ut.translate('wordfreq__ipm')} offset={5} angle={-90} position="insideBottomLeft" />
+                    </YAxis>
+                    <Tooltip isAnimationActive={false} />
+                    <Line type="monotone" dataKey="ipm" stroke="#8884d8"
+                        isAnimationActive={false}
+                        dot={({cx, cy, stroke, payload, value}) =>
+                                <LineDot key={`ld:${cx}:${cy}`} cx={cx} cy={cy} stroke={stroke} payload={payload} value={value}
+                                            active={payload.ident === props.activeIdent} />} />
+                </LineChart>
+            )} />
         );
     };
 

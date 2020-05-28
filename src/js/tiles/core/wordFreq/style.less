@@ -3,10 +3,20 @@
 
 .WordFreqTileView {
 
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+
     .chart {
-        float: right;
+
+        h2 {
+            margin: 0 0 0.7em 0;
+            font-weight: bold;
+            font-size: 1.1em;
+            text-align: center;
+        }
+
         width: 340px;
-        margin-right: 2em;
     }
 
     > div.cell:not(:last-child) {

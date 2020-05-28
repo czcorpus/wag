@@ -41,18 +41,19 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 supportsTileReload={props.supportsReloadOnError}
                 issueReportingUrl={props.issueReportingUrl}>
             <div className="WordFreqTileView">
-                {!props.isMobile && props.widthFract > 1 ?
-                    <div className="chart">
-                        <Chart queryMatches={props.queryMatches} />
-                    </div> :
-                    null
-                }
                 {props.queryMatches.length === 1 ?
                     <SingleWordProfile searchedWord={props.queryMatches[0]}
                         similarFreqWords={props.similarFreqWords[0]}
                         expandLemmaPos={props.expandLemmaPos}
                         tileId={props.tileId} /> :
                     <MultiWordProfile matches={props.queryMatches} />
+                }
+                {!props.isMobile && props.widthFract > 1 ?
+                    <div className="chart">
+                        <h2>{ut.translate('wordfreq__freqband_chart_label')}</h2>
+                        <Chart queryMatches={props.queryMatches} activeIdent={0} tileName={props.tileName} />
+                    </div> :
+                    null
                 }
             </div>
         </globalComponents.TileWrapper>
