@@ -2,10 +2,11 @@
   "menu": {
     "schemata:Config schemata actions menu...": {
       "description": "config schemata action",
-      "configtest:Tests config files": "schemata:configtest",
-      "sampletest:Tests sample config files": "schemata:sampletest",
-      "make:Generates config schemata": "schemata:make",
-      "make-tiles:Generates core tiles schemata": "schemata:make-tiles"
+      "check-conf:Tests config files": "schemata:check-conf",
+      "check-samples:Tests sample config files": "schemata:check-samples",
+      "make-conf:Generates config schemata": "schemata:make",
+      "make-tile:Generates schema for specified tile": "schemata:make-tile",
+      "make-core-tiles:Generates core tiles schemata": "schemata:make-core-tiles"
     },
     "build:Build menu...": {
       "description": "build action",
@@ -15,7 +16,7 @@
     },
     "create:Create menu...": {
       "custom-tile": "create:custom-tile"
-    },    
+    },
     "devel-server:starts a development server": "devel-server",
     "server:starts WaG web server": "server",
     "test:runs tests": "test"
