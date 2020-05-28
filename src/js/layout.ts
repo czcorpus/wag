@@ -46,7 +46,6 @@ export interface TileGroup {
 interface LayoutCore {
     groups:Array<TileGroup>;
     services:Array<number>;
-    maxQueryWords:number;
 }
 
 
@@ -58,19 +57,6 @@ interface LayoutOfQueryTypeCmp extends LayoutCore {}
 
 interface LayoutOfQueryTypeTranslat extends LayoutCore {
     translatTargetLanguages:Array<[string, string]>;
-}
-
-export function maxQueryWordsForQueryType(conf:LayoutsConfig, qt:QueryType):number {
-    switch (qt) {
-        case QueryType.SINGLE_QUERY:
-            return conf?.single?.maxQueryWords || 1;
-        case QueryType.CMP_QUERY:
-            return conf?.cmp?.maxQueryWords || 1;
-        case QueryType.TRANSLAT_QUERY:
-            return conf?.translat?.maxQueryWords || 1;
-        default:
-            throw new Error(`Unknown query type ${qt}`);
-    }
 }
 
 function concatLayouts(...layouts:Array<LayoutCore>):Array<TileGroup> {
@@ -113,13 +99,11 @@ function importLayout(gc:LayoutConfigCommon|undefined, tileMap:TileIdentMap,
                     return null;
                 }),
                 List.filter(v => v !== null)
-            ),
-            maxQueryWords: gc.maxQueryWords ? gc.maxQueryWords : 1
+            )
         } :
         {
             groups: [],
-            services: [],
-            maxQueryWords: 1
+            services: []
         };
 }
 
@@ -209,14 +193,6 @@ export class LayoutManager {
                 List.find(v => v.tileId === tileId)
         );
         return srch ? srch.width : null;
-    }
-
-    getMultiWordQuerySupport():{[k in QueryType]:number} {
-        return Dict.fromEntries([
-            [QueryType.SINGLE_QUERY, this.getLayout(QueryType.SINGLE_QUERY).maxQueryWords],
-            [QueryType.CMP_QUERY, this.getLayout(QueryType.CMP_QUERY).maxQueryWords],
-            [QueryType.TRANSLAT_QUERY, this.getLayout(QueryType.TRANSLAT_QUERY).maxQueryWords]
-        ]);
     }
 
     private isServiceOf(queryType:QueryType, tileId:number):boolean {

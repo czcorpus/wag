@@ -96,7 +96,6 @@ export type GroupItemConfig = GroupLayoutConfig|string;
 
 export interface LayoutConfigCommon {
     groups:Array<GroupItemConfig>;
-    maxQueryWords?:number;
 }
 
 export interface LayoutConfigSingleQuery extends LayoutConfigCommon {}
@@ -227,6 +226,7 @@ export interface ClientConf {
         sendIntervalSecs:number;
         participationProbability:number;
     };
+    maxQueryWords:{[k in QueryType]?:number};
 }
 
 export function emptyLayoutConf():LayoutsConfig {
@@ -296,7 +296,8 @@ export function emptyClientConf(conf:ClientStaticConf, themeId:string|undefined)
             queryTypes: []
         })),
         externalStyles: [],
-        maxTileErrors: 0
+        maxTileErrors: 0,
+        maxQueryWords: {}
     };
 }
 
@@ -357,6 +358,7 @@ export interface FreqDbConf {
 }
 
 export interface QueryModeWordDb {
+    maxQueryWords:number;
     minLemmaFreq:number;
     databases:{[lang:string]:FreqDbConf};
 };
@@ -398,11 +400,11 @@ export interface ServerConf {
 export function getQueryTypeFreqDb(conf:ServerConf, queryType:QueryType):QueryModeWordDb {
     switch (queryType) {
         case QueryType.SINGLE_QUERY:
-            return conf.freqDB.single || {minLemmaFreq: 0, databases: {}, similarFreqWordsMaxCtx: 0};
+            return conf.freqDB.single || {minLemmaFreq: 0, databases: {}, similarFreqWordsMaxCtx: 0, maxQueryWords: 1};
         case QueryType.CMP_QUERY:
-            return conf.freqDB.cmp || {minLemmaFreq: 0, databases: {}};
+            return conf.freqDB.cmp || {minLemmaFreq: 0, databases: {}, maxQueryWords: 1};
         case QueryType.TRANSLAT_QUERY:
-            return conf.freqDB.translat || {minLemmaFreq: 0, databases: {}};
+            return conf.freqDB.translat || {minLemmaFreq: 0, databases: {}, maxQueryWords: 1};
         default:
             throw new Error(`Unknown query type ${queryType}`);
     }

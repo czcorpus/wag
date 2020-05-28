@@ -84,12 +84,16 @@
                     },
                     "type": "object"
                 },
+                "maxQueryWords": {
+                    "type": "number"
+                },
                 "minLemmaFreq": {
                     "type": "number"
                 }
             },
             "required": [
                 "databases",
+                "maxQueryWords",
                 "minLemmaFreq"
             ],
             "type": "object"
@@ -102,6 +106,9 @@
                     },
                     "type": "object"
                 },
+                "maxQueryWords": {
+                    "type": "number"
+                },
                 "minLemmaFreq": {
                     "type": "number"
                 },
@@ -111,6 +118,7 @@
             },
             "required": [
                 "databases",
+                "maxQueryWords",
                 "minLemmaFreq",
                 "similarFreqWordsMaxCtx"
             ],

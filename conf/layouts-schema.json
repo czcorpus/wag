@@ -73,9 +73,6 @@
                         ]
                     },
                     "type": "array"
-                },
-                "maxQueryWords": {
-                    "type": "number"
                 }
             },
             "required": [
@@ -97,9 +94,6 @@
                         ]
                     },
                     "type": "array"
-                },
-                "maxQueryWords": {
-                    "type": "number"
                 }
             },
             "required": [
@@ -121,9 +115,6 @@
                         ]
                     },
                     "type": "array"
-                },
-                "maxQueryWords": {
-                    "type": "number"
                 },
                 "targetLanguages": {
                     "items": {

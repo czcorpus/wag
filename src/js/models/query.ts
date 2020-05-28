@@ -24,7 +24,7 @@ import { Forms, MultiDict } from '../common/data';
 import { SystemMessageType } from '../common/types';
 import { AvailableLanguage } from '../common/hostPage';
 import { QueryType, QueryMatch, QueryTypeMenuItem, matchesPos, SearchLanguage, RecognizedQueries } from '../common/query/index';
-import { QueryValidator } from '../common/query/valitation';
+import { QueryValidator } from '../common/query/validation';
 import { ActionName, Actions } from './actions';
 import { HTTPAction } from '../server/routes/actions';
 import { LayoutManager } from '../layout';
@@ -33,7 +33,7 @@ import { LayoutManager } from '../layout';
 export interface QueryFormModelState {
     queries:Array<Forms.Input>;
     initialQueryType:QueryType;
-    multiWordQuerySupport:{[k in QueryType]:number};
+    multiWordQuerySupport:{[k in QueryType]?:number};
     queryType:QueryType;
     queryLanguage:string;
     queryLanguage2:string;
@@ -280,7 +280,7 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
     private validateNthQuery(state:QueryFormModelState, idx:number):boolean {
         const errors = this.queryValidator.validateQuery(
             state.queries[idx].value,
-            state.multiWordQuerySupport[state.queryType]
+            state.multiWordQuerySupport[state.queryType] || 1
         );
         state.queries[idx] = Forms.updateFormInput(state.queries[idx], {isValid: errors.length === 0});
         state.errors.push(...errors);
@@ -341,10 +341,11 @@ export interface DefaultFactoryArgs {
     searchLanguages:Array<SearchLanguage>;
     layout:LayoutManager;
     maxCmpQueries:number;
+    maxQueryWords:{[k in QueryType]?:number};
 }
 
 export const defaultFactory = ({dispatcher, appServices, query1Lang, query2Lang, queryType, queryMatches,
-        isAnswerMode, uiLanguages, searchLanguages, layout, maxCmpQueries}:DefaultFactoryArgs) => {
+        isAnswerMode, uiLanguages, searchLanguages, layout, maxCmpQueries, maxQueryWords}:DefaultFactoryArgs) => {
 
     return new QueryFormModel(
         dispatcher,
@@ -365,7 +366,7 @@ export const defaultFactory = ({dispatcher, appServices, query1Lang, query2Lang,
             queryMatches: queryMatches,
             isAnswerMode: isAnswerMode,
             uiLanguages: uiLanguages,
-            multiWordQuerySupport: layout.getMultiWordQuerySupport(),
+            multiWordQuerySupport: maxQueryWords,
             maxCmpQueries: maxCmpQueries,
             lemmaSelectorModalVisible: false,
             modalSelections: List.map(
