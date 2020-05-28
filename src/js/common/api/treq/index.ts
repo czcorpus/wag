@@ -181,7 +181,7 @@ export class TreqAPI extends TreqAPICaller implements TranslationAPI<RequestArgs
         return {
             left: state.lang1,
             right: state.lang2,
-            viceslovne: '0',
+            viceslovne: query.split(' ').length > 1 ? '1' : '0',
             regularni: '0',
             lemma: '1',
             aJeA: '1',
@@ -197,7 +197,7 @@ export class TreqAPI extends TreqAPICaller implements TranslationAPI<RequestArgs
         return {
             jazyk1: state.lang1,
             jazyk2: state.lang2,
-            viceslovne: '0',
+            viceslovne: query.split(' ').length > 1 ? '1' : '0',
             regularni: '0',
             lemma: '1',
             caseInsen: '1',
@@ -216,7 +216,7 @@ export class TreqSubsetsAPI extends TreqAPICaller implements TranslationSubsetsA
         return {
             left: state.lang1,
             right: state.lang2,
-            viceslovne: '0',
+            viceslovne: query.split(' ').length > 1 ? '1' : '0',
             regularni: '0',
             lemma: '1',
             aJeA: '1',
