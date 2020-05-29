@@ -248,7 +248,7 @@ export function init<T>(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalCompone
                 this.props.font
             );
 
-            const style = {...this.props.style, width: '100%'};
+            const style = {...this.props.style, width: '100%', height: '100%'};
             style['minHeight'] = `${2 * (this.props.isMobile ? MAX_WC_FONT_SIZE_MOBILE : MAX_WC_FONT_SIZE)}px`;
             const colors = this.props.colors ? this.props.colors : theme.scaleColorIndexed();
             return (
