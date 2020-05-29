@@ -505,6 +505,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
        {
             width:number;
             height:number;
+            frameWidth:number;
+            frameHeight:number;
         }> {
 
         private readonly ref:React.RefObject<HTMLDivElement>;
@@ -514,28 +516,34 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
             this.state = {
                 width: 1,
                 height: 1,
+                frameWidth: 1,
+                frameHeight: 1
             };
             this.ref = React.createRef();
             this.handleWindowResize = this.handleWindowResize.bind(this);
             resize$.subscribe(this.handleWindowResize);
         }
 
-        componentDidMount() {
+        private calcAndSetSizes():void {
             if (this.ref.current) {
+                const maxHeightPortion = 0.32;
+                const newWidth = this.ref.current.getBoundingClientRect().width;
+                const newHeight = this.ref.current.getBoundingClientRect().height;
                 this.setState({
-                    width: this.ref.current.getBoundingClientRect().width,
-                    height: this.ref.current.getBoundingClientRect().height
+                    width: newWidth,
+                    height: newHeight < window.innerHeight * maxHeightPortion ? newHeight : window.innerHeight * maxHeightPortion,
+                    frameWidth: window.innerWidth,
+                    frameHeight: window.innerHeight
                 });
             }
         }
 
+        componentDidMount() {
+            this.calcAndSetSizes();
+        }
+
         private handleWindowResize(props:ScreenProps) {
-            if (this.ref.current) {
-                this.setState({
-                    width: this.ref.current.getBoundingClientRect().width,
-                    height: this.ref.current.getBoundingClientRect().height
-                });
-            }
+            this.calcAndSetSizes();
         }
 
         render() {

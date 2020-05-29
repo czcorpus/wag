@@ -77,6 +77,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         queryMatches:Array<SimilarFreqWord>;
         activeIdent:number;
     }> = (props) => {
+
+        const [isClient, setIsClient] = React.useState(false);
+        React.useEffect(() => {
+            setIsClient(ut.canUseDOM());
+        })
+
         const fBands = [0, 1, 10, 100, 1000, 10000, 100000];
         const queryMatches:Array<ChartFreqDistItem> = pipe(
             props.queryMatches,
@@ -115,21 +121,23 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         return (
             <globalCompontents.ResponsiveWrapper minWidth={250} render={(width:number, height:number) => (
-                <LineChart id={`word-freq-chart-${props.tileName}`} data={data} width={width} height={height}>
-                    <CartesianGrid stroke="#eee" strokeDasharray="5 5"/>
-                    <XAxis dataKey="flevel" type="number" domain={[1, xTicks[xTicks.length - 1]]} ticks={xTicks}>
-                        <Label value={ut.translate('wordfreq__freq_bands')} offset={0} position="insideBottom" />
-                    </XAxis>
-                    <YAxis dataKey="ipm" type="number" ticks={List.slice(0, yLimit, fBands)}>
-                        <Label value={ut.translate('wordfreq__ipm')} offset={5} angle={-90} position="insideBottomLeft" />
-                    </YAxis>
-                    <Tooltip isAnimationActive={false} />
-                    <Line type="monotone" dataKey="ipm" stroke="#8884d8"
-                        isAnimationActive={false}
-                        dot={({cx, cy, stroke, payload, value}) =>
-                                <LineDot key={`ld:${cx}:${cy}`} cx={cx} cy={cy} stroke={stroke} payload={payload} value={value}
-                                            active={payload.ident === props.activeIdent} />} />
-                </LineChart>
+                isClient ?
+                    <LineChart id={`word-freq-chart-${props.tileName}`} data={data} width={width} height={height}>
+                        <CartesianGrid stroke="#eee" strokeDasharray="5 5"/>
+                        <XAxis dataKey="flevel" type="number" domain={[1, xTicks[xTicks.length - 1]]} ticks={xTicks}>
+                            <Label value={ut.translate('wordfreq__freq_bands')} offset={0} position="insideBottom" />
+                        </XAxis>
+                        <YAxis dataKey="ipm" type="number" ticks={List.slice(0, yLimit, fBands)}>
+                            <Label value={ut.translate('wordfreq__ipm')} offset={5} angle={-90} position="insideBottomLeft" />
+                        </YAxis>
+                        <Tooltip isAnimationActive={false} />
+                        <Line type="monotone" dataKey="ipm" stroke="#8884d8"
+                            isAnimationActive={false}
+                            dot={({cx, cy, stroke, payload, value}) =>
+                                    <LineDot key={`ld:${cx}:${cy}`} cx={cx} cy={cy} stroke={stroke} payload={payload} value={value}
+                                                active={payload.ident === props.activeIdent} />} />
+                    </LineChart> :
+                    null
             )} />
         );
     };
