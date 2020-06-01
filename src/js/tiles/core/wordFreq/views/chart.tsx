@@ -118,13 +118,15 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         const data = List.slice(0, dataLimitIdx, dataAll);
         const xTicks = List.repeat(x => x + 1, bandTickLimitIdx);
         const yLimit = List.findIndex(v =>  v > queryMatches[queryMatches.length - 1].ipm, fBands) + 1;
+        const tickFmt = (x:number) => x <= 5 ? x : '';
 
         return (
             <globalCompontents.ResponsiveWrapper minWidth={250} render={(width:number, height:number) => (
                 isClient ?
                     <LineChart id={`word-freq-chart-${props.tileName}`} data={data} width={width} height={height}>
                         <CartesianGrid stroke="#eee" strokeDasharray="5 5"/>
-                        <XAxis dataKey="flevel" type="number" domain={[1, xTicks[xTicks.length - 1]]} ticks={xTicks}>
+                        <XAxis dataKey="flevel" type="number" domain={[1, xTicks[xTicks.length - 1]]} ticks={xTicks}
+                                tickFormatter={tickFmt}>
                             <Label value={ut.translate('wordfreq__freq_bands')} offset={0} position="insideBottom" />
                         </XAxis>
                         <YAxis dataKey="ipm" type="number" ticks={List.slice(0, yLimit, fBands)}>
