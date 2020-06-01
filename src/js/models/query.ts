@@ -301,6 +301,9 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
             this.validateNthQuery(state, 0);
 
         } else if (state.queryType === QueryType.CMP_QUERY) {
+            if (state.queries.length < 2) {
+                state.errors.push(new Error(this.appServices.translate('global__src_min_two_queries_required_for_cmp')))
+            }
             List.forEach(
                 (_, idx) => {
                     this.validateNthQuery(state, idx);
@@ -309,7 +312,7 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
             );
             const eqQueries = this.findEqualQueries(state);
             if (eqQueries.length > 0) {
-                state.errors.push(new Error(`Some of the entered queries are identical: ${eqQueries.join(', ')}`));
+                state.errors.push(new Error(`${this.appServices.translate('global__some_cmp_queries_are_identical')} - ${eqQueries.map(v => `"${v}"`).join(', ')}`));
             }
 
         } else if (state.queryType === QueryType.TRANSLAT_QUERY) {
