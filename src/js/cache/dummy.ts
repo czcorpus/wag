@@ -35,7 +35,7 @@ function isEventListenerObject(v:EventListenerOrEventListenerObject):v is EventL
     return 'handleEvent' in v;
 }
 
-export class DummyRequest<T=any> implements IDBRequest<T> {
+class DummyRequest<T=any> implements IDBRequest<T> {
 
     readonly error:DOMException|null;
 
