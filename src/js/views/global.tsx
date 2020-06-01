@@ -90,6 +90,9 @@ export interface GlobalComponents {
         y:number;
         visible:boolean;
         values:TooltipValues;
+
+        multiWord?:boolean;
+        theme?:Theme;
     }>;
 
     SourceInfoBox:React.SFC<{
@@ -581,37 +584,39 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
         const decimalSeparator = ut.formatNumber(0.1).slice(1, -1);
 
         return (
-            <div className="wdg-tooltip" ref={ref} style={style}>
+            <div className={props.multiWord ? 'wdg-multi-word-tooltip' : 'wdg-tooltip'} ref={ref} style={style}>
                 <table>
                     <tbody>
                         {pipe(
                             props.values || {},
-                            Dict.keys(),
+                            Dict.toEntries(),
                             List.map(
-                                (label, i) => {
-                                    const v = props.values ? props.values[label] : '';
+                                ([label, value], i) => {
+                                    // first entry is for heading
                                     if (i === 0) {
                                         return label ?
                                             <tr key={label}>
                                                 <th className='label'>{label}</th>
-                                                <th className='value' colSpan={2}>{v}</th>
+                                                <th className='value' colSpan={2}>{value}</th>
                                             </tr> :
                                             <tr key={label}>
-                                                <th className='value' colSpan={3}>{v}</th>
+                                                <th className='value' colSpan={3}>{value}</th>
                                             </tr>
                                     }
 
-                                    if (typeof v === 'number') {
-                                        const [numWh, numDec] = ut.formatNumber(v, 1).split(decimalSeparator);
+                                    const labelTheme = props.multiWord && props.theme ? {backgroundColor: props.theme.cmpCategoryColor(i - 1)} : null;
+                                    if (typeof value === 'number') {
+                                        const [numWh, numDec] = ut.formatNumber(value, 1).split(decimalSeparator);
                                         return <tr key={label}>
-                                            <td className='label'>{label}:</td>
+                                            <td className='label' style={labelTheme}>{label}</td>
                                             <td className='value numWh'>{numWh}</td>
                                             <td className='value numDec'>{numDec ? decimalSeparator + numDec : null}</td>
                                         </tr>
-                                    } else {
+
+                                    } else if (typeof value === 'string') {
                                         return <tr key={label}>
-                                            <td className='label'>{label}:</td>
-                                            <td className='value' colSpan={2}>{v}</td>
+                                            <td className='label' style={labelTheme}>{label}</td>
+                                            <td className='value' colSpan={2}>{value}</td>
                                         </tr>
                                     }
                                 }
