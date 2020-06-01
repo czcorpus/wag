@@ -105,6 +105,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             interactionId: v.interactionId
         });
 
+        const colorGen = this.props.data.length > 1 ? theme.scaleColorCmpDerived : (_:number) => theme.scaleColorIndexed();
+
         return (
             <globalCompontents.TileWrapper tileId={props.tileId} isBusy={props.isBusy} error={props.error}
                     hasData={pipe(props.data, List.some(d => d.length > 0))}
@@ -128,6 +130,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                                             font={theme.infoGraphicsFont}
                                                             dataTransform={dataTransform}
                                                             selectedText={props.data.length > 1 ? props.selectedText : null}
+                                                            colors={colorGen(matchIdx)}
                                             />
                                         </div>
                                     )}/> :
