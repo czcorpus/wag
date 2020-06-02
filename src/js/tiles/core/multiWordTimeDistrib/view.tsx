@@ -250,7 +250,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         Math.round(Math.max(...List.map(v => Math.max(...v.fracValues), data)) * 100) / 100 + 0.05
                     );
                     domainY = [0, domainMax];
-                    tickFormatterY = fracValue => `${fracValue * 100}%`;
+                    tickFormatterY = fracValue => `${ut.formatNumber(fracValue * 100)} %`;
                     tooltipFormatter = (fracValue, name, formatterProps) => [
                         [
                             [100 * fracValue, '%'],
@@ -263,7 +263,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     keyFn1 = idx => v => v.ipmValues[idx];
                     keyFn2 = idx => v => v.ipmIntervals[idx];
                     domainY = [0, 'auto'];
-                    tickFormatterY = ipmValue => `${ipmValue} ipm`;
+                    tickFormatterY = ipmValue => `${ut.formatNumber(ipmValue)} ipm`;
                     tooltipFormatter = (ipmValue, name, formatterProps) => [
                         [
                             [100 * ipmValue/formatterProps.payload.ipmNorm, '%'],
