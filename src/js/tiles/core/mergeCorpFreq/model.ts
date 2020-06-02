@@ -30,6 +30,8 @@ import { ViewMode, SingleConcLoadedPayload, IConcordanceApi } from '../../../com
 import { DataLoadedPayload, ModelSourceArgs } from './common';
 import { createInitialLinesData } from '../../../common/models/concordance';
 import { IFreqDistribAPI, DataRow } from '../../../common/api/abstract/freqs';
+import { ActionName, Actions } from './actions';
+import { TooltipValues } from '../../../views/global';
 
 
 export interface MergeCorpFreqModelState {
@@ -40,6 +42,7 @@ export interface MergeCorpFreqModelState {
     sources:Array<ModelSourceArgs>;
     pixelsPerCategory:number;
     queryMatches:Array<QueryMatch>;
+    tooltipData:{tooltipX:number; tooltipY:number, data:TooltipValues, caption:string}|null;
 }
 
 interface SourceQueryProps {
@@ -207,6 +210,37 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
                             });
                         }
                     );
+                }
+            }
+        );
+
+        this.addActionHandler<Actions.ShowTooltip>(
+            ActionName.ShowTooltip,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {
+                    state.tooltipData = {
+                        tooltipX: action.payload.tooltipX,
+                        tooltipY: action.payload.tooltipY,
+                        caption: state.data[0][action.payload.dataId].name,
+                        data: state.queryMatches.length > 1 ?
+                            Dict.fromEntries(
+                                List.map((v, i) =>
+                                    ([v.word, [[state.data[i] ? state.data[i][action.payload.dataId].ipm : 0, 'ipm']]]),
+                                    state.queryMatches
+                                )
+                            ) : {
+                                [appServices.translate('freqBar__rel_freq')]: [[state.data[0][action.payload.dataId].ipm, '']]
+                            }
+                    };
+                }
+            }
+        );
+
+        this.addActionHandler<Actions.HideTooltip>(
+            ActionName.HideTooltip,
+            (state, action) => {
+                if (action.payload.tileId === this.tileId) {
+                    state.tooltipData = null;
                 }
             }
         );

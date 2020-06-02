@@ -68,7 +68,7 @@ ORAL_V1:
 
 export interface GeoAreasModelState extends GeneralSingleCritFreqBarModelState<DataRow> {
     areaCodeMapping:{[key:string]:string};
-    tooltipArea:{tooltipX:number; tooltipY:number, data:TooltipValues}|null;
+    tooltipArea:{tooltipX:number; tooltipY:number, data:TooltipValues, caption:string}|null;
     mapSVG:string;
     isAltViewMode:boolean;
     frequencyDisplayLimit:number;
@@ -241,14 +241,13 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                     state.tooltipArea = {
                         tooltipX: action.payload.tooltipX,
                         tooltipY: action.payload.tooltipY,
+                        caption: data.name,
                         data : data.freq < state.frequencyDisplayLimit ? {
-                            ['']: data.name,
-                            [this.appServices.translate('geolocations__table_heading_ipm')]: this.appServices.translate('geolocations__not_enough_data'),
-                            [this.appServices.translate('geolocations__table_heading_abs')]: data.freq
+                            [this.appServices.translate('geolocations__table_heading_ipm')]: [[this.appServices.translate('geolocations__not_enough_data'), '']],
+                            [this.appServices.translate('geolocations__table_heading_abs')]: [[data.freq, '']]
                         } : {
-                            ['']: data.name,
-                            [this.appServices.translate('geolocations__table_heading_ipm')]: data.ipm,
-                            [this.appServices.translate('geolocations__table_heading_abs')]: data.freq
+                            [this.appServices.translate('geolocations__table_heading_ipm')]: [[data.ipm, '']],
+                            [this.appServices.translate('geolocations__table_heading_abs')]: [[data.freq, '']]
                         }
                     };
                 }

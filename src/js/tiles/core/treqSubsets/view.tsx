@@ -45,8 +45,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     }> = (props) => {
         const ticks = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
         const tooltipVals = {
-            [ut.translate('treqsubsets__abs')]: ut.formatNumber(props.abs, 0),
-            [ut.translate('treqsubsets__perc')]: `${ut.formatNumber(props.perc, 1)}%`
+            [ut.translate('treqsubsets__abs')]: [[props.abs, ''] as [number, string]],
+            [ut.translate('treqsubsets__perc')]: [[props.perc, '%'] as [number, string]]
         };
 
         return (
@@ -88,7 +88,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         maxNumLines:number;
         chartWidthPx:number;
         highlightedRowIdx:number;
-        onMouseOver:(e:React.MouseEvent, values:{[key:string]:string|number})=>void;
+        onMouseOver:(e:React.MouseEvent, values:TooltipValues)=>void;
         onMouseMove:(e:React.MouseEvent)=>void;
         onMouseOut:(e:React.MouseEvent)=>void;
 

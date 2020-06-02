@@ -26,6 +26,8 @@ import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
 import { Theme } from '../../../common/theme';
 import { QueryMatch } from '../../../common/query/index';
 import { List, pipe, Strings } from 'cnc-tskit';
+import { Actions, ActionName } from './actions';
+import * as ReactDOM from 'react-dom';
 
 const CHART_LABEL_MAX_LEN = 20;
 
@@ -115,6 +117,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         queryMatches:Array<QueryMatch>;
         isPartial:boolean;
         isMobile:boolean;
+        tileId:number;
     }> = (props) => {
         const queries = props.queryMatches.length;
         const transformedData = transformData(props.data, props.queryMatches);
@@ -130,7 +133,24 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         return (
             <div className="Chart" style={{height: '100%'}}>
                 <ResponsiveContainer width={props.isMobile ? "100%" : "90%"} height="100%">
-                    <BarChart data={transformedData} layout="vertical" barCategoryGap={props.barCategoryGap}>
+                    <BarChart data={transformedData} layout="vertical" barCategoryGap={props.barCategoryGap}
+                        onMouseMove={e => {
+                            e ? dispatcher.dispatch<Actions.ShowTooltip>({
+                                name: ActionName.ShowTooltip,
+                                payload: {
+                                    dataId: e.activeTooltipIndex,
+                                    tileId: props.tileId,
+                                    tooltipX: e.chartX,
+                                    tooltipY: e.chartY
+                                }
+                            }) : null}}
+                        onMouseOut={d =>
+                            dispatcher.dispatch<Actions.HideTooltip>({
+                                name: ActionName.HideTooltip,
+                                payload: {tileId: props.tileId}
+                            })
+                        }
+                    >
                         <CartesianGrid />
                         {List.map(
                             (_, index) =>
@@ -146,7 +166,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <YAxis type="category" dataKey="name" width={Math.max(60, maxLabelLength * 7)}
                                 tickFormatter={value => props.isMobile ? Strings.shortenText(value, CHART_LABEL_MAX_LEN) : value} />
                         <Legend wrapperStyle={{paddingTop: queries > 1 ? 15 : 0}}/>
-                        <Tooltip offset={-Math.max(60, maxLabelLength * 7)} allowEscapeViewBox={{x: true}} cursor={false} isAnimationActive={false} content={<globComponents.AlignedRechartsTooltip multiWord={queries>1} theme={theme} />} />
                     </BarChart>
                 </ResponsiveContainer>
             </div>
@@ -168,6 +187,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             const numCats = Math.max(0, ...this.props.data.map(v => v ? v.length : 0));
             const barCategoryGap = Math.max(10, 40 - this.props.pixelsPerCategory);
             const minHeight = 70 + numCats * (this.props.pixelsPerCategory + barCategoryGap);
+
             return (
                 <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
                         hasData={List.some(v => v && List.some(f => f.freq > 0, v), this.props.data)}
@@ -180,12 +200,25 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         backlink={backlinks}
                         supportsTileReload={this.props.supportsReloadOnError}
                         issueReportingUrl={this.props.issueReportingUrl}>
+                    <div style={{position: 'relative'}}>
+                        {this.props.tooltipData !== null ?
+                            <globComponents.ElementTooltip
+                                x={this.props.tooltipData.tooltipX}
+                                y={this.props.tooltipData.tooltipY}
+                                visible={true}
+                                caption={this.props.tooltipData.caption}
+                                values={this.props.tooltipData.data}
+                                multiWord={this.props.queryMatches.length > 1}
+                                theme={this.props.queryMatches.length > 1 ? theme : null}
+                            /> : null}
+                    </div>
+
                     <globComponents.ResponsiveWrapper render={(width:number, height:number) => {
                         return (
                         <div className="MergeCorpFreqBarTile" style={{minHeight: `${minHeight}px`, height: `${height}px`}}>
                             {this.props.isAltViewMode ?
                                 <TableView data={this.props.data} queryMatches={this.props.queryMatches} /> :
-                                <Chart data={this.props.data} barCategoryGap={barCategoryGap} queryMatches={this.props.queryMatches} isPartial={this.props.isBusy} isMobile={this.props.isMobile} />
+                                <Chart tileId={this.props.tileId} data={this.props.data} barCategoryGap={barCategoryGap} queryMatches={this.props.queryMatches} isPartial={this.props.isBusy} isMobile={this.props.isMobile} />
                             }
                         </div>)}} />
                 </globComponents.TileWrapper>

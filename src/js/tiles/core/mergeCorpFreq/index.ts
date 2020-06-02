@@ -130,7 +130,8 @@ export class MergeCorpFreqTile implements ITileProvider {
                     isSingleCategory: !!src.isSingleCategory
                 })),
                 pixelsPerCategory: conf.pixelsPerCategory ? conf.pixelsPerCategory : 30,
-                queryMatches: List.map(lemma => findCurrQueryMatch(lemma), queryMatches)
+                queryMatches: List.map(lemma => findCurrQueryMatch(lemma), queryMatches),
+                tooltipData: null
             }
         });
         this.label = appServices.importExternalMessage(conf.label || 'mergeCorpFreq__main_label');

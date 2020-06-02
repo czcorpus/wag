@@ -32,7 +32,7 @@ export interface SourceInfo {
     subcorp?:string;
 }
 
-export type TooltipValues = {[key:string]:number|string|Array<string|number>}|null;
+export type TooltipValues = {[key:string]:Array<[string|number,string]>}|null;
 
 export interface GlobalComponents {
 
@@ -89,7 +89,11 @@ export interface GlobalComponents {
         x:number;
         y:number;
         visible:boolean;
+        caption?:string;
         values:TooltipValues;
+
+        multiWord?:boolean;
+        theme?:Theme;
     }>;
 
     SourceInfoBox:React.SFC<{
@@ -581,39 +585,35 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
         const decimalSeparator = ut.formatNumber(0.1).slice(1, -1);
 
         return (
-            <div className="wdg-tooltip" ref={ref} style={style}>
+            <div className={props.multiWord ? 'wdg-multi-word-tooltip' : 'wdg-tooltip'} ref={ref} style={style}>
                 <table>
+                    <thead><tr><th className='value' colSpan={4}>{props.caption}</th></tr></thead>
                     <tbody>
                         {pipe(
                             props.values || {},
-                            Dict.keys(),
+                            Dict.toEntries(),
                             List.map(
-                                (label, i) => {
-                                    const v = props.values ? props.values[label] : '';
-                                    if (i === 0) {
-                                        return label ?
-                                            <tr key={label}>
-                                                <th className='label'>{label}</th>
-                                                <th className='value' colSpan={2}>{v}</th>
-                                            </tr> :
-                                            <tr key={label}>
-                                                <th className='value' colSpan={3}>{v}</th>
-                                            </tr>
-                                    }
+                                ([label, values], i) => {
+                                    const labelTheme = props.multiWord && props.theme ? {backgroundColor: props.theme.cmpCategoryColor(i)} : null;
+                                    return <tr key={label}>
+                                        <td className='label' style={labelTheme}>{label}</td>
+                                        {List.map(([value, unit], index) => {
+                                            if (typeof value === 'number') {
+                                                const [numWh, numDec] = ut.formatNumber(value, 1).split(decimalSeparator);
+                                                return <>
+                                                    <td key={`numWh${index}`} className='value numWh'>{numWh}</td>
+                                                    <td key={`numDec${index}`} className='value numDec'>{numDec ? decimalSeparator + numDec : null}</td>
+                                                    <td key={`unit${index}`} className='value'>{unit}</td>
+                                                </>
 
-                                    if (typeof v === 'number') {
-                                        const [numWh, numDec] = ut.formatNumber(v, 1).split(decimalSeparator);
-                                        return <tr key={label}>
-                                            <td className='label'>{label}:</td>
-                                            <td className='value numWh'>{numWh}</td>
-                                            <td className='value numDec'>{numDec ? decimalSeparator + numDec : null}</td>
-                                        </tr>
-                                    } else {
-                                        return <tr key={label}>
-                                            <td className='label'>{label}:</td>
-                                            <td className='value' colSpan={2}>{v}</td>
-                                        </tr>
-                                    }
+                                            } else if (typeof value === 'string') {
+                                                return <>
+                                                    <td key={`value${index}`} className='value' colSpan={2}>{value}</td>
+                                                    <td key={`unit${index}`} className='value'>{unit}</td>
+                                                </>
+                                            }
+                                        }, values)}
+                                    </tr>
                                 }
                             )
                         )}
