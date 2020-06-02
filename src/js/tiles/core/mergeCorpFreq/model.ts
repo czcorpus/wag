@@ -42,7 +42,7 @@ export interface MergeCorpFreqModelState {
     sources:Array<ModelSourceArgs>;
     pixelsPerCategory:number;
     queryMatches:Array<QueryMatch>;
-    tooltipData:{tooltipX:number; tooltipY:number, data:TooltipValues}|null;
+    tooltipData:{tooltipX:number; tooltipY:number, data:TooltipValues, caption:string}|null;
 }
 
 interface SourceQueryProps {
@@ -214,33 +214,30 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
             }
         );
 
-        this.addActionHandler<Actions.ShowAreaTooltip>(
-            ActionName.ShowAreaTooltip,
-            (state, action) => {                
+        this.addActionHandler<Actions.ShowTooltip>(
+            ActionName.ShowTooltip,
+            (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.tooltipData = {
                         tooltipX: action.payload.tooltipX,
                         tooltipY: action.payload.tooltipY,
-                        data : state.queryMatches.length > 1 ? Dict.mergeDict(
-                            (oldV, newV, key) => newV,
+                        caption: state.data[0][action.payload.dataId].name,
+                        data: state.queryMatches.length > 1 ?
                             Dict.fromEntries(
                                 List.map((v, i) =>
-                                    ([v.word, state.data[i] ? state.data[i][action.payload.dataId].ipm : '']),
+                                    ([v.word, [[state.data[i] ? state.data[i][action.payload.dataId].ipm : 0, 'ipm']]]),
                                     state.queryMatches
-                                ),
-                            ),
-                            {['']: state.data[0][action.payload.dataId].name}
-                        ) : {
-                            ['']: state.data[0][action.payload.dataId].name,
-                            [appServices.translate('freqBar__rel_freq')]: state.data[0][action.payload.dataId].ipm
-                        }
+                                )
+                            ) : {
+                                [appServices.translate('freqBar__rel_freq')]: [[state.data[0][action.payload.dataId].ipm, '']]
+                            }
                     };
                 }
             }
         );
 
-        this.addActionHandler<Actions.HideAreaTooltip>(
-            ActionName.HideAreaTooltip,
+        this.addActionHandler<Actions.HideTooltip>(
+            ActionName.HideTooltip,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.tooltipData = null;

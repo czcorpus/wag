@@ -253,6 +253,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                         x={this.props.tooltipArea.tooltipX}
                                         y={this.props.tooltipArea.tooltipY}
                                         visible={true}
+                                        caption={this.props.tooltipArea.caption}
                                         values={this.props.tooltipArea.data} /> : null}
                             </div>
                         }

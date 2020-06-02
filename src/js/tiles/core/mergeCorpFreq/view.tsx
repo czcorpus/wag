@@ -135,8 +135,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 <ResponsiveContainer width={props.isMobile ? "100%" : "90%"} height="100%">
                     <BarChart data={transformedData} layout="vertical" barCategoryGap={props.barCategoryGap}
                         onMouseMove={e => {
-                            e ? dispatcher.dispatch<Actions.ShowAreaTooltip>({
-                                name: ActionName.ShowAreaTooltip,
+                            e ? dispatcher.dispatch<Actions.ShowTooltip>({
+                                name: ActionName.ShowTooltip,
                                 payload: {
                                     dataId: e.activeTooltipIndex,
                                     tileId: props.tileId,
@@ -145,8 +145,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 }
                             }) : null}}
                         onMouseOut={d =>
-                            dispatcher.dispatch<Actions.HideAreaTooltip>({
-                                name: ActionName.HideAreaTooltip,
+                            dispatcher.dispatch<Actions.HideTooltip>({
+                                name: ActionName.HideTooltip,
                                 payload: {tileId: props.tileId}
                             })
                         }
@@ -206,6 +206,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 x={this.props.tooltipData.tooltipX}
                                 y={this.props.tooltipData.tooltipY}
                                 visible={true}
+                                caption={this.props.tooltipData.caption}
                                 values={this.props.tooltipData.data}
                                 multiWord={this.props.queryMatches.length > 1}
                                 theme={this.props.queryMatches.length > 1 ? theme : null}

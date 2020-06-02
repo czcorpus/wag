@@ -21,26 +21,26 @@ import { Action } from 'kombo';
 
 
 export enum ActionName {
-    ShowAreaTooltip = 'MERGECORP_SHOW_AREA_TOOLTIP',
-    HideAreaTooltip = 'MERGE_HIDE_AREA_TOOLTIP'
+    ShowTooltip = 'MERGECORP_SHOW_TOOLTIP',
+    HideTooltip = 'MERGECORP_HIDE_TOOLTIP'
 }
 
 export namespace Actions {
 
-    export interface ShowAreaTooltip extends Action<{
+    export interface ShowTooltip extends Action<{
         tileId:number;
         dataId:number;
         tooltipX:number;
         tooltipY:number;
 
     }> {
-        name: ActionName.ShowAreaTooltip;
+        name: ActionName.ShowTooltip;
     }
 
-    export interface HideAreaTooltip extends Action<{
+    export interface HideTooltip extends Action<{
         tileId:number;
 
     }> {
-        name: ActionName.HideAreaTooltip;
+        name: ActionName.HideTooltip;
     }
 }

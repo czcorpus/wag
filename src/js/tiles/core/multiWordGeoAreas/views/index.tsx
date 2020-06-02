@@ -377,69 +377,6 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         createSVGLegend(legendHolder, currentQueryMatches);
     }
 
-    // -------------- <Tooltip /> ---------------------------------------------
-
-    const Tooltip:React.SFC<{
-        x:number;
-        y:number;
-        visible:boolean;
-        caption:string;
-        values:TooltipValues;
-    }> = (props) => {
-
-        const ref = React.useRef<HTMLDivElement>(null);
-
-        const calcXPos = () =>
-            ref.current ? Math.max(0, props.x - ref.current.getBoundingClientRect().width - 20) : props.x;
-
-        const calcYPos = () =>
-            ref.current ? props.y +  10 : props.y;
-
-        const style:React.CSSProperties = {
-            display: props.visible ? 'block' : 'none',
-            position: 'absolute',
-            visibility: ref.current ? 'visible' : 'hidden',
-            top: calcYPos(),
-            left: calcXPos()
-        };
-
-        const decimalSeparator = ut.formatNumber(0.1).slice(1, -1);
-
-        return (
-            <div className="wdg-multi-word-tooltip" ref={ref} style={style}>
-                <table>
-                    <tbody>
-                        <tr><th colSpan={7}>{props.caption}</th></tr>
-                        {props.values === null ?
-                            <tr><td colSpan={7}>{ut.translate('multi_word_geolocations__not_enough_data')}</td></tr> :
-                            pipe(
-                                props.values || {},
-                                Dict.toEntries(),
-                                List.map(([label, value], index) => {
-                                    if (value) {
-                                        const [percWh, percDec] = ut.formatNumber(value[0], 1).split(decimalSeparator);
-                                        const [ipmWh, ipmDec] = ut.formatNumber(value[1], 1).split(decimalSeparator);
-                                        return <tr key={label}>
-                                            <td className='label' style={{backgroundColor: theme.cmpCategoryColor(index)}}>{label}</td>
-                                            <td className='numWh'>{percWh}</td>
-                                            <td className='numDec'>{percDec ? decimalSeparator + percDec : null}</td>
-                                            <td className='unit'>%</td>
-                                            <td className='numWh'>{ipmWh}</td>
-                                            <td className='numDec'>{ipmDec ? decimalSeparator + ipmDec : null}</td>
-                                            <td className='unit'>ipm</td>
-                                        </tr>
-                                    } else {
-                                        return null;
-                                    }
-                                })
-                            )
-                        }
-                    </tbody>
-                </table>
-            </div>
-        );
-    }
-
     // -------------- <GeoAreasTileView /> ---------------------------------------------
 
     class MultiWordGeoAreasTileView extends React.PureComponent<MultiWordGeoAreasModelState & CoreTileComponentProps> {
@@ -475,12 +412,15 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             <div className="flex-item" style={{width: areaWidth, height: '80%'}}>
                                 <div style={{cursor: 'default', width: '100%', height: '100%', overflowX: 'auto', textAlign: 'center'}} dangerouslySetInnerHTML={{__html: this.props.mapSVG}} />
                                 {this.props.tooltipArea !== null ?
-                                    <Tooltip
+                                    <globComponents.ElementTooltip
                                         x={this.props.tooltipArea.tooltipX}
                                         y={this.props.tooltipArea.tooltipY}
                                         visible={true}
                                         caption={this.props.tooltipArea.caption}
-                                        values={this.props.tooltipArea.data} /> : null}
+                                        values={this.props.tooltipArea.data}
+                                        multiWord={true}
+                                        theme={theme}
+                                    /> : null}
                             </div>
                         }
                     </div>
