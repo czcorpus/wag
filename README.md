@@ -57,3 +57,18 @@ For the self-hosted variant the following is needed:
   - [KonText](https://github.com/czcorpus/kontext) instance
 
 Please refer for more information to the [INSTALL.md](./INSTALL.md).
+
+## How to cite WaG
+
+Tomáš Machálek (2020): Word at a Glance: Modular Word Profile Aggregator. In: [Proceedings of LREC 2020](http://www.lrec-conf.org/proceedings/lrec2020/pdf/2020.lrec-1.866.pdf), s. 7011–7016.
+
+```bibtex
+@InProceedings{machalek2020lrec,
+ author = {Tomáš Machálek},
+ title = "{Word at a Glance: Modular Word Profile Aggregator.}",
+ booktitle = {Proceedings of the Twelfth International Conference on Language Resources and Evaluation (LREC 2020)},
+ year = {2020},
+ publisher = {European Language Resources Association (ELRA)},
+ language = {english}
+}
+```
