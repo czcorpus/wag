@@ -26,6 +26,7 @@ import { ConcordanceMinState } from '../../../models/tiles/concordance';
 import { CorpusInfoAPI } from './corpusInfo';
 import { posQueryFactory } from '../../../postag';
 import { List, pipe } from 'cnc-tskit';
+import { IApiServices } from '../../../appServices';
 
 
 
@@ -239,12 +240,12 @@ export class ConcApi implements IConcordanceApi<RequestArgs> {
 
     private readonly isFilterMode:boolean;
 
-    constructor(filterMode:boolean, cache:IAsyncKeyValueStore, apiURL:string, customHeaders?:HTTPHeaders) {
+    constructor(filterMode:boolean, cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
         this.isFilterMode = filterMode;
         this.apiURL = apiURL;
-        this.customHeaders = customHeaders || {};
+        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
         this.cache = cache;
-        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, customHeaders);
+        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
     }
 
     getSupportedViewModes():Array<ViewMode> {

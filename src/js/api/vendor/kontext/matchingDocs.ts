@@ -24,6 +24,7 @@ import { map } from 'rxjs/operators';
 import { SingleCritQueryArgs, HTTPResponse } from './freqs';
 import { CorpusInfoAPI } from './corpusInfo';
 import { BacklinkWithArgs } from '../../../page/tile';
+import { IApiServices } from '../../../appServices';
 
 
 export class KontextMatchingDocsAPI implements MatchingDocsAPI<SingleCritQueryArgs> {
@@ -36,11 +37,11 @@ export class KontextMatchingDocsAPI implements MatchingDocsAPI<SingleCritQueryAr
 
     private readonly srcInfoService:CorpusInfoAPI;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, customHeaders?:HTTPHeaders) {
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
         this.cache = cache;
         this.apiURL = apiURL;
-        this.customHeaders = customHeaders || {};
-        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, customHeaders);
+        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
+        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
     }
 
     stateToBacklink(state:MatchingDocsModelState, query:string):BacklinkWithArgs<KontextFreqBacklinkArgs> {

@@ -106,8 +106,8 @@ export class MergeCorpFreqTile implements ITileProvider {
             waitForTiles,
             waitForTilesTimeoutSecs,
             appServices,
-            concApi: createConcApiInstance(cache, conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
-            freqApi: createFreqApiInstance(cache, conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            concApi: createConcApiInstance(cache, conf.apiType, conf.apiURL, appServices),
+            freqApi: createFreqApiInstance(cache, conf.apiType, conf.apiURL, appServices),
             initState: {
                 isBusy: isBusy,
                 isAltViewMode: false,

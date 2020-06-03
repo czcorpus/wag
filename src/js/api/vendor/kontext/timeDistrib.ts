@@ -25,6 +25,7 @@ import { CorpusInfoAPI } from './corpusInfo';
 import { IFreqDistribAPI } from '../../abstract/freqs';
 import { Backlink, BacklinkWithArgs } from '../../../page/tile';
 import { HTTP } from 'cnc-tskit';
+import { IApiServices } from '../../../appServices';
 
 
 interface BacklinkArgs {
@@ -49,11 +50,11 @@ export class KontextTimeDistribApi implements TimeDistribApi {
 
     private readonly srcInfoService:CorpusInfoAPI;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, customHeaders:HTTPHeaders, fcrit:string, flimit:number) {
-        this.freqApi = new KontextFreqDistribAPI(cache, apiURL, customHeaders);
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices, fcrit:string, flimit:number) {
+        this.freqApi = new KontextFreqDistribAPI(cache, apiURL, apiServices);
         this.fcrit = fcrit;
         this.flimit = flimit;
-        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, customHeaders);
+        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
     }
 
     getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {

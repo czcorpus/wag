@@ -22,6 +22,7 @@ import { WordSimApiResponse, WordSimWord, IWordSimApi } from '../../abstract/wor
 import { map } from 'rxjs/operators';
 import { WordSimModelState, OperationMode } from '../../../models/tiles/wordSim';
 import { QueryMatch } from '../../../query';
+import { IApiServices } from '../../../appServices';
 
 
 type DatamuseMLApiResponse = Array<WordSimWord>;
@@ -48,9 +49,9 @@ export class DatamuseMLApi implements IWordSimApi<DatamuseMLApiArgs|DatamuseSLAp
 
     private readonly cache:IAsyncKeyValueStore;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, customHeaders?:HTTPHeaders) {
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
-        this.customHeaders = customHeaders || {};
+        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
         this.cache = cache;
     }
 
@@ -80,7 +81,10 @@ export class DatamuseMLApi implements IWordSimApi<DatamuseMLApiArgs|DatamuseSLAp
                          'and that are likely in a given context. You can specify a wide variety of constraints ' +
                          'on meaning, spelling, sound, and vocabulary in your queries, in any combination.',
             author: 'Datamuse.com',
-            href: 'https://www.datamuse.com'
+            href: 'https://www.datamuse.com',
+            structure: {
+                numTokens: 0 // TODO
+            }
         });
     }
 

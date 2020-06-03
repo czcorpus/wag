@@ -20,6 +20,7 @@ import { cachedAjax$ } from '../../../page/ajax';
 import { Observable } from 'rxjs';
 import { HTTPHeaders, IAsyncKeyValueStore, SourceDetails } from '../../../types';
 import { map } from 'rxjs/operators';
+import { IApiServices } from '../../../appServices';
 
 
 export interface HTTPResponse {
@@ -59,10 +60,10 @@ export class ElasticsearchMatchingDocsAPI implements MatchingDocsAPI<Elasticsear
 
     private readonly cache:IAsyncKeyValueStore;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, customHeaders?:HTTPHeaders) {
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
         this.cache = cache;
         this.apiURL = apiURL;
-        this.customHeaders = customHeaders || {};
+        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
     }
 
     stateToBacklink(state:MatchingDocsModelState, query:string):null {

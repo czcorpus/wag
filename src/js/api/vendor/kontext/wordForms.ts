@@ -24,6 +24,7 @@ import { IWordFormsApi, RequestConcArgs, Response } from '../../abstract/wordFor
 import { HTTPHeaders, IAsyncKeyValueStore, CorpusDetails } from '../../../types';
 import { KontextFreqDistribAPI } from './freqs';
 import { CorpusInfoAPI } from './corpusInfo';
+import { IApiServices } from '../../../appServices';
 
 
 export interface HTTPResponse {
@@ -37,9 +38,9 @@ export class WordFormsAPI implements IWordFormsApi {
 
     private readonly srcInfoService:CorpusInfoAPI;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, customHeaders?:HTTPHeaders) {
-        this.fapi = new KontextFreqDistribAPI(cache, apiURL, customHeaders);
-        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, customHeaders);
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
+        this.fapi = new KontextFreqDistribAPI(cache, apiURL, apiServices);
+        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
     }
 
     call(args:RequestConcArgs):Observable<Response> {

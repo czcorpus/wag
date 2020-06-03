@@ -88,9 +88,9 @@ export class ConcFilterTile implements ITileProvider {
             waitForTilesTimeoutSecs,
             subqSourceTiles,
             appServices,
-            api: new ConcApi(true, cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            api: new ConcApi(true, cache, conf.apiURL, appServices),
             switchMainCorpApi: conf.switchMainCorpApiURL ?
-                new SwitchMainCorpApi(conf.switchMainCorpApiURL, appServices.getApiHeaders(conf.switchMainCorpApiURL)) :
+                new SwitchMainCorpApi(conf.switchMainCorpApiURL, appServices) :
                 new EmptyMainCorpSwitch(),
             initState: {
                 isBusy: isBusy,

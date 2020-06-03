@@ -333,12 +333,12 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                     {
                         [args.blockId]:{
                             [args.lemma.word]:{
-                                [this.appServices.translateDbValue(
+                                [this.appServices.translateResourceMetadata(
                                     state.corpname,
                                     resp.filter[state.fcritTrees[args.blockId][0]]
                                 )]:resp.data.map(item => ({
                                     ...item,
-                                    name: this.appServices.translateDbValue(state.corpname, item.name)}
+                                    name: this.appServices.translateResourceMetadata(state.corpname, item.name)}
                                 ))
                             }
                         }

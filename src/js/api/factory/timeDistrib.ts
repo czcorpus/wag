@@ -18,23 +18,24 @@
 
 import { KontextTimeDistribApi } from '../vendor/kontext/timeDistrib';
 import { CoreApiGroup, supportedCoreApiGroups } from '../coreGroups';
-import { HTTPHeaders, IAsyncKeyValueStore } from '../../types';
+import { IAsyncKeyValueStore } from '../../types';
 import { NoskeTimeDistribApi } from '../vendor/noske/timeDistrib';
 import { TimeDistribApi } from '../abstract/timeDistrib';
+import { IApiServices } from '../../appServices';
 
 interface ApiConf {
 	fcrit:string;
 	flimit:number;
 }
 
-export function createApiInstance(apiIdent:string, cache:IAsyncKeyValueStore, apiURL:string, conf:ApiConf, httpHeaders?:HTTPHeaders):TimeDistribApi {
+export function createApiInstance(apiIdent:string, cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices, conf:ApiConf):TimeDistribApi {
 
 	switch (apiIdent) {
 		case CoreApiGroup.KONTEXT:
 			return new KontextTimeDistribApi(
 				cache,
-                apiURL,
-                httpHeaders,
+				apiURL,
+				apiServices,
                 conf.fcrit,
                 conf.flimit
 			);
@@ -42,7 +43,7 @@ export function createApiInstance(apiIdent:string, cache:IAsyncKeyValueStore, ap
 			return new NoskeTimeDistribApi(
 				cache,
 				apiURL,
-				httpHeaders,
+				apiServices,
 				conf.fcrit,
 				conf.flimit
 			);

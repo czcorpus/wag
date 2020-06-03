@@ -22,6 +22,7 @@ import { DataApi, HTTPHeaders, SourceDetails } from '../../../../types';
 import { HTTP } from 'cnc-tskit';
 import { XMLParser, XMLNode } from '../../../../page/xml';
 import { ajax$, ResponseType } from '../../../../page/ajax';
+import { IApiServices } from '../../../../appServices';
 
 
 export interface FCS1ExplainArgs {
@@ -94,9 +95,9 @@ export class FCS1ExplainAPI implements DataApi<FCS1ExplainArgs, FCS1ExplainRespo
 
     private readonly customHeaders:HTTPHeaders;
 
-    constructor(url:string, customHeaders?:HTTPHeaders) {
+    constructor(url:string, apiServices:IApiServices) {
         this.url = url;
-        this.customHeaders = customHeaders || {};
+        this.customHeaders = apiServices.getApiHeaders(url) || {};
         this.parser = new XMLParser();
     }
 

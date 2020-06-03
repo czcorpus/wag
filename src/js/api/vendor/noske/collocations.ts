@@ -25,6 +25,7 @@ import { CollApiResponse, CollocationApi } from '../../abstract/collocations';
 import { CollocModelState, ctxToRange } from '../../../models/tiles/collocations';
 import { CorpusInfoAPI } from './corpusInfo';
 import { processConcId } from './common';
+import { IAppServices, IApiServices } from '../../../appServices';
 
 
 
@@ -77,11 +78,11 @@ export class NoskeCollAPI implements CollocationApi<CollApiArgs> {
 
     private readonly srcInfoService:CorpusInfoAPI;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, customHeaders?:HTTPHeaders) {
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
-        this.customHeaders = customHeaders || {};
+        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
         this.cache = cache;
-        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, customHeaders);
+        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
     }
 
     stateToArgs(state:CollocModelState, concId:string):CollApiArgs {

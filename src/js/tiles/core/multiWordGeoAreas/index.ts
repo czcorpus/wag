@@ -80,8 +80,8 @@ export class MultiWordGeoAreasTile implements ITileProvider {
             waitForTilesTimeoutSecs,
             appServices,
             queryMatches,
-            concApi: createConcApiInstance(cache, conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
-            freqApi: createApiInstance(cache, conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            concApi: createConcApiInstance(cache, conf.apiType, conf.apiURL, appServices),
+            freqApi: createApiInstance(cache, conf.apiType, conf.apiURL, appServices),
             mapLoader: new MapLoader(cache, appServices),
             initState: {
                 isBusy: isBusy,

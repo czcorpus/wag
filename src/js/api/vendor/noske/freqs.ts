@@ -24,8 +24,9 @@ import { CorpusInfoAPI } from './corpusInfo';
 import { BacklinkWithArgs, Backlink } from '../../../page/tile';
 import { APIResponse, APIBlockResponse, IMultiBlockFreqDistribAPI, IFreqDistribAPI } from '../../abstract/freqs';
 import { MinSingleCritFreqState, MinMultiCritFreqState } from '../../../models/tiles/freq';
-import { HTTP, pipe, List } from 'cnc-tskit';
+import { HTTP } from 'cnc-tskit';
 import { processConcId } from './common';
+import { IApiServices } from '../../../appServices';
 
 export enum FreqSort {
     REL = 'rel'
@@ -112,11 +113,11 @@ export class NoskeFreqDistribAPI implements IFreqDistribAPI<SingleCritQueryArgs>
 
     private readonly srcInfoService:CorpusInfoAPI;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, customHeaders?:HTTPHeaders) {
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
         this.cache = cache;
         this.apiURL = apiURL;
-        this.customHeaders = customHeaders || {};
-        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, customHeaders);
+        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
+        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
     }
 
     getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
@@ -203,11 +204,11 @@ export class NoskeMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAPI<
 
     private readonly srcInfoService:CorpusInfoAPI;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, customHeaders?:HTTPHeaders) {
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
         this.cache = cache;
         this.apiURL = apiURL;
-        this.customHeaders = customHeaders || {};
-        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, customHeaders);
+        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
+        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
     }
 
     getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {

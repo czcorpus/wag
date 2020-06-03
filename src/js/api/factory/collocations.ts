@@ -22,17 +22,18 @@ import { KontextCollAPI } from '../vendor/kontext/collocations';
 import { CollocationApi } from '../abstract/collocations';
 import { LccCollAPI } from '../vendor/lcc/cooccurrences';
 import { NoskeCollAPI } from '../vendor/noske/collocations';
+import { IApiServices } from '../../appServices';
 
 
-export function createInstance(apiIdent:string, apiURL:string, apiHeaders:HTTPHeaders, cache:IAsyncKeyValueStore):CollocationApi<{}> {
+export function createInstance(apiIdent:string, apiURL:string, apiServices:IApiServices, cache:IAsyncKeyValueStore):CollocationApi<{}> {
 
 	switch (apiIdent) {
 		case CoreApiGroup.KONTEXT:
-            return new KontextCollAPI(cache, apiURL, apiHeaders);
+            return new KontextCollAPI(cache, apiURL, apiServices);
         case CoreApiGroup.LCC:
-            return new LccCollAPI(cache, apiURL, apiHeaders);
+            return new LccCollAPI(cache, apiURL, apiServices);
         case CoreApiGroup.NOSKE:
-            return new NoskeCollAPI(cache, apiURL, apiHeaders);
+            return new NoskeCollAPI(cache, apiURL, apiServices);
 		default:
 			throw new Error(`API type "${apiIdent}" not supported for collocations.`);
 	}

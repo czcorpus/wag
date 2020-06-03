@@ -23,6 +23,7 @@ import { cachedAjax$ } from '../../../page/ajax';
 import { DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../../types';
 import { DataHeading, DataRow } from '../../../api/abstract/collocations';
 import { CollApiArgs } from '../../../api/vendor/kontext/collocations';
+import { IApiServices } from '../../../appServices';
 
 
 
@@ -61,9 +62,9 @@ export class KontextCollAPI implements DataApi<CollApiArgs, CollApiResponse> {
 
     private readonly cache:IAsyncKeyValueStore;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, customHeaders?:HTTPHeaders) {
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
-        this.customHeaders = customHeaders || {};
+        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
         this.cache = cache;
     }
 

@@ -17,19 +17,20 @@
  */
 
 import { CoreApiGroup } from '../coreGroups';
-import { HTTPHeaders, IAsyncKeyValueStore } from '../../types';
+import { IAsyncKeyValueStore } from '../../types';
 import { IGeneralHtmlAPI } from '../abstract/html';
 import { WiktionaryHtmlAPI } from '../vendor/wiktionary/html';
 import { RawHtmlAPI } from '../vendor/wdglance/html';
+import { IApiServices } from '../../appServices';
 
 
-export function createApiInstance(cache:IAsyncKeyValueStore, apiIdent:string, apiURL:string, httpHeaders?:HTTPHeaders):IGeneralHtmlAPI<{}> {
+export function createApiInstance(cache:IAsyncKeyValueStore, apiIdent:string, apiURL:string, apiServices:IApiServices):IGeneralHtmlAPI<{}> {
 
     switch (apiIdent) {
         case CoreApiGroup.WIKTIONARY:
-            return new WiktionaryHtmlAPI(cache, apiURL, httpHeaders);
+            return new WiktionaryHtmlAPI(cache, apiURL, apiServices);
         case CoreApiGroup.WDGLANCE:
-            return new RawHtmlAPI(cache, apiURL, httpHeaders);
+            return new RawHtmlAPI(cache, apiURL, apiServices);
         default:
             throw new Error(`HTML API "${apiIdent}" not found.`);
     }

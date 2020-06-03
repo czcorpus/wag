@@ -76,9 +76,9 @@ export class WordFreqTile implements ITileProvider {
             },
             tileId,
             api: conf.apiURL ?
-                new SimilarFreqWordsAPI(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)) :
+                new SimilarFreqWordsAPI(cache, conf.apiURL, appServices) :
                 new SimilarFreqWordsNullAPI(),
-            sourceInfoApi: new InternalResourceInfoApi(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            sourceInfoApi: new InternalResourceInfoApi(cache, conf.apiURL, appServices),
             queryMatches: queryMatches,
             queryLang: lang1,
             queryType,

@@ -162,7 +162,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                         state.blocks[action.payload.critId].words[action.payload.queryId] = action.payload.lemma.word;
                         action.payload.block.data.forEach(data =>
                             state.blocks[action.payload.critId].data.push({
-                                name: this.appServices.translateDbValue(state.corpname, data.name),
+                                name: this.appServices.translateResourceMetadata(state.corpname, data.name),
                                 freq: data.freq,
                                 ipm: Maths.roundToPos(data.ipm, 2),
                                 word: action.payload.lemma.word,

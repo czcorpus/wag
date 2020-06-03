@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { DbValueMapping, HTTPHeaders, LocalizedConfMsg } from '../types';
+import { HTTPHeaders, LocalizedConfMsg } from '../types';
 import { QueryType, SearchLanguage } from '../query/index';
 import { TileConf } from '../page/tile';
 import { CSSProperties } from 'react';
@@ -132,6 +132,19 @@ export interface LogoConf {
     inlineStyle?:CSSProperties;
 }
 
+export interface CommonTextStructures {
+    sentence?:string;
+    paragraph?:string;
+    document?:string;
+}
+
+export interface DataReadabilityMapping {
+    metadataMapping:{
+        [corp:string]:{[key:string]:LocalizedConfMsg}
+    };
+    commonStructures:{[corp:string]:CommonTextStructures};
+};
+
 /**
  * Client side app configuration as present in wdglance.json
  * configuration file.
@@ -142,7 +155,7 @@ export interface ClientStaticConf {
     favicon?:FaviconConf;
     logo?:LogoConf;
 	corpInfoApiUrl:string;
-    dbValuesMapping:DbValueMapping;
+    dataReadability?:DataReadabilityMapping|string;
     apiHeaders:{[urlPrefix:string]:HTTPHeaders};
     reqCacheTTL:number;
     onLoadInit?:Array<string>;
@@ -207,7 +220,7 @@ export interface ClientConf {
     hostUrl:string;
     favicon:FaviconConf|null;
 	corpInfoApiUrl:string;
-    dbValuesMapping:DbValueMapping;
+    dataReadability:DataReadabilityMapping;
     logo:LogoConf|null;
     colors:ColorTheme;
     colorThemes:Array<ColorThemeIdent>;
@@ -280,7 +293,10 @@ export function emptyClientConf(conf:ClientStaticConf, themeId:string|undefined)
         logo: conf.logo,
         corpInfoApiUrl: conf.corpInfoApiUrl,
         apiHeaders: conf.apiHeaders,
-        dbValuesMapping: conf.dbValuesMapping,
+        dataReadability: {
+            metadataMapping: {},
+            commonStructures: {}
+        },
         reqCacheTTL: conf.reqCacheTTL,
         onLoadInit: conf.onLoadInit || [],
         colors: getAppliedThemeConf(conf, themeId),

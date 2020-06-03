@@ -1,0 +1,47 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "properties": {
+        "commonStructures": {
+            "additionalProperties": {
+                "properties": {
+                    "document": {
+                        "type": "string"
+                    },
+                    "paragraph": {
+                        "type": "string"
+                    },
+                    "sentence": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "type": "object"
+        },
+        "metadataMapping": {
+            "additionalProperties": {
+                "additionalProperties": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                },
+                "type": "object"
+            },
+            "type": "object"
+        }
+    },
+    "required": [
+        "commonStructures",
+        "metadataMapping"
+    ],
+    "type": "object"
+}
+

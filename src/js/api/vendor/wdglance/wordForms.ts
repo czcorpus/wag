@@ -26,6 +26,7 @@ import { QueryMatch, QueryType } from '../../../query';
 import { RequestArgs, Response } from '../../abstract/wordForms';
 import { HTTPAction } from '../../../server/routes/actions';
 import { InternalResourceInfoApi } from './freqDbSourceInfo';
+import { IApiServices } from '../../../appServices';
 
 
 export interface HTTPResponse {
@@ -41,10 +42,10 @@ export class WordFormsWdglanceAPI implements ResourceApi<RequestArgs, Response> 
 
     private readonly srcInfoApi:InternalResourceInfoApi;
 
-    constructor(cache:IAsyncKeyValueStore, url:string, srcInfoURL:string, customHeaders?:HTTPHeaders) {
+    constructor(cache:IAsyncKeyValueStore, url:string, srcInfoURL:string, apiServices:IApiServices) {
         this.cache = cache;
         this.apiUrl = url;
-        this.srcInfoApi = srcInfoURL ? new InternalResourceInfoApi(cache, srcInfoURL, customHeaders) : null;
+        this.srcInfoApi = srcInfoURL ? new InternalResourceInfoApi(cache, srcInfoURL, apiServices) : null;
     }
 
     call(args:RequestArgs):Observable<Response> {
@@ -82,7 +83,10 @@ export class WordFormsWdglanceAPI implements ResourceApi<RequestArgs, Response> 
                 title: 'Word forms generated from an internal database (no additional details available)',
                 description: '',
                 author: '',
-                href: ''
+                href: '',
+                structure: {
+                    numTokens: 0 // TODO
+                }
             });
     }
 

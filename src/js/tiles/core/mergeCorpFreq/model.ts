@@ -334,7 +334,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
                             row => {
                                 const name = props.sourceArgs.valuePlaceholder ?
                                     props.sourceArgs.valuePlaceholder :
-                                    this.appServices.translateDbValue(props.sourceArgs.corpname, row.name);
+                                    this.appServices.translateResourceMetadata(props.sourceArgs.corpname, row.name);
                                 return row.ipm ?
                                     {
                                         sourceId: props.sourceArgs.uuid,

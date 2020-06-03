@@ -26,6 +26,7 @@ import { WordSimModelState } from '../../../models/tiles/wordSim';
 import { AjaxError } from 'rxjs/ajax';
 import { QueryMatch, QueryType } from '../../../query';
 import { InternalResourceInfoApi } from './freqDbSourceInfo';
+import { IApiServices } from '../../../appServices';
 
 
 export interface CNCWord2VecSimApiArgs {
@@ -56,11 +57,11 @@ export class CNCWord2VecSimApi implements IWordSimApi<CNCWord2VecSimApiArgs> {
 
     private readonly srcInfoApi:InternalResourceInfoApi;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, srcInfoURL:string, customHeaders?:HTTPHeaders) {
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, srcInfoURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
-        this.customHeaders = customHeaders || {};
+        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
         this.cache = cache;
-        this.srcInfoApi = srcInfoURL ? new InternalResourceInfoApi(cache, srcInfoURL, customHeaders) : null;
+        this.srcInfoApi = srcInfoURL ? new InternalResourceInfoApi(cache, srcInfoURL, apiServices) : null;
     }
 
     stateToArgs(state:WordSimModelState, queryMatch:QueryMatch):CNCWord2VecSimApiArgs {
@@ -95,7 +96,10 @@ export class CNCWord2VecSimApi implements IWordSimApi<CNCWord2VecSimApiArgs> {
                 title: 'Word2Vec/Wang2Vec generated from an unknown source',
                 description: '',
                 author: '',
-                href: ''
+                href: '',
+                structure: {
+                    numTokens: 0 // TODO
+                }
             });
     }
 

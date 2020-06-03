@@ -84,7 +84,7 @@ export class FreqPieTile implements ITileProvider {
         const modelFact = conf.subqueryMode ?
             subqModelFactory(
                 conf.subqueryMode,
-                new ConcApi(false, cache, conf.subqueryMode.concApiURL, appServices.getApiHeaders(conf.subqueryMode.concApiURL))) :
+                new ConcApi(false, cache, conf.subqueryMode.concApiURL, appServices)) :
             defaultModelFactory;
         this.model = modelFact(
             dispatcher,
@@ -93,7 +93,7 @@ export class FreqPieTile implements ITileProvider {
             waitForTilesTimeoutSecs,
             subqSourceTiles,
             appServices,
-            createMultiBlockApiInstance(cache, conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            createMultiBlockApiInstance(cache, conf.apiType, conf.apiURL, appServices),
             conf.backlink || null,
             {
                 isBusy: isBusy,

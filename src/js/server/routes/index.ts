@@ -337,7 +337,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             translator: viewUtils,
             staticUrlCreator: viewUtils.createStaticUrl,
             actionUrlCreator: viewUtils.createActionUrl,
-            dbValuesMapping: services.clientConf.dbValuesMapping || {},
+            dataReadability: {metadataMapping: {}, commonStructures: {}},
             apiHeadersMapping: services.clientConf.apiHeaders || {},
             mobileModeTest: ()=>false
         });
@@ -417,7 +417,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             translator: viewUtils,
             staticUrlCreator: viewUtils.createStaticUrl,
             actionUrlCreator: viewUtils.createActionUrl,
-            dbValuesMapping: services.clientConf.dbValuesMapping || {},
+            dataReadability: {metadataMapping: {}, commonStructures: {}},
             apiHeadersMapping: services.clientConf.apiHeaders || {},
             mobileModeTest: ()=>false
         });

@@ -80,7 +80,7 @@ export class CollocationsTile implements ITileProvider {
         this.appServices = appServices;
         this.widthFract = widthFract;
         this.blockingTiles = waitForTiles;
-        this.api = createInstance(conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL), cache);
+        this.api = createInstance(conf.apiType, conf.apiURL, appServices, cache);
         if (waitForTiles.length > 1) {
             console.warn(`The collocation tile does support waiting for 0-1 other tiles`);
         }
@@ -94,7 +94,7 @@ export class CollocationsTile implements ITileProvider {
             waitForTilesTimeoutSecs: waitForTilesTimeoutSecs,
             appServices: appServices,
             service: this.api,
-            concApi: createApiInstance(cache, conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            concApi: createApiInstance(cache, conf.apiType, conf.apiURL, appServices),
             backlink: conf.backlink || null,
             queryType: queryType,
             apiType: conf.apiType,

@@ -16,31 +16,32 @@
  * limitations under the License.
  */
 
-import { IAsyncKeyValueStore, HTTPHeaders } from '../../types';
+import { IAsyncKeyValueStore } from '../../types';
 import { IFreqDistribAPI, IMultiBlockFreqDistribAPI } from '../abstract/freqs';
 import { CoreApiGroup } from '../coreGroups';
 import { KontextFreqDistribAPI, KontextMultiBlockFreqDistribAPI } from '../vendor/kontext/freqs';
 import { NoskeFreqDistribAPI, NoskeMultiBlockFreqDistribAPI } from '../vendor/noske/freqs';
+import { IApiServices } from '../../appServices';
 
 
-export function createApiInstance(cache:IAsyncKeyValueStore, apiIdent:string, apiURL:string, httpHeaders?:HTTPHeaders):IFreqDistribAPI<{}> {
+export function createApiInstance(cache:IAsyncKeyValueStore, apiIdent:string, apiURL:string, apiServices:IApiServices):IFreqDistribAPI<{}> {
     switch (apiIdent) {
         case CoreApiGroup.KONTEXT:
-            return new KontextFreqDistribAPI(cache, apiURL, httpHeaders);
+            return new KontextFreqDistribAPI(cache, apiURL, apiServices);
         case CoreApiGroup.NOSKE:
-            return new NoskeFreqDistribAPI(cache, apiURL, httpHeaders);
+            return new NoskeFreqDistribAPI(cache, apiURL, apiServices);
         default:
             throw new Error(`Freq API ${apiIdent} not implemented`);
     }
 }
 
 
-export function createMultiBlockApiInstance(cache:IAsyncKeyValueStore, apiIdent:string, apiURL:string, httpHeaders?:HTTPHeaders):IMultiBlockFreqDistribAPI<{}> {
+export function createMultiBlockApiInstance(cache:IAsyncKeyValueStore, apiIdent:string, apiURL:string, apiServices:IApiServices):IMultiBlockFreqDistribAPI<{}> {
     switch (apiIdent) {
         case CoreApiGroup.KONTEXT:
-            return new KontextMultiBlockFreqDistribAPI(cache, apiURL, httpHeaders);
+            return new KontextMultiBlockFreqDistribAPI(cache, apiURL, apiServices);
         case CoreApiGroup.NOSKE:
-            return new NoskeMultiBlockFreqDistribAPI(cache, apiURL, httpHeaders);
+            return new NoskeMultiBlockFreqDistribAPI(cache, apiURL, apiServices);
         default:
             throw new Error(`Multi-block freq API ${apiIdent} not implemented`);
     }

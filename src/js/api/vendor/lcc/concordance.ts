@@ -26,6 +26,7 @@ import { cachedAjax$ } from '../../../page/ajax';
 import { map } from 'rxjs/operators';
 import { List, pipe, Dict } from 'cnc-tskit';
 import { CorpusInfoAPI } from './corpusInfo';
+import { IApiServices } from '../../../appServices';
 
 
 export enum QuerySelector {
@@ -87,11 +88,11 @@ export class ConcApi implements IConcordanceApi<RequestArgs> {
     private readonly srcInfoService:CorpusInfoAPI;
 
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, customHeaders?:HTTPHeaders) {
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
-        this.customHeaders = customHeaders || {};
+        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
         this.cache = cache;
-        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, customHeaders);
+        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
     }
 
     getSupportedViewModes():Array<ViewMode> {

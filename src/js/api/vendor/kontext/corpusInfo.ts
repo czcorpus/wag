@@ -16,10 +16,12 @@
  * limitations under the License.
  */
 import { Observable } from 'rxjs';
-import { share, map } from 'rxjs/operators';
+import { share, map, tap } from 'rxjs/operators';
 
 import { cachedAjax$ } from '../../../page/ajax';
 import { DataApi, HTTPHeaders, IAsyncKeyValueStore, CorpusDetails } from '../../../types';
+import { IAppServices, IApiServices } from '../../../appServices';
+import { List } from 'cnc-tskit';
 
 
 interface HTTPResponse {
@@ -28,7 +30,7 @@ interface HTTPResponse {
     size:number;
     web_url:string;
     attrlist:Array<{name:string, size:number}>;
-    citation_info:{
+    citation_info?:{
         article_ref:Array<string>;
         default_ref:string;
         other_bibliography:string;
@@ -44,6 +46,11 @@ export interface QueryArgs {
     format:'json';
 }
 
+function findStructSize(data:Array<{name:string, size:number}>, name:string):number|undefined {
+    const ans = List.find(v => v.name === name, data);
+    return ans ? ans.size : undefined;
+}
+
 export class CorpusInfoAPI implements DataApi<QueryArgs, CorpusDetails> {
 
     private readonly apiURL:string;
@@ -52,10 +59,13 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, CorpusDetails> {
 
     private readonly cache:IAsyncKeyValueStore;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, customHeaders?:HTTPHeaders) {
+    private readonly apiServices:IApiServices;
+
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
         this.cache = cache;
         this.apiURL = apiURL;
-        this.customHeaders = customHeaders || {};
+        this.apiServices = apiServices;
+        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
     }
 
     call(args:QueryArgs):Observable<CorpusDetails> {
@@ -67,24 +77,31 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, CorpusDetails> {
 
         ).pipe(
             share(),
-            map(
+            map<HTTPResponse, CorpusDetails>(
                 (resp) => ({
                     tileId: args.tileId,
                     title: resp.corpname,
                     description: resp.description,
                     author: '', // TODO
-                    size: resp.size,
                     href: resp.web_url,
                     attrList: resp.attrlist,
                     citationInfo: {
                         sourceName: resp.corpname,
-                        main: resp.citation_info.default_ref,
-                        papers: resp.citation_info.article_ref || [],
-                        otherBibliography: resp.citation_info.other_bibliography || undefined
+                        main: resp.citation_info?.default_ref,
+                        papers: resp.citation_info?.article_ref || [],
+                        otherBibliography: resp.citation_info?.other_bibliography || undefined
                     },
-                    structList: resp.structlist,
+                    structure: {
+                        numTokens: resp.size,
+                        numSentences: findStructSize(resp.structlist, this.apiServices.getCommonResourceStructure(resp.corpname, 'sentence')),
+                        numParagraphs: findStructSize(resp.structlist, this.apiServices.getCommonResourceStructure(resp.corpname, 'paragraph')),
+                        numDocuments: findStructSize(resp.structlist, this.apiServices.getCommonResourceStructure(resp.corpname, 'document'))
+                    },
                     keywords: resp.keywords
                 })
+            ),
+            tap(
+                v => console.log('v: ', v)
             )
         );
     }

@@ -81,13 +81,18 @@ export class MultiWordTimeDistTile implements ITileProvider {
                 (url, i) => apiFactory.addInstance(
                     i,
                     [
-                        createConcApiInstance(cache, conf.apiType, url, appServices.getApiHeaders(url)),
+                        createConcApiInstance(
+                            cache,
+                            conf.apiType,
+                            url,
+                            appServices
+                        ),
                         createFreqApiInstance(
                             conf.apiType,
                             cache,
                             url,
-                            conf,
-                            appServices.getApiHeaders(url)
+                            appServices,
+                            conf
                         )
                     ]
                 )

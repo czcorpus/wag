@@ -17,6 +17,7 @@
  */
 import { renderToString } from 'react-dom/server';
 import * as React from 'react';
+import { pipe, Dict, List, tuple } from 'cnc-tskit';
 
 import { IQueryLog } from '../queryLog/abstract';
 import { HTTPAction } from './actions';
@@ -28,7 +29,6 @@ import { Services } from '../actionServices';
 import { ViewUtils } from 'kombo';
 import { GlobalComponents } from '../../views/global';
 import { AppServices } from '../../appServices';
-import { pipe, Dict, List } from 'cnc-tskit';
 import { LayoutProps } from '../../views/layout';
 import { HostPageEnv } from '../../page/hostPage';
 import { RecognizedQueries } from '../../query/index';
@@ -156,11 +156,15 @@ export function createHelperServices(services:Services, uiLang:string):[ViewUtil
         new AppServices({
             notifications: null, // TODO
             uiLang: uiLang,
-            searchLanguages: Object.keys(services.clientConf.searchLanguages).map(k => [k, services.clientConf.searchLanguages[k]]),
+            searchLanguages: pipe(
+                services.clientConf.searchLanguages,
+                Dict.keys(),
+                List.map(k => tuple(k, services.clientConf.searchLanguages[k]))
+            ),
             translator: viewUtils,
             staticUrlCreator: viewUtils.createStaticUrl,
             actionUrlCreator: viewUtils.createActionUrl,
-            dbValuesMapping: services.clientConf.dbValuesMapping || {},
+            dataReadability: {metadataMapping: {}, commonStructures: {}},
             apiHeadersMapping: services.clientConf.apiHeaders || {},
             mobileModeTest: ()=>false
         })

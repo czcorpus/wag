@@ -19,7 +19,7 @@ import { Observable, merge, empty, forkJoin, of as rxOf } from 'rxjs';
 import { concatMap, reduce, map, catchError } from 'rxjs/operators';
 import { List, pipe, HTTP, tuple } from 'cnc-tskit';
 
-import { IAppServices } from '../../../../appServices';
+import { IAppServices, IApiServices } from '../../../../appServices';
 import { QueryMatch, calcFreqBand } from '../../../../query/index';
 import { IFreqDB } from '../../freqdb';
 import { FreqDbOptions } from '../../../../conf';
@@ -142,13 +142,14 @@ export class CouchFreqDB implements IFreqDB {
 
     private readonly maxSingleTypeNgramArf:number;
 
-    constructor(dbPath:string, corpusSize:number, options:FreqDbOptions) {
+    constructor(dbPath:string, corpusSize:number, apiServices:IApiServices, options:FreqDbOptions) {
         this.dbUrl = dbPath;
         this.sourceDbApi = options.sourceInfoUrl ?
             new CouchStoredSourceInfo(
                 options.sourceInfoUrl,
                 options.username,
-                options.password
+                options.password,
+                apiServices
             ) :
             null;
         this.dbUser = options.username;
@@ -331,7 +332,8 @@ export class CouchFreqDB implements IFreqDB {
                 tileId: -1,
                 title: 'Unknown resource',
                 description: '',
-                author: 'unknown'
+                author: 'unknown',
+                structure: {numTokens: 0}
             });
     }
 

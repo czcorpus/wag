@@ -18,10 +18,11 @@
 
 import { Observable, of as rxOf } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { HTTP } from 'cnc-tskit';
+import { HTTP, List } from 'cnc-tskit';
 
 import { serverHttpRequest, ServerHTTPRequestError } from '../../../request';
 import { SourceDetails } from '../../../../types';
+import { IApiServices } from '../../../../appServices';
 
 
 interface HTTPSourceInfoDoc {
@@ -57,6 +58,12 @@ interface HTTPSourceInfoResponse {
 }
 
 
+function findStructSize(data:Array<{name:string, size:number}>, name:string):number|undefined {
+    const ans = List.find(v => v.name === name, data);
+    return ans ? ans.size : undefined;
+}
+
+
 export class CouchStoredSourceInfo {
 
     private readonly sourceDbUrl:string;
@@ -65,10 +72,13 @@ export class CouchStoredSourceInfo {
 
     private readonly dbPassword:string;
 
-    constructor(sourceDbUrl:string, dbUser:string, dbPassword:string) {
+    private readonly apiServices:IApiServices;
+
+    constructor(sourceDbUrl:string, dbUser:string, dbPassword:string, apiServices:IApiServices) {
         this.sourceDbUrl = sourceDbUrl;
         this.dbUser = dbUser;
         this.dbPassword = dbPassword;
+        this.apiServices = apiServices;
     }
 
     getSourceDescription(uiLang:string, corpname:string):Observable<SourceDetails> {
@@ -101,23 +111,25 @@ export class CouchStoredSourceInfo {
                 }),
                 map(
                     doc => {
-
-                        if (doc.data.attrlist) {
+                        if (doc.data.structlist) {
                             return {
                                 tileId: -1,
                                 title: doc.data.corpname,
                                 description: doc.data.description,
                                 author: '', // TODO
-                                size: doc.data.size,
                                 href: doc.data.web_url,
-                                attrList: doc.data.attrlist,
                                 citationInfo: {
-                                sourceName: doc.data.corpname,
-                                main: doc.data.citation_info.default_ref,
-                                papers: doc.data.citation_info.article_ref || [],
-                                otherBibliography: doc.data.citation_info.other_bibliography || undefined
+                                    sourceName: doc.data.corpname,
+                                    main: doc.data.citation_info.default_ref,
+                                    papers: doc.data.citation_info.article_ref || [],
+                                    otherBibliography: doc.data.citation_info.other_bibliography || undefined
                                 },
-                                structList: doc.data.structlist,
+                                structure: {
+                                    numTokens: doc.data.size,
+                                    numSentences: findStructSize(doc.data.structlist, this.apiServices.getCommonResourceStructure(doc.data.corpname, 'sentence')),
+                                    numParagraphs: findStructSize(doc.data.structlist, this.apiServices.getCommonResourceStructure(doc.data.corpname, 'paragraph')),
+                                    numDocuments: findStructSize(doc.data.structlist, this.apiServices.getCommonResourceStructure(doc.data.corpname, 'document'))
+                                },
                                 keywords: doc.data.keywords
                             }
 
@@ -132,7 +144,8 @@ export class CouchStoredSourceInfo {
                                     main: doc.data.citation_info.default_ref,
                                     papers: doc.data.citation_info.article_ref,
                                     otherBibliography: doc.data.citation_info.other_bibliography
-                                }
+                                },
+                                structure: {numTokens: 0}
                             };
                         }
                     }
@@ -142,7 +155,8 @@ export class CouchStoredSourceInfo {
                 tileId: -1,
                 title: corpname,
                 description: 'No detailed information available',
-                author: 'not specified'
+                author: 'not specified',
+                structure: {numTokens: 0}
             })
         }
 }

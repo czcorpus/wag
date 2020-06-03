@@ -26,6 +26,7 @@ import { QueryType } from '../query/index';
 import { IFreqDB } from './freqdb/freqdb';
 import { createInstance, FreqDBType } from './freqdb/factory';
 import { Database } from 'sqlite3';
+import { IApiServices } from '../appServices';
 
 
 
@@ -37,16 +38,16 @@ export class WordDatabases {
 
     private readonly translat:{[lang:string]:IFreqDB};
 
-    constructor(conf:WordFreqDbConf) {
+    constructor(conf:WordFreqDbConf, apiServices:IApiServices) {
         const uniqDb = {};
         this.single = {};
         this.cmp = {};
         this.translat = {};
 
-        const databases:Array<[{[lang:string]:FreqDbConf}, {[lang:string]:IFreqDB}, string]> = [
-            [conf.single.databases || {}, this.single, 'single'],
-            [conf.cmp.databases || {}, this.cmp, 'cmp'],
-            [conf.translat.databases || {}, this.translat, 'translat']
+        const databases:Array<[{[lang:string]:FreqDbConf}, {[lang:string]:IFreqDB}, QueryType]> = [
+            [conf.single.databases || {}, this.single, QueryType.SINGLE_QUERY],
+            [conf.cmp.databases || {}, this.cmp, QueryType.CMP_QUERY],
+            [conf.translat.databases || {}, this.translat, QueryType.TRANSLAT_QUERY]
         ];
         databases.forEach(([dbConf, targetConf, ident]) => {
             pipe(
@@ -59,6 +60,7 @@ export class WordDatabases {
                                 db.dbType as FreqDBType,
                                 db.path,
                                 db.corpusSize,
+                                apiServices,
                                 db.options || {}
                             );
                         }

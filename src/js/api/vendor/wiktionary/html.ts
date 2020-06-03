@@ -25,6 +25,7 @@ import { HTTPHeaders, IAsyncKeyValueStore } from '../../../types';
 import { of as rxOf } from 'rxjs';
 import { AjaxError } from 'rxjs/ajax';
 import { IGeneralHtmlAPI } from '../../abstract/html';
+import { IApiServices } from '../../../appServices';
 
 
 
@@ -42,9 +43,9 @@ export class WiktionaryHtmlAPI implements IGeneralHtmlAPI<WiktionaryApiArgs>  {
 
     private readonly cache:IAsyncKeyValueStore;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, customHeaders?:HTTPHeaders) {
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
-        this.customHeaders = customHeaders || {};
+        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
         this.cache = cache;
     }
 

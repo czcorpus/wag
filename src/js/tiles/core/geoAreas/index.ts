@@ -77,7 +77,7 @@ export class GeoAreasTile implements ITileProvider {
             waitForTile: waitForTiles.length > 0 ? waitForTiles[0] : -1,
             waitForTilesTimeoutSecs,
             appServices,
-            api: createApiInstance(cache, conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            api: createApiInstance(cache, conf.apiType, conf.apiURL, appServices),
             mapLoader: new MapLoader(cache, appServices),
             initState: {
                 isBusy: isBusy,

@@ -29,88 +29,6 @@ export interface CorpusInfoBoxProps {
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>):React.SFC<CorpusInfoBoxProps> {
 
-    // ---------------------------- <ItemAndNumRow /> -----------------------------
-
-    const ItemAndNumRow:React.SFC<{
-        brackets:boolean;
-        label:string;
-        value:number;
-
-    }> = (props) => {
-
-        if (props.brackets) {
-            return (
-                <tr className="dynamic">
-                    <th>&lt;{props.label}&gt;</th>
-                    <td className="numeric">{ut.formatNumber(props.value, 0)}</td>
-                </tr>
-            );
-
-        } else {
-            return (
-                <tr className="dynamic">
-                    <th>{props.label}</th>
-                    <td className="numeric">{ut.formatNumber(props.value, 0)}</td>
-                </tr>
-            );
-        }
-    };
-
-    // ---------------------------- <AttributeList /> -----------------------------
-
-    const AttributeList:React.SFC<{
-        rows:Array<{name:string; size:number}>|{error:boolean};
-
-    }> = (props) => {
-
-        let values;
-
-        if (Array.isArray(props.rows) && !props.rows['error']) {
-            values = props.rows.map((row, i) =>
-                    <ItemAndNumRow key={i} label={row.name} value={row.size} brackets={false} />);
-
-        } else {
-            values = <tr><td colSpan={2}>{ut.translate('failed to load')}</td></tr>;
-        }
-
-        return (
-            <table className="attrib-list">
-                <thead>
-                    <tr>
-                        <th colSpan={2} className="attrib-heading">
-                            {ut.translate('global__attributes') }
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {values}
-                </tbody>
-            </table>
-        );
-    };
-
-    // ---------------------------- <StructureList /> -----------------------------
-
-    const StructureList:React.SFC<{
-        rows:Array<{name:string; size:number}>;
-
-    }> = (props) => {
-
-        return (
-            <table className="struct-list">
-                <thead>
-                    <tr>
-                        <th colSpan={2} className="attrib-heading">{ut.translate('global__structures')}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {props.rows.map((row, i) =>
-                        <ItemAndNumRow key={i} brackets={true} label={row.name} value={row.size} />)
-                    }
-                </tbody>
-            </table>
-        );
-    };
 
     // ---------------------- <CorpusReference /> ------------------------------------
 
@@ -191,7 +109,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <li>
                         <a className={state.activeTab === 1 ? 'current' : null}
                                 onClick={handleTabClick}>
-                            {ut.translate('global__corp_metadata')}
+                            {ut.translate('global__corp_citation')}
                         </a>
                     </li>
                 </ul>
@@ -203,12 +121,41 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             <dt>{ut.translate('global__description')}:</dt>
                             <dd>{props.data.description}</dd>
                             <dt>{ut.translate('global__size')}:</dt>
-                            <dd>{ut.formatNumber(props.data.size, 0)} {ut.translate('global__positions')}
+                            <dd>
+                                <table className="struct-info">
+                                    <tbody>
+                                        <tr>
+                                            <th>{ut.translate('global__positions')}:</th>
+                                            <td className="num">{ut.formatNumber(props.data.structure.numTokens, 0)}</td>
+                                        </tr>
+                                        {props.data.structure.numSentences ?
+                                            <tr><th>{ut.translate('global__num_sentences')}:</th><td className="num">{ut.formatNumber(props.data.structure.numSentences)}</td></tr> : null
+                                        }
+                                        {props.data.structure.numParagraphs ?
+                                            <tr><th>{ut.translate('global__num_paragraphs')}:</th><td className="num">{ut.formatNumber(props.data.structure.numParagraphs)}</td></tr> : null
+                                        }
+                                        {props.data.structure.numDocuments ?
+                                            <tr><th>{ut.translate('global__num_documents')}:</th><td className="num">{ut.formatNumber(props.data.structure.numDocuments)}</td></tr> : null
+                                        }
+                                    </tbody>
+                                </table>
                             </dd>
-                            <dt>{ut.translate('global__website')}:</dt>
-                            <dd>{renderWebLink()}</dd>
-                            <dt>{ut.translate('global__keywords')}:</dt>
-                            <dd>{renderKeywords()}</dd>
+                            {props.data.href ?
+                                <>
+                                    <dt>{ut.translate('global__website')}:</dt>
+                                    <dd>{renderWebLink()}</dd>
+                                </> :
+                                null
+                            }
+                            {props.data.keywords && props.data.keywords.length > 0 ?
+                                <>
+                                    <dt>{ut.translate('global__keywords')}:</dt>
+                                    <dd>{renderKeywords()}</dd>
+                                </> :
+                                null
+                            }
+                        </dl> :
+                        <dl>
                             <dt>{ut.translate('global__citation_info')}:</dt>
                             {props.data.citationInfo ?
                                 <dd className="references">
@@ -216,25 +163,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 </dd> :
                                 null
                             }
-                        </dl> :
-                        <div>
-                            <table className="structs-and-attrs">
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            <AttributeList rows={props.data.attrList} />
-                                        </td>
-                                        <td style={{paddingLeft: '4em'}}>
-                                            <StructureList rows={props.data.structList} />
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <p className="note">
-                            <strong>{ut.translate('global__corp_info_attrs_remark_label')}: </strong>
-                            {ut.translate('global__corp_info_attrs_remark_text')}
-                            </p>
-                        </div>
+                        </dl>
                     }
                 </dl>
             </div>
