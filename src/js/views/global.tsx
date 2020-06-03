@@ -597,20 +597,20 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                                     const labelTheme = props.multiWord && props.theme ? {backgroundColor: props.theme.cmpCategoryColor(i)} : null;
                                     return <tr key={label}>
                                         <td className='label' style={labelTheme}>{label}</td>
-                                        {List.map(([value, unit], index) => {
+                                        {List.flatMap(([value, unit], index) => {
                                             if (typeof value === 'number') {
                                                 const [numWh, numDec] = ut.formatNumber(value, 1).split(decimalSeparator);
-                                                return <>
-                                                    <td key={`numWh${index}`} className='value numWh'>{numWh}</td>
-                                                    <td key={`numDec${index}`} className='value numDec'>{numDec ? decimalSeparator + numDec : null}</td>
+                                                return [
+                                                    <td key={`numWh${index}`} className='value numWh'>{numWh}</td>,
+                                                    <td key={`numDec${index}`} className='value numDec'>{numDec ? decimalSeparator + numDec : null}</td>,
                                                     <td key={`unit${index}`} className='value'>{unit}</td>
-                                                </>
+                                                ]
 
                                             } else if (typeof value === 'string') {
-                                                return <>
-                                                    <td key={`value${index}`} className='value' colSpan={2}>{value}</td>
+                                                return [
+                                                    <td key={`value${index}`} className='value' colSpan={2}>{value}</td>,
                                                     <td key={`unit${index}`} className='value'>{unit}</td>
-                                                </>
+                                                ]
                                             }
                                         }, values)}
                                     </tr>
@@ -654,14 +654,14 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                                     } else if (Array.isArray(value)) {
                                         return <tr key={label}>
                                             <td key="name" className="label" style={labelTheme}>{label}</td>
-                                            {List.map(
+                                            {List.flatMap(
                                                 ([val, unit]) => {
                                                     const [numWh, numDec] = ut.formatNumber(val, 1).split(decimalSeparator);
-                                                    return <>
-                                                        <td key="valueWh" className="value numWh">{numWh}</td>
-                                                        <td key="valueDec" className="value numDec">{numDec ? decimalSeparator + numDec : null}</td>
+                                                    return [
+                                                        <td key="valueWh" className="value numWh">{numWh}</td>,
+                                                        <td key="valueDec" className="value numDec">{numDec ? decimalSeparator + numDec : null}</td>,
                                                         <td key="unit" className="value">{unit}</td>
-                                                    </>
+                                                    ]
                                                 },
                                                 value
                                             )}
