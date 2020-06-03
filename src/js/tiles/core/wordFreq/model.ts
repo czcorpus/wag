@@ -26,7 +26,7 @@ import { SimilarFreqWord, SimilarFreqDbAPI } from '../../../common/api/abstract/
 import { findCurrQueryMatch } from '../../../models/query';
 import { QueryMatch, testIsDictMatch, RecognizedQueries, QueryType, calcFreqBand } from '../../../common/query/index';
 import { List, pipe } from 'cnc-tskit';
-import { InternalResourceInfoApi } from '../../../common/api/wdglance/freqDbSourceInfo';
+import { InternalResourceInfoApi } from '../../../common/api/vendor/wdglance/freqDbSourceInfo';
 
 export interface FlevelDistribItem {
     rel:number;

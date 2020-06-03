@@ -22,7 +22,7 @@ import { flatMap, concatMap, map, reduce, tap } from 'rxjs/operators';
 import { Dict, List, pipe } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
-import { SourceMappedDataRow } from '../../../common/api/kontext/freqs';
+import { SourceMappedDataRow } from '../../../common/api/vendor/kontext/freqs';
 import { callWithExtraVal } from '../../../common/api/util';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { QueryMatch } from '../../../common/query/index';

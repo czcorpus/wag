@@ -18,9 +18,9 @@
 
 import { IAsyncKeyValueStore, HTTPHeaders } from '../../../common/types';
 import { CoreApiGroup } from '../../../common/api/coreGroups';
-import { KontextMatchingDocsAPI } from '../../../common/api/kontext/matchingDocs';
+import { KontextMatchingDocsAPI } from '../../../common/api/vendor/kontext/matchingDocs';
 import { MatchingDocsAPI } from '../../../common/api/abstract/matchingDocs';
-import { ElasticsearchMatchingDocsAPI } from '../../../common/api/elasticsearch/matchingDocs';
+import { ElasticsearchMatchingDocsAPI } from '../../../common/api/vendor/elasticsearch/matchingDocs';
 
 
 export function createMatchingDocsApiInstance(apiIdent:string, apiURL:string, apiHeaders:HTTPHeaders, cache:IAsyncKeyValueStore):MatchingDocsAPI<{}> {

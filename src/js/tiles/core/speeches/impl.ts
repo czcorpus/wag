@@ -18,7 +18,7 @@
 
 import { CoreApiGroup } from '../../../common/api/coreGroups';
 import { IAudioUrlGenerator } from '../../../common/api/abstract/audio';
-import { KontextAudioLinkGenerator } from '../../../common/api/kontext/audio';
+import { KontextAudioLinkGenerator } from '../../../common/api/vendor/kontext/audio';
 
 
 export function createAudioUrlGeneratorInstance(apiIdent:string, rootUrl:string):IAudioUrlGenerator {

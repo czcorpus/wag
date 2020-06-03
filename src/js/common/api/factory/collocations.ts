@@ -18,10 +18,10 @@
 
 import { IAsyncKeyValueStore, HTTPHeaders } from '../../types';
 import { CoreApiGroup } from '../coreGroups';
-import { KontextCollAPI } from '../kontext/collocations';
+import { KontextCollAPI } from '../vendor/kontext/collocations';
 import { CollocationApi } from '../abstract/collocations';
-import { LccCollAPI } from '../lcc/cooccurrences';
-import { NoskeCollAPI } from '../noske/collocations';
+import { LccCollAPI } from '../vendor/lcc/cooccurrences';
+import { NoskeCollAPI } from '../vendor/noske/collocations';
 
 
 export function createInstance(apiIdent:string, apiURL:string, apiHeaders:HTTPHeaders, cache:IAsyncKeyValueStore):CollocationApi<{}> {

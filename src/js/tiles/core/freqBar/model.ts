@@ -21,7 +21,7 @@ import { concatMap } from 'rxjs/operators';
 import { Dict, Ident } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
-import { BacklinkArgs } from '../../../common/api/kontext/freqs';
+import { BacklinkArgs } from '../../../common/api/vendor/kontext/freqs';
 import { GeneralMultiCritFreqBarModelState } from '../../../common/models/freq';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';

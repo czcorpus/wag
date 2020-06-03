@@ -24,9 +24,9 @@ import {
     QuerySelector,
     RequestArgs as ConcRequestArgs,
     setQuery
-} from '../../../common/api/kontext/concordance';
+} from '../../../common/api/vendor/kontext/concordance';
 import { ConcResponse, ViewMode } from '../../../common/api/abstract/concordance';
-import { HTTPResponse as FreqsHTTPResponse } from '../../../common/api/kontext/freqs';
+import { HTTPResponse as FreqsHTTPResponse } from '../../../common/api/vendor/kontext/freqs';
 import { MultiDict } from '../../../common/data';
 import { CorePosAttribute, DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../../common/types';
 import { callWithExtraVal } from '../../../common/api/util';

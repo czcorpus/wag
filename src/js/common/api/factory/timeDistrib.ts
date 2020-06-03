@@ -16,10 +16,10 @@
  * limitations under the License.
  */
 
-import { KontextTimeDistribApi } from '../../../common/api/kontext/timeDistrib';
+import { KontextTimeDistribApi } from '../vendor/kontext/timeDistrib';
 import { CoreApiGroup, supportedCoreApiGroups } from '../../../common/api/coreGroups';
 import { HTTPHeaders, IAsyncKeyValueStore } from '../../../common/types';
-import { NoskeTimeDistribApi } from '../../../common/api/noske/timeDistrib';
+import { NoskeTimeDistribApi } from '../vendor/noske/timeDistrib';
 import { TimeDistribApi } from '../../../common/api/abstract/timeDistrib';
 
 interface ApiConf {

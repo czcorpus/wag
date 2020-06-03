@@ -1,4 +1,4 @@
-/*
+    /*
  * Copyright 2019 Tomas Machalek <tomas.machalek@gmail.com>
  * Copyright 2019 Institute of the Czech National Corpus,
  *                Faculty of Arts, Charles University

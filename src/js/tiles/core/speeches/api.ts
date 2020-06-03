@@ -20,7 +20,7 @@ import { Observable, of as rxOf } from 'rxjs';
 import { IAsyncKeyValueStore, HTTPHeaders, CorpusDetails, ResourceApi } from '../../../common/types';
 import { HTTP } from 'cnc-tskit'
 import { cachedAjax$ } from '../../../common/ajax';
-import { CorpusInfoAPI } from '../../../common/api/kontext/corpusInfo';
+import { CorpusInfoAPI } from '../../../common/api/vendor/kontext/corpusInfo';
 import { LineElementType } from '../../../common/api/abstract/concordance';
 
 

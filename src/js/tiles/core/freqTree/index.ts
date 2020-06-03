@@ -19,7 +19,7 @@ import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
 import { Ident, List } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
-import { FreqTreeAPI } from '../../../common/api/kontext/freqTree';
+import { FreqTreeAPI } from '../../../common/api/vendor/kontext/freqTree';
 import { FreqTreeDataBlock } from '../../../common/models/freqTree';
 import { LocalizedConfMsg } from '../../../common/types';
 import { QueryType } from '../../../common/query/index';
@@ -27,7 +27,7 @@ import { TileComponent, TileConf, TileFactory, Backlink, ITileProvider } from '.
 import { GlobalComponents } from '../../../views/global';
 import { factory as defaultModelFactory, FreqTreeModel } from './model';
 import { init as viewInit } from './view';
-import { ConcApi } from '../../../common/api/kontext/concordance';
+import { ConcApi } from '../../../common/api/vendor/kontext/concordance';
 import { findCurrQueryMatch } from '../../../models/query';
 
 

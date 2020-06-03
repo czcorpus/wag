@@ -18,7 +18,7 @@
 import { IActionDispatcher, StatelessModel } from 'kombo';
 import { List } from 'cnc-tskit';
 import { IAppServices } from '../../../appServices';
-import { FreqSort } from '../../../common/api/kontext/freqs';
+import { FreqSort } from '../../../common/api/vendor/kontext/freqs';
 import { QueryType } from '../../../common/query/index';
 import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../../common/tile';
 import { MultiWordGeoAreasModel } from './model';

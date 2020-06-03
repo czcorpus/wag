@@ -31,7 +31,7 @@ import { ConcLoadedPayload, isConcLoadedPayload } from '../concordance/actions';
 import { callWithExtraVal } from '../../../common/api/util';
 import { ViewMode, IConcordanceApi } from '../../../common/api/abstract/concordance';
 import { createInitialLinesData } from '../../../common/models/concordance';
-import { BacklinkArgs } from '../../../common/api/kontext/freqs';
+import { BacklinkArgs } from '../../../common/api/vendor/kontext/freqs';
 import { DataRow, IMultiBlockFreqDistribAPI } from '../../../common/api/abstract/freqs';
 
 

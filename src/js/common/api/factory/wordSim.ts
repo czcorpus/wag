@@ -18,10 +18,10 @@
 
 import { IAsyncKeyValueStore, HTTPHeaders } from '../../../common/types';
 import { CoreApiGroup } from '../coreGroups';
-import { DatamuseMLApi } from '../datamuse/wordSim';
+import { DatamuseMLApi } from '../vendor/datamuse/wordSim';
 import { IWordSimApi } from '../abstract/wordSim';
-import { LccCoocSimApi } from '../lcc/wordSim';
-import { CNCWord2VecSimApi } from '../wdglance/wordSim';
+import { LccCoocSimApi } from '../vendor/lcc/wordSim';
+import { CNCWord2VecSimApi } from '../vendor/wdglance/wordSim';
 
 
 export function createApiInstance(apiIdent:string, apiURL:string, srcInfoURL:string, apiHeaders:HTTPHeaders, cache:IAsyncKeyValueStore):IWordSimApi<{}> {

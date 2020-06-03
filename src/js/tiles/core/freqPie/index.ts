@@ -18,7 +18,7 @@
 import { Ident } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
-import { FreqSort } from '../../../common/api/kontext/freqs';
+import { FreqSort } from '../../../common/api/vendor/kontext/freqs';
 import { SubqueryModeConf } from '../../../common/models/freq';
 import { LocalizedConfMsg } from '../../../common/types';
 import { QueryType } from '../../../common/query/index';
@@ -27,7 +27,7 @@ import { factory as defaultModelFactory, FreqBarModel } from '../freqBar/model';
 import { factory as subqModelFactory } from '../freqBar/subqModel';
 import { init as viewInit } from './view';
 import { StatelessModel } from 'kombo';
-import { ConcApi } from '../../../common/api/kontext/concordance';
+import { ConcApi } from '../../../common/api/vendor/kontext/concordance';
 import { createMultiBlockApiInstance } from '../../../common/api/factory/freqs';
 
 declare var require:any;

@@ -22,7 +22,7 @@ import { StatelessModel, Action, SEDispatcher, IActionQueue } from 'kombo';
 import { IAppServices } from '../../../appServices';
 import { ActionName as GlobalActionName, Actions as GlobalActions, isTileSomeDataLoadedAction } from '../../../models/actions';
 import { SubQueryItem, SubqueryPayload, RangeRelatedSubqueryValue, RecognizedQueries } from '../../../common/query/index';
-import { ConcApi, FilterRequestArgs, QuerySelector, FilterPCRequestArgs, QuickFilterRequestArgs, mkContextFilter } from '../../../common/api/kontext/concordance';
+import { ConcApi, FilterRequestArgs, QuerySelector, FilterPCRequestArgs, QuickFilterRequestArgs, mkContextFilter } from '../../../common/api/vendor/kontext/concordance';
 import { Line, ViewMode, ConcResponse } from '../../../common/api/abstract/concordance';
 import { Observable } from 'rxjs';
 import { isConcLoadedPayload } from '../concordance/actions';
