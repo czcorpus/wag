@@ -20,10 +20,10 @@ import * as React from 'react';
 import { IActionDispatcher, ViewUtils, BoundWithProps } from 'kombo';
 import { GlobalComponents } from '../../../views/global';
 import { WordFormsModel, WordFormsModelState } from './model';
-import { TileComponent, CoreTileComponentProps } from '../../../common/tile';
+import { TileComponent, CoreTileComponentProps } from '../../../page/tile';
 import { init as wcloudViewInit } from '../../../views/wordCloud/index';
-import { WordFormItem } from '../../../common/api/abstract/wordForms';
-import { Theme } from '../../../common/theme';
+import { WordFormItem } from '../../../api/abstract/wordForms';
+import { Theme } from '../../../page/theme';
 import { List } from 'cnc-tskit';
 
 

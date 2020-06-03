@@ -18,13 +18,13 @@
 import { IActionDispatcher, StatelessModel } from 'kombo';
 
 import { IAppServices } from '../../../appServices';
-import { QueryType } from '../../../common/query/index';
+import { QueryType } from '../../../query/index';
 import { HtmlModel } from './model';
 import { init as viewInit } from './views';
-import { TileConf, ITileProvider, TileComponent, TileFactory } from '../../../common/tile';
-import { CoreApiGroup } from '../../../common/api/coreGroups';
-import { createApiInstance } from '../../../common/api/factory/html';
-import { IGeneralHtmlAPI } from '../../../common/api/abstract/html';
+import { TileConf, ITileProvider, TileComponent, TileFactory } from '../../../page/tile';
+import { CoreApiGroup } from '../../../api/coreGroups';
+import { createApiInstance } from '../../../api/factory/html';
+import { IGeneralHtmlAPI } from '../../../api/abstract/html';
 
 
 declare var require:(src:string)=>void;  // webpack

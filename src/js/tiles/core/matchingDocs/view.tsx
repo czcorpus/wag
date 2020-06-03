@@ -18,13 +18,13 @@
 import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 
-import { Theme } from '../../../common/theme';
-import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
+import { Theme } from '../../../page/theme';
+import { CoreTileComponentProps, TileComponent } from '../../../page/tile';
 import { GlobalComponents } from '../../../views/global';
 import { ActionName, Actions } from './actions';
 import { MatchingDocsModel } from './model';
-import { MatchingDocsModelState } from '../../../common/models/matchingDocs';
-import { DataRow } from '../../../common/api/abstract/matchingDocs';
+import { MatchingDocsModelState } from '../../../models/tiles/matchingDocs';
+import { DataRow } from '../../../api/abstract/matchingDocs';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:MatchingDocsModel):TileComponent {

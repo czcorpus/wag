@@ -19,18 +19,18 @@ import { StatelessModel, SEDispatcher, Action, IActionQueue } from 'kombo';
 import { pipe, List, HTTP } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
-import { Backlink, BacklinkWithArgs } from '../../../common/tile';
+import { Backlink, BacklinkWithArgs } from '../../../page/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions, isTileSomeDataLoadedAction } from '../../../models/actions';
 import { SpeechDataPayload } from './actions';
-import { isSubqueryPayload } from '../../../common/query/index';
+import { isSubqueryPayload } from '../../../query/index';
 import { SpeechesApi, SpeechReqArgs } from './api';
-import { SingleConcLoadedPayload } from '../../../common/api/abstract/concordance';
+import { SingleConcLoadedPayload } from '../../../api/abstract/concordance';
 import { SpeechesModelState, extractSpeeches, Expand, BacklinkArgs, Segment, PlayableSegment, normalizeSpeechesRange } from './modelDomain';
-import { SystemMessageType } from '../../../common/types';
+import { SystemMessageType } from '../../../types';
 import { ActionName, Actions } from './actions';
-import { normalizeConcDetailTypography } from '../../../common/models/concordance/normalize';
-import { IAudioUrlGenerator } from '../../../common/api/abstract/audio';
-import { AudioPlayer } from '../../../common/audioPlayer';
+import { normalizeConcDetailTypography } from '../../../models/tiles/concordance/normalize';
+import { IAudioUrlGenerator } from '../../../api/abstract/audio';
+import { AudioPlayer } from '../../../page/audioPlayer';
 import { TileWait } from '../../../models/tileSync';
 
 

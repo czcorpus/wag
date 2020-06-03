@@ -19,17 +19,17 @@ import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
 import { Ident } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
-import { FreqSort } from '../../../common/api/vendor/kontext/freqs';
-import { SubqueryModeConf } from '../../../common/models/freq';
-import { LocalizedConfMsg } from '../../../common/types';
-import { QueryType } from '../../../common/query/index';
-import { TileComponent, TileConf, TileFactory, Backlink, ITileProvider } from '../../../common/tile';
+import { FreqSort } from '../../../api/vendor/kontext/freqs';
+import { SubqueryModeConf } from '../../../models/tiles/freq';
+import { LocalizedConfMsg } from '../../../types';
+import { QueryType } from '../../../query/index';
+import { TileComponent, TileConf, TileFactory, Backlink, ITileProvider } from '../../../page/tile';
 import { GlobalComponents } from '../../../views/global';
 import { factory as defaultModelFactory, FreqBarModel } from './model';
 import { factory as subqModelFactory } from './subqModel';
 import { init as viewInit } from './view';
-import { ConcApi } from '../../../common/api/vendor/kontext/concordance';
-import { createMultiBlockApiInstance } from '../../../common/api/factory/freqs';
+import { ConcApi } from '../../../api/vendor/kontext/concordance';
+import { createMultiBlockApiInstance } from '../../../api/factory/freqs';
 
 
 

@@ -19,12 +19,12 @@ import { map } from 'rxjs/operators';
 import { List, Maths } from 'cnc-tskit';
 
 import { StatelessModel, Action, SEDispatcher, IActionQueue } from 'kombo';
-import { WordFormItem, IWordFormsApi, RequestConcArgs, RequestArgs } from '../../../common/api/abstract/wordForms';
+import { WordFormItem, IWordFormsApi, RequestConcArgs, RequestArgs } from '../../../api/abstract/wordForms';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { DataLoadedPayload } from './actions';
 import { findCurrQueryMatch } from '../../../models/query';
 import { ConcLoadedPayload } from '../concordance/actions';
-import { RecognizedQueries } from '../../../common/query/index';
+import { RecognizedQueries } from '../../../query/index';
 import { IAppServices } from '../../../appServices';
 
 

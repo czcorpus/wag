@@ -18,15 +18,15 @@
 import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
 import { Ident, List } from 'cnc-tskit';
 
-import { QueryType } from '../../../common/query/index';
-import { Backlink, ITileProvider, TileComponent, TileConf, TileFactory } from '../../../common/tile';
+import { QueryType } from '../../../query/index';
+import { Backlink, ITileProvider, TileComponent, TileConf, TileFactory } from '../../../page/tile';
 import { GlobalComponents } from '../../../views/global';
 import { MergeCorpFreqModel } from './model';
 import { init as viewInit } from './view';
-import { LocalizedConfMsg } from '../../../common/types';
+import { LocalizedConfMsg } from '../../../types';
 import { findCurrQueryMatch } from '../../../models/query';
-import { createApiInstance as createConcApiInstance } from '../../../common/api/factory/concordance';
-import { createApiInstance as createFreqApiInstance } from '../../../common/api/factory/freqs';
+import { createApiInstance as createConcApiInstance } from '../../../api/factory/concordance';
+import { createApiInstance as createFreqApiInstance } from '../../../api/factory/freqs';
 
 
 declare var require:(src:string)=>void;  // webpack

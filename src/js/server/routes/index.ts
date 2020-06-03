@@ -22,8 +22,8 @@ import { concatMap, map, reduce, tap } from 'rxjs/operators';
 import { HTTP, List, pipe, Dict, tuple } from 'cnc-tskit';
 
 import { AppServices } from '../../appServices';
-import { encodeArgs } from '../../common/ajax';
-import { QueryType, QueryMatch, importQueryTypeString } from '../../common/query/index';
+import { encodeArgs } from '../../page/ajax';
+import { QueryType, QueryMatch, importQueryTypeString } from '../../query/index';
 import { GlobalComponents } from '../../views/global';
 import { IFreqDB } from '../freqdb/freqdb';
 
@@ -31,12 +31,12 @@ import { getLangFromCookie, fetchReqArgArray, createHelperServices, mkPageReturn
 import { queryAction, importQueryRequest } from './main';
 import { Services } from '../actionServices';
 import { HTTPAction } from './actions';
-import { TelemetryAction } from '../../common/types';
+import { TelemetryAction } from '../../types';
 import { errorUserConf, emptyClientConf, THEME_COOKIE_NAME } from '../../conf';
 import { init as viewInit } from '../../views/layout';
 import { init as errPageInit } from '../../views/error';
 import { emptyValue } from '../toolbar/empty';
-import { importQueryPos } from '../../common/postag';
+import { importQueryPos } from '../../postag';
 import { ServerHTTPRequestError } from '../request';
 
 const LANG_COOKIE_TTL = 3600 * 24 * 365;

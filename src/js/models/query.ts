@@ -20,14 +20,14 @@ import { StatelessModel, IActionQueue } from 'kombo';
 import { pipe, List } from 'cnc-tskit';
 
 import { IAppServices } from '../appServices';
-import { Forms, MultiDict } from '../common/data';
-import { SystemMessageType } from '../common/types';
-import { AvailableLanguage } from '../common/hostPage';
-import { QueryType, QueryMatch, QueryTypeMenuItem, matchesPos, SearchLanguage, RecognizedQueries } from '../common/query/index';
-import { QueryValidator } from '../common/query/validation';
+import { Forms, MultiDict } from '../data';
+import { SystemMessageType } from '../types';
+import { AvailableLanguage } from '../page/hostPage';
+import { QueryType, QueryMatch, QueryTypeMenuItem, matchesPos, SearchLanguage, RecognizedQueries } from '../query/index';
+import { QueryValidator } from '../query/validation';
 import { ActionName, Actions } from './actions';
 import { HTTPAction } from '../server/routes/actions';
-import { LayoutManager } from '../layout';
+import { LayoutManager } from '../page/layout';
 
 
 export interface QueryFormModelState {

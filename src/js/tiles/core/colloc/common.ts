@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 import { Action } from 'kombo';
-import { DataRow, DataHeading, SrchContextType } from '../../../common/api/abstract/collocations';
-import { SubqueryPayload, RangeRelatedSubqueryValue } from '../../../common/query/index';
+import { DataRow, DataHeading, SrchContextType } from '../../../api/abstract/collocations';
+import { SubqueryPayload, RangeRelatedSubqueryValue } from '../../../query/index';
 
 
 export enum CollocMetric {

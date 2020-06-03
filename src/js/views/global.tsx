@@ -20,12 +20,12 @@ import * as React from 'react';
 import { Observable } from 'rxjs';
 import { List, Keyboard, pipe, Dict } from 'cnc-tskit';
 
-import { MultiDict } from '../common/data';
-import { SystemMessageType, SourceDetails } from '../common/types';
-import { ScreenProps } from '../common/hostPage';
-import { BacklinkWithArgs } from '../common/tile';
+import { MultiDict } from '../data';
+import { SystemMessageType, SourceDetails } from '../types';
+import { ScreenProps } from '../page/hostPage';
+import { BacklinkWithArgs } from '../page/tile';
 import { ActionName, Actions } from '../models/actions';
-import { Theme } from '../common/theme';
+import { Theme } from '../page/theme';
 
 export interface SourceInfo {
     corp:string;

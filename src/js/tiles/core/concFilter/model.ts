@@ -21,17 +21,17 @@ import { StatelessModel, Action, SEDispatcher, IActionQueue } from 'kombo';
 
 import { IAppServices } from '../../../appServices';
 import { ActionName as GlobalActionName, Actions as GlobalActions, isTileSomeDataLoadedAction } from '../../../models/actions';
-import { SubQueryItem, SubqueryPayload, RangeRelatedSubqueryValue, RecognizedQueries } from '../../../common/query/index';
-import { ConcApi, FilterRequestArgs, QuerySelector, FilterPCRequestArgs, QuickFilterRequestArgs, mkContextFilter } from '../../../common/api/vendor/kontext/concordance';
-import { Line, ViewMode, ConcResponse } from '../../../common/api/abstract/concordance';
+import { SubQueryItem, SubqueryPayload, RangeRelatedSubqueryValue, RecognizedQueries } from '../../../query/index';
+import { ConcApi, FilterRequestArgs, QuerySelector, FilterPCRequestArgs, QuickFilterRequestArgs, mkContextFilter } from '../../../api/vendor/kontext/concordance';
+import { Line, ViewMode, ConcResponse } from '../../../api/abstract/concordance';
 import { Observable } from 'rxjs';
 import { isConcLoadedPayload } from '../concordance/actions';
 import { CollExamplesLoadedPayload } from './actions';
 import { Actions, ActionName } from './actions';
-import { normalizeTypography } from '../../../common/models/concordance/normalize';
-import { ISwitchMainCorpApi, SwitchMainCorpResponse } from '../../../common/api/abstract/switchMainCorp';
+import { normalizeTypography } from '../../../models/tiles/concordance/normalize';
+import { ISwitchMainCorpApi, SwitchMainCorpResponse } from '../../../api/abstract/switchMainCorp';
 import { Dict, pipe, List } from 'cnc-tskit';
-import { callWithExtraVal } from '../../../common/api/util';
+import { callWithExtraVal } from '../../../api/util';
 import { TileWait } from '../../../models/tileSync';
 
 

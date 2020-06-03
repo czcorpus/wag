@@ -17,8 +17,8 @@
  */
 import { Action } from 'kombo';
 
-import { LocalizedConfMsg } from '../../../common/types';
-import { ApiDataBlock } from '../../../common/api/abstract/freqs';
+import { LocalizedConfMsg } from '../../../types';
+import { ApiDataBlock } from '../../../api/abstract/freqs';
 
 
 

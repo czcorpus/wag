@@ -19,13 +19,13 @@ import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 import { ResponsiveContainer, Tooltip, Treemap } from 'recharts';
 
-import { Theme } from '../../../common/theme';
-import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
+import { Theme } from '../../../page/theme';
+import { CoreTileComponentProps, TileComponent } from '../../../page/tile';
 import { GlobalComponents } from '../../../views/global';
 import { ActionName, Actions } from './actions';
 import { FreqTreeModel, FreqTreeModelState } from './model';
 import { Dict, pipe, List } from 'cnc-tskit';
-import { FreqTreeDataFreqs } from '../../../common/models/freqTree';
+import { FreqTreeDataFreqs } from '../../../models/tiles/freqTree';
 
 type TreeData = {name: any; children:any[]}[];
 

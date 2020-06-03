@@ -21,8 +21,8 @@ import * as React from 'react';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../../models/actions';
 import { GlobalComponents } from '../../../../views/global';
 import { init as commonViewInit } from './common';
-import { SimilarFreqWord } from '../../../../common/api/abstract/similarFreq';
-import { QueryMatch } from '../../../../common/query/index';
+import { SimilarFreqWord } from '../../../../api/abstract/similarFreq';
+import { QueryMatch } from '../../../../query/index';
 import { List, pipe } from 'cnc-tskit';
 import { Actions, ActionName } from '../actions';
 

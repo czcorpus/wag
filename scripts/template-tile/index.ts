@@ -18,8 +18,8 @@
 import { IActionDispatcher, StatelessModel } from 'kombo';
 
 import { IAppServices } from '../../../appServices';
-import { QueryType } from '../../../common/query/index';
-import { TileConf, ITileProvider, TileComponent, TileFactory } from '../../../common/tile';
+import { QueryType } from '../../../query/index';
+import { TileConf, ITileProvider, TileComponent, TileFactory } from '../../../page/tile';
 
 import { __Template__Model } from './model';
 import { init as viewInit } from './views';

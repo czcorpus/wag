@@ -19,14 +19,14 @@ import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer } from 'recharts';
 
-import { Theme } from '../../../common/theme';
-import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
+import { Theme } from '../../../page/theme';
+import { CoreTileComponentProps, TileComponent } from '../../../page/tile';
 import { GlobalComponents } from '../../../views/global';
 import { ActionName } from './actions';
-import { FreqDataBlock } from '../../../common/models/freq';
+import { FreqDataBlock } from '../../../models/tiles/freq';
 import { FreqBarModel, FreqBarModelState } from '../freqBar/model';
 import { List, pipe } from 'cnc-tskit';
-import { DataRow } from '../../../common/api/abstract/freqs';
+import { DataRow } from '../../../api/abstract/freqs';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:FreqBarModel):TileComponent {

@@ -18,11 +18,11 @@
 import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 
-import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
+import { CoreTileComponentProps, TileComponent } from '../../../page/tile';
 import { GlobalComponents, TooltipValues } from '../../../views/global';
 import { TreqSubsetModel, flipRowColMapper } from './model';
-import { Theme } from '../../../common/theme';
-import { TranslationSubset, TranslationsSubsetsModelState } from '../../../common/models/translations';
+import { Theme } from '../../../page/theme';
+import { TranslationSubset, TranslationsSubsetsModelState } from '../../../models/tiles/translations';
 import { List } from 'cnc-tskit';
 
 

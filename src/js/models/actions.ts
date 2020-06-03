@@ -17,8 +17,8 @@
  */
 import { Action } from 'kombo';
 
-import { SystemMessageType, SourceDetails } from '../common/types';
-import { QueryType } from '../common/query/index';
+import { SystemMessageType, SourceDetails } from '../types';
+import { QueryType } from '../query/index';
 
 
 export enum ActionName {

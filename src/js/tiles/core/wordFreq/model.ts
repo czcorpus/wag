@@ -22,11 +22,11 @@ import { map, concatMap } from 'rxjs/operators';
 import { IAppServices } from '../../../appServices';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { DataLoadedPayload, Actions, ActionName } from './actions';
-import { SimilarFreqWord, SimilarFreqDbAPI } from '../../../common/api/abstract/similarFreq';
+import { SimilarFreqWord, SimilarFreqDbAPI } from '../../../api/abstract/similarFreq';
 import { findCurrQueryMatch } from '../../../models/query';
-import { QueryMatch, testIsDictMatch, RecognizedQueries, QueryType, calcFreqBand } from '../../../common/query/index';
+import { QueryMatch, testIsDictMatch, RecognizedQueries, QueryType, calcFreqBand } from '../../../query/index';
 import { List, pipe } from 'cnc-tskit';
-import { InternalResourceInfoApi } from '../../../common/api/vendor/wdglance/freqDbSourceInfo';
+import { InternalResourceInfoApi } from '../../../api/vendor/wdglance/freqDbSourceInfo';
 
 export interface FlevelDistribItem {
     rel:number;

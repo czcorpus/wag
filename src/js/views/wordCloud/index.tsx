@@ -17,7 +17,7 @@
  */
 import { IActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
-import { Theme } from '../../common/theme';
+import { Theme } from '../../page/theme';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
 import { GlobalComponents } from '../../views/global';
 import { Rect, WordCloudItemCalc, TooltipData, createWordCloud, MAX_WC_FONT_SIZE_MOBILE, MAX_WC_FONT_SIZE } from './calc';

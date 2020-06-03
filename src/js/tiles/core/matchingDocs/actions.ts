@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 import { Action } from 'kombo';
-import { DataRow } from '../../../common/api/abstract/matchingDocs';
-import { BacklinkWithArgs } from '../../../common/tile';
+import { DataRow } from '../../../api/abstract/matchingDocs';
+import { BacklinkWithArgs } from '../../../page/tile';
 
 
 

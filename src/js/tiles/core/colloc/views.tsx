@@ -18,15 +18,15 @@
 import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 
-import { Theme } from '../../../common/theme';
-import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
+import { Theme } from '../../../page/theme';
+import { CoreTileComponentProps, TileComponent } from '../../../page/tile';
 import { GlobalComponents } from '../../../views/global';
 import { ActionName, Actions } from './common';
 import { CollocModel } from './model';
 import { Actions as GlobalActions, ActionName as GlobalActionName } from '../../../models/actions';
 import { init as wcloudViewInit } from '../../../views/wordCloud/index';
-import { DataRow, SrchContextType, DataHeading } from '../../../common/api/abstract/collocations';
-import { CollocModelState } from '../../../common/models/collocations';
+import { DataRow, SrchContextType, DataHeading } from '../../../api/abstract/collocations';
+import { CollocModelState } from '../../../models/tiles/collocations';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:CollocModel):TileComponent {

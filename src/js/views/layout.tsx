@@ -20,10 +20,10 @@ import { ViewUtils } from 'kombo';
 import * as React from 'react';
 import { resolve as urlResolve } from 'url';
 
-import { HostPageEnv, AvailableLanguage } from '../common/hostPage';
-import { RecognizedQueries } from '../common/query/index';
+import { HostPageEnv, AvailableLanguage } from '../page/hostPage';
+import { RecognizedQueries } from '../query/index';
 import { ClientConf, UserConf, ColorThemeIdent } from '../conf';
-import { TileGroup } from '../layout';
+import { TileGroup } from '../page/layout';
 import { GlobalComponents } from './global';
 import { WdglanceMainProps } from './main';
 import { ErrPageProps } from './error';

@@ -20,8 +20,8 @@ import { IActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
 import { CartesianGrid, Dot, Tooltip, Label, Line, LineChart, XAxis, YAxis } from 'recharts';
 import { GlobalComponents } from '../../../../views/global';
-import { SimilarFreqWord } from '../../../../common/api/abstract/similarFreq';
-import { PosItem } from '../../../../common/postag';
+import { SimilarFreqWord } from '../../../../api/abstract/similarFreq';
+import { PosItem } from '../../../../postag';
 import { List, pipe, Maths } from 'cnc-tskit';
 
 

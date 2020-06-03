@@ -19,15 +19,15 @@ import { IActionDispatcher, StatelessModel } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
 
 import { IAppServices } from '../../../appServices';
-import { QueryType } from '../../../common/query/index';
-import { TileConf, ITileProvider, TileFactory, TileComponent } from '../../../common/tile';
+import { QueryType } from '../../../query/index';
+import { TileConf, ITileProvider, TileFactory, TileComponent } from '../../../page/tile';
 import { ConcFilterModel } from './model';
 import { init as viewInit } from './view';
-import { ConcApi } from '../../../common/api/vendor/kontext/concordance';
-import { ViewMode } from '../../../common/api/abstract/concordance';
-import { LocalizedConfMsg } from '../../../common/types';
-import { SwitchMainCorpApi } from '../../../common/api/vendor/kontext/switchMainCorp';
-import { ISwitchMainCorpApi, SwitchMainCorpResponse } from '../../../common/api/abstract/switchMainCorp';
+import { ConcApi } from '../../../api/vendor/kontext/concordance';
+import { ViewMode } from '../../../api/abstract/concordance';
+import { LocalizedConfMsg } from '../../../types';
+import { SwitchMainCorpApi } from '../../../api/vendor/kontext/switchMainCorp';
+import { ISwitchMainCorpApi, SwitchMainCorpResponse } from '../../../api/abstract/switchMainCorp';
 import { TileWait } from '../../../models/tileSync';
 
 

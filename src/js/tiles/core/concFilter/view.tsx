@@ -20,10 +20,10 @@ import { Strings, List } from 'cnc-tskit';
 
 import { IActionDispatcher, ViewUtils, BoundWithProps } from 'kombo';
 import { GlobalComponents } from '../../../views/global';
-import { Theme } from '../../../common/theme';
-import { TileComponent, CoreTileComponentProps } from '../../../common/tile';
+import { Theme } from '../../../page/theme';
+import { TileComponent, CoreTileComponentProps } from '../../../page/tile';
 import { ConcFilterModel, ConcFilterModelState } from './model';
-import { Line, LineElement } from '../../../common/api/abstract/concordance';
+import { Line, LineElement } from '../../../api/abstract/concordance';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { ActionName, Actions } from './actions';
 

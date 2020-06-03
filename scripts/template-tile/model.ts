@@ -19,7 +19,7 @@ import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 
 import { IAppServices } from '../../../appServices';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
-import { RecognizedQueries } from '../../../common/query/index';
+import { RecognizedQueries } from '../../../query/index';
 
 import { DataLoadedPayload, __Template__ModelState, PartialDataLoadedPayload } from './common';
 import { of as rxOf } from 'rxjs';

@@ -18,18 +18,18 @@
 import { IActionDispatcher, StatelessModel } from 'kombo';
 import { List, Maths, pipe } from 'cnc-tskit';
 
-import { FreqSort } from '../../../common/api/vendor/kontext/freqs';
-import { createApiInstance as createFreqApiInstance } from '../../../common/api/factory/timeDistrib';
-import { QueryType } from '../../../common/query/index';
-import { ITileProvider, TileComponent, TileFactory } from '../../../common/tile';
+import { FreqSort } from '../../../api/vendor/kontext/freqs';
+import { createApiInstance as createFreqApiInstance } from '../../../api/factory/timeDistrib';
+import { QueryType } from '../../../query/index';
+import { ITileProvider, TileComponent, TileFactory } from '../../../page/tile';
 import { TimeDistTileConf } from './common';
 import { TimeDistribModel, LoadingStatus } from './model';
 import { init as viewInit } from './view';
 import { TileWait } from '../../../models/tileSync';
-import { PriorityValueFactory } from '../../../common/priority';
-import { IConcordanceApi } from '../../../common/api/abstract/concordance';
-import { createApiInstance as createConcApiInstance } from '../../../common/api/factory/concordance';
-import { TimeDistribApi } from '../../../common/api/abstract/timeDistrib';
+import { PriorityValueFactory } from '../../../priority';
+import { IConcordanceApi } from '../../../api/abstract/concordance';
+import { createApiInstance as createConcApiInstance } from '../../../api/factory/concordance';
+import { TimeDistribApi } from '../../../api/abstract/timeDistrib';
 
 declare var require:(src:string)=>void;  // webpack
 require('./style.less');

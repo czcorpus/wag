@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { Action } from 'kombo';
-import { CorpSrchTileConf } from '../../../common/tile';
+import { CorpSrchTileConf } from '../../../page/tile';
 
 
 export enum ActionName {

@@ -23,9 +23,9 @@ import { assert } from 'chai';
 
 import { WdglanceTilesModel, WdglanceTilesState, TileResultFlag } from '../../src/js/models/tiles';
 import { ActionName } from '../../src/js/models/actions';
-import * as ajax from '../../src/js/common/ajax';
+import * as ajax from '../../src/js/page/ajax';
 import { of, throwError } from 'rxjs';
-import { SystemMessageType } from '../../src/js/common/types';
+import { SystemMessageType } from '../../src/js/types';
 
 
 describe('WdglanceTilesModel', function () {
@@ -467,7 +467,7 @@ describe('WdglanceTilesModel', function () {
     });
 
     describe('loading tile data', function() {
-        it('loads valid tile data', function (done) { 
+        it('loads valid tile data', function (done) {
             setupModel({
                 numTilesError: 0,
                 datalessGroups: [],
@@ -489,7 +489,7 @@ describe('WdglanceTilesModel', function () {
             );
         });
 
-        it('loads empty tile data', function (done) { 
+        it('loads empty tile data', function (done) {
             setupModel({
                 numTilesError: 0,
                 datalessGroups: [],
@@ -511,7 +511,7 @@ describe('WdglanceTilesModel', function () {
             );
         });
 
-        it('loads tile data with error', function (done) { 
+        it('loads tile data with error', function (done) {
             setupModel({
                 numTilesError: 0,
                 datalessGroups: [],
@@ -533,7 +533,7 @@ describe('WdglanceTilesModel', function () {
             );
         });
 
-        it('loads all tile data and resolves empty groups', function (done) { 
+        it('loads all tile data and resolves empty groups', function (done) {
             setupModel({
                 numTilesError: 0,
                 datalessGroups: [],

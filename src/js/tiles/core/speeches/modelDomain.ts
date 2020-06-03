@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-import { BacklinkWithArgs } from '../../../common/tile';
-import { LineElement } from '../../../common/api/abstract/concordance';
+import { BacklinkWithArgs } from '../../../page/tile';
+import { LineElement } from '../../../api/abstract/concordance';
 import { pipe, Dict, List, Color } from 'cnc-tskit';
 
 

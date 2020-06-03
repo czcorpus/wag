@@ -18,12 +18,12 @@
 import { StatelessModel } from 'kombo';
 import { Maths } from 'cnc-tskit';
 
-import { ITileProvider, TileFactory, TileComponent, TileConf } from '../../../common/tile';
+import { ITileProvider, TileFactory, TileComponent, TileConf } from '../../../page/tile';
 import { IAppServices } from '../../../appServices';
 import { WordFormsModel } from './model';
-import { QueryType } from '../../../common/query/index';
+import { QueryType } from '../../../query/index';
 import { init as viewInit } from './views';
-import { createApiInstance } from '../../../common/api/factory/wordForms';
+import { createApiInstance } from '../../../api/factory/wordForms';
 
 
 export interface WordFormsTileConf extends TileConf {

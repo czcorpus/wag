@@ -21,7 +21,7 @@ import * as path from 'path';
 import * as ajv from 'ajv';
 import * as fs from 'fs';
 import { LanguageAnyTileConf, ServerConf } from '.';
-import { QueryType } from '../common/query';
+import { QueryType } from '../query';
 
 
 const CORE_TILES_ROOT_DIR = path.resolve(__dirname, '../src/js/tiles/core');

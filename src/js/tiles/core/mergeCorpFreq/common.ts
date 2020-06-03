@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 
-import { SourceMappedDataRow } from '../../../common/api/vendor/kontext/freqs';
-import { Backlink } from '../../../common/tile';
-import { MinSingleCritFreqState } from '../../../common/models/freq';
+import { SourceMappedDataRow } from '../../../api/vendor/kontext/freqs';
+import { Backlink } from '../../../page/tile';
+import { MinSingleCritFreqState } from '../../../models/tiles/freq';
 
 export interface ModelSourceArgs extends MinSingleCritFreqState {
 

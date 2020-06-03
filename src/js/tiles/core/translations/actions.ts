@@ -15,8 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { SubqueryPayload, RangeRelatedSubqueryValue } from '../../../common/query/index';
-import { TranslationResponse } from '../../../common/api/abstract/translations';
+import { SubqueryPayload, RangeRelatedSubqueryValue } from '../../../query/index';
+import { TranslationResponse } from '../../../api/abstract/translations';
 
 
 

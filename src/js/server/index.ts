@@ -34,10 +34,8 @@ import { validateTilesConf } from '../conf/validation';
 import { parseJsonConfig, loadRemoteTileConf } from '../conf/loader';
 import { wdgRouter } from './routes/index';
 import { createToolbarInstance } from './toolbar/factory';
-import { RedisQueryLog } from './queryLog/redisQueue';
-import { NullQueryLog } from './queryLog/nullQueue';
 import { WordDatabases } from './actionServices';
-import { PackageInfo } from '../common/types';
+import { PackageInfo } from '../types';
 import { createQueryLogInstance } from './queryLog/factory';
 
 

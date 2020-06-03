@@ -19,8 +19,8 @@ import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 import { List, Strings } from 'cnc-tskit';
 
-import { Line, LineElement, ViewMode } from '../../../common/api/abstract/concordance';
-import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
+import { Line, LineElement, ViewMode } from '../../../api/abstract/concordance';
+import { CoreTileComponentProps, TileComponent } from '../../../page/tile';
 import { GlobalComponents } from '../../../views/global';
 import { ActionName, Actions } from './actions';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';

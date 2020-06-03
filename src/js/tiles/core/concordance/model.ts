@@ -24,18 +24,18 @@ import { mergeMap, tap, reduce } from 'rxjs/operators';
 import { HTTP, List, pipe } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
-import { IConcordanceApi, SingleConcLoadedPayload } from '../../../common/api/abstract/concordance';
-import { ConcordanceMinState, createInitialLinesData } from '../../../common/models/concordance';
-import { SystemMessageType } from '../../../common/types';
-import { isSubqueryPayload, RecognizedQueries, QueryType } from '../../../common/query/index';
-import { Backlink, BacklinkWithArgs } from '../../../common/tile';
+import { IConcordanceApi, SingleConcLoadedPayload } from '../../../api/abstract/concordance';
+import { ConcordanceMinState, createInitialLinesData } from '../../../models/tiles/concordance';
+import { SystemMessageType } from '../../../types';
+import { isSubqueryPayload, RecognizedQueries, QueryType } from '../../../query/index';
+import { Backlink, BacklinkWithArgs } from '../../../page/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { findCurrQueryMatch } from '../../../models/query';
-import { importMessageType } from '../../../notifications';
+import { importMessageType } from '../../../page/notifications';
 import { ActionName, Actions, ConcLoadedPayload } from './actions';
-import { normalizeTypography } from '../../../common/models/concordance/normalize';
-import { isCollocSubqueryPayload } from '../../../common/api/abstract/collocations';
-import { callWithExtraVal } from '../../../common/api/util';
+import { normalizeTypography } from '../../../models/tiles/concordance/normalize';
+import { isCollocSubqueryPayload } from '../../../api/abstract/collocations';
+import { callWithExtraVal } from '../../../api/util';
 
 
 
