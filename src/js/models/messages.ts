@@ -19,7 +19,7 @@ import { StatelessModel, IActionQueue } from 'kombo';
 import { List } from 'cnc-tskit';
 
 import { IAppServices } from '../appServices';
-import { SystemMessage } from '../notifications';
+import { SystemMessage } from '../page/notifications';
 import { ActionName, Actions } from './actions';
 
 

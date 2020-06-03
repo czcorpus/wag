@@ -18,7 +18,7 @@
 
 import { Action } from 'kombo';
 import { TargetDataRow } from './views';
-import { DataRow } from '../../../common/api/abstract/freqs';
+import { DataRow } from '../../../api/abstract/freqs';
 
 
 

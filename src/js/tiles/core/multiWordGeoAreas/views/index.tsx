@@ -19,14 +19,14 @@ import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 import { fromEvent } from 'rxjs';
 
-import { Theme } from '../../../../common/theme';
-import { CoreTileComponentProps, TileComponent } from '../../../../common/tile';
+import { Theme } from '../../../../page/theme';
+import { CoreTileComponentProps, TileComponent } from '../../../../page/tile';
 import { GlobalComponents, TooltipValues } from '../../../../views/global';
 import { ActionName, Actions } from '../actions';
 import { MultiWordGeoAreasModel, MultiWordGeoAreasModelState } from '../model';
-import { QueryMatch } from '../../../../common/query/index';
+import { QueryMatch } from '../../../../query/index';
 import { Dict, List, pipe, tuple } from 'cnc-tskit';
-import { DataRow } from '../../../../common/api/abstract/freqs';
+import { DataRow } from '../../../../api/abstract/freqs';
 
 
 export interface TargetDataRow extends DataRow {

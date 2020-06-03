@@ -17,15 +17,15 @@
  */
 import { IActionDispatcher, StatelessModel } from 'kombo';
 import { List } from 'cnc-tskit';
-import { TileConf, ITileProvider, TileFactory, TileComponent } from '../../../common/tile';
+import { TileConf, ITileProvider, TileFactory, TileComponent } from '../../../page/tile';
 import { WordSimModel } from './model';
 import { IAppServices } from '../../../appServices';
 import { init as viewInit } from './view';
-import { QueryType } from '../../../common/query/index';
-import { OperationMode } from '../../../common/models/wordSim';
-import { IWordSimApi } from '../../../common/api/abstract/wordSim';
+import { QueryType } from '../../../query/index';
+import { OperationMode } from '../../../models/tiles/wordSim';
+import { IWordSimApi } from '../../../api/abstract/wordSim';
 import { findCurrQueryMatch } from '../../../models/query';
-import { createApiInstance } from '../../../common/api/factory/wordSim';
+import { createApiInstance } from '../../../api/factory/wordSim';
 
 
 declare var require:(src:string)=>void;  // webpack

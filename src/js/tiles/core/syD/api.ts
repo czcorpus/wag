@@ -18,18 +18,18 @@
 import { forkJoin, Observable, of as rxOf } from 'rxjs';
 import { concatMap, share } from 'rxjs/operators';
 
-import { ajax$ } from '../../../common/ajax';
+import { ajax$ } from '../../../page/ajax';
 import {
     ConcApi,
     QuerySelector,
     RequestArgs as ConcRequestArgs,
     setQuery
-} from '../../../common/api/vendor/kontext/concordance';
-import { ConcResponse, ViewMode } from '../../../common/api/abstract/concordance';
-import { HTTPResponse as FreqsHTTPResponse } from '../../../common/api/vendor/kontext/freqs';
-import { MultiDict } from '../../../common/data';
-import { CorePosAttribute, DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../../common/types';
-import { callWithExtraVal } from '../../../common/api/util';
+} from '../../../api/vendor/kontext/concordance';
+import { ConcResponse, ViewMode } from '../../../api/abstract/concordance';
+import { HTTPResponse as FreqsHTTPResponse } from '../../../api/vendor/kontext/freqs';
+import { MultiDict } from '../../../data';
+import { CorePosAttribute, DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../../types';
+import { callWithExtraVal } from '../../../api/util';
 
 
 export interface RequestArgs {

@@ -24,10 +24,10 @@ import { StatelessModel, IActionDispatcher, SEDispatcher } from 'kombo';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { DataLoadedPayload } from './actions';
 import { ActionName, Actions } from './actions';
-import { IWordSimApi, WordSimWord } from '../../../common/api/abstract/wordSim';
-import { WordSimModelState } from '../../../common/models/wordSim';
-import { QueryMatch } from '../../../common/query/index';
-import { callWithExtraVal } from '../../../common/api/util';
+import { IWordSimApi, WordSimWord } from '../../../api/abstract/wordSim';
+import { WordSimModelState } from '../../../models/tiles/wordSim';
+import { QueryMatch } from '../../../query/index';
+import { callWithExtraVal } from '../../../api/util';
 
 
 export interface WordSimModelArgs {

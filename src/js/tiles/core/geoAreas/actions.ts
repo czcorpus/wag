@@ -17,7 +17,7 @@
  */
 
  import { Action } from 'kombo';
-import { DataRow } from '../../../common/api/abstract/freqs';
+import { DataRow } from '../../../api/abstract/freqs';
 
 
 

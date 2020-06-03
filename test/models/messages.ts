@@ -23,7 +23,7 @@ import { assert } from 'chai';
 
 import { MessagesModel, MessagesState } from '../../src/js/models/messages';
 import { ActionName } from '../../src/js/models/actions';
-import { SystemMessageType } from '../../src/js/common/types';
+import { SystemMessageType } from '../../src/js/types';
 
 
 describe('MessagesModel', function () {

@@ -21,15 +21,15 @@ import { List, HTTP } from 'cnc-tskit';
 
 import { IFreqDB } from '../freqdb';
 import { IAppServices } from '../../../appServices';
-import { QueryMatch, calcFreqBand } from '../../../common/query/index';
-import { QuerySelector, HTTPResponse as ConcHTTPResponse, escapeVal } from '../../../common/api/vendor/kontext/concordance';
-import { HTTPResponse as FreqsHttpResponse } from '../../../common/api/vendor/kontext/freqs';
+import { QueryMatch, calcFreqBand } from '../../../query/index';
+import { QuerySelector, HTTPResponse as ConcHTTPResponse, escapeVal } from '../../../api/vendor/kontext/concordance';
+import { HTTPResponse as FreqsHttpResponse } from '../../../api/vendor/kontext/freqs';
 import { FreqDbOptions } from '../../../conf';
-import { importQueryPosWithLabel, posTable } from '../../../common/postag';
-import { CorpusInfoAPI } from '../../../common/api/vendor/kontext/corpusInfo';
-import { CorpusDetails } from '../../../common/types';
+import { importQueryPosWithLabel, posTable } from '../../../postag';
+import { CorpusInfoAPI } from '../../../api/vendor/kontext/corpusInfo';
+import { CorpusDetails } from '../../../types';
 import { serverHttpRequest } from '../../request';
-import { initDummyStore } from '../../../cache/index';
+import { initDummyStore } from '../../../page/cache/index';
 
 
 export class KontextFreqDB implements IFreqDB {

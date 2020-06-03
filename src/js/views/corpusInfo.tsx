@@ -19,9 +19,9 @@ import { IActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
 
 import { GlobalComponents } from './global';
-import { SourceCitation } from '../common/api/abstract/sourceInfo';
+import { SourceCitation } from '../api/abstract/sourceInfo';
 import { List } from 'cnc-tskit';
-import { CorpusDetails } from '../common/types';
+import { CorpusDetails } from '../types';
 
 export interface CorpusInfoBoxProps {
     data:CorpusDetails;

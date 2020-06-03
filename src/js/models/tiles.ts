@@ -20,9 +20,9 @@ import { Observable, interval, of as rxOf } from 'rxjs';
 import { concatMap, map, take } from 'rxjs/operators';
 
 import { IAppServices } from '../appServices';
-import { ajax$, ResponseType } from '../common/ajax';
-import { SystemMessageType, SourceDetails } from '../common/types';
-import { TileFrameProps } from '../common/tile';
+import { ajax$, ResponseType } from '../page/ajax';
+import { SystemMessageType, SourceDetails } from '../types';
+import { TileFrameProps } from '../page/tile';
 import { ActionName, Actions } from './actions';
 import { List, Dict, pipe } from 'cnc-tskit';
 

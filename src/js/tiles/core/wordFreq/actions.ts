@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { SimilarFreqWord } from '../../../common/api/abstract/similarFreq';
+import { SimilarFreqWord } from '../../../api/abstract/similarFreq';
 import { Action } from 'kombo';
 
 export interface DataLoadedPayload {

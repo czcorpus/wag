@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 import { IAppServices } from '../../../appServices';
-import { QueryType } from '../../../common/query/index';
-import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../../common/tile';
+import { QueryType } from '../../../query/index';
+import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../../page/tile';
 import { SyDAPI } from './api';
 import { SydModel } from './model';
 import { init as viewInit } from './view';

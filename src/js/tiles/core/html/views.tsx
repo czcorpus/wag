@@ -18,8 +18,8 @@
 import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 
-import { Theme } from '../../../common/theme';
-import { CoreTileComponentProps, TileComponent } from '../../../common/tile';
+import { Theme } from '../../../page/theme';
+import { CoreTileComponentProps, TileComponent } from '../../../page/tile';
 import { GlobalComponents } from '../../../views/global';
 import { HtmlModel } from './model';
 import { HtmlModelState } from './common';

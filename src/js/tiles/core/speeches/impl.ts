@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 
-import { CoreApiGroup } from '../../../common/api/coreGroups';
-import { IAudioUrlGenerator } from '../../../common/api/abstract/audio';
-import { KontextAudioLinkGenerator } from '../../../common/api/vendor/kontext/audio';
+import { CoreApiGroup } from '../../../api/coreGroups';
+import { IAudioUrlGenerator } from '../../../api/abstract/audio';
+import { KontextAudioLinkGenerator } from '../../../api/vendor/kontext/audio';
 
 
 export function createAudioUrlGeneratorInstance(apiIdent:string, rootUrl:string):IAudioUrlGenerator {

@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Line } from '../../../common/api/abstract/concordance';
+import { Line } from '../../../api/abstract/concordance';
 import { Action } from 'kombo';
 
 export interface CollExamplesLoadedPayload {

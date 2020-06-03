@@ -21,16 +21,16 @@ import { map, mergeMap, reduce, tap, concatMap } from 'rxjs/operators';
 import { Dict, List, pipe, Ident } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
-import { BacklinkArgs, FreqTreeAPI, APILeafResponse, APIVariantsResponse } from '../../../common/api/vendor/kontext/freqTree';
-import { GeneralCritFreqTreeModelState, stateToAPIArgs, FreqTreeDataBlock } from '../../../common/models/freqTree';
-import { Backlink, BacklinkWithArgs } from '../../../common/tile';
+import { BacklinkArgs, FreqTreeAPI, APILeafResponse, APIVariantsResponse } from '../../../api/vendor/kontext/freqTree';
+import { GeneralCritFreqTreeModelState, stateToAPIArgs, FreqTreeDataBlock } from '../../../models/tiles/freqTree';
+import { Backlink, BacklinkWithArgs } from '../../../page/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { ActionName, Actions, DataLoadedPayload } from './actions';
-import { QueryMatch } from '../../../common/query/index';
+import { QueryMatch } from '../../../query/index';
 import { isConcLoadedPayload, ConcLoadedPayload } from '../concordance/actions';
-import { createInitialLinesData } from '../../../common/models/concordance';
-import { ViewMode, ConcResponse, IConcordanceApi } from '../../../common/api/abstract/concordance';
-import { callWithExtraVal } from '../../../common/api/util';
+import { createInitialLinesData } from '../../../models/tiles/concordance';
+import { ViewMode, ConcResponse, IConcordanceApi } from '../../../api/abstract/concordance';
+import { callWithExtraVal } from '../../../api/util';
 
 
 export interface FreqTreeModelState extends GeneralCritFreqTreeModelState {

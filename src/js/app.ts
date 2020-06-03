@@ -22,12 +22,12 @@
  */
 import * as React from 'react';
 import { Observable } from 'rxjs';
-import { Theme } from './common/theme';
-import { ScreenProps } from './common/hostPage';
-import { QueryType, RecognizedQueries, testIsMultiWordMode } from './common/query/index';
-import { ITileProvider, TileFrameProps, TileConf } from './common/tile';
+import { Theme } from './page/theme';
+import { ScreenProps } from './page/hostPage';
+import { QueryType, RecognizedQueries, testIsMultiWordMode } from './query/index';
+import { ITileProvider, TileFrameProps, TileConf } from './page/tile';
 import { ClientConf, UserConf } from './conf';
-import { LayoutManager, TileGroup, GroupedTileProps } from './layout';
+import { LayoutManager, TileGroup, GroupedTileProps } from './page/layout';
 import { ActionName, Actions } from './models/actions';
 import { MessagesModel } from './models/messages';
 import { defaultFactory as mainFormFactory } from './models/query';
@@ -37,8 +37,8 @@ import { init as viewInit, WdglanceMainProps } from './views/main';
 import { RetryTileLoad } from './models/retryLoad';
 import { ViewUtils, IFullActionControl } from 'kombo';
 import { IAppServices } from './appServices';
-import { IAsyncKeyValueStore, TileIdentMap } from './common/types';
-import { mkTileFactory } from './tileLoader';
+import { IAsyncKeyValueStore, TileIdentMap } from './types';
+import { mkTileFactory } from './page/tileLoader';
 import { List, pipe, Dict } from 'cnc-tskit';
 
 

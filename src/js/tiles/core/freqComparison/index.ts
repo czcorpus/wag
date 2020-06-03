@@ -19,15 +19,15 @@ import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
 import { Ident, List } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
-import { LocalizedConfMsg } from '../../../common/types';
-import { QueryType } from '../../../common/query/index';
-import { TileComponent, TileConf, TileFactory, Backlink, ITileProvider } from '../../../common/tile';
+import { LocalizedConfMsg } from '../../../types';
+import { QueryType } from '../../../query/index';
+import { TileComponent, TileConf, TileFactory, Backlink, ITileProvider } from '../../../page/tile';
 import { GlobalComponents } from '../../../views/global';
 import { factory as defaultModelFactory, FreqComparisonModel } from './model';
 import { init as viewInit } from './view';
-import { FreqSort } from '../../../common/api/vendor/kontext/freqs';
-import { createMultiBlockApiInstance as createFreqsApiInstance } from '../../../common/api/factory/freqs';
-import { createApiInstance as createConcApiInstance } from '../../../common/api/factory/concordance';
+import { FreqSort } from '../../../api/vendor/kontext/freqs';
+import { createMultiBlockApiInstance as createFreqsApiInstance } from '../../../api/factory/freqs';
+import { createApiInstance as createConcApiInstance } from '../../../api/factory/concordance';
 
 
 

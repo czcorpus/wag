@@ -17,7 +17,7 @@ const CONF = build.loadConf(mkpath('conf/server.json'));
 module.exports = (env) => ({
     mode: 'production',
     entry: {
-        index: path.resolve(__dirname, 'src/js/index')
+        index: path.resolve(__dirname, 'src/js/page/index')
     },
     output: {
         filename: '[name].js',

@@ -23,10 +23,10 @@ import { IAppServices } from '../../../appServices';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { ConcLoadedPayload } from '../concordance/actions';
 import { ActionName, Actions, DataLoadedPayload } from './actions';
-import { MatchingDocsModelState } from '../../../common/models/matchingDocs';
-import { MatchingDocsAPI } from '../../../common/api/abstract/matchingDocs';
+import { MatchingDocsModelState } from '../../../models/tiles/matchingDocs';
+import { MatchingDocsAPI } from '../../../api/abstract/matchingDocs';
 import { findCurrQueryMatch } from '../../../models/query';
-import { RecognizedQueries } from '../../../common/query/index';
+import { RecognizedQueries } from '../../../query/index';
 import { List, pipe, Dict } from 'cnc-tskit';
 
 

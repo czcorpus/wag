@@ -23,18 +23,18 @@ import { HTTPAction } from './actions';
 import { UserConf, ClientConf, ColorThemeIdent } from '../../conf';
 import { Observable } from 'rxjs';
 import { Request } from 'express';
-import { encodeArgs } from '../../common/ajax';
+import { encodeArgs } from '../../page/ajax';
 import { Services } from '../actionServices';
 import { ViewUtils } from 'kombo';
 import { GlobalComponents } from '../../views/global';
 import { AppServices } from '../../appServices';
 import { pipe, Dict, List } from 'cnc-tskit';
 import { LayoutProps } from '../../views/layout';
-import { HostPageEnv, IToolbarProvider } from '../../common/hostPage';
-import { RecognizedQueries } from '../../common/query/index';
+import { HostPageEnv } from '../../page/hostPage';
+import { RecognizedQueries } from '../../query/index';
 import { WdglanceMainProps } from '../../views/main';
 import { ErrPageProps } from '../../views/error';
-import { TileGroup } from '../../layout';
+import { TileGroup } from '../../page/layout';
 
 /**
  * Obtain value (or values if a key is provided multiple times) from

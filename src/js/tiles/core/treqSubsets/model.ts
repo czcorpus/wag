@@ -19,14 +19,14 @@
 import { of as rxOf } from 'rxjs';
 import { StatelessModel, IActionQueue } from 'kombo';
 
-import { mkInterctionId, TreqSubsetsAPI } from '../../../common/api/vendor/treq';
+import { mkInterctionId, TreqSubsetsAPI } from '../../../api/vendor/treq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { findCurrQueryMatch } from '../../../models/query';
 import { DataLoadedPayload } from './actions';
-import { callWithExtraVal } from '../../../common/api/util';
-import { isSubqueryPayload, RecognizedQueries } from '../../../common/query/index';
-import { isCollocSubqueryPayload } from '../../../common/api/abstract/collocations';
-import { TranslationSubset, TranslationsSubsetsModelState } from '../../../common/models/translations';
+import { callWithExtraVal } from '../../../api/util';
+import { isSubqueryPayload, RecognizedQueries } from '../../../query/index';
+import { isCollocSubqueryPayload } from '../../../api/abstract/collocations';
+import { TranslationSubset, TranslationsSubsetsModelState } from '../../../models/tiles/translations';
 import { IAppServices } from '../../../appServices';
 import { pipe, List, Dict } from 'cnc-tskit';
 import { mergeMap, reduce, tap } from 'rxjs/operators';

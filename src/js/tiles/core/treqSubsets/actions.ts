@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { WordTranslation } from '../../../common/api/abstract/translations';
+import { WordTranslation } from '../../../api/abstract/translations';
 
 
 export interface DataLoadedPayload {

@@ -18,12 +18,12 @@
 import { Observable, of as rxOf } from 'rxjs';
 import { ITranslator } from 'kombo';
 
-import { DbValueMapping, HTTPHeaders, SystemMessageType } from './common/types';
-import { LemmaDbApi, LemmaDbResponse } from './common/api/lemma';
-import { SystemNotifications } from './notifications';
+import { DbValueMapping, HTTPHeaders, SystemMessageType } from './types';
+import { LemmaDbApi, LemmaDbResponse } from './api/lemma';
+import { SystemNotifications } from './page/notifications';
 import { HTTPAction } from './server/routes/actions';
-import { AudioPlayer } from './common/audioPlayer';
-import { MultiDict } from './common/data';
+import { AudioPlayer } from './page/audioPlayer';
+import { MultiDict } from './data';
 import { Dict } from 'cnc-tskit';
 
 /**

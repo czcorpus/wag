@@ -21,7 +21,7 @@ import { catchError, map } from 'rxjs/operators';
 import { HTTP } from 'cnc-tskit';
 
 import { serverHttpRequest, ServerHTTPRequestError } from '../../../request';
-import { SourceDetails } from '../../../../common/types';
+import { SourceDetails } from '../../../../types';
 
 
 interface HTTPSourceInfoDoc {

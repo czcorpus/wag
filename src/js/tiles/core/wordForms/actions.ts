@@ -15,8 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { WordFormItem } from '../../../common/api/abstract/wordForms';
-import { SubqueryPayload } from '../../../common/query/index';
+import { WordFormItem } from '../../../api/abstract/wordForms';
+import { SubqueryPayload } from '../../../query/index';
 
 export interface DataLoadedPayload extends SubqueryPayload {
     data:Array<WordFormItem>;

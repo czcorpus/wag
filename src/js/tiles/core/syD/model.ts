@@ -21,7 +21,7 @@ import { IAppServices } from '../../../appServices';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { DataLoadedPayload } from './actions';
 import { RequestArgs, StrippedFreqResponse, SyDAPI } from './api';
-import { RecognizedQueries } from '../../../common/query/index';
+import { RecognizedQueries } from '../../../query/index';
 import { List, pipe } from 'cnc-tskit';
 
 

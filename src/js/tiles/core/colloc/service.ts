@@ -19,10 +19,10 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Ident } from 'cnc-tskit';
 
-import { cachedAjax$ } from '../../../common/ajax';
-import { DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../../common/types';
-import { DataHeading, DataRow } from '../../../common/api/abstract/collocations';
-import { CollApiArgs } from '../../../common/api/vendor/kontext/collocations';
+import { cachedAjax$ } from '../../../page/ajax';
+import { DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../../types';
+import { DataHeading, DataRow } from '../../../api/abstract/collocations';
+import { CollApiArgs } from '../../../api/vendor/kontext/collocations';
 
 
 

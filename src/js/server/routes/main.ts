@@ -22,8 +22,8 @@ import { concatMap, map, catchError, reduce } from 'rxjs/operators';
 import { Dict, pipe, HTTP, List } from 'cnc-tskit';
 
 import { IAppServices } from '../../appServices';
-import { QueryType, QueryMatch, matchesPos, addWildcardMatches } from '../../common/query/index';
-import { QueryValidator } from '../../common/query/validation';
+import { QueryType, QueryMatch, matchesPos, addWildcardMatches } from '../../query/index';
+import { QueryValidator } from '../../query/validation';
 import { UserConf, ClientStaticConf, ClientConf, emptyClientConf, getSupportedQueryTypes,
          emptyLayoutConf, errorUserConf, getQueryTypeFreqDb, isTileDBConf, DEFAULT_WAIT_FOR_OTHER_TILES,
          THEME_COOKIE_NAME, getThemeList, getAppliedThemeConf, UserQuery, ServerConf } from '../../conf';
@@ -35,7 +35,7 @@ import { Services  } from '../actionServices';
 import { loadFile } from '../files';
 import { createRootComponent } from '../../app';
 import { ActionName } from '../../models/actions';
-import { initDummyStore } from '../../cache/index';
+import { initDummyStore } from '../../page/cache/index';
 import { fetchReqArgArray, createHelperServices, mkPageReturnUrl, logRequest, renderResult, fetchUrlParamArray } from './common';
 import { maxQueryWordsForQueryType } from '../../conf/validation';
 

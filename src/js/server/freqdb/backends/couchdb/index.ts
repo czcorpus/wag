@@ -20,12 +20,12 @@ import { concatMap, reduce, map, catchError } from 'rxjs/operators';
 import { List, pipe, HTTP, tuple } from 'cnc-tskit';
 
 import { IAppServices } from '../../../../appServices';
-import { QueryMatch, calcFreqBand } from '../../../../common/query/index';
+import { QueryMatch, calcFreqBand } from '../../../../query/index';
 import { IFreqDB } from '../../freqdb';
 import { FreqDbOptions } from '../../../../conf';
 import { serverHttpRequest } from '../../../request';
-import { importQueryPosWithLabel, posTable, posTagsEqual } from '../../../../common/postag';
-import { SourceDetails } from '../../../../common/types';
+import { importQueryPosWithLabel, posTable, posTagsEqual } from '../../../../postag';
+import { SourceDetails } from '../../../../types';
 import { CouchStoredSourceInfo } from './sourceInfo';
 
 

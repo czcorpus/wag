@@ -23,10 +23,9 @@
 
 import { Observable } from 'rxjs';
 
-import { HostPageEnv, IToolbarProvider } from '../../common/hostPage';
+import { HostPageEnv, IToolbarProvider } from '../../page/hostPage';
 import { GlobalComponents } from '../../views/global';
 import { ViewUtils } from 'kombo';
-import { AxiosError } from 'axios';
 import { serverHttpRequest, ServerHTTPRequestError } from '../request';
 import { HTTP, pipe, Dict, List } from 'cnc-tskit';
 import { map, catchError } from 'rxjs/operators';

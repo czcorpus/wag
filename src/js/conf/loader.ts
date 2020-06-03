@@ -21,7 +21,7 @@ import axios from 'axios';
 import { pipe, List, Dict } from 'cnc-tskit';
 import * as path from 'path';
 import { LanguageLayoutsConfig, LanguageAnyTileConf, GroupItemConfig, TileDbConf } from './index';
-import { TileConf } from '../common/tile';
+import { TileConf } from '../page/tile';
 import { Observable, of as rxOf } from 'rxjs';
 import { reduce, mergeMap } from 'rxjs/operators';
 

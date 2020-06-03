@@ -17,11 +17,11 @@
  */
 import { StatelessModel } from 'kombo';
 
-import { QueryType } from '../../../common/query/index';
-import { ITileProvider, TileComponent, TileConf, TileFactory, Backlink } from '../../../common/tile';
+import { QueryType } from '../../../query/index';
+import { ITileProvider, TileComponent, TileConf, TileFactory, Backlink } from '../../../page/tile';
 import { SpeechesModel } from './model';
 import { init as viewInit } from './view';
-import { LocalizedConfMsg } from '../../../common/types';
+import { LocalizedConfMsg } from '../../../types';
 import { SpeechesApi } from './api';
 import { createAudioUrlGeneratorInstance } from './impl';
 import { pipe, Color, List } from 'cnc-tskit';

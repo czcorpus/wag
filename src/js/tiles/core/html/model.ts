@@ -23,8 +23,8 @@ import { DataLoadedPayload, HtmlModelState } from './common';
 import { findCurrQueryMatch } from '../../../models/query';
 import { Observable, of as rxOf } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
-import { RecognizedQueries } from '../../../common/query/index';
-import { IGeneralHtmlAPI } from '../../../common/api/abstract/html';
+import { RecognizedQueries } from '../../../query/index';
+import { IGeneralHtmlAPI } from '../../../api/abstract/html';
 
 
 export interface HtmlModelArgs {

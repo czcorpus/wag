@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 import { Observable } from 'rxjs';
-import { DataApi, IAsyncKeyValueStore } from '../../../common/types';
-import { cachedAjax$, ResponseType } from '../../../common/ajax';
+import { DataApi, IAsyncKeyValueStore } from '../../../types';
+import { cachedAjax$, ResponseType } from '../../../page/ajax';
 import { IAppServices } from '../../../appServices';
 
 export class MapLoader implements DataApi<string, string> {

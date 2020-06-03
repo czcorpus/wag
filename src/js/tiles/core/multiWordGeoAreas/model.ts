@@ -21,17 +21,17 @@ import { concatMap, reduce, share, repeat } from 'rxjs/operators';
 import { Dict, List, pipe, tuple } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
-import { GeneralSingleCritFreqMultiQueryState } from '../../../common/models/freq';
+import { GeneralSingleCritFreqMultiQueryState } from '../../../models/tiles/freq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { ActionName, Actions, LoadFinishedPayload } from './actions';
-import { DataApi } from '../../../common/types';
+import { DataApi } from '../../../types';
 import { TooltipValues } from '../../../views/global';
-import { QueryMatch, RecognizedQueries } from '../../../common/query/index';
-import { callWithExtraVal } from '../../../common/api/util';
-import { ViewMode, IConcordanceApi } from '../../../common/api/abstract/concordance';
-import { createInitialLinesData } from '../../../common/models/concordance';
+import { QueryMatch, RecognizedQueries } from '../../../query/index';
+import { callWithExtraVal } from '../../../api/util';
+import { ViewMode, IConcordanceApi } from '../../../api/abstract/concordance';
+import { createInitialLinesData } from '../../../models/tiles/concordance';
 import { ConcLoadedPayload, isConcLoadedPayload } from '../concordance/actions';
-import { DataRow, IFreqDistribAPI, APIResponse } from '../../../common/api/abstract/freqs';
+import { DataRow, IFreqDistribAPI, APIResponse } from '../../../api/abstract/freqs';
 
 /*
 oral2013:

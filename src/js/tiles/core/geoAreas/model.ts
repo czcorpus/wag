@@ -20,13 +20,13 @@ import { forkJoin, Observable, Observer, of as rxOf } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 
 import { IAppServices } from '../../../appServices';
-import { GeneralSingleCritFreqBarModelState } from '../../../common/models/freq';
+import { GeneralSingleCritFreqBarModelState } from '../../../models/tiles/freq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { ConcLoadedPayload } from '../concordance/actions';
 import { ActionName, Actions, DataLoadedPayload } from './actions';
-import { DataApi } from '../../../common/types';
+import { DataApi } from '../../../types';
 import { TooltipValues } from '../../../views/global';
-import { IFreqDistribAPI, DataRow } from '../../../common/api/abstract/freqs';
+import { IFreqDistribAPI, DataRow } from '../../../api/abstract/freqs';
 
 /*
 oral2013:

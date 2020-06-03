@@ -18,13 +18,13 @@
 import * as React from 'react';
 import { IActionDispatcher, ViewUtils, BoundWithProps } from 'kombo';
 import { GlobalComponents } from '../../../views/global';
-import { Theme } from '../../../common/theme';
-import { TileComponent, CoreTileComponentProps } from '../../../common/tile';
+import { Theme } from '../../../page/theme';
+import { TileComponent, CoreTileComponentProps } from '../../../page/tile';
 import { WordSimModel } from './model';
 import { init as wcloudViewInit } from '../../../views/wordCloud/index';
 import { ActionName } from './actions';
-import { WordSimWord } from '../../../common/api/abstract/wordSim';
-import { OperationMode, WordSimModelState } from '../../../common/models/wordSim';
+import { WordSimWord } from '../../../api/abstract/wordSim';
+import { OperationMode, WordSimModelState } from '../../../models/tiles/wordSim';
 import { List, pipe } from 'cnc-tskit';
 
 

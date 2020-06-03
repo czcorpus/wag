@@ -19,16 +19,16 @@
 import { IActionDispatcher, StatelessModel } from 'kombo';
 import { List } from 'cnc-tskit';
 import { IAppServices } from '../../../appServices';
-import { ViewMode, IConcordanceApi } from '../../../common/api/abstract/concordance';
+import { ViewMode, IConcordanceApi } from '../../../api/abstract/concordance';
 
-import { LocalizedConfMsg } from '../../../common/types';
-import { QueryType } from '../../../common/query/index';
-import { Backlink, CorpSrchTileConf, ITileProvider, TileComponent, TileFactory } from '../../../common/tile';
+import { LocalizedConfMsg } from '../../../types';
+import { QueryType } from '../../../query/index';
+import { Backlink, CorpSrchTileConf, ITileProvider, TileComponent, TileFactory } from '../../../page/tile';
 import { ConcordanceTileModel } from './model';
 import { init as viewInit } from './views';
-import { createApiInstance } from '../../../common/api/factory/concordance';
+import { createApiInstance } from '../../../api/factory/concordance';
 import { findCurrQueryMatch } from '../../../models/query';
-import { createInitialLinesData } from '../../../common/models/concordance';
+import { createInitialLinesData } from '../../../models/tiles/concordance';
 
 
 

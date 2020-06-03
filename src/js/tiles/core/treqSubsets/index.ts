@@ -16,13 +16,13 @@
  * limitations under the License.
  */
 
-import { QueryType } from '../../../common/query/index';
-import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../../common/tile';
+import { QueryType } from '../../../query/index';
+import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../../page/tile';
 import { TreqSubsetModel } from './model';
-import { TreqSubsetsAPI } from '../../../common/api/vendor/treq';
+import { TreqSubsetsAPI } from '../../../api/vendor/treq';
 import {init as viewInit} from './view';
 import { StatelessModel } from 'kombo';
-import { LocalizedConfMsg } from '../../../common/types';
+import { LocalizedConfMsg } from '../../../types';
 import { List } from 'cnc-tskit';
 
 declare var require:any;

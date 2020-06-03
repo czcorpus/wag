@@ -20,11 +20,11 @@ import * as React from 'react';
 import { Keyboard, pipe, List } from 'cnc-tskit';
 import { tap } from 'rxjs/operators';
 
-import { Forms } from '../common/data';
-import { SystemMessageType, SourceDetails, isCorpusDetails } from '../common/types';
-import { QueryType, QueryMatch, QueryTypeMenuItem, SearchLanguage, RecognizedQueries } from '../common/query/index';
-import { TileFrameProps } from '../common/tile';
-import { TileGroup } from '../layout';
+import { Forms } from '../data';
+import { SystemMessageType, SourceDetails, isCorpusDetails } from '../types';
+import { QueryType, QueryMatch, QueryTypeMenuItem, SearchLanguage, RecognizedQueries } from '../query/index';
+import { TileFrameProps } from '../page/tile';
+import { TileGroup } from '../page/layout';
 import { ActionName, Actions } from '../models/actions';
 import { MessagesModel, MessagesState } from '../models/messages';
 import { QueryFormModel, QueryFormModelState } from '../models/query';

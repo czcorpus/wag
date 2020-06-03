@@ -19,15 +19,15 @@ import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { map } from 'rxjs/operators';
 import { HTTP } from 'cnc-tskit'
 
-import { Backlink, BacklinkWithArgs } from '../../../common/tile';
+import { Backlink, BacklinkWithArgs } from '../../../page/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { findCurrQueryMatch } from '../../../models/query';
 import { DataLoadedPayload } from './actions';
-import { ColorScaleFunctionGenerator } from '../../../common/theme';
-import { TranslationAPI } from '../../../common/api/abstract/translations';
-import { TranslationsModelState } from '../../../common/models/translations';
+import { ColorScaleFunctionGenerator } from '../../../page/theme';
+import { TranslationAPI } from '../../../api/abstract/translations';
+import { TranslationsModelState } from '../../../models/tiles/translations';
 import { IAppServices } from '../../../appServices';
-import { RecognizedQueries } from '../../../common/query/index';
+import { RecognizedQueries } from '../../../query/index';
 
 
 export type GeneralTranslationsModelState = TranslationsModelState<{}>;

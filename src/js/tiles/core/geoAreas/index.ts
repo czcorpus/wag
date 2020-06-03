@@ -18,13 +18,13 @@
 import { IActionDispatcher, StatelessModel } from 'kombo';
 
 import { IAppServices } from '../../../appServices';
-import { FreqSort } from '../../../common/api/vendor/kontext/freqs';
-import { QueryType } from '../../../common/query/index';
-import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../../common/tile';
+import { FreqSort } from '../../../api/vendor/kontext/freqs';
+import { QueryType } from '../../../query/index';
+import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../../page/tile';
 import { GeoAreasModel } from './model';
 import { init as viewInit } from './views';
 import { MapLoader } from './mapLoader';
-import { createApiInstance } from '../../../common/api/factory/freqs';
+import { createApiInstance } from '../../../api/factory/freqs';
 
 
 declare var require:any;

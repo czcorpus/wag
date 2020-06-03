@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { IToolbarProvider } from '../../common/hostPage';
+import { IToolbarProvider } from '../../page/hostPage';
 import { EmptyToolbar } from './empty';
 import { LangSwitchToolbar } from './langSwitch';
 import { UCNKToolbar } from './ucnk';

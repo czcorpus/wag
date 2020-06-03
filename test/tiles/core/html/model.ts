@@ -23,10 +23,10 @@ import { assert } from 'chai';
 import { of as rxOf } from 'rxjs';
 
 import { HtmlModel } from '../../../../src/js/tiles/core/html/model';
-import { RawHtmlAPI, HtmlApiArgs } from '../../../../src/js/common/api/vendor/wdglance/html';
-import { IGeneralHtmlAPI } from '../../../../src/js/common/api/abstract/html';
+import { RawHtmlAPI, HtmlApiArgs } from '../../../../src/js/api/vendor/wdglance/html';
+import { IGeneralHtmlAPI } from '../../../../src/js/api/abstract/html';
 import { HtmlModelState } from '../../../../src/js/tiles/core/html/common';
-import { QueryMatch } from '../../../../src/js/common/query/index';
+import { QueryMatch } from '../../../../src/js/query/index';
 import { ActionName } from '../../../../src/js/models/actions';
 import * as query from '../../../../src/js/models/query';
 

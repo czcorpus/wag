@@ -22,18 +22,18 @@ import { reduce, map, tap, mergeMap } from 'rxjs/operators';
 import { Dict, Maths, List, pipe } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
-import { ConcResponse, ViewMode, IConcordanceApi } from '../../../common/api/abstract/concordance';
-import { TimeDistribResponse, TimeDistribItem, TimeDistribApi } from '../../../common/api/abstract/timeDistrib';
-import { GeneralSingleCritFreqMultiQueryState } from '../../../common/models/freq';
+import { ConcResponse, ViewMode, IConcordanceApi } from '../../../api/abstract/concordance';
+import { TimeDistribResponse, TimeDistribItem, TimeDistribApi } from '../../../api/abstract/timeDistrib';
+import { GeneralSingleCritFreqMultiQueryState } from '../../../models/tiles/freq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { findCurrQueryMatch } from '../../../models/query';
 import { DataItemWithWCI, ActionName, Actions, DataLoadedPayload } from './common';
-import { callWithExtraVal } from '../../../common/api/util';
-import { QueryMatch, RecognizedQueries } from '../../../common/query/index';
-import { createInitialLinesData } from '../../../common/models/concordance';
+import { callWithExtraVal } from '../../../api/util';
+import { QueryMatch, RecognizedQueries } from '../../../query/index';
+import { createInitialLinesData } from '../../../models/tiles/concordance';
 import { ConcLoadedPayload, isConcLoadedPayload } from '../concordance/actions';
-import { PriorityValueFactory } from '../../../common/priority';
-import { DataRow } from '../../../common/api/abstract/freqs';
+import { PriorityValueFactory } from '../../../priority';
+import { DataRow } from '../../../api/abstract/freqs';
 
 
 export interface TimeDistribModelState extends GeneralSingleCritFreqMultiQueryState<DataItemWithWCI> {

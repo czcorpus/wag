@@ -21,16 +21,16 @@ import { concatMap, map } from 'rxjs/operators';
 import { Dict, Ident } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
-import { ConcApi, QuerySelector, RequestArgs } from '../../../common/api/vendor/kontext/concordance';
-import { ViewMode, ConcResponse } from '../../../common/api/abstract/concordance';
-import { SubqueryModeConf } from '../../../common/models/freq';
-import { isSubqueryPayload, SubqueryPayload, SubQueryItem } from '../../../common/query/index';
-import { Backlink } from '../../../common/tile';
+import { ConcApi, QuerySelector, RequestArgs } from '../../../api/vendor/kontext/concordance';
+import { ViewMode, ConcResponse } from '../../../api/abstract/concordance';
+import { SubqueryModeConf } from '../../../models/tiles/freq';
+import { isSubqueryPayload, SubqueryPayload, SubQueryItem } from '../../../query/index';
+import { Backlink } from '../../../page/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { DataLoadedPayload } from './actions';
 import { FreqBarModel, FreqBarModelState } from './model';
-import { callWithExtraVal } from '../../../common/api/util';
-import { IMultiBlockFreqDistribAPI, APIBlockResponse } from '../../../common/api/abstract/freqs';
+import { callWithExtraVal } from '../../../api/util';
+import { IMultiBlockFreqDistribAPI, APIBlockResponse } from '../../../api/abstract/freqs';
 
 
 export class SubqFreqBarModelArgs {

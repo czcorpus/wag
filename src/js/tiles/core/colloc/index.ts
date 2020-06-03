@@ -18,15 +18,15 @@
 import { IActionDispatcher, StatelessModel } from 'kombo';
 import { List } from 'cnc-tskit';
 import { IAppServices } from '../../../appServices';
-import { CorePosAttribute } from '../../../common/types';
-import { QueryType } from '../../../common/query/index';
+import { CorePosAttribute } from '../../../types';
+import { QueryType } from '../../../query/index';
 import { CollocMetric } from './common';
 import { CollocModel } from './model';
 import { init as viewInit } from './views';
-import { TileConf, ITileProvider, TileComponent, TileFactory, Backlink } from '../../../common/tile';
-import { CollocationApi, SrchContextType } from '../../../common/api/abstract/collocations';
-import { createInstance } from '../../../common/api/factory/collocations';
-import { createApiInstance } from '../../../common/api/factory/concordance';
+import { TileConf, ITileProvider, TileComponent, TileFactory, Backlink } from '../../../page/tile';
+import { CollocationApi, SrchContextType } from '../../../api/abstract/collocations';
+import { createInstance } from '../../../api/factory/collocations';
+import { createApiInstance } from '../../../api/factory/concordance';
 import { findCurrQueryMatch } from '../../../models/query';
 
 

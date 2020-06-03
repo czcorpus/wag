@@ -21,18 +21,18 @@ import { mergeMap, reduce, share } from 'rxjs/operators';
 import { Ident, pipe, List, Maths } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
-import { GeneralMultiCritFreqComparisonModelState } from '../../../common/models/freqComparison';
-import { Backlink, BacklinkWithArgs } from '../../../common/tile';
+import { GeneralMultiCritFreqComparisonModelState } from '../../../models/tiles/freqComparison';
+import { Backlink, BacklinkWithArgs } from '../../../page/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { ActionName, Actions, DataLoadedPayload, LoadFinishedPayload } from './actions';
 import { findCurrQueryMatch } from '../../../models/query';
-import { RecognizedQueries, QueryMatch } from '../../../common/query/index';
+import { RecognizedQueries, QueryMatch } from '../../../query/index';
 import { ConcLoadedPayload, isConcLoadedPayload } from '../concordance/actions';
-import { callWithExtraVal } from '../../../common/api/util';
-import { ViewMode, IConcordanceApi } from '../../../common/api/abstract/concordance';
-import { createInitialLinesData } from '../../../common/models/concordance';
-import { BacklinkArgs } from '../../../common/api/vendor/kontext/freqs';
-import { DataRow, IMultiBlockFreqDistribAPI } from '../../../common/api/abstract/freqs';
+import { callWithExtraVal } from '../../../api/util';
+import { ViewMode, IConcordanceApi } from '../../../api/abstract/concordance';
+import { createInitialLinesData } from '../../../models/tiles/concordance';
+import { BacklinkArgs } from '../../../api/vendor/kontext/freqs';
+import { DataRow, IMultiBlockFreqDistribAPI } from '../../../api/abstract/freqs';
 
 
 export interface MultiWordDataRow extends DataRow {

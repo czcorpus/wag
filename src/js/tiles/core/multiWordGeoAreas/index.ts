@@ -18,15 +18,15 @@
 import { IActionDispatcher, StatelessModel } from 'kombo';
 import { List } from 'cnc-tskit';
 import { IAppServices } from '../../../appServices';
-import { FreqSort } from '../../../common/api/vendor/kontext/freqs';
-import { QueryType } from '../../../common/query/index';
-import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../../common/tile';
+import { FreqSort } from '../../../api/vendor/kontext/freqs';
+import { QueryType } from '../../../query/index';
+import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../../page/tile';
 import { MultiWordGeoAreasModel } from './model';
 import { init as viewInit } from './views';
 import { MapLoader } from './mapLoader';
 import { findCurrQueryMatch } from '../../../models/query';
-import { createApiInstance } from '../../../common/api/factory/freqs';
-import { createApiInstance as createConcApiInstance } from '../../../common/api/factory/concordance';
+import { createApiInstance } from '../../../api/factory/freqs';
+import { createApiInstance as createConcApiInstance } from '../../../api/factory/concordance';
 
 
 declare var require:any;

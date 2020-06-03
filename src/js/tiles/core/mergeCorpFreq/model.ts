@@ -22,14 +22,14 @@ import { flatMap, concatMap, map, reduce, tap } from 'rxjs/operators';
 import { Dict, List, pipe } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
-import { SourceMappedDataRow } from '../../../common/api/vendor/kontext/freqs';
-import { callWithExtraVal } from '../../../common/api/util';
+import { SourceMappedDataRow } from '../../../api/vendor/kontext/freqs';
+import { callWithExtraVal } from '../../../api/util';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
-import { QueryMatch } from '../../../common/query/index';
-import { ViewMode, SingleConcLoadedPayload, IConcordanceApi } from '../../../common/api/abstract/concordance';
+import { QueryMatch } from '../../../query/index';
+import { ViewMode, SingleConcLoadedPayload, IConcordanceApi } from '../../../api/abstract/concordance';
 import { DataLoadedPayload, ModelSourceArgs } from './common';
-import { createInitialLinesData } from '../../../common/models/concordance';
-import { IFreqDistribAPI, DataRow } from '../../../common/api/abstract/freqs';
+import { createInitialLinesData } from '../../../models/tiles/concordance';
+import { IFreqDistribAPI, DataRow } from '../../../api/abstract/freqs';
 import { ActionName, Actions } from './actions';
 import { TooltipValues } from '../../../views/global';
 

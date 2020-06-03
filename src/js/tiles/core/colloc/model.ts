@@ -21,18 +21,18 @@ import { concatMap, map, tap, reduce } from 'rxjs/operators';
 import { List, HTTP } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
-import { SystemMessageType } from '../../../common/types';
+import { SystemMessageType } from '../../../types';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { ConcLoadedPayload } from '../concordance/actions';
 import { ActionName, Actions, DataLoadedPayload } from './common';
-import { Backlink, BacklinkWithArgs } from '../../../common/tile';
-import { CollocationApi } from '../../../common/api/abstract/collocations';
-import { CollocModelState, ctxToRange } from '../../../common/models/collocations';
-import { CoreCollRequestArgs } from '../../../common/api/vendor/kontext/collocations';
-import { QueryMatch, QueryType } from '../../../common/query/index';
-import { callWithExtraVal } from '../../../common/api/util';
-import { ViewMode, ConcResponse, IConcordanceApi } from '../../../common/api/abstract/concordance';
-import { createInitialLinesData } from '../../../common/models/concordance';
+import { Backlink, BacklinkWithArgs } from '../../../page/tile';
+import { CollocationApi } from '../../../api/abstract/collocations';
+import { CollocModelState, ctxToRange } from '../../../models/tiles/collocations';
+import { CoreCollRequestArgs } from '../../../api/vendor/kontext/collocations';
+import { QueryMatch, QueryType } from '../../../query/index';
+import { callWithExtraVal } from '../../../api/util';
+import { ViewMode, ConcResponse, IConcordanceApi } from '../../../api/abstract/concordance';
+import { createInitialLinesData } from '../../../models/tiles/concordance';
 
 
 export interface CollocModelArgs {

@@ -17,9 +17,9 @@
  */
 import { Observable } from 'rxjs';
 
-import { QueryMatch } from '../../common/query/index';
+import { QueryMatch } from '../../query/index';
 import { IAppServices } from '../../appServices';
-import { SourceDetails } from '../../common/types';
+import { SourceDetails } from '../../types';
 
 
 export interface IFreqDB {
