@@ -19,8 +19,8 @@
 import { CoreApiGroup } from '../coreGroups';
 import { HTTPHeaders, IAsyncKeyValueStore } from '../../types';
 import { IGeneralHtmlAPI } from '../abstract/html';
-import { WiktionaryHtmlAPI } from '../wiktionary/html';
-import { RawHtmlAPI } from '../wdglance/html';
+import { WiktionaryHtmlAPI } from '../vendor/wiktionary/html';
+import { RawHtmlAPI } from '../vendor/wdglance/html';
 
 
 export function createApiInstance(cache:IAsyncKeyValueStore, apiIdent:string, apiURL:string, httpHeaders?:HTTPHeaders):IGeneralHtmlAPI<{}> {

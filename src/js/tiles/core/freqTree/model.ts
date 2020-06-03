@@ -21,7 +21,7 @@ import { map, mergeMap, reduce, tap, concatMap } from 'rxjs/operators';
 import { Dict, List, pipe, Ident } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
-import { BacklinkArgs, FreqTreeAPI, APILeafResponse, APIVariantsResponse } from '../../../common/api/kontext/freqTree';
+import { BacklinkArgs, FreqTreeAPI, APILeafResponse, APIVariantsResponse } from '../../../common/api/vendor/kontext/freqTree';
 import { GeneralCritFreqTreeModelState, stateToAPIArgs, FreqTreeDataBlock } from '../../../common/models/freqTree';
 import { Backlink, BacklinkWithArgs } from '../../../common/tile';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';

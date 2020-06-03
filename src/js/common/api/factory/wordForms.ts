@@ -17,10 +17,10 @@
  */
 
 import { IWordFormsApi } from '../../../common/api/abstract/wordForms';
-import { WordFormsAPI as WordFormsKontextApi } from '../../../common/api/kontext/wordForms';
+import { WordFormsAPI as WordFormsKontextApi } from '../vendor/kontext/wordForms';
 import { HTTPHeaders, IAsyncKeyValueStore } from '../../../common/types';
 import { CoreApiGroup, supportedCoreApiGroups } from '../../../common/api/coreGroups';
-import { WordFormsWdglanceAPI } from '../../../common/api/wdglance/wordForms';
+import { WordFormsWdglanceAPI } from '../vendor/wdglance/wordForms';
 
 
 export interface ApiFactoryArgs {

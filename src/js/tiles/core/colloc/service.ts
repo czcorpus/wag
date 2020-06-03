@@ -22,7 +22,7 @@ import { Ident } from 'cnc-tskit';
 import { cachedAjax$ } from '../../../common/ajax';
 import { DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../../common/types';
 import { DataHeading, DataRow } from '../../../common/api/abstract/collocations';
-import { CollApiArgs } from '../../../common/api/kontext/collocations';
+import { CollApiArgs } from '../../../common/api/vendor/kontext/collocations';
 
 
 

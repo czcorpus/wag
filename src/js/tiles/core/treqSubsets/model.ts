@@ -19,7 +19,7 @@
 import { of as rxOf } from 'rxjs';
 import { StatelessModel, IActionQueue } from 'kombo';
 
-import { mkInterctionId, TreqSubsetsAPI } from '../../../common/api/treq';
+import { mkInterctionId, TreqSubsetsAPI } from '../../../common/api/vendor/treq';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { findCurrQueryMatch } from '../../../models/query';
 import { DataLoadedPayload } from './actions';

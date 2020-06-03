@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { SourceMappedDataRow } from '../../../common/api/kontext/freqs';
+import { SourceMappedDataRow } from '../../../common/api/vendor/kontext/freqs';
 import { Backlink } from '../../../common/tile';
 import { MinSingleCritFreqState } from '../../../common/models/freq';
 

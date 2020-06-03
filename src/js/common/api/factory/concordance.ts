@@ -17,11 +17,11 @@
  */
 import { DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../types';
 import { IConcordanceApi } from '../../api/abstract/concordance';
-import { ConcApi } from '../../api/kontext/concordance';
-import { ConcApi as NoskeConcApi } from '../../api/noske/concordance';
-import { ConcApi as LCCConcApi } from '../../api/lcc/concordance';
-import { FCS1SearchRetrieveAPI } from '../../api/clarin/fcs1/searchRetrieve';
-import { FCS1ExplainAPI } from '../../api/clarin/fcs1/explain';
+import { ConcApi } from '../vendor/kontext/concordance';
+import { ConcApi as NoskeConcApi } from '../vendor/noske/concordance';
+import { ConcApi as LCCConcApi } from '../vendor/lcc/concordance';
+import { FCS1SearchRetrieveAPI } from '../vendor/clarin/fcs1/searchRetrieve';
+import { FCS1ExplainAPI } from '../vendor/clarin/fcs1/explain';
 import { CoreApiGroup, supportedCoreApiGroups } from '../../api/coreGroups';
 
 

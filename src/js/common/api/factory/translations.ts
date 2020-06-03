@@ -18,7 +18,7 @@
 
 import { IAsyncKeyValueStore } from '../../types';
 import { TranslationAPI } from '../abstract/translations';
-import { TreqAPI } from '../treq';
+import { TreqAPI } from '../vendor/treq';
 import { CoreApiGroup } from '../coreGroups';
 import { IAppServices } from '../../../appServices';
 

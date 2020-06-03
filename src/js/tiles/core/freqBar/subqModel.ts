@@ -21,7 +21,7 @@ import { concatMap, map } from 'rxjs/operators';
 import { Dict, Ident } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
-import { ConcApi, QuerySelector, RequestArgs } from '../../../common/api/kontext/concordance';
+import { ConcApi, QuerySelector, RequestArgs } from '../../../common/api/vendor/kontext/concordance';
 import { ViewMode, ConcResponse } from '../../../common/api/abstract/concordance';
 import { SubqueryModeConf } from '../../../common/models/freq';
 import { isSubqueryPayload, SubqueryPayload, SubQueryItem } from '../../../common/query/index';

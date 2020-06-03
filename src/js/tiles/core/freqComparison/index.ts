@@ -25,7 +25,7 @@ import { TileComponent, TileConf, TileFactory, Backlink, ITileProvider } from '.
 import { GlobalComponents } from '../../../views/global';
 import { factory as defaultModelFactory, FreqComparisonModel } from './model';
 import { init as viewInit } from './view';
-import { FreqSort } from '../../../common/api/kontext/freqs';
+import { FreqSort } from '../../../common/api/vendor/kontext/freqs';
 import { createMultiBlockApiInstance as createFreqsApiInstance } from '../../../common/api/factory/freqs';
 import { createApiInstance as createConcApiInstance } from '../../../common/api/factory/concordance';
 

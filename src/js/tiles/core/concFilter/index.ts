@@ -23,10 +23,10 @@ import { QueryType } from '../../../common/query/index';
 import { TileConf, ITileProvider, TileFactory, TileComponent } from '../../../common/tile';
 import { ConcFilterModel } from './model';
 import { init as viewInit } from './view';
-import { ConcApi } from '../../../common/api/kontext/concordance';
+import { ConcApi } from '../../../common/api/vendor/kontext/concordance';
 import { ViewMode } from '../../../common/api/abstract/concordance';
 import { LocalizedConfMsg } from '../../../common/types';
-import { SwitchMainCorpApi } from '../../../common/api/kontext/switchMainCorp';
+import { SwitchMainCorpApi } from '../../../common/api/vendor/kontext/switchMainCorp';
 import { ISwitchMainCorpApi, SwitchMainCorpResponse } from '../../../common/api/abstract/switchMainCorp';
 import { TileWait } from '../../../models/tileSync';
 

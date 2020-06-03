@@ -18,7 +18,7 @@
 import { IAppServices } from '../../../appServices';
 import { QueryType } from '../../../common/query/index';
 import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../../common/tile';
-import { SearchPackages } from '../../../common/api/treq';
+import { SearchPackages } from '../../../common/api/vendor/treq';
 import { TranslationsModel } from './model';
 import { init as viewInit } from './view';
 import { StatelessModel } from 'kombo';

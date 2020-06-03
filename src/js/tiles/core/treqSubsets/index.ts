@@ -19,7 +19,7 @@
 import { QueryType } from '../../../common/query/index';
 import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../../common/tile';
 import { TreqSubsetModel } from './model';
-import { TreqSubsetsAPI } from '../../../common/api/treq';
+import { TreqSubsetsAPI } from '../../../common/api/vendor/treq';
 import {init as viewInit} from './view';
 import { StatelessModel } from 'kombo';
 import { LocalizedConfMsg } from '../../../common/types';

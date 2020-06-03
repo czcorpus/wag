@@ -21,8 +21,8 @@ import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../../co
 import { FlevelDistribItem, SummaryModel, findCurrentMatches, mkEmptySimilarWords } from './model';
 import { init as viewInit } from './views';
 import { StatelessModel } from 'kombo';
-import { SimilarFreqWordsNullAPI, SimilarFreqWordsAPI } from '../../../common/api/wdglance/similarFreq';
-import { InternalResourceInfoApi } from '../../../common/api/wdglance/freqDbSourceInfo';
+import { SimilarFreqWordsNullAPI, SimilarFreqWordsAPI } from '../../../common/api/vendor/wdglance/similarFreq';
+import { InternalResourceInfoApi } from '../../../common/api/vendor/wdglance/freqDbSourceInfo';
 
 declare var require:(src:string)=>void;  // webpack
 require('./style.less');
