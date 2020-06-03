@@ -22,6 +22,7 @@ import { ajax$ } from '../../../page/ajax';
 import { DataApi, HTTPHeaders } from '../../../types';
 import { AnyQuery, getQuery, HTTPResponse, convertLines } from './concordance';
 import { ConcResponse } from '../../abstract/concordance';
+import { IApiServices } from '../../../appServices';
 
 
 
@@ -45,9 +46,9 @@ export class ConcReduceApi implements DataApi<RequestArgs, ApiResponse> {
 
     private readonly customHeaders:HTTPHeaders;
 
-    constructor(apiURL:string, customHeaders?:HTTPHeaders) {
+    constructor(apiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
-        this.customHeaders = customHeaders || {};
+        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
     }
 
     call(args:RequestArgs):Observable<ApiResponse> {

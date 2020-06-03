@@ -132,6 +132,51 @@
             ],
             "type": "object"
         },
+        "DataReadabilityMapping": {
+            "properties": {
+                "commonStructures": {
+                    "additionalProperties": {
+                        "properties": {
+                            "document": {
+                                "type": "string"
+                            },
+                            "paragraph": {
+                                "type": "string"
+                            },
+                            "sentence": {
+                                "type": "string"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "type": "object"
+                },
+                "metadataMapping": {
+                    "additionalProperties": {
+                        "additionalProperties": {
+                            "anyOf": [
+                                {
+                                    "additionalProperties": {
+                                        "type": "string"
+                                    },
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "type": "object"
+                    },
+                    "type": "object"
+                }
+            },
+            "required": [
+                "commonStructures",
+                "metadataMapping"
+            ],
+            "type": "object"
+        },
         "FaviconConf": {
             "properties": {
                 "contentType": {
@@ -7168,24 +7213,15 @@
         "corpInfoApiUrl": {
             "type": "string"
         },
-        "dbValuesMapping": {
-            "additionalProperties": {
-                "additionalProperties": {
-                    "anyOf": [
-                        {
-                            "additionalProperties": {
-                                "type": "string"
-                            },
-                            "type": "object"
-                        },
-                        {
-                            "type": "string"
-                        }
-                    ]
+        "dataReadability": {
+            "anyOf": [
+                {
+                    "$ref": "#/definitions/DataReadabilityMapping"
                 },
-                "type": "object"
-            },
-            "type": "object"
+                {
+                    "type": "string"
+                }
+            ]
         },
         "externalStyles": {
             "items": {
@@ -7271,7 +7307,6 @@
     "required": [
         "apiHeaders",
         "corpInfoApiUrl",
-        "dbValuesMapping",
         "homepage",
         "hostUrl",
         "layouts",

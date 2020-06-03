@@ -22,6 +22,7 @@ import { cachedAjax$ } from '../../../page/ajax';
 import { DataApi, HTTPHeaders, SourceDetails, IAsyncKeyValueStore, CorpusDetails } from '../../../types';
 import { HTTPApiResponse } from './common';
 import { List } from 'cnc-tskit';
+import { IApiServices } from '../../../appServices';
 
 
 
@@ -96,6 +97,11 @@ export interface QueryArgs {
     format:'json';
 }
 
+function findStructSize(data:Array<{name:string, size:number}>, name:string):number|undefined {
+    const ans = List.find(v => v.name === name, data);
+    return ans ? ans.size : undefined;
+}
+
 
 export class CorpusInfoAPI implements DataApi<QueryArgs, SourceDetails> {
 
@@ -105,10 +111,10 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, SourceDetails> {
 
     private readonly cache:IAsyncKeyValueStore;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, customHeaders?:HTTPHeaders) {
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
         this.cache = cache;
         this.apiURL = apiURL;
-        this.customHeaders = customHeaders || {};
+        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
     }
 
     call(args:QueryArgs):Observable<CorpusDetails> {
@@ -126,7 +132,6 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, SourceDetails> {
                     title: resp.name,
                     description: resp.info,
                     author: '',
-                    size: parseInt(resp.sizes.tokencount),
                     webURL: '',
                     attrList: List.map(
                         v => ({
@@ -135,13 +140,9 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, SourceDetails> {
                         }),
                         resp.attributes
                     ),
-                    structList: List.map(
-                        ([label, size,]) => ({
-                            name: label,
-                            size: size
-                        }),
-                        resp.structs
-                    ),
+                    structure: {
+                        numTokens: parseInt(resp.sizes.tokencount)
+                    },
                     keywords: []
                 })
             )

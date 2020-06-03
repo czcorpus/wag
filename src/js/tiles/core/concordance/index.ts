@@ -89,7 +89,7 @@ export class ConcordanceTile implements ITileProvider {
         if (waitForTiles.length > 1) {
             throw new Error('ConcordanceTile does not support waiting for multiple tiles. Only a single tile can be specified');
         }
-        const api = createApiInstance(cache, conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL));
+        const api = createApiInstance(cache, conf.apiType, conf.apiURL, appServices);
         this.model = new ConcordanceTileModel({
             dispatcher: dispatcher,
             tileId,

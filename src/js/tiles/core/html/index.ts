@@ -67,7 +67,7 @@ export class HtmlTile implements ITileProvider {
         this.dispatcher = dispatcher;
         this.appServices = appServices;
         this.widthFract = widthFract;
-        this.api = createApiInstance(cache, conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL));
+        this.api = createApiInstance(cache, conf.apiType, conf.apiURL, appServices);
         this.model = new HtmlModel({
             dispatcher: dispatcher,
             tileId: tileId,

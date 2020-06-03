@@ -22,6 +22,7 @@ import { HTTPHeaders } from '../../../types';
 import { HTTP } from 'cnc-tskit';
 import { ajax$, encodeArgs } from '../../../page/ajax';
 import { ISwitchMainCorpApi, SwitchMainCorpResponse } from '../../abstract/switchMainCorp';
+import { IApiServices } from '../../../appServices';
 
 
 export interface SwitchMainCorpArgs {
@@ -42,9 +43,9 @@ export class SwitchMainCorpApi implements ISwitchMainCorpApi {
 
     private readonly customHeaders:HTTPHeaders;
 
-    constructor(apiURL:string, customHeaders?:HTTPHeaders) {
+    constructor(apiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
-        this.customHeaders = customHeaders || {};
+        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
     }
 
     call(args:SwitchMainCorpArgs):Observable<SwitchMainCorpResponse> {

@@ -136,7 +136,7 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState, Mo
                     } else {
                         state.data = List.map(
                             v => ({
-                                name: this.appServices.translateDbValue(state.corpname, v.name),
+                                name: this.appServices.translateResourceMetadata(state.corpname, v.name),
                                 score: v.score
                             }),
                             action.payload.data

@@ -29,7 +29,7 @@ import { concatMap, map, tap } from 'rxjs/operators';
 import { Ident, tuple } from 'cnc-tskit';
 import 'winston-daily-rotate-file';
 
-import { ClientStaticConf, ServerConf, LanguageLayoutsConfig, LanguageAnyTileConf, isTileDBConf, ColorsConf } from '../conf';
+import { ClientStaticConf, ServerConf, LanguageLayoutsConfig, LanguageAnyTileConf, isTileDBConf, ColorsConf, DataReadabilityMapping, CommonTextStructures } from '../conf';
 import { validateTilesConf } from '../conf/validation';
 import { parseJsonConfig, loadRemoteTileConf } from '../conf/loader';
 import { wdgRouter } from './routes/index';
@@ -61,6 +61,12 @@ function loadColorsConf(clientConf:ClientStaticConf):Observable<ColorsConf> {
         rxOf(clientConf.colors);
 }
 
+function loadDataReadabilityConf(clientConf:ClientStaticConf):Observable<DataReadabilityMapping> {
+    return typeof clientConf.dataReadability === 'string' ?
+        parseJsonConfig(clientConf.dataReadability) :
+        rxOf(clientConf.dataReadability);
+}
+
 
 forkJoin( // load core configs
     parseJsonConfig<ServerConf>(process.env.SERVER_CONF ?
@@ -69,7 +75,7 @@ forkJoin( // load core configs
     parseJsonConfig<ClientStaticConf>(process.env.WDGLANCE_CONF ?
         process.env.WDGLANCE_CONF :
         path.resolve(__dirname, '../conf/wdglance.json')),
-    parseJsonConfig<PackageInfo>(path.resolve(__dirname, '../package.json'))
+    parseJsonConfig<PackageInfo>(path.resolve(__dirname, '../package.json')),
 
 ).pipe(
     concatMap( // load layouts config
@@ -88,15 +94,16 @@ forkJoin( // load core configs
     concatMap( // load tile and theme definitions
         ([serverConf, clientConf, pkgInfo]) => forkJoin(
             loadTilesConf(clientConf),
-            loadColorsConf(clientConf)
+            loadColorsConf(clientConf),
+            loadDataReadabilityConf(clientConf)
 
         ).pipe(
             map(
-                ([tiles, colors]) => {
+                ([tiles, colors, dataReadability]) => {
                     clientConf.tiles = tiles;
                     clientConf.colors = colors;
-                    const ans:[ServerConf, ClientStaticConf, PackageInfo] = [serverConf, clientConf, pkgInfo];
-                    return ans;
+                    clientConf.dataReadability = dataReadability;
+                    return tuple(serverConf, clientConf, pkgInfo);
                 }
             ),
             tap( // validate tiles
@@ -127,7 +134,17 @@ forkJoin( // load core configs
             saveUninitialized: true
         }));
 
-        const db:WordDatabases = new WordDatabases(serverConf.freqDB);
+        const db:WordDatabases = new WordDatabases(
+            serverConf.freqDB,
+            {
+                getApiHeaders: (apiUrl:string) => ({}),
+
+                translateResourceMetadata: (corpname:string, value:keyof CommonTextStructures) => value,
+
+                getCommonResourceStructure: (corpname:string, struct:keyof CommonTextStructures) => typeof clientConf.dataReadability === 'string' ?
+                        struct : (clientConf.dataReadability.commonStructures[corpname] || {})[struct]
+            }
+        );
 
         const toolbar = createToolbarInstance(serverConf.toolbar);
 

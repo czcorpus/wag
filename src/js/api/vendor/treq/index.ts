@@ -115,7 +115,10 @@ class TreqAPICaller {
             title: this.translateText(this.titleI18n, this.appServices.getUILang()),
             description: this.translateText(this.descI18n, this.appServices.getUILang()),
             author: 'Czech National Corpus',
-            href: 'https://wiki.korpus.cz/doku.php/cnk:intercorp'
+            href: 'https://wiki.korpus.cz/doku.php/cnk:intercorp',
+            structure: {
+                numTokens: 0
+            }
         });
     }
 

@@ -186,7 +186,7 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState, {[tileId:str
                         state.blocks[action.payload.critIdx] = {
                             data: action.payload.block ?
                                 action.payload.block.data.map(v => ({
-                                    name: this.appServices.translateDbValue(state.corpname, v.name),
+                                    name: this.appServices.translateResourceMetadata(state.corpname, v.name),
                                     freq: v.freq,
                                     ipm: v.ipm,
                                     norm: v.norm

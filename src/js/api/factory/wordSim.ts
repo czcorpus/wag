@@ -16,22 +16,23 @@
  * limitations under the License.
  */
 
-import { IAsyncKeyValueStore, HTTPHeaders } from '../../types';
+import { IAsyncKeyValueStore } from '../../types';
 import { CoreApiGroup } from '../coreGroups';
 import { DatamuseMLApi } from '../vendor/datamuse/wordSim';
 import { IWordSimApi } from '../abstract/wordSim';
 import { LccCoocSimApi } from '../vendor/lcc/wordSim';
 import { CNCWord2VecSimApi } from '../vendor/wdglance/wordSim';
+import { IApiServices } from '../../appServices';
 
 
-export function createApiInstance(apiIdent:string, apiURL:string, srcInfoURL:string, apiHeaders:HTTPHeaders, cache:IAsyncKeyValueStore):IWordSimApi<{}> {
+export function createApiInstance(apiIdent:string, apiURL:string, srcInfoURL:string,  apiServices:IApiServices, cache:IAsyncKeyValueStore):IWordSimApi<{}> {
 	switch (apiIdent) {
 		case CoreApiGroup.WDGLANCE:
-			return new CNCWord2VecSimApi(cache, apiURL, srcInfoURL, apiHeaders);
+			return new CNCWord2VecSimApi(cache, apiURL, srcInfoURL, apiServices);
         case CoreApiGroup.DATAMUSE:
-			return new DatamuseMLApi(cache, apiURL, apiHeaders);
+			return new DatamuseMLApi(cache, apiURL, apiServices);
 		case CoreApiGroup.LCC:
-			return new LccCoocSimApi(cache, apiURL, apiHeaders);
+			return new LccCoocSimApi(cache, apiURL, apiServices);
 		default:
 			throw new Error(`API type "${apiIdent}" not supported for wordSim`);
 	}

@@ -20,7 +20,7 @@ import { map, concatMap } from 'rxjs/operators';
 import { List, HTTP } from 'cnc-tskit';
 
 import { IFreqDB } from '../freqdb';
-import { IAppServices } from '../../../appServices';
+import { IAppServices, IApiServices } from '../../../appServices';
 import { QueryMatch, calcFreqBand } from '../../../query/index';
 import { QuerySelector, HTTPResponse as ConcHTTPResponse, escapeVal } from '../../../api/vendor/kontext/concordance';
 import { HTTPResponse as FreqsHttpResponse } from '../../../api/vendor/kontext/freqs';
@@ -44,9 +44,9 @@ export class KontextFreqDB implements IFreqDB {
 
     private readonly corpname:string;
 
-    constructor(apiUrl:string, corpusSize:number, options:FreqDbOptions) {
+    constructor(apiUrl:string, corpusSize:number, apiServices:IApiServices, options:FreqDbOptions) {
         this.apiURL = apiUrl;
-        this.srcInfoService = new CorpusInfoAPI(initDummyStore('kontext-freqdb'), apiUrl, options.httpHeaders);
+        this.srcInfoService = new CorpusInfoAPI(initDummyStore('kontext-freqdb'), apiUrl, apiServices);
         this.corpusSize = corpusSize;
         this.corpname = options.urlArgs.corpname;
         this.customHeaders = options.httpHeaders || {};

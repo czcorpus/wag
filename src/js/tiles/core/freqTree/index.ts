@@ -87,8 +87,8 @@ export class FreqTreeTile implements ITileProvider {
             waitForTiles,
             waitForTilesTimeoutSecs,
             appServices,
-            new ConcApi(false, cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
-            new FreqTreeAPI(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            new ConcApi(false, cache, conf.apiURL, appServices),
+            new FreqTreeAPI(cache, conf.apiURL, appServices),
             conf.backlink || null,
             {
                 isBusy: isBusy,

@@ -21,6 +21,7 @@ import { SqliteFreqDB } from './backends/sqlite';
 import { KontextFreqDB } from './backends/kontext';
 import { FreqDbOptions } from '../../conf';
 import { CouchFreqDB } from './backends/couchdb';
+import { IApiServices } from '../../appServices';
 
 
 export enum FreqDBType {
@@ -30,14 +31,14 @@ export enum FreqDBType {
 }
 
 
-export function createInstance(dbType:FreqDBType, connPath:string, corpusSize:number, options:FreqDbOptions):IFreqDB {
+export function createInstance(dbType:FreqDBType, connPath:string, corpusSize:number, apiServices:IApiServices, options:FreqDbOptions):IFreqDB {
     switch (dbType) {
         case FreqDBType.SQLITE:
             return new SqliteFreqDB(connPath, corpusSize);
         case FreqDBType.KONTEXT:
-            return new KontextFreqDB(connPath, corpusSize, options);
+            return new KontextFreqDB(connPath, corpusSize, apiServices, options);
         case FreqDBType.COUCHDB:
-            return new CouchFreqDB(connPath, corpusSize, options);
+            return new CouchFreqDB(connPath, corpusSize, apiServices, options);
         default:
             throw new Error(`Frequency database ${dbType} is not supported`);
     }

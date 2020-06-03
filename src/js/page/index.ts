@@ -176,7 +176,7 @@ export function initClient(mountElement:HTMLElement, config:ClientConf, userSess
         translator: viewUtils,
         staticUrlCreator: viewUtils.createStaticUrl,
         actionUrlCreator: viewUtils.createActionUrl,
-        dbValuesMapping: config.dbValuesMapping || {},
+        dataReadability: config.dataReadability || {metadataMapping: {}, commonStructures: {}},
         apiHeadersMapping: config.apiHeaders,
         mobileModeTest: () => window.matchMedia('screen and (max-width: 480px)').matches
                 && (('ontouchstart' in window) || window['DocumentTouch'] && document instanceof DocumentTouch)

@@ -24,6 +24,7 @@ import { HTTPHeaders, IAsyncKeyValueStore, SourceDetails } from '../../../types'
 import { CollApiResponse, CollocationApi } from '../../abstract/collocations';
 import { CollocModelState } from '../../../models/tiles/collocations';
 import { QueryMatch } from '../../../query';
+import { IApiServices } from '../../../appServices';
 
 
 export interface CollRequestArgs {
@@ -52,9 +53,9 @@ export class LccCollAPI implements CollocationApi<CollRequestArgs> {
 
     private readonly cache:IAsyncKeyValueStore;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, customHeaders?:HTTPHeaders) {
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
-        this.customHeaders = customHeaders || {};
+        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
         this.cache = cache;
     }
 
@@ -80,7 +81,10 @@ export class LccCollAPI implements CollocationApi<CollRequestArgs> {
             title: 'Leipzig Corpora Collection',
             description: '',
             author: 'Leipzig University',
-            href: 'http://wortschatz.uni-leipzig.de/en'
+            href: 'http://wortschatz.uni-leipzig.de/en',
+            structure: {
+                numTokens: 0 // TODO
+            }
         });
     }
 

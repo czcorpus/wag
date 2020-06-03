@@ -26,6 +26,7 @@ import { ConcordanceMinState } from '../../../../models/tiles/concordance';
 import { ajax$, ResponseType } from '../../../../page/ajax';
 import { QueryMatch } from '../../../../query';
 import { FCS1ExplainAPI, FCS1ExplainResponse } from './explain';
+import { IApiServices } from '../../../../appServices';
 
 
 /**
@@ -148,11 +149,11 @@ export class FCS1SearchRetrieveAPI implements IConcordanceApi<FCS1Args> {
 
     private readonly srcInfoApi:FCS1ExplainAPI;
 
-    constructor(url:string, customHeaders?:HTTPHeaders) {
+    constructor(url:string, apiServices:IApiServices) {
         this.url = url;
-        this.customHeaders = customHeaders || {};
+        this.customHeaders = apiServices.getApiHeaders(url)|| {};
         this.parser = new XMLParser();
-        this.srcInfoApi = new FCS1ExplainAPI(url, this.customHeaders);
+        this.srcInfoApi = new FCS1ExplainAPI(url, apiServices);
     }
 
     getSupportedViewModes():Array<ViewMode> {

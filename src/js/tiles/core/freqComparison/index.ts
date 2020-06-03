@@ -92,8 +92,8 @@ export class FreqComparisonTile implements ITileProvider {
             waitForTiles,
             waitForTilesTimeoutSecs,
             appServices,
-            createConcApiInstance(cache, conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
-            createFreqsApiInstance(cache, conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            createConcApiInstance(cache, conf.apiType, conf.apiURL, appServices),
+            createFreqsApiInstance(cache, conf.apiType, conf.apiURL, appServices),
             conf.backlink || null,
             {
                 isBusy: isBusy,

@@ -64,5 +64,6 @@ conf/server.json
 conf/wdglance.json
 conf/layouts.json
 conf/tiles.json
+conf/dataReadability.json
 html/vendor/*/
 src/js/tiles/custom

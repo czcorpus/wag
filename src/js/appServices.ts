@@ -17,31 +17,28 @@
  */
 import { Observable, of as rxOf } from 'rxjs';
 import { ITranslator } from 'kombo';
+import { Dict } from 'cnc-tskit';
 
-import { DbValueMapping, HTTPHeaders, SystemMessageType } from './types';
+import { HTTPHeaders, SystemMessageType } from './types';
 import { LemmaDbApi, LemmaDbResponse } from './api/lemma';
 import { SystemNotifications } from './page/notifications';
 import { HTTPAction } from './server/routes/actions';
 import { AudioPlayer } from './page/audioPlayer';
 import { MultiDict } from './data';
-import { Dict } from 'cnc-tskit';
+import { DataReadabilityMapping, CommonTextStructures } from './conf';
 
-/**
- *
- */
-export interface AppServicesArgs {
-    notifications:SystemNotifications;
-    uiLang:string;
-    searchLanguages:Array<[string, string]>;
-    translator:ITranslator;
-    staticUrlCreator:(path:string)=>string;
-    actionUrlCreator:(path: string)=>string;
-    dbValuesMapping:DbValueMapping;
-    apiHeadersMapping:{[urlPrefix:string]:HTTPHeaders};
-    mobileModeTest:()=>boolean;
+
+export interface IApiServices {
+
+    getApiHeaders(apiUrl:string):HTTPHeaders;
+
+    translateResourceMetadata(corpname:string, value:string):string;
+
+    getCommonResourceStructure(corpname:string, struct:keyof CommonTextStructures):string|undefined;
 }
 
-export interface IAppServices {
+
+export interface IAppServices extends IApiServices {
 
     showMessage(type:SystemMessageType, text:string|Error):void;
 
@@ -67,10 +64,6 @@ export interface IAppServices {
 
     isMobileMode():boolean;
 
-    translateDbValue(corpname:string, value:string):string;
-
-    getApiHeaders(apiUrl:string):HTTPHeaders;
-
     queryLemmaDbApi(lang:string, q:string):Observable<LemmaDbResponse>;
 
     getISO639UILang():string;
@@ -82,6 +75,22 @@ export interface IAppServices {
     getAudioPlayer():AudioPlayer;
 
     decodeError(err:Error):string;
+}
+
+
+/**
+ *
+ */
+export interface AppServicesArgs {
+    notifications:SystemNotifications;
+    uiLang:string;
+    searchLanguages:Array<[string, string]>;
+    translator:ITranslator;
+    staticUrlCreator:(path:string)=>string;
+    actionUrlCreator:(path: string)=>string;
+    dataReadability:DataReadabilityMapping;
+    apiHeadersMapping:{[urlPrefix:string]:HTTPHeaders};
+    mobileModeTest:()=>boolean;
 }
 
 /**
@@ -97,7 +106,7 @@ export class AppServices implements IAppServices {
 
     private forcedMobileMode:boolean; // for debugging
 
-    private readonly dbValuesMapping:DbValueMapping;
+    private readonly dataReadability:DataReadabilityMapping;
 
     private readonly staticUrlCreator:(path:string) => string;
 
@@ -113,7 +122,7 @@ export class AppServices implements IAppServices {
 
     private readonly languageNames:{[k:string]:string};
 
-    constructor({notifications, uiLang, searchLanguages: searchedLanguages, translator, staticUrlCreator, actionUrlCreator, dbValuesMapping,
+    constructor({notifications, uiLang, searchLanguages: searchedLanguages, translator, staticUrlCreator, actionUrlCreator, dataReadability,
             apiHeadersMapping, mobileModeTest}:AppServicesArgs) {
         this.notifications = notifications;
         this.uiLang = uiLang;
@@ -122,7 +131,7 @@ export class AppServices implements IAppServices {
         this.staticUrlCreator = staticUrlCreator;
         this.actionUrlCreator = actionUrlCreator;
         this.forcedMobileMode = false;
-        this.dbValuesMapping = dbValuesMapping;
+        this.dataReadability = dataReadability;
         this.apiHeadersMapping = apiHeadersMapping || {};
         this.mobileModeTest = mobileModeTest;
         this.lemmaDbApi = new LemmaDbApi(actionUrlCreator(HTTPAction.GET_LEMMAS));
@@ -207,8 +216,12 @@ export class AppServices implements IAppServices {
         return this.mobileModeTest() || this.forcedMobileMode;
     }
 
-    translateDbValue(corpname:string, value:string):string {
-        return this.importExternalMessage((this.dbValuesMapping[corpname] || {})[value]) || value;
+    translateResourceMetadata(corpname:string, value:string):string {
+        return this.importExternalMessage((this.dataReadability.metadataMapping[corpname] || {})[value]) || value;
+    }
+
+    getCommonResourceStructure(corpname:string, struct:keyof CommonTextStructures):string|undefined {
+        return (this.dataReadability.commonStructures[corpname] || {})[struct];
     }
 
     getApiHeaders(apiUrl:string):HTTPHeaders {

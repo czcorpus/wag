@@ -76,7 +76,7 @@ export class WordFormsTile implements ITileProvider {
                 cache,
                 apiURL: conf.apiURL,
                 srcInfoURL: conf.srcInfoURL,
-                apiHeaders: appServices.getApiHeaders(conf.apiURL)
+                apiServices: appServices
             }),
             queryMatches,
             queryLang: lang1,

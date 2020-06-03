@@ -70,7 +70,9 @@ function mkRuntimeClientConf(conf:ClientStaticConf, serverConf:ServerConf, lang:
                 apiHeaders: conf.apiHeaders,
                 reqCacheTTL: conf.reqCacheTTL,
                 onLoadInit: conf.onLoadInit,
-                dbValuesMapping: conf.dbValuesMapping,
+                dataReadability: typeof conf.dataReadability === 'string' ?
+                    {metadataMapping: {}, commonStructures: {}} :
+                    conf.dataReadability,
                 colors: getAppliedThemeConf(conf, themeId),
                 colorThemes: List.map(
                     v => ({

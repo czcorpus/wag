@@ -70,7 +70,7 @@ export class MatchingDocsTile implements ITileProvider {
             waitForTilesTimeoutSecs,
             subqSourceTiles,
             appServices,
-            api: createMatchingDocsApiInstance(conf.apiType, conf.apiURL, appServices.getApiHeaders(conf.apiURL), cache),
+            api: createMatchingDocsApiInstance(conf.apiType, conf.apiURL, appServices, appServices.getApiHeaders(conf.apiURL), cache),
             initState: {
                 isBusy: isBusy,
                 isTweakMode: false,

@@ -75,7 +75,7 @@ export class SpeechesTile implements ITileProvider {
             dispatcher,
             tileId,
             appServices,
-            api: new SpeechesApi(cache, conf.apiURL, appServices.getApiHeaders(conf.apiURL)),
+            api: new SpeechesApi(cache, conf.apiURL, appServices, appServices.getApiHeaders(conf.apiURL)),
             backlink: conf.backlink || null,
             waitForTiles,
             waitForTilesTimeoutSecs,

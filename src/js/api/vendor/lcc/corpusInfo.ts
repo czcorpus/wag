@@ -21,6 +21,7 @@ import { share, map, tap } from 'rxjs/operators';
 import { cachedAjax$ } from '../../../page/ajax';
 import { DataApi, HTTPHeaders, SourceDetails, IAsyncKeyValueStore, CorpusDetails } from '../../../types';
 import { List } from 'cnc-tskit';
+import { IApiServices } from '../../../appServices';
 
 
 interface CorpusInfo {
@@ -53,10 +54,10 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, SourceDetails> {
 
     private readonly corpora:{[name:string]:CorpusInfo};
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, customHeaders?:HTTPHeaders) {
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
         this.cache = cache;
         this.apiURL = apiURL;
-        this.customHeaders = customHeaders || {};
+        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
         this.corpora = {};
     }
 
@@ -103,10 +104,11 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, SourceDetails> {
                     title: info.corpusName,
                     description: info.description,
                     author: '',
-                    size: info.numberOfTokens,
                     webURL: '',
-                    attrList: [],
-                    structList: [{name: 'sentence', size: info.numberOfSentences}],
+                    structure: {
+                        numTokens: info.numberOfTokens,
+                        numSentences: info.numberOfSentences
+                    },
                     keywords: []
                 })
             )

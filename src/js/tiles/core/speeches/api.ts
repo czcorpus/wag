@@ -22,6 +22,7 @@ import { HTTP } from 'cnc-tskit'
 import { cachedAjax$ } from '../../../page/ajax';
 import { CorpusInfoAPI } from '../../../api/vendor/kontext/corpusInfo';
 import { LineElementType } from '../../../api/abstract/concordance';
+import { IApiServices } from '../../../appServices';
 
 
 
@@ -64,11 +65,11 @@ export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechResponse> {
 
     private readonly srcInfoService:CorpusInfoAPI;
 
-    constructor(cache:IAsyncKeyValueStore, apiUrl:string, headers:HTTPHeaders) {
+    constructor(cache:IAsyncKeyValueStore, apiUrl:string, apiServices:IApiServices, headers:HTTPHeaders) {
         this.cache = cache;
         this.apiUrl = apiUrl;
         this.headers = headers;
-        this.srcInfoService = new CorpusInfoAPI(cache, apiUrl, headers);
+        this.srcInfoService = new CorpusInfoAPI(cache, apiUrl, apiServices);
     }
 
     getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {

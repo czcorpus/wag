@@ -25,6 +25,7 @@ import { QueryMatch, matchesPos, calcFreqBand } from '../../../query/index';
 import { MultiDict } from '../../../data';
 import { SimilarFreqDbAPI, RequestArgs, Response } from '../../abstract/similarFreq';
 import { HTTPAction } from '../../../server/routes/actions';
+import { IApiServices } from '../../../appServices';
 
 
 interface HTTPResponse {
@@ -47,10 +48,10 @@ export class SimilarFreqWordsAPI implements SimilarFreqDbAPI {
 
     private readonly cache:IAsyncKeyValueStore;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, customHeaders?:HTTPHeaders) {
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
         this.cache = cache;
         this.apiURL = apiURL;
-        this.customHeaders = customHeaders || {};
+        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
     }
 
     call(args:RequestArgs):Observable<Response> {

@@ -12,7 +12,8 @@
       "typescript-json-schema src/js/conf/index.ts ClientStaticConf --ignoreErrors --out conf/wdglance-schema.json --required --strictNullChecks",
       "typescript-json-schema src/js/conf/index.ts LanguageLayoutsConfig --ignoreErrors --out conf/layouts-schema.json --required --strictNullChecks",
       "typescript-json-schema src/js/conf/index.ts LanguageAnyTileConf --ignoreErrors --out conf/tiles-schema.json --required --strictNullChecks",
-      "typescript-json-schema src/js/conf/index.ts ColorsConf --ignoreErrors --out conf/themes-schema.json --required --strictNullChecks"
+      "typescript-json-schema src/js/conf/index.ts ColorsConf --ignoreErrors --out conf/themes-schema.json --required --strictNullChecks",
+      "typescript-json-schema src/js/conf/index.ts DataReadabilityMapping --ignoreErrors --out conf/dataReadability-schema.json --required --strictNullChecks"
     ],
     "schemata:check-conf": [
       "ajv -s ./conf/server-schema.json -d ./conf/server.json",
@@ -22,7 +23,9 @@
       "TILES_PATH=\"$(node -pe 'JSON.parse(fs.readFileSync(\"conf/wdglance.json\", \"utf8\")).tiles')\"",
       "if test -f \"$TILES_PATH\" 2> /dev/null; then ajv -s ./conf/tiles-schema.json -d $TILES_PATH; else echo \"tiles config file not found\"; fi",
       "THEMES_PATH=\"$(node -pe 'JSON.parse(fs.readFileSync(\"conf/wdglance.json\", \"utf8\")).colors')\"",
-      "if test -f \"$THEMES_PATH\" 2> /dev/null; then ajv -s ./conf/themes-schema.json -d $THEMES_PATH; else echo \"themes config file not found\"; fi"
+      "if test -f \"$THEMES_PATH\" 2> /dev/null; then ajv -s ./conf/themes-schema.json -d $THEMES_PATH; else echo \"themes config file not found\"; fi",
+      "DATA_READABILITY_PATH=\"$(node -pe 'JSON.parse(fs.readFileSync(\"conf/wdglance.json\", \"utf8\")).dataReadability')\"",
+      "if test -f \"$DATA_READABILITY_PATH\" 2> /dev/null; then ajv -s ./conf/dataReadability-schema.json -d $DATA_READABILITY_PATH; else echo \"dataReadability config file not found\"; fi"
     ],
     "schemata:check-samples": [
       "ajv -s ./conf/server-schema.json -d ./conf/server.sample.json",

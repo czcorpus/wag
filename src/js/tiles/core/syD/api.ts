@@ -30,6 +30,7 @@ import { HTTPResponse as FreqsHTTPResponse } from '../../../api/vendor/kontext/f
 import { MultiDict } from '../../../data';
 import { CorePosAttribute, DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../../types';
 import { callWithExtraVal } from '../../../api/util';
+import { IApiServices } from '../../../appServices';
 
 
 export interface RequestArgs {
@@ -78,10 +79,10 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
 
     private readonly concApi:ConcApi;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, concApiURL:string, customHeaders?:HTTPHeaders) {
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, concApiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
-        this.customHeaders = customHeaders || {};
-        this.concApi = new ConcApi(false, cache, concApiURL, this.customHeaders);
+        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
+        this.concApi = new ConcApi(false, cache, concApiURL, apiServices);
     }
 
     call(args:RequestArgs):Observable<Response> {

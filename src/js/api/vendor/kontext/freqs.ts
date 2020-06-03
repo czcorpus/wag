@@ -25,6 +25,7 @@ import { BacklinkWithArgs, Backlink } from '../../../page/tile';
 import { APIResponse, APIBlockResponse, IMultiBlockFreqDistribAPI, IFreqDistribAPI } from '../../abstract/freqs';
 import { MinSingleCritFreqState, MinMultiCritFreqState } from '../../../models/tiles/freq';
 import { HTTP, List, pipe } from 'cnc-tskit';
+import { IApiServices } from '../../../appServices';
 
 export enum FreqSort {
     REL = 'rel'
@@ -111,11 +112,11 @@ export class KontextFreqDistribAPI implements IFreqDistribAPI<SingleCritQueryArg
 
     private readonly srcInfoService:CorpusInfoAPI;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, customHeaders?:HTTPHeaders) {
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
         this.cache = cache;
         this.apiURL = apiURL;
-        this.customHeaders = customHeaders || {};
-        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, customHeaders);
+        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
+        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
     }
 
     getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {
@@ -202,11 +203,11 @@ export class KontextMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAP
 
     private readonly srcInfoService:CorpusInfoAPI;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, customHeaders?:HTTPHeaders) {
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
         this.cache = cache;
         this.apiURL = apiURL;
-        this.customHeaders = customHeaders || {};
-        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, customHeaders);
+        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
+        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
     }
 
     getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {

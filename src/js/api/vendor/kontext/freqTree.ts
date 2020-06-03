@@ -25,6 +25,7 @@ import { ConcApi, QuerySelector } from './concordance';
 import { ViewMode } from '../../abstract/concordance';
 import { QueryMatch } from '../../../query';
 import { HTTPResponse } from './freqs';
+import { IApiServices } from '../../../appServices';
 
 export enum FreqSort {
     REL = 'rel'
@@ -86,12 +87,12 @@ export class FreqTreeAPI implements WordDataApi<SingleCritQueryArgs, APILeafResp
 
     private readonly srcInfoService:CorpusInfoAPI;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, customHeaders?:HTTPHeaders) {
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
         this.cache = cache;
-        this.concApiFilter = new ConcApi(true, cache, apiURL, customHeaders);
+        this.concApiFilter = new ConcApi(true, cache, apiURL, apiServices);
         this.apiURL = apiURL;
-        this.customHeaders = customHeaders || {};
-        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, customHeaders);
+        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
+        this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
     }
 
     getSourceDescription(tileId:number, lang:string, corpname:string):Observable<CorpusDetails> {

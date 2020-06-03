@@ -22,6 +22,7 @@ import { Observable } from 'rxjs';
 import { cachedAjax$ } from '../../../page/ajax';
 import { map } from 'rxjs/operators';
 import { HTTPAction } from '../../../server/routes/actions';
+import { IApiServices } from '../../../appServices';
 
 
 export interface FreqDbSourceInfoArgs {
@@ -39,10 +40,10 @@ export class InternalResourceInfoApi implements DataApi<FreqDbSourceInfoArgs, So
 
     private readonly cache:IAsyncKeyValueStore;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, customHeaders?:HTTPHeaders) {
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
         this.cache = cache;
         this.apiURL = apiURL;
-        this.customHeaders = customHeaders || {};
+        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
     }
 
     call(args:FreqDbSourceInfoArgs):Observable<SourceDetails> {

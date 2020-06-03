@@ -22,6 +22,7 @@ import { WordSimApiResponse, IWordSimApi } from '../../abstract/wordSim';
 import { map, concatMap } from 'rxjs/operators';
 import { WordSimModelState } from '../../../models/tiles/wordSim';
 import { QueryMatch } from '../../../query';
+import { IApiServices } from '../../../appServices';
 
 
 export interface LccCoocSimApiArgs {
@@ -49,9 +50,9 @@ export class LccCoocSimApi implements IWordSimApi<LccCoocSimApiArgs> {
 
     private readonly cache:IAsyncKeyValueStore;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, customHeaders?:HTTPHeaders) {
+    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
-        this.customHeaders = customHeaders || {};
+        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
         this.cache = cache;
     }
 
@@ -78,7 +79,10 @@ export class LccCoocSimApi implements IWordSimApi<LccCoocSimApiArgs> {
             title: 'REST API of the Leipzig Corpora Collection / Projekt Deutscher Wortschatz',
             description: '',
             author: 'Deutscher Wortschatz',
-            href: 'http://wortschatz.uni-leipzig.de/en'
+            href: 'http://wortschatz.uni-leipzig.de/en',
+            structure: {
+                numTokens: 0 // TODO
+            }
         });
     }
 

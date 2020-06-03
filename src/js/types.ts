@@ -73,9 +73,6 @@ export interface ResourceApi<T, U> extends DataApi<T, U> {
 export type LocalizedConfMsg = string|{[lang:string]:string};
 
 
-export type DbValueMapping = {[corp:string]:{[key:string]:LocalizedConfMsg}};
-
-
 export type HTTPHeaders = {[key:string]:string};
 
 
@@ -86,17 +83,20 @@ export interface SourceDetails {
     author:string;
     href?:string;
     citationInfo?:SourceCitation;
+    keywords?:Array<{name:string, color:string}>;
 }
 
 export interface CorpusDetails extends SourceDetails {
-    size:number;
-    attrList:Array<{name:string, size:number}>;
-    structList:Array<{name:string; size:number}>;
-    keywords:Array<{name:string, color:string}>;
+    structure:{
+        numTokens:number;
+        numSentences?:number;
+        numParagraphs?:number;
+        numDocuments?:number;
+    }
 }
 
 export function isCorpusDetails(d:SourceDetails):d is CorpusDetails {
-    return typeof d['size'] === 'number' && Array.isArray(d['attrList']) && Array.isArray(d['structList']);
+    return typeof d['structure'] === 'object';
 }
 
 export interface TileError {
