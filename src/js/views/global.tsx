@@ -83,6 +83,13 @@ export interface GlobalComponents {
     ResponsiveWrapper:React.ComponentClass<{
         render:(width:number, height:number)=>React.ReactElement<{width:number, height:number} & {}>;
         minWidth?:number;
+
+        /**
+         * Providing cell width fraction (1, 2, 3) may help
+         * the wrapper to reduce size in case the box gets
+         * potentially too big.
+         */
+        widthFract?:number;
     }>;
 
     ElementTooltip:React.SFC<{
@@ -505,6 +512,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
     class ResponsiveWrapper extends React.Component<{
             render:(width:number, height:number)=>React.ReactElement<{width: number, height:number} & {}>;
             minWidth?:number;
+            widthFract?:number;
        },
        {
             width:number;
@@ -530,7 +538,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
 
         private calcAndSetSizes():void {
             if (this.ref.current) {
-                const maxHeightPortion = 0.32;
+                const cellWidthFract = this.props.widthFract ?? 1;
+                const maxHeightPortion = cellWidthFract > 2 ? 0.25 : 0.32;
                 const newWidth = this.ref.current.getBoundingClientRect().width;
                 const newHeight = this.ref.current.getBoundingClientRect().height;
                 this.setState({
