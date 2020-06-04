@@ -442,18 +442,8 @@ corpus-details-box,
 
     h2 {
         margin-bottom: 1em;
-        text-align: center;
-    }
-
-    h3 {
-        font-size: 13pt;
-        margin-top: 1em;
-        margin-bottom: 0.3em;
-    }
-
-    h4 {
-        margin-top: 0.5em;
-        margin-bottom: 0;
+        font-size: 1.3em;
+        font-weight: normal;
     }
 
     dl {
@@ -473,38 +463,6 @@ corpus-details-box,
         }
     }
 
-    table.attrib-list,
-    table.struct-list {
-        border-collapse: collapse;
-    }
-
-    table.attrib-list thead th,
-    table.attrib-list thead td,
-    table.struct-list thead th,
-    table.struct-list thead td {
-        padding-bottom: 0.2em;
-    }
-
-    table.attrib-list tbody th,
-    table.struct-list tbody th {
-        color: @color-logo-pink;
-        padding: 0 1em;
-        text-align: left;
-        font-weight: normal;
-    }
-
-    table.attrib-list thead,
-    table.struct-list thead {
-        background-color: transparent;
-        border-color: @color-light-text;
-        border-style: solid;
-        border-width: 0 0 1px;
-        color: @color-default-text;
-        font-size: 1em;
-        text-align: center;
-        font-weight: normal;
-    }
-
     .empty-citation-info {
         margin-bottom: 0.7em;
     }
@@ -512,19 +470,6 @@ corpus-details-box,
     td.numeric {
         padding-left: 1em;
         text-align: right;
-    }
-
-    dd.references {
-
-        h4 {
-            font-size: 0.8em;
-            font-weight: bold;
-            margin-top: 0.7em;
-        }
-
-        .html {
-            font-size: 0.8em;
-        }
     }
 
     .keyword {
@@ -535,6 +480,16 @@ corpus-details-box,
         margin: 0.4em 0.2em;
         padding: 0.2em 0.4em;
         font-size: small;
+    }
+
+    .citation {
+        em {
+            color: @color-logo-pink;
+        }
+
+        a {
+            color: @color-logo-blue;
+        }
     }
 }
 
