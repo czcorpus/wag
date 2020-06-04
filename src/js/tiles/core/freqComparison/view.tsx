@@ -254,16 +254,18 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         issueReportingUrl={this.props.issueReportingUrl}>
                     <div className="FreqComparisonTile">
                         {this.props.isAltViewMode ?
-                            pipe(
-                                this.props.blocks,
-                                List.filter(block => block.isReady),
-                                List.map(block => (
-                                    <div key={`${block.label}Wrapper`} className="table">
-                                        <h3 key={`${block.label}Heading`} style={{textAlign: 'center'}}>{block.label}</h3>
-                                        <DataTable key={`${block.label}Table`} data={block.data} words={block.words}/>
-                                    </div>
-                                 ))
-                            ) :
+                            <div className="tables">{
+                                pipe(
+                                    this.props.blocks,
+                                    List.filter(block => block.isReady),
+                                    List.map(block => (
+                                        <div key={`${block.label}Wrapper`} className="table">
+                                            <h3 key={`${block.label}Heading`} style={{textAlign: 'center'}}>{block.label}</h3>
+                                            <DataTable key={`${block.label}Table`} data={block.data} words={block.words}/>
+                                        </div>
+                                    ))
+                                )
+                            }</div>:
                             <div className={`charts${this.props.isBusy ? ' incomplete' : ''}`}
                                     ref={this.chartsRef} onScroll={this.handleScroll}
                                     style={{flexWrap: this.props.isMobile ? 'nowrap' : 'wrap'}}>
