@@ -35,9 +35,9 @@ export interface Rect {
     data?:WordCloudItemCalc;
 }
 
-export const MAX_WC_FONT_SIZE = 80;
+export const MAX_WC_FONT_SIZE = 78;
 
-export const MAX_WC_FONT_SIZE_MOBILE = 75; // TODO test this one
+export const MAX_WC_FONT_SIZE_MOBILE = 73; // TODO test this one
 
 const MIN_WC_FONT_SIZE = 26;
 
@@ -155,8 +155,8 @@ function createRectangles(data:Array<WordCloudItemCalc>, frameWidth:number, fram
         const fontSize = adjustFontSize(
             isMobile,
             isMobile ?
-                Math.max((wcFontSizeRatio * 100) ** 1.9 / 10, MIN_WC_FONT_SIZE_MOBILE) :
-                Math.max((wcFontSizeRatio * 100) ** 1.9 / 10, MIN_WC_FONT_SIZE)
+                Math.max((wcFontSizeRatio * 100) ** 1.85 / 10, MIN_WC_FONT_SIZE_MOBILE) :
+                Math.max((wcFontSizeRatio * 100) ** 1.85 / 10, MIN_WC_FONT_SIZE)
         );
         const width = measure.getTextWidth(wcitem.text, font, fontSize);
         const height = fontSize * 1.1;

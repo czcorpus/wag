@@ -120,7 +120,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             (data, matchIdx) => props.isAltViewMode ?
                                 <TableView key={`match:${matchIdx}`} data={data} caption={props.data.length > 1 ? props.queryMatches[matchIdx].word : null} /> :
                                 data ?
-                                    <globalCompontents.ResponsiveWrapper minWidth={props.isMobile ? undefined : 250} key={`${matchIdx}non-empty`} render={(width:number, height:number) => (
+                                    <globalCompontents.ResponsiveWrapper minWidth={props.isMobile ? undefined : 250}
+                                            widthFract={props.widthFract} key={`${matchIdx}non-empty`} render={(width:number, height:number) => (
                                         <div className="sim-cloud">
                                             {props.data.length > 1 ?
                                                 <h2>{`[${matchIdx + 1}] ${props.queryMatches[matchIdx].word}`}</h2> :

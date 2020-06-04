@@ -221,11 +221,11 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
                     state.tooltipData = {
                         tooltipX: action.payload.tooltipX,
                         tooltipY: action.payload.tooltipY,
-                        caption: state.data[0][action.payload.dataId].name,
+                        caption: state.data.length > 0 ? state.data[0][action.payload.dataId]?.name : '-',
                         data: state.queryMatches.length > 1 ?
                             Dict.fromEntries(
                                 List.map((v, i) =>
-                                    ([v.word, [[state.data[i] ? state.data[i][action.payload.dataId].ipm : 0, 'ipm']]]),
+                                    ([v.word, [[state.data[i] ? state.data[i][action.payload.dataId]?.ipm : 0, 'ipm']]]),
                                     state.queryMatches
                                 )
                             ) : {

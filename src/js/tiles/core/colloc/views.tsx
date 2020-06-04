@@ -138,7 +138,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         {this.props.data.map((data, index) => this.props.isAltViewMode ?
                             <TableView key={index} heading={this.props.heading} data={data} caption={this.props.data.length > 1 ? this.props.queryMatches[index].word : null} /> :
                             data ?
-                                <globalCompontents.ResponsiveWrapper minWidth={this.props.isMobile ? undefined : 250} key={index} render={(width:number, height:number) => (
+                                <globalCompontents.ResponsiveWrapper minWidth={this.props.isMobile ? undefined : 250}
+                                        key={index} widthFract={this.props.widthFract} render={(width:number, height:number) => (
                                     <div className="colloc-cloud">
                                         {this.props.data.length > 1 ?
                                             <h2>{`[${index + 1}] ${this.props.queryMatches[index].word}`}</h2> :

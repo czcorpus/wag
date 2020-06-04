@@ -94,7 +94,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         issueReportingUrl={this.props.issueReportingUrl}>
                     {this.props.isAltViewMode ?
                             <TableView data={this.props.data} roundToPos={this.props.roundToPos} /> :
-                            <globalComponents.ResponsiveWrapper minWidth={this.props.isMobile ? undefined : 250} render={(width:number, height:number) => (
+                            <globalComponents.ResponsiveWrapper minWidth={this.props.isMobile ? undefined : 250}
+                                    widthFract={this.props.widthFract} render={(width:number, height:number) => (
                                 <WordCloud width={width} height={height} data={this.props.data} isMobile={this.props.isMobile}
                                                 font={theme.infoGraphicsFont}
                                                 dataTransform={dataTransform} />

@@ -109,7 +109,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             issueReportingUrl={this.props.issueReportingUrl}>
                     {this.props.isAltViewMode ?
                         <TranslationsTable translations={this.props.translations} /> :
-                        <globComponents.ResponsiveWrapper render={(width:number, height:number) => (
+                        <globComponents.ResponsiveWrapper widthFract={this.props.widthFract} render={(width:number, height:number) => (
                                     <WordCloud width={width} height={height}
                                             isMobile={this.props.isMobile}
                                             data={this.props.translations} font={theme.infoGraphicsFont}
