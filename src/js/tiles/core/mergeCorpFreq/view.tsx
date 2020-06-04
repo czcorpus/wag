@@ -27,7 +27,6 @@ import { Theme } from '../../../page/theme';
 import { QueryMatch } from '../../../query/index';
 import { List, pipe, Strings } from 'cnc-tskit';
 import { Actions, ActionName } from './actions';
-import * as ReactDOM from 'react-dom';
 
 const CHART_LABEL_MAX_LEN = 20;
 

@@ -27,6 +27,7 @@ import { Actions as GlobalActions, ActionName as GlobalActionName } from '../../
 import { init as wcloudViewInit } from '../../../views/wordCloud/index';
 import { DataRow, SrchContextType, DataHeading } from '../../../api/abstract/collocations';
 import { CollocModelState } from '../../../models/tiles/collocations';
+import { List } from 'cnc-tskit';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:CollocModel):TileComponent {
@@ -135,27 +136,33 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         null
                     }
                     <div className="boxes" style={{flexWrap: this.props.isMobile ? 'wrap' : 'nowrap'}}>
-                        {this.props.data.map((data, index) => this.props.isAltViewMode ?
-                            <TableView key={index} heading={this.props.heading} data={data} caption={this.props.data.length > 1 ? this.props.queryMatches[index].word : null} /> :
-                            data ?
-                                <globalCompontents.ResponsiveWrapper minWidth={this.props.isMobile ? undefined : 250}
-                                        key={index} widthFract={this.props.widthFract} render={(width:number, height:number) => (
-                                    <div className="colloc-cloud">
-                                        {this.props.data.length > 1 ?
-                                            <h2>{`[${index + 1}] ${this.props.queryMatches[index].word}`}</h2> :
-                                            null
-                                        }
-                                        <WordCloud width={width} height={height} data={data} isMobile={this.props.isMobile}
-                                                font={theme.infoGraphicsFont}
-                                                dataTransform={dataTransform}
-                                                selectedText={this.props.data.length > 1 ? this.props.selectedText : null}
-                                                colors={colorGen(index)} />
-                                    </div>
-                                )} /> :
-                                <globalCompontents.ResponsiveWrapper key={`${index}empty`}
-                                    render={() => data === null ?
-                                        <p>{ut.translate('collocations__processing') + '\u2026'}</p> :
-                                        <p>{ut.translate('collocations__no_data')}</p>} />
+                        {List.map((data, index) => {
+                            const otherWords = List.flatMap((v, i) => index === i ? [] : List.map(u => u.str, v), this.props.data);
+
+                            return this.props.isAltViewMode ?
+                                <TableView key={index} heading={this.props.heading} data={data} caption={this.props.data.length > 1 ? this.props.queryMatches[index].word : null} /> :
+                                data ?
+                                    <globalCompontents.ResponsiveWrapper minWidth={this.props.isMobile ? undefined : 250}
+                                            key={index} widthFract={this.props.widthFract} render={(width:number, height:number) => (
+                                        <div className="colloc-cloud">
+                                            {this.props.data.length > 1 ?
+                                                <h2>{`[${index + 1}] ${this.props.queryMatches[index].word}`}</h2> :
+                                                null
+                                            }
+                                            <WordCloud width={width} height={height} data={data} isMobile={this.props.isMobile}
+                                                    font={theme.infoGraphicsFont}
+                                                    dataTransform={dataTransform}
+                                                    selectedText={this.props.data.length > 1 ? this.props.selectedText : null}
+                                                    colors={colorGen(index)}
+                                                    outlineWords={otherWords} />
+                                        </div>
+                                    )} /> :
+                                    <globalCompontents.ResponsiveWrapper key={`${index}empty`}
+                                        render={() => data === null ?
+                                            <p>{ut.translate('collocations__processing') + '\u2026'}</p> :
+                                            <p>{ut.translate('collocations__no_data')}</p>} />
+                            },
+                            this.props.data
                         )}
                     </div>
                 </globalCompontents.TileWrapper>
