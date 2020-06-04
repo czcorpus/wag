@@ -27,7 +27,7 @@ import { FreqComparisonModel, FreqComparisonModelState, MultiWordDataRow } from 
 import { pipe, List, Dict, Maths, Strings } from 'cnc-tskit';
 
 
-const CHART_LABEL_MAX_LEN = 20;
+const CHART_LABEL_MAX_LEN = 15;
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:FreqComparisonModel):TileComponent {
@@ -131,19 +131,21 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         data:Array<MultiWordDataRow>;
         words:Array<string>;
         width:string|number;
+        widthFract:number;
         height:string|number;
         isMobile:boolean;
     }> = (props) => {
         const processedData = processData(props.data, props.words);
-        const maxLabelLength = List.maxItem(
-            v => v.length,
-            props.isMobile ?
-                List.foldl(
-                    (acc, curr) => acc.concat(Strings.shortenText(curr.name, CHART_LABEL_MAX_LEN).split(' ')),
-                    [],
-                    processedData
-                ) :
-                processedData.map(v => v.name)
+        const shouldShortenText = props.isMobile || props.widthFract < 3;
+        const maxLabelLength = pipe(
+            processedData,
+            List.foldl(
+                (acc, curr) => acc.concat(shouldShortenText ?
+                        Strings.shortenText(curr.name, CHART_LABEL_MAX_LEN).split(' ') :
+                        curr.name),
+                [] as Array<string>
+            ),
+            List.maxItem(v => v.length)
         ).length;
         const dataKeyFn = (word:string) => (item:FreqItemProps) => item.data[word].main;
         return (
@@ -155,8 +157,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         props.words
                     )};
                     <XAxis type="number" unit="%" ticks={[0, 25, 50, 75, 100]} domain={[0, 100]} interval={0} />
-                    <YAxis type="category" dataKey="name" width={Math.max(60, maxLabelLength * 7)} interval={0}
-                            tickFormatter={value => props.isMobile ? Strings.shortenText(value, CHART_LABEL_MAX_LEN) : value}/>
+                    <YAxis type="category" dataKey="name" width={Math.max(60, maxLabelLength * 14)} interval={0}
+                            tickFormatter={value => shouldShortenText ? Strings.shortenText(value, CHART_LABEL_MAX_LEN) : value}/>
                     <Legend />
                     <Tooltip cursor={false} isAnimationActive={false}
                         content={<globComponents.AlignedRechartsTooltip multiWord={true} theme={theme}/>}
@@ -274,6 +276,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                                 <h3>{block.label}</h3>
                                                 {block.data.length > 0 ?
                                                     <Chart data={block.data} words={block.words} width={chartWidth}
+                                                                widthFract={this.props.widthFract}
                                                                 height={70 + List.groupBy(x => x.name, block.data).length * 25}
                                                             isMobile={this.props.isMobile} /> :
                                                     <p className="note" style={{textAlign: 'center'}}>
