@@ -90,28 +90,12 @@ export function init<T>(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalCompone
                 <rect x={props.rect.x} y={props.rect.y}
                         width={props.rect.w} height={props.rect.h}
                         fill='blue' stroke='blue' strokeWidth={10}
-                        opacity={props.rect.data.text === props.selectedText ? 0.05 : 0}/>
-
-                {props.outline ? <g pointerEvents="none">
-                    <text x={props.rect.x}
-                            y={props.rect.y + props.rect.fontSize}
-                            fill="white"
-                            stroke={props.color}
-                            strokeWidth={4}
-                            pointerEvents="none"
-                            style={style}>{props.rect.data.text}</text>
-                    <text x={props.rect.x}
-                            y={props.rect.y + props.rect.fontSize}
-                            fill="white"
-                            stroke="white"
-                            strokeWidth={2}
-                            pointerEvents="none"
-                            style={style}>{props.rect.data.text}</text>
-                </g> : null}
+                        opacity={props.rect.data.text === props.selectedText ? 0.05 : 0} />
 
                 <text x={props.rect.x}
                         y={props.rect.y + props.rect.fontSize}
                         fill={props.color}
+                        textDecoration={props.outline ? "underline" : null}
                         pointerEvents="none"
                         style={style}>{props.rect.data.text}</text>
             </g>

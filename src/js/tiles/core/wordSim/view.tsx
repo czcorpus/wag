@@ -116,8 +116,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 <div className="WordSimView">
                     {props.isTweakMode ? <Controls tileId={props.tileId} operationMode={props.operationMode} /> : null}
                     <div className="boxes" style={{flexWrap: props.isMobile ? 'wrap' : 'nowrap'}}>
-                        {List.map(
-                            (data, matchIdx) => props.isAltViewMode ?
+                        {List.map((data, matchIdx) => {
+                            const otherWords = List.flatMap((v, i) => matchIdx === i ? [] : List.map(u => u.word, v), props.data);
+
+                            return props.isAltViewMode ?
                                 <TableView key={`match:${matchIdx}`} data={data} caption={props.data.length > 1 ? props.queryMatches[matchIdx].word : null} /> :
                                 data ?
                                     <globalCompontents.ResponsiveWrapper minWidth={props.isMobile ? undefined : 250}
@@ -132,13 +134,13 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                                             dataTransform={dataTransform}
                                                             selectedText={props.data.length > 1 ? props.selectedText : null}
                                                             colors={colorGen(matchIdx)}
+                                                            outlineWords={otherWords}
                                             />
                                         </div>
                                     )}/> :
                                     <globalCompontents.ResponsiveWrapper key={`${matchIdx}empty`} render={() => data === null ?
-                                        <p>{ut.translate('global__alt_loading')}...</p> : <p>No data</p>} />,
-                            props.data
-                        )}
+                                        <p>{ut.translate('global__alt_loading')}...</p> : <p>No data</p>} />
+                        }, props.data)}
                     </div>
                 </div>
             </globalCompontents.TileWrapper>
