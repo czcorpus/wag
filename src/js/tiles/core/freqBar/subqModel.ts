@@ -174,7 +174,7 @@ export class SubqFreqBarModel extends FreqBarModel {
                                             critIdx: null
                                         }
                                     });
-                                    console.log('err: ', err);
+                                    console.error('err: ', err);
                                 }
                             );
                             const ans = {...syncData, ...{[payload.tileId.toFixed()]: false}};

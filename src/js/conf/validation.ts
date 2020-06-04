@@ -35,7 +35,7 @@ export function validateTilesConf(tilesConf:LanguageAnyTileConf):boolean {
     const validator = new ajv();
     let validationError = false;
 
-    console.log('Validating tiles configuration...');
+    console.info('Validating tiles configuration...');
 
     Dict.forEach((tiles, lang) => {
         Dict.forEach((tileConf, tileName) => {
@@ -53,18 +53,18 @@ export function validateTilesConf(tilesConf:LanguageAnyTileConf):boolean {
                 }
             }
             if (!configSchema) {
-                console.log(`  ${lang}/${tileName} [\x1b[31m FAIL \x1b[0m]`);
-                console.log(`    \u25B6 schema "${tileType}" not found`);
+                console.info(`  ${lang}/${tileName} [\x1b[31m FAIL \x1b[0m]`);
+                console.info(`    \u25B6 schema "${tileType}" not found`);
                 validationError = true;
 
             } else if (validator.validate(configSchema, tileConf)) {
-                console.log(`  ${lang}/${tileName} [\x1b[32m OK \x1b[0m]`);
+                console.info(`  ${lang}/${tileName} [\x1b[32m OK \x1b[0m]`);
 
             } else {
-                console.log(`  ${lang}/${tileName} [\x1b[31m FAIL \x1b[0m]`);
+                console.info(`  ${lang}/${tileName} [\x1b[31m FAIL \x1b[0m]`);
                 List.forEach(
                     err => {
-                        console.log(`    \u25B6 ${err.message}`)
+                        console.error(`    \u25B6 ${err.message}`)
                     },
                     validator.errors
                 );
@@ -75,7 +75,7 @@ export function validateTilesConf(tilesConf:LanguageAnyTileConf):boolean {
     if (validationError) {
         return false;
     }
-    console.log('...\uD83D\uDC4D All the tiles are valid');
+    console.info('...\uD83D\uDC4D All the tiles are valid');
     return true;
 }
 

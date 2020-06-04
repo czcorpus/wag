@@ -16,11 +16,11 @@
  * limitations under the License.
  */
 import { Observable } from 'rxjs';
-import { share, map, tap } from 'rxjs/operators';
+import { share, map } from 'rxjs/operators';
 
 import { cachedAjax$ } from '../../../page/ajax';
 import { DataApi, HTTPHeaders, IAsyncKeyValueStore, CorpusDetails } from '../../../types';
-import { IAppServices, IApiServices } from '../../../appServices';
+import { IApiServices } from '../../../appServices';
 import { List } from 'cnc-tskit';
 
 
@@ -99,9 +99,6 @@ export class CorpusInfoAPI implements DataApi<QueryArgs, CorpusDetails> {
                     },
                     keywords: resp.keywords
                 })
-            ),
-            tap(
-                v => console.log('v: ', v)
             )
         );
     }

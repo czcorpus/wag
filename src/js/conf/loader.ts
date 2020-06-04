@@ -44,7 +44,7 @@ interface StoredTileConf {
 export function parseJsonConfig<T>(confPath:string):Observable<T> {
     return new Observable<T>((observer) => {
         try {
-            console.log(`Loading configuration ${confPath}`);
+            console.info(`Loading configuration ${confPath}`);
             fs.readFile(confPath, 'utf8', (err, data) => {
                 if (err) {
                     observer.error(new Error(`Failed to read file ${confPath}: ${err}`));
@@ -84,7 +84,7 @@ export function loadRemoteTileConf(layout:LanguageLayoutsConfig, tileDBConf:Tile
             }
         )
     );
-    console.log(`Loading tile configuration from ${tileDBConf.server}/${tileDBConf.db}`);
+    console.info(`Loading tile configuration from ${tileDBConf.server}/${tileDBConf.db}`);
     return rxOf(...List.map<[string, string], Observable<[string, StoredTileConf]>>(
         ([lang, tile]) => new Observable<[string, StoredTileConf]>((observer) => {
             axios.get<StoredTileConf>(

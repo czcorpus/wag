@@ -65,7 +65,7 @@ export class WordDatabases {
                             );
                         }
                         targetConf[lang] = uniqDb[db.path];
-                        console.log(`Initialized '${ident}' mode frequency database ${db.path} (corpus size: ${db.corpusSize})`);
+                        console.info(`Initialized '${ident}' mode frequency database ${db.path} (corpus size: ${db.corpusSize})`);
                     }
                 )
             )

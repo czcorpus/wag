@@ -47,8 +47,8 @@
 
     function loadModulePathMap(conf, srcPath, distPath) {
         const langs = Object.keys(conf['languages']);
-        console.log(conf)
-        console.log('langs: ', langs);
+        console.info(conf)
+        console.info('langs: ', langs);
         mergeTranslations(srcPath, path.resolve(distPath, '.compiled/translations.js'), langs);
         const moduleMap = {
             'translations': path.resolve(distPath, '.compiled/translations'),

@@ -183,7 +183,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             (state, action) => {
                 // note: error is handled via TileDataLoaded
                 if (action.payload.tileId === this.tileId && !action.error) {
-                    action.payload.data.messages.forEach(msg => console.log(`${importMessageType(msg[0]).toUpperCase()}: conc - ${msg[1]}`));
+                    action.payload.data.messages.forEach(msg => console.info(`${importMessageType(msg[0]).toUpperCase()}: conc - ${msg[1]}`));
                     state.concordances[action.payload.queryId] = {
                         concsize: action.payload.data.concsize,
                         resultARF: action.payload.data.arf,

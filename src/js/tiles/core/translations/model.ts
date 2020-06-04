@@ -216,7 +216,7 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
                         },
                         error: error
                     });
-                    console.log(error);
+                    console.error(error);
                 }
             );
         }
