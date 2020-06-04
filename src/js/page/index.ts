@@ -216,7 +216,7 @@ export function initClient(mountElement:HTMLElement, config:ClientConf, userSess
             viewUtils,
             cache: initStore('requests', config.reqCacheTTL)
         });
-        console.log('tile map: ', tileMap); // DEBUG TODO
+        console.info('tile map: ', tileMap); // DEBUG TODO
 
         initTelemetry(config, appServices, dispatcher, tileMap);
         mountReactComponent({

@@ -60,7 +60,7 @@ export function openDb(storeName:string, maxAge:number):Observable<ILocalDatabas
         ).pipe(
             catchError(
                 (err) => {
-                    console.log(`error opening IndexedDB, using a dummy replacement (err: ${err})`);
+                    console.error(`error opening IndexedDB, using a dummy replacement (err: ${err})`);
                     return rxOf(new DummyLocalDb());
                 }
             ),

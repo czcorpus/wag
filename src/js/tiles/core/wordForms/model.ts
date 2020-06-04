@@ -141,7 +141,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                         (action:Action<{tileId:number}>, syncData) => {
                             if (action.name === GlobalActionName.TileDataLoaded && action.payload.tileId === this.waitForTile) {
                                 if (action.error) {
-                                    console.log(action.error);
+                                    console.error(action.error);
                                     dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
                                         name: GlobalActionName.TileDataLoaded,
                                         error: action.error,
@@ -284,7 +284,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                 });
             },
             (err) => {
-                console.log(err);
+                console.error(err);
                 dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
                     name: GlobalActionName.TileDataLoaded,
                     error: err,

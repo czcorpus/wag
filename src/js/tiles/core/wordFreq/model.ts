@@ -130,7 +130,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                         });
                     },
                     (err) => {
-                        console.log(err);
+                        console.error(err);
                         dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
                             name: GlobalActionName.TileDataLoaded,
                             error: err,

@@ -152,11 +152,12 @@ forkJoin( // load core configs
             format: winston.format.combine(
                 winston.format.timestamp(),
                 winston.format.json()
-            ),
-            transports: [
-                new winston.transports.Console()
-            ]
+            )
         });
+
+        if (process.env.NODE_ENV !== 'production') {
+            logger.add(new winston.transports.Console());
+        }
 
         if (serverConf.logging) {
             if (serverConf.logging.rotation) {
@@ -171,6 +172,10 @@ forkJoin( // load core configs
                 logger.add(new winston.transports.File({filename: serverConf.logging.path}));
             }
         }
+
+        console.info = (msg:string,...args:Array<any>) => logger.info(msg,...args);
+        console.warn = (msg:string, ...args:Array<any>) => logger.warn(msg, ...args);
+        console.error = (msg:string, ...args:Array<any>) => logger.error(msg, ...args);
 
         wdgRouter({
             serverConf: serverConf,
@@ -187,11 +192,11 @@ forkJoin( // load core configs
 
         const server = app.listen(serverConf.port, serverConf.address, () => {
             const addr = server.address();
-            console.log(`Wdglance server is running @ ${typeof addr === 'string' ? addr : addr.address + ':' + addr.port}`);
+            console.info(`WaG server is running @ ${typeof addr === 'string' ? addr : addr.address + ':' + addr.port}`);
         });
     },
     (err) => {
-        console.log('Failed to start WaG: ', err['message'] || err.constructor.name);
+        console.error('Failed to start WaG: ', err['message'] || err.constructor.name);
         process.exit(1);
     }
 );

@@ -166,7 +166,7 @@ export const cachedAjax$ = <T>(cache:IAsyncKeyValueStore) => (method:string, url
                 if (!isCachedValue(v)) {
                     cache.set(key, v).subscribe(
                         () => undefined,
-                        (err) => console.log('error request caching ', err)
+                        (err) => console.error('error request caching ', err)
                     )
                 }
             }

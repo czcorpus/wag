@@ -454,7 +454,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
                 })
             },
             (err) => {
-                console.log(err)
+                console.error(err)
                 seDispatch<GlobalActions.TileDataLoaded<{}>>({
                     name: GlobalActionName.TileDataLoaded,
                     payload: {
