@@ -39,13 +39,13 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         if (props.data.papers.length > 0 || props.data.main || props.data.otherBibliography) {
             return (
                 <>
-                    <h4>
+                    <h2>
                         {ut.translate('global__corpus_as_resource_{corpus}', {corpus: props.data.sourceName})}:
-                    </h4>
+                    </h2>
                     <div className="html" dangerouslySetInnerHTML={{__html: props.data.main}} />
                     {props.data.papers.length > 0 ?
                         (<>
-                            <h4>{ut.translate('global__references')}:</h4>
+                            <h2>{ut.translate('global__references')}:</h2>
                             {List.map(
                                 (item, i) => <div key={i} className="html" dangerouslySetInnerHTML={{__html: item }} />,
                                 props.data.papers
@@ -55,7 +55,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     }
                     {props.data.otherBibliography ?
                         (<>
-                            <h4>{ut.translate('global__general_references')}:</h4>
+                            <h2>{ut.translate('global__general_references')}:</h2>
                             <div className="html" dangerouslySetInnerHTML={{__html: props.data.otherBibliography}} />
                         </>) :
                         null}
@@ -155,15 +155,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 null
                             }
                         </dl> :
-                        <dl>
-                            <dt>{ut.translate('global__citation_info')}:</dt>
+                        <div className="citation">
                             {props.data.citationInfo ?
-                                <dd className="references">
-                                    <CorpusReference data={props.data.citationInfo} />
-                                </dd> :
+                                    <CorpusReference data={props.data.citationInfo} /> :
                                 null
                             }
-                        </dl>
+                        </div>
                     }
                 </dl>
             </div>
