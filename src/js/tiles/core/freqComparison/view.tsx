@@ -147,6 +147,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             ),
             List.maxItem(v => v.length)
         ).length;
+        const yAxisWidth = Math.max(60, maxLabelLength * (-4 * props.widthFract + 20));
         const dataKeyFn = (word:string) => (item:FreqItemProps) => item.data[word].main;
         return (
             <div className="Chart">
@@ -157,7 +158,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         props.words
                     )};
                     <XAxis type="number" unit="%" ticks={[0, 25, 50, 75, 100]} domain={[0, 100]} interval={0} />
-                    <YAxis type="category" dataKey="name" width={Math.max(60, maxLabelLength * 14)} interval={0}
+                    <YAxis type="category" dataKey="name" width={yAxisWidth} interval={0}
                             tickFormatter={value => shouldShortenText ? Strings.shortenText(value, CHART_LABEL_MAX_LEN) : value}/>
                     <Legend />
                     <Tooltip cursor={false} isAnimationActive={false}
