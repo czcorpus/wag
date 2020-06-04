@@ -661,20 +661,22 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                                         </tr>
 
                                     } else if (Array.isArray(value)) {
-                                        return <tr key={label}>
-                                            <td key="name" className="label" style={labelTheme}>{label}</td>
-                                            {List.flatMap(
-                                                ([val, unit]) => {
-                                                    const [numWh, numDec] = ut.formatNumber(val, 1).split(decimalSeparator);
-                                                    return [
-                                                        <td key="valueWh" className="value numWh">{numWh}</td>,
-                                                        <td key="valueDec" className="value numDec">{numDec ? decimalSeparator + numDec : null}</td>,
-                                                        <td key="unit" className="value">{unit}</td>
-                                                    ]
-                                                },
-                                                value
-                                            )}
-                                        </tr>
+                                        return (
+                                            <tr key={label}>
+                                                <td key="name" className="label" style={labelTheme}>{label}</td>
+                                                {List.map(
+                                                    ([val, unit]) => {
+                                                        const [numWh, numDec] = ut.formatNumber(val, 1).split(decimalSeparator);
+                                                        return <React.Fragment key={`value:${numWh}:${unit}`}>
+                                                            <td className="value numWh">{numWh}</td>
+                                                            <td className="value numDec">{numDec ? decimalSeparator + numDec : null}</td>
+                                                            <td className="value">{unit}</td>
+                                                        </React.Fragment>;
+                                                    },
+                                                    value
+                                                )}
+                                            </tr>
+                                        );
 
                                     } else if (typeof value === 'number') {
                                         const [numWh, numDec] = ut.formatNumber(value, 1).split(decimalSeparator);
