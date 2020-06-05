@@ -15,16 +15,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AnyInterface, IMultiDict, ListOfPairs } from './types';
+import { AnyInterface, ListOfPairs } from './types';
 
 
-export type AcceptedValue = string|number|boolean;
+type AcceptedValue = string|number|boolean;
 
 /**
- * MultiDict is a IMultiDict implementation suitable for
- * collecting HTTP request args.
+ * MultiDict provides a multi-value dictionary  
  */
-export class MultiDict implements IMultiDict<string, string|number|boolean> {
+export class MultiDict {
 
     private readonly data:{[k:string]:Array<string>};
 
@@ -139,60 +138,7 @@ export class MultiDict implements IMultiDict<string, string|number|boolean> {
         return ans;
     }
 
-    /**
-     * Return a copy of internal dictionary holding last
-     * value of each key. If you expect keys with multiple
-     * values you should use items() instead.
-     */
-    toDict():{[key:string]:string} {
-        let ans:{[key:string]:any} = {}; // TODO: type mess here
-        for (let k in this.data) {
-            if (this.data.hasOwnProperty(k)) {
-                ans[k] = this.data[k][0];
-            }
-        }
-        return ans;
-    }
-
     has(key:string) {
         return this.data.hasOwnProperty(key);
     }
-}
-
-
-export namespace Forms {
-
-    export interface Input {
-        value:string;
-        isValid:boolean;
-        isRequired:boolean;
-        errorDesc?:string;
-    }
-
-    export const updateFormInput = (formValue:Input, data:{[P in keyof Input]?: Input[P]}) => {
-        return {
-            value: data.value !== undefined ? data.value : formValue.value,
-            isValid: data.isValid !== undefined ? data.isValid : formValue.isValid,
-            isRequired: data.isRequired !== undefined ? data.isRequired : formValue.isRequired,
-            errorDesc: data.errorDesc !== undefined ? data.errorDesc : formValue.errorDesc
-        };
-    };
-
-    export var newFormValue = (v:string, isRequired:boolean):Input => {
-        return {value: v, isValid: true, isRequired: isRequired, errorDesc: undefined};
-    }
-
-    export var resetFormValue = (formValue:Input, val:string='') => {
-        return {value: val, isValid: true, isRequired: formValue.isRequired, errorDesc: undefined};
-    };
-
-}
-
-
-export function arrayOfSize<T extends number|string|boolean>(size:number, value:T):Array<T> {
-    const ans:Array<T> = [];
-    for (let i = 0; i < size; i++) {
-        ans.push(value);
-    }
-    return ans;
 }

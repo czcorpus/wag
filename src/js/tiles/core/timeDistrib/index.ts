@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { IActionDispatcher, StatelessModel } from 'kombo';
-import { List, Maths, pipe } from 'cnc-tskit';
+import { List, Maths, pipe, tuple } from 'cnc-tskit';
 
 import { FreqSort } from '../../../api/vendor/kontext/freqs';
 import { createApiInstance as createFreqApiInstance } from '../../../api/factory/timeDistrib';
@@ -80,7 +80,7 @@ export class TimeDistTile implements ITileProvider {
             List.forEach(
                 (url, i) => apiFactory.addInstance(
                     i,
-                    [
+                    tuple(
                         createConcApiInstance(
                             cache,
                             conf.apiType,
@@ -94,7 +94,7 @@ export class TimeDistTile implements ITileProvider {
                             appServices,
                             conf
                         )
-                    ]
+                    )
                 )
             )
         );

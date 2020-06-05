@@ -32,7 +32,7 @@ import { pipe, List } from 'cnc-tskit';
  * of a query (e.g. 'N.*', 'V.*', 'A.*). The concrete solution
  * depends on actual tagset.
  */
-export interface PosQueryExport {
+interface PosQueryExport {
     (pos:string):string;
 }
 

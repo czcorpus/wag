@@ -23,7 +23,7 @@ import { QueryMatch } from '../query';
 import { ajax$ } from '../page/ajax';
 
 
-export interface LemmaDbRequestArgs {
+interface LemmaDbRequestArgs {
     lang:string;
     q:string;
 }
@@ -33,7 +33,10 @@ export interface LemmaDbResponse {
     result:Array<QueryMatch>;
 }
 
-
+/**
+ * Represents a service able to provide a lemmatized variant 
+ * of a provided query
+ */
 export class LemmaDbApi implements DataApi<LemmaDbRequestArgs, LemmaDbResponse> {
 
     private readonly url:string;

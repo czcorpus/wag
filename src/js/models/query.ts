@@ -20,7 +20,8 @@ import { StatelessModel, IActionQueue } from 'kombo';
 import { pipe, List } from 'cnc-tskit';
 
 import { IAppServices } from '../appServices';
-import { Forms, MultiDict } from '../data';
+import { MultiDict } from '../multidict';
+import { Forms } from '../page/forms';
 import { SystemMessageType } from '../types';
 import { AvailableLanguage } from '../page/hostPage';
 import { QueryType, QueryMatch, QueryTypeMenuItem, matchesPos, SearchLanguage, RecognizedQueries } from '../query/index';

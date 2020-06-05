@@ -24,7 +24,7 @@ import { LemmaDbApi, LemmaDbResponse } from './api/lemma';
 import { SystemNotifications } from './page/notifications';
 import { HTTPAction } from './server/routes/actions';
 import { AudioPlayer } from './page/audioPlayer';
-import { MultiDict } from './data';
+import { MultiDict } from './multidict';
 import { DataReadabilityMapping, CommonTextStructures } from './conf';
 
 
