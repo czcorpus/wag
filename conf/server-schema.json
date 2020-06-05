@@ -223,6 +223,17 @@
         "port": {
             "type": "number"
         },
+        "sessions": {
+            "properties": {
+                "path": {
+                    "type": "string"
+                },
+                "ttl": {
+                    "type": "number"
+                }
+            },
+            "type": "object"
+        },
         "staticFilesUrl": {
             "type": "string"
         },
