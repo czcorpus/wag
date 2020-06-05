@@ -26,7 +26,7 @@ import { QueryFormModel, QueryFormModelState } from '../../src/js/models/query';
 import { ActionName } from '../../src/js/models/actions';
 import { QueryType, QueryMatch } from '../../src/js/query/index';
 import { PoSValues } from '../../src/js/postag';
-import { Forms } from '../../src/js/data';
+import { Forms } from '../../src/js/page/forms';
 import { SystemMessageType } from '../../src/js/types';
 
 

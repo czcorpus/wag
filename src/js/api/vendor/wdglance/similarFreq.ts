@@ -22,7 +22,7 @@ import { pipe, List } from 'cnc-tskit';
 import { cachedAjax$ } from '../../../page/ajax';
 import { HTTPHeaders, IAsyncKeyValueStore } from '../../../types';
 import { QueryMatch, matchesPos, calcFreqBand } from '../../../query/index';
-import { MultiDict } from '../../../data';
+import { MultiDict } from '../../../multidict';
 import { SimilarFreqDbAPI, RequestArgs, Response } from '../../abstract/similarFreq';
 import { HTTPAction } from '../../../server/routes/actions';
 import { IApiServices } from '../../../appServices';

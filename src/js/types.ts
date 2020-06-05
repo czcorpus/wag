@@ -16,24 +16,12 @@
  * limitations under the License.
  */
 import { Observable } from 'rxjs';
-import { Action } from 'kombo';
 import { SourceCitation } from './api/abstract/sourceInfo';
 
 
 export type AnyInterface<T> = {
     [P in keyof T]: T[P];
 };
-
-export interface IMultiDict<K, V> {
-    getFirst(key:string):V|undefined;
-    getList(key:string):Array<V>;
-    set(key:K, value:V):void;
-    add(key:K, value:V):void;
-    replace(key:K, values:Array<V>):void;
-    remove(key:K):void;
-    items():Array<[K, V]>;
-    has(key:K):boolean;
-}
 
 export type ListOfPairs = Array<[string, string|number]>;
 
@@ -96,14 +84,8 @@ export interface CorpusDetails extends SourceDetails {
 }
 
 export function isCorpusDetails(d:SourceDetails):d is CorpusDetails {
-    return typeof d['structure'] === 'object';
+    return typeof d['structure'] === 'object' && d['structure'].numTokens !== undefined;
 }
-
-export interface TileError {
-    message:string;
-    retryAction:Action;
-}
-
 
 export interface IAsyncKeyValueStore {
     get<T>(key:string):Observable<T>;

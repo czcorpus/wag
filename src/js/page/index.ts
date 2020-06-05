@@ -35,7 +35,7 @@ import { createRootComponent } from '../app';
 import { initStore } from './cache';
 import { TelemetryAction, TileIdentMap } from '../types';
 import { HTTPAction } from '../server/routes/actions';
-import { MultiDict } from '../data';
+import { MultiDict } from '../multidict';
 import { HTTP } from 'cnc-tskit';
 import { WdglanceMainProps } from '../views/main';
 import { TileGroup } from './layout';

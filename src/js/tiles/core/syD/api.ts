@@ -27,7 +27,7 @@ import {
 } from '../../../api/vendor/kontext/concordance';
 import { ConcResponse, ViewMode } from '../../../api/abstract/concordance';
 import { HTTPResponse as FreqsHTTPResponse } from '../../../api/vendor/kontext/freqs';
-import { MultiDict } from '../../../data';
+import { MultiDict } from '../../../multidict';
 import { CorePosAttribute, DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../../types';
 import { callWithExtraVal } from '../../../api/util';
 import { IApiServices } from '../../../appServices';
