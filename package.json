@@ -76,6 +76,7 @@
     "rxjs": "^6.5.5",
     "sanitize-html": "1.20.0",
     "sax": "^1.2.4",
+    "session-file-store": "^1.4.0",
     "soundmanager2": "^2.97.20170602",
     "sqlite3": "^4.2.0",
     "winston": "^3.2.1",
