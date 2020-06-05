@@ -28,6 +28,7 @@ import { forkJoin, of as rxOf, Observable } from 'rxjs';
 import { concatMap, map, tap } from 'rxjs/operators';
 import { Ident, tuple } from 'cnc-tskit';
 import 'winston-daily-rotate-file';
+import * as sessionFileStore from 'session-file-store';
 
 import { ClientStaticConf, ServerConf, LanguageLayoutsConfig, LanguageAnyTileConf, isTileDBConf, ColorsConf } from '../conf';
 import { validateTilesConf } from '../conf/validation';
@@ -117,11 +118,13 @@ forkJoin( // load core configs
 ).subscribe(
     ([serverConf, clientConf, pkgInfo, queryLog]) => {
         const app = express();
+        const FileStore = sessionFileStore(session)
         app.set('query parser', 'simple');
         app.use(cookieParser());
         app.use(bodyParser.json());
         app.use(bodyParser.urlencoded({ extended: true }));
         app.use(session({
+            store: new FileStore(),
             secret: Ident.puid(),
             resave: false,
             saveUninitialized: true
