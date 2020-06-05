@@ -124,7 +124,7 @@ forkJoin( // load core configs
         app.use(bodyParser.json());
         app.use(bodyParser.urlencoded({ extended: true }));
         app.use(session({
-            store: new FileStore(),
+            store: new FileStore(serverConf.sessions),
             secret: Ident.puid(),
             resave: false,
             saveUninitialized: true

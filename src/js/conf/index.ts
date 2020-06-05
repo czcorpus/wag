@@ -400,6 +400,10 @@ export interface ServerConf {
         path:string;
         rotation:boolean;
     };
+    sessions?:{
+        path?:string;
+        ttl?:number;
+    };
 }
 
 export function getQueryTypeFreqDb(conf:ServerConf, queryType:QueryType):QueryModeWordDb {

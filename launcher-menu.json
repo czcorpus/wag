@@ -4,7 +4,7 @@
       "description": "config schemata action",
       "check-conf:Tests config files": "schemata:check-conf",
       "check-samples:Tests sample config files": "schemata:check-samples",
-      "make-conf:Generates config schemata": "schemata:make",
+      "make-conf:Generates config schemata": "schemata:make-conf",
       "make-tile:Generates schema for specified tile": "schemata:make-tile",
       "make-core-tiles:Generates core tiles schemata": "schemata:make-core-tiles"
     },
