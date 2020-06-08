@@ -427,28 +427,43 @@ footer {
     font-size: 0.9em;
     text-align: center;
     margin-top: 1.5em;
+    color: @color-light-text;
 
-    .separ {
+    section {
+        > span {
+            border-style: solid;
+            border-color: @color-light-text;
+            border-width: 0 0 0 0.15em;
+            padding-left: 0.4em;
+            padding-right: 0.4em;
+        }
+    }
+
+    section.links, section.project-info {
         display: inline-block;
-        margin: 0 0.7em;
+    }
+
+    section.project-info > span:first-child {
+        border: none;
+    }
+
+    section.links > span:first-child {
+        border-style: solid;
+        border-color: @color-light-text;
+        border-width: 0 0 0 0.15em;
+    }
+
+    a {
+        color: @color-light-text;
+        text-decoration: none;
+    }
+
+    .action a {
         color: @color-default-text;
     }
 
-    section.copy-etc {
-        color: @color-light-text;
-
-        a {
-            color: @color-light-text;
-            text-decoration: none;
-        }
-
-        a.action {
-            color: @color-default-text;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
+    a:hover {
+        text-decoration: underline;
     }
 
     section:not(:last-child) {

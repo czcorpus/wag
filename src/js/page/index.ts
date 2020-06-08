@@ -182,7 +182,7 @@ export function initClient(mountElement:HTMLElement, config:ClientConf, userSess
                 && (('ontouchstart' in window) || window['DocumentTouch'] && document instanceof DocumentTouch)
     });
 
-    // appServices.forceMobileMode(); // DEBUG
+    //appServices.forceMobileMode(); // DEBUG
 
     (config.onLoadInit || []).forEach(initFn => {
         if (initFn in window) {
