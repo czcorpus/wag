@@ -292,15 +292,17 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             null
                         }
                         <Legend content={(props) => <ChartLegend metric={ut.translate('timeDistrib__ipm_human')} rcData={props} />} />
-                        <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="30" y="20" viewBox="0 0 50 50" preserveAspectRatio="xMaxYMin meet">
-                            <g fill="black" fillOpacity="0" stroke={this.props.zoom.every(v => v === null) ? "lightgray" : "gray"} strokeWidth="3">
-                                <circle cx="20" cy="20" r="14"/>
-                                <line x1="30" y1="30" x2="42" y2="42" strokeLinecap="round"/>
-                                <line x1="15" y1="15" x2="25" y2="25" strokeLinecap="round"/>
-                                <line x1="25" y1="15" x2="15" y2="25" strokeLinecap="round"/>
-                            </g>
-                            <rect onClick={this.zoomReset} x1="5" y1="5" width="40" height="40" fillOpacity="0"/>
-                        </svg>
+                        {this.props.zoom.every(v => v === null) ? null :
+                            <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="30" y="20" viewBox="0 0 50 50" preserveAspectRatio="xMaxYMin meet">
+                                <g fillOpacity="0" stroke="gray" strokeWidth="3">
+                                    <circle cx="20" cy="20" r="14"/>
+                                    <line x1="30" y1="30" x2="42" y2="42" strokeLinecap="round"/>
+                                    <line x1="15" y1="15" x2="25" y2="25" strokeLinecap="round"/>
+                                    <line x1="25" y1="15" x2="15" y2="25" strokeLinecap="round"/>
+                                </g>
+                                <rect onClick={this.zoomReset} x1="5" y1="5" width="40" height="40" fillOpacity="0"/>
+                            </svg>
+                        }
                     </AreaChart>
                 </ResponsiveContainer>
             );
