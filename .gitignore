@@ -58,7 +58,6 @@ typings/
 .env
 
 # custom
-dist
 dist-server
 conf/server.json
 conf/wdglance.json
