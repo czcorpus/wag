@@ -102,14 +102,23 @@ function boundingBox(rects:Array<Rect>):Rect {
     let yMin = rects[0].y;
     let xMax = rects[0].x + rects[0].w;
     let yMax = rects[0].y + rects[0].h;
+    let yMaxTmp = 0;
+    // We must increase height to prevent cutting of descender letters (g, j, y,...)
+    // so we keep a size of the text at the bottom and then use a portion of the size
+    // to increase the height of the cloud box.
+    let bottomTextFontSize = rects[0].fontSize;
 
     rects.forEach(rect => {
         xMin = Math.min(xMin, rect.x);
         yMin = Math.min(yMin, rect.y);
         xMax = Math.max(xMax, rect.x + rect.w);
-        yMax = Math.max(yMax, rect.y + rect.h);
+        yMaxTmp = Math.max(yMax, rect.y + rect.h);
+        if (yMaxTmp > yMax) {
+            bottomTextFontSize = rect.fontSize;
+        }
+        yMax = yMaxTmp;
     });
-    return {x: xMin, y: yMin, w: xMax - xMin, h: yMax - yMin};
+    return {x: xMin, y: yMin, w: xMax - xMin, h: yMax - yMin + bottomTextFontSize / 6};
 }
 
 
