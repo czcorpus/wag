@@ -258,7 +258,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 <ResponsiveContainer width={this.props.isSmallWidth ? '100%' : '90%'} height={this.props.size[1]}>
                     <AreaChart
                         data={data.filter(v => this.props.zoom.every(v => v !== null) ? parseInt(v.datetime) >= this.props.zoom[0] && parseInt(v.datetime) <= this.props.zoom[1] : true)}
-                        margin={{top: 10, right: 30, left: 0, bottom: 0}}
+                        margin={{top: 50, right: 2, left: 0, bottom: 0}}
                         onMouseLeave = {this.zoomMouseLeave}
                         onMouseDown = {this.zoomMouseDown}
                         onMouseMove = {this.props.refArea[0] ? this.zoomMouseMove : null}
