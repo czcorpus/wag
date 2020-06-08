@@ -117,7 +117,13 @@ class TreqAPICaller {
             author: 'Czech National Corpus',
             href: 'https://wiki.korpus.cz/doku.php/cnk:intercorp',
             structure: {
-                numTokens: 0
+                numTokens: 1700000000
+            },
+            citationInfo: {
+                sourceName: 'InterCorp',
+                papers: [],
+                main: 'ČERMÁK, F. – ROSEN, A. (2012). The case of InterCorp, a multilingual parallel corpus. <em>International Journal of Corpus Linguistics</em>. Vol. 13, no. 3, p. 411–427.',
+                otherBibliography: '<a target="_blank" rel="noopener" href="https://intercorp.korpus.cz/">intercorp.korpus.cz</a>'
             }
         });
     }
