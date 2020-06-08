@@ -278,7 +278,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 <ResponsiveContainer key='chartContainer' width={this.props.isSmallWidth ? '100%' : '90%'} height={this.props.size[1]}>
                     <AreaChart
                         data={data}
-                        margin={{top: 10, right: 30, left: 0, bottom: 0}}
+                        margin={{top: 50, right: 2, left: 0, bottom: 0}}
                         onMouseLeave = {this.zoomMouseLeave}
                         onMouseDown = {this.zoomMouseDown}
                         onMouseMove = {this.props.refArea[0] ? this.zoomMouseMove : null}
@@ -328,15 +328,17 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             null
                         }
                         <Legend content={(props) => <ChartLegend metric={ut.translate('multiWordTimeDistrib__occurence_human')} rcData={props} />} />
-                        <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="30" y="20" viewBox="0 0 50 50" preserveAspectRatio="xMaxYMin meet">
-                            <g fill="black" fillOpacity="0" stroke={List.every(v => v === null, this.props.zoom) ? "lightgray" : "gray"} strokeWidth="3">
-                                <circle cx="20" cy="20" r="14"/>
-                                <line x1="30" y1="30" x2="42" y2="42" strokeLinecap="round"/>
-                                <line x1="15" y1="15" x2="25" y2="25" strokeLinecap="round"/>
-                                <line x1="25" y1="15" x2="15" y2="25" strokeLinecap="round"/>
-                            </g>
-                            <rect onClick={this.zoomReset} x1="5" y1="5" width="40" height="40" fillOpacity="0"/>
-                        </svg>
+                        {List.every(v => v === null, this.props.zoom) ? null :
+                            <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="30" y="20" viewBox="0 0 50 50" preserveAspectRatio="xMaxYMin meet">
+                                <g fillOpacity="0" stroke="gray" strokeWidth="3">
+                                    <circle cx="20" cy="20" r="14"/>
+                                    <line x1="30" y1="30" x2="42" y2="42" strokeLinecap="round"/>
+                                    <line x1="15" y1="15" x2="25" y2="25" strokeLinecap="round"/>
+                                    <line x1="25" y1="15" x2="15" y2="25" strokeLinecap="round"/>
+                                </g>
+                                <rect onClick={this.zoomReset} x1="5" y1="5" width="40" height="40" fillOpacity="0"/>
+                            </svg>
+                        }
                     </AreaChart>
                 </ResponsiveContainer>
             );
