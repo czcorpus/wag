@@ -311,65 +311,63 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         // insert data
         Dict.forEach(
-            (areaData, areaName) => {
-                const ident = areaCodeMapping[areaName];
-                const notEnoughData = groupedAreaAbsFreqs[areaName] < frequencyDisplayLimit;
-                if (ident) {
-                    const element = document.getElementById(`${ident}-g`);
-                    if (element) {
-                        let pieChart, areaIpmNorm, scale;
+            (areaIdent, areaName) => {
+                const element = document.getElementById(`${areaIdent}-g`);
+                if (element) {
+                    let pieChart, areaIpmNorm, scale;
+                    const areaData = groupedAreaData[areaName]
+                    const notEnoughData = !areaData || groupedAreaAbsFreqs[areaName] < frequencyDisplayLimit;
 
-                        if (notEnoughData) {
-                            areaIpmNorm = 0;
-                            scale = 0.9;
+                    if (notEnoughData) {
+                        areaIpmNorm = 0;
+                        scale = 0.9;
 
-                            pieChart = createSVGEmptyCircle(
-                                element,
-                                150
-                            );
-                        } else {
-                            areaIpmNorm = groupedAreaIpmNorms[areaName];
-                            scale = 0.9 + ((areaIpmNorm - minIpmNorm)/(maxIpmNorm - minIpmNorm))/5;
+                        pieChart = createSVGEmptyCircle(
+                            element,
+                            150
+                        );
+                    } else {
+                        areaIpmNorm = groupedAreaIpmNorms[areaName];
+                        scale = 0.9 + ((areaIpmNorm - minIpmNorm)/(maxIpmNorm - minIpmNorm))/5;
 
-                            pieChart = createSVGPieChart(
-                                element,
-                                areaIpmNorm,
-                                areaData,
-                                150
-                            );
-                        }
-                        // scaling pie chart according to relative ipm norm
-                        pieChart.setAttribute('transform', `scale(${scale} ${scale})`);
-                        pieChart.setAttribute('style', 'filter: drop-shadow(0px 0px 5px rgba(0, 0, 0, 0.7));');
+                        pieChart = createSVGPieChart(
+                            element,
+                            areaIpmNorm,
+                            areaData,
+                            150
+                        );
+                    }
+                    // scaling pie chart according to relative ipm norm
+                    pieChart.setAttribute('transform', `scale(${scale} ${scale})`);
+                    pieChart.setAttribute('style', 'filter: drop-shadow(0px 0px 5px rgba(0, 0, 0, 0.7));');
 
-                        fromEvent(pieChart, 'mousemove')
-                            .subscribe((e:MouseEvent) => {
-                                dispatcher.dispatch<Actions.ShowAreaTooltip>({
-                                    name: ActionName.ShowAreaTooltip,
-                                    payload: {
-                                        areaName: areaName,
-                                        areaIpmNorm: areaIpmNorm,
-                                        areaData: notEnoughData ? null : areaData,
-                                        tileId: tileId,
-                                        tooltipX: e.pageX,
-                                        tooltipY: e.pageY
-                                    }
-                                });
+                    fromEvent(pieChart, 'mousemove')
+                        .subscribe((e:MouseEvent) => {
+                            dispatcher.dispatch<Actions.ShowAreaTooltip>({
+                                name: ActionName.ShowAreaTooltip,
+                                payload: {
+                                    areaName: areaName,
+                                    areaIpmNorm: areaIpmNorm,
+                                    areaData: notEnoughData ? null : areaData,
+                                    tileId: tileId,
+                                    tooltipX: e.pageX,
+                                    tooltipY: e.pageY
+                                }
                             });
+                        });
 
-                        fromEvent(pieChart, 'mouseout')
-                            .subscribe(() => {
-                                dispatcher.dispatch<Actions.HideAreaTooltip>({
-                                    name: ActionName.HideAreaTooltip,
-                                    payload: {
-                                        tileId: tileId
-                                    }
-                                });
+                    fromEvent(pieChart, 'mouseout')
+                        .subscribe(() => {
+                            dispatcher.dispatch<Actions.HideAreaTooltip>({
+                                name: ActionName.HideAreaTooltip,
+                                payload: {
+                                    tileId: tileId
+                                }
                             });
-                        }
+                        });
                 }
             },
-            groupedAreaData
+            areaCodeMapping
         );
 
         // insert legend
@@ -417,8 +415,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                         y={this.props.tooltipArea.tooltipY}
                                         visible={true}
                                         caption={this.props.tooltipArea.caption}
-                                        values={this.props.tooltipArea.data}
-                                        multiWord={true}
+                                        values={this.props.tooltipArea.data ? this.props.tooltipArea.data : {[ut.translate('multi_word_geolocations__not_enough_data')]: [['', '']]}}
+                                        multiWord={this.props.tooltipArea.data ? true : false}
                                         theme={theme}
                                     /> : null}
                             </div>
