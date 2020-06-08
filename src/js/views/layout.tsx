@@ -144,7 +144,7 @@ export function init(ut:ViewUtils<GlobalComponents>):React.SFC<LayoutProps> {
                                 null
                             }
                         </section>
-                        <section className="copy-etc">
+                        <section className="project-info">
                             <span className="copy">
                                 &copy; <a href="https://ucnk.ff.cuni.cz/" target="_blank" rel="noopener">
                                     {ut.translate('global__institute_cnc')}
@@ -154,17 +154,16 @@ export function init(ut:ViewUtils<GlobalComponents>):React.SFC<LayoutProps> {
                                 <span><img src={ut.createStaticUrl('logo-small.svg')} className="logo" alt="WaG" /></span> :
                                 null
                             }
-                            <span className="separ">|</span>
                             <span>{ut.translate('global__powered_by_wag_{version}', {version: props.version})}</span>
-                            <span className="separ">|</span>
-                            <span>
-                                <a className="action" target="_blank" rel="noopener" href={props.repositoryUrl}>{ut.translate('global__view_on_github')}</a>
+                        </section>
+                        <section className="links">
+                            <span className="action">
+                                <a target="_blank" rel="noopener" href={props.repositoryUrl}>{ut.translate('global__view_on_github')}</a>
                             </span>
                             {props.issueReportingUrl ?
                                 <>
-                                    <span className="separ">|</span>
-                                    <span className="report-error">
-                                        <a className="action" target="_blank" rel="noopener" href={props.issueReportingUrl}>{ut.translate('global__report_a_problem')}</a>
+                                    <span className="report-error action">
+                                        <a target="_blank" rel="noopener" href={props.issueReportingUrl}>{ut.translate('global__report_a_problem')}</a>
                                     </span>
                                 </> :
                                 null

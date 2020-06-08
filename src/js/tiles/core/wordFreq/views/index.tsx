@@ -24,6 +24,7 @@ import { SummaryModel, SummaryModelState } from '../model';
 import { init as chartViewInit } from './chart';
 import { init as singleWordViewsInit } from './single';
 import { init as multiWordViewsInit } from './compare';
+import { QueryMatch } from '../../../../query';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, model:SummaryModel):TileComponent {
@@ -32,6 +33,36 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     const Chart = chartViewInit(dispatcher, ut);
     const SingleWordProfile = singleWordViewsInit(dispatcher, ut);
     const MultiWordProfile = multiWordViewsInit(dispatcher, ut);
+
+
+    // -------------------- <AuxChart /> -----------------------------------------------
+
+    const AuxChart:React.SFC<{
+        tileName:string;
+        isMobile:boolean;
+        widthFract:number;
+        queryMatches:Array<QueryMatch>;
+
+    }> = (props) => {
+
+        const [isActive, setIsActive] = React.useState(false);
+
+        React.useEffect(() => {
+            setIsActive(true);
+          });
+
+        return (
+            <div className="chart">
+                {isActive && !props.isMobile && props.widthFract > 1 ?
+                    <>
+                        <h2>{ut.translate('wordfreq__freqband_chart_label')}</h2>
+                        <Chart queryMatches={props.queryMatches} activeIdent={0} tileName={props.tileName} />
+                    </> :
+                    null
+                }
+            </div>
+        );
+    }
 
     // -------------------- <WordFreqTileView /> -----------------------------------------------
 
@@ -48,13 +79,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         tileId={props.tileId} /> :
                     <MultiWordProfile matches={props.queryMatches} />
                 }
-                {!props.isMobile && props.widthFract > 1 ?
-                    <div className="chart">
-                        <h2>{ut.translate('wordfreq__freqband_chart_label')}</h2>
-                        <Chart queryMatches={props.queryMatches} activeIdent={0} tileName={props.tileName} />
-                    </div> :
-                    null
-                }
+                <AuxChart queryMatches={props.queryMatches} isMobile={props.isMobile} widthFract={props.widthFract}
+                        tileName={props.tileName} />
             </div>
         </globalComponents.TileWrapper>
     );
