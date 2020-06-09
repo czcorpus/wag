@@ -65,4 +65,5 @@ conf/layouts.json
 conf/tiles.json
 conf/dataReadability.json
 html/vendor/*/
-src/js/tiles/custom
+src/js/tiles/custom/*
+!src/js/tiles/custom/template/
