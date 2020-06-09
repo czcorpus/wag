@@ -17,7 +17,7 @@ function createTile(tileArg:string) {
     fs.mkdirSync(path.resolve(__dirname, '../src/js/tiles/custom', tileDir));
     templateFiles.forEach(fileName => {
         fs.readFile(
-            path.resolve(__dirname, 'template-tile', fileName),
+            path.resolve(__dirname, '../src/js/tiles/custom/template', fileName),
             'utf8',
             (err, data) => {
                 if (err) return console.log(err);
