@@ -1,6 +1,6 @@
-const fs = require('fs');
-const path = require('path');
-const tjs = require("typescript-json-schema");
+var fs = require('fs');
+var path = require('path');
+var tjs = require('typescript-json-schema');
 
 
 const settings = {
@@ -17,11 +17,10 @@ function generateSchema(tileDir:string, typeName:string) {
     const program = tjs.getProgramFromFiles([path.resolve(basePath, tileDir, 'index.ts')], compilerOptions);
     const schema = tjs.generateSchema(program, typeName, settings);
 
-    fs.writeFile(
+    fs.writeFileSync(
         path.resolve(basePath, tileDir, 'config-schema.json'),
         JSON.stringify(schema, undefined, 4),
-        'utf8',
-        err => {if (err) return console.log(err);}
+        'utf8'
     );
 }
 
