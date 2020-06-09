@@ -25,6 +25,7 @@ import { GlobalComponents } from '../../../../views/global';
 import { ActionName, Actions } from '../actions';
 import { GeoAreasModel, GeoAreasModelState } from '../model';
 import { DataRow } from '../../../../api/abstract/freqs';
+import { Dict, List } from 'cnc-tskit';
 
 
 const createSVGElement = (parent:Element, name:string, attrs:{[name:string]:string}):SVGElement => {
@@ -138,82 +139,86 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 elm.removeChild(elm.firstChild);
             }
         });
+
         // insert data
-        props.data.forEach((v, i) => {
-            const ident = props.areaCodeMapping[v.name];
-            if (ident) {
-                const elm = document.getElementById(`${ident}-g`);
-                if (elm) {
-                    let label;
-                    if (v.freq < props.frequencyDisplayLimit) {
-                        label = createSVGEmptyCircle(elm, mkSize(0));
-                    } else {
-                        const circle = createSVGElement(
-                            elm,
-                            'circle',
-                            {
-                                'r': mkSize(v.ipm).toFixed(1),
-                                'cx': '0',
-                                'cy': '0',
-                                'stroke': fillColor,
-                                'stroke-width': '3',
-                                'fill': fillColor,
-                                'pointer-events': 'fill',
-                            }
-                        );
-                        circle.setAttribute('style', 'filter: drop-shadow(0px 0px 5px rgba(0, 0, 0, 0.7));');
+        Dict.forEach((areaIdent, areaName) => {
+            const elm = document.getElementById(`${areaIdent}-g`);
+            if (elm) {
+                let label;
+                const areaIndex = List.findIndex((v, i) => v.name === areaName, props.data);
+                const areaData = areaIndex === -1 ? undefined : props.data[areaIndex];
+                
+                if (areaData === undefined || areaData.freq < props.frequencyDisplayLimit) {
+                    label = createSVGEmptyCircle(elm, mkSize(0));
 
-                        const text = createSVGElement(
-                            elm,
-                            'text',
-                            {
-                                'transform': 'translate(0, 15)',
-                                'text-anchor': 'middle',
-                                'font-size': '4.5em',
-                                'font-weight': 'bold',
-                                'fill': theme.geoAreaSpotTextColor
-                            }
-                        );
-                        text.style.cssText = 'opacity: 1';
-                        text.textContent = ut.formatNumber(v.ipm, v.ipm >= 100 ? 0 : 1);
-                        label = createSVGElement(
-                            elm,
-                            'circle',
-                            {
-                                'r': mkSize(v.ipm).toFixed(1),
-                                'cx': '0',
-                                'cy': '0',
-                                'fill': 'white',
-                                'pointer-events': 'fill',
-                                'opacity': '0'
-                            }
-                        );
-                    }
+                } else {
+                    const circle = createSVGElement(
+                        elm,
+                        'circle',
+                        {
+                            'r': mkSize(areaData.ipm).toFixed(1),
+                            'cx': '0',
+                            'cy': '0',
+                            'stroke': fillColor,
+                            'stroke-width': '3',
+                            'fill': fillColor,
+                            'pointer-events': 'fill',
+                        }
+                    );
+                    circle.setAttribute('style', 'filter: drop-shadow(0px 0px 5px rgba(0, 0, 0, 0.7));');
 
-                    fromEvent(label, 'mousemove')
-                        .subscribe((e:MouseEvent) => {
-                            dispatcher.dispatch<Actions.ShowAreaTooltip>({
-                                name: ActionName.ShowAreaTooltip,
-                                payload: {
-                                    areaIdx: i,
-                                    tileId: tileId,
-                                    tooltipX: e.pageX,
-                                    tooltipY: e.pageY
-                                }
-                            });
-                        });
-                    fromEvent(label, 'mouseout')
-                        .subscribe(() => {
-                            dispatcher.dispatch<Actions.HideAreaTooltip>({
-                                name: ActionName.HideAreaTooltip,
-                                payload: {
-                                    tileId: tileId
-                                }
-                            });
-                        });
+                    const text = createSVGElement(
+                        elm,
+                        'text',
+                        {
+                            'transform': 'translate(0, 15)',
+                            'text-anchor': 'middle',
+                            'font-size': '4.5em',
+                            'font-weight': 'bold',
+                            'fill': theme.geoAreaSpotTextColor
+                        }
+                    );
+                    text.style.cssText = 'opacity: 1';
+                    text.textContent = ut.formatNumber(areaData.ipm, areaData.ipm >= 100 ? 0 : 1);
+                    label = createSVGElement(
+                        elm,
+                        'circle',
+                        {
+                            'r': mkSize(areaData.ipm).toFixed(1),
+                            'cx': '0',
+                            'cy': '0',
+                            'fill': 'white',
+                            'pointer-events': 'fill',
+                            'opacity': '0'
+                        }
+                    );
                 }
+
+                fromEvent(label, 'mousemove')
+                    .subscribe((e:MouseEvent) => {
+                        dispatcher.dispatch<Actions.ShowAreaTooltip>({
+                            name: ActionName.ShowAreaTooltip,
+                            payload: {
+                                dataIdx: areaIndex,
+                                areaName: areaName,
+                                tileId: tileId,
+                                tooltipX: e.pageX,
+                                tooltipY: e.pageY
+                            }
+                        });
+                    });
+                
+                fromEvent(label, 'mouseout')
+                    .subscribe(() => {
+                        dispatcher.dispatch<Actions.HideAreaTooltip>({
+                            name: ActionName.HideAreaTooltip,
+                            payload: {
+                                tileId: tileId
+                            }
+                        });
+                    });
             }
-        });
+        }, props.areaCodeMapping);
     }
 
     // -------------- <GeoAreasTileView /> ---------------------------------------------

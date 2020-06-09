@@ -74,7 +74,7 @@ ORAL_V1:
 export interface MultiWordGeoAreasModelState extends GeneralSingleCritFreqMultiQueryState<DataRow> {
     currQueryMatches:Array<QueryMatch>;
     areaCodeMapping:{[key:string]:string};
-    tooltipArea:{tooltipX:number; tooltipY:number, caption: string, data:TooltipValues}|null;
+    tooltipArea:{tooltipX:number; tooltipY:number, caption:string, data:TooltipValues, multiWordMode:boolean}|null;
     mapSVG:string;
     isAltViewMode:boolean;
     posQueryGenerator:[string, string];
@@ -225,7 +225,7 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                                 '' :
                                 ` (${this.appServices.formatNumber(action.payload.areaIpmNorm, 1)} ipm)`),
                         data: action.payload.areaData === null ?
-                            null :
+                            {[appServices.translate('multi_word_geolocations__not_enough_data')]: [['', '']]} :
                             Dict.fromEntries(
                                 List.map((lemma, index) => {
                                     const areaData = action.payload.areaData.find(item => item.target === index);
@@ -236,10 +236,14 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                                                 [100 * areaData.ipm / action.payload.areaIpmNorm, '%'],
                                                 [areaData.ipm, 'ipm']
                                             ] :
-                                            [['', ''], ['', '']]
+                                            [
+                                                [0, '%'],
+                                                [0, 'ipm']
+                                            ]
                                     ]
                                 }, state.currQueryMatches)
-                            )
+                            ),
+                        multiWordMode: action.payload.areaData !== null
                     }
                 }
             }

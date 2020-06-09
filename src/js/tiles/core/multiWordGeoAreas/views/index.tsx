@@ -415,8 +415,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                         y={this.props.tooltipArea.tooltipY}
                                         visible={true}
                                         caption={this.props.tooltipArea.caption}
-                                        values={this.props.tooltipArea.data ? this.props.tooltipArea.data : {[ut.translate('multi_word_geolocations__not_enough_data')]: [['', '']]}}
-                                        multiWord={this.props.tooltipArea.data ? true : false}
+                                        values={this.props.tooltipArea.data}
+                                        multiWord={this.props.tooltipArea.multiWordMode}
                                         theme={theme}
                                     /> : null}
                             </div>
