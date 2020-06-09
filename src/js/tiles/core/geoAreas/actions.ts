@@ -36,7 +36,8 @@ export namespace Actions {
 
     export interface ShowAreaTooltip extends Action<{
         tileId:number;
-        areaIdx:number;
+        dataIdx:number;
+        areaName:string;
         tooltipX:number;
         tooltipY:number;
 

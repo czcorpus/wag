@@ -237,12 +237,12 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
             ActionName.ShowAreaTooltip,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
-                    const data = state.data[action.payload.areaIdx];
+                    const data = action.payload.dataIdx === -1 ? undefined : state.data[action.payload.dataIdx];
                     state.tooltipArea = {
                         tooltipX: action.payload.tooltipX,
                         tooltipY: action.payload.tooltipY,
-                        caption: data.name,
-                        data : data.freq < state.frequencyDisplayLimit ? {
+                        caption: action.payload.areaName,
+                        data : data === undefined || data.freq < state.frequencyDisplayLimit ? {
                             [this.appServices.translate('geolocations__table_heading_ipm')]: [[this.appServices.translate('geolocations__not_enough_data'), '']],
                             [this.appServices.translate('geolocations__table_heading_abs')]: [[data.freq, '']]
                         } : {
