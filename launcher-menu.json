@@ -15,7 +15,8 @@
       "server": "build:server"
     },
     "create:Create menu...": {
-      "custom-tile": "create:custom-tile"
+      "custom-tile": "create:custom-tile",
+      "tile-conf": "create:tile-conf"
     },
     "devel-server:starts a development server": "devel-server",
     "server:starts WaG web server": "server",
