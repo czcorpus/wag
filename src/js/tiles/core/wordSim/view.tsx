@@ -134,7 +134,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                                             dataTransform={dataTransform}
                                                             selectedText={props.data.length > 1 ? props.selectedText : null}
                                                             colors={colorGen(matchIdx)}
-                                                            outlineWords={otherWords}
+                                                            underlineWords={otherWords}
                                             />
                                         </div>
                                     )}/> :

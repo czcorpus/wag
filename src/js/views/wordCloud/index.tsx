@@ -36,7 +36,7 @@ export interface WordCloudProps<T> {
     dataTransform:(v:T)=>WordCloudItem;
     colors?:(i:number)=>string;
     selectedText?:string;
-    outlineWords?:Array<string>;
+    underlineWords?:Array<string>;
 }
 interface WordCloudState<T> {
     data:Array<T>;
@@ -59,7 +59,7 @@ export function init<T>(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalCompone
         onMouseOver:(x:number, y:number, data:WordCloudItem)=>void;
         onMouseOut:(data:WordCloudItem)=>void;
         selectedText?:string;
-        outline?:boolean;
+        underline?:boolean;
 
     }> = (props) => {
 
@@ -95,7 +95,7 @@ export function init<T>(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalCompone
                 <text x={props.rect.x}
                         y={props.rect.y + props.rect.fontSize}
                         fill={props.color}
-                        textDecoration={props.outline ? "underline" : null}
+                        textDecoration={props.underline ? "underline" : null}
                         pointerEvents="none"
                         style={style}>{props.rect.data.text}</text>
             </g>
@@ -271,7 +271,7 @@ export function init<T>(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalCompone
                                     onMouseOver={this.handleMouseOver}
                                     font={this.props.font}
                                     selectedText={this.props.selectedText}
-                                    outline={this.props.outlineWords && this.props.outlineWords.includes(r.data.text)}/>
+                                    underline={this.props.underlineWords && this.props.underlineWords.includes(r.data.text)}/>
                             )}
                         </g>
                     </svg>

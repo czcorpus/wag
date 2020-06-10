@@ -154,7 +154,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                                     dataTransform={dataTransform}
                                                     selectedText={this.props.data.length > 1 ? this.props.selectedText : null}
                                                     colors={colorGen(index)}
-                                                    outlineWords={otherWords} />
+                                                    underlineWords={otherWords} />
                                         </div>
                                     )} /> :
                                     <globalCompontents.ResponsiveWrapper key={`${index}empty`}
