@@ -126,7 +126,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                             widthFract={props.widthFract} key={`${matchIdx}non-empty`} render={(width:number, height:number) => (
                                         <div className="sim-cloud">
                                             {props.data.length > 1 ?
-                                                <h2>{`[${matchIdx + 1}] ${props.queryMatches[matchIdx].word}`}</h2> :
+                                                <h2>{props.queryMatches[matchIdx].word}</h2> :
                                                 null
                                             }
                                             <WordCloud width={width} height={height} data={data} isMobile={props.isMobile}
