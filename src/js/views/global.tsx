@@ -112,6 +112,7 @@ export interface GlobalComponents {
         payload?:Array<{[key:string]:any}>;
         label?:string;
         formatter?:(value:string,name:string,data:{[key:string]:any}) => string | [string, string];
+        payloadMapper?:(payload:{[key:string]:any}) => Array<{name:string; value:string|number; unit?:string}>;
 
         multiWord?:boolean;
         theme?:Theme;
@@ -638,7 +639,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
 
     const AlignedRechartsTooltip:GlobalComponents['AlignedRechartsTooltip'] = (props?) => {
 
-        const { active, payload, label, formatter, multiWord, theme} = props;
+        const { active, payload, label, formatter, payloadMapper, multiWord, theme} = props;
         if (active && payload) {
             const decimalSeparator = ut.formatNumber(0.1).slice(1, -1);
             return (
@@ -690,7 +691,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                                 }
                                 return null
                             },
-                            payload
+                            payloadMapper ? List.flatMap(p => payloadMapper(p.payload), payload) : payload
                         )}
                         </tbody>
                     </table>

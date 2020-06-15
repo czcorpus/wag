@@ -4,13 +4,15 @@
         "freqBar__indicator_text_types": "text types",
         "freqBar__indicator_medium": "media types",
         "freqBar__speaker_region": "regions by speakers",
-        "freqBar__rel_freq": "instances per million words (ipm)"
+        "freqBar__rel_freq": "instances per million words",
+        "freqBar__abs_freq": "absolute frequency"
     },
     "cs-CZ": {
         "freqBar__main_label": "Frekvenční distribuce",
         "freqBar__indicator_text_types": "typy textů",
         "freqBar__indicator_medium": "typy médií",
         "freqBar__speaker_region": "oblasti podle mluvčích",
-        "freqBar__rel_freq": "výskyty na milon slov (ipm)"
+        "freqBar__rel_freq": "výskyty na milon slov",
+        "freqBar__abs_freq": "absolutní frekvence"
     }
 }
