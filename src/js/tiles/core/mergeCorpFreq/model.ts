@@ -227,7 +227,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
                                 List.map((v, i) =>
                                     ([v.word, [
                                         {value: state.data[i] ? state.data[i][action.payload.dataId]?.ipm : 0, unit: 'ipm'},
-                                        {value: state.data[i] ? `(${state.data[i][action.payload.dataId]?.freq})` : '(0)'}
+                                        {value: state.data[i] ? `(abs. ${state.data[i][action.payload.dataId]?.freq})` : '(abs. 0)'}
                                     ]]),
                                     state.queryMatches
                                 )

@@ -667,12 +667,19 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                                                 <td key="name" className="label" style={labelTheme}>{label}</td>
                                                 {List.map(
                                                     ([val, unit]) => {
-                                                        const [numWh, numDec] = ut.formatNumber(val, 1).split(decimalSeparator);
-                                                        return <React.Fragment key={`value:${numWh}:${unit}`}>
-                                                            <td className="value numWh">{numWh}</td>
-                                                            <td className="value numDec">{numDec ? decimalSeparator + numDec : null}</td>
-                                                            <td className="value">{unit}</td>
-                                                        </React.Fragment>;
+                                                        if (typeof val === 'string') {
+                                                            return <React.Fragment key={`value:${val}:${unit}`}>
+                                                                <td className="value" colSpan={2}>{val}</td>
+                                                                <td className="value">{unit}</td>
+                                                            </React.Fragment>;
+                                                        } else {
+                                                            const [numWh, numDec] = ut.formatNumber(val, 1).split(decimalSeparator);
+                                                            return <React.Fragment key={`value:${numWh}:${unit}`}>
+                                                                <td className="value numWh">{numWh}</td>
+                                                                <td className="value numDec">{numDec ? decimalSeparator + numDec : null}</td>
+                                                                <td className="value">{unit}</td>
+                                                            </React.Fragment>;
+                                                        }
                                                     },
                                                     value
                                                 )}
