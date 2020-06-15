@@ -32,7 +32,7 @@ export interface SourceInfo {
     subcorp?:string;
 }
 
-export type TooltipValues = {[key:string]:Array<[string|number,string]>}|null;
+export type TooltipValues = {[key:string]:Array<{value:string|number; unit?:string}>}|null;
 
 export interface GlobalComponents {
 
@@ -606,19 +606,19 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                                     const labelTheme = props.multiWord && props.theme ? {backgroundColor: props.theme.cmpCategoryColor(i)} : null;
                                     return <tr key={label}>
                                         <td className='label' style={labelTheme}>{label}</td>
-                                        {List.flatMap(([value, unit], index) => {
-                                            if (typeof value === 'number') {
-                                                const [numWh, numDec] = ut.formatNumber(value, 1).split(decimalSeparator);
+                                        {List.flatMap((data, index) => {
+                                            if (typeof data.value === 'number') {
+                                                const [numWh, numDec] = ut.formatNumber(data.value, 1).split(decimalSeparator);
                                                 return [
                                                     <td key={`numWh${index}`} className='value numWh'>{numWh}</td>,
                                                     <td key={`numDec${index}`} className='value numDec'>{numDec ? decimalSeparator + numDec : null}</td>,
-                                                    <td key={`unit${index}`} className='value'>{unit}</td>
+                                                    <td key={`unit${index}`} className='value'>{data.unit}</td>
                                                 ]
 
-                                            } else if (typeof value === 'string') {
+                                            } else if (typeof data.value === 'string') {
                                                 return [
-                                                    <td key={`value${index}`} className='value' colSpan={2}>{value}</td>,
-                                                    <td key={`unit${index}`} className='value'>{unit}</td>
+                                                    <td key={`value${index}`} className='value' colSpan={2}>{data.value}</td>,
+                                                    <td key={`unit${index}`} className='value'>{data.unit}</td>
                                                 ]
                                             }
                                         }, values)}

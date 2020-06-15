@@ -84,8 +84,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         <th />
                         {props.queryMatches.map((lemma, idx) => (
                             <React.Fragment key={lemma.lemma}>
-                                <th>{ut.translate('mergeCorpFreq_abs_freq')}</th>
-                                <th>{ut.translate('mergeCorpFreq_rel_freq')}</th>
+                                <th>{ut.translate('mergeCorpFreq__abs_freq')}</th>
+                                <th>{ut.translate('mergeCorpFreq__rel_freq')} (ipm)</th>
                             </React.Fragment>
                         ))}
                     </tr>
@@ -158,10 +158,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 dataKey={x => x.ipm[index]}
                                 fill={props.isPartial ? theme.unfinishedChartColor: colorFn(index)}
                                 isAnimationActive={false}
-                                name={queries === 1 ? ut.translate('mergeCorpFreq_rel_freq') : props.queryMatches[index].word} />,
+                                name={queries === 1 ? ut.translate('mergeCorpFreq__rel_freq') + ' (ipm)' : props.queryMatches[index].word} />,
                             props.queryMatches
                         )}
-                        <XAxis type="number" label={{value: queries > 1 ? ut.translate('mergeCorpFreq_rel_freq') : null, dy: 15}} />
+                        <XAxis type="number" label={{value: queries > 1 ? ut.translate('mergeCorpFreq__rel_freq') + ' (ipm)' : null, dy: 15}} />
                         <YAxis type="category" dataKey="name" width={Math.max(60, maxLabelLength * 7)}
                                 tickFormatter={value => props.isMobile ? Strings.shortenText(value, CHART_LABEL_MAX_LEN) : value} />
                         <Legend wrapperStyle={{paddingTop: queries > 1 ? 15 : 0}}/>
