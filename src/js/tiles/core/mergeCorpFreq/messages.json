@@ -1,12 +1,12 @@
 {
     "en-US": {
         "mergeCorpFreq__main_label": "Frequency distribution",
-        "mergeCorpFreq_abs_freq": "absolute frequency",
-        "mergeCorpFreq_rel_freq": "instances per million words (ipm)"
+        "mergeCorpFreq__abs_freq": "absolute frequency",
+        "mergeCorpFreq__rel_freq": "instances per million words"
     },
     "cs-CZ": {
         "mergeCorpFreq__main_label": "Frekvenční distribuce",
-        "mergeCorpFreq_abs_freq": "absolutní frekvence",
-        "mergeCorpFreq_rel_freq": "výskyty na milon slov (ipm)"
+        "mergeCorpFreq__abs_freq": "absolutní frekvence",
+        "mergeCorpFreq__rel_freq": "výskyty na milon slov"
     }
 }

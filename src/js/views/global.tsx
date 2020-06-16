@@ -32,7 +32,7 @@ export interface SourceInfo {
     subcorp?:string;
 }
 
-export type TooltipValues = {[key:string]:Array<[string|number,string]>}|null;
+export type TooltipValues = {[key:string]:Array<{value:string|number; unit?:string}>}|null;
 
 export interface GlobalComponents {
 
@@ -112,6 +112,7 @@ export interface GlobalComponents {
         payload?:Array<{[key:string]:any}>;
         label?:string;
         formatter?:(value:string,name:string,data:{[key:string]:any}) => string | [string, string];
+        payloadMapper?:(payload:{[key:string]:any}) => Array<{name:string; value:string|number; unit?:string}>;
 
         multiWord?:boolean;
         theme?:Theme;
@@ -606,19 +607,19 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                                     const labelTheme = props.multiWord && props.theme ? {backgroundColor: props.theme.cmpCategoryColor(i)} : null;
                                     return <tr key={label}>
                                         <td className='label' style={labelTheme}>{label}</td>
-                                        {List.flatMap(([value, unit], index) => {
-                                            if (typeof value === 'number') {
-                                                const [numWh, numDec] = ut.formatNumber(value, 1).split(decimalSeparator);
+                                        {List.flatMap((data, index) => {
+                                            if (typeof data.value === 'number') {
+                                                const [numWh, numDec] = ut.formatNumber(data.value, 1).split(decimalSeparator);
                                                 return [
                                                     <td key={`numWh${index}`} className='value numWh'>{numWh}</td>,
                                                     <td key={`numDec${index}`} className='value numDec'>{numDec ? decimalSeparator + numDec : null}</td>,
-                                                    <td key={`unit${index}`} className='value'>{unit}</td>
+                                                    <td key={`unit${index}`} className='value'>{data.unit}</td>
                                                 ]
 
-                                            } else if (typeof value === 'string') {
+                                            } else if (typeof data.value === 'string') {
                                                 return [
-                                                    <td key={`value${index}`} className='value' colSpan={2}>{value}</td>,
-                                                    <td key={`unit${index}`} className='value'>{unit}</td>
+                                                    <td key={`value${index}`} className='value' colSpan={2}>{data.value}</td>,
+                                                    <td key={`unit${index}`} className='value'>{data.unit}</td>
                                                 ]
                                             }
                                         }, values)}
@@ -638,7 +639,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
 
     const AlignedRechartsTooltip:GlobalComponents['AlignedRechartsTooltip'] = (props?) => {
 
-        const { active, payload, label, formatter, multiWord, theme} = props;
+        const { active, payload, label, formatter, payloadMapper, multiWord, theme} = props;
         if (active && payload) {
             const decimalSeparator = ut.formatNumber(0.1).slice(1, -1);
             return (
@@ -666,12 +667,19 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                                                 <td key="name" className="label" style={labelTheme}>{label}</td>
                                                 {List.map(
                                                     ([val, unit]) => {
-                                                        const [numWh, numDec] = ut.formatNumber(val, 1).split(decimalSeparator);
-                                                        return <React.Fragment key={`value:${numWh}:${unit}`}>
-                                                            <td className="value numWh">{numWh}</td>
-                                                            <td className="value numDec">{numDec ? decimalSeparator + numDec : null}</td>
-                                                            <td className="value">{unit}</td>
-                                                        </React.Fragment>;
+                                                        if (typeof val === 'string') {
+                                                            return <React.Fragment key={`value:${val}:${unit}`}>
+                                                                <td className="value" colSpan={2}>{val}</td>
+                                                                <td className="value">{unit}</td>
+                                                            </React.Fragment>;
+                                                        } else {
+                                                            const [numWh, numDec] = ut.formatNumber(val, 1).split(decimalSeparator);
+                                                            return <React.Fragment key={`value:${numWh}:${unit}`}>
+                                                                <td className="value numWh">{numWh}</td>
+                                                                <td className="value numDec">{numDec ? decimalSeparator + numDec : null}</td>
+                                                                <td className="value">{unit}</td>
+                                                            </React.Fragment>;
+                                                        }
                                                     },
                                                     value
                                                 )}
@@ -690,7 +698,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                                 }
                                 return null
                             },
-                            payload
+                            payloadMapper ? List.flatMap(p => payloadMapper(p.payload), payload) : payload
                         )}
                         </tbody>
                     </table>

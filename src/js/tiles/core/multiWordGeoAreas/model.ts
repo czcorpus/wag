@@ -225,7 +225,7 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                                 '' :
                                 ` (${this.appServices.formatNumber(action.payload.areaIpmNorm, 1)} ipm)`),
                         data: action.payload.areaData === null ?
-                            {[appServices.translate('multi_word_geolocations__not_enough_data')]: [['', '']]} :
+                            {[appServices.translate('multi_word_geolocations__not_enough_data')]: [{value: ''}]} :
                             Dict.fromEntries(
                                 List.map((lemma, index) => {
                                     const areaData = action.payload.areaData.find(item => item.target === index);
@@ -233,12 +233,12 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                                         lemma.word,
                                         areaData ?
                                             [
-                                                [100 * areaData.ipm / action.payload.areaIpmNorm, '%'],
-                                                [areaData.ipm, 'ipm']
+                                                {value: 100 * areaData.ipm / action.payload.areaIpmNorm, unit: '%'},
+                                                {value: areaData.ipm, unit: 'ipm'}
                                             ] :
                                             [
-                                                [0, '%'],
-                                                [0, 'ipm']
+                                                {value: 0, unit: '%'},
+                                                {value: 0, unit: 'ipm'}
                                             ]
                                     ]
                                 }, state.currQueryMatches)

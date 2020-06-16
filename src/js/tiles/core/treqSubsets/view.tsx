@@ -45,8 +45,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     }> = (props) => {
         const ticks = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
         const tooltipVals = {
-            [ut.translate('treqsubsets__abs')]: [[props.abs, ''] as [number, string]],
-            [ut.translate('treqsubsets__perc')]: [[props.perc, '%'] as [number, string]]
+            [ut.translate('treqsubsets__abs')]: [{value: props.abs}],
+            [ut.translate('treqsubsets__perc')]: [{value: props.perc, unit: '%'}]
         };
 
         return (
