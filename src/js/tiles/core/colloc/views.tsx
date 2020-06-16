@@ -124,7 +124,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 interactionId: v.interactionId
             });
 
-            const colorGen = this.props.data.length > 1 ? theme.scaleColorCmpDerived : (_:number) => theme.scaleColorIndexed();
+            const colorGen = this.props.data.length > 1 ? idx => theme.scaleColorCmpDerived(idx, this.props.data.length) : (_:number) => theme.scaleColorIndexed();
 
             return (
                 <globalCompontents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error} htmlClass="CollocTile"

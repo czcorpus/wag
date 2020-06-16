@@ -294,7 +294,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 }
                                 return tooltipFormatter(value, name, formatterProps);
                             }}
-                            content = {<globComponents.AlignedRechartsTooltip multiWord={true} theme={theme}/>}
+                            content = {<globComponents.AlignedRechartsTooltip multiWord={true} colors={idx => theme.cmpCategoryColor(idx, this.props.words.length)}/>}
                         />
                         {List.map(
                             (word, index) =>
@@ -302,7 +302,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                     key={`${word}Values`}
                                     dataKey={keyFn1(index)}
                                     name={word}
-                                    stroke={this.props.isPartial ? '#dddddd' : theme.cmpCategoryColor(index)}
+                                    stroke={this.props.isPartial ? '#dddddd' : theme.cmpCategoryColor(index, this.props.words.length)}
                                     fill={'rgba(0,0,0,0)'}  // transparent fill - only line
                                     strokeWidth={2}
                                     isAnimationActive={false}
@@ -316,7 +316,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                     dataKey={keyFn2(index)}
                                     name={null}
                                     stroke={null}
-                                    fill={this.props.isPartial ? '#eeeeee' : theme.cmpCategoryColor(index)}
+                                    fill={this.props.isPartial ? '#eeeeee' : theme.cmpCategoryColor(index, this.props.words.length)}
                                     strokeWidth={1}
                                     isAnimationActive={false}
                                     connectNulls={true} />,

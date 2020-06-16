@@ -136,7 +136,9 @@ export class Theme {
      * each word data is expected to be of a specific color
      * (i.e. 1st word => idx = 0, 2nd word => idx 1,...)
      */
-    cmpCategoryColor(idx:number):string {
+    cmpCategoryColor(idx:number, dynamicSize?:number):string {
+        if (dynamicSize && this.cmpCategoryColors.length === 1)
+            return this.getDynamicColor(idx, dynamicSize, this.cmpCategoryColors[0]);
         return this.cmpCategoryColors[idx % this.cmpCategoryColors.length];
     }
 
@@ -168,12 +170,32 @@ export class Theme {
      * 4th color and individual values 'v' produce lighter
      * variants as 'v' increases.
      */
-    scaleColorCmpDerived = (barIdx:number) => (v:number) => {
+    scaleColorCmpDerived = (barIdx:number, dynamicSize?:number) => (v:number) => {
         return pipe(
-            this.cmpCategoryColor(barIdx),
+            this.cmpCategoryColor(barIdx, dynamicSize),
             Color.importColor(1),
             Color.luminosity(1 + .04 * v),
             Color.color2str()
         );
     };
+
+    /**
+     * Returns dynamically calculated color for item derived from base color
+     * colors are positioned equally on hue circle in HSL color space
+     * where color of index 0 is identical to provided base color
+     */
+    getDynamicColor = (idx:number, size:number, baseColor:string) => {
+        const hslBaseColor = pipe(
+            baseColor,
+            Color.importColor(1),
+            Color.rgb2Hsl()
+        );
+
+        const newHue = hslBaseColor[0] + idx/size;
+        return pipe(
+            [newHue > 1 ? newHue - 1 : newHue, hslBaseColor[1], hslBaseColor[2]],
+            Color.hsl2Rgb(),
+            Color.color2str()
+        )
+    }
 }

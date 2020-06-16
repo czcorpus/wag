@@ -154,7 +154,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 <ChartWrapper data={props.data} words={props.words} isMobile={props.isMobile} width={props.width} height={props.height}>
                     {List.map(
                         (word, index) => <Bar key={`word:${index}`} dataKey={dataKeyFn(word)} isAnimationActive={false} name={word}
-                                                stackId='a' fill={theme.cmpCategoryColor(index)} shape={<BarShape/>} />,
+                                                stackId='a' fill={theme.cmpCategoryColor(index, props.words.length)} shape={<BarShape/>} />,
                         props.words
                     )};
                     <XAxis type="number" unit="%" ticks={[0, 25, 50, 75, 100]} domain={[0, 100]} interval={0} />
@@ -162,7 +162,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             tickFormatter={value => shouldShortenText ? Strings.shortenText(value, CHART_LABEL_MAX_LEN) : value}/>
                     <Legend />
                     <Tooltip cursor={false} isAnimationActive={false}
-                        content={<globComponents.AlignedRechartsTooltip multiWord={true} theme={theme}/>}
+                        content={<globComponents.AlignedRechartsTooltip multiWord={true} colors={idx => theme.cmpCategoryColor(idx, props.words.length)}/>}
                         formatter={(value, name, props) => ([[[value, '%'], [props.payload.data[name].ipm, 'ipm'], [`(abs. ${props.payload.data[name].freq})`, '']], name])} />
                 </ChartWrapper>
             </div>
