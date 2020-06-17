@@ -243,11 +243,11 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                         tooltipY: action.payload.tooltipY,
                         caption: action.payload.areaName,
                         data : data === undefined || data.freq < state.frequencyDisplayLimit ? {
-                            [this.appServices.translate('geolocations__table_heading_ipm')]: [{value: this.appServices.translate('geolocations__not_enough_data')}],
-                            [this.appServices.translate('geolocations__table_heading_abs')]: [{value: data.freq}]
+                            [this.appServices.translate('geolocations__tooltip_rel_freq')]: [{value: this.appServices.translate('geolocations__not_enough_data')}],
+                            [this.appServices.translate('geolocations__tooltip_abs_freq')]: [{value: data ? data.freq : this.appServices.translate('geolocations__not_enough_data')}]
                         } : {
-                            [this.appServices.translate('geolocations__table_heading_ipm')]: [{value: data.ipm}],
-                            [this.appServices.translate('geolocations__table_heading_abs')]: [{value: data.freq}]
+                            [this.appServices.translate('geolocations__tooltip_rel_freq')]: [{value: data.ipm}],
+                            [this.appServices.translate('geolocations__tooltip_abs_freq')]: [{value: data.freq}]
                         }
                     };
                 }

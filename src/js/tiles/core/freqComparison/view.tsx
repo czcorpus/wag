@@ -162,8 +162,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             tickFormatter={value => shouldShortenText ? Strings.shortenText(value, CHART_LABEL_MAX_LEN) : value}/>
                     <Legend />
                     <Tooltip cursor={false} isAnimationActive={false}
-                        content={<globComponents.AlignedRechartsTooltip multiWord={true} colors={idx => theme.cmpCategoryColor(idx, props.words.length)}/>}
-                        formatter={(value, name, props) => ([[[value, '%'], [props.payload.data[name].ipm, 'ipm'], [`(abs. ${props.payload.data[name].freq})`, '']], name])} />
+                        content={<globComponents.AlignedRechartsTooltip multiWord={true} theme={theme}/>}
+                        formatter={(value, name, props) => ([[[value, '%'], [props.payload.data[name].ipm, `ipm, ${ut.translate('global__frequency')}`], [props.payload.data[name].freq, '']], name])} />
                 </ChartWrapper>
             </div>
         );

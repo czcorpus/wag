@@ -226,13 +226,13 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
                             Dict.fromEntries(
                                 List.map((v, i) =>
                                     ([v.word, [
-                                        {value: state.data[i] ? state.data[i][action.payload.dataId]?.ipm : 0, unit: 'ipm'},
-                                        {value: state.data[i] ? `(abs. ${state.data[i][action.payload.dataId]?.freq})` : '(abs. 0)'}
+                                        {value: state.data[i] && state.data[i][action.payload.dataId] ? state.data[i][action.payload.dataId].ipm : 0, unit: `ipm, ${appServices.translate('global__frequency')}`},
+                                        {value: state.data[i] && state.data[i][action.payload.dataId] ? state.data[i][action.payload.dataId].freq : 0}
                                     ]]),
                                     state.queryMatches
                                 )
                             ) : {
-                                [appServices.translate('mergeCorpFreq__rel_freq')]: [{value: state.data[0][action.payload.dataId].ipm, unit: 'ipm'}],
+                                [appServices.translate('mergeCorpFreq__rel_freq')]: [{value: state.data[0][action.payload.dataId].ipm}],
                                 [appServices.translate('mergeCorpFreq__abs_freq')]: [{value: state.data[0][action.payload.dataId].freq}]
                             }
                     };
