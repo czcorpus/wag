@@ -77,7 +77,6 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
         super(dispatcher, initialState);
         this.appServices = appServices;
         this.queryValidator = new QueryValidator(this.appServices);
-
         this.addActionHandler<Actions.ChangeQueryInput>(
             ActionName.ChangeQueryInput,
             (state, action) => {
@@ -91,17 +90,14 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
             ActionName.ChangeCurrQueryMatch,
             (state, action) => {
                 const group = state.queryMatches[action.payload.queryIdx];
-                state.queryMatches[action.payload.queryIdx] = group.map(v => ({
-                    lemma: v.lemma,
-                    word: v.word,
-                    pos: v.pos,
-                    abs: v.abs,
-                    ipm: v.ipm,
-                    arf: v.arf,
-                    flevel: v.flevel,
-                    isCurrent: matchesPos(v, action.payload.pos) && v.word == action.payload.word &&
-                            v.lemma === action.payload.lemma ? true : false
-                }));
+                state.queryMatches[action.payload.queryIdx] = List.map(
+                    v => ({
+                        ...v,
+                        isCurrent: matchesPos(v, action.payload.pos) && v.word == action.payload.word &&
+                                v.lemma === action.payload.lemma ? true : false
+                    }),
+                    group
+                );
             },
             (state, action, dispatch) => {
                 this.submitCurrLemma(state);

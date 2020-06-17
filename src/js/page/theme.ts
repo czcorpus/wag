@@ -184,7 +184,7 @@ export class Theme {
      * colors are positioned equally on hue circle in HSL color space
      * where color of index 0 is identical to provided base color
      */
-    getDynamicColor = (idx:number, size:number, baseColor:string) => {
+    private getDynamicColor(idx:number, size:number, baseColor:string) {
         const hslBaseColor = pipe(
             baseColor,
             Color.importColor(1),
