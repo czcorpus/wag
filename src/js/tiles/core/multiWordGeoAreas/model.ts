@@ -234,13 +234,13 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                                         areaData ?
                                             [
                                                 {value: 100 * areaData.ipm / action.payload.areaIpmNorm, unit: '%'},
-                                                {value: areaData.ipm, unit: 'ipm'},
-                                                {value: `(abs. ${areaData.freq})`}
+                                                {value: areaData.ipm, unit: `ipm, ${appServices.translate('global__frequency')}`},
+                                                {value: areaData.freq}
                                             ] :
                                             [
                                                 {value: 0, unit: '%'},
-                                                {value: 0, unit: 'ipm'},
-                                                {value: '(abs. 0)'}
+                                                {value: 0, unit: `ipm, ${appServices.translate('global__frequency')}`},
+                                                {value: 0}
                                             ]
                                     ]
                                 }, state.currQueryMatches)

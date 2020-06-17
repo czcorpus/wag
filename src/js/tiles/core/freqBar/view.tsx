@@ -111,14 +111,14 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 <ChartWrapper data={props.data} isMobile={props.isMobile} width={props.width} height={props.height}>
                     <CartesianGrid />
                     <Bar data={props.data} dataKey="ipm" fill={theme.categoryColor(0)} isAnimationActive={false}
-                            name={ut.translate('freqBar__rel_freq') + ' (ipm)'} />
+                            name={ut.translate('freqBar__rel_freq')} />
                     <XAxis type="number" />
                     <YAxis type="category" dataKey="name" width={Math.max(60, maxLabelLength * 7)}
                             tickFormatter={value => props.isMobile ? Strings.shortenText(value, CHART_LABEL_MAX_LEN) : value}/>
                     <Legend />
                     <Tooltip cursor={false} isAnimationActive={false} content={<globComponents.AlignedRechartsTooltip
                         payloadMapper={payload => [
-                            {name: ut.translate('freqBar__rel_freq'), value: payload.ipm, unit: 'ipm'},
+                            {name: ut.translate('freqBar__rel_freq'), value: payload.ipm},
                             {name: ut.translate('freqBar__abs_freq'), value: payload.freq}
                         ]}
                     />}/>

@@ -6,7 +6,9 @@
         "geolocations__table_heading_area": "Area",
         "geolocations__table_heading_ipm": "Occurrences per million words (ipm)",
         "geolocations__table_heading_abs": "Absolute frequency",
-        "geolocations__not_enough_data": "Not enough data"
+        "geolocations__not_enough_data": "Not enough data",
+        "geolocations__tooltip_rel_freq": "ipm (instances per million words)",
+        "geolocations__tooltip_abs_freq": "frequency (number of occurrences)"
     },
     "cs-CZ": {
         "geolocations__main_label": "Geografické oblasti",
@@ -15,6 +17,8 @@
         "geolocations__table_heading_area": "Oblast",
         "geolocations__table_heading_ipm": "Výskytů na milion slov (ipm)",
         "geolocations__table_heading_abs": "Absolutních výskytů",
-        "geolocations__not_enough_data": "Málo dat pro výpočet"
+        "geolocations__not_enough_data": "Málo dat pro výpočet",
+        "geolocations__tooltip_rel_freq": "ipm (počet výskytů na milion slov)",
+        "geolocations__tooltip_abs_freq": "frekvence (absolutní počet výskytů)"
     }
 }
