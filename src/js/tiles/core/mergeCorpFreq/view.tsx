@@ -127,7 +127,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 List.map(v => v.name, transformedData)
         ).length;
         const colorFn = queries > 1 ?
-                (idx:number) => theme.cmpCategoryColor(idx) :
+                (idx:number) => theme.cmpCategoryColor(idx, props.queryMatches.length) :
                 (idx:number) => theme.categoryColor(0);
         return (
             <div className="Chart" style={{height: '100%'}}>
@@ -208,7 +208,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 caption={this.props.tooltipData.caption}
                                 values={this.props.tooltipData.data}
                                 multiWord={this.props.queryMatches.length > 1}
-                                theme={this.props.queryMatches.length > 1 ? theme : null}
+                                colors={this.props.queryMatches.length > 1 ? idx => theme.cmpCategoryColor(idx, this.props.queryMatches.length) : null}
                             /> : null}
                     </div>
 

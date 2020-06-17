@@ -126,7 +126,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         return chart;
     }
 
-    const createSVGPieChart = (parent:Element, areaIpmNorm:number, areaData:Array<TargetDataRow>, radius:number):SVGElement => {
+    const createSVGPieChart = (parent:Element, areaIpmNorm:number, areaData:Array<TargetDataRow>, radius:number, currentQueryMatches:Array<QueryMatch>):SVGElement => {
         const chart = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         const pieSlices = createSVGElement(chart, 'g', {});
 
@@ -157,7 +157,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 A ${radius} ${radius} 0 ${longArc} 1 ${x1} ${y1}
                                 L 0 0
                             `,
-                        'fill': theme.cmpCategoryColor(row.target),
+                        'fill': theme.cmpCategoryColor(row.target, currentQueryMatches.length),
                         'stroke': 'white',
                         'stroke-width': '6',
                         'opacity': '1'
@@ -202,7 +202,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     'height': '100',
                     'rx': '10',
                     'stroke-opacity': '0',
-                    'fill': theme.cmpCategoryColor(index)
+                    'fill': theme.cmpCategoryColor(index, currentQueryMatches.length)
                 }
             );
 
@@ -334,7 +334,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             element,
                             areaIpmNorm,
                             areaData,
-                            150
+                            150,
+                            currentQueryMatches
                         );
                     }
                     // scaling pie chart according to relative ipm norm
@@ -417,7 +418,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                         caption={this.props.tooltipArea.caption}
                                         values={this.props.tooltipArea.data}
                                         multiWord={this.props.tooltipArea.multiWordMode}
-                                        theme={theme}
+                                        colors={idx => theme.cmpCategoryColor(idx, this.props.currQueryMatches.length)}
                                     /> : null}
                             </div>
                         }

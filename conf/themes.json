@@ -118,6 +118,39 @@
                 "#FFC584"
            ],
            "geoAreaSpotFillColor": "#009ee0"
+        },
+        {
+            "themeId": "auto-color",
+            "themeLabel": "Auto color",
+            "cmpCategory": [
+                "#F8766D"
+            ],
+            "category": [
+                "#60CFFF",
+                "#94A3FF",
+                "#FFDC84",
+                "#FFB058",
+                "#53a82c",
+                "#8ADCFF",
+                "#C1C9FF",
+                "#FFEBB8",
+                "#FFC584"
+           ],
+           "categoryOther": "#494949",
+           "scale": [
+                "#60CFFF",
+                "#8ADCFF",
+                "#94A3FF",
+                "#C1C9FF",
+                "#FFDC84",
+                "#FFEBB8",
+                "#FFB058",
+                "#FFC584",
+                "#FFC584",
+                "#FFC584",
+                "#FFC584"
+           ],
+           "geoAreaSpotFillColor": "#009ee0"
         }
     ]
 }

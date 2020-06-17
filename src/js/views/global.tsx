@@ -25,7 +25,6 @@ import { SystemMessageType, SourceDetails } from '../types';
 import { ScreenProps } from '../page/hostPage';
 import { BacklinkWithArgs } from '../page/tile';
 import { ActionName, Actions } from '../models/actions';
-import { Theme } from '../page/theme';
 
 export interface SourceInfo {
     corp:string;
@@ -100,7 +99,7 @@ export interface GlobalComponents {
         values:TooltipValues;
 
         multiWord?:boolean;
-        theme?:Theme;
+        colors?:(idx:number) => string;
     }>;
 
     SourceInfoBox:React.SFC<{
@@ -115,7 +114,7 @@ export interface GlobalComponents {
         payloadMapper?:(payload:{[key:string]:any}) => Array<{name:string; value:string|number; unit?:string}>;
 
         multiWord?:boolean;
-        theme?:Theme;
+        colors?:(idx:number) => string;
     }>;
 }
 
@@ -604,7 +603,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                             Dict.toEntries(),
                             List.map(
                                 ([label, values], i) => {
-                                    const labelTheme = props.multiWord && props.theme ? {backgroundColor: props.theme.cmpCategoryColor(i)} : null;
+                                    const labelTheme = props.multiWord && props.colors ? {backgroundColor: props.colors(i)} : null;
                                     return <tr key={label}>
                                         <td className='label' style={labelTheme}>{label}</td>
                                         {List.flatMap((data, index) => {
@@ -639,7 +638,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
 
     const AlignedRechartsTooltip:GlobalComponents['AlignedRechartsTooltip'] = (props?) => {
 
-        const { active, payload, label, formatter, payloadMapper, multiWord, theme} = props;
+        const { active, payload, label, formatter, payloadMapper, multiWord, colors} = props;
         if (active && payload) {
             const decimalSeparator = ut.formatNumber(0.1).slice(1, -1);
             return (
@@ -651,7 +650,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                             (data, index) => {
                                 const formated_value = formatter ? formatter(data.value, data.name, data) : [data.value, data.name];
                                 const [value, label] = Array.isArray(formated_value) ? formated_value : [formated_value, data.name];
-                                const labelTheme = multiWord && theme ? {backgroundColor: theme.cmpCategoryColor(index)} : null;
+                                const labelTheme = multiWord && colors ? {backgroundColor: colors(index)} : null;
 
                                 if (value && label) {
                                     if (typeof value === 'string') {
