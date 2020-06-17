@@ -690,9 +690,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                                         const [numWh, numDec] = ut.formatNumber(value, 1).split(decimalSeparator);
                                         return <tr key={label}>
                                             <td key="name" className="label" style={labelTheme}>{label}</td>
-                                            <td key="valueWh" className="value numWh">{numWh}</td>
-                                            <td key="valueDec" className="value numDec">{numDec ? decimalSeparator + numDec : null}</td>
-                                            <td key="unit" className="value">{data.unit}</td>
+                                            <td key="valueWh" className="numWh">{numWh}</td>
+                                            <td key="valueDec" className="numDec">{numDec ? decimalSeparator + numDec : null}</td>
+                                            <td key="unit" className="unit">{data.unit}</td>
                                         </tr>
                                     }
                                 }

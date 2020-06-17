@@ -25,7 +25,7 @@ import { CoreTileComponentProps, TileComponent } from '../../../page/tile';
 import { GlobalComponents } from '../../../views/global';
 import { LemmaData, Actions, ActionName } from './common';
 import { TimeDistribModel, TimeDistribModelState } from './model';
-import { List, pipe, tuple } from 'cnc-tskit';
+import { List, pipe } from 'cnc-tskit';
 
 
 interface ChartDataPoint {
@@ -238,7 +238,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 );
             let domainY:[number, number]|[number, string];
             let tickFormatterY:(fracValue:number, name:string, formatterProps:any)=>string;
-            let tooltipFormatter:(fracValue:number, name:string, formatterProps:any)=>[[[number, string], [number, string]], string];
+            let tooltipFormatter:(fracValue:number, name:string, formatterProps:any)=>[Array<[number|string, string]>, string];
             let keyFn1:(lemmaIdx:number)=>(v:ChartDataPoint)=>number;
             let keyFn2:(lemmaIdx:number)=>(v:ChartDataPoint)=>[number, number];
             switch (this.props.units) {
