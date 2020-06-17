@@ -81,16 +81,10 @@
            "geoAreaSpotTextColor": "#FFFFFF"
         },
         {
-            "themeId": "all-blue",
-            "themeLabel": "All blue",
+            "themeId": "dynamic",
+            "themeLabel": "Dynamic",
             "cmpCategory": [
-                "#009ee0",
-                "#1162be",
-                "#2a94ab",
-                "#405be3",
-                "#2fd6ef",
-                "#7fbff4",
-                "#013ca9"
+                "#60CFFF"
             ],
             "category": [
                 "#60CFFF",
