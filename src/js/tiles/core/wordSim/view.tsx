@@ -105,7 +105,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             interactionId: v.interactionId
         });
 
-        const colorGen = props.data.length > 1 ? idx => theme.scaleColorCmpDerived(idx, this.props.data.length) : (_:number) => theme.scaleColorIndexed();
+        const colorGen = props.data.length > 1 ? (idx:number) => theme.scaleColorCmpDerived(idx, props.data.length) : (_:number) => theme.scaleColorIndexed();
 
         return (
             <globalCompontents.TileWrapper tileId={props.tileId} isBusy={props.isBusy} error={props.error}
