@@ -320,13 +320,6 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
         }
     }
 
-    getFirstQuery():string {
-        return this.getState().queries[0].value;
-    }
-
-    getOtherQueries():Array<string> {
-        return this.getState().queries.slice(1).map(v => v.value);
-    }
 }
 
 export interface DefaultFactoryArgs {
