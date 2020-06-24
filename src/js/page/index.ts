@@ -36,11 +36,10 @@ import { initStore } from './cache';
 import { TelemetryAction, TileIdentMap } from '../types';
 import { HTTPAction } from '../server/routes/actions';
 import { MultiDict } from '../multidict';
-import { HTTP } from 'cnc-tskit';
+import { HTTP, Client } from 'cnc-tskit';
 import { WdglanceMainProps } from '../views/main';
 import { TileGroup } from './layout';
 
-declare var DocumentTouch;
 declare var require:(src:string)=>void;  // webpack
 require('../../css/index.less');
 require('../../css/components/global.less');
@@ -178,8 +177,7 @@ export function initClient(mountElement:HTMLElement, config:ClientConf, userSess
         actionUrlCreator: viewUtils.createActionUrl,
         dataReadability: config.dataReadability || {metadataMapping: {}, commonStructures: {}},
         apiHeadersMapping: config.apiHeaders,
-        mobileModeTest: () => window.matchMedia('screen and (max-width: 480px)').matches
-                && (('ontouchstart' in window) || window['DocumentTouch'] && document instanceof DocumentTouch)
+        mobileModeTest: () => Client.isTouchMobileDevice()
     });
 
     //appServices.forceMobileMode(); // DEBUG
