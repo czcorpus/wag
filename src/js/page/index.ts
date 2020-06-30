@@ -177,7 +177,7 @@ export function initClient(mountElement:HTMLElement, config:ClientConf, userSess
         actionUrlCreator: viewUtils.createActionUrl,
         dataReadability: config.dataReadability || {metadataMapping: {}, commonStructures: {}},
         apiHeadersMapping: config.apiHeaders,
-        mobileModeTest: () => Client.isTouchMobileDevice()
+        mobileModeTest: () => Client.isMobileTouchDevice()
     });
 
     //appServices.forceMobileMode(); // DEBUG
