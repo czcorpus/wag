@@ -59,7 +59,7 @@ export class SimilarFreqWordsAPI implements SimilarFreqDbAPI {
             'GET',
             this.apiURL + HTTPAction.SIMILAR_FREQ_WORDS,
             new MultiDict([
-                ['lang', args.lang],
+                ['domain', args.domain],
                 ['word', args.word],
                 ['lemma', args.lemma],
                 ['pos', args.pos.join(' ')],

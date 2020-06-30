@@ -1,20 +1,25 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
+    "definitions": {
+        "CommonTextStructures": {
+            "properties": {
+                "document": {
+                    "type": "string"
+                },
+                "paragraph": {
+                    "type": "string"
+                },
+                "sentence": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        }
+    },
     "properties": {
         "commonStructures": {
             "additionalProperties": {
-                "properties": {
-                    "document": {
-                        "type": "string"
-                    },
-                    "paragraph": {
-                        "type": "string"
-                    },
-                    "sentence": {
-                        "type": "string"
-                    }
-                },
-                "type": "object"
+                "$ref": "#/definitions/CommonTextStructures"
             },
             "type": "object"
         },

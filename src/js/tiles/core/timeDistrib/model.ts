@@ -112,7 +112,7 @@ export interface TimeDistribModelArgs {
     appServices:IAppServices;
     queryMatches:RecognizedQueries;
     backlink:Backlink;
-    queryLang:string;
+    queryDomain:string;
 }
 
 function dateToSortNumber(s:string):number {
@@ -147,13 +147,13 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
 
     private readonly queryMatches:RecognizedQueries;
 
-    private readonly queryLang:string;
+    private readonly queryDomain:string;
 
     private readonly backlink:Backlink;
 
 
     constructor({dispatcher, initState, tileId, waitForTile, waitForTilesTimeoutSecs, apiFactory, appServices,
-                queryMatches, queryLang, backlink}:TimeDistribModelArgs) {
+                queryMatches, queryDomain, backlink}:TimeDistribModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.apiFactory = apiFactory;
@@ -161,7 +161,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
         this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.appServices = appServices;
         this.queryMatches = queryMatches;
-        this.queryLang = queryLang;
+        this.queryDomain = queryDomain;
         this.backlink = backlink;
 
         this.addActionHandler<GlobalActions.RequestQueryResponse>(
@@ -256,7 +256,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
                     state,
                     dispatch,
                     SubchartID.SECONDARY,
-                    this.appServices.queryLemmaDbApi(this.queryLang, state.wordCmp).pipe(
+                    this.appServices.queryLemmaDbApi(this.queryDomain, state.wordCmp).pipe(
                         map(v => v.result[0])
                     )
                 );

@@ -83,12 +83,12 @@ export class CNCWord2VecSimApi implements IWordSimApi<CNCWord2VecSimApiArgs> {
         return false;
     }
 
-    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<SourceDetails> {
+    getSourceDescription(tileId:number, domain:string, corpname:string):Observable<SourceDetails> {
         return this.srcInfoApi ?
             this.srcInfoApi.call({
                 tileId: tileId,
                 corpname: corpname,
-                lang: lang,
+                domain: domain,
                 queryType: QueryType.SINGLE_QUERY
             }) :
              rxOf({

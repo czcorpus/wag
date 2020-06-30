@@ -64,7 +64,7 @@ export interface TimeDistribModelArgs {
     apiFactory:PriorityValueFactory<[IConcordanceApi<{}>, TimeDistribApi]>;
     appServices:IAppServices;
     queryMatches:RecognizedQueries;
-    queryLang:string;
+    queryDomain:string;
 }
 
 interface CalcArgs {

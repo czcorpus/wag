@@ -22,7 +22,7 @@ import { PosItem } from '../../postag';
 
 
 export interface RequestArgs {
-    lang:string;
+    domain:string;
     word:string;
     lemma:string;
     pos:Array<string>;

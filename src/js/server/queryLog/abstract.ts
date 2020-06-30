@@ -37,8 +37,8 @@ export interface QueryLogRecord {
     params:{
         uiLang:string;
         queryType:string;
-        query1Lang:string;
-        query2Lang:string|null;
+        query1Domain:string;
+        query2Domain:string|null;
         query:Array<UserQuery>|null;
         error:string|null;
    };

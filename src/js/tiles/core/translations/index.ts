@@ -56,7 +56,7 @@ export class TranslationsTile implements ITileProvider {
 
     private static readonly DEFAULT_MIN_ITEM_FREQ = 1;
 
-    constructor({tileId, dispatcher, appServices, ut, theme, lang1, lang2, queryMatches, widthFract, conf, isBusy, cache}:TileFactory.Args<TranslationsTileConf>) {
+    constructor({tileId, dispatcher, appServices, ut, theme, domain1, domain2, queryMatches, widthFract, conf, isBusy, cache}:TileFactory.Args<TranslationsTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
@@ -67,13 +67,13 @@ export class TranslationsTile implements ITileProvider {
                 isBusy: isBusy,
                 isAltViewMode: false,
                 error: null,
-                searchPackages: (conf.srchPackages[lang2] || []),
+                searchPackages: (conf.srchPackages[domain2] || []),
                 translations: [],
                 backLink: null,
                 maxNumLines: conf.maxNumLines || TranslationsTile.DEFAULT_MAX_NUM_LINES,
                 minItemFreq: conf.minItemFreq || TranslationsTile.DEFAULT_MIN_ITEM_FREQ,
-                lang1: lang1,
-                lang2: lang2
+                domain1: domain1,
+                domain2: domain2
             },
             tileId,
             api: createApiInstance(conf.apiType, conf.apiURL, appServices, cache),
@@ -101,7 +101,7 @@ export class TranslationsTile implements ITileProvider {
         return null;
     }
 
-    supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {
+    supportsQueryType(qt:QueryType, domain1:string, domain2?:string):boolean {
         return qt === QueryType.TRANSLAT_QUERY;
     }
 

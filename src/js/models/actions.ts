@@ -30,7 +30,7 @@ export enum ActionName {
     SetEmptyResult = 'MAIN_SET_EMPTY_RESULT',
     TileDataLoaded = 'MAIN_TILE_DATA_LOADED',
     TilePartialDataLoaded = 'MAIN_TILE_PARTIAL_DATA_LOADED',
-    ChangeTargetLanguage = 'MAIN_CHANGE_TARGET_LANGUAGE',
+    ChangeTargetDomain = 'MAIN_CHANGE_TARGET_DOMAIN',
     ChangeQueryType = 'MAIN_CHANGE_QUERY_TYPE',
     SetTileRenderSize = 'MAIN_SET_TILE_RENDER_SIZE',
     SetScreenMode = 'MAIN_SET_SCREEN_MODE',
@@ -138,21 +138,21 @@ export namespace Actions {
 
     // this action currently reload the page so we need
     // more arguments than in SPA-mode
-    export interface ChangeTargetLanguage extends Action<{
-        lang1:string;
-        lang2:string;
+    export interface ChangeTargetDomain extends Action<{
+        domain1:string;
+        domain2:string;
         queryType:QueryType;
         queries:Array<string>;
     }> {
-        name:ActionName.ChangeTargetLanguage;
+        name:ActionName.ChangeTargetDomain;
     }
 
     // this action currently reload the page so we need
     // more arguments than in SPA-mode
     export interface ChangeQueryType extends Action<{
         queryType:QueryType;
-        lang1:string;
-        lang2:string;
+        domain1:string;
+        domain2:string;
         queries:Array<string>;
     }> {
         name:ActionName.ChangeQueryType;

@@ -63,7 +63,7 @@ export interface SummaryModelArgs {
     sourceInfoApi:InternalResourceInfoApi;
     appServices:IAppServices;
     queryMatches:RecognizedQueries;
-    queryLang:string;
+    queryDomain:string;
     queryType:QueryType;
 }
 
@@ -91,18 +91,18 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
 
     private readonly queryMatches:RecognizedQueries;
 
-    private readonly queryLang:string;
+    private readonly queryDomain:string;
 
     private readonly queryType:QueryType;
 
-    constructor({dispatcher, initialState, tileId, api, sourceInfoApi, appServices, queryMatches, queryLang, queryType}:SummaryModelArgs) {
+    constructor({dispatcher, initialState, tileId, api, sourceInfoApi, appServices, queryMatches, queryDomain, queryType}:SummaryModelArgs) {
         super(dispatcher, initialState);
         this.tileId = tileId;
         this.api = api;
         this.sourceInfoApi = sourceInfoApi;
         this.appServices = appServices;
         this.queryMatches = queryMatches;
-        this.queryLang = queryLang;
+        this.queryDomain = queryDomain;
         this.queryType = queryType;
 
         this.addActionHandler<GlobalActions.RequestQueryResponse>(
@@ -178,7 +178,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                     this.sourceInfoApi.call({
                         tileId: this.tileId,
                         queryType: queryType,
-                        lang: this.queryLang,
+                        domain: this.queryDomain,
                         corpname: state.corpname,
 
                     }).subscribe(
@@ -212,7 +212,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
             try {
                 observer.next({
                     variant: findCurrQueryMatch(this.queryMatches[0]),
-                    lang: this.queryLang
+                    lang: this.queryDomain
                 });
                 observer.complete();
 
@@ -223,7 +223,7 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
             concatMap(
                 (args) => testIsDictMatch(args.variant) ?
                     this.api.call({
-                        lang: args.lang,
+                        domain: args.lang,
                         word: args.variant.word,
                         lemma: args.variant.lemma,
                         pos: List.map(v => v.value, args.variant.pos),

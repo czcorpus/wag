@@ -24,7 +24,7 @@ import { MultiDict } from '../multidict';
 import { Forms } from '../page/forms';
 import { SystemMessageType } from '../types';
 import { AvailableLanguage } from '../page/hostPage';
-import { QueryType, QueryMatch, QueryTypeMenuItem, matchesPos, SearchLanguage, RecognizedQueries } from '../query/index';
+import { QueryType, QueryMatch, QueryTypeMenuItem, matchesPos, SearchDomain, RecognizedQueries } from '../query/index';
 import { QueryValidator } from '../query/validation';
 import { ActionName, Actions } from './actions';
 import { HTTPAction } from '../server/routes/actions';
@@ -36,10 +36,10 @@ export interface QueryFormModelState {
     initialQueryType:QueryType;
     multiWordQuerySupport:{[k in QueryType]?:number};
     queryType:QueryType;
-    queryLanguage:string;
-    queryLanguage2:string;
-    searchLanguages:Array<SearchLanguage>;
-    targetLanguages:{[k in QueryType]:Array<[string, string]>};
+    queryDomain:string;
+    queryDomain2:string;
+    searchDomains:Array<SearchDomain>;
+    targetDomains:{[k in QueryType]:Array<[string, string]>};
     queryTypesMenuItems:Array<QueryTypeMenuItem>;
     errors:Array<Error>;
     queryMatches:RecognizedQueries;
@@ -104,15 +104,15 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
             }
         );
 
-        this.addActionHandler<Actions.ChangeTargetLanguage>(
-            ActionName.ChangeTargetLanguage,
+        this.addActionHandler<Actions.ChangeTargetDomain>(
+            ActionName.ChangeTargetDomain,
             (state, action) => {
-                const prevLang2 = state.queryLanguage2;
-                state.queryLanguage = action.payload.lang1;
-                state.queryLanguage2 = action.payload.lang2;
+                const prevDomain2 = state.queryDomain2;
+                state.queryDomain = action.payload.domain1;
+                state.queryDomain2 = action.payload.domain2;
                 state.queryType = action.payload.queryType;
                 if (state.isAnswerMode && state.queryType === QueryType.TRANSLAT_QUERY &&
-                            prevLang2 !== action.payload.lang2) {
+                            prevDomain2 !== action.payload.domain2) {
                     this.checkAndSubmitUserQuery(state);
                 }
             }
@@ -259,9 +259,9 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
             HTTPAction.TRANSLATE
         );
 
-        const langs = [state.queryLanguage];
+        const domains = [state.queryDomain];
         if (state.queryType === QueryType.TRANSLAT_QUERY) {
-            langs.push(state.queryLanguage2);
+            domains.push(state.queryDomain2);
         }
 
         const queries = [state.queries[0].value];
@@ -271,7 +271,7 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
             });
         }
 
-        return `${action}${langs.join('--')}/${queries.join('--')}`;
+        return `${action}${domains.join('--')}/${queries.join('--')}`;
     }
 
     private validateNthQuery(state:QueryFormModelState, idx:number):boolean {
@@ -314,8 +314,8 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
 
         } else if (state.queryType === QueryType.TRANSLAT_QUERY) {
             this.validateNthQuery(state, 0);
-            if (state.queryLanguage === state.queryLanguage2) {
-                state.errors.push(new Error(this.appServices.translate('global__src_and_dst_langs_must_be_different')));
+            if (state.queryDomain === state.queryDomain2) {
+                state.errors.push(new Error(this.appServices.translate('global__src_and_dst_domains_must_be_different')));
             }
         }
     }
@@ -325,20 +325,20 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
 export interface DefaultFactoryArgs {
     dispatcher:IActionQueue;
     appServices:IAppServices;
-    query1Lang:string;
-    query2Lang:string;
+    query1Domain:string;
+    query2Domain:string;
     queryType:QueryType;
     queryMatches:RecognizedQueries;
     isAnswerMode:boolean;
     uiLanguages:Array<AvailableLanguage>;
-    searchLanguages:Array<SearchLanguage>;
+    searchDomains:Array<SearchDomain>;
     layout:LayoutManager;
     maxCmpQueries:number;
     maxQueryWords:{[k in QueryType]?:number};
 }
 
-export const defaultFactory = ({dispatcher, appServices, query1Lang, query2Lang, queryType, queryMatches,
-        isAnswerMode, uiLanguages, searchLanguages, layout, maxCmpQueries, maxQueryWords}:DefaultFactoryArgs) => {
+export const defaultFactory = ({dispatcher, appServices, query1Domain, query2Domain, queryType, queryMatches,
+        isAnswerMode, uiLanguages, searchDomains, layout, maxCmpQueries, maxQueryWords}:DefaultFactoryArgs) => {
 
     return new QueryFormModel(
         dispatcher,
@@ -351,10 +351,10 @@ export const defaultFactory = ({dispatcher, appServices, query1Lang, query2Lang,
             queryType: queryType,
             initialQueryType: queryType,
             queryTypesMenuItems: layout.getQueryTypesMenuItems(),
-            queryLanguage: query1Lang,
-            queryLanguage2: query2Lang,
-            searchLanguages: searchLanguages,
-            targetLanguages: layout.getTargetLanguages(),
+            queryDomain: query1Domain,
+            queryDomain2: query2Domain,
+            searchDomains: searchDomains,
+            targetDomains: layout.getTargetDomains(),
             errors: [],
             queryMatches: queryMatches,
             isAnswerMode: isAnswerMode,

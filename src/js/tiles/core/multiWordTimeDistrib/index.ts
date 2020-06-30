@@ -67,7 +67,7 @@ export class MultiWordTimeDistTile implements ITileProvider {
     private readonly blockingTiles:Array<number>;
 
     constructor({dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, ut, theme, appServices, widthFract,
-            queryMatches, lang1, conf, isBusy, cache}:TileFactory.Args<TimeDistTileConf>) {
+            queryMatches, domain1, conf, isBusy, cache}:TileFactory.Args<TimeDistTileConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
@@ -129,7 +129,7 @@ export class MultiWordTimeDistTile implements ITileProvider {
             apiFactory: apiFactory,
             appServices: appServices,
             queryMatches,
-            queryLang: lang1
+            queryDomain: domain1
         });
         this.label = appServices.importExternalMessage(conf.label || 'multiWordTimeDistrib__main_label');
         this.view = viewInit(this.dispatcher, ut, theme, this.model);
@@ -151,7 +151,7 @@ export class MultiWordTimeDistTile implements ITileProvider {
         return this.label;
     }
 
-    supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {
+    supportsQueryType(qt:QueryType, domain1:string, domain2?:string):boolean {
         return qt === QueryType.CMP_QUERY;
     }
 

@@ -28,7 +28,7 @@ import { IApiServices } from '../../../appServices';
 export interface FreqDbSourceInfoArgs {
     tileId:number;
     queryType:QueryType;
-    lang:string;
+    domain:string;
     corpname:string;
 }
 

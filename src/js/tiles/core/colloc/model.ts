@@ -356,8 +356,8 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                                 },
                                 interactionId: v.interactionId
                             })),
-                            lang1: null,
-                            lang2: null
+                            domain1: null,
+                            domain2: null
                         }
                     });
                 }

@@ -87,8 +87,8 @@ export function logRequest(logging:IQueryLog, datetime:string, req:Request, user
         params: {
             uiLang: userConfig.uiLang,
             queryType: userConfig.queryType,
-            query1Lang: userConfig.query1Lang,
-            query2Lang: userConfig.query2Lang ? userConfig.query2Lang : null,
+            query1Domain: userConfig.query1Domain,
+            query2Domain: userConfig.query2Domain ? userConfig.query2Domain : null,
             query: userConfig.queries,
             error: userConfig.error ? userConfig.error.join(': ') : null
         },
@@ -156,10 +156,10 @@ export function createHelperServices(services:Services, uiLang:string):[ViewUtil
         new AppServices({
             notifications: null, // TODO
             uiLang: uiLang,
-            searchLanguages: pipe(
-                services.clientConf.searchLanguages,
+            languageNames: pipe(
+                services.clientConf.searchDomains,
                 Dict.keys(),
-                List.map(k => tuple(k, services.clientConf.searchLanguages[k]))
+                List.map(k => tuple(k, services.clientConf.searchDomains[k]))
             ),
             translator: viewUtils,
             staticUrlCreator: viewUtils.createStaticUrl,

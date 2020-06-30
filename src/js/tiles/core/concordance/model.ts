@@ -373,8 +373,8 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                             queryId: curr,
                             data: resp,
                             subqueries: List.map(v => ({value: `${v.toknum}`, interactionId: v.interactionId}), resp.lines),
-                            lang1: null,
-                            lang2: null
+                            domain1: null,
+                            domain2: null
                         }
                     });
                 }

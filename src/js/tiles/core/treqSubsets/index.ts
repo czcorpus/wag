@@ -58,7 +58,7 @@ export class TreqSubsetsTile implements ITileProvider {
 
     private static readonly DEFAULT_MIN_ITEM_FREQ = 1;
 
-    constructor({tileId, dispatcher, appServices, theme, ut, lang1, lang2, widthFract, waitForTiles, queryMatches, conf, isBusy, cache}:TileFactory.Args<TreqSubsetsTileConf>) {
+    constructor({tileId, dispatcher, appServices, theme, ut, domain1, domain2, widthFract, waitForTiles, queryMatches, conf, isBusy, cache}:TileFactory.Args<TreqSubsetsTileConf>) {
         this.tileId = tileId;
         this.widthFract = widthFract;
         this.blockingTiles = waitForTiles;
@@ -66,8 +66,8 @@ export class TreqSubsetsTile implements ITileProvider {
             dispatcher,
             appServices,
             initialState: {
-                lang1: lang1,
-                lang2: lang2,
+                domain1: domain1,
+                domain2: domain2,
                 isBusy: isBusy,
                 isAltViewMode: false,
                 error: null,
@@ -79,7 +79,7 @@ export class TreqSubsetsTile implements ITileProvider {
                         packages: [...v.packages],
                         isPending: false
                     }),
-                    conf.srchPackages[lang2] || []
+                    conf.srchPackages[domain2] || []
                 ),
                 highlightedRowIdx: -1,
                 maxNumLines: 12,
@@ -113,7 +113,7 @@ export class TreqSubsetsTile implements ITileProvider {
 
     /**
      */
-    supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {
+    supportsQueryType(qt:QueryType, domain1:string, domain2?:string):boolean {
         return qt === QueryType.TRANSLAT_QUERY;
     }
 

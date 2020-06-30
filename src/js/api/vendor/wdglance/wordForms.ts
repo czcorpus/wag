@@ -70,13 +70,13 @@ export class WordFormsWdglanceAPI implements ResourceApi<RequestArgs, Response> 
         );
     }
 
-    getSourceDescription(tileId:number, lang:string, corpname:string):Observable<SourceDetails> {
+    getSourceDescription(tileId:number, domain:string, corpname:string):Observable<SourceDetails> {
         return this.srcInfoApi ?
             this.srcInfoApi.call({
                 tileId: tileId,
                 corpname: corpname,
                 queryType: QueryType.SINGLE_QUERY,
-                lang: lang
+                domain: domain
             }) :
              rxOf({
                 tileId: tileId,

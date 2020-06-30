@@ -69,7 +69,7 @@ export class WordSimTile implements ITileProvider {
     private readonly api:IWordSimApi<{}>;
 
     constructor({tileId, waitForTiles, dispatcher, appServices, ut, widthFract, conf, theme,
-            isBusy, cache, queryMatches, lang1}:TileFactory.Args<WordSimTileConf>) {
+            isBusy, cache, queryMatches, domain1}:TileFactory.Args<WordSimTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.appServices = appServices;
@@ -97,7 +97,7 @@ export class WordSimTile implements ITileProvider {
             },
             tileId,
             api: this.api,
-            queryLang: lang1
+            queryDomain: domain1
         });
         this.view = viewInit(dispatcher, ut, theme, this.model);
     }
@@ -119,7 +119,7 @@ export class WordSimTile implements ITileProvider {
         return this.srcInfoView;
     }
 
-    supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {
+    supportsQueryType(qt:QueryType, domain1:string, domain2?:string):boolean {
         return qt === QueryType.SINGLE_QUERY || qt === QueryType.CMP_QUERY;
     }
 

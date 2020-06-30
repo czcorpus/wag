@@ -51,11 +51,11 @@ interface AttachTileArgs {
     maxTileHeight:string;
 }
 
-const mkAttachTile = (queryType:QueryType, isMultiWordQuery:boolean, lang1:string, lang2:string, appServices:IAppServices) =>
+const mkAttachTile = (queryType:QueryType, isMultiWordQuery:boolean, domain1:string, domain2:string, appServices:IAppServices) =>
     ({data, tileName, tile, helpURL, issueReportingURL, maxTileHeight}:AttachTileArgs):void => {
-        const support = tile.supportsQueryType(queryType, lang1, lang2) && (!isMultiWordQuery || tile.supportsMultiWordQueries());
+        const support = tile.supportsQueryType(queryType, domain1, domain2) && (!isMultiWordQuery || tile.supportsMultiWordQueries());
         let reasonDisabled = undefined;
-        if (!tile.supportsQueryType(queryType, lang1, lang2)) {
+        if (!tile.supportsQueryType(queryType, domain1, domain2)) {
             reasonDisabled = appServices.translate('global__query_type_not_supported');
 
         } else if (isMultiWordQuery && !tile.supportsMultiWordQueries()) {
@@ -122,14 +122,14 @@ export function createRootComponent({config, userSession, queryMatches, appServi
     const formModel = mainFormFactory({
         dispatcher: dispatcher,
         appServices: appServices,
-        query1Lang: userSession.query1Lang || 'cs',
-        query2Lang: userSession.query2Lang || '',
+        query1Domain: userSession.query1Domain || 'cs',
+        query2Domain: userSession.query2Domain || '',
         queryType: qType,
         queryMatches: queryMatches,
         isAnswerMode: userSession.answerMode,
         uiLanguages: Object.keys(userSession.uiLanguages).map(k => ({code: k, label: userSession.uiLanguages[k]})),
 
-        searchLanguages: config.searchLanguages,
+        searchDomains: config.searchDomains,
         layout: layoutManager,
         maxCmpQueries: 10,
         maxQueryWords: config.maxQueryWords
@@ -143,8 +143,8 @@ export function createRootComponent({config, userSession, queryMatches, appServi
         theme,
         layoutManager,
         qType,
-        userSession.query1Lang,
-        userSession.query2Lang,
+        userSession.query1Domain,
+        userSession.query2Domain,
         tilesMap,
         cache
     );
@@ -153,8 +153,8 @@ export function createRootComponent({config, userSession, queryMatches, appServi
     const attachTile = mkAttachTile(
         qType,
         isMultiWordQuery,
-        userSession.query1Lang,
-        userSession.query2Lang,
+        userSession.query1Domain,
+        userSession.query2Domain,
         appServices
     );
     const retryLoadModel = new RetryTileLoad(dispatcher);

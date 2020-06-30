@@ -84,7 +84,7 @@ export interface IAppServices extends IApiServices {
 export interface AppServicesArgs {
     notifications:SystemNotifications;
     uiLang:string;
-    searchLanguages:Array<[string, string]>;
+    languageNames:Array<[string, string]>;
     translator:ITranslator;
     staticUrlCreator:(path:string)=>string;
     actionUrlCreator:(path: string)=>string;
@@ -122,11 +122,11 @@ export class AppServices implements IAppServices {
 
     private readonly languageNames:{[k:string]:string};
 
-    constructor({notifications, uiLang, searchLanguages: searchedLanguages, translator, staticUrlCreator, actionUrlCreator, dataReadability,
+    constructor({notifications, uiLang, languageNames, translator, staticUrlCreator, actionUrlCreator, dataReadability,
             apiHeadersMapping, mobileModeTest}:AppServicesArgs) {
         this.notifications = notifications;
         this.uiLang = uiLang;
-        this.languageNames = Dict.fromEntries(searchedLanguages);
+        this.languageNames = Dict.fromEntries(languageNames);
         this.translator = translator;
         this.staticUrlCreator = staticUrlCreator;
         this.actionUrlCreator = actionUrlCreator;

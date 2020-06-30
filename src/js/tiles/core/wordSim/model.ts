@@ -35,7 +35,7 @@ export interface WordSimModelArgs {
     initState:WordSimModelState;
     tileId:number;
     api:IWordSimApi<{}>;
-    queryLang:string;
+    queryDomain:string;
 }
 
 
@@ -45,13 +45,13 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
 
     private readonly api:IWordSimApi<{}>;
 
-    private readonly queryLang:string;
+    private readonly queryDomain:string;
 
-    constructor({dispatcher, initState, tileId, api, queryLang}:WordSimModelArgs) {
+    constructor({dispatcher, initState, tileId, api, queryDomain}:WordSimModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.api = api;
-        this.queryLang = queryLang;
+        this.queryDomain = queryDomain;
 
         this.addActionHandler<GlobalActions.SubqItemHighlighted>(
             GlobalActionName.SubqItemHighlighted,
@@ -141,7 +141,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
             (state, action) => {},
             (state, action, seDispatch) => {
                 if (action.payload['tileId'] === this.tileId) {
-                    this.api.getSourceDescription(this.tileId, this.queryLang, state.corpus).subscribe(
+                    this.api.getSourceDescription(this.tileId, this.queryDomain, state.corpus).subscribe(
                         (data) => {
                             seDispatch({
                                 name: GlobalActionName.GetSourceInfoDone,
@@ -201,8 +201,8 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                             }),
                             data.words
                         ),
-                        lang1: null,
-                        lang2: null,
+                        domain1: null,
+                        domain2: null,
                         isEmpty: data.words.length === 0
                     }
                 });
@@ -216,8 +216,8 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                         queryId: null,
                         words: [],
                         subqueries: [],
-                        lang1: null,
-                        lang2: null,
+                        domain1: null,
+                        domain2: null,
                         isEmpty: true
                     },
                     error: err

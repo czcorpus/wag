@@ -124,7 +124,7 @@ export class LayoutManager {
         this.layoutTranslat = {
             ...importLayout(layouts.translat, tileMap, appServices),
             translatTargetLanguages: (layouts.translat ?
-                    layouts.translat.targetLanguages : []).map(c => [c, appServices.getLanguageName(c)])
+                    layouts.translat.targetDomains : []).map(c => [c, appServices.getLanguageName(c)])
         };
         this.validateLayouts();
         this.queryTypes = [
@@ -177,7 +177,7 @@ export class LayoutManager {
         }
     }
 
-    getTargetLanguages():{[k in QueryType]:Array<[string, string]>} {
+    getTargetDomains():{[k in QueryType]:Array<[string, string]>} {
         return Dict.fromEntries([
             [QueryType.SINGLE_QUERY, []],
             [QueryType.CMP_QUERY, []],

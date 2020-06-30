@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { HTTPHeaders, LocalizedConfMsg } from '../types';
-import { QueryType, SearchLanguage } from '../query/index';
+import { QueryType, SearchDomain } from '../query/index';
 import { TileConf } from '../page/tile';
 import { CSSProperties } from 'react';
 import { List, pipe } from 'cnc-tskit';
@@ -40,8 +40,8 @@ export interface UserConf {
     uiLang:string;
     queries:Array<UserQuery>;
     queryType:QueryType;
-	query1Lang:string;
-    query2Lang:string;
+	query1Domain:string;
+    query2Domain:string;
     answerMode:boolean;
     error?:[number, string]; // server error (e.g. bad request)
 }
@@ -52,8 +52,8 @@ export function errorUserConf(uiLanguages:{[code:string]:string}, error:[number,
         uiLang: uiLang,
         queries: [],
         queryType: QueryType.SINGLE_QUERY,
-        query1Lang: '',
-        query2Lang: '',
+        query1Domain: '',
+        query2Domain: '',
         answerMode: false, // ??
         error: error
     };
@@ -104,7 +104,7 @@ export interface LayoutConfigCmpQuery extends LayoutConfigCommon {}
 
 
 export interface LayoutConfigTranslatQuery extends LayoutConfigCommon {
-    targetLanguages:Array<string>;
+    targetDomains:Array<string>;
 }
 
 export interface LayoutsConfig {
@@ -163,7 +163,7 @@ export interface ClientStaticConf {
     maxTileErrors:number;
     homepage:HomepageConfI18n;
     colors?:ColorsConf|string;
-    searchLanguages:{[code:string]:string};
+    searchDomains:{[domain:string]:string};
 
     // A list of URLs used to style specific content (e.g. HTML tiles)
     externalStyles?:Array<string>;
@@ -174,7 +174,7 @@ export interface ClientStaticConf {
 
     // If string we expect this to be a fs path to another
     // JSON file containing just the 'layout' configuration.
-    layouts:LanguageLayoutsConfig|string;
+    layouts:DomainLayoutsConfig|string;
 
     telemetry?:{
         sendIntervalSecs:number;
@@ -186,9 +186,9 @@ export interface ClientStaticConf {
  * These types are necessary to create config schemata
  * using Makefile for tiles and layouts only
  */
-export interface LanguageLayoutsConfig {[lang:string]:LayoutsConfig};
+export interface DomainLayoutsConfig {[domain:string]:LayoutsConfig};
 
-export interface LanguageAnyTileConf {[lang:string]:{[ident:string]:TileConf}};
+export interface DomainAnyTileConf {[domain:string]:{[ident:string]:TileConf}};
 
 export interface TileDbConf {
     server:string; // e.g. http://foo:5984
@@ -198,11 +198,11 @@ export interface TileDbConf {
     password:string; // please do not use admin credentials for this
 }
 
-export function isTileDBConf(tiles: TileDbConf|LanguageAnyTileConf):tiles is TileDbConf {
+export function isTileDBConf(tiles: TileDbConf|DomainAnyTileConf):tiles is TileDbConf {
     return (tiles as TileDbConf).server !== undefined;
 }
 
-type MultiSourceTileConf = LanguageAnyTileConf|string|TileDbConf;
+type MultiSourceTileConf = DomainAnyTileConf|string|TileDbConf;
 
 
 export interface HomepageTileConf {
@@ -231,7 +231,7 @@ export interface ClientConf {
     homepage:{tiles:Array<HomepageTileConf>};
     tiles:{[ident:string]:TileConf};
     layouts:LayoutsConfig;
-    searchLanguages:Array<SearchLanguage>;
+    searchDomains:Array<SearchDomain>;
     externalStyles:Array<string>;
     maxTileErrors:number;
     error?:Error;
@@ -252,7 +252,7 @@ export function emptyLayoutConf():LayoutsConfig {
         },
         translat: {
             groups: [],
-            targetLanguages: []
+            targetDomains: []
         }
     };
 }
@@ -306,9 +306,9 @@ export function emptyClientConf(conf:ClientStaticConf, themeId:string|undefined)
         homepage: {
             tiles: []
         },
-        searchLanguages: Object.keys(conf.searchLanguages).map(k => ({
+        searchDomains: Object.keys(conf.searchDomains).map(k => ({
             code: k,
-            label: conf.searchLanguages[k],
+            label: conf.searchDomains[k],
             queryTypes: []
         })),
         externalStyles: [],
@@ -317,11 +317,11 @@ export function emptyClientConf(conf:ClientStaticConf, themeId:string|undefined)
     };
 }
 
-export function getSupportedQueryTypes(conf:ClientStaticConf, lang:string):Array<QueryType> {
+export function getSupportedQueryTypes(conf:ClientStaticConf, domain:string):Array<QueryType> {
     if (typeof conf.layouts === 'string') {
         return [];
     }
-    const layout = conf.layouts[lang] || emptyLayoutConf();
+    const layout = conf.layouts[domain] || emptyLayoutConf();
     const ans:Array<QueryType> = [];
     if (layout.single && Array.isArray(layout.single.groups) && layout.single.groups.length > 0) {
         ans.push(QueryType.SINGLE_QUERY);
@@ -376,7 +376,7 @@ export interface FreqDbConf {
 export interface QueryModeWordDb {
     maxQueryWords:number;
     minLemmaFreq:number;
-    databases:{[lang:string]:FreqDbConf};
+    databases:{[domain:string]:FreqDbConf};
 };
 
 export interface SingleModeWordDb extends QueryModeWordDb {

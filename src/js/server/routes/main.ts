@@ -40,7 +40,7 @@ import { fetchReqArgArray, createHelperServices, mkPageReturnUrl, logRequest, re
 import { maxQueryWordsForQueryType } from '../../conf/validation';
 
 
-function mkRuntimeClientConf(conf:ClientStaticConf, serverConf:ServerConf, lang:string, themeId:string, appServices:IAppServices):Observable<ClientConf> {
+function mkRuntimeClientConf(conf:ClientStaticConf, serverConf:ServerConf, domain:string, themeId:string, appServices:IAppServices):Observable<ClientConf> {
     return forkJoin(...List.map(item =>
         appServices.importExternalText(
             item.contents,
@@ -85,16 +85,16 @@ function mkRuntimeClientConf(conf:ClientStaticConf, serverConf:ServerConf, lang:
                 tiles: (typeof conf.tiles === 'string' || isTileDBConf(conf.tiles)) ?
                     {} : // this should not happen at runtime (string or db config has been already used as uri to load a nested conf)
                     pipe(
-                        conf.tiles[lang],
+                        conf.tiles[domain],
                         Dict.map(item => ({waitForTimeoutSecs: DEFAULT_WAIT_FOR_OTHER_TILES, ...item}))
                     ),
-                layouts: {...emptyLayoutConf(), ...conf.layouts[lang]},
-                searchLanguages: pipe(
-                    conf.searchLanguages,
+                layouts: {...emptyLayoutConf(), ...conf.layouts[domain]},
+                searchDomains: pipe(
+                    conf.searchDomains,
                     Dict.keys(),
                     List.map(k => ({
                         code: k,
-                        label: conf.searchLanguages[k],
+                        label: conf.searchDomains[k],
                         queryTypes: getSupportedQueryTypes(conf, k)
                     }))
                 ),
@@ -133,7 +133,7 @@ export function importQueryRequest({services, appServices, req, queryType, uiLan
     return new Observable<UserConf>(observer => {
         try {
             const queries = fetchUrlParamArray(req, 'query', queryType === QueryType.CMP_QUERY ? 2 : 1);
-            const queryLang = fetchUrlParamArray(req, 'lang', queryType === QueryType.TRANSLAT_QUERY ? 2 : 1);
+            const queryDomain = fetchUrlParamArray(req, 'domain', queryType === QueryType.TRANSLAT_QUERY ? 2 : 1);
             const layouts = services.clientConf.layouts;
             if (answerMode && typeof layouts !== 'string') { // the type check is always true here (bad type design...)
                 const maxQueryWords = maxQueryWordsForQueryType(services.serverConf, queryType);
@@ -151,8 +151,8 @@ export function importQueryRequest({services, appServices, req, queryType, uiLan
             const userConfNorm:UserConf = {
                 uiLang: uiLang,
                 uiLanguages: services.serverConf.languages,
-                query1Lang: queryLang[0] ? queryLang[0] : 'cs', // TODO default
-                query2Lang: queryLang[1] ? queryLang[1] : 'en', // TODO default
+                query1Domain: queryDomain[0] ? queryDomain[0] : 'cs', // TODO default
+                query2Domain: queryDomain[1] ? queryDomain[1] : 'en', // TODO default
                 queryType: queryType,
                 queries: compileQueries(
                     queries,
@@ -198,8 +198,8 @@ export function queryAction({services, answerMode, queryType, uiLang, req, res, 
             viewUtils: rxOf(viewUtils),
             userConf: new Observable<UserConf>(
                 (observer) => {
-                    if (userConf.queryType === QueryType.TRANSLAT_QUERY && userConf.query1Lang === userConf.query2Lang) {
-                        userConf.error = [400, appServices.translate('global__src_and_dst_langs_must_be_different')];
+                    if (userConf.queryType === QueryType.TRANSLAT_QUERY && userConf.query1Domain === userConf.query2Domain) {
+                        userConf.error = [400, appServices.translate('global__src_and_dst_domains_must_be_different')];
                     }
                     observer.next(userConf);
                     observer.complete();
@@ -209,7 +209,7 @@ export function queryAction({services, answerMode, queryType, uiLang, req, res, 
             runtimeConf: mkRuntimeClientConf(
                 services.clientConf,
                 services.serverConf,
-                userConf.query1Lang,
+                userConf.query1Domain,
                 req.cookies[THEME_COOKIE_NAME] || '',
                 appServices
             ),
@@ -227,7 +227,7 @@ export function queryAction({services, answerMode, queryType, uiLang, req, res, 
             qMatchesEachQuery: rxOf(...List.map(
                     query => answerMode ?
                         services.db
-                            .getDatabase(userConf.queryType, userConf.query1Lang)
+                            .getDatabase(userConf.queryType, userConf.query1Domain)
                             .findQueryMatches(
                                 appServices,
                                 query.word,
