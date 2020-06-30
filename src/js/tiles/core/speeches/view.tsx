@@ -159,6 +159,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const LoadNext:React.SFC<{
         tileId:number;
+        active:boolean;
 
     }> = (props) => {
 
@@ -172,8 +173,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         };
 
         return (
-            <a onClick={handleClick} title={ut.translate('speeches__load_different_sp_button')}>
-                <img src={ut.createStaticUrl('next.svg')} style={{width: '1.8em'}} alt={ut.translate('speeches__load_different_sp_button')} />
+            <a style={props.active ? null : {pointerEvents: 'none', cursor: 'default'}} onClick={handleClick} title={ut.translate('speeches__load_different_sp_button')}>
+                <img src={ut.createStaticUrl(props.active ? 'next.svg' : 'next_grey.svg')} style={{width: '1.8em'}} alt={ut.translate('speeches__load_different_sp_button')} />
             </a>
         );
     };
@@ -216,6 +217,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         hasExpandLeft:boolean;
         hasExpandRight:boolean;
         playingLineIdx:number;
+        availTokens:number[];
 
     }> = (props) => {
         const renderSpeechLines = () => {
@@ -248,7 +250,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 <div className="navig">
                     <div className="next">
                             {props.isTweakMode ?
-                                <LoadNext tileId={props.tileId} /> : null}
+                                <LoadNext tileId={props.tileId} active={props.availTokens.length > 1} /> : null}
                     </div>
                 </div>
                 <div className="play-all">
@@ -278,7 +280,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                        <SpeechView data={this.props.data} hasExpandLeft={!!List.get(-1, this.props.expandLeftArgs)}
                                 hasExpandRight={!!List.get(-1, this.props.expandRightArgs)}
                                 tileId={this.props.tileId} isTweakMode={this.props.isTweakMode}
-                                playingLineIdx={this.props.playback ? this.props.playback.currLineIdx : -1} />
+                                playingLineIdx={this.props.playback ? this.props.playback.currLineIdx : -1}
+                                availTokens={this.props.availTokens} />
                     </div>
                 </globComponents.TileWrapper>
             );
