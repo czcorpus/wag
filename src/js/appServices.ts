@@ -44,7 +44,7 @@ export interface IAppServices extends IApiServices {
 
     translate(key:string, args?:{[key: string]:string|number;}):string;
 
-    getLanguageName(langCode:string):string;
+    getDomainName(langCode:string):string;
 
     importExternalMessage(label:string|{[lang:string]:string}):string;
 
@@ -84,7 +84,7 @@ export interface IAppServices extends IApiServices {
 export interface AppServicesArgs {
     notifications:SystemNotifications;
     uiLang:string;
-    languageNames:Array<[string, string]>;
+    domainNames:Array<[string, string]>;
     translator:ITranslator;
     staticUrlCreator:(path:string)=>string;
     actionUrlCreator:(path: string)=>string;
@@ -120,13 +120,13 @@ export class AppServices implements IAppServices {
 
     private readonly audioPlayer:AudioPlayer;
 
-    private readonly languageNames:{[k:string]:string};
+    private readonly domainNames:{[k:string]:string};
 
-    constructor({notifications, uiLang, languageNames, translator, staticUrlCreator, actionUrlCreator, dataReadability,
+    constructor({notifications, uiLang, domainNames, translator, staticUrlCreator, actionUrlCreator, dataReadability,
             apiHeadersMapping, mobileModeTest}:AppServicesArgs) {
         this.notifications = notifications;
         this.uiLang = uiLang;
-        this.languageNames = Dict.fromEntries(languageNames);
+        this.domainNames = Dict.fromEntries(domainNames);
         this.translator = translator;
         this.staticUrlCreator = staticUrlCreator;
         this.actionUrlCreator = actionUrlCreator;
@@ -146,8 +146,8 @@ export class AppServices implements IAppServices {
         return this.translator.translate(key, args);
     }
 
-    getLanguageName(langCode:string):string {
-        return Dict.get(langCode.split('-')[0], '??', this.languageNames);
+    getDomainName(langCode:string):string {
+        return Dict.get(langCode.split('-')[0], '??', this.domainNames);
     }
 
     private importText<T>(label:string|{[lang:string]:T}):string|T {

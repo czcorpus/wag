@@ -124,7 +124,7 @@ export class LayoutManager {
         this.layoutTranslat = {
             ...importLayout(layouts.translat, tileMap, appServices),
             translatTargetLanguages: (layouts.translat ?
-                    layouts.translat.targetDomains : []).map(c => [c, appServices.getLanguageName(c)])
+                    layouts.translat.targetDomains : []).map(c => [c, appServices.getDomainName(c)])
         };
         this.validateLayouts();
         this.queryTypes = [
