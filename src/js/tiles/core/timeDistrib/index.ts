@@ -67,7 +67,7 @@ export class TimeDistTile implements ITileProvider {
     private readonly blockingTiles:Array<number>;
 
     constructor({dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, ut, theme, appServices, widthFract, queryMatches,
-            lang1, conf, isBusy, cache}:TileFactory.Args<TimeDistTileConf>) {
+            domain1, conf, isBusy, cache}:TileFactory.Args<TimeDistTileConf>) {
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
@@ -132,7 +132,7 @@ export class TimeDistTile implements ITileProvider {
             apiFactory,
             appServices: appServices,
             queryMatches,
-            queryLang: lang1,
+            queryDomain: domain1,
             backlink: conf.backlink
         });
         this.label = appServices.importExternalMessage(conf.label || 'timeDistrib__main_label');
@@ -155,7 +155,7 @@ export class TimeDistTile implements ITileProvider {
         return this.label;
     }
 
-    supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {
+    supportsQueryType(qt:QueryType, domain1:string, domain2?:string):boolean {
         return qt === QueryType.SINGLE_QUERY || qt === QueryType.TRANSLAT_QUERY;
     }
 

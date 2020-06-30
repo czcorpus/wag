@@ -171,7 +171,7 @@ export function initClient(mountElement:HTMLElement, config:ClientConf, userSess
     const appServices = new AppServices({
         notifications: notifications,
         uiLang: userSession.uiLang,
-        searchLanguages: config.searchLanguages.map(v => [v.code, v.label]),
+        languageNames: config.searchDomains.map(v => [v.code, v.label]),
         translator: viewUtils,
         staticUrlCreator: viewUtils.createStaticUrl,
         actionUrlCreator: viewUtils.createActionUrl,

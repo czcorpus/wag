@@ -74,7 +74,7 @@ export class ConcFilterTile implements ITileProvider {
     private readonly blockingTiles:Array<number>;
 
     constructor({tileId, waitForTiles, waitForTilesTimeoutSecs, subqSourceTiles, dispatcher, appServices, ut, widthFract,
-            conf, theme, isBusy, cache, lang2, queryMatches}:TileFactory.Args<ConcFilterTileConf>) {
+            conf, theme, isBusy, cache, domain2, queryMatches}:TileFactory.Args<ConcFilterTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.widthFract = widthFract;
@@ -99,7 +99,7 @@ export class ConcFilterTile implements ITileProvider {
                 isMobile: appServices.isMobileMode(),
                 widthFract: widthFract,
                 corpName: conf.corpname,
-                otherCorpname: conf.parallelLangMapping ? conf.parallelLangMapping[lang2] : null,
+                otherCorpname: conf.parallelLangMapping ? conf.parallelLangMapping[domain2] : null,
                 posAttrs: conf.posAttrs,
                 lines: [],
                 concPersistenceIds: [],
@@ -130,7 +130,7 @@ export class ConcFilterTile implements ITileProvider {
         return null;
     }
 
-    supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {
+    supportsQueryType(qt:QueryType, domain1:string, domain2?:string):boolean {
         return qt === QueryType.SINGLE_QUERY || qt === QueryType.TRANSLAT_QUERY;
     }
 

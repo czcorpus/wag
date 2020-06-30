@@ -74,7 +74,7 @@ export interface WordFormsModelArgs {
     tileId:number;
     api:IWordFormsApi;
     queryMatches:RecognizedQueries;
-    queryLang:string;
+    queryDomain:string;
     waitForTile:number|null;
     waitForTilesTimeoutSecs:number;
     appServices:IAppServices;
@@ -89,7 +89,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
 
     private readonly queryMatches:RecognizedQueries;
 
-    private readonly queryLang:string;
+    private readonly queryDomain:string;
 
     private readonly waitForTile:number|null;
 
@@ -97,13 +97,13 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
 
     private readonly appServices:IAppServices;
 
-    constructor({dispatcher, initialState, tileId, api, queryMatches, queryLang, waitForTile,
+    constructor({dispatcher, initialState, tileId, api, queryMatches, queryDomain, waitForTile,
             waitForTilesTimeoutSecs, appServices}:WordFormsModelArgs) {
         super(dispatcher, initialState);
         this.tileId = tileId;
         this.api = api;
         this.queryMatches = queryMatches;
-        this.queryLang = queryLang;
+        this.queryDomain = queryDomain;
         this.waitForTile = waitForTile;
         this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.appServices = appServices;
@@ -151,8 +151,8 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                                             isEmpty: true,
                                             data: [],
                                             subqueries: [],
-                                            lang1: null,
-                                            lang2: null
+                                            domain1: null,
+                                            domain2: null
                                         }
                                     });
 
@@ -177,7 +177,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                     const variant = findCurrQueryMatch(this.queryMatches[0]);
                     this.fetchWordForms(
                         {
-                            lang: this.queryLang,
+                            domain: this.queryDomain,
                             lemma: variant.lemma,
                             pos: List.map(v => v.value, variant.pos)
                         },
@@ -215,7 +215,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
             (state, action) => {},
             (state, action, seDispatch) => {
                 if (action.payload['tileId'] === this.tileId) {
-                    this.api.getSourceDescription(this.tileId,  this.queryLang, state.corpname).subscribe(
+                    this.api.getSourceDescription(this.tileId,  this.queryDomain, state.corpname).subscribe(
                         (data) => {
                             seDispatch({
                                 name: GlobalActionName.GetSourceInfoDone,
@@ -278,8 +278,8 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                             }),
                             data.forms
                         ),
-                        lang1: null,
-                        lang2: null
+                        domain1: null,
+                        domain2: null
                     }
                 });
             },
@@ -294,8 +294,8 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                         isEmpty: true,
                         data: [],
                         subqueries: [],
-                        lang1: null,
-                        lang2: null
+                        domain1: null,
+                        domain2: null
                     }
                 });
             }

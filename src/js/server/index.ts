@@ -30,7 +30,7 @@ import { Ident, tuple } from 'cnc-tskit';
 import 'winston-daily-rotate-file';
 import * as sessionFileStore from 'session-file-store';
 
-import { ClientStaticConf, ServerConf, LanguageLayoutsConfig, LanguageAnyTileConf, isTileDBConf, ColorsConf, DataReadabilityMapping, CommonTextStructures } from '../conf';
+import { ClientStaticConf, ServerConf, DomainLayoutsConfig, DomainAnyTileConf, isTileDBConf, ColorsConf, DataReadabilityMapping, CommonTextStructures } from '../conf';
 import { validateTilesConf } from '../conf/validation';
 import { parseJsonConfig, loadRemoteTileConf } from '../conf/loader';
 import { wdgRouter } from './routes/index';
@@ -40,13 +40,13 @@ import { PackageInfo } from '../types';
 import { createQueryLogInstance } from './queryLog/factory';
 
 
-function loadTilesConf(clientConf:ClientStaticConf):Observable<LanguageAnyTileConf> {
+function loadTilesConf(clientConf:ClientStaticConf):Observable<DomainAnyTileConf> {
     if (typeof clientConf.tiles === 'string') {
         return parseJsonConfig(clientConf.tiles);
 
     } else if (isTileDBConf(clientConf.tiles)) {
         return loadRemoteTileConf(
-            clientConf.layouts as LanguageLayoutsConfig,
+            clientConf.layouts as DomainLayoutsConfig,
             clientConf.tiles
         );
 
@@ -81,10 +81,10 @@ forkJoin( // load core configs
 ).pipe(
     concatMap( // load layouts config
         ([serverConf, clientConf, pkgInfo]) => (typeof clientConf.layouts === 'string' ?
-            parseJsonConfig<LanguageLayoutsConfig>(clientConf.layouts) :
+            parseJsonConfig<DomainLayoutsConfig>(clientConf.layouts) :
             rxOf(clientConf.layouts)
         ).pipe(
-            map<LanguageLayoutsConfig, [ServerConf, ClientStaticConf, PackageInfo]>(
+            map<DomainLayoutsConfig, [ServerConf, ClientStaticConf, PackageInfo]>(
                 (layoutsExp) => {
                     clientConf.layouts = layoutsExp;
                     return [serverConf, clientConf, pkgInfo];
@@ -109,7 +109,7 @@ forkJoin( // load core configs
             ),
             tap( // validate tiles
                 ([,clientConf,]) => {
-                    if (!validateTilesConf(clientConf.tiles as LanguageAnyTileConf)) {
+                    if (!validateTilesConf(clientConf.tiles as DomainAnyTileConf)) {
                         throw Error('\uD83D\uDC4E Invalid tile config found!');
                     }
                 }

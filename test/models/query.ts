@@ -43,14 +43,14 @@ describe('QueryFormModel', function () {
                 appServices,
                 {
                     initialQueryType: QueryType.SINGLE_QUERY,
-                    queryLanguage: 'cs',
-                    queryLanguage2: 'en',
-                    searchLanguages: [{
+                    queryDomain: 'cs',
+                    queryDomain2: 'en',
+                    searchDomains: [{
                         code: 'en',
                         label: 'English',
                         queryTypes: [QueryType.SINGLE_QUERY]
                     }],
-                    targetLanguages: {
+                    targetDomains: {
                         [QueryType.SINGLE_QUERY]: [],
                         [QueryType.CMP_QUERY]: [],
                         [QueryType.TRANSLAT_QUERY]: []
@@ -90,15 +90,15 @@ describe('QueryFormModel', function () {
         restore();
     });
 
-    describe('language change', function () {
-        it('changes target language', function (done) {
-            setupModel({queryLanguage: 'cs', queryLanguage2: 'en'})
+    describe('domain change', function () {
+        it('changes target domain', function (done) {
+            setupModel({queryDomain: 'cs', queryDomain2: 'en'})
             .checkState(
-                {name: ActionName.ChangeTargetLanguage, payload: {lang1: 'sk', lang2: 'pl', queryType: QueryType.SINGLE_QUERY}},
-                ActionName.ChangeTargetLanguage,
+                {name: ActionName.ChangeTargetDomain, payload: {domain1: 'sk', domain2: 'pl', queryType: QueryType.SINGLE_QUERY}},
+                ActionName.ChangeTargetDomain,
                 state => {
-                    assert.equal(state.queryLanguage, 'sk');
-                    assert.equal(state.queryLanguage2, 'pl');
+                    assert.equal(state.queryDomain, 'sk');
+                    assert.equal(state.queryDomain2, 'pl');
                     assert.equal(window.location.href, '')
                     done();
                 }
@@ -106,13 +106,13 @@ describe('QueryFormModel', function () {
         });
 
         it('submits query if in translate query type and answer mode', function (done) {
-            setupModel({queryLanguage: 'cs', queryLanguage2: 'en', isAnswerMode: true})
+            setupModel({queryDomain: 'cs', queryDomain2: 'en', isAnswerMode: true})
             .checkState(
-                {name: ActionName.ChangeTargetLanguage, payload: {lang1: 'cs', lang2: 'pl', queryType: QueryType.TRANSLAT_QUERY}},
-                ActionName.ChangeTargetLanguage,
+                {name: ActionName.ChangeTargetDomain, payload: {domain1: 'cs', domain2: 'pl', queryType: QueryType.TRANSLAT_QUERY}},
+                ActionName.ChangeTargetDomain,
                 state => {
-                    assert.equal(state.queryLanguage, 'cs');
-                    assert.equal(state.queryLanguage2, 'pl');
+                    assert.equal(state.queryDomain, 'cs');
+                    assert.equal(state.queryDomain2, 'pl');
                     assert.equal(window.location.href, 'query submitted');
                     assert.lengthOf(state.errors, 0);
                     done();
@@ -270,8 +270,8 @@ describe('QueryFormModel', function () {
                     );
                 });
 
-                it('has identical languages (translat)', function (done) {
-                    setupModel({queryType: QueryType.TRANSLAT_QUERY, queryLanguage: 'cs', queryLanguage2: 'cs'})
+                it('has identical domains (translat)', function (done) {
+                    setupModel({queryType: QueryType.TRANSLAT_QUERY, queryDomain: 'cs', queryDomain2: 'cs'})
                     .checkState(
                         {name: ActionName.SubmitQuery},
                         ActionName.SubmitQuery,

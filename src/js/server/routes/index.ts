@@ -173,12 +173,12 @@ export const wdgRouter = (services:Services) => (app:Express) => {
 
     app.get(HTTPAction.GET_LEMMAS, (req, res, next) => {
         const [,appServices] = createHelperServices(services, getLangFromCookie(req, services));
-        const queryLang = getQueryValue(req, 'lang')[0];
+        const queryDomain = getQueryValue(req, 'domain')[0];
         new Observable<IFreqDB>((observer) => {
-            const db = services.db.getDatabase(QueryType.SINGLE_QUERY, queryLang);
+            const db = services.db.getDatabase(QueryType.SINGLE_QUERY, queryDomain);
             if (db === undefined) {
                 observer.error(
-                    new ServerHTTPRequestError(HTTP.Status.BadRequest, `Frequency database for [${queryLang}] not defined`));
+                    new ServerHTTPRequestError(HTTP.Status.BadRequest, `Frequency database for [${queryDomain}] not defined`));
 
             } else {
                 observer.next(db);
@@ -234,7 +234,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         }
     });
 
-    app.get(`${HTTPAction.SEARCH}:lang/:query`, (req, res, next) => {
+    app.get(`${HTTPAction.SEARCH}:domain/:query`, (req, res, next) => {
         let uiLang = getLangFromCookie(req, services);
         const langOverride = getQueryValue(req, 'uiLang');
 
@@ -279,7 +279,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         queryAction({services, answerMode: true, queryType: QueryType.SINGLE_QUERY, uiLang, req, res, next});
     });
 
-    app.get(`/embedded${HTTPAction.SEARCH}:lang/:query`, (req, res, next) => {
+    app.get(`/embedded${HTTPAction.SEARCH}:domain/:query`, (req, res, next) => {
         const uiLang = getLangFromCookie(req, services);
         const [,appServices] = createHelperServices(services, uiLang);
         importQueryRequest({
@@ -289,7 +289,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             (conf) => {
                 res.setHeader('Content-Type', 'application/json');
                 res.send(JSON.stringify({
-                    resultURL: appServices.createActionUrl(`${HTTPAction.SEARCH}${conf.query1Lang}/${conf.queries[0].word}`),
+                    resultURL: appServices.createActionUrl(`${HTTPAction.SEARCH}${conf.query1Domain}/${conf.queries[0].word}`),
                     error: null
                 }));
             },
@@ -303,12 +303,12 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         )
     });
 
-    app.get(`${HTTPAction.COMPARE}:lang/:query`, (req, res, next) => {
+    app.get(`${HTTPAction.COMPARE}:domain/:query`, (req, res, next) => {
         const uiLang = getLangFromCookie(req, services);
         queryAction({services, answerMode: true, queryType: QueryType.CMP_QUERY, uiLang, req, res, next});
     });
 
-    app.get(`${HTTPAction.TRANSLATE}:lang/:query`, (req, res, next) => {
+    app.get(`${HTTPAction.TRANSLATE}:domain/:query`, (req, res, next) => {
         const uiLang = getLangFromCookie(req, services);
         queryAction({services, answerMode: true, queryType: QueryType.TRANSLAT_QUERY, uiLang, req, res, next});
     });
@@ -329,10 +329,10 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         const appServices = new AppServices({
             notifications: null, // TODO
             uiLang: uiLang,
-            searchLanguages: pipe(
-                services.clientConf.searchLanguages,
+            languageNames: pipe(
+                services.clientConf.searchDomains,
                 Dict.keys(),
-                List.map(k => tuple(k, services.clientConf.searchLanguages[k]))
+                List.map(k => tuple(k, services.clientConf.searchDomains[k]))
             ),
             translator: viewUtils,
             staticUrlCreator: viewUtils.createStaticUrl,
@@ -341,20 +341,20 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             apiHeadersMapping: services.clientConf.apiHeaders || {},
             mobileModeTest: ()=>false
         });
-        const queryLang = getQueryValue(req, 'lang')[0];
+        const queryDomain = getQueryValue(req, 'domain')[0];
 
-        new Observable<{lang:string; word:string; lemma:string; pos:Array<string>; rng:number}>((observer) => {
+        new Observable<{domain:string; word:string; lemma:string; pos:Array<string>; rng:number}>((observer) => {
             if (isNaN(parseInt(getQueryValue(req, 'srchRange')[0]))) {
                 observer.error(
                     new ServerHTTPRequestError(HTTP.Status.BadRequest, `Invalid range provided, srchRange = ${req.query.srchRange}`));
 
-            } else if (services.db.getDatabase(QueryType.SINGLE_QUERY, queryLang) === undefined) {
+            } else if (services.db.getDatabase(QueryType.SINGLE_QUERY, queryDomain) === undefined) {
                 observer.error(
-                    new ServerHTTPRequestError(HTTP.Status.BadRequest, `Frequency database for [${queryLang}] not defined`));
+                    new ServerHTTPRequestError(HTTP.Status.BadRequest, `Frequency database for [${queryDomain}] not defined`));
 
             } else {
                 observer.next({
-                    lang: getQueryValue(req, 'lang')[0],
+                    domain: getQueryValue(req, 'domain')[0],
                     word: getQueryValue(req, 'word')[0],
                     lemma: getQueryValue(req, 'lemma')[0],
                     pos: List.map(v => importQueryPos(v), pos),
@@ -370,7 +370,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         }).pipe(
             concatMap(
                 (data) => services.db
-                    .getDatabase(QueryType.SINGLE_QUERY, data.lang)
+                    .getDatabase(QueryType.SINGLE_QUERY, data.domain)
                     .getSimilarFreqWords(
                         appServices,
                         data.lemma,
@@ -409,10 +409,10 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         const appServices = new AppServices({
             notifications: null, // TODO
             uiLang: uiLang,
-            searchLanguages: pipe(
-                services.clientConf.searchLanguages,
+            languageNames: pipe(
+                services.clientConf.searchDomains,
                 Dict.keys(),
-                List.map(k => [k, services.clientConf.searchLanguages[k]])
+                List.map(k => [k, services.clientConf.searchDomains[k]])
             ),
             translator: viewUtils,
             staticUrlCreator: viewUtils.createStaticUrl,
@@ -422,15 +422,15 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             mobileModeTest: ()=>false
         });
 
-        const freqDb = services.db.getDatabase(QueryType.SINGLE_QUERY, getQueryValue(req, 'lang')[0]);
+        const freqDb = services.db.getDatabase(QueryType.SINGLE_QUERY, getQueryValue(req, 'domain')[0]);
 
-        new Observable<{lang:string; word:string; lemma:string; pos:Array<string>}>((observer) => {
+        new Observable<{domain:string; word:string; lemma:string; pos:Array<string>}>((observer) => {
             if (freqDb === undefined) {
                 observer.error(
                     new ServerHTTPRequestError(HTTP.Status.BadRequest, `Frequency database for [${req.query.lang}] not defined`));
             }
             observer.next({
-                lang: getQueryValue(req, 'lang')[0],
+                domain: getQueryValue(req, 'domain')[0],
                 word: getQueryValue(req, 'word')[0],
                 lemma: getQueryValue(req, 'lemma')[0],
                 pos: List.map(v => importQueryPos(v), getQueryValue(req, 'pos'))
@@ -466,13 +466,13 @@ export const wdgRouter = (services:Services) => (app:Express) => {
     app.get(HTTPAction.SOURCE_INFO, (req, res) => {
         const uiLang = getLangFromCookie(req, services).split('-')[0];
         const queryType = importQueryTypeString(getQueryValue(req, 'queryType')[0], QueryType.SINGLE_QUERY);
-        const queryLang = getQueryValue(req, 'lang')[0];
+        const queryDomain = getQueryValue(req, 'domain')[0];
 
         new Observable<IFreqDB>((observer) => {
-            const db = services.db.getDatabase(queryType, queryLang);
+            const db = services.db.getDatabase(queryType, queryDomain);
             if (db === undefined) {
                 observer.error(
-                    new ServerHTTPRequestError(HTTP.Status.BadRequest, `Frequency database for [${queryLang}] not defined`));
+                    new ServerHTTPRequestError(HTTP.Status.BadRequest, `Frequency database for [${queryDomain}] not defined`));
 
             } else {
                 observer.next(db);

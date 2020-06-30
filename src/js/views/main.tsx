@@ -22,7 +22,7 @@ import { tap } from 'rxjs/operators';
 
 import { Forms } from '../page/forms';
 import { SystemMessageType, SourceDetails, isCorpusDetails } from '../types';
-import { QueryType, QueryMatch, QueryTypeMenuItem, SearchLanguage, RecognizedQueries } from '../query/index';
+import { QueryType, QueryMatch, QueryTypeMenuItem, SearchDomain, RecognizedQueries } from '../query/index';
 import { TileFrameProps } from '../page/tile';
 import { TileGroup } from '../page/layout';
 import { ActionName, Actions } from '../models/actions';
@@ -102,11 +102,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         );
     };
 
-    // ------------------ <QueryLangSelector /> ------------------------------
+    // ------------------ <QueryDomainSelector /> ------------------------------
 
-    const QueryLangSelector:React.SFC<{
+    const QueryDomainSelector:React.SFC<{
         value:string;
-        searchLanguages:Array<SearchLanguage>;
+        searchDomains:Array<SearchDomain>;
         htmlClass?:string;
         queryType:QueryType;
         onChange:(v:string)=>void;
@@ -117,20 +117,20 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
 
         return (
-            <select className={`QueryLangSelector${props.htmlClass ? ' ' + props.htmlClass : ''}`} onChange={changeHandler}
+            <select className={`QueryDomainSelector${props.htmlClass ? ' ' + props.htmlClass : ''}`} onChange={changeHandler}
                     value={props.value}
                     aria-label={ut.translate('global__aria_search_lang')}>
-                {props.searchLanguages.filter(v => v.queryTypes.indexOf(props.queryType) > -1).map(v =>
+                {props.searchDomains.filter(v => v.queryTypes.indexOf(props.queryType) > -1).map(v =>
                         <option key={v.code} value={v.code}>{v.label}</option>)}
             </select>
         );
     };
 
-    // ------------------ <QueryLang2Selector /> ------------------------------
+    // ------------------ <QueryDomain2Selector /> ------------------------------
 
-    const QueryLang2Selector:React.SFC<{
+    const QueryDomain2Selector:React.SFC<{
         value:string;
-        targetLanguages:Array<[string, string]>;
+        targetDomains:Array<[string, string]>;
         htmlClass?:string;
         queryType:QueryType;
         onChange:(v:string)=>void;
@@ -141,10 +141,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
 
         return (
-            <select className={`QueryLangSelector${props.htmlClass ? ' ' + props.htmlClass : ''}`} onChange={changeHandler}
+            <select className={`QueryDomainSelector${props.htmlClass ? ' ' + props.htmlClass : ''}`} onChange={changeHandler}
                     value={props.value}
                     aria-label={ut.translate('global__aria_search_lang')}>
-                {props.targetLanguages.map(v => <option key={v[0]} value={v[0]}>{v[1]}</option>)}
+                {props.targetDomains.map(v => <option key={v[0]} value={v[0]}>{v[1]}</option>)}
             </select>
         );
     };
@@ -289,10 +289,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         queries:Array<Forms.Input>;
         queryType:QueryType;
         wantsFocus:boolean;
-        queryLanguage:string;
-        queryLanguage2:string;
-        searchLanguages:Array<SearchLanguage>;
-        targetLanguages:Array<[string, string]>;
+        queryDomain:string;
+        queryDomain2:string;
+        searchDomains:Array<SearchDomain>;
+        targetDomains:Array<[string, string]>;
         maxCmpQueries:number;
         onEnterKey:()=>void;
 
@@ -308,12 +308,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             });
         };
 
-        const handleTargetLanguageChange = (primary:boolean) => (lang:string) => {
-            dispatcher.dispatch<Actions.ChangeTargetLanguage>({
-                name: ActionName.ChangeTargetLanguage,
+        const handleTargetDomainChange = (primary:boolean) => (domain:string) => {
+            dispatcher.dispatch<Actions.ChangeTargetDomain>({
+                name: ActionName.ChangeTargetDomain,
                 payload: {
-                    lang1: primary ? lang : props.queryLanguage,
-                    lang2: primary ? props.queryLanguage2 : lang,
+                    domain1: primary ? domain : props.queryDomain,
+                    domain2: primary ? props.queryDomain2 : domain,
                     queryType: props.queryType,
                     queries: props.queries.map(v => v.value)
                 }
@@ -326,8 +326,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             case QueryType.SINGLE_QUERY:
                 return (
                     <>
-                        <QueryLangSelector value={props.queryLanguage} searchLanguages={props.searchLanguages}
-                                onChange={handleTargetLanguageChange(true)} queryType={QueryType.SINGLE_QUERY} />
+                        <QueryDomainSelector value={props.queryDomain} searchDomains={props.searchDomains}
+                                onChange={handleTargetDomainChange(true)} queryType={QueryType.SINGLE_QUERY} />
                         <span className="input-row">
                             <QueryInput idx={0} value={props.queries[0]} onEnter={props.onEnterKey}
                                     onContentChange={handleQueryInput(0)} wantsFocus={props.wantsFocus}
@@ -339,8 +339,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 const focusOn = props.queries.findIndex((query, index) => query.value === '' || index === props.queries.length-1);
                 return (
                     <>
-                        <QueryLangSelector value={props.queryLanguage} searchLanguages={props.searchLanguages}
-                                onChange={handleTargetLanguageChange(true)} queryType={QueryType.CMP_QUERY} />
+                        <QueryDomainSelector value={props.queryDomain} searchDomains={props.searchDomains}
+                                onChange={handleTargetDomainChange(true)} queryType={QueryType.CMP_QUERY} />
                         <ul className="input-group">
                             {props.queries.map((query, queryIdx) => (
                                 <li className="input-row" key={`query:${queryIdx}`}>
@@ -356,12 +356,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             case QueryType.TRANSLAT_QUERY:
                 return (
                     <>
-                        <QueryLangSelector value={props.queryLanguage} searchLanguages={props.searchLanguages}
-                                onChange={handleTargetLanguageChange(true)} queryType={QueryType.TRANSLAT_QUERY} />
+                        <QueryDomainSelector value={props.queryDomain} searchDomains={props.searchDomains}
+                                onChange={handleTargetDomainChange(true)} queryType={QueryType.TRANSLAT_QUERY} />
                         <span className="arrow">{'\u25B6'}</span>
-                        <QueryLang2Selector value={props.queryLanguage2} targetLanguages={props.targetLanguages}
+                        <QueryDomain2Selector value={props.queryDomain2} targetDomains={props.targetDomains}
                                 htmlClass="secondary"
-                                onChange={handleTargetLanguageChange(false)} queryType={QueryType.TRANSLAT_QUERY} />
+                                onChange={handleTargetDomainChange(false)} queryType={QueryType.TRANSLAT_QUERY} />
                         <span className="input-row">
                             <QueryInput idx={0} value={props.queries[0]} onEnter={props.onEnterKey}
                                     onContentChange={handleQueryInput(0)} wantsFocus={props.wantsFocus}
@@ -540,8 +540,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 name: ActionName.ChangeQueryType,
                 payload: {
                     queryType: qt,
-                    lang1: this.props.queryLanguage,
-                    lang2: this.props.queryLanguage2,
+                    domain1: this.props.queryDomain,
+                    domain2: this.props.queryDomain2,
                     queries: this.props.queries.map(v => v.value),
                 }
             });
@@ -564,10 +564,10 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                     wantsFocus={!this.props.isAnswerMode || this.props.initialQueryType !== this.props.queryType}
                                     queries={this.props.queries}
                                     queryType={this.props.queryType}
-                                    queryLanguage={this.props.queryLanguage}
-                                    queryLanguage2={this.props.queryLanguage2}
-                                    searchLanguages={this.props.searchLanguages}
-                                    targetLanguages={this.props.targetLanguages[this.props.queryType]}
+                                    queryDomain={this.props.queryDomain}
+                                    queryDomain2={this.props.queryDomain2}
+                                    searchDomains={this.props.searchDomains}
+                                    targetDomains={this.props.targetDomains[this.props.queryType]}
                                     onEnterKey={this.handleSubmit}
                                     maxCmpQueries={this.props.maxCmpQueries} />
                             <SubmitButton onClick={this.handleSubmit} />

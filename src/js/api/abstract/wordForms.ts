@@ -20,13 +20,13 @@ import { ResourceApi } from '../../types';
 
 
 export interface RequestArgs {
-    lang:string;
+    domain:string;
     lemma:string;
     pos:Array<string>;
 }
 
 export function isRequestArgs(v:RequestArgs|RequestConcArgs):v is RequestArgs {
-    return typeof v['lang'] === 'string' && typeof v['lemma'] === 'string' && Array.isArray(v['pos']);
+    return typeof v['domain'] === 'string' && typeof v['lemma'] === 'string' && Array.isArray(v['pos']);
 }
 
 export interface RequestConcArgs {

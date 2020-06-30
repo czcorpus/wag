@@ -116,7 +116,7 @@
                     },
                     "type": "array"
                 },
-                "targetLanguages": {
+                "targetDomains": {
                     "items": {
                         "type": "string"
                     },
@@ -125,7 +125,7 @@
             },
             "required": [
                 "groups",
-                "targetLanguages"
+                "targetDomains"
             ],
             "type": "object"
         },

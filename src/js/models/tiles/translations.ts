@@ -21,8 +21,8 @@ import { BacklinkWithArgs } from '../../page/tile';
 
 interface TranslationsModelCoreState {
     minItemFreq:number;
-    lang1:string;
-    lang2:string;
+    domain1:string;
+    domain2:string;
 }
 
 

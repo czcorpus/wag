@@ -132,22 +132,25 @@
             ],
             "type": "object"
         },
+        "CommonTextStructures": {
+            "properties": {
+                "document": {
+                    "type": "string"
+                },
+                "paragraph": {
+                    "type": "string"
+                },
+                "sentence": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
         "DataReadabilityMapping": {
             "properties": {
                 "commonStructures": {
                     "additionalProperties": {
-                        "properties": {
-                            "document": {
-                                "type": "string"
-                            },
-                            "paragraph": {
-                                "type": "string"
-                            },
-                            "sentence": {
-                                "type": "string"
-                            }
-                        },
-                        "type": "object"
+                        "$ref": "#/definitions/CommonTextStructures"
                     },
                     "type": "object"
                 },
@@ -175,6 +178,22 @@
                 "commonStructures",
                 "metadataMapping"
             ],
+            "type": "object"
+        },
+        "DomainAnyTileConf": {
+            "additionalProperties": {
+                "additionalProperties": {
+                    "$ref": "#/definitions/TileConf"
+                },
+                "type": "object"
+            },
+            "type": "object"
+        },
+        "DomainLayoutsConfig": {
+            "additionalProperties": {
+                "$ref": "#/definitions/LayoutsConfig"
+            },
+            "description": "These types are necessary to create config schemata\nusing Makefile for tiles and layouts only",
             "type": "object"
         },
         "FaviconConf": {
@@ -297,22 +316,6 @@
             ],
             "type": "object"
         },
-        "LanguageAnyTileConf": {
-            "additionalProperties": {
-                "additionalProperties": {
-                    "$ref": "#/definitions/TileConf"
-                },
-                "type": "object"
-            },
-            "type": "object"
-        },
-        "LanguageLayoutsConfig": {
-            "additionalProperties": {
-                "$ref": "#/definitions/LayoutsConfig"
-            },
-            "description": "These types are necessary to create config schemata\nusing Makefile for tiles and layouts only",
-            "type": "object"
-        },
         "LayoutConfigCmpQuery": {
             "properties": {
                 "groups": {
@@ -370,7 +373,7 @@
                     },
                     "type": "array"
                 },
-                "targetLanguages": {
+                "targetDomains": {
                     "items": {
                         "type": "string"
                     },
@@ -379,7 +382,7 @@
             },
             "required": [
                 "groups",
-                "targetLanguages"
+                "targetDomains"
             ],
             "type": "object"
         },
@@ -7244,7 +7247,7 @@
         "layouts": {
             "anyOf": [
                 {
-                    "$ref": "#/definitions/LanguageLayoutsConfig"
+                    "$ref": "#/definitions/DomainLayoutsConfig"
                 },
                 {
                     "type": "string"
@@ -7269,7 +7272,7 @@
         "rootUrl": {
             "type": "string"
         },
-        "searchLanguages": {
+        "searchDomains": {
             "additionalProperties": {
                 "type": "string"
             },
@@ -7293,7 +7296,7 @@
         "tiles": {
             "anyOf": [
                 {
-                    "$ref": "#/definitions/LanguageAnyTileConf"
+                    "$ref": "#/definitions/DomainAnyTileConf"
                 },
                 {
                     "$ref": "#/definitions/TileDbConf"
@@ -7313,7 +7316,7 @@
         "maxTileErrors",
         "reqCacheTTL",
         "rootUrl",
-        "searchLanguages",
+        "searchDomains",
         "tiles"
     ],
     "type": "object"

@@ -25,7 +25,7 @@ import { TranslationsModelState, TranslationsSubsetsModelState } from '../../../
 import { IAppServices } from '../../../appServices';
 
 
-export type SearchPackages = {[lang2:string]:Array<string>};
+export type SearchPackages = {[domain2:string]:Array<string>};
 
 export interface RequestArgs {
     left:string;
@@ -188,8 +188,8 @@ export class TreqAPI extends TreqAPICaller implements TranslationAPI<RequestArgs
 
     stateToArgs(state:TranslationsModelState<PageArgs>, query:string):RequestArgs {
         return {
-            left: state.lang1,
-            right: state.lang2,
+            left: state.domain1,
+            right: state.domain2,
             viceslovne: query.split(' ').length > 1 ? '1' : '0',
             regularni: '0',
             lemma: '1',
@@ -204,8 +204,8 @@ export class TreqAPI extends TreqAPICaller implements TranslationAPI<RequestArgs
 
     stateToPageArgs(state:TranslationsModelState<PageArgs>, query:string):PageArgs {
         return {
-            jazyk1: state.lang1,
-            jazyk2: state.lang2,
+            jazyk1: state.domain1,
+            jazyk2: state.domain2,
             viceslovne: query.split(' ').length > 1 ? '1' : '0',
             regularni: '0',
             lemma: '1',
@@ -223,8 +223,8 @@ export class TreqSubsetsAPI extends TreqAPICaller implements TranslationSubsetsA
 
     stateToArgs(state:TranslationsSubsetsModelState, query:string, packages:Array<string>):RequestArgs {
         return {
-            left: state.lang1,
-            right: state.lang2,
+            left: state.domain1,
+            right: state.domain2,
             viceslovne: query.split(' ').length > 1 ? '1' : '0',
             regularni: '0',
             lemma: '1',

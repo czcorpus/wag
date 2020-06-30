@@ -80,7 +80,7 @@ export class ConcordanceTile implements ITileProvider {
     private readonly blockingTiles:Array<number>;
 
     constructor({tileId, dispatcher, appServices, ut, queryType, queryMatches, widthFract, waitForTiles,
-            waitForTilesTimeoutSecs, conf, lang2, isBusy, cache}:TileFactory.Args<ConcordanceTileConf>) {
+            waitForTilesTimeoutSecs, conf, domain2, isBusy, cache}:TileFactory.Args<ConcordanceTileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.widthFract = widthFract;
@@ -111,7 +111,7 @@ export class ConcordanceTile implements ITileProvider {
                 pageSize: conf.pageSize,
                 concordances: createInitialLinesData(queryMatches.length),
                 corpname: conf.corpname,
-                otherCorpname: conf.parallelLangMapping ? conf.parallelLangMapping[lang2] : null,
+                otherCorpname: conf.parallelLangMapping ? conf.parallelLangMapping[domain2] : null,
                 subcname: Array.isArray(conf.subcname) ? conf.subcname[0] : conf.subcname,
                 subcDesc: conf.subcDesc ? appServices.importExternalMessage(conf.subcDesc) : '',
                 shuffle: true,
@@ -154,7 +154,7 @@ export class ConcordanceTile implements ITileProvider {
         return this.label;
     }
 
-    supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {
+    supportsQueryType(qt:QueryType, domain1:string, domain2?:string):boolean {
         return qt === QueryType.SINGLE_QUERY || qt === QueryType.TRANSLAT_QUERY || qt === QueryType.CMP_QUERY;
     }
 

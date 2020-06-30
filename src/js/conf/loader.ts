@@ -20,7 +20,7 @@ import * as fs from 'fs';
 import axios from 'axios';
 import { pipe, List, Dict } from 'cnc-tskit';
 import * as path from 'path';
-import { LanguageLayoutsConfig, LanguageAnyTileConf, GroupItemConfig, TileDbConf } from './index';
+import { DomainLayoutsConfig, DomainAnyTileConf, GroupItemConfig, TileDbConf } from './index';
 import { TileConf } from '../page/tile';
 import { Observable, of as rxOf } from 'rxjs';
 import { reduce, mergeMap } from 'rxjs/operators';
@@ -34,7 +34,7 @@ interface StoredTileConf {
     _id:string;
     _rev:string;
     ident:string;
-    lang:string;
+    domain:string;
     conf:TileConf;
 }
 
@@ -62,33 +62,33 @@ export function parseJsonConfig<T>(confPath:string):Observable<T> {
 }
 
 
-export function loadRemoteTileConf(layout:LanguageLayoutsConfig, tileDBConf:TileDbConf|undefined):Observable<LanguageAnyTileConf> {
+export function loadRemoteTileConf(layout:DomainLayoutsConfig, tileDBConf:TileDbConf|undefined):Observable<DomainAnyTileConf> {
     const tiles = pipe(
         layout,
         Dict.toEntries(),
         List.flatMap(
-            ([lang, conf]) => {
+            ([domain, conf]) => {
                 const configs:Array<GroupItemConfig> = [].concat(
                     conf.cmp ? conf.cmp.groups : [],
                     conf.single ? conf.single.groups : [],
                     conf.translat ? conf.translat.groups : []);
-                return List.map<GroupItemConfig, [string, GroupItemConfig]>(v => [lang, v], configs);
+                return List.map<GroupItemConfig, [string, GroupItemConfig]>(v => [domain, v], configs);
             }
         ),
         List.flatMap<[string, GroupItemConfig], [string, string]>(
-            ([lang, group]) => {
+            ([domain, group]) => {
                 if (typeof group === 'string') {
-                    return [[lang, group]];
+                    return [[domain, group]];
                 }
-                return List.map(v => [lang, v.tile], group.tiles)
+                return List.map(v => [domain, v.tile], group.tiles)
             }
         )
     );
     console.info(`Loading tile configuration from ${tileDBConf.server}/${tileDBConf.db}`);
     return rxOf(...List.map<[string, string], Observable<[string, StoredTileConf]>>(
-        ([lang, tile]) => new Observable<[string, StoredTileConf]>((observer) => {
+        ([domain, tile]) => new Observable<[string, StoredTileConf]>((observer) => {
             axios.get<StoredTileConf>(
-                `${tileDBConf.server}/${tileDBConf.db}/${tileDBConf.prefix ? tileDBConf.prefix + ':' : ''}${lang}:${tile}`,
+                `${tileDBConf.server}/${tileDBConf.db}/${tileDBConf.prefix ? tileDBConf.prefix + ':' : ''}${domain}:${tile}`,
                 {
                     auth: {
                         username: tileDBConf.username,
@@ -97,7 +97,7 @@ export function loadRemoteTileConf(layout:LanguageLayoutsConfig, tileDBConf:Tile
                 }
             ).then(
                 (resp) => {
-                    observer.next([lang, resp.data]);
+                    observer.next([domain, resp.data]);
                     observer.complete();
                 },
                 (err) => {
@@ -112,15 +112,15 @@ export function loadRemoteTileConf(layout:LanguageLayoutsConfig, tileDBConf:Tile
             v => v
         ),
         reduce(
-            (tilesConf, [lang, data]) => {
-                if (!Dict.hasKey(lang, tilesConf)) {
-                    tilesConf[lang] = {};
+            (tilesConf, [domain, data]) => {
+                if (!Dict.hasKey(domain, tilesConf)) {
+                    tilesConf[domain] = {};
                 }
-                tilesConf[lang][data.ident] = data.conf;
+                tilesConf[domain][data.ident] = data.conf;
 
                 return tilesConf;
             },
-            {} as LanguageAnyTileConf
+            {} as DomainAnyTileConf
         )
     );
 

@@ -51,7 +51,7 @@ export class WordFormsTile implements ITileProvider {
 
     private readonly waitForTiles:Array<number>;
 
-    constructor({tileId, dispatcher, appServices, ut, queryMatches, lang1, widthFract, conf, isBusy, waitForTiles,
+    constructor({tileId, dispatcher, appServices, ut, queryMatches, domain1, widthFract, conf, isBusy, waitForTiles,
             waitForTilesTimeoutSecs, theme, cache}:TileFactory.Args<WordFormsTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
@@ -79,7 +79,7 @@ export class WordFormsTile implements ITileProvider {
                 apiServices: appServices
             }),
             queryMatches,
-            queryLang: lang1,
+            queryDomain: domain1,
             waitForTile: waitForTiles.length > 0 ? waitForTiles[0] : -1,
             waitForTilesTimeoutSecs,
             appServices
@@ -103,7 +103,7 @@ export class WordFormsTile implements ITileProvider {
         return null;
     }
 
-    supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {
+    supportsQueryType(qt:QueryType, domain1:string, domain2?:string):boolean {
         return qt === QueryType.SINGLE_QUERY;
     }
 

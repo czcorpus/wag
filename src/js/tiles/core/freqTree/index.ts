@@ -134,7 +134,7 @@ export class FreqTreeTile implements ITileProvider {
         return this.label;
     }
 
-    supportsQueryType(qt:QueryType, lang1:string, lang2?:string):boolean {
+    supportsQueryType(qt:QueryType, domain1:string, domain2?:string):boolean {
         return qt === QueryType.CMP_QUERY;
     }
 

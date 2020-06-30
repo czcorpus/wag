@@ -36,7 +36,7 @@ export function importQueryTypeString(v:string, dflt:QueryType):QueryType {
     throw new Error(`Unknown query type '${v}'`);
 }
 
-export interface SearchLanguage {
+export interface SearchDomain {
     code:string;
     label:string;
     queryTypes:Array<QueryType>;
@@ -58,8 +58,8 @@ export interface SubqueryPayload<T=string> {
     tileId:number;
     queryId:number;
     subqueries:Array<SubQueryItem<T>>;
-    lang1:string;
-    lang2:string;
+    domain1:string;
+    domain2:string;
 }
 
 export function isSubqueryPayload(payload:{}):payload is SubqueryPayload {

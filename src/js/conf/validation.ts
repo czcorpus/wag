@@ -20,7 +20,7 @@ import { Dict, List } from 'cnc-tskit';
 import * as path from 'path';
 import * as ajv from 'ajv';
 import * as fs from 'fs';
-import { LanguageAnyTileConf, ServerConf } from '.';
+import { DomainAnyTileConf, ServerConf } from '.';
 import { QueryType } from '../query';
 
 
@@ -31,13 +31,13 @@ const CUSTOM_TILES_ROOT_DIR = path.resolve(__dirname, '../src/js/tiles/custom');
 const SCHEMA_FILENAME = 'config-schema.json';
 
 
-export function validateTilesConf(tilesConf:LanguageAnyTileConf):boolean {
+export function validateTilesConf(tilesConf:DomainAnyTileConf):boolean {
     const validator = new ajv();
     let validationError = false;
 
     console.info('Validating tiles configuration...');
 
-    Dict.forEach((tiles, lang) => {
+    Dict.forEach((tiles, domain) => {
         Dict.forEach((tileConf, tileName) => {
             let configSchema:{};
             const tileType = tileConf.tileType + '';
@@ -53,15 +53,15 @@ export function validateTilesConf(tilesConf:LanguageAnyTileConf):boolean {
                 }
             }
             if (!configSchema) {
-                console.info(`  ${lang}/${tileName} [\x1b[31m FAIL \x1b[0m]`);
+                console.info(`  ${domain}/${tileName} [\x1b[31m FAIL \x1b[0m]`);
                 console.info(`    \u25B6 schema "${tileType}" not found`);
                 validationError = true;
 
             } else if (validator.validate(configSchema, tileConf)) {
-                console.info(`  ${lang}/${tileName} [\x1b[32m OK \x1b[0m]`);
+                console.info(`  ${domain}/${tileName} [\x1b[32m OK \x1b[0m]`);
 
             } else {
-                console.info(`  ${lang}/${tileName} [\x1b[31m FAIL \x1b[0m]`);
+                console.info(`  ${domain}/${tileName} [\x1b[31m FAIL \x1b[0m]`);
                 List.forEach(
                     err => {
                         console.error(`    \u25B6 ${err.message}`)
