@@ -329,7 +329,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         const appServices = new AppServices({
             notifications: null, // TODO
             uiLang: uiLang,
-            languageNames: pipe(
+            domainNames: pipe(
                 services.clientConf.searchDomains,
                 Dict.keys(),
                 List.map(k => tuple(k, services.clientConf.searchDomains[k]))
@@ -409,7 +409,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         const appServices = new AppServices({
             notifications: null, // TODO
             uiLang: uiLang,
-            languageNames: pipe(
+            domainNames: pipe(
                 services.clientConf.searchDomains,
                 Dict.keys(),
                 List.map(k => [k, services.clientConf.searchDomains[k]])
