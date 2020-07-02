@@ -37,6 +37,9 @@
                 "tiles": {
                     "items": {
                         "properties": {
+                            "ref": {
+                                "type": "string"
+                            },
                             "tile": {
                                 "type": "string"
                             },
@@ -73,6 +76,36 @@
                         ]
                     },
                     "type": "array"
+                },
+                "insertAfter": {
+                    "additionalProperties": {
+                        "items": {
+                            "properties": {
+                                "tile": {
+                                    "type": "string"
+                                },
+                                "width": {
+                                    "type": "number"
+                                }
+                            },
+                            "required": [
+                                "tile",
+                                "width"
+                            ],
+                            "type": "object"
+                        },
+                        "type": "array"
+                    },
+                    "type": "object"
+                },
+                "replace": {
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "type": "object"
+                },
+                "useLayout": {
+                    "type": "string"
                 }
             },
             "required": [
@@ -94,6 +127,36 @@
                         ]
                     },
                     "type": "array"
+                },
+                "insertAfter": {
+                    "additionalProperties": {
+                        "items": {
+                            "properties": {
+                                "tile": {
+                                    "type": "string"
+                                },
+                                "width": {
+                                    "type": "number"
+                                }
+                            },
+                            "required": [
+                                "tile",
+                                "width"
+                            ],
+                            "type": "object"
+                        },
+                        "type": "array"
+                    },
+                    "type": "object"
+                },
+                "replace": {
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "type": "object"
+                },
+                "useLayout": {
+                    "type": "string"
                 }
             },
             "required": [
@@ -116,11 +179,41 @@
                     },
                     "type": "array"
                 },
+                "insertAfter": {
+                    "additionalProperties": {
+                        "items": {
+                            "properties": {
+                                "tile": {
+                                    "type": "string"
+                                },
+                                "width": {
+                                    "type": "number"
+                                }
+                            },
+                            "required": [
+                                "tile",
+                                "width"
+                            ],
+                            "type": "object"
+                        },
+                        "type": "array"
+                    },
+                    "type": "object"
+                },
+                "replace": {
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "type": "object"
+                },
                 "targetDomains": {
                     "items": {
                         "type": "string"
                     },
                     "type": "array"
+                },
+                "useLayout": {
+                    "type": "string"
                 }
             },
             "required": [

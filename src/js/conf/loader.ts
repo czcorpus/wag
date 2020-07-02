@@ -20,7 +20,7 @@ import * as fs from 'fs';
 import axios from 'axios';
 import { pipe, List, Dict } from 'cnc-tskit';
 import * as path from 'path';
-import { DomainLayoutsConfig, DomainAnyTileConf, GroupItemConfig, TileDbConf } from './index';
+import { DomainLayoutsConfig, DomainAnyTileConf, GroupItemConfig, TileDbConf, LayoutsConfig, LayoutConfigSingleQuery, LayoutConfigCommon } from './index';
 import { TileConf } from '../page/tile';
 import { Observable, of as rxOf } from 'rxjs';
 import { reduce, mergeMap } from 'rxjs/operators';
@@ -125,4 +125,22 @@ export function loadRemoteTileConf(layout:DomainLayoutsConfig, tileDBConf:TileDb
     );
 
 
+}
+
+
+export function useCommonLayouts(layouts:DomainLayoutsConfig):DomainLayoutsConfig {
+    return Dict.map((queryTypes, domain) =>
+        Dict.map<LayoutConfigCommon, LayoutConfigCommon, string>((layout, queryType) =>
+            {
+                if (layout.useLayout) {
+                    const [d, qt] = layout.useLayout.split('.');
+                    layout.groups = layouts[d][qt].groups;
+                }
+
+                return layout;
+            },
+            queryTypes as {[l:string]:LayoutConfigCommon}
+        ) as LayoutsConfig,
+        layouts
+    ) as DomainLayoutsConfig;
 }

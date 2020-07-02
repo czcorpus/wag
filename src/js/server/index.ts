@@ -32,7 +32,7 @@ import * as sessionFileStore from 'session-file-store';
 
 import { ClientStaticConf, ServerConf, DomainLayoutsConfig, DomainAnyTileConf, isTileDBConf, ColorsConf, DataReadabilityMapping, CommonTextStructures } from '../conf';
 import { validateTilesConf } from '../conf/validation';
-import { parseJsonConfig, loadRemoteTileConf } from '../conf/loader';
+import { parseJsonConfig, loadRemoteTileConf, useCommonLayouts } from '../conf/loader';
 import { wdgRouter } from './routes/index';
 import { createToolbarInstance } from './toolbar/factory';
 import { WordDatabases } from './actionServices';
@@ -86,7 +86,7 @@ forkJoin( // load core configs
         ).pipe(
             map<DomainLayoutsConfig, [ServerConf, ClientStaticConf, PackageInfo]>(
                 (layoutsExp) => {
-                    clientConf.layouts = layoutsExp;
+                    clientConf.layouts = useCommonLayouts(layoutsExp);
                     return [serverConf, clientConf, pkgInfo];
                 }
             )
