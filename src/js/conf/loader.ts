@@ -20,7 +20,7 @@ import * as fs from 'fs';
 import axios from 'axios';
 import { pipe, List, Dict } from 'cnc-tskit';
 import * as path from 'path';
-import { DomainLayoutsConfig, DomainAnyTileConf, GroupItemConfig, TileDbConf, LayoutsConfig, LayoutConfigSingleQuery, LayoutConfigCommon } from './index';
+import { DomainLayoutsConfig, DomainAnyTileConf, GroupItemConfig, TileDbConf, LayoutsConfig, LayoutConfigCommon } from './index';
 import { TileConf } from '../page/tile';
 import { Observable, of as rxOf } from 'rxjs';
 import { reduce, mergeMap } from 'rxjs/operators';
@@ -132,9 +132,31 @@ export function useCommonLayouts(layouts:DomainLayoutsConfig):DomainLayoutsConfi
     return Dict.map((queryTypes, domain) =>
         Dict.map<LayoutConfigCommon, LayoutConfigCommon, string>((layout, queryType) =>
             {
+                // if referenced layout, copy its groups
                 if (layout.useLayout) {
-                    const [d, qt] = layout.useLayout.split('.');
-                    layout.groups = layouts[d][qt].groups;
+                    const [d, qt] = layout.useLayout.split('.'); // get domain and query type
+                    layout.groups = JSON.parse(JSON.stringify(layouts[d][qt].groups)); // deep copy
+
+                    layout.groups = List.map(group => {
+                        if (typeof group !== 'string') {
+                            group.tiles = List.reduce((tiles, tile) => {
+                                // replace referenced tile
+                                if (Dict.hasKey(tile.ref, layout.replace)) {
+                                    tile.tile = layout.replace[tile.ref];
+                                }
+                                tiles.push(tile);
+
+                                // add more tiles after referenced one
+                                if (Dict.hasKey(tile.ref, layout.insertAfter)) {
+                                    tiles = tiles.concat(layout.insertAfter[tile.ref]);
+                                }
+
+                                return tiles;
+                            }, [], group.tiles)
+                        }
+
+                        return group
+                    }, layout.groups);
                 }
 
                 return layout;
