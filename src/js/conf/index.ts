@@ -89,13 +89,16 @@ export interface GroupLayoutConfig {
     groupLabel:LocalizedConfMsg;
     groupDescURL?:LocalizedConfMsg;
     groupTemplate?:any; // TODO unfinished concept
-    tiles:Array<{tile:string; width:number}>;
+    tiles:Array<{tile:string; width:number; ref?:string}>;
 }
 
 export type GroupItemConfig = GroupLayoutConfig|string;
 
 export interface LayoutConfigCommon {
     groups:Array<GroupItemConfig>;
+    useLayout?:string;
+    replace?:{[ref:string]:string};
+    insertAfter?:{[ref:string]:Array<{tile:string; width:number}>};
 }
 
 export interface LayoutConfigSingleQuery extends LayoutConfigCommon {}
