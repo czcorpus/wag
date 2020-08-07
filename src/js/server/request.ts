@@ -24,7 +24,7 @@ export interface ServerHTTPRequestConf {
     url:string;
     method:HTTP.Method;
     params?:{[k:string]:string|number|boolean};
-    data?:{[k:string]:string|number|boolean};
+    data?:{[k:string]:string|number|boolean|any};
     auth?:{username:string, password: string};
     headers?:{[k:string]:string};
 }
