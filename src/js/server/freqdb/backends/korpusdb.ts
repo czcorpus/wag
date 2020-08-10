@@ -27,8 +27,6 @@ import { importQueryPosWithLabel, posTable } from '../../../postag';
 import { CorpusDetails } from '../../../types';
 import { serverHttpRequest } from '../../request';
 
-import * as deepEqual from 'deep-equal';
-
 
 export interface ResourceInfo {
     clsname:string;
@@ -151,8 +149,12 @@ export class KorpusFreqDB implements IFreqDB {
                         const ipm = 1000000 * curr[this.fcrit]/res.data[0][this.normPath[0]][this.normPath[1]].params.size_tokens;
 
                         // aggregate items whit identical pos and lemma
-                        // TODO please try without 'deep-equal' here
-                        const ident = List.findIndex(obj => obj.lemma === lemma && deepEqual(obj.pos, pos), acc);
+                        const ident = List.findIndex(obj =>
+                            obj.lemma === lemma &&
+                            obj.pos.length === pos.length &&
+                            List.every(([a, b]) => a.value === b.value, List.zip(obj.pos, pos)),
+                            acc
+                        );
                         if (ident > -1) {
                             acc[ident].abs += curr[this.fcrit];
                             acc[ident].ipm += ipm;
@@ -196,10 +198,17 @@ export class KorpusFreqDB implements IFreqDB {
     }
 
     getSourceDescription(uiLang:string, corpname:string):Observable<CorpusDetails> {
-        return new Observable<CorpusDetails>((observer) => {
-            observer.next({} as CorpusDetails);
-            observer.complete();
-        });
+        return this.loadResources().pipe(
+            map(res => ({
+                tileId: -1,
+                title: res.data[0][this.normPath[0]][this.normPath[1]].label[uiLang],
+                description: res.data[0][this.normPath[0]][this.normPath[1]].description,
+                author: '',
+                structure: {
+                    numTokens: res.data[0][this.normPath[0]][this.normPath[1]].params.size_tokens
+                }
+            }))
+        );
     }
 
 
