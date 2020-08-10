@@ -112,15 +112,26 @@ export class KorpusFreqDB implements IFreqDB {
 
     private loadResources():Observable<HTTPResourcesResponse> {
         return serverHttpRequest<HTTPResourcesResponse>({
-            url: this.apiURL + 'api/meta/resources',
+            url: this.apiURL + '/api/meta/resources',
             method: HTTP.Method.GET,
             headers: this.customHeaders
-        });
+
+        }).pipe(
+            map(
+                resp => {
+                    // KorpusDB returning incorrect status code workaround
+                    if (typeof resp !== 'object') {
+                        throw new Error('Invalid response type');
+                    }
+                    return resp;
+                }
+            )
+        )
     }
 
     private loadData(word:string):Observable<HTTPDataResponse> {
         return serverHttpRequest<HTTPDataResponse>({
-            url: this.apiURL + 'api/cunits/_view',
+            url: this.apiURL + '/api/cunits/_view',
             method: HTTP.Method.POST,
             data: {
                 feats:[':form:attr:cnc:w', ':stats:fq:abs:cnc'],
@@ -136,11 +147,22 @@ export class KorpusFreqDB implements IFreqDB {
                 _client: 'wdg'
             },
             headers: this.customHeaders
-        });
+
+        }).pipe(
+            map(
+                resp => {
+                    // KorpusDB returning incorrect status code workaround
+                    if (typeof resp !== 'object') {
+                        throw new Error('Invalid response type');
+                    }
+                    return resp;
+                }
+            )
+        )
     }
 
     findQueryMatches(appServices:IAppServices, word:string, minFreq:number):Observable<Array<QueryMatch>> {
-        return forkJoin([this.loadResources(), this.loadData(word)]).pipe(
+        return forkJoin(this.loadResources(), this.loadData(word)).pipe(
             map(([res, data]) => List.reduce(
                 (acc, curr) => {
                     if (curr[this.fcrit]) {
