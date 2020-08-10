@@ -196,10 +196,17 @@ export class KorpusFreqDB implements IFreqDB {
     }
 
     getSourceDescription(uiLang:string, corpname:string):Observable<CorpusDetails> {
-        return new Observable<CorpusDetails>((observer) => {
-            observer.next({} as CorpusDetails);
-            observer.complete();
-        });
+        return this.loadResources().pipe(
+            map(res => ({
+                tileId: -1,
+                title: res.data[0][this.normPath[0]][this.normPath[1]].label[uiLang],
+                description: res.data[0][this.normPath[0]][this.normPath[1]].description,
+                author: '',
+                structure: {
+                    numTokens: res.data[0][this.normPath[0]][this.normPath[1]].params.size_tokens
+                }
+            }))
+        );
     }
 
 
