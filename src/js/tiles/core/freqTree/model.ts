@@ -172,7 +172,7 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                         state.frequencyTree = pipe(
                             action.payload.data,
                             Dict.toEntries(),
-                            List.sort(([key1,], [key2,]) => key1.localeCompare(key2)),
+                            List.sorted(([key1,], [key2,]) => key1.localeCompare(key2)),
                             List.map(([blockId, data]) => ({
                                 data: data,
                                 ident: Ident.puid(),

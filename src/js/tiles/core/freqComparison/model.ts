@@ -353,7 +353,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                         block: {
                             data: pipe(
                                 resp.blocks[0].data,
-                                List.sort((x1, x2) => x2.ipm - x1.ipm),
+                                List.sorted((x1, x2) => x2.ipm - x1.ipm),
                                 List.slice(0, state.fmaxitems),
                                 List.map(v => ({
                                     freq: v.freq,

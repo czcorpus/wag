@@ -100,7 +100,7 @@ export class KorpusFreqDB implements IFreqDB {
     private readonly apiURL:string;
 
     private readonly customHeaders:{[key:string]:string};
-    
+
     private readonly fcrit:string;
 
     private readonly normPath:string[];
@@ -144,13 +144,14 @@ export class KorpusFreqDB implements IFreqDB {
     findQueryMatches(appServices:IAppServices, word:string, minFreq:number):Observable<Array<QueryMatch>> {
         return forkJoin([this.loadResources(), this.loadData(word)]).pipe(
             map(([res, data]) => List.reduce(
-                (acc, curr) => {                    
+                (acc, curr) => {
                     if (curr[this.fcrit]) {
                         const lemma = curr._slots[0]._fillers[0][':form:attr:cnc:w:lemma'];
                         const pos = importQueryPosWithLabel(curr._slots[0]._fillers[0][':form:attr:cnc:w:tag'][0], posTable, appServices);
                         const ipm = 1000000 * curr[this.fcrit]/res.data[0][this.normPath[0]][this.normPath[1]].params.size_tokens;
 
                         // aggregate items whit identical pos and lemma
+                        // TODO please try without 'deep-equal' here
                         const ident = List.findIndex(obj => obj.lemma === lemma && deepEqual(obj.pos, pos), acc);
                         if (ident > -1) {
                             acc[ident].abs += curr[this.fcrit];

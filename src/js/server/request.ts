@@ -20,7 +20,10 @@ import { Observable } from 'rxjs';
 import { HTTP } from 'cnc-tskit';
 import axios, { Method, AxiosError } from 'axios';
 
-export interface ServerHTTPRequestConf {
+/**
+ *
+ */
+export interface ServerHTTPRequestConf { // TODO make this parametrizable to prevent 'any' below
     url:string;
     method:HTTP.Method;
     params?:{[k:string]:string|number|boolean};

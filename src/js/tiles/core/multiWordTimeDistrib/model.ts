@@ -348,7 +348,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             ),
             Dict.toEntries(),
             List.map(([,v]) => v),
-            List.sort((x1, x2) => parseInt(x1.datetime) - parseInt(x2.datetime))
+            List.sorted((x1, x2) => parseInt(x1.datetime) - parseInt(x2.datetime))
         )
     }
 
