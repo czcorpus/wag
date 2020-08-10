@@ -367,6 +367,9 @@ export interface FreqDbOptions {
      * ARF. This is only supported for 1, 2, 3, 4-grams.
      */
     maxSingleTypeNgramArf?:number;
+
+    korpusDBCrit?:string;
+    korpusDBNorm?:string;
 }
 
 export interface FreqDbConf {

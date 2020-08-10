@@ -1136,7 +1136,6 @@
                         "-moz-initial",
                         "auto",
                         "balance",
-                        "balance-all",
                         "inherit",
                         "initial",
                         "revert",
@@ -2089,19 +2088,6 @@
                     "description": "The `**clip-path**` CSS property creates a clipping region that sets what part of an element should be shown. Parts that are inside the region are shown, while those outside are hidden.\n\n**Syntax**: `<clip-source> | [ <basic-shape> || <geometry-box> ] | none`\n\n**Initial value**: `none`",
                     "type": "string"
                 },
-                "WebkitColorAdjust": {
-                    "description": "The **`color-adjust`** CSS property sets what, if anything, the user agent may do to optimize the appearance of the element on the output device. By default, the browser is allowed to make any adjustments to the element's appearance it determines to be necessary and prudent given the type and capabilities of the output device.\n\n**Syntax**: `economy | exact`\n\n**Initial value**: `economy`",
-                    "enum": [
-                        "-moz-initial",
-                        "economy",
-                        "exact",
-                        "inherit",
-                        "initial",
-                        "revert",
-                        "unset"
-                    ],
-                    "type": "string"
-                },
                 "WebkitColumnCount": {
                     "anyOf": [
                         {
@@ -2127,7 +2113,6 @@
                         "-moz-initial",
                         "auto",
                         "balance",
-                        "balance-all",
                         "inherit",
                         "initial",
                         "revert",
@@ -2522,6 +2507,19 @@
                         "number"
                     ]
                 },
+                "WebkitPrintColorAdjust": {
+                    "description": "The **`color-adjust`** CSS property sets what, if anything, the user agent may do to optimize the appearance of the element on the output device. By default, the browser is allowed to make any adjustments to the element's appearance it determines to be necessary and prudent given the type and capabilities of the output device.\n\n**Syntax**: `economy | exact`\n\n**Initial value**: `economy`",
+                    "enum": [
+                        "-moz-initial",
+                        "economy",
+                        "exact",
+                        "inherit",
+                        "initial",
+                        "revert",
+                        "unset"
+                    ],
+                    "type": "string"
+                },
                 "WebkitScrollSnapPointsX": {
                     "description": "The **`scroll-snap-points-x`** CSS property defines the horizontal positioning of snap points within the content of the scroll container they are applied to.\n\n**Syntax**: `none | repeat( <length-percentage> )`\n\n**Initial value**: `none`",
                     "type": "string"
@@ -2633,6 +2631,10 @@
                         "number"
                     ]
                 },
+                "WebkitTextUnderlinePosition": {
+                    "description": "The **`text-underline-position`** CSS property specifies the position of the underline which is set using the `text-decoration` property's `underline` value.\n\n**Syntax**: `auto | from-font | [ under || [ left | right ] ]`\n\n**Initial value**: `auto`",
+                    "type": "string"
+                },
                 "WebkitTouchCallout": {
                     "description": "The `-webkit-touch-callout` CSS property controls the display of the default callout shown when you touch and hold a touch target.\n\n**Syntax**: `default | none`\n\n**Initial value**: `default`",
                     "enum": [
@@ -2738,10 +2740,6 @@
                     ],
                     "type": "string"
                 },
-                "WebkittextUnderlinePosition": {
-                    "description": "The **`text-underline-position`** CSS property specifies the position of the underline which is set using the `text-decoration` property's `underline` value.\n\n**Syntax**: `auto | from-font | [ under || [ left | right ] ]`\n\n**Initial value**: `auto`",
-                    "type": "string"
-                },
                 "alignContent": {
                     "description": "The CSS **`align-content`** property sets how the browser distributes space between and around content items along the cross-axis of a flexbox container, and the main-axis of a grid container.\n\n**Syntax**: `normal | <baseline-position> | <content-distribution> | <overflow-position>? <content-position>`\n\n**Initial value**: `normal`\n\n---\n\n_Supported in Flex Layout_\n\n|  Chrome  | Firefox |  Safari   |  Edge  |   IE   |\n| :------: | :-----: | :-------: | :----: | :----: |\n|  **29**  | **28**  |   **9**   | **12** | **11** |\n| 21 _-x-_ |         | 6.1 _-x-_ |        |        |\n\n---\n\n_Supported in Grid Layout_\n\n| Chrome | Firefox |  Safari  |  Edge  | IE  |\n| :----: | :-----: | :------: | :----: | :-: |\n| **57** | **52**  | **10.1** | **16** | No  |\n\n---",
                     "type": "string"
@@ -2830,11 +2828,10 @@
                     "type": "string"
                 },
                 "appearance": {
-                    "description": "The **`-moz-appearance`** CSS property is used in Gecko (Firefox) to display an element using platform-native styling based on the operating system's theme.\n\n**Syntax**: `none | auto | button | textfield | <compat>`\n\n**Initial value**: `auto`\n\n|   Chrome    |   Firefox   |   Safari    |     Edge     | IE  |\n| :---------: | :---------: | :---------: | :----------: | :-: |\n| **1** _-x-_ | **1** _-x-_ | **3** _-x-_ | **12** _-x-_ | No  |",
+                    "description": "The **`-moz-appearance`** CSS property is used in Gecko (Firefox) to display an element using platform-native styling based on the operating system's theme.\n\n**Syntax**: `none | auto | button | textfield | menulist-button | <compat-auto>`\n\n**Initial value**: `auto`\n\n|   Chrome    |   Firefox   |   Safari    |     Edge     | IE  |\n| :---------: | :---------: | :---------: | :----------: | :-: |\n| **1** _-x-_ | **1** _-x-_ | **3** _-x-_ | **12** _-x-_ | No  |",
                     "enum": [
                         "-moz-initial",
                         "button",
-                        "button-bevel",
                         "checkbox",
                         "inherit",
                         "initial",
@@ -3780,7 +3777,7 @@
                     "type": "string"
                 },
                 "colorAdjust": {
-                    "description": "The **`color-adjust`** CSS property sets what, if anything, the user agent may do to optimize the appearance of the element on the output device. By default, the browser is allowed to make any adjustments to the element's appearance it determines to be necessary and prudent given the type and capabilities of the output device.\n\n**Syntax**: `economy | exact`\n\n**Initial value**: `economy`\n\n|    Chrome    | Firefox |   Safari    |     Edge     | IE  |\n| :----------: | :-----: | :---------: | :----------: | :-: |\n| **49** _-x-_ | **48**  | **6** _-x-_ | **79** _-x-_ | No  |",
+                    "description": "The **`color-adjust`** CSS property sets what, if anything, the user agent may do to optimize the appearance of the element on the output device. By default, the browser is allowed to make any adjustments to the element's appearance it determines to be necessary and prudent given the type and capabilities of the output device.\n\n**Syntax**: `economy | exact`\n\n**Initial value**: `economy`\n\n|                Chrome                 | Firefox |                Safari                |                 Edge                  | IE  |\n| :-----------------------------------: | :-----: | :----------------------------------: | :-----------------------------------: | :-: |\n| **49** _(-webkit-print-color-adjust)_ | **48**  | **6** _(-webkit-print-color-adjust)_ | **79** _(-webkit-print-color-adjust)_ | No  |",
                     "enum": [
                         "-moz-initial",
                         "economy",
@@ -3843,7 +3840,6 @@
                         "-moz-initial",
                         "auto",
                         "balance",
-                        "balance-all",
                         "inherit",
                         "initial",
                         "revert",
@@ -4151,7 +4147,7 @@
                     "type": "string"
                 },
                 "fontKerning": {
-                    "description": "The **`font-kerning`** CSS property sets the use of the kerning information stored in a font.\n\n**Syntax**: `auto | normal | none`\n\n**Initial value**: `auto`\n\n|    Chrome    | Firefox | Safari |     Edge     | IE  |\n| :----------: | :-----: | :----: | :----------: | :-: |\n| **32** _-x-_ | **32**  | **7**  | **79** _-x-_ | No  |",
+                    "description": "The **`font-kerning`** CSS property sets the use of the kerning information stored in a font.\n\n**Syntax**: `auto | normal | none`\n\n**Initial value**: `auto`\n\n| Chrome | Firefox | Safari  |  Edge  | IE  |\n| :----: | :-----: | :-----: | :----: | :-: |\n| **33** | **32**  |  **9**  | **79** | No  |\n|        |         | 6 _-x-_ |        |     |",
                     "enum": [
                         "-moz-initial",
                         "auto",
@@ -4298,7 +4294,7 @@
                     "description": "The **`font-weight`** CSS property specifies the weight (or boldness) of the font. The font weights available to you will depend on the `font-family` you are using. Some fonts are only available in `normal` and `bold`.\n\n**Syntax**: `<font-weight-absolute> | bolder | lighter`\n\n**Initial value**: `normal`\n\n| Chrome | Firefox | Safari |  Edge  |  IE   |\n| :----: | :-----: | :----: | :----: | :---: |\n| **2**  |  **1**  | **1**  | **12** | **3** |"
                 },
                 "gap": {
-                    "description": "The **`gap`** CSS property sets the gaps (gutters) between rows and columns. It is a shorthand for `row-gap` and `column-gap`.\n\n**Syntax**: `<'row-gap'> <'column-gap'>?`\n\n---\n\n_Supported in Flex Layout_\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n|   No   | **63**  |   No   |  No  | No  |\n\n---\n\n_Supported in Grid Layout_\n\n|     Chrome      |     Firefox     |        Safari         |  Edge  | IE  |\n| :-------------: | :-------------: | :-------------------: | :----: | :-: |\n|     **66**      |     **61**      | **10.1** _(grid-gap)_ | **16** | No  |\n| 57 _(grid-gap)_ | 52 _(grid-gap)_ |                       |        |     |\n\n---\n\n_Supported in Multi-column Layout_\n\n| Chrome | Firefox | Safari |  Edge  | IE  |\n| :----: | :-----: | :----: | :----: | :-: |\n| **66** | **61**  |   No   | **16** | No  |\n\n---",
+                    "description": "The **`gap`** CSS property sets the gaps (gutters) between rows and columns. It is a shorthand for `row-gap` and `column-gap`.\n\n**Syntax**: `<'row-gap'> <'column-gap'>?`\n\n---\n\n_Supported in Flex Layout_\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n|   No   | **63**  |   No   |  No  | No  |\n\n---\n\n_Supported in Grid Layout_\n\n|     Chrome      |     Firefox     |      Safari       |  Edge  | IE  |\n| :-------------: | :-------------: | :---------------: | :----: | :-: |\n|     **66**      |     **61**      |      **12**       | **16** | No  |\n| 57 _(grid-gap)_ | 52 _(grid-gap)_ | 10.1 _(grid-gap)_ |        |     |\n\n---\n\n_Supported in Multi-column Layout_\n\n| Chrome | Firefox | Safari |  Edge  | IE  |\n| :----: | :-----: | :----: | :----: | :-: |\n| **66** | **61**  |   No   | **16** | No  |\n\n---",
                     "type": [
                         "string",
                         "number"
@@ -4450,7 +4446,7 @@
                     "type": "string"
                 },
                 "imageOrientation": {
-                    "description": "The **`image-orientation`** CSS property specifies a layout-independent correction to the orientation of an image. It should _not_ be used for any other orientation adjustments; instead, the `transform` property should be used with the `rotate` `<transform-function>`.\n\n**Syntax**: `from-image | <angle> | [ <angle>? flip ]`\n\n**Initial value**: `0deg`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n|   No   | **26**  |   No   |  No  | No  |",
+                    "description": "The **`image-orientation`** CSS property specifies a layout-independent correction to the orientation of an image. It should _not_ be used for any other orientation adjustments; instead, the `transform` property should be used with the `rotate` `<transform-function>`.\n\n**Syntax**: `from-image | <angle> | [ <angle>? flip ]`\n\n**Initial value**: `0deg`\n\n| Chrome | Firefox |  Safari  |  Edge  | IE  |\n| :----: | :-----: | :------: | :----: | :-: |\n| **81** | **26**  | **13.1** | **81** | No  |",
                     "type": "string"
                 },
                 "imageRendering": {
@@ -4676,7 +4672,7 @@
                     ]
                 },
                 "marginBlock": {
-                    "description": "The **`margin-block`** CSS property defines the logical block start and end margins of an element, which maps to physical margins depending on the element's writing mode, directionality, and text orientation.\n\n**Syntax**: `<'margin-left'>{1,2}`\n\n**Initial value**: `0`\n\n| Chrome | Firefox | Safari |  Edge  | IE  |\n| :----: | :-----: | :----: | :----: | :-: |\n| **69** | **66**  |   No   | **79** | No  |",
+                    "description": "The **`margin-block`** CSS property defines the logical block start and end margins of an element, which maps to physical margins depending on the element's writing mode, directionality, and text orientation.\n\n**Syntax**: `<'margin-left'>{1,2}`\n\n**Initial value**: `0`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n|  n/a   | **66**  |   No   | n/a  | No  |",
                     "type": [
                         "string",
                         "number"
@@ -4704,7 +4700,7 @@
                     ]
                 },
                 "marginInline": {
-                    "description": "The **`margin-inline`** CSS property defines the logical inline start and end margins of an element, which maps to physical margins depending on the element's writing mode, directionality, and text orientation.\n\n**Syntax**: `<'margin-left'>{1,2}`\n\n**Initial value**: `0`\n\n| Chrome | Firefox | Safari |  Edge  | IE  |\n| :----: | :-----: | :----: | :----: | :-: |\n| **69** | **66**  |   No   | **79** | No  |",
+                    "description": "The **`margin-inline`** CSS property defines the logical inline start and end margins of an element, which maps to physical margins depending on the element's writing mode, directionality, and text orientation.\n\n**Syntax**: `<'margin-left'>{1,2}`\n\n**Initial value**: `0`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n|  n/a   | **66**  |   No   | n/a  | No  |",
                     "type": [
                         "string",
                         "number"
@@ -5945,7 +5941,7 @@
                     ]
                 },
                 "paddingBlock": {
-                    "description": "The **`padding-block`** CSS property defines the logical block start and end padding of an element, which maps to physical padding properties depending on the element's writing mode, directionality, and text orientation.\n\n**Syntax**: `<'padding-left'>{1,2}`\n\n**Initial value**: `0`\n\n| Chrome | Firefox | Safari |  Edge  | IE  |\n| :----: | :-----: | :----: | :----: | :-: |\n| **69** | **66**  |   No   | **79** | No  |",
+                    "description": "The **`padding-block`** CSS property defines the logical block start and end padding of an element, which maps to physical padding properties depending on the element's writing mode, directionality, and text orientation.\n\n**Syntax**: `<'padding-left'>{1,2}`\n\n**Initial value**: `0`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n|  n/a   | **66**  |   No   | n/a  | No  |",
                     "type": [
                         "string",
                         "number"
@@ -5973,7 +5969,7 @@
                     ]
                 },
                 "paddingInline": {
-                    "description": "The **`padding-inline`** CSS property defines the logical inline start and end padding of an element, which maps to physical padding properties depending on the element's writing mode, directionality, and text orientation.\n\n**Syntax**: `<'padding-left'>{1,2}`\n\n**Initial value**: `0`\n\n| Chrome | Firefox | Safari |  Edge  | IE  |\n| :----: | :-----: | :----: | :----: | :-: |\n| **69** | **66**  |   No   | **79** | No  |",
+                    "description": "The **`padding-inline`** CSS property defines the logical inline start and end padding of an element, which maps to physical padding properties depending on the element's writing mode, directionality, and text orientation.\n\n**Syntax**: `<'padding-left'>{1,2}`\n\n**Initial value**: `0`\n\n| Chrome | Firefox | Safari | Edge | IE  |\n| :----: | :-----: | :----: | :--: | :-: |\n|  n/a   | **66**  |   No   | n/a  | No  |",
                     "type": [
                         "string",
                         "number"
@@ -6788,19 +6784,19 @@
                     ]
                 },
                 "textEmphasis": {
-                    "description": "The **`text-emphasis`** CSS property applies emphasis marks to text (except spaces and control characters). It is a shorthand for `text-emphasis-style` and `text-emphasis-color`.\n\n**Syntax**: `<'text-emphasis-style'> || <'text-emphasis-color'>`\n\n| Chrome | Firefox | Safari  |  Edge  | IE  |\n| :----: | :-----: | :-----: | :----: | :-: |\n| **25** | **46**  | **6.1** | **79** | No  |",
+                    "description": "The **`text-emphasis`** CSS property applies emphasis marks to text (except spaces and control characters). It is a shorthand for `text-emphasis-style` and `text-emphasis-color`.\n\n**Syntax**: `<'text-emphasis-style'> || <'text-emphasis-color'>`\n\n|    Chrome    | Firefox | Safari  |     Edge     | IE  |\n| :----------: | :-----: | :-----: | :----------: | :-: |\n| **25** _-x-_ | **46**  | **6.1** | **79** _-x-_ | No  |",
                     "type": "string"
                 },
                 "textEmphasisColor": {
-                    "description": "The **`text-emphasis-color`** CSS property sets the color of emphasis marks. This value can also be set using the `text-emphasis` shorthand.\n\n**Syntax**: `<color>`\n\n**Initial value**: `currentcolor`\n\n| Chrome | Firefox | Safari  |  Edge  | IE  |\n| :----: | :-----: | :-----: | :----: | :-: |\n| **25** | **46**  | **6.1** | **79** | No  |",
+                    "description": "The **`text-emphasis-color`** CSS property sets the color of emphasis marks. This value can also be set using the `text-emphasis` shorthand.\n\n**Syntax**: `<color>`\n\n**Initial value**: `currentcolor`\n\n|    Chrome    | Firefox | Safari  |     Edge     | IE  |\n| :----------: | :-----: | :-----: | :----------: | :-: |\n| **25** _-x-_ | **46**  | **6.1** | **79** _-x-_ | No  |",
                     "type": "string"
                 },
                 "textEmphasisPosition": {
-                    "description": "The **`text-emphasis-position`** CSS property sets where emphasis marks are drawn. Like ruby text, if there isn't enough room for emphasis marks, the line height is increased.\n\n**Syntax**: `[ over | under ] && [ right | left ]`\n\n**Initial value**: `over right`\n\n| Chrome | Firefox | Safari  |  Edge  | IE  |\n| :----: | :-----: | :-----: | :----: | :-: |\n| **25** | **46**  | **6.1** | **79** | No  |",
+                    "description": "The **`text-emphasis-position`** CSS property sets where emphasis marks are drawn. Like ruby text, if there isn't enough room for emphasis marks, the line height is increased.\n\n**Syntax**: `[ over | under ] && [ right | left ]`\n\n**Initial value**: `over right`\n\n|    Chrome    | Firefox | Safari  |     Edge     | IE  |\n| :----------: | :-----: | :-----: | :----------: | :-: |\n| **25** _-x-_ | **46**  | **6.1** | **79** _-x-_ | No  |",
                     "type": "string"
                 },
                 "textEmphasisStyle": {
-                    "description": "The **`text-emphasis-style`** CSS property sets the appearance of emphasis marks. It can also be set, and reset, using the `text-emphasis` shorthand.\n\n**Syntax**: `none | [ [ filled | open ] || [ dot | circle | double-circle | triangle | sesame ] ] | <string>`\n\n**Initial value**: `none`\n\n| Chrome | Firefox | Safari  |  Edge  | IE  |\n| :----: | :-----: | :-----: | :----: | :-: |\n| **25** | **46**  | **6.1** | **79** | No  |",
+                    "description": "The **`text-emphasis-style`** CSS property sets the appearance of emphasis marks. It can also be set, and reset, using the `text-emphasis` shorthand.\n\n**Syntax**: `none | [ [ filled | open ] || [ dot | circle | double-circle | triangle | sesame ] ] | <string>`\n\n**Initial value**: `none`\n\n|    Chrome    | Firefox | Safari  |     Edge     | IE  |\n| :----------: | :-----: | :-----: | :----------: | :-: |\n| **25** _-x-_ | **46**  | **6.1** | **79** _-x-_ | No  |",
                     "type": "string"
                 },
                 "textIndent": {
@@ -6884,7 +6880,7 @@
                     "type": "string"
                 },
                 "textUnderlineOffset": {
-                    "description": "The **`text-underline-offset`** CSS property sets the offset distance of an underline text decoration line (applied using `text-decoration`) from its original position.\n\n**Syntax**: `auto | from-font | <length> | <percentage> `\n\n**Initial value**: `auto`\n\n| Chrome | Firefox |  Safari  | Edge | IE  |\n| :----: | :-----: | :------: | :--: | :-: |\n|   No   | **70**  | **12.1** |  No  | No  |",
+                    "description": "The **`text-underline-offset`** CSS property sets the offset distance of an underline text decoration line (applied using `text-decoration`) from its original position.\n\n**Syntax**: `auto | <length> | <percentage> `\n\n**Initial value**: `auto`\n\n| Chrome | Firefox |  Safari  | Edge | IE  |\n| :----: | :-----: | :------: | :--: | :-: |\n|   No   | **70**  | **12.1** |  No  | No  |",
                     "type": [
                         "string",
                         "number"
@@ -6910,14 +6906,16 @@
                     "type": "string"
                 },
                 "transformBox": {
-                    "description": "The **`transform-box`** CSS property defines the layout box to which the `transform` and `transform-origin` properties relate.\n\n**Syntax**: `border-box | fill-box | view-box`\n\n**Initial value**: `border-box `\n\n| Chrome | Firefox | Safari |  Edge  | IE  |\n| :----: | :-----: | :----: | :----: | :-: |\n| **64** | **55**  | **11** | **79** | No  |",
+                    "description": "The **`transform-box`** CSS property defines the layout box to which the `transform` and `transform-origin` properties relate.\n\n**Syntax**: `content-box | border-box | fill-box | stroke-box | view-box`\n\n**Initial value**: `view-box`\n\n| Chrome | Firefox | Safari |  Edge  | IE  |\n| :----: | :-----: | :----: | :----: | :-: |\n| **64** | **55**  | **11** | **79** | No  |",
                     "enum": [
                         "-moz-initial",
                         "border-box",
+                        "content-box",
                         "fill-box",
                         "inherit",
                         "initial",
                         "revert",
+                        "stroke-box",
                         "unset",
                         "view-box"
                     ],
