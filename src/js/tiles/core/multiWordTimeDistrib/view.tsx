@@ -108,7 +108,7 @@ function prepareChartData(data:Array<LemmaData>, averagingYears:number):Array<Ch
                 return v;
             }
         ),
-        List.sort((a, b) => a.year - b.year)
+        List.sorted((a, b) => a.year - b.year)
     );
 
 }

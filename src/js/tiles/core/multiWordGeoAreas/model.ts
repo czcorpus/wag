@@ -18,7 +18,7 @@
 import { StatelessModel, IActionQueue, SEDispatcher } from 'kombo';
 import { Observable, of as rxOf, zip } from 'rxjs';
 import { concatMap, reduce, share, repeat } from 'rxjs/operators';
-import { Dict, List, pipe, tuple } from 'cnc-tskit';
+import { Dict, List } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
 import { GeneralSingleCritFreqMultiQueryState } from '../../../models/tiles/freq';

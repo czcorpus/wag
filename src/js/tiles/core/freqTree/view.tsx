@@ -41,7 +41,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 Dict.mapEntries(
                     ([k2, v2]) => ({
                         name: k2,
-                        children: List.sort((v3a, v3b) => v3a.name.localeCompare(v3b.name), [...v2])
+                        children: List.sorted((v3a, v3b) => v3a.name.localeCompare(v3b.name), [...v2])
                     })
                 ),
                 List.sortBy(v => v.name)

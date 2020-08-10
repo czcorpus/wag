@@ -260,7 +260,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     {pipe(
                         groupedAreaData,
                         Dict.toEntries(),
-                        List.sort(
+                        List.sorted(
                             ([area1,], [area2,]) => area1.localeCompare(area2)
                         ),
                         List.map(([area, rows]) =>

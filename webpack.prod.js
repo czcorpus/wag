@@ -105,8 +105,10 @@ module.exports = (env) => ({
                     {
                         loader: 'less-loader',
                         options: {
-                            strictMath: true,
-                            noIeCompat: true
+                            lessOptions: {
+                                strictMath: true,
+                                noIeCompat: true
+                            }
                         }
                     }
                 ]

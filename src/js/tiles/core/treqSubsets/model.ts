@@ -86,7 +86,7 @@ export const flipRowColMapper = <T>(subsets:Array<TranslationSubset>, maxNumLine
     }
     return pipe(
         tmp,
-        List.sort((v1, v2) => v2.cells.reduce((acc, curr) => acc + curr.perc, 0) - v1.cells.reduce((acc, curr) => acc + curr.perc, 0)),
+        List.sorted((v1, v2) => v2.cells.reduce((acc, curr) => acc + curr.perc, 0) - v1.cells.reduce((acc, curr) => acc + curr.perc, 0)),
         List.slice(0, maxNumLines),
         List.map(row => mapFn(row))
     );
@@ -365,7 +365,7 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
                 const ans:[string, number] = [translat, List.reduce((acc, curr) => acc + curr.score, 0, v)];
                 return ans;
             }),
-            List.sort(([,v1], [,v2]) => v2 - v1),
+            List.sorted(([,v1], [,v2]) => v2 - v1),
             List.map(([idx,]) => idx)
         );
 
