@@ -129,7 +129,7 @@ export class KorpusFreqDB implements IFreqDB {
         )
     }
 
-    private loadData(word:string):Observable<HTTPDataResponse> {
+    private loadData(value:string, type:string):Observable<HTTPDataResponse> {
         return serverHttpRequest<HTTPDataResponse>({
             url: this.apiURL + '/api/cunits/_view',
             method: HTTP.Method.POST,
@@ -139,8 +139,8 @@ export class KorpusFreqDB implements IFreqDB {
                 query: {
                     feats: [{
                         ci: true,
-                        type: ':form:attr:cnc:w:word',
-                        value: word
+                        type: type,
+                        value: value
                     }],
                     type: ':token:form'
                 },
@@ -162,7 +162,7 @@ export class KorpusFreqDB implements IFreqDB {
     }
 
     findQueryMatches(appServices:IAppServices, word:string, minFreq:number):Observable<Array<QueryMatch>> {
-        return forkJoin(this.loadResources(), this.loadData(word)).pipe(
+        return forkJoin(this.loadResources(), this.loadData(word, ':form:attr:cnc:w:word')).pipe(
             map(([res, data]) => List.reduce(
                 (acc, curr) => {
                     if (curr[this.fcrit]) {
@@ -213,10 +213,44 @@ export class KorpusFreqDB implements IFreqDB {
     }
 
     getWordForms(appServices:IAppServices, lemma:string, pos:Array<string>):Observable<Array<QueryMatch>> {
-        return new Observable<Array<QueryMatch>>((observer) => {
-            observer.next([]);
-            observer.complete();
-        });
+        return forkJoin(this.loadResources(), this.loadData(lemma, ':form:attr:cnc:w:lemma')).pipe(
+            map(([res, data]) => List.reduce(
+                (acc, curr) => {
+                    if (curr[this.fcrit]) {
+                        const wordPos = importQueryPosWithLabel(curr._slots[0]._fillers[0][':form:attr:cnc:w:tag'][0], posTable, appServices);
+                        if (wordPos.length === pos.length && List.every(([a, b]) => a === b.value, List.zip(wordPos, pos))) {
+                            const word = curr._slots[0]._fillers[0][':form:attr:cnc:w:word'];
+                            const ipm = 1000000 * curr[this.fcrit]/res.data[0][this.normPath[0]][this.normPath[1]].params.size_tokens;
+
+                            // aggregate items whit identical pos and lemma
+                            const ident = List.findIndex(obj => obj.word === word, acc);
+                            if (ident > -1) {
+                                acc[ident].abs += curr[this.fcrit];
+                                acc[ident].ipm += ipm;
+                                acc[ident].flevel = calcFreqBand(acc[ident].ipm);
+                                return acc;
+
+                            } else {
+                                return [...acc, {
+                                    word: word,
+                                    lemma: lemma,
+                                    pos: pos,
+                                    ipm: ipm,
+                                    flevel: calcFreqBand(ipm),
+                                    abs: curr[this.fcrit],
+                                    arf: -1,
+                                    isCurrent: false,
+                                }];
+                            }
+                        }
+                    } else {
+                        return acc
+                    }
+                },
+                [],
+                data.data
+            ))
+        );
     }
 
     getSourceDescription(uiLang:string, corpname:string):Observable<CorpusDetails> {
