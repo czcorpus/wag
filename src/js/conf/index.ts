@@ -86,7 +86,7 @@ export interface ColorsConf {
 
 
 export interface GroupLayoutConfig {
-    groupLabel:LocalizedConfMsg;
+    groupLabel?:LocalizedConfMsg;
     groupDescURL?:LocalizedConfMsg;
     groupTemplate?:any; // TODO unfinished concept
     tiles:Array<{tile:string; width:number; ref?:string}>;
