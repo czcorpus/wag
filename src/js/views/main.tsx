@@ -1051,15 +1051,18 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
 
         return (
-            <section key={`group:${props.data.groupLabel}`} className="group">
-                <header>
-                    <TileGroupButton
-                            groupDisabled={!props.hasData}
-                            groupHidden={props.isHidden}
-                            group={props.data}
-                            clickHandler={handleGroupClick}
-                            helpClickHandler={props.data.groupDescURL ? handleGroupHeaderClick : null} />
-                </header>
+            <section key={`group:${props.data.groupLabel ? props.data.groupLabel : props.idx}`} className="group">
+                {props.data.groupLabel ?
+                    <header>
+                        <TileGroupButton
+                                groupDisabled={!props.hasData}
+                                groupHidden={props.isHidden}
+                                group={props.data}
+                                clickHandler={handleGroupClick}
+                                helpClickHandler={props.data.groupDescURL ? handleGroupHeaderClick : null} />
+                    </header> :
+                    <hr style={{marginBottom: '1em'}}/>
+                }
                 {renderResult()}
             </section>
         );

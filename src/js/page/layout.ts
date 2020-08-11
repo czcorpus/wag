@@ -23,7 +23,7 @@ import { List, Dict, pipe } from 'cnc-tskit';
 
 
 function itemIsGroupConf(v:string|GroupLayoutConfig):v is GroupLayoutConfig {
-    return typeof v === 'object' && v['groupLabel'] !== undefined;
+    return typeof v === 'object' && v['tiles'] !== undefined;
 }
 
 function itemIsServiceConf(v:string|GroupLayoutConfig):v is string {
@@ -37,8 +37,8 @@ export interface GroupedTileProps {
 }
 
 export interface TileGroup {
-    groupLabel:string;
-    groupDescURL:string;
+    groupLabel?:string;
+    groupDescURL?:string;
     tiles:Array<GroupedTileProps>;
 }
 
