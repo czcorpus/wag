@@ -144,7 +144,7 @@ export class KorpusFreqDB implements IFreqDB {
                     }],
                     type: ':token:form'
                 },
-                _client: 'wdg'
+                _client: 'wag'
             },
             headers: this.customHeaders
 
