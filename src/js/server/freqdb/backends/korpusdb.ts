@@ -135,6 +135,21 @@ export class KorpusFreqDB implements IFreqDB {
             method: HTTP.Method.POST,
             data: {
                 feats:[':form:attr:cnc:w', ':stats:fq:abs:cnc'],
+                sort: [
+                    {
+                        'feats._i_value': {
+                            order: 'desc',
+                            nested: {
+                                path: 'feats',
+                                filter: {
+                                    term: {
+                                        'feats.type': ':stats:fq:abs:cnc'
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
                 page: {from: 0, to: 100},
                 query: {
                     feats: [{
