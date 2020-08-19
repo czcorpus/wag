@@ -228,9 +228,9 @@ export class KorpusFreqDB implements IFreqDB {
                                 isCurrent: false,
                             }];
                         }
-                    } else {
-                        return acc
                     }
+                    
+                    return acc;
                 },
                 [],
                 data.data
@@ -281,10 +281,9 @@ export class KorpusFreqDB implements IFreqDB {
                                 }];
                             }
                         }
-
-                    } else {
-                        return acc
                     }
+
+                    return acc;
                 },
                 [],
                 data.data
