@@ -73,7 +73,6 @@ export interface DataBlock {
             [':form:attr:cnc:w:word']:string;
         }>
     }>;
-    [':stats:fq:abs:cnc:corpus-syn8']:number;
 }
 
 
@@ -101,12 +100,15 @@ export class KorpusFreqDB implements IFreqDB {
 
     private readonly fcrit:string;
 
+    private readonly ngramFcrit:string;
+
     private readonly normPath:string[];
 
     constructor(apiUrl:string, apiServices:IApiServices, options:FreqDbOptions) {
         this.apiURL = apiUrl;
         this.customHeaders = options.httpHeaders || {};
         this.fcrit = options.korpusDBCrit;
+        this.ngramFcrit = options.korpusDBNgramCrit;
         this.normPath = options.korpusDBNorm.split('/');
     }
 
@@ -130,11 +132,14 @@ export class KorpusFreqDB implements IFreqDB {
     }
 
     private loadData(value:string, type:string):Observable<HTTPDataResponse> {
+        const words = value.split(' ');
+        const fcritLocation = List.init(words.length > 1 ? this.ngramFcrit.split(':') : this.fcrit.split(':')).join(':');
+
         return serverHttpRequest<HTTPDataResponse>({
             url: this.apiURL + '/api/cunits/_view',
             method: HTTP.Method.POST,
             data: {
-                feats:[':form:attr:cnc:w', ':stats:fq:abs:cnc'],
+                feats:[':form:attr:cnc:w', fcritLocation],
                 sort: [
                     {
                         'feats._i_value': {
@@ -143,7 +148,7 @@ export class KorpusFreqDB implements IFreqDB {
                                 path: 'feats',
                                 filter: {
                                     term: {
-                                        'feats.type': ':stats:fq:abs:cnc'
+                                        'feats.type': fcritLocation
                                     }
                                 }
                             }
@@ -152,12 +157,20 @@ export class KorpusFreqDB implements IFreqDB {
                 ],
                 page: {from: 0, to: 100},
                 query: {
-                    feats: [{
-                        ci: true,
-                        type: type,
-                        value: value
-                    }],
-                    type: ':token:form'
+                    feats: [],
+                    type: words.length > 1 ? `:ngram:form:${words.length}` : ':token:form',
+                    slots: List.map(
+                        word => ({
+                            fillers: [{
+                                feats: [{
+                                    type: type,
+                                    value: word,
+                                    ci: true
+                                }]
+                            }]
+                        }),
+                        words
+                    )
                 },
                 _client: 'wag'
             },
@@ -177,13 +190,18 @@ export class KorpusFreqDB implements IFreqDB {
     }
 
     findQueryMatches(appServices:IAppServices, word:string, minFreq:number):Observable<Array<QueryMatch>> {
+        const fcrit = word.includes(' ') ? this.ngramFcrit : this.fcrit;
         return forkJoin(this.loadResources(), this.loadData(word, ':form:attr:cnc:w:word')).pipe(
             map(([res, data]) => List.reduce(
                 (acc, curr) => {
-                    if (curr[this.fcrit]) {
-                        const lemma = curr._slots[0]._fillers[0][':form:attr:cnc:w:lemma'];
-                        const pos = importQueryPosWithLabel(curr._slots[0]._fillers[0][':form:attr:cnc:w:tag'][0], posTable, appServices);
-                        const ipm = 1000000 * curr[this.fcrit]/res.data[0][this.normPath[0]][this.normPath[1]].params.size_tokens;
+                    if (word.toLowerCase() === curr._name.toLowerCase() && curr[fcrit]) {
+                        const lemma = List.map(slot => slot._fillers[0][':form:attr:cnc:w:lemma'], curr._slots).join(' ');
+                        const pos = importQueryPosWithLabel(
+                            List.map(slot => slot._fillers[0][':form:attr:cnc:w:tag'][0], curr._slots).join(' '),
+                            posTable,
+                            appServices
+                        );
+                        const ipm = 1000000 * curr[fcrit]/res.data[0][this.normPath[0]][this.normPath[1]].params.size_tokens;
 
                         // aggregate items whit identical pos and lemma
                         const ident = List.findIndex(obj =>
@@ -193,7 +211,7 @@ export class KorpusFreqDB implements IFreqDB {
                             acc
                         );
                         if (ident > -1) {
-                            acc[ident].abs += curr[this.fcrit];
+                            acc[ident].abs += curr[fcrit];
                             acc[ident].ipm += ipm;
                             acc[ident].flevel = calcFreqBand(acc[ident].ipm);
                             return acc;
@@ -205,7 +223,7 @@ export class KorpusFreqDB implements IFreqDB {
                                 pos: pos,
                                 ipm: ipm,
                                 flevel: calcFreqBand(ipm),
-                                abs: curr[this.fcrit],
+                                abs: curr[fcrit],
                                 arf: -1,
                                 isCurrent: false,
                             }];
@@ -228,36 +246,42 @@ export class KorpusFreqDB implements IFreqDB {
     }
 
     getWordForms(appServices:IAppServices, lemma:string, pos:Array<string>):Observable<Array<QueryMatch>> {
+        const fcrit = lemma.includes(' ') ? this.ngramFcrit : this.fcrit;
         return forkJoin(this.loadResources(), this.loadData(lemma, ':form:attr:cnc:w:lemma')).pipe(
             map(([res, data]) => List.reduce(
                 (acc, curr) => {
-                    if (curr[this.fcrit]) {
-                        const wordPos = importQueryPosWithLabel(curr._slots[0]._fillers[0][':form:attr:cnc:w:tag'][0], posTable, appServices);
-                        if (wordPos.length === pos.length && List.every(([a, b]) => a === b.value, List.zip(wordPos, pos))) {
-                            const word = curr._slots[0]._fillers[0][':form:attr:cnc:w:word'];
-                            const ipm = 1000000 * curr[this.fcrit]/res.data[0][this.normPath[0]][this.normPath[1]].params.size_tokens;
+                    if (curr[fcrit]) {
+                        const wordPos = importQueryPosWithLabel(
+                            List.map(slot => slot._fillers[0][':form:attr:cnc:w:tag'][0], curr._slots).join(' '),
+                            posTable,
+                            appServices
+                        );
 
-                            // aggregate items whit identical pos and lemma
-                            const ident = List.findIndex(obj => obj.word === word, acc);
+                        if (wordPos.length === pos.length && List.every(([a, b]) => a === b.value, List.zip(wordPos, pos))) {
+                            const ipm = 1000000 * curr[fcrit]/res.data[0][this.normPath[0]][this.normPath[1]].params.size_tokens;
+
+                            // aggregate items whit identical word
+                            const ident = List.findIndex(obj => obj.word === curr._name, acc);
                             if (ident > -1) {
-                                acc[ident].abs += curr[this.fcrit];
+                                acc[ident].abs += curr[fcrit];
                                 acc[ident].ipm += ipm;
                                 acc[ident].flevel = calcFreqBand(acc[ident].ipm);
                                 return acc;
 
                             } else {
                                 return [...acc, {
-                                    word: word,
+                                    word: curr._name,
                                     lemma: lemma,
                                     pos: pos,
                                     ipm: ipm,
                                     flevel: calcFreqBand(ipm),
-                                    abs: curr[this.fcrit],
+                                    abs: curr[fcrit],
                                     arf: -1,
                                     isCurrent: false,
                                 }];
                             }
                         }
+
                     } else {
                         return acc
                     }

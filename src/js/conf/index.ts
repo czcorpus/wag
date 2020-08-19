@@ -369,6 +369,7 @@ export interface FreqDbOptions {
     maxSingleTypeNgramArf?:number;
 
     korpusDBCrit?:string;
+    korpusDBNgramCrit?:string;
     korpusDBNorm?:string;
 }
 
