@@ -149,7 +149,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 const areaData = areaIndex === -1 ? undefined : props.data[areaIndex];
                 
                 if (areaData === undefined || areaData.freq < props.frequencyDisplayLimit) {
-                    label = createSVGEmptyCircle(elm, mkSize(0));
+                    label = createSVGEmptyCircle(elm, rMax - rMin);
 
                 } else {
                     const circle = createSVGElement(
