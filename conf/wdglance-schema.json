@@ -536,6 +536,9 @@
                 "inlineStyle": {
                     "$ref": "#/definitions/React.CSSProperties"
                 },
+                "label": {
+                    "type": "string"
+                },
                 "url": {
                     "type": "string"
                 }
