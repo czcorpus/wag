@@ -354,6 +354,19 @@
                     },
                     "type": "object"
                 },
+                "label": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                },
                 "replace": {
                     "additionalProperties": {
                         "type": "string"
@@ -405,6 +418,19 @@
                     },
                     "type": "object"
                 },
+                "label": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                },
                 "replace": {
                     "additionalProperties": {
                         "type": "string"
@@ -455,6 +481,19 @@
                         "type": "array"
                     },
                     "type": "object"
+                },
+                "label": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
                 },
                 "replace": {
                     "additionalProperties": {

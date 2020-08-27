@@ -44,6 +44,7 @@ export interface TileGroup {
 
 
 interface LayoutCore {
+    label:string;
     groups:Array<TileGroup>;
     services:Array<number>;
 }
@@ -68,9 +69,10 @@ function layoutIsEmpty(layout:LayoutCore):boolean {
 }
 
 function importLayout(gc:LayoutConfigCommon|undefined, tileMap:TileIdentMap,
-            appServices:IAppServices):LayoutCore {
+            appServices:IAppServices, defaultLabel:string):LayoutCore {
     return gc !== undefined ?
         {
+            label: appServices.importExternalMessage(gc.label?? defaultLabel),
             groups: pipe(
                     gc.groups || [],
                     List.map(group => {
@@ -101,6 +103,7 @@ function importLayout(gc:LayoutConfigCommon|undefined, tileMap:TileIdentMap,
             )
         } :
         {
+            label: '',
             groups: [],
             services: []
         };
@@ -118,11 +121,25 @@ export class LayoutManager {
     private readonly queryTypes:Array<QueryTypeMenuItem>;
 
     constructor(layouts:LayoutsConfig, tileMap:TileIdentMap, appServices:IAppServices) {
-
-        this.layoutSingle = importLayout(layouts.single, tileMap, appServices);
-        this.layoutCmp = importLayout(layouts.cmp, tileMap, appServices);
+        this.layoutSingle = importLayout(
+            layouts.single,
+            tileMap,
+            appServices,
+            'global__single_word_sel'
+        );
+        this.layoutCmp = importLayout(
+            layouts.cmp,
+            tileMap,
+            appServices,
+            'global__words_compare'
+        );
         this.layoutTranslat = {
-            ...importLayout(layouts.translat, tileMap, appServices),
+            ...importLayout(
+                layouts.translat,
+                tileMap,
+                appServices,
+                'global__word_translate'
+            ),
             translatTargetLanguages: (layouts.translat ?
                     layouts.translat.targetDomains : []).map(c => [c, appServices.getDomainName(c)])
         };
@@ -130,17 +147,17 @@ export class LayoutManager {
         this.queryTypes = [
             {
                 type: QueryType.SINGLE_QUERY,
-                label: appServices.translate('global__single_word_sel'),
+                label: this.layoutSingle.label,
                 isEnabled: !layoutIsEmpty(this.layoutSingle)
             },
             {
                 type: QueryType.CMP_QUERY,
-                label: appServices.translate('global__words_compare'),
+                label: this.layoutCmp.label,
                 isEnabled: !layoutIsEmpty(this.layoutCmp)
             },
             {
                 type: QueryType.TRANSLAT_QUERY,
-                label: appServices.translate('global__word_translate'),
+                label: this.layoutTranslat.label,
                 isEnabled: !layoutIsEmpty(this.layoutTranslat)
             }
         ];
