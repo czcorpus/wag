@@ -163,8 +163,6 @@
         },
         "WordFreqDbConf": {
             "properties": {
-                "Languages": {
-                },
                 "cmp": {
                     "$ref": "#/definitions/QueryModeWordDb"
                 },
@@ -175,9 +173,6 @@
                     "$ref": "#/definitions/QueryModeWordDb"
                 }
             },
-            "required": [
-                "Languages"
-            ],
             "type": "object"
         }
     },
