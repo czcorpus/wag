@@ -96,6 +96,7 @@ export type GroupItemConfig = GroupLayoutConfig|string;
 
 export interface LayoutConfigCommon {
     groups:Array<GroupItemConfig>;
+    label?:LocalizedConfMsg;
     useLayout?:string;
     replace?:{[ref:string]:string};
     insertAfter?:{[ref:string]:Array<{tile:string; width:number}>};
