@@ -134,6 +134,7 @@ export interface FaviconConf {
 export interface LogoConf {
     url:string;
     inlineStyle?:CSSProperties;
+    label?:string;
 }
 
 export interface CommonTextStructures {
