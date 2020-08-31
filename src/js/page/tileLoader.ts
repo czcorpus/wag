@@ -105,13 +105,20 @@ export const mkTileFactory = (
                     v => tileIdentMap[v],
                     importDependentTilesList(
                         layoutManager.getTileWaitFor(queryType, tileIdentMap[confName]),
-                        conf.readSubqFrom
+                        layoutManager.getTileReadSubqFrom(queryType, tileIdentMap[confName])
                     )
                 ),
                 waitForTilesTimeoutSecs: conf.waitForTimeoutSecs,
                 subqSourceTiles: List.map(
-                    v => tileIdentMap[v],
-                    importDependentTilesList(conf.readSubqFrom)
+                    v => {
+                        if (!conf.compatibleSubqProviders || !conf.compatibleSubqProviders.includes(v)) {
+                            console.warn(`Tile '${v}' not supported as subquery provider by '${confName}'`);
+                        }
+                        return tileIdentMap[v];
+                    },
+                    importDependentTilesList(
+                        layoutManager.getTileReadSubqFrom(queryType, tileIdentMap[confName])
+                    )
                 ),
                 widthFract: layoutManager.getTileWidthFract(queryType, tileIdentMap[confName]),
                 theme,

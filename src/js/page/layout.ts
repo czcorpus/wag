@@ -35,6 +35,7 @@ export interface GroupedTileProps {
     width:number;
     tileId:number;
     waitFor:Array<string>|string;
+    readSubqFrom:string|Array<string>;
 }
 
 export interface TileGroup {
@@ -86,7 +87,8 @@ function importLayout(gc:LayoutConfigCommon|undefined, tileMap:TileIdentMap,
                                     v => ({
                                         tileId: tileMap[v.tile],
                                         width: v.width,
-                                        waitFor: v.waitFor
+                                        waitFor: v.waitFor,
+                                        readSubqFrom: v.readSubqFrom
                                     }),
                                     group.tiles
                                 )
@@ -223,6 +225,15 @@ export class LayoutManager {
                 List.find(v => v.tileId === tileId)
         );
         return srch && srch.waitFor ? srch.waitFor : null;
+    }
+
+    getTileReadSubqFrom(queryType:QueryType, tileId:number):Array<string>|string|null {
+        const srch = pipe(
+                this.getLayout(queryType).groups,
+                List.flatMap(v => v.tiles),
+                List.find(v => v.tileId === tileId)
+        );
+        return srch && srch.readSubqFrom ? srch.readSubqFrom : null;
     }
 
     private isServiceOf(queryType:QueryType, tileId:number):boolean {

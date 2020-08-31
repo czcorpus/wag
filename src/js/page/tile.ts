@@ -83,22 +83,6 @@ export interface TileConf {
     waitForTimeoutSecs?:number;
 
     /**
-     * In case we depend on multiple tiles and some of them are
-     * just kind of hidden dependencies (i.e. we want to wait them
-     * to complate but we don't need their subquery args) this can
-     * be used to distinguish the two dependency types.
-     *
-     * Please note that this value is not used directly by WdG but
-     * it is rather provided for tile model to provide more information
-     * about inter-tile dependencies. I.e. it is perfectly doable to
-     * define a subquery producing tile as a dependency via 'waitFor'.
-     * But in more complex situations when we need some tiles to just
-     * wait for and some to also provide subqueries the model may not
-     * have enough information to distinguish between the two.
-     */
-    readSubqFrom?:string|Array<string>;
-
-    /**
      * A label used in the header of the tile
      */
     label?:LocalizedConfMsg;
@@ -116,6 +100,11 @@ export interface TileConf {
      * (but a possible scrollbar is still applied if needed).
      */
     maxTileHeight?:string;
+
+    /**
+     * Defines tiles which can be used as sources of subqueries
+     */
+    compatibleSubqProviders?:Array<string>;
 }
 
 /**
