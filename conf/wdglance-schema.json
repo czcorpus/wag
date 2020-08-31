@@ -244,6 +244,20 @@
                 "tiles": {
                     "items": {
                         "properties": {
+                            "readSubqFrom": {
+                                "anyOf": [
+                                    {
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "type": "array"
+                                    },
+                                    {
+                                        "type": "string"
+                                    }
+                                ],
+                                "description": "In case we depend on multiple tiles and some of them are\njust kind of hidden dependencies (i.e. we want to wait them\nto complate but we don't need their subquery args) this can\nbe used to distinguish the two dependency types.\n\nPlease note that this value is not used directly by WdG but\nit is rather provided for tile model to provide more information\nabout inter-tile dependencies. I.e. it is perfectly doable to\ndefine a subquery producing tile as a dependency via 'waitFor'.\nBut in more complex situations when we need some tiles to just\nwait for and some to also provide subqueries the model may not\nhave enough information to distinguish between the two."
+                            },
                             "ref": {
                                 "type": "string"
                             },
@@ -28320,20 +28334,6 @@
                 "maxTileHeight": {
                     "description": "Defines tile max height using a css value (e.g. '10em', '130px').\nIf other tiles in the row enforce more height, the value is ignored\n(but a possible scrollbar is still applied if needed).",
                     "type": "string"
-                },
-                "readSubqFrom": {
-                    "anyOf": [
-                        {
-                            "items": {
-                                "type": "string"
-                            },
-                            "type": "array"
-                        },
-                        {
-                            "type": "string"
-                        }
-                    ],
-                    "description": "In case we depend on multiple tiles and some of them are\njust kind of hidden dependencies (i.e. we want to wait them\nto complate but we don't need their subquery args) this can\nbe used to distinguish the two dependency types.\n\nPlease note that this value is not used directly by WdG but\nit is rather provided for tile model to provide more information\nabout inter-tile dependencies. I.e. it is perfectly doable to\ndefine a subquery producing tile as a dependency via 'waitFor'.\nBut in more complex situations when we need some tiles to just\nwait for and some to also provide subqueries the model may not\nhave enough information to distinguish between the two."
                 },
                 "srcInfoURL": {
                     "description": "If needed, a specific address for a resource information can be defined.\n(e.g. you still want to use KonText as a corpus information provider\nfor a non-KonText service).",

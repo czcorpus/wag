@@ -105,13 +105,15 @@ export const mkTileFactory = (
                     v => tileIdentMap[v],
                     importDependentTilesList(
                         layoutManager.getTileWaitFor(queryType, tileIdentMap[confName]),
-                        conf.readSubqFrom
+                        layoutManager.getTileReadSubqFrom(queryType, tileIdentMap[confName])
                     )
                 ),
                 waitForTilesTimeoutSecs: conf.waitForTimeoutSecs,
                 subqSourceTiles: List.map(
                     v => tileIdentMap[v],
-                    importDependentTilesList(conf.readSubqFrom)
+                    importDependentTilesList(
+                        layoutManager.getTileReadSubqFrom(queryType, tileIdentMap[confName])
+                    )
                 ),
                 widthFract: layoutManager.getTileWidthFract(queryType, tileIdentMap[confName]),
                 theme,
