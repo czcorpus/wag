@@ -43,6 +43,20 @@
                             "tile": {
                                 "type": "string"
                             },
+                            "waitFor": {
+                                "anyOf": [
+                                    {
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "type": "array"
+                                    },
+                                    {
+                                        "type": "string"
+                                    }
+                                ],
+                                "description": "In case a tile supports this (most of them does so) it can\nwait for a specific tile to finish its operation. Again,\nthis is used mainly for 'concordance -> analysis' combinations."
+                            },
                             "width": {
                                 "type": "number"
                             }

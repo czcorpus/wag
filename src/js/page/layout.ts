@@ -34,6 +34,7 @@ function itemIsServiceConf(v:string|GroupLayoutConfig):v is string {
 export interface GroupedTileProps {
     width:number;
     tileId:number;
+    waitFor:Array<string>|string;
 }
 
 export interface TileGroup {
@@ -82,7 +83,11 @@ function importLayout(gc:LayoutConfigCommon|undefined, tileMap:TileIdentMap,
                                 groupLabel: appServices.importExternalMessage(group.groupLabel),
                                 groupDescURL: appServices.externalMessageIsDefined(descUrl) ? appServices.importExternalMessage(descUrl) : null,
                                 tiles: List.map(
-                                    v => ({tileId: tileMap[v.tile], width: v.width}),
+                                    v => ({
+                                        tileId: tileMap[v.tile],
+                                        width: v.width,
+                                        waitFor: v.waitFor
+                                    }),
                                     group.tiles
                                 )
                             };
@@ -209,6 +214,15 @@ export class LayoutManager {
                 List.find(v => v.tileId === tileId)
         );
         return srch ? srch.width : null;
+    }
+
+    getTileWaitFor(queryType:QueryType, tileId:number):Array<string>|string|null {
+        const srch = pipe(
+                this.getLayout(queryType).groups,
+                List.flatMap(v => v.tiles),
+                List.find(v => v.tileId === tileId)
+        );
+        return srch && srch.waitFor ? srch.waitFor : null;
     }
 
     private isServiceOf(queryType:QueryType, tileId:number):boolean {
