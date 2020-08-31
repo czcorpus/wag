@@ -101,9 +101,18 @@ export const mkTileFactory = (
                 domain1: domain1,
                 domain2: domain2,
                 queryType,
-                waitForTiles: List.map(v => tileIdentMap[v], importDependentTilesList(conf.waitFor, conf.readSubqFrom)),
+                waitForTiles: List.map(
+                    v => tileIdentMap[v],
+                    importDependentTilesList(
+                        layoutManager.getTileWaitFor(queryType, tileIdentMap[confName]),
+                        conf.readSubqFrom
+                    )
+                ),
                 waitForTilesTimeoutSecs: conf.waitForTimeoutSecs,
-                subqSourceTiles: List.map(v => tileIdentMap[v], importDependentTilesList(conf.readSubqFrom)),
+                subqSourceTiles: List.map(
+                    v => tileIdentMap[v],
+                    importDependentTilesList(conf.readSubqFrom)
+                ),
                 widthFract: layoutManager.getTileWidthFract(queryType, tileIdentMap[confName]),
                 theme,
                 conf,

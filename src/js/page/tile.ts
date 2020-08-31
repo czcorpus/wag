@@ -80,13 +80,6 @@ export interface TileConf {
      */
     isDisabled?:boolean;
 
-    /**
-     * In case a tile supports this (most of them does so) it can
-     * wait for a specific tile to finish its operation. Again,
-     * this is used mainly for 'concordance -> analysis' combinations.
-     */
-    waitFor?:string|Array<string>;
-
     waitForTimeoutSecs?:number;
 
     /**

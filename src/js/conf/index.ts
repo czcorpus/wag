@@ -89,7 +89,17 @@ export interface GroupLayoutConfig {
     groupLabel?:LocalizedConfMsg;
     groupDescURL?:LocalizedConfMsg;
     groupTemplate?:any; // TODO unfinished concept
-    tiles:Array<{tile:string; width:number; ref?:string}>;
+    tiles:Array<{
+        tile:string;
+        width:number;
+        ref?:string;
+        /**
+        * In case a tile supports this (most of them does so) it can
+        * wait for a specific tile to finish its operation. Again,
+        * this is used mainly for 'concordance -> analysis' combinations.
+        */
+       waitFor?:string|Array<string>;
+    }>;
 }
 
 export type GroupItemConfig = GroupLayoutConfig|string;
