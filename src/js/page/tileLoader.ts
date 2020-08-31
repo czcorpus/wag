@@ -110,7 +110,12 @@ export const mkTileFactory = (
                 ),
                 waitForTilesTimeoutSecs: conf.waitForTimeoutSecs,
                 subqSourceTiles: List.map(
-                    v => tileIdentMap[v],
+                    v => {
+                        if (!conf.compatibleSubqProviders || !conf.compatibleSubqProviders.includes(v)) {
+                            console.warn(`Tile '${v}' not supported as subquery provider by '${confName}'`);
+                        }
+                        return tileIdentMap[v];
+                    },
                     importDependentTilesList(
                         layoutManager.getTileReadSubqFrom(queryType, tileIdentMap[confName])
                     )

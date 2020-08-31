@@ -100,6 +100,11 @@ export interface TileConf {
      * (but a possible scrollbar is still applied if needed).
      */
     maxTileHeight?:string;
+
+    /**
+     * Defines tiles which can be used as sources of subqueries
+     */
+    compatibleSubqProviders?:Array<string>;
 }
 
 /**

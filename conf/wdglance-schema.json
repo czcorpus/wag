@@ -28299,6 +28299,13 @@
                     "$ref": "#/definitions/Backlink",
                     "description": "An optional link to an application the specific tile\nrepresents (more or less). It is expected that the\ntile logic is able to pass proper arguments to the\npage."
                 },
+                "compatibleSubqProviders": {
+                    "description": "Defines tiles which can be used as sources of subqueries",
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
                 "helpURL": {
                     "anyOf": [
                         {
