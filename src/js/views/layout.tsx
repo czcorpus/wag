@@ -99,6 +99,10 @@ export function init(ut:ViewUtils<GlobalComponents>):React.SFC<LayoutProps> {
                 </div>;
         };
 
+        const createLabel = () => props.config.logo && props.config.logo.label ?
+            props.config.logo.label :
+            ut.translate('global__wdglance_title');
+
         return (
             <html lang={props.uiLang}>
                 <head>
@@ -115,7 +119,7 @@ export function init(ut:ViewUtils<GlobalComponents>):React.SFC<LayoutProps> {
                 <body>
                     {props.hostPageEnv.html ? renderToolbar() : null}
                     <header className="wdg-header">
-                        <a href={props.config.hostUrl} title={props.config.logo.label?? ut.translate('global__wdglance_title')}>
+                        <a href={props.config.hostUrl} title={createLabel()}>
                             {props.config.logo ?
                                 <img src={props.config.logo.url} alt="logo" style={props.config.logo.inlineStyle} /> :
                                 <img src={ut.createStaticUrl(ut.translate('global__logo_file'))} alt="logo" />
