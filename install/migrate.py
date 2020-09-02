@@ -51,7 +51,13 @@ def migrate_data(db_conf: DbConf, path: str):
     for row in all_docs['rows']:
         waitFor, readSubqFrom = None, None
         ident = row['id']
+        if not ident.startswith('cnc:'):
+            print(f'skipping {ident}')
+            continue
         doc = get_doc(db_conf, ident)
+        if 'conf' not in doc:
+            print(f'skipping {ident} (no conf section)')
+            continue
 
         if 'waitFor' in doc['conf']:
             waitFor = doc['conf']['waitFor']
@@ -66,13 +72,15 @@ def migrate_data(db_conf: DbConf, path: str):
             if doc['lang'] in l_data:
                 for mode in ['single', 'cmp', 'translat']:
                     for group in l_data[doc['lang']][mode]['groups']:
+                        if type(group) is str:
+                            print(f'skipping group {group}')
+                            continue
                         for tile in group['tiles']:
                             if tile['tile'] == doc['ident']:
                                 if waitFor:
                                     tile['waitFor'] = waitFor
                                 if readSubqFrom:
                                     tile['readSubqFrom'] = readSubqFrom
-            print(l_data)
             with open(path, 'w') as f:
                 json.dump(l_data, f, indent=4, ensure_ascii=False)
 
@@ -80,18 +88,21 @@ def migrate_data(db_conf: DbConf, path: str):
             protocol, server = re.split(r'(https?://)', db_conf.server)[1:]
             ans = requests.put(f'{protocol}{db_conf.username}:{db_conf.password}@{server}/{db_conf.db}/{ident}',
                     data=json.dumps(doc), headers={'Accept': 'application/json', 'Content-Type': 'application/json'})
-            
+
             print(ans.text)
 
 
 if __name__ == '__main__':
-    argparser = argparse.ArgumentParser('Write an existing tile JSON config to a CouchDB instance')
+    argparser = argparse.ArgumentParser('migrate', description='Migrate "waitFor" and "readSubqFrom" configurations from CouchDB tile conf to layout conf')
     argparser.add_argument('layouts_conf', metavar='LAYOUTS_CONF', help='WaG server configuration file with tileDB filled in')
     argparser.add_argument('wdglance_conf', metavar='WDGLANCE_CONF', help='a JSON file containing tiles configurations')
     args = argparser.parse_args()
     with open(args.wdglance_conf) as fr:
-        server_conf = json.load(fr)
-    tmp = server_conf['couchtiles']
+        wdglance_conf = json.load(fr)
+    tmp = wdglance_conf['tiles']
+    if type(tmp) is not dict or 'server' not in tmp:
+        print(f'ERROR: It looks like {args.wdglance_conf} does not use CouchDB for providing tile configs')
+        sys.exit(1)
     db_conf = DbConf()
     db_conf.db = tmp.get('db', db_conf.db)
     db_conf.server = tmp.get('server', db_conf.server)
