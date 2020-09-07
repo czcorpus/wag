@@ -23,7 +23,7 @@ import { IFreqDB } from '../freqdb';
 import { IAppServices, IApiServices } from '../../../appServices';
 import { QueryMatch, calcFreqBand } from '../../../query/index';
 import { FreqDbOptions } from '../../../conf';
-import { importQueryPosWithLabel, posTable } from '../../../postag';
+import { importQueryPosWithLabel, posTable, posTagsEqual } from '../../../postag';
 import { CorpusDetails } from '../../../types';
 import { serverHttpRequest } from '../../request';
 
@@ -229,7 +229,7 @@ export class KorpusFreqDB implements IFreqDB {
                             }];
                         }
                     }
-                    
+
                     return acc;
                 },
                 [],
@@ -257,7 +257,7 @@ export class KorpusFreqDB implements IFreqDB {
                             appServices
                         );
 
-                        if (wordPos.length === pos.length && List.every(([a, b]) => a === b.value, List.zip(wordPos, pos))) {
+                        if (List.empty(pos) || posTagsEqual(pos, List.map(v => v.value, wordPos))) {
                             const ipm = 1000000 * curr[fcrit]/res.data[0][this.normPath[0]][this.normPath[1]].params.size_tokens;
 
                             // aggregate items whit identical word
