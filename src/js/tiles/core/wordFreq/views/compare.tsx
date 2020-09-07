@@ -56,7 +56,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                             <dl className="info">
                                                 <dt>{ut.translate('wordfreq_searched_form')}:</dt>
                                                 <dd>{w.word}</dd>
-                                                {w.pos.length > 0 ?
+                                                {w.lemma ?
                                                     <>
                                                         <dt>
                                                             {w.lemma.split(' ').length > 1 ?
@@ -69,17 +69,20 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                                         </dd>
                                                         <dt>{ut.translate('wordfreq__pos')}:</dt>
                                                         <dd>
-                                                            {List.map(
-                                                                (pos, i) => (
-                                                                    <React.Fragment key={pos.value}>
-                                                                        {i > 0 ? '\u00a0' : ''}
-                                                                        <span className="squareb">[</span>
-                                                                            {pos.label}
-                                                                        <span className="squareb">]</span>
-                                                                    </React.Fragment>
-                                                                ),
-                                                                w.pos
-                                                            )}
+                                                            {w.pos.length > 0 ?
+                                                                List.map(
+                                                                    (pos, i) => (
+                                                                        <React.Fragment key={pos.value}>
+                                                                            {i > 0 ? '\u00a0' : ''}
+                                                                            <span className="squareb">[</span>
+                                                                                {pos.label}
+                                                                            <span className="squareb">]</span>
+                                                                        </React.Fragment>
+                                                                    ),
+                                                                    w.pos
+                                                                ) :
+                                                                ut.translate('wordfreq__pos_not_specified')
+                                                            }
                                                         </dd>
                                                     </> :
                                                     <>
