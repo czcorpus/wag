@@ -118,11 +118,15 @@ export function createRootComponent({config, userSession, queryMatches, appServi
     const theme = new Theme(config.colors);
 
     const qType = userSession.queryType as QueryType; // TODO validate
+    const dfltDomain = List.find(v => List.some(v2 => v2 === qType, v.queryTypes), config.searchDomains);
+    if (!dfltDomain) {
+        throw new Error(`No default search domain for query type ${qType}`);
+    }
 
     const formModel = mainFormFactory({
         dispatcher: dispatcher,
         appServices: appServices,
-        query1Domain: userSession.query1Domain || 'cs',
+        query1Domain: userSession.query1Domain || dfltDomain.code,
         query2Domain: userSession.query2Domain || '',
         queryType: qType,
         queryMatches: queryMatches,
