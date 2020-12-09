@@ -147,13 +147,18 @@ export function importQueryRequest({services, appServices, req, queryType, uiLan
                     queries
                 )
             }
-
+            const dfltDomain = pipe(
+                services.clientConf.searchDomains,
+                Dict.toEntries(),
+                List.map(([ident,]) => ident),
+                List.head()
+            );
             const userConfNorm:UserConf = {
-                uiLang: uiLang,
+                uiLang,
                 uiLanguages: services.serverConf.languages,
-                query1Domain: queryDomain[0] ? queryDomain[0] : 'cs', // TODO default
-                query2Domain: queryDomain[1] ? queryDomain[1] : 'en', // TODO default
-                queryType: queryType,
+                query1Domain: queryDomain[0] ? queryDomain[0] : dfltDomain, // TODO this is not queryType sensitive
+                query2Domain: queryDomain[1] ? queryDomain[1] : '', // TODO default
+                queryType,
                 queries: compileQueries(
                     queries,
                     List.map(
