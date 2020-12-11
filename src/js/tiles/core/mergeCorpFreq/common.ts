@@ -22,6 +22,8 @@ import { MinSingleCritFreqState } from '../../../models/tiles/freq';
 
 export interface ModelSourceArgs extends MinSingleCritFreqState {
 
+    subcname:string|null;
+
     corpusSize:number;
 
     /**
