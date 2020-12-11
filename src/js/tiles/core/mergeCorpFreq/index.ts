@@ -40,6 +40,7 @@ export interface MergeCorpFreqTileConf extends TileConf {
     sources:Array<{
 
         corpname:string;
+        subcname?:string;
         corpusSize:number;
         fcrit:string;
         flimit:number;
@@ -113,22 +114,26 @@ export class MergeCorpFreqTile implements ITileProvider {
                 isAltViewMode: false,
                 error: null,
                 data: [],
-                sources: conf.sources.map(src => ({
-                    corpname: src.corpname,
-                    corpusSize: src.corpusSize,
-                    fcrit: src.fcrit,
-                    flimit: src.flimit,
-                    freqSort: src.freqSort,
-                    fpage: src.fpage,
-                    fttIncludeEmpty: src.fttIncludeEmpty,
-                    valuePlaceholder: src.valuePlaceholder ?
-                            appServices.importExternalMessage(src.valuePlaceholder) :
-                            null,
-                    uuid: Ident.puid(),
-                    backlinkTpl: src.backlink || null,
-                    backlink: null,
-                    isSingleCategory: !!src.isSingleCategory
-                })),
+                sources: List.map(
+                    src => ({
+                        corpname: src.corpname,
+                        corpusSize: src.corpusSize,
+                        subcname: src.subcname || null,
+                        fcrit: src.fcrit,
+                        flimit: src.flimit,
+                        freqSort: src.freqSort,
+                        fpage: src.fpage,
+                        fttIncludeEmpty: src.fttIncludeEmpty,
+                        valuePlaceholder: src.valuePlaceholder ?
+                                appServices.importExternalMessage(src.valuePlaceholder) :
+                                null,
+                        uuid: Ident.puid(),
+                        backlinkTpl: src.backlink || null,
+                        backlink: null,
+                        isSingleCategory: !!src.isSingleCategory
+                    }),
+                    conf.sources
+                ),
                 pixelsPerCategory: conf.pixelsPerCategory ? conf.pixelsPerCategory : 30,
                 queryMatches: List.map(lemma => findCurrQueryMatch(lemma), queryMatches),
                 tooltipData: null

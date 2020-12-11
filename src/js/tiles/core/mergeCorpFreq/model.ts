@@ -18,7 +18,7 @@
 
 import { StatelessModel, IActionQueue, SEDispatcher } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
-import { flatMap, concatMap, map, reduce, tap } from 'rxjs/operators';
+import { mergeMap, concatMap, map, reduce, tap } from 'rxjs/operators';
 import { Dict, List, pipe } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
@@ -252,9 +252,12 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
 
     private loadConcordances(state:MergeCorpFreqModelState):Observable<[number, ModelSourceArgs, string]> {
         return rxOf(...state.sources).pipe(
-            flatMap(source => rxOf(...List.map(
+            mergeMap(source => rxOf(...List.map(
                 (v, i) => [i, source, v] as [number, ModelSourceArgs, QueryMatch],
                 state.queryMatches))),
+            tap(([queryId, args, lemma]) => {
+                console.log('q ', queryId, args);
+            }),
             concatMap(([queryId, args, lemma]) =>
                 callWithExtraVal(
                     this.concApi,
@@ -262,7 +265,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
                         {
                             corpname: args.corpname,
                             otherCorpname: undefined,
-                            subcname: null,
+                            subcname: args.subcname,
                             subcDesc: null,
                             kwicLeftCtx: -1,
                             kwicRightCtx: 1,
@@ -292,7 +295,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
 
     private loadFreqs(conc$:Observable<[number, ModelSourceArgs, string]>, dispatch:SEDispatcher):void {
         conc$.pipe(
-            flatMap(([queryId, sourceArgs, concId]) => {
+            mergeMap(([queryId, sourceArgs, concId]) => {
                 const auxArgs:SourceQueryProps = {
                     sourceArgs: sourceArgs,
                     queryId: queryId,
