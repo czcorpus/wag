@@ -17,7 +17,7 @@
  */
 import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { Observable, Observer, of as rxOf } from 'rxjs';
-import { map, mergeMap, reduce, tap, concatMap } from 'rxjs/operators';
+import { map, mergeMap, reduce, concatMap } from 'rxjs/operators';
 import { Dict, List, pipe, Ident } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
@@ -31,6 +31,7 @@ import { isConcLoadedPayload, ConcLoadedPayload } from '../concordance/actions';
 import { createInitialLinesData } from '../../../models/tiles/concordance';
 import { ViewMode, ConcResponse, IConcordanceApi } from '../../../api/abstract/concordance';
 import { callWithExtraVal } from '../../../api/util';
+import { AttrViewMode } from '../../../api/vendor/kontext/types';
 
 
 export interface FreqTreeModelState extends GeneralCritFreqTreeModelState {

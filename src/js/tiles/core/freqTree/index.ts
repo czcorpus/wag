@@ -27,7 +27,7 @@ import { TileComponent, TileConf, TileFactory, Backlink, ITileProvider } from '.
 import { GlobalComponents } from '../../../views/global';
 import { factory as defaultModelFactory, FreqTreeModel } from './model';
 import { init as viewInit } from './view';
-import { ConcApi } from '../../../api/vendor/kontext/concordance';
+import { ConcApi } from '../../../api/vendor/kontext/concordance/v015';
 import { findCurrQueryMatch } from '../../../models/query';
 
 
@@ -87,7 +87,7 @@ export class FreqTreeTile implements ITileProvider {
             waitForTiles,
             waitForTilesTimeoutSecs,
             appServices,
-            new ConcApi(false, cache, conf.apiURL, appServices),
+            new ConcApi(cache, conf.apiURL, appServices),
             new FreqTreeAPI(cache, conf.apiURL, appServices),
             conf.backlink || null,
             {

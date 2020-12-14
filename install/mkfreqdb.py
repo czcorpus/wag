@@ -58,6 +58,9 @@ def penn2pos(s):
         #print('Unrecognized tag {0}'.format(s))
         return 'X'
 
+def rm_morphodita_stuff(s):
+    s = re.split(r'[-_`]', s)
+    return s[0]
 
 def create_tables(db):
     cur = db.cursor()
@@ -111,6 +114,9 @@ def run(db, pos_imp):
     words = []
     num_stop = 0
     for item in cur1:
+        tmp = list(item)
+        tmp[1] = rm_morphodita_stuff(item[1])
+        item = tuple(item)
         if is_stop_ngram(item[1]):
             num_stop += 1
             continue

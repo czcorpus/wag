@@ -20,17 +20,15 @@ import { concatMap, share } from 'rxjs/operators';
 
 import { ajax$ } from '../../../page/ajax';
 import {
-    ConcApi,
-    QuerySelector,
-    RequestArgs as ConcRequestArgs,
-    setQuery
-} from '../../../api/vendor/kontext/concordance';
+    ConcApi
+} from '../../../api/vendor/kontext/concordance/v015';
 import { ConcResponse, ViewMode } from '../../../api/abstract/concordance';
 import { HTTPResponse as FreqsHTTPResponse } from '../../../api/vendor/kontext/freqs';
 import { MultiDict } from '../../../multidict';
 import { CorePosAttribute, DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../../types';
 import { callWithExtraVal } from '../../../api/util';
 import { IApiServices } from '../../../appServices';
+import { AttrViewMode, ConcQueryArgs } from '../../../api/vendor/kontext/types';
 
 
 export interface RequestArgs {
@@ -82,7 +80,7 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
     constructor(cache:IAsyncKeyValueStore, apiURL:string, concApiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
         this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
-        this.concApi = new ConcApi(false, cache, concApiURL, apiServices);
+        this.concApi = new ConcApi(cache, concApiURL, apiServices);
     }
 
     call(args:RequestArgs):Observable<Response> {
@@ -90,75 +88,191 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
 
         // query 1, corp 1 ---------
 
-        const args1:ConcRequestArgs = {
-            corpname: args.corp1,
-            queryselector: QuerySelector.PHRASE,
-            kwicleftctx: '-1',
-            kwicrightctx: '1',
-            async: '0',
-            pagesize: '1',
-            fromp: '1',
-            attr_vmode: ViewMode.KWIC,
-            attrs: CorePosAttribute.WORD,
+        const args1:ConcQueryArgs = {
+            type:'concQueryArgs',
+            queries: [{
+                corpname: args.corp1,
+                qtype: 'simple',
+                query: args.word1,
+                queryParsed: [],
+                qmcase: true,
+                pcq_pos_neg: 'pos',
+                include_empty: false,
+                default_attr: 'word',
+                use_regexp: false
+            }],
+            maincorp: args.corp1,
+            usesubcorp: undefined,
             viewmode: ViewMode.KWIC,
-            format:'json'
+            pagesize: 1,
+            shuffle: 0,
+            fromp: 1,
+            attr_vmode: 'visible-all',
+            attrs: [CorePosAttribute.WORD],
+            ctxattrs: [],
+            structs: [],
+            refs: [],
+            text_types: {},
+            context: {
+                fc_lemword_window_type: undefined,
+                fc_lemword_wsize: 0,
+                fc_lemword: undefined,
+                fc_lemword_type: undefined,
+                fc_pos_window_type: undefined,
+                fc_pos_wsize: undefined,
+                fc_pos: [],
+                fc_pos_type: undefined
+            },
+            base_viewattr: 'word',
+            kwicleftctx: -5,
+            kwicrightctx: 5
         };
-        setQuery(args1, args.word1);
-        const concQ1C1$ = callWithExtraVal(this.concApi, args1, `${args.corp1}/${args.word1}`).pipe(share());
+        const concQ1C1$ = callWithExtraVal(
+            this.concApi,
+            {...args1, kwicleftctx: -5, kwicrightctx: 5},
+            `${args.corp1}/${args.word1}`
+        ).pipe(share());
 
         // query 1, corp 2 ---------
 
-        const args2:ConcRequestArgs = {
-            corpname: args.corp2,
-            queryselector: QuerySelector.PHRASE,
-            kwicleftctx: '-1',
-            kwicrightctx: '1',
-            async: '0',
-            pagesize: '1',
-            fromp: '1',
-            attr_vmode: ViewMode.KWIC,
-            attrs: CorePosAttribute.WORD,
+        const args2:ConcQueryArgs = {
+            queries: [{
+                corpname: args.corp2,
+                qtype: 'simple',
+                query: args.word1,
+                queryParsed: [],
+                qmcase: true,
+                pcq_pos_neg: 'pos',
+                include_empty: false,
+                default_attr: 'word',
+                use_regexp: false
+            }],
+            maincorp: args.corp1,
+            usesubcorp: undefined,
             viewmode: ViewMode.KWIC,
-            format:'json'
+            pagesize: 1,
+            shuffle: 0,
+            type:'concQueryArgs',
+            fromp: 1,
+            attr_vmode: 'visible-all',
+            attrs: [CorePosAttribute.WORD],
+            ctxattrs: [],
+            structs: [],
+            refs: [],
+            text_types: {},
+            context: {
+                fc_lemword_window_type: undefined,
+                fc_lemword_wsize: 0,
+                fc_lemword: undefined,
+                fc_lemword_type: undefined,
+                fc_pos_window_type: undefined,
+                fc_pos_wsize: undefined,
+                fc_pos: [],
+                fc_pos_type: undefined
+            },
+            base_viewattr: 'word',
+            kwicleftctx: -5,
+            kwicrightctx: 5
         };
-        setQuery(args2, args.word1);
-        const concQ1C2$ = callWithExtraVal(this.concApi, args2, `${args.corp2}/${args.word1}`).pipe(share());
+        const concQ1C2$ = callWithExtraVal(
+            this.concApi,
+            {...args2, kwicleftctx: -5, kwicrightctx: 5},
+            `${args.corp2}/${args.word1}`
+        ).pipe(share());
 
         // query 2, corp 1 ---------
 
-        const args3:ConcRequestArgs = {
-            corpname: args.corp1,
-            queryselector: QuerySelector.PHRASE,
-            kwicleftctx: '-1',
-            kwicrightctx: '1',
-            async: '0',
-            pagesize: '1',
-            fromp: '1',
-            attr_vmode: ViewMode.KWIC,
-            attrs: CorePosAttribute.WORD,
+        const args3:ConcQueryArgs = {
+            queries: [{
+                corpname: args.corp1,
+                qtype: 'simple',
+                query: args.word2,
+                queryParsed: [],
+                qmcase: true,
+                pcq_pos_neg: 'pos',
+                include_empty: false,
+                default_attr: 'word',
+                use_regexp: false
+            }],
+            maincorp: args.corp1,
+            usesubcorp: undefined,
             viewmode: ViewMode.KWIC,
-            format:'json'
+            pagesize: 1,
+            shuffle: 0,
+            type:'concQueryArgs',
+            fromp: 1,
+            attr_vmode: 'visible-all',
+            attrs: [CorePosAttribute.WORD],
+            ctxattrs: [],
+            structs: [],
+            refs: [],
+            text_types: {},
+            context: {
+                fc_lemword_window_type: undefined,
+                fc_lemword_wsize: 0,
+                fc_lemword: undefined,
+                fc_lemword_type: undefined,
+                fc_pos_window_type: undefined,
+                fc_pos_wsize: undefined,
+                fc_pos: [],
+                fc_pos_type: undefined
+            },
+            base_viewattr: 'word',
+            kwicleftctx: -5,
+            kwicrightctx: 5
         };
-        setQuery(args3, args.word2);
-        const concQ2C1$ = callWithExtraVal(this.concApi, args3, `${args.corp1}/${args.word2}`).pipe(share());
+        const concQ2C1$ = callWithExtraVal(
+            this.concApi,
+            {...args3, kwicleftctx: -5, kwicrightctx: 5},
+            `${args.corp1}/${args.word2}`
+        ).pipe(share());
 
         // query 2, corp 2 ---------
 
-        const args4:ConcRequestArgs = {
-            corpname: args.corp2,
-            queryselector: QuerySelector.PHRASE,
-            kwicleftctx: '-1',
-            kwicrightctx: '1',
-            async: '0',
-            pagesize: '1',
-            fromp: '1',
-            attr_vmode: ViewMode.KWIC,
-            attrs: CorePosAttribute.WORD,
+        const args4:ConcQueryArgs = {
+            queries: [{
+                corpname: args.corp2,
+                qtype: 'simple',
+                query: args.word2,
+                queryParsed: [],
+                qmcase: true,
+                pcq_pos_neg: 'pos',
+                include_empty: false,
+                default_attr: 'word',
+                use_regexp: false
+            }],
+            maincorp: args.corp1,
+            usesubcorp: undefined,
             viewmode: ViewMode.KWIC,
-            format:'json'
+            pagesize: 1,
+            shuffle: 0,
+            type:'concQueryArgs',
+            fromp: 1,
+            attr_vmode: 'visible-all',
+            attrs: [CorePosAttribute.WORD],
+            ctxattrs: [],
+            structs: [],
+            refs: [],
+            text_types: {},
+            context: {
+                fc_lemword_window_type: undefined,
+                fc_lemword_wsize: 0,
+                fc_lemword: undefined,
+                fc_lemword_type: undefined,
+                fc_pos_window_type: undefined,
+                fc_pos_wsize: undefined,
+                fc_pos: [],
+                fc_pos_type: undefined
+            },
+            base_viewattr: 'word',
+            kwicleftctx: -5,
+            kwicrightctx: 5
         };
-        setQuery(args4, args.word2);
-        const concQ2C2$ = callWithExtraVal(this.concApi, args4, `${args.corp2}/${args.word2}`).pipe(share());
+        const concQ2C2$ = callWithExtraVal(
+            this.concApi,
+            {...args4, kwicleftctx: -5, kwicrightctx: 5},
+            `${args.corp2}/${args.word2}`
+        ).pipe(share());
 
         const createRequests = (conc$:Observable<[ConcResponse, string]>, corpname:string, frcrits:Array<string>) => {
             return frcrits.map(

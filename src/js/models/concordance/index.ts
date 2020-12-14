@@ -17,6 +17,7 @@
  */
 
 import { ViewMode, Line } from '../../api/abstract/concordance';
+import { AttrViewMode } from '../../api/vendor/kontext/types';
 
 
 export interface ConcData {
@@ -40,7 +41,7 @@ export interface ConcordanceMinState {
     kwicLeftCtx:number;
     kwicRightCtx:number;
     pageSize:number;
-    attr_vmode:'mouseover'|'direct';
+    attr_vmode:AttrViewMode;
     viewMode:ViewMode;
     shuffle:boolean;
     metadataAttrs:Array<{value:string; label:string}>;

@@ -33,6 +33,7 @@ import { ViewMode, IConcordanceApi } from '../../../api/abstract/concordance';
 import { createInitialLinesData } from '../../../models/tiles/concordance';
 import { BacklinkArgs } from '../../../api/vendor/kontext/freqs';
 import { DataRow, IMultiBlockFreqDistribAPI } from '../../../api/abstract/freqs';
+import { AttrViewMode } from '../../../api/vendor/kontext/types';
 
 
 export interface MultiWordDataRow extends DataRow {

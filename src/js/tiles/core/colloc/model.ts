@@ -33,6 +33,7 @@ import { QueryMatch, QueryType } from '../../../query/index';
 import { callWithExtraVal } from '../../../api/util';
 import { ViewMode, ConcResponse, IConcordanceApi } from '../../../api/abstract/concordance';
 import { createInitialLinesData } from '../../../models/tiles/concordance';
+import { AttrViewMode } from '../../../api/vendor/kontext/types';
 
 
 export interface CollocModelArgs {

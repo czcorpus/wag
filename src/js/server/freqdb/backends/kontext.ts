@@ -22,7 +22,7 @@ import { List, HTTP } from 'cnc-tskit';
 import { IFreqDB } from '../freqdb';
 import { IAppServices, IApiServices } from '../../../appServices';
 import { QueryMatch, calcFreqBand } from '../../../query/index';
-import { QuerySelector, HTTPResponse as ConcHTTPResponse, escapeVal } from '../../../api/vendor/kontext/concordance';
+import { ConcViewResponse as ConcHTTPResponse, escapeVal } from '../../../api/vendor/kontext/concordance/v015/common';
 import { HTTPResponse as FreqsHttpResponse } from '../../../api/vendor/kontext/freqs';
 import { FreqDbOptions } from '../../../conf';
 import { importQueryPosWithLabel, posTable } from '../../../postag';
@@ -54,11 +54,11 @@ export class KontextFreqDB implements IFreqDB {
 
     private loadConcordance(word:string):Observable<ConcHTTPResponse> {
         return serverHttpRequest<ConcHTTPResponse>({
-            url: this.apiURL + 'first',
-            method: HTTP.Method.GET,
+            url: this.apiURL + 'query_submit',
+            method: HTTP.Method.POST,
             params: {
                 corpname: this.corpname,
-                queryselector: QuerySelector.CQL,
+                queryselector: 'advanced',
                 cql: `[word="${escapeVal(word)}" | lemma="${escapeVal(word)}"]`,
                 kwicleftctx: 1,
                 kwicrightctx: 1,

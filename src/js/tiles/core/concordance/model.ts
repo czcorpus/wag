@@ -342,7 +342,6 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
     }
 
     private reloadData(state:ConcordanceTileState, dispatch:SEDispatcher, otherLangCql:string):void {
-
         new Observable<{apiArgs:{}, queryIdx:number}>((observer) => {
             try {
                 pipe(
@@ -350,8 +349,13 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                     List.slice(0, this.queryType !== QueryType.CMP_QUERY ? 1 : this.queryMatches.length),
                     List.forEach((queryMatch, queryIdx) => {
                         observer.next({
-                            apiArgs: this.service.stateToArgs(state, state.concordances[queryIdx].concId ?
-                                        null : findCurrQueryMatch(queryMatch), queryIdx, otherLangCql),
+                            apiArgs: this.service.stateToArgs(
+                                state,
+                                state.concordances[queryIdx].concId ?
+                                        null : findCurrQueryMatch(queryMatch),
+                                queryIdx,
+                                otherLangCql
+                            ),
                             queryIdx: queryIdx
                         });
                     })

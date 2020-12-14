@@ -23,12 +23,13 @@ import { QueryType } from '../../../query/index';
 import { TileConf, ITileProvider, TileFactory, TileComponent } from '../../../page/tile';
 import { ConcFilterModel } from './model';
 import { init as viewInit } from './view';
-import { ConcApi } from '../../../api/vendor/kontext/concordance';
+import { ConcApi } from '../../../api/vendor/kontext/concordance/v015';
 import { ViewMode } from '../../../api/abstract/concordance';
 import { LocalizedConfMsg } from '../../../types';
 import { SwitchMainCorpApi } from '../../../api/vendor/kontext/switchMainCorp';
 import { ISwitchMainCorpApi, SwitchMainCorpResponse } from '../../../api/abstract/switchMainCorp';
 import { TileWait } from '../../../models/tileSync';
+import { AttrViewMode } from '../../../api/vendor/kontext/types';
 
 
 declare var require:(src:string)=>void;  // webpack
@@ -88,7 +89,7 @@ export class ConcFilterTile implements ITileProvider {
             waitForTilesTimeoutSecs,
             subqSourceTiles,
             appServices,
-            api: new ConcApi(true, cache, conf.apiURL, appServices),
+            api: new ConcApi(cache, conf.apiURL, appServices),
             switchMainCorpApi: conf.switchMainCorpApiURL ?
                 new SwitchMainCorpApi(conf.switchMainCorpApiURL, appServices) :
                 new EmptyMainCorpSwitch(),

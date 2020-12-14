@@ -32,6 +32,7 @@ import { ViewMode, IConcordanceApi } from '../../../api/abstract/concordance';
 import { createInitialLinesData } from '../../../models/tiles/concordance';
 import { ConcLoadedPayload, isConcLoadedPayload } from '../concordance/actions';
 import { DataRow, IFreqDistribAPI, APIResponse } from '../../../api/abstract/freqs';
+import { AttrViewMode } from '../../../api/vendor/kontext/types';
 
 /*
 oral2013:

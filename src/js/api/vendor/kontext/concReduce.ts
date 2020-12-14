@@ -20,13 +20,14 @@ import { map } from 'rxjs/operators';
 
 import { ajax$ } from '../../../page/ajax';
 import { DataApi, HTTPHeaders } from '../../../types';
-import { AnyQuery, getQuery, HTTPResponse, convertLines } from './concordance';
 import { ConcResponse } from '../../abstract/concordance';
 import { IApiServices } from '../../../appServices';
+import { HTTP } from 'cnc-tskit';
+import { convertLines, ConcViewResponse } from './concordance/v015/common';
 
 
 
-export interface RequestArgs extends AnyQuery {
+export interface RequestArgs {
     corpname:string;
     usesubcorp:string;
     rlines:number;
@@ -52,8 +53,9 @@ export class ConcReduceApi implements DataApi<RequestArgs, ApiResponse> {
     }
 
     call(args:RequestArgs):Observable<ApiResponse> {
-        return ajax$<HTTPResponse>(
-            'GET',
+        return ajax$<ConcViewResponse>(
+            HTTP.Method.POST
+            ,
             this.apiURL + '/reduce',
             args,
             {headers: this.customHeaders}
@@ -67,7 +69,7 @@ export class ConcReduceApi implements DataApi<RequestArgs, ApiResponse> {
                 rlines: args.rlines,
                 arf: data.result_arf,
                 ipm: data.result_relative_freq,
-                query: getQuery(args),
+                query: args.q, // TODO !!!!
                 corpName: args.corpname,
                 subcorpName: args.usesubcorp
             }))

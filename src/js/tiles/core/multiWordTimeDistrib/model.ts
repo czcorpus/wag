@@ -34,6 +34,7 @@ import { createInitialLinesData } from '../../../models/tiles/concordance';
 import { ConcLoadedPayload, isConcLoadedPayload } from '../concordance/actions';
 import { PriorityValueFactory } from '../../../priority';
 import { DataRow } from '../../../api/abstract/freqs';
+import { AttrViewMode } from '../../../api/vendor/kontext/types';
 
 
 export interface TimeDistribModelState extends GeneralSingleCritFreqMultiQueryState<DataItemWithWCI> {

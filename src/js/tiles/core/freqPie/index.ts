@@ -27,7 +27,7 @@ import { factory as defaultModelFactory, FreqBarModel } from '../freqBar/model';
 import { factory as subqModelFactory } from '../freqBar/subqModel';
 import { init as viewInit } from './view';
 import { StatelessModel } from 'kombo';
-import { ConcApi } from '../../../api/vendor/kontext/concordance';
+import { ConcApi } from '../../../api/vendor/kontext/concordance/v015';
 import { createMultiBlockApiInstance } from '../../../api/factory/freqs';
 
 declare var require:any;
@@ -84,7 +84,7 @@ export class FreqPieTile implements ITileProvider {
         const modelFact = conf.subqueryMode ?
             subqModelFactory(
                 conf.subqueryMode,
-                new ConcApi(false, cache, conf.subqueryMode.concApiURL, appServices)) :
+                new ConcApi(cache, conf.subqueryMode.concApiURL, appServices)) :
             defaultModelFactory;
         this.model = modelFact(
             dispatcher,

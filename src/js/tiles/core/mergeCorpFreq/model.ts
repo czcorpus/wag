@@ -32,6 +32,7 @@ import { createInitialLinesData } from '../../../models/tiles/concordance';
 import { IFreqDistribAPI, DataRow } from '../../../api/abstract/freqs';
 import { ActionName, Actions } from './actions';
 import { TooltipValues } from '../../../views/global';
+import { AttrViewMode } from '../../../api/vendor/kontext/types';
 
 
 export interface MergeCorpFreqModelState {
@@ -259,9 +260,6 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
             mergeMap(source => rxOf(...List.map(
                 (v, i) => [i, source, v] as [number, ModelSourceArgs, QueryMatch],
                 state.queryMatches))),
-            tap(([queryId, args, lemma]) => {
-                console.log('q ', queryId, args);
-            }),
             concatMap(([queryId, args, lemma]) =>
                 callWithExtraVal(
                     this.concApi,

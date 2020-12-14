@@ -16,16 +16,18 @@
  * limitations under the License.
  */
 import { Observable } from 'rxjs';
-import { map, flatMap } from 'rxjs/operators';
+import { map, mergeMap } from 'rxjs/operators';
 
 import { cachedAjax$ } from '../../../page/ajax';
 import { HTTPHeaders, IAsyncKeyValueStore, CorpusDetails } from '../../../types';
 import { CorpusInfoAPI } from './corpusInfo';
-import { ConcApi, QuerySelector } from './concordance';
+import { ConcApi } from './concordance/v015';
 import { ViewMode } from '../../abstract/concordance';
 import { QueryMatch } from '../../../query';
 import { HTTPResponse } from './freqs';
 import { IApiServices } from '../../../appServices';
+import { Dict, List, pipe } from 'cnc-tskit';
+import { AttrViewMode } from './types';
 
 export enum FreqSort {
     REL = 'rel'
@@ -89,7 +91,7 @@ export class FreqTreeAPI implements WordDataApi<SingleCritQueryArgs, APILeafResp
 
     constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
         this.cache = cache;
-        this.concApiFilter = new ConcApi(true, cache, apiURL, apiServices);
+        this.concApiFilter = new ConcApi(cache, apiURL, apiServices);
         this.apiURL = apiURL;
         this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
         this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
@@ -124,22 +126,28 @@ export class FreqTreeAPI implements WordDataApi<SingleCritQueryArgs, APILeafResp
     }
 
     call(args:SingleCritQueryArgs, concId:string, filter:{[attr:string]:string}):Observable<APILeafResponse> {
+        const q2 = pipe(
+            filter,
+            Dict.toEntries(),
+            List.map(
+                ([key, value]) => `<${key.split('.')[0]} ${key.split('.')[1].split(' ')[0]}="${value}"/>`
+            )
+        ).join(' & ');
         return this.concApiFilter.call({
+            type: 'quickFilterQueryArgs',
             corpname: args.corpname,
-            queryselector: QuerySelector.CQL,
             q: `~${concId}`,
-            q2: `p0 0 1 [] within ${Object.entries(filter).map(([key, value]) => `<${key.split('.')[0]} ${key.split('.')[1].split(' ')[0]}="${value}"/>`).join(' & ')}`,
-            kwicleftctx: '0',
-            kwicrightctx: '0',
-            async: '0',
+            q2: `p0 0 1 [] within ${q2}`,
             pagesize: '0',
             fromp: '1',
             attr_vmode: 'mouseover',
             attrs: 'word',
             viewmode: ViewMode.KWIC,
             shuffle: 0,
+            kwicleftctx: '-1',
+            kwicrightctx: '1',
             format:'json'
-        }).pipe(flatMap(x =>
+        }).pipe(mergeMap(x =>
             cachedAjax$<HTTPResponse>(this.cache)(
                 'GET',
                 this.apiURL + '/freqs',

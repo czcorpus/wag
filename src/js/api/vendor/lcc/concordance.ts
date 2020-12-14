@@ -20,7 +20,6 @@ import { IConcordanceApi, ViewMode, ConcResponse, LineElement } from '../../abst
 import { HTTPHeaders, IAsyncKeyValueStore, CorpusDetails } from '../../../types';
 import { ConcordanceMinState } from '../../../models/tiles/concordance';
 import { QueryMatch } from '../../../query';
-import { AnyQuery } from '../kontext/concordance';
 import { Observable } from 'rxjs';
 import { cachedAjax$ } from '../../../page/ajax';
 import { map } from 'rxjs/operators';
@@ -29,19 +28,12 @@ import { CorpusInfoAPI } from './corpusInfo';
 import { IApiServices } from '../../../appServices';
 
 
-export enum QuerySelector {
-    BASIC = 'iqueryrow',
-    CQL = 'cqlrow',
-    LEMMA = 'lemmarow',
-    WORD = 'wordrow',
-    PHRASE = 'phraserow'
-}
-
-
-export interface RequestArgs extends AnyQuery {
+export interface RequestArgs {
     corpname:string;
+    usesubcorp?:string;
     offset:number;
     limit:number;
+    word:string;
 }
 
 interface Sentence {

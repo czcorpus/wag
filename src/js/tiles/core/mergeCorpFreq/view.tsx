@@ -194,7 +194,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             this.props.sources,
                             List.groupBy(v => v.corpname),
                             List.flatMap(([,v]) => v),
-                            List.map(v => ({corp: v.corpname})))
+                            List.map(v => ({corp: v.corpname, subcorp: v.subcname})))
                         }
                         backlink={backlinks}
                         supportsTileReload={this.props.supportsReloadOnError}
