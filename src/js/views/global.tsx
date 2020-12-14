@@ -35,17 +35,17 @@ export type TooltipValues = {[key:string]:Array<{value:string|number; unit?:stri
 
 export interface GlobalComponents {
 
-    AjaxLoader:React.SFC<{
+    AjaxLoader:React.FC<{
         htmlClass?:string;
     }>;
 
-    MessageStatusIcon:React.SFC<{
+    MessageStatusIcon:React.FC<{
         statusType:SystemMessageType;
         isInline?:boolean;
         htmlClass?:string;
     }>;
 
-    TileWrapper:React.SFC<{
+    TileWrapper:React.FC<{
         isBusy:boolean;
         hasData:boolean;
         tileId:number;
@@ -65,14 +65,14 @@ export interface GlobalComponents {
         tileClass?:string;
     }>;
 
-    HorizontalBlockSwitch:React.SFC<{
+    HorizontalBlockSwitch:React.FC<{
         blockIndices:Array<number>;
         currentIdx:number;
         htmlClass?:string;
         onChange:(idx:number)=>void;
     }>;
 
-    ImageWithMouseover:React.SFC<{
+    ImageWithMouseover:React.FC<{
         file:string;
         alt:string;
         file2?:string;
@@ -91,7 +91,7 @@ export interface GlobalComponents {
         widthFract?:number;
     }>;
 
-    ElementTooltip:React.SFC<{
+    ElementTooltip:React.FC<{
         x:number;
         y:number;
         visible:boolean;
@@ -102,11 +102,11 @@ export interface GlobalComponents {
         colors?:(idx:number) => string;
     }>;
 
-    SourceInfoBox:React.SFC<{
+    SourceInfoBox:React.FC<{
         data:SourceDetails;
     }>;
 
-    AlignedRechartsTooltip:React.SFC<{
+    AlignedRechartsTooltip:React.FC<{
         active?:boolean;
         payload?:Array<{[key:string]:any}>;
         label?:string;
@@ -130,7 +130,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
 
     // --------------- <TitleLoaderBar /> -------------------------------------------
 
-    const TitleLoaderBar:React.SFC<{
+    const TitleLoaderBar:React.FC<{
     }> = (props) => {
         return (
             <div className="TitleLoaderBar" title={ut.translate('global__alt_loading')}>
@@ -174,7 +174,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
 
     // ------------- <BacklinkForm /> ----------------------------------
 
-    const BacklinkForm:React.SFC<{
+    const BacklinkForm:React.FC<{
         values:BacklinkWithArgs<{}>;
 
     }> = (props) => {
@@ -195,7 +195,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
 
     // --------------- <SourceLink /> -------------------------------------------
 
-    const SourceLink:React.SFC<{
+    const SourceLink:React.FC<{
         tileId:number;
         data:SourceInfo|Array<SourceInfo>|undefined;
         backlink:BacklinkWithArgs<{}>|Array<BacklinkWithArgs<{}>>|undefined;
@@ -260,7 +260,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
 
     // ------------------ <SourceInfoBox /> --------------------------------------------
 
-    const SourceInfoBox:React.SFC<{
+    const SourceInfoBox:React.FC<{
         data:SourceDetails;
 
     }> = (props) => {
@@ -278,7 +278,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
 
     // --------------- <TileReloadControl /> -------------------------------------------
 
-    const TileReloadControl:React.SFC<{
+    const TileReloadControl:React.FC<{
         tileId:number;
 
     }> = (props) => {
@@ -299,7 +299,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
 
     // --------------- <ErrorReportControl /> -------------------------------------------
 
-    const ErrorReportControl:React.SFC<{
+    const ErrorReportControl:React.FC<{
         url:string;
 
     }> = (props) => {

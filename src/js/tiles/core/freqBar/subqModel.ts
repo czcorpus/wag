@@ -21,7 +21,7 @@ import { concatMap, map } from 'rxjs/operators';
 import { Dict, Ident } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
-import { ConcApi, QuerySelector, RequestArgs } from '../../../api/vendor/kontext/concordance';
+import { ConcApi } from '../../../api/vendor/kontext/concordance/v015';
 import { ViewMode, ConcResponse } from '../../../api/abstract/concordance';
 import { SubqueryModeConf } from '../../../models/tiles/freq';
 import { isSubqueryPayload, SubqueryPayload, SubQueryItem } from '../../../query/index';
@@ -31,6 +31,8 @@ import { DataLoadedPayload } from './actions';
 import { FreqBarModel, FreqBarModelState } from './model';
 import { callWithExtraVal } from '../../../api/util';
 import { IMultiBlockFreqDistribAPI, APIBlockResponse } from '../../../api/abstract/freqs';
+import { CorePosAttribute } from '../../../types';
+import { AttrViewMode } from '../../../api/vendor/kontext/types';
 
 
 export class SubqFreqBarModelArgs {
@@ -98,20 +100,44 @@ export class SubqFreqBarModel extends FreqBarModel {
 
     private loadFreq(state:FreqBarModelState, corp:string, phrase:string, critIdx:number):Observable<FreqLoadResult> {
         return this.concApi.call({
-            corpname: corp,
-            kwicleftctx: '-1',
-            kwicrightctx: '1',
-            async: '1',
-            pagesize: '5',
-            fromp: '1',
-            attr_vmode: 'mouseover', // TODO,
-            attrs: 'word',
+            type: 'concQueryArgs',
+            queries: [{
+                corpname: corp,
+                qtype: 'simple',
+                query: phrase,
+                queryParsed: [ [ [['word', phrase]], false] ],
+                qmcase: true,
+                pcq_pos_neg: 'pos',
+                include_empty: false,
+                default_attr: 'word',
+                use_regexp: false
+            }],
+            maincorp: corp,
+            usesubcorp: undefined,
             viewmode: ViewMode.KWIC,
+            pagesize: 1,
             shuffle: 0,
-            queryselector: QuerySelector.PHRASE,
-            phrase: phrase,
-            format:'json'
-        } as RequestArgs)
+            fromp: 1,
+            attr_vmode: 'visible-all',
+            attrs: [CorePosAttribute.WORD],
+            ctxattrs: [],
+            structs: [],
+            refs: [],
+            text_types: {},
+            context: {
+                fc_lemword_window_type: undefined,
+                fc_lemword_wsize: 0,
+                fc_lemword: undefined,
+                fc_lemword_type: undefined,
+                fc_pos_window_type: undefined,
+                fc_pos_wsize: undefined,
+                fc_pos: [],
+                fc_pos_type: undefined
+            },
+            base_viewattr: 'word',
+            kwicleftctx: -5,
+            kwicrightctx: 5
+        })
         .pipe(
             concatMap((v:ConcResponse) => callWithExtraVal(
                 this.api,

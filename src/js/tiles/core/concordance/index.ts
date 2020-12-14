@@ -29,6 +29,7 @@ import { init as viewInit } from './views';
 import { createApiInstance } from '../../../api/factory/concordance';
 import { findCurrQueryMatch } from '../../../models/query';
 import { createInitialLinesData } from '../../../models/tiles/concordance';
+import { AttrViewMode } from '../../../api/vendor/kontext/types';
 
 
 

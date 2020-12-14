@@ -21,7 +21,6 @@ import { HTTPHeaders, IAsyncKeyValueStore, CorpusDetails } from '../../../types'
 import { CorpusInfoAPI } from './corpusInfo';
 import { ConcordanceMinState } from '../../../models/tiles/concordance';
 import { QueryMatch } from '../../../query';
-import { AnyQuery } from '../kontext/concordance';
 import { Observable } from 'rxjs';
 import { cachedAjax$ } from '../../../page/ajax';
 import { map } from 'rxjs/operators';
@@ -38,6 +37,17 @@ export enum QuerySelector {
     WORD = 'wordrow',
     PHRASE = 'phraserow'
 }
+
+interface AnyQuery {
+    queryselector?:QuerySelector;
+    usesubcorp?:string;
+    iquery?:string;
+    lemma?:string;
+    cql?:string;
+    word?:string;
+    phrase?:string;
+}
+
 
 
 export interface RequestArgs extends AnyQuery {

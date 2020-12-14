@@ -18,7 +18,7 @@
 
 import { IWordFormsApi } from '../abstract/wordForms';
 import { WordFormsAPI as WordFormsKontextApi } from '../vendor/kontext/wordForms';
-import { HTTPHeaders, IAsyncKeyValueStore } from '../../types';
+import { IAsyncKeyValueStore } from '../../types';
 import { CoreApiGroup, supportedCoreApiGroups } from '../coreGroups';
 import { WordFormsWdglanceAPI } from '../vendor/wdglance/wordForms';
 import { IApiServices } from '../../appServices';

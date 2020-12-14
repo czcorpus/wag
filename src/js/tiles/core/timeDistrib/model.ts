@@ -35,6 +35,7 @@ import { Backlink, BacklinkWithArgs } from '../../../page/tile';
 import { TileWait } from '../../../models/tileSync';
 import { PriorityValueFactory } from '../../../priority';
 import { DataRow } from '../../../api/abstract/freqs';
+import { AttrViewMode } from '../../../api/vendor/kontext/types';
 
 
 export const enum FreqFilterQuantity {

@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { IAsyncKeyValueStore, HTTPHeaders } from '../../types';
+import { IAsyncKeyValueStore } from '../../types';
 import { CoreApiGroup } from '../coreGroups';
 import { KontextCollAPI } from '../vendor/kontext/collocations';
 import { CollocationApi } from '../abstract/collocations';

@@ -17,7 +17,7 @@
  */
 import { DataApi, IAsyncKeyValueStore } from '../../types';
 import { IConcordanceApi } from '../abstract/concordance';
-import { ConcApi } from '../vendor/kontext/concordance';
+import { ConcApi as ConcApi015} from '../vendor/kontext/concordance/v015';
 import { ConcApi as NoskeConcApi } from '../vendor/noske/concordance';
 import { ConcApi as LCCConcApi } from '../vendor/lcc/concordance';
 import { FCS1SearchRetrieveAPI } from '../vendor/clarin/fcs1/searchRetrieve';
@@ -32,7 +32,7 @@ export function createApiInstance(cache:IAsyncKeyValueStore, apiIdent:string, ap
 		case CoreApiGroup.FCS_V1:
 			return new FCS1SearchRetrieveAPI(apiURL, apiServices);
  		case CoreApiGroup.KONTEXT:
- 			return new ConcApi(false, cache, apiURL, apiServices);
+			return new ConcApi015(cache, apiURL, apiServices);
 		case CoreApiGroup.NOSKE:
 			return new NoskeConcApi(cache, apiURL, apiServices);
 		case CoreApiGroup.LCC:

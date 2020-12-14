@@ -22,7 +22,8 @@ import { StatelessModel, Action, SEDispatcher, IActionQueue } from 'kombo';
 import { IAppServices } from '../../../appServices';
 import { ActionName as GlobalActionName, Actions as GlobalActions, isTileSomeDataLoadedAction } from '../../../models/actions';
 import { SubQueryItem, SubqueryPayload, RangeRelatedSubqueryValue, RecognizedQueries } from '../../../query/index';
-import { ConcApi, FilterRequestArgs, QuerySelector, FilterPCRequestArgs, QuickFilterRequestArgs, mkContextFilter } from '../../../api/vendor/kontext/concordance';
+import { ConcApi } from '../../../api/vendor/kontext/concordance/v015';
+import { mkContextFilter  } from '../../../api/vendor/kontext/concordance/v015/common'
 import { Line, ViewMode, ConcResponse } from '../../../api/abstract/concordance';
 import { Observable } from 'rxjs';
 import { isConcLoadedPayload } from '../concordance/actions';
@@ -33,6 +34,7 @@ import { ISwitchMainCorpApi, SwitchMainCorpResponse } from '../../../api/abstrac
 import { Dict, pipe, List } from 'cnc-tskit';
 import { callWithExtraVal } from '../../../api/util';
 import { TileWait } from '../../../models/tileSync';
+import { AttrViewMode, QuickFilterRequestArgs } from '../../../api/vendor/kontext/types';
 
 
 export interface ConcFilterModelState {
@@ -44,7 +46,7 @@ export interface ConcFilterModelState {
     corpName:string;
     otherCorpname:string|null;
     posAttrs:Array<string>;
-    attrVmode:'mouseover';
+    attrVmode:AttrViewMode;
     viewMode:ViewMode;
     itemsPerSrc:number;
     lines:Array<Line>;
@@ -247,47 +249,23 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
         );
     }
 
-    private mkConcArgs(state:ConcFilterModelState, subq:SubQueryItem<RangeRelatedSubqueryValue>, concId:string):FilterRequestArgs|FilterPCRequestArgs|QuickFilterRequestArgs {
-        if (state.otherCorpname) {
-            return {
-                queryselector: QuerySelector.CQL,
-                corpname: state.corpName,
-                maincorp: state.otherCorpname, // we need to filter using the 2nd language
-                align: state.otherCorpname,
-                kwicleftctx: undefined,
-                kwicrightctx: undefined,
-                async: '0',
-                pagesize: '5',
-                fromp: '1', // TODO choose randomly stuff??
-                attr_vmode: state.attrVmode,
-                attrs: state.posAttrs.join(','),
-                refs: state.metadataAttrs.map(v => '=' + v.value).join(','),
-                viewmode: state.viewMode,
-                shuffle: 1,
-                q: '~' + concId,
-                q2: mkContextFilter(subq.value.context, subq.value.value, subq),
-                format: 'json',
-            };
-
-        } else {
-            return {
-                queryselector: QuerySelector.CQL,
-                corpname: state.corpName,
-                kwicleftctx: undefined,
-                kwicrightctx: undefined,
-                async: '0',
-                pagesize: '5',
-                fromp: '1', // TODO choose randomly stuff??
-                attr_vmode: state.attrVmode,
-                attrs: state.posAttrs.join(','),
-                refs: state.metadataAttrs.map(v => '=' + v.value).join(','),
-                viewmode: state.viewMode,
-                shuffle: 1,
-                q: '~' + concId,
-                q2: mkContextFilter(subq.value.context, subq.value.value, subq),
-                format: 'json'
-            };
-        }
+    private mkConcArgs(state:ConcFilterModelState, subq:SubQueryItem<RangeRelatedSubqueryValue>, concId:string):QuickFilterRequestArgs {
+        return {
+            type: 'quickFilterQueryArgs',
+            corpname: state.corpName,
+            maincorp: state.otherCorpname ? state.otherCorpname : undefined, // we need to filter using the 2nd language
+            kwicleftctx: '-20',
+            kwicrightctx: '20',
+            pagesize: '5',
+            fromp: '1', // TODO choose randomly stuff??
+            attr_vmode: state.attrVmode,
+            attrs: state.posAttrs.join(','),
+            refs: state.metadataAttrs.map(v => '=' + v.value).join(','),
+            viewmode: state.viewMode,
+            q: '~' + concId,
+            q2: mkContextFilter(subq.value.context, subq.value.value, subq),
+            format: 'json',
+        };
     }
 
     /**
