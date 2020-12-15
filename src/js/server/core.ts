@@ -38,6 +38,11 @@ export class ServerSideActionDispatcher implements IFullActionControl {
         this.inActions.next(action);
     }
 
+    dispatchSideEffect<T extends Action>(action: T): void {
+        // TODO
+        this.inActions.next(action);
+    }
+
     registerStatefulModel<T>(model: StatefulModel<T>): Subscription {
         return this.actions.subscribe(model.onAction.bind(model));
     }
