@@ -81,7 +81,15 @@ export interface ConcViewResponse {
 }
 
 export function escapeVal(v:string) {
-    return v.replace(/"/, '\\"');
+    const map = {
+        '"': '\\"',
+        '?': '\\?',
+        '!': '\\!',
+        '.': '\\.',
+        '*': '\\*',
+        '+': '\\+'
+    };
+    return v.replace(/[?"!.*+]/g, match => map[match]);
 }
 
 /**
