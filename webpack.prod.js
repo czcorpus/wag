@@ -16,6 +16,7 @@ const CONF = build.loadConf(mkpath('conf/server.json'));
 
 module.exports = (env) => ({
     mode: 'production',
+    target: ['web', 'es5'],
     entry: {
         index: path.resolve(__dirname, 'src/js/page/index')
     },
@@ -32,7 +33,12 @@ module.exports = (env) => ({
             'node_modules',
             mkpath('dist/.compiled')
         ],
-        extensions: ['.webpack.js', '.web.js', '.ts', '.tsx', '.jsx', '.js', '.json', '.css', '.less']
+        extensions: ['.webpack.js', '.web.js', '.ts', '.tsx', '.jsx', '.js', '.json', '.css', '.less'],
+        fallback: {
+            'buffer': require.resolve('buffer/'),
+            'path': require.resolve('path-browserify/'),
+            'stream': require.resolve('stream-browserify/')
+        }
     },
     module: {
         rules: [
