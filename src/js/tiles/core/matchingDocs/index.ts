@@ -37,6 +37,7 @@ export interface MatchingDocsTileConf extends TileConf {
     searchAttrs?:string|Array<string>;
     maxNumCategories:number;
     maxNumCategoriesPerPage:number;
+    minFreq?:number;
 }
 
 
@@ -78,6 +79,7 @@ export class MatchingDocsTile implements ITileProvider {
                 data: [],
                 corpname: conf.corpname,
                 subcname: conf.subcname,
+                minFreq: conf.minFreq || 1,
                 displayAttrs: typeof conf.displayAttrs === 'string' ? [conf.displayAttrs] : [...conf.displayAttrs],
                 searchAttrs: conf.searchAttrs ? (typeof conf.searchAttrs === 'string' ? [conf.searchAttrs] : [...conf.searchAttrs]) : null,
                 currPage: null,

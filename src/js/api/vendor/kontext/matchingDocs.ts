@@ -54,7 +54,7 @@ export class KontextMatchingDocsAPI implements MatchingDocsAPI<SingleCritQueryAr
                 usesubcorp: state.subcname,
                 q: `~${query}`,
                 fcrit: [state.searchAttrs[0]],
-                flimit: 1,
+                flimit: state.minFreq,
                 freq_sort: "rel",
                 fpage: 1,
                 ftt_include_empty: 0
@@ -71,7 +71,7 @@ export class KontextMatchingDocsAPI implements MatchingDocsAPI<SingleCritQueryAr
             usesubcorp: state.subcname,
             q: `~${query}`,
             fcrit: state.searchAttrs[0],
-            flimit: 1,
+            flimit: state.minFreq,
             freq_sort: 'rel',
             fpage: 1,
             pagesize: state.maxNumCategories,
@@ -90,7 +90,7 @@ export class KontextMatchingDocsAPI implements MatchingDocsAPI<SingleCritQueryAr
 
     call(args:SingleCritQueryArgs):Observable<APIResponse> {
         return cachedAjax$<HTTPResponse>(this.cache)(
-            'GET',
+            HTTP.Method.GET,
             this.apiURL + '/freqs',
             args,
             {headers: this.customHeaders}

@@ -45,4 +45,5 @@ export interface MatchingDocsModelState {
     displayAttrs:Array<string>;
     searchAttrs:Array<string>|null;
     data:Array<DataRow>;
+    minFreq:number;
 }
