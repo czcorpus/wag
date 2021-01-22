@@ -42,7 +42,7 @@
     ],
     "create:custom-tile": "ts-node ./scripts/create-tile.ts $1",
     "create:tile-conf": "ts-node ./scripts/create-tile-conf.ts $1",
-    "devel-server": "webpack-dev-server --config webpack.dev.js",
+    "devel-server": "node node_modules/webpack/bin/webpack.js serve --config webpack.dev.js",
     "server": [
       "ajv -s ./conf/server-schema.json -d ./conf/server.json",
       "node dist-server/service.js"
