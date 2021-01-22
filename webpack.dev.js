@@ -29,7 +29,11 @@ module.exports = (env) => ({
             'node_modules',
             mkpath('dist/.compiled')
         ],
-        extensions: ['.webpack.js', '.web.js', '.ts', '.tsx', '.jsx', '.js', '.json', '.css', '.less']
+        extensions: ['.webpack.js', '.web.js', '.ts', '.tsx', '.jsx', '.js', '.json', '.css', '.less'],
+        fallback: {
+            'path': require.resolve('path-browserify'),
+            'stream': require.resolve('stream-browserify')
+        }
     },
     module: {
         rules: [
@@ -134,14 +138,10 @@ module.exports = (env) => ({
                 res.set('Content-Type', 'text/css');
                 res.send('');
             });
-        },
-        watchOptions: {
-            ignored: [
-                /node_modules/
-            ]
         }
     },
     plugins: [
         new build.ProcTranslationsPlugin(SRC_PATH, DIST_PATH, CONF)
-    ]
+    ],
+    target: ['web', 'es5']
  });
