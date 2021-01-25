@@ -85,14 +85,14 @@ export const mkTileFactory = (
             return new EmptyTile(tileIdentMap[confName]);
 
         } else {
-            const initFn = tileFactories[conf.tileType];
-            if (typeof initFn === 'undefined') {
+            const tileFactory = tileFactories[conf.tileType];
+            if (typeof tileFactory === 'undefined') {
                 throw new Error(`Cannot invoke tile init() for ${confName} - type ${conf.tileType} not found. Check your src/js/tiles/custom directory.`);
 
-            } else if (typeof initFn !== 'function') {
-                throw new Error(`Cannot invoke tile init() for ${confName} (type ${conf.tileType}). Expected type [function], got [${typeof initFn}].`)
+            } else if (typeof tileFactory.create !== 'function' || typeof tileFactory.sanityCheck !== 'function') {
+                throw new Error(`Cannot invoke tile init() for ${confName} (type ${conf.tileType}). Expected type [function], got [${typeof tileFactory}].`);
             }
-            return initFn({
+            const args = {
                 tileId: tileIdentMap[confName],
                 dispatcher,
                 ut: viewUtils,
@@ -125,6 +125,11 @@ export const mkTileFactory = (
                 conf,
                 isBusy: true,
                 cache
-            });
+            };
+            const errs = tileFactory.sanityCheck(args);
+            if (!List.empty(errs)) {
+                throw List.head(errs); // TODO maybe we should join the errors?
+            }
+            return tileFactory.create(args);
         }
 };

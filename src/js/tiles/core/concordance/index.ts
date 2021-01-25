@@ -29,7 +29,6 @@ import { init as viewInit } from './views';
 import { createApiInstance } from '../../../api/factory/concordance';
 import { findCurrQueryMatch } from '../../../models/query';
 import { createInitialLinesData } from '../../../models/tiles/concordance';
-import { AttrViewMode } from '../../../api/vendor/kontext/types';
 
 
 
@@ -87,9 +86,6 @@ export class ConcordanceTile implements ITileProvider {
         this.widthFract = widthFract;
         this.appServices = appServices;
         this.blockingTiles = waitForTiles;
-        if (waitForTiles.length > 1) {
-            throw new Error('ConcordanceTile does not support waiting for multiple tiles. Only a single tile can be specified');
-        }
         const api = createApiInstance(cache, conf.apiType, conf.apiURL, appServices);
         this.model = new ConcordanceTileModel({
             dispatcher: dispatcher,
@@ -192,4 +188,14 @@ export class ConcordanceTile implements ITileProvider {
     }
 }
 
-export const init:TileFactory.TileFactory<ConcordanceTileConf> = (args) => new ConcordanceTile(args);
+export const init:TileFactory.TileFactory<ConcordanceTileConf> = {
+
+    sanityCheck: (args) => {
+        const ans = [];
+        if (args.waitForTiles.length > 1) {
+            ans.push(new Error('ConcordanceTile does not support waiting for multiple tiles. Only a single tile can be specified'));
+        }
+        return ans;
+    },
+    create: (args) => new ConcordanceTile(args)
+}

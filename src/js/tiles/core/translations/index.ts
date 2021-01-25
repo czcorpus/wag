@@ -138,4 +138,9 @@ export class TranslationsTile implements ITileProvider {
     }
 }
 
-export const init:TileFactory.TileFactory<TranslationsTileConf> = (args) => new TranslationsTile(args);
+export const init:TileFactory.TileFactory<TranslationsTileConf> = {
+
+    sanityCheck: (args) => [],
+
+    create: (args) => new TranslationsTile(args)
+};

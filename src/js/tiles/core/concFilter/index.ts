@@ -29,7 +29,7 @@ import { LocalizedConfMsg } from '../../../types';
 import { SwitchMainCorpApi } from '../../../api/vendor/kontext/switchMainCorp';
 import { ISwitchMainCorpApi, SwitchMainCorpResponse } from '../../../api/abstract/switchMainCorp';
 import { TileWait } from '../../../models/tileSync';
-import { AttrViewMode } from '../../../api/vendor/kontext/types';
+import { List } from 'cnc-tskit';
 
 
 declare var require:(src:string)=>void;  // webpack
@@ -168,4 +168,14 @@ export class ConcFilterTile implements ITileProvider {
     }
 }
 
-export const init:TileFactory.TileFactory<ConcFilterTileConf> = (args) => new ConcFilterTile(args);
+export const init:TileFactory.TileFactory<ConcFilterTileConf> = {
+
+    sanityCheck: (args) => {
+        const ans:Array<Error> = [];
+        if (List.empty(args.waitForTiles) || List.empty(args.subqSourceTiles)) {
+            throw new Error('ConcFilterTile needs both waitFor (concordance) and readSubqFrom (list of words to filter by) configured');
+        }
+        return ans;
+    },
+    create: (args) => new ConcFilterTile(args)
+};

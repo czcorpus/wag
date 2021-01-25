@@ -172,4 +172,9 @@ export class SpeechesTile implements ITileProvider {
     }
 }
 
-export const init:TileFactory.TileFactory<SpeechesTileConf>  = (args) => new SpeechesTile(args);
+export const init:TileFactory.TileFactory<SpeechesTileConf> = {
+
+    sanityCheck: (args) => [],
+
+    create: (args) => new SpeechesTile(args)
+};

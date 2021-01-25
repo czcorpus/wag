@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Ident } from 'cnc-tskit';
+import { Ident, List } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
 import { FreqSort } from '../../../api/vendor/kontext/freqs';
@@ -182,4 +182,14 @@ export class FreqPieTile implements ITileProvider {
     }
 }
 
-export const init:TileFactory.TileFactory<FreqPieTileConf> = (args) => new FreqPieTile(args);
+export const init:TileFactory.TileFactory<FreqPieTileConf> = {
+
+    sanityCheck: (args) => {
+        const ans = [];
+        if (List.empty(args.waitForTiles)) {
+            ans.push(new Error('FreqPieTile needs waitFor configured as it cannot load its own source concordances'));
+        }
+        return ans;
+    },
+    create: (args) => new FreqPieTile(args)
+};

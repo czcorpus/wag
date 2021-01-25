@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
-import { Ident } from 'cnc-tskit';
+import { Ident, List } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
 import { FreqSort } from '../../../api/vendor/kontext/freqs';
@@ -189,4 +189,14 @@ export class FreqBarTile implements ITileProvider {
 
 }
 
-export const init:TileFactory.TileFactory<FreqBarTileConf>  = (args) => new FreqBarTile(args);
+export const init:TileFactory.TileFactory<FreqBarTileConf>  = {
+
+    sanityCheck: (args) => {
+        const ans = [];
+        if (List.empty(args.waitForTiles)) {
+            ans.push(new Error('FreqBarTile needs waitFor configured as it cannot load its own source concordances'));
+        }
+        return ans;
+    },
+    create: (args) => new FreqBarTile(args)
+};

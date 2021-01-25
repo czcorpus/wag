@@ -175,4 +175,8 @@ export class FreqTreeTile implements ITileProvider {
     }
 }
 
-export const init:TileFactory.TileFactory<FreqTreeTileConf>  = (args) => new FreqTreeTile(args);
+export const init:TileFactory.TileFactory<FreqTreeTileConf>  = {
+
+    sanityCheck: (args) => [],
+    create: (args) => new FreqTreeTile(args)
+};

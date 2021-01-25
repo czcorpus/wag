@@ -301,7 +301,24 @@ export namespace TileFactory {
         cache:IAsyncKeyValueStore;
     }
 
+    /**
+     * TileFactory should take care of creating a TileProvider instance (= main tile object)
+     * plus it should handle runtime assertions.
+     */
     export interface TileFactory<T> {
-        (args:Args<T>):ITileProvider;
+
+        /**
+         * The sanityCheck method provides runtime assertions.
+         * Detected errors should not be thrown but rather returned.
+         * In case an empty array is returned, WaG assumes the tile
+         * is ready to run.
+         */
+        sanityCheck(args:Args<T>):Array<Error>;
+
+        /**
+         * Create a new tile instance
+         */
+        create(args:Args<T>):ITileProvider;
+
     }
 }
