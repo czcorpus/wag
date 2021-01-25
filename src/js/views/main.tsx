@@ -55,7 +55,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------------------ <SystemMessage /> ------------------------------
 
-    const SystemMessage:React.SFC<{
+    const SystemMessage:React.FC<{
         type:SystemMessageType;
         text:string;
         ident:string;
@@ -104,7 +104,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------------------ <QueryDomainSelector /> ------------------------------
 
-    const QueryDomainSelector:React.SFC<{
+    const QueryDomainSelector:React.FC<{
         value:string;
         searchDomains:Array<SearchDomain>;
         htmlClass?:string;
@@ -128,7 +128,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------------------ <QueryDomain2Selector /> ------------------------------
 
-    const QueryDomain2Selector:React.SFC<{
+    const QueryDomain2Selector:React.FC<{
         value:string;
         targetDomains:Array<[string, string]>;
         htmlClass?:string;
@@ -152,7 +152,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------------------ <QueryInput /> ------------------------------
 
-    const QueryInput:React.SFC<{
+    const QueryInput:React.FC<{
         idx:number;
         value:Forms.Input;
         wantsFocus:boolean;
@@ -195,7 +195,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------------------ <SubmitButton /> ------------------------------
 
-    const SubmitButton:React.SFC<{
+    const SubmitButton:React.FC<{
         onClick:()=>void;
 
     }> = (props) => {
@@ -212,7 +212,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------------------ <QueryTypeSelector /> ------------------------------
 
-    const QueryTypeSelector:React.SFC<{
+    const QueryTypeSelector:React.FC<{
         menuItems:Array<QueryTypeMenuItem>;
         value:QueryType;
         isMobile:boolean;
@@ -238,7 +238,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------------------ <AddCmpQueryField /> ------------------------------
 
-    const AddCmpQueryField:React.SFC<{
+    const AddCmpQueryField:React.FC<{
     }> = (_) => {
 
         const handleClick = () => {
@@ -259,7 +259,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------------------ <RemoveCmpQueryField /> ------------------------------
 
-    const RemoveCmpQueryField:React.SFC<{
+    const RemoveCmpQueryField:React.FC<{
         queryIdx:number;
 
     }> = (props) => {
@@ -285,7 +285,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------------------ <QueryFields /> ------------------------------
 
-    const QueryFields:React.SFC<{
+    const QueryFields:React.FC<{
         queries:Array<Forms.Input>;
         queryType:QueryType;
         wantsFocus:boolean;
@@ -375,7 +375,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // --------------- <LemmaSelector /> -------------------------------------------
 
-    const LemmaSelector:React.SFC<{
+    const LemmaSelector:React.FC<{
         matches:RecognizedQueries;
         queries:Array<string>;
         lemmaSelectorModalVisible:boolean;
@@ -589,7 +589,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------------- <HelpButton /> --------------------------------------
 
-    const HelpButton:React.SFC<{
+    const HelpButton:React.FC<{
         tileId:number;
 
     }> = (props) => {
@@ -615,7 +615,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------------- <AltViewButton /> --------------------------------------
 
-    const AltViewButton:React.SFC<{
+    const AltViewButton:React.FC<{
         isAltView:boolean;
         tileId:number;
 
@@ -657,7 +657,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------------- <TweakButton /> --------------------------------------
 
-    const TweakButton:React.SFC<{
+    const TweakButton:React.FC<{
         tileId:number;
         isExtended:boolean;
 
@@ -694,7 +694,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------------- <AmbiguousResultWarning /> -------------------------------
 
-    const AmbiguousResultWarning:React.SFC<{
+    const AmbiguousResultWarning:React.FC<{
     }> = (props) => {
 
         const handleClick = (evt:React.MouseEvent<HTMLButtonElement>) => {
@@ -714,7 +714,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------------- <InitialHelpTile /> --------------------------------------
 
-    const InitialHelpTile:React.SFC<{html:string}> = (props) => {
+    const InitialHelpTile:React.FC<{html:string}> = (props) => {
 
         const ref = React.useRef(null);
         React.useEffect(() => {
@@ -735,7 +735,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------------- <InitialHelp /> --------------------------------------
 
-    const InitialHelp:React.SFC<{
+    const InitialHelp:React.FC<{
         sections:Array<{label:string; html:string}>;
 
     }> = (props) => {
@@ -756,7 +756,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------------- <DisabledTile /> --------------------------------------
 
-    const DisabledTile:React.SFC<{
+    const DisabledTile:React.FC<{
         reason:string;
 
     }> = (props) => (
@@ -900,7 +900,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------------- <TileGroupButton /> -----------------------------
 
-    const TileGroupButton:React.SFC<{
+    const TileGroupButton:React.FC<{
         groupHidden:boolean;
         groupDisabled:boolean;
         group:TileGroup;
@@ -938,7 +938,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------------- <MinimizedGroup /> ------------------------
 
-    const MinimizedGroup:React.SFC<{
+    const MinimizedGroup:React.FC<{
         groupIdx:number;
         tiles:Array<TileFrameProps>;
 
@@ -971,7 +971,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------------- <TileGroupSection /> -----------------------------
 
-    const TileGroupSection:React.SFC<{
+    const TileGroupSection:React.FC<{
         data:TileGroup;
         idx:number;
         isHidden:boolean;
@@ -1070,7 +1070,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------------- <NothingFoundBox /> ----------------------------
 
-    const NothingFoundBox:React.SFC<{}> = (props) => {
+    const NothingFoundBox:React.FC<{}> = (props) => {
         return (
             <section className="group">
                 <section className="tiles">
@@ -1090,7 +1090,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------------- <TooManyErrorsBox /> ----------------------------
 
-    const TooManyErrorsBox:React.SFC<{
+    const TooManyErrorsBox:React.FC<{
         reportHref:string;
 
     }> = (props) => {
@@ -1119,7 +1119,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------------- <SourceInfo /> -----------------------------
 
-    const SourceInfo:React.SFC<{
+    const SourceInfo:React.FC<{
         data:SourceDetails;
         tileProps:Array<TileFrameProps>;
     }> = (props) => {
@@ -1148,7 +1148,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------------- <WithinModalAjaxLoader /> ---------------------
 
-    const WithinModalAjaxLoader:React.SFC<{}> = (props) => {
+    const WithinModalAjaxLoader:React.FC<{}> = (props) => {
         return (
             <div style={{textAlign: 'center', minWidth: '10em', minHeight: '5em'}}>
                 <globalComponents.AjaxLoader htmlClass="loader" />
@@ -1158,7 +1158,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------------- <ModalHelpContent /> --------------------------
 
-    const ModalHelpContent:React.SFC<{
+    const ModalHelpContent:React.FC<{
         isBusy:boolean;
         title:string;
         html:string;
@@ -1330,7 +1330,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------------------ <WdglanceMain /> ------------------------------
 
-    const WdglanceMain:React.SFC<WdglanceMainProps> = (props) => {
+    const WdglanceMain:React.FC<WdglanceMainProps> = (props) => {
         return (
             <div className="WdglanceMain">
                 <WdglanceControlsBound isMobile={props.isMobile} isAnswerMode={props.isAnswerMode} />
