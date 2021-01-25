@@ -71,7 +71,7 @@
     "express": "^4.17.1",
     "express-session": "^1.17.1",
     "ioredis": "^4.19.4",
-    "kombo": "^0.85.2",
+    "kombo": "^0.85.3",
     "path-browserify": "^1.0.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
