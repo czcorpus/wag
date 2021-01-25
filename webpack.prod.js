@@ -38,7 +38,8 @@ module.exports = (env) => ({
             'buffer': require.resolve('buffer/'),
             'path': require.resolve('path-browserify/'),
             'stream': require.resolve('stream-browserify/')
-        }
+        },
+        symlinks: false
     },
     module: {
         rules: [

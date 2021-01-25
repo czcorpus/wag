@@ -33,7 +33,8 @@ module.exports = (env) => ({
         fallback: {
             'path': require.resolve('path-browserify'),
             'stream': require.resolve('stream-browserify')
-        }
+        },
+        symlinks: false
     },
     module: {
         rules: [
