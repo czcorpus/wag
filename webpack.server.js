@@ -31,7 +31,8 @@ module.exports = (env) => ({
             'node_modules',
             mkpath('dist/.compiled')
         ],
-        extensions: ['.webpack.js', '.web.js', '.ts', '.tsx', '.jsx', '.js', '.json', '.css', '.less']
+        extensions: ['.webpack.js', '.web.js', '.ts', '.tsx', '.jsx', '.js', '.json', '.css', '.less'],
+        symlinks: false
     },
     module: {
         rules: [
