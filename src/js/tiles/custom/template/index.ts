@@ -134,4 +134,9 @@ export class __Template__Tile implements ITileProvider {
     }
 }
 
-export const init:TileFactory.TileFactory<__Template__TileConf> = (args) => new __Template__Tile(args);
+export const init:TileFactory.TileFactory<__Template__TileConf> = {
+
+    sanityCheck: (args) => [],
+
+    create: (args) => new __Template__Tile(args)
+};

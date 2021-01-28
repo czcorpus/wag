@@ -196,4 +196,9 @@ export class MergeCorpFreqTile implements ITileProvider {
     }
 }
 
-export const init:TileFactory.TileFactory<MergeCorpFreqTileConf>  = (args) => new MergeCorpFreqTile(args);
+export const init:TileFactory.TileFactory<MergeCorpFreqTileConf>  = {
+
+    sanityCheck: (args) => [],
+
+    create: (args) => new MergeCorpFreqTile(args)
+};

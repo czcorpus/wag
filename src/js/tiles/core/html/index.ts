@@ -147,4 +147,9 @@ export class HtmlTile implements ITileProvider {
     }
 }
 
-export const init:TileFactory.TileFactory<HtmlTileConf> = (args) => new HtmlTile(args);
+export const init:TileFactory.TileFactory<HtmlTileConf> = {
+
+    sanityCheck: (args) => [],
+
+    create: (args) => new HtmlTile(args)
+};

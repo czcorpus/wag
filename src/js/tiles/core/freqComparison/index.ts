@@ -83,9 +83,6 @@ export class FreqComparisonTile implements ITileProvider {
             conf.critLabels.map(v => this.appServices.importExternalMessage(v)) :
             [this.appServices.importExternalMessage(conf.critLabels)];
 
-        if (!conf.posQueryGenerator) {
-            throw Error('Missing posQueryGenerator configuration');
-        }
         this.model = defaultModelFactory(
             this.dispatcher,
             tileId,
@@ -185,4 +182,14 @@ export class FreqComparisonTile implements ITileProvider {
     }
 }
 
-export const init:TileFactory.TileFactory<FreqComparisonTileConf>  = (args) => new FreqComparisonTile(args);
+export const init:TileFactory.TileFactory<FreqComparisonTileConf>  = {
+
+    sanityCheck: (args) => {
+        const ans = [];
+        if (!args.conf.posQueryGenerator) {
+            ans.push(new Error('FreqComparisonTile must have posQueryGenerator configured'));
+        }
+        return ans;
+    },
+    create: (args) => new FreqComparisonTile(args)
+};

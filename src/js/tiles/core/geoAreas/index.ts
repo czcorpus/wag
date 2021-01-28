@@ -157,4 +157,9 @@ export class GeoAreasTile implements ITileProvider {
     }
 }
 
-export const init:TileFactory.TileFactory<GeoAreasTileConf>  = (args) => new GeoAreasTile(args);
+export const init:TileFactory.TileFactory<GeoAreasTileConf> = {
+
+    create: (args) => new GeoAreasTile(args),
+
+    sanityCheck: (args) => []
+};

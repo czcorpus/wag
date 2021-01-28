@@ -188,4 +188,9 @@ export class MultiWordTimeDistTile implements ITileProvider {
     }
 }
 
-export const init:TileFactory.TileFactory<TimeDistTileConf>  = (args) => new MultiWordTimeDistTile(args);
+export const init:TileFactory.TileFactory<TimeDistTileConf> = {
+
+    sanityCheck: (args) => [],
+
+    create: (args) => new MultiWordTimeDistTile(args)
+};

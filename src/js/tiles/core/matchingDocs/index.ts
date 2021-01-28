@@ -149,4 +149,9 @@ export class MatchingDocsTile implements ITileProvider {
 
 }
 
-export const init:TileFactory.TileFactory<MatchingDocsTileConf>  = (args) => new MatchingDocsTile(args);
+export const init:TileFactory.TileFactory<MatchingDocsTileConf>  = {
+
+    sanityCheck: (args) => [],
+
+    create: (args) => new MatchingDocsTile(args)
+};

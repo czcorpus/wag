@@ -17,7 +17,7 @@
  */
 import { Observable, of as rxOf } from 'rxjs';
 import { concatMap, map } from 'rxjs/operators';
-import { List, HTTP, URL, Dict } from 'cnc-tskit';
+import { List, HTTP, URL, Dict, pipe } from 'cnc-tskit';
 
 import { cachedAjax$, encodeURLParameters } from '../../../../../page/ajax';
 import { HTTPHeaders, IAsyncKeyValueStore, CorpusDetails } from '../../../../../types';
@@ -155,14 +155,17 @@ export class ConcApi implements IConcordanceApi<ConcQueryArgs|ConcViewArgs|Filte
             case 'quickFilterQueryArgs':
                 return [
                     URL.join(this.apiURL, 'quick_filter') + '?' +
-                        encodeURLParameters(
-                            Dict.toEntries({
+                        pipe(
+                            {
                                 ...args,
                                 usesubcorp: args.usesubcorp,
                                 maincorp: args.maincorp,
                                 shuffle: args.shuffle || 0,
                                 refs: args.refs
-                            })),
+                            },
+                            Dict.toEntries(),
+                            encodeURLParameters
+                        ),
                     'application/x-www-form-urlencoded; charset=UTF-8',
                     {}
                 ];

@@ -192,4 +192,9 @@ export class TimeDistTile implements ITileProvider {
     }
 }
 
-export const init:TileFactory.TileFactory<TimeDistTileConf>  = (args) => new TimeDistTile(args);
+export const init:TileFactory.TileFactory<TimeDistTileConf> = {
+
+    sanityCheck: (args) => [],
+
+    create: (args) => new TimeDistTile(args)
+};

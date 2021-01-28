@@ -141,4 +141,9 @@ export class WordFormsTile implements ITileProvider {
     }
 }
 
-export const init:TileFactory.TileFactory<WordFormsTileConf> = (args) => new WordFormsTile(args);
+export const init:TileFactory.TileFactory<WordFormsTileConf> = {
+
+    sanityCheck: (args) => [],
+
+    create: (args) => new WordFormsTile(args)
+};

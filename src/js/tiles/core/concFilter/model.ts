@@ -351,6 +351,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
                     const ans = {...acc};
                     const payload = action.payload;
                     if (this.isFromSubqSourceTile(action)) {
+                        payload
                         ans.subqueries = Dict.mergeDict(
                             (_, nw) => nw,
                             pipe(

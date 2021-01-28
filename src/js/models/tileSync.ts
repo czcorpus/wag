@@ -18,6 +18,10 @@
 
 import { Dict, pipe, List } from 'cnc-tskit';
 
+/**
+ * TileWait provides a high level abstraction on tile waiting/syncing
+ * mechanism.
+ */
 export class TileWait<T> {
 
     private readonly data:{[tileId:string]:T};
@@ -29,6 +33,11 @@ export class TileWait<T> {
         this.changed = false;
     }
 
+    /**
+     * create is the factory to create a TileWait instance
+     * @param tilesToWait a list of tiles we need to wait for
+     * @param valueFactory is a factory function producing a value T we use as a flag for tile status
+     */
     static create<T>(tilesToWait:Array<number>, valueFactory:(tileId:number)=>T) {
         return new TileWait(pipe(
             tilesToWait,

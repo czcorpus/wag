@@ -138,4 +138,9 @@ export class SyDTile implements ITileProvider {
     }
 }
 
-export const init:TileFactory.TileFactory<SyDTileConf> = (args) => new SyDTile(args);
+export const init:TileFactory.TileFactory<SyDTileConf> = {
+
+    sanityCheck: (args) => [],
+
+    create: (args) => new SyDTile(args)
+};

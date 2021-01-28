@@ -141,4 +141,9 @@ export class WordFreqTile implements ITileProvider {
     }
 }
 
-export const init:TileFactory.TileFactory<WordFreqTileConf> = (args) => new WordFreqTile(args);
+export const init:TileFactory.TileFactory<WordFreqTileConf> = {
+
+    sanityCheck: (args) => [],
+
+    create: (args) => new WordFreqTile(args)
+};
