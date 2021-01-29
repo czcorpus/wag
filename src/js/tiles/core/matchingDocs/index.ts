@@ -22,6 +22,7 @@ import { TileComponent, TileConf, TileFactory, ITileProvider } from '../../../pa
 import { MatchingDocsModel } from './model';
 import { init as viewInit } from './view';
 import { createMatchingDocsApiInstance } from './apiFactory';
+import { List } from 'cnc-tskit';
 
 
 
@@ -38,6 +39,19 @@ export interface MatchingDocsTileConf extends TileConf {
     maxNumCategories:number;
     maxNumCategoriesPerPage:number;
     minFreq?:number;
+}
+
+function getSearchAttrs(conf:MatchingDocsTileConf):Array<string> {
+    if (Array.isArray(conf.searchAttrs)) {
+        return conf.searchAttrs;
+    }
+    if (conf.searchAttrs) {
+        return [conf.searchAttrs];
+    }
+    if (Array.isArray(conf.displayAttrs)) {
+        return conf.displayAttrs;
+    }
+    return [conf.displayAttrs];
 }
 
 
@@ -81,7 +95,7 @@ export class MatchingDocsTile implements ITileProvider {
                 subcname: conf.subcname,
                 minFreq: conf.minFreq || 1,
                 displayAttrs: typeof conf.displayAttrs === 'string' ? [conf.displayAttrs] : [...conf.displayAttrs],
-                searchAttrs: conf.searchAttrs ? (typeof conf.searchAttrs === 'string' ? [conf.searchAttrs] : [...conf.searchAttrs]) : null,
+                searchAttrs: getSearchAttrs(conf),
                 currPage: null,
                 numPages: null,
                 maxNumCategories: conf.maxNumCategories || 20,
@@ -151,7 +165,18 @@ export class MatchingDocsTile implements ITileProvider {
 
 export const init:TileFactory.TileFactory<MatchingDocsTileConf>  = {
 
-    sanityCheck: (args) => [],
+    sanityCheck: (args) => {
+        const ans = [];
+        const dattrs = Array.isArray(args.conf.displayAttrs) ?
+                args.conf.displayAttrs : [args.conf.displayAttrs];
+        const sattrs = Array.isArray(args.conf.searchAttrs) ?
+                args.conf.searchAttrs : [args.conf.searchAttrs];
+        if (List.some(x => /[^\s]+ \d+/.exec(x) !== null, dattrs)
+                || List.some(x => /[^\s]+ \d+/.exec(x) !== null, sattrs)) {
+            ans.push(new Error('Display and search attributes should be simple attribute names.'));
+        }
+        return ans;
+    },
 
     create: (args) => new MatchingDocsTile(args)
 };

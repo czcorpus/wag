@@ -19,7 +19,7 @@ import { MatchingDocsAPI, APIResponse } from '../../abstract/matchingDocs';
 import { cachedAjax$ } from '../../../page/ajax';
 import { Observable } from 'rxjs';
 import { HTTPHeaders, IAsyncKeyValueStore, CorpusDetails } from '../../../types';
-import { HTTP } from 'cnc-tskit';
+import { HTTP, List } from 'cnc-tskit';
 import { map } from 'rxjs/operators';
 import { SingleCritQueryArgs, HTTPResponse } from './freqs';
 import { CorpusInfoAPI } from './corpusInfo';
@@ -70,7 +70,7 @@ export class KontextMatchingDocsAPI implements MatchingDocsAPI<SingleCritQueryAr
             corpname: state.corpname,
             usesubcorp: state.subcname,
             q: `~${query}`,
-            fcrit: state.searchAttrs[0],
+            fcrit: `${List.head(state.searchAttrs)} 0`,
             flimit: state.minFreq,
             freq_sort: 'rel',
             fpage: 1,
