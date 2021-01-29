@@ -128,7 +128,7 @@ export const mkTileFactory = (
             };
             const errs = tileFactory.sanityCheck(args);
             if (!List.empty(errs)) {
-                throw List.head(errs); // TODO maybe we should join the errors?
+                throw new Error('Tile sanity check: ' + List.head(errs).message); // TODO maybe we should join the errors?
             }
             return tileFactory.create(args);
         }
