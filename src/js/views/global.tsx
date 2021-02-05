@@ -29,6 +29,7 @@ import { ActionName, Actions } from '../models/actions';
 export interface SourceInfo {
     corp:string;
     subcorp?:string;
+    url?:string;
 }
 
 export type TooltipValues = {[key:string]:Array<{value:string|number; unit?:string}>}|null;
@@ -193,16 +194,47 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
         </form>;
     }
 
-    // --------------- <SourceLink /> -------------------------------------------
+    // --------------- <SourceLink /> ------------------------------------------------
 
     const SourceLink:React.FC<{
+        data:SourceInfo;
+        onClick:(corp:string, subcorp:string|undefined)=>void
+    }> = (props) => {
+
+        if (props.data.url) {
+            return (
+                <a href={props.data.url} target="_blank">{props.data.corp || props.data.url}</a>
+            );
+
+        } else if (props.data.corp) {
+            return (
+                <>
+                    <a onClick={()=>props.onClick(props.data.corp, props.data.subcorp)}>
+                        {props.data.corp}
+                    </a>
+                    {props.data.subcorp ? <span> / {props.data.subcorp}</span> : null}
+                </>
+            );
+
+        } else {
+            return (
+                <a onClick={()=>props.onClick(props.data.corp, props.data.subcorp)}>
+                    {ut.translate('global__click_for_details')}
+                </a>
+            );
+        }
+    }
+
+    // --------------- <SourceReference /> -------------------------------------------
+
+    const SourceReference:React.FC<{
         tileId:number;
         data:SourceInfo|Array<SourceInfo>|undefined;
         backlink:BacklinkWithArgs<{}>|Array<BacklinkWithArgs<{}>>|undefined;
 
     }> = (props) => {
 
-        const handleClick = (corp:string, subcorp:string|undefined) => () => {
+        const handleClick = (corp:string, subcorp:string|undefined) => {
             dispatcher.dispatch<Actions.GetSourceInfo>({
                 name: ActionName.GetSourceInfo,
                 payload: {
@@ -221,17 +253,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                         (item, i) =>
                             <React.Fragment key={`${item.corp}:${item.subcorp}`}>
                                 {i > 0 ? <span> + </span> : null}
-                                {item.corp ?
-                                    <>
-                                    <a onClick={handleClick(item.corp, item.subcorp)}>
-                                        {item.corp}
-                                    </a>
-                                    {item.subcorp ? <span> / {item.subcorp}</span> : null}
-                                    </> :
-                                    <a onClick={handleClick(item.corp, item.subcorp)}>
-                                        {ut.translate('global__click_for_details')}
-                                    </a>
-                                }
+                                <SourceLink data={item} onClick={handleClick} />
                             </React.Fragment>,
                         Array.isArray(props.data) ? props.data : [props.data]
                     ) :
@@ -380,7 +402,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                         </div>
                     </div>
                     {props.hasData && (props.sourceIdent || props.backlink) ?
-                        <SourceLink data={props.sourceIdent} backlink={props.backlink} tileId={props.tileId} /> :
+                        <SourceReference data={props.sourceIdent} backlink={props.backlink} tileId={props.tileId} /> :
                         null
                     }
                 </div>
