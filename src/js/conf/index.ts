@@ -93,14 +93,14 @@ export interface GroupLayoutConfig {
         tile:string;
         width:number;
         ref?:string;
-        
+
         /**
         * In case a tile supports this (most of them does so) it can
         * wait for a specific tile to finish its operation. Again,
         * this is used mainly for 'concordance -> analysis' combinations.
         */
         waitFor?:string|Array<string>;
-        
+
         /**
          * In case we depend on multiple tiles and some of them are
          * just kind of hidden dependencies (i.e. we want to wait them
@@ -151,6 +151,7 @@ export interface HomePageTileConfI18n {
 
 export interface HomepageConfI18n {
     tiles:Array<HomePageTileConfI18n>;
+    footer?:{[lang:string]:string|{file:string}};
 }
 
 export interface FaviconConf {
@@ -260,7 +261,10 @@ export interface ClientConf {
     onLoadInit:Array<string>;
     apiHeaders:{[urlPrefix:string]:HTTPHeaders};
     issueReportingUrl?:string;
-    homepage:{tiles:Array<HomepageTileConf>};
+    homepage:{
+        tiles:Array<HomepageTileConf>;
+        footer?:string;
+    };
     tiles:{[ident:string]:TileConf};
     layouts:LayoutsConfig;
     searchDomains:Array<SearchDomain>;

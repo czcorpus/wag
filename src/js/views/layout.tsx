@@ -42,7 +42,7 @@ export interface LayoutProps {
     returnUrl:string;
     themes:Array<ColorThemeIdent>;
     currTheme:string;
-    RootComponent:React.ComponentType<WdglanceMainProps|ErrPageProps>;
+    RootComponent:React.FC<WdglanceMainProps>|React.FC<ErrPageProps>;
     layout:Array<TileGroup>;
     homepageSections:Array<{label:string; html:string}>;
     isMobile:boolean;
@@ -54,11 +54,11 @@ export interface LayoutProps {
 }
 
 
-export function init(ut:ViewUtils<GlobalComponents>):React.SFC<LayoutProps> {
+export function init(ut:ViewUtils<GlobalComponents>):React.FC<LayoutProps> {
 
     // -------- <ThemeSelection /> -----------------------------
 
-    const ThemeSelection:React.SFC<{
+    const ThemeSelection:React.FC<{
         themes:Array<ColorThemeIdent>;
         currTheme:string;
         returnUrl:string;
@@ -81,9 +81,88 @@ export function init(ut:ViewUtils<GlobalComponents>):React.SFC<LayoutProps> {
         );
     }
 
+    // --------- <ThemeMenu /> -------------------------
+
+    const ThemeMenu:React.FC<{
+        themes:Array<ColorThemeIdent>;
+        returnUrl:string;
+        currTheme:string;
+
+    }> = (props) => (
+        <section>
+            {props.themes.length > 0 ?
+            <ThemeSelection returnUrl={props.returnUrl} themes={props.themes} currTheme={props.currTheme} /> :
+            null
+            }
+        </section>
+    );
+
+    // -------- <CustomFooter /> ----------------------
+
+    const CustomFooter:React.FC<{
+        config:ClientConf;
+        returnUrl:string;
+        themes:Array<ColorThemeIdent>;
+        currTheme:string;
+        repositoryUrl:string;
+        version:string;
+
+    }> = (props) => (
+        <>
+            <div dangerouslySetInnerHTML={{__html: props.config.homepage.footer}} />
+            <ThemeMenu returnUrl={props.returnUrl} themes={props.themes} currTheme={props.currTheme} />
+            <section className="project-info">
+                <span>{ut.translate('global__powered_by_wag_{version}', {version: props.version})}</span>
+                (<a target="_blank" rel="noopener" href={props.repositoryUrl}>{ut.translate('global__view_on_github')}</a>)
+            </section>
+        </>
+    );
+
+    // -------- <DefaultFooter /> ----------------------
+
+    const DefaultFooter:React.FC<{
+        config:ClientConf;
+        returnUrl:string;
+        themes:Array<ColorThemeIdent>;
+        currTheme:string;
+        repositoryUrl:string;
+        version:string;
+        issueReportingUrl:string;
+
+    }> = (props) => (
+        <>
+            <ThemeMenu returnUrl={props.returnUrl} themes={props.themes} currTheme={props.currTheme} />
+            <section className="project-info">
+                <span className="copy">
+                    &copy; <a href="https://ucnk.ff.cuni.cz/" target="_blank" rel="noopener">
+                        {ut.translate('global__institute_cnc')}
+                        </a>
+                </span>
+                {props.config.logo ?
+                    <span><img src={ut.createStaticUrl('logo-small.svg')} className="logo" alt="WaG" /></span> :
+                    null
+                }
+                <span>{ut.translate('global__powered_by_wag_{version}', {version: props.version})}</span>
+            </section>
+            <section className="links">
+                <span className="action">
+                    <a target="_blank" rel="noopener" href={props.repositoryUrl}>{ut.translate('global__view_on_github')}</a>
+                </span>
+                {props.issueReportingUrl ?
+                    <>
+                        <span className="report-error action">
+                            <a target="_blank" rel="noopener" href={props.issueReportingUrl}>{ut.translate('global__report_a_problem')}</a>
+                        </span>
+                    </> :
+                    null
+                }
+            </section>
+        </>
+    );
+
     // -------- <Layout /> -----------------------------
 
-    const Layout:React.SFC<LayoutProps> = (props) => {
+    const Layout:React.FC<LayoutProps> = (props) => {
 
         const createScriptStr = () => {
             return `indexPage.initClient(document.querySelector('.wdglance-mount'),
@@ -142,37 +221,15 @@ export function init(ut:ViewUtils<GlobalComponents>):React.SFC<LayoutProps> {
                     <script type="text/javascript" src={`${urlResolve(props.config.hostUrl, 'dist/index.js')}`}></script>
                     <script type="text/javascript" dangerouslySetInnerHTML={{__html: createScriptStr()}} />
                     <footer>
-                        <section>
-                            {props.themes.length > 0 ?
-                                <ThemeSelection returnUrl={props.returnUrl} themes={props.themes} currTheme={props.currTheme} /> :
-                                null
-                            }
-                        </section>
-                        <section className="project-info">
-                            <span className="copy">
-                                &copy; <a href="https://ucnk.ff.cuni.cz/" target="_blank" rel="noopener">
-                                    {ut.translate('global__institute_cnc')}
-                                    </a>
-                            </span>
-                            {props.config.logo ?
-                                <span><img src={ut.createStaticUrl('logo-small.svg')} className="logo" alt="WaG" /></span> :
-                                null
-                            }
-                            <span>{ut.translate('global__powered_by_wag_{version}', {version: props.version})}</span>
-                        </section>
-                        <section className="links">
-                            <span className="action">
-                                <a target="_blank" rel="noopener" href={props.repositoryUrl}>{ut.translate('global__view_on_github')}</a>
-                            </span>
-                            {props.issueReportingUrl ?
-                                <>
-                                    <span className="report-error action">
-                                        <a target="_blank" rel="noopener" href={props.issueReportingUrl}>{ut.translate('global__report_a_problem')}</a>
-                                    </span>
-                                </> :
-                                null
-                            }
-                        </section>
+                        {props.config.homepage.footer ?
+                            <CustomFooter config={props.config} returnUrl={props.returnUrl}
+                                    repositoryUrl={props.repositoryUrl} themes={props.themes}
+                                    currTheme={props.currTheme} version={props.version} /> :
+                            <DefaultFooter config={props.config} returnUrl={props.returnUrl}
+                                    repositoryUrl={props.repositoryUrl} themes={props.themes}
+                                    currTheme={props.currTheme} version={props.version}
+                                    issueReportingUrl={props.issueReportingUrl} />
+                        }
                     </footer>
                 </body>
             </html>

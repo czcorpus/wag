@@ -17,7 +17,7 @@
  */
 import { Action, IStatelessModel, StatefulModel, IFullActionControl, SEDispatcher, IActionCapturer } from 'kombo';
 import { BehaviorSubject, Observable, Subscription, Subject, of as rxOf } from 'rxjs';
-import { scan, startWith, flatMap } from 'rxjs/operators';
+import { scan, startWith, mergeMap } from 'rxjs/operators';
 
 
 
@@ -30,7 +30,7 @@ export class ServerSideActionDispatcher implements IFullActionControl {
     constructor() {
         this.inActions = new Subject<Action  | Observable<Action>>();
         this.actions = this.inActions.pipe(
-            flatMap(v => v instanceof Observable ? v : rxOf(v))
+            mergeMap(v => v instanceof Observable ? v : rxOf(v))
         );
     }
 

@@ -41,20 +41,26 @@ import { maxQueryWordsForQueryType } from '../../conf/validation';
 
 
 function mkRuntimeClientConf(conf:ClientStaticConf, serverConf:ServerConf, domain:string, themeId:string, appServices:IAppServices):Observable<ClientConf> {
-    return forkJoin(...List.map(item =>
-        appServices.importExternalText(
-            item.contents,
-            loadFile
+    return forkJoin([
+        forkJoin(
+            List.map(item =>
+                appServices.importExternalText(
+                    item.contents,
+                    loadFile
 
-        ).pipe(
-            map<string, {label:string; html: string}>(value => ({
-                label: appServices.importExternalMessage(item.label),
-                html: value
-            }))
+                ).pipe(
+                    map<string, {label:string; html: string}>(value => ({
+                        label: appServices.importExternalMessage(item.label),
+                        html: value
+                    }))
+                ),
+                conf.homepage.tiles
+            )
         ),
-        conf.homepage.tiles)
-    ).pipe(
-        map((item:Array<{label:string; html: string}>) => {
+        conf.homepage.footer ?
+            appServices.importExternalText(conf.homepage.footer, loadFile) : rxOf(undefined)
+    ]).pipe(
+        map(([tiles, footer]) => {
             let maxQueryWords = {};
             for (let queryType in QueryType) {
                 const qt = QueryType[queryType]
@@ -101,7 +107,8 @@ function mkRuntimeClientConf(conf:ClientStaticConf, serverConf:ServerConf, domai
                 externalStyles: conf.externalStyles || [],
                 issueReportingUrl: conf.issueReportingUrl,
                 homepage: {
-                    tiles: item
+                    tiles,
+                    footer
                 },
                 telemetry: conf.telemetry,
                 maxTileErrors: conf.maxTileErrors,
@@ -306,7 +313,7 @@ export function queryAction({services, answerMode, queryType, uiLang, req, res, 
 
             res.send(renderResult({
                 view: view,
-                services: services,
+                services,
                 toolbarData: hostPageEnv,
                 queryMatches: queryMatchesExtended,
                 themes: runtimeConf.colorThemes,
@@ -314,8 +321,8 @@ export function queryAction({services, answerMode, queryType, uiLang, req, res, 
                 userConfig: userConf,
                 clientConfig: runtimeConf,
                 returnUrl: mkPageReturnUrl(req, services.clientConf.rootUrl),
-                rootView: rootView,
-                layout: layout,
+                rootView,
+                layout,
                 homepageSections: [...runtimeConf.homepage.tiles],
                 isMobile: false, // TODO should we detect the mode on server too
                 isAnswerMode: answerMode,

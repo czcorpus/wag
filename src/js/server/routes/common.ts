@@ -173,7 +173,7 @@ export function createHelperServices(services:Services, uiLang:string):[ViewUtil
 
 
 interface RenderResultArgs {
-    view:React.SFC<LayoutProps>;
+    view:React.FC<LayoutProps>;
     services:Services;
     toolbarData:HostPageEnv;
     queryMatches:RecognizedQueries;
@@ -182,7 +182,7 @@ interface RenderResultArgs {
     returnUrl:string;
     themes:Array<ColorThemeIdent>;
     currTheme:string;
-    rootView:React.ComponentType<WdglanceMainProps|ErrPageProps>;
+    rootView:React.FC<WdglanceMainProps>|React.FC<ErrPageProps>;
     homepageSections:Array<{label:string; html:string}>;
     layout:Array<TileGroup>;
     isMobile:boolean;
