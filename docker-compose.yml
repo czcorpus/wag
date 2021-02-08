@@ -1,0 +1,37 @@
+version: '3.7'
+services:
+  wag:
+    build: .
+    container_name: wag-container
+    command: npm start server
+    volumes:
+      - ./conf:/opt/wdglance/conf
+      - wag-assets:/opt/wdglance/assets
+      - wag-dist:/opt/wdglance/dist
+    networks:
+      - redis
+      - wag
+  nginx:
+    image: nginx:latest
+    container_name: nginx-container
+    ports:
+      - "8080:80"
+    depends_on:
+      - wag
+    volumes:
+      - ./docker.nginx.conf:/etc/nginx/conf.d/default.conf
+      - wag-dist:/opt/wdglance/dist
+      - wag-assets:/opt/wdglance/assets
+    networks:
+      - wag
+  redis:
+    image: redis:latest
+    container_name: redis-container
+    networks:
+      - redis
+volumes:
+  wag-assets:
+  wag-dist:
+networks:
+  redis: {}
+  wag: {}
