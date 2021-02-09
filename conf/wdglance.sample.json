@@ -1,7 +1,7 @@
 {
 	"$schema": "./wdglance-schema.json",
-	"rootUrl": "http://portal.korpus.test/wdg/",
-	"hostUrl": "http://portal.korpus.test/wdg/",
+	"rootUrl": "http://portal.korpus.test/wag/",
+	"hostUrl": "http://portal.korpus.test/wag/",
 	"corpInfoApiUrl": "http://kontext.korpus.test/kontext-api/corpora/ajax_get_corp_details",
 	"apiHeaders": {
 		"http://kontext.korpus.test/kontext-api/": {
@@ -22,8 +22,8 @@
 					"en-US": "What is Word at a Glance?"
 				},
 				"contents": {
-					"cs-CZ": {"file": "/opt/wdglance/data/empty.html"},
-					"en-US": {"file": "/opt/wdglance/data/empty.html"}
+					"cs-CZ": {"file": "/opt/wag/data/empty.html"},
+					"en-US": {"file": "/opt/wag/data/empty.html"}
 				}
 			},
 			{
@@ -32,8 +32,8 @@
 					"en-US": "Notes"
 				},
 				"contents": {
-					"cs-CZ": {"file": "/opt/wdglance/data/empty.html"},
-					"en-US": {"file": "/opt/wdglance/data/empty.html"}
+					"cs-CZ": {"file": "/opt/wag/data/empty.html"},
+					"en-US": {"file": "/opt/wag/data/empty.html"}
 				}
 			},
 			{
@@ -42,8 +42,8 @@
 					"en-US": "Other information"
 				},
 				"contents": {
-					"cs-CZ": {"file": "/opt/wdglance/data/empty.html"},
-					"en-US": {"file": "/opt/wdglance/data/empty.html"}
+					"cs-CZ": {"file": "/opt/wag/data/empty.html"},
+					"en-US": {"file": "/opt/wag/data/empty.html"}
 				}
 			}
 		]
@@ -55,8 +55,8 @@
 					{
 						"groupLabel": "Současný psaný jazyk",
 						"groupDescURL": {
-							"cs-CZ": "/wdg/static/vendor/ucnk/groups-help/single/freqProfile.cs.html",
-							"en-US": "/wdg/static/vendor/ucnk/groups-help/single/freqProfile.en.html"
+							"cs-CZ": "/wag/static/vendor/ucnk/groups-help/single/freqProfile.cs.html",
+							"en-US": "/wag/static/vendor/ucnk/groups-help/single/freqProfile.en.html"
 						},
 						"__tiles": [
 							{"tile": "WordFreq", "width": 1},
@@ -106,7 +106,7 @@
 				"groups": [
 					{
 						"groupLabel": "Překlad z korpusových dat",
-						"groupDescURL": "/wdg/static/vendor/ucnk/groups-help/translat/main.cs.html",
+						"groupDescURL": "/wag/static/vendor/ucnk/groups-help/translat/main.cs.html",
 						"tiles": [
 							{"tile": "Treq", "width": 1},
 							{"tile": "TreqSubsets", "width": 2},
@@ -148,8 +148,8 @@
 					"cs-CZ": "Souhrn",
 					"en-US": "summary"
 				},
-				"apiURL": "/wdg/similar-freq-words",
-				"helpURL": "/wdg/static/vendor/ucnk/tiles-help/single/WordFreqProfile.cs.html",
+				"apiURL": "/wag/similar-freq-words",
+				"helpURL": "/wag/static/vendor/ucnk/tiles-help/single/WordFreqProfile.cs.html",
 				"corpname": "syn2015",
 				"corpusSize": 120748715,
 				"sfwRowRange": 7,
@@ -168,7 +168,7 @@
 					"en-US": "Forms"
 				},
 				"apiType": "wdglance",
-				"apiURL": "/wdg/word-forms/",
+				"apiURL": "/wag/word-forms/",
 				"corpname": "syn2015",
 				"maxNumItems": 10,
 				"corpusSize": 120748715,
@@ -220,7 +220,7 @@
 					"label": "KonText",
 					"url": "/kontext/view"
 				},
-				"helpURL": "/wdg/static/help/czcorpus/missing.html",
+				"helpURL": "/wag/static/help/czcorpus/missing.html",
 				"corpname": "syn2015",
 				"posAttrs": [
 					"word",
@@ -436,7 +436,7 @@
 				"label": {
 					"cs-CZ": "Zastoupení balíčků v nejvýznamnějších překladech"
 				},
-				"helpURL": "/wdg/static/help/czcorpus/missing.html",
+				"helpURL": "/wag/static/help/czcorpus/missing.html",
 				"waitFor": "Treq",
 				"apiURL": "/kontext/freqs",
 				"corpname": null,
@@ -629,7 +629,7 @@
 				},
 				"waitFor": "ConcordanceSpoken",
 				"apiURL": "/kontext/freqs",
-				"helpURL": "/wdg/static/vendor/ucnk/tiles-help/single/SpeakerPropFreqs.cs.html",
+				"helpURL": "/wag/static/vendor/ucnk/tiles-help/single/SpeakerPropFreqs.cs.html",
 				"corpname": "oral_v1",
 				"fcrit": [
 				  "sp.gender 0",
@@ -663,8 +663,8 @@
 					"cs-CZ": "Souhrn",
 					"en-US": "summary"
 				},
-				"apiURL": "/wdg/similar-freq-words",
-				"helpURL": "/wdg/static/help/czcorpus/missing.html",
+				"apiURL": "/wag/similar-freq-words",
+				"helpURL": "/wag/static/help/czcorpus/missing.html",
 				"corpname": "intercorp_v11_en",
 				"corpusSize": 154423032,
 				"sfwRowRange": 7,
@@ -711,7 +711,7 @@
 			}
 		}
 	},
-	"colors": "/opt/wdglance/conf/themes.json",
+	"colors": "/opt/wag/conf/themes.json",
 	"dbValuesMapping": {
 		"syn2015": {
 			"FIC: beletrie": "Beletrie",

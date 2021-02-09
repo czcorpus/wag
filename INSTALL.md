@@ -3,7 +3,7 @@
 ## Installation steps
 
 1) Install Node.js version 8 or newer.
-2) Clone wdglance repository: `git clone https://github.com/czcorpus/wdglance.git`
+2) Clone wdglance repository: `git clone https://github.com/czcorpus/wag.git`
 3) run `npm install`
 4) build the project `npm start build:server && make start build:production`
 5) prepare word database or a service able to provide word frequency information (TODO)
@@ -16,7 +16,7 @@
 ### Nginx as a proxy for wdglance
 
 ```
-upstream wdg_express {
+upstream wag_express {
     server localhost:3000 fail_timeout=1;
 }
 
@@ -24,14 +24,14 @@ server {
     listen 80;
     server_name your_domain;
 
-    location /wdglance/assets/ {
-        alias /path/to/wdglance/assets/;
+    location /wag/assets/ {
+        alias /path/to/wag/assets/;
     }
 
-    location /wdglance/ {
+    location /wag/ {
         proxy_set_header Host $http_host;
         proxy_redirect off;
-        proxy_pass http://wdg_express/;
+        proxy_pass http://wag_express/;
         proxy_read_timeout 10;
     }
 }
@@ -55,7 +55,7 @@ After=network.target
 Environment=NODE_PORT=3001
 Type=simple
 User=www-data
-ExecStart=/usr/bin/node /path/to/wdglance/dist-server/service.js
+ExecStart=/usr/bin/node /path/to/wag/dist-server/service.js
 Restart=on-failure
 
 [Install]
