@@ -2,8 +2,8 @@
     "$schema": "./server-schema.json",
     "address": "localhost",
     "port": 3000,
-    "staticFilesUrl": "/wdg/assets/",
-    "distFilesUrl": "/wdg/dist/",
+    "staticFilesUrl": "/wag/assets/",
+    "distFilesUrl": "/wag/dist/",
     "theme": "default.less",
     "langCookie": "wdg_ui_lang",
     "languages": {
@@ -16,7 +16,7 @@
     },
     "develServer": {
         "port": 9001,
-        "urlRootPath": "/wdg/"
+        "urlRootPath": "/wag/"
     },
     "freqDB": {
         "single": {
