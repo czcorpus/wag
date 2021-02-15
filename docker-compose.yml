@@ -6,8 +6,7 @@ services:
     command: npm start server
     volumes:
       - ./conf:/opt/wag/conf
-      - wag-assets:/opt/wag/assets
-      - wag-static:/opt/wag/html
+      - wag-static:/opt/wag/assets
       - wag-dist:/opt/wag/dist
     networks:
       - redis
@@ -21,8 +20,7 @@ services:
       - wag
     volumes:
       - ./install/docker.nginx.conf:/etc/nginx/conf.d/default.conf
-      - wag-assets:/opt/wag/assets
-      - wag-static:/opt/wag/html
+      - wag-static:/opt/wag/assets
       - wag-dist:/opt/wag/dist
     networks:
       - wag
@@ -32,7 +30,6 @@ services:
     networks:
       - redis
 volumes:
-  wag-assets:
   wag-static:
   wag-dist:
 networks:
