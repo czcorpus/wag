@@ -56,12 +56,12 @@ def process_conf(db_conf: DbConf, path: str):
 
 if __name__ == '__main__':
     argparser = argparse.ArgumentParser('Write an existing tile JSON config to a CouchDB instance')
-    argparser.add_argument('server_conf', metavar='SERVER_CONF', help='WaG server configuration file with tileDB filled in')
+    argparser.add_argument('wdglance_conf', metavar='WDGLANCE_CONF', help='WaG configuration file with couchDB `tiles` filled in')
     argparser.add_argument('tile_conf', metavar='TILE_CONF', help='a JSON file containing tiles configurations')
     args = argparser.parse_args()
-    with open(args.server_conf) as fr:
-        server_conf = json.load(fr)
-    tmp = server_conf['tileDB']
+    with open(args.wdglance_conf) as fr:
+        wdglance_conf = json.load(fr)
+    tmp = wdglance_conf['tiles']
     db_conf = DbConf()
     db_conf.db = tmp.get('db', db_conf.db)
     db_conf.server = tmp.get('server', db_conf.server)
