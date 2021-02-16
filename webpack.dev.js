@@ -127,7 +127,7 @@ module.exports = (env) => ({
         contentBase: path.resolve(__dirname, 'html'),
         compress: true,
         port: (CONF.develServer || {}).port || 9000,
-        host: 'localhost',
+        host: (CONF.develServer || {}).host || 'localhost',
         disableHostCheck: true, // TODO
         inline: true,
         before: function(app) {

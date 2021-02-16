@@ -1,0 +1,36 @@
+version: '3.7'
+services:
+  wag:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: wag-container-dev
+    command: bash -c "./install/docker.command.sh"
+    volumes:
+      - .:/opt/wag
+      - node_modules:/opt/wag/node_modules
+      - dist-server:/opt/wag/dist-server
+    networks:
+      - redis
+      - wag
+  nginx:
+    image: nginx:latest
+    container_name: nginx-container
+    ports:
+      - "8080:80"
+    volumes:
+      - ./install/docker.nginx.dev.conf:/etc/nginx/conf.d/default.conf
+      - ./assets:/opt/wag/assets
+    networks:
+      - wag
+  redis:
+    image: redis:latest
+    container_name: redis-container
+    networks:
+      - redis
+volumes:
+  node_modules:
+  dist-server:
+networks:
+  redis: {}
+  wag: {}
