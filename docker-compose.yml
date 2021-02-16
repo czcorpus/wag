@@ -10,6 +10,7 @@ services:
       - wag-dist:/opt/wag/dist
     networks:
       - redis
+      - couchdb
       - wag
   nginx:
     image: nginx:latest
@@ -29,9 +30,18 @@ services:
     container_name: redis-container
     networks:
       - redis
+  couchdb:
+    environment:
+      COUCHDB_USER: user
+      COUCHDB_PASSWORD: password
+    image: couchdb:latest
+    container_name: couchdb-container
+    networks:
+      - couchdb
 volumes:
   wag-static:
   wag-dist:
 networks:
   redis: {}
+  couchdb: {}
   wag: {}
