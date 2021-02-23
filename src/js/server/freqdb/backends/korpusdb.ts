@@ -87,7 +87,7 @@ export interface HTTPDataResponse {
     query:{[key:string]:any},
     page:{
         from:number;
-        to:number;
+        size:number;
     }
 }
 
@@ -155,7 +155,7 @@ export class KorpusFreqDB implements IFreqDB {
                         }
                     }
                 ],
-                page: {from: 0, to: 100},
+                page: {from: 0, size: 1000},
                 query: {
                     feats: [],
                     type: words.length > 1 ? `:ngram:form:${words.length}` : ':token:form',
