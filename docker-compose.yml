@@ -3,7 +3,6 @@ services:
   wag:
     build: .
     container_name: wag-container
-    command: npm start server
     volumes:
       - ./conf:/opt/wag/conf
       - wag-static:/opt/wag/assets
