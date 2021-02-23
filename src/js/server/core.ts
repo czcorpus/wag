@@ -70,5 +70,10 @@ export class ServerSideActionDispatcher implements IFullActionControl {
         // TODO
     }
 
+    dispatchSideEffect<T extends Action>(action: T): void {
+        // TODO
+        this.inActions.next(action);
+    }
+
     unregister():void {}
 }
