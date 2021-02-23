@@ -6,10 +6,8 @@ services:
       dockerfile: Dockerfile.dev
     command: bash -c "./install/docker.command.sh"
     volumes:
-      - .:/opt/wag
-      - node_modules:/opt/wag/node_modules
+      - ./src:/opt/wag/src
       - dist:/opt/wag/dist
-      - dist-server:/opt/wag/dist-server
     networks:
       - bridge
   nginx:
@@ -36,8 +34,6 @@ services:
     networks:
       - bridge
 volumes:
-  node_modules:
   dist:
-  dist-server:
 networks:
   bridge: {}
