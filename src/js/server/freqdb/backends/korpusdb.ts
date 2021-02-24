@@ -1,5 +1,6 @@
 /*
  * Copyright 2020 Martin Zimandl <martin.zimandl@gmail.com>
+ * Copyright 2021 Tomas Machalek <tomas.machalek@gmail.com>
  * Copyright 2020 Institute of the Czech National Corpus,
  *                Faculty of Arts, Charles University
  *
@@ -15,15 +16,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Observable, forkJoin } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { List, HTTP } from 'cnc-tskit';
+import { Observable, forkJoin, of as rxOf } from 'rxjs';
+import { concatMap, map, mergeMap, reduce } from 'rxjs/operators';
+import { List, HTTP, tuple, pipe } from 'cnc-tskit';
 
 import { IFreqDB } from '../freqdb';
 import { IAppServices, IApiServices } from '../../../appServices';
 import { QueryMatch, calcFreqBand } from '../../../query/index';
 import { FreqDbOptions } from '../../../conf';
-import { importQueryPosWithLabel, posTable, posTagsEqual } from '../../../postag';
+import { importQueryPosWithLabel, PosItem, posTable, posTagsEqual } from '../../../postag';
 import { CorpusDetails } from '../../../types';
 import { serverHttpRequest } from '../../request';
 
@@ -191,52 +192,77 @@ export class KorpusFreqDB implements IFreqDB {
 
     findQueryMatches(appServices:IAppServices, word:string, minFreq:number):Observable<Array<QueryMatch>> {
         const fcrit = word.includes(' ') ? this.ngramFcrit : this.fcrit;
-        return forkJoin(this.loadResources(), this.loadData(word, ':form:attr:cnc:w:word')).pipe(
-            map(([res, data]) => List.reduce(
-                (acc, curr) => {
-                    if (word.toLowerCase() === curr._name.toLowerCase() && curr[fcrit]) {
-                        const lemma = List.map(slot => slot._fillers[0][':form:attr:cnc:w:lemma'], curr._slots).join(' ');
-                        const pos = importQueryPosWithLabel(
-                            List.map(slot => slot._fillers[0][':form:attr:cnc:w:tag'][0], curr._slots).join(' '),
-                            posTable,
-                            appServices
-                        );
-                        const ipm = 1000000 * curr[fcrit]/res.data[0][this.normPath[0]][this.normPath[1]].params.size_tokens;
 
-                        // aggregate items whit identical pos and lemma
-                        const ident = List.findIndex(obj =>
-                            obj.lemma === lemma &&
-                            obj.pos.length === pos.length &&
-                            List.every(([a, b]) => a.value === b.value, List.zip(obj.pos, pos)),
-                            acc
-                        );
-                        if (ident > -1) {
-                            acc[ident].abs += curr[fcrit];
-                            acc[ident].ipm += ipm;
-                            acc[ident].flevel = calcFreqBand(acc[ident].ipm);
-                            return acc;
-
-                        } else {
-                            return [...acc, {
-                                word: word,
-                                lemma: lemma,
-                                pos: pos,
-                                ipm: ipm,
-                                flevel: calcFreqBand(ipm),
-                                abs: curr[fcrit],
-                                arf: -1,
-                                isCurrent: false,
-                            }];
+        return forkJoin([this.loadResources(), this.loadData(word, ':form:attr:cnc:w:word')]).pipe(
+            concatMap(([rsc, data]) => rxOf(...pipe(
+                data.data,
+                List.reduce<DataBlock, Array<[string, string, Array<PosItem>]>>(
+                    (acc, curr) => {
+                        if (word.toLowerCase() === curr._name.toLowerCase() && curr[fcrit]) {
+                            const lemma = List.map(
+                                slot => slot._fillers[0][':form:attr:cnc:w:lemma'],
+                                curr._slots
+                            ).join(' ');
+                            const pos = importQueryPosWithLabel(
+                                List.map(
+                                    slot => slot._fillers[0][':form:attr:cnc:w:tag'][0],
+                                    curr._slots
+                                ).join(' '),
+                                posTable,
+                                appServices
+                            );
+                            const exists = List.some(
+                                ([, ilemma, ipos]) => ilemma === lemma &&
+                                        ipos.length === pos.length &&
+                                        List.every(
+                                            ([a, b]) => a.value === b.value,
+                                            List.zip(ipos, pos)
+                                        ),
+                                acc
+                            );
+                            return exists ? acc : [...acc, tuple(word, lemma, pos)];
                         }
-                    }
-
-                    return acc;
-                },
-                [],
-                data.data
-            ))
+                        return acc;
+                    },
+                    []
+                ),
+                List.map(res => tuple(rsc, res))
+            ))),
+            mergeMap(([rsc, [word, lemma, pos]]) =>
+                this.getWordFormsUsingResources(
+                    appServices,
+                    lemma,
+                    List.map(p => p.value, pos),
+                    rsc
+                ).pipe(
+                    map(wordForms =>
+                        List.reduce((acc, curr) => {
+                                acc.ipm += curr.ipm;
+                                acc.flevel = calcFreqBand(acc.ipm);
+                                acc.abs += curr.abs;
+                                return acc;
+                            },
+                            {
+                                word,
+                                lemma,
+                                pos,
+                                ipm: 0,
+                                flevel: null,
+                                abs: 0,
+                                arf: 0,
+                                isCurrent: false // TODO
+                            },
+                            wordForms
+                        )
+                    )
+                )
+            ),
+            reduce(
+                (acc, curr) => List.push(curr, acc), [] as Array<QueryMatch>
+            )
         );
     }
+
 
     getSimilarFreqWords(appServices:IAppServices, lemma:string, pos:Array<string>, rng:number):Observable<Array<QueryMatch>> {
         return new Observable<Array<QueryMatch>>((observer) => {
@@ -245,10 +271,16 @@ export class KorpusFreqDB implements IFreqDB {
         });
     }
 
-    getWordForms(appServices:IAppServices, lemma:string, pos:Array<string>):Observable<Array<QueryMatch>> {
+    private getWordFormsUsingResources(
+        appServices:IAppServices,
+        lemma:string,
+        pos:Array<string>,
+        resources:HTTPResourcesResponse
+    ):Observable<Array<QueryMatch>> {
+
         const fcrit = lemma.includes(' ') ? this.ngramFcrit : this.fcrit;
-        return forkJoin(this.loadResources(), this.loadData(lemma, ':form:attr:cnc:w:lemma')).pipe(
-            map(([res, data]) => List.reduce(
+        return this.loadData(lemma, ':form:attr:cnc:w:lemma').pipe(
+            map(data => List.reduce(
                 (acc, curr) => {
                     if (curr[fcrit]) {
                         const wordPos = importQueryPosWithLabel(
@@ -256,11 +288,10 @@ export class KorpusFreqDB implements IFreqDB {
                             posTable,
                             appServices
                         );
-
                         if (List.empty(pos) || posTagsEqual(pos, List.map(v => v.value, wordPos))) {
-                            const ipm = 1000000 * curr[fcrit]/res.data[0][this.normPath[0]][this.normPath[1]].params.size_tokens;
-
-                            // aggregate items whit identical word
+                            const total = resources.data[0][this.normPath[0]][this.normPath[1]].params.size_tokens;
+                            const ipm = 1000000 * curr[fcrit] /  total;
+                            // aggregate items with identical word
                             const ident = List.findIndex(obj => obj.word === curr._name, acc);
                             if (ident > -1) {
                                 acc[ident].abs += curr[fcrit];
@@ -288,6 +319,19 @@ export class KorpusFreqDB implements IFreqDB {
                 [],
                 data.data
             ))
+        );
+    }
+
+    getWordForms(appServices:IAppServices, lemma:string, pos:Array<string>):Observable<Array<QueryMatch>> {
+        return this.loadResources().pipe(
+            concatMap(
+                res => this.getWordFormsUsingResources(
+                    appServices,
+                    lemma,
+                    pos,
+                    res
+                )
+            )
         );
     }
 
