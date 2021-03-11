@@ -259,6 +259,13 @@ export class KorpusFreqDB implements IFreqDB {
             ),
             reduce(
                 (acc, curr) => List.push(curr, acc), [] as Array<QueryMatch>
+            ),
+            map(
+                items => pipe(
+                    items,
+                    List.sortedBy(val => val.ipm),
+                    List.reversed()
+                )
             )
         );
     }
