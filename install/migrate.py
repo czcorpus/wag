@@ -21,7 +21,7 @@ from requests.auth import HTTPBasicAuth
 import json
 import sys
 import re
-from typing import Dict, Any
+from typing import Dict, Any, Tuple
 import argparse
 
 
@@ -29,19 +29,42 @@ class DbConf():
 
     server = 'http://localhost:5984'
     db = 'wag'
+    db2 = 'wag_new'
     prefix = ''
     username = ''
     password = ''
+    dry_run = False
+
+
+def parse_server_url(url: str) -> Tuple[str, str]:
+    return re.split(r'(https?://)', url)[1:]
+
+
+def put_document(db_conf: DbConf, ident: str, doc):
+    protocol, server = parse_server_url(db_conf.server)
+    url = f'{protocol}{db_conf.username}:{db_conf.password}@{server}/{db_conf.db2}/{ident}'
+    if db_conf.dry_run:
+        print('----------------')
+        print(f'db update -> {url}')
+        print(json.dumps(doc))
+        return None
+    else:
+        if db_conf.db != db_conf.db2:
+            del doc['_rev']
+        print(url)
+        print(doc)
+        return requests.put(url, data=json.dumps(doc),
+                            headers={'Accept': 'application/json', 'Content-Type': 'application/json'})
 
 
 def get_doc(db_conf: DbConf, id: str):
-    protocol, server = re.split(r'(https?://)', db_conf.server)[1:]
+    protocol, server = parse_server_url(db_conf.server)
     ans = requests.get(f'{protocol}{db_conf.username}:{db_conf.password}@{server}/{db_conf.db}/{id}')
     return ans.json()
 
 
 def get_all_docs(db_conf: DbConf):
-    protocol, server = re.split(r'(https?://)', db_conf.server)[1:]
+    protocol, server = parse_server_url(db_conf.server)
     ans = requests.get(f'{protocol}{db_conf.username}:{db_conf.password}@{server}/{db_conf.db}/_all_docs')
     return ans.json()
 
@@ -81,21 +104,27 @@ def migrate_data(db_conf: DbConf, path: str):
                                     tile['waitFor'] = waitFor
                                 if readSubqFrom:
                                     tile['readSubqFrom'] = readSubqFrom
-            with open(path, 'w') as f:
-                json.dump(l_data, f, indent=4, ensure_ascii=False)
+                                if db_conf.dry_run:
+                                    print('----------------')
+                                    print(f'layout update --> {tile}')
+            if not db_conf.dry_run:
+                with open(path, 'w') as f:
+                    json.dump(l_data, f, indent=4, ensure_ascii=False)
 
             del doc['_id']
-            protocol, server = re.split(r'(https?://)', db_conf.server)[1:]
-            ans = requests.put(f'{protocol}{db_conf.username}:{db_conf.password}@{server}/{db_conf.db}/{ident}',
-                    data=json.dumps(doc), headers={'Accept': 'application/json', 'Content-Type': 'application/json'})
-
-            print(ans.text)
+            ans = put_document(db_conf, ident, doc)
+            if ans is not None:
+                print(f'{ans.status_code}: {ans.text}')
 
 
 if __name__ == '__main__':
     argparser = argparse.ArgumentParser('migrate', description='Migrate "waitFor" and "readSubqFrom" configurations from CouchDB tile conf to layout conf')
     argparser.add_argument('layouts_conf', metavar='LAYOUTS_CONF', help='WaG server configuration file with tileDB filled in')
     argparser.add_argument('wdglance_conf', metavar='WDGLANCE_CONF', help='a JSON file containing tiles configurations')
+    argparser.add_argument('-s', '--source-db', type=str, help='Source database (default is wag_conf)')
+    argparser.add_argument('-t', '--target-db', type=str, help='Target database (default is wag_conf)')
+    argparser.add_argument('-r', '--server', type=str, help='Custom server URL')
+    argparser.add_argument('-d', '--dry-run', action='store_const', const=True, help='Do not write anything, just print the target docs (this overrides --target-db)')
     args = argparser.parse_args()
     with open(args.wdglance_conf) as fr:
         wdglance_conf = json.load(fr)
@@ -105,7 +134,12 @@ if __name__ == '__main__':
         sys.exit(1)
     db_conf = DbConf()
     db_conf.db = tmp.get('db', db_conf.db)
-    db_conf.server = tmp.get('server', db_conf.server)
+    db_conf.db2 = args.target_db if args.target_db else db_conf.db
+    db_conf.dry_run = args.dry_run
+    if args.server:
+        db_conf.server = args.server
+    else:
+        db_conf.server = tmp.get('server', db_conf.server)
     db_conf.prefix = tmp.get('prefix', db_conf.prefix)
     db_conf.username = tmp.get('username', db_conf.username)
     db_conf.password = tmp.get('password', db_conf.password)
