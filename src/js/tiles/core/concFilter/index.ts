@@ -90,9 +90,6 @@ export class ConcFilterTile implements ITileProvider {
             subqSourceTiles,
             appServices,
             api: new ConcApi(cache, conf.apiURL, appServices),
-            switchMainCorpApi: conf.switchMainCorpApiURL ?
-                new SwitchMainCorpApi(conf.switchMainCorpApiURL, appServices) :
-                new EmptyMainCorpSwitch(),
             initState: {
                 isBusy: isBusy,
                 error: null,
