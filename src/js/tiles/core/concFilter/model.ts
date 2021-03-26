@@ -23,18 +23,17 @@ import { IAppServices } from '../../../appServices';
 import { ActionName as GlobalActionName, Actions as GlobalActions, isTileSomeDataLoadedAction } from '../../../models/actions';
 import { SubQueryItem, SubqueryPayload, RangeRelatedSubqueryValue, RecognizedQueries } from '../../../query/index';
 import { ConcApi } from '../../../api/vendor/kontext/concordance/v015';
-import { mkContextFilter  } from '../../../api/vendor/kontext/concordance/v015/common'
+import { mkContextFilter, escapeVal  } from '../../../api/vendor/kontext/concordance/v015/common'
 import { Line, ViewMode, ConcResponse } from '../../../api/abstract/concordance';
 import { Observable } from 'rxjs';
 import { isConcLoadedPayload } from '../concordance/actions';
 import { CollExamplesLoadedPayload } from './actions';
 import { Actions, ActionName } from './actions';
 import { normalizeTypography } from '../../../models/tiles/concordance/normalize';
-import { ISwitchMainCorpApi, SwitchMainCorpResponse } from '../../../api/abstract/switchMainCorp';
-import { Dict, pipe, List } from 'cnc-tskit';
+import { Dict, pipe, List, tuple } from 'cnc-tskit';
 import { callWithExtraVal } from '../../../api/util';
 import { TileWait } from '../../../models/tileSync';
-import { AttrViewMode, QuickFilterRequestArgs } from '../../../api/vendor/kontext/types';
+import { AttrViewMode, FilterServerArgs, QuickFilterRequestArgs } from '../../../api/vendor/kontext/types';
 
 
 export interface ConcFilterModelState {
@@ -55,17 +54,17 @@ export interface ConcFilterModelState {
     visibleMetadataLine:number;
 }
 
-type SubqueryMapping = {[subq:string]:SubQueryItem<RangeRelatedSubqueryValue>};
+type AllSubqueries = Array<SubQueryItem<RangeRelatedSubqueryValue>>;
 
 interface SourceLoadingData {
     concordanceIds:Array<string>;
-    subqueries:SubqueryMapping;
+    subqueries:AllSubqueries;
 }
 
 interface SingleQueryFreqArgs {
     concId:string;
     queryId:number;
-    subqs:SubqueryMapping;
+    subq:SubQueryItem<RangeRelatedSubqueryValue>;
 }
 
 export interface ConcFilterModelArgs {
@@ -76,7 +75,6 @@ export interface ConcFilterModelArgs {
     dispatcher:IActionQueue;
     appServices:IAppServices;
     api:ConcApi;
-    switchMainCorpApi:ISwitchMainCorpApi;
     initState:ConcFilterModelState;
     queryMatches:RecognizedQueries;
 }
@@ -85,8 +83,6 @@ export interface ConcFilterModelArgs {
 export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWait<boolean>> {
 
     private readonly api:ConcApi;
-
-    private readonly switchMainCorpApi:ISwitchMainCorpApi;
 
     private readonly appServices:IAppServices;
 
@@ -100,11 +96,10 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
 
     private readonly waitForTilesTimeoutSecs:number;
 
-    constructor({dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, subqSourceTiles, appServices, api, switchMainCorpApi, initState, queryMatches}:ConcFilterModelArgs) {
+    constructor({dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, subqSourceTiles, appServices, api, initState, queryMatches}:ConcFilterModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.api = api;
-        this.switchMainCorpApi = switchMainCorpApi;
         this.waitForTiles = [...waitForTiles];
         this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.subqSourceTiles = [...subqSourceTiles];
@@ -249,7 +244,36 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
         );
     }
 
-    private mkConcArgs(state:ConcFilterModelState, subq:SubQueryItem<RangeRelatedSubqueryValue>, concId:string):QuickFilterRequestArgs {
+    private mkConcArgs(state:ConcFilterModelState, subq:SubQueryItem<RangeRelatedSubqueryValue>, concId:string):FilterServerArgs|QuickFilterRequestArgs {
+        if (state.otherCorpname) {
+            return {
+                corpname: state.corpName,
+                usesubcorp: undefined, // TODO do we want this?
+                maincorp: state.otherCorpname,
+                pnfilter: 'p',
+                filfl: 'f',
+                filfpos: '-20',
+                filtpos: '20',
+                inclkwic: 1,
+                qtype: 'advanced',
+                query: `[lemma="${escapeVal(subq.value.value)}"]`, // TODO generalize attr?
+                qmcase: false,
+                within: true,
+                default_attr: 'word',
+                use_regexp: false,
+                kwicleftctx: '-5',
+                kwicrightctx: '5',
+                pagesize: '10',
+                fromp: '1',
+                attr_vmode: 'visible-kwic',
+                attrs: 'word',
+                viewmode: 'align',
+                format:'json',
+                type: 'filterQueryArgs',
+                q: '~' + concId
+            }
+        }
+
         return {
             type: 'quickFilterQueryArgs',
             corpname: state.corpName,
@@ -275,7 +299,13 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
      * @param query
      * @return Observable of tuple [base conc ID, queryId, filtered conc response]
      */
-    private loadFreqs(state:ConcFilterModelState, concId:string, queryId:number, query:SubQueryItem<RangeRelatedSubqueryValue>):Observable<[string, number, ConcResponse]> {
+    private loadFilteredConcs(
+        state:ConcFilterModelState,
+        concId:string,
+        queryId:number,
+        query:SubQueryItem<RangeRelatedSubqueryValue>
+    ):Observable<[string, number, ConcResponse]> {
+
         return rxOf(query).pipe(
             concatMap(
                 subq => callWithExtraVal(
@@ -351,59 +381,24 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
                     const ans = {...acc};
                     const payload = action.payload;
                     if (this.isFromSubqSourceTile(action)) {
-                        payload
-                        ans.subqueries = Dict.mergeDict(
-                            (_, nw) => nw,
-                            pipe(
-                                action.payload.subqueries,
-                                List.map(v => [v.value.value, v] as [string, SubQueryItem<RangeRelatedSubqueryValue>]),
-                                Dict.fromEntries()
-                            ),
-                            ans.subqueries
-                        );
+                        ans.subqueries = List.concat(ans.subqueries, action.payload.subqueries);
 
                     } else if (isConcLoadedPayload(payload)) {
                         ans.concordanceIds = [...payload.concPersistenceIDs];
                     }
                     return ans;
                 },
-                {concordanceIds: state.concPersistenceIds, subqueries:{}} as SourceLoadingData
+                {concordanceIds: state.concPersistenceIds, subqueries:[]} as SourceLoadingData
             ),
             concatMap(
-                (data) => rxOf(...List.map<string, SingleQueryFreqArgs>(
-                    (concId, i) => ({
-                        concId: concId,
-                        subqs: data.subqueries,
-                        queryId: i
-                    }),
-                    data.concordanceIds
+                ({concordanceIds, subqueries}) => rxOf(...pipe(
+                    concordanceIds,
+                    List.flatMap(concId => List.map(sq => tuple(concId, sq), subqueries)),
+                    List.map(([concId, subq], queryId) => tuple(concId, subq, queryId))
                 ))
             ),
             concatMap(
-                (data) => state.otherCorpname ?
-                    callWithExtraVal(
-                        this.switchMainCorpApi,
-                        {
-                            concPersistenceID: data.concId,
-                            corpname: state.corpName,
-                            align: state.otherCorpname,
-                            maincorp: state.otherCorpname
-                        },
-                        data
-                    ) :
-                    rxOf<[SwitchMainCorpResponse, SingleQueryFreqArgs]>([{concPersistenceID: data.concId}, data])
-            ),
-            concatMap(
-                ([switchResp, args]) => rxOf(...Dict.mapEntries(
-                    ([,v]) => {
-                        const ans:[string, number, SubQueryItem<RangeRelatedSubqueryValue>] = [switchResp.concPersistenceID, args.queryId, v];
-                        return ans;
-                    },
-                    args.subqs
-                ))
-            ),
-            concatMap(
-                ([concId, queryId, resp]) => this.loadFreqs(state, concId, queryId, resp)
+                ([concId, subq, queryId]) => this.loadFilteredConcs(state, concId, queryId, subq)
             ),
             tap(
                 ([baseConcId, queryId, resp]) => {
