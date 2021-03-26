@@ -17,7 +17,7 @@
  */
 import { Observable, of as rxOf } from 'rxjs';
 import { concatMap, map } from 'rxjs/operators';
-import { List, HTTP, URL, Dict, pipe } from 'cnc-tskit';
+import { List, HTTP, URL, Dict, pipe, tuple } from 'cnc-tskit';
 
 import { cachedAjax$, encodeURLParameters } from '../../../../../page/ajax';
 import { HTTPHeaders, IAsyncKeyValueStore, CorpusDetails } from '../../../../../types';
@@ -153,7 +153,7 @@ export class ConcApi implements IConcordanceApi<ConcQueryArgs|ConcViewArgs|Filte
     private createActionUrl(args:ConcQueryArgs|ConcViewArgs|FilterServerArgs|QuickFilterRequestArgs):[string, string, unknown] {
         switch (args.type) {
             case 'quickFilterQueryArgs':
-                return [
+                return tuple(
                     URL.join(this.apiURL, 'quick_filter') + '?' +
                         pipe(
                             {
@@ -168,12 +168,13 @@ export class ConcApi implements IConcordanceApi<ConcQueryArgs|ConcViewArgs|Filte
                         ),
                     'application/x-www-form-urlencoded; charset=UTF-8',
                     {}
-                ];
+                );
             case 'concQueryArgs':
-                return [URL.join(this.apiURL, 'query_submit'), 'application/json', args];
+                return tuple(URL.join(this.apiURL, 'query_submit'), 'application/json', args);
             case 'filterQueryArgs':
+                return tuple(URL.join(this.apiURL, 'filter'), 'application/json', args);
             case 'concViewArgs':
-                return [URL.join(this.apiURL, 'view'), 'application/json', args];
+                return tuple(URL.join(this.apiURL, 'view'), 'application/json', args);
             default:
                 throw new Error('unknown ConcApi args type');
         }
