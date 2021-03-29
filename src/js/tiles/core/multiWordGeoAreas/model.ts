@@ -178,7 +178,7 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                 if (action.payload.tileId === this.tileId) {
                     if (action.error) {
                         state.data = state.currQueryMatches.map(_ => []);
-                        state.error = action.error.message;
+                        state.error = this.appServices.normalizeHttpApiError(action.error);
 
                     } else if (action.payload.data.length === 0) {
                         state.data[action.payload.queryId] = [];

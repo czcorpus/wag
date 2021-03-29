@@ -174,7 +174,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                     state.isBusy = false;
                     if (action.error) {
                         console.error(action.error);
-                        state.error = action.error.message;
+                        state.error = this.appServices.normalizeHttpApiError(action.error);
                     }
                 }
             }

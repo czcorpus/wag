@@ -28,6 +28,7 @@ import { IWordSimApi, WordSimWord } from '../../../api/abstract/wordSim';
 import { WordSimModelState } from '../../../models/tiles/wordSim';
 import { QueryMatch } from '../../../query/index';
 import { callWithExtraVal } from '../../../api/util';
+import { IAppServices } from '../../../appServices';
 
 
 export interface WordSimModelArgs {
@@ -36,6 +37,7 @@ export interface WordSimModelArgs {
     tileId:number;
     api:IWordSimApi<{}>;
     queryDomain:string;
+    appServices:IAppServices;
 }
 
 
@@ -47,7 +49,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
 
     private readonly queryDomain:string;
 
-    constructor({dispatcher, initState, tileId, api, queryDomain}:WordSimModelArgs) {
+    constructor({dispatcher, initState, tileId, api, queryDomain, appServices}:WordSimModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.api = api;
@@ -114,7 +116,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                     state.isBusy = false;
                     if (action.error) {
                         state.data = List.map(_ => [], state.queryMatches);
-                        state.error = action.error.message;
+                        state.error = appServices.normalizeHttpApiError(action.error);
 
                     } else {
                         state.data[action.payload.queryId] = action.payload.words;

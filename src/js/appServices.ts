@@ -17,7 +17,7 @@
  */
 import { Observable, of as rxOf } from 'rxjs';
 import { ITranslator } from 'kombo';
-import { Dict } from 'cnc-tskit';
+import { Dict, HTTP, tuple } from 'cnc-tskit';
 
 import { HTTPHeaders, SystemMessageType } from './types';
 import { LemmaDbApi, LemmaDbResponse } from './api/lemma';
@@ -26,6 +26,7 @@ import { HTTPAction } from './server/routes/actions';
 import { AudioPlayer } from './page/audioPlayer';
 import { MultiDict } from './multidict';
 import { DataReadabilityMapping, CommonTextStructures } from './conf';
+import { AjaxError } from 'rxjs/ajax';
 
 
 export interface IApiServices {
@@ -74,7 +75,15 @@ export interface IAppServices extends IApiServices {
 
     getAudioPlayer():AudioPlayer;
 
-    decodeError(err:Error):string;
+    /**
+     * Transform an API Error into something end user can read.
+     */
+    humanizeHttpApiError(err:Error|AjaxError):string;
+
+    /**
+     * Create a (short) normalized error message.
+     */
+    normalizeHttpApiError(err:Error|AjaxError):string;
 }
 
 
@@ -144,6 +153,34 @@ export class AppServices implements IAppServices {
 
     translate(key:string, args?:{[key: string]:string|number;}): string {
         return this.translator.translate(key, args);
+    }
+
+    humanizeHttpApiError(err:Error|AjaxError):string {
+        if (err instanceof AjaxError) {
+            switch (err.status) {
+                case HTTP.Status.BadGateway:
+                case HTTP.Status.GatewayTimeout:
+                    return this.translate('global__api_error_502');
+                case HTTP.Status.ServiceUnavailable:
+                    return this.translate('global__api_error_503');
+                case HTTP.Status.InternalServerError:
+                case HTTP.Status.NotImplemented:
+                case HTTP.Status.BadRequest:
+                case HTTP.Status.Unauthorized:
+                case HTTP.Status.Forbidden:
+                case HTTP.Status.NotFound:
+                    return this.translate('global__api_error_500')
+                default:
+                    return err.message;
+            }
+        }
+        return err.message;
+    }
+
+    normalizeHttpApiError(err:Error|AjaxError):string {
+        return err instanceof AjaxError ?
+            this.translate('global__api_error_short_{code}', {code: err.status}) :
+            err.message;
     }
 
     getDomainName(langCode:string):string {
@@ -256,12 +293,5 @@ export class AppServices implements IAppServices {
 
     getAudioPlayer():AudioPlayer {
         return this.audioPlayer;
-    }
-
-    decodeError(err:Error):string {
-        if (err.name === 'AjaxError') {
-            return this.translate('global__general_tile_ajax_error_{err}', {err: err.message});
-        }
-        return err.message;
     }
 }
