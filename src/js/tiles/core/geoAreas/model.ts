@@ -197,7 +197,7 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                     state.isBusy = false;
                     if (action.error) {
                         state.data = [];
-                        state.error = action.error.message;
+                        state.error = this.appServices.normalizeHttpApiError(action.error);
 
                     } else if (action.payload.data.length === 0) {
                         state.data = [];

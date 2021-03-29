@@ -205,7 +205,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                     state.isBusy = false;
                     if (action.error) {
                         state.concordances = createInitialLinesData(this.queryMatches.length);
-                        state.error = this.appServices.decodeError(action.error);
+                        state.error = this.appServices.normalizeHttpApiError(action.error);
 
                     } else {
                         state.backlink = this.createBackLink(state, action);

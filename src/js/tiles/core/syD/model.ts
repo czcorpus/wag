@@ -123,7 +123,7 @@ export class SydModel extends StatelessModel<SydModelState> {
                     state.isBusy = false;
                     if (action.error) {
                         state.isBusy = false;
-                        state.error = action.error.message;
+                        state.error = this.appServices.normalizeHttpApiError(action.error);
 
                     } else {
                         state.isBusy = false;

@@ -78,6 +78,7 @@ export class WordSimTile implements ITileProvider {
         this.label = appServices.importExternalMessage(conf.label || 'wordsim__main_label');
         this.api = createApiInstance(conf.apiType, conf.apiURL, conf.srcInfoURL, appServices, cache);
         this.model = new WordSimModel({
+            appServices,
             dispatcher,
             initState: {
                 isBusy: isBusy,

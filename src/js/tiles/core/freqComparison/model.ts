@@ -154,7 +154,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                             }),
                             state.fcrit
                         );
-                        state.error = action.error.message;
+                        state.error = this.appServices.normalizeHttpApiError(action.error);
                         state.isBusy = false;
 
                     } else {
