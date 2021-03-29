@@ -71,7 +71,7 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = false;
                     if (action.error) {
-                        state.error = action.error.message;
+                        state.error = this.appServices.normalizeHttpApiError(action.error);
 
                     } else {
                         state.data = action.payload.data;

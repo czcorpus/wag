@@ -30,10 +30,12 @@ import { isConcLoadedPayload } from '../concordance/actions';
 import { CollExamplesLoadedPayload } from './actions';
 import { Actions, ActionName } from './actions';
 import { normalizeTypography } from '../../../models/tiles/concordance/normalize';
-import { Dict, pipe, List, tuple } from 'cnc-tskit';
+import { Dict, pipe, List, tuple, HTTP } from 'cnc-tskit';
 import { callWithExtraVal } from '../../../api/util';
 import { TileWait } from '../../../models/tileSync';
 import { AttrViewMode, FilterServerArgs, QuickFilterRequestArgs } from '../../../api/vendor/kontext/types';
+import { AjaxError } from 'rxjs/ajax';
+import { SystemMessageType } from '../../../types';
 
 
 export interface ConcFilterModelState {
@@ -96,7 +98,18 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
 
     private readonly waitForTilesTimeoutSecs:number;
 
-    constructor({dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, subqSourceTiles, appServices, api, initState, queryMatches}:ConcFilterModelArgs) {
+    constructor({
+        dispatcher,
+        tileId,
+        waitForTiles,
+        waitForTilesTimeoutSecs,
+        subqSourceTiles,
+        appServices,
+        api,
+        initState,
+        queryMatches
+    }:ConcFilterModelArgs) {
+
         super(dispatcher, initState);
         this.tileId = tileId;
         this.api = api;
@@ -135,7 +148,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = false;
                     if (action.error) {
-                        state.error = action.error.message;
+                        state.error = this.appServices.normalizeHttpApiError(action.error);
                     }
                 }
             }
@@ -220,7 +233,8 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
             null,
             (state, action, dispatch) => {
                 if (action.payload.tileId === this.tileId) {
-                    this.api.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), state.corpName)
+                    this.api.getSourceDescription(
+                        this.tileId, this.appServices.getISO639UILang(), state.corpName)
                     .subscribe(
                         (data) => {
                             dispatch({
@@ -244,9 +258,17 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
         );
     }
 
-    private mkConcArgs(state:ConcFilterModelState, subq:SubQueryItem<RangeRelatedSubqueryValue>, concId:string):FilterServerArgs|QuickFilterRequestArgs {
+    private mkConcArgs(
+        state:ConcFilterModelState,
+        subq:SubQueryItem<RangeRelatedSubqueryValue>,
+        concId:string
+    ):FilterServerArgs|QuickFilterRequestArgs {
+
+        // translation mode -> appending additional filter for the aligned language
+        // (here 'otherCorpname')
         if (state.otherCorpname) {
             return {
+                type: 'filterQueryArgs',
                 corpname: state.corpName,
                 usesubcorp: undefined, // TODO do we want this?
                 maincorp: state.otherCorpname,
@@ -261,30 +283,28 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
                 within: true,
                 default_attr: 'word',
                 use_regexp: false,
-                kwicleftctx: '-5',
-                kwicrightctx: '5',
+                kwicleftctx: '-20',
+                kwicrightctx: '20',
                 pagesize: '10',
                 fromp: '1',
                 attr_vmode: 'visible-kwic',
                 attrs: 'word',
                 viewmode: 'align',
                 format:'json',
-                type: 'filterQueryArgs',
                 q: '~' + concId
             }
         }
-
+        // for single-search mode we use the 'quick_filter' function
         return {
             type: 'quickFilterQueryArgs',
             corpname: state.corpName,
-            maincorp: state.otherCorpname ? state.otherCorpname : undefined, // we need to filter using the 2nd language
             kwicleftctx: '-20',
             kwicrightctx: '20',
             pagesize: '5',
-            fromp: '1', // TODO choose randomly stuff??
+            fromp: '1', // TODO choose random stuff??
             attr_vmode: state.attrVmode,
             attrs: state.posAttrs.join(','),
-            refs: state.metadataAttrs.map(v => '=' + v.value).join(','),
+            refs: List.map(v => '=' + v.value, state.metadataAttrs).join(','),
             viewmode: state.viewMode,
             q: '~' + concId,
             q2: mkContextFilter(subq.value.context, subq.value.value, subq),
@@ -427,15 +447,17 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
                     }
                 })
             },
-            (err) => {
-                console.error(err)
+            (error) => {
+                console.error(error);
+                this.appServices.showMessage(SystemMessageType.ERROR,
+                        this.appServices.humanizeHttpApiError(error));
                 seDispatch<GlobalActions.TileDataLoaded<{}>>({
                     name: GlobalActionName.TileDataLoaded,
                     payload: {
                         tileId: this.tileId,
                         isEmpty: true
                     },
-                    error: err,
+                    error,
                 });
             }
         );

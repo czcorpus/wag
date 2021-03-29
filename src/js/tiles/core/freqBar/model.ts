@@ -179,7 +179,7 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState, {[tileId:str
                             label: this.appServices.importExternalMessage(action.payload.blockLabel ? action.payload.blockLabel : state.critLabels[i]),
                             isReady: true
                         }));
-                        state.error = action.error.message;
+                        state.error = this.appServices.normalizeHttpApiError(action.error);
                         state.isBusy = false;
 
                     } else {

@@ -23,6 +23,8 @@ import { IAsyncKeyValueStore, SourceDetails } from '../../../types';
 import { WordTranslation, TranslationAPI, TranslationResponse, TranslationSubsetsAPI } from '../../abstract/translations';
 import { TranslationsModelState, TranslationsSubsetsModelState } from '../../../models/tiles/translations';
 import { IAppServices } from '../../../appServices';
+import { HTTP } from 'cnc-tskit';
+import { AjaxError } from 'rxjs/ajax';
 
 
 export type SearchPackages = {[domain2:string]:Array<string>};
@@ -158,7 +160,7 @@ class TreqAPICaller {
 
     call(args:RequestArgs):Observable<TranslationResponse> {
         return cachedAjax$<HTTPResponse>(this.cache)(
-            'GET',
+            HTTP.Method.GET,
             this.apiURL,
             args
 
