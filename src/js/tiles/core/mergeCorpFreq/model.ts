@@ -182,7 +182,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
                     state.isBusy = false;
                     if (action.error) {
                         state.data = [];
-                        state.error = action.error.message;
+                        state.error = this.appServices.normalizeHttpApiError(action.error);
                     }
                 }
             }
@@ -193,7 +193,8 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
             (state, action) => {},
             (state, action, dispatch) => {
                 if (action.payload['tileId'] === this.tileId) {
-                    this.freqApi.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), action.payload['corpusId'])
+                    this.freqApi.getSourceDescription(this.tileId,
+                        this.appServices.getISO639UILang(), action.payload['corpusId'])
                     .subscribe(
                         (data) => {
                             dispatch({

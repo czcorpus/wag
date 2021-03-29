@@ -166,7 +166,7 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                             }) as FreqTreeDataBlock,
                             state.fcritTrees
                         ),
-                        state.error = action.error.message;
+                        state.error = this.appServices.normalizeHttpApiError(action.error);
                         state.isBusy = false;
 
                     } else {

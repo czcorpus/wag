@@ -87,7 +87,7 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
                     state.isBusy = false;
                     if (action.error) {
                         state.translations = [];
-                        state.error = action.error.message;
+                        state.error = this.appServices.normalizeHttpApiError(action.error);
 
                     } else {
                         state.translations = action.payload.data.translations;

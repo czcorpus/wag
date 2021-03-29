@@ -194,7 +194,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = false;
                     if (action.error) {
-                        state.error = action.error.message;
+                        state.error = this.appServices.normalizeHttpApiError(action.error);
 
                     } else if (action.payload.data.length === 0) {
                         state.data = [];

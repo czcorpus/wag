@@ -260,7 +260,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = false;
                     if (action.error) {
-                        state.error = action.error.message;
+                        state.error = this.appServices.normalizeHttpApiError(action.error);
                     }
                 }
             }

@@ -129,7 +129,7 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState, Mo
                 if (action.payload.tileId === this.tileId) {
                     if (action.error) {
                         state.data = [];
-                        state.error = action.error.message;
+                        state.error = this.appServices.normalizeHttpApiError(action.error);
                         state.isBusy = false;
                         state.backlink = action.payload.backlink;
 
