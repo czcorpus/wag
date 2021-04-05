@@ -143,7 +143,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                     tooltipY: e.chartY
                                 }
                             }) : null}}
-                        onMouseOut={d =>
+                        onMouseLeave={d =>
                             dispatcher.dispatch<Actions.HideTooltip>({
                                 name: ActionName.HideTooltip,
                                 payload: {tileId: props.tileId}
