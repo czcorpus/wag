@@ -21,7 +21,7 @@
 import styled from 'styled-components';
 import * as globals from '../../../styles/globals';
 
-export const FreqBarTile = styled.div`
+export const FreqComparisonTile = styled.div`
     min-height: 15em;
 `;
 
@@ -29,19 +29,23 @@ export const Charts = styled.div`
     display: flex;
     flex-direction: row;
     align-items: flex-end;
-    justify-content: ${props => props.incomplete ? 'flex-start' : 'space-between'};
-    flex-wrap: nowrap;
     overflow-x: auto;
     overflow-y: hidden;
+    justify-content: ${props => props.incomplete ? 'flex-start' : 'space-between'};
+    flex-wrap: ${props => props.isMobile ? 'nowrap' : 'wrap'};
 
     & > *:not(:last-child) {
         box-sizing: border-box;
-        margin-right: 10px;
+        padding-right: 10px;
     }
 
     h3 {
-        margin: 0 0 1.5em 0;
+        margin: 1.5em 0 1.5em 0;
         text-align: center;
         font-weight: normal;
     }
+`;
+
+export const Tables = styled.div`
+    overflow-x: auto;
 `;

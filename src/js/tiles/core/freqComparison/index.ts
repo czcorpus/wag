@@ -32,7 +32,7 @@ import { createApiInstance as createConcApiInstance } from '../../../api/factory
 
 
 declare var require:(src:string)=>void;  // webpack
-require('./style.less');
+require('../../../../css/shared.less');
 
 export interface FreqComparisonTileConf extends TileConf {
     apiURL:string;

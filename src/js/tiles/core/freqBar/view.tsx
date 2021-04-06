@@ -178,7 +178,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 this.props.blocks
                             ) :
                             <div>
-                                <S.Charts className={this.props.isBusy ? 'incomplete' : null} ref={this.chartsRef} onScroll={this.handleScroll}>
+                                <S.Charts incomplete={this.props.isBusy} ref={this.chartsRef} onScroll={this.handleScroll}>
                                     {this.props.blocks.filter(block => block.isReady).map(block => {
                                         const chartWidth = this.props.isMobile ? (this.props.renderSize[0] * 0.9).toFixed() : "90%";
                                         return  (

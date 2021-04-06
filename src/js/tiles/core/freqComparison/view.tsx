@@ -26,6 +26,8 @@ import { ActionName, Actions } from './actions';
 import { FreqComparisonModel, FreqComparisonModelState, MultiWordDataRow } from './model';
 import { pipe, List, Dict, Maths, Strings } from 'cnc-tskit';
 
+import * as S from './style';
+
 
 const CHART_LABEL_MAX_LEN = 15;
 
@@ -80,7 +82,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------- <ChartWrapper /> ---------------------------------------------------
 
-    const ChartWrapper:React.SFC<{
+    const ChartWrapper:React.FC<{
         data:Array<MultiWordDataRow>;
         words:Array<string>;
         width:string|number;
@@ -126,7 +128,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------------------- <Chart /> --------------------------------------
 
-    const Chart:React.SFC<{
+    const Chart:React.FC<{
         data:Array<MultiWordDataRow>;
         words:Array<string>;
         width:string|number;
@@ -170,7 +172,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------- <DataTable /> ---------------------------------------------
 
-    const DataTable:React.SFC<{
+    const DataTable:React.FC<{
         data:Array<MultiWordDataRow>;
         words:Array<string>;
     }> = (props) => {
@@ -251,9 +253,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         backlink={this.props.backlink}
                         supportsTileReload={this.props.supportsReloadOnError}
                         issueReportingUrl={this.props.issueReportingUrl}>
-                    <div className="FreqComparisonTile">
+                    <S.FreqComparisonTile>
                         {this.props.isAltViewMode ?
-                            <div className="tables">{
+                            <S.Tables>{
                                 pipe(
                                     this.props.blocks,
                                     List.filter(block => block.isReady),
@@ -264,10 +266,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                         </div>
                                     ))
                                 )
-                            }</div>:
-                            <div className={`charts${this.props.isBusy ? ' incomplete' : ''}`}
-                                    ref={this.chartsRef} onScroll={this.handleScroll}
-                                    style={{flexWrap: this.props.isMobile ? 'nowrap' : 'wrap'}}>
+                            }</S.Tables>:
+                            <S.Charts incomplete={this.props.isBusy} isMobile={this.props.isMobile}
+                                    ref={this.chartsRef} onScroll={this.handleScroll}>
                                 {pipe(
                                     this.props.blocks,
                                     List.filter(block => block.isReady),
@@ -289,7 +290,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                         );
                                     })
                                 )}
-                            </div>
+                            </S.Charts>
                         }
                         {this.props.isMobile && this.props.blocks.length > 1 && !this.props.isAltViewMode ?
                             <globComponents.HorizontalBlockSwitch htmlClass="ChartSwitch"
@@ -298,7 +299,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                     onChange={this.handleDotClick} /> :
                             null
                         }
-                    </div>
+                    </S.FreqComparisonTile>
                 </globComponents.TileWrapper>
             );
         }
