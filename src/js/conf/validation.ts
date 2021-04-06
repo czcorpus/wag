@@ -18,7 +18,7 @@
 
 import { Dict, List } from 'cnc-tskit';
 import * as path from 'path';
-import * as ajv from 'ajv';
+import Ajv from 'ajv';
 import * as fs from 'fs';
 import { DomainAnyTileConf, ServerConf } from '.';
 import { QueryType } from '../query';
@@ -32,7 +32,7 @@ const SCHEMA_FILENAME = 'config-schema.json';
 
 
 export function validateTilesConf(tilesConf:DomainAnyTileConf):boolean {
-    const validator = new ajv();
+    const validator = new Ajv();
     let validationError = false;
 
     console.info('Validating tiles configuration...');

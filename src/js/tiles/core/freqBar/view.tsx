@@ -49,8 +49,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 <BarChart data={props.data}
                         width={typeof props.width === 'string' ? parseInt(props.width) : props.width}
                         height={typeof props.height === 'string' ? parseInt(props.height) : props.height}
-                        layout="vertical"
-                        isAnimationActive={false}>
+                        layout="vertical" >
                     {props.children}
                 </BarChart>
             );

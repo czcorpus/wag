@@ -118,7 +118,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         const data = List.slice(0, dataLimitIdx, dataAll);
         const xTicks = List.repeat(x => x + 1, bandTickLimitIdx);
         const yLimit = List.findIndex(v =>  v > queryMatches[queryMatches.length - 1].ipm, fBands) + 1;
-        const tickFmt = (x:number) => x <= 5 ? x : '';
+        const tickFmt = (value:number, index:number) => value <= 5 ? value.toFixed(0) : '';
 
         return (
             <globalCompontents.ResponsiveWrapper minWidth={250} render={(width:number, height:number) => (
