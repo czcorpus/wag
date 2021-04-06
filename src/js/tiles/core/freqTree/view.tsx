@@ -27,6 +27,8 @@ import { FreqTreeModel, FreqTreeModelState } from './model';
 import { Dict, pipe, List } from 'cnc-tskit';
 import { FreqTreeDataFreqs } from '../../../models/tiles/freqTree';
 
+import * as S from './style';
+
 type TreeData = {name: any; children:any[]}[];
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:FreqTreeModel):TileComponent {
@@ -103,7 +105,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
     }
 
-    const TreeWrapper:React.SFC<{
+    const TreeWrapper:React.FC<{
         data:TreeData;
         width:string|number;
         height:string|number;
@@ -136,7 +138,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------------------- <Tree /> --------------------------------------
 
-    const Tree:React.SFC<{
+    const Tree:React.FC<{
         data:TreeData;
         width:string|number;
         height:string|number;
@@ -209,8 +211,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         backlink={this.props.backlink}
                         supportsTileReload={this.props.supportsReloadOnError}
                         issueReportingUrl={this.props.issueReportingUrl}>
-                    <div className="FreqTreeTile">
-                        <div className={`charts${this.props.isBusy ? ' incomplete' : ''}`} ref={this.chartsRef} onScroll={this.handleScroll} style={{flexWrap: this.props.isMobile ? 'nowrap' : 'wrap'}}>
+                    <S.FreqTreeTile>
+                        <S.Charts incomplete={this.props.isBusy} isMobile={this.props.isMobile} ref={this.chartsRef} onScroll={this.handleScroll}>
                             {pipe(
                                 this.props.frequencyTree,
                                 List.filter(block => block.isReady),
@@ -261,7 +263,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 })
                             )}
 
-                        </div>
+                        </S.Charts>
                         {this.props.isMobile && this.props.frequencyTree.length > 1 ?
                             <globComponents.HorizontalBlockSwitch htmlClass="ChartSwitch"
                                     blockIndices={this.props.frequencyTree.map((_, i) => i)}
@@ -269,7 +271,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                     onChange={this.handleDotClick} /> :
                             null
                         }
-                    </div>
+                    </S.FreqTreeTile>
                 </globComponents.TileWrapper>
             );
         }
