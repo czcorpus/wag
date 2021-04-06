@@ -29,6 +29,8 @@ import { DataRow, SrchContextType, DataHeading } from '../../../api/abstract/col
 import { CollocModelState } from '../../../models/tiles/collocations';
 import { List } from 'cnc-tskit';
 
+import * as S from './style';
+
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:CollocModel):TileComponent {
 
@@ -37,7 +39,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------- <Controls /> -------------------------------------
 
-    const Controls:React.SFC<{
+    const Controls:React.FC<{
         tileId:number;
         value:SrchContextType;
 
@@ -79,7 +81,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------- <TableView /> -------------------------------------
 
-    const TableView:React.SFC<{
+    const TableView:React.FC<{
         data:Array<DataRow>;
         heading:DataHeading;
         caption:string;
@@ -127,7 +129,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             const colorGen = this.props.data.length > 1 ? idx => theme.scaleColorCmpDerived(idx, this.props.data.length) : (_:number) => theme.scaleColorIndexed();
 
             return (
-                <globalCompontents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error} htmlClass="CollocTile"
+                <globalCompontents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.data.some(data => data !== null && data.length > 0)} sourceIdent={{corp: this.props.corpname}}
                         backlink={this.props.backlink} supportsTileReload={this.props.supportsReloadOnError}
                         issueReportingUrl={this.props.issueReportingUrl}>
@@ -135,7 +137,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             <div className="tweak-box"><Controls tileId={this.props.tileId} value={this.props.srchRangeType} /></div> :
                         null
                     }
-                    <div className="boxes" style={{flexWrap: this.props.isMobile ? 'wrap' : 'nowrap'}}>
+                    <S.Boxes isMobile={this.props.isMobile}>
                         {List.map((data, index) => {
                             const otherWords = List.flatMap((v, i) => index === i ? [] : List.map(u => u.str, v), this.props.data);
 
@@ -144,7 +146,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 data ?
                                     <globalCompontents.ResponsiveWrapper minWidth={this.props.isMobile ? undefined : 250}
                                             key={index} widthFract={this.props.widthFract} render={(width:number, height:number) => (
-                                        <div className="colloc-cloud">
+                                        <S.CollocCloud>
                                             {this.props.data.length > 1 ?
                                                 <h2>{this.props.queryMatches[index].word}</h2> :
                                                 null
@@ -155,7 +157,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                                     selectedText={this.props.data.length > 1 ? this.props.selectedText : null}
                                                     colors={colorGen(index)}
                                                     underlineWords={otherWords} />
-                                        </div>
+                                        </S.CollocCloud>
                                     )} /> :
                                     <globalCompontents.ResponsiveWrapper key={`${index}empty`}
                                         render={() => data === null ?
@@ -164,7 +166,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             },
                             this.props.data
                         )}
-                    </div>
+                    </S.Boxes>
                 </globalCompontents.TileWrapper>
             );
         }
