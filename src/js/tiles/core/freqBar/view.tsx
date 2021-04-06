@@ -27,6 +27,8 @@ import { FreqBarModel, FreqBarModelState } from './model';
 import { List, Strings } from 'cnc-tskit';
 import { DataRow } from '../../../api/abstract/freqs';
 
+import * as S from './style';
+
 
 const CHART_LABEL_MAX_LEN = 20;
 
@@ -37,7 +39,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------- <ChartWrapper /> ---------------------------------------------------
 
-    const ChartWrapper:React.SFC<{
+    const ChartWrapper:React.FC<{
         data:Array<DataRow>;
         width:string|number;
         height:string|number;
@@ -67,7 +69,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------- <TableView /> -------------------------------------
 
-    const TableView:React.SFC<{
+    const TableView:React.FC<{
         data:Array<DataRow>;
     }> = (props) => {
         return (
@@ -94,7 +96,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------------------- <Chart /> --------------------------------------
 
-    const Chart:React.SFC<{
+    const Chart:React.FC<{
         data:Array<DataRow>;
         width:string|number;
         height:string|number;
@@ -164,7 +166,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         backlink={this.props.backlink}
                         supportsTileReload={this.props.supportsReloadOnError}
                         issueReportingUrl={this.props.issueReportingUrl}>
-                    <div className="FreqBarTile">
+                    <S.FreqBarTile>
                         {this.props.isAltViewMode ?
                             List.map(
                                 (block, blockId) => (
@@ -176,7 +178,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 this.props.blocks
                             ) :
                             <div>
-                                <div className={`charts${this.props.isBusy ? ' incomplete' : ''}`} ref={this.chartsRef} onScroll={this.handleScroll}>
+                                <S.Charts className={this.props.isBusy ? 'incomplete' : null} ref={this.chartsRef} onScroll={this.handleScroll}>
                                     {this.props.blocks.filter(block => block.isReady).map(block => {
                                         const chartWidth = this.props.isMobile ? (this.props.renderSize[0] * 0.9).toFixed() : "90%";
                                         return  (
@@ -190,7 +192,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                             </div>
                                         );
                                         })}
-                                </div>
+                                </S.Charts>
                                 {this.props.isMobile && this.props.blocks.length > 1 ?
                                     <globComponents.HorizontalBlockSwitch htmlClass="ChartSwitch"
                                             blockIndices={this.props.blocks.map((_, i) => i)}
@@ -200,7 +202,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 }
                             </div>
                         }
-                    </div>
+                    </S.FreqBarTile>
                 </globComponents.TileWrapper>
             );
         }
