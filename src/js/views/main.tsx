@@ -33,6 +33,8 @@ import { init as corpusInfoViewInit } from './corpusInfo';
 import { GlobalComponents } from './global';
 import { timer } from 'rxjs';
 
+import * as S from '../styles/style';
+
 
 export interface WdglanceMainProps {
     layout:Array<TileGroup>;
@@ -86,7 +88,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         };
 
         return (
-            <li className="SystemMessage">
+            <S.SystemMessage>
                 <div className={`wrapper cnc-msgbox ${classType}`}>
                     <div className="flex">
                         <globalComponents.MessageStatusIcon statusType={props.type} isInline={false} />
@@ -98,7 +100,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         </div>
                     </div>
                 </div>
-            </li>
+            </S.SystemMessage>
         );
     };
 
@@ -549,7 +551,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         render() {
             return (
-                <div className="WdglanceControls">
+                <S.WdglanceControls>
                     <form className="cnc-form">
                         <div>
                             {this.props.queryTypesMenuItems.filter(v => v.isEnabled).length > 1 ?
@@ -579,7 +581,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 modalSelections={this.props.modalSelections} /> :
                         null
                     }
-                </div>
+                </S.WdglanceControls>
             );
         }
     }
@@ -877,18 +879,18 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         render() {
             return (
-                <div className="MessagesBox">
+                <S.MessagesBox>
                 {this.props.systemMessages.length > 0 ?
-                    <ul className="Messages">
+                    <S.Messages>
                         {List.map(
                             msg => <SystemMessage key={msg.ident} type={msg.type} text={msg.text}
                                                 ident={msg.ident} />,
                             this.props.systemMessages
                         )}
-                    </ul> :
+                    </S.Messages> :
                     null
                 }
-                </div>
+                </S.MessagesBox>
             );
         }
     }
@@ -911,7 +913,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
 
         return (
-            <div className={`TileGroupButton${props.groupDisabled ? ' disabled' : ''}`}>
+            <S.TileGroupButton className={props.groupDisabled ? 'disabled' : null}>
                 <h2>
                     <span className="flex">
                     <span className={`triangle${props.groupHidden ? ' right' : ''}`}>
@@ -932,7 +934,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         }
                     </span>
                 </h2>
-            </div>
+            </S.TileGroupButton>
         );
     };
 
@@ -955,7 +957,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         };
 
         return (
-            <ul className="MinimizedGroup">
+            <S.MinimizedGroup>
             {List.map(
                 item => (
                     <li key={`tile:${item.tileId}`}>
@@ -964,7 +966,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 ),
                 props.tiles
             )}
-            </ul>
+            </S.MinimizedGroup>
         );
     };
 
@@ -1007,7 +1009,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         const renderResult = () => {
             if (!props.hasData) {
                 return (
-                    <section className="tiles">
+                    <S.Tiles>
                         <section className="cnc-tile app-output" style={{gridColumn: 'span 3'}}>
                             <div className="provider">
                                 <div className="TileWrapper">
@@ -1022,7 +1024,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 </div>
                             </div>
                         </section>
-                    </section>
+                    </S.Tiles>
                 );
 
             } else if (props.isHidden) {
@@ -1032,7 +1034,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
             } else {
                 return (
-                    <section className="tiles">
+                    <S.Tiles>
                     {pipe(
                         props.data.tiles,
                         List.map(v => props.tileFrameProps[v.tileId]),
@@ -1045,13 +1047,13 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                             tileResultFlag={props.tileResultFlags[tile.tileId]}
                                             isHighlighted={props.highlightedTileId === tile.tileId} />)
                     )}
-                    </section>
+                    </S.Tiles>
                 );
             }
         }
 
         return (
-            <section key={`group:${props.data.groupLabel ? props.data.groupLabel : props.idx}`} className="group">
+            <S.Group key={`group:${props.data.groupLabel ? props.data.groupLabel : props.idx}`}>
                 {props.data.groupLabel ?
                     <header>
                         <TileGroupButton
@@ -1064,7 +1066,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <hr style={{marginBottom: '1em'}}/>
                 }
                 {renderResult()}
-            </section>
+            </S.Group>
         );
     };
 
@@ -1072,19 +1074,19 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const NothingFoundBox:React.FC<{}> = (props) => {
         return (
-            <section className="group">
-                <section className="tiles">
+            <S.Group>
+                <S.Tiles>
                     <section className="cnc-tile app-output span3">
                         <div className="provider">
-                            <div className="NothingFoundBox">
+                            <S.NothingFoundBox>
                                 <div className="cnc-tile-body content">
                                     <p>{ut.translate('global__nothing_found_msg')}</p>
                                 </div>
-                            </div>
+                            </S.NothingFoundBox>
                         </div>
                     </section>
-                </section>
-            </section>
+                </S.Tiles>
+            </S.Group>
         );
     };
 
@@ -1095,11 +1097,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     }> = (props) => {
         return (
-            <section className="group">
-                <section className="tiles">
+            <S.Group>
+                <S.Tiles>
                     <section className="cnc-tile app-output span3">
                         <div className="provider">
-                            <div className="TooManyErrorsBox">
+                            <S.TooManyErrorsBox>
                                 <div className="cnc-tile-body content">
                                     {props.reportHref ?
                                         <p dangerouslySetInnerHTML={{__html: ut.translate('global__too_many_tile_errors_{href}', {href: props.reportHref})}} /> :
@@ -1109,11 +1111,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                         <a onClick={()=>window.location.reload()}>{ut.translate('global__retry_reload')} {'\u21bb'}</a>
                                     </p>
                                 </div>
-                            </div>
+                            </S.TooManyErrorsBox>
                         </div>
                     </section>
-                </section>
-            </section>
+                </S.Tiles>
+            </S.Group>
         );
     };
 
@@ -1315,13 +1317,13 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         render() {
             return (
-                <section className="TilesSections">
+                <S.TilesSections>
                     {this.props.isAnswerMode ?
                         this.renderContents() :
-                        <section className="tiles"><InitialHelp sections={this.props.homepageSections} /></section>
+                        <S.Tiles><InitialHelp sections={this.props.homepageSections} /></S.Tiles>
                     }
                     {this.renderModal()}
-                </section>
+                </S.TilesSections>
             );
         }
     }
@@ -1332,11 +1334,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const WdglanceMain:React.FC<WdglanceMainProps> = (props) => {
         return (
-            <div className="WdglanceMain">
+            <S.WdglanceMain>
                 <WdglanceControlsBound isMobile={props.isMobile} isAnswerMode={props.isAnswerMode} />
                 <BoundMessagesBox />
                 <BoundTilesSections layout={props.layout} homepageSections={props.homepageSections} />
-            </div>
+            </S.WdglanceMain>
         );
     }
 
