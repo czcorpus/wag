@@ -28,7 +28,7 @@ import { createApiInstance } from '../../../api/factory/freqs';
 
 
 declare var require:any;
-require('./style.less');
+require('../../../../css/shared.less');
 
 
 export interface GeoAreasTileConf extends TileConf {
