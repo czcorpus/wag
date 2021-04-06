@@ -28,6 +28,8 @@ import { FreqBarModel, FreqBarModelState } from '../freqBar/model';
 import { List, pipe } from 'cnc-tskit';
 import { DataRow } from '../../../api/abstract/freqs';
 
+import * as S from './style';
+
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:FreqBarModel):TileComponent {
 
@@ -44,7 +46,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------- <ChartWrapper /> ---------------------------------------------------
 
-    const ChartWrapper:React.SFC<{
+    const ChartWrapper:React.FC<{
         isMobile:boolean;
         width:string|number;
         height:string|number;
@@ -71,7 +73,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------- <TableView /> -------------------------------------
 
-    const TableView:React.SFC<{
+    const TableView:React.FC<{
         data:Array<DataRow>;
     }> = (props) => {
         return (
@@ -98,7 +100,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------- <Chart /> ---------------------------------------------------
 
-    const Chart:React.SFC<{
+    const Chart:React.FC<{
         data:Array<DataRow>;
         width:string;
         height:number;
@@ -174,7 +176,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     backlink={props.backlink}
                     supportsTileReload={props.supportsReloadOnError}
                     issueReportingUrl={props.issueReportingUrl}>
-                <div className="FreqPieTileView">
+                <div>
                     {props.isAltViewMode ?
                         List.map(
                             (block, blockId) => (
@@ -186,7 +188,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             props.blocks
                         ) :
                         <div>
-                            <div className="charts" ref={chartsRef} onScroll={handleScroll}>
+                            <S.Charts ref={chartsRef} onScroll={handleScroll}>
                                 {props.blocks.map(block => {
                                     const chartWidth = props.isMobile ? (props.renderSize[0] * 0.95).toFixed() : "90%";
                                     return (
@@ -199,7 +201,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                         </div>
                                     );
                                 })}
-                            </div>
+                            </S.Charts>
                             {props.isMobile && props.blocks.length > 1 ?
                                 <globalComponents.HorizontalBlockSwitch blockIndices={props.blocks.map((_, i) => i)}
                                         currentIdx={props.activeBlock}

@@ -31,7 +31,7 @@ import { ConcApi } from '../../../api/vendor/kontext/concordance/v015';
 import { createMultiBlockApiInstance } from '../../../api/factory/freqs';
 
 declare var require:any;
-require('./style.less');
+require('../../../../css/shared.less');
 
 
 export interface FreqPieTileConf extends TileConf {
