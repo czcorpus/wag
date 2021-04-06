@@ -34,7 +34,6 @@ import { Dict, pipe, List, tuple, HTTP } from 'cnc-tskit';
 import { callWithExtraVal } from '../../../api/util';
 import { TileWait } from '../../../models/tileSync';
 import { AttrViewMode, FilterServerArgs, QuickFilterRequestArgs } from '../../../api/vendor/kontext/types';
-import { AjaxError } from 'rxjs/ajax';
 import { SystemMessageType } from '../../../types';
 
 

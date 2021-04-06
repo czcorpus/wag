@@ -31,7 +31,7 @@ import { findCurrQueryMatch } from '../../../models/query';
 
 
 declare var require:(src:string)=>void;  // webpack
-require('./style.less');
+require('../../../../css/shared.less');
 
 
 export interface CollocationsTileConf extends TileConf {

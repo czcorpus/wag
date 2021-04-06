@@ -26,14 +26,13 @@ import { init as viewInit } from './view';
 import { ConcApi } from '../../../api/vendor/kontext/concordance/v015';
 import { ViewMode } from '../../../api/abstract/concordance';
 import { LocalizedConfMsg } from '../../../types';
-import { SwitchMainCorpApi } from '../../../api/vendor/kontext/switchMainCorp';
 import { ISwitchMainCorpApi, SwitchMainCorpResponse } from '../../../api/abstract/switchMainCorp';
 import { TileWait } from '../../../models/tileSync';
 import { List } from 'cnc-tskit';
 
 
 declare var require:(src:string)=>void;  // webpack
-require('./style.less');
+require('../../../../css/shared.less');
 
 
 export interface ConcFilterTileConf extends TileConf {
