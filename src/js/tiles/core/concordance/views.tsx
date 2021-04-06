@@ -26,6 +26,8 @@ import { ActionName, Actions } from './actions';
 import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
 import { ConcordanceTileModel, ConcordanceTileState } from './model';
 
+import * as S from './style';
+
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, model:ConcordanceTileModel):TileComponent {
@@ -34,7 +36,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------------------ <Paginator /> --------------------------------------------
 
-    const Paginator:React.SFC<{
+    const Paginator:React.FC<{
         page:number;
         numPages:number;
         tileId:number;
@@ -64,7 +66,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         };
 
         return (
-            <span className="Paginator">
+            <S.Paginator>
                 <a onClick={handlePrevPage} className={`${props.page === 1 ? 'disabled' : null}`}>
                     <img className="arrow" src={ut.createStaticUrl(props.page === 1 ? 'triangle_left_gr.svg' : 'triangle_left.svg')}
                         alt={ut.translate('global__img_alt_triable_left')} />
@@ -74,13 +76,13 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <img className="arrow" src={ut.createStaticUrl(props.page === props.numPages ? 'triangle_right_gr.svg' : 'triangle_right.svg')}
                         alt={ut.translate('global__img_alt_triable_right')} />
                 </a>
-            </span>
+            </S.Paginator>
         );
     };
 
     // ------------------ <ViewModeSwitch /> --------------------------------------------
 
-    const ViewModeSwitch:React.SFC<{
+    const ViewModeSwitch:React.FC<{
         mode:ViewMode;
         tileId:number;
         isEnabled:boolean;
@@ -106,7 +108,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------------------ <QueryIdxSwitch /> --------------------------------------------
 
-    const QueryIdxSwitch:React.SFC<{
+    const QueryIdxSwitch:React.FC<{
         tileId:number;
         currIdx:number;
         values:Array<string>;
@@ -135,7 +137,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------------------ <Controls /> --------------------------------------------
 
-    const Controls:React.SFC<{
+    const Controls:React.FC<{
         currPage:number;
         numPages:number;
         viewMode:ViewMode;
@@ -146,7 +148,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     }> = (props) => {
         return (
-            <form className="Controls cnc-form tile-tweak">
+            <S.Controls className="cnc-form tile-tweak">
                 <fieldset>
                         <label>{ut.translate('concordance__page')}:{'\u00a0'}
                         <Paginator page={props.currPage} numPages={props.numPages} tileId={props.tileId} />
@@ -161,13 +163,13 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             null
                         }
                 </fieldset>
-            </form>
+            </S.Controls>
         )
     };
 
     // ------------------ <RowItem /> --------------------------------------------
 
-    const RowItem:React.SFC<{
+    const RowItem:React.FC<{
         data:LineElement;
         isKwic?:boolean;
 
@@ -181,7 +183,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------------------ <LineMetadata /> --------------------------------------------
 
-    const LineMetadata:React.SFC<{
+    const LineMetadata:React.FC<{
         data:Array<{value:string; label:string}>;
 
     }> = (props) => {
@@ -191,7 +193,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         };
 
         return (
-            <div className="LineMetadata" onClick={handleClick}>
+            <S.LineMetadata onClick={handleClick}>
                 <dl>
                     {List.map(
                         v => (
@@ -208,13 +210,13 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         props.data
                     )}
                 </dl>
-            </div>
+            </S.LineMetadata>
         )
     }
 
     // ------------------ <Row /> --------------------------------------------
 
-    const Row:React.SFC<{
+    const Row:React.FC<{
         data:Line;
         isParallel:boolean;
         hasVisibleMetadata:boolean;
@@ -223,7 +225,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     }> = (props) => {
         return (
             <>
-                <tr className="Row">
+                <S.Row>
                     <td>
                         {props.hasVisibleMetadata ? <LineMetadata data={props.data.metadata} /> : null}
                     </td>
@@ -253,9 +255,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             props.data.right
                         )}
                     </td>
-                </tr>
+                </S.Row>
                 {props.isParallel ?
-                    <tr className="Row aligned">
+                    <S.Row className="aligned">
                         <td colSpan={props.data.metadata.length > 0 ? 2 : 1} />
                         <td className="left">
                             {List.map(
@@ -275,7 +277,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 props.data.align[0].right
                             )}
                         </td>
-                    </tr> :
+                    </S.Row> :
                     null
                 }
             </>
@@ -344,7 +346,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         backlink={this.props.backlink}
                         supportsTileReload={this.props.supportsReloadOnError}
                         issueReportingUrl={this.props.issueReportingUrl}>
-                    <div className="ConcordanceTileView">
+                    <S.ConcordanceTileView>
                         {this.props.isTweakMode ?
                             <div className="tweak-box">
                                     <Controls
@@ -360,15 +362,15 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         }
                         {
                             this.props.queries.length > 1 ?
-                            <p className="query-info">
+                            <S.QueryInfo>
                                 {ut.translate('concordance__showing_results_for')}:{'\u00a0'}
                                 <a className="variant" onClick={this.handleQueryVariantClick}>
                                     {`[${this.props.visibleQueryIdx + 1}] ${this.props.queries[this.props.visibleQueryIdx]}`}
                                 </a>
-                            </p> :
+                            </S.QueryInfo> :
                             null
                         }
-                        <dl className="summary">
+                        <S.Summary>
                             <dt>{ut.translate('concordance__num_matching_items')}:</dt>
                             <dd>{ut.formatNumber(conc.concsize, 0)}</dd>
                             {conc.resultIPM > -1 ?
@@ -385,7 +387,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 </> :
                                 null
                             }
-                        </dl>
+                        </S.Summary>
                         <table className={tableClasses.join(' ')}>
                             <tbody>
                                 {List.map(
@@ -395,7 +397,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 )}
                             </tbody>
                         </table>
-                    </div>
+                    </S.ConcordanceTileView>
                 </globalCompontents.TileWrapper>
             );
         }

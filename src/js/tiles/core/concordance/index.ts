@@ -33,7 +33,7 @@ import { createInitialLinesData } from '../../../models/tiles/concordance';
 
 
 declare var require:any;
-require('./style.less');
+require('../../../../css/shared.less');
 
 
 export interface ConcordanceTileConf extends CorpSrchTileConf {
