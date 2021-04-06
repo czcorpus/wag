@@ -25,11 +25,6 @@ import { __Template__Model } from './model';
 import { init as viewInit } from './views';
 
 
-
-declare var require:(src:string)=>void;  // webpack
-require('./style.less');
-
-
 export interface __Template__TileConf extends TileConf {}
 
 /**
