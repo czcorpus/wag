@@ -120,8 +120,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------------------- <ChartLegend /> --------------------------------------
 
-    const ChartLegend:React.SFC<{
-        rcData:{payload:Array<{color:string; payload:{stroke:string; fill:string; name:string}}>};
+    const ChartLegend:React.FC<{
+        rcData:{payload?:Array<{color?:string; payload?:{name?:string; strokeDasharray?:React.ReactText;}}>};
         metric:string;
 
     }> = (props) => {
@@ -237,7 +237,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     true
                 );
             let domainY:[number, number]|[number, string];
-            let tickFormatterY:(fracValue:number, name:string, formatterProps:any)=>string;
+            let tickFormatterY:(fracValue:number, index:number)=>string;
             let tooltipFormatter:(fracValue:number, name:string, formatterProps:any)=>[Array<[number|string, string]>, string];
             let keyFn1:(lemmaIdx:number)=>(v:ChartDataPoint)=>number;
             let keyFn2:(lemmaIdx:number)=>(v:ChartDataPoint)=>[number, number];

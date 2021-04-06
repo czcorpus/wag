@@ -149,8 +149,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------------------- <Chart /> --------------------------------------
 
-    const ChartLegend:React.SFC<{
-        rcData:{payload:Array<{color:string; payload:{stroke:string; fill:string; name:string}}>};
+    const ChartLegend:React.FC<{
+        rcData:{payload?:Array<{color?:string; payload?:{name?:string; strokeDasharray?:React.ReactText;}}>};
         metric:string;
 
     }> = (props) => {
