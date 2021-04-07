@@ -22,6 +22,8 @@ import { CoreTileComponentProps, TileComponent } from '../../../page/tile';
 import { GlobalComponents } from '../../../views/global';
 import { SydModel, SydModelState } from './model';
 
+import * as S from './style';
+
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, model:SydModel):TileComponent {
 
@@ -36,7 +38,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         sourceIdent={[this.props.corp1, this.props.corp2].map(v => ({corp: v}))}
                         supportsTileReload={this.props.supportsReloadOnError}
                         issueReportingUrl={this.props.issueReportingUrl}>
-                    <div className="SydTileView">
+                    <S.SydTileView>
                         <pre>############ in development ###################</pre>
                         <h3>freq calc. benchmark</h3>
                         <table>
@@ -62,7 +64,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             </tbody>
                         </table>
                         <p>proc time: <strong>{this.props.procTime}</strong>s.</p>
-                    </div>
+                    </S.SydTileView>
                 </globComponents.TileWrapper>
             );
         }

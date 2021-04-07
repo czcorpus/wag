@@ -24,7 +24,7 @@ import { init as viewInit } from './view';
 import { StatelessModel } from 'kombo';
 
 declare var require:any;
-require('./style.less');
+require('../../../../css/shared.less');
 
 export interface SyDTileConf extends TileConf {
     apiURL:string;
