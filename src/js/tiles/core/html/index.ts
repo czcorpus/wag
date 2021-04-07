@@ -28,7 +28,7 @@ import { IGeneralHtmlAPI } from '../../../api/abstract/html';
 
 
 declare var require:(src:string)=>void;  // webpack
-require('./style.less');
+require('../../../../css/shared.less');
 
 
 export interface HtmlTileConf extends TileConf {
