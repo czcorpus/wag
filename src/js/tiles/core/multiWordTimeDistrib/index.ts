@@ -32,7 +32,7 @@ import { IConcordanceApi } from '../../../api/abstract/concordance';
 import { TimeDistribApi } from '../../../api/abstract/timeDistrib';
 
 declare var require:(src:string)=>void;  // webpack
-require('./style.less');
+require('../../../../css/shared.less');
 
 
 /**
