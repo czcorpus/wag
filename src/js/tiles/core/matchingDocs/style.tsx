@@ -22,7 +22,40 @@ import styled from 'styled-components';
 import * as globals from '../../../styles/globals';
 
 
-export const HtmlFrame = styled.div`
-    overflow: auto;
-    max-height: 30em;
+export const MatchingDocsTile = styled.div`
+    min-height: 15em;
+
+    .data {
+        width: 100%;
+    }
+
+    .rowNum {
+        min-width: 5%;
+    }
+
+    .score {
+        min-width: 10%;
+    }
+`;
+
+export const Paginator = styled.span`
+    a {
+        cursor: pointer;
+    }
+
+    a.disabled {
+        cursor: default;
+    }
+
+    .arrow {
+        width: 1em;
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+    input.page {
+        width: 3em;
+        margin-left: 0.3em;
+        margin-right: 0.3em;
+    }
 `;

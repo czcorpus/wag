@@ -26,6 +26,8 @@ import { MatchingDocsModel } from './model';
 import { MatchingDocsModelState } from '../../../models/tiles/matchingDocs';
 import { DataRow } from '../../../api/abstract/matchingDocs';
 
+import * as S from './style';
+
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:MatchingDocsModel):TileComponent {
 
@@ -34,7 +36,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------------------ <Paginator /> --------------------------------------------
 
-    const Paginator:React.SFC<{
+    const Paginator:React.FC<{
         page:number;
         numPages:number;
         tileId:number;
@@ -60,7 +62,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
 
         return (
-            <span className="Paginator">
+            <S.Paginator>
                 <a onClick={handlePreviousPage} className={`${props.page === 1 ? 'disabled' : null}`}>
                     <img className="arrow" src={ut.createStaticUrl(props.page === 1 ? 'triangle_left_gr.svg' : 'triangle_left.svg')}
                             alt={ut.translate('global__img_alt_triable_left')} />
@@ -70,13 +72,13 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <img className="arrow" src={ut.createStaticUrl(props.page === props.numPages ? 'triangle_right_gr.svg' : 'triangle_right.svg')}
                             alt={ut.translate('global__img_alt_triable_right')} />
                 </a>
-            </span>
+            </S.Paginator>
         );
     };
 
     // -------------------------- <TableView /> --------------------------------------
 
-    const TableView:React.SFC<{
+    const TableView:React.FC<{
         data:Array<DataRow>;
         from:number;
         to:number;
@@ -124,7 +126,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         backlink={this.props.backlink}
                         supportsTileReload={this.props.supportsReloadOnError}
                         issueReportingUrl={this.props.issueReportingUrl}>
-                    <div className="MatchingDocsTile">
+                    <S.MatchingDocsTile>
                         {this.props.isTweakMode ?
                             <form className="cnc-form tile-tweak">
                                 <Paginator
@@ -143,7 +145,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 <p className="note" style={{textAlign: 'center'}}>No result</p>
                             }
                         </div>
-                    </div>
+                    </S.MatchingDocsTile>
                 </globComponents.TileWrapper>
             );
         }
