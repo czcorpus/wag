@@ -27,10 +27,6 @@ import { createAudioUrlGeneratorInstance } from './impl';
 import { pipe, Color, List } from 'cnc-tskit';
 
 
-declare var require:(src:string)=>void;  // webpack
-require('../../../../css/shared.less');
-
-
 export interface SpeechesTileConf extends TileConf {
     apiType:string;
     apiURL:string;

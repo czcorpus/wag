@@ -25,10 +25,6 @@ import { createMatchingDocsApiInstance } from './apiFactory';
 import { List } from 'cnc-tskit';
 
 
-
-declare var require:(src:string)=>void;  // webpack
-require('../../../../css/shared.less');
-
 export interface MatchingDocsTileConf extends TileConf {
     apiURL:string;
     apiType:string;

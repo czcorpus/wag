@@ -29,10 +29,6 @@ import { createApiInstance } from '../../../api/factory/freqs';
 import { createApiInstance as createConcApiInstance } from '../../../api/factory/concordance';
 
 
-declare var require:any;
-require('../../../../css/shared.less');
-
-
 export interface MultiWordGeoAreasTileConf extends TileConf {
     apiURL:string;
     apiType:string;

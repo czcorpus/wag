@@ -26,6 +26,8 @@ import { QueryMatch } from '../../../../query/index';
 import { List, pipe } from 'cnc-tskit';
 import { Actions, ActionName } from '../actions';
 
+import * as S from '../style';
+
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>) {
 
@@ -34,7 +36,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------------- <SimilarFreqWords /> -----------------------------------------------
 
-    const SimilarFreqWords:React.SFC<{
+    const SimilarFreqWords:React.FC<{
         data:Array<SimilarFreqWord>;
         expandLemmaPos:string;
         tileId:number;
@@ -112,7 +114,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------------- <SrchWordInfo /> ---------------------------------------------------
 
-    const SrchWordInfo:React.SFC<{
+    const SrchWordInfo:React.FC<{
         data:QueryMatch;
 
     }> = (props) => (
@@ -168,7 +170,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------------- <SingleWordProfile /> ---------------------------------------------------
 
-    const SingleWordProfile:React.SFC<{
+    const SingleWordProfile:React.FC<{
         similarFreqWords:Array<SimilarFreqWord>;
         searchedWord:QueryMatch;
         expandLemmaPos:string;

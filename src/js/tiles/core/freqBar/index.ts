@@ -32,10 +32,6 @@ import { ConcApi } from '../../../api/vendor/kontext/concordance/v015';
 import { createMultiBlockApiInstance } from '../../../api/factory/freqs';
 
 
-
-declare var require:(src:string)=>void;  // webpack
-require('../../../../css/shared.less');
-
 export interface FreqBarTileConf extends TileConf {
     apiURL:string;
     apiType:string;

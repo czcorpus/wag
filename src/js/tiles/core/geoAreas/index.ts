@@ -27,10 +27,6 @@ import { MapLoader } from './mapLoader';
 import { createApiInstance } from '../../../api/factory/freqs';
 
 
-declare var require:any;
-require('../../../../css/shared.less');
-
-
 export interface GeoAreasTileConf extends TileConf {
     apiURL:string;
     apiType:string;

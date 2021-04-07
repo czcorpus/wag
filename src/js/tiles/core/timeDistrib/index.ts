@@ -31,9 +31,6 @@ import { IConcordanceApi } from '../../../api/abstract/concordance';
 import { createApiInstance as createConcApiInstance } from '../../../api/factory/concordance';
 import { TimeDistribApi } from '../../../api/abstract/timeDistrib';
 
-declare var require:(src:string)=>void;  // webpack
-require('../../../../css/shared.less');
-
 
 /**
  * Important note: the tile works in two mutually exclusive

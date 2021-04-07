@@ -20,18 +20,20 @@ import { IActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
 import { GlobalComponents } from '../../../../views/global';
 
+import * as S from '../style';
+
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>) {
 
     // -------------------- <Stars /> -----------------------------------------------
 
-    const Stars:React.SFC<{
+    const Stars:React.FC<{
         freqBand:number;
 
     }> = (props) => {
-        return <span className="Stars">{[1, 2, 3, 4, 5].map(v =>
+        return <S.Stars>{[1, 2, 3, 4, 5].map(v =>
                 <img key={`${v}`} src={ut.createStaticUrl(`star${v <= props.freqBand ? '' : '_grey'}.svg`)}
-                            alt={ut.translate(v <= props.freqBand ? 'global__img_alt_star_icon' : 'global__img_alt_star_icon_grey')} />)}</span>
+                            alt={ut.translate(v <= props.freqBand ? 'global__img_alt_star_icon' : 'global__img_alt_star_icon_grey')} />)}</S.Stars>
     };
 
 

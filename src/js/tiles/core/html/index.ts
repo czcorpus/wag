@@ -27,10 +27,6 @@ import { createApiInstance } from '../../../api/factory/html';
 import { IGeneralHtmlAPI } from '../../../api/abstract/html';
 
 
-declare var require:(src:string)=>void;  // webpack
-require('../../../../css/shared.less');
-
-
 export interface HtmlTileConf extends TileConf {
     apiURL:string;
     apiType:CoreApiGroup;
