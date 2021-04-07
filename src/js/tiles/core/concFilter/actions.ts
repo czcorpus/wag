@@ -17,6 +17,7 @@
  */
 import { Line } from '../../../api/abstract/concordance';
 import { Action } from 'kombo';
+import { Actions as GlobalActions } from '../../../models/actions';
 
 export interface CollExamplesLoadedPayload {
     data:Array<Line>;
@@ -24,24 +25,28 @@ export interface CollExamplesLoadedPayload {
     baseConcId:string;
 }
 
-export enum ActionName {
-    ShowLineMetadata = 'CONC_FILTER_SHOW_LINE_METADATA',
-    HideLineMetadata = 'CONC_FILTER_HIDE_LINE_METADATA'
-}
+export class Actions {
 
-export namespace Actions {
-
-    export interface ShowLineMetadata extends Action<{
+    static ShowLineMetadata:Action<{
         tileId:number;
         idx:number;
-    }> {
-        name:ActionName.ShowLineMetadata;
-    }
+    }> = {
+        name: 'CONC_FILTER_SHOW_LINE_METADATA'
+    };
 
-    export interface HideLineMetadata extends Action<{
+    static HideLineMetadata:Action<{
         tileId:number;
-    }> {
-        name:ActionName.HideLineMetadata;
-    }
+    }> = {
+        name: 'CONC_FILTER_HIDE_LINE_METADATA'
+    };
+
+    static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & {}> = {
+        name: GlobalActions.TileDataLoaded.name
+    };
+
+
+    static PartialTileDataLoaded:Action<typeof GlobalActions.TilePartialDataLoaded.payload & CollExamplesLoadedPayload> = {
+        name: GlobalActions.TilePartialDataLoaded.name
+    };
 
 }

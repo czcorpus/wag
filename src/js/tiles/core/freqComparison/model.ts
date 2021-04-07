@@ -23,8 +23,8 @@ import { Ident, pipe, List, Maths } from 'cnc-tskit';
 import { IAppServices } from '../../../appServices';
 import { GeneralMultiCritFreqComparisonModelState } from '../../../models/tiles/freqComparison';
 import { Backlink, BacklinkWithArgs } from '../../../page/tile';
-import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
-import { ActionName, Actions, DataLoadedPayload, LoadFinishedPayload } from './actions';
+import { Actions as GlobalActions } from '../../../models/actions';
+import { DataLoadedPayload, LoadFinishedPayload } from './actions';
 import { findCurrQueryMatch } from '../../../models/query';
 import { RecognizedQueries, QueryMatch } from '../../../query/index';
 import { ConcLoadedPayload, isConcLoadedPayload } from '../concordance/actions';
@@ -33,7 +33,8 @@ import { ViewMode, IConcordanceApi } from '../../../api/abstract/concordance';
 import { createInitialLinesData } from '../../../models/tiles/concordance';
 import { BacklinkArgs } from '../../../api/vendor/kontext/freqs';
 import { DataRow, IMultiBlockFreqDistribAPI } from '../../../api/abstract/freqs';
-import { AttrViewMode } from '../../../api/vendor/kontext/types';
+import { Actions as ConcActions } from '../concordance/actions';
+import { Actions } from './actions';
 
 
 export interface MultiWordDataRow extends DataRow {
@@ -92,8 +93,8 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
         this.backlink = backlink;
         this.queryMatches = queryMatches;
 
-        this.addActionHandler<GlobalActions.RequestQueryResponse>(
-            GlobalActionName.RequestQueryResponse,
+        this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
+            GlobalActions.RequestQueryResponse.name,
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
@@ -104,25 +105,24 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                         this.waitForTilesTimeoutSecs * 1000,
                         {},
                         (action, syncData) => {
-                            if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTiles[0]) {
+                            if (ConcActions.isTileDataLoaded(action) && action.payload.tileId === this.waitForTiles[0]) {
                                 if (isConcLoadedPayload(action.payload)) {
-                                    const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
                                     if (action.error) {
-                                        dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                            name: GlobalActionName.TileDataLoaded,
+                                        dispatch<typeof Actions.TileDataLoaded>({
+                                            name: Actions.TileDataLoaded.name,
                                             payload: {
                                                 tileId: this.tileId,
-                                                isEmpty: true,
-                                                block: null,
-                                                queryId: null,
-                                                lemma: null,
-                                                critId: null
+                                                isEmpty: true
                                             },
                                             error: new Error(this.appServices.translate('global__failed_to_obtain_required_data')),
                                         });
                                         return null;
                                     }
-                                    this.loadFreqs(this.composeConcordances(state, payload.concPersistenceIDs), state, dispatch);
+                                    this.loadFreqs(
+                                        this.composeConcordances(state, action.payload.concPersistenceIDs),
+                                        state,
+                                        dispatch
+                                    );
 
                                 } else {
                                     // if foreign tile response does not send concordances, load as standalone tile
@@ -139,8 +139,8 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                 }
             }
         );
-        this.addActionHandler<Actions.PartialDataLoaded<DataLoadedPayload>>(
-            ActionName.PartialDataLoaded,
+        this.addActionHandler<typeof Actions.PartialTileDataLoaded>(
+            Actions.PartialTileDataLoaded.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     if (action.error) {
@@ -184,54 +184,50 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                 }
             }
         );
-        this.addActionHandler<Actions.SetActiveBlock>(
-            ActionName.SetActiveBlock,
+        this.addActionHandler<typeof Actions.SetActiveBlock>(
+            Actions.SetActiveBlock.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.activeBlock = action.payload.idx;
                 }
             }
         );
-        this.addActionHandler<GlobalActions.EnableAltViewMode>(
-            GlobalActionName.EnableAltViewMode,
+        this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(
+            GlobalActions.EnableAltViewMode.name,
             (state, action) => {
                 if (action.payload.ident === this.tileId) {
                     state.isAltViewMode = true;
                 }
             }
         );
-        this.addActionHandler<GlobalActions.DisableAltViewMode>(
-            GlobalActionName.DisableAltViewMode,
+        this.addActionHandler<typeof GlobalActions.DisableAltViewMode>(
+            GlobalActions.DisableAltViewMode.name,
             (state, action) => {
                 if (action.payload.ident === this.tileId) {
                     state.isAltViewMode = false;
                 }
             }
         );
-        this.addActionHandler<GlobalActions.GetSourceInfo>(
-            GlobalActionName.GetSourceInfo,
+        this.addActionHandler<typeof GlobalActions.GetSourceInfo>(
+            GlobalActions.GetSourceInfo.name,
             (state, action) => {},
             (state, action, dispatch) => {
                 if (action.payload['tileId'] === this.tileId) {
                     this.freqApi.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), state.corpname)
                     .subscribe(
                         (data) => {
-                            dispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
+                            dispatch<typeof GlobalActions.GetSourceInfoDone>({
+                                name: GlobalActions.GetSourceInfoDone.name,
                                 payload: {
-                                    tileId: this.tileId,
-                                    data: data
+                                    data
                                 }
                             });
                         },
                         (err) => {
                             console.error(err);
-                            dispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
-                                error: err,
-                                payload: {
-                                    tileId: this.tileId
-                                }
+                            dispatch<typeof GlobalActions.GetSourceInfoDone>({
+                                name: GlobalActions.GetSourceInfoDone.name,
+                                error: err
                             });
                         }
                     );
@@ -333,13 +329,11 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
             )
         ).subscribe(
             acc => {
-                dispatch<GlobalActions.TileDataLoaded<LoadFinishedPayload>>({
-                    name: GlobalActionName.TileDataLoaded,
+                dispatch<typeof Actions.TileDataLoaded>({
+                    name: Actions.TileDataLoaded.name,
                     payload: {
                         tileId: this.tileId,
-                        isEmpty: acc.isEmpty,
-                        concPersistenceIDs: acc.concIds,
-                        corpusName: state.corpname
+                        isEmpty: acc.isEmpty
                     }
                 });
             }
@@ -347,8 +341,8 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
 
         freqResp.subscribe(
             ([resp, args]) => {
-                dispatch<Actions.PartialDataLoaded<DataLoadedPayload>>({
-                    name: ActionName.PartialDataLoaded,
+                dispatch<typeof Actions.PartialTileDataLoaded>({
+                    name: Actions.PartialTileDataLoaded.name,
                     payload: {
                         tileId: this.tileId,
                         block: {
@@ -372,8 +366,8 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                 });
             },
             error => {
-                dispatch<Actions.PartialDataLoaded<DataLoadedPayload>>({
-                    name: ActionName.PartialDataLoaded,
+                dispatch<typeof Actions.PartialTileDataLoaded>({
+                    name: Actions.PartialTileDataLoaded.name,
                     payload: {
                         tileId: this.tileId,
                         block: null,
@@ -383,13 +377,14 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                     },
                     error: error
                 });
-                dispatch<GlobalActions.TileDataLoaded<LoadFinishedPayload>>({
-                    name: GlobalActionName.TileDataLoaded,
+                dispatch<typeof Actions.PartialTileDataLoaded>({
+                    name: Actions.PartialTileDataLoaded.name,
                     payload: {
                         tileId: this.tileId,
-                        isEmpty: true,
-                        corpusName: state.corpname,
-                        concPersistenceIDs: null
+                        block: null,
+                        queryId: null,
+                        lemma: null,
+                        critId: null
                     },
                     error: error
                 });

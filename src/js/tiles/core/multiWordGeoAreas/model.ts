@@ -18,21 +18,20 @@
 import { StatelessModel, IActionQueue, SEDispatcher } from 'kombo';
 import { Observable, of as rxOf, zip } from 'rxjs';
 import { concatMap, reduce, share, repeat } from 'rxjs/operators';
-import { Dict, List } from 'cnc-tskit';
+import { Dict, List, tuple } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
 import { GeneralSingleCritFreqMultiQueryState } from '../../../models/tiles/freq';
-import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
-import { ActionName, Actions, LoadFinishedPayload } from './actions';
+import { Actions as GlobalActions } from '../../../models/actions';
+import { Actions } from './actions';
+import { Actions as ConcActions } from '../concordance/actions';
 import { DataApi } from '../../../types';
 import { TooltipValues } from '../../../views/global';
 import { QueryMatch, RecognizedQueries } from '../../../query/index';
 import { callWithExtraVal } from '../../../api/util';
 import { ViewMode, IConcordanceApi } from '../../../api/abstract/concordance';
 import { createInitialLinesData } from '../../../models/tiles/concordance';
-import { ConcLoadedPayload, isConcLoadedPayload } from '../concordance/actions';
 import { DataRow, IFreqDistribAPI, APIResponse } from '../../../api/abstract/freqs';
-import { AttrViewMode } from '../../../api/vendor/kontext/types';
 
 /*
 oral2013:
@@ -125,8 +124,8 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
         this.freqApi = freqApi;
         this.mapLoader = mapLoader;
 
-        this.addActionHandler<GlobalActions.RequestQueryResponse>(
-            GlobalActionName.RequestQueryResponse,
+        this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
+            GlobalActions.RequestQueryResponse.name,
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
@@ -137,28 +136,25 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                         this.waitForTilesTimeoutSecs * 1000,
                         {},
                         (action, syncData) => {
-                            if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
-                                let dataStream;
-                                if (isConcLoadedPayload(action.payload)) {
-                                    const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
-                                    dataStream = zip(
-                                        this.mapLoader.call('mapCzech.inline.svg').pipe(repeat(payload.concPersistenceIDs.length)),
-                                        rxOf(...payload.concPersistenceIDs.map((concId, queryId) => [queryId, concId] as [number, string]))
-                                        .pipe(
-                                            concatMap(([queryId, concId]) => callWithExtraVal(
-                                                this.freqApi,
-                                                this.freqApi.stateToArgs(state, concId),
-                                                {
-                                                    concId: concId,
-                                                    queryId: queryId
-                                                }
-                                            ))
-                                        )
-                                    );
-                                } else {
-                                    dataStream = this.getConcordances(state);
-                                }
-
+                            if (ConcActions.isTileDataLoaded(action) && action.payload.tileId === this.waitForTile) {
+                                const dataStream = zip(
+                                    this.mapLoader.call('mapCzech.inline.svg').pipe(
+                                        repeat(action.payload.concPersistenceIDs.length)),
+                                    rxOf(...List.map(
+                                        (concId, queryId) => tuple(queryId, concId),
+                                        action.payload.concPersistenceIDs
+                                    ))
+                                    .pipe(
+                                        concatMap(([queryId, concId]) => callWithExtraVal(
+                                            this.freqApi,
+                                            this.freqApi.stateToArgs(state, concId),
+                                            {
+                                                concId: concId,
+                                                queryId: queryId
+                                            }
+                                        ))
+                                    )
+                                );
                                 this.handleLoad(dataStream, state, dispatch);
                                 return null;
                             }
@@ -172,8 +168,8 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                 }
             }
         );
-        this.addActionHandler<Actions.PartialDataLoaded>(
-            ActionName.PartialDataLoaded,
+        this.addActionHandler<typeof Actions.PartialTileDataLoaded>(
+            Actions.PartialTileDataLoaded.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     if (action.error) {
@@ -190,32 +186,32 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                 }
             }
         );
-        this.addActionHandler<GlobalActions.TileDataLoaded<LoadFinishedPayload>>(
-            GlobalActionName.TileDataLoaded,
+        this.addActionHandler<typeof Actions.TileDataLoaded>(
+            Actions.TileDataLoaded.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = false;
                 }
             }
         );
-        this.addActionHandler<GlobalActions.EnableAltViewMode>(
-            GlobalActionName.EnableAltViewMode,
+        this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(
+            GlobalActions.EnableAltViewMode.name,
             (state, action) => {
                 if (action.payload.ident === this.tileId) {
                     state.isAltViewMode = true;
                 }
             }
         );
-        this.addActionHandler<GlobalActions.DisableAltViewMode>(
-            GlobalActionName.DisableAltViewMode,
+        this.addActionHandler<typeof GlobalActions.DisableAltViewMode>(
+            GlobalActions.DisableAltViewMode.name,
             (state, action) => {
                 if (action.payload.ident === this.tileId) {
                     state.isAltViewMode = false;
                 }
             }
         );
-        this.addActionHandler<Actions.ShowAreaTooltip>(
-            ActionName.ShowAreaTooltip,
+        this.addActionHandler<typeof Actions.ShowAreaTooltip>(
+            Actions.ShowAreaTooltip.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.tooltipArea = {
@@ -251,38 +247,34 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                 }
             }
         );
-        this.addActionHandler<Actions.HideAreaTooltip>(
-            ActionName.HideAreaTooltip,
+        this.addActionHandler<typeof Actions.HideAreaTooltip>(
+            Actions.HideAreaTooltip.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.tooltipArea = null;
                 }
             }
         );
-        this.addActionHandler<GlobalActions.GetSourceInfo>(
-            GlobalActionName.GetSourceInfo,
+        this.addActionHandler<typeof GlobalActions.GetSourceInfo>(
+            GlobalActions.GetSourceInfo.name,
             (state, action) => {},
             (state, action, dispatch) => {
-                if (action.payload['tileId'] === this.tileId) {
+                if (action.payload.tileId === this.tileId) {
                     this.freqApi.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), state.corpname)
                     .subscribe(
                         (data) => {
-                            dispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
+                            dispatch<typeof GlobalActions.GetSourceInfoDone>({
+                                name: GlobalActions.GetSourceInfoDone.name,
                                 payload: {
-                                    tileId: this.tileId,
-                                    data: data
+                                    data
                                 }
                             });
                         },
-                        (err) => {
-                            console.error(err);
-                            dispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
-                                error: err,
-                                payload: {
-                                    tileId: this.tileId
-                                }
+                        (error) => {
+                            console.error(error);
+                            dispatch<typeof GlobalActions.GetSourceInfoDone>({
+                                name: GlobalActions.GetSourceInfoDone.name,
+                                error
                             });
                         }
                     );
@@ -349,11 +341,11 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
     ):void {
         dataStream.subscribe(
             ([mapSVG, [resp, args]]) => {
-                dispatch<Actions.PartialDataLoaded>({
-                    name: ActionName.PartialDataLoaded,
+                dispatch<typeof Actions.PartialTileDataLoaded>({
+                    name: Actions.PartialTileDataLoaded.name,
                     payload: {
                         tileId: this.tileId,
-                        mapSVG: mapSVG,
+                        mapSVG,
                         data: resp.data,
                         concId: args.concId,
                         queryId: args.queryId
@@ -361,8 +353,8 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                 });
             },
             error => {
-                dispatch<Actions.PartialDataLoaded>({
-                    name: ActionName.PartialDataLoaded,
+                dispatch<typeof Actions.PartialTileDataLoaded>({
+                    name: Actions.PartialTileDataLoaded.name,
                     payload: {
                         tileId: this.tileId,
                         mapSVG: null,
@@ -386,8 +378,8 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
             )
         )
         .subscribe(acc =>
-            dispatch<GlobalActions.TileDataLoaded<LoadFinishedPayload>>({
-                name: GlobalActionName.TileDataLoaded,
+            dispatch<typeof Actions.TileDataLoaded>({
+                name: Actions.TileDataLoaded.name,
                 payload: {
                     tileId: this.tileId,
                     isEmpty: !acc.hasData,

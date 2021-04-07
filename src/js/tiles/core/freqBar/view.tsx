@@ -22,7 +22,7 @@ import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAx
 import { Theme } from '../../../page/theme';
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile';
 import { GlobalComponents } from '../../../views/global';
-import { ActionName, Actions } from './actions';
+import { Actions } from './actions';
 import { FreqBarModel, FreqBarModelState } from './model';
 import { List, Strings } from 'cnc-tskit';
 import { DataRow } from '../../../api/abstract/freqs';
@@ -37,7 +37,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------- <ChartWrapper /> ---------------------------------------------------
 
-    const ChartWrapper:React.SFC<{
+    const ChartWrapper:React.FC<{
         data:Array<DataRow>;
         width:string|number;
         height:string|number;
@@ -67,7 +67,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------- <TableView /> -------------------------------------
 
-    const TableView:React.SFC<{
+    const TableView:React.FC<{
         data:Array<DataRow>;
     }> = (props) => {
         return (
@@ -94,7 +94,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------------------- <Chart /> --------------------------------------
 
-    const Chart:React.SFC<{
+    const Chart:React.FC<{
         data:Array<DataRow>;
         width:string|number;
         height:string|number;
@@ -140,8 +140,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
 
         private handleScroll():void {
-            dispatcher.dispatch<Actions.SetActiveBlock>({
-                name: ActionName.SetActiveBlock,
+            dispatcher.dispatch<typeof Actions.SetActiveBlock>({
+                name: Actions.SetActiveBlock.name,
                 payload: {
                     idx: Math.round(this.chartsRef.current.scrollLeft / this.props.renderSize[0]),
                     tileId: this.props.tileId

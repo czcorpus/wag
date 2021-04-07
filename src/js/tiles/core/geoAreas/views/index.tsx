@@ -22,7 +22,7 @@ import { fromEvent } from 'rxjs';
 import { Theme } from '../../../../page/theme';
 import { CoreTileComponentProps, TileComponent } from '../../../../page/tile';
 import { GlobalComponents } from '../../../../views/global';
-import { ActionName, Actions } from '../actions';
+import { Actions } from '../actions';
 import { GeoAreasModel, GeoAreasModelState } from '../model';
 import { DataRow } from '../../../../api/abstract/freqs';
 import { Dict, List } from 'cnc-tskit';
@@ -93,7 +93,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------- <DataTable /> ---------------------------------------------
 
-    const DataTable:React.SFC<{
+    const DataTable:React.FC<{
         rows:Array<DataRow>;
 
     }> = (props) => {
@@ -147,7 +147,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 let label;
                 const areaIndex = List.findIndex((v, i) => v.name === areaName, props.data);
                 const areaData = areaIndex === -1 ? undefined : props.data[areaIndex];
-                
+
                 if (areaData === undefined || areaData.freq < props.frequencyDisplayLimit) {
                     label = createSVGEmptyCircle(elm, 80);
 
@@ -196,8 +196,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
                 fromEvent(label, 'mousemove')
                     .subscribe((e:MouseEvent) => {
-                        dispatcher.dispatch<Actions.ShowAreaTooltip>({
-                            name: ActionName.ShowAreaTooltip,
+                        dispatcher.dispatch<typeof Actions.ShowAreaTooltip>({
+                            name: Actions.ShowAreaTooltip.name,
                             payload: {
                                 dataIdx: areaIndex,
                                 areaName: areaName,
@@ -207,11 +207,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             }
                         });
                     });
-                
+
                 fromEvent(label, 'mouseout')
                     .subscribe(() => {
-                        dispatcher.dispatch<Actions.HideAreaTooltip>({
-                            name: ActionName.HideAreaTooltip,
+                        dispatcher.dispatch<typeof Actions.HideAreaTooltip>({
+                            name: Actions.HideAreaTooltip.name,
                             payload: {
                                 tileId: tileId
                             }

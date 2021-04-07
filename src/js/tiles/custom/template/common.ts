@@ -16,10 +16,13 @@
  * limitations under the License.
  */
 
+import { Action } from 'kombo';
+import { Actions as GlobalActions } from '../../../models/actions';
+
 
 export interface __Template__ModelState {
     isBusy:boolean;
-    tileId:number;    
+    tileId:number;
     isAltViewMode:boolean;
     isTileTweakMode:boolean;
     error:string|null;
@@ -28,10 +31,20 @@ export interface __Template__ModelState {
 
 
 export interface DataLoadedPayload {
-    error?:Error;
 }
 
 
 export interface PartialDataLoadedPayload {
     data:string;
+}
+
+export class Actions {
+
+    static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & DataLoadedPayload> = {
+	    name: GlobalActions.TileDataLoaded.name
+    };
+
+    static PartialTileDataLoaded:Action<typeof GlobalActions.TilePartialDataLoaded.payload & PartialDataLoadedPayload> = {
+	    name: GlobalActions.TilePartialDataLoaded.name
+    };
 }

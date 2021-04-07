@@ -33,7 +33,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -----
 
-    const TranslationsTable:React.SFC<{
+    const TranslationsTable:React.FC<{
         translations:Array<WordTranslation>;
 
     }> = (props) => {

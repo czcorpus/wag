@@ -18,10 +18,10 @@
 import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 
 import { IAppServices } from '../../../appServices';
-import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
+import { Actions as GlobalActions } from '../../../models/actions';
 import { RecognizedQueries } from '../../../query/index';
 
-import { DataLoadedPayload, __Template__ModelState, PartialDataLoadedPayload } from './common';
+import { DataLoadedPayload, __Template__ModelState, PartialDataLoadedPayload, Actions } from './common';
 import { of as rxOf } from 'rxjs';
 import { findCurrQueryMatch } from '../../../models/query';
 import { delay } from 'rxjs/operators';
@@ -50,36 +50,36 @@ export class __Template__Model extends StatelessModel<__Template__ModelState> {
         this.appServices = appServices;
         this.queryMatches = queryMatches;
 
-        this.addActionHandler<GlobalActions.EnableAltViewMode>(
-            GlobalActionName.EnableAltViewMode,
+        this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(
+            GlobalActions.EnableAltViewMode.name,
             (state, action) => {
                 state.isAltViewMode = true;
             }
         );
 
-        this.addActionHandler<GlobalActions.DisableAltViewMode>(
-            GlobalActionName.DisableAltViewMode,
+        this.addActionHandler<typeof GlobalActions.DisableAltViewMode>(
+            GlobalActions.DisableAltViewMode.name,
             (state, action) => {
                 state.isAltViewMode = false;
             }
         );
 
-        this.addActionHandler<GlobalActions.EnableTileTweakMode>(
-            GlobalActionName.EnableTileTweakMode,
+        this.addActionHandler<typeof GlobalActions.EnableTileTweakMode>(
+            GlobalActions.EnableTileTweakMode.name,
             (state, action) => {
                 state.isTileTweakMode = true;
             }
         );
 
-        this.addActionHandler<GlobalActions.DisableTileTweakMode>(
-            GlobalActionName.DisableTileTweakMode,
+        this.addActionHandler<typeof GlobalActions.DisableTileTweakMode>(
+            GlobalActions.DisableTileTweakMode.name,
             (state, action) => {
                 state.isTileTweakMode = false;
             }
         );
 
-        this.addActionHandler<GlobalActions.RequestQueryResponse>(
-            GlobalActionName.RequestQueryResponse,
+        this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
+            GlobalActions.RequestQueryResponse.name,
             (state, action) => {
                 state.isBusy = true;
             },
@@ -88,8 +88,8 @@ export class __Template__Model extends StatelessModel<__Template__ModelState> {
             }
         );
 
-        this.addActionHandler<GlobalActions.TilePartialDataLoaded<PartialDataLoadedPayload>>(
-            GlobalActionName.TilePartialDataLoaded,
+        this.addActionHandler<typeof Actions.PartialTileDataLoaded>(
+            Actions.PartialTileDataLoaded.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.data.push(action.payload.data)
@@ -97,8 +97,8 @@ export class __Template__Model extends StatelessModel<__Template__ModelState> {
             }
         );
 
-        this.addActionHandler<GlobalActions.TileDataLoaded<DataLoadedPayload>>(
-            GlobalActionName.TileDataLoaded,
+        this.addActionHandler<typeof Actions.TileDataLoaded>(
+            Actions.TileDataLoaded.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = false;
@@ -115,8 +115,8 @@ export class __Template__Model extends StatelessModel<__Template__ModelState> {
         .subscribe(
             next => {
                 const currentQueryMatch = findCurrQueryMatch(next);
-                seDispatch<GlobalActions.TilePartialDataLoaded<PartialDataLoadedPayload>>({
-                    name: GlobalActionName.TilePartialDataLoaded,
+                seDispatch<typeof Actions.PartialTileDataLoaded>({
+                    name: Actions.PartialTileDataLoaded.name,
                     payload: {
                         tileId: this.tileId,
                         data: currentQueryMatch.word
@@ -124,18 +124,14 @@ export class __Template__Model extends StatelessModel<__Template__ModelState> {
                 });
             },
             error => {
-                seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                    name: GlobalActionName.TileDataLoaded,
-                    payload: {
-                        tileId: this.tileId,
-                        isEmpty: true,
-                        error: error
-                    }
+                seDispatch<typeof Actions.TileDataLoaded>({
+                    name: Actions.TileDataLoaded.name,
+                    error
                 });
             },
             () => {
-                seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                    name: GlobalActionName.TileDataLoaded,
+                seDispatch<typeof Actions.TileDataLoaded>({
+                    name: Actions.TileDataLoaded.name,
                     payload: {
                         tileId: this.tileId,
                         isEmpty: false,

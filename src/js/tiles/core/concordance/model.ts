@@ -29,10 +29,10 @@ import { ConcordanceMinState, createInitialLinesData } from '../../../models/til
 import { SystemMessageType } from '../../../types';
 import { isSubqueryPayload, RecognizedQueries, QueryType } from '../../../query/index';
 import { Backlink, BacklinkWithArgs } from '../../../page/tile';
-import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
+import { Actions as GlobalActions } from '../../../models/actions';
 import { findCurrQueryMatch } from '../../../models/query';
 import { importMessageType } from '../../../page/notifications';
-import { ActionName, Actions, ConcLoadedPayload } from './actions';
+import { Actions, ConcLoadedPayload } from './actions';
 import { normalizeTypography } from '../../../models/tiles/concordance/normalize';
 import { isCollocSubqueryPayload } from '../../../api/abstract/collocations';
 import { callWithExtraVal } from '../../../api/util';
@@ -106,8 +106,8 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
         this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.queryType = queryType;
 
-        this.addActionHandler<GlobalActions.SetScreenMode>(
-            GlobalActionName.SetScreenMode,
+        this.addActionHandler<typeof GlobalActions.SetScreenMode>(
+            GlobalActions.SetScreenMode.name,
             (state, action) => {
                 if (action.payload.isMobile !== state.isMobile) {
                     state.isMobile = action.payload.isMobile;
@@ -128,8 +128,8 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             }
         );
 
-        this.addActionHandler<GlobalActions.EnableTileTweakMode>(
-            GlobalActionName.EnableTileTweakMode,
+        this.addActionHandler<typeof GlobalActions.EnableTileTweakMode>(
+            GlobalActions.EnableTileTweakMode.name,
             (state, action) => {
                 if (action.payload.ident === this.tileId) {
                     state.isTweakMode = true;
@@ -137,8 +137,8 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             }
         );
 
-        this.addActionHandler<GlobalActions.DisableTileTweakMode>(
-            GlobalActionName.DisableTileTweakMode,
+        this.addActionHandler<typeof GlobalActions.DisableTileTweakMode>(
+            GlobalActions.DisableTileTweakMode.name,
             (state, action) => {
                 if (action.payload.ident === this.tileId) {
                     state.isTweakMode = false;
@@ -146,8 +146,8 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             }
         );
 
-        this.addActionHandler<GlobalActions.RequestQueryResponse>(
-            GlobalActionName.RequestQueryResponse,
+        this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
+            GlobalActions.RequestQueryResponse.name,
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
@@ -157,8 +157,9 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                     this.suspendWithTimeout(
                         this.waitForTilesTimeoutSecs,
                         {},
-                        (action:GlobalActions.TileDataLoaded<{}>, syncData) => {
-                            if (action.name === GlobalActionName.TileDataLoaded && action.payload.tileId === this.waitForTile) {
+                        (action, syncData) => {
+                            if (Actions.isTileDataLoaded(action) &&
+                                        action.payload.tileId === this.waitForTile) {
                                 if (isCollocSubqueryPayload(action.payload)) {
                                     const cql = `[word="${action.payload.subqueries.map(v => v.value.value).join('|')}"]`; // TODO escape
                                     this.reloadData(state, dispatch, cql);
@@ -178,8 +179,8 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             }
         );
 
-        this.addActionHandler<GlobalActions.TilePartialDataLoaded<SingleConcLoadedPayload>>(
-            GlobalActionName.TilePartialDataLoaded,
+        this.addActionHandler<typeof Actions.PartialTileDataLoaded>(
+            Actions.PartialTileDataLoaded.name,
             (state, action) => {
                 // note: error is handled via TileDataLoaded
                 if (action.payload.tileId === this.tileId && !action.error) {
@@ -198,8 +199,8 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             }
         );
 
-        this.addActionHandler<GlobalActions.TileDataLoaded<ConcLoadedPayload>>(
-            GlobalActionName.TileDataLoaded,
+        this.addActionHandler<typeof Actions.TileDataLoaded>(
+            GlobalActions.TileDataLoaded.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = false;
@@ -214,8 +215,8 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             }
         );
 
-        this.addActionHandler<Actions.LoadNextPage>(
-            ActionName.LoadNextPage,
+        this.addActionHandler<typeof Actions.LoadNextPage>(
+            Actions.LoadNextPage.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = true;
@@ -229,12 +230,12 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 }
             }
         ).sideEffectAlsoOn(
-            ActionName.LoadPrevPage,
-            ActionName.SetViewMode
+            Actions.LoadPrevPage.name,
+            Actions.SetViewMode.name
         );
 
-        this.addActionHandler<Actions.LoadPrevPage>(
-            ActionName.LoadPrevPage,
+        this.addActionHandler<typeof Actions.LoadPrevPage>(
+            Actions.LoadPrevPage.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     if (state.concordances[state.visibleQueryIdx].currPage - 1 > 0) {
@@ -249,8 +250,8 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             }
         );
 
-        this.addActionHandler<Actions.SetViewMode>(
-            ActionName.SetViewMode,
+        this.addActionHandler<typeof Actions.SetViewMode>(
+            Actions.SetViewMode.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = true;
@@ -260,8 +261,8 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             }
         );
 
-        this.addActionHandler<GlobalActions.GetSourceInfo>(
-            GlobalActionName.GetSourceInfo,
+        this.addActionHandler<typeof GlobalActions.GetSourceInfo>(
+            GlobalActions.GetSourceInfo.name,
             null,
             (state, action, dispatch) => {
                 if (action.payload.tileId === this.tileId) {
@@ -269,7 +270,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                     .subscribe(
                         (data) => {
                             dispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
+                                name: GlobalActions.GetSourceInfoDone.name,
                                 payload: {
                                     tileId: this.tileId,
                                     data: data
@@ -279,7 +280,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                         (err) => {
                             console.error(err);
                             dispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
+                                name: GlobalActions.GetSourceInfoDone.name,
                                 error: err,
                                 payload: {
                                     tileId: this.tileId,
@@ -291,15 +292,15 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             }
         );
 
-        this.addActionHandler<Actions.SetVisibleQuery>(
-            ActionName.SetVisibleQuery,
+        this.addActionHandler<typeof Actions.SetVisibleQuery>(
+            Actions.SetVisibleQuery.name,
             (state, action) => {
                 state.visibleQueryIdx = action.payload.queryIdx
             }
         );
 
-        this.addActionHandler<GlobalActions.TileAreaClicked>(
-            GlobalActionName.TileAreaClicked,
+        this.addActionHandler<typeof GlobalActions.TileAreaClicked>(
+            GlobalActions.TileAreaClicked.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.visibleMetadataLine = -1;
@@ -307,8 +308,8 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             }
         );
 
-        this.addActionHandler<Actions.ShowLineMetadata>(
-            ActionName.ShowLineMetadata,
+        this.addActionHandler<typeof Actions.ShowLineMetadata>(
+            Actions.ShowLineMetadata.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.visibleMetadataLine = action.payload.idx;
@@ -316,8 +317,8 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             }
         );
 
-        this.addActionHandler<Actions.HideLineMetadata>(
-            ActionName.HideLineMetadata,
+        this.addActionHandler<typeof Actions.HideLineMetadata>(
+            Actions.HideLineMetadata.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.visibleMetadataLine = -1;
@@ -326,7 +327,11 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
         );
     }
 
-    private createBackLink(state:ConcordanceTileState, action:GlobalActions.TileDataLoaded<ConcLoadedPayload>):BacklinkWithArgs<BacklinkArgs> {
+    private createBackLink(
+        state:ConcordanceTileState,
+        action:typeof Actions.TileDataLoaded
+    ):BacklinkWithArgs<BacklinkArgs> {
+
         return this.backlink && this.queryType !== QueryType.CMP_QUERY ?
             {
                 url: this.backlink.url,
@@ -370,13 +375,16 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             mergeMap(data => callWithExtraVal(this.service, data.apiArgs, data.queryIdx)),
             tap(
                 ([resp, curr]) => {
-                    dispatch<GlobalActions.TilePartialDataLoaded<SingleConcLoadedPayload>>({
-                        name: GlobalActionName.TilePartialDataLoaded,
+                    dispatch<typeof Actions.PartialTileDataLoaded>({
+                        name: Actions.PartialTileDataLoaded.name,
                         payload: {
                             tileId: this.tileId,
                             queryId: curr,
                             data: resp,
-                            subqueries: List.map(v => ({value: `${v.toknum}`, interactionId: v.interactionId}), resp.lines),
+                            subqueries: List.map(
+                                v => ({value: `${v.toknum}`, interactionId: v.interactionId}),
+                                resp.lines
+                            ),
                             domain1: null,
                             domain2: null
                         }
@@ -393,8 +401,8 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
         ).subscribe(
             (acc) => {
-                dispatch<GlobalActions.TileDataLoaded<ConcLoadedPayload>>({
-                    name: GlobalActionName.TileDataLoaded,
+                dispatch<typeof Actions.TileDataLoaded>({
+                    name: Actions.TileDataLoaded.name,
                     payload: {
                         tileId: this.tileId,
                         isEmpty: acc.isEmpty,
@@ -404,8 +412,8 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 });
             },
             (err) => {
-                dispatch<GlobalActions.TileDataLoaded<ConcLoadedPayload>>({
-                    name: GlobalActionName.TileDataLoaded,
+                dispatch<typeof Actions.TileDataLoaded>({
+                    name: Actions.TileDataLoaded.name,
                     error: err,
                     payload: {
                         tileId: this.tileId,

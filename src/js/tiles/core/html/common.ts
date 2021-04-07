@@ -16,6 +16,10 @@
  * limitations under the License.
  */
 
+import { Action } from 'kombo';
+import { Actions as GlobalActions } from '../../../models/actions';
+
+
 export interface HtmlModelState {
     isBusy:boolean;
     tileId:number;
@@ -30,4 +34,12 @@ export interface HtmlModelState {
 
 export interface DataLoadedPayload {
     data:string;
+}
+
+
+export class Actions {
+
+    static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & DataLoadedPayload> = {
+        name: GlobalActions.TileDataLoaded.name
+    };
 }

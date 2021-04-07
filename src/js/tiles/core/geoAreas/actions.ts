@@ -16,15 +16,10 @@
  * limitations under the License.
  */
 
- import { Action } from 'kombo';
+import { Action } from 'kombo';
 import { DataRow } from '../../../api/abstract/freqs';
+import { Actions as GlobalActions } from '../../../models/actions';
 
-
-
-export enum ActionName {
-    ShowAreaTooltip = 'GEO_AREAS_SHOW_AREA_TOOLTIP',
-    HideAreaTooltip = 'GEO_AREAS_HIDE_AREA_TOOLTIP'
-}
 
 export interface DataLoadedPayload {
     data:Array<DataRow>;
@@ -32,23 +27,25 @@ export interface DataLoadedPayload {
     concId:string;
 }
 
-export namespace Actions {
+export class Actions {
 
-    export interface ShowAreaTooltip extends Action<{
+    static ShowAreaTooltip:Action<{
         tileId:number;
         dataIdx:number;
         areaName:string;
         tooltipX:number;
         tooltipY:number;
+    }> = {
+        name: 'GEO_AREAS_SHOW_AREA_TOOLTIP'
+    };
 
-    }> {
-        name: ActionName.ShowAreaTooltip;
-    }
-
-    export interface HideAreaTooltip extends Action<{
+    static HideAreaTooltip:Action<{
         tileId:number;
+    }> = {
+        name: 'GEO_AREAS_HIDE_AREA_TOOLTIP'
+    };
 
-    }> {
-        name: ActionName.HideAreaTooltip;
-    }
+    static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & DataLoadedPayload> = {
+        name: GlobalActions.TileDataLoaded.name
+    };
 }

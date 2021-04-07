@@ -18,7 +18,7 @@
 import { Action, SEDispatcher, IActionQueue } from 'kombo';
 import { Observable, merge } from 'rxjs';
 import { concatMap, map } from 'rxjs/operators';
-import { Dict, Ident } from 'cnc-tskit';
+import { Dict, Ident, List, pipe } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
 import { ConcApi } from '../../../api/vendor/kontext/concordance/v015';
@@ -26,13 +26,13 @@ import { ViewMode, ConcResponse } from '../../../api/abstract/concordance';
 import { SubqueryModeConf } from '../../../models/tiles/freq';
 import { isSubqueryPayload, SubqueryPayload, SubQueryItem } from '../../../query/index';
 import { Backlink } from '../../../page/tile';
-import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
+import { Actions as GlobalActions } from '../../../models/actions';
+import { Actions } from './actions';
 import { DataLoadedPayload } from './actions';
 import { FreqBarModel, FreqBarModelState } from './model';
 import { callWithExtraVal } from '../../../api/util';
 import { IMultiBlockFreqDistribAPI, APIBlockResponse } from '../../../api/abstract/freqs';
 import { CorePosAttribute } from '../../../types';
-import { AttrViewMode } from '../../../api/vendor/kontext/types';
 
 
 export class SubqFreqBarModelArgs {
@@ -79,8 +79,9 @@ export class SubqFreqBarModel extends FreqBarModel {
             api, backlink, initState});
         this.subqConf = subqConf;
         this.concApi = concApi;
-        this.extendActionHandler<GlobalActions.TileDataLoaded<DataLoadedPayload>>(
-            GlobalActionName.TileDataLoaded,
+
+        this.extendActionHandler<typeof Actions.TileDataLoaded>(
+            Actions.TileDataLoaded.name,
             (state, action) => {
                 if (action.payload && isSubqueryPayload(action.payload) &&
                         Dict.hasKey(action.payload.tileId.toFixed(), this.subqSourceTiles)) {
@@ -95,10 +96,81 @@ export class SubqFreqBarModel extends FreqBarModel {
                 }
             }
         );
+
+        this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
+            GlobalActions.RequestQueryResponse.name,
+            null,
+            (state, action, dispatch) => {
+                this.suspendWithTimeout(
+                    this.waitForTilesTimeoutSecs * 1000,
+                    Dict.map(_ => true, this.waitForTiles),
+                    (action, syncData) => {
+                        if (action.name === GlobalActions.TileDataLoaded.name &&
+                                Dict.hasKey(action.payload['tileId'].toFixed()) && isSubqueryPayload(action.payload), this.subqSourceTiles) {
+                            const payload = action.payload as SubqueryPayload;
+                            const subqueries:Array<{critIdx:number; v:SubQueryItem<string>}> = payload.subqueries
+                                    .slice(0, this.subqConf.maxNumSubqueries)
+                                    .map((v, i) => ({critIdx: i, v: v}));
+
+                            merge(...subqueries.map(
+                                subq => this.loadFreq(state, state.corpname, subq.v.value, subq.critIdx))
+
+                            ).subscribe(
+                                (data:FreqLoadResult) => {
+                                        const block = data.resp.blocks[0];
+                                        dispatch<typeof Actions.TileDataLoaded>({
+                                            name: Actions.TileDataLoaded.name,
+                                            payload: {
+                                                tileId: this.tileId,
+                                                isEmpty: !block,
+                                                block: {
+                                                    data: block ?
+                                                            pipe(
+                                                                block.data,
+                                                                List.sortedBy(x => x.freq),
+                                                                List.slice(0, state.maxNumCategories)
+                                                             ) :
+                                                            null
+                                                },
+                                                blockLabel: data.query,
+                                                concId: null, // TODO do we need this?
+                                                critIdx: data.critIdx
+                                            }
+                                        });
+                                },
+                                error => {
+                                    dispatch<typeof Actions.TileDataLoaded>({
+                                        name: Actions.TileDataLoaded.name,
+                                        payload: {
+                                            tileId: this.tileId,
+                                            isEmpty: true,
+                                            block: null,
+                                            blockLabel: null,
+                                            concId: null,
+                                            critIdx: null
+                                        },
+                                        error
+                                    });
+                                    console.error(error);
+                                }
+                            );
+                            const ans = {...syncData, ...{[payload.tileId.toFixed()]: false}};
+                            return Dict.hasValue(true, ans) ? ans : null;
+                        }
+                        return syncData;
+                    }
+                );
+            }
+        );
     }
 
+    private loadFreq(
+        state:FreqBarModelState,
+        corp:string,
+        phrase:string,
+        critIdx:number
+    ):Observable<FreqLoadResult> {
 
-    private loadFreq(state:FreqBarModelState, corp:string, phrase:string, critIdx:number):Observable<FreqLoadResult> {
         return this.concApi.call({
             type: 'concQueryArgs',
             queries: [{
@@ -150,67 +222,6 @@ export class SubqFreqBarModel extends FreqBarModel {
                 critIdx: critIdx
             }))
         );
-    }
-
-    sideEffects(state:FreqBarModelState, action:Action, dispatch:SEDispatcher):void {
-        switch (action.name) {
-            case GlobalActionName.RequestQueryResponse:
-                this.suspendWithTimeout(
-                    this.waitForTilesTimeoutSecs * 1000,
-                    Dict.map(_ => true, this.waitForTiles),
-                    (action, syncData) => {
-                        if (action.name === GlobalActionName.TileDataLoaded &&
-                                Dict.hasKey(action.payload['tileId'].toFixed()) && isSubqueryPayload(action.payload), this.subqSourceTiles) {
-                            const payload = action.payload as SubqueryPayload;
-                            const subqueries:Array<{critIdx:number; v:SubQueryItem<string>}> = payload.subqueries
-                                    .slice(0, this.subqConf.maxNumSubqueries)
-                                    .map((v, i) => ({critIdx: i, v: v}));
-
-                            merge(...subqueries.map(
-                                subq => this.loadFreq(state, state.corpname, subq.v.value, subq.critIdx))
-
-                            ).subscribe(
-                                (data:FreqLoadResult) => {
-                                        const block = data.resp.blocks[0];
-                                        dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                            name: GlobalActionName.TileDataLoaded,
-                                            payload: {
-                                                tileId: this.tileId,
-                                                isEmpty: !block,
-                                                block: {
-                                                    data: block ?
-                                                            block.data.sort(((x1, x2) => x1.freq - x2.freq)).slice(0, state.maxNumCategories) :
-                                                            null
-                                                },
-                                                blockLabel: data.query,
-                                                concId: null, // TODO do we need this?
-                                                critIdx: data.critIdx
-                                            }
-                                        });
-                                },
-                                (err) => {
-                                    dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                        name: GlobalActionName.TileDataLoaded,
-                                        payload: {
-                                            tileId: this.tileId,
-                                            isEmpty: true,
-                                            block: null,
-                                            blockLabel: null,
-                                            concId: null,
-                                            critIdx: null
-                                        }
-                                    });
-                                    console.error('err: ', err);
-                                }
-                            );
-                            const ans = {...syncData, ...{[payload.tileId.toFixed()]: false}};
-                            return Dict.hasValue(true, ans) ? ans : null;
-                        }
-                        return syncData;
-                    }
-                );
-            break;
-        }
     }
 }
 

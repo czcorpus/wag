@@ -18,7 +18,8 @@
 import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 
 import { IAppServices } from '../../../appServices';
-import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
+import { Actions as GlobalActions } from '../../../models/actions';
+import { Actions } from './common';
 import { DataLoadedPayload, HtmlModelState } from './common';
 import { findCurrQueryMatch } from '../../../models/query';
 import { Observable, of as rxOf } from 'rxjs';
@@ -54,8 +55,8 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
         this.service = service;
         this.queryMatches = queryMatches;
 
-        this.addActionHandler<GlobalActions.RequestQueryResponse>(
-            GlobalActionName.RequestQueryResponse,
+        this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
+            GlobalActions.RequestQueryResponse.name,
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
@@ -64,9 +65,10 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
                 const variant = findCurrQueryMatch(this.queryMatches[0]);
                 this.requestData(state, variant.lemma, seDispatch);
             }
-        )
-        this.addActionHandler<GlobalActions.TileDataLoaded<DataLoadedPayload>>(
-            GlobalActionName.TileDataLoaded,
+        );
+
+        this.addActionHandler<typeof Actions.TileDataLoaded>(
+            Actions.TileDataLoaded.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = false;
@@ -113,8 +115,8 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
             )
         ).subscribe(
             (data) => {
-                seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                    name: GlobalActionName.TileDataLoaded,
+                seDispatch<typeof Actions.TileDataLoaded>({
+                    name: Actions.TileDataLoaded.name,
                     payload: {
                         tileId: this.tileId,
                         isEmpty: !data,
@@ -123,8 +125,8 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
                 });
             },
             (err) => {
-                seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                    name: GlobalActionName.TileDataLoaded,
+                seDispatch<typeof Actions.TileDataLoaded>({
+                    name: Actions.TileDataLoaded.name,
                     payload: {
                         tileId: this.tileId,
                         isEmpty: true,

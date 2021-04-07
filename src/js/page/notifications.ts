@@ -21,7 +21,7 @@ import { delay, observeOn } from 'rxjs/operators';
 
 import { SystemMessageType } from '../types';
 import { Ident } from 'cnc-tskit';
-import { ActionName } from '../models/actions';
+import { Actions } from '../models/actions';
 
 
 
@@ -52,8 +52,8 @@ export class SystemNotifications {
         this.messageEvents = new Subject<SystemMessage>();
         this.messageEvents.pipe(observeOn(asyncScheduler)).subscribe(
             (data) => {
-                dispatcher.dispatch({
-                    name: ActionName.AddSystemMessage,
+                dispatcher.dispatch<typeof Actions.AddSystemMessage>({
+                    name: Actions.AddSystemMessage.name,
                     payload: {
                         ident: data.ident,
                         type: data.type,
@@ -61,14 +61,16 @@ export class SystemNotifications {
                         ttl: data.ttl
                     }
                 });
-                rxOf({
-                    name: ActionName.RemoveSystemMessage,
+                rxOf<typeof Actions.RemoveSystemMessage>({
+                    name: Actions.RemoveSystemMessage.name,
                     payload: {
                         ident: data.ident
                     }
-                })
-                .pipe(delay(SystemNotifications.DEFAULT_MESSAGE_TTL * 1000))
-                .subscribe(
+
+                }).pipe(
+                    delay(SystemNotifications.DEFAULT_MESSAGE_TTL * 1000)
+
+                ).subscribe(
                     (data) => {
                         dispatcher.dispatch(data);
                     }

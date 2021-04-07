@@ -22,7 +22,7 @@ import { Theme } from '../../../page/theme';
 import { TileComponent, CoreTileComponentProps } from '../../../page/tile';
 import { WordSimModel } from './model';
 import { init as wcloudViewInit } from '../../../views/wordCloud/index';
-import { ActionName } from './actions';
+import { Actions } from './actions';
 import { WordSimWord } from '../../../api/abstract/wordSim';
 import { OperationMode, WordSimModelState } from '../../../models/tiles/wordSim';
 import { List, pipe } from 'cnc-tskit';
@@ -37,18 +37,18 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------------------ <Controls /> --------------------------------------------
 
-    const Controls:React.SFC<{
+    const Controls:React.FC<{
         tileId:number;
         operationMode:OperationMode;
 
     }> = (props) => {
 
         const handleOperationModeChange = (evt:React.ChangeEvent<HTMLSelectElement>) => {
-            dispatcher.dispatch({
-                name: ActionName.SetOperationMode,
+            dispatcher.dispatch<typeof Actions.SetOperationMode>({
+                name: Actions.SetOperationMode.name,
                 payload: {
                     tileId: props.tileId,
-                    value: evt.target.value
+                    value: evt.target.value as OperationMode
                 }
             });
         }

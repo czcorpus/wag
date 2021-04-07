@@ -22,11 +22,11 @@ import { Cell, Legend, Pie, PieChart, ResponsiveContainer } from 'recharts';
 import { Theme } from '../../../page/theme';
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile';
 import { GlobalComponents } from '../../../views/global';
-import { ActionName } from './actions';
 import { FreqDataBlock } from '../../../models/tiles/freq';
 import { FreqBarModel, FreqBarModelState } from '../freqBar/model';
 import { List, pipe } from 'cnc-tskit';
 import { DataRow } from '../../../api/abstract/freqs';
+import { Actions } from './actions';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:FreqBarModel):TileComponent {
@@ -44,7 +44,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------- <ChartWrapper /> ---------------------------------------------------
 
-    const ChartWrapper:React.SFC<{
+    const ChartWrapper:React.FC<{
         isMobile:boolean;
         width:string|number;
         height:string|number;
@@ -71,7 +71,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------- <TableView /> -------------------------------------
 
-    const TableView:React.SFC<{
+    const TableView:React.FC<{
         data:Array<DataRow>;
     }> = (props) => {
         return (
@@ -98,7 +98,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------- <Chart /> ---------------------------------------------------
 
-    const Chart:React.SFC<{
+    const Chart:React.FC<{
         data:Array<DataRow>;
         width:string;
         height:number;
@@ -139,14 +139,14 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------- <FreqPieTileView /> ---------------------------------------------------
 
-    const FreqPieTileView:React.SFC<FreqBarModelState & CoreTileComponentProps> = (props) => {
+    const FreqPieTileView:React.FC<FreqBarModelState & CoreTileComponentProps> = (props) => {
 
         const chartsRef:React.RefObject<HTMLDivElement> = React.useRef(null);
 
 
         const handleScroll = () => {
-            dispatcher.dispatch({
-                name: ActionName.SetActiveBlock,
+            dispatcher.dispatch<typeof Actions.SetActiveBlock>({
+                name: Actions.SetActiveBlock.name,
                 payload: {
                     idx: Math.round(chartsRef.current.scrollLeft / props.renderSize[0]),
                     tileId: props.tileId

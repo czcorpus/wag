@@ -19,20 +19,20 @@
 import { StatelessModel, IActionQueue, SEDispatcher } from 'kombo';
 import { Observable, of as rxOf } from 'rxjs';
 import { mergeMap, concatMap, map, reduce, tap } from 'rxjs/operators';
-import { Dict, List, pipe } from 'cnc-tskit';
+import { Dict, List, pipe, tuple } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
 import { SourceMappedDataRow } from '../../../api/vendor/kontext/freqs';
 import { callWithExtraVal } from '../../../api/util';
-import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
+import { Actions as GlobalActions } from '../../../models/actions';
 import { QueryMatch } from '../../../query/index';
-import { ViewMode, SingleConcLoadedPayload, IConcordanceApi } from '../../../api/abstract/concordance';
-import { DataLoadedPayload, ModelSourceArgs } from './common';
+import { ViewMode, IConcordanceApi } from '../../../api/abstract/concordance';
+import { ModelSourceArgs } from './common';
 import { createInitialLinesData } from '../../../models/tiles/concordance';
 import { IFreqDistribAPI, DataRow } from '../../../api/abstract/freqs';
-import { ActionName, Actions } from './actions';
+import { Actions } from './actions';
 import { TooltipValues } from '../../../views/global';
-import { AttrViewMode } from '../../../api/vendor/kontext/types';
+import { Actions as ConcActions } from '../concordance/actions';
 
 
 export interface MergeCorpFreqModelState {
@@ -90,8 +90,8 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
         this.concApi = concApi;
         this.freqApi = freqApi;
 
-        this.addActionHandler<GlobalActions.EnableAltViewMode>(
-            GlobalActionName.EnableAltViewMode,
+        this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(
+            GlobalActions.EnableAltViewMode.name,
             (state, action) => {
                 if (action.payload.ident === this.tileId) {
                     state.isAltViewMode = true;
@@ -99,8 +99,8 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
             }
         );
 
-        this.addActionHandler<GlobalActions.DisableAltViewMode>(
-            GlobalActionName.DisableAltViewMode,
+        this.addActionHandler<typeof GlobalActions.DisableAltViewMode>(
+            GlobalActions.DisableAltViewMode.name,
             (state, action) => {
                 if (action.payload.ident === this.tileId) {
                     state.isAltViewMode = false;
@@ -108,8 +108,8 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
             }
         );
 
-        this.addActionHandler<GlobalActions.RequestQueryResponse>(
-            GlobalActionName.RequestQueryResponse,
+        this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
+            GlobalActions.RequestQueryResponse.name,
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
@@ -124,7 +124,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
                             Dict.fromEntries()
                         ),
                         (action, syncData) => {
-                            if (action.name === GlobalActionName.TilePartialDataLoaded && this.waitForTiles.indexOf(action.payload['tileId']) > -1) {
+                            if (ConcActions.isPartialTileDataLoaded(action) && this.waitForTiles.indexOf(action.payload.tileId) > -1) {
                                 const ans = {...syncData};
                                 ans[action.payload['tileId'].toFixed()] += 1;
                                 return Dict.find(v => v < state.queryMatches.length, ans) ? ans : null;
@@ -134,13 +134,17 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
                         }
                     ).pipe(
                         map(action => {
-                            const payload = (action as GlobalActions.TilePartialDataLoaded<SingleConcLoadedPayload>).payload;
-                            const src = List.find(
-                                v => v.corpname === payload.data.corpName &&
-                                        (!v.subcname || v.subcname === payload.data.subcorpName),
-                                state.sources
-                            );
-                            return [payload.queryId, src, payload.data.concPersistenceID] as LoadedConcProps;
+                            if (ConcActions.isPartialTileDataLoaded(action)) {
+                                const src = List.find(
+                                    v => v.corpname === action.payload.data.corpName &&
+                                            (!v.subcname || v.subcname === action.payload.data.subcorpName),
+                                    state.sources
+                                );
+                                return tuple(action.payload.queryId, src, action.payload.data.concPersistenceID)
+
+                            } else {
+                                throw new Error(`Invalid action: ${action.name}`);
+                            }
                         })
                     ) :
                     this.loadConcordances(state);
@@ -148,8 +152,8 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
             }
         );
 
-        this.addActionHandler<GlobalActions.TilePartialDataLoaded<DataLoadedPayload>>(
-            GlobalActionName.TilePartialDataLoaded,
+        this.addActionHandler<typeof Actions.PartialTileDataLoaded>(
+            Actions.PartialTileDataLoaded.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     if (state.data[action.payload.queryId] === undefined) {
@@ -175,8 +179,8 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
             }
         );
 
-        this.addActionHandler<GlobalActions.TileDataLoaded<{}>>(
-            GlobalActionName.TileDataLoaded,
+        this.addActionHandler<typeof Actions.TileDataLoaded>(
+            Actions.TileDataLoaded.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = false;
@@ -188,17 +192,17 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
             }
         )
 
-        this.addActionHandler<GlobalActions.GetSourceInfo>(
-            GlobalActionName.GetSourceInfo,
+        this.addActionHandler<typeof GlobalActions.GetSourceInfo>(
+            GlobalActions.GetSourceInfo.name,
             (state, action) => {},
             (state, action, dispatch) => {
-                if (action.payload['tileId'] === this.tileId) {
+                if (action.payload.tileId === this.tileId) {
                     this.freqApi.getSourceDescription(this.tileId,
-                        this.appServices.getISO639UILang(), action.payload['corpusId'])
+                        this.appServices.getISO639UILang(), action.payload.corpusId)
                     .subscribe(
                         (data) => {
                             dispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
+                                name: GlobalActions.GetSourceInfoDone.name,
                                 payload: {
                                     tileId: this.tileId,
                                     data: data
@@ -208,7 +212,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
                         (err) => {
                             console.error(err);
                             dispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
+                                name: GlobalActions.GetSourceInfoDone.name,
                                 error: err,
                                 payload: {
                                     tileId: this.tileId
@@ -220,8 +224,8 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
             }
         );
 
-        this.addActionHandler<Actions.ShowTooltip>(
-            ActionName.ShowTooltip,
+        this.addActionHandler<typeof Actions.ShowTooltip>(
+            Actions.ShowTooltip.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.tooltipData = {
@@ -246,8 +250,8 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
             }
         );
 
-        this.addActionHandler<Actions.HideTooltip>(
-            ActionName.HideTooltip,
+        this.addActionHandler<typeof Actions.HideTooltip>(
+            Actions.HideTooltip.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.tooltipData = null;
@@ -374,8 +378,8 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
             ),
             tap(
                 ([data, srcProps]) => {
-                    dispatch<GlobalActions.TilePartialDataLoaded<DataLoadedPayload>>({
-                        name: GlobalActionName.TilePartialDataLoaded,
+                    dispatch<typeof Actions.PartialTileDataLoaded>({
+                        name: Actions.PartialTileDataLoaded.name,
                         payload: {
                             tileId: this.tileId,
                             queryId: srcProps.queryId,
@@ -395,16 +399,16 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
                 true
             )
         ).subscribe(
-            (isEmpty) => dispatch<GlobalActions.TileDataLoaded<{}>>({
-                name: GlobalActionName.TileDataLoaded,
+            (isEmpty) => dispatch<typeof Actions.TileDataLoaded>({
+                name: Actions.TileDataLoaded.name,
                 payload: {
                     tileId: this.tileId,
                     isEmpty: isEmpty
                 }
             }),
             err => {
-                dispatch<GlobalActions.TileDataLoaded<{}>>({
-                    name: GlobalActionName.TileDataLoaded,
+                dispatch<typeof Actions.TileDataLoaded>({
+                    name: GlobalActions.TileDataLoaded.name,
                     error: err,
                     payload: {
                         tileId: this.tileId,

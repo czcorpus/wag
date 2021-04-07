@@ -20,14 +20,15 @@ import { Observable, Observer } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 
 import { IAppServices } from '../../../appServices';
-import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
+import { Actions as GlobalActions } from '../../../models/actions';
 import { ConcLoadedPayload } from '../concordance/actions';
-import { ActionName, Actions, DataLoadedPayload } from './actions';
+import { Actions, DataLoadedPayload } from './actions';
 import { MatchingDocsModelState } from '../../../models/tiles/matchingDocs';
 import { MatchingDocsAPI } from '../../../api/abstract/matchingDocs';
 import { findCurrQueryMatch } from '../../../models/query';
 import { RecognizedQueries } from '../../../query/index';
 import { List, pipe, Dict } from 'cnc-tskit';
+import { Actions as ConcActions } from '../concordance/actions';
 
 
 export interface MatchingDocsModelArgs {
@@ -72,8 +73,8 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState, Mo
         this.api = api;
         this.queryMatches = queryMatches;
 
-        this.addActionHandler<GlobalActions.RequestQueryResponse>(
-            GlobalActionName.RequestQueryResponse,
+        this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
+            GlobalActions.RequestQueryResponse.name,
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
@@ -83,8 +84,8 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState, Mo
             }
         );
 
-        this.addActionHandler<GlobalActions.EnableTileTweakMode>(
-            GlobalActionName.EnableTileTweakMode,
+        this.addActionHandler<typeof GlobalActions.EnableTileTweakMode>(
+            GlobalActions.EnableTileTweakMode.name,
             (state, action) => {
                 if (action.payload.ident === this.tileId) {
                     state.isTweakMode = true;
@@ -92,8 +93,8 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState, Mo
             }
         );
 
-        this.addActionHandler<GlobalActions.DisableTileTweakMode>(
-            GlobalActionName.DisableTileTweakMode,
+        this.addActionHandler<typeof GlobalActions.DisableTileTweakMode>(
+            GlobalActions.DisableTileTweakMode.name,
             (state, action) => {
                 if (action.payload.ident === this.tileId) {
                     state.isTweakMode = false;
@@ -101,8 +102,8 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState, Mo
             }
         );
 
-        this.addActionHandler<Actions.NextPage>(
-            ActionName.NextPage,
+        this.addActionHandler<typeof Actions.NextPage>(
+            Actions.NextPage.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     if (state.currPage < state.numPages) {
@@ -112,8 +113,8 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState, Mo
             }
         );
 
-        this.addActionHandler<Actions.PreviousPage>(
-            ActionName.PreviousPage,
+        this.addActionHandler<typeof Actions.PreviousPage>(
+            Actions.PreviousPage.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     if (state.currPage > 1) {
@@ -123,8 +124,8 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState, Mo
             }
         );
 
-        this.addActionHandler<GlobalActions.TileDataLoaded<DataLoadedPayload>>(
-            GlobalActionName.TileDataLoaded,
+        this.addActionHandler<typeof Actions.TileDataLoaded>(
+            GlobalActions.TileDataLoaded.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     if (action.error) {
@@ -150,8 +151,8 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState, Mo
             }
         );
 
-        this.addActionHandler<GlobalActions.GetSourceInfo>(
-            GlobalActionName.GetSourceInfo,
+        this.addActionHandler<typeof GlobalActions.GetSourceInfo>(
+            GlobalActions.GetSourceInfo.name,
             null,
             (state, action, dispatch) => {
                 if (action.payload.tileId === this.tileId) {
@@ -159,7 +160,7 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState, Mo
                     .subscribe(
                         (data) => {
                             dispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
+                                name: GlobalActions.GetSourceInfoDone.name,
                                 payload: {
                                     tileId: this.tileId,
                                     data: data
@@ -169,7 +170,7 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState, Mo
                         (err) => {
                             console.error(err);
                             dispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
+                                name: GlobalActions.GetSourceInfoDone.name,
                                 error: err,
                                 payload: {
                                     tileId: this.tileId
@@ -189,8 +190,7 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState, Mo
                 this.waitForTilesTimeoutSecs * 1000,
                 pipe(this.waitForTiles, List.map<number, [string, boolean]>(v => [v.toFixed(), true]), Dict.fromEntries()),
                 (action, syncStatus) => {
-                    if (action.name === GlobalActionName.TileDataLoaded && this.waitForTiles.indexOf(action.payload['tileId']) > -1) {
-                        const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
+                    if (ConcActions.isTileDataLoaded(action) && this.waitForTiles.indexOf(action.payload.tileId) > -1) {
                         new Observable((observer:Observer<boolean>) => {
                             if (action.error) {
                                 observer.error(new Error(this.appServices.translate('global__failed_to_obtain_required_data')));
@@ -201,23 +201,25 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState, Mo
                             }
 
                         }).pipe(
-                            concatMap(_ => this.api.call(this.api.stateToArgs(state, payload.concPersistenceIDs[0])))
+                            concatMap(_ => this.api.call(this.api.stateToArgs(
+                                state, List.head(action.payload.concPersistenceIDs))))
 
                         ).subscribe(
                             (resp) => {
-                                dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                    name: GlobalActionName.TileDataLoaded,
+                                dispatch<typeof Actions.TileDataLoaded>({
+                                    name: Actions.TileDataLoaded.name,
                                     payload: {
                                         tileId: this.tileId,
                                         isEmpty: resp.data.length === 0,
                                         data: resp.data.sort((x1, x2) => x2.score - x1.score).slice(0, state.maxNumCategories),
-                                        backlink: this.api.stateToBacklink(state, payload.concPersistenceIDs[0])
+                                        backlink: this.api.stateToBacklink(state,
+                                            List.head(action.payload.concPersistenceIDs))
                                     }
                                 });
                             },
                             error => {
-                                dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                    name: GlobalActionName.TileDataLoaded,
+                                dispatch<typeof Actions.TileDataLoaded>({
+                                    name: Actions.TileDataLoaded.name,
                                     payload: {
                                         tileId: this.tileId,
                                         isEmpty: true,
@@ -228,7 +230,7 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState, Mo
                                 });
                             }
                         );
-                        const ans = {...syncStatus, [payload.tileId]: false};
+                        const ans = {...syncStatus, [action.payload.tileId]: false};
                         return Dict.hasValue(true, ans) ? ans : null;
                     }
                     return syncStatus;
@@ -240,8 +242,8 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState, Mo
             this.api.call(this.api.stateToArgs(state, variant.word))
             .subscribe(
                 (resp) => {
-                    dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                        name: GlobalActionName.TileDataLoaded,
+                    dispatch<typeof Actions.TileDataLoaded>({
+                        name: Actions.TileDataLoaded.name,
                         payload: {
                             tileId: this.tileId,
                             isEmpty: resp.data.length === 0,
@@ -251,8 +253,8 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState, Mo
                     });
                 },
                 error => {
-                    dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                        name: GlobalActionName.TileDataLoaded,
+                    dispatch<typeof Actions.TileDataLoaded>({
+                        name: Actions.TileDataLoaded.name,
                         payload: {
                             tileId: this.tileId,
                             isEmpty: true,

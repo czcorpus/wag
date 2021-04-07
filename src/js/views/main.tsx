@@ -25,7 +25,7 @@ import { SystemMessageType, SourceDetails, isCorpusDetails } from '../types';
 import { QueryType, QueryMatch, QueryTypeMenuItem, SearchDomain, RecognizedQueries } from '../query/index';
 import { TileFrameProps } from '../page/tile';
 import { TileGroup } from '../page/layout';
-import { ActionName, Actions } from '../models/actions';
+import { Actions } from '../models/actions';
 import { MessagesModel, MessagesState } from '../models/messages';
 import { QueryFormModel, QueryFormModelState } from '../models/query';
 import { WdglanceTilesModel, WdglanceTilesState, TileResultFlagRec, blinkAndDehighlight } from '../models/tiles';
@@ -79,8 +79,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
 
         const handleCloseClick = () => {
-            dispatcher.dispatch({
-                name: ActionName.RemoveSystemMessage,
+            dispatcher.dispatch<typeof Actions.RemoveSystemMessage>({
+                name: Actions.RemoveSystemMessage.name,
                     payload: {
                         ident: props.ident
                     }
@@ -244,8 +244,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     }> = (_) => {
 
         const handleClick = () => {
-            dispatcher.dispatch<Actions.AddCmpQueryInput>({
-                name: ActionName.AddCmpQueryInput
+            dispatcher.dispatch<typeof Actions.AddCmpQueryInput>({
+                name: Actions.AddCmpQueryInput.name
             })
         };
 
@@ -267,8 +267,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     }> = (props) => {
 
         const handleClick = () => {
-            dispatcher.dispatch<Actions.RemoveCmpQueryInput>({
-                name: ActionName.RemoveCmpQueryInput,
+            dispatcher.dispatch<typeof Actions.RemoveCmpQueryInput>({
+                name: Actions.RemoveCmpQueryInput.name,
                 payload: {
                     queryIdx: props.queryIdx
                 }
@@ -301,8 +301,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     }> = (props) => {
 
         const handleQueryInput = (idx:number) => (s:string):void => {
-            dispatcher.dispatch<Actions.ChangeQueryInput>({
-                name: ActionName.ChangeQueryInput,
+            dispatcher.dispatch<typeof Actions.ChangeQueryInput>({
+                name: Actions.ChangeQueryInput.name,
                 payload: {
                     queryIdx: idx,
                     value: s
@@ -311,8 +311,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         };
 
         const handleTargetDomainChange = (primary:boolean) => (domain:string) => {
-            dispatcher.dispatch<Actions.ChangeTargetDomain>({
-                name: ActionName.ChangeTargetDomain,
+            dispatcher.dispatch<typeof Actions.ChangeTargetDomain>({
+                name: Actions.ChangeTargetDomain.name,
                 payload: {
                     domain1: primary ? domain : props.queryDomain,
                     domain2: primary ? props.queryDomain2 : domain,
@@ -386,8 +386,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     }> = (props) => {
 
         const mkHandleClick = (queryIdx:number, lemmaVar:QueryMatch) => () => {
-            dispatcher.dispatch<Actions.ChangeCurrQueryMatch>({
-                name: ActionName.ChangeCurrQueryMatch,
+            dispatcher.dispatch<typeof Actions.ChangeCurrQueryMatch>({
+                name: Actions.ChangeCurrQueryMatch.name,
                 payload: {
                     queryIdx: queryIdx,
                     word: lemmaVar.word,
@@ -407,20 +407,20 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         };
 
         const handleCloseModal = () => {
-            dispatcher.dispatch({
-                name: ActionName.HideQueryMatchModal
+            dispatcher.dispatch<typeof Actions.HideQueryMatchModal>({
+                name: Actions.HideQueryMatchModal.name
             });
         };
 
         const handleShowModal = () => {
-            dispatcher.dispatch({
-                name: ActionName.ShowQueryMatchModal
+            dispatcher.dispatch<typeof Actions.ShowQueryMatchModal>({
+                name: Actions.ShowQueryMatchModal.name
             });
         };
 
         const handleModalLemmaSelection = (queryIdx:number, variantIdx:number) => () => {
-            dispatcher.dispatch<Actions.SelectModalQueryMatch>({
-                name: ActionName.SelectModalQueryMatch,
+            dispatcher.dispatch<typeof Actions.SelectModalQueryMatch>({
+                name: Actions.SelectModalQueryMatch.name,
                 payload: {
                     queryIdx: queryIdx,
                     variantIdx: variantIdx
@@ -429,8 +429,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         };
 
         const handleConfirmModalSelection = () => {
-            dispatcher.dispatch({
-                name: ActionName.ApplyModalQueryMatchSelection
+            dispatcher.dispatch<typeof Actions.ApplyModalQueryMatchSelection>({
+                name: Actions.ApplyModalQueryMatchSelection.name
             });
         };
 
@@ -532,14 +532,14 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
 
         private handleSubmit() {
-            dispatcher.dispatch<Actions.SubmitQuery>({
-                name: ActionName.SubmitQuery
+            dispatcher.dispatch<typeof Actions.SubmitQuery>({
+                name: Actions.SubmitQuery.name
             });
         }
 
         handleQueryTypeChange(qt:QueryType):void {
-            dispatcher.dispatch<Actions.ChangeQueryType>({
-                name: ActionName.ChangeQueryType,
+            dispatcher.dispatch<typeof Actions.ChangeQueryType>({
+                name: Actions.ChangeQueryType.name,
                 payload: {
                     queryType: qt,
                     domain1: this.props.queryDomain,
@@ -597,8 +597,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     }> = (props) => {
 
         const handleClick = () => {
-            dispatcher.dispatch<Actions.ShowTileHelp>({
-                name: ActionName.ShowTileHelp,
+            dispatcher.dispatch<typeof Actions.ShowTileHelp>({
+                name: Actions.ShowTileHelp.name,
                 payload: {
                     tileId: props.tileId
                 }
@@ -625,16 +625,16 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         const handleClick = () => {
             if (props.isAltView) {
-                dispatcher.dispatch({
-                    name: ActionName.DisableAltViewMode,
+                dispatcher.dispatch<typeof Actions.DisableAltViewMode>({
+                    name: Actions.DisableAltViewMode.name,
                     payload: {
                         ident: props.tileId
                     }
                 });
 
             } else {
-                dispatcher.dispatch({
-                    name: ActionName.EnableAltViewMode,
+                dispatcher.dispatch<typeof Actions.DisableAltViewMode>({
+                    name: Actions.EnableAltViewMode.name,
                     payload: {
                         ident: props.tileId
                     }
@@ -667,16 +667,16 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         const handleClick = (evt:React.MouseEvent<HTMLButtonElement>) => {
             if (props.isExtended) {
-                dispatcher.dispatch({
-                    name: ActionName.DisableTileTweakMode,
+                dispatcher.dispatch<typeof Actions.DisableTileTweakMode>({
+                    name: Actions.DisableTileTweakMode.name,
                     payload: {
                         ident: props.tileId
                     }
                 });
 
             } else {
-                dispatcher.dispatch({
-                    name: ActionName.EnableTileTweakMode,
+                dispatcher.dispatch<typeof Actions.EnableTileTweakMode>({
+                    name: Actions.EnableTileTweakMode.name,
                     payload: {
                         ident: props.tileId
                     }
@@ -700,8 +700,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     }> = (props) => {
 
         const handleClick = (evt:React.MouseEvent<HTMLButtonElement>) => {
-            dispatcher.dispatch({
-                name: ActionName.ShowAmbiguousResultHelp
+            dispatcher.dispatch<typeof Actions.ShowAmbiguousResultHelp>({
+                name: Actions.ShowAmbiguousResultHelp.name
             });
         };
 
@@ -801,8 +801,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
 
         componentDidMount() {
-            dispatcher.dispatch<Actions.SetTileRenderSize>({
-                name: ActionName.SetTileRenderSize,
+            dispatcher.dispatch<typeof Actions.SetTileRenderSize>({
+                name: Actions.SetTileRenderSize.name,
                 payload: {
                     tileId: this.props.tile.tileId,
                     size: ut.getElementSize(this.ref.current),
@@ -947,8 +947,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     }> = (props) => {
 
         const handleClick = (tileId:number) => () => {
-            dispatcher.dispatch<Actions.OpenGroupAndHighlightTile>({
-                name: ActionName.OpenGroupAndHighlightTile,
+            dispatcher.dispatch<typeof Actions.OpenGroupAndHighlightTile>({
+                name: Actions.OpenGroupAndHighlightTile.name,
                 payload: {
                     groupIdx: props.groupIdx,
                     tileId: tileId
@@ -988,8 +988,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     }> = (props) => {
 
         const handleGroupClick = ():void => {
-            dispatcher.dispatch<Actions.ToggleGroupVisibility>({
-                name: ActionName.ToggleGroupVisibility,
+            dispatcher.dispatch<typeof Actions.ToggleGroupVisibility>({
+                name: Actions.ToggleGroupVisibility.name,
                 payload: {
                     groupIdx: props.idx
                 }
@@ -997,8 +997,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
 
         const handleGroupHeaderClick = ():void => {
-            dispatcher.dispatch<Actions.ShowGroupHelp>({
-                name: ActionName.ShowGroupHelp,
+            dispatcher.dispatch<typeof Actions.ShowGroupHelp>({
+                name: Actions.ShowGroupHelp.name,
                 payload: {
                     url: props.data.groupDescURL,
                     groupIdx: props.idx
@@ -1207,26 +1207,26 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
 
         private handleCloseSourceInfo() {
-            dispatcher.dispatch<Actions.CloseSourceInfo>({
-                name: ActionName.CloseSourceInfo
+            dispatcher.dispatch<typeof Actions.CloseSourceInfo>({
+                name: Actions.CloseSourceInfo.name
             });
         }
 
         private handleCloseGroupHelp() {
-            dispatcher.dispatch<Actions.HideGroupHelp>({
-                name: ActionName.HideGroupHelp
+            dispatcher.dispatch<typeof Actions.HideGroupHelp>({
+                name: Actions.HideGroupHelp.name
             });
         }
 
         private handleCloseTileHelp() {
-            dispatcher.dispatch<Actions.HideTileHelp>({
-                name: ActionName.HideTileHelp
+            dispatcher.dispatch<typeof Actions.HideTileHelp>({
+                name: Actions.HideTileHelp.name
             });
         }
 
         private handleAmbiguousResultHelp() {
-            dispatcher.dispatch<Actions.HideAmbiguousResultHelp>({
-                name: ActionName.HideAmbiguousResultHelp
+            dispatcher.dispatch<typeof Actions.HideAmbiguousResultHelp>({
+                name: Actions.HideAmbiguousResultHelp.name
             });
         }
 

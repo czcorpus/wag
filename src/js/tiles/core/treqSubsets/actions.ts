@@ -16,7 +16,9 @@
  * limitations under the License.
  */
 
+import { Action } from 'kombo';
 import { WordTranslation } from '../../../api/abstract/translations';
+import { Actions as GlobalActions } from '../../../models/actions';
 
 
 export interface DataLoadedPayload {
@@ -24,4 +26,17 @@ export interface DataLoadedPayload {
     lines:Array<WordTranslation>;
     sum:number;
     subsetId:string|null;
+}
+
+
+export class Actions {
+
+    static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload> = {
+	    name: GlobalActions.TileDataLoaded.name
+    };
+
+    static PartialTileDataLoaded:Action<typeof GlobalActions.TilePartialDataLoaded.payload & DataLoadedPayload> = {
+	    name: GlobalActions.TilePartialDataLoaded.name
+    };
+
 }

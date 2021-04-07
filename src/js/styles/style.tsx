@@ -384,6 +384,7 @@ export const WdglanceControls = styled.div`
 
         .QueryTypeSelector {
             margin-top: 0.2em;
+            border: 3px solid red;
         }
     }
 `;

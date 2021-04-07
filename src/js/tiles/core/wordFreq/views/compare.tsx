@@ -30,7 +30,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------------- <MultiWordProfile /> ---------------------------------------------------
 
-    const MultiWordProfile:React.SFC<{
+    const MultiWordProfile:React.FC<{
         matches:Array<QueryMatch>;
 
     }> = (props) => {

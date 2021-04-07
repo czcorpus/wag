@@ -28,7 +28,7 @@ import { IAppServices, AppServices } from '../appServices';
 import { encodeArgs, ajax$, encodeURLParameters } from './ajax';
 import { ScreenProps } from './hostPage';
 import { ClientConf, UserConf, HomepageTileConf } from '../conf';
-import { ActionName, Actions } from '../models/actions';
+import { Actions } from '../models/actions';
 import { SystemNotifications } from './notifications';
 import { GlobalComponents } from '../views/global';
 import { createRootComponent } from '../app';
@@ -77,8 +77,8 @@ function mountReactComponent({component, mountElement, layout, dispatcher, appSe
             mountElement,
             () => {
                 if (userSession.error) {
-                    dispatcher.dispatch({
-                        name: ActionName.SetEmptyResult,
+                    dispatcher.dispatch<typeof Actions.SetEmptyResult>({
+                        name: Actions.SetEmptyResult.name,
                         payload: {
                             error: userSession.error
                         }
@@ -86,16 +86,16 @@ function mountReactComponent({component, mountElement, layout, dispatcher, appSe
 
                 } else if (userSession.answerMode) {
                     if (queryMatches[0].find(v => v.isCurrent)) {
-                        dispatcher.dispatch<Actions.RequestQueryResponse>({
-                            name: ActionName.RequestQueryResponse,
+                        dispatcher.dispatch<typeof Actions.RequestQueryResponse>({
+                            name: Actions.RequestQueryResponse.name,
                             payload:{
                                 focusedTile: window.location.hash.replace('#', '') || undefined
                             }
                         });
 
                     } else {
-                        dispatcher.dispatch({
-                            name: ActionName.SetEmptyResult
+                        dispatcher.dispatch<typeof Actions.SetEmptyResult>({
+                            name: Actions.SetEmptyResult.name
                         });
                     }
                 }

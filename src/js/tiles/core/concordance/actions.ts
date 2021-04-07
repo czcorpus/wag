@@ -17,20 +17,10 @@
  */
 import { Action } from 'kombo';
 
-import { ViewMode } from '../../../api/abstract/concordance';
+import { ConcResponse, ViewMode } from '../../../api/abstract/concordance';
+import { Actions as GlobalActions } from '../../../models/actions';
+import { SubqueryPayload } from '../../../query';
 
-
-
-export enum ActionName {
-    LoadNextPage = 'CONCORDANCE_LOAD_NEXT_PAGE',
-    LoadNextPageDone = 'CONCORDANCE_LOAD_NEXT_PAGE_DONE',
-    LoadPrevPage = 'CONCORDANCE_LOAD_PREV_PAGE',
-    LoadPrevPageDone = 'CONCORDANCE_LOAD_PREV_PAGE_DONE',
-    SetViewMode = 'CONCORDANCE_SET_VIEW_MODE',
-    SetVisibleQuery = 'CONCORDANCE_SET_VISIBLE_QUERY',
-    HideLineMetadata = 'CONCORDANCE_HIDE_LINE_METADATA',
-    ShowLineMetadata = 'CONCORDANCE_SHOW_LINE_METADATA'
-}
 
 export interface ConcLoadedPayload {
     corpusName:string;
@@ -38,48 +28,73 @@ export interface ConcLoadedPayload {
     concPersistenceIDs:Array<string>;
 }
 
+export interface PartialDataPayload extends SubqueryPayload {
+    data:ConcResponse;
+}
+
 export function isConcLoadedPayload(p:any):p is ConcLoadedPayload {
     return p.concPersistenceIDs !== undefined && p.corpusName !== undefined;
 }
 
-export namespace Actions {
+export class Actions {
 
-    export interface LoadNextPage extends Action<{
+    static LoadNextPage:Action<{
         tileId:number;
-    }> {
-        name:ActionName.LoadNextPage;
-    }
+    }> = {
+        name: 'CONCORDANCE_LOAD_NEXT_PAGE'
+    };
 
-    export interface LoadPrevPage extends Action<{
+    static LoadPrevPage:Action<{
         tileId:number;
-    }> {
-        name:ActionName.LoadPrevPage;
-    }
+    }> = {
+        name: 'CONCORDANCE_LOAD_PREV_PAGE'
+    };
 
-    export interface SetViewMode extends Action<{
+    static SetViewMode:Action<{
         tileId:number;
         mode:ViewMode;
-    }> {
-        name:ActionName.SetViewMode
-    }
+    }> = {
+        name: 'CONCORDANCE_SET_VIEW_MODE'
+    };
 
-    export interface SetVisibleQuery extends Action<{
+    static SetVisibleQuery:Action<{
         tileId:number;
         queryIdx:number;
-    }> {
-        name:ActionName.SetVisibleQuery;
-    }
+    }> = {
+        name: 'CONCORDANCE_SET_VISIBLE_QUERY'
+    };
 
-    export interface ShowLineMetadata extends Action<{
+    static ShowLineMetadata:Action<{
         tileId:number;
         idx:number;
-    }> {
-        name:ActionName.ShowLineMetadata;
+    }> = {
+        name: 'CONCORDANCE_SHOW_LINE_METADATA'
+    };
+
+    static HideLineMetadata:Action<{
+        tileId:number;
+    }> = {
+        name: 'CONCORDANCE_HIDE_LINE_METADATA'
+    };
+
+    static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & ConcLoadedPayload> = {
+        name: GlobalActions.TileDataLoaded.name
+    };
+
+    static isTileDataLoaded(a:Action):a is typeof Actions.TileDataLoaded {
+        return a.name === Actions.TileDataLoaded.name &&
+                !!a.payload['corpusName'] && !!a.payload['concPersistenceIDs'];
     }
 
-    export interface HideLineMetadata extends Action<{
-        tileId:number;
-    }> {
-        name:ActionName.HideLineMetadata;
+
+    static PartialTileDataLoaded:Action<typeof GlobalActions.TilePartialDataLoaded.payload &
+            PartialDataPayload> = {
+        name: GlobalActions.TilePartialDataLoaded.name
+    };
+
+    static isPartialTileDataLoaded(a:Action):a is typeof Actions.PartialTileDataLoaded {
+        return a.name === Actions.PartialTileDataLoaded.name &&
+                !!a.payload['data'] && !!a.payload['tileId'];
     }
+
 }

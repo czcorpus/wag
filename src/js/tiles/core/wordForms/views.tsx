@@ -27,7 +27,12 @@ import { Theme } from '../../../page/theme';
 import { List } from 'cnc-tskit';
 
 
-export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:WordFormsModel):TileComponent {
+export function init(
+    dispatcher:IActionDispatcher,
+    ut:ViewUtils<GlobalComponents>,
+    theme:Theme,
+    model:WordFormsModel
+):TileComponent {
 
     const globalComponents = ut.getComponents();
     const WordCloud = wcloudViewInit<WordFormItem>(dispatcher, ut, theme);

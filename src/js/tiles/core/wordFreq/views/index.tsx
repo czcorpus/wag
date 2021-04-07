@@ -27,7 +27,11 @@ import { init as multiWordViewsInit } from './compare';
 import { QueryMatch } from '../../../../query';
 
 
-export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, model:SummaryModel):TileComponent {
+export function init(
+    dispatcher:IActionDispatcher,
+    ut:ViewUtils<GlobalComponents>,
+    model:SummaryModel
+):TileComponent {
 
     const globalComponents = ut.getComponents();
     const Chart = chartViewInit(dispatcher, ut);
@@ -37,7 +41,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------------- <AuxChart /> -----------------------------------------------
 
-    const AuxChart:React.SFC<{
+    const AuxChart:React.FC<{
         tileName:string;
         isMobile:boolean;
         widthFract:number;
@@ -66,7 +70,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------------- <WordFreqTileView /> -----------------------------------------------
 
-    const WordFreqTileView:React.SFC<SummaryModelState & CoreTileComponentProps> = (props) => (
+    const WordFreqTileView:React.FC<SummaryModelState & CoreTileComponentProps> = (props) => (
         <globalComponents.TileWrapper tileId={props.tileId} isBusy={props.isBusy} error={props.error}
                 hasData={props.queryMatches.length > 0} sourceIdent={{corp: props.corpname}}
                 supportsTileReload={props.supportsReloadOnError}

@@ -17,6 +17,7 @@
  */
 import { Action } from 'kombo';
 import { CorpSrchTileConf, Backlink } from '../../../page/tile';
+import { Actions as GlobalActions } from '../../../models/actions';
 
 
 export interface TimeDistTileConf extends CorpSrchTileConf {
@@ -49,17 +50,6 @@ export interface DataLoadedPayload {
     origQuery?:string;
 }
 
-
-export enum ActionName {
-    ChangeCmpWord = 'TIME_DISTRIB_CHANGE_CMP_WORD',
-    SubmitCmpWord = 'TIME_DISTRIB_SUBMIT_CMP_WORD',
-    ZoomMouseLeave = 'MULTI_WORD_ZOOM_MOUSE_LEAVE',
-    ZoomMouseDown = 'MULTI_WORD_ZOOM_MOUSE_DOWN',
-    ZoomMouseMove = 'MULTI_WORD_ZOOM_MOUSE_MOVE',
-    ZoomMouseUp = 'MULTI_WORD_ZOOM_MOUSE_UP',
-    ZoomReset = 'MULTI_WORD_ZOOM_RESET'
-}
-
 export interface DataItemWithWCI {
     datetime:string;
     freq:number;
@@ -68,60 +58,70 @@ export interface DataItemWithWCI {
     ipmInterval:[number, number];
 }
 
-export namespace Actions {
+export class Actions {
 
-    export interface ChangeCmpWord extends Action<{
+	static ChangeCmpWord:Action<{
         tileId:number;
         value:string;
 
-    }> {
-        name:ActionName.ChangeCmpWord;
-    }
+    }> = {
+        name: 'TIME_DISTRIB_CHANGE_CMP_WORD'
+    };
 
-    export interface SubmitCmpWord extends Action<{
+	static SubmitCmpWord:Action<{
         tileId:number;
 
-    }> {
-        name:ActionName.SubmitCmpWord;
-    }
+    }> = {
+        name: 'TIME_DISTRIB_SUBMIT_CMP_WORD'
+    };
 
-    export interface ZoomMouseLeave extends Action<{
+	static ZoomMouseLeave:Action<{
         tileId:number;
 
-    }> {
-        name:ActionName.ZoomMouseLeave;
-    }
+    }> = {
+        name: 'MULTI_WORD_ZOOM_MOUSE_LEAVE'
+    };
 
-    export interface ZoomMouseDown extends Action<{
-        tileId:number;
-        value:number;
-
-    }> {
-        name:ActionName.ZoomMouseDown;
-    }
-
-    export interface ZoomMouseMove extends Action<{
+	static ZoomMouseDown:Action<{
         tileId:number;
         value:number;
 
-    }> {
-        name:ActionName.ZoomMouseMove;
-    }
+    }> = {
+        name: 'MULTI_WORD_ZOOM_MOUSE_DOWN'
+    };
 
-    export interface ZoomMouseUp extends Action<{
+	static ZoomMouseMove:Action<{
         tileId:number;
         value:number;
 
-    }> {
-        name:ActionName.ZoomMouseUp;
+    }> = {
+        name: 'MULTI_WORD_ZOOM_MOUSE_MOVE'
     }
 
-    export interface ZoomReset extends Action<{
+	static ZoomMouseUp:Action<{
+        tileId:number;
+        value:number;
+
+    }> = {
+        name: 'MULTI_WORD_ZOOM_MOUSE_UP'
+    };
+
+	static ZoomReset:Action<{
         tileId:number;
 
-    }> {
-        name:ActionName.ZoomReset;
+    }> = {
+        name: 'MULTI_WORD_ZOOM_RESET'
     }
+
+    static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload> = {
+        name: GlobalActions.TileDataLoaded.name
+    };
+
+
+    static PartialTileDataLoaded:Action<typeof GlobalActions.TilePartialDataLoaded.payload & DataLoadedPayload> = {
+        name: GlobalActions.TilePartialDataLoaded.name
+    };
+
 }
 
 export enum SubchartID {

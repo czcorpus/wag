@@ -15,19 +15,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import { Action } from 'kombo';
 import { Response } from './api';
+import { Actions as GlobalActions } from '../../../models/actions';
 
-
-
-export enum ActionName {
-    // TODO
-}
 
 export interface DataLoadedPayload {
     data:Response;
 }
 
-export namespace Actions {
+export class Actions {
 
-    // TODO
+    static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & DataLoadedPayload> = {
+        name: GlobalActions.TileDataLoaded.name
+    };
 }

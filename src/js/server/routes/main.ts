@@ -34,10 +34,10 @@ import { emptyValue } from '../toolbar/empty';
 import { Services  } from '../actionServices';
 import { loadFile } from '../files';
 import { createRootComponent } from '../../app';
-import { ActionName } from '../../models/actions';
 import { initDummyStore } from '../../page/cache/index';
 import { fetchReqArgArray, createHelperServices, mkPageReturnUrl, logRequest, renderResult, fetchUrlParamArray } from './common';
 import { maxQueryWordsForQueryType } from '../../conf/validation';
+import { Actions } from '../../models/actions';
 
 
 function mkRuntimeClientConf(conf:ClientStaticConf, serverConf:ServerConf, domain:string, themeId:string, appServices:IAppServices):Observable<ClientConf> {
@@ -304,8 +304,8 @@ export function queryAction({services, answerMode, queryType, uiLang, req, res, 
             // so our models just set 'busy' state and nothing else happens.
             // The execution is synchronous here too.
 
-            dispatcher.dispatch({
-                name: ActionName.RequestQueryResponse
+            dispatcher.dispatch<typeof Actions.RequestQueryResponse>({
+                name: Actions.RequestQueryResponse.name
             });
 
             res.send(renderResult({

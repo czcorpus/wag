@@ -22,8 +22,8 @@ import { List, Strings } from 'cnc-tskit';
 import { Line, LineElement, ViewMode } from '../../../api/abstract/concordance';
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile';
 import { GlobalComponents } from '../../../views/global';
-import { ActionName, Actions } from './actions';
-import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
+import { Actions } from './actions';
+import { Actions as GlobalActions } from '../../../models/actions';
 import { ConcordanceTileModel, ConcordanceTileState } from './model';
 
 
@@ -34,7 +34,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------------------ <Paginator /> --------------------------------------------
 
-    const Paginator:React.SFC<{
+    const Paginator:React.FC<{
         page:number;
         numPages:number;
         tileId:number;
@@ -43,8 +43,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         const handlePrevPage = () => {
             if (props.page > 1) {
-                dispatcher.dispatch<Actions.LoadPrevPage>({
-                    name: ActionName.LoadPrevPage,
+                dispatcher.dispatch<typeof Actions.LoadPrevPage>({
+                    name: Actions.LoadPrevPage.name,
                     payload: {
                         tileId: props.tileId
                     }
@@ -54,8 +54,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         const handleNextPage = () => {
             if (props.page < props.numPages) {
-                dispatcher.dispatch<Actions.LoadNextPage>({
-                    name: ActionName.LoadNextPage,
+                dispatcher.dispatch<typeof Actions.LoadNextPage>({
+                    name: Actions.LoadNextPage.name,
                     payload: {
                         tileId: props.tileId
                     }
@@ -80,15 +80,15 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------------------ <ViewModeSwitch /> --------------------------------------------
 
-    const ViewModeSwitch:React.SFC<{
+    const ViewModeSwitch:React.FC<{
         mode:ViewMode;
         tileId:number;
         isEnabled:boolean;
     }> = (props) => {
 
         const handleChange = (evt:React.ChangeEvent<HTMLSelectElement>) => {
-            dispatcher.dispatch<Actions.SetViewMode>({
-                name: ActionName.SetViewMode,
+            dispatcher.dispatch<typeof Actions.SetViewMode>({
+                name: Actions.SetViewMode.name,
                 payload: {
                     mode: evt.target.value as ViewMode,
                     tileId: props.tileId
@@ -106,7 +106,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------------------ <QueryIdxSwitch /> --------------------------------------------
 
-    const QueryIdxSwitch:React.SFC<{
+    const QueryIdxSwitch:React.FC<{
         tileId:number;
         currIdx:number;
         values:Array<string>;
@@ -114,8 +114,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     }> = (props) => {
 
         const handleChange = (evt:React.ChangeEvent<HTMLSelectElement>) => {
-            dispatcher.dispatch<Actions.SetVisibleQuery>({
-                name: ActionName.SetVisibleQuery,
+            dispatcher.dispatch<typeof Actions.SetVisibleQuery>({
+                name: Actions.SetVisibleQuery.name,
                 payload: {
                     tileId: props.tileId,
                     queryIdx: parseInt(evt.target.value)
@@ -135,7 +135,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------------------ <Controls /> --------------------------------------------
 
-    const Controls:React.SFC<{
+    const Controls:React.FC<{
         currPage:number;
         numPages:number;
         viewMode:ViewMode;
@@ -167,7 +167,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------------------ <RowItem /> --------------------------------------------
 
-    const RowItem:React.SFC<{
+    const RowItem:React.FC<{
         data:LineElement;
         isKwic?:boolean;
 
@@ -181,7 +181,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------------------ <LineMetadata /> --------------------------------------------
 
-    const LineMetadata:React.SFC<{
+    const LineMetadata:React.FC<{
         data:Array<{value:string; label:string}>;
 
     }> = (props) => {
@@ -214,7 +214,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------------------ <Row /> --------------------------------------------
 
-    const Row:React.SFC<{
+    const Row:React.FC<{
         data:Line;
         isParallel:boolean;
         hasVisibleMetadata:boolean;
@@ -294,8 +294,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
 
         handleQueryVariantClick() {
-            dispatcher.dispatch<GlobalActions.EnableTileTweakMode>({
-                name: GlobalActionName.EnableTileTweakMode,
+            dispatcher.dispatch<typeof GlobalActions.EnableTileTweakMode>({
+                name: GlobalActions.EnableTileTweakMode.name,
                 payload: {
                     ident: this.props.tileId
                 }
@@ -305,16 +305,16 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         private handleLineClick(idx:number) {
             return (e:React.MouseEvent) => {
                 if (this.props.visibleMetadataLine === idx) {
-                    dispatcher.dispatch<Actions.HideLineMetadata>({
-                        name: ActionName.HideLineMetadata,
+                    dispatcher.dispatch<typeof Actions.HideLineMetadata>({
+                        name: Actions.HideLineMetadata.name,
                         payload: {
                             tileId: this.props.tileId
                         }
                     });
 
                 } else {
-                    dispatcher.dispatch<Actions.ShowLineMetadata>({
-                        name: ActionName.ShowLineMetadata,
+                    dispatcher.dispatch<typeof Actions.ShowLineMetadata>({
+                        name: Actions.ShowLineMetadata.name,
                         payload: {
                             tileId: this.props.tileId,
                             idx: idx

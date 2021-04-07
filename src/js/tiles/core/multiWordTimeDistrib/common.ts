@@ -17,17 +17,8 @@
  */
 import { Action } from 'kombo';
 import { CorpSrchTileConf } from '../../../page/tile';
+import { Actions as GlobalActions } from '../../../models/actions';
 
-
-export enum ActionName {
-    ChangeTimeWindow = 'MULTI_WORD_TIME_DISTRIB_CHANGE_TIME_WINDOW',
-    ChangeUnits = 'MULTI_WORD_TIME_DISTRIB_CHANGE_UNITS',
-    ZoomMouseLeave = 'MULTI_WORD_ZOOM_MOUSE_LEAVE',
-    ZoomMouseDown = 'MULTI_WORD_ZOOM_MOUSE_DOWN',
-    ZoomMouseMove = 'MULTI_WORD_ZOOM_MOUSE_MOVE',
-    ZoomMouseUp = 'MULTI_WORD_ZOOM_MOUSE_UP',
-    ZoomReset = 'MULTI_WORD_ZOOM_RESET'
-}
 
 export interface TimeDistTileConf extends CorpSrchTileConf {
 
@@ -66,59 +57,68 @@ export interface DataLoadedPayload {
 }
 
 
-export namespace Actions {
+export class Actions {
 
-    export interface ZoomMouseLeave extends Action<{
+	static ZoomMouseLeave:Action<{
         tileId:number;
 
-    }> {
-        name:ActionName.ZoomMouseLeave;
-    }
+    }> = {
+        name: 'MULTI_WORD_ZOOM_MOUSE_LEAVE'
+    };
 
-    export interface ZoomMouseDown extends Action<{
-        tileId:number;
-        value:number;
-
-    }> {
-        name:ActionName.ZoomMouseDown;
-    }
-
-    export interface ZoomMouseMove extends Action<{
+	static ZoomMouseDown:Action<{
         tileId:number;
         value:number;
 
-    }> {
-        name:ActionName.ZoomMouseMove;
-    }
+    }> = {
+        name: 'MULTI_WORD_ZOOM_MOUSE_DOWN'
+    };
 
-    export interface ZoomMouseUp extends Action<{
+	static ZoomMouseMove:Action<{
         tileId:number;
         value:number;
 
-    }> {
-        name:ActionName.ZoomMouseUp;
+    }> = {
+        name: 'MULTI_WORD_ZOOM_MOUSE_MOVE'
     }
 
-    export interface ZoomReset extends Action<{
-        tileId:number;
-
-    }> {
-        name:ActionName.ZoomReset;
-    }
-
-    export interface ChangeTimeWindow extends Action<{
+	static ZoomMouseUp:Action<{
         tileId:number;
         value:number;
 
-    }> {
-        name:ActionName.ChangeTimeWindow;
+    }> = {
+        name: 'MULTI_WORD_ZOOM_MOUSE_UP'
     }
 
-    export interface ChangeUnits extends Action<{
+	static ZoomReset:Action<{
+        tileId:number;
+
+    }> = {
+        name: 'MULTI_WORD_ZOOM_RESET'
+    }
+
+	static ChangeTimeWindow:Action<{
+        tileId:number;
+        value:number;
+
+    }> = {
+        name: 'MULTI_WORD_TIME_DISTRIB_CHANGE_TIME_WINDOW'
+    }
+
+	static ChangeUnits:Action<{
         tileId:number;
         units:string;
 
-    }> {
-        name:ActionName.ChangeUnits;
+    }> = {
+        name: 'MULTI_WORD_TIME_DISTRIB_CHANGE_UNITS'
     }
+
+    static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & DataLoadedPayload> = {
+        name: GlobalActions.TileDataLoaded.name
+    };
+
+
+    static PartialTileDataLoaded:Action<typeof GlobalActions.TilePartialDataLoaded.payload & DataLoadedPayload> = {
+        name: GlobalActions.TilePartialDataLoaded.name
+    };
 }

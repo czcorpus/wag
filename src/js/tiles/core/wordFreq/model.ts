@@ -20,8 +20,8 @@ import { Observable, of as rxOf } from 'rxjs';
 import { map, concatMap } from 'rxjs/operators';
 
 import { IAppServices } from '../../../appServices';
-import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
-import { DataLoadedPayload, Actions, ActionName } from './actions';
+import { Actions as GlobalActions } from '../../../models/actions';
+import { DataLoadedPayload, Actions } from './actions';
 import { SimilarFreqWord, SimilarFreqDbAPI } from '../../../api/abstract/similarFreq';
 import { findCurrQueryMatch } from '../../../models/query';
 import { QueryMatch, testIsDictMatch, RecognizedQueries, QueryType, calcFreqBand } from '../../../query/index';
@@ -105,8 +105,8 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
         this.queryDomain = queryDomain;
         this.queryType = queryType;
 
-        this.addActionHandler<GlobalActions.RequestQueryResponse>(
-            GlobalActionName.RequestQueryResponse,
+        this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
+            GlobalActions.RequestQueryResponse.name,
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
@@ -120,8 +120,8 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
 
                 ).subscribe(
                     (data) => {
-                        dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                            name: GlobalActionName.TileDataLoaded,
+                        dispatch<typeof Actions.TileDataLoaded>({
+                            name: Actions.TileDataLoaded.name,
                             payload: {
                                 tileId: this.tileId,
                                 isEmpty: false,
@@ -129,11 +129,11 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                             }
                         });
                     },
-                    (err) => {
-                        console.error(err);
-                        dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                            name: GlobalActionName.TileDataLoaded,
-                            error: err,
+                    (error) => {
+                        console.error(error);
+                        dispatch<typeof Actions.TileDataLoaded>({
+                            name: Actions.TileDataLoaded.name,
+                            error,
                             payload: {
                                 tileId: this.tileId,
                                 isEmpty: true,
@@ -144,8 +144,8 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                 );
             }
         );
-        this.addActionHandler<GlobalActions.TileDataLoaded<DataLoadedPayload>>(
-            GlobalActionName.TileDataLoaded,
+        this.addActionHandler<typeof Actions.TileDataLoaded>(
+            Actions.TileDataLoaded.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = false;
@@ -161,8 +161,8 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                 }
             }
         );
-        this.addActionHandler<Actions.ExpandLemmaPos>(
-            ActionName.ExpandLemmaPos,
+        this.addActionHandler<typeof Actions.ExpandLemmaPos>(
+            Actions.ExpandLemmaPos.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.expandLemmaPos = action.payload.lemma;
@@ -170,8 +170,8 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
             }
         );
 
-        this.addActionHandler<GlobalActions.GetSourceInfo>(
-            GlobalActionName.GetSourceInfo,
+        this.addActionHandler<typeof GlobalActions.GetSourceInfo>(
+            GlobalActions.GetSourceInfo.name,
             null,
             (state, action, dispatch) => {
                 if (action.payload.tileId === this.tileId) {
@@ -182,23 +182,19 @@ export class SummaryModel extends StatelessModel<SummaryModelState> {
                         corpname: state.corpname,
 
                     }).subscribe(
-                        (data) => {
-                            dispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
+                        data => {
+                            dispatch<typeof GlobalActions.GetSourceInfoDone>({
+                                name: GlobalActions.GetSourceInfoDone.name,
                                 payload: {
-                                    tileId: this.tileId,
-                                    data: data
+                                    data
                                 }
                             });
                         },
-                        (err) => {
-                            console.error(err);
-                            dispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
-                                error: err,
-                                payload: {
-                                    tileId: this.tileId,
-                                }
+                        error => {
+                            console.error(error);
+                            dispatch<typeof GlobalActions.GetSourceInfoDone>({
+                                name: GlobalActions.GetSourceInfoDone.name,
+                                error
                             });
                         }
                     );

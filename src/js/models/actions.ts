@@ -21,362 +21,313 @@ import { SystemMessageType, SourceDetails } from '../types';
 import { QueryType } from '../query/index';
 
 
-export enum ActionName {
-    ChangeQueryInput = 'MAIN_CHANGE_QUERY_INPUT',
-    ChangeCurrQueryMatch = 'MAIN_CHANGE_CURR_QUERY_MATCH',
-    RequestQueryResponse = 'MAIN_REQUEST_QUERY_RESPONSE',
-    RetryTileLoad = 'MAIN_RETRY_TILE_LOAD',
-    WakeSuspendedTiles = 'MAIN_WAKE_SUSPENDED_TILES',
-    SetEmptyResult = 'MAIN_SET_EMPTY_RESULT',
-    TileDataLoaded = 'MAIN_TILE_DATA_LOADED',
-    TilePartialDataLoaded = 'MAIN_TILE_PARTIAL_DATA_LOADED',
-    ChangeTargetDomain = 'MAIN_CHANGE_TARGET_DOMAIN',
-    ChangeQueryType = 'MAIN_CHANGE_QUERY_TYPE',
-    SetTileRenderSize = 'MAIN_SET_TILE_RENDER_SIZE',
-    SetScreenMode = 'MAIN_SET_SCREEN_MODE',
-    AddSystemMessage = 'MAIN_ADD_SYSTEM_MESSAGE',
-    RemoveSystemMessage = 'MAIN_REMOVE_SYSTEM_MESSAGE',
-    SubmitQuery = 'MAIN_SUBMIT_QUERY',
-    EnableAltViewMode = 'MAIN_ENABLE_ALT_VIEW_MODE',
-    DisableAltViewMode = 'MAIN_DISABLE_ALT_VIEW_MODE',
-    EnableTileTweakMode = 'MAIN_ENABLE_TILE_TWEAK_MODE',
-    DisableTileTweakMode = 'MAIN_DISABLE_TILE_TWEAK_MODE',
-    GetSourceInfo = 'MAIN_GET_SOURCE_INFO',
-    GetSourceInfoDone = 'MAIN_GET_SOURCE_INFO_DONE',
-    CloseSourceInfo = 'MAIN_CLOSE_SOURCE_INFO',
-    ToggleGroupVisibility = 'MAIN_TOGGLE_GROUP_VISIBILITY',
-    OpenGroupAndHighlightTile = 'MAIN_OPEN_GROUP_AND_FOCUS_TILE',
-    HighlightTile = 'MAIN_FOCUS_TILE',
-    DehighlightTile = 'MAIN_UNFOCUS_TILE',
-    ShowGroupHelp = 'MAIN_SHOW_GROUP_HELP',
-    ShowGroupHelpDone = 'MAIN_SHOW_GROUP_HELP_DONE',
-    HideGroupHelp = 'MAIN_HIDE_GROUP_HELP',
-    ShowTileHelp = 'MAIN_SHOW_TILE_HELP',
-    LoadTileHelpDone = 'MAIN_LOAD_TILE_HELP_DONE',
-    HideTileHelp = 'MAIN_HIDE_TILE_HELP',
-    SubqItemHighlighted = 'MAIN_SUBQ_ITEM_HIGHLIGHTED',
-    SubqItemDehighlighted = 'MAIN_SUBQ_ITEM_DEHIGHLIGHTED',
-    SubqChanged = 'MAIN_SUBQ_CHANGED',
-    TileAreaClicked = 'MAIN_TILE_AREA_CLICKED',
-    ShowAmbiguousResultHelp = 'MAIN_SHOW_AMBIGUOUS_TILE_HELP',
-    HideAmbiguousResultHelp = 'MAIN_HIDE_AMBIGUOUS_TILE_HELP',
-    AddCmpQueryInput = 'MAIN_ADD_CMP_QUERY_INPUT',
-    RemoveCmpQueryInput = 'MAIN_REMOVE_CMP_QUERY_INPUT',
-    ShowQueryMatchModal = 'MAIN_SHOW_QUERY_MATCH_MODAL',
-    HideQueryMatchModal = 'MAIN_HIDE_QUERY_MATCH_MODAL',
-    SelectModalQueryMatch = 'MAIN_SELECT_MODAL_QUERY_MATCH',
-    ApplyModalQueryMatchSelection = 'MAIN_APPLY_MODAL_QUERY_MATCH_SELECTION',
-    SetColorTheme = 'MAIN_SET_COLOR_THEME'
-}
+export class Actions {
 
-/**
- * Tests whether the action is either  TileDataLoaded or TilePartialDataLoaded.
- * This can be used when syncing dependent tile.
- */
-export function isTileSomeDataLoadedAction(action:Action):boolean {
-    return action.name === ActionName.TileDataLoaded || action.name === ActionName.TilePartialDataLoaded;
-}
-
-export namespace Actions {
-
-    export interface RequestQueryResponse extends Action<{
+    static RequestQueryResponse:Action<{
         focusedTile?:string;
-
-    }> {
-        name:ActionName.RequestQueryResponse;
+    }> = {
+        name: 'MAIN_REQUEST_QUERY_RESPONSE'
     }
 
-    export interface RetryTileLoad extends Action<{
-    }> {
-        name:ActionName.RetryTileLoad;
+    static RetryTileLoad:Action<{
+    }> = {
+        name: 'MAIN_RETRY_TILE_LOAD'
     }
 
-    export interface WakeSuspendedTiles extends Action<{
-    }> {
-        name:ActionName.WakeSuspendedTiles;
+    static WakeSuspendedTiles:Action<{
+    }> = {
+        name: 'MAIN_WAKE_SUSPENDED_TILES'
     }
 
-    export interface SetEmptyResult extends Action<{
-        error?:string;AddCmpQueryField
-
-    }> {
-        name:ActionName.SetEmptyResult;
+    static SetEmptyResult:Action<{
+        error:[number, string];
+    }> = {
+        name: 'MAIN_SET_EMPTY_RESULT'
     }
 
-    export interface TileDataLoaded<T> extends Action<{
+    static TileDataLoaded:Action<{
         tileId:number;
         isEmpty:boolean;
         canBeAmbiguousResult?:boolean;
 
-    } & T> {
-        name: ActionName.TileDataLoaded;
+    }> = {
+        name: 'MAIN_TILE_DATA_LOADED'
     }
 
-    export interface TilePartialDataLoaded<T> extends Action<{
+    static TilePartialDataLoaded:Action<{
         tileId:number;
-
-    } & T> {
-        name: ActionName.TilePartialDataLoaded;
+    }> = {
+        name: 'MAIN_TILE_PARTIAL_DATA_LOADED'
     }
 
-    export interface ChangeQueryInput extends Action<{
+    static ChangeQueryInput:Action<{
         value:string;
         queryIdx:number;
-    }> {
-        name:ActionName.ChangeQueryInput;
+    }> = {
+        name:'MAIN_CHANGE_QUERY_INPUT'
     }
 
-    export interface ChangeCurrQueryMatch extends Action<{
+    static ChangeCurrQueryMatch:Action<{
         queryIdx:number;
         word:string;
         lemma:string;
         pos:Array<string>;
 
-    }> {
-        name:ActionName.ChangeCurrQueryMatch;
+    }> = {
+        name:'MAIN_CHANGE_CURR_QUERY_MATCH'
     }
 
     // this action currently reload the page so we need
     // more arguments than in SPA-mode
-    export interface ChangeTargetDomain extends Action<{
+    static ChangeTargetDomain:Action<{
         domain1:string;
         domain2:string;
         queryType:QueryType;
         queries:Array<string>;
-    }> {
-        name:ActionName.ChangeTargetDomain;
+    }> = {
+        name: 'MAIN_CHANGE_TARGET_DOMAIN'
     }
 
     // this action currently reload the page so we need
     // more arguments than in SPA-mode
-    export interface ChangeQueryType extends Action<{
+    static ChangeQueryType:Action<{
         queryType:QueryType;
         domain1:string;
         domain2:string;
         queries:Array<string>;
-    }> {
-        name:ActionName.ChangeQueryType;
+    }> = {
+        name: 'MAIN_CHANGE_QUERY_TYPE'
     }
 
-    export interface SetTileRenderSize extends Action<{
+    static SetTileRenderSize:Action<{
         size:[number, number];
         isMobile:boolean;
         tileId:number;
-    }> {
-        name:ActionName.SetTileRenderSize;
+    }> = {
+        name: 'MAIN_SET_TILE_RENDER_SIZE'
     }
 
-    export interface SetScreenMode extends Action<{
+    static SetScreenMode:Action<{
         isMobile:boolean;
         innerWidth:number;
         innerHeight:number;
 
-    }> {
-        name: ActionName.SetScreenMode;
+    }> = {
+        name: 'MAIN_SET_SCREEN_MODE'
     }
 
-    export interface AddSystemMessage extends Action<{
+    static AddSystemMessage:Action<{
         ident:string;
         type:SystemMessageType;
         text:string;
         ttl:number;
-    }> {
-        name:ActionName.AddSystemMessage;
+    }> = {
+        name: 'MAIN_ADD_SYSTEM_MESSAGE'
     }
 
-    export interface RemoveSystemMessage extends Action<{
+    static RemoveSystemMessage:Action<{
         ident:string;
-    }> {
-        name:ActionName.RemoveSystemMessage;
+    }> = {
+        name: 'MAIN_REMOVE_SYSTEM_MESSAGE'
     }
 
-    export interface SubmitQuery extends Action<{}> {
-        name:ActionName.SubmitQuery;
+    static SubmitQuery:Action<{}> = {
+        name: 'MAIN_SUBMIT_QUERY'
     }
 
-    export interface EnableAltViewMode extends Action<{
+    static EnableAltViewMode:Action<{
         ident:number;
-    }> {
-        name:ActionName.EnableAltViewMode;
+    }> = {
+        name: 'MAIN_ENABLE_ALT_VIEW_MODE'
     }
 
-    export interface DisableAltViewMode extends Action<{
+    static DisableAltViewMode:Action<{
         ident:number;
-    }> {
-        name:ActionName.DisableAltViewMode;
+    }> = {
+        name: 'MAIN_DISABLE_ALT_VIEW_MODE'
     }
 
-    export interface EnableTileTweakMode extends Action<{
+    static EnableTileTweakMode:Action<{
         ident:number;
-    }> {
-        name:ActionName.EnableTileTweakMode;
+    }> = {
+        name: 'MAIN_ENABLE_TILE_TWEAK_MODE'
     }
 
-    export interface DisableTileTweakMode extends Action<{
+    static DisableTileTweakMode:Action<{
         ident:number;
-    }> {
-        name:ActionName.DisableTileTweakMode;
+    }> = {
+        name: 'MAIN_DISABLE_TILE_TWEAK_MODE'
     }
 
-    export interface GetSourceInfo extends Action<{
+    static GetSourceInfo:Action<{
         tileId:number;
         corpusId:string;
         subcorpusId?:string;
-    }> {
-        name:ActionName.GetSourceInfo;
+    }> = {
+        name: 'MAIN_GET_SOURCE_INFO'
     }
 
-    export interface CloseSourceInfo extends Action<{
-    }> {
-        name:ActionName.CloseSourceInfo;
+    static CloseSourceInfo:Action<{
+    }> = {
+        name: 'MAIN_CLOSE_SOURCE_INFO'
     }
 
-    export interface GetSourceInfoDone extends Action<{
+    static GetSourceInfoDone:Action<{
         data:SourceDetails;
-    }> {
-        name:ActionName.GetSourceInfoDone;
+    }> = {
+        name: 'MAIN_GET_SOURCE_INFO_DONE'
     }
 
-    export interface ToggleGroupVisibility extends Action<{
+    static ToggleGroupVisibility:Action<{
         groupIdx:number;
-    }> {
-        name:ActionName.ToggleGroupVisibility;
+    }> = {
+        name: 'MAIN_TOGGLE_GROUP_VISIBILITY'
     }
 
-    export interface OpenGroupAndHighlightTile extends Action<{
+    static OpenGroupAndHighlightTile:Action<{
         groupIdx:number;
         tileId:number;
-    }> {
-        name:ActionName.OpenGroupAndHighlightTile;
+    }> = {
+        name: 'MAIN_OPEN_GROUP_AND_FOCUS_TILE'
     }
 
-    export interface HighlightTile extends Action<{
+    static HighlightTile:Action<{
         tileId:number;
-    }> {
-        name:ActionName.HighlightTile;
+    }> = {
+        name: 'MAIN_HIGHLIGHT_TILE'
     }
 
-    export interface DehighlightTile extends Action<{
+    static DehighlightTile:Action<{
         tileId:number;
-    }> {
-        name:ActionName.DehighlightTile;
+    }> = {
+        name: 'MAIN_DEHIGHLIGHT_TILE'
     }
 
-    export interface ShowGroupHelp extends Action<{
+    static ShowGroupHelp:Action<{
         groupIdx:number;
         url:string;
-    }> {
-        name:ActionName.ShowGroupHelp;
+    }> = {
+        name: 'MAIN_SHOW_GROUP_HELP'
     }
 
-    export interface ShowGroupHelpDone extends Action<{
+    static ShowGroupHelpDone:Action<{
         groupIdx:number;
         html:string;
-    }> {
-        name:ActionName.ShowGroupHelpDone;
+    }> = {
+        name: 'MAIN_SHOW_GROUP_HELP_DONE'
     }
 
-    export interface HideGroupHelp extends Action<{
-    }> {
-        name:ActionName.HideGroupHelp;
+    static HideGroupHelp:Action<{
+    }> = {
+        name: 'MAIN_HIDE_GROUP_HELP'
     }
 
-    export interface ShowTileHelp extends Action<{
+    static ShowTileHelp:Action<{
         tileId:number;
 
-    }> {
-        name:ActionName.ShowTileHelp;
+    }> = {
+        name: 'MAIN_SHOW_TILE_HELP'
     }
 
-    export interface HideTileHelp extends Action<{
+    static HideTileHelp:Action<{
         tileId:number;
 
-    }> {
-        name:ActionName.HideTileHelp;
+    }> = {
+        name: 'MAIN_HIDE_TILE_HELP'
     }
 
-    export interface LoadTileHelpDone extends Action<{
+    static LoadTileHelpDone:Action<{
         tileId:number;
         html:string;
 
-    }> {
-        name:ActionName.LoadTileHelpDone;
+    }> = {
+        name: 'MAIN_LOAD_TILE_HELP_DONE'
     }
 
-    export interface SubqItemHighlighted extends Action<{
+    static SubqItemHighlighted:Action<{
         interactionId:string;
         text:string;
 
-    }> {
-        name:ActionName.SubqItemHighlighted;
+    }> = {
+        name: 'MAIN_SUBQ_ITEM_HIGHLIGHTED'
     }
 
-    export interface SubqItemDehighlighted extends Action<{
+    static SubqItemDehighlighted:Action<{
         interactionId:string;
 
-    }> {
-        name:ActionName.SubqItemDehighlighted;
+    }> = {
+        name: 'MAIN_SUBQ_ITEM_DEHIGHLIGHTED'
     }
 
-    export interface SubqChanged extends Action<{
+    static SubqChanged:Action<{
         tileId:number;
 
-    }> {
-        name:ActionName.SubqChanged;
+    }> = {
+        name: 'MAIN_SUBQ_CHANGED'
     }
 
-    export interface TileAreaClicked extends Action<{
+    static TileAreaClicked:Action<{
         tileId:number;
-    }> {
-        name:ActionName.TileAreaClicked;
+    }> = {
+        name: 'MAIN_TILE_AREA_CLICKED'
     }
 
-    export interface ShowAmbiguousResultHelp extends Action<{
-    }> {
-        name:ActionName.ShowAmbiguousResultHelp;
+    static ShowAmbiguousResultHelp:Action<{
+    }> = {
+        name: 'MAIN_SHOW_AMBIGUOUS_TILE_HELP'
     }
 
-    export interface HideAmbiguousResultHelp extends Action<{
-    }> {
-        name:ActionName.HideAmbiguousResultHelp;
+    static HideAmbiguousResultHelp:Action<{
+    }> = {
+        name: 'MAIN_HIDE_AMBIGUOUS_TILE_HELP'
     }
 
-    export interface AddCmpQueryInput extends Action<{
-    }> {
-        name:ActionName.AddCmpQueryInput;
+    static AddCmpQueryInput:Action<{
+    }> = {
+        name: 'MAIN_ADD_CMP_QUERY_INPUT'
     }
 
-    export interface RemoveCmpQueryInput extends Action<{
+    static RemoveCmpQueryInput:Action<{
         queryIdx:number;
-    }> {
-        name:ActionName.RemoveCmpQueryInput;
+    }> = {
+        name: 'MAIN_REMOVE_CMP_QUERY_INPUT'
     }
 
-    export interface ShowQueryMatchModal extends Action<{
-    }> {
-        name:ActionName.ShowQueryMatchModal;
+    static ShowQueryMatchModal:Action<{
+    }> = {
+        name: 'MAIN_SHOW_QUERY_MATCH_MODAL'
     }
 
-    export interface HideQueryMatchModal extends Action<{
-    }> {
-        name:ActionName.HideQueryMatchModal;
+    static HideQueryMatchModal:Action<{
+    }> = {
+        name: 'MAIN_HIDE_QUERY_MATCH_MODAL'
     }
 
-    export interface SelectModalQueryMatch extends Action<{
+    static SelectModalQueryMatch:Action<{
         queryIdx:number;
         variantIdx:number;
-    }> {
-        name:ActionName.SelectModalQueryMatch;
+    }> = {
+        name: 'MAIN_SELECT_MODAL_QUERY_MATCH'
     }
 
-    export interface ApplyModalQueryMatchSelection extends Action<{
-    }> {
-        name:ActionName.ApplyModalQueryMatchSelection;
+    static ApplyModalQueryMatchSelection:Action<{
+    }> = {
+        name: 'MAIN_APPLY_MODAL_QUERY_MATCH_SELECTION'
     }
 
-    export interface SetColorTheme extends Action<{
+    static SetColorTheme:Action<{
         ident:string;
-    }> {
-        name:ActionName.SetColorTheme;
+    }> = {
+        name: 'MAIN_SET_COLOR_THEME'
     }
+}
+
+
+/**
+ * Tests whether the action is either  TileDataLoaded or TilePartialDataLoaded.
+ * This can be used when syncing dependent tile.
+ */
+ export function isTileSomeDataLoadedAction(action:Action):boolean {
+    return action.name === Actions.TileDataLoaded.name ||
+            action.name === Actions.TilePartialDataLoaded.name;
 }

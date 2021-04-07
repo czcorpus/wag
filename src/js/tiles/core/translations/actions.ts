@@ -17,10 +17,19 @@
  */
 import { SubqueryPayload, RangeRelatedSubqueryValue } from '../../../query/index';
 import { TranslationResponse } from '../../../api/abstract/translations';
-
+import { Actions as GlobalActions } from '../../../models/actions';
+import { Action } from 'kombo';
 
 
 export interface DataLoadedPayload extends SubqueryPayload<RangeRelatedSubqueryValue> {
     query:string;
     data:TranslationResponse;
+}
+
+export class Actions {
+
+    static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & DataLoadedPayload> = {
+	    name: GlobalActions.TileDataLoaded.name
+    };
+
 }

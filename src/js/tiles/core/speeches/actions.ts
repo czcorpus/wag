@@ -18,6 +18,7 @@
 
 import { ExpandArgs, Expand, Segment, ConcDetailText } from './modelDomain';
 import { Action } from 'kombo';
+import { Actions as GlobalActions } from '../../../models/actions';
 
 
 export interface SpeechDataPayload {
@@ -32,52 +33,56 @@ export interface SpeechDataPayload {
 }
 
 
-export enum ActionName {
-    ExpandSpeech = 'SPEECH_EXPAND_SPEECH',
-    LoadAnotherSpeech = 'SPEECH_LOAD_ANOTHER_SPEECH',
-    ClickAudioPlayer = 'SPEECH_CLICK_AUDIO_PLAYER',
-    AudioPlayerStarted = 'SPEECH_AUDIO_PLAYER_STARTED',
-    AudioPlayerStopped = 'SPEECH_AUDIO_PLAYER_STOPPED',
-    ClickAudioPlayAll = 'SPEECH_CLICK_AUDIO_PLAY_ALL',
-    PlayedLineChanged = 'SPEECH_PLAYED_LINE_CHANGED'
-}
+export class Actions {
 
-
-export namespace Actions {
-
-    export interface ExpandSpeech extends Action<{
+    static ExpandSpeech:Action<{
         tileId:number;
         position:Expand;
-    }> {
-        name:ActionName.ExpandSpeech;
-    }
+    }> = {
+        name: 'SPEECH_EXPAND_SPEECH'
+    };
 
-    export interface LoadAnotherSpeech extends Action<{
+    static LoadAnotherSpeech:Action<{
         tileId:number;
-    }> {
-    }
+    }> = {
+        name: 'SPEECH_LOAD_ANOTHER_SPEECH'
+    };
 
-    export interface ClickAudioPlayer extends Action<{
+    static ClickAudioPlayer:Action<{
         tileId:number;
         lineIdx:number;
         segments:Array<Segment>;
-    }> {}
+    }> = {
+        name: 'SPEECH_CLICK_AUDIO_PLAYER'
+    };
 
-    export interface ClickAudioPlayAll extends Action<{
+    static ClickAudioPlayAll:Action<{
         tileId:number;
-    }> {}
+    }> = {
+        name: 'SPEECH_CLICK_AUDIO_PLAY_ALL'
+    };
 
-    export interface AudioPlayerStarted extends Action<{
+    static AudioPlayerStarted:Action<{
         tileId:number;
         playbackSession:string;
-    }> {}
+    }> = {
+        name: 'SPEECH_AUDIO_PLAYER_STARTED'
+    }
 
-    export interface AudioPlayerStopped extends Action<{
+    static AudioPlayerStopped:Action<{
         tileId:number;
-    }> {}
+    }> = {
+        name: 'SPEECH_AUDIO_PLAYER_STOPPED'
+    };
 
-    export interface PlayedLineChanged extends Action<{
+    static PlayedLineChanged:Action<{
         tileId:number;
         lineIdx:number;
-    }> {}
+    }> = {
+        name: 'SPEECH_PLAYED_LINE_CHANGED'
+    };
+
+    static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & SpeechDataPayload> = {
+        name: GlobalActions.TileDataLoaded.name
+    };
 }

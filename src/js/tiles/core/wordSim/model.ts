@@ -21,9 +21,9 @@ import { mergeMap, tap } from 'rxjs/operators';
 import { List, tuple } from 'cnc-tskit';
 
 import { StatelessModel, IActionDispatcher, SEDispatcher } from 'kombo';
-import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
+import { Actions as GlobalActions } from '../../../models/actions';
 import { DataLoadedPayload } from './actions';
-import { ActionName, Actions } from './actions';
+import { Actions } from './actions';
 import { IWordSimApi, WordSimWord } from '../../../api/abstract/wordSim';
 import { WordSimModelState } from '../../../models/tiles/wordSim';
 import { QueryMatch } from '../../../query/index';
@@ -55,52 +55,52 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
         this.api = api;
         this.queryDomain = queryDomain;
 
-        this.addActionHandler<GlobalActions.SubqItemHighlighted>(
-            GlobalActionName.SubqItemHighlighted,
+        this.addActionHandler<typeof GlobalActions.SubqItemHighlighted>(
+            GlobalActions.SubqItemHighlighted.name,
             (state, action) => {
                 state.selectedText = action.payload.text;
             }
         );
-        this.addActionHandler<GlobalActions.SubqItemDehighlighted>(
-            GlobalActionName.SubqItemDehighlighted,
+        this.addActionHandler<typeof GlobalActions.SubqItemDehighlighted>(
+            GlobalActions.SubqItemDehighlighted.name,
             (state, action) => {
                 state.selectedText = null;
             }
         );
-        this.addActionHandler<GlobalActions.EnableTileTweakMode>(
-            GlobalActionName.EnableTileTweakMode,
+        this.addActionHandler<typeof GlobalActions.EnableTileTweakMode>(
+            GlobalActions.EnableTileTweakMode.name,
             (state, action) => {
                 if (action.payload.ident === this.tileId) {
                     state.isTweakMode = true;
                 }
             }
         );
-        this.addActionHandler<GlobalActions.DisableTileTweakMode>(
-            GlobalActionName.DisableTileTweakMode,
+        this.addActionHandler<typeof GlobalActions.DisableTileTweakMode>(
+            GlobalActions.DisableTileTweakMode.name,
             (state, action) => {
                 if (action.payload.ident === this.tileId) {
                     state.isTweakMode = false;
                 }
             }
         );
-        this.addActionHandler<GlobalActions.EnableAltViewMode>(
-            GlobalActionName.EnableAltViewMode,
+        this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(
+            GlobalActions.EnableAltViewMode.name,
             (state, action) => {
                 if (action.payload.ident === this.tileId) {
                     state.isAltViewMode = true;
                 }
             }
         );
-        this.addActionHandler<GlobalActions.DisableAltViewMode>(
-            GlobalActionName.DisableAltViewMode,
+        this.addActionHandler<typeof GlobalActions.DisableAltViewMode>(
+            GlobalActions.DisableAltViewMode.name,
             (state, action) => {
                 if (action.payload.ident === this.tileId) {
                     state.isAltViewMode = false;
                 }
             }
         );
-        this.addActionHandler<GlobalActions.RequestQueryResponse>(
-            GlobalActionName.RequestQueryResponse,
+        this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
+            GlobalActions.RequestQueryResponse.name,
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
@@ -109,8 +109,8 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                 this.getData(state, seDispatch);
             }
         );
-        this.addActionHandler<GlobalActions.TileDataLoaded<DataLoadedPayload>>(
-            GlobalActionName.TileDataLoaded,
+        this.addActionHandler<typeof Actions.TileDataLoaded>(
+            GlobalActions.TileDataLoaded.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = false;
@@ -125,8 +125,8 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                 }
             }
         );
-        this.addActionHandler<Actions.SetOperationMode>(
-            ActionName.SetOperationMode,
+        this.addActionHandler<typeof Actions.SetOperationMode>(
+            Actions.SetOperationMode.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = true;
@@ -138,15 +138,15 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                 this.getData(state, seDispatch);
             }
         );
-        this.addActionHandler<GlobalActions.GetSourceInfo>(
-            GlobalActionName.GetSourceInfo,
+        this.addActionHandler<typeof GlobalActions.GetSourceInfo>(
+            GlobalActions.GetSourceInfo.name,
             (state, action) => {},
             (state, action, seDispatch) => {
                 if (action.payload['tileId'] === this.tileId) {
                     this.api.getSourceDescription(this.tileId, this.queryDomain, state.corpus).subscribe(
                         (data) => {
                             seDispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
+                                name: GlobalActions.GetSourceInfoDone.name,
                                 payload: {
                                     tileId: this.tileId,
                                     data: data
@@ -155,7 +155,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                         },
                         (err) => {
                             seDispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
+                                name: GlobalActions.GetSourceInfoDone.name,
                                 payload: {
                                     tileId: this.tileId,
                                     data: null
@@ -187,8 +187,8 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
             )
         ).subscribe(
             ([data, queryId]) => {
-                seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                    name: GlobalActionName.TileDataLoaded,
+                seDispatch<typeof Actions.TileDataLoaded>({
+                    name: Actions.TileDataLoaded.name,
                     payload: {
                         tileId: this.tileId,
                         queryId: queryId,
@@ -210,9 +210,9 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                 });
 
             },
-            (err) => {
-                seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                    name: GlobalActionName.TileDataLoaded,
+            (error) => {
+                seDispatch<typeof Actions.TileDataLoaded>({
+                    name: Actions.TileDataLoaded.name,
                     payload: {
                         tileId: this.tileId,
                         queryId: null,
@@ -222,7 +222,7 @@ export class WordSimModel extends StatelessModel<WordSimModelState> {
                         domain2: null,
                         isEmpty: true
                     },
-                    error: err
+                    error
                 })
             }
         );

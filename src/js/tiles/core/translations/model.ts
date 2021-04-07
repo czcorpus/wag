@@ -20,9 +20,9 @@ import { map } from 'rxjs/operators';
 import { HTTP } from 'cnc-tskit'
 
 import { Backlink, BacklinkWithArgs } from '../../../page/tile';
-import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
+import { Actions as GlobalActions } from '../../../models/actions';
 import { findCurrQueryMatch } from '../../../models/query';
-import { DataLoadedPayload } from './actions';
+import { DataLoadedPayload, Actions } from './actions';
 import { ColorScaleFunctionGenerator } from '../../../page/theme';
 import { TranslationAPI } from '../../../api/abstract/translations';
 import { TranslationsModelState } from '../../../models/tiles/translations';
@@ -69,8 +69,8 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
         this.scaleColorGen = scaleColorGen;
         this.appServices = appServices;
 
-        this.addActionHandler<GlobalActions.RequestQueryResponse>(
-            GlobalActionName.RequestQueryResponse,
+        this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
+            GlobalActions.RequestQueryResponse.name,
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
@@ -80,8 +80,8 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
             }
         );
 
-        this.addActionHandler<GlobalActions.TileDataLoaded<DataLoadedPayload>>(
-            GlobalActionName.TileDataLoaded,
+        this.addActionHandler<typeof Actions.TileDataLoaded>(
+            Actions.TileDataLoaded.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = false;
@@ -97,8 +97,8 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
             }
         );
 
-        this.addActionHandler<GlobalActions.EnableAltViewMode>(
-            GlobalActionName.EnableAltViewMode,
+        this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(
+            GlobalActions.EnableAltViewMode.name,
             (state, action) => {
                 if (action.payload.ident === this.tileId) {
                     state.isAltViewMode = true;
@@ -106,8 +106,8 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
             }
         );
 
-        this.addActionHandler<GlobalActions.DisableAltViewMode>(
-            GlobalActionName.DisableAltViewMode,
+        this.addActionHandler<typeof GlobalActions.DisableAltViewMode>(
+            GlobalActions.DisableAltViewMode.name,
             (state, action) => {
                 if (action.payload.ident === this.tileId) {
                     state.isAltViewMode = false;
@@ -115,30 +115,26 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
             }
         );
 
-        this.addActionHandler<GlobalActions.GetSourceInfo>(
-            GlobalActionName.GetSourceInfo,
+        this.addActionHandler<typeof GlobalActions.GetSourceInfo>(
+            GlobalActions.GetSourceInfo.name,
             null,
             (state, action, dispatch) => {
                 if (action.payload['tileId'] === this.tileId) {
                     this.api.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), action.payload['corpusId'])
                     .subscribe(
                         (data) => {
-                            dispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
+                            dispatch<typeof GlobalActions.GetSourceInfoDone>({
+                                name: GlobalActions.GetSourceInfoDone.name,
                                 payload: {
-                                    tileId: this.tileId,
-                                    data: data
+                                    data
                                 }
                             });
                         },
-                        (err) => {
-                            console.error(err);
-                            dispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
-                                error: err,
-                                payload: {
-                                    tileId: this.tileId
-                                }
+                        (error) => {
+                            console.error(error);
+                            dispatch<typeof GlobalActions.GetSourceInfoDone>({
+                                name: GlobalActions.GetSourceInfoDone.name,
+                                error
                             });
                         }
                     );
@@ -180,8 +176,8 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
             )
             .subscribe(
                 (data) => {
-                    dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                        name: GlobalActionName.TileDataLoaded,
+                    dispatch<typeof Actions.TileDataLoaded>({
+                        name: Actions.TileDataLoaded.name,
                         payload: {
                             tileId: this.tileId,
                             queryId: 0,
@@ -202,8 +198,8 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
                     });
                 },
                 (error) => {
-                    dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                        name: GlobalActionName.TileDataLoaded,
+                    dispatch<typeof Actions.TileDataLoaded>({
+                        name: Actions.TileDataLoaded.name,
                         payload: {
                             tileId: this.tileId,
                             queryId: 0,
