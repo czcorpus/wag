@@ -30,7 +30,7 @@ import { createApiInstance as createConcApiInstance } from '../../../api/factory
 
 
 declare var require:any;
-require('./style.less');
+require('../../../../css/shared.less');
 
 
 export interface MultiWordGeoAreasTileConf extends TileConf {
