@@ -32,7 +32,7 @@ import { createApiInstance as createConcApiInstance } from '../../../api/factory
 import { TimeDistribApi } from '../../../api/abstract/timeDistrib';
 
 declare var require:(src:string)=>void;  // webpack
-require('./style.less');
+require('../../../../css/shared.less');
 
 
 /**
