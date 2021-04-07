@@ -28,7 +28,7 @@ import { pipe, Color, List } from 'cnc-tskit';
 
 
 declare var require:(src:string)=>void;  // webpack
-require('./style.less');
+require('../../../../css/shared.less');
 
 
 export interface SpeechesTileConf extends TileConf {
