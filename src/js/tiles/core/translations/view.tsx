@@ -25,6 +25,8 @@ import { init as wordCloudViewInit } from '../../../views/wordCloud';
 import { Theme } from '../../../page/theme';
 import { WordTranslation } from '../../../api/abstract/translations';
 
+import * as S from './style';
+
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:TranslationsModel):TileComponent {
 
@@ -33,7 +35,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -----
 
-    const TranslationsTable:React.SFC<{
+    const TranslationsTable:React.FC<{
         translations:Array<WordTranslation>;
 
     }> = (props) => {
@@ -77,15 +79,15 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         };
 
         return (
-            <div className="TranslationsTable">
+            <S.TranslationsTable>
                 {renderWords()}
-            </div>
+            </S.TranslationsTable>
         );
     };
 
-    // --------------- <TreqTileView /> -----------------------------------
+    // --------------- <TranslationsTileView /> -----------------------------------
 
-    class TreqTileView extends React.PureComponent<GeneralTranslationsModelState & CoreTileComponentProps> {
+    class TranslationsTileView extends React.PureComponent<GeneralTranslationsModelState & CoreTileComponentProps> {
 
         render() {
             const dataTransform = (t:WordTranslation) => ({
@@ -120,5 +122,5 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
     }
 
-    return BoundWithProps(TreqTileView, model);
+    return BoundWithProps(TranslationsTileView, model);
 }

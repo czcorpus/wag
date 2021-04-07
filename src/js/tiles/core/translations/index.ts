@@ -25,7 +25,7 @@ import { StatelessModel } from 'kombo';
 import { createInstance as createApiInstance } from '../../../api/factory/translations';
 
 declare var require:any;
-require('./style.less');
+require('../../../../css/shared.less');
 
 export interface TranslationsTileConf extends TileConf {
     apiURL:string;
