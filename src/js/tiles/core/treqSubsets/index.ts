@@ -26,7 +26,7 @@ import { LocalizedConfMsg } from '../../../types';
 import { List } from 'cnc-tskit';
 
 declare var require:any;
-require('./style.less');
+require('../../../../css/shared.less');
 
 
 export interface PackageGroup {
