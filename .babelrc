@@ -12,6 +12,8 @@
 			{
 			  	"ssr": false
 			}
-		]
+		],
+		"@babel/plugin-syntax-dynamic-import",
+		"babel-plugin-dynamic-import-webpack"
 	]
 }
