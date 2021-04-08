@@ -23,16 +23,18 @@ import { SourceCitation } from '../api/abstract/sourceInfo';
 import { List } from 'cnc-tskit';
 import { CorpusDetails } from '../types';
 
+import * as S from '../styles/main';
+
 export interface CorpusInfoBoxProps {
     data:CorpusDetails;
 }
 
-export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>):React.SFC<CorpusInfoBoxProps> {
+export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>):React.FC<CorpusInfoBoxProps> {
 
 
     // ---------------------- <CorpusReference /> ------------------------------------
 
-    const CorpusReference:React.SFC<{
+    const CorpusReference:React.FC<{
         data:SourceCitation;
 
     }> = (props) => {
@@ -69,7 +71,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ---------------------- <CorpusInfoBox /> ------------------------------------
 
-    const CorpusInfoBox:React.SFC<CorpusInfoBoxProps> = (props) => {
+    const CorpusInfoBox:React.FC<CorpusInfoBoxProps> = (props) => {
 
         const [state, setState] = React.useState({activeTab: 0});
 
@@ -97,7 +99,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         };
 
         return (
-            <div className="CorpusInfoBox source-info-box">
+            <S.SourceInfoBox className="CorpusInfoBox">
                 <ul className="information-tab-sel">
                     <li>
                         <a className={state.activeTab === 0 ? 'current' : null}
@@ -163,7 +165,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         </div>
                     }
                 </dl>
-            </div>
+            </S.SourceInfoBox>
         );
     };
 

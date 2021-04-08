@@ -21,12 +21,14 @@ import { FCS1ExplainResponse } from '../../../api/vendor/clarin/fcs1/explain';
 import { IActionDispatcher, ViewUtils } from 'kombo';
 import { GlobalComponents } from '../../global';
 
+import * as S from '../../../styles/main';
+
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>) {
 
     // ------------------ <IndicesList /> ----------------------------
 
-    const IndicesList:React.SFC<{
+    const IndicesList:React.FC<{
         data:Array<{name:string; title:string}>;
 
     }> = (props) => {
@@ -42,13 +44,13 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------------------ <ExplainView /> ----------------------------
 
-    const ExplainView:React.SFC<{
+    const ExplainView:React.FC<{
         data:FCS1ExplainResponse;
 
     }> = (props) => {
 
         return (
-            <div className="ExplainView source-info-box">
+            <S.SourceInfoBox className="ExplainView">
                 <dl>
                     <dt>{ut.translate('global__source_general_desc_label')}:</dt>
                     <dd>{ut.translate('global__clarin_fcs_endpoint_label')}</dd>
@@ -68,7 +70,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         </> : null
                     }
                 </dl>
-            </div>
+            </S.SourceInfoBox>
         );
     };
 

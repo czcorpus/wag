@@ -40,7 +40,7 @@ export function init(
 
     // -------------- <TableView /> -------------------------------------
 
-    const TableView:React.SFC<{
+    const TableView:React.FC<{
         roundToPos:number;
         data:Array<WordFormItem>;
 

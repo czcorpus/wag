@@ -29,10 +29,6 @@ import { createApiInstance as createConcApiInstance } from '../../../api/factory
 import { createApiInstance as createFreqApiInstance } from '../../../api/factory/freqs';
 
 
-declare var require:(src:string)=>void;  // webpack
-require('./style.less');
-
-
 export interface MergeCorpFreqTileConf extends TileConf {
     apiURL:string;
     apiType:string;

@@ -23,6 +23,8 @@ import { init as commonViewInit } from './common'
 import { QueryMatch } from '../../../../query/index';
 import { List } from 'cnc-tskit';
 
+import * as S from '../style';
+
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>) {
 
@@ -35,7 +37,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     }> = (props) => {
         return (
-            <div className="MultiWordProfile">
+            <S.MultiWordProfile>
                 <table>
                     <thead>
                         <tr>
@@ -101,7 +103,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         )}
                     </tbody>
                 </table>
-            </div>
+            </S.MultiWordProfile>
         );
     }
 

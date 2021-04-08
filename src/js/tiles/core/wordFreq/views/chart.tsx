@@ -33,7 +33,7 @@ interface ChartFreqDistItem {
     color:string;
 }
 
-export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>):React.SFC<{
+export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>):React.FC<{
     tileName:string;
     queryMatches:Array<SimilarFreqWord>;
     activeIdent:number;
@@ -43,7 +43,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------------- <LineDot /> -----------------------------------------------
 
-    const LineDot:React.SFC<{
+    const LineDot:React.FC<{
         cx:number;
         cy:number;
         stroke:string;
@@ -72,7 +72,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
 
     // -------------------- <Chart /> -----------------------------------------------
-    const Chart:React.SFC<{
+    const Chart:React.FC<{
         tileName:string;
         queryMatches:Array<SimilarFreqWord>;
         activeIdent:number;

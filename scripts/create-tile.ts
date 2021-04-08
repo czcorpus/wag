@@ -7,7 +7,7 @@ const templateFiles = [
     'index.ts',
     'messages.json',
     'model.ts',
-    'style.less',
+    'style.tsx',
     'views.tsx',
     'config-schema.json'
 ];

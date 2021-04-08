@@ -25,6 +25,8 @@ import { Theme } from '../../../page/theme';
 import { TranslationSubset, TranslationsSubsetsModelState } from '../../../models/tiles/translations';
 import { List } from 'cnc-tskit';
 
+import * as S from './style';
+
 
 export function init(
     dispatcher:IActionDispatcher,
@@ -37,7 +39,7 @@ export function init(
 
     // ---------------------- <SimpleBar /> ------------------------------------------------------
 
-    const SimpleBar:React.SFC<{
+    const SimpleBar:React.FC<{
         perc:number;
         abs:number;
         maxValue:number;
@@ -55,7 +57,7 @@ export function init(
         };
 
         return (
-            <svg className="SimpleBar" style={{height: `${Math.round(props.width / 3.333)}px`, width: `${props.width}px`}}
+            <S.SimpleBar style={{height: `${Math.round(props.width / 3.333)}px`, width: `${props.width}px`}}
                     viewBox="0 0 100 30" preserveAspectRatio="xMinYMin slice">
                 <g>
                 {ticks.map(t => {
@@ -81,14 +83,14 @@ export function init(
                         onMouseMove={props.onMouseMove}
                         onMouseOut={props.onMouseOut} />
                 </g>
-            </svg>
+            </S.SimpleBar>
 
         )
     }
 
     // ---------------------- <ChartLikeTable /> ------------------------------------------
 
-    const ChartLikeTable:React.SFC<{
+    const ChartLikeTable:React.FC<{
         subsets:Array<TranslationSubset>;
         maxNumLines:number;
         chartWidthPx:number;
@@ -100,7 +102,7 @@ export function init(
     }> = React.memo((props) => {
 
         return (
-            <table className="ChartLikeTable">
+            <S.ChartLikeTable>
                 <thead>
                     <tr>
                         <th />
@@ -127,20 +129,20 @@ export function init(
                         </tr>
                     ))}
                 </tbody>
-            </table>
+            </S.ChartLikeTable>
         );
     });
 
     // ---------------------- <AltViewTable /> ------------------------------------------
 
-    const AltViewTable:React.SFC<{
+    const AltViewTable:React.FC<{
         subsets:Array<TranslationSubset>;
         maxNumLines:number;
 
     }> = (props) => {
 
         return (
-            <table className="AltViewTable data">
+            <S.AltViewTable className="data">
                 <thead>
                     <tr className="top-grouped">
                         <th />
@@ -167,7 +169,7 @@ export function init(
                         </tr>
                     ))}
                 </tbody>
-            </table>
+            </S.AltViewTable>
         );
 
     };
@@ -229,7 +231,7 @@ export function init(
 
         render() {
             return (
-                <div className="ChartLikeTable">
+                <div>
                     <globalComponents.ElementTooltip x={this.state.tooltipX} y={this.state.tooltipY} visible={this.state.tooltipVisible}
                             values={this.state.tooltipValues} />
                     <ChartLikeTable
@@ -255,7 +257,7 @@ export function init(
                         sourceIdent={{corp: 'InterCorp'}}
                         supportsTileReload={this.props.supportsReloadOnError}
                         issueReportingUrl={this.props.issueReportingUrl}>
-                    <div className="TreqSubsetsView">
+                    <S.TreqSubsetsView>
                         <div className="data">
                             {this.props.isAltViewMode ?
                                 <AltViewTable subsets={this.props.subsets} maxNumLines={this.props.maxNumLines} /> :
@@ -263,7 +265,7 @@ export function init(
                                         highlightedRowIdx={this.props.highlightedRowIdx} />
                             }
                         </div>
-                    </div>
+                    </S.TreqSubsetsView>
                 </globalComponents.TileWrapper>
             );
         }

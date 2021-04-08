@@ -30,10 +30,6 @@ import { createMultiBlockApiInstance as createFreqsApiInstance } from '../../../
 import { createApiInstance as createConcApiInstance } from '../../../api/factory/concordance';
 
 
-
-declare var require:(src:string)=>void;  // webpack
-require('./style.less');
-
 export interface FreqComparisonTileConf extends TileConf {
     apiURL:string;
     apiType:string;

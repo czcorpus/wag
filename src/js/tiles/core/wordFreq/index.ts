@@ -24,9 +24,6 @@ import { StatelessModel } from 'kombo';
 import { SimilarFreqWordsNullAPI, SimilarFreqWordsAPI } from '../../../api/vendor/wdglance/similarFreq';
 import { InternalResourceInfoApi } from '../../../api/vendor/wdglance/freqDbSourceInfo';
 
-declare var require:(src:string)=>void;  // webpack
-require('./style.less');
-
 
 export interface WordFreqTileConf extends TileConf {
     apiURL?:string;

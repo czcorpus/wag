@@ -26,6 +26,8 @@ import { MatchingDocsModel } from './model';
 import { MatchingDocsModelState } from '../../../models/tiles/matchingDocs';
 import { DataRow } from '../../../api/abstract/matchingDocs';
 
+import * as S from './style';
+
 
 export function init(
     dispatcher:IActionDispatcher,
@@ -65,7 +67,7 @@ export function init(
         }
 
         return (
-            <span className="Paginator">
+            <S.Paginator>
                 <a onClick={handlePreviousPage} className={`${props.page === 1 ? 'disabled' : null}`}>
                     <img className="arrow" src={ut.createStaticUrl(props.page === 1 ? 'triangle_left_gr.svg' : 'triangle_left.svg')}
                             alt={ut.translate('global__img_alt_triable_left')} />
@@ -75,7 +77,7 @@ export function init(
                     <img className="arrow" src={ut.createStaticUrl(props.page === props.numPages ? 'triangle_right_gr.svg' : 'triangle_right.svg')}
                             alt={ut.translate('global__img_alt_triable_right')} />
                 </a>
-            </span>
+            </S.Paginator>
         );
     };
 
@@ -129,7 +131,7 @@ export function init(
                         backlink={this.props.backlink}
                         supportsTileReload={this.props.supportsReloadOnError}
                         issueReportingUrl={this.props.issueReportingUrl}>
-                    <div className="MatchingDocsTile">
+                    <S.MatchingDocsTile>
                         {this.props.isTweakMode ?
                             <form className="cnc-form tile-tweak">
                                 <Paginator
@@ -148,7 +150,7 @@ export function init(
                                 <p className="note" style={{textAlign: 'center'}}>No result</p>
                             }
                         </div>
-                    </div>
+                    </S.MatchingDocsTile>
                 </globComponents.TileWrapper>
             );
         }

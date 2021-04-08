@@ -27,6 +27,8 @@ import { LemmaData, Actions } from './common';
 import { TimeDistribModel, TimeDistribModelState } from './model';
 import { List, pipe } from 'cnc-tskit';
 
+import * as S from './style';
+
 
 interface ChartDataPoint {
     year:number;
@@ -131,7 +133,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         });
 
         return (
-            <div className="ChartLegend">
+            <S.ChartLegend>
                 <span className="caption">{
                     ut.translate('multiWordTimeDistrib__estimated_trend_for')[0].toUpperCase() +
                     ut.translate('multiWordTimeDistrib__estimated_trend_for').slice(1)
@@ -146,7 +148,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     )}
                 </div>
                 <span>({props.metric})</span>
-            </div>
+            </S.ChartLegend>
         );
     }
 
@@ -398,14 +400,14 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------- <MultiWordTimeDistribTile /> ------------------------------------------------------
 
-    const MultiWordTimeDistribTile:React.SFC<TimeDistribModelState & CoreTileComponentProps> = (props) => (
+    const MultiWordTimeDistribTile:React.FC<TimeDistribModelState & CoreTileComponentProps> = (props) => (
         <globComponents.TileWrapper tileId={props.tileId} isBusy={props.isBusy} error={props.error}
                     hasData={List.some(v => v.length > 0, props.data)}
                     sourceIdent={{corp: props.corpname, subcorp: props.subcDesc}}
                     supportsTileReload={props.supportsReloadOnError}
                     issueReportingUrl={props.issueReportingUrl}
                     backlink={null}>
-            <div className="MultiWordTimeDistribTile">
+            <S.MultiWordTimeDistribTile>
                 {props.isTweakMode ?
                     <div className="tweak-box">
                         <TweakControls averagingYears={props.averagingYears} tileId={props.tileId} units={props.units} />
@@ -422,7 +424,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         zoom={props.zoom}
                         refArea={props.refArea}
                         tileId={props.tileId} />
-            </div>
+            </S.MultiWordTimeDistribTile>
         </globComponents.TileWrapper>
     );
 

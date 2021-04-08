@@ -26,6 +26,8 @@ import { QueryMatch } from '../../../../query/index';
 import { List, pipe } from 'cnc-tskit';
 import { Actions } from '../actions';
 
+import * as S from '../style';
+
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>) {
 
@@ -175,7 +177,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         tileId:number;
 
     }> = (props) => (
-        <div className="SingleWordProfile">
+        <div>
             <dl className="info">
                 {props.searchedWord ? <SrchWordInfo data={props.searchedWord} /> : null}
                 {props.similarFreqWords.length > 0 && props.searchedWord.abs > 0 ? <SimilarFreqWords data={props.similarFreqWords} expandLemmaPos={props.expandLemmaPos} tileId={props.tileId} /> : null}

@@ -27,6 +27,8 @@ import { GeoAreasModel, GeoAreasModelState } from '../model';
 import { DataRow } from '../../../../api/abstract/freqs';
 import { Dict, List } from 'cnc-tskit';
 
+import * as S from '../style';
+
 
 const createSVGElement = (parent:Element, name:string, attrs:{[name:string]:string}):SVGElement => {
     const elm = document.createElementNS('http://www.w3.org/2000/svg', name);
@@ -246,12 +248,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         sourceIdent={{corp: this.props.corpname}}
                         supportsTileReload={this.props.supportsReloadOnError}
                         issueReportingUrl={this.props.issueReportingUrl}>
-                    <div className="GeoAreasTileView">
+                    <S.GeoAreasTileView>
                         {this.props.isAltViewMode ?
                             <DataTable rows={this.props.data} /> :
                             <div className="flex-item" style={{width: areaWidth, height: '80%'}}>
                                 <div style={{width: '100%', height: '100%', overflowX: 'auto'}} dangerouslySetInnerHTML={{__html: this.props.mapSVG}} />
-                                <p className="legend">{ut.translate('geolocations__ipm_map_legend')}</p>
+                                <S.Legend>{ut.translate('geolocations__ipm_map_legend')}</S.Legend>
 
                                 {this.props.tooltipArea !== null ?
                                     <globComponents.ElementTooltip
@@ -262,7 +264,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                         values={this.props.tooltipArea.data} /> : null}
                             </div>
                         }
-                    </div>
+                    </S.GeoAreasTileView>
                 </globComponents.TileWrapper>
             );
         }

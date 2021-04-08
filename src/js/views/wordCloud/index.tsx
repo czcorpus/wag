@@ -51,7 +51,7 @@ export function init<T>(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalCompone
 
     // -------------------------- <Word /> -----------------------------------------
 
-    const Word:React.SFC<{
+    const Word:React.FC<{
         rect:Rect;
         color:string;
         font:string;

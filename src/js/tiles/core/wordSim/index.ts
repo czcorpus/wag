@@ -28,10 +28,6 @@ import { findCurrQueryMatch } from '../../../models/query';
 import { createApiInstance } from '../../../api/factory/wordSim';
 
 
-declare var require:(src:string)=>void;  // webpack
-require('./style.less');
-
-
 export interface WordSimTileConf extends TileConf {
     apiURL:string;
     apiType:string;
@@ -58,7 +54,7 @@ export class WordSimTile implements ITileProvider {
 
     private readonly view:TileComponent;
 
-    private readonly srcInfoView:React.SFC;
+    private readonly srcInfoView:React.FC;
 
     private readonly blockingTiles:Array<number>;
 
@@ -118,7 +114,7 @@ export class WordSimTile implements ITileProvider {
         return this.view;
     }
 
-    getSourceInfoComponent():React.SFC {
+    getSourceInfoComponent():React.FC {
         return this.srcInfoView;
     }
 

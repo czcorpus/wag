@@ -27,6 +27,8 @@ import { WordSimWord } from '../../../api/abstract/wordSim';
 import { OperationMode, WordSimModelState } from '../../../models/tiles/wordSim';
 import { List, pipe } from 'cnc-tskit';
 
+import * as S from './style';
+
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:WordSimModel):TileComponent  {
 
@@ -54,18 +56,18 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
 
         return (
-            <form className="Controls cnc-form tile-tweak">
+            <S.Controls className="cnc-form tile-tweak">
                 <select value={props.operationMode} onChange={handleOperationModeChange}>
                     <option value={OperationMode.MeansLike}>{ut.translate('wordsim__means_like_op')}</option>
                     <option value={OperationMode.SoundsLike}>{ut.translate('wordsim__sounds_like_op')}</option>
                 </select>
-            </form>
+            </S.Controls>
         );
     }
 
     // ------------------ <AltView /> --------------------------------------------
 
-    const TableView:React.SFC<{
+    const TableView:React.FC<{
         data:Array<WordSimWord>;
         caption:string;
 
@@ -96,7 +98,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------------------ <WordSimView /> --------------------------------------------
 
-    const WordSimView:React.SFC<WordSimModelState & CoreTileComponentProps> = (props) => {
+    const WordSimView:React.FC<WordSimModelState & CoreTileComponentProps> = (props) => {
 
         const dataTransform = (v:WordSimWord) => ({
             text: v.word,
@@ -113,9 +115,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     sourceIdent={{corp: props.corpus}}
                     supportsTileReload={props.supportsReloadOnError}
                     issueReportingUrl={props.issueReportingUrl}>
-                <div className="WordSimView">
+                <S.WordSimView>
                     {props.isTweakMode ? <Controls tileId={props.tileId} operationMode={props.operationMode} /> : null}
-                    <div className="boxes" style={{flexWrap: props.isMobile ? 'wrap' : 'nowrap'}}>
+                    <S.Boxes isMobile={props.isMobile}>
                         {List.map((data, matchIdx) => {
                             const otherWords = List.flatMap((v, i) => matchIdx === i ? [] : List.map(u => u.word, v), props.data);
 
@@ -124,7 +126,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 data ?
                                     <globalCompontents.ResponsiveWrapper minWidth={props.isMobile ? undefined : 250}
                                             widthFract={props.widthFract} key={`${matchIdx}non-empty`} render={(width:number, height:number) => (
-                                        <div className="sim-cloud">
+                                        <S.SimCloud>
                                             {props.data.length > 1 ?
                                                 <h2>{props.queryMatches[matchIdx].word}</h2> :
                                                 null
@@ -136,13 +138,13 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                                             colors={colorGen(matchIdx)}
                                                             underlineWords={otherWords}
                                             />
-                                        </div>
+                                        </S.SimCloud>
                                     )}/> :
                                     <globalCompontents.ResponsiveWrapper key={`${matchIdx}empty`} render={() => data === null ?
                                         <p>{ut.translate('global__alt_loading')}...</p> : <p>No data</p>} />
                         }, props.data)}
-                    </div>
-                </div>
+                    </S.Boxes>
+                </S.WordSimView>
             </globalCompontents.TileWrapper>
         );
     }
