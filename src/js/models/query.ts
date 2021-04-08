@@ -21,7 +21,7 @@ import { pipe, List } from 'cnc-tskit';
 
 import { IAppServices } from '../appServices';
 import { MultiDict } from '../multidict';
-import { Forms } from '../page/forms';
+import { Input, Forms } from '../page/forms';
 import { SystemMessageType } from '../types';
 import { AvailableLanguage } from '../page/hostPage';
 import { QueryType, QueryMatch, QueryTypeMenuItem, matchesPos, SearchDomain, RecognizedQueries } from '../query/index';
@@ -32,7 +32,7 @@ import { LayoutManager } from '../page/layout';
 
 
 export interface QueryFormModelState {
-    queries:Array<Forms.Input>;
+    queries:Array<Input>;
     initialQueryType:QueryType;
     multiWordQuerySupport:{[k in QueryType]?:number};
     queryType:QueryType;

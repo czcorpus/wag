@@ -20,7 +20,7 @@ import * as React from 'react';
 import { Keyboard, pipe, List } from 'cnc-tskit';
 import { tap } from 'rxjs/operators';
 
-import { Forms } from '../page/forms';
+import { Input } from '../page/forms';
 import { SystemMessageType, SourceDetails, isCorpusDetails } from '../types';
 import { QueryType, QueryMatch, QueryTypeMenuItem, SearchDomain, RecognizedQueries } from '../query/index';
 import { TileFrameProps } from '../page/tile';
@@ -156,7 +156,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const QueryInput:React.FC<{
         idx:number;
-        value:Forms.Input;
+        value:Input;
         wantsFocus:boolean;
         allowRemoval:boolean;
         onContentChange:(s:string)=>void;
@@ -288,7 +288,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     // ------------------ <QueryFields /> ------------------------------
 
     const QueryFields:React.FC<{
-        queries:Array<Forms.Input>;
+        queries:Array<Input>;
         queryType:QueryType;
         wantsFocus:boolean;
         queryDomain:string;

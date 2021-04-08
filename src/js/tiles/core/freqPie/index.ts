@@ -22,7 +22,7 @@ import { FreqSort } from '../../../api/vendor/kontext/freqs';
 import { SubqueryModeConf } from '../../../models/tiles/freq';
 import { LocalizedConfMsg } from '../../../types';
 import { QueryType } from '../../../query/index';
-import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../../page/tile';
+import { ITileProvider, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile';
 import { factory as defaultModelFactory, FreqBarModel } from '../freqBar/model';
 import { factory as subqModelFactory } from '../freqBar/subqModel';
 import { init as viewInit } from './view';
@@ -70,8 +70,11 @@ export class FreqPieTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({tileId, dispatcher, appServices, ut, theme, waitForTiles, waitForTilesTimeoutSecs, subqSourceTiles,
-            widthFract, conf, isBusy, cache}:TileFactory.Args<FreqPieTileConf>) {
+    constructor({
+        tileId, dispatcher, appServices, ut, theme, waitForTiles, waitForTilesTimeoutSecs,
+        subqSourceTiles, widthFract, conf, isBusy, cache
+    }:TileFactoryArgs<FreqPieTileConf>) {
+
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
@@ -182,7 +185,7 @@ export class FreqPieTile implements ITileProvider {
     }
 }
 
-export const init:TileFactory.TileFactory<FreqPieTileConf> = {
+export const init:TileFactory<FreqPieTileConf> = {
 
     sanityCheck: (args) => {
         const ans = [];

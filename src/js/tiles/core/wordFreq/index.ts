@@ -17,7 +17,7 @@
  */
 import { IAppServices } from '../../../appServices';
 import { QueryType } from '../../../query/index';
-import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../../page/tile';
+import { ITileProvider, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile';
 import { FlevelDistribItem, SummaryModel, findCurrentMatches, mkEmptySimilarWords } from './model';
 import { init as viewInit } from './views';
 import { StatelessModel } from 'kombo';
@@ -56,7 +56,10 @@ export class WordFreqTile implements ITileProvider {
 
     private readonly view:TileComponent;
 
-    constructor({tileId, dispatcher, appServices, ut, queryMatches, domain1, widthFract, conf, isBusy, cache, queryType}:TileFactory.Args<WordFreqTileConf>) {
+    constructor({
+        tileId, dispatcher, appServices, ut, queryMatches, domain1, widthFract,
+        conf, isBusy, cache, queryType}:TileFactoryArgs<WordFreqTileConf>
+    ) {
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
@@ -141,7 +144,7 @@ export class WordFreqTile implements ITileProvider {
     }
 }
 
-export const init:TileFactory.TileFactory<WordFreqTileConf> = {
+export const init:TileFactory<WordFreqTileConf> = {
 
     sanityCheck: (args) => [],
 

@@ -17,7 +17,7 @@
  */
 
 import { QueryType } from '../../../query/index';
-import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../../page/tile';
+import { ITileProvider, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile';
 import { TreqSubsetModel } from './model';
 import { TreqSubsetsAPI } from '../../../api/vendor/treq';
 import {init as viewInit} from './view';
@@ -58,7 +58,11 @@ export class TreqSubsetsTile implements ITileProvider {
 
     private static readonly DEFAULT_MIN_ITEM_FREQ = 1;
 
-    constructor({tileId, dispatcher, appServices, theme, ut, domain1, domain2, widthFract, waitForTiles, queryMatches, conf, isBusy, cache}:TileFactory.Args<TreqSubsetsTileConf>) {
+    constructor({
+        tileId, dispatcher, appServices, theme, ut, domain1, domain2, widthFract, waitForTiles,
+        queryMatches, conf, isBusy, cache
+    }:TileFactoryArgs<TreqSubsetsTileConf>) {
+
         this.tileId = tileId;
         this.widthFract = widthFract;
         this.blockingTiles = waitForTiles;
@@ -150,7 +154,7 @@ export class TreqSubsetsTile implements ITileProvider {
     }
 }
 
-export const init:TileFactory.TileFactory<TreqSubsetsTileConf> = {
+export const init:TileFactory<TreqSubsetsTileConf> = {
 
     sanityCheck: (args) => [],
 

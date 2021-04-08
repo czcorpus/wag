@@ -17,7 +17,7 @@
  */
 import { IActionDispatcher, StatelessModel } from 'kombo';
 import { List } from 'cnc-tskit';
-import { TileConf, ITileProvider, TileFactory, TileComponent } from '../../../page/tile';
+import { TileConf, ITileProvider, TileFactory, TileComponent, TileFactoryArgs } from '../../../page/tile';
 import { WordSimModel } from './model';
 import { IAppServices } from '../../../appServices';
 import { init as viewInit } from './view';
@@ -68,8 +68,10 @@ export class WordSimTile implements ITileProvider {
 
     private readonly api:IWordSimApi<{}>;
 
-    constructor({tileId, waitForTiles, dispatcher, appServices, ut, widthFract, conf, theme,
-            isBusy, cache, queryMatches, domain1}:TileFactory.Args<WordSimTileConf>) {
+    constructor({
+        tileId, waitForTiles, dispatcher, appServices, ut, widthFract, conf, theme,
+        isBusy, cache, queryMatches, domain1}:TileFactoryArgs<WordSimTileConf>
+    ) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.appServices = appServices;
@@ -157,7 +159,7 @@ export class WordSimTile implements ITileProvider {
     }
 }
 
-export const init:TileFactory.TileFactory<WordSimTileConf> = {
+export const init:TileFactory<WordSimTileConf> = {
 
     sanityCheck: (args) => [],
 

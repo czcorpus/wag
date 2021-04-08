@@ -21,7 +21,7 @@ import { IAppServices } from '../../../appServices';
 import { QueryType } from '../../../query/index';
 import { HtmlModel } from './model';
 import { init as viewInit } from './views';
-import { TileConf, ITileProvider, TileComponent, TileFactory } from '../../../page/tile';
+import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs } from '../../../page/tile';
 import { CoreApiGroup } from '../../../api/coreGroups';
 import { createApiInstance } from '../../../api/factory/html';
 import { IGeneralHtmlAPI } from '../../../api/abstract/html';
@@ -62,7 +62,11 @@ export class HtmlTile implements ITileProvider {
 
     private view:TileComponent;
 
-    constructor({tileId, dispatcher, appServices, ut, theme, widthFract, conf, isBusy, cache, queryMatches,}:TileFactory.Args<HtmlTileConf>) {
+    constructor({
+        tileId, dispatcher, appServices, ut, theme, widthFract, conf, isBusy,
+        cache, queryMatches
+    }:TileFactoryArgs<HtmlTileConf>) {
+
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.appServices = appServices;
@@ -147,7 +151,7 @@ export class HtmlTile implements ITileProvider {
     }
 }
 
-export const init:TileFactory.TileFactory<HtmlTileConf> = {
+export const init:TileFactory<HtmlTileConf> = {
 
     sanityCheck: (args) => [],
 

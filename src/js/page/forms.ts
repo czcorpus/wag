@@ -16,16 +16,17 @@
  * limitations under the License.
  */
 
-export namespace Forms {
+export interface Input {
+    value:string;
+    isValid:boolean;
+    isRequired:boolean;
+    errorDesc?:string;
+}
 
-    export interface Input {
-        value:string;
-        isValid:boolean;
-        isRequired:boolean;
-        errorDesc?:string;
-    }
 
-    export const updateFormInput = (formValue:Input, data:{[P in keyof Input]?: Input[P]}) => {
+export class Forms {
+
+    static updateFormInput(formValue:Input, data:{[P in keyof Input]?: Input[P]}) {
         return {
             value: data.value !== undefined ? data.value : formValue.value,
             isValid: data.isValid !== undefined ? data.isValid : formValue.isValid,
@@ -34,11 +35,11 @@ export namespace Forms {
         };
     };
 
-    export var newFormValue = (v:string, isRequired:boolean):Input => {
+    static newFormValue(v:string, isRequired:boolean):Input {
         return {value: v, isValid: true, isRequired: isRequired, errorDesc: undefined};
     }
 
-    export var resetFormValue = (formValue:Input, val:string='') => {
+    static resetFormValue(formValue:Input, val:string='') {
         return {value: val, isValid: true, isRequired: formValue.isRequired, errorDesc: undefined};
     };
 

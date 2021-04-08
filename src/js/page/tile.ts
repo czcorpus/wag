@@ -255,70 +255,66 @@ export interface ITileProvider {
  * to allow wdglance create proper instance
  * of a respective tile.
  */
-export namespace TileFactory {
+export interface TileFactoryArgs<T> {
 
-    export interface Args<T> {
+    tileId:number;
 
-        tileId:number;
+    dispatcher:IActionDispatcher;
 
-        dispatcher:IActionDispatcher;
+    ut:ViewUtils<GlobalComponents>;
 
-        ut:ViewUtils<GlobalComponents>;
+    theme:Theme,
 
-        theme:Theme,
+    appServices:IAppServices;
 
-        appServices:IAppServices;
+    queryMatches:RecognizedQueries;
 
-        queryMatches:RecognizedQueries;
+    domain1?:string;
 
-        domain1?:string;
+    domain2?:string;
 
-        domain2?:string;
-
-        queryType:QueryType;
-
-        /**
-         * Tiles we need to wait for
-         */
-        waitForTiles?:Array<number>;
-
-        waitForTilesTimeoutSecs:number;
-
-        /**
-         * Tiles we want data from (via sub-query).
-         * This may or may not intersect with waitForTiles -
-         * the application ensures that the tile waits for
-         * both 'waitForTiles' and 'subqSourceTiles'.
-         */
-        subqSourceTiles?:Array<number>;
-
-        widthFract:number;
-
-        isBusy:boolean;
-
-        conf:T;
-
-        cache:IAsyncKeyValueStore;
-    }
+    queryType:QueryType;
 
     /**
-     * TileFactory should take care of creating a TileProvider instance (= main tile object)
-     * plus it should handle runtime assertions.
+     * Tiles we need to wait for
      */
-    export interface TileFactory<T> {
+    waitForTiles?:Array<number>;
 
-        /**
-         * The sanityCheck method provides runtime assertions.
-         * Detected errors should not be thrown but rather returned.
-         * In case an empty array is returned, WaG assumes the tile
-         * is ready to run.
-         */
-        sanityCheck(args:Args<T>):Array<Error>;
+    waitForTilesTimeoutSecs:number;
 
-        /**
-         * Create a new tile instance
-         */
-        create(args:Args<T>):ITileProvider;
+    /**
+     * Tiles we want data from (via sub-query).
+     * This may or may not intersect with waitForTiles -
+     * the application ensures that the tile waits for
+     * both 'waitForTiles' and 'subqSourceTiles'.
+     */
+    subqSourceTiles?:Array<number>;
 
-    }
+    widthFract:number;
+
+    isBusy:boolean;
+
+    conf:T;
+
+    cache:IAsyncKeyValueStore;
+}
+
+/**
+ * TileFactory should take care of creating a TileProvider instance (= main tile object)
+ * plus it should handle runtime assertions.
+ */
+export interface TileFactory<T> {
+
+    /**
+     * The sanityCheck method provides runtime assertions.
+     * Detected errors should not be thrown but rather returned.
+     * In case an empty array is returned, WaG assumes the tile
+     * is ready to run.
+     */
+    sanityCheck(args:TileFactoryArgs<T>):Array<Error>;
+
+    /**
+     * Create a new tile instance
+     */
+    create(args:TileFactoryArgs<T>):ITileProvider;
 }

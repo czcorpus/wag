@@ -17,7 +17,7 @@
  */
 import { IAppServices } from '../../../appServices';
 import { QueryType } from '../../../query/index';
-import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../../page/tile';
+import { ITileProvider, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile';
 import { SearchPackages } from '../../../api/vendor/treq';
 import { TranslationsModel } from './model';
 import { init as viewInit } from './view';
@@ -56,7 +56,11 @@ export class TranslationsTile implements ITileProvider {
 
     private static readonly DEFAULT_MIN_ITEM_FREQ = 1;
 
-    constructor({tileId, dispatcher, appServices, ut, theme, domain1, domain2, queryMatches, widthFract, conf, isBusy, cache}:TileFactory.Args<TranslationsTileConf>) {
+    constructor({
+        tileId, dispatcher, appServices, ut, theme, domain1, domain2, queryMatches, widthFract,
+        conf, isBusy, cache
+    }:TileFactoryArgs<TranslationsTileConf>) {
+
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
@@ -138,7 +142,7 @@ export class TranslationsTile implements ITileProvider {
     }
 }
 
-export const init:TileFactory.TileFactory<TranslationsTileConf> = {
+export const init:TileFactory<TranslationsTileConf> = {
 
     sanityCheck: (args) => [],
 

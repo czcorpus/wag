@@ -23,7 +23,7 @@ import { QueryType } from '../../../query/index';
 import { CollocMetric } from './common';
 import { CollocModel } from './model';
 import { init as viewInit } from './views';
-import { TileConf, ITileProvider, TileComponent, TileFactory, Backlink } from '../../../page/tile';
+import { TileConf, ITileProvider, TileComponent, TileFactory, Backlink, TileFactoryArgs } from '../../../page/tile';
 import { CollocationApi, SrchContextType } from '../../../api/abstract/collocations';
 import { createInstance } from '../../../api/factory/collocations';
 import { createApiInstance } from '../../../api/factory/concordance';
@@ -74,7 +74,12 @@ export class CollocationsTile implements ITileProvider {
 
     private readonly api:CollocationApi<{}>;
 
-    constructor({tileId, dispatcher, appServices, ut, theme, waitForTiles, waitForTilesTimeoutSecs, widthFract, conf, isBusy, queryMatches, cache, queryType}:TileFactory.Args<CollocationsTileConf>) {
+    constructor({
+        tileId, dispatcher, appServices, ut, theme, waitForTiles,
+        waitForTilesTimeoutSecs, widthFract, conf, isBusy,
+        queryMatches, cache, queryType
+    }:TileFactoryArgs<CollocationsTileConf>) {
+
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.appServices = appServices;
@@ -179,7 +184,7 @@ export class CollocationsTile implements ITileProvider {
     }
 }
 
-export const init:TileFactory.TileFactory<CollocationsTileConf> = {
+export const init:TileFactory<CollocationsTileConf> = {
 
     sanityCheck: (args) => {
         const ans:Array<Error> = [];

@@ -20,7 +20,7 @@ import { List } from 'cnc-tskit';
 import { IAppServices } from '../../../appServices';
 import { FreqSort } from '../../../api/vendor/kontext/freqs';
 import { QueryType } from '../../../query/index';
-import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../../page/tile';
+import { ITileProvider, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile';
 import { MultiWordGeoAreasModel } from './model';
 import { init as viewInit } from './views';
 import { MapLoader } from './mapLoader';
@@ -65,8 +65,11 @@ export class MultiWordGeoAreasTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({tileId, dispatcher, appServices, ut, theme, waitForTiles, waitForTilesTimeoutSecs, widthFract, conf,
-            isBusy, cache, queryMatches}:TileFactory.Args<MultiWordGeoAreasTileConf>) {
+    constructor({
+        tileId, dispatcher, appServices, ut, theme, waitForTiles, waitForTilesTimeoutSecs,
+        widthFract, conf, isBusy, cache, queryMatches
+    }:TileFactoryArgs<MultiWordGeoAreasTileConf>) {
+
         this.tileId = tileId;
         this.label = appServices.importExternalMessage(conf.label);
         this.dispatcher = dispatcher;
@@ -163,7 +166,7 @@ export class MultiWordGeoAreasTile implements ITileProvider {
     }
 }
 
-export const init:TileFactory.TileFactory<MultiWordGeoAreasTileConf> = {
+export const init:TileFactory<MultiWordGeoAreasTileConf> = {
 
     sanityCheck: (args) => [],
 

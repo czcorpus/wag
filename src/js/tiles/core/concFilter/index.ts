@@ -20,13 +20,12 @@ import { Observable, of as rxOf } from 'rxjs';
 
 import { IAppServices } from '../../../appServices';
 import { QueryType } from '../../../query/index';
-import { TileConf, ITileProvider, TileFactory, TileComponent } from '../../../page/tile';
+import { TileConf, ITileProvider, TileFactory, TileComponent, TileFactoryArgs } from '../../../page/tile';
 import { ConcFilterModel } from './model';
 import { init as viewInit } from './view';
 import { ConcApi } from '../../../api/vendor/kontext/concordance/v015';
 import { ViewMode } from '../../../api/abstract/concordance';
 import { LocalizedConfMsg } from '../../../types';
-import { SwitchMainCorpApi } from '../../../api/vendor/kontext/switchMainCorp';
 import { ISwitchMainCorpApi, SwitchMainCorpResponse } from '../../../api/abstract/switchMainCorp';
 import { TileWait } from '../../../models/tileSync';
 import { List } from 'cnc-tskit';
@@ -74,8 +73,12 @@ export class ConcFilterTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({tileId, waitForTiles, waitForTilesTimeoutSecs, subqSourceTiles, dispatcher, appServices, ut, widthFract,
-            conf, theme, isBusy, cache, domain2, queryMatches}:TileFactory.Args<ConcFilterTileConf>) {
+    constructor({
+        tileId, waitForTiles, waitForTilesTimeoutSecs, subqSourceTiles,
+        dispatcher, appServices, ut, widthFract, conf, theme, isBusy, cache,
+        domain2, queryMatches
+    }:TileFactoryArgs<ConcFilterTileConf>) {
+
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.widthFract = widthFract;
@@ -165,7 +168,7 @@ export class ConcFilterTile implements ITileProvider {
     }
 }
 
-export const init:TileFactory.TileFactory<ConcFilterTileConf> = {
+export const init:TileFactory<ConcFilterTileConf> = {
 
     sanityCheck: (args) => {
         const ans:Array<Error> = [];
