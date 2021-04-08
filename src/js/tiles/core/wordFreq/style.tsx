@@ -19,7 +19,7 @@
  */
 
 import styled from 'styled-components';
-import * as globals from '../../../styles/globals';
+import * as theme from '../../../styles/theme';
 
 
 export const WordFreqTileView = styled.div`
@@ -47,8 +47,8 @@ export const WordFreqTileView = styled.div`
 
         dt {
             margin-bottom: 0.4em;
-            color: ${globals.colorLightText};
-            font-family: ${globals.condensedFontFamily};
+            color: ${theme.colorLightText};
+            font-family: ${theme.condensedFontFamily};
         }
 
         dd {
@@ -56,7 +56,7 @@ export const WordFreqTileView = styled.div`
             margin-left: 1em;
 
             span.squareb {
-                color: ${globals.colorLightText};
+                color: ${theme.colorLightText};
             }
         }
 
@@ -67,19 +67,19 @@ export const WordFreqTileView = styled.div`
         dd.word-list {
             font-size: 1.3em;
             a {
-                color: ${globals.colorDefaultText};
+                color: ${theme.colorDefaultText};
                 cursor: pointer;
                 text-decoration: none;
             }
 
             a:hover {
-                color: ${globals.colorLogoBlue};
+                color: ${theme.colorLogoBlue};
                 text-decoration: underline;
             }
         }
     }
 
-    ${globals.mediaSmallScreen} {
+    ${theme.mediaSmallScreen} {
         flex-direction: column;
 
         & > div.cell h3 {
@@ -103,7 +103,7 @@ export const MultiWordProfile = styled.div`
         border-spacing: 2px 4px;
 
         thead th {
-            color: ${globals.colorLightText};
+            color: ${theme.colorLightText};
             text-align: right;
         }
 
@@ -113,8 +113,8 @@ export const MultiWordProfile = styled.div`
         }
 
         th.query-num {
-            background-color: ${globals.colorLightGrey};
-            color: ${globals.colorDefaultText};
+            background-color: ${theme.colorLightGrey};
+            color: ${theme.colorDefaultText};
             border-radius: 0.3em;
         }
 

@@ -19,7 +19,7 @@
  */
 
 import styled from 'styled-components';
-import * as globals from '../../../styles/globals';
+import * as theme from '../../../styles/theme';
 
 export const Boxes = styled.div`
     overflow-y: hidden;
@@ -33,7 +33,7 @@ export const Boxes = styled.div`
     & > .chart {
         min-width: 50%;
 
-        ${globals.mediaMediumScreen} {
+        ${theme.mediaMediumScreen} {
             min-width: initial;
             width: 100%;
         }
@@ -51,7 +51,7 @@ export const CollocCloud = styled.div`
         font-size: 1.4em;
         padding-bottom: 0.3em;
         padding-left: 0.7em;
-        border-color: ${globals.colorLightGrey};
+        border-color: ${theme.colorLightGrey};
         border-style: solid;
         border-width: 0 0 1px 0;
         margin: 0 0.5em 1em 0.5em;

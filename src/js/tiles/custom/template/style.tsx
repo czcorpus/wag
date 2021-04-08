@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import * as globals from '../../../styles/globals';
+import * as theme from '../../../styles/theme';
 
 export const __Template__Tile = styled.div`
 `;

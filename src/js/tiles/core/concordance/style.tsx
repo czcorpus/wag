@@ -19,7 +19,7 @@
  */
 
 import styled from 'styled-components';
-import * as globals from '../../../styles/globals';
+import * as theme from '../../../styles/theme';
 
 export const ConcordanceTileView = styled.div`
     overflow: hidden;
@@ -30,7 +30,7 @@ export const QueryInfo = styled.p`
 
     a.variant {
         cursor: pointer;
-        color: ${globals.colorDefaultText};
+        color: ${theme.colorDefaultText};
         font-weight: bold;
         text-decoration: none;
     }
@@ -50,14 +50,14 @@ export const Summary = styled.dl`
     }
 
     dt {
-        font-family: ${globals.condensedFontFamily};
-        color: ${globals.colorLightText};
+        font-family: ${theme.condensedFontFamily};
+        color: ${theme.colorLightText};
     }
 
     dd {
         font-weight: bold;
         margin-left: 0.3em;
-        color: ${globals.colorLightText};
+        color: ${theme.colorLightText};
     }
 
     dd:not(:last-child)::after {
@@ -76,7 +76,7 @@ export const LineMetadata = styled.div`
     padding: 1em;
     background-color: #FFFFFF;
     margin-left: 0em;
-    border: 1px solid ${globals.colorLightGrey};
+    border: 1px solid ${theme.colorLightGrey};
     border-radius: 3px;
     border-spacing: 0;
     border-collapse: collapse;
@@ -106,7 +106,7 @@ export const LineMetadata = styled.div`
 `;
 
 export const ConcLines = styled.table`
-    font-family: ${globals.condensedFontFamily};
+    font-family: ${theme.condensedFontFamily};
     display: inline-block;
     border-spacing: 0;
 
@@ -129,7 +129,7 @@ export const ConcLines = styled.table`
         display: block;
 
         tr:nth-child(odd) {
-            background-color: ${globals.colorWhitelikeBlue};
+            background-color: ${theme.colorWhitelikeBlue};
         }
 
         tr {
@@ -185,7 +185,7 @@ export const Row = styled.tr`
         padding-left: 0.7em;
         padding-right: 0.7em;
         text-align: center;
-        color: ${globals.colorLogoPink};
+        color: ${theme.colorLogoPink};
     }
 `;
 

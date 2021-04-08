@@ -19,7 +19,7 @@
  */
 
 import styled from 'styled-components';
-import * as globals from './globals';
+import * as theme from './theme';
 
 // ---------------- <WdglanceMain /> --------------------------------------
 
@@ -120,7 +120,7 @@ export const WdglanceControls = styled.div`
 
         .curr {
             font-size: 125%;
-            color: ${globals.colorLogoPink};
+            color: ${theme.colorLogoPink};
         }
 
         .variants > ul {
@@ -135,7 +135,7 @@ export const WdglanceControls = styled.div`
                 display: inline-block;
 
                 a {
-                    color: ${globals.colorLogoBlue};
+                    color: ${theme.colorLogoBlue};
                     cursor: pointer;
                 }
 
@@ -147,7 +147,7 @@ export const WdglanceControls = styled.div`
 
         a.modal-box-trigger {
             cursor: pointer;
-            color: ${globals.colorLogoPink};
+            color: ${theme.colorLogoPink};
         }
     }
 
@@ -178,7 +178,7 @@ export const WdglanceControls = styled.div`
 
                 em {
                     font-style: normal;
-                    color: ${globals.colorLogoPink};
+                    color: ${theme.colorLogoPink};
                 }
 
                 input[type="radio"] {
@@ -224,14 +224,14 @@ export const WdglanceControls = styled.div`
             }
 
             a:hover {
-                color: ${globals.colorLogoBlue};
+                color: ${theme.colorLogoBlue};
             }
 
         }
 
         .item.current {
             border-style: solid;
-            border-color: ${globals.colorLogoBlue};
+            border-color: ${theme.colorLogoBlue};
             border-width: 0 0 2px 0;
         }
     }
@@ -260,7 +260,7 @@ export const WdglanceControls = styled.div`
     }
 
     .QueryInput.invalid {
-        border-color: ${globals.colorLogoOrange};
+        border-color: ${theme.colorLogoOrange};
     }
 
     .input-group .input-row:not(:last-child) {
@@ -325,7 +325,7 @@ export const WdglanceControls = styled.div`
         }
     }
 
-    ${globals.mediaMediumScreen} {
+    ${theme.mediaMediumScreen} {
         .main {
             flex-wrap: wrap;
 
@@ -357,7 +357,7 @@ export const WdglanceControls = styled.div`
 
             .item.current {
                 border: none;
-                color: ${globals.colorLogoBlue};
+                color: ${theme.colorLogoBlue};
             }
 
             .item.current a:after {
@@ -374,7 +374,7 @@ export const WdglanceControls = styled.div`
         }
     }
 
-    ${globals.mediaSmallScreen} {
+    ${theme.mediaSmallScreen} {
         padding: 0;
         margin-bottom: 2em;
 
@@ -418,11 +418,11 @@ export const TilesSections = styled.section`
         left: calc(100% - 100px);
     }
 
-    ${globals.mediaMediumScreen} {
+    ${theme.mediaMediumScreen} {
         padding: 0;
     }
 
-    ${globals.mediaSmallScreen} {
+    ${theme.mediaSmallScreen} {
         padding: 0;
     }
 `;
@@ -446,7 +446,7 @@ export const Group = styled.section`
         margin-top: 1.7em;
     }
 
-    ${globals.mediaMediumScreen} {
+    ${theme.mediaMediumScreen} {
         & > header {
             display: block;
 
@@ -456,7 +456,7 @@ export const Group = styled.section`
         }
     }
 
-    ${globals.mediaSmallScreen} {
+    ${theme.mediaSmallScreen} {
         & > header {
             display: block;
 
@@ -480,7 +480,7 @@ export const MinimizedGroup = styled.ul`
 
     li {
         a {
-            color: ${globals.colorLogoBlue};
+            color: ${theme.colorLogoBlue};
             cursor: pointer;
         }
     }
@@ -589,7 +589,7 @@ export const Tiles = styled.section`
         }
     }
 
-    ${globals.mediaMediumScreen} {
+    ${theme.mediaMediumScreen} {
         display: grid;
         grid-gap: 1em;
         grid-template-columns: 1fr;
@@ -615,7 +615,7 @@ export const Tiles = styled.section`
         }
     }
 
-    ${globals.mediaSmallScreen} {
+    ${theme.mediaSmallScreen} {
         .app-output .panel h2 {
             font-size: 1.1em;
         }
@@ -631,7 +631,7 @@ export const TileGroupButton = styled.section`
     &.disabled {
 
         h2 {
-            background-color: ${globals.colorLightText};
+            background-color: ${theme.colorLightText};
 
             .flex {
 
@@ -651,7 +651,7 @@ export const TileGroupButton = styled.section`
     }
 
     h2 {
-        background-color: ${globals.colorLogoBlue};
+        background-color: ${theme.colorLogoBlue};
         color: #ffffff;
         border-radius: 0.25em;
         font-weight: 400;
@@ -683,7 +683,7 @@ export const TileGroupButton = styled.section`
             }
 
             a:hover {
-                color: ${globals.colorLogoBlueShining};
+                color: ${theme.colorLogoBlueShining};
             }
 
             .triangle {
@@ -718,7 +718,7 @@ export const TileGroupButton = styled.section`
         }
     }
 
-    ${globals.mediaMediumScreen} {
+    ${theme.mediaMediumScreen} {
 
         white-space: normal;
 
@@ -747,7 +747,7 @@ export const TileGroupButton = styled.section`
         }
     }
 
-    ${globals.mediaSmallScreen} {
+    ${theme.mediaSmallScreen} {
 
         width: 100%;
         white-space: normal;

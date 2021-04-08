@@ -19,7 +19,7 @@
  */
 
 import styled from 'styled-components';
-import * as globals from '../../../styles/globals';
+import * as theme from '../../../styles/theme';
 
 export const FreqComparisonTile = styled.div`
     min-height: 15em;

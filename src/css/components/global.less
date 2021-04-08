@@ -1,117 +1,6 @@
 @import '../shared.less';
 
 
-.AjaxLoader.centered {
-    display: block;
-    margin: 2em auto 2em auto;
-}
-
-
-@keyframes slidein {
-    0% {
-        transform: translate(0);
-    }
-    100% {
-        transform: translate(220%);
-    }
-  }
-
-.TileWrapper {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    height: 100%;
-
-    .loader-wrapper {
-        height: 0.2em;
-
-        .TitleLoaderBar {
-
-            animation: slidein 3s linear 0s infinite running;
-
-            .grad {
-                position: relative;
-                margin-left: -110%;
-                width: 100%;
-                height: 0.2em;
-                background: linear-gradient(0.25turn, #ffffff, @color-logo-pink, #ffffff);
-            }
-        }
-    }
-
-    .content {
-        font-size: .9em;
-        padding: 1.25em;
-
-        .tweak-box {
-            margin-bottom: 1.5em;
-        }
-    }
-
-    .source {
-        font-size: .9em;
-        padding: 1.25em;
-        color: @color-light-text;
-
-        a {
-            cursor: pointer;
-            text-decoration: none;
-            color: @color-logo-blue;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-    }
-
-    .empty {
-
-        .not-applicable-box {
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-
-            p.not-applicable {
-                display: flex;
-                flex-grow: 1;
-                margin: 0;
-                color: @color-superlight-grey;
-                font-size: 9em;
-                text-align: center;
-                justify-content: center;
-                align-items: center;
-
-                span {
-
-                }
-            }
-        }
-    }
-}
-
-.HorizontalBlockSwitch {
-
-    padding-top: 0.3em;
-    padding-top: 0.3em;
-    text-align: center;
-
-    a {
-        color: @color-logo-blue;
-        cursor: pointer;
-        font-size: 2em;
-        padding: 0.2em;
-        display: inline-block;
-    }
-
-    a:hover {
-        text-decoration: none;
-    }
-
-    a.current {
-        color: @color-logo-blue-shining;
-    }
-}
-
 .BacklinkForm {
     display: inline;
     padding: 0;
@@ -132,20 +21,6 @@
     button:hover {
         text-decoration: underline;
     }
-}
-
-.TileReloadControl {
-
-    text-align: center;
-
-    a {
-        cursor: pointer;
-        font-size: 1.5em;
-    }
-}
-
-.ResponsiveWrapper {
-    height: 100%;
 }
 
 .SourceInfoBox {

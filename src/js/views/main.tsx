@@ -34,6 +34,7 @@ import { GlobalComponents } from './global';
 import { timer } from 'rxjs';
 
 import * as S from '../styles/style';
+import * as SG from '../styles/global';
 
 
 export interface WdglanceMainProps {
@@ -762,7 +763,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         reason:string;
 
     }> = (props) => (
-        <div className="TileWrapper empty">
+        <SG.TileWrapper className="empty">
             <div className="loader-wrapper"></div>
             <div className="cnc-tile-body content empty">
                 <div className="not-applicable-box">
@@ -775,7 +776,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <p className="not-applicable" title={ut.translate('global__not_applicable')}><span>N/A</span></p>
                 </div>
             </div>
-        </div>
+        </SG.TileWrapper>
     );
 
 
@@ -1012,7 +1013,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <S.Tiles>
                         <section className="cnc-tile app-output" style={{gridColumn: 'span 3'}}>
                             <div className="provider">
-                                <div className="TileWrapper">
+                                <SG.TileWrapper>
                                     <div className="cnc-tile-body content empty">
                                         <div className="message">
                                             <globalComponents.MessageStatusIcon statusType={SystemMessageType.WARNING} isInline={false} />
@@ -1021,7 +1022,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                             </p>
                                         </div>
                                     </div>
-                                </div>
+                                </SG.TileWrapper>
                             </div>
                         </section>
                     </S.Tiles>

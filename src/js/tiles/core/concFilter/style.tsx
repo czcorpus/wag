@@ -19,7 +19,7 @@
  */
 
 import styled from 'styled-components';
-import * as globals from '../../../styles/globals';
+import * as theme from '../../../styles/theme';
 
 export const Sentences = styled.div`
     p {
@@ -27,11 +27,11 @@ export const Sentences = styled.div`
         padding: 0;
 
         .kwic {
-            color: ${globals.colorLogoPink};
+            color: ${theme.colorLogoPink};
         }
 
         .coll {
-            color: ${globals.colorLogoPink};
+            color: ${theme.colorLogoPink};
             font-style: italic;
         }
 
@@ -102,16 +102,16 @@ export const FilteredLine = styled.div`
     }
 
     .flex.highlighted {
-        background-color: ${globals.colorDataHighlightRow};
+        background-color: ${theme.colorDataHighlightRow};
     }
 
     &:nth-child(odd) {
         .flex {
-            background-color: ${globals.colorWhitelikeBlue};
+            background-color: ${theme.colorWhitelikeBlue};
         }
 
         .flex.highlighted {
-            background-color: ${globals.colorDataHighlightRow};
+            background-color: ${theme.colorDataHighlightRow};
         }
     }
 `;

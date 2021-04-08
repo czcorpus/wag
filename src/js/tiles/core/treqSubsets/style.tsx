@@ -19,7 +19,7 @@
  */
 
 import styled from 'styled-components';
-import * as globals from '../../../styles/globals';
+import * as theme from '../../../styles/theme';
 
 
 export const TreqSubsetsView = styled.div`
@@ -66,7 +66,7 @@ export const ChartLikeTable = styled.table`
     }
 
     tr.highlighted {
-        background-color: ${globals.colorDataHighlightRow};
+        background-color: ${theme.colorDataHighlightRow};
     }
 
     .SimpleBar {

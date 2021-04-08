@@ -19,7 +19,7 @@
  */
 
 import styled from 'styled-components';
-import * as globals from '../../../styles/globals';
+import * as theme from '../../../styles/theme';
 
 
 export const SpeechesTile = styled.div`
@@ -89,8 +89,8 @@ export const Speeches = styled.dl`
 export const Speaker = styled.dt`
     text-align: left;
     strong {
-        border: 1px solid ${globals.colorLightText};
-        border-radius: ${globals.defaultBorderRadius};
+        border: 1px solid ${theme.colorLightText};
+        border-radius: ${theme.defaultBorderRadius};
         display: inline-block;
         vertical-align: middle;
         font-size: 0.8em;
@@ -127,7 +127,7 @@ export const Speech = styled.dd`
     }
 
     .coll {
-        color: ${globals.colorLogoPink};
+        color: ${theme.colorLogoPink};
         font-weight: bold;
     }
 `;
