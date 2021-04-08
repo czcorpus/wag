@@ -157,3 +157,129 @@ export const ResponsiveWrapper = styled.div`
     height: 100%;
     min-width: ${props => props.minWidth ? props.minWidth : 'auto'};
 `;
+
+// ---------------- <ModalOverlay /> --------------------------------------
+
+export const ModalOverlay = styled.div`
+    position: fixed;
+    z-index: 10000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: hsla(0,0%,8%,.7);
+
+    .box {
+        position: absolute;
+        top: 30%;
+        left: 50%;
+        transform: translate(-50%,-30%);
+        max-height: 100%;
+
+        header span:first-letter {
+            text-transform: uppercase;
+        }
+    }
+
+    button.close {
+        border: none;
+        padding: 0 0 0 2em;
+        background-color: transparent;
+        cursor: pointer;
+
+        img {
+            width: 1.2em;
+            display: inline-block;
+            margin: 0;
+            padding: 0;
+        }
+    }
+
+    button.close:focus {
+        outline: none;
+    }
+
+    button.close::-moz-focus-inner {
+        border: 0;
+    }
+
+    header {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 1.2em;
+    }
+
+    .content {
+        padding: 1.25em;
+    }
+
+    ${theme.mediaMediumScreen} {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .box {
+            position: relative;
+            transform: none;
+            top: 0;
+            left: 0;
+            max-height: 100%;
+
+            header button.close img {
+                width: 1.7em;
+            }
+
+            .content {
+                height: 40em;
+                display: flex;
+                flex-direction: column;
+                overflow: auto;
+
+                .raw-html {
+                    height: 100%;
+                }
+            }
+
+            footer {
+                position: absolute;
+                z-index: 10001;
+                overflow: hidden;
+                margin-top: -3em;
+                width: 100%;
+                height: 3em;
+
+                .fcontent {
+                    height: 100%;
+                    background: linear-gradient(transparent 0%, white);
+                }
+
+                .fcontent:after {
+                    content: ' ';
+                }
+            }
+        }
+    }
+
+    ${theme.mediaSmallScreen} {
+        background-color: hsla(0,0%,8%,.7);
+
+        .box {
+            height: calc(100vh - 2em);
+            width: calc(100vw - 1em);
+            margin: 0 auto;
+
+            .content {
+                height: calc(100vh - 9em);
+                overflow: auto;
+            }
+        }
+
+        button.close {
+            img {
+                width: 1.8em;
+            }
+        }
+    }
+`;

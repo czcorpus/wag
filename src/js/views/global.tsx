@@ -475,7 +475,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
             const tileClasses = `content cnc-tile-body${this.props.tileClass ? ' ' + this.props.tileClass : ''}`;
 
             return (
-                <div id="modal-overlay">
+                <S.ModalOverlay id="modal-overlay">
                     <div className="box cnc-tile">
                         <header className="cnc-tile-header">
                             <span>{this.props.title}</span>
@@ -492,7 +492,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                         </div>
                         <footer><div className="fcontent" /></footer>
                     </div>
-                </div>
+                </S.ModalOverlay>
             );
         }
     }

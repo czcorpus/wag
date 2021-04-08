@@ -512,7 +512,9 @@ export const Tiles = styled.section`
     }
 
     .app-output {
-
+        border-color: ${theme.colorLogoBlue};
+        border-radius: ${theme.defaultBorderRadius};
+        overflow: hidden;
         display: flex;
         flex-direction: column;
 
@@ -774,5 +776,160 @@ export const TileGroupButton = styled.section`
 
             }
         }
+    }
+`;
+
+// ---------------- <SourceInfoBox /> --------------------------------------
+
+export const SourceInfoBox = styled.div`
+    font-size: 1.1em;
+
+    ul.information-tab-sel {
+
+        list-style-type: none;
+        text-align: center;
+        margin-top: 0;
+        margin-bottom: 2.5em;
+        padding: 0;
+
+        li {
+            display: inline-block;
+            font-size: 1em;
+
+            a {
+                color: ${theme.colorDefaultText};
+                cursor: pointer;
+                margin: 0 0.6em;
+                text-decoration: none;
+            }
+
+            a.current {
+                border-color: ${theme.colorLogoBlue};
+                border-style: solid;
+                border-width: 0 0 2px 0;
+            }
+
+            .separ {
+
+            }
+        }
+    }
+
+    table.struct-info {
+        th {
+            text-align: left;
+            font-weight: normal;
+            color: ${theme.colorLogoPink};
+        }
+    }
+
+    h2 {
+        margin-bottom: 1em;
+        font-size: 1.3em;
+        font-weight: normal;
+    }
+
+    dl {
+
+        dt {
+            margin-bottom: 0.4em;
+            color: ${theme.colorLightText};
+            font-family: ${theme.condensedFontFamily};
+        }
+
+        dd {
+            margin-left: 1.2em;
+        }
+
+        dd:not(:last-child) {
+            margin-bottom: 0.9em;
+        }
+    }
+
+    .empty-citation-info {
+        margin-bottom: 0.7em;
+    }
+
+    td.numeric {
+        padding-left: 1em;
+        text-align: right;
+    }
+
+    .keyword {
+        border-style: solid;
+        border-color: ${theme.colorLogoBlue};
+        border-width: 1pt;
+        border-radius: 5px;
+        margin: 0.4em 0.2em;
+        padding: 0.2em 0.4em;
+        font-size: small;
+    }
+
+    .citation {
+        em {
+            color: ${theme.colorLogoPink};
+        }
+
+        a {
+            color: ${theme.colorLogoBlue};
+        }
+    }
+`;
+
+// ---------------- <LangSwitchToolbar /> --------------------------------------
+
+export const LangSwitchToolbar = styled.div`
+    color: ${theme.colorLightText};
+    text-align: right;
+    font-size: 0.9em;
+
+    ul {
+        list-style-type: none;
+        margin: 0;
+
+        li {
+            margin: 0;
+            padding: 0;
+            display: inline-block;
+
+            button {
+                border: none;
+                background-color: transparent;
+                cursor: pointer;
+                color: ${theme.colorLightText};
+                padding: 0 0.2em;
+            }
+
+            button:hover {
+                color: ${theme.colorLogoBlue};
+            }
+
+            button.current {
+                text-decoration: none;
+                border-style: solid;
+                border-width: 0 0 1px 0;
+                border-color: ${theme.colorLogoBlue};
+            }
+        }
+
+        li:not(:last-child):after {
+            content: '\00a0|\00a0'
+        }
+    }
+`;
+
+// ---------------- <ErrPage /> --------------------------------------
+
+export const ErrPage = styled.div`
+    margin: 2em auto 3em auto;
+    margin-bottom: 2em;
+    max-width: 20em;
+
+    header.err {
+        color: ${theme.colorLogoPink};
+    }
+
+    a {
+        color: ${theme.colorLogoBlue};
     }
 `;

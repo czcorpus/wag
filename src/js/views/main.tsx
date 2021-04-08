@@ -33,7 +33,7 @@ import { init as corpusInfoViewInit } from './corpusInfo';
 import { GlobalComponents } from './global';
 import { timer } from 'rxjs';
 
-import * as S from '../styles/style';
+import * as S from '../styles/main';
 import * as SG from '../styles/global';
 
 

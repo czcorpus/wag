@@ -20,15 +20,18 @@ import * as React from 'react';
 import { ViewUtils } from 'kombo';
 import { GlobalComponents } from './global';
 
+import * as S from '../styles/main';
+
+
 export interface ErrPageProps {
     error:[number, string]|null;
 }
 
-export function init(ut:ViewUtils<GlobalComponents>):React.SFC<ErrPageProps> {
+export function init(ut:ViewUtils<GlobalComponents>):React.FC<ErrPageProps> {
 
-    const ErrPage:React.SFC<ErrPageProps> = (props) => {
+    const ErrPage:React.FC<ErrPageProps> = (props) => {
         return (
-            <div className="ErrPage">
+            <S.ErrPage>
                 <div className="cnc-tile">
                     <header className="cnc-tile-header panel err">{ut.translate('global__server_error')}</header>
                     <div className="tile-body text">
@@ -36,7 +39,7 @@ export function init(ut:ViewUtils<GlobalComponents>):React.SFC<ErrPageProps> {
                         <p><a href={ut.createActionUrl('/')}>{ut.translate('global__go_to_main_page')}</a></p>
                     </div>
                 </div>
-            </div>
+            </S.ErrPage>
         );
     };
 
