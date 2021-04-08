@@ -39,7 +39,6 @@
       "webpack --config webpack.server.js"
     ],
     "build:server": [
-      "npm test",
       "webpack --config webpack.server.js"
     ],
     "check:client": [
