@@ -41,10 +41,10 @@
     "build:server": [
       "webpack --config webpack.server.js"
     ],
-    "check:client": [
+    "typecheck:client": [
       "node_modules/typescript/bin/tsc --project ./tsconfig.json"
     ],
-    "check:server": [
+    "typecheck:server": [
       "node_modules/typescript/bin/tsc --project ./tsconfig.server.json"
     ],
     "create:custom-tile": "ts-node ./scripts/create-tile.ts $1",
