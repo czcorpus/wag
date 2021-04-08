@@ -14,8 +14,8 @@
       "production:Checks and builds all the sources for production": "build:production"
     },
     "check types": {
-      "client types": "check:client",
-      "server types": "check:server"
+      "client types": "typecheck:client",
+      "server types": "typecheck:server"
     },
     "create:Create menu...": {
       "custom-tile": "create:custom-tile",
