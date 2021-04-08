@@ -31,14 +31,22 @@
       "ajv -s ./conf/server-schema.json -d ./conf/server.sample.json",
       "ajv -s ./conf/wdglance-schema.json -d ./conf/wdglance.sample.json"
     ],
-    "build:devel": "webpack --config webpack.dev.js",
     "build:production": [
+      "node_modules/typescript/bin/tsc --project ./tsconfig.json",
+      "node_modules/typescript/bin/tsc --project ./tsconfig.server.json",
       "npm test",
-      "webpack --config webpack.prod.js"
+      "webpack --config webpack.prod.js",
+      "webpack --config webpack.server.js"
     ],
     "build:server": [
       "npm test",
       "webpack --config webpack.server.js"
+    ],
+    "check:client": [
+      "node_modules/typescript/bin/tsc --project ./tsconfig.json"
+    ],
+    "check:server": [
+      "node_modules/typescript/bin/tsc --project ./tsconfig.server.json"
     ],
     "create:custom-tile": "ts-node ./scripts/create-tile.ts $1",
     "create:tile-conf": "ts-node ./scripts/create-tile-conf.ts $1",

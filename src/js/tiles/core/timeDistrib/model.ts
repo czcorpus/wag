@@ -37,19 +37,19 @@ import { PriorityValueFactory } from '../../../priority';
 import { DataRow } from '../../../api/abstract/freqs';
 
 
-export const enum FreqFilterQuantity {
+export enum FreqFilterQuantity {
     ABS = 'abs',
     ABS_PERCENTILE = 'pabs',
     IPM = 'ipm',
     IPM_PERCENTILE = 'pipm'
 }
 
-export const enum AlignType {
+export enum AlignType {
     RIGHT = 'right',
     LEFT = 'left'
 }
 
-export const enum Dimension {
+export enum Dimension {
     FIRST = 1,
     SECOND = 2
 }

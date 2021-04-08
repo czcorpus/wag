@@ -40,12 +40,14 @@ module.exports = (env) => ({
                 test: /\.tsx?$/,
                 use: [
                     {
-                        loader: 'awesome-typescript-loader',
+                        loader: 'babel-loader',
+                        /*
                         options: {
                             configFileName: path.resolve(__dirname, 'tsconfig.server.json'),
                             transpileOnly: env ? !!env.TS_TRANSPILE_ONLY : false,
                             useCache: false
                         }
+                        */
                     }
                 ]
             },
