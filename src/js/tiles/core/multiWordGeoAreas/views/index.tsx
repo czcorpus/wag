@@ -22,7 +22,7 @@ import { fromEvent } from 'rxjs';
 import { Theme } from '../../../../page/theme';
 import { CoreTileComponentProps, TileComponent } from '../../../../page/tile';
 import { GlobalComponents, TooltipValues } from '../../../../views/global';
-import { ActionName, Actions } from '../actions';
+import { Actions } from '../actions';
 import { MultiWordGeoAreasModel, MultiWordGeoAreasModelState } from '../model';
 import { QueryMatch } from '../../../../query/index';
 import { Dict, List, pipe, tuple } from 'cnc-tskit';
@@ -344,8 +344,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
                     fromEvent(pieChart, 'mousemove')
                         .subscribe((e:MouseEvent) => {
-                            dispatcher.dispatch<Actions.ShowAreaTooltip>({
-                                name: ActionName.ShowAreaTooltip,
+                            dispatcher.dispatch<typeof Actions.ShowAreaTooltip>({
+                                name: Actions.ShowAreaTooltip.name,
                                 payload: {
                                     areaName: areaName,
                                     areaIpmNorm: areaIpmNorm,
@@ -359,8 +359,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
                     fromEvent(pieChart, 'mouseout')
                         .subscribe(() => {
-                            dispatcher.dispatch<Actions.HideAreaTooltip>({
-                                name: ActionName.HideAreaTooltip,
+                            dispatcher.dispatch<typeof Actions.HideAreaTooltip>({
+                                name: Actions.HideAreaTooltip.name,
                                 payload: {
                                     tileId: tileId
                                 }

@@ -18,13 +18,13 @@
 import { IActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
 
-import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../../models/actions';
+import { Actions as GlobalActions } from '../../../../models/actions';
 import { GlobalComponents } from '../../../../views/global';
 import { init as commonViewInit } from './common';
 import { SimilarFreqWord } from '../../../../api/abstract/similarFreq';
 import { QueryMatch } from '../../../../query/index';
 import { List, pipe } from 'cnc-tskit';
-import { Actions, ActionName } from '../actions';
+import { Actions } from '../actions';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>) {
@@ -34,7 +34,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------------- <SimilarFreqWords /> -----------------------------------------------
 
-    const SimilarFreqWords:React.SFC<{
+    const SimilarFreqWords:React.FC<{
         data:Array<SimilarFreqWord>;
         expandLemmaPos:string;
         tileId:number;
@@ -43,22 +43,22 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         const handleWordClick = (e:React.MouseEvent<HTMLAnchorElement>) => {
             const word = (e.target as Element).getAttribute('data-value');
-            dispatcher.dispatch<GlobalActions.ChangeQueryInput>({
-                name: GlobalActionName.ChangeQueryInput,
+            dispatcher.dispatch<typeof GlobalActions.ChangeQueryInput>({
+                name: GlobalActions.ChangeQueryInput.name,
                 payload: {
                     value: word,
                     queryIdx: 0
                 }
             });
-            dispatcher.dispatch<GlobalActions.SubmitQuery>({
-                name: GlobalActionName.SubmitQuery
+            dispatcher.dispatch<typeof GlobalActions.SubmitQuery>({
+                name: GlobalActions.SubmitQuery.name
             });
         };
 
         const selectLemma = (e:React.MouseEvent<HTMLAnchorElement>) => {
             const word = (e.target as Element).getAttribute('data-value');
-            dispatcher.dispatch<Actions.ExpandLemmaPos>({
-                name: ActionName.ExpandLemmaPos,
+            dispatcher.dispatch<typeof Actions.ExpandLemmaPos>({
+                name: Actions.ExpandLemmaPos.name,
                 payload: {
                     tileId: props.tileId,
                     lemma: word
@@ -67,8 +67,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         };
 
         const deselectLemma = (e:React.MouseEvent<HTMLAnchorElement>) => {
-            dispatcher.dispatch<Actions.ExpandLemmaPos>({
-                name: ActionName.ExpandLemmaPos,
+            dispatcher.dispatch<typeof Actions.ExpandLemmaPos>({
+                name: Actions.ExpandLemmaPos.name,
                 payload: {
                     tileId: props.tileId,
                     lemma: null
@@ -112,7 +112,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------------- <SrchWordInfo /> ---------------------------------------------------
 
-    const SrchWordInfo:React.SFC<{
+    const SrchWordInfo:React.FC<{
         data:QueryMatch;
 
     }> = (props) => (
@@ -168,7 +168,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------------- <SingleWordProfile /> ---------------------------------------------------
 
-    const SingleWordProfile:React.SFC<{
+    const SingleWordProfile:React.FC<{
         similarFreqWords:Array<SimilarFreqWord>;
         searchedWord:QueryMatch;
         expandLemmaPos:string;

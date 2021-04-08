@@ -22,7 +22,7 @@ import { Bar, BarChart, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } fro
 import { Theme } from '../../../page/theme';
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile';
 import { GlobalComponents } from '../../../views/global';
-import { ActionName, Actions } from './actions';
+import { Actions } from './actions';
 import { FreqComparisonModel, FreqComparisonModelState, MultiWordDataRow } from './model';
 import { pipe, List, Dict, Maths, Strings } from 'cnc-tskit';
 
@@ -30,7 +30,12 @@ import { pipe, List, Dict, Maths, Strings } from 'cnc-tskit';
 const CHART_LABEL_MAX_LEN = 15;
 
 
-export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:FreqComparisonModel):TileComponent {
+export function init(
+    dispatcher:IActionDispatcher,
+    ut:ViewUtils<GlobalComponents>,
+    theme:Theme,
+    model:FreqComparisonModel
+):TileComponent {
 
     const globComponents = ut.getComponents();
 
@@ -80,7 +85,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------- <ChartWrapper /> ---------------------------------------------------
 
-    const ChartWrapper:React.SFC<{
+    const ChartWrapper:React.FC<{
         data:Array<MultiWordDataRow>;
         words:Array<string>;
         width:string|number;
@@ -126,7 +131,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------------------- <Chart /> --------------------------------------
 
-    const Chart:React.SFC<{
+    const Chart:React.FC<{
         data:Array<MultiWordDataRow>;
         words:Array<string>;
         width:string|number;
@@ -170,7 +175,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------- <DataTable /> ---------------------------------------------
 
-    const DataTable:React.SFC<{
+    const DataTable:React.FC<{
         data:Array<MultiWordDataRow>;
         words:Array<string>;
     }> = (props) => {
@@ -227,8 +232,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
 
         private handleScroll():void {
-            dispatcher.dispatch<Actions.SetActiveBlock>({
-                name: ActionName.SetActiveBlock,
+            dispatcher.dispatch<typeof Actions.SetActiveBlock>({
+                name: Actions.SetActiveBlock.name,
                 payload: {
                     idx: Math.round(this.chartsRef.current.scrollLeft / this.props.renderSize[0]),
                     tileId: this.props.tileId

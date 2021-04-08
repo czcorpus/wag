@@ -74,7 +74,7 @@ WaG allows you to create also completely custom tiles without need to modify the
 First, put a directory to the `src/js/tiles/custom` along with `index.ts` file. The `index.ts` file must:
 
 1) export some tile config interface extending `TileConf`
-2) export `init()` factory function, e.g.: `export const init:TileFactory.TileFactory<MyTileConf> = (args) => new MyTile(args);`
+2) export `init()` factory function, e.g.: `export const init:TileFactory<MyTileConf> = (args) => new MyTile(args);`
     1) the type returned by the `init()` function must implement `ITileProvider`
 
 You have to generate tile schema using `npm start schemata:make-tile {tiles path} {name of config interface}`.

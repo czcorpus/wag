@@ -24,7 +24,7 @@ import { MultiDict } from '../multidict';
 import { SystemMessageType, SourceDetails } from '../types';
 import { ScreenProps } from '../page/hostPage';
 import { BacklinkWithArgs } from '../page/tile';
-import { ActionName, Actions } from '../models/actions';
+import { Actions } from '../models/actions';
 
 export interface SourceInfo {
     corp:string;
@@ -235,8 +235,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
     }> = (props) => {
 
         const handleClick = (corp:string, subcorp:string|undefined) => {
-            dispatcher.dispatch<Actions.GetSourceInfo>({
-                name: ActionName.GetSourceInfo,
+            dispatcher.dispatch<typeof Actions.GetSourceInfo>({
+                name: Actions.GetSourceInfo.name,
                 payload: {
                     tileId: props.tileId,
                     corpusId: corp,
@@ -306,8 +306,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
     }> = (props) => {
 
         const handleClick = () => {
-            dispatcher.dispatch({
-                name: ActionName.RetryTileLoad,
+            dispatcher.dispatch<typeof Actions.RetryTileLoad>({
+                name: Actions.RetryTileLoad.name,
                 payload: {tileId: props.tileId}
             });
         };
@@ -337,8 +337,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
     const TileWrapper:GlobalComponents['TileWrapper'] = (props) => {
 
         const handleAreaClick = () => {
-            dispatcher.dispatch<Actions.TileAreaClicked>({
-                name: ActionName.TileAreaClicked,
+            dispatcher.dispatch<typeof Actions.TileAreaClicked>({
+                name: Actions.TileAreaClicked.name,
                 payload: {
                     tileId: props.tileId
                 }

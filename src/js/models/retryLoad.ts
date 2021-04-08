@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { StatelessModel, StatefulModel, Action, IFullActionControl } from 'kombo';
-import { ActionName} from '../models/actions';
+import { Actions } from '../models/actions';
 import { List, Dict } from 'cnc-tskit';
 
 
@@ -86,13 +86,13 @@ export class RetryTileLoad extends StatefulModel<RetryTileLoadState> {
 
     onAction(action:Action) {
         switch (action.name) {
-            case ActionName.RetryTileLoad:
+            case Actions.RetryTileLoad.name:
                 const blockedGroup = this.getBlockedGroup(action.payload['tileId']);
                 Dict.forEach(
                     (model, ident) => {
                         if (!blockedGroup.some(x => x.toFixed() === ident)) {
                             model.model.suspend({}, (action, syncData) => {
-                                if (action.name === ActionName.WakeSuspendedTiles) {
+                                if (action.name === Actions.WakeSuspendedTiles.name) {
                                     return true;
                                 }
                                 return false;
@@ -103,13 +103,13 @@ export class RetryTileLoad extends StatefulModel<RetryTileLoadState> {
                 );
                 this.reloadDispatcher.dispatch(this.state.lastAction);
                 this.reloadDispatcher.dispatch({
-                    name: ActionName.WakeSuspendedTiles
+                    name: Actions.WakeSuspendedTiles.name
                 });
             break;
-            case ActionName.RequestQueryResponse:
+            case Actions.RequestQueryResponse.name:
                 this.state.lastAction = action;
             break;
-            case ActionName.TileDataLoaded:
+            case Actions.TileDataLoaded.name:
                 if (action.error) {
                     const m = this.state.models[action.payload['tileId']];
                     if (m) {

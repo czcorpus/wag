@@ -26,7 +26,12 @@ import { TranslationSubset, TranslationsSubsetsModelState } from '../../../model
 import { List } from 'cnc-tskit';
 
 
-export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:TreqSubsetModel):TileComponent {
+export function init(
+    dispatcher:IActionDispatcher,
+    ut:ViewUtils<GlobalComponents>,
+    theme:Theme,
+    model:TreqSubsetModel
+):TileComponent {
 
     const globalComponents = ut.getComponents();
 

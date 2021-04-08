@@ -18,21 +18,28 @@
 
 import { SimilarFreqWord } from '../../../api/abstract/similarFreq';
 import { Action } from 'kombo';
+import { Actions as GlobalActions } from '../../../models/actions';
+
 
 export interface DataLoadedPayload {
     data:Array<SimilarFreqWord>;
 }
 
-export enum ActionName {
-    ExpandLemmaPos = 'FREQ_COMPARISON_SET_ACTIVE_BLOCK'
-}
+export class Actions {
 
-export namespace Actions {
-
-    export interface ExpandLemmaPos extends Action<{
+    static ExpandLemmaPos:Action<{
         lemma:string;
         tileId:number;
-    }> {
-        name: ActionName.ExpandLemmaPos;
-    }
+    }> = {
+        name: 'FREQ_COMPARISON_SET_ACTIVE_BLOCK'
+    };
+
+    static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & DataLoadedPayload> = {
+        name: GlobalActions.TileDataLoaded.name
+    };
+
+
+    static PartialTileDataLoaded:Action<typeof GlobalActions.TilePartialDataLoaded.payload & DataLoadedPayload> = {
+        name: GlobalActions.TilePartialDataLoaded.name
+    };
 }

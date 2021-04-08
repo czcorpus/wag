@@ -18,7 +18,7 @@
 import { IActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
 import { Theme } from '../../page/theme';
-import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../models/actions';
+import { Actions as GlobalActions } from '../../models/actions';
 import { GlobalComponents } from '../../views/global';
 import { Rect, WordCloudItemCalc, TooltipData, createWordCloud, MAX_WC_FONT_SIZE_MOBILE, MAX_WC_FONT_SIZE } from './calc';
 
@@ -203,8 +203,8 @@ export function init<T>(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalCompone
                     activeItem: data,
                     tooltipPos: [x, y]
                 });
-                dispatcher.dispatch<GlobalActions.SubqItemHighlighted>({
-                    name: GlobalActionName.SubqItemHighlighted,
+                dispatcher.dispatch<typeof GlobalActions.SubqItemHighlighted>({
+                    name: GlobalActions.SubqItemHighlighted.name,
                     payload: {
                         interactionId: data.interactionId,
                         text: data.text
@@ -221,8 +221,8 @@ export function init<T>(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalCompone
                 activeItem: null,
                 tooltipPos: [0, 0]
             });
-            dispatcher.dispatch<GlobalActions.SubqItemDehighlighted>({
-                name: GlobalActionName.SubqItemDehighlighted,
+            dispatcher.dispatch<typeof GlobalActions.SubqItemDehighlighted>({
+                name: GlobalActions.SubqItemDehighlighted.name,
                 payload: {
                     interactionId: data.interactionId
                 }

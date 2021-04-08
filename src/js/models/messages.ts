@@ -20,7 +20,7 @@ import { List } from 'cnc-tskit';
 
 import { IAppServices } from '../appServices';
 import { SystemMessage } from '../page/notifications';
-import { ActionName, Actions } from './actions';
+import { Actions } from './actions';
 
 
 
@@ -41,9 +41,9 @@ export class MessagesModel extends StatelessModel<MessagesState> {
             }
         );
         this.appServices = appServices;
-        this.addActionHandler(
-            ActionName.AddSystemMessage,
-            (state, action:Actions.AddSystemMessage) => {
+        this.addActionHandler<typeof Actions.AddSystemMessage>(
+            Actions.AddSystemMessage.name,
+            (state, action) => {
                 state.systemMessages.push({
                     type: action.payload.type,
                     text: action.payload.text,
@@ -52,10 +52,13 @@ export class MessagesModel extends StatelessModel<MessagesState> {
                 });
             }
         );
-        this.addActionHandler(
-            ActionName.RemoveSystemMessage,
-            (state, action:Actions.RemoveSystemMessage) => {
-                const srchIdx = List.findIndex(v => v.ident === action.payload.ident, state.systemMessages);
+        this.addActionHandler<typeof Actions.RemoveSystemMessage>(
+            Actions.RemoveSystemMessage.name,
+            (state, action) => {
+                const srchIdx = List.findIndex(
+                    v => v.ident === action.payload.ident,
+                    state.systemMessages
+                );
                 if (srchIdx > -1) {
                     state.systemMessages.splice(srchIdx, 1);
                 }

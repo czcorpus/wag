@@ -20,9 +20,9 @@ import { of as rxOf } from 'rxjs';
 import { StatelessModel, IActionQueue } from 'kombo';
 
 import { mkInterctionId, TreqSubsetsAPI } from '../../../api/vendor/treq';
-import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
+import { Actions as GlobalActions } from '../../../models/actions';
 import { findCurrQueryMatch } from '../../../models/query';
-import { DataLoadedPayload } from './actions';
+import { DataLoadedPayload, Actions } from './actions';
 import { callWithExtraVal } from '../../../api/util';
 import { isSubqueryPayload, RecognizedQueries } from '../../../query/index';
 import { isCollocSubqueryPayload } from '../../../api/abstract/collocations';
@@ -128,8 +128,8 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
         this.waitForColorsTile = waitForColorsTile;
         this.appServices = appServices;
 
-        this.addActionHandler<GlobalActions.RequestQueryResponse>(
-            GlobalActionName.RequestQueryResponse,
+        this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
+            GlobalActions.RequestQueryResponse.name,
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
@@ -159,8 +159,8 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
                     ),
                     tap(
                         ([data, reqId]) => {
-                            dispatch<GlobalActions.TilePartialDataLoaded<DataLoadedPayload>>({
-                                name: GlobalActionName.TilePartialDataLoaded,
+                            dispatch<typeof Actions.PartialTileDataLoaded>({
+                                name: Actions.PartialTileDataLoaded.name,
                                 payload: {
                                     tileId: this.tileId,
                                     query: srchLemma.word, // TODO give up
@@ -185,26 +185,22 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
 
                 ).subscribe(
                     (isEmpty) => {
-                        dispatch<GlobalActions.TileDataLoaded<{}>>({
-                            name: GlobalActionName.TileDataLoaded,
+                        dispatch<typeof Actions.TileDataLoaded>({
+                            name: Actions.TileDataLoaded.name,
                             payload: {
                                 tileId: this.tileId,
-                                isEmpty: isEmpty
+                                isEmpty
                             }
                         })
                     },
                     (error) => {
-                        dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                            name: GlobalActionName.TileDataLoaded,
+                        dispatch<typeof Actions.TileDataLoaded>({
+                            name: Actions.TileDataLoaded.name,
                             payload: {
                                 tileId: this.tileId,
-                                isEmpty: true,
-                                query: findCurrQueryMatch(this.queryMatches[0]).word,
-                                lines: [],
-                                sum: -1,
-                                subsetId: null
+                                isEmpty: true
                             },
-                            error: error
+                            error
                         });
                         console.error(error);
                     }
@@ -212,8 +208,8 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
             }
         );
 
-        this.addActionHandler<GlobalActions.TileDataLoaded<{}>>(
-            GlobalActionName.TileDataLoaded,
+        this.addActionHandler<typeof Actions.TileDataLoaded>(
+            Actions.TileDataLoaded.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = false;
@@ -256,8 +252,8 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
             }
         );
 
-        this.addActionHandler<GlobalActions.TilePartialDataLoaded<DataLoadedPayload>>(
-            GlobalActionName.TilePartialDataLoaded,
+        this.addActionHandler<typeof Actions.PartialTileDataLoaded>(
+            Actions.PartialTileDataLoaded.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     const srchIdx = state.subsets.findIndex(v => v.ident === action.payload.subsetId);
@@ -286,8 +282,8 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
             }
         );
 
-        this.addActionHandler<GlobalActions.EnableAltViewMode>(
-            GlobalActionName.EnableAltViewMode,
+        this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(
+            GlobalActions.EnableAltViewMode.name,
             (state, action) => {
                 if (action.payload.ident === this.tileId) {
                     state.isAltViewMode = true;
@@ -295,8 +291,8 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
             }
         );
 
-        this.addActionHandler<GlobalActions.DisableAltViewMode>(
-            GlobalActionName.DisableAltViewMode,
+        this.addActionHandler<typeof GlobalActions.DisableAltViewMode>(
+            GlobalActions.DisableAltViewMode.name,
             (state, action) => {
                 if (action.payload.ident === this.tileId) {
                     state.isAltViewMode = false;
@@ -304,8 +300,8 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
             }
         );
 
-        this.addActionHandler<GlobalActions.SubqItemHighlighted>(
-            GlobalActionName.SubqItemHighlighted,
+        this.addActionHandler<typeof GlobalActions.SubqItemHighlighted>(
+            GlobalActions.SubqItemHighlighted.name,
             (state, action) => {
                 const srchIdx = state.subsets[0].translations.findIndex(v => v.interactionId === action.payload.interactionId);
                 if (srchIdx > -1) {
@@ -314,8 +310,8 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
             }
         );
 
-        this.addActionHandler<GlobalActions.SubqItemDehighlighted>(
-            GlobalActionName.SubqItemDehighlighted,
+        this.addActionHandler<typeof GlobalActions.SubqItemDehighlighted>(
+            GlobalActions.SubqItemDehighlighted.name,
             (state, action) => {
                 const srchIdx = state.subsets[0].translations.findIndex(v => v.interactionId === action.payload.interactionId);
                 if (srchIdx > -1) {
@@ -324,30 +320,26 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
             }
         );
 
-        this.addActionHandler<GlobalActions.GetSourceInfo>(
-            GlobalActionName.GetSourceInfo,
+        this.addActionHandler<typeof GlobalActions.GetSourceInfo>(
+            GlobalActions.GetSourceInfo.name,
             null,
             (state, action, dispatch) => {
                 if (action.payload['tileId'] === this.tileId) {
                     this.api.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), action.payload['corpusId'])
                     .subscribe(
                         (data) => {
-                            dispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
+                            dispatch<typeof GlobalActions.GetSourceInfoDone>({
+                                name: GlobalActions.GetSourceInfoDone.name,
                                 payload: {
-                                    tileId: this.tileId,
-                                    data: data
+                                    data
                                 }
                             });
                         },
-                        (err) => {
-                            console.error(err);
-                            dispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
-                                error: err,
-                                payload: {
-                                    tileId: this.tileId
-                                }
+                        (error) => {
+                            console.error(error);
+                            dispatch<typeof GlobalActions.GetSourceInfoDone>({
+                                name: GlobalActions.GetSourceInfoDone.name,
+                                error
                             });
                         }
                     );

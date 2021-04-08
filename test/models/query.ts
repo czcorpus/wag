@@ -23,11 +23,11 @@ import { assert } from 'chai';
 import { List } from 'cnc-tskit';
 
 import { QueryFormModel, QueryFormModelState } from '../../src/js/models/query';
-import { ActionName } from '../../src/js/models/actions';
 import { QueryType, QueryMatch } from '../../src/js/query/index';
 import { PoSValues } from '../../src/js/postag';
 import { Forms } from '../../src/js/page/forms';
 import { SystemMessageType } from '../../src/js/types';
+import { Actions } from '../../src/js/models/actions';
 
 
 describe('QueryFormModel', function () {
@@ -94,8 +94,8 @@ describe('QueryFormModel', function () {
         it('changes target domain', function (done) {
             setupModel({queryDomain: 'cs', queryDomain2: 'en'})
             .checkState(
-                {name: ActionName.ChangeTargetDomain, payload: {domain1: 'sk', domain2: 'pl', queryType: QueryType.SINGLE_QUERY}},
-                ActionName.ChangeTargetDomain,
+                {name: Actions.ChangeTargetDomain.name, payload: {domain1: 'sk', domain2: 'pl', queryType: QueryType.SINGLE_QUERY}},
+                Actions.ChangeTargetDomain.name,
                 state => {
                     assert.equal(state.queryDomain, 'sk');
                     assert.equal(state.queryDomain2, 'pl');
@@ -108,8 +108,8 @@ describe('QueryFormModel', function () {
         it('submits query if in translate query type and answer mode', function (done) {
             setupModel({queryDomain: 'cs', queryDomain2: 'en', isAnswerMode: true})
             .checkState(
-                {name: ActionName.ChangeTargetDomain, payload: {domain1: 'cs', domain2: 'pl', queryType: QueryType.TRANSLAT_QUERY}},
-                ActionName.ChangeTargetDomain,
+                {name: Actions.ChangeTargetDomain.name, payload: {domain1: 'cs', domain2: 'pl', queryType: QueryType.TRANSLAT_QUERY}},
+                Actions.ChangeTargetDomain.name,
                 state => {
                     assert.equal(state.queryDomain, 'cs');
                     assert.equal(state.queryDomain2, 'pl');
@@ -125,8 +125,8 @@ describe('QueryFormModel', function () {
         it('changes query type', function (done) {
             setupModel({queryType: QueryType.SINGLE_QUERY})
             .checkState(
-                {name: ActionName.ChangeQueryType, payload: {queryType: QueryType.CMP_QUERY}},
-                ActionName.ChangeQueryType,
+                {name: Actions.ChangeQueryType.name, payload: {queryType: QueryType.CMP_QUERY}},
+                Actions.ChangeQueryType.name,
                 state => {
                     assert.equal(state.queryType, QueryType.CMP_QUERY);
                     done();
@@ -137,8 +137,8 @@ describe('QueryFormModel', function () {
         it('changes query input', function (done) {
             setupModel()
             .checkState(
-                {name: ActionName.ChangeQueryInput, payload: {queryIdx: 0, value: 'query changed'}},
-                ActionName.ChangeQueryInput,
+                {name: Actions.ChangeQueryInput.name, payload: {queryIdx: 0, value: 'query changed'}},
+                Actions.ChangeQueryInput.name,
                 state => {
                     assert.equal(state.queries[0].value, 'query changed');
                     done();
@@ -150,8 +150,8 @@ describe('QueryFormModel', function () {
             it('adds input', function (done) {
                 setupModel({maxCmpQueries: 5})
                 .checkState(
-                    {name: ActionName.AddCmpQueryInput},
-                    ActionName.AddCmpQueryInput,
+                    {name: Actions.AddCmpQueryInput.name},
+                    Actions.AddCmpQueryInput.name,
                     state => {
                         assert.lengthOf(state.queries, 2);
                         assert.equal(state.queries[1].value, '');
@@ -164,8 +164,8 @@ describe('QueryFormModel', function () {
             it('exceedes max number of inputs', function (done) {
                 setupModel({maxCmpQueries: 1})
                 .checkState(
-                    {name: ActionName.AddCmpQueryInput},
-                    ActionName.AddCmpQueryInput,
+                    {name: Actions.AddCmpQueryInput.name},
+                    Actions.AddCmpQueryInput.name,
                     (state, appServices) => {
                         assert.lengthOf(state.queries, 1);
                         assert.isTrue(appServices.showMessage.calledWith(SystemMessageType.INFO));
@@ -181,8 +181,8 @@ describe('QueryFormModel', function () {
                     {value: 'word3', isValid: true, isRequired: true}
                 ]})
                 .checkState(
-                    {name: ActionName.RemoveCmpQueryInput, payload: {queryIdx: 1}},
-                    ActionName.RemoveCmpQueryInput,
+                    {name: Actions.RemoveCmpQueryInput.name, payload: {queryIdx: 1}},
+                    Actions.RemoveCmpQueryInput.name,
                     state => {
                         assert.deepEqual(
                             state.queries,
@@ -201,8 +201,8 @@ describe('QueryFormModel', function () {
             it('submits query succesfully', function (done) {
                 setupModel()
                 .checkState(
-                    {name: ActionName.SubmitQuery},
-                    ActionName.SubmitQuery,
+                    {name: Actions.SubmitQuery.name},
+                    Actions.SubmitQuery.name,
                     state => {
                         assert.equal(window.location.href, 'query submitted');
                         assert.lengthOf(state.errors, 0);
@@ -215,8 +215,8 @@ describe('QueryFormModel', function () {
                 it('has unsupported character', function (done) {
                     setupModel({queryType: QueryType.SINGLE_QUERY, queries: [{value: '*', isValid: true}]})
                     .checkState(
-                        {name: ActionName.SubmitQuery},
-                        ActionName.SubmitQuery,
+                        {name: Actions.SubmitQuery.name},
+                        Actions.SubmitQuery.name,
                         (state, appServices) => {
                             assert.equal(window.location.href, '');
                             assert.isFalse(state.queries[0].isValid);
@@ -230,8 +230,8 @@ describe('QueryFormModel', function () {
                 it('has not multiword support', function (done) {
                     setupModel({queryType: QueryType.SINGLE_QUERY, queries: [{value: 'two words', isValid: true}]})
                     .checkState(
-                        {name: ActionName.SubmitQuery},
-                        ActionName.SubmitQuery,
+                        {name: Actions.SubmitQuery.name},
+                        Actions.SubmitQuery.name,
                         (state, appServices) => {
                             assert.equal(window.location.href, '');
                             assert.isFalse(state.queries[0].isValid);
@@ -245,8 +245,8 @@ describe('QueryFormModel', function () {
                 it('has multiword support', function (done) {
                     setupModel({queryType: QueryType.SINGLE_QUERY, queries: [{value: 'two words', isValid: true}], multiWordQuerySupport: {[QueryType.SINGLE_QUERY]: 2}})
                     .checkState(
-                        {name: ActionName.SubmitQuery},
-                        ActionName.SubmitQuery,
+                        {name: Actions.SubmitQuery.name},
+                        Actions.SubmitQuery.name,
                         (state, appServices) => {
                             assert.equal(window.location.href, 'query submitted');
                             assert.isNotFalse(state.queries[0].isValid);
@@ -259,8 +259,8 @@ describe('QueryFormModel', function () {
                 it('has identical queries (cmp)', function (done) {
                     setupModel({queryType: QueryType.CMP_QUERY, queries: [{value: 'word', isValid: true}, {value: 'word', isValid: true}]})
                     .checkState(
-                        {name: ActionName.SubmitQuery},
-                        ActionName.SubmitQuery,
+                        {name: Actions.SubmitQuery.name},
+                        Actions.SubmitQuery.name,
                         (state, appServices) => {
                             assert.equal(window.location.href, '');
                             assert.isAbove(state.errors.length, 0);
@@ -273,8 +273,8 @@ describe('QueryFormModel', function () {
                 it('has identical domains (translat)', function (done) {
                     setupModel({queryType: QueryType.TRANSLAT_QUERY, queryDomain: 'cs', queryDomain2: 'cs'})
                     .checkState(
-                        {name: ActionName.SubmitQuery},
-                        ActionName.SubmitQuery,
+                        {name: Actions.SubmitQuery.name},
+                        Actions.SubmitQuery.name,
                         (state, appServices) => {
                             assert.equal(window.location.href, '');
                             assert.isAbove(state.errors.length, 0);
@@ -291,8 +291,8 @@ describe('QueryFormModel', function () {
         it('shows modal', function (done) {
             setupModel({lemmaSelectorModalVisible: false})
             .checkState(
-                {name: ActionName.ShowQueryMatchModal},
-                ActionName.ShowQueryMatchModal,
+                {name: Actions.ShowQueryMatchModal.name},
+                Actions.ShowQueryMatchModal.name,
                 state => {
                     assert.isTrue(state.lemmaSelectorModalVisible);
                     done();
@@ -303,8 +303,8 @@ describe('QueryFormModel', function () {
         it('hides modal', function (done) {
             setupModel({lemmaSelectorModalVisible: true})
             .checkState(
-                {name: ActionName.HideQueryMatchModal},
-                ActionName.HideQueryMatchModal,
+                {name: Actions.HideQueryMatchModal.name},
+                Actions.HideQueryMatchModal.name,
                 state => {
                     assert.isFalse(state.lemmaSelectorModalVisible);
                     done();
@@ -315,8 +315,8 @@ describe('QueryFormModel', function () {
         it('selects match', function (done) {
             setupModel({modalSelections: [0]})
             .checkState(
-                {name: ActionName.SelectModalQueryMatch, payload: {queryIdx: 0, variantIdx: 1}},
-                ActionName.SelectModalQueryMatch,
+                {name: Actions.SelectModalQueryMatch.name, payload: {queryIdx: 0, variantIdx: 1}},
+                Actions.SelectModalQueryMatch.name,
                 state => {
                     assert.equal(state.modalSelections[0], 1);
                     done();
@@ -327,8 +327,8 @@ describe('QueryFormModel', function () {
         it('applies match selection', function (done) {
             setupModel({lemmaSelectorModalVisible: true, modalSelections: [1]})
             .checkState(
-                {name: ActionName.ApplyModalQueryMatchSelection},
-                ActionName.ApplyModalQueryMatchSelection,
+                {name: Actions.ApplyModalQueryMatchSelection.name},
+                Actions.ApplyModalQueryMatchSelection.name,
                 state => {
                     assert.isFalse(state.queryMatches[0][0].isCurrent);
                     assert.isTrue(state.queryMatches[0][1].isCurrent);
@@ -343,8 +343,8 @@ describe('QueryFormModel', function () {
         it('changes query match and submits', function (done) {
             setupModel()
             .checkState(
-                {name: ActionName.ChangeCurrQueryMatch, payload: {queryIdx: 0, word: 'test', lemma: 'test', pos: [PoSValues.VERB]}},
-                ActionName.ChangeCurrQueryMatch,
+                {name: Actions.ChangeCurrQueryMatch.name, payload: {queryIdx: 0, word: 'test', lemma: 'test', pos: [PoSValues.VERB]}},
+                Actions.ChangeCurrQueryMatch.name,
                 state => {
                     assert.isFalse(state.queryMatches[0][0].isCurrent);
                     assert.isTrue(state.queryMatches[0][1].isCurrent);

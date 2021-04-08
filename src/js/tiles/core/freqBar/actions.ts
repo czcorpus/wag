@@ -19,12 +19,8 @@ import { Action } from 'kombo';
 
 import { LocalizedConfMsg } from '../../../types';
 import { ApiDataBlock } from '../../../api/abstract/freqs';
+import { Actions as GlobalActions } from '../../../models/actions';
 
-
-
-export enum ActionName {
-    SetActiveBlock = 'TT_DISTRIB_SET_ACTIVE_BLOCK'
-}
 
 export interface DataLoadedPayload {
     block:ApiDataBlock;
@@ -33,12 +29,21 @@ export interface DataLoadedPayload {
     critIdx:number;
 }
 
-export namespace Actions {
+export class Actions {
 
-    export interface SetActiveBlock extends Action<{
+    static SetActiveBlock:Action<{
         idx:number;
         tileId:number;
-    }> {
-        name: ActionName.SetActiveBlock;
+    }> = {
+        name: 'TT_DISTRIB_SET_ACTIVE_BLOCK'
+    };
+
+    static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & DataLoadedPayload> = {
+        name: GlobalActions.TileDataLoaded.name
+    };
+
+    static isTileDataLoaded(a:Action):a is typeof Actions.TileDataLoaded {
+        return a.name === Actions.TileDataLoaded.name &&
+                a.payload['block'] && a.payload['concId'] && a.payload['critIdx'];
     }
 }

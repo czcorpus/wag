@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-import { SourceMappedDataRow } from '../../../api/vendor/kontext/freqs';
 import { Backlink } from '../../../page/tile';
 import { MinSingleCritFreqState } from '../../../models/tiles/freq';
 
@@ -43,10 +42,3 @@ export interface ModelSourceArgs extends MinSingleCritFreqState {
     isSingleCategory:boolean;
 }
 
-export interface DataLoadedPayload {
-    data:Array<SourceMappedDataRow>;
-    valuePlaceholder:string;
-    queryId:number;
-    concId:string;
-    sourceId:string;
-}

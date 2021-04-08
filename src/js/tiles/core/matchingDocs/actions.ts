@@ -18,30 +18,30 @@
 import { Action } from 'kombo';
 import { DataRow } from '../../../api/abstract/matchingDocs';
 import { BacklinkWithArgs } from '../../../page/tile';
+import { Actions as GlobalActions } from '../../../models/actions';
 
-
-
-export enum ActionName {
-    NextPage = 'MATCHING_DOCS_TILE_NEXT_PAGE',
-    PreviousPage = 'MATCHING_DOCS_PREVIOUS_PAGE',
-}
 
 export interface DataLoadedPayload {
     data:Array<DataRow>;
     backlink:BacklinkWithArgs<{}>|null;
 }
 
-export namespace Actions {
+export class Actions {
 
-    export interface NextPage extends Action<{
+    static NextPage:Action<{
         tileId:number;
-    }> {
-        name: ActionName.NextPage;
+    }> = {
+        name: 'MATCHING_DOCS_TILE_NEXT_PAGE'
+    };
+
+    static PreviousPage:Action<{
+        tileId:number;
+    }> = {
+        name: 'MATCHING_DOCS_PREVIOUS_PAGE'
     }
 
-    export interface PreviousPage extends Action<{
-        tileId:number;
-    }> {
-        name: ActionName.PreviousPage;
-    }
+    static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & DataLoadedPayload> = {
+        name: GlobalActions.TileDataLoaded.name
+    };
+
 }

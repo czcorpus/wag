@@ -20,7 +20,7 @@ import { of as rxOf } from 'rxjs';
 import { StatelessModel, Action, SEDispatcher, IActionQueue } from 'kombo';
 
 import { IAppServices } from '../../../appServices';
-import { ActionName as GlobalActionName, Actions as GlobalActions, isTileSomeDataLoadedAction } from '../../../models/actions';
+import { Actions as GlobalActions, isTileSomeDataLoadedAction } from '../../../models/actions';
 import { SubQueryItem, SubqueryPayload, RangeRelatedSubqueryValue, RecognizedQueries } from '../../../query/index';
 import { ConcApi } from '../../../api/vendor/kontext/concordance/v015';
 import { mkContextFilter, escapeVal  } from '../../../api/vendor/kontext/concordance/v015/common'
@@ -28,13 +28,12 @@ import { Line, ViewMode, ConcResponse } from '../../../api/abstract/concordance'
 import { Observable } from 'rxjs';
 import { isConcLoadedPayload } from '../concordance/actions';
 import { CollExamplesLoadedPayload } from './actions';
-import { Actions, ActionName } from './actions';
+import { Actions } from './actions';
 import { normalizeTypography } from '../../../models/tiles/concordance/normalize';
-import { Dict, pipe, List, tuple, HTTP } from 'cnc-tskit';
+import { Dict, pipe, List, tuple } from 'cnc-tskit';
 import { callWithExtraVal } from '../../../api/util';
 import { TileWait } from '../../../models/tileSync';
 import { AttrViewMode, FilterServerArgs, QuickFilterRequestArgs } from '../../../api/vendor/kontext/types';
-import { AjaxError } from 'rxjs/ajax';
 import { SystemMessageType } from '../../../types';
 
 
@@ -119,8 +118,8 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
         this.appServices = appServices;
         this.queryMatches = queryMatches;
 
-        this.addActionHandler<GlobalActions.RequestQueryResponse>(
-            GlobalActionName.RequestQueryResponse,
+        this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
+            GlobalActions.RequestQueryResponse.name,
             (state, action)  => {
                 state.isBusy = true;
                 state.error = null;
@@ -132,8 +131,8 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
             }
         );
 
-        this.addActionHandler<GlobalActions.TilePartialDataLoaded<CollExamplesLoadedPayload>>(
-            GlobalActionName.TilePartialDataLoaded,
+        this.addActionHandler<typeof Actions.PartialTileDataLoaded>(
+            Actions.PartialTileDataLoaded.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.lines = state.lines.concat(action.payload.data);
@@ -142,8 +141,8 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
             }
         );
 
-        this.addActionHandler<GlobalActions.TileDataLoaded<{}>>(
-            GlobalActionName.TileDataLoaded,
+        this.addActionHandler<typeof Actions.TileDataLoaded>(
+            Actions.TileDataLoaded.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = false;
@@ -154,8 +153,8 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
             }
         );
 
-        this.addActionHandler<GlobalActions.SubqItemHighlighted>(
-            GlobalActionName.SubqItemHighlighted,
+        this.addActionHandler<typeof GlobalActions.SubqItemHighlighted>(
+            GlobalActions.SubqItemHighlighted.name,
             (state, action) => {
                 const srchIdx = state.lines.findIndex(v => v.interactionId === action.payload.interactionId);
                 if (srchIdx > -1) {
@@ -173,8 +172,8 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
                }
             }
         );
-        this.addActionHandler<GlobalActions.SubqItemDehighlighted>(
-            GlobalActionName.SubqItemDehighlighted,
+        this.addActionHandler<typeof GlobalActions.SubqItemDehighlighted>(
+            GlobalActions.SubqItemDehighlighted.name,
             (state, action) => {
                 const srchIdx = state.lines.findIndex(v => v.interactionId === action.payload.interactionId);
                 if (srchIdx > -1) {
@@ -192,8 +191,8 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
                 }
             }
         );
-        this.addActionHandler<GlobalActions.SubqChanged>(
-            GlobalActionName.SubqChanged,
+        this.addActionHandler<typeof GlobalActions.SubqChanged>(
+            GlobalActions.SubqChanged.name,
             (state, action) => {
                 if (Dict.hasKey(action.payload.tileId.toFixed()), this.waitForTiles) {
                     state.isBusy = true;
@@ -204,32 +203,32 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
                 this.handleDataLoad(state, true, dispatch);
             }
         );
-        this.addActionHandler<GlobalActions.TileAreaClicked>(
-            GlobalActionName.TileAreaClicked,
+        this.addActionHandler<typeof GlobalActions.TileAreaClicked>(
+            GlobalActions.TileAreaClicked.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.visibleMetadataLine = -1;
                 }
             }
         );
-        this.addActionHandler<Actions.ShowLineMetadata>(
-            ActionName.ShowLineMetadata,
+        this.addActionHandler<typeof Actions.ShowLineMetadata>(
+            Actions.ShowLineMetadata.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.visibleMetadataLine = action.payload.idx;
                 }
             }
         );
-        this.addActionHandler<Actions.HideLineMetadata>(
-            ActionName.HideLineMetadata,
+        this.addActionHandler<typeof Actions.HideLineMetadata>(
+            Actions.HideLineMetadata.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.visibleMetadataLine = -1;
                 }
             }
         );
-        this.addActionHandler<GlobalActions.GetSourceInfo>(
-            GlobalActionName.GetSourceInfo,
+        this.addActionHandler<typeof GlobalActions.GetSourceInfo>(
+            GlobalActions.GetSourceInfo.name,
             null,
             (state, action, dispatch) => {
                 if (action.payload.tileId === this.tileId) {
@@ -238,7 +237,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
                     .subscribe(
                         (data) => {
                             dispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
+                                name: GlobalActions.GetSourceInfoDone.name,
                                 payload: {
                                     data: data
                                 }
@@ -247,7 +246,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
                         (err) => {
                             console.error(err);
                             dispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
+                                name: GlobalActions.GetSourceInfoDone.name,
                                 error: err
 
                             });
@@ -383,10 +382,10 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
                     if (action.error) {
                         throw action.error;
                     }
-                    if (action.name === GlobalActionName.TileDataLoaded) { // i.e. we don't sync via TilePartialDataLoaded
+                    if (action.name === Actions.TileDataLoaded.name) { // i.e. we don't sync via TilePartialDataLoaded
                         syncData.setTileDone(action.payload.tileId, true);
 
-                    } else if (action.name === GlobalActionName.TilePartialDataLoaded) {
+                    } else if (action.name === Actions.PartialTileDataLoaded.name) {
                         syncData.touch();
                     }
 
@@ -422,8 +421,8 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
             ),
             tap(
                 ([baseConcId, queryId, resp]) => {
-                    seDispatch<GlobalActions.TilePartialDataLoaded<CollExamplesLoadedPayload>>({
-                        name: GlobalActionName.TilePartialDataLoaded,
+                    seDispatch<typeof Actions.PartialTileDataLoaded>({
+                        name: GlobalActions.TilePartialDataLoaded.name,
                         payload: {
                             tileId: this.tileId,
                             queryId: queryId,
@@ -439,8 +438,8 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
             )
         ).subscribe(
             (isEmpty) => {
-                seDispatch<GlobalActions.TileDataLoaded<{}>>({
-                    name: GlobalActionName.TileDataLoaded,
+                seDispatch<typeof Actions.TileDataLoaded>({
+                    name: GlobalActions.TileDataLoaded.name,
                     payload: {
                         tileId: this.tileId,
                         isEmpty: isEmpty
@@ -451,8 +450,8 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
                 console.error(error);
                 this.appServices.showMessage(SystemMessageType.ERROR,
                         this.appServices.humanizeHttpApiError(error));
-                seDispatch<GlobalActions.TileDataLoaded<{}>>({
-                    name: GlobalActionName.TileDataLoaded,
+                seDispatch<typeof Actions.TileDataLoaded>({
+                    name: GlobalActions.TileDataLoaded.name,
                     payload: {
                         tileId: this.tileId,
                         isEmpty: true

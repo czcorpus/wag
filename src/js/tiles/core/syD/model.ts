@@ -18,8 +18,8 @@
 import { StatelessModel, IActionQueue } from 'kombo';
 
 import { IAppServices } from '../../../appServices';
-import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
-import { DataLoadedPayload } from './actions';
+import { Actions as GlobalActions } from '../../../models/actions';
+import { Actions } from './actions';
 import { RequestArgs, StrippedFreqResponse, SyDAPI } from './api';
 import { RecognizedQueries } from '../../../query/index';
 import { List, pipe } from 'cnc-tskit';
@@ -77,8 +77,8 @@ export class SydModel extends StatelessModel<SydModelState> {
         this.api = api;
         this.appServices = appServices;
 
-        this.addActionHandler(
-            GlobalActionName.RequestQueryResponse,
+        this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
+            GlobalActions.RequestQueryResponse.name,
             (state, action) => {
                 state.isBusy = true;
                 state.procTime = -1;
@@ -92,8 +92,8 @@ export class SydModel extends StatelessModel<SydModelState> {
                 ))
                 .subscribe(
                     (data) => {
-                        dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                            name: GlobalActionName.TileDataLoaded,
+                        dispatch<typeof Actions.TileDataLoaded>({
+                            name: Actions.TileDataLoaded.name,
                             payload: {
                                 tileId: this.tileId,
                                 isEmpty: data.results.length === 0,
@@ -101,10 +101,10 @@ export class SydModel extends StatelessModel<SydModelState> {
                             }
                         });
                     },
-                    (err) => {
-                        dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                            name: GlobalActionName.TileDataLoaded,
-                            error: err,
+                    (error) => {
+                        dispatch<typeof Actions.TileDataLoaded>({
+                            name: Actions.TileDataLoaded.name,
+                            error,
                             payload: {
                                 tileId: this.tileId,
                                 isEmpty: true,
@@ -116,8 +116,8 @@ export class SydModel extends StatelessModel<SydModelState> {
             }
         );
 
-        this.addActionHandler<GlobalActions.TileDataLoaded<DataLoadedPayload>>(
-            GlobalActionName.TileDataLoaded,
+        this.addActionHandler<typeof Actions.TileDataLoaded>(
+            Actions.TileDataLoaded.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = false;

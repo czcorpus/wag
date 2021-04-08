@@ -31,7 +31,7 @@ import { EmptyTile } from '../tiles/core/empty';
 declare var require:any;
 
 export interface DynamicTileModule {
-    init:TileFactory.TileFactory<{}>;
+    init:TileFactory<{}>;
 }
 
 const importDependentTilesList = (...d:Array<string|Array<string>>):Array<string> => {
@@ -45,7 +45,7 @@ const importDependentTilesList = (...d:Array<string|Array<string>>):Array<string
     );
 };
 
-type TileFactoryMap = {[tileType:string]:TileFactory.TileFactory<{}>};
+type TileFactoryMap = {[tileType:string]:TileFactory<{}>};
 
 const tileFactories:TileFactoryMap = {};
 

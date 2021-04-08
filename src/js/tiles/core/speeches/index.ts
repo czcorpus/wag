@@ -18,7 +18,7 @@
 import { StatelessModel } from 'kombo';
 
 import { QueryType } from '../../../query/index';
-import { ITileProvider, TileComponent, TileConf, TileFactory, Backlink } from '../../../page/tile';
+import { ITileProvider, TileComponent, TileConf, TileFactory, Backlink, TileFactoryArgs } from '../../../page/tile';
 import { SpeechesModel } from './model';
 import { init as viewInit } from './view';
 import { LocalizedConfMsg } from '../../../types';
@@ -64,8 +64,11 @@ export class SpeechesTile implements ITileProvider {
 
     private static readonly DEFAULT_MAX_NUM_SPEECHES = 8;
 
-    constructor({dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, subqSourceTiles, ut,
-                theme, appServices, widthFract, conf, isBusy, cache}:TileFactory.Args<SpeechesTileConf>) {
+    constructor({
+        dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, subqSourceTiles, ut,
+        theme, appServices, widthFract, conf, isBusy, cache
+    }:TileFactoryArgs<SpeechesTileConf>) {
+
         this.tileId = tileId;
         this.widthFract = widthFract;
         this.label = appServices.importExternalMessage(conf.label);
@@ -172,7 +175,7 @@ export class SpeechesTile implements ITileProvider {
     }
 }
 
-export const init:TileFactory.TileFactory<SpeechesTileConf> = {
+export const init:TileFactory<SpeechesTileConf> = {
 
     sanityCheck: (args) => [],
 

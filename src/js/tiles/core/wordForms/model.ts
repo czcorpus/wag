@@ -18,10 +18,11 @@
 import { map } from 'rxjs/operators';
 import { List, Maths } from 'cnc-tskit';
 
-import { StatelessModel, Action, SEDispatcher, IActionQueue } from 'kombo';
+import { StatelessModel, SEDispatcher, IActionQueue } from 'kombo';
 import { WordFormItem, IWordFormsApi, RequestConcArgs, RequestArgs } from '../../../api/abstract/wordForms';
-import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
-import { DataLoadedPayload } from './actions';
+import { Actions as GlobalActions } from '../../../models/actions';
+import { Actions as ConcActions } from '../concordance/actions';
+import { DataLoadedPayload, Actions } from './actions';
 import { findCurrQueryMatch } from '../../../models/query';
 import { ConcLoadedPayload } from '../concordance/actions';
 import { RecognizedQueries } from '../../../query/index';
@@ -108,8 +109,8 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
         this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.appServices = appServices;
 
-        this.addActionHandler<GlobalActions.EnableAltViewMode>(
-            GlobalActionName.EnableAltViewMode,
+        this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(
+            GlobalActions.EnableAltViewMode.name,
             (state, action) => {
                 if (action.payload.ident === this.tileId) {
                     state.isAltViewMode = true;
@@ -117,8 +118,8 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
             }
         );
 
-        this.addActionHandler<GlobalActions.DisableAltViewMode>(
-            GlobalActionName.DisableAltViewMode,
+        this.addActionHandler<typeof GlobalActions.DisableAltViewMode>(
+            GlobalActions.DisableAltViewMode.name,
             (state, action) => {
                 if (action.payload.ident === this.tileId) {
                     state.isAltViewMode = false;
@@ -126,8 +127,8 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
             }
         );
 
-        this.addActionHandler<GlobalActions.RequestQueryResponse>(
-            GlobalActionName.RequestQueryResponse,
+        this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
+            GlobalActions.RequestQueryResponse.name,
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
@@ -138,12 +139,12 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                     this.suspendWithTimeout(
                         this.waitForTilesTimeoutSecs * 1000,
                         {},
-                        (action:Action<{tileId:number}>, syncData) => {
-                            if (action.name === GlobalActionName.TileDataLoaded && action.payload.tileId === this.waitForTile) {
+                        (action, syncData) => {
+                            if (ConcActions.isTileDataLoaded(action) && action.payload.tileId === this.waitForTile) {
                                 if (action.error) {
                                     console.error(action.error);
-                                    dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                        name: GlobalActionName.TileDataLoaded,
+                                    dispatch<typeof Actions.TileDataLoaded>({
+                                        name: Actions.TileDataLoaded.name,
                                         error: action.error,
                                         payload: {
                                             tileId: this.tileId,
@@ -157,12 +158,11 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                                     });
 
                                 } else {
-                                    const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
                                     this.fetchWordForms(
                                         {
-                                            corpName: payload.corpusName,
-                                            subcorpName: payload.subcorpusName,
-                                            concPersistenceID: payload.concPersistenceIDs[0]
+                                            corpName: action.payload.corpusName,
+                                            subcorpName: action.payload.subcorpusName,
+                                            concPersistenceID: action.payload.concPersistenceIDs[0]
                                         },
                                         dispatch
                                     );
@@ -188,8 +188,8 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
             }
         );
 
-        this.addActionHandler<GlobalActions.TileDataLoaded<DataLoadedPayload>>(
-            GlobalActionName.TileDataLoaded,
+        this.addActionHandler<typeof Actions.TileDataLoaded>(
+            Actions.TileDataLoaded.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = false;
@@ -210,29 +210,24 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
             }
         );
 
-        this.addActionHandler<GlobalActions.GetSourceInfo>(
-            GlobalActionName.GetSourceInfo,
+        this.addActionHandler<typeof GlobalActions.GetSourceInfo>(
+            GlobalActions.GetSourceInfo.name,
             (state, action) => {},
             (state, action, seDispatch) => {
                 if (action.payload['tileId'] === this.tileId) {
                     this.api.getSourceDescription(this.tileId,  this.queryDomain, state.corpname).subscribe(
                         (data) => {
-                            seDispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
+                            seDispatch<typeof GlobalActions.GetSourceInfoDone>({
+                                name: GlobalActions.GetSourceInfoDone.name,
                                 payload: {
-                                    tileId: this.tileId,
-                                    data: data
+                                    data
                                 }
                             });
                         },
-                        (err) => {
-                            seDispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
-                                payload: {
-                                    tileId: this.tileId,
-                                    data: null
-                                },
-                                error: err
+                        (error) => {
+                            seDispatch<typeof GlobalActions.GetSourceInfoDone>({
+                                name: GlobalActions.GetSourceInfoDone.name,
+                                error
                             });
                         }
                     );
@@ -261,8 +256,8 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
 
         ).subscribe(
             (data) => {
-                dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                    name: GlobalActionName.TileDataLoaded,
+                dispatch<typeof Actions.TileDataLoaded>({
+                    name: Actions.TileDataLoaded.name,
                     payload: {
                         tileId: this.tileId,
                         queryId: 0,
@@ -285,8 +280,8 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
             },
             (err) => {
                 console.error(err);
-                dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                    name: GlobalActionName.TileDataLoaded,
+                dispatch<typeof Actions.TileDataLoaded>({
+                    name: Actions.TileDataLoaded.name,
                     error: err,
                     payload: {
                         tileId: this.tileId,

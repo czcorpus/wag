@@ -19,7 +19,7 @@ import { IActionDispatcher, StatelessModel } from 'kombo';
 
 import { IAppServices } from '../../../appServices';
 import { QueryType } from '../../../query/index';
-import { TileConf, ITileProvider, TileComponent, TileFactory } from '../../../page/tile';
+import { TileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs } from '../../../page/tile';
 
 import { __Template__Model } from './model';
 import { init as viewInit } from './views';
@@ -53,7 +53,10 @@ export class __Template__Tile implements ITileProvider {
 
     private view:TileComponent;
 
-    constructor({tileId, dispatcher, appServices, ut, theme, widthFract, conf, isBusy, queryMatches}:TileFactory.Args<__Template__TileConf>) {
+    constructor({
+        tileId, dispatcher, appServices, ut, theme, widthFract, conf,
+        isBusy, queryMatches
+    }:TileFactoryArgs<__Template__TileConf>) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.appServices = appServices;
@@ -134,7 +137,7 @@ export class __Template__Tile implements ITileProvider {
     }
 }
 
-export const init:TileFactory.TileFactory<__Template__TileConf> = {
+export const init:TileFactory<__Template__TileConf> = {
 
     sanityCheck: (args) => [],
 

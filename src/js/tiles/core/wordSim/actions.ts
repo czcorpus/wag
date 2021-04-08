@@ -19,6 +19,7 @@
 import { Action } from 'kombo';
 import { WordSimWord, WordSimSubqueryPayload } from '../../../api/abstract/wordSim';
 import { OperationMode } from '../../../models/tiles/wordSim';
+import { Actions as GlobalActions } from '../../../models/actions';
 
 
 export interface DataLoadedPayload extends WordSimSubqueryPayload {
@@ -28,17 +29,17 @@ export interface DataLoadedPayload extends WordSimSubqueryPayload {
 }
 
 
-export enum ActionName {
-    SetOperationMode = 'WORDSIM_SET_OPERATION_MODE'
-}
+export class Actions {
 
-export namespace Actions {
-
-    export interface SetOperationMode extends Action<{
+    static SetOperationMode:Action<{
         tileId:number;
         value:OperationMode;
-    }> {
-        name: ActionName.SetOperationMode;
+    }> = {
+        name: 'WORDSIM_SET_OPERATION_MODE'
     }
+
+    static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & DataLoadedPayload> = {
+        name: GlobalActions.TileDataLoaded.name
+    };
 
 }

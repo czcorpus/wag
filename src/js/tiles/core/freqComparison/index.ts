@@ -21,7 +21,7 @@ import { Ident, List } from 'cnc-tskit';
 import { IAppServices } from '../../../appServices';
 import { LocalizedConfMsg } from '../../../types';
 import { QueryType } from '../../../query/index';
-import { TileComponent, TileConf, TileFactory, Backlink, ITileProvider } from '../../../page/tile';
+import { TileComponent, TileConf, TileFactory, Backlink, ITileProvider, TileFactoryArgs } from '../../../page/tile';
 import { GlobalComponents } from '../../../views/global';
 import { factory as defaultModelFactory, FreqComparisonModel } from './model';
 import { init as viewInit } from './view';
@@ -70,8 +70,11 @@ export class FreqComparisonTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, ut, theme, appServices, widthFract,
-            conf, isBusy, cache, queryMatches}:TileFactory.Args<FreqComparisonTileConf>) {
+    constructor({
+        dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, ut, theme, appServices,
+        widthFract, conf, isBusy, cache, queryMatches
+    }:TileFactoryArgs<FreqComparisonTileConf>) {
+
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
@@ -182,7 +185,7 @@ export class FreqComparisonTile implements ITileProvider {
     }
 }
 
-export const init:TileFactory.TileFactory<FreqComparisonTileConf>  = {
+export const init:TileFactory<FreqComparisonTileConf>  = {
 
     sanityCheck: (args) => {
         const ans = [];

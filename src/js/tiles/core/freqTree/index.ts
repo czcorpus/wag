@@ -23,7 +23,7 @@ import { FreqTreeAPI } from '../../../api/vendor/kontext/freqTree';
 import { FreqTreeDataBlock } from '../../../models/tiles/freqTree';
 import { LocalizedConfMsg } from '../../../types';
 import { QueryType } from '../../../query/index';
-import { TileComponent, TileConf, TileFactory, Backlink, ITileProvider } from '../../../page/tile';
+import { TileComponent, TileConf, TileFactory, Backlink, ITileProvider, TileFactoryArgs } from '../../../page/tile';
 import { GlobalComponents } from '../../../views/global';
 import { factory as defaultModelFactory, FreqTreeModel } from './model';
 import { init as viewInit } from './view';
@@ -69,8 +69,11 @@ export class FreqTreeTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, ut, theme, appServices, widthFract,
-            conf, isBusy, cache, queryMatches}:TileFactory.Args<FreqTreeTileConf>) {
+    constructor({
+        dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, ut, theme, appServices,
+        widthFract, conf, isBusy, cache, queryMatches
+    }:TileFactoryArgs<FreqTreeTileConf>) {
+
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
@@ -175,7 +178,7 @@ export class FreqTreeTile implements ITileProvider {
     }
 }
 
-export const init:TileFactory.TileFactory<FreqTreeTileConf>  = {
+export const init:TileFactory<FreqTreeTileConf>  = {
 
     sanityCheck: (args) => [],
     create: (args) => new FreqTreeTile(args)

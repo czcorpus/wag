@@ -21,9 +21,9 @@ import * as React from 'react';
 import { Theme } from '../../../page/theme';
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile';
 import { GlobalComponents } from '../../../views/global';
-import { ActionName, Actions } from './common';
+import { Actions } from './common';
 import { CollocModel } from './model';
-import { Actions as GlobalActions, ActionName as GlobalActionName } from '../../../models/actions';
+import { Actions as GlobalActions } from '../../../models/actions';
 import { init as wcloudViewInit } from '../../../views/wordCloud/index';
 import { DataRow, SrchContextType, DataHeading } from '../../../api/abstract/collocations';
 import { CollocModelState } from '../../../models/tiles/collocations';
@@ -37,21 +37,22 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------- <Controls /> -------------------------------------
 
-    const Controls:React.SFC<{
+    const Controls:React.FC<{
         tileId:number;
         value:SrchContextType;
 
     }> = (props) => {
 
         const handleChange = (evt:React.ChangeEvent<HTMLSelectElement>) => {
-            dispatcher.dispatch<GlobalActions.SubqChanged>({
-                name: GlobalActionName.SubqChanged,
+            dispatcher.dispatch<typeof GlobalActions.SubqChanged>({
+                name: GlobalActions.SubqChanged.name,
                 payload: {
                     tileId: props.tileId
                 }
             });
-            dispatcher.dispatch<Actions.SetSrchContextType>({
-                name: ActionName.SetSrchContextType,
+            console.log('Actions.SetSrchContextType.name: ', Actions.SetSrchContextType.name)
+            dispatcher.dispatch<typeof Actions.SetSrchContextType>({
+                name: Actions.SetSrchContextType.name,
                 payload: {
                     tileId: props.tileId,
                     ctxType: evt.target.value as SrchContextType
@@ -79,7 +80,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------- <TableView /> -------------------------------------
 
-    const TableView:React.SFC<{
+    const TableView:React.FC<{
         data:Array<DataRow>;
         heading:DataHeading;
         caption:string;

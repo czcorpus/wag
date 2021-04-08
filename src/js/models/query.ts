@@ -21,18 +21,18 @@ import { pipe, List } from 'cnc-tskit';
 
 import { IAppServices } from '../appServices';
 import { MultiDict } from '../multidict';
-import { Forms } from '../page/forms';
+import { Input, Forms } from '../page/forms';
 import { SystemMessageType } from '../types';
 import { AvailableLanguage } from '../page/hostPage';
 import { QueryType, QueryMatch, QueryTypeMenuItem, matchesPos, SearchDomain, RecognizedQueries } from '../query/index';
 import { QueryValidator } from '../query/validation';
-import { ActionName, Actions } from './actions';
+import { Actions } from './actions';
 import { HTTPAction } from '../server/routes/actions';
 import { LayoutManager } from '../page/layout';
 
 
 export interface QueryFormModelState {
-    queries:Array<Forms.Input>;
+    queries:Array<Input>;
     initialQueryType:QueryType;
     multiWordQuerySupport:{[k in QueryType]?:number};
     queryType:QueryType;
@@ -77,8 +77,8 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
         super(dispatcher, initialState);
         this.appServices = appServices;
         this.queryValidator = new QueryValidator(this.appServices);
-        this.addActionHandler<Actions.ChangeQueryInput>(
-            ActionName.ChangeQueryInput,
+        this.addActionHandler<typeof Actions.ChangeQueryInput>(
+            Actions.ChangeQueryInput.name,
             (state, action) => {
                 state.errors = [];
                 state.queries[action.payload.queryIdx] =
@@ -86,8 +86,8 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
             }
         );
 
-        this.addActionHandler<Actions.ChangeCurrQueryMatch>(
-            ActionName.ChangeCurrQueryMatch,
+        this.addActionHandler<typeof Actions.ChangeCurrQueryMatch>(
+            Actions.ChangeCurrQueryMatch.name,
             (state, action) => {
                 const group = state.queryMatches[action.payload.queryIdx];
                 state.queryMatches[action.payload.queryIdx] = List.map(
@@ -104,8 +104,8 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
             }
         );
 
-        this.addActionHandler<Actions.ChangeTargetDomain>(
-            ActionName.ChangeTargetDomain,
+        this.addActionHandler<typeof Actions.ChangeTargetDomain>(
+            Actions.ChangeTargetDomain.name,
             (state, action) => {
                 const prevDomain2 = state.queryDomain2;
                 state.queryDomain = action.payload.domain1;
@@ -118,8 +118,8 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
             }
         );
 
-        this.addActionHandler<Actions.ChangeQueryType>(
-            ActionName.ChangeQueryType,
+        this.addActionHandler<typeof Actions.ChangeQueryType>(
+            Actions.ChangeQueryType.name,
             (state, action) => {
                 state.queryType = action.payload.queryType;
                 const hasMoreQueries = pipe(state.queries, List.slice(1), List.some(v => v.value !== ''));
@@ -140,8 +140,8 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
             }
         );
 
-        this.addActionHandler<Actions.SubmitQuery>(
-            ActionName.SubmitQuery,
+        this.addActionHandler<typeof Actions.SubmitQuery>(
+            Actions.SubmitQuery.name,
             (state, action) => {
                 this.checkAndSubmitUserQuery(state);
             },
@@ -152,8 +152,8 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
             }
         );
 
-        this.addActionHandler<Actions.AddCmpQueryInput>(
-            ActionName.AddCmpQueryInput,
+        this.addActionHandler<typeof Actions.AddCmpQueryInput>(
+            Actions.AddCmpQueryInput.name,
             (state, action) => {
                 if (state.queries.length < state.maxCmpQueries) {
                     state.queries.push(Forms.newFormValue('', true));
@@ -166,37 +166,37 @@ export class QueryFormModel extends StatelessModel<QueryFormModelState> {
             }
         );
 
-        this.addActionHandler(
-            ActionName.RemoveCmpQueryInput,
-            (state, action:Actions.RemoveCmpQueryInput) => {
+        this.addActionHandler<typeof Actions.RemoveCmpQueryInput>(
+            Actions.RemoveCmpQueryInput.name,
+            (state, action) => {
                 state.queries.splice(action.payload.queryIdx, 1);
             }
         );
 
-        this.addActionHandler(
-            ActionName.ShowQueryMatchModal,
-            (state, action:Actions.ShowQueryMatchModal) => {
+        this.addActionHandler<typeof Actions.ShowQueryMatchModal>(
+            Actions.ShowQueryMatchModal.name,
+            (state, action) => {
                 state.lemmaSelectorModalVisible = true;
             }
         );
 
-        this.addActionHandler(
-            ActionName.HideQueryMatchModal,
-            (state, action:Actions.HideQueryMatchModal) => {
+        this.addActionHandler<typeof Actions.HideQueryMatchModal>(
+            Actions.HideQueryMatchModal.name,
+            (state, action) => {
                 state.lemmaSelectorModalVisible = false;
             }
         );
 
-        this.addActionHandler(
-            ActionName.SelectModalQueryMatch,
-            (state, action:Actions.SelectModalQueryMatch) => {
+        this.addActionHandler<typeof Actions.SelectModalQueryMatch>(
+            Actions.SelectModalQueryMatch.name,
+            (state, action) => {
                 state.modalSelections[action.payload.queryIdx] = action.payload.variantIdx;
             }
         );
 
-        this.addActionHandler(
-            ActionName.ApplyModalQueryMatchSelection,
-            (state, action:Actions.ApplyModalQueryMatchSelection) => {
+        this.addActionHandler<typeof Actions.ApplyModalQueryMatchSelection>(
+            Actions.ApplyModalQueryMatchSelection.name,
+            (state, action) => {
                 state.lemmaSelectorModalVisible = false;
                 state.modalSelections.forEach((sel, idx) => {
                     state.queryMatches[idx] = state.queryMatches[idx].map((v, i2) => ({

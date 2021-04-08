@@ -17,7 +17,7 @@
  */
 import { IAppServices } from '../../../appServices';
 import { QueryType } from '../../../query/index';
-import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../../page/tile';
+import { ITileProvider, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile';
 import { SyDAPI } from './api';
 import { SydModel } from './model';
 import { init as viewInit } from './view';
@@ -54,7 +54,10 @@ export class SyDTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({dispatcher, tileId, waitForTiles, ut, queryMatches, appServices, widthFract, conf, isBusy, cache}:TileFactory.Args<SyDTileConf>) {
+    constructor({
+        dispatcher, tileId, waitForTiles, ut, queryMatches, appServices, widthFract, conf,
+        isBusy, cache
+    }:TileFactoryArgs<SyDTileConf>) {
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
@@ -138,7 +141,7 @@ export class SyDTile implements ITileProvider {
     }
 }
 
-export const init:TileFactory.TileFactory<SyDTileConf> = {
+export const init:TileFactory<SyDTileConf> = {
 
     sanityCheck: (args) => [],
 

@@ -19,7 +19,7 @@ import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
 import { Ident, List } from 'cnc-tskit';
 
 import { QueryType } from '../../../query/index';
-import { Backlink, ITileProvider, TileComponent, TileConf, TileFactory } from '../../../page/tile';
+import { Backlink, ITileProvider, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile';
 import { GlobalComponents } from '../../../views/global';
 import { MergeCorpFreqModel } from './model';
 import { init as viewInit } from './view';
@@ -94,8 +94,11 @@ export class MergeCorpFreqTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, ut,
-                theme, appServices, widthFract, conf, isBusy, cache, queryMatches}:TileFactory.Args<MergeCorpFreqTileConf>) {
+    constructor({
+        dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, ut,
+        theme, appServices, widthFract, conf, isBusy, cache, queryMatches
+    }:TileFactoryArgs<MergeCorpFreqTileConf>) {
+
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
@@ -196,7 +199,7 @@ export class MergeCorpFreqTile implements ITileProvider {
     }
 }
 
-export const init:TileFactory.TileFactory<MergeCorpFreqTileConf>  = {
+export const init:TileFactory<MergeCorpFreqTileConf>  = {
 
     sanityCheck: (args) => [],
 

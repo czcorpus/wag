@@ -16,11 +16,9 @@
  * limitations under the License.
  */
 import { Action } from 'kombo';
+import { Actions as GlobalActions } from '../../../models/actions';
 
-export enum ActionName {
-    SetActiveBlock = 'FREQ_TREE_SET_ACTIVE_BLOCK',
-    SetZoom = 'FREQ_TREE_SET_ZOOM'
-}
+
 
 export interface DataLoadedPayload {
     data:{[k:string]:any};
@@ -29,21 +27,26 @@ export interface DataLoadedPayload {
     corpusName:string;
 }
 
-export namespace Actions {
+export class Actions {
 
-    export interface SetActiveBlock extends Action<{
+    static SetActiveBlock:Action<{
         idx:number;
         tileId:number;
-    }> {
-        name: ActionName.SetActiveBlock;
-    }
+    }> = {
+        name: 'FREQ_TREE_SET_ACTIVE_BLOCK'
+    };
 
-    export interface SetZoom extends Action<{
+    static SetZoom:Action<{
         tileId:number;
         blockId:number;
         variantId:number;
         category:string;
-    }> {
-        name: ActionName.SetZoom;
-    }
+    }> = {
+        name: 'FREQ_TREE_SET_ZOOM'
+    };
+
+    static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & DataLoadedPayload> = {
+        name: GlobalActions.TileDataLoaded.name
+    };
+
 }

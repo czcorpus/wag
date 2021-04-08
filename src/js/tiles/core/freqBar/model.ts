@@ -24,9 +24,9 @@ import { IAppServices } from '../../../appServices';
 import { BacklinkArgs } from '../../../api/vendor/kontext/freqs';
 import { GeneralMultiCritFreqBarModelState } from '../../../models/tiles/freq';
 import { Backlink, BacklinkWithArgs } from '../../../page/tile';
-import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
-import { ConcLoadedPayload } from '../concordance/actions';
-import { ActionName, Actions, DataLoadedPayload } from './actions';
+import { Actions as GlobalActions } from '../../../models/actions';
+import { Actions as ConcActions } from '../concordance/actions';
+import { Actions } from './actions';
 import { callWithExtraVal } from '../../../api/util';
 import { DataRow, IMultiBlockFreqDistribAPI } from '../../../api/abstract/freqs';
 
@@ -79,24 +79,24 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState, {[tileId:str
         this.api = api;
         this.backlink = backlink;
 
-        this.addActionHandler<GlobalActions.EnableAltViewMode>(
-            GlobalActionName.EnableAltViewMode,
+        this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(
+            GlobalActions.EnableAltViewMode.name,
             (state, action) => {
                 if (action.payload.ident === this.tileId) {
                     state.isAltViewMode = true;
                 }
             }
         );
-        this.addActionHandler<GlobalActions.DisableAltViewMode>(
-            GlobalActionName.DisableAltViewMode,
+        this.addActionHandler<typeof GlobalActions.DisableAltViewMode>(
+            GlobalActions.DisableAltViewMode.name,
             (state, action) => {
                 if (action.payload.ident === this.tileId) {
                     state.isAltViewMode = false;
                 }
             }
         );
-        this.addActionHandler<GlobalActions.RequestQueryResponse>(
-            GlobalActionName.RequestQueryResponse,
+        this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
+            GlobalActions.RequestQueryResponse.name,
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
@@ -106,8 +106,7 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState, {[tileId:str
                     this.waitForTilesTimeoutSecs * 1000,
                     Dict.map(_ => true, this.waitForTiles),
                     (action:Action, syncData) => {
-                        if (action.name === GlobalActionName.TileDataLoaded && this.waitForTiles[action.payload['tileId']] !== undefined) {
-                            const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
+                        if (ConcActions.isTileDataLoaded(action) && this.waitForTiles[action.payload.tileId] !== undefined) {
                             new Observable((observer:Observer<number>) => {
                                 if (action.error) {
                                     observer.error(new Error(this.appServices.translate('global__failed_to_obtain_required_data')));
@@ -119,14 +118,14 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState, {[tileId:str
                             }).pipe(
                                 concatMap(critIdx => callWithExtraVal(
                                         this.api,
-                                        this.api.stateToArgs(state, payload.concPersistenceIDs[0], critIdx),
+                                        this.api.stateToArgs(state, action.payload.concPersistenceIDs[0], critIdx),
                                         critIdx
                                 ))
                             )
                             .subscribe(
                                 ([resp, critIdx]) => {
-                                    dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                        name: GlobalActionName.TileDataLoaded,
+                                    dispatch<typeof Actions.TileDataLoaded>({
+                                        name: Actions.TileDataLoaded.name,
                                         payload: {
                                             tileId: this.tileId,
                                             isEmpty: resp.blocks.every(v => v.data.length === 0),
@@ -139,8 +138,8 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState, {[tileId:str
                                     });
                                 },
                                 error => {
-                                    dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                        name: GlobalActionName.TileDataLoaded,
+                                    dispatch<typeof Actions.TileDataLoaded>({
+                                        name: GlobalActions.TileDataLoaded.name,
                                         payload: {
                                             tileId: this.tileId,
                                             isEmpty: true,
@@ -154,7 +153,7 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState, {[tileId:str
                             );
 
                             const ans = {...syncData};
-                            ans[payload.tileId.toFixed()] = false;
+                            ans[action.payload.tileId.toFixed()] = false;
                             return Dict.hasValue(true, ans) ? ans : null;
                         }
                         return syncData;
@@ -162,14 +161,16 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState, {[tileId:str
                 );
             }
         );
-        this.addActionHandler<Actions.SetActiveBlock>(
-            ActionName.SetActiveBlock,
+
+        this.addActionHandler<typeof Actions.SetActiveBlock>(
+            Actions.SetActiveBlock.name,
             (state, action) => {
                 state.activeBlock = action.payload.idx;
             }
         );
-        this.addActionHandler<GlobalActions.TileDataLoaded<DataLoadedPayload>>(
-            GlobalActionName.TileDataLoaded,
+
+        this.addActionHandler<typeof Actions.TileDataLoaded>(
+            Actions.TileDataLoaded.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     if (action.error) {
@@ -205,8 +206,8 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState, {[tileId:str
                 }
             }
         );
-        this.addActionHandler<GlobalActions.GetSourceInfo>(
-            GlobalActionName.GetSourceInfo,
+        this.addActionHandler<typeof GlobalActions.GetSourceInfo>(
+            GlobalActions.GetSourceInfo.name,
             (state, action) => {},
             (state, action, dispatch) => {
                 if (action.payload.tileId === this.tileId) {
@@ -214,7 +215,7 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState, {[tileId:str
                     .subscribe(
                         (data) => {
                             dispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
+                                name: GlobalActions.GetSourceInfoDone.name,
                                 payload: {
                                     tileId: this.tileId,
                                     data: data
@@ -224,7 +225,7 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState, {[tileId:str
                         (err) => {
                             console.error(err);
                             dispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
+                                name: GlobalActions.GetSourceInfoDone.name,
                                 error: err,
                                 paylod: {
                                     tileId: this.tileId

@@ -19,13 +19,8 @@ import { Action } from 'kombo';
 
 import { LocalizedConfMsg } from '../../../types';
 import { ApiDataBlock } from '../../../api/abstract/freqs';
+import { Actions as GlobalActions } from '../../../models/actions';
 
-
-
-export enum ActionName {
-    LoadDataDone = 'FREQ_PIE_LOAD_DATA_DONE',
-    SetActiveBlock = 'FREQ_PIE_SET_ACTIVE_BLOCK'
-}
 
 export interface DataLoadedPayload {
     concId:string;
@@ -33,12 +28,20 @@ export interface DataLoadedPayload {
     blockLabels?:Array<LocalizedConfMsg>;
 }
 
-export namespace Actions {
+export class Actions {
 
-    export interface SetActiveBlock extends Action<{
+    static SetActiveBlock:Action<{
         idx:number;
         tileId:number;
-    }> {
-        name: ActionName.SetActiveBlock;
-    }
+    }> = {
+        name: 'FREQ_PIE_SET_ACTIVE_BLOCK'
+    };
+
+    static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload> = {
+        name: GlobalActions.TileDataLoaded.name
+    };
+
+    static PartialTileDataLoaded:Action<typeof GlobalActions.TilePartialDataLoaded.payload & DataLoadedPayload> = {
+        name: GlobalActions.TilePartialDataLoaded.name
+    };
 }

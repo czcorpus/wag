@@ -15,9 +15,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import { WordFormItem } from '../../../api/abstract/wordForms';
 import { SubqueryPayload } from '../../../query/index';
+import { Actions as GlobalActions } from '../../../models/actions';
+import { Action } from 'kombo';
+
 
 export interface DataLoadedPayload extends SubqueryPayload {
     data:Array<WordFormItem>;
+}
+
+export class Actions {
+
+    static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & DataLoadedPayload> = {
+        name: GlobalActions.TileDataLoaded.name
+    };
 }

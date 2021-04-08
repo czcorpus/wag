@@ -22,9 +22,10 @@ import { List, HTTP } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
 import { SystemMessageType } from '../../../types';
-import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
+import { Actions as GlobalActions } from '../../../models/actions';
 import { ConcLoadedPayload } from '../concordance/actions';
-import { ActionName, Actions, DataLoadedPayload } from './common';
+import { Actions } from './common';
+import { Actions as ConcActions } from '../concordance/actions';
 import { Backlink, BacklinkWithArgs } from '../../../page/tile';
 import { CollocationApi } from '../../../api/abstract/collocations';
 import { CollocModelState, ctxToRange } from '../../../models/tiles/collocations';
@@ -33,7 +34,6 @@ import { QueryMatch, QueryType } from '../../../query/index';
 import { callWithExtraVal } from '../../../api/util';
 import { ViewMode, ConcResponse, IConcordanceApi } from '../../../api/abstract/concordance';
 import { createInitialLinesData } from '../../../models/tiles/concordance';
-import { AttrViewMode } from '../../../api/vendor/kontext/types';
 
 
 export interface CollocModelArgs {
@@ -98,65 +98,68 @@ export class CollocModel extends StatelessModel<CollocModelState> {
         this.queryType = queryType;
         this.apiType = apiType;
 
-        this.addActionHandler<GlobalActions.SubqItemHighlighted>(
-            GlobalActionName.SubqItemHighlighted,
+        this.addActionHandler<typeof GlobalActions.SubqItemHighlighted>(
+            GlobalActions.SubqItemHighlighted.name,
             (state, action) => {
                 state.selectedText = action.payload.text;
             }
         );
-        this.addActionHandler<GlobalActions.SubqItemDehighlighted>(
-            GlobalActionName.SubqItemDehighlighted,
+        this.addActionHandler<typeof GlobalActions.SubqItemDehighlighted>(
+            GlobalActions.SubqItemDehighlighted.name,
             (state, action) => {
                 state.selectedText = null;
             }
         );
-        this.addActionHandler<GlobalActions.EnableTileTweakMode>(
-            GlobalActionName.EnableTileTweakMode,
+        this.addActionHandler<typeof GlobalActions.EnableTileTweakMode>(
+            GlobalActions.EnableTileTweakMode.name,
             (state, action) => {
                 if (action.payload.ident === this.tileId) {
                     state.isTweakMode = true;
                 }
             }
         );
-        this.addActionHandler<GlobalActions.DisableTileTweakMode>(
-            GlobalActionName.DisableTileTweakMode,
+        this.addActionHandler<typeof GlobalActions.DisableTileTweakMode>(
+            GlobalActions.DisableTileTweakMode.name,
             (state, action) => {
                 if (action.payload.ident === this.tileId) {
                     state.isTweakMode = false;
                 }
             }
         );
-        this.addActionHandler<GlobalActions.EnableAltViewMode>(
-            GlobalActionName.EnableAltViewMode,
+        this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(
+            GlobalActions.EnableAltViewMode.name,
             (state, action) => {
                 if (action.payload.ident === this.tileId) {
                     state.isAltViewMode = true;
                 }
             }
         );
-        this.addActionHandler<GlobalActions.DisableAltViewMode>(
-            GlobalActionName.DisableAltViewMode,
+        this.addActionHandler<typeof GlobalActions.DisableAltViewMode>(
+            GlobalActions.DisableAltViewMode.name,
             (state, action) => {
                 if (action.payload.ident === this.tileId) {
                     state.isAltViewMode = false;
                 }
             }
         );
-        this.addActionHandler<GlobalActions.RequestQueryResponse>(
-            GlobalActionName.RequestQueryResponse,
+        this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
+            GlobalActions.RequestQueryResponse.name,
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
             },
             (state, action, seDispatch) => {
                 const conc$ = this.waitForTile >= 0 ?
-                    this.suspendWithTimeout(this.waitForTilesTimeoutSecs * 1000, {}, (action:Action, syncData) => {
-                        if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
-                            return null;
+                    this.suspendWithTimeout(
+                        this.waitForTilesTimeoutSecs * 1000,
+                        {},
+                        (action:Action, syncData) => {
+                            if (ConcActions.isTileDataLoaded(action) && action.payload.tileId === this.waitForTile) {
+                                return null;
+                            }
+                            return syncData;
                         }
-                        return syncData;
-
-                    }).pipe(
+                    ).pipe(
                         concatMap(action => {
                             const payload = action.payload as ConcLoadedPayload;
                             return rxOf(...List.map<string, FreqRequestArgs>((v, i) => [i, state.queryMatches[i], v], payload.concPersistenceIDs))
@@ -167,8 +170,8 @@ export class CollocModel extends StatelessModel<CollocModelState> {
         );
 
 
-        this.addActionHandler<GlobalActions.TileDataLoaded<{}>>(
-            GlobalActionName.TileDataLoaded,
+        this.addActionHandler<typeof Actions.TileDataLoaded>(
+            Actions.TileDataLoaded.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = false;
@@ -180,8 +183,8 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             }
         );
 
-        this.addActionHandler<GlobalActions.TilePartialDataLoaded<DataLoadedPayload>>(
-            GlobalActionName.TilePartialDataLoaded,
+        this.addActionHandler<typeof Actions.PartialTileDataLoaded>(
+            Actions.PartialTileDataLoaded.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.concIds[action.payload.queryId] = action.payload.concId;
@@ -198,8 +201,8 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                 }
             }
         );
-        this.addActionHandler<Actions.SetSrchContextType>(
-            ActionName.SetSrchContextType,
+        this.addActionHandler<typeof Actions.SetSrchContextType>(
+            Actions.SetSrchContextType.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = true;
@@ -216,8 +219,8 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                 }
             }
         );
-        this.addActionHandler<GlobalActions.GetSourceInfo>(
-            GlobalActionName.GetSourceInfo,
+        this.addActionHandler<typeof GlobalActions.GetSourceInfo>(
+            GlobalActions.GetSourceInfo.name,
             (state, action) => {},
             (state, action, seDispatch) => {
                 if (action.payload.tileId === this.tileId) {
@@ -225,7 +228,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                     .subscribe(
                         (data) => {
                             seDispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
+                                name: GlobalActions.GetSourceInfoDone.name,
                                 payload: {
                                     data: data
                                 }
@@ -234,7 +237,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                         (err) => {
                             console.error(err);
                             seDispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
+                                name: GlobalActions.GetSourceInfoDone.name,
                                 error: err
 
                             });
@@ -245,7 +248,11 @@ export class CollocModel extends StatelessModel<CollocModelState> {
         );
     }
 
-    private createBackLink(state:CollocModelState, action:GlobalActions.TilePartialDataLoaded<DataLoadedPayload>):BacklinkWithArgs<CoreCollRequestArgs> {
+    private createBackLink(
+        state:CollocModelState,
+        action:typeof Actions.PartialTileDataLoaded
+    ):BacklinkWithArgs<CoreCollRequestArgs> {
+
         const [cfromw, ctow] = ctxToRange(state.srchRangeType, state.srchRange);
         return this.backlink ?
             {
@@ -309,18 +316,18 @@ export class CollocModel extends StatelessModel<CollocModelState> {
     private reloadAllData(state:CollocModelState, reqArgs:Observable<FreqRequestArgs>, seDispatch:SEDispatcher):void {
         this.loadCollocations(state, reqArgs, seDispatch).subscribe(
             (isEmpty) => {
-                seDispatch<GlobalActions.TileDataLoaded<{}>>({
-                    name: GlobalActionName.TileDataLoaded,
+                seDispatch<typeof Actions.TileDataLoaded>({
+                    name: Actions.TileDataLoaded.name,
                     payload: {
                         tileId: this.tileId,
-                        isEmpty: isEmpty
+                        isEmpty
                     }
                 })
             },
             (err) => {
                 this.appServices.showMessage(SystemMessageType.ERROR, err);
-                seDispatch<GlobalActions.TileDataLoaded<{}>>({
-                    name: GlobalActionName.TileDataLoaded,
+                seDispatch<typeof Actions.TileDataLoaded>({
+                    name: Actions.TileDataLoaded.name,
                     payload: {
                         tileId: this.tileId,
                         isEmpty: true
@@ -342,8 +349,8 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             }),
             tap(
                 ([data, args]) => {
-                    seDispatch<GlobalActions.TilePartialDataLoaded<DataLoadedPayload>>({
-                        name: GlobalActionName.TilePartialDataLoaded,
+                    seDispatch<typeof Actions.PartialTileDataLoaded>({
+                        name: Actions.PartialTileDataLoaded.name,
                         payload: {
                             tileId: this.tileId,
                             heading: data.collHeadings,

@@ -23,7 +23,7 @@ import { FreqSort } from '../../../api/vendor/kontext/freqs';
 import { SubqueryModeConf } from '../../../models/tiles/freq';
 import { LocalizedConfMsg } from '../../../types';
 import { QueryType } from '../../../query/index';
-import { TileComponent, TileConf, TileFactory, Backlink, ITileProvider } from '../../../page/tile';
+import { TileComponent, TileConf, TileFactory, Backlink, ITileProvider, TileFactoryArgs } from '../../../page/tile';
 import { GlobalComponents } from '../../../views/global';
 import { factory as defaultModelFactory, FreqBarModel } from './model';
 import { factory as subqModelFactory } from './subqModel';
@@ -78,8 +78,11 @@ export class FreqBarTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, subqSourceTiles, ut, theme,
-            appServices, widthFract, conf, isBusy, cache}:TileFactory.Args<FreqBarTileConf>) {
+    constructor({
+        dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, subqSourceTiles,
+        ut, theme, appServices, widthFract, conf, isBusy, cache
+    }:TileFactoryArgs<FreqBarTileConf>) {
+
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
@@ -189,7 +192,7 @@ export class FreqBarTile implements ITileProvider {
 
 }
 
-export const init:TileFactory.TileFactory<FreqBarTileConf>  = {
+export const init:TileFactory<FreqBarTileConf>  = {
 
     sanityCheck: (args) => {
         const ans = [];

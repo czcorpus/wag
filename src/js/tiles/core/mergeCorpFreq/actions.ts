@@ -17,30 +17,43 @@
  */
 
 import { Action } from 'kombo';
+import { Actions as GlobalActions } from '../../../models/actions';
+import { SourceMappedDataRow } from '../../../api/vendor/kontext/freqs';
 
 
 
-export enum ActionName {
-    ShowTooltip = 'MERGECORP_SHOW_TOOLTIP',
-    HideTooltip = 'MERGECORP_HIDE_TOOLTIP'
+export interface DataLoadedPayload {
+    data:Array<SourceMappedDataRow>;
+    valuePlaceholder:string;
+    queryId:number;
+    concId:string;
+    sourceId:string;
 }
 
-export namespace Actions {
+export class Actions {
 
-    export interface ShowTooltip extends Action<{
+    static ShowTooltip:Action<{
         tileId:number;
         dataId:number;
         tooltipX:number;
         tooltipY:number;
 
-    }> {
-        name: ActionName.ShowTooltip;
-    }
+    }> = {
+        name: 'MERGECORP_SHOW_TOOLTIP'
+    };
 
-    export interface HideTooltip extends Action<{
+    static HideTooltip:Action<{
         tileId:number;
 
-    }> {
-        name: ActionName.HideTooltip;
-    }
+    }> = {
+        name: 'MERGECORP_HIDE_TOOLTIP'
+    };
+
+    static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & {}> = {
+        name: GlobalActions.TileDataLoaded.name
+    };
+
+    static PartialTileDataLoaded:Action<typeof GlobalActions.TilePartialDataLoaded.payload & DataLoadedPayload> = {
+        name: GlobalActions.TilePartialDataLoaded.name
+    };
 }

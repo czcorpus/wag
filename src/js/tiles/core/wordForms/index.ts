@@ -18,7 +18,7 @@
 import { StatelessModel } from 'kombo';
 import { Maths } from 'cnc-tskit';
 
-import { ITileProvider, TileFactory, TileComponent, TileConf } from '../../../page/tile';
+import { ITileProvider, TileFactory, TileComponent, TileConf, TileFactoryArgs } from '../../../page/tile';
 import { IAppServices } from '../../../appServices';
 import { WordFormsModel } from './model';
 import { QueryType } from '../../../query/index';
@@ -51,8 +51,11 @@ export class WordFormsTile implements ITileProvider {
 
     private readonly waitForTiles:Array<number>;
 
-    constructor({tileId, dispatcher, appServices, ut, queryMatches, domain1, widthFract, conf, isBusy, waitForTiles,
-            waitForTilesTimeoutSecs, theme, cache}:TileFactory.Args<WordFormsTileConf>) {
+    constructor({
+        tileId, dispatcher, appServices, ut, queryMatches, domain1, widthFract, conf, isBusy,
+        waitForTiles, waitForTilesTimeoutSecs, theme, cache}:TileFactoryArgs<WordFormsTileConf>
+    ) {
+
         this.tileId = tileId;
         this.appServices = appServices;
         this.widthFract = widthFract;
@@ -141,7 +144,7 @@ export class WordFormsTile implements ITileProvider {
     }
 }
 
-export const init:TileFactory.TileFactory<WordFormsTileConf> = {
+export const init:TileFactory<WordFormsTileConf> = {
 
     sanityCheck: (args) => [],
 

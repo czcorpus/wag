@@ -23,7 +23,7 @@ import { ViewMode, IConcordanceApi } from '../../../api/abstract/concordance';
 
 import { LocalizedConfMsg } from '../../../types';
 import { QueryType } from '../../../query/index';
-import { Backlink, CorpSrchTileConf, ITileProvider, TileComponent, TileFactory } from '../../../page/tile';
+import { Backlink, CorpSrchTileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs } from '../../../page/tile';
 import { ConcordanceTileModel } from './model';
 import { init as viewInit } from './views';
 import { createApiInstance } from '../../../api/factory/concordance';
@@ -79,8 +79,11 @@ export class ConcordanceTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({tileId, dispatcher, appServices, ut, queryType, queryMatches, widthFract, waitForTiles,
-            waitForTilesTimeoutSecs, conf, domain2, isBusy, cache}:TileFactory.Args<ConcordanceTileConf>) {
+    constructor({
+        tileId, dispatcher, appServices, ut, queryType, queryMatches,
+        widthFract, waitForTiles, waitForTilesTimeoutSecs, conf, domain2,
+        isBusy, cache}:TileFactoryArgs<ConcordanceTileConf>
+    ) {
         this.tileId = tileId;
         this.dispatcher = dispatcher;
         this.widthFract = widthFract;
@@ -188,7 +191,7 @@ export class ConcordanceTile implements ITileProvider {
     }
 }
 
-export const init:TileFactory.TileFactory<ConcordanceTileConf> = {
+export const init:TileFactory<ConcordanceTileConf> = {
 
     sanityCheck: (args) => {
         const ans = [];

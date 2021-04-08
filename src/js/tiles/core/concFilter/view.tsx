@@ -24,8 +24,8 @@ import { Theme } from '../../../page/theme';
 import { TileComponent, CoreTileComponentProps } from '../../../page/tile';
 import { ConcFilterModel, ConcFilterModelState } from './model';
 import { Line, LineElement } from '../../../api/abstract/concordance';
-import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
-import { ActionName, Actions } from './actions';
+import { Actions as GlobalActions } from '../../../models/actions';
+import { Actions } from './actions';
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:ConcFilterModel):TileComponent {
 
@@ -72,15 +72,15 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         const handleWordClick = (e:React.MouseEvent<HTMLAnchorElement>) => {
             const word = (e.target as Element).getAttribute('data-value');
-            dispatcher.dispatch<GlobalActions.ChangeQueryInput>({
-                name: GlobalActionName.ChangeQueryInput,
+            dispatcher.dispatch<typeof GlobalActions.ChangeQueryInput>({
+                name: GlobalActions.ChangeQueryInput.name,
                 payload: {
                     value: word,
                     queryIdx: 0
                 }
             });
-            dispatcher.dispatch<GlobalActions.SubmitQuery>({
-                name: GlobalActionName.SubmitQuery
+            dispatcher.dispatch<typeof GlobalActions.SubmitQuery>({
+                name: GlobalActions.SubmitQuery.name
             });
         };
 
@@ -132,16 +132,16 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         private handleLineClick(idx:number) {
             return (e:React.MouseEvent) => {
                 if (this.props.visibleMetadataLine === idx) {
-                    dispatcher.dispatch<Actions.HideLineMetadata>({
-                        name: ActionName.HideLineMetadata,
+                    dispatcher.dispatch<typeof Actions.HideLineMetadata>({
+                        name: Actions.HideLineMetadata.name,
                         payload: {
                             tileId: this.props.tileId
                         }
                     });
 
                 } else {
-                    dispatcher.dispatch<Actions.ShowLineMetadata>({
-                        name: ActionName.ShowLineMetadata,
+                    dispatcher.dispatch<typeof Actions.ShowLineMetadata>({
+                        name: Actions.ShowLineMetadata.name,
                         payload: {
                             tileId: this.props.tileId,
                             idx: idx

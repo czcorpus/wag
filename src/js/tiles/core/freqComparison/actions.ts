@@ -20,13 +20,8 @@ import { Action } from 'kombo';
 import { LocalizedConfMsg } from '../../../types';
 import { QueryMatch } from '../../../query/index';
 import { ApiDataBlock } from '../../../api/abstract/freqs';
+import { Actions as GlobalActions } from '../../../models/actions';
 
-
-
-export enum ActionName {
-    SetActiveBlock = 'FREQ_COMPARISON_SET_ACTIVE_BLOCK',
-    PartialDataLoaded = 'FREQ_COMPARISON_PARTIAL_DATA_LOADED'
-}
 
 export interface DataLoadedPayload {
     block:ApiDataBlock;
@@ -42,19 +37,20 @@ export interface LoadFinishedPayload {
     corpusName:string;
 }
 
-export namespace Actions {
+export class Actions {
 
-    export interface SetActiveBlock extends Action<{
+    static SetActiveBlock:Action<{
         idx:number;
         tileId:number;
-    }> {
-        name: ActionName.SetActiveBlock;
-    }
+    }> = {
+        name: 'FREQ_COMPARISON_SET_ACTIVE_BLOCK'
+    };
 
-    export interface PartialDataLoaded<T> extends Action<{
-        tileId:number;
+    static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload> = {
+        name: GlobalActions.TileDataLoaded.name
+    };
 
-    } & T> {
-        name: ActionName.PartialDataLoaded;
-    }
+    static PartialTileDataLoaded:Action<typeof GlobalActions.TilePartialDataLoaded.payload & DataLoadedPayload> = {
+        name: GlobalActions.TilePartialDataLoaded.name
+    };
 }

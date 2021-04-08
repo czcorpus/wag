@@ -27,7 +27,7 @@ import { RawHtmlAPI, HtmlApiArgs } from '../../../../src/js/api/vendor/wdglance/
 import { IGeneralHtmlAPI } from '../../../../src/js/api/abstract/html';
 import { HtmlModelState } from '../../../../src/js/tiles/core/html/common';
 import { QueryMatch } from '../../../../src/js/query/index';
-import { ActionName } from '../../../../src/js/models/actions';
+import { Actions } from '../../../../src/js/models/actions';
 import * as query from '../../../../src/js/models/query';
 
 
@@ -70,8 +70,8 @@ describe('HtmlTile model', function () {
 
     it('gets initial data', function (done) {
         testHtmlModel.checkState(
-            {name: ActionName.RequestQueryResponse},
-            ActionName.TileDataLoaded,
+            {name: Actions.RequestQueryResponse.name},
+            Actions.TileDataLoaded.name,
             state => {
                 assert.equal(state.data, 'fake html response');
                 done();

@@ -24,14 +24,14 @@ import { IAppServices } from '../../../appServices';
 import { BacklinkArgs, FreqTreeAPI, APILeafResponse, APIVariantsResponse } from '../../../api/vendor/kontext/freqTree';
 import { GeneralCritFreqTreeModelState, stateToAPIArgs, FreqTreeDataBlock } from '../../../models/tiles/freqTree';
 import { Backlink, BacklinkWithArgs } from '../../../page/tile';
-import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
-import { ActionName, Actions, DataLoadedPayload } from './actions';
+import { Actions as GlobalActions } from '../../../models/actions';
+import { Actions, DataLoadedPayload } from './actions';
 import { QueryMatch } from '../../../query/index';
 import { isConcLoadedPayload, ConcLoadedPayload } from '../concordance/actions';
 import { createInitialLinesData } from '../../../models/tiles/concordance';
 import { ViewMode, ConcResponse, IConcordanceApi } from '../../../api/abstract/concordance';
 import { callWithExtraVal } from '../../../api/util';
-import { AttrViewMode } from '../../../api/vendor/kontext/types';
+import { Actions as ConcActions } from '../concordance/actions';
 
 
 export interface FreqTreeModelState extends GeneralCritFreqTreeModelState {
@@ -85,8 +85,8 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
         this.freqTreeApi = freqTreeApi;
         this.backlink = backlink;
 
-        this.addActionHandler<GlobalActions.RequestQueryResponse>(
-            GlobalActionName.RequestQueryResponse,
+        this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
+            GlobalActions.RequestQueryResponse.name,
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
@@ -97,29 +97,29 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                         this.waitForTilesTimeoutSecs * 1000,
                         {},
                         (action, syncData) => {
-                            if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTiles[0]) {
-                                if (isConcLoadedPayload(action.payload)) {
-                                    const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
-                                    if (action.error) {
-                                        dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                            name: GlobalActionName.TileDataLoaded,
-                                            payload: {
-                                                tileId: this.tileId,
-                                                isEmpty: true,
-                                                data: null,
-                                                concPersistenceIDs: null,
-                                                corpusName: state.corpname
-                                            },
-                                            error: new Error(this.appServices.translate('global__failed_to_obtain_required_data')),
-                                        });
-                                        return null;
-                                    }
-                                    this.loadTreeData(this.composeConcordances(state, payload.concPersistenceIDs), state, dispatch);
-
-                                } else {
-                                    // if foreign tile response does not send concordances, load as standalone tile
-                                    this.loadTreeData(this.loadConcordances(state), state, dispatch);
+                            if (ConcActions.isTileDataLoaded(action) && action.payload.tileId === this.waitForTiles[0]) {
+                                if (action.error) {
+                                    dispatch<typeof GlobalActions.TileDataLoaded>({
+                                        name: GlobalActions.TileDataLoaded.name,
+                                        payload: {
+                                            tileId: this.tileId,
+                                            isEmpty: true
+                                        },
+                                        error: new Error(this.appServices.translate('global__failed_to_obtain_required_data')),
+                                    });
+                                    return null;
                                 }
+                                this.loadTreeData(
+                                    this.composeConcordances(
+                                        state, action.payload.concPersistenceIDs
+                                    ),
+                                    state,
+                                    dispatch
+                                );
+
+                            } else {
+                                // if foreign tile response does not send concordances, load as standalone tile
+                                this.loadTreeData(this.loadConcordances(state), state, dispatch);
                                 return null;
                             }
                             return syncData;
@@ -131,16 +131,17 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                 }
             }
         );
-        this.addActionHandler<Actions.SetActiveBlock>(
-            ActionName.SetActiveBlock,
+
+        this.addActionHandler<typeof Actions.SetActiveBlock>(
+            Actions.SetActiveBlock.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.activeBlock = action.payload.idx;
                 }
             }
         );
-        this.addActionHandler<Actions.SetZoom>(
-            ActionName.SetZoom,
+        this.addActionHandler<typeof Actions.SetZoom>(
+            Actions.SetZoom.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     if (state.zoomCategory[action.payload.blockId][action.payload.variantId]) {
@@ -151,8 +152,8 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                 }
             }
         );
-        this.addActionHandler<GlobalActions.TileDataLoaded<DataLoadedPayload>>(
-            GlobalActionName.TileDataLoaded,
+        this.addActionHandler<typeof Actions.TileDataLoaded>(
+            Actions.TileDataLoaded.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     if (action.error) {
@@ -187,16 +188,16 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                 }
             }
         );
-        this.addActionHandler<GlobalActions.GetSourceInfo>(
-            GlobalActionName.GetSourceInfo,
+        this.addActionHandler<typeof GlobalActions.GetSourceInfo>(
+            GlobalActions.GetSourceInfo.name,
             null,
             (state, action, dispatch) => {
                 if (action.payload.tileId === this.tileId) {
                     this.concApi.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), state.corpname)
                     .subscribe(
                         (data) => {
-                            dispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
+                            dispatch<typeof GlobalActions.GetSourceInfoDone>({
+                                name: GlobalActions.GetSourceInfoDone.name,
                                 payload: {
                                     data: data
                                 }
@@ -204,10 +205,9 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                         },
                         (err) => {
                             console.error(err);
-                            dispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
+                            dispatch<typeof GlobalActions.GetSourceInfoDone>({
+                                name: GlobalActions.GetSourceInfoDone.name,
                                 error: err
-
                             });
                         }
                     );
@@ -351,8 +351,8 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
             }, {concIds: List.map(_ => null, state.lemmaVariants), dataTree: {}})
         ).subscribe(
             acc => {
-                dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                    name: GlobalActionName.TileDataLoaded,
+                dispatch<typeof Actions.TileDataLoaded>({
+                    name: Actions.TileDataLoaded.name,
                     payload: {
                         tileId: this.tileId,
                         isEmpty: acc.dataTree.size === 0,
@@ -363,8 +363,8 @@ export class FreqTreeModel extends StatelessModel<FreqTreeModelState> {
                 });
             },
             error => {
-                dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                    name: GlobalActionName.TileDataLoaded,
+                dispatch<typeof Actions.TileDataLoaded>({
+                    name: Actions.TileDataLoaded.name,
                     payload: {
                         tileId: this.tileId,
                         isEmpty: true,

@@ -21,7 +21,7 @@ import { List, Maths, pipe } from 'cnc-tskit';
 import { FreqSort } from '../../../api/vendor/kontext/freqs';
 import { createApiInstance as createFreqApiInstance } from '../../../api/factory/timeDistrib';
 import { QueryType } from '../../../query/index';
-import { ITileProvider, TileComponent, TileFactory } from '../../../page/tile';
+import { ITileProvider, TileComponent, TileFactory, TileFactoryArgs } from '../../../page/tile';
 import { TimeDistTileConf } from './common';
 import { TimeDistribModel } from './model';
 import { init as viewInit } from './view';
@@ -66,8 +66,11 @@ export class MultiWordTimeDistTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, ut, theme, appServices, widthFract,
-            queryMatches, domain1, conf, isBusy, cache}:TileFactory.Args<TimeDistTileConf>) {
+    constructor({
+        dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, ut, theme, appServices,
+        widthFract, queryMatches, domain1, conf, isBusy, cache
+    }:TileFactoryArgs<TimeDistTileConf>) {
+
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
@@ -188,7 +191,7 @@ export class MultiWordTimeDistTile implements ITileProvider {
     }
 }
 
-export const init:TileFactory.TileFactory<TimeDistTileConf> = {
+export const init:TileFactory<TimeDistTileConf> = {
 
     sanityCheck: (args) => [],
 

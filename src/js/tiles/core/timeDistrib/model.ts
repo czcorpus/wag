@@ -24,18 +24,17 @@ import { IAppServices } from '../../../appServices';
 import { ConcResponse, ViewMode, IConcordanceApi } from '../../../api/abstract/concordance';
 import { TimeDistribResponse, TimeDistribApi } from '../../../api/abstract/timeDistrib';
 import { MinSingleCritFreqState } from '../../../models/tiles/freq';
-import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
+import { Actions as GlobalActions } from '../../../models/actions';
 import { findCurrQueryMatch } from '../../../models/query';
 import { ConcLoadedPayload } from '../concordance/actions';
 import { DataItemWithWCI, SubchartID, DataLoadedPayload } from './common';
-import { Actions, ActionName } from './common';
+import { Actions } from './common';
 import { callWithExtraVal } from '../../../api/util';
 import { QueryMatch, RecognizedQueries } from '../../../query/index';
 import { Backlink, BacklinkWithArgs } from '../../../page/tile';
 import { TileWait } from '../../../models/tileSync';
 import { PriorityValueFactory } from '../../../priority';
 import { DataRow } from '../../../api/abstract/freqs';
-import { AttrViewMode } from '../../../api/vendor/kontext/types';
 
 
 export const enum FreqFilterQuantity {
@@ -165,8 +164,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
         this.queryDomain = queryDomain;
         this.backlink = backlink;
 
-        this.addActionHandler<GlobalActions.RequestQueryResponse>(
-            GlobalActionName.RequestQueryResponse,
+        this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
+            GlobalActions.RequestQueryResponse.name,
             (state, action) => {
                 state.data = [];
                 state.dataCmp = [];
@@ -183,8 +182,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
             }
         );
 
-        this.addActionHandler<GlobalActions.TileDataLoaded<DataLoadedPayload>>(
-            GlobalActionName.TileDataLoaded,
+        this.addActionHandler<typeof Actions.TileDataLoaded>(
+            GlobalActions.TileDataLoaded.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.loadingStatus = LoadingStatus.IDLE;
@@ -197,8 +196,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
             }
         );
 
-        this.addActionHandler<GlobalActions.TilePartialDataLoaded<DataLoadedPayload>>(
-            GlobalActionName.TilePartialDataLoaded,
+        this.addActionHandler<typeof Actions.PartialTileDataLoaded>(
+            Actions.PartialTileDataLoaded.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     if (action.payload.data) {
@@ -221,8 +220,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
             }
         );
 
-        this.addActionHandler<GlobalActions.EnableTileTweakMode>(
-            GlobalActionName.EnableTileTweakMode,
+        this.addActionHandler<typeof GlobalActions.EnableTileTweakMode>(
+            GlobalActions.EnableTileTweakMode.name,
             (state, action) => {
                 if (action.payload.ident === this.tileId) {
                     state.isTweakMode = true;
@@ -230,8 +229,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
             }
         );
 
-        this.addActionHandler<GlobalActions.DisableTileTweakMode>(
-            GlobalActionName.DisableTileTweakMode,
+        this.addActionHandler<typeof GlobalActions.DisableTileTweakMode>(
+            GlobalActions.DisableTileTweakMode.name,
             (state, action) => {
                 if (action.payload.ident === this.tileId) {
                     state.isTweakMode = false;
@@ -239,8 +238,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
             }
         );
 
-        this.addActionHandler<Actions.ChangeCmpWord>(
-            ActionName.ChangeCmpWord,
+        this.addActionHandler<typeof Actions.ChangeCmpWord>(
+            Actions.ChangeCmpWord.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.wordCmpInput = action.payload.value;
@@ -248,8 +247,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
             }
         );
 
-        this.addActionHandler<Actions.SubmitCmpWord>(
-            ActionName.SubmitCmpWord,
+        this.addActionHandler<typeof Actions.SubmitCmpWord>(
+            Actions.SubmitCmpWord.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.loadingStatus = LoadingStatus.BUSY_LOADING_CMP;
@@ -270,7 +269,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
         );
 
         this.addActionHandler(
-            GlobalActionName.GetSourceInfo,
+            GlobalActions.GetSourceInfo.name,
             (state, action) => state,
             (state, action, dispatch) => {
                 if (action.payload['tileId'] === this.tileId) {
@@ -279,7 +278,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
                     .subscribe(
                         (data) => {
                             dispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
+                                name: GlobalActions.GetSourceInfoDone.name,
                                 payload: {
                                     tileId: this.tileId,
                                     data: data
@@ -289,7 +288,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
                         (err) => {
                             console.error(err);
                             dispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
+                                name: GlobalActions.GetSourceInfoDone.name,
                                 error: err,
                                 payload: {
                                     tileId: this.tileId
@@ -301,32 +300,32 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
             }
         );
 
-        this.addActionHandler<Actions.ZoomMouseLeave>(
-            ActionName.ZoomMouseLeave,
+        this.addActionHandler<typeof Actions.ZoomMouseLeave>(
+            Actions.ZoomMouseLeave.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.refArea = [null, null];
                 }
             }
         );
-        this.addActionHandler<Actions.ZoomMouseDown>(
-            ActionName.ZoomMouseDown,
+        this.addActionHandler<typeof Actions.ZoomMouseDown>(
+            Actions.ZoomMouseDown.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.refArea = [action.payload.value, action.payload.value];
                 }
             }
         );
-        this.addActionHandler<Actions.ZoomMouseMove>(
-            ActionName.ZoomMouseMove,
+        this.addActionHandler<typeof Actions.ZoomMouseMove>(
+            Actions.ZoomMouseMove.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.refArea[1] = action.payload.value;
                 }
             }
         );
-        this.addActionHandler<Actions.ZoomMouseUp>(
-            ActionName.ZoomMouseUp,
+        this.addActionHandler<typeof Actions.ZoomMouseUp>(
+            Actions.ZoomMouseUp.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     if (state.refArea[1] !== state.refArea[0]) {
@@ -338,8 +337,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
                 }
             }
         );
-        this.addActionHandler<Actions.ZoomReset>(
-            ActionName.ZoomReset,
+        this.addActionHandler<typeof Actions.ZoomReset>(
+            Actions.ZoomReset.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.zoom = [null, null]
@@ -412,8 +411,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
             ),
             tap(
                 data => {
-                    seDispatch<GlobalActions.TilePartialDataLoaded<DataLoadedPayload>>({
-                        name: GlobalActionName.TilePartialDataLoaded,
+                    seDispatch<typeof Actions.PartialTileDataLoaded>({
+                        name: Actions.PartialTileDataLoaded.name,
                         payload: {...data}
                     });
                 }
@@ -424,8 +423,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
             )
         ).subscribe(
             isEmpty => {
-                seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                    name: GlobalActionName.TileDataLoaded,
+                seDispatch<typeof Actions.TileDataLoaded>({
+                    name: Actions.TileDataLoaded.name,
                     payload:{
                         tileId: this.tileId,
                         isEmpty: isEmpty
@@ -434,13 +433,13 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
             },
             error => {
                 console.error(error);
-                seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                    name: GlobalActionName.TileDataLoaded,
+                seDispatch<typeof Actions.TileDataLoaded>({
+                    name: Actions.TileDataLoaded.name,
                     payload: {
                         tileId: this.tileId,
                         isEmpty: true
                     },
-                    error: error
+                    error
                 });
             }
         );
@@ -506,7 +505,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
                 this.waitForTilesTimeoutSecs * 1000,
                 TileWait.create([this.waitForTile], () => false),
                 (action:Action<{tileId:number}>, syncData) => {
-                    if (action.name === GlobalActionName.TileDataLoaded && syncData.tileIsRegistered(action.payload.tileId)) {
+                    if (action.name === GlobalActions.TileDataLoaded.name && syncData.tileIsRegistered(action.payload.tileId)) {
                         syncData.setTileDone(action.payload.tileId, true);
                     }
                     return syncData.next(() => true);

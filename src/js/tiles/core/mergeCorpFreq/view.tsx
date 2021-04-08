@@ -26,7 +26,7 @@ import { CoreTileComponentProps, TileComponent } from '../../../page/tile';
 import { Theme } from '../../../page/theme';
 import { QueryMatch } from '../../../query/index';
 import { List, pipe, Strings } from 'cnc-tskit';
-import { Actions, ActionName } from './actions';
+import { Actions } from './actions';
 
 const CHART_LABEL_MAX_LEN = 20;
 
@@ -134,8 +134,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 <ResponsiveContainer width={props.isMobile ? "100%" : "90%"} height="100%">
                     <BarChart data={transformedData} layout="vertical" barCategoryGap={props.barCategoryGap}
                         onMouseMove={e => {
-                            e ? dispatcher.dispatch<Actions.ShowTooltip>({
-                                name: ActionName.ShowTooltip,
+                            e ? dispatcher.dispatch<typeof Actions.ShowTooltip>({
+                                name: Actions.ShowTooltip.name,
                                 payload: {
                                     dataId: e.activeTooltipIndex,
                                     tileId: props.tileId,
@@ -144,8 +144,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 }
                             }) : null}}
                         onMouseLeave={d =>
-                            dispatcher.dispatch<Actions.HideTooltip>({
-                                name: ActionName.HideTooltip,
+                            dispatcher.dispatch<typeof Actions.HideTooltip>({
+                                name: Actions.HideTooltip.name,
                                 payload: {tileId: props.tileId}
                             })
                         }

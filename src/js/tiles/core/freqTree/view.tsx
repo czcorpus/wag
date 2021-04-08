@@ -22,7 +22,7 @@ import { ResponsiveContainer, Tooltip, Treemap } from 'recharts';
 import { Theme } from '../../../page/theme';
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile';
 import { GlobalComponents } from '../../../views/global';
-import { ActionName, Actions } from './actions';
+import { Actions } from './actions';
 import { FreqTreeModel, FreqTreeModelState } from './model';
 import { Dict, pipe, List } from 'cnc-tskit';
 import { FreqTreeDataFreqs } from '../../../models/tiles/freqTree';
@@ -103,7 +103,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
     }
 
-    const TreeWrapper:React.SFC<{
+    const TreeWrapper:React.FC<{
         data:TreeData;
         width:string|number;
         height:string|number;
@@ -136,7 +136,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------------------- <Tree /> --------------------------------------
 
-    const Tree:React.SFC<{
+    const Tree:React.FC<{
         data:TreeData;
         width:string|number;
         height:string|number;
@@ -173,8 +173,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
 
         private handleScroll():void {
-            dispatcher.dispatch<Actions.SetActiveBlock>({
-                name: ActionName.SetActiveBlock,
+            dispatcher.dispatch<typeof Actions.SetActiveBlock>({
+                name: Actions.SetActiveBlock.name,
                 payload: {
                     idx: Math.round(this.chartsRef.current.scrollLeft / this.props.renderSize[0]),
                     tileId: this.props.tileId
@@ -189,8 +189,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
 
         private handleZoom(blockId:number, variantId:number, category:string) {
-            dispatcher.dispatch<Actions.SetZoom>({
-                name: ActionName.SetZoom,
+            dispatcher.dispatch<typeof Actions.SetZoom>({
+                name: Actions.SetZoom.name,
                 payload: {
                     tileId: this.props.tileId,
                     blockId: blockId,

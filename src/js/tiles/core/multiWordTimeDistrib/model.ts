@@ -25,16 +25,16 @@ import { IAppServices } from '../../../appServices';
 import { ConcResponse, ViewMode, IConcordanceApi } from '../../../api/abstract/concordance';
 import { TimeDistribResponse, TimeDistribItem, TimeDistribApi } from '../../../api/abstract/timeDistrib';
 import { GeneralSingleCritFreqMultiQueryState } from '../../../models/tiles/freq';
-import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
+import { Actions as GlobalActions } from '../../../models/actions';
 import { findCurrQueryMatch } from '../../../models/query';
-import { DataItemWithWCI, ActionName, Actions, DataLoadedPayload } from './common';
+import { DataItemWithWCI, Actions, DataLoadedPayload } from './common';
 import { callWithExtraVal } from '../../../api/util';
 import { QueryMatch, RecognizedQueries } from '../../../query/index';
 import { createInitialLinesData } from '../../../models/tiles/concordance';
 import { ConcLoadedPayload, isConcLoadedPayload } from '../concordance/actions';
 import { PriorityValueFactory } from '../../../priority';
 import { DataRow } from '../../../api/abstract/freqs';
-import { AttrViewMode } from '../../../api/vendor/kontext/types';
+import { Actions as ConcActions } from '../concordance/actions';
 
 
 export interface TimeDistribModelState extends GeneralSingleCritFreqMultiQueryState<DataItemWithWCI> {
@@ -110,32 +110,32 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         this.appServices = appServices;
         this.queryMatches = queryMatches;
 
-        this.addActionHandler<Actions.ZoomMouseLeave>(
-            ActionName.ZoomMouseLeave,
+        this.addActionHandler<typeof Actions.ZoomMouseLeave>(
+            Actions.ZoomMouseLeave.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.refArea = [null, null];
                 }
             }
         );
-        this.addActionHandler<Actions.ZoomMouseDown>(
-            ActionName.ZoomMouseDown,
+        this.addActionHandler<typeof Actions.ZoomMouseDown>(
+            Actions.ZoomMouseDown.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.refArea = [action.payload.value, action.payload.value];
                 }
             }
         );
-        this.addActionHandler<Actions.ZoomMouseMove>(
-            ActionName.ZoomMouseMove,
+        this.addActionHandler<typeof Actions.ZoomMouseMove>(
+            Actions.ZoomMouseMove.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.refArea[1] = action.payload.value;
                 }
             }
         );
-        this.addActionHandler<Actions.ZoomMouseUp>(
-            ActionName.ZoomMouseUp,
+        this.addActionHandler<typeof Actions.ZoomMouseUp>(
+            Actions.ZoomMouseUp.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     if (state.refArea[1] !== state.refArea[0]) {
@@ -147,40 +147,40 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 }
             }
         );
-        this.addActionHandler<Actions.ZoomReset>(
-            ActionName.ZoomReset,
+        this.addActionHandler<typeof Actions.ZoomReset>(
+            Actions.ZoomReset.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.zoom = [null, null]
                 }
             }
         );
-        this.addActionHandler<GlobalActions.EnableTileTweakMode>(
-            GlobalActionName.EnableTileTweakMode,
+        this.addActionHandler<typeof GlobalActions.EnableTileTweakMode>(
+            GlobalActions.EnableTileTweakMode.name,
             (state, action) => {
                 if (action.payload.ident === this.tileId) {state.isTweakMode = true}
             }
         );
-        this.addActionHandler<GlobalActions.DisableTileTweakMode>(
-            GlobalActionName.DisableTileTweakMode,
+        this.addActionHandler<typeof GlobalActions.DisableTileTweakMode>(
+            GlobalActions.DisableTileTweakMode.name,
             (state, action) => {
                 if (action.payload.ident === this.tileId) {state.isTweakMode = false}
             }
         );
-        this.addActionHandler<Actions.ChangeTimeWindow>(
-            ActionName.ChangeTimeWindow,
+        this.addActionHandler<typeof Actions.ChangeTimeWindow>(
+            Actions.ChangeTimeWindow.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {state.averagingYears = action.payload.value}
             }
         );
-        this.addActionHandler<Actions.ChangeUnits>(
-            ActionName.ChangeUnits,
+        this.addActionHandler<typeof Actions.ChangeUnits>(
+            Actions.ChangeUnits.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {state.units = action.payload.units}
             }
         );
-        this.addActionHandler<GlobalActions.RequestQueryResponse>(
-            GlobalActionName.RequestQueryResponse,
+        this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
+            GlobalActions.RequestQueryResponse.name,
             (state, action) => {
                 state.data = List.map(_ => [], this.queryMatches);
                 state.isBusy = true;
@@ -193,41 +193,21 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         this.waitForTilesTimeoutSecs,
                         {},
                         (action, syncData) => {
-                            if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
-                                if (isConcLoadedPayload(action.payload)) {
-                                    const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
-                                    this.loadData(
-                                        state,
-                                        dispatch,
-                                        [null],
-                                        rxOf<CalcArgs>(...List.map(
-                                            (lemma, queryId) => {
-                                                return {
-                                                    queryId,
-                                                    lemma: findCurrQueryMatch(lemma),
-                                                    concId: payload.concPersistenceIDs[queryId],
-                                                }
-                                            },
-                                            this.queryMatches))
-                                    );
-                                } else {
-                                    this.loadData(
-                                        state,
-                                        dispatch,
-                                        state.subcnames,
-                                        rxOf<CalcArgs>(
-                                            ...List.map(
-                                                (lemma, queryId) => {
-                                                    return {
-                                                        queryId,
-                                                        lemma: findCurrQueryMatch(lemma),
-                                                        concId: null
-                                                    }
-                                                },
-                                                this.queryMatches
-                                        ))
-                                    );
-                                }
+                            if (ConcActions.isTileDataLoaded(action) && action.payload.tileId === this.waitForTile) {
+                                this.loadData(
+                                    state,
+                                    dispatch,
+                                    [null],
+                                    rxOf<CalcArgs>(...List.map(
+                                        (lemma, queryId) => {
+                                            return {
+                                                queryId,
+                                                lemma: findCurrQueryMatch(lemma),
+                                                concId: action.payload.concPersistenceIDs[queryId],
+                                            }
+                                        },
+                                        this.queryMatches))
+                                );
                                 return null;
                             }
                             return syncData;
@@ -254,8 +234,9 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 }
             }
         );
-        this.addActionHandler<GlobalActions.TileDataLoaded<DataLoadedPayload>>(
-            GlobalActionName.TileDataLoaded,
+
+        this.addActionHandler<typeof Actions.TileDataLoaded>(
+            Actions.TileDataLoaded.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = false;
@@ -265,8 +246,9 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 }
             }
         );
-        this.addActionHandler<GlobalActions.TilePartialDataLoaded<DataLoadedPayload>>(
-            GlobalActionName.TilePartialDataLoaded,
+
+        this.addActionHandler<typeof Actions.PartialTileDataLoaded>(
+            Actions.PartialTileDataLoaded.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     const newData:Array<DataItemWithWCI> = action.error ?
@@ -280,17 +262,22 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                 }
             }
         );
-        this.addActionHandler<GlobalActions.GetSourceInfo>(
-            GlobalActionName.GetSourceInfo,
+
+        this.addActionHandler<typeof GlobalActions.GetSourceInfo>(
+            GlobalActions.GetSourceInfo.name,
             (state, action) => {},
             (state, action, dispatch) => {
-                if (action.payload['tileId'] === this.tileId) {
+                if (action.payload.tileId === this.tileId) {
                     const [concApi,] = this.apiFactory.getHighestPriorityValue();
-                    concApi.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), action.payload['corpusId'])
-                    .subscribe(
+                    concApi.getSourceDescription(
+                        this.tileId,
+                        this.appServices.getISO639UILang(),
+                        action.payload.corpusId
+
+                    ).subscribe(
                         (data) => {
                             dispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
+                                name: GlobalActions.GetSourceInfoDone.name,
                                 payload: {
                                     tileId: this.tileId,
                                     data: data
@@ -300,7 +287,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         (err) => {
                             console.error(err);
                             dispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
+                                name: GlobalActions.GetSourceInfoDone.name,
                                 error: err,
                                 paylod: {
                                     tileId: this.tileId
@@ -378,8 +365,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             }),
             tap(
                 data => {
-                    seDispatch<GlobalActions.TilePartialDataLoaded<DataLoadedPayload>>({
-                        name: GlobalActionName.TilePartialDataLoaded,
+                    seDispatch<typeof Actions.PartialTileDataLoaded>({
+                        name: Actions.PartialTileDataLoaded.name,
                         payload: { ... data}
                     });
                 }
@@ -390,11 +377,11 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             )
         ).subscribe(
             (isEmpty) => {
-                seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                    name: GlobalActionName.TileDataLoaded,
+                seDispatch<typeof Actions.TileDataLoaded>({
+                    name: Actions.TileDataLoaded.name,
                     payload:{
                         tileId: this.tileId,
-                        isEmpty: isEmpty,
+                        isEmpty,
                         queryId: -1,
                         data: [],
                         origQuery: ''
@@ -403,8 +390,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
             },
             error => {
                 console.error(error);
-                seDispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                    name: GlobalActionName.TileDataLoaded,
+                seDispatch<typeof Actions.TileDataLoaded>({
+                    name: Actions.TileDataLoaded.name,
                     payload: {
                         tileId: this.tileId,
                         data: [],

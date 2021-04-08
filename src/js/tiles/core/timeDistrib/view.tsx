@@ -22,7 +22,7 @@ import { Area, AreaChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, X
 import { Theme } from '../../../page/theme';
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile';
 import { GlobalComponents } from '../../../views/global';
-import { DataItemWithWCI, ActionName, Actions } from './common';
+import { DataItemWithWCI, Actions } from './common';
 import { TimeDistribModel, TimeDistribModelState, LoadingStatus } from './model';
 import { List, pipe, Keyboard } from 'cnc-tskit';
 
@@ -92,8 +92,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
 
         private handleInputChange(e:React.ChangeEvent<HTMLInputElement>) {
-            dispatcher.dispatch<Actions.ChangeCmpWord>({
-                name: ActionName.ChangeCmpWord,
+            dispatcher.dispatch<typeof Actions.ChangeCmpWord>({
+                name: Actions.ChangeCmpWord.name,
                 payload: {
                     tileId: this.props.tileId,
                     value: e.target.value
@@ -105,8 +105,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             if (e.keyCode === Keyboard.Code.ENTER && !e.shiftKey && !e.ctrlKey) {
                 e.preventDefault();
                 e.stopPropagation();
-                dispatcher.dispatch<Actions.SubmitCmpWord>({
-                    name: ActionName.SubmitCmpWord,
+                dispatcher.dispatch<typeof Actions.SubmitCmpWord>({
+                    name: Actions.SubmitCmpWord.name,
                     payload: {
                         tileId: this.props.tileId
                     }
@@ -116,8 +116,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
 
         private handleSubmit() {
-            dispatcher.dispatch<Actions.SubmitCmpWord>({
-                name: ActionName.SubmitCmpWord,
+            dispatcher.dispatch<typeof Actions.SubmitCmpWord>({
+                name: Actions.SubmitCmpWord.name,
                 payload: {
                     tileId: this.props.tileId
                 }
@@ -197,8 +197,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
 
         private zoomMouseLeave() {
-            dispatcher.dispatch<Actions.ZoomMouseLeave>({
-                name: ActionName.ZoomMouseLeave,
+            dispatcher.dispatch<typeof Actions.ZoomMouseLeave>({
+                name: Actions.ZoomMouseLeave.name,
                 payload: {
                     tileId: this.props.tileId
                 }
@@ -207,8 +207,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         private zoomMouseDown(e) {
             if (e !== null) {
-                dispatcher.dispatch<Actions.ZoomMouseDown>({
-                    name: ActionName.ZoomMouseDown,
+                dispatcher.dispatch<typeof Actions.ZoomMouseDown>({
+                    name: Actions.ZoomMouseDown.name,
                     payload: {
                         tileId: this.props.tileId,
                         value: Number(e.activeLabel)
@@ -219,8 +219,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
         private zoomMouseMove(e) {
             if (this.props.refArea.some(v => v !== null)) {
-                dispatcher.dispatch<Actions.ZoomMouseMove>({
-                    name: ActionName.ZoomMouseMove,
+                dispatcher.dispatch<typeof Actions.ZoomMouseMove>({
+                    name: Actions.ZoomMouseMove.name,
                     payload: {
                         tileId: this.props.tileId,
                         value: Number(e.activeLabel)
@@ -233,8 +233,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             if (e === null) {
                 this.zoomMouseLeave();
             } else {
-                dispatcher.dispatch<Actions.ZoomMouseUp>({
-                    name: ActionName.ZoomMouseUp,
+                dispatcher.dispatch<typeof Actions.ZoomMouseUp>({
+                    name: Actions.ZoomMouseUp.name,
                     payload: {
                         tileId: this.props.tileId,
                         value: Number(e.activeLabel)
@@ -244,8 +244,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
 
         private zoomReset() {
-            dispatcher.dispatch<Actions.ZoomReset>({
-                name: ActionName.ZoomReset,
+            dispatcher.dispatch<typeof Actions.ZoomReset>({
+                name: Actions.ZoomReset.name,
                 payload: {
                     tileId: this.props.tileId
                 }

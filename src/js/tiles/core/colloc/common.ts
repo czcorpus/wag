@@ -18,6 +18,7 @@
 import { Action } from 'kombo';
 import { DataRow, DataHeading, SrchContextType } from '../../../api/abstract/collocations';
 import { SubqueryPayload, RangeRelatedSubqueryValue } from '../../../query/index';
+import { Actions as GlobalActions } from '../../../models/actions';
 
 
 export enum CollocMetric {
@@ -31,11 +32,6 @@ export enum CollocMetric {
     REL_FREQ = 'f'
 }
 
-export enum ActionName {
-    SetSrchContextType = 'COLLOCATIONS_SET_SRCH_CONTEXT_TYPE'
-}
-
-
 export interface DataLoadedPayload extends SubqueryPayload<RangeRelatedSubqueryValue> {
     data:Array<DataRow>;
     heading:DataHeading;
@@ -44,13 +40,26 @@ export interface DataLoadedPayload extends SubqueryPayload<RangeRelatedSubqueryV
 }
 
 
-export namespace Actions {
+export class Actions {
 
-    export interface SetSrchContextType extends Action<{
+    static SetSrchContextType:Action<{
         tileId:number;
         ctxType:SrchContextType;
+    }> = {
+        name: 'COLLOCATIONS_SET_SRCH_CONTEXT_TYPE'
+    };
 
-    }> {
-        name:ActionName.SetSrchContextType;
+    static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & {}> = {
+        name: GlobalActions.TileDataLoaded.name
+    };
+
+    static isTileDataLoaded(a:Action):a is typeof Actions.TileDataLoaded {
+        return a.name === GlobalActions.TileDataLoaded.name &&
+            a.payload['data'] && a.payload['heading'] && a.payload['concId'] && a.payload['queryId'];
     }
+
+    static PartialTileDataLoaded:Action<typeof GlobalActions.TilePartialDataLoaded.payload & DataLoadedPayload> = {
+        name: GlobalActions.TilePartialDataLoaded.name
+    };
+
 }

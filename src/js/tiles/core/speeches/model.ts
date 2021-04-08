@@ -20,14 +20,14 @@ import { pipe, List, HTTP } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
 import { Backlink, BacklinkWithArgs } from '../../../page/tile';
-import { ActionName as GlobalActionName, Actions as GlobalActions, isTileSomeDataLoadedAction } from '../../../models/actions';
+import { Actions as GlobalActions, isTileSomeDataLoadedAction } from '../../../models/actions';
 import { SpeechDataPayload } from './actions';
 import { isSubqueryPayload } from '../../../query/index';
 import { SpeechesApi, SpeechReqArgs } from './api';
 import { SingleConcLoadedPayload } from '../../../api/abstract/concordance';
 import { SpeechesModelState, extractSpeeches, Expand, BacklinkArgs, Segment, PlayableSegment, normalizeSpeechesRange } from './modelDomain';
 import { SystemMessageType } from '../../../types';
-import { ActionName, Actions } from './actions';
+import { Actions } from './actions';
 import { normalizeConcDetailTypography } from '../../../models/tiles/concordance/normalize';
 import { IAudioUrlGenerator } from '../../../api/abstract/audio';
 import { AudioPlayer } from '../../../page/audioPlayer';
@@ -87,8 +87,8 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState, TileWait<b
         this.subqSourceTiles = [...subqSourceTiles];
         this.audioLinkGenerator = audioLinkGenerator;
 
-        this.addActionHandler<GlobalActions.RequestQueryResponse>(
-            GlobalActionName.RequestQueryResponse,
+        this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
+            GlobalActions.RequestQueryResponse.name,
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
@@ -145,8 +145,8 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState, TileWait<b
             }
         );
 
-        this.addActionHandler<GlobalActions.TileDataLoaded<SpeechDataPayload>>(
-            GlobalActionName.TileDataLoaded,
+        this.addActionHandler<typeof Actions.TileDataLoaded>(
+            GlobalActions.TileDataLoaded.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = false;
@@ -190,8 +190,8 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState, TileWait<b
             }
         );
 
-        this.addActionHandler<GlobalActions.EnableTileTweakMode>(
-            GlobalActionName.EnableTileTweakMode,
+        this.addActionHandler<typeof GlobalActions.EnableTileTweakMode>(
+            GlobalActions.EnableTileTweakMode.name,
             (state, action) => {
                 if (action.payload.ident === this.tileId) {
                     state.isTweakMode = true;
@@ -199,8 +199,8 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState, TileWait<b
             }
         );
 
-        this.addActionHandler<GlobalActions.DisableTileTweakMode>(
-            GlobalActionName.DisableTileTweakMode,
+        this.addActionHandler<typeof GlobalActions.DisableTileTweakMode>(
+            GlobalActions.DisableTileTweakMode.name,
             (state, action) => {
                 if (action.payload.ident === this.tileId) {
                     state.isTweakMode = false;
@@ -208,8 +208,8 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState, TileWait<b
             }
         );
 
-        this.addActionHandler<Actions.ExpandSpeech>(
-            ActionName.ExpandSpeech,
+        this.addActionHandler<typeof Actions.ExpandSpeech>(
+            Actions.ExpandSpeech.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = true;
@@ -233,8 +233,8 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState, TileWait<b
             }
         );
 
-        this.addActionHandler<Actions.LoadAnotherSpeech>(
-            ActionName.LoadAnotherSpeech,
+        this.addActionHandler<typeof Actions.LoadAnotherSpeech>(
+            Actions.LoadAnotherSpeech.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = true;
@@ -262,8 +262,8 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState, TileWait<b
             }
         );
 
-        this.addActionHandler<Actions.ClickAudioPlayer>(
-            ActionName.ClickAudioPlayer,
+        this.addActionHandler<typeof Actions.ClickAudioPlayer>(
+            Actions.ClickAudioPlayer.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.playback = {
@@ -289,10 +289,10 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState, TileWait<b
                     }
                 }
             }
-        ).sideEffectAlsoOn(ActionName.ClickAudioPlayAll);
+        ).sideEffectAlsoOn(Actions.ClickAudioPlayAll.name);
 
-        this.addActionHandler<Actions.ClickAudioPlayAll>(
-            ActionName.ClickAudioPlayAll,
+        this.addActionHandler<typeof Actions.ClickAudioPlayAll>(
+            Actions.ClickAudioPlayAll.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     const segments = pipe(
@@ -317,8 +317,8 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState, TileWait<b
             }
         );
 
-        this.addActionHandler<Actions.AudioPlayerStarted>(
-            ActionName.AudioPlayerStarted,
+        this.addActionHandler<typeof Actions.AudioPlayerStarted>(
+            Actions.AudioPlayerStarted.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.playback = {
@@ -332,8 +332,8 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState, TileWait<b
             }
         );
 
-        this.addActionHandler<Actions.AudioPlayerStopped>(
-            ActionName.AudioPlayerStopped,
+        this.addActionHandler<typeof Actions.AudioPlayerStopped>(
+            Actions.AudioPlayerStopped.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.playback = null;
@@ -341,8 +341,8 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState, TileWait<b
             }
         );
 
-        this.addActionHandler<Actions.PlayedLineChanged>(
-            ActionName.PlayedLineChanged,
+        this.addActionHandler<typeof Actions.PlayedLineChanged>(
+            Actions.PlayedLineChanged.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.playback = {
@@ -356,8 +356,8 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState, TileWait<b
             }
         );
 
-        this.addActionHandler<GlobalActions.GetSourceInfo>(
-            GlobalActionName.GetSourceInfo,
+        this.addActionHandler<typeof GlobalActions.GetSourceInfo>(
+            GlobalActions.GetSourceInfo.name,
             null,
             (state, action, dispatch) => {
                 if (action.payload.tileId === this.tileId) {
@@ -365,7 +365,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState, TileWait<b
                     .subscribe(
                         (data) => {
                             dispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
+                                name: GlobalActions.GetSourceInfoDone.name,
                                 payload: {
                                     data: data
                                 }
@@ -374,7 +374,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState, TileWait<b
                         (err) => {
                             console.error(err);
                             dispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
+                                name: GlobalActions.GetSourceInfoDone.name,
                                 error: err
 
                             });
@@ -435,8 +435,8 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState, TileWait<b
             .call(this.createArgs(state, (tokens || state.availTokens)[state.tokenIdx], kwicNumTokens, expand))
             .subscribe(
                 (payload) => {
-                    dispatch<GlobalActions.TileDataLoaded<SpeechDataPayload>>({
-                        name: GlobalActionName.TileDataLoaded,
+                    dispatch<typeof Actions.TileDataLoaded>({
+                        name: Actions.TileDataLoaded.name,
                         payload: {
                             tileId: this.tileId,
                             isEmpty: payload.content.length === 0,
@@ -466,11 +466,11 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState, TileWait<b
                         }
                     });
                 },
-                (err) => {
-                    console.error(err);
-                    dispatch<GlobalActions.TileDataLoaded<SpeechDataPayload>>({
-                        name: GlobalActionName.TileDataLoaded,
-                        error: err,
+                (error) => {
+                    console.error(error);
+                    dispatch<typeof Actions.TileDataLoaded>({
+                        name: Actions.TileDataLoaded.name,
+                        error,
                         payload: {
                             tileId: this.tileId,
                             concId: null,
@@ -507,24 +507,24 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState, TileWait<b
             .subscribe(
                 (data) => {
                     if (data.isPlaying && data.idx === 0) {
-                        dispatch<Actions.AudioPlayerStarted>({
-                            name: ActionName.AudioPlayerStarted,
+                        dispatch<typeof Actions.AudioPlayerStarted>({
+                            name: Actions.AudioPlayerStarted.name,
                             payload: {
                                 tileId: this.tileId,
                                 playbackSession: data.sessionId
                             }
                         });
                     } else if (!data.isPlaying && data.idx === data.total - 1) {
-                        dispatch<Actions.AudioPlayerStopped>({
-                            name: ActionName.AudioPlayerStopped,
+                        dispatch<typeof Actions.AudioPlayerStopped>({
+                            name: Actions.AudioPlayerStopped.name,
                             payload: {
                                 tileId: this.tileId
                             }
                         });
 
                     } else if (data.isPlaying && data.item.lineIdx != state.playback.currLineIdx) {
-                        dispatch<Actions.PlayedLineChanged>({
-                            name: ActionName.PlayedLineChanged,
+                        dispatch<typeof Actions.PlayedLineChanged>({
+                            name: Actions.PlayedLineChanged.name,
                             payload: {
                                 tileId: this.tileId,
                                 lineIdx: data.item.lineIdx
@@ -532,18 +532,18 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState, TileWait<b
                         });
                     }
                 },
-                (err) => {
-                    dispatch<Actions.AudioPlayerStopped>({
-                        name: ActionName.AudioPlayerStopped,
+                (error) => {
+                    dispatch<typeof Actions.AudioPlayerStopped>({
+                        name: Actions.AudioPlayerStopped.name,
                         payload: {
                             tileId: this.tileId
                         }
                     });
-                    this.appServices.showMessage(SystemMessageType.ERROR, err);
+                    this.appServices.showMessage(SystemMessageType.ERROR, error);
                 },
                 () => {
-                    dispatch<Actions.AudioPlayerStopped>({
-                        name: ActionName.AudioPlayerStopped,
+                    dispatch<typeof Actions.AudioPlayerStopped>({
+                        name: Actions.AudioPlayerStopped.name,
                         payload: {
                             tileId: this.tileId
                         }
@@ -553,8 +553,8 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState, TileWait<b
     }
 
     private dispatchPlayStop(dispatch:SEDispatcher):void {
-        dispatch<Actions.AudioPlayerStopped>({
-            name: ActionName.AudioPlayerStopped,
+        dispatch<typeof Actions.AudioPlayerStopped>({
+            name: Actions.AudioPlayerStopped.name,
             payload: {
                 tileId: this.tileId
             }

@@ -22,13 +22,18 @@ import { GlobalComponents } from '../../../views/global';
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile';
 import { Theme } from '../../../page/theme';
 import { Speech, SpeechesModelState, SpeechLine, Segment } from './modelDomain';
-import { ActionName, Actions } from './actions';
+import { Actions } from './actions';
 import { List, pipe, Color } from 'cnc-tskit';
 import { LineElement } from '../../../api/abstract/concordance';
 
 
 
-export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:SpeechesModel):TileComponent {
+export function init(
+    dispatcher:IActionDispatcher,
+    ut:ViewUtils<GlobalComponents>,
+    theme:Theme,
+    model:SpeechesModel
+):TileComponent {
 
     const globComponents = ut.getComponents();
 
@@ -164,8 +169,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     }> = (props) => {
 
         const handleClick = () => {
-            dispatcher.dispatch<Actions.LoadAnotherSpeech>({
-                name: ActionName.LoadAnotherSpeech,
+            dispatcher.dispatch<typeof Actions.LoadAnotherSpeech>({
+                name: Actions.LoadAnotherSpeech.name,
                 payload: {
                     tileId: props.tileId
                 }
@@ -190,8 +195,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     }> = (props) => {
 
         const handleClick = () => {
-            dispatcher.dispatch<Actions.ClickAudioPlayer>({
-                name: ActionName.ClickAudioPlayer,
+            dispatcher.dispatch<typeof Actions.ClickAudioPlayer>({
+                name: Actions.ClickAudioPlayer.name,
                 payload: {
                     tileId: props.tileId,
                     lineIdx: props.lineIdx,
@@ -237,8 +242,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         };
 
         const handlePlayAllClick = () => {
-            dispatcher.dispatch<Actions.ClickAudioPlayAll>({
-                name: ActionName.ClickAudioPlayAll,
+            dispatcher.dispatch<typeof Actions.ClickAudioPlayAll>({
+                name: Actions.ClickAudioPlayAll.name,
                 payload: {
                     tileId: props.tileId
                 }

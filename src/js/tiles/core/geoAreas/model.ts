@@ -21,12 +21,14 @@ import { concatMap } from 'rxjs/operators';
 
 import { IAppServices } from '../../../appServices';
 import { GeneralSingleCritFreqBarModelState } from '../../../models/tiles/freq';
-import { ActionName as GlobalActionName, Actions as GlobalActions } from '../../../models/actions';
+import { Actions as GlobalActions } from '../../../models/actions';
 import { ConcLoadedPayload } from '../concordance/actions';
-import { ActionName, Actions, DataLoadedPayload } from './actions';
+import { Actions, DataLoadedPayload } from './actions';
+import { Actions as ConcActions } from '../concordance/actions';
 import { DataApi } from '../../../types';
 import { TooltipValues } from '../../../views/global';
 import { IFreqDistribAPI, DataRow } from '../../../api/abstract/freqs';
+import { List } from 'cnc-tskit';
 
 /*
 oral2013:
@@ -110,8 +112,8 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
         this.api = api;
         this.mapLoader = mapLoader;
 
-        this.addActionHandler<GlobalActions.RequestQueryResponse>(
-            GlobalActionName.RequestQueryResponse,
+        this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
+            GlobalActions.RequestQueryResponse.name,
             (state, action) => {
                 state.isBusy = true;
                 state.error = null;
@@ -122,10 +124,8 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                         this.waitForTilesTimeoutSecs * 1000,
                         {},
                         (action, syncStatus) => {
-                            if (action.name === GlobalActionName.TileDataLoaded && action.payload['tileId'] === this.waitForTile) {
-                                const payload = (action as GlobalActions.TileDataLoaded<ConcLoadedPayload>).payload;
-
-                                forkJoin(
+                            if (ConcActions.isTileDataLoaded(action) && action.payload.tileId === this.waitForTile) {
+                                forkJoin([
                                     new Observable((observer:Observer<{}>) => {
                                         if (action.error) {
                                             observer.error(new Error(this.appServices.translate('global__failed_to_obtain_required_data')));
@@ -136,15 +136,15 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                                         }
                                     }).pipe(
                                         concatMap(args => this.api.call(
-                                            this.api.stateToArgs(state, payload.concPersistenceIDs[0])
+                                            this.api.stateToArgs(state, List.head(action.payload.concPersistenceIDs))
                                         ))
                                     ),
                                     state.mapSVG ? rxOf(null) : this.mapLoader.call('mapCzech.inline.svg')
-                                )
-                                .subscribe(
+
+                                ]).subscribe(
                                     resp => {
-                                        dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                            name: GlobalActionName.TileDataLoaded,
+                                        dispatch<typeof Actions.TileDataLoaded>({
+                                            name: Actions.TileDataLoaded.name,
                                             payload: {
                                                 tileId: this.tileId,
                                                 isEmpty: resp[0].data.length === 0,
@@ -155,8 +155,8 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                                         });
                                     },
                                     error => {
-                                        dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                                            name: GlobalActionName.TileDataLoaded,
+                                        dispatch<typeof Actions.TileDataLoaded>({
+                                            name: Actions.TileDataLoaded.name,
                                             payload: {
                                                 tileId: this.tileId,
                                                 isEmpty: true,
@@ -175,8 +175,8 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                     );
 
                 } else {
-                    dispatch<GlobalActions.TileDataLoaded<DataLoadedPayload>>({
-                        name: GlobalActionName.TileDataLoaded,
+                    dispatch<typeof Actions.TileDataLoaded>({
+                        name: Actions.TileDataLoaded.name,
                         payload: {
                             tileId: this.tileId,
                             isEmpty: true,
@@ -190,8 +190,8 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
             }
         );
 
-        this.addActionHandler<GlobalActions.TileDataLoaded<DataLoadedPayload>>(
-            GlobalActionName.TileDataLoaded,
+        this.addActionHandler<typeof Actions.TileDataLoaded>(
+            Actions.TileDataLoaded.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.isBusy = false;
@@ -215,8 +215,8 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
             }
         );
 
-        this.addActionHandler<GlobalActions.EnableAltViewMode>(
-            GlobalActionName.EnableAltViewMode,
+        this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(
+            GlobalActions.EnableAltViewMode.name,
             (state, action) => {
                 if (action.payload.ident === this.tileId) {
                     state.isAltViewMode = true;
@@ -224,8 +224,8 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
             }
         );
 
-        this.addActionHandler<GlobalActions.DisableAltViewMode>(
-            GlobalActionName.DisableAltViewMode,
+        this.addActionHandler<typeof GlobalActions.DisableAltViewMode>(
+            GlobalActions.DisableAltViewMode.name,
             (state, action) => {
                 if (action.payload.ident === this.tileId) {
                     state.isAltViewMode = false;
@@ -233,8 +233,8 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
             }
         );
 
-        this.addActionHandler<Actions.ShowAreaTooltip>(
-            ActionName.ShowAreaTooltip,
+        this.addActionHandler<typeof Actions.ShowAreaTooltip>(
+            Actions.ShowAreaTooltip.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     const data = action.payload.dataIdx === -1 ? undefined : state.data[action.payload.dataIdx];
@@ -254,8 +254,8 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
             }
         );
 
-        this.addActionHandler<Actions.HideAreaTooltip>(
-            ActionName.HideAreaTooltip,
+        this.addActionHandler<typeof Actions.HideAreaTooltip>(
+            Actions.HideAreaTooltip.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
                     state.tooltipArea = null;
@@ -263,31 +263,26 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
             }
         );
 
-        this.addActionHandler<GlobalActions.GetSourceInfo>(
-            GlobalActionName.GetSourceInfo,
+        this.addActionHandler<typeof GlobalActions.GetSourceInfo>(
+            GlobalActions.GetSourceInfo.name,
             null,
             (state, action, dispatch) => {
                 if (action.payload['tileId'] === this.tileId) {
                     this.api.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), state.corpname)
                     .subscribe(
                         (data) => {
-                            dispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
+                            dispatch<typeof GlobalActions.GetSourceInfoDone>({
+                                name: GlobalActions.GetSourceInfoDone.name,
                                 payload: {
-                                    tileId: this.tileId,
-                                    data: data
+                                    data
                                 }
                             });
                         },
-                        (err) => {
-                            console.error(err);
-                            dispatch({
-                                name: GlobalActionName.GetSourceInfoDone,
-                                error: err,
-                                payload: {
-                                    tileId: this.tileId
-                                }
-
+                        (error) => {
+                            console.error(error);
+                            dispatch<typeof GlobalActions.GetSourceInfoDone>({
+                                name: GlobalActions.GetSourceInfoDone.name,
+                                error
                             });
                         }
                     );

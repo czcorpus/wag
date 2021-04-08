@@ -18,7 +18,7 @@
 import { IActionDispatcher, StatelessModel } from 'kombo';
 
 import { QueryType } from '../../../query/index';
-import { TileComponent, TileConf, TileFactory, ITileProvider } from '../../../page/tile';
+import { TileComponent, TileConf, TileFactory, ITileProvider, TileFactoryArgs } from '../../../page/tile';
 import { MatchingDocsModel } from './model';
 import { init as viewInit } from './view';
 import { createMatchingDocsApiInstance } from './apiFactory';
@@ -71,8 +71,11 @@ export class MatchingDocsTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, subqSourceTiles, ut, theme, appServices,
-            widthFract, conf, isBusy, cache, queryMatches}:TileFactory.Args<MatchingDocsTileConf>) {
+    constructor({
+        dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, subqSourceTiles, ut,
+        theme, appServices, widthFract, conf, isBusy, cache, queryMatches
+    }:TileFactoryArgs<MatchingDocsTileConf>) {
+
         this.dispatcher = dispatcher;
         this.tileId = tileId;
         this.widthFract = widthFract;
@@ -163,7 +166,7 @@ export class MatchingDocsTile implements ITileProvider {
 
 }
 
-export const init:TileFactory.TileFactory<MatchingDocsTileConf>  = {
+export const init:TileFactory<MatchingDocsTileConf>  = {
 
     sanityCheck: (args) => {
         const ans = [];

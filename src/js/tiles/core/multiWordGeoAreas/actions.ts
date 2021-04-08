@@ -19,14 +19,8 @@
 import { Action } from 'kombo';
 import { TargetDataRow } from './views';
 import { DataRow } from '../../../api/abstract/freqs';
+import { Actions as GlobalActions } from '../../../models/actions';
 
-
-
-export enum ActionName {
-    ShowAreaTooltip = 'MULTI_WORD_GEO_AREAS_SHOW_AREA_TOOLTIP',
-    HideAreaTooltip = 'MULTI_WORD_GEO_AREAS_HIDE_AREA_TOOLTIP',
-    PartialDataLoaded = 'MULTI_WORD_GEO_AREAS_PARTIAL_DATA_LOADED'
-}
 
 export interface PartialDataLoadedPayload {
     tileId:number;
@@ -42,13 +36,9 @@ export interface LoadFinishedPayload {
     corpusName:string;
 }
 
-export namespace Actions {
+export class Actions {
 
-    export interface PartialDataLoaded extends Action<PartialDataLoadedPayload> {
-        name: ActionName.PartialDataLoaded;
-    }
-
-    export interface ShowAreaTooltip extends Action<{
+    static ShowAreaTooltip:Action<{
         tileId:number;
         areaName:string;
         areaIpmNorm:number;
@@ -56,14 +46,23 @@ export namespace Actions {
         tooltipX:number;
         tooltipY:number;
 
-    }> {
-        name: ActionName.ShowAreaTooltip;
+    }> = {
+        name: 'MULTI_WORD_GEO_AREAS_SHOW_AREA_TOOLTIP'
     }
 
-    export interface HideAreaTooltip extends Action<{
+    static HideAreaTooltip:Action<{
         tileId:number;
 
-    }> {
-        name: ActionName.HideAreaTooltip;
+    }> = {
+        name: 'MULTI_WORD_GEO_AREAS_HIDE_AREA_TOOLTIP'
     }
+
+    static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & LoadFinishedPayload> = {
+        name: GlobalActions.TileDataLoaded.name
+    };
+
+
+    static PartialTileDataLoaded:Action<typeof GlobalActions.TilePartialDataLoaded.payload & PartialDataLoadedPayload> = {
+        name: GlobalActions.TilePartialDataLoaded.name
+    };
 }

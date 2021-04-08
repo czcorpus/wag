@@ -22,7 +22,7 @@ import { restore } from 'sinon';
 import { assert } from 'chai';
 
 import { MessagesModel, MessagesState } from '../../src/js/models/messages';
-import { ActionName } from '../../src/js/models/actions';
+import { Actions } from '../../src/js/models/actions';
 import { SystemMessageType } from '../../src/js/types';
 
 
@@ -44,8 +44,13 @@ describe('MessagesModel', function () {
         it('adds message', function (done) {
             setupModel()
             .checkState(
-                {name: ActionName.AddSystemMessage, payload: {type: SystemMessageType.ERROR, text: 'message', ttl: 1, ident: 'one'}},
-                ActionName.AddSystemMessage,
+                {
+                    name: Actions.AddSystemMessage.name,
+                    payload: {
+                        type: SystemMessageType.ERROR, text: 'message', ttl: 1, ident: 'one'
+                    }
+                },
+                Actions.AddSystemMessage.name,
                 state => {
                     assert.deepEqual(state.systemMessages, [{type: SystemMessageType.ERROR, text: 'message', ttl: 1, ident: 'one'}]);
                     done();
@@ -56,18 +61,39 @@ describe('MessagesModel', function () {
         it('remove message', function (done) {
             const testModel = setupModel();
             testModel.dispatcher.dispatch(
-                {name: ActionName.AddSystemMessage, payload: {type: SystemMessageType.ERROR, text: 'message', ttl: 1, ident: 'one'}}
+                {
+                    name: Actions.AddSystemMessage.name,
+                    payload: {
+                        type: SystemMessageType.ERROR, text: 'message', ttl: 1, ident: 'one'
+                    }
+                }
             );
             testModel.dispatcher.dispatch(
-                {name: ActionName.AddSystemMessage, payload: {type: SystemMessageType.ERROR, text: 'message', ttl: 1, ident: 'two'}}
+                {
+                    name: Actions.AddSystemMessage.name,
+                    payload: {
+                        type: SystemMessageType.ERROR,
+                        text: 'message',
+                        ttl: 1,
+                        ident: 'two'
+                    }
+                }
             );
             testModel.dispatcher.dispatch(
-                {name: ActionName.AddSystemMessage, payload: {type: SystemMessageType.ERROR, text: 'message', ttl: 1, ident: 'three'}}
+                {
+                    name: Actions.AddSystemMessage.name,
+                    payload: {
+                        type: SystemMessageType.ERROR, text: 'message', ttl: 1, ident: 'three'
+                    }
+                }
             );
 
             testModel.checkState(
-                {name: ActionName.RemoveSystemMessage, payload: {ident: 'two'}},
-                ActionName.RemoveSystemMessage,
+                {
+                    name: Actions.RemoveSystemMessage.name,
+                    payload: {ident: 'two'}
+                },
+                Actions.RemoveSystemMessage.name,
                 state => {
                     assert.deepEqual(state.systemMessages, [
                         {type: SystemMessageType.ERROR, text: 'message', ttl: 1, ident: 'one'},

@@ -21,20 +21,25 @@ import * as React from 'react';
 import { Theme } from '../../../page/theme';
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile';
 import { GlobalComponents } from '../../../views/global';
-import { ActionName, Actions } from './actions';
+import { Actions } from './actions';
 import { MatchingDocsModel } from './model';
 import { MatchingDocsModelState } from '../../../models/tiles/matchingDocs';
 import { DataRow } from '../../../api/abstract/matchingDocs';
 
 
-export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:MatchingDocsModel):TileComponent {
+export function init(
+    dispatcher:IActionDispatcher,
+    ut:ViewUtils<GlobalComponents>,
+    theme:Theme,
+    model:MatchingDocsModel
+):TileComponent {
 
     const globComponents = ut.getComponents();
 
 
     // ------------------ <Paginator /> --------------------------------------------
 
-    const Paginator:React.SFC<{
+    const Paginator:React.FC<{
         page:number;
         numPages:number;
         tileId:number;
@@ -42,8 +47,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     }> = (props) => {
 
         const handleNextPage = () => {
-            dispatcher.dispatch<Actions.NextPage>({
-                name: ActionName.NextPage,
+            dispatcher.dispatch<typeof Actions.NextPage>({
+                name: Actions.NextPage.name,
                 payload: {
                     tileId: props.tileId
                 }
@@ -51,8 +56,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         }
 
         const handlePreviousPage = () => {
-            dispatcher.dispatch<Actions.PreviousPage>({
-                name: ActionName.PreviousPage,
+            dispatcher.dispatch<typeof Actions.PreviousPage>({
+                name: Actions.PreviousPage.name,
                 payload: {
                     tileId: props.tileId
                 }
@@ -76,7 +81,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------------------- <TableView /> --------------------------------------
 
-    const TableView:React.SFC<{
+    const TableView:React.FC<{
         data:Array<DataRow>;
         from:number;
         to:number;

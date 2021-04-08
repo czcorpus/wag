@@ -28,7 +28,7 @@ import { QueryType, RecognizedQueries, testIsMultiWordMode } from './query/index
 import { ITileProvider, TileFrameProps, TileConf } from './page/tile';
 import { ClientConf, UserConf } from './conf';
 import { LayoutManager, TileGroup, GroupedTileProps } from './page/layout';
-import { ActionName, Actions } from './models/actions';
+import { Actions } from './models/actions';
 import { MessagesModel } from './models/messages';
 import { defaultFactory as mainFormFactory } from './models/query';
 import { TileResultFlag, WdglanceTilesModel } from './models/tiles';
@@ -229,8 +229,8 @@ export function createRootComponent({config, userSession, queryMatches, appServi
 
     onResize.subscribe(
         (props) => {
-            dispatcher.dispatch<Actions.SetScreenMode>({
-                name: ActionName.SetScreenMode,
+            dispatcher.dispatch<typeof Actions.SetScreenMode>({
+                name: Actions.SetScreenMode.name,
                 payload: props
             });
         }

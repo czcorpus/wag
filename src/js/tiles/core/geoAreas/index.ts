@@ -20,7 +20,7 @@ import { IActionDispatcher, StatelessModel } from 'kombo';
 import { IAppServices } from '../../../appServices';
 import { FreqSort } from '../../../api/vendor/kontext/freqs';
 import { QueryType } from '../../../query/index';
-import { ITileProvider, TileComponent, TileConf, TileFactory } from '../../../page/tile';
+import { ITileProvider, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile';
 import { GeoAreasModel } from './model';
 import { init as viewInit } from './views';
 import { MapLoader } from './mapLoader';
@@ -63,8 +63,11 @@ export class GeoAreasTile implements ITileProvider {
 
     private readonly blockingTiles:Array<number>;
 
-    constructor({tileId, dispatcher, appServices, ut, theme, waitForTiles, waitForTilesTimeoutSecs, widthFract, conf,
-            isBusy, cache}:TileFactory.Args<GeoAreasTileConf>) {
+    constructor({
+        tileId, dispatcher, appServices, ut, theme, waitForTiles, waitForTilesTimeoutSecs,
+        widthFract, conf, isBusy, cache
+    }:TileFactoryArgs<GeoAreasTileConf>) {
+
         this.tileId = tileId;
         this.label = appServices.importExternalMessage(conf.label);
         this.dispatcher = dispatcher;
@@ -157,7 +160,7 @@ export class GeoAreasTile implements ITileProvider {
     }
 }
 
-export const init:TileFactory.TileFactory<GeoAreasTileConf> = {
+export const init:TileFactory<GeoAreasTileConf> = {
 
     create: (args) => new GeoAreasTile(args),
 

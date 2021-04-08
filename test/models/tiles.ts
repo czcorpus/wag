@@ -22,7 +22,7 @@ import { restore, stub } from 'sinon';
 import { assert } from 'chai';
 
 import { WdglanceTilesModel, WdglanceTilesState, TileResultFlag } from '../../src/js/models/tiles';
-import { ActionName } from '../../src/js/models/actions';
+import { Actions } from '../../src/js/models/actions';
 import * as ajax from '../../src/js/page/ajax';
 import { of, throwError } from 'rxjs';
 import { SystemMessageType } from '../../src/js/types';
@@ -46,8 +46,8 @@ describe('WdglanceTilesModel', function () {
     it('sets screen mode', function (done) {
         setupModel()
         .checkState(
-            {name: ActionName.SetScreenMode, payload: {isMobile: true}},
-            ActionName.SetScreenMode,
+            {name: Actions.SetScreenMode.name, payload: {isMobile: true}},
+            Actions.SetScreenMode.name,
             state => {
                 assert.isTrue(state.isMobile);
                 done();
@@ -58,8 +58,8 @@ describe('WdglanceTilesModel', function () {
     it('sets tile render size', function (done) {
         setupModel({tileProps: [{tileId: 1}]})
         .checkState(
-            {name: ActionName.SetTileRenderSize, payload: {tileId: 1, size: [10, 20]}},
-            ActionName.SetTileRenderSize,
+            {name: Actions.SetTileRenderSize.name, payload: {tileId: 1, size: [10, 20]}},
+            Actions.SetTileRenderSize.name,
             state => {
                 assert.deepEqual(state.tileProps[0].renderSize, [11, 20]);
                 done();
@@ -71,8 +71,8 @@ describe('WdglanceTilesModel', function () {
         it('enables alt view mode', function (done) {
             setupModel({altViewActiveTiles: []})
             .checkState(
-                {name: ActionName.EnableAltViewMode, payload: {ident: 1}},
-                ActionName.EnableAltViewMode,
+                {name: Actions.EnableAltViewMode.name, payload: {ident: 1}},
+                Actions.EnableAltViewMode.name,
                 state => {
                     assert.include(state.altViewActiveTiles, 1);
                     done();
@@ -83,8 +83,8 @@ describe('WdglanceTilesModel', function () {
         it('enables alt view mode again', function (done) {
             setupModel({altViewActiveTiles: [1]})
             .checkState(
-                {name: ActionName.EnableAltViewMode, payload: {ident: 1}},
-                ActionName.EnableAltViewMode,
+                {name: Actions.EnableAltViewMode.name, payload: {ident: 1}},
+                Actions.EnableAltViewMode.name,
                 state => {
                     assert.deepEqual(state.altViewActiveTiles, [1]);
                     done();
@@ -95,8 +95,8 @@ describe('WdglanceTilesModel', function () {
         it('disables alt view mode', function (done) {
             setupModel({altViewActiveTiles: [1, 2, 3]})
             .checkState(
-                {name: ActionName.DisableAltViewMode, payload: {ident: 2}},
-                ActionName.DisableAltViewMode,
+                {name: Actions.DisableAltViewMode.name, payload: {ident: 2}},
+                Actions.DisableAltViewMode.name,
                 state => {
                     assert.notInclude(state.altViewActiveTiles, 2);
                     done();
@@ -109,8 +109,8 @@ describe('WdglanceTilesModel', function () {
         it('enables tweak mode', function (done) {
             setupModel({tweakActiveTiles: []})
             .checkState(
-                {name: ActionName.EnableTileTweakMode, payload: {ident: 1}},
-                ActionName.EnableTileTweakMode,
+                {name: Actions.EnableTileTweakMode.name, payload: {ident: 1}},
+                Actions.EnableTileTweakMode.name,
                 state => {
                     assert.include(state.tweakActiveTiles, 1);
                     done();
@@ -121,8 +121,8 @@ describe('WdglanceTilesModel', function () {
         it('enables tweak mode again', function (done) {
             setupModel({tweakActiveTiles: [1]})
             .checkState(
-                {name: ActionName.EnableTileTweakMode, payload: {ident: 1}},
-                ActionName.EnableTileTweakMode,
+                {name: Actions.EnableTileTweakMode.name, payload: {ident: 1}},
+                Actions.EnableTileTweakMode.name,
                 state => {
                     assert.deepEqual(state.tweakActiveTiles, [1]);
                     done();
@@ -133,8 +133,8 @@ describe('WdglanceTilesModel', function () {
         it('disables tweak mode', function (done) {
             setupModel({tweakActiveTiles: [1, 2, 3]})
             .checkState(
-                {name: ActionName.DisableTileTweakMode, payload: {ident: 2}},
-                ActionName.DisableTileTweakMode,
+                {name: Actions.DisableTileTweakMode.name, payload: {ident: 2}},
+                Actions.DisableTileTweakMode.name,
                 state => {
                     assert.notInclude(state.tweakActiveTiles, 2);
                     done();
@@ -147,8 +147,8 @@ describe('WdglanceTilesModel', function () {
         it('shows tile help', function (done) {
             setupModel()
             .checkState(
-                {name: ActionName.ShowTileHelp, payload: {tileId: 1}},
-                ActionName.ShowTileHelp,
+                {name: Actions.ShowTileHelp.name, payload: {tileId: 1}},
+                Actions.ShowTileHelp.name,
                 state => {
                     assert.deepEqual(state.activeTileHelp, {ident:1, html: null});
                     assert.isTrue(state.isBusy);
@@ -160,8 +160,8 @@ describe('WdglanceTilesModel', function () {
         it('tests tile help side effect undefined url', function (done) {
             setupModel({tileProps: [undefined]})
             .checkState(
-                {name: ActionName.ShowTileHelp, payload: {tileId: 0}},
-                ActionName.LoadTileHelpDone,
+                {name: Actions.ShowTileHelp.name, payload: {tileId: 0}},
+                Actions.LoadTileHelpDone.name,
                 state => {
                     assert.equal(state.activeTileHelp, null);
                     assert.isFalse(state.isBusy);
@@ -175,8 +175,8 @@ describe('WdglanceTilesModel', function () {
 
             setupModel({tileProps: [{helpURL: 'somewhere'}]})
             .checkState(
-                {name: ActionName.ShowTileHelp, payload: {tileId: 0}},
-                ActionName.LoadTileHelpDone,
+                {name: Actions.ShowTileHelp.name, payload: {tileId: 0}},
+                Actions.LoadTileHelpDone.name,
                 state => {
                     assert.deepEqual(state.activeTileHelp, {html: '<div/>', ident: 0});
                     assert.isFalse(state.isBusy);
@@ -190,8 +190,8 @@ describe('WdglanceTilesModel', function () {
 
             setupModel({tileProps: [{helpURL: 'somewhere'}]})
             .checkState(
-                {name: ActionName.ShowTileHelp, payload: {tileId: 0}},
-                ActionName.LoadTileHelpDone,
+                {name: Actions.ShowTileHelp.name, payload: {tileId: 0}},
+                Actions.LoadTileHelpDone.name,
                 state => {
                     assert.equal(state.activeTileHelp, null);
                     assert.isFalse(state.isBusy);
@@ -203,8 +203,8 @@ describe('WdglanceTilesModel', function () {
         it('finishes tile help load successfuly', function (done) {
             setupModel({isBusy: true, activeTileHelp: {ident: 1, html: null}})
             .checkState(
-                {name: ActionName.LoadTileHelpDone, payload: {tileId: 1, html: '<div/>'}},
-                ActionName.LoadTileHelpDone,
+                {name: Actions.LoadTileHelpDone.name, payload: {tileId: 1, html: '<div/>'}},
+                Actions.LoadTileHelpDone.name,
                 state => {
                     assert.deepEqual(state.activeTileHelp, {ident: 1, html: '<div/>'});
                     assert.isFalse(state.isBusy);
@@ -216,8 +216,8 @@ describe('WdglanceTilesModel', function () {
         it('finishes tile help load with error', function (done) {
             setupModel({isBusy: true, activeTileHelp: {ident: 1, html: null}})
             .checkState(
-                {name: ActionName.LoadTileHelpDone, error: Error()},
-                ActionName.LoadTileHelpDone,
+                {name: Actions.LoadTileHelpDone.name, error: Error()},
+                Actions.LoadTileHelpDone.name,
                 state => {
                     assert.equal(state.activeTileHelp, null);
                     assert.isFalse(state.isBusy);
@@ -229,8 +229,8 @@ describe('WdglanceTilesModel', function () {
         it('hides tile help', function (done) {
             setupModel({activeTileHelp: {html: '<div/>', ident: 1}})
             .checkState(
-                {name: ActionName.HideTileHelp},
-                ActionName.HideTileHelp,
+                {name: Actions.HideTileHelp.name},
+                Actions.HideTileHelp.name,
                 state => {
                     assert.equal(state.activeTileHelp, null);
                     done();
@@ -243,8 +243,8 @@ describe('WdglanceTilesModel', function () {
         it('gets source info', function (done) {
             setupModel()
             .checkState(
-                {name: ActionName.GetSourceInfo, payload: {tileId: 1}},
-                ActionName.GetSourceInfo,
+                {name: Actions.GetSourceInfo.name, payload: {tileId: 1}},
+                Actions.GetSourceInfo.name,
                 state => {
                     assert.deepEqual(state.activeSourceInfo, {tileId: 1, title: null, description: null, author: null});
                     assert.isTrue(state.isBusy);
@@ -256,8 +256,8 @@ describe('WdglanceTilesModel', function () {
         it('finishes getting source info with error', function (done) {
             setupModel({activeSourceInfo: {tileId: 1, title: null, description: null, author: null}})
             .checkState(
-                {name: ActionName.GetSourceInfoDone, error: Error()},
-                ActionName.GetSourceInfoDone,
+                {name: Actions.GetSourceInfoDone.name, error: Error()},
+                Actions.GetSourceInfoDone.name,
                 state => {
                     assert.equal(state.activeSourceInfo, null);
                     assert.isFalse(state.isBusy);
@@ -269,8 +269,8 @@ describe('WdglanceTilesModel', function () {
         it('finishes getting source info succesfully', function (done) {
             setupModel()
             .checkState(
-                {name: ActionName.GetSourceInfoDone, payload: {data: {tileId: 1, title: 'title', description: 'desc', author: 'auth'}}},
-                ActionName.GetSourceInfoDone,
+                {name: Actions.GetSourceInfoDone.name, payload: {data: {tileId: 1, title: 'title', description: 'desc', author: 'auth'}}},
+                Actions.GetSourceInfoDone.name,
                 state => {
                     assert.deepEqual(state.activeSourceInfo, {tileId: 1, title: 'title', description: 'desc', author: 'auth'});
                     assert.isFalse(state.isBusy);
@@ -282,8 +282,8 @@ describe('WdglanceTilesModel', function () {
         it('closes source info', function (done) {
             setupModel({activeSourceInfo: {tileId: 1, title: 'title', description: 'desc', author: 'auth'}})
             .checkState(
-                {name: ActionName.CloseSourceInfo},
-                ActionName.CloseSourceInfo,
+                {name: Actions.CloseSourceInfo.name},
+                Actions.CloseSourceInfo.name,
                 state => {
                     assert.equal(state.activeSourceInfo, null);
                     done();
@@ -296,8 +296,8 @@ describe('WdglanceTilesModel', function () {
         it('toggles group visibility off', function (done) {
             setupModel({hiddenGroups: [1, 3]})
             .checkState(
-                {name: ActionName.ToggleGroupVisibility, payload: {groupIdx: 2}},
-                ActionName.ToggleGroupVisibility,
+                {name: Actions.ToggleGroupVisibility.name, payload: {groupIdx: 2}},
+                Actions.ToggleGroupVisibility.name,
                 state => {
                     assert.include(state.hiddenGroups, 2);
                     done();
@@ -308,8 +308,8 @@ describe('WdglanceTilesModel', function () {
         it('toggles group visibility on', function (done) {
             setupModel({hiddenGroups: [1, 2, 3]})
             .checkState(
-                {name: ActionName.ToggleGroupVisibility, payload: {groupIdx: 2}},
-                ActionName.ToggleGroupVisibility,
+                {name: Actions.ToggleGroupVisibility.name, payload: {groupIdx: 2}},
+                Actions.ToggleGroupVisibility.name,
                 state => {
                     assert.notInclude(state.hiddenGroups, 2);
                     done();
@@ -321,8 +321,8 @@ describe('WdglanceTilesModel', function () {
             let highlightCount = 0;
             setupModel({hiddenGroups: [1, 2, 3]})
             .checkState(
-                {name: ActionName.OpenGroupAndHighlightTile, payload: {groupIdx: 1, tileId: 1}},
-                ActionName.HighlightTile,
+                {name: Actions.OpenGroupAndHighlightTile.name, payload: {groupIdx: 1, tileId: 1}},
+                Actions.HighlightTile.name,
                 state => {
                     highlightCount += 1;
                     if (highlightCount >= 9) {
@@ -340,8 +340,8 @@ describe('WdglanceTilesModel', function () {
         it('highlights tile', function (done) {
             setupModel()
             .checkState(
-                {name: ActionName.HighlightTile, payload: {tileId: 1}},
-                ActionName.HighlightTile,
+                {name: Actions.HighlightTile.name, payload: {tileId: 1}},
+                Actions.HighlightTile.name,
                 state => {
                     assert.equal(state.highlightedTileId, 1);
                     done();
@@ -352,8 +352,8 @@ describe('WdglanceTilesModel', function () {
         it('dehighlights tile', function (done) {
             setupModel()
             .checkState(
-                {name: ActionName.DehighlightTile},
-                ActionName.DehighlightTile,
+                {name: Actions.DehighlightTile.name},
+                Actions.DehighlightTile.name,
                 state => {
                     assert.equal(state.highlightedTileId, -1);
                     done();
@@ -366,8 +366,8 @@ describe('WdglanceTilesModel', function () {
         it('starts showing group help', function (done) {
             setupModel()
             .checkState(
-                {name: ActionName.ShowGroupHelp, payload: {groupIdx: 1, url: 'somewhere'}},
-                ActionName.ShowGroupHelp,
+                {name: Actions.ShowGroupHelp.name, payload: {groupIdx: 1, url: 'somewhere'}},
+                Actions.ShowGroupHelp.name,
                 state => {
                     assert.isTrue(state.isBusy);
                     assert.deepEqual(state.activeGroupHelp, {html: '', idx: 1});
@@ -381,8 +381,8 @@ describe('WdglanceTilesModel', function () {
 
             setupModel()
             .checkState(
-                {name: ActionName.ShowGroupHelp, payload: {groupIdx: 1, url: 'somewhere'}},
-                ActionName.ShowGroupHelpDone,
+                {name: Actions.ShowGroupHelp.name, payload: {groupIdx: 1, url: 'somewhere'}},
+                Actions.ShowGroupHelpDone.name,
                 (state, appServices) => {
                     assert.equal(state.activeGroupHelp, null);
                     assert.isFalse(state.isBusy);
@@ -397,8 +397,8 @@ describe('WdglanceTilesModel', function () {
 
             setupModel()
             .checkState(
-                {name: ActionName.ShowGroupHelp, payload: {groupIdx: 1, url: 'somewhere'}},
-                ActionName.ShowGroupHelpDone,
+                {name: Actions.ShowGroupHelp.name, payload: {groupIdx: 1, url: 'somewhere'}},
+                Actions.ShowGroupHelpDone.name,
                 state => {
                     assert.deepEqual(state.activeGroupHelp, {html: '<div/>', idx: 1});
                     assert.isFalse(state.isBusy);
@@ -410,8 +410,8 @@ describe('WdglanceTilesModel', function () {
         it('finishes showing group help succesfully', function (done) {
             setupModel({activeGroupHelp: null, isBusy: true})
             .checkState(
-                {name: ActionName.ShowGroupHelpDone, payload: {html: '<div/>', groupIdx: 1}},
-                ActionName.ShowGroupHelpDone,
+                {name: Actions.ShowGroupHelpDone.name, payload: {html: '<div/>', groupIdx: 1}},
+                Actions.ShowGroupHelpDone.name,
                 state => {
                     assert.deepEqual(state.activeGroupHelp, {html: '<div/>', idx: 1});
                     assert.isFalse(state.isBusy);
@@ -423,8 +423,8 @@ describe('WdglanceTilesModel', function () {
         it('finishes showing group help with error', function (done) {
             setupModel({activeGroupHelp: null, isBusy: true})
             .checkState(
-                {name: ActionName.ShowGroupHelpDone, error: Error()},
-                ActionName.ShowGroupHelpDone,
+                {name: Actions.ShowGroupHelpDone.name, error: Error()},
+                Actions.ShowGroupHelpDone.name,
                 state => {
                     assert.equal(state.activeGroupHelp, null);
                     assert.isFalse(state.isBusy);
@@ -436,8 +436,8 @@ describe('WdglanceTilesModel', function () {
         it('hides group help', function (done) {
             setupModel({activeGroupHelp: {html: '<div/>', idx: 1}})
             .checkState(
-                {name: ActionName.HideGroupHelp},
-                ActionName.HideGroupHelp,
+                {name: Actions.HideGroupHelp.name},
+                Actions.HideGroupHelp.name,
                 state => {
                     assert.equal(state.activeGroupHelp, null);
                     done();
@@ -455,8 +455,8 @@ describe('WdglanceTilesModel', function () {
             ]
         })
         .checkState(
-            {name: ActionName.RequestQueryResponse},
-            ActionName.RequestQueryResponse,
+            {name: Actions.RequestQueryResponse.name},
+            Actions.RequestQueryResponse.name,
             state => {
                 assert.isTrue(state.tileResultFlags.every(v => v.canBeAmbiguousResult === false));
                 assert.isTrue(state.tileResultFlags.every(v => v.status === TileResultFlag.PENDING));
@@ -478,8 +478,8 @@ describe('WdglanceTilesModel', function () {
                 ]
             })
             .checkState(
-                {name: ActionName.TileDataLoaded, payload: {tileId: 2, isEmpty: false, canBeAmbiguousResult: true}},
-                ActionName.TileDataLoaded,
+                {name: Actions.TileDataLoaded.name, payload: {tileId: 2, isEmpty: false, canBeAmbiguousResult: true}},
+                Actions.TileDataLoaded.name,
                 state => {
                     assert.deepEqual(state.tileResultFlags[1], {tileId: 2, groupId: 1, status: TileResultFlag.VALID_RESULT, canBeAmbiguousResult: true});
                     assert.deepEqual(state.datalessGroups, []);
@@ -500,8 +500,8 @@ describe('WdglanceTilesModel', function () {
                 ]
             })
             .checkState(
-                {name: ActionName.TileDataLoaded, payload: {tileId: 2, isEmpty: true, canBeAmbiguousResult: true}},
-                ActionName.TileDataLoaded,
+                {name: Actions.TileDataLoaded.name, payload: {tileId: 2, isEmpty: true, canBeAmbiguousResult: true}},
+                Actions.TileDataLoaded.name,
                 state => {
                     assert.deepEqual(state.tileResultFlags[1], {tileId: 2, groupId: 1, status: TileResultFlag.EMPTY_RESULT, canBeAmbiguousResult: true});
                     assert.deepEqual(state.datalessGroups, []);
@@ -522,8 +522,8 @@ describe('WdglanceTilesModel', function () {
                 ]
             })
             .checkState(
-                {name: ActionName.TileDataLoaded, error: Error(), payload: {tileId: 2, isEmpty: true, canBeAmbiguousResult: true}},
-                ActionName.TileDataLoaded,
+                {name: Actions.TileDataLoaded.name, error: Error(), payload: {tileId: 2, isEmpty: true, canBeAmbiguousResult: true}},
+                Actions.TileDataLoaded.name,
                 state => {
                     assert.deepEqual(state.tileResultFlags[1], {tileId: 2, groupId: 1, status: TileResultFlag.ERROR, canBeAmbiguousResult: true});
                     assert.deepEqual(state.datalessGroups, []);
@@ -544,8 +544,8 @@ describe('WdglanceTilesModel', function () {
                 ]
             })
             .checkState(
-                {name: ActionName.TileDataLoaded, payload: {tileId: 2, isEmpty: true, canBeAmbiguousResult: true}},
-                ActionName.TileDataLoaded,
+                {name: Actions.TileDataLoaded.name, payload: {tileId: 2, isEmpty: true, canBeAmbiguousResult: true}},
+                Actions.TileDataLoaded.name,
                 state => {
                     assert.include(state.datalessGroups, 1);
                     done();
@@ -565,8 +565,8 @@ describe('WdglanceTilesModel', function () {
                 ]
             })
             .checkState(
-                {name: ActionName.SetEmptyResult},
-                ActionName.SetEmptyResult,
+                {name: Actions.SetEmptyResult.name},
+                Actions.SetEmptyResult.name,
                 (state, appServices) => {
                     assert.isTrue(state.tileResultFlags.every(v => v.canBeAmbiguousResult === false));
                     assert.isTrue(state.tileResultFlags.every(v => v.status === TileResultFlag.EMPTY_RESULT));
@@ -588,8 +588,8 @@ describe('WdglanceTilesModel', function () {
                 ]
             })
             .checkState(
-                {name: ActionName.SetEmptyResult, payload: {error: Error()}},
-                ActionName.SetEmptyResult,
+                {name: Actions.SetEmptyResult.name, payload: {error: Error()}},
+                Actions.SetEmptyResult.name,
                 (state, appServices) => {
                     assert.isTrue(state.tileResultFlags.every(v => v.canBeAmbiguousResult === false));
                     assert.isTrue(state.tileResultFlags.every(v => v.status === TileResultFlag.EMPTY_RESULT));
@@ -606,8 +606,8 @@ describe('WdglanceTilesModel', function () {
         it('shows ambiguous results', function (done) {
             setupModel({showAmbiguousResultHelp: false})
             .checkState(
-                {name: ActionName.ShowAmbiguousResultHelp},
-                ActionName.ShowAmbiguousResultHelp,
+                {name: Actions.ShowAmbiguousResultHelp.name},
+                Actions.ShowAmbiguousResultHelp.name,
                 state => {
                     assert.isTrue(state.showAmbiguousResultHelp);
                     done();
@@ -618,8 +618,8 @@ describe('WdglanceTilesModel', function () {
         it('hides ambiguous results', function (done) {
             setupModel({showAmbiguousResultHelp: true})
             .checkState(
-                {name: ActionName.HideAmbiguousResultHelp},
-                ActionName.HideAmbiguousResultHelp,
+                {name: Actions.HideAmbiguousResultHelp.name},
+                Actions.HideAmbiguousResultHelp.name,
                 state => {
                     assert.isFalse(state.showAmbiguousResultHelp);
                     done();
