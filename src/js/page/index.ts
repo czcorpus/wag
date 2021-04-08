@@ -49,7 +49,7 @@ require('theme.less');
 
 interface MountArgs {
     userSession:UserConf;
-    component:React.SFC<WdglanceMainProps>;
+    component:React.FC<WdglanceMainProps>;
     layout:Array<TileGroup>;
     appServices:IAppServices;
     mountElement:HTMLElement;

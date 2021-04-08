@@ -54,7 +54,7 @@ export class WordSimTile implements ITileProvider {
 
     private readonly view:TileComponent;
 
-    private readonly srcInfoView:React.SFC;
+    private readonly srcInfoView:React.FC;
 
     private readonly blockingTiles:Array<number>;
 
@@ -112,7 +112,7 @@ export class WordSimTile implements ITileProvider {
         return this.view;
     }
 
-    getSourceInfoComponent():React.SFC {
+    getSourceInfoComponent():React.FC {
         return this.srcInfoView;
     }
 

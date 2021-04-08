@@ -33,7 +33,7 @@ interface ChartFreqDistItem {
     color:string;
 }
 
-export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>):React.SFC<{
+export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>):React.FC<{
     tileName:string;
     queryMatches:Array<SimilarFreqWord>;
     activeIdent:number;

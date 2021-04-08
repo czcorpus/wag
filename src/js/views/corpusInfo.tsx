@@ -29,7 +29,7 @@ export interface CorpusInfoBoxProps {
     data:CorpusDetails;
 }
 
-export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>):React.SFC<CorpusInfoBoxProps> {
+export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>):React.FC<CorpusInfoBoxProps> {
 
 
     // ---------------------- <CorpusReference /> ------------------------------------

@@ -141,7 +141,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // ------- <FreqPieTileView /> ---------------------------------------------------
 
-    const FreqPieTileView:React.SFC<FreqBarModelState & CoreTileComponentProps> = (props) => {
+    const FreqPieTileView:React.FC<FreqBarModelState & CoreTileComponentProps> = (props) => {
 
         const chartsRef:React.RefObject<HTMLDivElement> = React.useRef(null);
 

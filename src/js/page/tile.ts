@@ -182,9 +182,9 @@ export interface CoreTileComponentProps {
 /**
  * A general tile component.
  */
-export type TileComponent = React.ComponentClass<CoreTileComponentProps>|React.SFC<CoreTileComponentProps>;
+export type TileComponent = React.ComponentClass<CoreTileComponentProps>|React.FC<CoreTileComponentProps>;
 
-export type SourceInfoComponent = React.ComponentClass<{data:{}}>|React.SFC<{}>
+export type SourceInfoComponent = React.ComponentClass<{data:{}}>|React.FC<{}>
 
 /**
  * ITileProvider specifes an object which encapsulates an implementation
