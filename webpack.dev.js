@@ -56,12 +56,7 @@ module.exports = (env) => ({
                 exclude: /(node_modules)/,
                 use: [
                     {
-                        loader: 'babel-loader',
-                        options: {
-                            presets: [
-                                ['@babel/preset-env', { "modules": false }]
-                            ]
-                        }
+                        loader: 'babel-loader'
                     }
                 ]
             },
@@ -70,18 +65,7 @@ module.exports = (env) => ({
                 exclude: /(node_modules)/,
                 use: [
                     {
-                        loader: 'awesome-typescript-loader',
-                        options: {
-                            useBabel: true,
-                            babelOptions: {
-                                babelrc: false,
-                                presets: [
-                                    ['@babel/preset-env', {'targets': 'last 2 versions, ie 11', 'modules': false }]
-                                ]
-                            },
-                            babelCore: '@babel/core',
-                            useCache: true
-                        }
+                        loader: 'babel-loader'
                     }
                 ]
             },
