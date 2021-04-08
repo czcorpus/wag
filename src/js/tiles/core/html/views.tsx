@@ -24,6 +24,8 @@ import { GlobalComponents } from '../../../views/global';
 import { HtmlModel } from './model';
 import { HtmlModelState } from './common';
 
+import * as S from './style';
+
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:HtmlModel):TileComponent {
 
@@ -43,7 +45,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         error={this.props.error} htmlClass={`HtmlTile${this.props.tileName}`} hasData={Boolean(this.props.data)}
                         sourceIdent={null} supportsTileReload={this.props.supportsReloadOnError}
                         issueReportingUrl={this.props.issueReportingUrl} >
-                    <div className="htmlFrame" dangerouslySetInnerHTML={{__html: this.props.data}} />
+                    <S.HtmlFrame dangerouslySetInnerHTML={{__html: this.props.data}} />
                 </globalCompontents.TileWrapper>
             );
         }

@@ -27,13 +27,15 @@ import { Line, LineElement } from '../../../api/abstract/concordance';
 import { Actions as GlobalActions } from '../../../models/actions';
 import { Actions } from './actions';
 
+import * as S from './style';
+
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:ConcFilterModel):TileComponent {
 
     const globalCompontents = ut.getComponents();
 
     // ------------------ <LineMetadata /> --------------------------------------------
 
-    const LineMetadata:React.SFC<{
+    const LineMetadata:React.FC<{
         data:Array<{value:string; label:string}>;
 
     }> = (props) => {
@@ -43,7 +45,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         };
 
         return (
-            <div className="LineMetadata" onClick={handleClick}>
+            <S.LineMetadata onClick={handleClick}>
                 <dl>
                     {List.map(
                         v => (
@@ -55,14 +57,14 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         props.data
                     )}
                 </dl>
-            </div>
+            </S.LineMetadata>
         )
     }
 
 
     // ------------------ <FilteredLine /> --------------------------------------------
 
-    const FilteredLine:React.SFC<{
+    const FilteredLine:React.FC<{
         data:Line;
         hasVisibleMetadata:boolean;
         isParallel:boolean;
@@ -90,7 +92,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             <span key={`${props.data.toknum}:${side}${i}`} className={e.type}>{e.str}</span>;
 
         return (
-            <div className="FilteredLine">
+            <S.FilteredLine>
                 <div className={`flex${props.data.isHighlighted ? ' highlighted' : ''}`}>
                     <div>
                         {props.data.metadata.length > 0 ?
@@ -117,7 +119,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         {props.hasVisibleMetadata ? <LineMetadata data={props.data.metadata} /> : null}
                     </div>
                 </div>
-            </div>
+            </S.FilteredLine>
         );
     };
 
@@ -159,14 +161,14 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         sourceIdent={{corp: this.props.corpName}}
                         supportsTileReload={this.props.supportsReloadOnError}
                         issueReportingUrl={this.props.issueReportingUrl}>
-                    <div className="CollocExamplesView">
-                        <div className="sentences">
+                    <div>
+                        <S.Sentences>
                             {this.props.lines.map((v, i) =>
                                 <FilteredLine key={`${i}:${v.toknum}`} data={v} hasVisibleMetadata={this.props.visibleMetadataLine === i}
                                         handleLineClick={this.handleLineClick(i)}
                                         isParallel={!!this.props.otherCorpname} />)
                             }
-                        </div>
+                        </S.Sentences>
                     </div>
                 </globalCompontents.TileWrapper>
             );

@@ -28,6 +28,8 @@ import { QueryMatch } from '../../../query/index';
 import { List, pipe, Strings } from 'cnc-tskit';
 import { Actions } from './actions';
 
+import * as S from './style';
+
 const CHART_LABEL_MAX_LEN = 20;
 
 
@@ -64,7 +66,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------- <TableView /> -------------------------------------
 
-    const TableView:React.SFC<{
+    const TableView:React.FC<{
         data:Array<Array<SourceMappedDataRow>>;
         queryMatches:Array<QueryMatch>;
 
@@ -110,7 +112,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------------------- <Chart /> --------------------------------------
 
-    const Chart:React.SFC<{
+    const Chart:React.FC<{
         data:Array<Array<SourceMappedDataRow>>;
         barCategoryGap:number;
         queryMatches:Array<QueryMatch>;
@@ -214,12 +216,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
                     <globComponents.ResponsiveWrapper render={(width:number, height:number) => {
                         return (
-                        <div className="MergeCorpFreqBarTile" style={{minHeight: `${minHeight}px`, height: `${height}px`}}>
+                        <S.MergeCorpFreqBarTile style={{minHeight: `${minHeight}px`, height: `${height}px`}}>
                             {this.props.isAltViewMode ?
                                 <TableView data={this.props.data} queryMatches={this.props.queryMatches} /> :
                                 <Chart tileId={this.props.tileId} data={this.props.data} barCategoryGap={barCategoryGap} queryMatches={this.props.queryMatches} isPartial={this.props.isBusy} isMobile={this.props.isMobile} />
                             }
-                        </div>)}} />
+                        </S.MergeCorpFreqBarTile>)}} />
                 </globComponents.TileWrapper>
             );
         }

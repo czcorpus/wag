@@ -28,6 +28,8 @@ import { QueryMatch } from '../../../../query/index';
 import { Dict, List, pipe, tuple } from 'cnc-tskit';
 import { DataRow } from '../../../../api/abstract/freqs';
 
+import * as S from '../style';
+
 
 export interface TargetDataRow extends DataRow {
     target: number;
@@ -230,7 +232,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------- <DataTable /> ---------------------------------------------
 
-    const DataTable:React.SFC<{
+    const DataTable:React.FC<{
         data:Array<Array<DataRow>>;
         queryMatches:Array<QueryMatch>;
     }> = (props) => {
@@ -403,7 +405,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         sourceIdent={{corp: this.props.corpname}}
                         supportsTileReload={this.props.supportsReloadOnError}
                         issueReportingUrl={this.props.issueReportingUrl}>
-                    <div className="MultiWordGeoAreasTileView">
+                    <S.MultiWordGeoAreasTileView>
                         {this.props.isAltViewMode ?
                             <div style={{overflowX: 'auto'}}>
                                 <DataTable data={this.props.data} queryMatches={this.props.currQueryMatches}/>
@@ -422,7 +424,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                     /> : null}
                             </div>
                         }
-                    </div>
+                    </S.MultiWordGeoAreasTileView>
                 </globComponents.TileWrapper>
             );
         }

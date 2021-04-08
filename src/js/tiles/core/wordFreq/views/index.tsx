@@ -26,6 +26,8 @@ import { init as singleWordViewsInit } from './single';
 import { init as multiWordViewsInit } from './compare';
 import { QueryMatch } from '../../../../query';
 
+import * as S from '../style';
+
 
 export function init(
     dispatcher:IActionDispatcher,
@@ -75,7 +77,7 @@ export function init(
                 hasData={props.queryMatches.length > 0} sourceIdent={{corp: props.corpname}}
                 supportsTileReload={props.supportsReloadOnError}
                 issueReportingUrl={props.issueReportingUrl}>
-            <div className="WordFreqTileView">
+            <S.WordFreqTileView>
                 {props.queryMatches.length === 1 ?
                     <SingleWordProfile searchedWord={props.queryMatches[0]}
                         similarFreqWords={props.similarFreqWords[0]}
@@ -85,7 +87,7 @@ export function init(
                 }
                 <AuxChart queryMatches={props.queryMatches} isMobile={props.isMobile} widthFract={props.widthFract}
                         tileName={props.tileName} />
-            </div>
+            </S.WordFreqTileView>
         </globalComponents.TileWrapper>
     );
 

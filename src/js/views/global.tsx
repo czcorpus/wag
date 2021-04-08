@@ -26,6 +26,9 @@ import { ScreenProps } from '../page/hostPage';
 import { BacklinkWithArgs } from '../page/tile';
 import { Actions } from '../models/actions';
 
+import * as S from '../styles/global';
+
+
 export interface SourceInfo {
     corp:string;
     subcorp?:string;
@@ -124,9 +127,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
     // --------------- <AjaxLoader /> -------------------------------------------
 
     const AjaxLoader:GlobalComponents['AjaxLoader'] = (props) => {
-        return <img src={ut.createStaticUrl('ajax-loader.gif')}
+        return <S.AjaxLoader src={ut.createStaticUrl('ajax-loader.gif')}
                     alt={ut.translate('global__alt_loading')}
-                    className={props.htmlClass ? `AjaxLoader ${props.htmlClass}` : 'AjaxLoader'} />;
+                    className={props.htmlClass} />;
     }
 
     // --------------- <TitleLoaderBar /> -------------------------------------------
@@ -134,9 +137,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
     const TitleLoaderBar:React.FC<{
     }> = (props) => {
         return (
-            <div className="TitleLoaderBar" title={ut.translate('global__alt_loading')}>
+            <S.TitleLoaderBar title={ut.translate('global__alt_loading')}>
                 <div className="grad"></div>
-            </div>
+            </S.TitleLoaderBar>
         );
     }
 
@@ -313,9 +316,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
         };
 
         return (
-            <p className="TileReloadControl">
+            <S.TileReloadControl>
                 <a onClick={handleClick}>{ut.translate('global__retry_reload')} {'\u21bb'}</a>
-            </p>
+            </S.TileReloadControl>
         );
     };
 
@@ -347,18 +350,18 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
 
         if (props.isBusy && !props.hasData) {
             return (
-                <div className="TileWrapper">
+                <S.TileWrapper>
                     <div className="cnc-tile-body content">
                         <p>
                             <AjaxLoader htmlClass="centered" />
                         </p>
                     </div>
-                </div>
+                </S.TileWrapper>
             );
 
         } else if (props.error) {
             return (
-                <div className="TileWrapper">
+                <S.TileWrapper>
                     <div className="cnc-tile-body content error">
                         <div className="message">
                             <MessageStatusIcon statusType={SystemMessageType.ERROR} isInline={false} />
@@ -371,11 +374,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                         {props.issueReportingUrl ? <ErrorReportControl url={props.issueReportingUrl} /> : null}
 
                     </div>
-                </div>
+                </S.TileWrapper>
             );
 
         } else {
-            const htmlClasses = ['TileWrapper'];
+            const htmlClasses = [];
             if (props.htmlClass) {
                 htmlClasses.push(props.htmlClass);
             }
@@ -383,7 +386,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                 htmlClasses.push('empty');
             }
             return (
-                <div className={htmlClasses.join(' ')} onClick={handleAreaClick}>
+                <S.TileWrapper className={htmlClasses.join(' ')} onClick={handleAreaClick}>
                     <div className="loader-wrapper">{props.hasData && props.isBusy ? <TitleLoaderBar  /> : null}</div>
                     <div className={`cnc-tile-body content${props.hasData ? '' : ' empty'}`}>
                         <div style={{height: '100%'}}>
@@ -405,7 +408,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                         <SourceReference data={props.sourceIdent} backlink={props.backlink} tileId={props.tileId} /> :
                         null
                     }
-                </div>
+                </S.TileWrapper>
             );
         }
     };
@@ -472,7 +475,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
             const tileClasses = `content cnc-tile-body${this.props.tileClass ? ' ' + this.props.tileClass : ''}`;
 
             return (
-                <div id="modal-overlay">
+                <S.ModalOverlay id="modal-overlay">
                     <div className="box cnc-tile">
                         <header className="cnc-tile-header">
                             <span>{this.props.title}</span>
@@ -489,7 +492,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                         </div>
                         <footer><div className="fcontent" /></footer>
                     </div>
-                </div>
+                </S.ModalOverlay>
             );
         }
     }
@@ -498,14 +501,14 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
 
     const HorizontalBlockSwitch:GlobalComponents['HorizontalBlockSwitch'] = (props) => {
         return (
-            <div className={`HorizontalBlockSwitch${props.htmlClass ? ' ' + props.htmlClass : ''}`}>
+            <S.HorizontalBlockSwitch className={props.htmlClass}>
                 {List.map(
                     ident =>
                         <a key={ident} className={`${props.currentIdx === ident ? 'current' : ''}`}
                                 onClick={ident != null ? ()=>props.onChange(ident) : undefined}>{'\u25A0'}</a>,
                     props.blockIndices
                 )}
-            </div>
+            </S.HorizontalBlockSwitch>
         );
     };
 
@@ -583,9 +586,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
 
         render() {
             return (
-                <div className="ResponsiveWrapper" style={{width: '100%', height: '100%', minWidth: this.props.minWidth}} ref={this.ref}>
+                <S.ResponsiveWrapper minWidth={this.props.minWidth} ref={this.ref}>
                     {this.props.render(this.state.width, this.state.height)}
-                </div>
+                </S.ResponsiveWrapper>
             );
         }
 

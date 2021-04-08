@@ -26,6 +26,8 @@ import { Actions } from './actions';
 import { List, pipe, Color } from 'cnc-tskit';
 import { LineElement } from '../../../api/abstract/concordance';
 
+import * as S from './style';
+
 
 
 export function init(
@@ -49,7 +51,7 @@ export function init(
 
     // ------------------------- <SpeechText /> ---------------------------
 
-    const SpeechText:React.SFC<{
+    const SpeechText:React.FC<{
         bulletColor:string;
         data:Array<LineElement>;
         isIncomplete:boolean;
@@ -71,7 +73,7 @@ export function init(
 
     // ------------------------- <TRSingleSpeech /> ---------------------------
 
-    const TRSingleSpeech:React.SFC<{
+    const TRSingleSpeech:React.FC<{
         tileId:number;
         idx:number;
         speech:Speech;
@@ -84,7 +86,7 @@ export function init(
         };
         return (
             <>
-                <dt className="speaker">
+                <S.Speaker>
                     <strong title={exportMetadata(props.speech.metadata)}
                             style={style}>
                         {props.speech.speakerId ? props.speech.speakerId : '\u2026'}
@@ -94,21 +96,21 @@ export function init(
                                 segments={props.speech.segments} /> :
                         null
                     }
-                </dt>
-                <dd className="speech">
+                </S.Speaker>
+                <S.Speech>
                     <div className="text">
                         <SpeechText data={props.speech.text} key={props.idx}
                                 bulletColor={Color.color2str(props.speech.colorCode)}
                                 isIncomplete={!props.speech.speakerId} />
                     </div>
-                </dd>
+                </S.Speech>
             </>
         );
     };
 
     // ------------------------- <TROverlappingSpeeches /> ---------------------------
 
-    const TROverlappingSpeeches:React.SFC<{
+    const TROverlappingSpeeches:React.FC<{
         tileId:number;
         idx:number;
         speeches:Array<Speech>;
@@ -142,19 +144,19 @@ export function init(
 
         return (
             <>
-                <dt className="speaker">
+                <S.Speaker>
                     {renderOverlappingSpeakersLabel()}
                     <PlayerIcon tileId={props.tileId} lineIdx={props.idx} isPlaying={props.isPlaying}
                             segments={props.speeches.reduce((acc, curr) => acc.concat(curr.segments), [])} />
-                </dt>
-                <dd className="speech overlapping-block">
+                </S.Speaker>
+                <S.Speech className="overlapping-block">
                     <div className="text">
                         {props.speeches.map((speech, i) => <SpeechText data={speech.text}
                                     key={`${props.idx}:${i}`}
                                     bulletColor={Color.color2str(speech.colorCode)}
                                     isIncomplete={!speech.speakerId} />)}
                     </div>
-                </dd>
+                </S.Speech>
             </>
         );
     };
@@ -162,7 +164,7 @@ export function init(
 
     // -------------------------- <LoadNext /> --------------------------------------
 
-    const LoadNext:React.SFC<{
+    const LoadNext:React.FC<{
         tileId:number;
         active:boolean;
 
@@ -186,7 +188,7 @@ export function init(
 
     // ------------------------- <PlayerIcon /> -------------------------------
 
-    const PlayerIcon:React.SFC<{
+    const PlayerIcon:React.FC<{
         tileId:number;
         lineIdx:number;
         isPlaying:boolean;
@@ -206,16 +208,16 @@ export function init(
         };
 
         return (
-            <a className="PlayerIcon" onClick={handleClick}>
+            <S.PlayerIcon onClick={handleClick}>
                 <img src={ut.createStaticUrl(props.isPlaying ? 'audio-3w.svg' : 'audio-0w.svg')}
                         alt={ut.translate('global__img_alt_play_audio')} />
-            </a>
+            </S.PlayerIcon>
         )
     }
 
     // ------------------------- <SpeechView /> -------------------------------
 
-    const SpeechView:React.SFC<{
+    const SpeechView:React.FC<{
         tileId:number;
         isTweakMode:boolean;
         data:Array<SpeechLine>;
@@ -263,9 +265,9 @@ export function init(
                         {ut.translate('speeches__play_all_btn')}
                     </a>
                 </div>
-                <dl className="speeches">
+                <S.Speeches>
                     {renderSpeechLines()}
-                </dl>
+                </S.Speeches>
             </div>
         );
     }
@@ -281,13 +283,13 @@ export function init(
                         backlink={this.props.backlink}
                         supportsTileReload={this.props.supportsReloadOnError}
                         issueReportingUrl={this.props.issueReportingUrl}>
-                    <div className="SpeechesTile">
+                    <S.SpeechesTile>
                        <SpeechView data={this.props.data} hasExpandLeft={!!List.get(-1, this.props.expandLeftArgs)}
                                 hasExpandRight={!!List.get(-1, this.props.expandRightArgs)}
                                 tileId={this.props.tileId} isTweakMode={this.props.isTweakMode}
                                 playingLineIdx={this.props.playback ? this.props.playback.currLineIdx : -1}
                                 availTokens={this.props.availTokens} />
-                    </div>
+                    </S.SpeechesTile>
                 </globComponents.TileWrapper>
             );
         }

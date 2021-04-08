@@ -23,8 +23,6 @@ import { SydModel } from './model';
 import { init as viewInit } from './view';
 import { StatelessModel } from 'kombo';
 
-declare var require:any;
-require('./style.less');
 
 export interface SyDTileConf extends TileConf {
     apiURL:string;

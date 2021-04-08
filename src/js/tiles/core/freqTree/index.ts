@@ -31,10 +31,6 @@ import { ConcApi } from '../../../api/vendor/kontext/concordance/v015';
 import { findCurrQueryMatch } from '../../../models/query';
 
 
-
-declare var require:(src:string)=>void;  // webpack
-require('./style.less');
-
 export interface FreqTreeTileConf extends TileConf {
     apiURL:string;
     corpname:string;

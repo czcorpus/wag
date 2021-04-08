@@ -43,15 +43,13 @@ import { TileGroup } from './layout';
 declare var require:(src:string)=>void;  // webpack
 require('../../css/index.less');
 require('../../css/components/global.less');
-require('../../css/components/main.less');
-require('../../css/mobile-medium.less');
 require('../../css/mobile-small.less');
 require('theme.less');
 
 
 interface MountArgs {
     userSession:UserConf;
-    component:React.SFC<WdglanceMainProps>;
+    component:React.FC<WdglanceMainProps>;
     layout:Array<TileGroup>;
     appServices:IAppServices;
     mountElement:HTMLElement;

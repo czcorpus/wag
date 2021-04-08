@@ -30,9 +30,6 @@ import { StatelessModel } from 'kombo';
 import { ConcApi } from '../../../api/vendor/kontext/concordance/v015';
 import { createMultiBlockApiInstance } from '../../../api/factory/freqs';
 
-declare var require:any;
-require('./style.less');
-
 
 export interface FreqPieTileConf extends TileConf {
     apiURL:string;

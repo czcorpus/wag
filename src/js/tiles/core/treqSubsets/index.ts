@@ -25,9 +25,6 @@ import { StatelessModel } from 'kombo';
 import { LocalizedConfMsg } from '../../../types';
 import { List } from 'cnc-tskit';
 
-declare var require:any;
-require('./style.less');
-
 
 export interface PackageGroup {
     label?:LocalizedConfMsg;

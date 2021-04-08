@@ -26,6 +26,8 @@ import { DataItemWithWCI, Actions } from './common';
 import { TimeDistribModel, TimeDistribModelState, LoadingStatus } from './model';
 import { List, pipe, Keyboard } from 'cnc-tskit';
 
+import * as S from './style';
+
 
 const MIN_DATA_ITEMS_TO_SHOW = 2;
 
@@ -160,7 +162,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         });
 
         return (
-            <p className="ChartLegend" style={{textAlign: 'center'}}>
+            <S.ChartLegend>
                 {props.rcData.payload
                     .filter(pitem => pitem.payload.name)
                     .map((pitem, i) => (
@@ -168,7 +170,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     ))
                 }
                 <br />({props.metric})
-            </p>
+            </S.ChartLegend>
         );
     }
 
@@ -311,7 +313,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------- <TimeDistribTile /> ------------------------------------------------------
 
-    const TimeDistribTile:React.SFC<TimeDistribModelState & CoreTileComponentProps> = (props) => {
+    const TimeDistribTile:React.FC<TimeDistribModelState & CoreTileComponentProps> = (props) => {
 
         return (
             <globComponents.TileWrapper tileId={props.tileId} isBusy={props.loadingStatus !== LoadingStatus.IDLE} error={props.error}
@@ -320,7 +322,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         supportsTileReload={props.supportsReloadOnError}
                         backlink={props.backlink}
                         issueReportingUrl={props.issueReportingUrl}>
-                <div className="TimeDistribTile">
+                <S.TimeDistribTile>
                     {props.isTweakMode ?
                         <div className="tweak-box">
                             <TweakControls wordCmp={props.wordCmpInput} tileId={props.tileId} />
@@ -342,7 +344,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             zoom={props.zoom}
                             refArea={props.refArea}
                             tileId={props.tileId}/>
-                </div>
+                </S.TimeDistribTile>
             </globComponents.TileWrapper>
         );
     };

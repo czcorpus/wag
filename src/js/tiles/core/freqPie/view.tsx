@@ -28,6 +28,8 @@ import { List, pipe } from 'cnc-tskit';
 import { DataRow } from '../../../api/abstract/freqs';
 import { Actions } from './actions';
 
+import * as S from './style';
+
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:FreqBarModel):TileComponent {
 
@@ -174,7 +176,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     backlink={props.backlink}
                     supportsTileReload={props.supportsReloadOnError}
                     issueReportingUrl={props.issueReportingUrl}>
-                <div className="FreqPieTileView">
+                <div>
                     {props.isAltViewMode ?
                         List.map(
                             (block, blockId) => (
@@ -186,7 +188,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             props.blocks
                         ) :
                         <div>
-                            <div className="charts" ref={chartsRef} onScroll={handleScroll}>
+                            <S.Charts ref={chartsRef} onScroll={handleScroll}>
                                 {props.blocks.map(block => {
                                     const chartWidth = props.isMobile ? (props.renderSize[0] * 0.95).toFixed() : "90%";
                                     return (
@@ -199,7 +201,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                         </div>
                                     );
                                 })}
-                            </div>
+                            </S.Charts>
                             {props.isMobile && props.blocks.length > 1 ?
                                 <globalComponents.HorizontalBlockSwitch blockIndices={props.blocks.map((_, i) => i)}
                                         currentIdx={props.activeBlock}
