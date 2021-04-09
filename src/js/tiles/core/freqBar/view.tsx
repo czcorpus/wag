@@ -21,7 +21,7 @@ import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAx
 
 import { Theme } from '../../../page/theme';
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile';
-import { GlobalComponents } from '../../../views/global';
+import { GlobalComponents } from '../../../views/common';
 import { Actions } from './actions';
 import { FreqBarModel, FreqBarModelState } from './model';
 import { List, Strings } from 'cnc-tskit';

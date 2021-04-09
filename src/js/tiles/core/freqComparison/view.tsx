@@ -21,7 +21,7 @@ import { Bar, BarChart, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } fro
 
 import { Theme } from '../../../page/theme';
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile';
-import { GlobalComponents } from '../../../views/global';
+import { GlobalComponents } from '../../../views/common';
 import { Actions } from './actions';
 import { FreqComparisonModel, FreqComparisonModelState, MultiWordDataRow } from './model';
 import { pipe, List, Dict, Maths, Strings } from 'cnc-tskit';

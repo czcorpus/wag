@@ -19,9 +19,9 @@
 import * as React from 'react';
 import { FCS1ExplainResponse } from '../../../api/vendor/clarin/fcs1/explain';
 import { IActionDispatcher, ViewUtils } from 'kombo';
-import { GlobalComponents } from '../../global';
+import { GlobalComponents } from '../../common';
 
-import * as S from '../../../styles/global';
+import * as S from '../../common/style';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>) {

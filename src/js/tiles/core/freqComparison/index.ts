@@ -22,7 +22,7 @@ import { IAppServices } from '../../../appServices';
 import { LocalizedConfMsg } from '../../../types';
 import { QueryType } from '../../../query/index';
 import { TileComponent, TileConf, TileFactory, Backlink, ITileProvider, TileFactoryArgs } from '../../../page/tile';
-import { GlobalComponents } from '../../../views/global';
+import { GlobalComponents } from '../../../views/common';
 import { factory as defaultModelFactory, FreqComparisonModel } from './model';
 import { init as viewInit } from './view';
 import { FreqSort } from '../../../api/vendor/kontext/freqs';

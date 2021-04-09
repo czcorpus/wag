@@ -18,7 +18,7 @@
 import * as React from 'react';
 import { IActionDispatcher, ViewUtils, BoundWithProps } from 'kombo';
 import { SpeechesModel } from './model';
-import { GlobalComponents } from '../../../views/global';
+import { GlobalComponents } from '../../../views/common';
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile';
 import { Theme } from '../../../page/theme';
 import { Speech, SpeechesModelState, SpeechLine, Segment } from './modelDomain';

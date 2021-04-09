@@ -21,7 +21,7 @@ import { fromEvent } from 'rxjs';
 
 import { Theme } from '../../../../page/theme';
 import { CoreTileComponentProps, TileComponent } from '../../../../page/tile';
-import { GlobalComponents } from '../../../../views/global';
+import { GlobalComponents } from '../../../../views/common';
 import { Actions } from '../actions';
 import { GeoAreasModel, GeoAreasModelState } from '../model';
 import { DataRow } from '../../../../api/abstract/freqs';

@@ -19,7 +19,7 @@
 import { AnyInterface, LocalizedConfMsg, IAsyncKeyValueStore } from '../types';
 import { QueryType, RecognizedQueries } from '../query';
 import { IActionDispatcher, ViewUtils, StatelessModel } from 'kombo';
-import { GlobalComponents } from '../views/global';
+import { GlobalComponents } from '../views/common';
 import { Theme } from './theme';
 import { IAppServices } from '../appServices';
 import { HTTP } from 'cnc-tskit';

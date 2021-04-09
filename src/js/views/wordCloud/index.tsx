@@ -19,10 +19,10 @@ import { IActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
 import { Theme } from '../../page/theme';
 import { Actions as GlobalActions } from '../../models/actions';
-import { GlobalComponents } from '../../views/global';
+import { GlobalComponents } from '../common';
 import { Rect, WordCloudItemCalc, TooltipData, createWordCloud, MAX_WC_FONT_SIZE_MOBILE, MAX_WC_FONT_SIZE } from './calc';
 
-import * as S from '../../styles/global';
+import * as S from '../common/style';
 
 
 export type WordCloudItem = WordCloudItemCalc;

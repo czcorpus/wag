@@ -21,7 +21,7 @@ import { List, Strings } from 'cnc-tskit';
 
 import { Line, LineElement, ViewMode } from '../../../api/abstract/concordance';
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile';
-import { GlobalComponents } from '../../../views/global';
+import { GlobalComponents } from '../../../views/common';
 import { Actions } from './actions';
 import { Actions as GlobalActions } from '../../../models/actions';
 import { ConcordanceTileModel, ConcordanceTileState } from './model';

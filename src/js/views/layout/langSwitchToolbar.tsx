@@ -18,9 +18,9 @@
 
 import * as React from 'react';
 import { ViewUtils } from 'kombo';
-import { GlobalComponents } from './global';
-import { AvailableLanguage } from '../page/hostPage';
-import { HTTPAction } from '../server/routes/actions';
+import { GlobalComponents } from '../common';
+import { AvailableLanguage } from '../../page/hostPage';
+import { HTTPAction } from '../../server/routes/actions';
 import { List } from 'cnc-tskit';
 
 

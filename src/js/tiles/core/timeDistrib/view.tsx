@@ -21,7 +21,7 @@ import { Area, AreaChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, X
 
 import { Theme } from '../../../page/theme';
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile';
-import { GlobalComponents } from '../../../views/global';
+import { GlobalComponents } from '../../../views/common';
 import { DataItemWithWCI, Actions } from './common';
 import { TimeDistribModel, TimeDistribModelState, LoadingStatus } from './model';
 import { List, pipe, Keyboard } from 'cnc-tskit';

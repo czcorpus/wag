@@ -24,7 +24,7 @@ import { FreqTreeDataBlock } from '../../../models/tiles/freqTree';
 import { LocalizedConfMsg } from '../../../types';
 import { QueryType } from '../../../query/index';
 import { TileComponent, TileConf, TileFactory, Backlink, ITileProvider, TileFactoryArgs } from '../../../page/tile';
-import { GlobalComponents } from '../../../views/global';
+import { GlobalComponents } from '../../../views/common';
 import { factory as defaultModelFactory, FreqTreeModel } from './model';
 import { init as viewInit } from './view';
 import { ConcApi } from '../../../api/vendor/kontext/concordance/v015';

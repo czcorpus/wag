@@ -26,7 +26,7 @@ import { ConcLoadedPayload } from '../concordance/actions';
 import { Actions, DataLoadedPayload } from './actions';
 import { Actions as ConcActions } from '../concordance/actions';
 import { DataApi } from '../../../types';
-import { TooltipValues } from '../../../views/global';
+import { TooltipValues } from '../../../views/common';
 import { IFreqDistribAPI, DataRow } from '../../../api/abstract/freqs';
 import { List } from 'cnc-tskit';
 

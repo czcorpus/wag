@@ -18,12 +18,12 @@
 import { IActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
 
-import { GlobalComponents } from './global';
-import { SourceCitation } from '../api/abstract/sourceInfo';
+import { GlobalComponents } from '.';
+import { SourceCitation } from '../../api/abstract/sourceInfo';
 import { List } from 'cnc-tskit';
-import { CorpusDetails } from '../types';
+import { CorpusDetails } from '../../types';
 
-import * as S from '../styles/global';
+import * as S from './style';
 
 export interface CorpusInfoBoxProps {
     data:CorpusDetails;

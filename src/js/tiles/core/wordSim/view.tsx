@@ -17,7 +17,7 @@
  */
 import * as React from 'react';
 import { IActionDispatcher, ViewUtils, BoundWithProps } from 'kombo';
-import { GlobalComponents } from '../../../views/global';
+import { GlobalComponents } from '../../../views/common';
 import { Theme } from '../../../page/theme';
 import { TileComponent, CoreTileComponentProps } from '../../../page/tile';
 import { WordSimModel } from './model';

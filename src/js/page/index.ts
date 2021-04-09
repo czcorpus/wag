@@ -30,7 +30,7 @@ import { ScreenProps } from './hostPage';
 import { ClientConf, UserConf, HomepageTileConf } from '../conf';
 import { Actions } from '../models/actions';
 import { SystemNotifications } from './notifications';
-import { GlobalComponents } from '../views/global';
+import { GlobalComponents } from '../views/common';
 import { createRootComponent } from '../app';
 import { initStore } from './cache';
 import { TelemetryAction, TileIdentMap } from '../types';
@@ -40,7 +40,7 @@ import { HTTP, Client } from 'cnc-tskit';
 import { WdglanceMainProps } from '../views/main';
 import { TileGroup } from './layout';
 
-import { GlobalStyle } from '../styles/global';
+import { GlobalStyle } from '../views/layout/style';
 
 declare var require:(src:string)=>void;  // webpack
 require('theme.less');

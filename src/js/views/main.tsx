@@ -29,12 +29,12 @@ import { Actions } from '../models/actions';
 import { MessagesModel, MessagesState } from '../models/messages';
 import { QueryFormModel, QueryFormModelState } from '../models/query';
 import { WdglanceTilesModel, WdglanceTilesState, TileResultFlagRec, blinkAndDehighlight } from '../models/tiles';
-import { init as corpusInfoViewInit } from './corpusInfo';
-import { GlobalComponents } from './global';
+import { init as corpusInfoViewInit } from './common/corpusInfo';
+import { GlobalComponents } from './common';
 import { timer } from 'rxjs';
 
-import * as S from '../styles/main';
-import * as SG from '../styles/global';
+import * as S from './style';
+import * as SC from './common/style';
 
 
 export interface WdglanceMainProps {
@@ -763,7 +763,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         reason:string;
 
     }> = (props) => (
-        <SG.TileWrapper className="empty">
+        <SC.TileWrapper className="empty">
             <div className="loader-wrapper"></div>
             <div className="cnc-tile-body content empty">
                 <div className="not-applicable-box">
@@ -776,7 +776,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <p className="not-applicable" title={ut.translate('global__not_applicable')}><span>N/A</span></p>
                 </div>
             </div>
-        </SG.TileWrapper>
+        </SC.TileWrapper>
     );
 
 
@@ -1013,7 +1013,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <S.Tiles>
                         <section className="cnc-tile app-output" style={{gridColumn: 'span 3'}}>
                             <div className="provider">
-                                <SG.TileWrapper>
+                                <SC.TileWrapper>
                                     <div className="cnc-tile-body content empty">
                                         <div className="message">
                                             <globalComponents.MessageStatusIcon statusType={SystemMessageType.WARNING} isInline={false} />
@@ -1022,7 +1022,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                             </p>
                                         </div>
                                     </div>
-                                </SG.TileWrapper>
+                                </SC.TileWrapper>
                             </div>
                         </section>
                     </S.Tiles>

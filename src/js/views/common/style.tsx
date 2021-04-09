@@ -18,236 +18,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import styled from 'styled-components';
-import { createGlobalStyle } from 'styled-components';
+import SC from 'styled-components';
 import * as theme from './theme';
-
-// ---------------- <GlobalStyle /> --------------------------------------
-
-export const GlobalStyle = createGlobalStyle`
-    body {
-        font-family: ${theme.defaultFontFamily};
-        font-size: 1em;
-        font-display: swap;
-        background-image: ${theme.mainBackground};
-    }
-
-    input.invalid, textarea.invalid {
-        border: 1px solid red;
-    }
-
-    table.data {
-        margin: 0 auto;
-        border-spacing: 0;
-        border-collapse: collapse;
-
-        tbody tr:nth-child(odd):not(.heading) {
-            background-color: ${theme.colorWhitelikeBlue};
-        }
-
-        tr.top-grouped th {
-            padding-top: 0;
-            padding-bottom: 0;
-        }
-
-        tr.bottom-grouped th {
-            padding-bottom: 0;
-        }
-
-        td, th {
-            border: none;
-            padding: 0.4em 0.9em;
-        }
-
-        td:not(:last-child), th:not(:last-child) {
-            border-color: white;
-            border-width: 0 2px 0 0;
-            border-style: solid;
-        }
-
-        th {
-            padding: 0.7em 0.7em;
-        }
-
-        th.separ:not(:last-child)  {
-            border-color: #c0c0c0;
-            border-width: 0 2px 0 0;
-            border-style: solid;
-        }
-    }
-
-    .num {
-        text-align: right;
-    }
-
-    .note {
-        color: ${theme.colorLightText};
-    }
-
-    footer {
-        font-size: 0.9em;
-        text-align: center;
-        margin-top: 1.5em;
-        color: ${theme.colorLightText};
-
-        section {
-            > span {
-                border-style: solid;
-                border-color: ${theme.colorLightText};
-                border-width: 0 0 0 0.15em;
-                padding-left: 0.4em;
-                padding-right: 0.4em;
-            }
-        }
-
-        section.links, section.project-info {
-            display: inline-block;
-        }
-
-        section.project-info > span:first-child {
-            border: none;
-        }
-
-        section.links > span:first-child {
-            border-style: solid;
-            border-color: ${theme.colorLightText};
-            border-width: 0 0 0 0.15em;
-        }
-
-        a {
-            color: ${theme.colorLightText};
-            text-decoration: none;
-        }
-
-        .action a {
-            color: ${theme.colorDefaultText};
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-
-        section:not(:last-child) {
-            margin-bottom: 0.9em;
-        }
-
-        section {
-
-            p {
-                margin-bottom: 0;
-            }
-
-            img.logo {
-                width: 3.1em;
-                margin-right: 0.7em;
-            }
-        }
-    }
-
-    .ThemeSelection {
-        display: block;
-        color: ${theme.colorLightText};
-
-        button {
-            display: inline-block;
-            border: none;
-            background: none;
-            cursor: pointer;
-            margin: 0 0.1em;
-            padding: 0;
-            font-size: 1em;
-        }
-
-        button.current {
-            color: ${theme.colorLogoBlue};
-            cursor: default;
-        }
-    }
-
-    .LangSwitchToolbar {
-        color: ${theme.colorLightText};
-        text-align: right;
-        font-size: 0.9em;
-
-        ul {
-            list-style-type: none;
-            margin: 0;
-
-            li {
-                margin: 0;
-                padding: 0;
-                display: inline-block;
-
-                button {
-                    border: none;
-                    background-color: transparent;
-                    cursor: pointer;
-                    color: ${theme.colorLightText};
-                    padding: 0 0.2em;
-                }
-
-                button:hover {
-                    color: ${theme.colorLogoBlue};
-                }
-
-                button.current {
-                    text-decoration: none;
-                    border-style: solid;
-                    border-width: 0 0 1px 0;
-                    border-color: ${theme.colorLogoBlue};
-                }
-            }
-
-            li:not(:last-child):after {
-                content: '\00a0|\00a0'
-            }
-        }
-    }
-
-    ${theme.mediaSmallScreen} {
-        body {
-            margin: 0;
-            padding: 0;
-
-            .wdglance-mount {
-                padding: 0 0.3em 0 0.3em;
-            }
-        }
-
-        footer {
-
-            margin-top: 0.4em;
-            line-height: 1.5em;
-
-            p {
-                margin-bottom: 0;
-            }
-
-            .copy {
-                padding-left: 0;
-                display: block;
-            }
-
-            section.links > span:first-child {
-                border: none;
-            }
-
-            section.project-info {
-
-                margin-bottom: 0;
-
-                span {
-                    display: block;
-                    border: none;
-                }
-            }
-        }
-    }
-`;
 
 // ---------------- <AjaxLoader /> --------------------------------------
 
-export const AjaxLoader = styled.img`
+export const AjaxLoader = SC.img`
     &.centered {
         display: block;
         margin: 2em auto 2em auto;
@@ -256,7 +32,7 @@ export const AjaxLoader = styled.img`
 
 // ---------------- <TileWrapper /> --------------------------------------
 
-export const TileWrapper = styled.div`
+export const TileWrapper = SC.div`
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -325,7 +101,7 @@ export const TileWrapper = styled.div`
 
 // ---------------- <TileWrapper /> --------------------------------------
 
-export const TitleLoaderBar = styled.div`
+export const TitleLoaderBar = SC.div`
     @keyframes slidein {
         0% {
             transform: translate(0);
@@ -348,7 +124,7 @@ export const TitleLoaderBar = styled.div`
 
 // ---------------- <HorizontalBlockSwitch /> --------------------------------------
 
-export const HorizontalBlockSwitch = styled.div`
+export const HorizontalBlockSwitch = SC.div`
     padding-top: 0.3em;
     padding-top: 0.3em;
     text-align: center;
@@ -372,7 +148,7 @@ export const HorizontalBlockSwitch = styled.div`
 
 // ---------------- <TileReloadControl /> --------------------------------------
 
-export const TileReloadControl = styled.p`
+export const TileReloadControl = SC.p`
     text-align: center;
 
     a {
@@ -383,7 +159,7 @@ export const TileReloadControl = styled.p`
 
 // ---------------- <TileReloadControl /> --------------------------------------
 
-export const ResponsiveWrapper = styled.div<{minWidth:number}>`
+export const ResponsiveWrapper = SC.div<{minWidth:number}>`
     width: 100%;
     height: 100%;
     min-width: ${props => props.minWidth ? props.minWidth : 'auto'};
@@ -391,7 +167,7 @@ export const ResponsiveWrapper = styled.div<{minWidth:number}>`
 
 // ---------------- <ModalOverlay /> --------------------------------------
 
-export const ModalOverlay = styled.div`
+export const ModalOverlay = SC.div`
     position: fixed;
     z-index: 10000;
     left: 0;
@@ -517,7 +293,7 @@ export const ModalOverlay = styled.div`
 
 // ---------------- <WdgTooltip /> --------------------------------------
 
-export const WdgTooltip = styled.div<{multiword?:boolean}>`
+export const WdgTooltip = SC.div<{multiword?:boolean}>`
     background-color: #FFFFFF;
     z-index: 10000;
     padding: ${props => props.multiword ? '0.3em 1em 1.3em 1em' : '1em'};
@@ -568,7 +344,7 @@ export const WdgTooltip = styled.div<{multiword?:boolean}>`
 
 // ---------------- <BacklinkForm /> --------------------------------------
 
-export const BacklinkForm = styled.form`
+export const BacklinkForm = SC.form`
     display: inline;
     padding: 0;
 
@@ -592,7 +368,7 @@ export const BacklinkForm = styled.form`
 
 // ---------------- <SourceInfoBox /> --------------------------------------
 
-export const SourceInfoBox = styled.div`
+export const SourceInfoBox = SC.div`
     font-size: 1.1em;
 
     ul.information-tab-sel {

@@ -19,7 +19,7 @@ import * as React from 'react';
 import { Strings, List } from 'cnc-tskit';
 
 import { IActionDispatcher, ViewUtils, BoundWithProps } from 'kombo';
-import { GlobalComponents } from '../../../views/global';
+import { GlobalComponents } from '../../../views/common';
 import { Theme } from '../../../page/theme';
 import { TileComponent, CoreTileComponentProps } from '../../../page/tile';
 import { ConcFilterModel, ConcFilterModelState } from './model';

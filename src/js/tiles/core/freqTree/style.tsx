@@ -19,7 +19,7 @@
  */
 
 import styled from 'styled-components';
-import * as theme from '../../../styles/theme';
+import * as theme from '../../../views/common/theme';
 
 export const FreqTreeTile = styled.div`
     min-height: 15em;

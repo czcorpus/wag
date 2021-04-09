@@ -26,7 +26,7 @@ import { Actions as GlobalActions } from '../../../models/actions';
 import { Actions } from './actions';
 import { Actions as ConcActions } from '../concordance/actions';
 import { DataApi } from '../../../types';
-import { TooltipValues } from '../../../views/global';
+import { TooltipValues } from '../../../views/common';
 import { QueryMatch, RecognizedQueries } from '../../../query/index';
 import { callWithExtraVal } from '../../../api/util';
 import { ViewMode, IConcordanceApi } from '../../../api/abstract/concordance';

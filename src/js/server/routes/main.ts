@@ -27,7 +27,7 @@ import { QueryValidator } from '../../query/validation';
 import { UserConf, ClientStaticConf, ClientConf, emptyClientConf, getSupportedQueryTypes,
          emptyLayoutConf, errorUserConf, getQueryTypeFreqDb, isTileDBConf, DEFAULT_WAIT_FOR_OTHER_TILES,
          THEME_COOKIE_NAME, getThemeList, getAppliedThemeConf, UserQuery, ServerConf } from '../../conf';
-import { init as viewInit } from '../../views/layout';
+import { init as viewInit } from '../../views/layout/layout';
 import { init as errPageInit } from '../../views/error';
 import { ServerSideActionDispatcher } from '../core';
 import { emptyValue } from '../toolbar/empty';
