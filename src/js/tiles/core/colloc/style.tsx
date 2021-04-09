@@ -21,7 +21,7 @@
 import styled from 'styled-components';
 import * as theme from '../../../styles/theme';
 
-export const Boxes = styled.div`
+export const Boxes = styled.div<{isMobile:boolean}>`
     overflow-y: hidden;
     overflow-x: auto;
     display: flex;

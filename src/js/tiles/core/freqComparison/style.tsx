@@ -25,7 +25,7 @@ export const FreqComparisonTile = styled.div`
     min-height: 15em;
 `;
 
-export const Charts = styled.div`
+export const Charts = styled.div<{incomplete: boolean; isMobile: boolean;}>`
     display: flex;
     flex-direction: row;
     align-items: flex-end;

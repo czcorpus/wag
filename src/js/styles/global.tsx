@@ -383,7 +383,7 @@ export const TileReloadControl = styled.p`
 
 // ---------------- <TileReloadControl /> --------------------------------------
 
-export const ResponsiveWrapper = styled.div`
+export const ResponsiveWrapper = styled.div<{minWidth:number}>`
     width: 100%;
     height: 100%;
     min-width: ${props => props.minWidth ? props.minWidth : 'auto'};
@@ -517,7 +517,7 @@ export const ModalOverlay = styled.div`
 
 // ---------------- <WdgTooltip /> --------------------------------------
 
-export const WdgTooltip = styled.div`
+export const WdgTooltip = styled.div<{multiword?:boolean}>`
     background-color: #FFFFFF;
     z-index: 10000;
     padding: ${props => props.multiword ? '0.3em 1em 1.3em 1em' : '1em'};

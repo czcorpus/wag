@@ -25,7 +25,7 @@ export const FreqBarTile = styled.div`
     min-height: 15em;
 `;
 
-export const Charts = styled.div`
+export const Charts = styled.div<{incomplete:boolean}>`
     display: flex;
     flex-direction: row;
     align-items: flex-end;

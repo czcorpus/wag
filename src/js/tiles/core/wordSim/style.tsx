@@ -26,7 +26,7 @@ export const WordSimView = styled.div`
     height: 100%;
 `;
 
-export const Boxes = styled.div`
+export const Boxes = styled.div<{isMobile:boolean}>`
     height: 100%;
     overflow-y: hidden;
     overflow-x: auto;
