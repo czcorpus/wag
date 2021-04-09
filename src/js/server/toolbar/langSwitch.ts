@@ -18,9 +18,9 @@
 import { Observable, of as rxOf } from 'rxjs';
 
 import { HostPageEnv, IToolbarProvider } from '../../page/hostPage';
-import { GlobalComponents } from '../../views/global';
+import { GlobalComponents } from '../../views/common/index';
 import { ViewUtils } from 'kombo';
-import { init as viewInit } from '../../views/langSwitchToolbar';
+import { init as viewInit } from '../../views/layout/langSwitchToolbar';
 
 
 

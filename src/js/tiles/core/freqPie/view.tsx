@@ -21,7 +21,7 @@ import { Cell, Legend, Pie, PieChart, ResponsiveContainer } from 'recharts';
 
 import { Theme } from '../../../page/theme';
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile';
-import { GlobalComponents } from '../../../views/global';
+import { GlobalComponents } from '../../../views/common';
 import { FreqDataBlock } from '../../../models/tiles/freq';
 import { FreqBarModel, FreqBarModelState } from '../freqBar/model';
 import { List, pipe } from 'cnc-tskit';

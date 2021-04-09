@@ -21,7 +21,7 @@ import { IActionDispatcher, ViewUtils, BoundWithProps } from 'kombo';
 import { MergeCorpFreqModel, MergeCorpFreqModelState } from './model';
 import { ResponsiveContainer, BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, Legend } from 'recharts';
 import { SourceMappedDataRow } from '../../../api/vendor/kontext/freqs';
-import { GlobalComponents } from '../../../views/global';
+import { GlobalComponents } from '../../../views/common';
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile';
 import { Theme } from '../../../page/theme';
 import { QueryMatch } from '../../../query/index';

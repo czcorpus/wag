@@ -20,7 +20,7 @@ import { Ident, List } from 'cnc-tskit';
 
 import { QueryType } from '../../../query/index';
 import { Backlink, ITileProvider, TileComponent, TileConf, TileFactory, TileFactoryArgs } from '../../../page/tile';
-import { GlobalComponents } from '../../../views/global';
+import { GlobalComponents } from '../../../views/common';
 import { MergeCorpFreqModel } from './model';
 import { init as viewInit } from './view';
 import { LocalizedConfMsg } from '../../../types';

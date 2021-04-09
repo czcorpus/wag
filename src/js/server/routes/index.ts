@@ -24,7 +24,7 @@ import { HTTP, List, pipe, Dict, tuple } from 'cnc-tskit';
 import { AppServices } from '../../appServices';
 import { encodeArgs } from '../../page/ajax';
 import { QueryType, QueryMatch, importQueryTypeString } from '../../query/index';
-import { GlobalComponents } from '../../views/global';
+import { GlobalComponents } from '../../views/common/index';
 import { IFreqDB } from '../freqdb/freqdb';
 
 import { getLangFromCookie, fetchReqArgArray, createHelperServices, mkPageReturnUrl, renderResult, getQueryValue } from './common';
@@ -33,7 +33,7 @@ import { Services } from '../actionServices';
 import { HTTPAction } from './actions';
 import { TelemetryAction } from '../../types';
 import { errorUserConf, emptyClientConf, THEME_COOKIE_NAME } from '../../conf';
-import { init as viewInit } from '../../views/layout';
+import { init as viewInit } from '../../views/layout/layout';
 import { init as errPageInit } from '../../views/error';
 import { emptyValue } from '../toolbar/empty';
 import { importQueryPos } from '../../postag';

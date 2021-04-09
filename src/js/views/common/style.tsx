@@ -18,12 +18,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import styled from 'styled-components';
+import SC from 'styled-components';
 import * as theme from './theme';
 
 // ---------------- <AjaxLoader /> --------------------------------------
 
-export const AjaxLoader = styled.img`
+export const AjaxLoader = SC.img`
     &.centered {
         display: block;
         margin: 2em auto 2em auto;
@@ -32,7 +32,7 @@ export const AjaxLoader = styled.img`
 
 // ---------------- <TileWrapper /> --------------------------------------
 
-export const TileWrapper = styled.div`
+export const TileWrapper = SC.div`
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -90,11 +90,18 @@ export const TileWrapper = styled.div`
             }
         }
     }
+
+    hr {
+        border: none;
+        height: 2px;
+        color: ${theme.colorWhitelikeBlue};
+        background-color: ${theme.colorWhitelikeBlue};
+    }
 `;
 
 // ---------------- <TileWrapper /> --------------------------------------
 
-export const TitleLoaderBar = styled.div`
+export const TitleLoaderBar = SC.div`
     @keyframes slidein {
         0% {
             transform: translate(0);
@@ -117,7 +124,7 @@ export const TitleLoaderBar = styled.div`
 
 // ---------------- <HorizontalBlockSwitch /> --------------------------------------
 
-export const HorizontalBlockSwitch = styled.div`
+export const HorizontalBlockSwitch = SC.div`
     padding-top: 0.3em;
     padding-top: 0.3em;
     text-align: center;
@@ -141,7 +148,7 @@ export const HorizontalBlockSwitch = styled.div`
 
 // ---------------- <TileReloadControl /> --------------------------------------
 
-export const TileReloadControl = styled.p`
+export const TileReloadControl = SC.p`
     text-align: center;
 
     a {
@@ -152,7 +159,7 @@ export const TileReloadControl = styled.p`
 
 // ---------------- <TileReloadControl /> --------------------------------------
 
-export const ResponsiveWrapper = styled.div`
+export const ResponsiveWrapper = SC.div<{minWidth:number}>`
     width: 100%;
     height: 100%;
     min-width: ${props => props.minWidth ? props.minWidth : 'auto'};
@@ -160,7 +167,7 @@ export const ResponsiveWrapper = styled.div`
 
 // ---------------- <ModalOverlay /> --------------------------------------
 
-export const ModalOverlay = styled.div`
+export const ModalOverlay = SC.div`
     position: fixed;
     z-index: 10000;
     left: 0;
@@ -281,5 +288,184 @@ export const ModalOverlay = styled.div`
                 width: 1.8em;
             }
         }
+    }
+`;
+
+// ---------------- <WdgTooltip /> --------------------------------------
+
+export const WdgTooltip = SC.div<{multiword?:boolean}>`
+    background-color: #FFFFFF;
+    z-index: 10000;
+    padding: ${props => props.multiword ? '0.3em 1em 1.3em 1em' : '1em'};
+    border: 1px solid ${theme.colorLightGrey};
+    border-radius: 3px;
+    border-spacing: 0;
+    border-collapse: collapse;
+    line-height: 1.2em;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.25);
+
+    table {
+        .value {
+            ${props => props.multiword ? null : 'font-weight: bold'};
+            text-align: left;
+        }
+
+        .label {
+            text-align: ${props => props.multiword ? 'center' : 'right'};
+            padding: ${props => props.multiword ? '0 10px 0 10px' : '0 0.4em 0 0'};
+            ${props => props.multiword ? 'font-weight: 900' : null};
+            ${props => props.multiword ? 'color: white' : null};
+        }
+
+        th {
+            padding: ${props => props.multiword ? '10px 0' : '0 0 1em 0'};
+            ${props => props.multiword ? 'text-align: left' : null};
+            ${props => props.multiword ? 'font-weight: bolder' : null};
+        }
+
+        td {
+            text-align: left;
+        }
+
+        td.numWh {
+            text-align: right;
+            padding: ${props => props.multiword ? '0 0 0 10px' : '0 0 0 1em'};
+        }
+
+        td.numDec {
+            padding: 0;
+        }
+
+        td.unit {
+            text-align: left;
+        }
+    }
+`;
+
+// ---------------- <BacklinkForm /> --------------------------------------
+
+export const BacklinkForm = SC.form`
+    display: inline;
+    padding: 0;
+
+    button {
+        display: inline;
+        padding: 0 12px 0 0;
+        border: none;
+        background-color: transparent;
+        cursor: pointer;
+        text-decoration: none;
+        color: #009ee0;
+        background-image: url(../../../assets/external-link.png); // TODO
+        background-repeat: no-repeat;
+        background-position: 99% 0;
+    }
+
+    button:hover {
+        text-decoration: underline;
+    }
+`;
+
+// ---------------- <SourceInfoBox /> --------------------------------------
+
+export const SourceInfoBox = SC.div`
+    font-size: 1.1em;
+
+    ul.information-tab-sel {
+
+        list-style-type: none;
+        text-align: center;
+        margin-top: 0;
+        margin-bottom: 2.5em;
+        padding: 0;
+
+        li {
+            display: inline-block;
+            font-size: 1em;
+
+            a {
+                color: ${theme.colorDefaultText};
+                cursor: pointer;
+                margin: 0 0.6em;
+                text-decoration: none;
+            }
+
+            a.current {
+                border-color: ${theme.colorLogoBlue};
+                border-style: solid;
+                border-width: 0 0 2px 0;
+            }
+
+            .separ {
+
+            }
+        }
+    }
+
+    table.struct-info {
+        th {
+            text-align: left;
+            font-weight: normal;
+            color: ${theme.colorLogoPink};
+        }
+    }
+
+    h2 {
+        margin-bottom: 1em;
+        font-size: 1.3em;
+        font-weight: normal;
+    }
+
+    dl {
+
+        dt {
+            margin-bottom: 0.4em;
+            color: ${theme.colorLightText};
+            font-family: ${theme.condensedFontFamily};
+        }
+
+        dd {
+            margin-left: 1.2em;
+        }
+
+        dd:not(:last-child) {
+            margin-bottom: 0.9em;
+        }
+    }
+
+    .empty-citation-info {
+        margin-bottom: 0.7em;
+    }
+
+    td.numeric {
+        padding-left: 1em;
+        text-align: right;
+    }
+
+    .keyword {
+        border-style: solid;
+        border-color: ${theme.colorLogoBlue};
+        border-width: 1pt;
+        border-radius: 5px;
+        margin: 0.4em 0.2em;
+        padding: 0.2em 0.4em;
+        font-size: small;
+    }
+
+    .citation {
+        em {
+            color: ${theme.colorLogoPink};
+        }
+
+        a {
+            color: ${theme.colorLogoBlue};
+        }
+    }
+
+    a.external {
+        background-image: url(../../../assets/external-link.png); // TODO
+        background-repeat: no-repeat;
+        background-position: 99% 0;
+        padding-right: 1.1em;
     }
 `;

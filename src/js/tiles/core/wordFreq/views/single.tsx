@@ -19,7 +19,7 @@ import { IActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
 
 import { Actions as GlobalActions } from '../../../../models/actions';
-import { GlobalComponents } from '../../../../views/global';
+import { GlobalComponents } from '../../../../views/common';
 import { init as commonViewInit } from './common';
 import { SimilarFreqWord } from '../../../../api/abstract/similarFreq';
 import { QueryMatch } from '../../../../query/index';

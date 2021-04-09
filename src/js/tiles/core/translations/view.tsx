@@ -19,7 +19,7 @@ import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile';
-import { GlobalComponents } from '../../../views/global';
+import { GlobalComponents } from '../../../views/common';
 import { TranslationsModel, GeneralTranslationsModelState } from './model';
 import { init as wordCloudViewInit } from '../../../views/wordCloud';
 import { Theme } from '../../../page/theme';

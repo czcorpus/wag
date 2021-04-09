@@ -19,7 +19,7 @@
  */
 
 import styled from 'styled-components';
-import * as theme from '../../../styles/theme';
+import * as theme from '../../../views/common/theme';
 
 export const FreqTreeTile = styled.div`
     min-height: 15em;
@@ -29,7 +29,7 @@ export const FreqTreeTile = styled.div`
     }
 `;
 
-export const Charts = styled.div`
+export const Charts = styled.div<{incomplete: boolean; isMobile: boolean;}>`
     display: flex;
     flex-direction: row;
     align-items: center;

@@ -19,7 +19,7 @@ import { IActionDispatcher, BoundWithProps, ViewUtils } from 'kombo';
 import * as React from 'react';
 
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile';
-import { GlobalComponents, TooltipValues } from '../../../views/global';
+import { GlobalComponents, TooltipValues } from '../../../views/common';
 import { TreqSubsetModel, flipRowColMapper } from './model';
 import { Theme } from '../../../page/theme';
 import { TranslationSubset, TranslationsSubsetsModelState } from '../../../models/tiles/translations';

@@ -21,7 +21,7 @@ import { fromEvent } from 'rxjs';
 
 import { Theme } from '../../../../page/theme';
 import { CoreTileComponentProps, TileComponent } from '../../../../page/tile';
-import { GlobalComponents, TooltipValues } from '../../../../views/global';
+import { GlobalComponents, TooltipValues } from '../../../../views/common';
 import { Actions } from '../actions';
 import { MultiWordGeoAreasModel, MultiWordGeoAreasModelState } from '../model';
 import { QueryMatch } from '../../../../query/index';

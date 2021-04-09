@@ -31,7 +31,7 @@ import { ModelSourceArgs } from './common';
 import { createInitialLinesData } from '../../../models/tiles/concordance';
 import { IFreqDistribAPI, DataRow } from '../../../api/abstract/freqs';
 import { Actions } from './actions';
-import { TooltipValues } from '../../../views/global';
+import { TooltipValues } from '../../../views/common';
 import { Actions as ConcActions } from '../concordance/actions';
 
 

@@ -32,7 +32,7 @@ import { Actions } from './models/actions';
 import { MessagesModel } from './models/messages';
 import { defaultFactory as mainFormFactory } from './models/query';
 import { TileResultFlag, WdglanceTilesModel } from './models/tiles';
-import { GlobalComponents, init as globalCompInit } from './views/global';
+import { GlobalComponents, init as globalCompInit } from './views/common';
 import { init as viewInit, WdglanceMainProps } from './views/main';
 import { RetryTileLoad } from './models/retryLoad';
 import { ViewUtils, IFullActionControl } from 'kombo';

@@ -20,7 +20,7 @@ import * as React from 'react';
 
 import { Theme } from '../../../page/theme';
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile';
-import { GlobalComponents } from '../../../views/global';
+import { GlobalComponents } from '../../../views/common';
 import { HtmlModel } from './model';
 import { HtmlModelState } from './common';
 

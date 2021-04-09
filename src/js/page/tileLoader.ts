@@ -20,7 +20,7 @@ import { IFullActionControl, ViewUtils } from 'kombo';
 import { List, Dict, pipe } from 'cnc-tskit';
 
 import { TileFactory, ITileProvider, TileConf } from './tile';
-import { GlobalComponents } from '../views/global';
+import { GlobalComponents } from '../views/common';
 import { IAppServices } from '../appServices';
 import { Theme } from './theme';
 import { LayoutManager } from './layout';

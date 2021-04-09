@@ -19,14 +19,14 @@
  */
 
 import styled from 'styled-components';
-import * as theme from '../../../styles/theme';
+import * as theme from '../../../views/common/theme';
 
 
 export const WordSimView = styled.div`
     height: 100%;
 `;
 
-export const Boxes = styled.div`
+export const Boxes = styled.div<{isMobile:boolean}>`
     height: 100%;
     overflow-y: hidden;
     overflow-x: auto;

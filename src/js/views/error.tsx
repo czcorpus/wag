@@ -18,9 +18,9 @@
 
 import * as React from 'react';
 import { ViewUtils } from 'kombo';
-import { GlobalComponents } from './global';
+import { GlobalComponents } from './common';
 
-import * as S from '../styles/main';
+import * as S from './style';
 
 
 export interface ErrPageProps {

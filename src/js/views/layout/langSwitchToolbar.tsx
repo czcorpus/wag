@@ -18,12 +18,10 @@
 
 import * as React from 'react';
 import { ViewUtils } from 'kombo';
-import { GlobalComponents } from './global';
-import { AvailableLanguage } from '../page/hostPage';
-import { HTTPAction } from '../server/routes/actions';
+import { GlobalComponents } from '../common';
+import { AvailableLanguage } from '../../page/hostPage';
+import { HTTPAction } from '../../server/routes/actions';
 import { List } from 'cnc-tskit';
-
-import * as S from '../styles/main';
 
 
 export function init(ut:ViewUtils<GlobalComponents>) {
@@ -36,7 +34,7 @@ export function init(ut:ViewUtils<GlobalComponents>) {
 
         render() {
             return (
-                <S.LangSwitchToolbar>
+                <div className="LangSwitchToolbar">
                     <form method="POST" action={ut.createActionUrl(HTTPAction.SET_UI_LANG)}>
                         <input type="hidden" name="returnUrl" value={this.props.returnUrl} />
                         <ul>
@@ -53,7 +51,7 @@ export function init(ut:ViewUtils<GlobalComponents>) {
                             }
                         </ul>
                     </form>
-                </S.LangSwitchToolbar>
+                </div>
             );
         }
     }

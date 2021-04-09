@@ -18,7 +18,7 @@
 import { IActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
 
-import { GlobalComponents } from '../../../../views/global';
+import { GlobalComponents } from '../../../../views/common';
 import { init as commonViewInit } from './common'
 import { QueryMatch } from '../../../../query/index';
 import { List } from 'cnc-tskit';
