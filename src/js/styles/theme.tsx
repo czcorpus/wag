@@ -46,7 +46,7 @@ export const closeButtonSize = '1.1em';
 
 //
 
-// export const mainBackground = `url(${backgroundSrc})`; TODO
+export const mainBackground = 'none' //`url(${backgroundSrc})`; TODO
 
 //
 

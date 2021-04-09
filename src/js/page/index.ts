@@ -40,10 +40,9 @@ import { HTTP, Client } from 'cnc-tskit';
 import { WdglanceMainProps } from '../views/main';
 import { TileGroup } from './layout';
 
+import { GlobalStyle } from '../styles/global';
+
 declare var require:(src:string)=>void;  // webpack
-require('../../css/index.less');
-require('../../css/components/global.less');
-require('../../css/mobile-small.less');
 require('theme.less');
 
 
@@ -226,6 +225,10 @@ export function initClient(mountElement:HTMLElement, config:ClientConf, userSess
             homepage: [...config.homepage.tiles]
         });
 
+        ReactDOM.render(
+            React.createElement(GlobalStyle),
+            document.getElementById('global-style-mount')
+        );
 
     } catch (e) {
         // No need to do anything more as being

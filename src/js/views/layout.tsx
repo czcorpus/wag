@@ -166,7 +166,8 @@ export function init(ut:ViewUtils<GlobalComponents>):React.FC<LayoutProps> {
 
         const createScriptStr = () => {
             return `indexPage.initClient(document.querySelector('.wdglance-mount'),
-                ${JSON.stringify(props.config)}, ${JSON.stringify(props.userConfig)}, ${JSON.stringify(props.queryMatches)});`
+                ${JSON.stringify(props.config)}, ${JSON.stringify(props.userConfig)}, ${JSON.stringify(props.queryMatches)});
+            `
         };
 
         const renderToolbar = () => {
@@ -205,6 +206,7 @@ export function init(ut:ViewUtils<GlobalComponents>):React.FC<LayoutProps> {
                             }
                         </a>
                     </header>
+                    <div id="global-style-mount" />
                     <section className="wdglance-mount">
                         <props.RootComponent
                             layout={props.layout}

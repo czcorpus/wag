@@ -183,7 +183,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
 
     }> = (props) => {
         const args = new MultiDict(props.values.args);
-        return <form className="BacklinkForm" action={props.values.url} method={props.values.method} target="_blank">
+        return <S.BacklinkForm action={props.values.url} method={props.values.method} target="_blank">
             {pipe(
                 args.items(),
                 List.filter(v => v[1] !== null && v[1] !== undefined),
@@ -194,7 +194,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
             <button type="submit">
                 {props.values.label}
             </button>
-        </form>;
+        </S.BacklinkForm>;
     }
 
     // --------------- <SourceLink /> ------------------------------------------------
@@ -290,14 +290,14 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
 
     }> = (props) => {
         return (
-            <div className="SourceInfoBox">
+            <S.SourceInfoBox>
                 <h2>{props.data.title}</h2>
                 <p>{props.data.description}</p>
                 {props.data.href ?
                     <p>{ut.translate('global__more_info')}: <a className="external" href={props.data.href} target="_blank" rel="noopener">{props.data.href}</a></p> :
                     null
                 }
-            </div>
+            </S.SourceInfoBox>
         );
     };
 
@@ -619,7 +619,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
         const decimalSeparator = ut.formatNumber(0.1).slice(1, -1);
 
         return (
-            <div className={props.multiWord ? 'wdg-multi-word-tooltip' : 'wdg-tooltip'} ref={ref} style={style}>
+            <S.WdgTooltip multiword={props.multiWord} ref={ref} style={style}>
                 <table>
                     <thead><tr><th className='value' colSpan={4}>{props.caption}</th></tr></thead>
                     <tbody>
@@ -653,7 +653,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                         )}
                     </tbody>
                 </table>
-            </div>
+            </S.WdgTooltip>
         );
     }
 
@@ -667,7 +667,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
         if (active && payload) {
             const decimalSeparator = ut.formatNumber(0.1).slice(1, -1);
             return (
-                <div className={multiWord ? 'wdg-multi-word-tooltip' : 'wdg-tooltip'}>
+                <S.WdgTooltip multiword={multiWord}>
                     <table>
                         <thead><tr><th className="value" colSpan={4}>{label}</th></tr></thead>
                         <tbody>
@@ -726,7 +726,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
                         )}
                         </tbody>
                     </table>
-                </div>
+                </S.WdgTooltip>
             );
         }
 

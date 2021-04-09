@@ -22,6 +22,8 @@ import { Actions as GlobalActions } from '../../models/actions';
 import { GlobalComponents } from '../../views/global';
 import { Rect, WordCloudItemCalc, TooltipData, createWordCloud, MAX_WC_FONT_SIZE_MOBILE, MAX_WC_FONT_SIZE } from './calc';
 
+import * as S from '../../styles/global';
+
 
 export type WordCloudItem = WordCloudItemCalc;
 
@@ -137,7 +139,7 @@ export function init<T>(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalCompone
             const decimalSeparator = ut.formatNumber(0.1).slice(1, -1);
 
             return (
-                <div ref={this.elmRef} className="wdg-tooltip" style={style}>
+                <S.WdgTooltip ref={this.elmRef} style={style}>
                     <table>
                         <tbody>
                             {(this.props.data || []).map((v, i) => {
@@ -158,7 +160,7 @@ export function init<T>(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalCompone
                             })}
                         </tbody>
                     </table>
-                </div>
+                </S.WdgTooltip>
             );
         }
     }

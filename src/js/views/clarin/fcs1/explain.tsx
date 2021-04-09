@@ -21,7 +21,7 @@ import { FCS1ExplainResponse } from '../../../api/vendor/clarin/fcs1/explain';
 import { IActionDispatcher, ViewUtils } from 'kombo';
 import { GlobalComponents } from '../../global';
 
-import * as S from '../../../styles/main';
+import * as S from '../../../styles/global';
 
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>) {

@@ -23,7 +23,7 @@ import { SourceCitation } from '../api/abstract/sourceInfo';
 import { List } from 'cnc-tskit';
 import { CorpusDetails } from '../types';
 
-import * as S from '../styles/main';
+import * as S from '../styles/global';
 
 export interface CorpusInfoBoxProps {
     data:CorpusDetails;
