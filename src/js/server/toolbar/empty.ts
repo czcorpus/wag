@@ -19,7 +19,7 @@ import { Observable, of as rxOf } from 'rxjs';
 
 import { HostPageEnv, IToolbarProvider } from '../../page/hostPage';
 import { ViewUtils } from 'kombo';
-import { GlobalComponents } from '../../views/global';
+import { GlobalComponents } from '../../views/common';
 
 
 

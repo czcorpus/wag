@@ -1,4 +1,4 @@
-FROM node:14
+FROM node:16
 
 WORKDIR /opt/wag
 
@@ -7,3 +7,6 @@ RUN npm ci
 
 COPY . .
 RUN npm start build:server
+RUN npm start build:production
+
+CMD [ "npm", "start", "server" ]

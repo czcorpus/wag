@@ -1,19 +1,21 @@
 version: '3.7'
+
 services:
   wag:
-    build: .
+    build:
+      context: .
+      dockerfile: dockerfiles/Dockerfile
     volumes:
-      - ./conf:/opt/wag/conf
+      - ${WAG_CONFIG_PATH}:/opt/wag/conf
       - static:/opt/wag/assets
       - dist:/opt/wag/dist
     networks:
-      - redis
-      - couchdb
       - wag
+
   nginx:
     image: nginx:latest
     ports:
-      - "8080:80"
+      - "8081:80"
     depends_on:
       - wag
     volumes:
@@ -22,21 +24,23 @@ services:
       - dist:/opt/wag/dist
     networks:
       - wag
+
   redis:
     image: redis:latest
     networks:
-      - redis
+      - wag
+
   couchdb:
     environment:
       COUCHDB_USER: user
       COUCHDB_PASSWORD: password
     image: couchdb:latest
     networks:
-      - couchdb
+      - wag
+
 volumes:
-  static:
-  dist:
+  static: {}
+  dist: {}
+
 networks:
-  redis: {}
-  couchdb: {}
   wag: {}

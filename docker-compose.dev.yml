@@ -1,39 +1,49 @@
 version: '3.7'
+
 services:
   wag-dev:
     build:
       context: .
-      dockerfile: Dockerfile.dev
+      dockerfile: dockerfiles/Dockerfile.dev
     command: bash -c "./install/docker.command.sh"
     volumes:
+      - ${WAG_CONFIG_PATH}:/opt/wag/conf
       - ./src:/opt/wag/src
+      - ./assets:/opt/wag/assets
+      - ./html:/opt/wag/html
       - dist:/opt/wag/dist
     networks:
-      - bridge
+      - wag
+
   nginx:
     image: nginx:latest
     ports:
-      - "8080:80"
+      - "8081:80"
     depends_on:
+      - couchdb
       - wag-dev
     volumes:
       - ./install/docker.nginx.dev.conf:/etc/nginx/conf.d/default.conf
       - ./assets:/opt/wag/assets
       - dist:/opt/wag/dist
     networks:
-      - bridge
+      - wag
+
   redis:
     image: redis:latest
     networks:
-      - bridge
+      - wag
+
   couchdb:
     environment:
       COUCHDB_USER: user
       COUCHDB_PASSWORD: password
     image: couchdb:latest
     networks:
-      - bridge
+      - wag
+
 volumes:
-  dist:
+  dist: {}
+
 networks:
-  bridge: {}
+  wag: {}
