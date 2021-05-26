@@ -19,9 +19,9 @@
 import { QueryType } from "../../query";
 
 export interface ActionLogRecord {
-    userId:number;
+    userId:number|null;  // provide userId if available
     datetime:string;
-    queryType:QueryType.SINGLE_QUERY|QueryType.CMP_QUERY|QueryType.TRANSLAT_QUERY;
+    queryType:QueryType;
     request:{
         origin:string;
         userAgent:string;

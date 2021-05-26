@@ -18,7 +18,7 @@
 import { NextFunction } from 'connect';
 import { Request, Response } from 'express';
 import { Observable, forkJoin, of as rxOf } from 'rxjs';
-import { concatMap, map, catchError, reduce } from 'rxjs/operators';
+import { concatMap, map, catchError, reduce, tap } from 'rxjs/operators';
 import { Dict, pipe, HTTP, List } from 'cnc-tskit';
 
 import { IAppServices } from '../../appServices';
@@ -35,7 +35,7 @@ import { Services  } from '../actionServices';
 import { loadFile } from '../files';
 import { createRootComponent } from '../../app';
 import { initDummyStore } from '../../page/cache/index';
-import { fetchReqArgArray, createHelperServices, mkPageReturnUrl, logRequest, renderResult, fetchUrlParamArray } from './common';
+import { fetchReqArgArray, createHelperServices, mkPageReturnUrl, logRequest, renderResult, fetchUrlParamArray, logAction } from './common';
 import { maxQueryWordsForQueryType } from '../../conf/validation';
 import { Actions } from '../../models/actions';
 

@@ -38,6 +38,7 @@ import { createToolbarInstance } from './toolbar/factory';
 import { WordDatabases } from './actionServices';
 import { PackageInfo } from '../types';
 import { createQueryLogInstance } from './queryLog/factory';
+import { WinstonActionWriter } from './actionLog/winstonWriter';
 
 
 function loadTilesConf(clientConf:ClientStaticConf):Observable<DomainAnyTileConf> {
@@ -189,6 +190,7 @@ forkJoin( // load core configs
             toolbar: toolbar,
             queryLog: queryLog,
             errorLog: logger,
+            actionLog: new WinstonActionWriter(logger),
             version: pkgInfo.version,
             repositoryUrl: pkgInfo.repository.url
         })(app);

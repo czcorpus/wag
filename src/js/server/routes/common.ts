@@ -31,10 +31,11 @@ import { GlobalComponents } from '../../views/common';
 import { AppServices } from '../../appServices';
 import { LayoutProps } from '../../views/layout/layout';
 import { HostPageEnv } from '../../page/hostPage';
-import { RecognizedQueries } from '../../query/index';
+import { QueryType, RecognizedQueries } from '../../query/index';
 import { WdglanceMainProps } from '../../views/main';
 import { ErrPageProps } from '../../views/error';
 import { TileGroup } from '../../page/layout';
+import { IActionWriter } from '../actionLog/abstract';
 
 /**
  * Obtain value (or values if a key is provided multiple times) from
@@ -94,6 +95,23 @@ export function logRequest(logging:IQueryLog, datetime:string, req:Request, user
         },
         pid: -1,
         settings: {}
+    })
+}
+
+export function logAction(actionWriter:IActionWriter, req:Request, userId:number|null, datetime:string, action:HTTPAction, queryType:QueryType) {
+    actionWriter.write({
+        userId: userId,
+        datetime: datetime,
+        queryType: queryType,
+        request: {
+            origin: req.connection.remoteAddress,
+            userAgent: req.headers['user-agent'],
+            referer: req.headers['referer']
+        },
+        lang1: null, // TODO
+        lang2: null, // TODO
+        isQuery: [HTTPAction.SEARCH, HTTPAction.COMPARE, HTTPAction.TRANSLATE].includes(action),
+        hasPosSpecification: false // TODO
     })
 }
 

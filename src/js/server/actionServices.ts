@@ -27,6 +27,7 @@ import { IFreqDB } from './freqdb/freqdb';
 import { createInstance, FreqDBType } from './freqdb/factory';
 import { Database } from 'sqlite3';
 import { IApiServices } from '../appServices';
+import { IActionWriter } from './actionLog/abstract';
 
 
 
@@ -97,4 +98,5 @@ export interface Services {
     translations:{[loc:string]:{[key:string]:string}};
     queryLog:IQueryLog;
     errorLog:winston.Logger;
+    actionLog:IActionWriter;
 }
