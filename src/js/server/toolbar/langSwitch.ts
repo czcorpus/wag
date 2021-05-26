@@ -31,6 +31,7 @@ export class LangSwitchToolbar implements IToolbarProvider {
     get(uiLang:string, returnUrl:string, cookies:{[key:string]:string}, ut:ViewUtils<GlobalComponents>):Observable<HostPageEnv> {
 
         return rxOf({
+            userId: null,
             styles: [],
             scripts: [],
             html: viewInit(ut),

@@ -25,6 +25,7 @@ import { GlobalComponents } from '../../views/common';
 
 export const emptyValue = ():HostPageEnv => {
     return {
+        userId: null,
         styles: [],
         scripts: [],
         html: null,
