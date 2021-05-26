@@ -81,18 +81,7 @@ module.exports = (env) => ({
                 exclude: /(node_modules)/,
                 use: [
                     {
-                        loader: 'awesome-typescript-loader',
-                        options: {
-                            useBabel: true,
-                            babelOptions: {
-                                babelrc: false,
-                                presets: [
-                                    ['@babel/preset-env', {'modules': false }]
-                                ]
-                            },
-                            babelCore: '@babel/core',
-                            useCache: true
-                        }
+                        loader: 'babel-loader'
                     }
                 ]
             },

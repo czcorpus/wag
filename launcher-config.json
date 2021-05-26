@@ -32,8 +32,8 @@
       "ajv -s ./conf/wdglance-schema.json -d ./conf/wdglance.sample.json"
     ],
     "build:production": [
-      "node_modules/typescript/bin/tsc --project ./tsconfig.json",
-      "node_modules/typescript/bin/tsc --project ./tsconfig.server.json",
+      "typecheck:client",
+      "typecheck:server",
       "npm test",
       "webpack --config webpack.prod.js",
       "webpack --config webpack.server.js"
@@ -42,10 +42,18 @@
       "webpack --config webpack.server.js"
     ],
     "typecheck:client": [
-      "node_modules/typescript/bin/tsc --project ./tsconfig.json"
+      "node_modules/typescript/bin/tsc --project ./tsconfig.json --noEmit",
+      {
+        "condition": "$?",
+        "sequential-then": "echo 'Client-side TypeScript types: OK'"
+      }
     ],
     "typecheck:server": [
-      "node_modules/typescript/bin/tsc --project ./tsconfig.server.json"
+      "node_modules/typescript/bin/tsc --project ./tsconfig.server.json --noEmit",
+      {
+        "condition": "$?",
+        "sequential-then": "echo 'Server-side TypeScript types: OK'"
+      }
     ],
     "create:custom-tile": "ts-node ./scripts/create-tile.ts $1",
     "create:tile-conf": "ts-node ./scripts/create-tile-conf.ts $1",
