@@ -183,7 +183,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
 
     }> = (props) => {
         const args = new MultiDict(props.values.args);
-        return <S.BacklinkForm action={props.values.url} method={props.values.method} target="_blank">
+        return <S.BacklinkForm action={props.values.url} method={props.values.method} target="_blank" externalLinkImg={ut.createStaticUrl('external-link.png')}>
             {pipe(
                 args.items(),
                 List.filter(v => v[1] !== null && v[1] !== undefined),
@@ -290,7 +290,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
 
     }> = (props) => {
         return (
-            <S.SourceInfoBox>
+            <S.SourceInfoBox externalLinkImg={ut.createStaticUrl('external-link.png')}>
                 <h2>{props.data.title}</h2>
                 <p>{props.data.description}</p>
                 {props.data.href ?

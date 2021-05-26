@@ -99,7 +99,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         };
 
         return (
-            <S.SourceInfoBox className="CorpusInfoBox">
+            <S.SourceInfoBox className="CorpusInfoBox" externalLinkImg={ut.createStaticUrl('external-link.png')}>
                 <ul className="information-tab-sel">
                     <li>
                         <a className={state.activeTab === 0 ? 'current' : null}
