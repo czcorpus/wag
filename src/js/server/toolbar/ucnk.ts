@@ -32,7 +32,14 @@ import { map, catchError } from 'rxjs/operators';
 
 
 interface ToolbarResponse {
-    user:any; // TODO
+    user:{
+        id:string;
+        user:string;
+        firstName:string;
+        surname:string;
+        email:string;
+        role:string
+    };
 
     styles:{
         [ident:string]:{
@@ -104,7 +111,7 @@ export class UCNKToolbar implements IToolbarProvider {
             ),
             map<ToolbarResponse, HostPageEnv>(
                 response => ({
-                    userId: null, // TODO
+                    userId: parseInt(response.user.id),
                     styles: pipe(
                         response.styles,
                         Dict.toEntries(),
