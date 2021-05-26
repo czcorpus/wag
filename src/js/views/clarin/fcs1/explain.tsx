@@ -50,7 +50,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     }> = (props) => {
 
         return (
-            <S.SourceInfoBox className="ExplainView">
+            <S.SourceInfoBox className="ExplainView" externalLinkImg={ut.createStaticUrl('external-link.png')}>
                 <dl>
                     <dt>{ut.translate('global__source_general_desc_label')}:</dt>
                     <dd>{ut.translate('global__clarin_fcs_endpoint_label')}</dd>
