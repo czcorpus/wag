@@ -344,7 +344,7 @@ export const WdgTooltip = SC.div<{multiword?:boolean}>`
 
 // ---------------- <BacklinkForm /> --------------------------------------
 
-export const BacklinkForm = SC.form<{externalLinkImg:string}>`
+export const BacklinkForm = SC.form<{createStaticUrl: (file:string) => string}>`
     display: inline;
     padding: 0;
 
@@ -356,7 +356,7 @@ export const BacklinkForm = SC.form<{externalLinkImg:string}>`
         cursor: pointer;
         text-decoration: none;
         color: #009ee0;
-        background-image: url(${props => props.externalLinkImg});
+        background-image: url(${props => props.createStaticUrl('external-link.png')});
         background-repeat: no-repeat;
         background-position: 99% 0;
     }
@@ -368,7 +368,7 @@ export const BacklinkForm = SC.form<{externalLinkImg:string}>`
 
 // ---------------- <SourceInfoBox /> --------------------------------------
 
-export const SourceInfoBox = SC.div<{externalLinkImg:string}>`
+export const SourceInfoBox = SC.div<{createStaticUrl: (file:string) => string}>`
     font-size: 1.1em;
 
     ul.information-tab-sel {
@@ -463,7 +463,7 @@ export const SourceInfoBox = SC.div<{externalLinkImg:string}>`
     }
 
     a.external {
-        background-image: url(${props => props.externalLinkImg});
+        background-image: url(${props => props.createStaticUrl('external-link.png')});
         background-repeat: no-repeat;
         background-position: 99% 0;
         padding-right: 1.1em;

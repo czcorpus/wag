@@ -23,12 +23,12 @@ import * as theme from '../common/theme';
 
 // ---------------- <GlobalStyle /> --------------------------------------
 
-export const GlobalStyle = createGlobalStyle`
+export const GlobalStyle = createGlobalStyle<{createStaticUrl: (file: string) => string}>`
     body {
         font-family: ${theme.defaultFontFamily};
         font-size: 1em;
         font-display: swap;
-        background-image: ${theme.mainBackground};
+        background-image: url(${props => props.createStaticUrl('groovepaper2.jpg')});
     }
 
     input.invalid, textarea.invalid {
