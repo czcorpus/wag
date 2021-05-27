@@ -23,19 +23,19 @@ import { UserConf } from "../../conf";
 import { List } from "cnc-tskit";
 
 
-export function logAction(actionWriter:IActionWriter, req:Request, httpAction:HTTPAction, datetime:string, userId:number|null, userConf:UserConf) {
+export function logAction(actionWriter:IActionWriter, req:Request, httpAction:HTTPAction, datetime:string, userId:number|null, userConf:UserConf|null) {
     actionWriter.write({
         userId: userId,
         datetime: datetime,
-        queryType: userConf.queryType,
+        queryType: userConf ? userConf.queryType : null,
         request: {
             origin: req.connection.remoteAddress,
             userAgent: req.headers['user-agent'],
             referer: req.headers['referer']
         },
-        lang1: userConf.query1Domain,
-        lang2: userConf.query1Domain,
+        lang1: userConf ? userConf.query1Domain : null,
+        lang2: userConf ? userConf.query1Domain : null,
         isQuery: [HTTPAction.SEARCH, HTTPAction.COMPARE, HTTPAction.TRANSLATE, HTTPAction.EMBEDDED_SEARCH].includes(httpAction),
-        hasPosSpecification: List.some(query => List.size(query.pos) > 0, userConf.queries)
+        hasPosSpecification: userConf ? List.some(query => List.size(query.pos) > 0, userConf.queries) : false
     })
 }
