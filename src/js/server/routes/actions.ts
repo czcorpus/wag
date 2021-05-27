@@ -27,5 +27,6 @@ export enum HTTPAction {
     SOURCE_INFO = '/source-info/',
     SEARCH = '/search/',
     TRANSLATE = '/translate/',
-    COMPARE = '/compare/'
+    COMPARE = '/compare/',
+    EMBEDDED_SEARCH = '/embedded/search/'
 }

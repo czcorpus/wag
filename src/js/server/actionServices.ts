@@ -98,5 +98,5 @@ export interface Services {
     translations:{[loc:string]:{[key:string]:string}};
     queryLog:IQueryLog;
     errorLog:winston.Logger;
-    actionLog:IActionWriter;
+    actionWriter:IActionWriter;
 }

@@ -168,7 +168,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
     // host page generator with some React server rendering (testing phase)
     app.get(HTTPAction.MAIN, (req, res, next) => {
         const uiLang = getLangFromCookie(req, services);
-        queryAction({services, answerMode: false, queryType: QueryType.SINGLE_QUERY, uiLang, req, res, next});
+        queryAction({services, answerMode: false, httpAction: HTTPAction.MAIN, queryType: QueryType.SINGLE_QUERY, uiLang, req, res, next});
     });
 
     app.get(HTTPAction.GET_LEMMAS, (req, res, next) => {
@@ -276,10 +276,10 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                 return;
             }
         }
-        queryAction({services, answerMode: true, queryType: QueryType.SINGLE_QUERY, uiLang, req, res, next});
+        queryAction({services, answerMode: true, httpAction: HTTPAction.SEARCH, queryType: QueryType.SINGLE_QUERY, uiLang, req, res, next});
     });
 
-    app.get(`/embedded${HTTPAction.SEARCH}:domain/:query`, (req, res, next) => {
+    app.get(`${HTTPAction.EMBEDDED_SEARCH}:domain/:query`, (req, res, next) => {
         const uiLang = getLangFromCookie(req, services);
         const [,appServices] = createHelperServices(services, uiLang);
         importQueryRequest({
@@ -305,12 +305,12 @@ export const wdgRouter = (services:Services) => (app:Express) => {
 
     app.get(`${HTTPAction.COMPARE}:domain/:query`, (req, res, next) => {
         const uiLang = getLangFromCookie(req, services);
-        queryAction({services, answerMode: true, queryType: QueryType.CMP_QUERY, uiLang, req, res, next});
+        queryAction({services, answerMode: true, httpAction: HTTPAction.COMPARE, queryType: QueryType.CMP_QUERY, uiLang, req, res, next});
     });
 
     app.get(`${HTTPAction.TRANSLATE}:domain/:query`, (req, res, next) => {
         const uiLang = getLangFromCookie(req, services);
-        queryAction({services, answerMode: true, queryType: QueryType.TRANSLAT_QUERY, uiLang, req, res, next});
+        queryAction({services, answerMode: true, httpAction: HTTPAction.TRANSLATE, queryType: QueryType.TRANSLAT_QUERY, uiLang, req, res, next});
     });
 
     // Find words with similar frequency

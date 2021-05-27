@@ -35,9 +35,11 @@ import { Services  } from '../actionServices';
 import { loadFile } from '../files';
 import { createRootComponent } from '../../app';
 import { initDummyStore } from '../../page/cache/index';
-import { fetchReqArgArray, createHelperServices, mkPageReturnUrl, logRequest, renderResult, fetchUrlParamArray, logAction } from './common';
+import { fetchReqArgArray, createHelperServices, mkPageReturnUrl, logRequest, renderResult, fetchUrlParamArray } from './common';
 import { maxQueryWordsForQueryType } from '../../conf/validation';
 import { Actions } from '../../models/actions';
+import { HTTPAction } from './actions';
+import { logAction } from '../actionLog/common';
 
 
 function mkRuntimeClientConf(conf:ClientStaticConf, serverConf:ServerConf, domain:string, themeId:string, appServices:IAppServices):Observable<ClientConf> {
@@ -187,6 +189,7 @@ export function importQueryRequest({services, appServices, req, queryType, uiLan
 export interface QueryActionArgs {
     services:Services;
     answerMode:boolean;
+    httpAction:HTTPAction;
     queryType:QueryType;
     uiLang:string;
     req:Request;
@@ -194,7 +197,7 @@ export interface QueryActionArgs {
     next:NextFunction;
 }
 
-export function queryAction({services, answerMode, queryType, uiLang, req, res, next}:QueryActionArgs) {
+export function queryAction({services, answerMode, httpAction, queryType, uiLang, req, res, next}:QueryActionArgs) {
     const dispatcher = new ServerSideActionDispatcher();
     const [viewUtils, appServices] = createHelperServices(services, uiLang);
     // until now there should be no exceptions throw
@@ -250,7 +253,11 @@ export function queryAction({services, answerMode, queryType, uiLang, req, res, 
                     reduce((acc:Array<Array<QueryMatch>>, curr) => acc.concat([curr]), [])
                 )
             })
-        )
+        ),
+        // log action
+        tap(({appServices, hostPageEnv, userConf}) => {
+            logAction(services.actionWriter, req, httpAction, appServices.getISODatetime(), hostPageEnv.userId, userConf);
+        })
     ).subscribe(
         ({userConf, hostPageEnv, runtimeConf, qMatchesEachQuery, appServices, dispatcher, viewUtils}) => {
             const queryMatchesExtended = List.map(

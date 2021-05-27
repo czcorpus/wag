@@ -190,7 +190,7 @@ forkJoin( // load core configs
             toolbar: toolbar,
             queryLog: queryLog,
             errorLog: logger,
-            actionLog: new WinstonActionWriter(logger),
+            actionWriter: new WinstonActionWriter(logger),
             version: pkgInfo.version,
             repositoryUrl: pkgInfo.repository.url
         })(app);
