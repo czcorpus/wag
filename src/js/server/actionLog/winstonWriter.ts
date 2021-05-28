@@ -1,6 +1,6 @@
 /*
- * Copyright 2019 Tomas Machalek <tomas.machalek@gmail.com>
- * Copyright 2019 Institute of the Czech National Corpus,
+ * Copyright 2021 Martin Zimandl <martin.zimandl@gmail.com>
+ * Copyright 2021 Institute of the Czech National Corpus,
  *                Faculty of Arts, Charles University
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,17 +16,19 @@
  * limitations under the License.
  */
 
-export enum HTTPAction {
-    MAIN = '/',
-    SET_UI_LANG = '/set-ui-lang/',
-    GET_LEMMAS = '/get-lemmas/',
-    SIMILAR_FREQ_WORDS = '/similar-freq-words/',
-    WORD_FORMS = '/word-forms/',
-    TELEMETRY = '/telemetry/',
-    SET_THEME = '/set-theme/',
-    SOURCE_INFO = '/source-info/',
-    SEARCH = '/search/',
-    TRANSLATE = '/translate/',
-    COMPARE = '/compare/',
-    EMBEDDED_SEARCH = '/embedded/search/'
+import * as winston from 'winston';
+import { ActionLogRecord, IActionWriter } from "./abstract";
+
+
+export class WinstonActionWriter implements IActionWriter {
+
+    private readonly logger:winston.Logger;
+    
+    constructor(logger:winston.Logger) {
+        this.logger = logger;
+    }
+
+    write(value:ActionLogRecord) {
+        this.logger.info(JSON.stringify(value));
+    }
 }
