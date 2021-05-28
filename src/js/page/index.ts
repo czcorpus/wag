@@ -226,7 +226,7 @@ export function initClient(mountElement:HTMLElement, config:ClientConf, userSess
         });
 
         ReactDOM.render(
-            React.createElement(GlobalStyle),
+            React.createElement(GlobalStyle, {createStaticUrl: viewUtils.createStaticUrl}),
             document.getElementById('global-style-mount')
         );
 
