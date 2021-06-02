@@ -18,7 +18,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-// import backgroundSrc from '../../../assets/groovepaper2.jpg'; TODO
+import { Dict } from 'cnc-tskit';
+import { css } from 'styled-components';
 
 export const defaultFontFamily = '"Roboto", "Segoe UI", Arial, sans-serif';
 export const condensedFontFamily = '"Roboto Condensed", "Segoe UI", sans-serif';
@@ -46,14 +47,20 @@ export const closeButtonSize = '1.1em';
 
 //
 
-export const mainBackground = 'none' //`url(${backgroundSrc})`; TODO
-
-//
-
 export const defaultBorderStyle = `solid 1px ${colorLightGrey}`;
 export const defaultBorderRadius = '0.25em';
 
-//
+// media queries
 
-export const mediaMediumScreen = '@media screen and (max-width = 1200px)';
-export const mediaSmallScreen = '@media screen and (max-width = 480px)';
+const screenSizes = {
+   medium: 1200,
+   small: 480
+}
+
+export const media = Dict.map(
+   size => (args) => css`
+      @media screen and (max-width: ${size}px) {
+         ${css(args)};
+      }
+   `, screenSizes
+)

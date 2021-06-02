@@ -203,7 +203,7 @@ export const GlobalStyle = createGlobalStyle<{createStaticUrl: (file: string) =>
         }
     }
 
-    ${theme.mediaSmallScreen} {
+    ${theme.media.small`
         body {
             margin: 0;
             padding: 0;
@@ -241,5 +241,5 @@ export const GlobalStyle = createGlobalStyle<{createStaticUrl: (file: string) =>
                 }
             }
         }
-    }
+    `}
 `;
