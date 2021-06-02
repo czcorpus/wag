@@ -222,7 +222,7 @@ export const ModalOverlay = SC.div`
         padding: 1.25em;
     }
 
-    ${theme.mediaMediumScreen} {
+    ${theme.media.medium`
         display: flex;
         align-items: center;
         justify-content: center;
@@ -267,9 +267,9 @@ export const ModalOverlay = SC.div`
                 }
             }
         }
-    }
+    `}
 
-    ${theme.mediaSmallScreen} {
+    ${theme.media.small`
         background-color: hsla(0,0%,8%,.7);
 
         .box {
@@ -288,7 +288,7 @@ export const ModalOverlay = SC.div`
                 width: 1.8em;
             }
         }
-    }
+    `}
 `;
 
 // ---------------- <WdgTooltip /> --------------------------------------

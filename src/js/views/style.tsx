@@ -325,7 +325,7 @@ export const WdglanceControls = styled.div`
         }
     }
 
-    ${theme.mediaMediumScreen} {
+    ${theme.media.medium`
         .main {
             flex-wrap: wrap;
 
@@ -372,9 +372,9 @@ export const WdglanceControls = styled.div`
                 display: none;
             }
         }
-    }
+    `}
 
-    ${theme.mediaSmallScreen} {
+    ${theme.media.small`
         padding: 0;
         margin-bottom: 2em;
 
@@ -386,7 +386,7 @@ export const WdglanceControls = styled.div`
             margin-top: 0.2em;
             border: 3px solid red;
         }
-    }
+    `}
 `;
 
 // ---------------- <NothingFoundBox /> --------------------------------------
@@ -419,13 +419,13 @@ export const TilesSections = styled.section`
         left: calc(100% - 100px);
     }
 
-    ${theme.mediaMediumScreen} {
+    ${theme.media.medium`
         padding: 0;
-    }
+    `}
 
-    ${theme.mediaSmallScreen} {
+    ${theme.media.small`
         padding: 0;
-    }
+    `}
 `;
 
 // ---------------- <Group /> --------------------------------------
@@ -447,7 +447,7 @@ export const Group = styled.section`
         margin-top: 1.7em;
     }
 
-    ${theme.mediaMediumScreen} {
+    ${theme.media.medium`
         & > header {
             display: block;
 
@@ -455,9 +455,9 @@ export const Group = styled.section`
                 margin-top: 0.7em;
             }
         }
-    }
+    `}
 
-    ${theme.mediaSmallScreen} {
+    ${theme.media.small`
         & > header {
             display: block;
 
@@ -466,7 +466,7 @@ export const Group = styled.section`
                 margin-left: 0;
             }
         }
-    }
+    `}
 `;
 
 // ---------------- <MinimizedGroup /> --------------------------------------
@@ -592,7 +592,7 @@ export const Tiles = styled.section`
         }
     }
 
-    ${theme.mediaMediumScreen} {
+    ${theme.media.medium`
         display: grid;
         grid-gap: 1em;
         grid-template-columns: 1fr;
@@ -616,13 +616,13 @@ export const Tiles = styled.section`
                 width:1.7em;
             }
         }
-    }
+    `}
 
-    ${theme.mediaSmallScreen} {
+    ${theme.media.small`
         .app-output .panel h2 {
             font-size: 1.1em;
         }
-    }
+    `}
 `;
 
 // ---------------- <TileGroupButton /> --------------------------------------
@@ -721,7 +721,7 @@ export const TileGroupButton = styled.section`
         }
     }
 
-    ${theme.mediaMediumScreen} {
+    ${theme.media.medium`
 
         white-space: normal;
 
@@ -748,9 +748,9 @@ export const TileGroupButton = styled.section`
 
             }
         }
-    }
+    `}
 
-    ${theme.mediaSmallScreen} {
+    ${theme.media.small`
 
         width: 100%;
         white-space: normal;
@@ -777,7 +777,7 @@ export const TileGroupButton = styled.section`
 
             }
         }
-    }
+    `}
 `;
 
 // ---------------- <ErrPage /> --------------------------------------
