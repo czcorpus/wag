@@ -139,7 +139,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             e ? dispatcher.dispatch<typeof Actions.ShowTooltip>({
                                 name: Actions.ShowTooltip.name,
                                 payload: {
-                                    dataId: e.activeTooltipIndex,
+                                    dataName: e.activeLabel,
                                     tileId: props.tileId,
                                     tooltipX: e.chartX,
                                     tooltipY: e.chartY
@@ -216,9 +216,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
                     <globComponents.ResponsiveWrapper render={(width:number, height:number) => {
                         return (
-                        <S.MergeCorpFreqBarTile style={{minHeight: `${minHeight}px`, height: `${height}px`}}>
+                        <S.MergeCorpFreqBarTile style={{minHeight: `${minHeight}px`, height: '100%'}}>
                             {this.props.isAltViewMode ?
-                                <TableView data={this.props.data} queryMatches={this.props.queryMatches} /> :
+                                <S.Tables>
+                                    <TableView data={this.props.data} queryMatches={this.props.queryMatches} />
+                                </S.Tables> :
                                 <Chart tileId={this.props.tileId} data={this.props.data} barCategoryGap={barCategoryGap} queryMatches={this.props.queryMatches} isPartial={this.props.isBusy} isMobile={this.props.isMobile} />
                             }
                         </S.MergeCorpFreqBarTile>)}} />

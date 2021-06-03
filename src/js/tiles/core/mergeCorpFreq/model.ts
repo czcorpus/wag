@@ -173,7 +173,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
                                 backlink: null
                             }]
                         ),
-                        List.filter(v =>  !!v.name)
+                        List.filter(v => !!v.name)
                     );
                 }
             }
@@ -231,19 +231,21 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
                     state.tooltipData = {
                         tooltipX: action.payload.tooltipX,
                         tooltipY: action.payload.tooltipY,
-                        caption: state.data.length > 0 ? state.data[0][action.payload.dataId]?.name : '-',
+                        caption: state.data.length > 0 ? action.payload.dataName : '-',
                         data: state.queryMatches.length > 1 ?
                             Dict.fromEntries(
-                                List.map((v, i) =>
-                                    ([v.word, [
-                                        {value: state.data[i] && state.data[i][action.payload.dataId] ? state.data[i][action.payload.dataId].ipm : 0, unit: `ipm, ${appServices.translate('global__frequency')}`},
-                                        {value: state.data[i] && state.data[i][action.payload.dataId] ? state.data[i][action.payload.dataId].freq : 0}
-                                    ]]),
+                                List.map((v, i) => {
+                                        const index = List.findIndex(v => v.name === action.payload.dataName, state.data[i]);
+                                        return ([v.word, [
+                                            {value: state.data[i] && index >= 0 && state.data[i][index] ? state.data[i][index].ipm : 0, unit: `ipm, ${appServices.translate('global__frequency')}`},
+                                            {value: state.data[i] && index >= 0 && state.data[i][index] ? state.data[i][index].freq : 0}
+                                        ]])
+                                    },
                                     state.queryMatches
                                 )
                             ) : {
-                                [appServices.translate('mergeCorpFreq__rel_freq')]: [{value: state.data[0][action.payload.dataId].ipm}],
-                                [appServices.translate('mergeCorpFreq__abs_freq')]: [{value: state.data[0][action.payload.dataId].freq}]
+                                [appServices.translate('mergeCorpFreq__rel_freq')]: [{value: state.data[0][List.findIndex(v => v.name === action.payload.dataName, state.data[0])].ipm}],
+                                [appServices.translate('mergeCorpFreq__abs_freq')]: [{value: state.data[0][List.findIndex(v => v.name === action.payload.dataName, state.data[0])].freq}]
                             }
                     };
                 }

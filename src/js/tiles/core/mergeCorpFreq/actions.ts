@@ -34,7 +34,7 @@ export class Actions {
 
     static ShowTooltip:Action<{
         tileId:number;
-        dataId:number;
+        dataName:string;
         tooltipX:number;
         tooltipY:number;
 

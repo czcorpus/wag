@@ -19,9 +19,12 @@
  */
 
 import styled from 'styled-components';
-import * as theme from '../../../views/common/theme';
 
 
 export const MergeCorpFreqBarTile = styled.div`
     min-height: 25em;
+`;
+
+export const Tables = styled.div`
+    overflow-x: auto;
 `;
