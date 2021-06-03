@@ -58,9 +58,9 @@ const screenSizes = {
 }
 
 export const media = Dict.map(
-   size => (args) => css`
+   size => (first, ...args) => css`
       @media screen and (max-width: ${size}px) {
-         ${css(args)};
+         ${css(first, ...args)};
       }
    `, screenSizes
 )
