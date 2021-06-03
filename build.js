@@ -80,7 +80,12 @@
                 const tmpJsDir = path.resolve(this._distPath, '.compiled');
                 if (fs.existsSync(tmpJsDir)) {
                     fs.readdirSync(tmpJsDir).forEach(item => {
-                        fs.unlinkSync(path.resolve(tmpJsDir, item));
+                        try {
+                            fs.unlinkSync(path.resolve(tmpJsDir, item));
+
+                        } catch (err) {
+                            console.log('Ingored error: ', err);
+                        }
                     });
                     fs.rmdirSync(tmpJsDir);
                 }

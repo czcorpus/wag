@@ -23,12 +23,12 @@ import { ActionLogRecord, IActionWriter } from "./abstract";
 export class WinstonActionWriter implements IActionWriter {
 
     private readonly logger:winston.Logger;
-    
+
     constructor(logger:winston.Logger) {
         this.logger = logger;
     }
 
     write(value:ActionLogRecord) {
-        this.logger.info(JSON.stringify(value));
+        this.logger.info('QUERY', value);
     }
 }
