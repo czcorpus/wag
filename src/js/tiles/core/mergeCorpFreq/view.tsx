@@ -139,7 +139,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             e ? dispatcher.dispatch<typeof Actions.ShowTooltip>({
                                 name: Actions.ShowTooltip.name,
                                 payload: {
-                                    dataId: e.activeTooltipIndex,
+                                    dataName: e.activeLabel,
                                     tileId: props.tileId,
                                     tooltipX: e.chartX,
                                     tooltipY: e.chartY
