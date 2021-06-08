@@ -1,4 +1,3 @@
 #!/bin/sh
-
-npm start build:server
-npm start server
+cd /opt/wag
+npm start build:server && npm start server

@@ -16,9 +16,10 @@
  * limitations under the License.
  */
 
-import { QueryType } from "../../query";
+import { QueryType } from '../../query';
 
 export interface ActionLogRecord {
+    action:string;
     userId:number|null;  // provide userId if available
     datetime:string;
     queryType:QueryType;
@@ -31,8 +32,9 @@ export interface ActionLogRecord {
     lang2:string;
     hasPosSpecification:boolean;
     isQuery:boolean;
+    isMobileClient:boolean;
 }
 
 export interface IActionWriter {
-    write(log:ActionLogRecord);
+    write(log:ActionLogRecord):void;
 }

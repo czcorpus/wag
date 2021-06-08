@@ -35,14 +35,29 @@ import { Services  } from '../actionServices';
 import { loadFile } from '../files';
 import { createRootComponent } from '../../app';
 import { initDummyStore } from '../../page/cache/index';
-import { fetchReqArgArray, createHelperServices, mkPageReturnUrl, logRequest, renderResult, fetchUrlParamArray } from './common';
+import { fetchReqArgArray, createHelperServices, mkPageReturnUrl, logRequest, renderResult, fetchUrlParamArray, clientIsLikelyMobile } from './common';
 import { maxQueryWordsForQueryType } from '../../conf/validation';
 import { Actions } from '../../models/actions';
 import { HTTPAction } from './actions';
 import { logAction } from '../actionLog/common';
 
 
-function mkRuntimeClientConf(conf:ClientStaticConf, serverConf:ServerConf, domain:string, themeId:string, appServices:IAppServices):Observable<ClientConf> {
+interface MkRuntimeClientConfArgs {
+    conf:ClientStaticConf;
+    serverConf:ServerConf;
+    domain:string;
+    themeId:string;
+    appServices:IAppServices;
+}
+
+function mkRuntimeClientConf({
+    conf,
+    serverConf,
+    domain,
+    themeId,
+    appServices
+}:MkRuntimeClientConfArgs):Observable<ClientConf> {
+
     return forkJoin([
         forkJoin(
             List.map(item =>
@@ -218,13 +233,13 @@ export function queryAction({services, answerMode, httpAction, queryType, uiLang
                 }
             ),
             hostPageEnv: services.toolbar.get(userConf.uiLang, mkPageReturnUrl(req, services.clientConf.rootUrl), req.cookies, viewUtils),
-            runtimeConf: mkRuntimeClientConf(
-                services.clientConf,
-                services.serverConf,
-                userConf.query1Domain,
-                req.cookies[THEME_COOKIE_NAME] || '',
+            runtimeConf: mkRuntimeClientConf({
+                conf: services.clientConf,
+                serverConf: services.serverConf,
+                domain: userConf.query1Domain,
+                themeId: req.cookies[THEME_COOKIE_NAME] || '',
                 appServices
-            ),
+            }),
             logReq: logRequest( // we don't need the return value much here (see subscribe)
                 services.queryLog,
                 appServices.getISODatetime(),
@@ -256,7 +271,15 @@ export function queryAction({services, answerMode, httpAction, queryType, uiLang
         ),
         // log action
         tap(({appServices, hostPageEnv, userConf}) => {
-            logAction(services.actionWriter, req, httpAction, appServices.getISODatetime(), hostPageEnv.userId, userConf);
+            logAction({
+                actionWriter: services.actionWriter,
+                req,
+                httpAction,
+                datetime: appServices.getISODatetime(),
+                userId: hostPageEnv.userId,
+                userConf,
+                isMobileClient: clientIsLikelyMobile(req)
+            }).subscribe();
         })
     ).subscribe(
         ({userConf, hostPageEnv, runtimeConf, qMatchesEachQuery, appServices, dispatcher, viewUtils}) => {
