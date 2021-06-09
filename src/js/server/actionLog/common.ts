@@ -58,7 +58,7 @@ export function logAction({
                 referer: req.headers['referer']
             },
             lang1: userConf ? userConf.query1Domain : null,
-            lang2: userConf ? userConf.query2Domain : null,
+            lang2: userConf && httpAction === HTTPAction.TRANSLATE ? userConf.query2Domain : null,
             isQuery: List.some(
                 a => a === httpAction,
                 [HTTPAction.SEARCH, HTTPAction.COMPARE, HTTPAction.TRANSLATE, HTTPAction.EMBEDDED_SEARCH]
