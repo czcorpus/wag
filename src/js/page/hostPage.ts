@@ -38,6 +38,7 @@ export interface HostPageEnv {
     scripts:Array<string>;
     html:string|ToolbarView|null;
     toolbarHeight:string|null; // a CSS value
+    userId:number;
 }
 
 export interface IToolbarProvider {

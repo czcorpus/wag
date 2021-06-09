@@ -18,7 +18,7 @@
 import { NextFunction } from 'connect';
 import { Request, Response } from 'express';
 import { Observable, forkJoin, of as rxOf } from 'rxjs';
-import { concatMap, map, catchError, reduce } from 'rxjs/operators';
+import { concatMap, map, catchError, reduce, tap } from 'rxjs/operators';
 import { Dict, pipe, HTTP, List } from 'cnc-tskit';
 
 import { IAppServices } from '../../appServices';
@@ -36,11 +36,28 @@ import { loadFile } from '../files';
 import { createRootComponent } from '../../app';
 import { ActionName } from '../../models/actions';
 import { initDummyStore } from '../../page/cache/index';
-import { fetchReqArgArray, createHelperServices, mkPageReturnUrl, logRequest, renderResult, fetchUrlParamArray } from './common';
+import { fetchReqArgArray, createHelperServices, mkPageReturnUrl, logRequest, renderResult, fetchUrlParamArray, clientIsLikelyMobile } from './common';
 import { maxQueryWordsForQueryType } from '../../conf/validation';
+import { logAction } from '../actionLog/common';
+import { HTTPAction } from './actions';
 
 
-function mkRuntimeClientConf(conf:ClientStaticConf, serverConf:ServerConf, domain:string, themeId:string, appServices:IAppServices):Observable<ClientConf> {
+interface MkRuntimeClientConfArgs {
+    conf:ClientStaticConf;
+    serverConf:ServerConf;
+    domain:string;
+    themeId:string;
+    appServices:IAppServices;
+}
+
+function mkRuntimeClientConf({
+    conf,
+    serverConf,
+    domain,
+    themeId,
+    appServices
+}:MkRuntimeClientConfArgs):Observable<ClientConf> {
+
     return forkJoin([
         forkJoin(
             List.map(item =>
@@ -187,6 +204,7 @@ export function importQueryRequest({services, appServices, req, queryType, uiLan
 export interface QueryActionArgs {
     services:Services;
     answerMode:boolean;
+    httpAction:HTTPAction;
     queryType:QueryType;
     uiLang:string;
     req:Request;
@@ -194,7 +212,7 @@ export interface QueryActionArgs {
     next:NextFunction;
 }
 
-export function queryAction({services, answerMode, queryType, uiLang, req, res, next}:QueryActionArgs) {
+export function queryAction({services, answerMode, httpAction, queryType, uiLang, req, res, next}:QueryActionArgs) {
     const dispatcher = new ServerSideActionDispatcher();
     const [viewUtils, appServices] = createHelperServices(services, uiLang);
     // until now there should be no exceptions throw
@@ -215,13 +233,13 @@ export function queryAction({services, answerMode, queryType, uiLang, req, res, 
                 }
             ),
             hostPageEnv: services.toolbar.get(userConf.uiLang, mkPageReturnUrl(req, services.clientConf.rootUrl), req.cookies, viewUtils),
-            runtimeConf: mkRuntimeClientConf(
-                services.clientConf,
-                services.serverConf,
-                userConf.query1Domain,
-                req.cookies[THEME_COOKIE_NAME] || '',
+            runtimeConf: mkRuntimeClientConf({
+                conf: services.clientConf,
+                serverConf: services.serverConf,
+                domain: userConf.query1Domain,
+                themeId: req.cookies[THEME_COOKIE_NAME] || '',
                 appServices
-            ),
+            }),
             logReq: logRequest( // we don't need the return value much here (see subscribe)
                 services.queryLog,
                 appServices.getISODatetime(),
@@ -250,7 +268,19 @@ export function queryAction({services, answerMode, queryType, uiLang, req, res, 
                     reduce((acc:Array<Array<QueryMatch>>, curr) => acc.concat([curr]), [])
                 )
             })
-        )
+        ),
+        // log action
+        tap(({appServices, hostPageEnv, userConf}) => {
+            logAction({
+                actionWriter: services.actionWriter,
+                req,
+                httpAction,
+                datetime: appServices.getISODatetime(),
+                userId: hostPageEnv.userId,
+                userConf,
+                isMobileClient: clientIsLikelyMobile(req)
+            }).subscribe();
+        })
     ).subscribe(
         ({userConf, hostPageEnv, runtimeConf, qMatchesEachQuery, appServices, dispatcher, viewUtils}) => {
             const queryMatchesExtended = List.map(

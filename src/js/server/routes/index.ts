@@ -27,7 +27,8 @@ import { QueryType, QueryMatch, importQueryTypeString } from '../../query/index'
 import { GlobalComponents } from '../../views/global';
 import { IFreqDB } from '../freqdb/freqdb';
 
-import { getLangFromCookie, fetchReqArgArray, createHelperServices, mkPageReturnUrl, renderResult, getQueryValue } from './common';
+import { getLangFromCookie, fetchReqArgArray, createHelperServices,
+    mkPageReturnUrl, renderResult, getQueryValue, clientIsLikelyMobile } from './common';
 import { queryAction, importQueryRequest } from './main';
 import { Services } from '../actionServices';
 import { HTTPAction } from './actions';
@@ -38,6 +39,7 @@ import { init as errPageInit } from '../../views/error';
 import { emptyValue } from '../toolbar/empty';
 import { importQueryPos } from '../../postag';
 import { ServerHTTPRequestError } from '../request';
+import { logAction } from '../actionLog/common';
 
 const LANG_COOKIE_TTL = 3600 * 24 * 365;
 
@@ -119,11 +121,21 @@ export const wdgRouter = (services:Services) => (app:Express) => {
 
     // endpoint to receive client telemetry
     app.post(HTTPAction.TELEMETRY, (req, res, next) => {
+        const [,appServices] = createHelperServices(services, getLangFromCookie(req, services));
         const t1 = new Date().getTime();
         const statement = services.telemetryDB.prepare(
             'INSERT INTO telemetry (session, timestamp, action, tile_name, is_subquery, is_mobile) values (?, ?, ?, ?, ?, ?)'
         );
         services.telemetryDB.run('BEGIN TRANSACTION');
+        logAction({
+            actionWriter: services.actionWriter,
+            req,
+            httpAction: HTTPAction.TELEMETRY,
+            datetime: appServices.getISODatetime(),
+            userConf: null,
+            isMobileClient: clientIsLikelyMobile(req),
+            userId: null
+        }).subscribe();
         rxOf(...(services.telemetryDB ? req.body['telemetry'] as Array<TelemetryAction> : [])).pipe(
             concatMap(
                 action => new Observable(observer => {
@@ -168,11 +180,20 @@ export const wdgRouter = (services:Services) => (app:Express) => {
     // host page generator with some React server rendering (testing phase)
     app.get(HTTPAction.MAIN, (req, res, next) => {
         const uiLang = getLangFromCookie(req, services);
-        queryAction({services, answerMode: false, queryType: QueryType.SINGLE_QUERY, uiLang, req, res, next});
+        queryAction({services, answerMode: false, httpAction: HTTPAction.MAIN, queryType: QueryType.SINGLE_QUERY, uiLang, req, res, next});
     });
 
     app.get(HTTPAction.GET_LEMMAS, (req, res, next) => {
         const [,appServices] = createHelperServices(services, getLangFromCookie(req, services));
+        logAction({
+            actionWriter: services.actionWriter,
+            req,
+            httpAction: HTTPAction.GET_LEMMAS,
+            datetime: appServices.getISODatetime(),
+            userId: null,
+            userConf: null,
+            isMobileClient: clientIsLikelyMobile(req)
+        }).subscribe();
         const queryDomain = getQueryValue(req, 'domain')[0];
         new Observable<IFreqDB>((observer) => {
             const db = services.db.getDatabase(QueryType.SINGLE_QUERY, queryDomain);
@@ -202,6 +223,16 @@ export const wdgRouter = (services:Services) => (app:Express) => {
     });
 
     app.post(HTTPAction.SET_UI_LANG, (req, res, next) => {
+        const [,appServices] = createHelperServices(services, getLangFromCookie(req, services));
+        logAction({
+            actionWriter: services.actionWriter,
+            req,
+            httpAction: HTTPAction.SET_UI_LANG,
+            datetime: appServices.getISODatetime(),
+            userId: null,
+            userConf: null,
+            isMobileClient: clientIsLikelyMobile(req)
+        }).subscribe();
         const newUiLang = req.body.lang;
         const cookieName = services.serverConf.langCookie?.name;
         const cookieDomain = services.serverConf.langCookie?.domain;
@@ -276,16 +307,37 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                 return;
             }
         }
-        queryAction({services, answerMode: true, queryType: QueryType.SINGLE_QUERY, uiLang, req, res, next});
+        queryAction({
+            services,
+            answerMode: true,
+            httpAction: HTTPAction.SEARCH,
+            queryType: QueryType.SINGLE_QUERY,
+            uiLang,
+            req,
+            res,
+            next
+        });
     });
 
-    app.get(`/embedded${HTTPAction.SEARCH}:domain/:query`, (req, res, next) => {
+    app.get(`${HTTPAction.EMBEDDED_SEARCH}:domain/:query`, (req, res, next) => {
         const uiLang = getLangFromCookie(req, services);
         const [,appServices] = createHelperServices(services, uiLang);
         importQueryRequest({
             services, appServices, req, queryType: QueryType.SINGLE_QUERY, uiLang, answerMode: true
 
-        }).subscribe(
+        }).pipe(
+            tap(userConf => {
+                logAction({
+                    actionWriter: services.actionWriter,
+                    req,
+                    httpAction: HTTPAction.EMBEDDED_SEARCH,
+                    datetime: appServices.getISODatetime(),
+                    userId: null,
+                    userConf,
+                    isMobileClient: clientIsLikelyMobile(req)
+                }).subscribe();
+            })
+        ).subscribe(
             (conf) => {
                 res.setHeader('Content-Type', 'application/json');
                 res.send(JSON.stringify({
@@ -305,17 +357,34 @@ export const wdgRouter = (services:Services) => (app:Express) => {
 
     app.get(`${HTTPAction.COMPARE}:domain/:query`, (req, res, next) => {
         const uiLang = getLangFromCookie(req, services);
-        queryAction({services, answerMode: true, queryType: QueryType.CMP_QUERY, uiLang, req, res, next});
+        queryAction({
+            services,
+            answerMode: true,
+            httpAction: HTTPAction.COMPARE,
+            queryType: QueryType.CMP_QUERY,
+            uiLang,
+            req,
+            res,
+            next
+        });
     });
 
     app.get(`${HTTPAction.TRANSLATE}:domain/:query`, (req, res, next) => {
         const uiLang = getLangFromCookie(req, services);
-        queryAction({services, answerMode: true, queryType: QueryType.TRANSLAT_QUERY, uiLang, req, res, next});
+        queryAction({
+            services,
+            answerMode: true,
+            httpAction: HTTPAction.TRANSLATE,
+            queryType: QueryType.TRANSLAT_QUERY,
+            uiLang,
+            req,
+            res,
+            next
+        });
     });
 
     // Find words with similar frequency
     app.get(HTTPAction.SIMILAR_FREQ_WORDS, (req, res) => {
-
         const posRaw = fetchReqArgArray(req, 'pos', 0)[0];
         const pos:Array<string> = posRaw !== '' ? posRaw.split(',') :  [];
         const uiLang = getLangFromCookie(req, services);
@@ -342,6 +411,16 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             mobileModeTest: ()=>false
         });
         const queryDomain = getQueryValue(req, 'domain')[0];
+
+        logAction({
+            actionWriter: services.actionWriter,
+            req,
+            httpAction: HTTPAction.SIMILAR_FREQ_WORDS,
+            datetime: appServices.getISODatetime(),
+            userId: null,
+            userConf: null,
+            isMobileClient: clientIsLikelyMobile(req)
+        }).subscribe();
 
         new Observable<{domain:string; word:string; lemma:string; pos:Array<string>; rng:number}>((observer) => {
             if (isNaN(parseInt(getQueryValue(req, 'srchRange')[0]))) {
@@ -423,6 +502,16 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         });
 
         const freqDb = services.db.getDatabase(QueryType.SINGLE_QUERY, getQueryValue(req, 'domain')[0]);
+
+        logAction({
+            actionWriter: services.actionWriter,
+            req,
+            httpAction: HTTPAction.WORD_FORMS,
+            datetime: appServices.getISODatetime(),
+            userId: null,
+            userConf: null,
+            isMobileClient: clientIsLikelyMobile(req)
+        }).subscribe();
 
         new Observable<{domain:string; word:string; lemma:string; pos:Array<string>}>((observer) => {
             if (freqDb === undefined) {

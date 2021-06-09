@@ -72,6 +72,16 @@ export function getLangFromCookie(req:Request, services:Services):string {
     return services.toolbar.exportLangCode(ans, services.serverConf.languages);
 }
 
+/**
+ * This is only for overview purposes (logging) as the information is far from reliable.
+ * To enable/disable features, WaG relies only on client-side detection.
+ * @param req
+ */
+export function clientIsLikelyMobile(req:Request):boolean {
+    return req.headers['user-agent'].includes('mobile') || req.headers['user-agent'].includes('iphone') ||
+        req.headers['user-agent'].includes('tablet') || req.headers['user-agent'].includes('android');
+}
+
 export function logRequest(logging:IQueryLog, datetime:string, req:Request, userConfig:UserConf):Observable<number> {
     return logging.put({
         user_id: 1,

@@ -34,7 +34,8 @@ export class LangSwitchToolbar implements IToolbarProvider {
             styles: [],
             scripts: [],
             html: viewInit(ut),
-            toolbarHeight: null
+            toolbarHeight: null,
+            userId: null
         });
     }
 
