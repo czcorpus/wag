@@ -28,7 +28,8 @@ export const emptyValue = ():HostPageEnv => {
         styles: [],
         scripts: [],
         html: null,
-        toolbarHeight: null
+        toolbarHeight: null,
+        userId: null
     };
 }
 

@@ -1,6 +1,6 @@
 /*
- * Copyright 2019 Tomas Machalek <tomas.machalek@gmail.com>
- * Copyright 2019 Institute of the Czech National Corpus,
+ * Copyright 2021 Martin Zimandl <martin.zimandl@gmail.com>
+ * Copyright 2021 Institute of the Czech National Corpus,
  *                Faculty of Arts, Charles University
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,17 +16,25 @@
  * limitations under the License.
  */
 
-export enum HTTPAction {
-    MAIN = '/',
-    SET_UI_LANG = '/set-ui-lang/',
-    GET_LEMMAS = '/get-lemmas/',
-    SIMILAR_FREQ_WORDS = '/similar-freq-words/',
-    WORD_FORMS = '/word-forms/',
-    TELEMETRY = '/telemetry/',
-    SET_THEME = '/set-theme/',
-    SOURCE_INFO = '/source-info/',
-    SEARCH = '/search/',
-    TRANSLATE = '/translate/',
-    COMPARE = '/compare/',
-    EMBEDDED_SEARCH = '/embedded/search/'
+import { QueryType } from '../../query';
+
+export interface ActionLogRecord {
+    action:string;
+    userId:number|null;  // provide userId if available
+    datetime:string;
+    queryType:QueryType;
+    request:{
+        origin:string;
+        userAgent:string;
+        referer:string;
+    };
+    lang1:string;
+    lang2:string;
+    hasPosSpecification:boolean;
+    isQuery:boolean;
+    isMobileClient:boolean;
+}
+
+export interface IActionWriter {
+    write(log:ActionLogRecord):void;
 }

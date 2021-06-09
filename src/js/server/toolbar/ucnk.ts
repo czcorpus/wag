@@ -104,6 +104,7 @@ export class UCNKToolbar implements IToolbarProvider {
             ),
             map<ToolbarResponse, HostPageEnv>(
                 response => ({
+                    userId: parseInt(response.user.id),
                     styles: pipe(
                         response.styles,
                         Dict.toEntries(),
