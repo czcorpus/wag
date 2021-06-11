@@ -18,7 +18,7 @@
 import { NextFunction } from 'connect';
 import { Request, Response } from 'express';
 import { Observable, forkJoin, of as rxOf } from 'rxjs';
-import { concatMap, map, catchError, reduce, tap } from 'rxjs/operators';
+import { concatMap, map, reduce, tap } from 'rxjs/operators';
 import { Dict, pipe, HTTP, List } from 'cnc-tskit';
 
 import { IAppServices } from '../../appServices';
@@ -35,7 +35,8 @@ import { Services  } from '../actionServices';
 import { loadFile } from '../files';
 import { createRootComponent } from '../../app';
 import { initDummyStore } from '../../page/cache/index';
-import { fetchReqArgArray, createHelperServices, mkPageReturnUrl, logRequest, renderResult, fetchUrlParamArray, clientIsLikelyMobile } from './common';
+import { fetchReqArgArray, createHelperServices, mkPageReturnUrl, renderResult, fetchUrlParamArray,
+    clientIsLikelyMobile } from './common';
 import { maxQueryWordsForQueryType } from '../../conf/validation';
 import { Actions } from '../../models/actions';
 import { HTTPAction } from './actions';
@@ -240,17 +241,6 @@ export function queryAction({services, answerMode, httpAction, queryType, uiLang
                 themeId: req.cookies[THEME_COOKIE_NAME] || '',
                 appServices
             }),
-            logReq: logRequest( // we don't need the return value much here (see subscribe)
-                services.queryLog,
-                appServices.getISODatetime(),
-                req,
-                userConf
-            ).pipe(catchError(
-                (err:Error) => {
-                    services.errorLog.error(err.message, {trace: err.stack});
-                    return rxOf(0);
-                }
-            )),
             qMatchesEachQuery: rxOf(...List.map(
                     query => answerMode ?
                         services.db

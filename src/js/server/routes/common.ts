@@ -19,7 +19,6 @@ import { renderToString } from 'react-dom/server';
 import * as React from 'react';
 import { pipe, Dict, List, tuple } from 'cnc-tskit';
 
-import { IQueryLog } from '../queryLog/abstract';
 import { HTTPAction } from './actions';
 import { UserConf, ClientConf, ColorThemeIdent } from '../../conf';
 import { Observable } from 'rxjs';
@@ -82,30 +81,6 @@ export function clientIsLikelyMobile(req:Request):boolean {
         req.headers['user-agent'].includes('tablet') || req.headers['user-agent'].includes('android');
 }
 
-export function logRequest(logging:IQueryLog, datetime:string, req:Request, userConfig:UserConf):Observable<number> {
-    return logging.put({
-        user_id: 1,
-        proc_time: -1,
-        date: datetime,
-        action: HTTPAction.SEARCH,
-        request: {
-            HTTP_X_FORWARDED_FOR: req.headers.forwarded,
-            HTTP_USER_AGENT: req.headers['user-agent'],
-            HTTP_REMOTE_ADDR: null,
-            REMOTE_ADDR: req.connection.remoteAddress
-        },
-        params: {
-            uiLang: userConfig.uiLang,
-            queryType: userConfig.queryType,
-            query1Domain: userConfig.query1Domain,
-            query2Domain: userConfig.query2Domain ? userConfig.query2Domain : null,
-            query: userConfig.queries,
-            error: userConfig.error ? userConfig.error.join(': ') : null
-        },
-        pid: -1,
-        settings: {}
-    })
-}
 
 export function fetchReqArgArray(req:Request, arg:string, minLen:number):Array<string> {
 
