@@ -37,7 +37,6 @@ import { wdgRouter } from './routes/index';
 import { createToolbarInstance } from './toolbar/factory';
 import { WordDatabases } from './actionServices';
 import { PackageInfo } from '../types';
-import { createQueryLogInstance } from './queryLog/factory';
 import { WinstonActionWriter } from './actionLog/winstonWriter';
 
 
@@ -116,15 +115,10 @@ forkJoin( // load core configs
                 }
             )
         )
-    ),
-    concatMap( // initiate query log
-        ([serverConf, clientConf, pkgInfo]) => createQueryLogInstance(serverConf).pipe(
-            map(queryLog => tuple(serverConf, clientConf, pkgInfo, queryLog))
-        )
     )
 
 ).subscribe(
-    ([serverConf, clientConf, pkgInfo, queryLog]) => {
+    ([serverConf, clientConf, pkgInfo]) => {
         const app = express();
         const FileStore = sessionFileStore(session)
         app.set('query parser', 'simple');
@@ -182,13 +176,12 @@ forkJoin( // load core configs
         console.error = (msg:string, ...args:Array<any>) => logger.error(msg, ...args);
 
         wdgRouter({
-            serverConf: serverConf,
-            clientConf: clientConf,
-            db: db,
+            serverConf,
+            clientConf,
+            db,
             telemetryDB: serverConf.telemetryDB ? new sqlite3.Database(serverConf.telemetryDB) : null,
-            translations: translations,
-            toolbar: toolbar,
-            queryLog: queryLog,
+            translations,
+            toolbar,
             errorLog: logger,
             actionWriter: new WinstonActionWriter(logger),
             version: pkgInfo.version,

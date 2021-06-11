@@ -1,6 +1,5 @@
 const path = require('path');
 const build = require('./build');
-const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const TerserPlugin = require('terser-webpack-plugin');
 
@@ -116,12 +115,11 @@ module.exports = (env) => ({
     },
     optimization: {
         splitChunks: {
-            chunks: (chunk) => chunk.name !== 'sanitize-html' || chunk.name !== 'ioredis',
+            chunks: (chunk) => chunk.name !== 'sanitize-html',
             name: 'common'
         },
         minimizer: [
-            new OptimizeCSSAssetsPlugin({}),
-            new TerserPlugin(),
+            new TerserPlugin()
         ]
     },
     //devtool: 'inline-source-map',
