@@ -160,10 +160,9 @@ forkJoin( // load core configs
         if (serverConf.logging) {
             if (serverConf.logging.rotation) {
                 logger.add(new winston.transports.DailyRotateFile({
-                    filename: serverConf.logging.path.includes('%DATE%') ?
-                        serverConf.logging.path :
-                        serverConf.logging.path + '.%DATE%',
-                    datePattern: 'YYYY-MM-DD'
+                    filename: serverConf.logging.path,
+                    maxFiles: '7d',
+                    createSymlink: true
                 }));
 
             } else {
