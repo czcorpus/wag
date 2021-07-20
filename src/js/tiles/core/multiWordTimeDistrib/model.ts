@@ -31,7 +31,6 @@ import { DataItemWithWCI, Actions, DataLoadedPayload } from './common';
 import { callWithExtraVal } from '../../../api/util';
 import { QueryMatch, RecognizedQueries } from '../../../query/index';
 import { createInitialLinesData } from '../../../models/tiles/concordance';
-import { ConcLoadedPayload, isConcLoadedPayload } from '../concordance/actions';
 import { PriorityValueFactory } from '../../../priority';
 import { DataRow } from '../../../api/abstract/freqs';
 import { Actions as ConcActions } from '../concordance/actions';
@@ -198,7 +197,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                                     state,
                                     dispatch,
                                     [null],
-                                    rxOf<CalcArgs>(...List.map(
+                                    rxOf<CalcArgs[]>(...List.map(
                                         (lemma, queryId) => {
                                             return {
                                                 queryId,
@@ -219,7 +218,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         state,
                         dispatch,
                         state.subcnames,
-                        rxOf<CalcArgs>(
+                        rxOf<CalcArgs[]>(
                             ...List.map(
                                 (lemma, queryId) => {
                                     return {
@@ -407,7 +406,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private loadConcordance(state:TimeDistribModelState, lemmaVariant:QueryMatch, subcnames:Array<string>,
             queryId:number):Observable<[ConcResponse, DataFetchArgs]> {
-        return rxOf<string>(...subcnames).pipe(
+        return rxOf<string[]>(...subcnames).pipe(
             mergeMap(
                 subcname => {
                     const [concApi, freqApi] = this.apiFactory.getRandomValue();

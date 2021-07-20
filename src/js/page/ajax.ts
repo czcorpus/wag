@@ -43,7 +43,7 @@ export interface AjaxOptions {
 interface AjaxRequestProps {
     accept:string,
     contentType:string,
-    responseType:string,
+    responseType:XMLHttpRequestResponseType,
     method:string,
     requestBody:string,
     url:string
@@ -202,5 +202,5 @@ export const ajax$ = <T>(method:string, url:string, args:AjaxArgs, options?:Ajax
         method: callArgs.method,
         responseType: callArgs.responseType,
         headers: headers
-    }).pipe(map<AjaxResponse, T>(v => v.response));
+    }).pipe(map<AjaxResponse<T>, T>(v => v.response));
 }
