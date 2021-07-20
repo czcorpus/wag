@@ -271,8 +271,8 @@ export class AppServices implements IAppServices {
         return {};
     }
 
-    queryLemmaDbApi(lang:string, q:string):Observable<LemmaDbResponse> {
-        return this.lemmaDbApi.call({lang: lang, q: q});
+    queryLemmaDbApi(domain:string, q:string):Observable<LemmaDbResponse> {
+        return this.lemmaDbApi.call({domain, q});
     }
 
     getISO639UILang():string {
