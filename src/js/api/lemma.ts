@@ -24,7 +24,7 @@ import { ajax$ } from '../page/ajax';
 
 
 interface LemmaDbRequestArgs {
-    lang:string;
+    domain:string;
     q:string;
 }
 
@@ -34,7 +34,7 @@ export interface LemmaDbResponse {
 }
 
 /**
- * Represents a service able to provide a lemmatized variant 
+ * Represents a service able to provide a lemmatized variant
  * of a provided query
  */
 export class LemmaDbApi implements DataApi<LemmaDbRequestArgs, LemmaDbResponse> {
