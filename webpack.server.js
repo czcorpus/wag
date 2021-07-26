@@ -38,26 +38,13 @@ module.exports = (env) => ({
         rules: [
             {
                 test: /\.tsx?$/,
+                exclude: /(node_modules)/,
                 use: [
                     {
                         loader: 'babel-loader',
-                        /*
-                        options: {
-                            configFileName: path.resolve(__dirname, 'tsconfig.server.json'),
-                            transpileOnly: env ? !!env.TS_TRANSPILE_ONLY : false,
-                            useCache: false
-                        }
-                        */
+                        options: build.loadConf(mkpath('./webpack.babel.json'))
                     }
                 ]
-            },
-            {
-                test: /\.css$/,
-                use: 'null-loader'
-            },
-            {
-                test: /\.less$/,
-                use: 'null-loader'
             }
         ]
     },

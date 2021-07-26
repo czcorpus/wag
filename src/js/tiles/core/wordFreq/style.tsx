@@ -79,13 +79,13 @@ export const WordFreqTileView = styled.div`
         }
     }
 
-    ${theme.media.small`
+    ${theme.media.small} {
         flex-direction: column;
 
         & > div.cell h3 {
             margin-top: 1em;
         }
-    `}
+    }
 `;
 
 export const Stars = styled.span`

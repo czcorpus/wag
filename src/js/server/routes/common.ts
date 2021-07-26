@@ -18,17 +18,16 @@
 import { renderToString } from 'react-dom/server';
 import * as React from 'react';
 import { pipe, Dict, List, tuple } from 'cnc-tskit';
-
-import { HTTPAction } from './actions';
-import { UserConf, ClientConf, ColorThemeIdent } from '../../conf';
-import { Observable } from 'rxjs';
+import { ServerStyleSheet } from 'styled-components'
 import { Request } from 'express';
+import { ViewUtils } from 'kombo';
+
+import { UserConf, ClientConf, ColorThemeIdent } from '../../conf';
 import { encodeArgs } from '../../page/ajax';
 import { Services } from '../actionServices';
-import { ViewUtils } from 'kombo';
 import { GlobalComponents } from '../../views/common';
 import { AppServices } from '../../appServices';
-import { LayoutProps } from '../../views/layout/layout';
+import { HtmlBodyProps, HtmlHeadProps, init as layoutInit} from '../../views/layout/layout';
 import { HostPageEnv } from '../../page/hostPage';
 import { RecognizedQueries } from '../../query/index';
 import { WdglanceMainProps } from '../../views/main';
@@ -158,7 +157,8 @@ export function createHelperServices(services:Services, uiLang:string):[ViewUtil
 
 
 interface RenderResultArgs {
-    view:React.FC<LayoutProps>;
+    HtmlBody:React.FC<HtmlBodyProps>;
+    HtmlHead:React.FC<HtmlHeadProps>;
     services:Services;
     toolbarData:HostPageEnv;
     queryMatches:RecognizedQueries;
@@ -179,7 +179,8 @@ interface RenderResultArgs {
 
 
 export function renderResult({
-        view,
+        HtmlBody,
+        HtmlHead,
         toolbarData,
         queryMatches,
         userConfig,
@@ -196,31 +197,49 @@ export function renderResult({
         repositoryUrl,
         error}:RenderResultArgs):string {
 
-    const appString = renderToString(
-        React.createElement<LayoutProps>(
-            view,
-            {
-                config: clientConfig,
-                userConfig,
-                hostPageEnv: toolbarData,
-                queryMatches: queryMatches,
-                uiLanguages: pipe(userConfig.uiLanguages, Dict.mapEntries(v => v), List.map(([k, v]) => ({code: k, label: v}))),
-                uiLang: userConfig.uiLang,
-                returnUrl,
-                currTheme,
-                themes,
-                homepageTiles: [...clientConfig.homepage.tiles],
-                RootComponent: rootView,
-                layout,
-                homepageSections,
-                isMobile,
-                isAnswerMode,
-                version,
-                repositoryUrl,
-                error,
-                issueReportingUrl: clientConfig.issueReportingUrl
-            }
-        )
-    );
-    return `<!DOCTYPE html>\n${appString}`;
+    const sheet = new ServerStyleSheet();
+    try {
+        const bodyString = renderToString(
+            sheet.collectStyles(
+                React.createElement<HtmlBodyProps>(
+                    HtmlBody,
+                    {
+                        config: clientConfig,
+                        userConfig,
+                        hostPageEnv: toolbarData,
+                        queryMatches: queryMatches,
+                        uiLanguages: pipe(userConfig.uiLanguages, Dict.mapEntries(v => v), List.map(([k, v]) => ({code: k, label: v}))),
+                        uiLang: userConfig.uiLang,
+                        returnUrl,
+                        currTheme,
+                        themes,
+                        homepageTiles: [...clientConfig.homepage.tiles],
+                        RootComponent: rootView,
+                        layout,
+                        homepageSections,
+                        isMobile,
+                        isAnswerMode,
+                        version,
+                        repositoryUrl,
+                        error,
+                        issueReportingUrl: clientConfig.issueReportingUrl
+                    }
+                )
+            )
+        );
+        const headString = renderToString(
+            React.createElement<HtmlHeadProps>(
+                HtmlHead,
+                {
+                    hostPageEnv: toolbarData,
+                    config: clientConfig,
+                    scStyles: sheet.getStyleElement()
+                }
+            )
+        );
+        return `<!DOCTYPE html>\n<html lang=${userConfig.uiLang}>\n${headString}\n${bodyString}</html>`;
+
+    } finally {
+        sheet.seal();
+    }
 }

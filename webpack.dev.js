@@ -13,6 +13,7 @@ const CONF = build.loadConf(mkpath('conf/server.json'));
 
 module.exports = (env) => ({
     mode: 'development',
+    target: ['web', 'es5'],
     entry: {
         index: path.resolve(__dirname, 'src/js/page/index')
     },
@@ -56,7 +57,8 @@ module.exports = (env) => ({
                 exclude: /(node_modules)/,
                 use: [
                     {
-                        loader: 'babel-loader'
+                        loader: 'babel-loader',
+                        options: build.loadConf(mkpath('./webpack.babel.json'))
                     }
                 ]
             },
@@ -65,7 +67,8 @@ module.exports = (env) => ({
                 exclude: /(node_modules)/,
                 use: [
                     {
-                        loader: 'babel-loader'
+                        loader: 'babel-loader',
+                        options: build.loadConf(mkpath('./webpack.babel.json'))
                     }
                 ]
             },
@@ -127,6 +130,5 @@ module.exports = (env) => ({
     },
     plugins: [
         new build.ProcTranslationsPlugin(SRC_PATH, DIST_PATH, CONF)
-    ],
-    target: ['web', 'es5']
+    ]
  });

@@ -27,11 +27,12 @@ import { TileGroup } from '../../page/layout';
 import { GlobalComponents } from '../common';
 import { WdglanceMainProps } from '../main';
 import { ErrPageProps } from '../error';
-import { List } from 'cnc-tskit';
+import { List, pipe } from 'cnc-tskit';
+import { GlobalStyle } from './style';
 
 
 
-export interface LayoutProps {
+export interface HtmlBodyProps {
     config:ClientConf;
     userConfig:UserConf;
     hostPageEnv:HostPageEnv;
@@ -53,8 +54,14 @@ export interface LayoutProps {
     issueReportingUrl?:string;
 }
 
+export interface HtmlHeadProps {
+    config:ClientConf;
+    hostPageEnv:HostPageEnv;
+    scStyles:Array<React.ReactElement>;
+}
 
-export function init(ut:ViewUtils<GlobalComponents>):React.FC<LayoutProps> {
+
+export function init(ut:ViewUtils<GlobalComponents>):{HtmlBody: React.FC<HtmlBodyProps>; HtmlHead: React.FC<HtmlHeadProps>} {
 
     // -------- <ThemeSelection /> -----------------------------
 
@@ -160,9 +167,33 @@ export function init(ut:ViewUtils<GlobalComponents>):React.FC<LayoutProps> {
         </>
     );
 
-    // -------- <Layout /> -----------------------------
+    // -------- <HtmlHead /> -------------------------------
 
-    const Layout:React.FC<LayoutProps> = (props) => {
+    const HtmlHead:React.FC<HtmlHeadProps> = (props) => {
+        return (
+            <head>
+                <meta charSet="utf-8" />
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <meta name="description" content={ut.translate('global__meta_desc')} />
+                <title>{ut.translate('global__wdglance_title')}</title>
+                <link href={`${urlResolve(props.config.hostUrl, 'dist/common.css')}`} rel="stylesheet" type="text/css" />
+                {props.config.favicon ? <link rel="icon" type={props.config.favicon.contentType} href={props.config.favicon.url} /> : null}
+                <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Droid+Sans+Mono%7CRoboto:100,400,400italic,700,700italic%7CRoboto+Condensed:400,700&amp;subset=latin,latin-ext&amp;display=swap" media="all" />
+                {pipe(
+                    props.hostPageEnv.styles,
+                    List.concat(props.config.externalStyles),
+                    List.map(
+                        style => <link key={style} rel="stylesheet" type="text/css" href={style} media="all"/>
+                    )
+                )}
+                {[...props.scStyles]}
+            </head>
+        );
+    }
+
+    // -------- <HtmlBody /> -----------------------------
+
+    const HtmlBody:React.FC<HtmlBodyProps> = (props) => {
 
         const createScriptStr = () => {
             return `indexPage.initClient(document.querySelector('.wdglance-mount'),
@@ -184,59 +215,46 @@ export function init(ut:ViewUtils<GlobalComponents>):React.FC<LayoutProps> {
             ut.translate('global__wdglance_title');
 
         return (
-            <html lang={props.uiLang}>
-                <head>
-                    <meta charSet="utf-8" />
-                    <meta name="viewport" content="width=device-width, initial-scale=1" />
-                    <meta name="description" content={ut.translate('global__meta_desc')} />
-                    <title>{ut.translate('global__wdglance_title')}</title>
-                    <link href={`${urlResolve(props.config.hostUrl, 'dist/common.css')}`} rel="stylesheet" type="text/css" />
-                    {props.config.favicon ? <link rel="icon" type={props.config.favicon.contentType} href={props.config.favicon.url} /> : null}
-                    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Droid+Sans+Mono%7CRoboto:100,400,400italic,700,700italic%7CRoboto+Condensed:400,700&amp;subset=latin,latin-ext&amp;display=swap" media="all" />
-                    {props.hostPageEnv.styles.concat(props.config.externalStyles).map(style =>
-                       <link key={style} rel="stylesheet" type="text/css" href={style} media="all"/> )}
-                </head>
-                <body>
-                    {props.hostPageEnv.html ? renderToolbar() : null}
-                    <header className="wdg-header">
-                        <a href={props.config.hostUrl} title={createLabel()}>
-                            {props.config.logo ?
-                                <img src={props.config.logo.url} alt="logo" style={props.config.logo.inlineStyle} /> :
-                                <img src={ut.createStaticUrl(ut.translate('global__logo_file'))} alt="logo" />
-                            }
-                        </a>
-                    </header>
-                    <div id="global-style-mount" />
-                    <section className="wdglance-mount">
-                        <props.RootComponent
-                            layout={props.layout}
-                            homepageSections={props.homepageSections}
-                            isMobile={props.isMobile}
-                            isAnswerMode={props.isAnswerMode}
-                            error={props.error}
-                             />
-                    </section>
-                    {props.hostPageEnv.scripts.map(script =>
-                        <script key={script} type="text/javascript" src={script}></script>
-                    )}
-                    <script type="text/javascript" src={`${urlResolve(props.config.hostUrl, 'dist/common.js')}`}></script>
-                    <script type="text/javascript" src={`${urlResolve(props.config.hostUrl, 'dist/index.js')}`}></script>
-                    <script type="text/javascript" dangerouslySetInnerHTML={{__html: createScriptStr()}} />
-                    <footer>
-                        {props.config.homepage.footer ?
-                            <CustomFooter config={props.config} returnUrl={props.returnUrl}
-                                    repositoryUrl={props.repositoryUrl} themes={props.themes}
-                                    currTheme={props.currTheme} version={props.version} /> :
-                            <DefaultFooter config={props.config} returnUrl={props.returnUrl}
-                                    repositoryUrl={props.repositoryUrl} themes={props.themes}
-                                    currTheme={props.currTheme} version={props.version}
-                                    issueReportingUrl={props.issueReportingUrl} />
+            <body>
+                <GlobalStyle createStaticUrl={ut.createStaticUrl} />
+                {props.hostPageEnv.html ? renderToolbar() : null}
+                <header className="wdg-header">
+                    <a href={props.config.hostUrl} title={createLabel()}>
+                        {props.config.logo ?
+                            <img src={props.config.logo.url} alt="logo" style={props.config.logo.inlineStyle} /> :
+                            <img src={ut.createStaticUrl(ut.translate('global__logo_file'))} alt="logo" />
                         }
-                    </footer>
-                </body>
-            </html>
+                    </a>
+                </header>
+                <section className="wdglance-mount">
+                    <props.RootComponent
+                        layout={props.layout}
+                        homepageSections={props.homepageSections}
+                        isMobile={props.isMobile}
+                        isAnswerMode={props.isAnswerMode}
+                        error={props.error}
+                            />
+                </section>
+                <footer>
+                    {props.config.homepage.footer ?
+                        <CustomFooter config={props.config} returnUrl={props.returnUrl}
+                                repositoryUrl={props.repositoryUrl} themes={props.themes}
+                                currTheme={props.currTheme} version={props.version} /> :
+                        <DefaultFooter config={props.config} returnUrl={props.returnUrl}
+                                repositoryUrl={props.repositoryUrl} themes={props.themes}
+                                currTheme={props.currTheme} version={props.version}
+                                issueReportingUrl={props.issueReportingUrl} />
+                    }
+                </footer>
+                {props.hostPageEnv.scripts.map(script =>
+                    <script key={script} type="text/javascript" src={script}></script>
+                )}
+                <script type="text/javascript" src={`${urlResolve(props.config.hostUrl, 'dist/common.js')}`}></script>
+                <script type="text/javascript" src={`${urlResolve(props.config.hostUrl, 'dist/index.js')}`}></script>
+                <script type="text/javascript" dangerouslySetInnerHTML={{__html: createScriptStr()}} />
+            </body>
         );
     }
 
-    return Layout;
+    return {HtmlBody, HtmlHead};
 }

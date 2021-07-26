@@ -56,12 +56,13 @@ export function errorPage({req, res, uiLang, services, viewUtils, error}:ErrorPa
     const userConf = errorUserConf(services.serverConf.languages, error, uiLang);
     const clientConfig = emptyClientConf(services.clientConf, req.cookies[THEME_COOKIE_NAME]);
     clientConfig.colorThemes = [];
-    const view = viewInit(viewUtils);
+    const {HtmlBody, HtmlHead} = viewInit(viewUtils);
     const errView = errPageInit(viewUtils);
     res
         .status(HTTP.Status.NotFound)
         .send(renderResult({
-            view,
+            HtmlBody,
+            HtmlHead,
             services: services,
             toolbarData: emptyValue(),
             queryMatches: [],

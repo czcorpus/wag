@@ -42,9 +42,6 @@ import { TileGroup } from './layout';
 
 import { GlobalStyle } from '../views/layout/style';
 
-declare var require:(src:string)=>void;  // webpack
-require('theme.less');
-
 
 interface MountArgs {
     userSession:UserConf;
@@ -224,11 +221,6 @@ export function initClient(mountElement:HTMLElement, config:ClientConf, userSess
             queryMatches,
             homepage: [...config.homepage.tiles]
         });
-
-        ReactDOM.render(
-            React.createElement(GlobalStyle, {createStaticUrl: viewUtils.createStaticUrl}),
-            document.getElementById('global-style-mount')
-        );
 
     } catch (e) {
         // No need to do anything more as being

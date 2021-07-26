@@ -61,17 +61,7 @@ module.exports = (env) => ({
                 use: [
                     {
                         loader: 'babel-loader',
-                        options: {
-                            presets: [
-                                ['@babel/preset-env', {
-                                    modules: false,
-                                    targets: {
-                                        browsers: ['last 3 versions'],
-                                    },
-                                    forceAllTransforms: true
-                                }]
-                            ],
-                        }
+                        options: build.loadConf(mkpath('./webpack.babel.json'))
                     }
                 ]
             },
@@ -83,31 +73,7 @@ module.exports = (env) => ({
                         loader: 'babel-loader'
                     }
                 ]
-            },
-            {
-                test: /\.css$/,
-                use: [
-                    { loader: 'file-loader'},
-                    { loader: 'extract-loader'},
-                    { loader: 'css-loader' }
-                ]
-            },
-            {
-                test: /\.less$/,
-                use: [
-                    { loader: MiniCssExtractPlugin.loader },
-                    { loader: 'css-loader' },
-                    {
-                        loader: 'less-loader',
-                        options: {
-                            lessOptions: {
-                                strictMath: true,
-                                noIeCompat: true
-                            }
-                        }
-                    }
-                ]
-            },
+            }
         ]
     },
     stats: {
