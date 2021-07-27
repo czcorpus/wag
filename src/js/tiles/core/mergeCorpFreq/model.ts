@@ -33,6 +33,8 @@ import { IFreqDistribAPI, DataRow } from '../../../api/abstract/freqs';
 import { Actions } from './actions';
 import { TooltipValues } from '../../../views/common';
 import { Actions as ConcActions } from '../concordance/actions';
+import { isWebDelegateApi } from '../../../types';
+import { Backlink } from '../../../page/tile';
 
 
 export interface MergeCorpFreqModelState {
@@ -51,8 +53,6 @@ interface SourceQueryProps {
     queryId:number;
     concId:string;
 }
-
-type LoadedConcProps = [number, ModelSourceArgs, string];
 
 
 export interface MergeCorpFreqModelArgs {
@@ -80,6 +80,8 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
 
     private readonly waitForTilesTimeoutSecs:number;
 
+    private readonly backlink:Backlink;
+
     constructor({dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, appServices,
                 concApi, freqApi, initState}:MergeCorpFreqModelArgs) {
         super(dispatcher, initState);
@@ -89,6 +91,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
         this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.concApi = concApi;
         this.freqApi = freqApi;
+        this.backlink = isWebDelegateApi(freqApi) ? freqApi.getBackLink() : null;
 
         this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(
             GlobalActions.EnableAltViewMode.name,
@@ -355,7 +358,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
                                     {
                                         sourceId: props.sourceArgs.uuid,
                                         queryId: props.queryId,
-                                        backlink: this.freqApi.createBacklink(props.sourceArgs, props.sourceArgs.backlinkTpl, props.concId),
+                                        backlink: this.freqApi.createBacklink(props.sourceArgs, this.backlink ? this.backlink : props.sourceArgs.backlinkTpl, props.concId),
                                         freq: row.freq,
                                         ipm: row.ipm,
                                         norm: row.norm,
@@ -364,7 +367,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
                                     {
                                         sourceId: props.sourceArgs.uuid,
                                         queryId: props.queryId,
-                                        backlink: this.freqApi.createBacklink(props.sourceArgs, props.sourceArgs.backlinkTpl, props.concId),
+                                        backlink: this.freqApi.createBacklink(props.sourceArgs, this.backlink ? this.backlink : props.sourceArgs.backlinkTpl, props.concId),
                                         freq: row.freq,
                                         ipm: Math.round(row.freq / props.sourceArgs.corpusSize * 1e8) / 100,
                                         norm: row.norm,

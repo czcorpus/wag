@@ -184,7 +184,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 List.flatMap(v => v),
                 List.groupBy(v => v.sourceId),
                 List.map(([,v]) => v[0].backlink)
-            ); // TODO
+            );
+            
             const numCats = Math.max(0, ...this.props.data.map(v => v ? v.length : 0));
             const barCategoryGap = Math.max(10, 40 - this.props.pixelsPerCategory);
             const minHeight = 70 + numCats * (this.props.pixelsPerCategory + barCategoryGap);
@@ -198,7 +199,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             List.flatMap(([,v]) => v),
                             List.map(v => ({corp: v.corpname, subcorp: v.subcname})))
                         }
-                        backlink={backlinks}
+                        backlink={(!List.empty(backlinks) && List.some(v => !!v, backlinks)) ? backlinks : null}
                         supportsTileReload={this.props.supportsReloadOnError}
                         issueReportingUrl={this.props.issueReportingUrl}>
                     <div style={{position: 'relative'}}>

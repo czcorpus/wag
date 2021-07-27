@@ -27,7 +27,7 @@ export interface ModelSourceArgs extends MinSingleCritFreqState {
 
     /**
      * In case 'fcrit' describes a positional
-     * attribute we have to replace ann actual
+     * attribute we have to replace an actual
      * value returned by freq. distrib. function
      * (which is equal to our query: e.g. for
      * the query 'house' the value will be 'house')
