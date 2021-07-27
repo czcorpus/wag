@@ -22,13 +22,13 @@ import { concatMap } from 'rxjs/operators';
 import { IAppServices } from '../../../appServices';
 import { GeneralSingleCritFreqBarModelState } from '../../../models/tiles/freq';
 import { Actions as GlobalActions } from '../../../models/actions';
-import { ConcLoadedPayload } from '../concordance/actions';
-import { Actions, DataLoadedPayload } from './actions';
+import { Actions } from './actions';
 import { Actions as ConcActions } from '../concordance/actions';
-import { DataApi } from '../../../types';
+import { DataApi, isWebDelegateApi } from '../../../types';
 import { TooltipValues } from '../../../views/common';
 import { IFreqDistribAPI, DataRow } from '../../../api/abstract/freqs';
 import { List } from 'cnc-tskit';
+import { Backlink, BacklinkWithArgs } from '../../../page/tile';
 
 /*
 oral2013:
@@ -74,6 +74,7 @@ export interface GeoAreasModelState extends GeneralSingleCritFreqBarModelState<D
     mapSVG:string;
     isAltViewMode:boolean;
     frequencyDisplayLimit:number;
+    backlink:BacklinkWithArgs<Backlink>;
 }
 
 export interface GeoAreasModelArgs {
@@ -102,6 +103,8 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
 
     private readonly mapLoader:DataApi<string, string>;
 
+    private readonly backlink:Backlink;
+
     constructor({dispatcher, tileId, waitForTile, waitForTilesTimeoutSecs, appServices,
             api, mapLoader, initState}:GeoAreasModelArgs) {
         super(dispatcher, initState);
@@ -111,6 +114,7 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
         this.appServices = appServices;
         this.api = api;
         this.mapLoader = mapLoader;
+        this.backlink = isWebDelegateApi(this.api) ? this.api.getBackLink() : null;
 
         this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
             GlobalActions.RequestQueryResponse.name,
@@ -197,16 +201,19 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
                     state.isBusy = false;
                     if (action.error) {
                         state.data = [];
+                        state.backlink = null;
                         state.error = this.appServices.normalizeHttpApiError(action.error);
 
                     } else if (action.payload.data.length === 0) {
                         state.data = [];
+                        state.backlink = null;
                         if (action.payload.mapSVG) {
                             state.mapSVG = action.payload.mapSVG;
                         }
 
                     } else {
                         state.data = action.payload.data;
+                        state.backlink = this.api.createBacklink(state, this.backlink, action.payload.concId)
                         if (action.payload.mapSVG) {
                             state.mapSVG = action.payload.mapSVG;
                         }

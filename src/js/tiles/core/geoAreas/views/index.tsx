@@ -247,7 +247,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         hasData={this.props.data.length > 0}
                         sourceIdent={{corp: this.props.corpname}}
                         supportsTileReload={this.props.supportsReloadOnError}
-                        issueReportingUrl={this.props.issueReportingUrl}>
+                        issueReportingUrl={this.props.issueReportingUrl}
+                        backlink={this.props.backlink}>
                     <S.GeoAreasTileView>
                         {this.props.isAltViewMode ?
                             <DataTable rows={this.props.data} /> :
