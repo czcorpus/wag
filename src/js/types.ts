@@ -17,6 +17,7 @@
  */
 import { Observable } from 'rxjs';
 import { SourceCitation } from './api/abstract/sourceInfo';
+import { Backlink } from './page/tile';
 
 
 export type AnyInterface<T> = {
@@ -55,6 +56,18 @@ export interface DataApi<T, U> {
 export interface ResourceApi<T, U> extends DataApi<T, U> {
 
     getSourceDescription(tileId:number, lang:string, corpname:string):Observable<SourceDetails>;
+}
+
+/**
+ * Api implementing backlink directly
+ */
+ export interface WebDelegateApi<T, U> extends DataApi<T, U> {
+
+    getBackLink():Backlink;
+}
+
+export function isWebDelegateApi(api:DataApi<any, any>):api is WebDelegateApi<any, any> {
+    return typeof api['getBackLink'] === 'function';
 }
 
 

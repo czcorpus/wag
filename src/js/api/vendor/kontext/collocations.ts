@@ -17,14 +17,15 @@
  */
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { Ident } from 'cnc-tskit';
+import { HTTP, Ident } from 'cnc-tskit';
 
 import { cachedAjax$ } from '../../../page/ajax';
-import { HTTPHeaders, IAsyncKeyValueStore, SourceDetails } from '../../../types';
+import { HTTPHeaders, IAsyncKeyValueStore, SourceDetails, WebDelegateApi } from '../../../types';
 import { CollApiResponse, CollocationApi } from '../../abstract/collocations';
 import { CollocModelState, ctxToRange } from '../../../models/tiles/collocations';
 import { CorpusInfoAPI } from './corpusInfo';
 import { IApiServices } from '../../../appServices';
+import { Backlink } from '../../../page/tile';
 
 
 
@@ -67,7 +68,8 @@ export interface CollApiArgs extends CoreCollRequestArgs {
 }
 
 
-export class KontextCollAPI implements CollocationApi<CollApiArgs> {
+export class KontextCollAPI implements CollocationApi<CollApiArgs>, WebDelegateApi<CollApiArgs, CollApiResponse> {
+    API_PATH = '/collx'
 
     private readonly apiURL:string;
 
@@ -120,7 +122,7 @@ export class KontextCollAPI implements CollocationApi<CollApiArgs> {
     call(queryArgs:CollApiArgs):Observable<CollApiResponse> {
         return cachedAjax$<HttpApiResponse>(this.cache)(
             'GET',
-            this.apiURL + '/collx',
+            this.apiURL + this.API_PATH,
             queryArgs,
             {headers: this.customHeaders}
 
@@ -140,6 +142,14 @@ export class KontextCollAPI implements CollocationApi<CollApiArgs> {
                 })
             )
         );
+    }
+
+    getBackLink():Backlink {
+        return {
+            url: this.apiURL + this.API_PATH,
+            label: 'KonText',
+            method: HTTP.Method.GET
+        }
     }
 
 }
