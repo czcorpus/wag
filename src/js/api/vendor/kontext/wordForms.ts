@@ -21,10 +21,11 @@ import { Ident } from 'cnc-tskit';
 
 import { QueryMatch } from '../../../query';
 import { IWordFormsApi, RequestConcArgs, Response } from '../../abstract/wordForms';
-import { HTTPHeaders, IAsyncKeyValueStore, CorpusDetails } from '../../../types';
+import { IAsyncKeyValueStore, CorpusDetails, WebDelegateApi } from '../../../types';
 import { KontextFreqDistribAPI } from './freqs';
 import { CorpusInfoAPI } from './corpusInfo';
 import { IApiServices } from '../../../appServices';
+import { Backlink } from '../../../page/tile';
 
 
 export interface HTTPResponse {
@@ -32,7 +33,7 @@ export interface HTTPResponse {
 }
 
 
-export class WordFormsAPI implements IWordFormsApi {
+export class WordFormsAPI implements IWordFormsApi, WebDelegateApi {
 
     private readonly fapi:KontextFreqDistribAPI;
 
@@ -78,6 +79,10 @@ export class WordFormsAPI implements IWordFormsApi {
             corpname: corpname,
             format: 'json'
         });
+    }
+
+    getBackLink():Backlink {
+        return this.fapi.getBackLink()
     }
 
 }

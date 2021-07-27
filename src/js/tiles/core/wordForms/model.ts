@@ -22,9 +22,8 @@ import { StatelessModel, SEDispatcher, IActionQueue } from 'kombo';
 import { WordFormItem, IWordFormsApi, RequestConcArgs, RequestArgs } from '../../../api/abstract/wordForms';
 import { Actions as GlobalActions } from '../../../models/actions';
 import { Actions as ConcActions } from '../concordance/actions';
-import { DataLoadedPayload, Actions } from './actions';
+import { Actions } from './actions';
 import { findCurrQueryMatch } from '../../../models/query';
-import { ConcLoadedPayload } from '../concordance/actions';
 import { RecognizedQueries } from '../../../query/index';
 import { IAppServices } from '../../../appServices';
 

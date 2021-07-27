@@ -21,7 +21,7 @@ import { map, concatMap } from 'rxjs/operators';
 
 import { IAppServices } from '../../../appServices';
 import { Actions as GlobalActions } from '../../../models/actions';
-import { DataLoadedPayload, Actions } from './actions';
+import { Actions } from './actions';
 import { SimilarFreqWord, SimilarFreqDbAPI } from '../../../api/abstract/similarFreq';
 import { findCurrQueryMatch } from '../../../models/query';
 import { QueryMatch, testIsDictMatch, RecognizedQueries, QueryType, calcFreqBand } from '../../../query/index';

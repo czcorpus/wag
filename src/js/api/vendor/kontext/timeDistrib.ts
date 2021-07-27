@@ -20,7 +20,7 @@ import { TimeDistribApi, TimeDistribArgs, TimeDistribResponse } from '../../abst
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { FreqSort, KontextFreqDistribAPI } from './freqs';
-import { HTTPHeaders, IAsyncKeyValueStore, CorpusDetails } from '../../../types';
+import { IAsyncKeyValueStore, CorpusDetails, WebDelegateApi } from '../../../types';
 import { CorpusInfoAPI } from './corpusInfo';
 import { IFreqDistribAPI } from '../../abstract/freqs';
 import { Backlink, BacklinkWithArgs } from '../../../page/tile';
@@ -40,9 +40,9 @@ interface BacklinkArgs {
  * This is the main TimeDistrib API for KonText. It should work in any
  * case.
  */
-export class KontextTimeDistribApi implements TimeDistribApi {
+export class KontextTimeDistribApi implements TimeDistribApi, WebDelegateApi {
 
-    private readonly freqApi:IFreqDistribAPI<{}>;
+    private readonly freqApi:KontextFreqDistribAPI;
 
     private readonly fcrit:string;
 
@@ -112,5 +112,9 @@ export class KontextTimeDistribApi implements TimeDistribApi {
                 })
             )
         );
+    }
+
+    getBackLink():Backlink {
+        return this.freqApi.getBackLink()
     }
 }

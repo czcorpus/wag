@@ -29,6 +29,7 @@ import { Actions as ConcActions } from '../concordance/actions';
 import { Actions } from './actions';
 import { callWithExtraVal } from '../../../api/util';
 import { DataRow, IMultiBlockFreqDistribAPI } from '../../../api/abstract/freqs';
+import { isWebDelegateApi } from '../../../types';
 
 
 export interface FreqBarModelState extends GeneralMultiCritFreqBarModelState<DataRow> {
@@ -77,7 +78,7 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState, {[tileId:str
         this.subqSourceTiles = Dict.fromEntries(subqSourceTiles.map(v => [v.toFixed(), true]));
         this.appServices = appServices;
         this.api = api;
-        this.backlink = backlink;
+        this.backlink = isWebDelegateApi(this.api) ? this.api.getBackLink() : backlink;
 
         this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(
             GlobalActions.EnableAltViewMode.name,
