@@ -185,6 +185,7 @@ export interface DataReadabilityMapping {
 export interface ClientStaticConf {
     rootUrl:string;
     hostUrl:string;
+    runtimeAssetsUrl:string;
     favicon?:FaviconConf;
     logo?:LogoConf;
 	corpInfoApiUrl:string;
@@ -251,6 +252,7 @@ export interface HomepageTileConf {
 export interface ClientConf {
     rootUrl:string;
     hostUrl:string;
+    runtimeAssetsUrl:string;
     favicon:FaviconConf|null;
 	corpInfoApiUrl:string;
     dataReadability:DataReadabilityMapping;
@@ -325,6 +327,7 @@ export function emptyClientConf(conf:ClientStaticConf, themeId:string|undefined)
     return {
         rootUrl: conf.rootUrl,
         hostUrl: conf.hostUrl,
+        runtimeAssetsUrl: conf.runtimeAssetsUrl,
         favicon: conf.favicon,
         logo: conf.logo,
         corpInfoApiUrl: conf.corpInfoApiUrl,
@@ -440,7 +443,6 @@ export interface LangCookieSetup {
 export interface ServerConf {
     address:string;
     port:number;
-    staticFilesUrl:string; // static (= non-compiled) stuff path (images etc.)
     distFilesUrl:string; // this ensures Webpack to resolve dynamic imports properly
     languages:{[code:string]:string};
     develServer:{

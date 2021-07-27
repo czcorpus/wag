@@ -393,7 +393,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         const viewUtils = new ViewUtils<GlobalComponents>({
             uiLang: uiLang,
             translations: services.translations,
-            staticUrlCreator: (path) => services.clientConf.rootUrl + 'assets/' + path,
+            staticUrlCreator: (path) => services.clientConf.runtimeAssetsUrl + path,
             actionUrlCreator: (path, args) => services.clientConf.hostUrl + path + '?' + encodeArgs(args)
         });
         const appServices = new AppServices({
@@ -483,7 +483,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         const viewUtils = new ViewUtils<GlobalComponents>({
             uiLang: uiLang,
             translations: services.translations,
-            staticUrlCreator: (path) => services.clientConf.rootUrl + 'assets/' + path,
+            staticUrlCreator: (path) => services.clientConf.runtimeAssetsUrl + path,
             actionUrlCreator: (path, args) => services.clientConf.hostUrl + path + '?' + encodeArgs(args)
         });
         const appServices = new AppServices({

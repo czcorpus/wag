@@ -2,7 +2,6 @@
     "$schema": "./server-schema.json",
     "address": "localhost",
     "port": 3000,
-    "staticFilesUrl": "/wag/assets/",
     "distFilesUrl": "/wag/dist/",
     "theme": "default.less",
     "langCookie": "wdg_ui_lang",

@@ -243,9 +243,6 @@
             },
             "type": "object"
         },
-        "staticFilesUrl": {
-            "type": "string"
-        },
         "telemetryDB": {
             "type": "string"
         },
@@ -260,7 +257,6 @@
         "freqDB",
         "languages",
         "port",
-        "staticFilesUrl",
         "toolbar"
     ],
     "type": "object"

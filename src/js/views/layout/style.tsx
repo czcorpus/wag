@@ -20,6 +20,7 @@
 
 import { createGlobalStyle } from 'styled-components';
 import * as theme from '../common/theme';
+import grooveBg from '../../../../assets/groovepaper2.jpg';
 
 // ---------------- <GlobalStyle /> --------------------------------------
 
@@ -28,7 +29,7 @@ export const GlobalStyle = createGlobalStyle<{createStaticUrl: (file: string) =>
     body {
         font-family: ${theme.defaultFontFamily};
         font-size: 1em;
-        font-display: swap;
+        background-image: url(${grooveBg});
 
         > header.wdg-header {
 
@@ -184,10 +185,6 @@ export const GlobalStyle = createGlobalStyle<{createStaticUrl: (file: string) =>
         }
     }
 
-    .cnc-button.cnc-button {
-        border: 2px solid green !important;
-    }
-
     .LangSwitchToolbar {
         color: ${theme.colorLightText};
         text-align: right;
@@ -227,11 +224,6 @@ export const GlobalStyle = createGlobalStyle<{createStaticUrl: (file: string) =>
             }
         }
     }
-
-    .cnc-button.cnc-button {
-        border: 2px solid red !important;
-    }
-
 
     .tile-body {
         padding: 1.35em;

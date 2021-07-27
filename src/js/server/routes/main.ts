@@ -88,6 +88,7 @@ function mkRuntimeClientConf({
             return {
                 rootUrl: conf.rootUrl,
                 hostUrl: conf.hostUrl,
+                runtimeAssetsUrl: conf.runtimeAssetsUrl,
                 favicon: conf.favicon,
                 logo: conf.logo,
                 corpInfoApiUrl: conf.corpInfoApiUrl,

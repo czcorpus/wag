@@ -2,6 +2,7 @@
 	"$schema": "./wdglance-schema.json",
 	"rootUrl": "http://portal.korpus.test/wag/",
 	"hostUrl": "http://portal.korpus.test/wag/",
+	"runtimeAssetsUrl": "http://portal.korpus.test/wag/runtime-assets/",
 	"corpInfoApiUrl": "http://kontext.korpus.test/kontext-api/corpora/ajax_get_corp_details",
 	"apiHeaders": {
 		"http://kontext.korpus.test/kontext-api/": {
