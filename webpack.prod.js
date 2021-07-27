@@ -23,7 +23,8 @@ module.exports = (env) => ({
         path: path.resolve(__dirname, 'dist'),
         publicPath: CONF.distFilesUrl || '',
         libraryTarget: 'var',
-        library: '[name]Page'
+        library: '[name]Page',
+        assetModuleFilename: 'assets/[hash][ext][query]'
     },
     resolve: {
         alias: {}, // filled in dynamically

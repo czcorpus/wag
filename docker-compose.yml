@@ -8,9 +8,12 @@ services:
     volumes:
       - ${WAG_CONFIG_PATH}:/opt/wag/conf
       - static:/opt/wag/assets
-      - dist:/opt/wag/dist
+      - dist-client:/opt/wag/dist
+      - dist-server:/opt/wag/dist-server
+      - ./install/docker/production-build-and-run.sh:/var/opt/install/production-build-and-run.sh
     networks:
       - wag
+    command: "npm start server"
 
   nginx:
     image: nginx:latest
@@ -21,7 +24,8 @@ services:
     volumes:
       - ./install/docker/nginx.conf:/etc/nginx/conf.d/default.conf
       - static:/opt/wag/assets
-      - dist:/opt/wag/dist
+      - dist-client:/opt/wag/dist
+      - dist-server:/opt/wag/dist-server
     networks:
       - wag
 
@@ -40,7 +44,8 @@ services:
 
 volumes:
   static: {}
-  dist: {}
+  dist-client: {}
+  dist-server: {}
 
 networks:
   wag: {}

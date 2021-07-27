@@ -27,7 +27,7 @@ import { encodeArgs } from '../../page/ajax';
 import { Services } from '../actionServices';
 import { GlobalComponents } from '../../views/common';
 import { AppServices } from '../../appServices';
-import { HtmlBodyProps, HtmlHeadProps, init as layoutInit} from '../../views/layout/layout';
+import { HtmlBodyProps, HtmlHeadProps} from '../../views/layout/layout';
 import { HostPageEnv } from '../../page/hostPage';
 import { RecognizedQueries } from '../../query/index';
 import { WdglanceMainProps } from '../../views/main';
