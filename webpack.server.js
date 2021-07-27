@@ -23,7 +23,8 @@ module.exports = (env) => ({
     output: {
         path: path.resolve(__dirname, 'dist-server'),
         libraryTarget: 'commonjs2',
-        filename: 'service.js'
+        filename: 'service.js',
+        assetModuleFilename: 'assets/[hash][ext][query]'
     },
     resolve: {
         alias: {}, // filled in dynamically
@@ -36,6 +37,10 @@ module.exports = (env) => ({
     },
     module: {
         rules: [
+            {
+                test: /\.(png|jpg|gif|svg)$/,
+                type: 'asset/resource'
+            },
             {
                 test: /\.tsx?$/,
                 exclude: /(node_modules)/,

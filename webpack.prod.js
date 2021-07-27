@@ -1,6 +1,5 @@
 const path = require('path');
 const build = require('./build');
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const TerserPlugin = require('terser-webpack-plugin');
 
 // helper functions
@@ -44,33 +43,15 @@ module.exports = (env) => ({
         rules: [
             {
                 test: /\.(png|jpg|gif|svg)$/,
-                use: [
-                    {
-                        loader: 'file-loader',
-                        options: {
-                            emitFile: false,
-                            name: '[name].[ext]',
-                            publicPath: CONF.staticFilesUrl,
-                        }
-                    }
-                ]
-            },
-            {
-                test: /\.js$/,
-                exclude: /(node_modules)/,
-                use: [
-                    {
-                        loader: 'babel-loader',
-                        options: build.loadConf(mkpath('./webpack.babel.json'))
-                    }
-                ]
+                type: 'asset/resource'
             },
             {
                 test: /\.tsx?$/,
                 exclude: /(node_modules)/,
                 use: [
                     {
-                        loader: 'babel-loader'
+                        loader: 'babel-loader',
+                        options: build.loadConf(mkpath('./webpack.babel.json'))
                     }
                 ]
             }
@@ -88,11 +69,7 @@ module.exports = (env) => ({
             new TerserPlugin()
         ]
     },
-    //devtool: 'inline-source-map',
     plugins: [
         new build.ProcTranslationsPlugin(SRC_PATH, DIST_PATH, CONF),
-        new MiniCssExtractPlugin({
-            filename: "common.css"
-          })
     ]
  });

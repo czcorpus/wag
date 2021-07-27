@@ -41,26 +41,7 @@ module.exports = (env) => ({
         rules: [
             {
                 test: /\.(png|jpg|gif|svg)$/,
-                use: [
-                    {
-                        loader: 'file-loader',
-                        options: {
-                            emitFile: false,
-                            name: '[name].[ext]',
-                            publicPath: CONF.staticFilesUrl,
-                        }
-                    }
-                ]
-            },
-            {
-                test: /\.js$/,
-                exclude: /(node_modules)/,
-                use: [
-                    {
-                        loader: 'babel-loader',
-                        options: build.loadConf(mkpath('./webpack.babel.json'))
-                    }
-                ]
+                type: 'asset/resource'
             },
             {
                 test: /\.tsx?$/,
