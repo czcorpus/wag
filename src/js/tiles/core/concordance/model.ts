@@ -26,7 +26,7 @@ import { HTTP, List, pipe } from 'cnc-tskit';
 import { IAppServices } from '../../../appServices';
 import { IConcordanceApi, SingleConcLoadedPayload } from '../../../api/abstract/concordance';
 import { ConcordanceMinState, createInitialLinesData } from '../../../models/tiles/concordance';
-import { SystemMessageType } from '../../../types';
+import { isWebDelegateApi, SystemMessageType } from '../../../types';
 import { isSubqueryPayload, RecognizedQueries, QueryType } from '../../../query/index';
 import { Backlink, BacklinkWithArgs } from '../../../page/tile';
 import { Actions as GlobalActions } from '../../../models/actions';
@@ -76,7 +76,7 @@ export interface ConcordanceTileModelArgs {
 
 export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
-    private readonly service:IConcordanceApi<{}>;
+    private readonly concApi:IConcordanceApi<{}>;
 
     private readonly queryMatches:RecognizedQueries;
 
@@ -97,11 +97,11 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
     constructor({dispatcher, tileId, appServices, service, queryMatches, initState, waitForTile,
             waitForTilesTimeoutSecs, backlink, queryType}:ConcordanceTileModelArgs) {
         super(dispatcher, initState);
-        this.service = service;
+        this.concApi = service;
         this.queryMatches = queryMatches;
         this.appServices = appServices;
         this.tileId = tileId;
-        this.backlink = backlink;
+        this.backlink = isWebDelegateApi(this.concApi) ? this.concApi.getBackLink() : backlink;
         this.waitForTile = waitForTile;
         this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.queryType = queryType;
@@ -266,7 +266,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             null,
             (state, action, dispatch) => {
                 if (action.payload.tileId === this.tileId) {
-                    this.service.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), state.corpname)
+                    this.concApi.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), state.corpname)
                     .subscribe(
                         (data) => {
                             dispatch({
@@ -354,7 +354,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                     List.slice(0, this.queryType !== QueryType.CMP_QUERY ? 1 : this.queryMatches.length),
                     List.forEach((queryMatch, queryIdx) => {
                         observer.next({
-                            apiArgs: this.service.stateToArgs(
+                            apiArgs: this.concApi.stateToArgs(
                                 state,
                                 state.concordances[queryIdx].concId ?
                                         null : findCurrQueryMatch(queryMatch),
@@ -372,7 +372,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             }
 
         }).pipe(
-            mergeMap(data => callWithExtraVal(this.service, data.apiArgs, data.queryIdx)),
+            mergeMap(data => callWithExtraVal(this.concApi, data.apiArgs, data.queryIdx)),
             tap(
                 ([resp, curr]) => {
                     dispatch<typeof Actions.PartialTileDataLoaded>({

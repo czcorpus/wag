@@ -27,7 +27,6 @@ import { mkContextFilter, escapeVal  } from '../../../api/vendor/kontext/concord
 import { Line, ViewMode, ConcResponse } from '../../../api/abstract/concordance';
 import { Observable } from 'rxjs';
 import { isConcLoadedPayload } from '../concordance/actions';
-import { CollExamplesLoadedPayload } from './actions';
 import { Actions } from './actions';
 import { normalizeTypography } from '../../../models/tiles/concordance/normalize';
 import { Dict, pipe, List, tuple } from 'cnc-tskit';

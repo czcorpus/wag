@@ -61,12 +61,12 @@ export interface ResourceApi<T, U> extends DataApi<T, U> {
 /**
  * Api implementing backlink directly
  */
- export interface WebDelegateApi<T, U> extends DataApi<T, U> {
+ export interface WebDelegateApi {
 
     getBackLink():Backlink;
 }
 
-export function isWebDelegateApi(api:DataApi<any, any>):api is WebDelegateApi<any, any> {
+export function isWebDelegateApi(api):api is WebDelegateApi {
     return typeof api['getBackLink'] === 'function';
 }
 

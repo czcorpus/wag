@@ -68,7 +68,7 @@ export interface CollApiArgs extends CoreCollRequestArgs {
 }
 
 
-export class KontextCollAPI implements CollocationApi<CollApiArgs>, WebDelegateApi<CollApiArgs, CollApiResponse> {
+export class KontextCollAPI implements CollocationApi<CollApiArgs>, WebDelegateApi {
     API_PATH = '/collx'
 
     private readonly apiURL:string;
