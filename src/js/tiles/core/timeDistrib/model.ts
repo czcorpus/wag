@@ -164,8 +164,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
         this.queryMatches = queryMatches;
         this.queryDomain = queryDomain;
 
-        const randomApi = this.apiFactory.getRandomValue()[1]
-        this.backlink = isWebDelegateApi(randomApi) ? randomApi.getBackLink() : backlink;
+        const api = this.apiFactory.getHighestPriorityValue()[1]
+        this.backlink = isWebDelegateApi(api) ? api.getBackLink() : backlink;
 
         this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
             GlobalActions.RequestQueryResponse.name,
