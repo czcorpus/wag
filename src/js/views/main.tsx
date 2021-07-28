@@ -35,6 +35,7 @@ import { timer } from 'rxjs';
 
 import * as S from './style';
 import * as SC from './common/style';
+import { GlobalStyle } from './layout/style';
 
 
 export interface WdglanceMainProps {
@@ -1336,6 +1337,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     const WdglanceMain:React.FC<WdglanceMainProps> = (props) => {
         return (
             <S.WdglanceMain>
+                <GlobalStyle createStaticUrl={ut.createStaticUrl} />
                 <WdglanceControlsBound isMobile={props.isMobile} isAnswerMode={props.isAnswerMode} />
                 <BoundMessagesBox />
                 <BoundTilesSections layout={props.layout} homepageSections={props.homepageSections} />

@@ -155,6 +155,23 @@ export function createHelperServices(services:Services, uiLang:string):[ViewUtil
     ]
 }
 
+/**
+ * DummyStyleSheet is a replacement for ServerStyleSheet when in development mode.
+ * This allows using dynamic style generation with live code reloading.
+ */
+class DummyStyleSheet {
+
+    collectStyles(elm:React.ReactElement):React.ReactElement {
+        return elm;
+    }
+
+    seal():void {}
+
+    getStyleElement():Array<React.ReactElement> {
+        return [];
+    }
+}
+
 
 interface RenderResultArgs {
     HtmlBody:React.FC<HtmlBodyProps>;
@@ -197,7 +214,9 @@ export function renderResult({
         repositoryUrl,
         error}:RenderResultArgs):string {
 
-    const sheet = new ServerStyleSheet();
+    const sheet = process.env['NODE_ENV'] === 'production' ?
+        new ServerStyleSheet() :
+        new DummyStyleSheet();
     try {
         const bodyString = renderToString(
             sheet.collectStyles(

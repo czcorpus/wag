@@ -9,7 +9,6 @@ COPY src ./src
 COPY test ./test
 COPY launcher-config.json ./launcher-config.json
 COPY launcher-menu.json ./launcher-menu.json
-COPY webpack.babel.json ./webpack.babel.json
 COPY webpack.prod.js ./webpack.prod.js
 COPY webpack.server.js ./webpack.server.js
 COPY tsconfig.json ./tsconfig.json

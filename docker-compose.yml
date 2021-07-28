@@ -11,7 +11,7 @@ services:
       - dist-client:/opt/wag/dist
       - dist-server:/opt/wag/dist-server
       - ./install/docker/production-build-and-run.sh:/var/opt/install/production-build-and-run.sh
-      - ./webpack.babel.json:/opt/wag/webpack.babel.json
+      - ./build.js:/opt/wag/build.js
       - ./webpack.dev.js:/opt/wag/webpack.dev.js
       - ./package.json:/opt/wag/package.json
     networks:
@@ -32,7 +32,7 @@ services:
       - static:/opt/wag/assets
       - dist-client:/opt/wag/dist
       - dist-server:/opt/wag/dist-server
-      - ./webpack.babel.json:/opt/wag/webpack.babel.json
+      - ./build.js:/opt/wag/build.js
       - ./webpack.dev.js:/opt/wag/webpack.dev.js
       - ./package.json:/opt/wag/package.json
     networks:
