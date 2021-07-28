@@ -320,7 +320,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         hasData={props.data.length >= MIN_DATA_ITEMS_TO_SHOW}
                         sourceIdent={{corp: props.corpname, subcorp: props.subcDesc}}
                         supportsTileReload={props.supportsReloadOnError}
-                        backlink={props.backlink}
+                        backlink={List.size(props.backlinks) > 0 ? props.backlinks : null}
                         issueReportingUrl={props.issueReportingUrl}>
                 <S.TimeDistribTile>
                     {props.isTweakMode ?
