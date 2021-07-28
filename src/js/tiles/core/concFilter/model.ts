@@ -61,12 +61,6 @@ interface SourceLoadingData {
     subqueries:AllSubqueries;
 }
 
-interface SingleQueryFreqArgs {
-    concId:string;
-    queryId:number;
-    subq:SubQueryItem<RangeRelatedSubqueryValue>;
-}
-
 export interface ConcFilterModelArgs {
     tileId:number;
     waitForTiles:Array<number>;
