@@ -17,14 +17,15 @@
  */
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { Ident } from 'cnc-tskit';
+import { HTTP, Ident } from 'cnc-tskit';
 
 import { QueryMatch } from '../../../query';
 import { IWordFormsApi, RequestConcArgs, Response } from '../../abstract/wordForms';
-import { HTTPHeaders, IAsyncKeyValueStore, CorpusDetails } from '../../../types';
-import { KontextFreqDistribAPI } from './freqs';
+import { IAsyncKeyValueStore, CorpusDetails, WebDelegateApi } from '../../../types';
+import { BacklinkArgs, KontextFreqDistribAPI } from './freqs';
 import { CorpusInfoAPI } from './corpusInfo';
 import { IApiServices } from '../../../appServices';
+import { Backlink, BacklinkWithArgs } from '../../../page/tile';
 
 
 export interface HTTPResponse {
@@ -32,7 +33,7 @@ export interface HTTPResponse {
 }
 
 
-export class WordFormsAPI implements IWordFormsApi {
+export class WordFormsAPI implements IWordFormsApi, WebDelegateApi {
 
     private readonly fapi:KontextFreqDistribAPI;
 
@@ -78,6 +79,30 @@ export class WordFormsAPI implements IWordFormsApi {
             corpname: corpname,
             format: 'json'
         });
+    }
+
+    createBacklink(args:RequestConcArgs, backlink:Backlink):BacklinkWithArgs<BacklinkArgs> {
+        return backlink ?
+        {
+            url: backlink.url,
+            method: backlink.method || HTTP.Method.GET,
+            label: backlink.label,
+            args: {
+                corpname: args.corpName,
+                usesubcorp: args.subcorpName,
+                q: `~${args.concPersistenceID}`,
+                fcrit: ['word/ie 0~0>0'],
+                flimit: 1,
+                freq_sort: 'freq',
+                fpage: 1,
+                ftt_include_empty: 0
+            }
+        } :
+        null;
+    }
+
+    getBackLink():Backlink {
+        return this.fapi.getBackLink()
     }
 
 }

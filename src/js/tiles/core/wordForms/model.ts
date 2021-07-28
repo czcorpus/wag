@@ -22,11 +22,13 @@ import { StatelessModel, SEDispatcher, IActionQueue } from 'kombo';
 import { WordFormItem, IWordFormsApi, RequestConcArgs, RequestArgs } from '../../../api/abstract/wordForms';
 import { Actions as GlobalActions } from '../../../models/actions';
 import { Actions as ConcActions } from '../concordance/actions';
-import { DataLoadedPayload, Actions } from './actions';
+import { Actions } from './actions';
 import { findCurrQueryMatch } from '../../../models/query';
-import { ConcLoadedPayload } from '../concordance/actions';
 import { RecognizedQueries } from '../../../query/index';
 import { IAppServices } from '../../../appServices';
+import { isWebDelegateApi } from '../../../types';
+import { Backlink, BacklinkWithArgs } from '../../../page/tile';
+import { BacklinkArgs } from '../../../api/vendor/kontext/freqs';
 
 
 
@@ -40,6 +42,7 @@ export interface WordFormsModelState {
     corpusSize:number;
     freqFilterAlphaLevel:Maths.AlphaLevel;
     data:Array<WordFormItem>;
+    backlink:BacklinkWithArgs<BacklinkArgs>|null;
 }
 
 /**
@@ -98,6 +101,8 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
 
     private readonly appServices:IAppServices;
 
+    private readonly backlink:Backlink;
+
     constructor({dispatcher, initialState, tileId, api, queryMatches, queryDomain, waitForTile,
             waitForTilesTimeoutSecs, appServices}:WordFormsModelArgs) {
         super(dispatcher, initialState);
@@ -108,6 +113,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
         this.waitForTile = waitForTile;
         this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.appServices = appServices;
+        this.backlink = isWebDelegateApi(this.api) ? this.api.getBackLink() : null;
 
         this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(
             GlobalActions.EnableAltViewMode.name,
@@ -153,7 +159,8 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                                             data: [],
                                             subqueries: [],
                                             domain1: null,
-                                            domain2: null
+                                            domain2: null,
+                                            backlink: null,
                                         }
                                     });
 
@@ -195,9 +202,11 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                     state.isBusy = false;
                     if (action.error) {
                         state.error = this.appServices.normalizeHttpApiError(action.error);
+                        state.backlink = null;
 
                     } else if (action.payload.data.length === 0) {
                         state.data = [];
+                        state.backlink = action.payload.backlink;
 
                     } else {
                         state.data = filterRareVariants(
@@ -205,6 +214,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                             state.corpusSize,
                             state.freqFilterAlphaLevel
                         );
+                        state.backlink = action.payload.backlink;
                     }
                 }
             }
@@ -274,7 +284,8 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                             data.forms
                         ),
                         domain1: null,
-                        domain2: null
+                        domain2: null,
+                        backlink: this.api.createBacklink(args, this.backlink),
                     }
                 });
             },
@@ -290,7 +301,8 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                         data: [],
                         subqueries: [],
                         domain1: null,
-                        domain2: null
+                        domain2: null,
+                        backlink: null,
                     }
                 });
             }

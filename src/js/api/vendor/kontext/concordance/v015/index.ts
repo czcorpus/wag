@@ -20,7 +20,7 @@ import { concatMap, map } from 'rxjs/operators';
 import { List, HTTP, URL, Dict, pipe, tuple } from 'cnc-tskit';
 
 import { cachedAjax$, encodeURLParameters } from '../../../../../page/ajax';
-import { HTTPHeaders, IAsyncKeyValueStore, CorpusDetails } from '../../../../../types';
+import { HTTPHeaders, IAsyncKeyValueStore, CorpusDetails, WebDelegateApi } from '../../../../../types';
 import { QueryMatch } from '../../../../../query';
 import { ConcResponse, ViewMode, IConcordanceApi } from '../../../../abstract/concordance';
 import { ConcordanceMinState } from '../../../../../models/tiles/concordance';
@@ -30,10 +30,11 @@ import { mkLemmaMatchQuery, mkWordMatchQuery, convertLines, ConcViewResponse,
     ConcQueryResponse,
     PersistentConcArgs} from './common';
 import { ConcQueryArgs, ConcViewArgs, FilterServerArgs, QuickFilterRequestArgs } from '../../types';
+import { Backlink } from '../../../../../page/tile';
 
 
 
-export class ConcApi implements IConcordanceApi<ConcQueryArgs|ConcViewArgs|FilterServerArgs|QuickFilterRequestArgs> {
+export class ConcApi implements IConcordanceApi<ConcQueryArgs|ConcViewArgs|FilterServerArgs|QuickFilterRequestArgs>, WebDelegateApi {
 
     private readonly apiURL:string;
 
@@ -261,5 +262,13 @@ export class ConcApi implements IConcordanceApi<ConcQueryArgs|ConcViewArgs|Filte
                 subcorpName: args.usesubcorp
             }))
         );
+    }
+
+    getBackLink():Backlink {
+        return {
+            url: this.apiURL + '/view',
+            label: 'KonText',
+            method: HTTP.Method.GET
+        }
     }
 }

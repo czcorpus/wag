@@ -19,10 +19,9 @@
 import { TimeDistribApi, TimeDistribArgs, TimeDistribResponse } from '../../abstract/timeDistrib';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { FreqSort, KontextFreqDistribAPI } from './freqs';
-import { HTTPHeaders, IAsyncKeyValueStore, CorpusDetails } from '../../../types';
+import { FreqSort, KontextFreqDistribAPI, BacklinkArgs as FreqBacklinkArgs } from './freqs';
+import { IAsyncKeyValueStore, CorpusDetails, WebDelegateApi } from '../../../types';
 import { CorpusInfoAPI } from './corpusInfo';
-import { IFreqDistribAPI } from '../../abstract/freqs';
 import { Backlink, BacklinkWithArgs } from '../../../page/tile';
 import { HTTP } from 'cnc-tskit';
 import { IApiServices } from '../../../appServices';
@@ -31,18 +30,17 @@ import { IApiServices } from '../../../appServices';
 interface BacklinkArgs {
     corpname:string;
     usesubcorp:string;
-    q?:string;
-    cql?:string;
-    queryselector?:'cqlrow';
+    cql:string;
+    queryselector:'cqlrow';
 }
 
 /**
  * This is the main TimeDistrib API for KonText. It should work in any
  * case.
  */
-export class KontextTimeDistribApi implements TimeDistribApi {
+export class KontextTimeDistribApi implements TimeDistribApi, WebDelegateApi {
 
-    private readonly freqApi:IFreqDistribAPI<{}>;
+    private readonly freqApi:KontextFreqDistribAPI;
 
     private readonly fcrit:string;
 
@@ -65,26 +63,40 @@ export class KontextTimeDistribApi implements TimeDistribApi {
         });
     }
 
-    createBackLink(backlink:Backlink, corpname:string, concId:string, origQuery:string):BacklinkWithArgs<BacklinkArgs> {
-        return backlink ?
-            {
+    createBackLink(backlink:Backlink, corpname:string, concId:string, origQuery:string):BacklinkWithArgs<BacklinkArgs|FreqBacklinkArgs> {
+        if (backlink === null) {
+            return null;
+        }
+
+        if (origQuery) {
+            return {
                 url: backlink.url,
                 method: backlink.method || HTTP.Method.GET,
                 label: backlink.label,
-                args: origQuery ?
-                    {
-                        corpname: corpname,
-                        usesubcorp: backlink.subcname,
-                        cql: origQuery,
-                        queryselector: 'cqlrow'
-                    } :
-                    {
-                        corpname: corpname,
-                        usesubcorp: backlink.subcname,
-                        q: `~${concId}`
-                    }
-            } :
-            null;
+                args: {
+                    corpname: corpname,
+                    usesubcorp: backlink.subcname,
+                    cql: origQuery,
+                    queryselector: 'cqlrow'
+                }
+            }
+        }
+
+        return {
+            url: backlink.url,
+            method: backlink.method || HTTP.Method.GET,
+            label: backlink.label,
+            args: {
+                corpname: corpname,
+                usesubcorp: backlink.subcname,
+                q: `~${concId}`,
+                fcrit: [this.fcrit],
+                flimit: this.flimit,
+                freq_sort: FreqSort.REL,
+                fpage: 1,
+                ftt_include_empty: 0
+            }
+        }
     }
 
     call(queryArgs:TimeDistribArgs):Observable<TimeDistribResponse> {
@@ -112,5 +124,9 @@ export class KontextTimeDistribApi implements TimeDistribApi {
                 })
             )
         );
+    }
+
+    getBackLink():Backlink {
+        return this.freqApi.getBackLink()
     }
 }

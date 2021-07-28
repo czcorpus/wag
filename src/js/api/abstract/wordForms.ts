@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+import { Backlink, BacklinkWithArgs } from '../../page/tile';
 import { ResourceApi } from '../../types';
 
 
@@ -48,4 +49,7 @@ export interface Response {
 }
 
 
-export type IWordFormsApi = ResourceApi<RequestArgs|RequestConcArgs, Response>;
+export interface IWordFormsApi extends ResourceApi<RequestArgs|RequestConcArgs, Response> {
+
+    createBacklink(args:RequestArgs|RequestConcArgs, backlink:Backlink):BacklinkWithArgs<any>;
+}

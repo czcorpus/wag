@@ -96,7 +96,8 @@ export function init(
                 <globalComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.data.length > 0} sourceIdent={{corp: this.props.corpname}}
                         supportsTileReload={this.props.supportsReloadOnError}
-                        issueReportingUrl={this.props.issueReportingUrl}>
+                        issueReportingUrl={this.props.issueReportingUrl}
+                        backlink={this.props.backlink}>
                     {this.props.isAltViewMode ?
                             <TableView data={this.props.data} roundToPos={this.props.roundToPos} /> :
                             <globalComponents.ResponsiveWrapper minWidth={this.props.isMobile ? undefined : 250}

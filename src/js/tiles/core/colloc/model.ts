@@ -21,7 +21,7 @@ import { concatMap, map, tap, reduce } from 'rxjs/operators';
 import { List, HTTP } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
-import { SystemMessageType } from '../../../types';
+import { isWebDelegateApi, SystemMessageType } from '../../../types';
 import { Actions as GlobalActions } from '../../../models/actions';
 import { ConcLoadedPayload } from '../concordance/actions';
 import { Actions } from './common';
@@ -57,7 +57,7 @@ type FreqRequestArgs = [number, QueryMatch, string];
 export class CollocModel extends StatelessModel<CollocModelState> {
 
 
-    private readonly service:CollocationApi<{}>;
+    private readonly collApi:CollocationApi<{}>;
 
     private readonly concApi:IConcordanceApi<{}>;
 
@@ -92,9 +92,9 @@ export class CollocModel extends StatelessModel<CollocModelState> {
         this.waitForTile = waitForTile;
         this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.appServices = appServices;
-        this.service = service;
+        this.collApi = service;
         this.concApi = concApi;
-        this.backlink = backlink;
+        this.backlink = isWebDelegateApi(this.collApi) ? this.collApi.getBackLink() : backlink;
         this.queryType = queryType;
         this.apiType = apiType;
 
@@ -224,7 +224,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
             (state, action) => {},
             (state, action, seDispatch) => {
                 if (action.payload.tileId === this.tileId) {
-                    this.service.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), state.corpname)
+                    this.collApi.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), state.corpname)
                     .subscribe(
                         (data) => {
                             seDispatch({
@@ -342,8 +342,8 @@ export class CollocModel extends StatelessModel<CollocModelState> {
         return concIds.pipe(
             concatMap(([queryId,, concId]) => {
                 return callWithExtraVal(
-                    this.service,
-                    this.service.stateToArgs(state, concId),
+                    this.collApi,
+                    this.collApi.stateToArgs(state, concId),
                     {queryId: queryId}
                 )
             }),

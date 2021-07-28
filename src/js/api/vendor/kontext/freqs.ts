@@ -19,7 +19,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { cachedAjax$ } from '../../../page/ajax';
-import { HTTPHeaders, IAsyncKeyValueStore, CorpusDetails } from '../../../types';
+import { HTTPHeaders, IAsyncKeyValueStore, CorpusDetails, WebDelegateApi } from '../../../types';
 import { CorpusInfoAPI } from './corpusInfo';
 import { BacklinkWithArgs, Backlink } from '../../../page/tile';
 import { APIResponse, APIBlockResponse, IMultiBlockFreqDistribAPI, IFreqDistribAPI } from '../../abstract/freqs';
@@ -102,7 +102,7 @@ export interface SingleCritQueryArgs extends CoreQueryArgs {
  * converts KonText's original response to a nicer form
  * (no multiple data blocks as they are not needed).
  */
-export class KontextFreqDistribAPI implements IFreqDistribAPI<SingleCritQueryArgs> {
+export class KontextFreqDistribAPI implements IFreqDistribAPI<SingleCritQueryArgs>, WebDelegateApi {
 
     private readonly apiURL:string;
 
@@ -183,6 +183,14 @@ export class KontextFreqDistribAPI implements IFreqDistribAPI<SingleCritQueryArg
             }))
         );
     }
+
+    getBackLink():Backlink {
+        return {
+            url: this.apiURL + '/freqs',
+            label: 'KonText',
+            method: HTTP.Method.GET,
+        }
+    }
 }
 
 export interface MultiCritQueryArgs extends CoreQueryArgs {
@@ -193,7 +201,7 @@ export interface MultiCritQueryArgs extends CoreQueryArgs {
  * MultiBlockFreqDistribAPI creates requests with multiple freq. distrib.
  * criteria.
  */
-export class KontextMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAPI<MultiCritQueryArgs> {
+export class KontextMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAPI<MultiCritQueryArgs>, WebDelegateApi {
 
     private readonly apiURL:string;
 
@@ -283,5 +291,13 @@ export class KontextMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAP
                 })
             )
         );
+    }
+
+    getBackLink():Backlink {
+        return {
+            url: this.apiURL + '/freqs',
+            label: 'KonText',
+            method: HTTP.Method.GET,
+        }
     }
 }

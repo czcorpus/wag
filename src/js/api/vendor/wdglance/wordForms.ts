@@ -27,6 +27,7 @@ import { RequestArgs, Response } from '../../abstract/wordForms';
 import { HTTPAction } from '../../../server/routes/actions';
 import { InternalResourceInfoApi } from './freqDbSourceInfo';
 import { IApiServices } from '../../../appServices';
+import { Backlink } from '../../../page/tile';
 
 
 export interface HTTPResponse {
@@ -88,6 +89,10 @@ export class WordFormsWdglanceAPI implements ResourceApi<RequestArgs, Response> 
                     numTokens: 0 // TODO
                 }
             });
+    }
+
+    createBacklink(args:RequestArgs, backlink:Backlink) {
+        return null
     }
 
 }

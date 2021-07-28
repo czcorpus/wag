@@ -35,6 +35,7 @@ import { Backlink, BacklinkWithArgs } from '../../../page/tile';
 import { TileWait } from '../../../models/tileSync';
 import { PriorityValueFactory } from '../../../priority';
 import { DataRow } from '../../../api/abstract/freqs';
+import { isWebDelegateApi } from '../../../types';
 
 
 export enum FreqFilterQuantity {
@@ -162,7 +163,9 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
         this.appServices = appServices;
         this.queryMatches = queryMatches;
         this.queryDomain = queryDomain;
-        this.backlink = backlink;
+
+        const api = this.apiFactory.getHighestPriorityValue()[1]
+        this.backlink = isWebDelegateApi(api) ? api.getBackLink() : backlink;
 
         this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
             GlobalActions.RequestQueryResponse.name,
