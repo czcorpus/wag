@@ -91,7 +91,7 @@ module.exports = (env) => ({
     devtool: 'inline-source-map',
     devServer: {
         // disableHostCheck: true,
-        public: 'portal.korpus.test',
+        public: 'localhost',
         publicPath: (CONF.develServer || {}).urlRootPath + 'dist/',
         contentBase: path.resolve(__dirname, 'html'),
         compress: true,

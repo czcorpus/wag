@@ -11,8 +11,14 @@ services:
       - dist-client:/opt/wag/dist
       - dist-server:/opt/wag/dist-server
       - ./install/docker/production-build-and-run.sh:/var/opt/install/production-build-and-run.sh
+      - ./webpack.babel.json:/opt/wag/webpack.babel.json
+      - ./webpack.dev.js:/opt/wag/webpack.dev.js
+      - ./package.json:/opt/wag/package.json
     networks:
       - wag
+    # to access e.g. a non-docker database, use:
+    # extra_hosts:
+    #   - [required hostname]:[IP address of the host]
     command: "npm start server"
 
   nginx:
@@ -26,6 +32,9 @@ services:
       - static:/opt/wag/assets
       - dist-client:/opt/wag/dist
       - dist-server:/opt/wag/dist-server
+      - ./webpack.babel.json:/opt/wag/webpack.babel.json
+      - ./webpack.dev.js:/opt/wag/webpack.dev.js
+      - ./package.json:/opt/wag/package.json
     networks:
       - wag
 
