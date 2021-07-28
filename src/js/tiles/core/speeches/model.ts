@@ -21,7 +21,6 @@ import { pipe, List, HTTP } from 'cnc-tskit';
 import { IAppServices } from '../../../appServices';
 import { Backlink, BacklinkWithArgs } from '../../../page/tile';
 import { Actions as GlobalActions, isTileSomeDataLoadedAction } from '../../../models/actions';
-import { SpeechDataPayload } from './actions';
 import { isSubqueryPayload } from '../../../query/index';
 import { SpeechesApi, SpeechReqArgs } from './api';
 import { SingleConcLoadedPayload } from '../../../api/abstract/concordance';
