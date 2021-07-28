@@ -94,7 +94,8 @@ export class GeoAreasTile implements ITileProvider {
                 fttIncludeEmpty: conf.fttIncludeEmpty,
                 fmaxitems: 100,
                 isAltViewMode: false,
-                frequencyDisplayLimit: conf.frequencyDisplayLimit
+                frequencyDisplayLimit: conf.frequencyDisplayLimit,
+                backlink: null,
             }
         });
         this.label = appServices.importExternalMessage(conf.label || 'geolocations__main_label');
