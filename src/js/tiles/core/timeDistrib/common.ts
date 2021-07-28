@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { Action } from 'kombo';
-import { CorpSrchTileConf, Backlink } from '../../../page/tile';
+import { CorpSrchTileConf, Backlink, BacklinkWithArgs } from '../../../page/tile';
 import { Actions as GlobalActions } from '../../../models/actions';
 
 
@@ -48,6 +48,7 @@ export interface DataLoadedPayload {
     wordMainLabel?:string;
     concId?:string;
     origQuery?:string;
+    backlink:BacklinkWithArgs<{}>;
 }
 
 export interface DataItemWithWCI {

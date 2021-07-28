@@ -74,7 +74,7 @@ export interface TimeDistribModelState extends MinSingleCritFreqState {
     wordCmp:string;
     wordCmpInput:string;
     wordMainLabel:string; // a copy from mainform state used to attach a legend
-    backlink:BacklinkWithArgs<{}>;
+    backlinks:Array<BacklinkWithArgs<{}>>;
     refArea:[number,number];
     zoom:[number, number];
     loadingStatus:LoadingStatus; // this is little bit redundant with isBusy but we need this
@@ -163,9 +163,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
         this.appServices = appServices;
         this.queryMatches = queryMatches;
         this.queryDomain = queryDomain;
-
-        const api = this.apiFactory.getHighestPriorityValue()[1]
-        this.backlink = isWebDelegateApi(api) ? api.getBackLink() : backlink;
+        this.backlink = backlink;
 
         this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
             GlobalActions.RequestQueryResponse.name,
@@ -212,12 +210,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
                     if (action.payload.wordMainLabel) {
                         state.wordMainLabel = action.payload.wordMainLabel;
                     }
-                    state.backlink = this.apiFactory.getRandomValue()[1].createBackLink(
-                        this.backlink,
-                        state.corpname,
-                        action.payload.concId,
-                        action.payload.origQuery
-                    );
+                    state.backlinks.push(action.payload.backlink);
                 }
                 return state;
             }
@@ -400,7 +393,10 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
                     }));
                     let ans:DataLoadedPayload = {
                         tileId: this.tileId,
-                        concId: args.concId
+                        concId: args.concId,
+                        backlink: isWebDelegateApi(args.freqApi) ?
+                            args.freqApi.createBackLink(args.freqApi.getBackLink(), resp.corpName, args.concId) :
+                            args.freqApi.createBackLink(this.backlink, resp.corpName, args.concId)
                     };
                     if (args.targetId === SubchartID.MAIN) {
                         ans.data = dataFull;

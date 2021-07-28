@@ -62,6 +62,10 @@ export class PriorityValueFactory<T> {
         this.probLimit += prior;
     }
 
+    getInstances():Array<ValueWithPriority<T>> {
+        return this.instances;
+    }
+
     getRandomValue():T {
         const v = Math.random();
         for (let i = 0; i < this.instances.length; i++) {
