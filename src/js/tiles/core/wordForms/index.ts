@@ -71,7 +71,8 @@ export class WordFormsTile implements ITileProvider {
                 roundToPos: 1,
                 corpusSize: conf.corpusSize,
                 freqFilterAlphaLevel: conf.freqFilterAlphaLevel,
-                data: []
+                data: [],
+                backlink: null,
             },
             tileId,
             api: createApiInstance({
