@@ -25,7 +25,7 @@ import { isSubqueryPayload } from '../../../query/index';
 import { SpeechesApi, SpeechReqArgs } from './api';
 import { SingleConcLoadedPayload } from '../../../api/abstract/concordance';
 import { SpeechesModelState, extractSpeeches, Expand, BacklinkArgs, Segment, PlayableSegment, normalizeSpeechesRange } from './modelDomain';
-import { SystemMessageType } from '../../../types';
+import { isWebDelegateApi, SystemMessageType } from '../../../types';
 import { Actions } from './actions';
 import { normalizeConcDetailTypography } from '../../../models/tiles/concordance/normalize';
 import { IAudioUrlGenerator } from '../../../api/abstract/audio';
@@ -80,7 +80,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState, TileWait<b
         this.api = api;
         this.appServices = appServices;
         this.tileId = tileId;
-        this.backlink = backlink;
+        this.backlink = isWebDelegateApi(this.api) ? this.api.getBackLink() : backlink;
         this.waitForTiles = [...waitForTiles];
         this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.subqSourceTiles = [...subqSourceTiles];

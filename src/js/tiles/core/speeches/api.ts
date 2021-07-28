@@ -17,12 +17,13 @@
  */
 
 import { Observable, of as rxOf } from 'rxjs';
-import { IAsyncKeyValueStore, HTTPHeaders, CorpusDetails, ResourceApi } from '../../../types';
+import { IAsyncKeyValueStore, HTTPHeaders, CorpusDetails, ResourceApi, WebDelegateApi } from '../../../types';
 import { HTTP } from 'cnc-tskit'
 import { cachedAjax$ } from '../../../page/ajax';
 import { CorpusInfoAPI } from '../../../api/vendor/kontext/corpusInfo';
 import { LineElementType } from '../../../api/abstract/concordance';
 import { IApiServices } from '../../../appServices';
+import { Backlink } from '../../../page/tile';
 
 
 
@@ -55,7 +56,7 @@ export interface SpeechResponse {
 /**
  *
  */
-export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechResponse> {
+export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechResponse>, WebDelegateApi {
 
     private readonly cache:IAsyncKeyValueStore;
 
@@ -100,6 +101,14 @@ export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechResponse> {
                 widectx_globals: [],
                 messages: []
             });
+        }
+    }
+
+    getBackLink():Backlink {
+        return {
+            url: this.apiUrl + '/view',
+            method: HTTP.Method.GET,
+            label: 'KonText',
         }
     }
 }
