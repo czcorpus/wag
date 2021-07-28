@@ -11,7 +11,7 @@ services:
       - dist-server:/opt/wag/dist-server
       - ./install/docker/server-build-and-run.sh:/var/opt/install/server-build-and-run.sh
       - ./src:/opt/wag/src
-      - ./webpack.babel.json:/opt/wag/webpack.babel.json
+      - ./build.js:/opt/wag/build.js
       - ./webpack.server.js:/opt/wag/webpack.server.js
       - ./package.json:/opt/wag/package.json
       - ./assets:/opt/wag/assets
@@ -30,7 +30,7 @@ services:
       - ${WAG_CONFIG_PATH}:/opt/wag/conf
       - ./src:/opt/wag/src
       - ./html:/opt/wag/html
-      - ./webpack.babel.json:/opt/wag/webpack.babel.json
+      - ./build.js:/opt/wag/build.js
       - ./webpack.dev.js:/opt/wag/webpack.dev.js
       - ./package.json:/opt/wag/package.json
       - ./assets:/opt/wag/assets

@@ -52,7 +52,7 @@ module.exports = (env) => ({
                 use: [
                     {
                         loader: 'babel-loader',
-                        options: build.loadConf(mkpath('./webpack.babel.json'))
+                        options: build.createBabelOptions('production')
                     }
                 ]
             }

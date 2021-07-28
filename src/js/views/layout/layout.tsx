@@ -28,7 +28,6 @@ import { GlobalComponents } from '../common';
 import { WdglanceMainProps } from '../main';
 import { ErrPageProps } from '../error';
 import { List, pipe } from 'cnc-tskit';
-import { GlobalStyle } from './style';
 
 
 
@@ -215,7 +214,6 @@ export function init(ut:ViewUtils<GlobalComponents>):{HtmlBody: React.FC<HtmlBod
 
         return (
             <body>
-                <GlobalStyle createStaticUrl={ut.createStaticUrl} />
                 {props.hostPageEnv.html ? renderToolbar() : null}
                 <header className="wdg-header">
                     <a href={props.config.hostUrl} title={createLabel()}>

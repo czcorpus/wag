@@ -50,33 +50,10 @@ module.exports = (env) => ({
                 use: [
                     {
                         loader: 'babel-loader',
-                        options: build.loadConf(mkpath('./webpack.babel.json'))
+                        options: build.createBabelOptions('development')
                     }
                 ]
-            },
-            {
-                test: /\.css$/,
-                use: [
-                    { loader: 'style-loader'},
-                    { loader: 'css-loader' }
-                ]
-            },
-            {
-                test: /\.less$/,
-                use: [
-                    { loader: 'style-loader'},
-                    { loader: 'css-loader' },
-                    {
-                        loader: 'less-loader',
-                        options: {
-                            lessOptions: {
-                                strictMath: true,
-                                noIeCompat: true
-                            }
-                        }
-                    }
-                ]
-            },
+            }
         ]
     },
     stats: {
@@ -98,17 +75,7 @@ module.exports = (env) => ({
         port: (CONF.develServer || {}).port || 9000,
         host: (CONF.develServer || {}).host || 'localhost',
         disableHostCheck: true, // TODO
-        inline: true,
-        before: function(app) {
-            // In the devel-server mode, all the css is delivered via Webpack
-            // but at the same time our hardcoded <link rel="stylesheet" ... />
-            // elements cause browser to load non-available styles.
-            // So we always return an empty stuff with proper content type.
-            app.get('/*.css', function(req, res) {
-                res.set('Content-Type', 'text/css');
-                res.send('');
-            });
-        }
+        inline: true
     },
     plugins: [
         new build.ProcTranslationsPlugin(SRC_PATH, DIST_PATH, CONF)
