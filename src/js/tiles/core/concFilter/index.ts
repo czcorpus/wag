@@ -31,9 +31,6 @@ import { TileWait } from '../../../models/tileSync';
 import { List } from 'cnc-tskit';
 
 
-declare var require:(src:string)=>void;  // webpack
-require('../../../../css/shared.less');
-
 
 export interface ConcFilterTileConf extends TileConf {
     apiURL:string;

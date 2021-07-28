@@ -23,7 +23,8 @@ module.exports = (env) => ({
     output: {
         path: path.resolve(__dirname, 'dist-server'),
         libraryTarget: 'commonjs2',
-        filename: 'service.js'
+        filename: 'service.js',
+        assetModuleFilename: 'assets/[hash][ext][query]'
     },
     resolve: {
         alias: {}, // filled in dynamically
@@ -37,27 +38,18 @@ module.exports = (env) => ({
     module: {
         rules: [
             {
+                test: /\.(png|jpg|gif|svg)$/,
+                type: 'asset/resource'
+            },
+            {
                 test: /\.tsx?$/,
+                exclude: /(node_modules)/,
                 use: [
                     {
                         loader: 'babel-loader',
-                        /*
-                        options: {
-                            configFileName: path.resolve(__dirname, 'tsconfig.server.json'),
-                            transpileOnly: env ? !!env.TS_TRANSPILE_ONLY : false,
-                            useCache: false
-                        }
-                        */
+                        options: build.loadConf(mkpath('./webpack.babel.json'))
                     }
                 ]
-            },
-            {
-                test: /\.css$/,
-                use: 'null-loader'
-            },
-            {
-                test: /\.less$/,
-                use: 'null-loader'
             }
         ]
     },

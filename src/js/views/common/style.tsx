@@ -18,12 +18,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import SC from 'styled-components';
+import styled from 'styled-components';
 import * as theme from './theme';
 
 // ---------------- <AjaxLoader /> --------------------------------------
 
-export const AjaxLoader = SC.img`
+export const AjaxLoader = styled.img`
     &.centered {
         display: block;
         margin: 2em auto 2em auto;
@@ -32,7 +32,7 @@ export const AjaxLoader = SC.img`
 
 // ---------------- <TileWrapper /> --------------------------------------
 
-export const TileWrapper = SC.div`
+export const TileWrapper = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -101,7 +101,7 @@ export const TileWrapper = SC.div`
 
 // ---------------- <TileWrapper /> --------------------------------------
 
-export const TitleLoaderBar = SC.div`
+export const TitleLoaderBar = styled.div`
     @keyframes slidein {
         0% {
             transform: translate(0);
@@ -124,7 +124,7 @@ export const TitleLoaderBar = SC.div`
 
 // ---------------- <HorizontalBlockSwitch /> --------------------------------------
 
-export const HorizontalBlockSwitch = SC.div`
+export const HorizontalBlockSwitch = styled.div`
     padding-top: 0.3em;
     padding-top: 0.3em;
     text-align: center;
@@ -148,7 +148,7 @@ export const HorizontalBlockSwitch = SC.div`
 
 // ---------------- <TileReloadControl /> --------------------------------------
 
-export const TileReloadControl = SC.p`
+export const TileReloadControl = styled.p`
     text-align: center;
 
     a {
@@ -159,7 +159,7 @@ export const TileReloadControl = SC.p`
 
 // ---------------- <TileReloadControl /> --------------------------------------
 
-export const ResponsiveWrapper = SC.div<{minWidth:number}>`
+export const ResponsiveWrapper = styled.div<{minWidth:number}>`
     width: 100%;
     height: 100%;
     min-width: ${props => props.minWidth ? props.minWidth : 'auto'};
@@ -167,7 +167,7 @@ export const ResponsiveWrapper = SC.div<{minWidth:number}>`
 
 // ---------------- <ModalOverlay /> --------------------------------------
 
-export const ModalOverlay = SC.div`
+export const ModalOverlay = styled.div`
     position: fixed;
     z-index: 10000;
     left: 0;
@@ -222,7 +222,8 @@ export const ModalOverlay = SC.div`
         padding: 1.25em;
     }
 
-    ${theme.media.medium`
+
+    ${theme.media.medium} {
         display: flex;
         align-items: center;
         justify-content: center;
@@ -267,9 +268,9 @@ export const ModalOverlay = SC.div`
                 }
             }
         }
-    `}
+    }
 
-    ${theme.media.small`
+    ${theme.media.small} {
         background-color: hsla(0,0%,8%,.7);
 
         .box {
@@ -288,12 +289,12 @@ export const ModalOverlay = SC.div`
                 width: 1.8em;
             }
         }
-    `}
+    }
 `;
 
 // ---------------- <WdgTooltip /> --------------------------------------
 
-export const WdgTooltip = SC.div<{multiword?:boolean}>`
+export const WdgTooltip = styled.div<{multiword?:boolean}>`
     background-color: #FFFFFF;
     z-index: 10000;
     padding: ${props => props.multiword ? '0.3em 1em 1.3em 1em' : '1em'};
@@ -344,7 +345,7 @@ export const WdgTooltip = SC.div<{multiword?:boolean}>`
 
 // ---------------- <BacklinkForm /> --------------------------------------
 
-export const BacklinkForm = SC.form<{createStaticUrl: (file:string) => string}>`
+export const BacklinkForm = styled.form<{createStaticUrl: (file:string) => string}>`
     display: inline;
     padding: 0;
 
@@ -368,7 +369,7 @@ export const BacklinkForm = SC.form<{createStaticUrl: (file:string) => string}>`
 
 // ---------------- <SourceInfoBox /> --------------------------------------
 
-export const SourceInfoBox = SC.div<{createStaticUrl: (file:string) => string}>`
+export const SourceInfoBox = styled.div<{createStaticUrl: (file:string) => string}>`
     font-size: 1.1em;
 
     ul.information-tab-sel {

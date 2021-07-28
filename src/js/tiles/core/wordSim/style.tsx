@@ -44,12 +44,12 @@ export const Boxes = styled.div<{isMobile:boolean}>`
         margin-right: 0.7em;
     }
 
-    ${theme.media.medium`
+    ${theme.media.medium} {
         & > .chart {
             min-width: initial;
             width: 100%;
         }
-    `}
+    }
 `;
 
 export const SimCloud = styled.div`

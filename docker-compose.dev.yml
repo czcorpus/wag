@@ -7,13 +7,21 @@ services:
       dockerfile: dockerfiles/Dockerfile.dev
     volumes:
       - ${WAG_CONFIG_PATH}:/opt/wag/conf
+      - dist-client:/opt/wag/dist
+      - dist-server:/opt/wag/dist-server
+      - ./install/docker/server-build-and-run.sh:/var/opt/install/server-build-and-run.sh
       - ./src:/opt/wag/src
+      - ./webpack.babel.json:/opt/wag/webpack.babel.json
+      - ./webpack.server.js:/opt/wag/webpack.server.js
+      - ./package.json:/opt/wag/package.json
       - ./assets:/opt/wag/assets
       - ./html:/opt/wag/html
-      - dist:/opt/wag/dist
     networks:
       - wag
-    command: "./install/docker/server-build-and-run.sh"
+    # to access e.g. a non-docker database, use:
+    # extra_hosts:
+    #   - [required hostname]:[IP address of the host]
+    command: "/var/opt/install/server-build-and-run.sh"
   wag-client-dev:
     build:
       context: .
@@ -21,9 +29,12 @@ services:
     volumes:
       - ${WAG_CONFIG_PATH}:/opt/wag/conf
       - ./src:/opt/wag/src
-      - ./assets:/opt/wag/assets
       - ./html:/opt/wag/html
-      - dist:/opt/wag/dist
+      - ./webpack.babel.json:/opt/wag/webpack.babel.json
+      - ./webpack.dev.js:/opt/wag/webpack.dev.js
+      - ./package.json:/opt/wag/package.json
+      - ./assets:/opt/wag/assets
+      - dist-client:/opt/wag/dist
     networks:
       - wag
     command: [ "npm", "start", "devel-server" ]
@@ -37,7 +48,8 @@ services:
     volumes:
       - ./install/docker/nginx.dev.conf:/etc/nginx/conf.d/default.conf
       - ./assets:/opt/wag/assets
-      - dist:/opt/wag/dist
+      - dist-client:/opt/wag/dist
+      - dist-server:/opt/wag/dist-server
     networks:
       - wag
 
@@ -55,7 +67,8 @@ services:
       - wag
 
 volumes:
-  dist: {}
+  dist-server: {}
+  dist-client: {}
 
 networks:
   wag: {}

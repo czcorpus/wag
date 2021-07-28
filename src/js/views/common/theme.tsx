@@ -18,9 +18,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Dict } from 'cnc-tskit';
-import { css } from 'styled-components';
-
 export const defaultFontFamily = '"Roboto", "Segoe UI", Arial, sans-serif';
 export const condensedFontFamily = '"Roboto Condensed", "Segoe UI", sans-serif';
 
@@ -52,15 +49,7 @@ export const defaultBorderRadius = '0.25em';
 
 // media queries
 
-const screenSizes = {
-   medium: 1200,
-   small: 480
+export const media = {
+   small: '@media screen and (max-width: 480px)',
+   medium: '@media screen and (max-width: 1200px)'
 }
-
-export const media = Dict.map(
-   size => (first, ...args) => css`
-      @media screen and (max-width: ${size}px) {
-         ${css(first, ...args)};
-      }
-   `, screenSizes
-)

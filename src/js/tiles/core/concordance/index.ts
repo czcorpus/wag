@@ -31,11 +31,6 @@ import { findCurrQueryMatch } from '../../../models/query';
 import { createInitialLinesData } from '../../../models/tiles/concordance';
 
 
-
-declare var require:any;
-require('../../../../css/shared.less');
-
-
 export interface ConcordanceTileConf extends CorpSrchTileConf {
     apiURL:string;
     apiType:string;

@@ -20,15 +20,37 @@
 
 import { createGlobalStyle } from 'styled-components';
 import * as theme from '../common/theme';
+import grooveBg from '../../../../assets/groovepaper2.jpg';
 
 // ---------------- <GlobalStyle /> --------------------------------------
 
 export const GlobalStyle = createGlobalStyle<{createStaticUrl: (file: string) => string}>`
+
     body {
         font-family: ${theme.defaultFontFamily};
         font-size: 1em;
-        font-display: swap;
-        background-image: url(${props => props.createStaticUrl('groovepaper2.jpg')});
+        background-image: url(${grooveBg});
+
+        > header.wdg-header {
+
+            text-align: center;
+            margin-top: 1.2em;
+
+            a {
+                display: inline-block;
+                margin: 0;
+                text-decoration: none;
+
+                img {
+                    width: 25em;
+                }
+            }
+        }
+
+        .wdglance-mount {
+            max-width: 1550px;
+            margin: 0 auto;
+        }
     }
 
     input.invalid, textarea.invalid {
@@ -198,48 +220,258 @@ export const GlobalStyle = createGlobalStyle<{createStaticUrl: (file: string) =>
             }
 
             li:not(:last-child):after {
-                content: '\00a0|\00a0'
+                content: '\\00a0|\\00a0'
             }
         }
     }
 
-    ${theme.media.small`
-        body {
-            margin: 0;
-            padding: 0;
+    .tile-body {
+        padding: 1.35em;
+        text-align: justify;
+        line-height: 1.6;
+    }
 
-            .wdglance-mount {
-                padding: 0 0.3em 0 0.3em;
+    .tile-body.text,
+    .cnc-tile-body.text {
+
+        .raw-html {
+
+            em {
+                color: ${theme.colorLogoPink};
+            }
+
+            a {
+                color: ${theme.colorLogoBlue};
+            }
+
+            a:hover {
+                text-decoration: none;
+            }
+
+            img {
+                width: 1em;
+                display: inline-block;
+                margin-left: 0em;
+                margin-right: 0.1em;
             }
         }
+    }
 
-        footer {
+    #modal-overlay .cnc-tile-body.text .raw-html {
+        font-size: 1.2em;
+        max-width: 32em;
+    }
 
-            margin-top: 0.4em;
-            line-height: 1.5em;
+    // -------
 
-            p {
-                margin-bottom: 0;
-            }
+    .cnc-tile {
+        border-radius: .25em;
+        box-shadow: .05em .05em .15em .05em rgba(0, 0, 0, 0.2);
+        background-color: white;
+        font-size: .92em;
+        color: #333;
+    }
 
-            .copy {
-                padding-left: 0;
+    .cnc-tile.highlighted {
+        box-shadow: .09em .09em .15em .09em rgba(226, 0, 122, 0.7);
+    }
+
+
+    .cnc-tile-body {
+        font-size: .9em;
+        padding: 1.25em;
+        height: 100%;
+    }
+
+    .cnc-tile-body a {
+        color: #009ee0;
+        text-decoration: none;
+    }
+
+    .cnc-tile-body a:hover {
+        /*color: #007db1;*/
+        text-decoration: underline;
+    }
+
+    .cnc-tile-body.error .message,
+    .cnc-tile-body.empty .message {
+        display: flex;
+        align-items: center;
+        align-content: center;
+
+        p {
+            font-size: 1.1em;
+        }
+
+        .MessageStatusIcon {
+            margin-right: 1.3em;
+
+            img {
+                width: 1.7em;
                 display: block;
             }
+        }
+    }
 
-            section.links > span:first-child {
-                border: none;
-            }
+    .cnc-tile-body.error .report {
+        font-size: 1.2em;
+        text-align: center;
+    }
 
-            section.project-info {
+    .cnc-tile-header {
+        padding: .625em 1.25em;
+        border-bottom: .1em solid rgba(0,0,0, 0.1);
+    }
 
-                margin-bottom: 0;
+    /*
+    * cnc-form
+    * cnc-button
+    */
+    .cnc-form fieldset {
+        margin: 0;
+        padding: 1em 0;
+        border: 0;
+    }
 
-                span {
-                    display: block;
-                    border: none;
+    .cnc-form legend {
+        border-bottom: .1em solid rgba(0,0,0, 0.1);
+        display: block;
+        width: 100%;
+        font-size: 1.25em;
+        padding: .4em 0;
+        margin: 0;
+    }
+
+    /*
+    * We intentionally use specifictity hack here, so that this rule
+    * doesn't get overriden by e.g.: .cnc-tile a { ... }
+    * This is preferred over !important
+    */
+    .cnc-button.cnc-button,
+    .cnc-form input[type=text],
+    .cnc-form input[type=password],
+    .cnc-form input[type=number],
+    .cnc-form input[type=email],
+    .cnc-form textarea,
+    .cnc-form select {
+        padding: .4em .5em;
+        border: .07em solid rgba(0,0,0, .2);
+        border-radius: .3em;
+        font-size: 1em;
+        box-sizing: border-box;
+    }
+
+    .cnc-form input[type=text],
+    .cnc-form input[type=password],
+    .cnc-form input[type=number],
+    .cnc-form input[type=email],
+    .cnc-form textarea,
+    .cnc-form select {
+        background-color: white;
+    }
+
+    .cnc-form.cnc-form-spaced input[type=text],
+    .cnc-form.cnc-form-spaced input[type=password],
+    .cnc-form.cnc-form-spaced input[type=number],
+    .cnc-form.cnc-form-spaced input[type=email],
+    .cnc-form.cnc-form-spaced select {
+        margin-top: .3em;
+        margin-bottom: .7em;
+    }
+
+    .cnc-form.cnc-form-spaced label {
+        vertical-align: middle;
+    }
+
+    .cnc-button.cnc-button {
+        background-color: #E7E7E7;
+        box-shadow: 0 -0.1em 0 0 rgba(0,0,0, .25) inset;
+        padding-left: .7em;
+        padding-right: .7em;
+        color: #333;
+    }
+
+    .cnc-button.cnc-button:hover {
+        background-color: #EFEFEF;
+        border-color: rgba(0,0,0, .35);
+        cursor: pointer;
+    }
+
+    .cnc-button.cnc-button:active,
+    .cnc-button.cnc-button:focus,
+    .cnc-form input[type=text]:focus,
+    .cnc-form input[type=password]:focus,
+    .cnc-form input[type=number]:focus,
+    .cnc-form input[type=email]:focus,
+    .cnc-form textarea:focus,
+    .cnc-form select:focus {
+        border-color: #009ee0;
+    }
+
+    a.cnc-button.cnc-button {
+        display: inline-block;
+    }
+
+    a.cnc-button.cnc-button,
+    a.cnc-button.cnc-button:hover {
+        text-decoration: none;
+    }
+
+    .cnc-button.cnc-button-primary {
+        background-color: #009ee0;
+        color: white;
+    }
+
+    .cnc-button.cnc-button-primary:hover {
+        background-color: #22ACE6;
+    }
+
+    .cnc-button.cnc-button-primary:focus,
+    .cnc-button.cnc-button-primary:active {
+        border-color: rgba(0,0,0, .75);
+    }
+
+    .cnc-button-text {
+        font-size: 1.2em;
+    }
+
+    .cnc-button-desc {
+        color: rgba(0,0,0, .5);
+    }
+
+
+    ${theme.media.medium} {
+
+        body {
+            > header.wdg-header {
+
+                text-align: center;
+                margin-top: 0.4em;
+                margin-bottom: 0.6em;
+
+                a {
+                    display: inline-block;
+                    margin: 0;
+                    text-decoration: none;
+
+                    img {
+                        width: 18em;
+                    }
                 }
             }
         }
-    `}
+
+        .tile-body.text,
+        .cnc-tile-body.text {
+            max-width: 50em;
+        }
+    }
+
+    ${theme.media.small} {
+
+        body > header.wdg-header a img {
+            width: 15em;
+        }
+    }
+
 `;

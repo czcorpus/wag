@@ -56,12 +56,13 @@ export function errorPage({req, res, uiLang, services, viewUtils, error}:ErrorPa
     const userConf = errorUserConf(services.serverConf.languages, error, uiLang);
     const clientConfig = emptyClientConf(services.clientConf, req.cookies[THEME_COOKIE_NAME]);
     clientConfig.colorThemes = [];
-    const view = viewInit(viewUtils);
+    const {HtmlBody, HtmlHead} = viewInit(viewUtils);
     const errView = errPageInit(viewUtils);
     res
         .status(HTTP.Status.NotFound)
         .send(renderResult({
-            view,
+            HtmlBody,
+            HtmlHead,
             services: services,
             toolbarData: emptyValue(),
             queryMatches: [],
@@ -392,7 +393,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         const viewUtils = new ViewUtils<GlobalComponents>({
             uiLang: uiLang,
             translations: services.translations,
-            staticUrlCreator: (path) => services.clientConf.rootUrl + 'assets/' + path,
+            staticUrlCreator: (path) => services.clientConf.runtimeAssetsUrl + path,
             actionUrlCreator: (path, args) => services.clientConf.hostUrl + path + '?' + encodeArgs(args)
         });
         const appServices = new AppServices({
@@ -482,7 +483,7 @@ export const wdgRouter = (services:Services) => (app:Express) => {
         const viewUtils = new ViewUtils<GlobalComponents>({
             uiLang: uiLang,
             translations: services.translations,
-            staticUrlCreator: (path) => services.clientConf.rootUrl + 'assets/' + path,
+            staticUrlCreator: (path) => services.clientConf.runtimeAssetsUrl + path,
             actionUrlCreator: (path, args) => services.clientConf.hostUrl + path + '?' + encodeArgs(args)
         });
         const appServices = new AppServices({

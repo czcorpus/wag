@@ -36,14 +36,9 @@ import { initStore } from './cache';
 import { TelemetryAction, TileIdentMap } from '../types';
 import { HTTPAction } from '../server/routes/actions';
 import { MultiDict } from '../multidict';
-import { HTTP, Client } from 'cnc-tskit';
+import { HTTP, Client, tuple, List } from 'cnc-tskit';
 import { WdglanceMainProps } from '../views/main';
 import { TileGroup } from './layout';
-
-import { GlobalStyle } from '../views/layout/style';
-
-declare var require:(src:string)=>void;  // webpack
-require('theme.less');
 
 
 interface MountArgs {
@@ -156,7 +151,7 @@ export function initClient(mountElement:HTMLElement, config:ClientConf, userSess
     const viewUtils = new ViewUtils<GlobalComponents>({
         uiLang: uiLangSel,
         translations: translations,
-        staticUrlCreator: (path) => config.rootUrl + 'assets/' + path,
+        staticUrlCreator: (path) => config.runtimeAssetsUrl + path,
         actionUrlCreator: (path, args) => {
                 const argsStr = Array.isArray(args) || MultiDict.isMultiDict(args) ?
                         encodeURLParameters(args) : encodeArgs(args);
@@ -166,9 +161,9 @@ export function initClient(mountElement:HTMLElement, config:ClientConf, userSess
 
     });
     const appServices = new AppServices({
-        notifications: notifications,
+        notifications,
         uiLang: userSession.uiLang,
-        domainNames: config.searchDomains.map(v => [v.code, v.label]),
+        domainNames: List.map(v => tuple(v.code, v.label), config.searchDomains),
         translator: viewUtils,
         staticUrlCreator: viewUtils.createStaticUrl,
         actionUrlCreator: viewUtils.createActionUrl,
@@ -224,11 +219,6 @@ export function initClient(mountElement:HTMLElement, config:ClientConf, userSess
             queryMatches,
             homepage: [...config.homepage.tiles]
         });
-
-        ReactDOM.render(
-            React.createElement(GlobalStyle, {createStaticUrl: viewUtils.createStaticUrl}),
-            document.getElementById('global-style-mount')
-        );
 
     } catch (e) {
         // No need to do anything more as being

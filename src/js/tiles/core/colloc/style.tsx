@@ -33,10 +33,10 @@ export const Boxes = styled.div<{isMobile:boolean}>`
     & > .chart {
         min-width: 50%;
 
-        ${theme.media.medium`
+        ${theme.media.medium} {
             min-width: initial;
             width: 100%;
-        `}
+        }
     }
 
     & > div:not(:last-child) {

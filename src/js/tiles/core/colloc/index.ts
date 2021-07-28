@@ -30,9 +30,6 @@ import { createApiInstance } from '../../../api/factory/concordance';
 import { findCurrQueryMatch } from '../../../models/query';
 
 
-declare var require:(src:string)=>void;  // webpack
-require('../../../../css/shared.less');
-
 
 export interface CollocationsTileConf extends TileConf {
     apiURL:string;

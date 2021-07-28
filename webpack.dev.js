@@ -13,6 +13,7 @@ const CONF = build.loadConf(mkpath('conf/server.json'));
 
 module.exports = (env) => ({
     mode: 'development',
+    target: ['web', 'es5'],
     entry: {
         index: path.resolve(__dirname, 'src/js/page/index')
     },
@@ -21,7 +22,8 @@ module.exports = (env) => ({
         path: path.resolve(__dirname, 'dist'),
         publicPath: CONF.distFilesUrl || '',
         libraryTarget: 'var',
-        library: '[name]Page'
+        library: '[name]Page',
+        assetModuleFilename: 'assets/[hash][ext][query]'
     },
     resolve: {
         alias: {}, // filled in dynamically
@@ -40,32 +42,15 @@ module.exports = (env) => ({
         rules: [
             {
                 test: /\.(png|jpg|gif|svg)$/,
-                use: [
-                    {
-                        loader: 'file-loader',
-                        options: {
-                            emitFile: false,
-                            name: '[name].[ext]',
-                            publicPath: CONF.staticFilesUrl,
-                        }
-                    }
-                ]
-            },
-            {
-                test: /\.js$/,
-                exclude: /(node_modules)/,
-                use: [
-                    {
-                        loader: 'babel-loader'
-                    }
-                ]
+                type: 'asset/resource'
             },
             {
                 test: /\.tsx?$/,
                 exclude: /(node_modules)/,
                 use: [
                     {
-                        loader: 'babel-loader'
+                        loader: 'babel-loader',
+                        options: build.loadConf(mkpath('./webpack.babel.json'))
                     }
                 ]
             },
@@ -106,7 +91,7 @@ module.exports = (env) => ({
     devtool: 'inline-source-map',
     devServer: {
         // disableHostCheck: true,
-        public: 'portal.korpus.test',
+        public: 'localhost',
         publicPath: (CONF.develServer || {}).urlRootPath + 'dist/',
         contentBase: path.resolve(__dirname, 'html'),
         compress: true,
@@ -127,6 +112,5 @@ module.exports = (env) => ({
     },
     plugins: [
         new build.ProcTranslationsPlugin(SRC_PATH, DIST_PATH, CONF)
-    ],
-    target: ['web', 'es5']
+    ]
  });

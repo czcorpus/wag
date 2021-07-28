@@ -1,6 +1,5 @@
 const path = require('path');
 const build = require('./build');
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const TerserPlugin = require('terser-webpack-plugin');
 
 // helper functions
@@ -24,7 +23,8 @@ module.exports = (env) => ({
         path: path.resolve(__dirname, 'dist'),
         publicPath: CONF.distFilesUrl || '',
         libraryTarget: 'var',
-        library: '[name]Page'
+        library: '[name]Page',
+        assetModuleFilename: 'assets/[hash][ext][query]'
     },
     resolve: {
         alias: {}, // filled in dynamically
@@ -44,70 +44,18 @@ module.exports = (env) => ({
         rules: [
             {
                 test: /\.(png|jpg|gif|svg)$/,
-                use: [
-                    {
-                        loader: 'file-loader',
-                        options: {
-                            emitFile: false,
-                            name: '[name].[ext]',
-                            publicPath: CONF.staticFilesUrl,
-                        }
-                    }
-                ]
-            },
-            {
-                test: /\.js$/,
-                exclude: /(node_modules)/,
-                use: [
-                    {
-                        loader: 'babel-loader',
-                        options: {
-                            presets: [
-                                ['@babel/preset-env', {
-                                    modules: false,
-                                    targets: {
-                                        browsers: ['last 3 versions'],
-                                    },
-                                    forceAllTransforms: true
-                                }]
-                            ],
-                        }
-                    }
-                ]
+                type: 'asset/resource'
             },
             {
                 test: /\.tsx?$/,
                 exclude: /(node_modules)/,
                 use: [
                     {
-                        loader: 'babel-loader'
+                        loader: 'babel-loader',
+                        options: build.loadConf(mkpath('./webpack.babel.json'))
                     }
                 ]
-            },
-            {
-                test: /\.css$/,
-                use: [
-                    { loader: 'file-loader'},
-                    { loader: 'extract-loader'},
-                    { loader: 'css-loader' }
-                ]
-            },
-            {
-                test: /\.less$/,
-                use: [
-                    { loader: MiniCssExtractPlugin.loader },
-                    { loader: 'css-loader' },
-                    {
-                        loader: 'less-loader',
-                        options: {
-                            lessOptions: {
-                                strictMath: true,
-                                noIeCompat: true
-                            }
-                        }
-                    }
-                ]
-            },
+            }
         ]
     },
     stats: {
@@ -122,11 +70,7 @@ module.exports = (env) => ({
             new TerserPlugin()
         ]
     },
-    //devtool: 'inline-source-map',
     plugins: [
         new build.ProcTranslationsPlugin(SRC_PATH, DIST_PATH, CONF),
-        new MiniCssExtractPlugin({
-            filename: "common.css"
-          })
     ]
  });

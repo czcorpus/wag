@@ -16,43 +16,38 @@
  * limitations under the License.
  */
 
-import { ajax$ } from '../../src/js/page/ajax';
+import { ajax$, ResponseType } from '../../src/js/page/ajax';
 import { assert } from 'chai';
-import * as sinon from 'sinon';
-import { of } from 'rxjs';
-import * as rxjsAjax from 'rxjs/ajax';
+import * as MockXMLHttpRequest from 'mock-xmlhttprequest';
 
 describe('ajax$', function () {
-    let ajaxStub:sinon.SinonStub;
 
-    this.beforeAll(function () {
-        ajaxStub = sinon.stub(rxjsAjax, 'ajax').returns(of({
-            response: 'response',
-            originalEvent: null,
-            xhr: null,
-            request: null,
-            status: null,
-            responseText: null,
-            responseType: null
-        }));
-    });
-
-    this.beforeEach(function () {
-        ajaxStub.resetHistory();
-    });
-
-    this.afterAll(function () {
-        sinon.restore();
-    });
+    const server = MockXMLHttpRequest.newServer({
+        get: [
+            'anywhere',
+            {
+                headers: {'Content-Type': 'application/json' },
+                body: '{"message": "Data loaded"}',
+            }
+        ],
+    }).install();
 
     it('wraps ajax() properly in case of a non-error response', function (done) {
-        ajax$('get', 'anywhere', {}).subscribe(
-            value => {},
-            err => done(err),
-            () => {
-                assert.equal(ajaxStub.callCount, 1);
-                done()
+        ajax$<{message:string}>(
+            'get',
+            'anywhere',
+            {},
+            {responseType: ResponseType.JSON}
+        ).subscribe({
+            next: value => {
+                assert.equal(value.message, 'Data loaded');
+            },
+            error: err => {
+                throw err;
+            },
+            complete: () => {
+                done();
             }
-        );
+        });
     });
 });

@@ -88,6 +88,7 @@ function mkRuntimeClientConf({
             return {
                 rootUrl: conf.rootUrl,
                 hostUrl: conf.hostUrl,
+                runtimeAssetsUrl: conf.runtimeAssetsUrl,
                 favicon: conf.favicon,
                 logo: conf.logo,
                 corpInfoApiUrl: conf.corpInfoApiUrl,
@@ -318,7 +319,7 @@ export function queryAction({services, answerMode, httpAction, queryType, uiLang
                 cache: initDummyStore('dummy-server-store')
             });
 
-            const view = viewInit(viewUtils);
+            const {HtmlHead, HtmlBody} = viewInit(viewUtils);
             // Here we're going to use the fact that (the current)
             // server-side action dispatcher does not trigger side effects
             // so our models just set 'busy' state and nothing else happens.
@@ -329,7 +330,8 @@ export function queryAction({services, answerMode, httpAction, queryType, uiLang
             });
 
             res.send(renderResult({
-                view: view,
+                HtmlBody,
+                HtmlHead,
                 services,
                 toolbarData: hostPageEnv,
                 queryMatches: queryMatchesExtended,
@@ -351,11 +353,12 @@ export function queryAction({services, answerMode, httpAction, queryType, uiLang
             services.errorLog.error(err.message, {trace: err.stack});
             const error:[number, string] = [HTTP.Status.BadRequest, err.message];
             const userConf = errorUserConf(services.serverConf.languages, error, uiLang);
-            const view = viewInit(viewUtils);
+            const { HtmlHead, HtmlBody } = viewInit(viewUtils);
             const errView = errPageInit(viewUtils);
             const currTheme = getAppliedThemeConf(services.clientConf);
             res.send(renderResult({
-                view: view,
+                HtmlBody,
+                HtmlHead,
                 services: services,
                 toolbarData: emptyValue(),
                 queryMatches: [],
