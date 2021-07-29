@@ -19,6 +19,7 @@
 import { Action } from 'kombo';
 import { WordTranslation } from '../../../api/abstract/translations';
 import { Actions as GlobalActions } from '../../../models/actions';
+import { SubqueryPayload } from '../../../query';
 
 
 export interface DataLoadedPayload {
@@ -31,7 +32,7 @@ export interface DataLoadedPayload {
 
 export class Actions {
 
-    static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload> = {
+    static TileDataLoaded:Action<typeof GlobalActions.TileDataLoaded.payload & SubqueryPayload> = {
 	    name: GlobalActions.TileDataLoaded.name
     };
 

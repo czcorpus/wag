@@ -112,7 +112,7 @@ export const mkTileFactory = (
                 subqSourceTiles: List.map(
                     v => {
                         if (!conf.compatibleSubqProviders || !conf.compatibleSubqProviders.includes(v)) {
-                            console.warn(`Tile '${v}' not supported as subquery provider by '${confName}'`);
+                            console.warn(`Tile '${v}' not officially supported as subquery provider by '${confName}'`);
                         }
                         return tileIdentMap[v];
                     },

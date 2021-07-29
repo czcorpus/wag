@@ -3,6 +3,9 @@
     "definitions": {
         "Backlink": {
             "properties": {
+                "isAppUrl": {
+                    "type": "boolean"
+                },
                 "label": {
                     "anyOf": [
                         {
@@ -37,10 +40,6 @@
                     "type": "string"
                 }
             },
-            "required": [
-                "label",
-                "url"
-            ],
             "type": "object"
         },
         "ColorTheme": {
@@ -243,50 +242,25 @@
                 },
                 "tiles": {
                     "items": {
-                        "properties": {
-                            "readSubqFrom": {
-                                "anyOf": [
-                                    {
-                                        "items": {
-                                            "type": "string"
-                                        },
-                                        "type": "array"
-                                    },
-                                    {
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/ServiceTile"
+                            },
+                            {
+                                "properties": {
+                                    "ref": {
                                         "type": "string"
-                                    }
-                                ],
-                                "description": "In case we depend on multiple tiles and some of them are\njust kind of hidden dependencies (i.e. we want to wait them\nto complate but we don't need their subquery args) this can\nbe used to distinguish the two dependency types.\n\nPlease note that this value is not used directly by WdG but\nit is rather provided for tile model to provide more information\nabout inter-tile dependencies. I.e. it is perfectly doable to\ndefine a subquery producing tile as a dependency via 'waitFor'.\nBut in more complex situations when we need some tiles to just\nwait for and some to also provide subqueries the model may not\nhave enough information to distinguish between the two."
-                            },
-                            "ref": {
-                                "type": "string"
-                            },
-                            "tile": {
-                                "type": "string"
-                            },
-                            "waitFor": {
-                                "anyOf": [
-                                    {
-                                        "items": {
-                                            "type": "string"
-                                        },
-                                        "type": "array"
                                     },
-                                    {
-                                        "type": "string"
+                                    "width": {
+                                        "type": "number"
                                     }
+                                },
+                                "required": [
+                                    "width"
                                 ],
-                                "description": "In case a tile supports this (most of them does so) it can\nwait for a specific tile to finish its operation. Again,\nthis is used mainly for 'concordance -> analysis' combinations."
-                            },
-                            "width": {
-                                "type": "number"
+                                "type": "object"
                             }
-                        },
-                        "required": [
-                            "tile",
-                            "width"
-                        ],
-                        "type": "object"
+                        ]
                     },
                     "type": "array"
                 }
@@ -373,6 +347,9 @@
                     "items": {
                         "anyOf": [
                             {
+                                "$ref": "#/definitions/ServiceTile"
+                            },
+                            {
                                 "$ref": "#/definitions/GroupLayoutConfig"
                             },
                             {
@@ -437,6 +414,9 @@
                     "items": {
                         "anyOf": [
                             {
+                                "$ref": "#/definitions/ServiceTile"
+                            },
+                            {
                                 "$ref": "#/definitions/GroupLayoutConfig"
                             },
                             {
@@ -500,6 +480,9 @@
                 "groups": {
                     "items": {
                         "anyOf": [
+                            {
+                                "$ref": "#/definitions/ServiceTile"
+                            },
                             {
                                 "$ref": "#/definitions/GroupLayoutConfig"
                             },
@@ -28801,6 +28784,46 @@
                     "description": "The non-standard **`zoom`** CSS property can be used to control the magnification level of an element. `transform: scale()` should be used instead of this property, if possible. However, unlike CSS Transforms, `zoom` affects the layout size of the element.\n\n**Syntax**: `normal | reset | <number> | <percentage>`\n\n**Initial value**: `normal`\n\n| Chrome | Firefox | Safari  |  Edge  |   IE    |\n| :----: | :-----: | :-----: | :----: | :-----: |\n| **1**  |   No    | **3.1** | **12** | **5.5** |"
                 }
             },
+            "type": "object"
+        },
+        "ServiceTile": {
+            "description": "ServiceTile is a tile which is a functional part of a layout but not\nnecessarily in a visual way.",
+            "properties": {
+                "readSubqFrom": {
+                    "anyOf": [
+                        {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "In case we depend on multiple tiles and some of them are\njust kind of hidden dependencies (i.e. we want to wait them\nto complate but we don't need their subquery args) this can\nbe used to distinguish the two dependency types.\n\nPlease note that this value is not used directly by WdG but\nit is rather provided for tile model to provide more information\nabout inter-tile dependencies. I.e. it is perfectly doable to\ndefine a subquery producing tile as a dependency via 'waitFor'.\nBut in more complex situations when we need some tiles to just\nwait for and some to also provide subqueries the model may not\nhave enough information to distinguish between the two."
+                },
+                "tile": {
+                    "type": "string"
+                },
+                "waitFor": {
+                    "anyOf": [
+                        {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "In case a tile supports this (most of them does so) it can\nwait for a specific tile to finish its operation. Again,\nthis is used mainly for 'concordance -> analysis' combinations."
+                }
+            },
+            "required": [
+                "tile"
+            ],
             "type": "object"
         },
         "TileConf": {

@@ -9,6 +9,9 @@
     "definitions": {
         "Backlink": {
             "properties": {
+                "isAppUrl": {
+                    "type": "boolean"
+                },
                 "label": {
                     "anyOf": [
                         {
@@ -43,10 +46,6 @@
                     "type": "string"
                 }
             },
-            "required": [
-                "label",
-                "url"
-            ],
             "type": "object"
         },
         "TileConf": {

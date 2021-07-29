@@ -28,8 +28,9 @@ import { isSubqueryPayload, RecognizedQueries } from '../../../query/index';
 import { isCollocSubqueryPayload } from '../../../api/abstract/collocations';
 import { TranslationSubset, TranslationsSubsetsModelState } from '../../../models/tiles/translations';
 import { IAppServices } from '../../../appServices';
-import { pipe, List, Dict } from 'cnc-tskit';
+import { pipe, List, Dict, tuple } from 'cnc-tskit';
 import { mergeMap, reduce, tap } from 'rxjs/operators';
+import { response } from 'express';
 
 
 
@@ -179,32 +180,55 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
                         }
                     ),
                     reduce(
-                        (acc, [resp,]) => acc && resp.translations.length === 0,
-                        true // empty
+                        (acc, [resp,]) => ({
+                            isEmpty: acc.isEmpty && resp.translations.length === 0,
+                            translations: {
+                                ...acc.translations,
+                                ...pipe(
+                                    resp.translations,
+                                    List.flatMap(t => t.translations),
+                                    List.map(t => tuple(t, true)),
+                                    Dict.fromEntries()
+                                )
+                            }
+                        }),
+                        {isEmpty: true, translations: {} as {[k:string]:boolean} }
                     )
 
-                ).subscribe(
-                    (isEmpty) => {
+                ).subscribe({
+                    next: ({isEmpty, translations}) => {
                         dispatch<typeof Actions.TileDataLoaded>({
                             name: Actions.TileDataLoaded.name,
                             payload: {
                                 tileId: this.tileId,
-                                isEmpty
+                                isEmpty,
+                                queryId: 0,
+                                domain1: state.domain1,
+                                domain2: state.domain2,
+                                subqueries: pipe(
+                                    translations,
+                                    Dict.keys(),
+                                    List.map(value => ({value}))
+                                )
                             }
-                        })
+                        });
                     },
-                    (error) => {
+                    error: error => {
                         dispatch<typeof Actions.TileDataLoaded>({
                             name: Actions.TileDataLoaded.name,
                             payload: {
                                 tileId: this.tileId,
-                                isEmpty: true
+                                isEmpty: true,
+                                queryId: 0,
+                                domain1: state.domain1,
+                                domain2: state.domain2,
+                                subqueries: []
                             },
                             error
                         });
                         console.error(error);
                     }
-                );
+                });
             }
         );
 
@@ -220,17 +244,25 @@ export class TreqSubsetModel extends StatelessModel<TranslationsSubsetsModelStat
                 } else if (action.payload.tileId === this.waitForColorsTile) {
                     const payload = action.payload;
                     if (isCollocSubqueryPayload(payload)) {
-                        state.colorMap = Dict.fromEntries(payload.subqueries.map(sq => [sq.value.value, sq.color]));
+                        state.colorMap = pipe(
+                            payload.subqueries,
+                            List.map(sq => tuple(sq.value.value, sq.color)),
+                            Dict.fromEntries()
+                        );
 
                     } else if (isSubqueryPayload(payload)) {
-                        state.colorMap = Dict.fromEntries(payload.subqueries.map(sq => [sq.value, sq.color]));
+                        state.colorMap = pipe(
+                            payload.subqueries,
+                            List.map(sq => tuple(sq.value, sq.color)),
+                            Dict.fromEntries()
+                        );
 
                     } else {
                         state.colorMap = {};
                     }
                     state.subsets = pipe(
                         state.subsets,
-                        List.map((subset) => ({
+                        List.map(subset => ({
                             ident: subset.ident,
                             label: subset.label,
                             packages: subset.packages,

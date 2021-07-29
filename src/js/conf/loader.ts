@@ -18,9 +18,9 @@
 
 import * as fs from 'fs';
 import axios from 'axios';
-import { pipe, List, Dict } from 'cnc-tskit';
+import { pipe, List, Dict, tuple } from 'cnc-tskit';
 import * as path from 'path';
-import { DomainLayoutsConfig, DomainAnyTileConf, GroupItemConfig, TileDbConf, LayoutsConfig, LayoutConfigCommon } from './index';
+import { DomainLayoutsConfig, DomainAnyTileConf, GroupItemConfig, TileDbConf, LayoutsConfig, LayoutConfigCommon, isServiceTile } from './index';
 import { TileConf } from '../page/tile';
 import { Observable, of as rxOf } from 'rxjs';
 import { reduce, mergeMap } from 'rxjs/operators';
@@ -78,9 +78,12 @@ export function loadRemoteTileConf(layout:DomainLayoutsConfig, tileDBConf:TileDb
         List.flatMap<[string, GroupItemConfig], [string, string]>(
             ([domain, group]) => {
                 if (typeof group === 'string') {
-                    return [[domain, group]];
+                    return [tuple(domain, group)];
+
+                } else if (isServiceTile(group)) {
+                    return [tuple(domain, group.tile)];
                 }
-                return List.map(v => [domain, v.tile], group.tiles)
+                return List.map(v => [domain, v.tile], group.tiles);
             }
         )
     );
@@ -138,7 +141,7 @@ export function useCommonLayouts(layouts:DomainLayoutsConfig):DomainLayoutsConfi
                     layout.groups = JSON.parse(JSON.stringify(layouts[d][qt].groups)); // deep copy
 
                     layout.groups = List.map(group => {
-                        if (typeof group !== 'string') {
+                        if (typeof group !== 'string' && !isServiceTile(group)) {
                             group.tiles = List.reduce((tiles, tile) => {
                                 // replace referenced tile
                                 if (Dict.hasKey(tile.ref, layout.replace)) {

@@ -54,6 +54,16 @@ export class Actions {
         name: 'MAIN_TILE_DATA_LOADED'
     }
 
+    static isTileDataLoaded(a:Action):a is typeof Actions.TileDataLoaded {
+        return a.name === Actions.TileDataLoaded.name &&
+            typeof a.payload['tileId'] === 'number' &&
+            typeof a.payload['isEmpty'] === 'boolean' &&
+            (
+                a.payload['canBeAmbiguousResult'] === undefined ||
+                typeof a.payload['canBeAmbiguousResult'] === 'boolean'
+            );
+    }
+
     static TilePartialDataLoaded:Action<{
         tileId:number;
     }> = {

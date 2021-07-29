@@ -21,10 +21,10 @@
 import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { Observable } from 'rxjs';
 import { mergeMap, tap, reduce } from 'rxjs/operators';
-import { HTTP, List, pipe } from 'cnc-tskit';
+import { composeLeft, HTTP, List, pipe } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
-import { IConcordanceApi, SingleConcLoadedPayload } from '../../../api/abstract/concordance';
+import { IConcordanceApi } from '../../../api/abstract/concordance';
 import { ConcordanceMinState, createInitialLinesData } from '../../../models/tiles/concordance';
 import { isWebDelegateApi, SystemMessageType } from '../../../types';
 import { isSubqueryPayload, RecognizedQueries, QueryType } from '../../../query/index';
@@ -32,7 +32,7 @@ import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/til
 import { Actions as GlobalActions } from '../../../models/actions';
 import { findCurrQueryMatch } from '../../../models/query';
 import { importMessageType } from '../../../page/notifications';
-import { Actions, ConcLoadedPayload } from './actions';
+import { Actions } from './actions';
 import { normalizeTypography } from '../../../models/tiles/concordance/normalize';
 import { isCollocSubqueryPayload } from '../../../api/abstract/collocations';
 import { callWithExtraVal } from '../../../api/util';
@@ -158,14 +158,16 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                         this.waitForTilesTimeoutSecs,
                         {},
                         (action, syncData) => {
-                            if (Actions.isTileDataLoaded(action) &&
+                            if (GlobalActions.isTileDataLoaded(action) &&
                                         action.payload.tileId === this.waitForTile) {
                                 if (isCollocSubqueryPayload(action.payload)) {
-                                    const cql = `[word="${action.payload.subqueries.map(v => v.value.value).join('|')}"]`; // TODO escape
+                                    // TODO escape (not a security issue)
+                                    const cql = `[word="${action.payload.subqueries.map(v => v.value.value).join('|')}"]`;
                                     this.reloadData(state, dispatch, cql);
 
                                 } else if (isSubqueryPayload(action.payload)) {
-                                    const cql = `[word="${action.payload.subqueries.map(v => v.value).join('|')}"]`; // TODO escape
+                                    // TODO escape (not a security issue)
+                                    const cql = `[word="${action.payload.subqueries.map(v => v.value).join('|')}"]`;
                                     this.reloadData(state, dispatch, cql);
                                 }
                                 return null;
@@ -267,8 +269,8 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
             (state, action, dispatch) => {
                 if (action.payload.tileId === this.tileId) {
                     this.concApi.getSourceDescription(this.tileId, this.appServices.getISO639UILang(), state.corpname)
-                    .subscribe(
-                        (data) => {
+                    .subscribe({
+                        next: data => {
                             dispatch({
                                 name: GlobalActions.GetSourceInfoDone.name,
                                 payload: {
@@ -277,7 +279,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                                 }
                             });
                         },
-                        (err) => {
+                        error: err => {
                             console.error(err);
                             dispatch({
                                 name: GlobalActions.GetSourceInfoDone.name,
@@ -287,7 +289,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                                 }
                             });
                         }
-                    );
+                    });
                 }
             }
         );
@@ -399,8 +401,8 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 {concIds: [], isEmpty: true}
             )
 
-        ).subscribe(
-            (acc) => {
+        ).subscribe({
+            next: acc => {
                 dispatch<typeof Actions.TileDataLoaded>({
                     name: Actions.TileDataLoaded.name,
                     payload: {
@@ -411,7 +413,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                     }
                 });
             },
-            (err) => {
+            error: err => {
                 dispatch<typeof Actions.TileDataLoaded>({
                     name: Actions.TileDataLoaded.name,
                     error: err,
@@ -423,6 +425,6 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                     }
                 });
             }
-        );
+        });
     }
 }
