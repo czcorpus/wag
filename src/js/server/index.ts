@@ -93,12 +93,12 @@ forkJoin( // load core configs
         )
     ),
     concatMap( // load tile and theme definitions
-        ([serverConf, clientConf, pkgInfo]) => forkJoin(
+        ([serverConf, clientConf, pkgInfo]) => forkJoin([
             loadTilesConf(clientConf),
             loadColorsConf(clientConf),
             loadDataReadabilityConf(clientConf)
 
-        ).pipe(
+        ]).pipe(
             map(
                 ([tiles, colors, dataReadability]) => {
                     clientConf.tiles = tiles;

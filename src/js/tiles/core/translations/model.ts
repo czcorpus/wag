@@ -17,7 +17,7 @@
  */
 import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { map } from 'rxjs/operators';
-import { HTTP } from 'cnc-tskit'
+import { HTTP, List } from 'cnc-tskit'
 
 import { Backlink, BacklinkWithArgs } from '../../../page/tile';
 import { Actions as GlobalActions } from '../../../models/actions';
@@ -174,8 +174,8 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
                     }));
                 })
             )
-            .subscribe(
-                (data) => {
+            .subscribe({
+                next: data => {
                     dispatch<typeof Actions.TileDataLoaded>({
                         name: Actions.TileDataLoaded.name,
                         payload: {
@@ -183,21 +183,24 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
                             queryId: 0,
                             isEmpty: data.length === 0,
                             query: findCurrQueryMatch(this.queryMatches[0]).lemma, // TODO switch to word and give up dict support
-                            subqueries: data.map(v => ({
-                                value: {
-                                    value: v.firstTranslatLc,
-                                    context: [0, 0]
-                                },
-                                interactionId: v.interactionId,
-                                color: v.color
-                            })),
+                            subqueries: List.map(
+                                v => ({
+                                    value: {
+                                        value: v.firstTranslatLc,
+                                        context: [0, 0]
+                                    },
+                                    interactionId: v.interactionId,
+                                    color: v.color
+                                }),
+                                data
+                            ),
                             domain1: state.domain1,
                             domain2: state.domain2,
                             data: {translations: data}
                         }
                     });
                 },
-                (error) => {
+                error: error => {
                     dispatch<typeof Actions.TileDataLoaded>({
                         name: Actions.TileDataLoaded.name,
                         payload: {
@@ -214,6 +217,6 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
                     });
                     console.error(error);
                 }
-            );
+            });
         }
 }

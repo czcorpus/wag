@@ -20,10 +20,10 @@ module.exports = (env) => ({
     output: {
         filename: '[name].js',
         path: path.resolve(__dirname, 'dist'),
-        publicPath: CONF.distFilesUrl || '',
+        publicPath: CONF.distFilesUrl || '/',
         libraryTarget: 'var',
         library: '[name]Page',
-        assetModuleFilename: 'assets/[hash][ext][query]'
+        assetModuleFilename: '[hash][ext][query]'
     },
     resolve: {
         alias: {}, // filled in dynamically

@@ -22,9 +22,10 @@ module.exports = (env) => ({
     },
     output: {
         path: path.resolve(__dirname, 'dist-server'),
+        publicPath: CONF.distFilesUrl || '/',
         libraryTarget: 'commonjs2',
         filename: 'service.js',
-        assetModuleFilename: 'assets/[hash][ext][query]'
+        assetModuleFilename: '[hash][ext][query]'
     },
     resolve: {
         alias: {}, // filled in dynamically

@@ -17,19 +17,14 @@
  */
 import { IAppServices } from '../appServices';
 import { QueryType, QueryTypeMenuItem } from '../query/index';
-import { GroupLayoutConfig, LayoutsConfig, LayoutConfigCommon } from '../conf';
+import { GroupLayoutConfig, LayoutsConfig, LayoutConfigCommon, ServiceTile, isServiceTile } from '../conf';
 import { TileIdentMap } from '../types';
 import { List, Dict, pipe } from 'cnc-tskit';
 
 
-function itemIsGroupConf(v:string|GroupLayoutConfig):v is GroupLayoutConfig {
+function itemIsGroupConf(v:string|ServiceTile|GroupLayoutConfig):v is GroupLayoutConfig {
     return typeof v === 'object' && v['tiles'] !== undefined;
 }
-
-function itemIsServiceConf(v:string|GroupLayoutConfig):v is string {
-    return typeof v === 'string';
-}
-
 
 export interface GroupedTileProps {
     width:number;
@@ -48,7 +43,11 @@ export interface TileGroup {
 interface LayoutCore {
     label:string;
     groups:Array<TileGroup>;
-    services:Array<number>;
+    services:Array<{
+        tileId:number;
+        waitFor:Array<string>|string;
+        readSubqFrom:string|Array<string>;
+    }>;
 }
 
 
@@ -101,8 +100,19 @@ function importLayout(gc:LayoutConfigCommon|undefined, tileMap:TileIdentMap,
             services: pipe(
                 gc.groups || [],
                 List.map(v => {
-                    if (itemIsServiceConf(v)) {
-                        return tileMap[v];
+                    if (isServiceTile(v)) {
+                        return {
+                            tileId: tileMap[v.tile],
+                            waitFor: v.waitFor,
+                            readSubqFrom: v.readSubqFrom
+                        };
+
+                    } else if (typeof v === 'string') {
+                        return {
+                            tileId: tileMap[v],
+                            waitFor: [],
+                            readSubqFrom: []
+                        };
                     }
                     return null;
                 }),
@@ -222,6 +232,7 @@ export class LayoutManager {
         const srch = pipe(
                 this.getLayout(queryType).groups,
                 List.flatMap(v => v.tiles),
+                List.concat(this.getLayout(queryType).services),
                 List.find(v => v.tileId === tileId)
         );
         return srch && srch.waitFor ? srch.waitFor : null;
@@ -231,13 +242,14 @@ export class LayoutManager {
         const srch = pipe(
                 this.getLayout(queryType).groups,
                 List.flatMap(v => v.tiles),
+                List.concat(this.getLayout(queryType).services),
                 List.find(v => v.tileId === tileId)
         );
         return srch && srch.readSubqFrom ? srch.readSubqFrom : null;
     }
 
     private isServiceOf(queryType:QueryType, tileId:number):boolean {
-        return this.getLayout(queryType).services.find(v => v === tileId) !== undefined;
+        return this.getLayout(queryType).services.find(v => v.tileId === tileId) !== undefined;
     }
 
     isInCurrentLayout(queryType:QueryType, tileId:number):boolean {
