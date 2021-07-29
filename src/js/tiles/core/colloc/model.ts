@@ -197,7 +197,11 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                                 .filter(v => v !== null)
                         );
 
-                    state.backlink = this.backlink.isAppUrl ? createAppBacklink(this.backlink) : this.createBackLink(state, action);
+                    if (this.backlink?.isAppUrl) {
+                        state.backlinks = [createAppBacklink(this.backlink)];
+                    } else {
+                        state.backlinks.push(this.createBackLink(state, action));
+                    }
                 }
             }
         );
