@@ -25,13 +25,14 @@ import { GeneralSingleCritFreqMultiQueryState } from '../../../models/tiles/freq
 import { Actions as GlobalActions } from '../../../models/actions';
 import { Actions } from './actions';
 import { Actions as ConcActions } from '../concordance/actions';
-import { DataApi } from '../../../types';
+import { DataApi, isWebDelegateApi } from '../../../types';
 import { TooltipValues } from '../../../views/common';
 import { QueryMatch, RecognizedQueries } from '../../../query/index';
 import { callWithExtraVal } from '../../../api/util';
 import { ViewMode, IConcordanceApi } from '../../../api/abstract/concordance';
 import { createInitialLinesData } from '../../../models/tiles/concordance';
 import { DataRow, IFreqDistribAPI, APIResponse } from '../../../api/abstract/freqs';
+import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile';
 
 /*
 oral2013:
@@ -79,6 +80,7 @@ export interface MultiWordGeoAreasModelState extends GeneralSingleCritFreqMultiQ
     isAltViewMode:boolean;
     posQueryGenerator:[string, string];
     frequencyDisplayLimit:number;
+    backlinks:Array<BacklinkWithArgs<{}>>;
 }
 
 interface MultiWordGeoAreasModelArgs {
@@ -92,6 +94,7 @@ interface MultiWordGeoAreasModelArgs {
     freqApi:IFreqDistribAPI<{}>;
     mapLoader:DataApi<string, string>;
     initState:MultiWordGeoAreasModelState;
+    backlink:Backlink;
 }
 
 export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasModelState> {
@@ -112,8 +115,10 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
 
     private readonly queryMatches:Array<Array<QueryMatch>>;
 
+    private readonly backlink:Backlink;
+
     constructor({dispatcher, tileId, waitForTile, waitForTilesTimeoutSecs, appServices, queryMatches,
-                concApi, freqApi, mapLoader, initState}:MultiWordGeoAreasModelArgs) {
+                concApi, freqApi, mapLoader, initState, backlink}:MultiWordGeoAreasModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.waitForTile = waitForTile;
@@ -123,11 +128,13 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
         this.concApi = concApi;
         this.freqApi = freqApi;
         this.mapLoader = mapLoader;
+        this.backlink = !backlink?.isAppUrl && isWebDelegateApi(this.freqApi) ? this.freqApi.getBackLink(backlink) : backlink;
 
         this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
             GlobalActions.RequestQueryResponse.name,
             (state, action) => {
                 state.isBusy = true;
+                state.backlinks = [];
                 state.error = null;
             },
             (state, action, dispatch) => {
@@ -174,6 +181,7 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
                 if (action.payload.tileId === this.tileId) {
                     if (action.error) {
                         state.data = state.currQueryMatches.map(_ => []);
+                        state.backlinks = [];
                         state.error = this.appServices.normalizeHttpApiError(action.error);
 
                     } else if (action.payload.data.length === 0) {
@@ -181,6 +189,11 @@ export class MultiWordGeoAreasModel extends StatelessModel<MultiWordGeoAreasMode
 
                     } else {
                         state.data[action.payload.queryId] = action.payload.data;
+                        if (this.backlink?.isAppUrl) {
+                            state.backlinks = [createAppBacklink(this.backlink)];
+                        } else {
+                            state.backlinks.push(this.freqApi.createBacklink(state, this.backlink, action.payload.concId));
+                        }
                     }
                     state.mapSVG = action.payload.mapSVG;
                 }

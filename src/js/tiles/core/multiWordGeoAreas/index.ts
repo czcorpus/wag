@@ -100,8 +100,10 @@ export class MultiWordGeoAreasTile implements ITileProvider {
                 fmaxitems: 100,
                 isAltViewMode: false,
                 posQueryGenerator: conf.posQueryGenerator,
-                currQueryMatches: List.map(lemma => findCurrQueryMatch(lemma), queryMatches)
-            }
+                currQueryMatches: List.map(lemma => findCurrQueryMatch(lemma), queryMatches),
+                backlinks: [],
+            },
+            backlink: conf.backlink || null,
         });
         this.label = appServices.importExternalMessage(conf.label || 'geolocations__main_label');
         this.view = viewInit(this.dispatcher, ut, theme, this.model);
