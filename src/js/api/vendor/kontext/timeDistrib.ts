@@ -126,7 +126,7 @@ export class KontextTimeDistribApi implements TimeDistribApi, WebDelegateApi {
         );
     }
 
-    getBackLink():Backlink {
-        return this.freqApi.getBackLink()
+    getBackLink(backlink:Backlink):Backlink {
+        return this.freqApi.getBackLink(backlink)
     }
 }

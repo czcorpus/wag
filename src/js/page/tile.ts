@@ -26,7 +26,7 @@ import { HTTP } from 'cnc-tskit';
 
 
 export interface Backlink {
-    url:string;
+    url?:string;
     label?:LocalizedConfMsg;
     method?:HTTP.Method;
     subcname?:string; // in case a special subc. is needed for backlink
@@ -42,7 +42,7 @@ export interface BacklinkWithArgs<T> {
 
 export function createAppBacklink(backlink:Backlink):BacklinkWithArgs<{}> {
     return {
-        url: backlink.url,
+        url: backlink.url || '--UNDEFINED BACKLINK--',
         label: backlink.label || '--UNDEFINED LABEL--',
         method: backlink.method || HTTP.Method.GET,
         args: {}

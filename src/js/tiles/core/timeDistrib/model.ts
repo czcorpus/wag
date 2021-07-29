@@ -401,7 +401,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
                         tileId: this.tileId,
                         concId: args.concId,
                         backlink: isWebDelegateApi(args.freqApi) ?
-                            args.freqApi.createBackLink({...args.freqApi.getBackLink(), ...(this.backlink || {})}, resp.corpName, args.concId) :
+                            args.freqApi.createBackLink(args.freqApi.getBackLink(this.backlink), resp.corpName, args.concId) :
                             args.freqApi.createBackLink(this.backlink, resp.corpName, args.concId)
                     };
                     if (args.targetId === SubchartID.MAIN) {

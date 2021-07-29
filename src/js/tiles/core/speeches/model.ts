@@ -80,7 +80,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState, TileWait<b
         this.api = api;
         this.appServices = appServices;
         this.tileId = tileId;
-        this.backlink = isWebDelegateApi(this.api) ? {...this.api.getBackLink(), ...(backlink || {})} : backlink;
+        this.backlink = isWebDelegateApi(this.api) ? this.api.getBackLink(backlink) : backlink;
         this.waitForTiles = [...waitForTiles];
         this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.subqSourceTiles = [...subqSourceTiles];

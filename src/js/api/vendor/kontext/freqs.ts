@@ -184,11 +184,12 @@ export class KontextFreqDistribAPI implements IFreqDistribAPI<SingleCritQueryArg
         );
     }
 
-    getBackLink():Backlink {
+    getBackLink(backlink:Backlink):Backlink {
         return {
-            url: this.apiURL + '/freqs',
             label: 'KonText',
             method: HTTP.Method.GET,
+            ...(backlink || {}),
+            url: (backlink && backlink.url ? backlink.url : this.apiURL) + '/freqs',
         }
     }
 }
@@ -293,11 +294,12 @@ export class KontextMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAP
         );
     }
 
-    getBackLink():Backlink {
+    getBackLink(backlink:Backlink):Backlink {
         return {
-            url: this.apiURL + '/freqs',
             label: 'KonText',
             method: HTTP.Method.GET,
+            ...(backlink || {}),
+            url: (backlink && backlink.url ? backlink.url : this.apiURL) + '/freqs',
         }
     }
 }
