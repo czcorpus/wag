@@ -33,7 +33,7 @@ import { Dict, pipe, List, tuple } from 'cnc-tskit';
 import { callWithExtraVal } from '../../../api/util';
 import { TileWait } from '../../../models/tileSync';
 import { AttrViewMode, FilterServerArgs, QuickFilterRequestArgs } from '../../../api/vendor/kontext/types';
-import { SystemMessageType } from '../../../types';
+import { isWebDelegateApi, SystemMessageType } from '../../../types';
 import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile';
 
 
@@ -117,7 +117,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
         this.subqSourceTiles = [...subqSourceTiles];
         this.appServices = appServices;
         this.queryMatches = queryMatches;
-        this.backlink = backlink;
+        this.backlink = !backlink?.isAppUrl && isWebDelegateApi(this.api) ? this.api.getBackLink(backlink) : backlink;
 
         this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
             GlobalActions.RequestQueryResponse.name,

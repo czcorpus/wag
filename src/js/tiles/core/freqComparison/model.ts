@@ -22,19 +22,18 @@ import { Ident, pipe, List, Maths } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
 import { GeneralMultiCritFreqComparisonModelState } from '../../../models/tiles/freqComparison';
-import { Backlink, BacklinkWithArgs } from '../../../page/tile';
+import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile';
 import { Actions as GlobalActions } from '../../../models/actions';
-import { DataLoadedPayload, LoadFinishedPayload } from './actions';
 import { findCurrQueryMatch } from '../../../models/query';
 import { RecognizedQueries, QueryMatch } from '../../../query/index';
-import { ConcLoadedPayload, isConcLoadedPayload } from '../concordance/actions';
+import { isConcLoadedPayload } from '../concordance/actions';
 import { callWithExtraVal } from '../../../api/util';
 import { ViewMode, IConcordanceApi } from '../../../api/abstract/concordance';
 import { createInitialLinesData } from '../../../models/tiles/concordance';
-import { BacklinkArgs } from '../../../api/vendor/kontext/freqs';
 import { DataRow, IMultiBlockFreqDistribAPI } from '../../../api/abstract/freqs';
 import { Actions as ConcActions } from '../concordance/actions';
 import { Actions } from './actions';
+import { isWebDelegateApi } from '../../../types';
 
 
 export interface MultiWordDataRow extends DataRow {
@@ -43,7 +42,7 @@ export interface MultiWordDataRow extends DataRow {
 
 export interface FreqComparisonModelState extends GeneralMultiCritFreqComparisonModelState<MultiWordDataRow> {
     activeBlock:number;
-    backlink:BacklinkWithArgs<BacklinkArgs>;
+    backlinks:Array<BacklinkWithArgs<{}>>;
     isAltViewMode:boolean;
     maxChartsPerLine:number;
     posQueryGenerator:[string, string];
@@ -79,7 +78,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
 
     protected waitForTilesTimeoutSecs:number;
 
-    private readonly backlink:Backlink|null;
+    private readonly backlink:Backlink;
 
     constructor({dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, appServices, concApi, freqApi,
             backlink, initState, queryMatches}:FreqComparisonModelArgs) {
@@ -90,7 +89,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
         this.appServices = appServices;
         this.concApi = concApi;
         this.freqApi = freqApi;
-        this.backlink = backlink;
+        this.backlink = !backlink?.isAppUrl && isWebDelegateApi(this.freqApi) ? this.freqApi.getBackLink(backlink) : backlink;
         this.queryMatches = queryMatches;
 
         this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
@@ -179,7 +178,11 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                         state.blocks[action.payload.critId].isReady = state.blocks[action.payload.critId].words.every(word => word !== null);
 
                         state.isBusy = state.blocks.some(v => !v.isReady);
-                        state.backlink = null;
+                        if (this.backlink?.isAppUrl) {
+                            state.backlinks = [createAppBacklink(this.backlink)];
+                        } else {
+                            state.backlinks.push(action.payload.backlink);
+                        }
                     }
                 }
             }
@@ -361,7 +364,8 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                         },
                         queryId: args.queryId,
                         lemma: args.lemma,
-                        critId: args.critId
+                        critId: args.critId,
+                        backlink: this.freqApi.createBacklink(state, this.backlink, args.concId),
                     }
                 });
             },
@@ -373,7 +377,8 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                         block: null,
                         queryId: null,
                         lemma: null,
-                        critId: null
+                        critId: null,
+                        backlink: null,
                     },
                     error: error
                 });
@@ -384,7 +389,8 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                         block: null,
                         queryId: null,
                         lemma: null,
-                        critId: null
+                        critId: null,
+                        backlink: null,
                     },
                     error: error
                 });

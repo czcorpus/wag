@@ -255,7 +255,7 @@ export function init(
                 <globComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
                         hasData={List.find(v => v.isReady && v.data.length > 0, this.props.blocks) !== undefined}
                         sourceIdent={{corp: this.props.corpname}}
-                        backlink={this.props.backlink}
+                        backlink={this.props.backlinks}
                         supportsTileReload={this.props.supportsReloadOnError}
                         issueReportingUrl={this.props.issueReportingUrl}>
                     <S.FreqComparisonTile>
