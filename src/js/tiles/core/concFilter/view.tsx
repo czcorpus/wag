@@ -160,7 +160,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         hasData={this.props.lines.length > 0}
                         sourceIdent={{corp: this.props.corpName}}
                         supportsTileReload={this.props.supportsReloadOnError}
-                        issueReportingUrl={this.props.issueReportingUrl}>
+                        issueReportingUrl={this.props.issueReportingUrl}
+                        backlink={this.props.backlink}>
                     <div>
                         <S.Sentences>
                             {this.props.lines.map((v, i) =>
