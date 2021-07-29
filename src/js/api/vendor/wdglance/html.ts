@@ -20,11 +20,13 @@ import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
 import { cachedAjax$, ResponseType } from '../../../page/ajax';
-import { HTTPHeaders, IAsyncKeyValueStore } from '../../../types';
+import { HTTPHeaders, IAsyncKeyValueStore, WebDelegateApi } from '../../../types';
 import { of as rxOf } from 'rxjs';
 import { AjaxError } from 'rxjs/ajax';
 import { IGeneralHtmlAPI } from '../../abstract/html';
 import { IApiServices } from '../../../appServices';
+import { Backlink } from '../../../page/tile';
+import { HTTP } from 'cnc-tskit';
 
 
 export type HtmlApiArgs = {[key:string]:string};
@@ -37,7 +39,7 @@ export type HtmlApiArgs = {[key:string]:string};
  * vulnerable from the external service!!!
  */
 
-export class RawHtmlAPI implements IGeneralHtmlAPI<HtmlApiArgs> {
+export class RawHtmlAPI implements IGeneralHtmlAPI<HtmlApiArgs>, WebDelegateApi {
 
     private readonly apiURL:string;
 
@@ -80,6 +82,15 @@ export class RawHtmlAPI implements IGeneralHtmlAPI<HtmlApiArgs> {
                 }
             )
         );
+    }
+
+    getBackLink(backlink:Backlink):Backlink {
+        return {
+            url: this.apiURL,
+            label: 'link',
+            method: HTTP.Method.GET,
+            ...(backlink || {}),
+        }
     }
 
 }

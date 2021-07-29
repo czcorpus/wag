@@ -21,11 +21,13 @@ import { Observable } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
 import { cachedAjax$, ResponseType } from '../../../page/ajax';
-import { HTTPHeaders, IAsyncKeyValueStore } from '../../../types';
+import { HTTPHeaders, IAsyncKeyValueStore, WebDelegateApi } from '../../../types';
 import { of as rxOf } from 'rxjs';
 import { AjaxError } from 'rxjs/ajax';
 import { IGeneralHtmlAPI } from '../../abstract/html';
 import { IApiServices } from '../../../appServices';
+import { Backlink } from '../../../page/tile';
+import { HTTP } from 'cnc-tskit';
 
 
 
@@ -35,7 +37,7 @@ export interface WiktionaryApiArgs {
 }
 
 
-export class WiktionaryHtmlAPI implements IGeneralHtmlAPI<WiktionaryApiArgs>  {
+export class WiktionaryHtmlAPI implements IGeneralHtmlAPI<WiktionaryApiArgs>, WebDelegateApi {
 
     private readonly apiURL:string;
 
@@ -84,6 +86,15 @@ export class WiktionaryHtmlAPI implements IGeneralHtmlAPI<WiktionaryApiArgs>  {
             ),
             map(data => data !== null ? this.cleanData(data) : null)
         );
+    }
+
+    getBackLink(backlink:Backlink):Backlink {
+        return {
+            url: this.apiURL,
+            method: HTTP.Method.GET,
+            label: 'Wiktionary',
+            ...(backlink||{}),
+        }
     }
 
 }
