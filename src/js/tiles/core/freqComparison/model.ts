@@ -56,7 +56,7 @@ export interface FreqComparisonModelArgs {
     appServices:IAppServices;
     concApi:IConcordanceApi<{}>;
     freqApi:IMultiBlockFreqDistribAPI<{}>;
-    backlink:Backlink|null;
+    backlink:Backlink;
     initState:FreqComparisonModelState;
     queryMatches:RecognizedQueries;
 }
@@ -178,6 +178,7 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                         state.blocks[action.payload.critId].isReady = state.blocks[action.payload.critId].words.every(word => word !== null);
 
                         state.isBusy = state.blocks.some(v => !v.isReady);
+                        
                         if (this.backlink?.isAppUrl) {
                             state.backlinks = [createAppBacklink(this.backlink)];
                         } else {
@@ -382,18 +383,6 @@ export class FreqComparisonModel extends StatelessModel<FreqComparisonModelState
                     },
                     error: error
                 });
-                dispatch<typeof Actions.PartialTileDataLoaded>({
-                    name: Actions.PartialTileDataLoaded.name,
-                    payload: {
-                        tileId: this.tileId,
-                        block: null,
-                        queryId: null,
-                        lemma: null,
-                        critId: null,
-                        backlink: null,
-                    },
-                    error: error
-                });
             }
         );
     };
@@ -407,7 +396,7 @@ export const factory = (
     appServices:IAppServices,
     concApi:IConcordanceApi<{}>,
     freqApi:IMultiBlockFreqDistribAPI<{}>,
-    backlink:Backlink|null,
+    backlink:Backlink,
     initState:FreqComparisonModelState,
     queryMatches:RecognizedQueries) => {
 
