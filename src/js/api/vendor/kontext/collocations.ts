@@ -149,7 +149,7 @@ export class KontextCollAPI implements CollocationApi<CollApiArgs>, WebDelegateA
             label: 'KonText',
             method: HTTP.Method.GET,
             ...(backlink || {}),
-            url: (backlink && backlink.url ? backlink.url : this.apiURL) + this.API_PATH,
+            url: (backlink?.url ? backlink.url : this.apiURL) + this.API_PATH,
         }
     }
 }

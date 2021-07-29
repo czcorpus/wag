@@ -113,7 +113,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
         this.waitForTile = waitForTile;
         this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.appServices = appServices;
-        this.backlink = !backlink.isAppUrl && isWebDelegateApi(this.api) ? this.api.getBackLink(backlink) : backlink;
+        this.backlink = !backlink?.isAppUrl && isWebDelegateApi(this.api) ? this.api.getBackLink(backlink) : backlink;
 
         this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(
             GlobalActions.EnableAltViewMode.name,
