@@ -23,7 +23,7 @@ import { createApiInstance as createFreqApiInstance } from '../../../api/factory
 import { QueryType } from '../../../query/index';
 import { ITileProvider, TileComponent, TileFactory, TileFactoryArgs } from '../../../page/tile';
 import { TimeDistTileConf } from './common';
-import { TimeDistribModel } from './model';
+import { MultiWordTimeDistribModel } from './model';
 import { init as viewInit } from './view';
 import { findCurrQueryMatch } from '../../../models/query';
 import { PriorityValueFactory } from '../../../priority';
@@ -53,7 +53,7 @@ export class MultiWordTimeDistTile implements ITileProvider {
 
     private readonly tileId:number;
 
-    private readonly model:TimeDistribModel;
+    private readonly model:MultiWordTimeDistribModel;
 
     private readonly widthFract:number;
 
@@ -98,7 +98,7 @@ export class MultiWordTimeDistTile implements ITileProvider {
                 )
             )
         );
-        this.model = new TimeDistribModel({
+        this.model = new MultiWordTimeDistribModel({
             dispatcher: dispatcher,
             initState: {
                 isBusy: isBusy,
@@ -121,7 +121,8 @@ export class MultiWordTimeDistTile implements ITileProvider {
                 isTweakMode: false,
                 units: '%',
                 zoom: [null, null],
-                refArea: [null, null]
+                refArea: [null, null],
+                backlinks: [],
             },
             tileId: tileId,
             waitForTile: waitForTiles[0] || -1,
@@ -129,7 +130,8 @@ export class MultiWordTimeDistTile implements ITileProvider {
             apiFactory: apiFactory,
             appServices: appServices,
             queryMatches,
-            queryDomain: domain1
+            queryDomain: domain1,
+            backlink: conf.backlink || null
         });
         this.label = appServices.importExternalMessage(conf.label || 'multiWordTimeDistrib__main_label');
         this.view = viewInit(this.dispatcher, ut, theme, this.model);

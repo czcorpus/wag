@@ -24,7 +24,7 @@ import { Theme } from '../../../page/theme';
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile';
 import { GlobalComponents } from '../../../views/common';
 import { LemmaData, Actions } from './common';
-import { TimeDistribModel, TimeDistribModelState } from './model';
+import { MultiWordTimeDistribModel, MultiWordTimeDistribModelState } from './model';
 import { List, pipe } from 'cnc-tskit';
 
 import * as S from './style';
@@ -116,7 +116,7 @@ function prepareChartData(data:Array<LemmaData>, averagingYears:number):Array<Ch
 }
 
 
-export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:TimeDistribModel):TileComponent {
+export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, theme:Theme, model:MultiWordTimeDistribModel):TileComponent {
 
     const globComponents = ut.getComponents();
 
@@ -400,13 +400,13 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     // -------------- <MultiWordTimeDistribTile /> ------------------------------------------------------
 
-    const MultiWordTimeDistribTile:React.FC<TimeDistribModelState & CoreTileComponentProps> = (props) => (
+    const MultiWordTimeDistribTile:React.FC<MultiWordTimeDistribModelState & CoreTileComponentProps> = (props) => (
         <globComponents.TileWrapper tileId={props.tileId} isBusy={props.isBusy} error={props.error}
                     hasData={List.some(v => v.length > 0, props.data)}
                     sourceIdent={{corp: props.corpname, subcorp: props.subcDesc}}
                     supportsTileReload={props.supportsReloadOnError}
                     issueReportingUrl={props.issueReportingUrl}
-                    backlink={null}>
+                    backlink={props.backlinks}>
             <S.MultiWordTimeDistribTile>
                 {props.isTweakMode ?
                     <div className="tweak-box">
