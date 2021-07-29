@@ -115,7 +115,7 @@ export class GeoAreasModel extends StatelessModel<GeoAreasModelState> {
         this.appServices = appServices;
         this.api = api;
         this.mapLoader = mapLoader;
-        this.backlink = isWebDelegateApi(this.api) ? this.api.getBackLink(backlink) : backlink;
+        this.backlink = !backlink.isAppUrl && isWebDelegateApi(this.api) ? this.api.getBackLink(backlink) : backlink;
 
         this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
             GlobalActions.RequestQueryResponse.name,

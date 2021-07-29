@@ -93,7 +93,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
         this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.concApi = concApi;
         this.freqApi = freqApi;
-        this.backlink = isWebDelegateApi(this.freqApi) ? this.freqApi.getBackLink(backlink) : backlink;
+        this.backlink = !backlink.isAppUrl && isWebDelegateApi(this.freqApi) ? this.freqApi.getBackLink(backlink) : backlink;
 
         this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(
             GlobalActions.EnableAltViewMode.name,

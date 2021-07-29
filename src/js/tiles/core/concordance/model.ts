@@ -101,7 +101,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
         this.queryMatches = queryMatches;
         this.appServices = appServices;
         this.tileId = tileId;
-        this.backlink = isWebDelegateApi(this.concApi) ? this.concApi.getBackLink(backlink) : backlink;
+        this.backlink = !backlink.isAppUrl && isWebDelegateApi(this.concApi) ? this.concApi.getBackLink(backlink) : backlink;
         this.waitForTile = waitForTile;
         this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.queryType = queryType;
