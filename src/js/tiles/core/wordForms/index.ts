@@ -18,7 +18,7 @@
 import { StatelessModel } from 'kombo';
 import { Maths } from 'cnc-tskit';
 
-import { ITileProvider, TileFactory, TileComponent, TileConf, TileFactoryArgs, Backlink } from '../../../page/tile';
+import { ITileProvider, TileFactory, TileComponent, TileConf, TileFactoryArgs } from '../../../page/tile';
 import { IAppServices } from '../../../appServices';
 import { WordFormsModel } from './model';
 import { QueryType } from '../../../query/index';
@@ -32,7 +32,6 @@ export interface WordFormsTileConf extends TileConf {
     corpname:string;
     corpusSize:number;
     freqFilterAlphaLevel:Maths.AlphaLevel;
-    backlink:Backlink;
 }
 
 
