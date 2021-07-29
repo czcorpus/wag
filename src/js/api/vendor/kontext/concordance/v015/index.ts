@@ -264,11 +264,12 @@ export class ConcApi implements IConcordanceApi<ConcQueryArgs|ConcViewArgs|Filte
         );
     }
 
-    getBackLink():Backlink {
+    getBackLink(backlink:Backlink):Backlink {
         return {
-            url: this.apiURL + '/view',
             label: 'KonText',
-            method: HTTP.Method.GET
+            method: HTTP.Method.GET,
+            ...(backlink || {}),
+            url: (backlink && backlink.url ? backlink.url : this.apiURL) + '/view',
         }
     }
 }

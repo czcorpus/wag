@@ -86,7 +86,8 @@ export class WordFormsTile implements ITileProvider {
             queryDomain: domain1,
             waitForTile: waitForTiles.length > 0 ? waitForTiles[0] : -1,
             waitForTilesTimeoutSecs,
-            appServices
+            appServices,
+            backlink: conf.backlink || null,
         });
         this.view = viewInit(dispatcher, ut, theme, this.model);
     }

@@ -28,7 +28,7 @@ import { IConcordanceApi, SingleConcLoadedPayload } from '../../../api/abstract/
 import { ConcordanceMinState, createInitialLinesData } from '../../../models/tiles/concordance';
 import { isWebDelegateApi, SystemMessageType } from '../../../types';
 import { isSubqueryPayload, RecognizedQueries, QueryType } from '../../../query/index';
-import { Backlink, BacklinkWithArgs } from '../../../page/tile';
+import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile';
 import { Actions as GlobalActions } from '../../../models/actions';
 import { findCurrQueryMatch } from '../../../models/query';
 import { importMessageType } from '../../../page/notifications';
@@ -54,7 +54,7 @@ export interface ConcordanceTileState extends ConcordanceMinState {
     widthFract:number;
     initialKwicLeftCtx:number;
     initialKwicRightCtx:number;
-    backlink:BacklinkWithArgs<BacklinkArgs>;
+    backlink:BacklinkWithArgs<{}>;
     disableViewModes:boolean;
     visibleMetadataLine:number;
 }
@@ -101,7 +101,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
         this.queryMatches = queryMatches;
         this.appServices = appServices;
         this.tileId = tileId;
-        this.backlink = isWebDelegateApi(this.concApi) ? this.concApi.getBackLink() : backlink;
+        this.backlink = !backlink.isAppUrl && isWebDelegateApi(this.concApi) ? this.concApi.getBackLink(backlink) : backlink;
         this.waitForTile = waitForTile;
         this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.queryType = queryType;
@@ -209,7 +209,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                         state.error = this.appServices.normalizeHttpApiError(action.error);
 
                     } else {
-                        state.backlink = this.createBackLink(state, action);
+                        state.backlink = this.backlink.isAppUrl ? createAppBacklink(this.backlink) : this.createBackLink(state, action);
                     }
                 }
             }

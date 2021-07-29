@@ -63,7 +63,7 @@ export interface ResourceApi<T, U> extends DataApi<T, U> {
  */
  export interface WebDelegateApi {
 
-    getBackLink():Backlink;
+    getBackLink(backlink:Backlink):Backlink;
 }
 
 export function isWebDelegateApi(api):api is WebDelegateApi {

@@ -101,8 +101,8 @@ export class WordFormsAPI implements IWordFormsApi, WebDelegateApi {
         null;
     }
 
-    getBackLink():Backlink {
-        return this.fapi.getBackLink()
+    getBackLink(backlink:Backlink):Backlink {
+        return this.fapi.getBackLink(backlink)
     }
 
 }

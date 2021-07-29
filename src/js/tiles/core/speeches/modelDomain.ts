@@ -90,7 +90,7 @@ export interface SpeechesModelState {
     wideCtxGlobals:Array<[string, string]>;
     speakerColorsAttachments:{[k:string]:Color.RGBA};
     spkOverlapMode:'full'|'simple';
-    backlink:BacklinkWithArgs<BacklinkArgs>;
+    backlink:BacklinkWithArgs<{}>;
     maxNumSpeeches:number;
     playback:{
         currLineIdx:number;

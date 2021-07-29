@@ -40,7 +40,6 @@ export interface FreqTreeTileConf extends TileConf {
     fpage:number;
     fttIncludeEmpty:boolean;
     maxChartsPerLine?:number;
-    backlink?:Backlink;
     posQueryGenerator:[string, string];
 }
 

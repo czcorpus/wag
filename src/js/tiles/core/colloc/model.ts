@@ -26,7 +26,7 @@ import { Actions as GlobalActions } from '../../../models/actions';
 import { ConcLoadedPayload } from '../concordance/actions';
 import { Actions } from './common';
 import { Actions as ConcActions } from '../concordance/actions';
-import { Backlink, BacklinkWithArgs } from '../../../page/tile';
+import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile';
 import { CollocationApi } from '../../../api/abstract/collocations';
 import { CollocModelState, ctxToRange } from '../../../models/tiles/collocations';
 import { CoreCollRequestArgs } from '../../../api/vendor/kontext/collocations';
@@ -94,7 +94,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
         this.appServices = appServices;
         this.collApi = service;
         this.concApi = concApi;
-        this.backlink = isWebDelegateApi(this.collApi) ? this.collApi.getBackLink() : backlink;
+        this.backlink = !backlink.isAppUrl && isWebDelegateApi(this.collApi) ? this.collApi.getBackLink(backlink) : backlink;
         this.queryType = queryType;
         this.apiType = apiType;
 
@@ -197,7 +197,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
                                 .filter(v => v !== null)
                         );
 
-                    state.backlink = this.createBackLink(state, action);
+                    state.backlink = this.backlink.isAppUrl ? createAppBacklink(this.backlink) : this.createBackLink(state, action);
                 }
             }
         );

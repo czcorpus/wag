@@ -39,7 +39,6 @@ export interface CollocationsTileConf extends TileConf {
     minLocalFreq:number;
     rangeSize:number;
     maxItems?:number;
-    backlink?:Backlink;
 
     /**
      * A positional attribute name and a function to create a query value (e.g. ['tag', (v) => `${v}.+`]).

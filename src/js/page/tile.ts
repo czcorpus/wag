@@ -26,17 +26,27 @@ import { HTTP } from 'cnc-tskit';
 
 
 export interface Backlink {
-    url:string;
-    label:LocalizedConfMsg;
+    url?:string;
+    label?:LocalizedConfMsg;
     method?:HTTP.Method;
     subcname?:string; // in case a special subc. is needed for backlink
+    isAppUrl?:boolean; // sets backlink as simple link
 }
 
 export interface BacklinkWithArgs<T> {
     url:string;
     label:LocalizedConfMsg;
-    args:AnyInterface<T>;
     method:HTTP.Method;
+    args:AnyInterface<T>;
+}
+
+export function createAppBacklink(backlink:Backlink):BacklinkWithArgs<{}> {
+    return {
+        url: backlink.url || '--UNDEFINED BACKLINK--',
+        label: backlink.label || '--UNDEFINED LABEL--',
+        method: backlink.method || HTTP.Method.GET,
+        args: {}
+    }
 }
 
 /**
