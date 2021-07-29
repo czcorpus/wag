@@ -34,7 +34,6 @@ import { createInitialLinesData } from '../../../models/tiles/concordance';
 export interface ConcordanceTileConf extends CorpSrchTileConf {
     apiURL:string;
     apiType:string;
-    backlink?:Backlink;
     pageSize:number;
     posAttrs:Array<string>;
     posQueryGenerator?:[string, string]; // a positional attribute name and a function to create a query value (e.g. ['tag', (v) => `${v}.+`])

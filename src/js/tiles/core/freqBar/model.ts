@@ -23,7 +23,7 @@ import { Dict, Ident } from 'cnc-tskit';
 import { IAppServices } from '../../../appServices';
 import { BacklinkArgs } from '../../../api/vendor/kontext/freqs';
 import { GeneralMultiCritFreqBarModelState } from '../../../models/tiles/freq';
-import { Backlink, BacklinkWithArgs } from '../../../page/tile';
+import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile';
 import { Actions as GlobalActions } from '../../../models/actions';
 import { Actions as ConcActions } from '../concordance/actions';
 import { Actions } from './actions';
@@ -78,7 +78,7 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState, {[tileId:str
         this.subqSourceTiles = Dict.fromEntries(subqSourceTiles.map(v => [v.toFixed(), true]));
         this.appServices = appServices;
         this.api = api;
-        this.backlink = isWebDelegateApi(this.api) ? this.api.getBackLink() : backlink;
+        this.backlink = isWebDelegateApi(this.api) ? {...this.api.getBackLink(), ...(backlink || {})} : backlink;
 
         this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(
             GlobalActions.EnableAltViewMode.name,
@@ -202,7 +202,7 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState, {[tileId:str
                             isReady: true
                         };
                         state.isBusy = state.blocks.some(v => !v.isReady);
-                        state.backlink = this.api.createBacklink(state, this.backlink, action.payload.concId);
+                        state.backlink = this.backlink.isAppUrl ? createAppBacklink(this.backlink) : this.api.createBacklink(state, this.backlink, action.payload.concId);
                     }
                 }
             }

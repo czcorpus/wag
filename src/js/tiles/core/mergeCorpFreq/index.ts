@@ -135,8 +135,10 @@ export class MergeCorpFreqTile implements ITileProvider {
                 ),
                 pixelsPerCategory: conf.pixelsPerCategory ? conf.pixelsPerCategory : 30,
                 queryMatches: List.map(lemma => findCurrQueryMatch(lemma), queryMatches),
-                tooltipData: null
-            }
+                tooltipData: null,
+                appBacklink: null,
+            },
+            backlink: conf.backlink || null
         });
         this.label = appServices.importExternalMessage(conf.label || 'mergeCorpFreq__main_label');
         this.view = viewInit(this.dispatcher, ut, theme, this.model);

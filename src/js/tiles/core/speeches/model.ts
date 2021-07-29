@@ -19,7 +19,7 @@ import { StatelessModel, SEDispatcher, Action, IActionQueue } from 'kombo';
 import { pipe, List, HTTP } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
-import { Backlink, BacklinkWithArgs } from '../../../page/tile';
+import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile';
 import { Actions as GlobalActions, isTileSomeDataLoadedAction } from '../../../models/actions';
 import { isSubqueryPayload } from '../../../query/index';
 import { SpeechesApi, SpeechReqArgs } from './api';
@@ -80,7 +80,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState, TileWait<b
         this.api = api;
         this.appServices = appServices;
         this.tileId = tileId;
-        this.backlink = isWebDelegateApi(this.api) ? this.api.getBackLink() : backlink;
+        this.backlink = isWebDelegateApi(this.api) ? {...this.api.getBackLink(), ...(backlink || {})} : backlink;
         this.waitForTiles = [...waitForTiles];
         this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.subqSourceTiles = [...subqSourceTiles];
@@ -183,7 +183,7 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState, TileWait<b
                         } else {
                             state.expandRightArgs.push(null);
                         }
-                        state.backlink = this.createBackLink(state);
+                        state.backlink = this.backlink ? this.backlink.isAppUrl ? createAppBacklink(this.backlink) : this.createBackLink(state) : null;
                     }
                 }
             }
@@ -486,18 +486,16 @@ export class SpeechesModel extends StatelessModel<SpeechesModelState, TileWait<b
     }
 
     private createBackLink(state:SpeechesModelState):BacklinkWithArgs<BacklinkArgs> {
-        return this.backlink ?
-            {
-                url: this.backlink.url,
-                method: this.backlink.method || HTTP.Method.GET,
-                label: this.backlink.label,
-                args: {
-                    corpname: state.corpname,
-                    usesubcorp: state.subcname,
-                    q: `~${state.concId}`
-                }
-            } :
-            null;
+        return {
+            url: this.backlink.url,
+            method: this.backlink.method || HTTP.Method.GET,
+            label: this.backlink.label,
+            args: {
+                corpname: state.corpname,
+                usesubcorp: state.subcname,
+                q: `~${state.concId}`
+            }
+        }
     }
 
     private playSegments(state:SpeechesModelState, player:AudioPlayer, dispatch:SEDispatcher):void {

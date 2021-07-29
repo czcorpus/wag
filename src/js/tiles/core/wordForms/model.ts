@@ -27,8 +27,7 @@ import { findCurrQueryMatch } from '../../../models/query';
 import { RecognizedQueries } from '../../../query/index';
 import { IAppServices } from '../../../appServices';
 import { isWebDelegateApi } from '../../../types';
-import { Backlink, BacklinkWithArgs } from '../../../page/tile';
-import { BacklinkArgs } from '../../../api/vendor/kontext/freqs';
+import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile';
 
 
 
@@ -42,7 +41,7 @@ export interface WordFormsModelState {
     corpusSize:number;
     freqFilterAlphaLevel:Maths.AlphaLevel;
     data:Array<WordFormItem>;
-    backlink:BacklinkWithArgs<BacklinkArgs>|null;
+    backlink:BacklinkWithArgs<{}>;
 }
 
 /**
@@ -82,6 +81,7 @@ export interface WordFormsModelArgs {
     waitForTile:number|null;
     waitForTilesTimeoutSecs:number;
     appServices:IAppServices;
+    backlink:Backlink
 }
 
 
@@ -104,7 +104,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
     private readonly backlink:Backlink;
 
     constructor({dispatcher, initialState, tileId, api, queryMatches, queryDomain, waitForTile,
-            waitForTilesTimeoutSecs, appServices}:WordFormsModelArgs) {
+            waitForTilesTimeoutSecs, appServices, backlink}:WordFormsModelArgs) {
         super(dispatcher, initialState);
         this.tileId = tileId;
         this.api = api;
@@ -113,7 +113,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
         this.waitForTile = waitForTile;
         this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.appServices = appServices;
-        this.backlink = isWebDelegateApi(this.api) ? this.api.getBackLink() : null;
+        this.backlink = isWebDelegateApi(this.api) ? {...this.api.getBackLink(), ...(backlink || {})} : backlink;
 
         this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(
             GlobalActions.EnableAltViewMode.name,
@@ -285,7 +285,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                         ),
                         domain1: null,
                         domain2: null,
-                        backlink: this.api.createBacklink(args, this.backlink),
+                        backlink: this.backlink.isAppUrl ? createAppBacklink(this.backlink) : this.api.createBacklink(args, this.backlink),
                     }
                 });
             },

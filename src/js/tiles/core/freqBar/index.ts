@@ -43,7 +43,6 @@ export interface FreqBarTileConf extends TileConf {
     fpage:number;
     fttIncludeEmpty:boolean;
     maxNumCategories:number;
-    backlink?:Backlink;
 
     // if defined, then we wait for some other
     // tile which produces payload extended

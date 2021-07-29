@@ -31,7 +31,7 @@ import { DataItemWithWCI, SubchartID, DataLoadedPayload } from './common';
 import { Actions } from './common';
 import { callWithExtraVal } from '../../../api/util';
 import { QueryMatch, RecognizedQueries } from '../../../query/index';
-import { Backlink, BacklinkWithArgs } from '../../../page/tile';
+import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile';
 import { TileWait } from '../../../models/tileSync';
 import { PriorityValueFactory } from '../../../priority';
 import { DataRow } from '../../../api/abstract/freqs';
@@ -169,6 +169,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
             GlobalActions.RequestQueryResponse.name,
             (state, action) => {
                 state.data = [];
+                state.backlinks = [];
                 state.dataCmp = [];
                 state.loadingStatus = LoadingStatus.BUSY_LOADING_MAIN;
                 state.error = null;
@@ -193,6 +194,9 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
                         state.dataCmp = [];
                         state.error = this.appServices.normalizeHttpApiError(action.error);
                     }
+                    if (this.backlink.isAppUrl) {
+                        state.backlinks.push(createAppBacklink(this.backlink));
+                    }
                 }
             }
         );
@@ -210,7 +214,9 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
                     if (action.payload.wordMainLabel) {
                         state.wordMainLabel = action.payload.wordMainLabel;
                     }
-                    state.backlinks.push(action.payload.backlink);
+                    if (!this.backlink.isAppUrl) {
+                        state.backlinks.push(action.payload.backlink);
+                    }
                 }
                 return state;
             }
@@ -395,7 +401,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
                         tileId: this.tileId,
                         concId: args.concId,
                         backlink: isWebDelegateApi(args.freqApi) ?
-                            args.freqApi.createBackLink(args.freqApi.getBackLink(), resp.corpName, args.concId) :
+                            args.freqApi.createBackLink({...args.freqApi.getBackLink(), ...(this.backlink || {})}, resp.corpName, args.concId) :
                             args.freqApi.createBackLink(this.backlink, resp.corpName, args.concId)
                     };
                     if (args.targetId === SubchartID.MAIN) {

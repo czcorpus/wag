@@ -21,12 +21,11 @@ import { SubqueryPayload } from '../../../query/index';
 import { Actions as GlobalActions } from '../../../models/actions';
 import { Action } from 'kombo';
 import { BacklinkWithArgs } from '../../../page/tile';
-import { BacklinkArgs } from '../../../api/vendor/kontext/freqs';
 
 
 export interface DataLoadedPayload extends SubqueryPayload {
     data:Array<WordFormItem>;
-    backlink:BacklinkWithArgs<BacklinkArgs>|null;
+    backlink:BacklinkWithArgs<{}>;
 }
 
 export class Actions {

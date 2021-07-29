@@ -36,8 +36,6 @@ export interface TimeDistTileConf extends CorpSrchTileConf {
     flimit:number;
 
     posQueryGenerator:[string, string];
-
-    backlink?:Backlink;
 }
 
 

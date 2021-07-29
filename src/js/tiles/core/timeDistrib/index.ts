@@ -21,7 +21,7 @@ import { List, Maths, pipe, tuple } from 'cnc-tskit';
 import { FreqSort } from '../../../api/vendor/kontext/freqs';
 import { createApiInstance as createFreqApiInstance } from '../../../api/factory/timeDistrib';
 import { QueryType } from '../../../query/index';
-import { ITileProvider, TileComponent, TileFactory, TileFactoryArgs } from '../../../page/tile';
+import { Backlink, ITileProvider, TileComponent, TileFactory, TileFactoryArgs } from '../../../page/tile';
 import { TimeDistTileConf } from './common';
 import { TimeDistribModel, LoadingStatus } from './model';
 import { init as viewInit } from './view';

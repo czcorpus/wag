@@ -37,7 +37,6 @@ export interface SpeechesTileConf extends TileConf {
     speechSegment:[string, string];
     speechOverlapAttr:[string, string];
     speechOverlapVal:string;
-    backlink?:Backlink,
     audioPlaybackUrl?:string;
     maxNumSpeeches?:number;
 }

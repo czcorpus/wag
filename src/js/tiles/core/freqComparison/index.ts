@@ -42,7 +42,6 @@ export interface FreqComparisonTileConf extends TileConf {
     fttIncludeEmpty:boolean;
     posQueryGenerator:[string, string];
     maxChartsPerLine?:number;
-    backlink?:Backlink;
 }
 
 

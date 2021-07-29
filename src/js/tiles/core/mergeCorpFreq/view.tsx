@@ -178,13 +178,15 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
     class MergeCorpFreqBarTile extends React.PureComponent<MergeCorpFreqModelState & CoreTileComponentProps> {
 
         render() {
-            const backlinks = pipe(
-                this.props.data,
-                List.filter(x => x !== undefined),
-                List.flatMap(v => v),
-                List.groupBy(v => v.sourceId),
-                List.map(([,v]) => v[0].backlink)
-            );
+            const backlinks = this.props.appBacklink ?
+                [this.props.appBacklink] :
+                pipe(
+                    this.props.data,
+                    List.filter(x => x !== undefined),
+                    List.flatMap(v => v),
+                    List.groupBy(v => v.sourceId),
+                    List.map(([,v]) => v[0].backlink)
+                );
             
             const numCats = Math.max(0, ...this.props.data.map(v => v ? v.length : 0));
             const barCategoryGap = Math.max(10, 40 - this.props.pixelsPerCategory);

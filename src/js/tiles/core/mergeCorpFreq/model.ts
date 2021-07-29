@@ -34,7 +34,7 @@ import { Actions } from './actions';
 import { TooltipValues } from '../../../views/common';
 import { Actions as ConcActions } from '../concordance/actions';
 import { isWebDelegateApi } from '../../../types';
-import { Backlink } from '../../../page/tile';
+import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile';
 
 
 export interface MergeCorpFreqModelState {
@@ -46,6 +46,7 @@ export interface MergeCorpFreqModelState {
     pixelsPerCategory:number;
     queryMatches:Array<QueryMatch>;
     tooltipData:{tooltipX:number; tooltipY:number, data:TooltipValues, caption:string}|null;
+    appBacklink:BacklinkWithArgs<{}>;
 }
 
 interface SourceQueryProps {
@@ -64,6 +65,7 @@ export interface MergeCorpFreqModelArgs {
     concApi:IConcordanceApi<{}>;
     freqApi:IFreqDistribAPI<{}>;
     initState:MergeCorpFreqModelState;
+    backlink:Backlink;
 }
 
 export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, {[key:string]:number}> {
@@ -83,7 +85,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
     private readonly backlink:Backlink;
 
     constructor({dispatcher, tileId, waitForTiles, waitForTilesTimeoutSecs, appServices,
-                concApi, freqApi, initState}:MergeCorpFreqModelArgs) {
+                concApi, freqApi, initState, backlink}:MergeCorpFreqModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.appServices = appServices;
@@ -91,7 +93,7 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
         this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.concApi = concApi;
         this.freqApi = freqApi;
-        this.backlink = isWebDelegateApi(freqApi) ? freqApi.getBackLink() : null;
+        this.backlink = isWebDelegateApi(this.freqApi) ? {...this.freqApi.getBackLink(), ...(backlink || {})} : backlink;
 
         this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(
             GlobalActions.EnableAltViewMode.name,
@@ -159,6 +161,10 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
             Actions.PartialTileDataLoaded.name,
             (state, action) => {
                 if (action.payload.tileId === this.tileId) {
+                    if (this.backlink.isAppUrl && state.appBacklink === null) {
+                        state.appBacklink = createAppBacklink(this.backlink);
+                    }
+
                     if (state.data[action.payload.queryId] === undefined) {
                         state.data[action.payload.queryId] = [];
                     }
