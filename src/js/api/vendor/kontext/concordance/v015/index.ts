@@ -269,7 +269,7 @@ export class ConcApi implements IConcordanceApi<ConcQueryArgs|ConcViewArgs|Filte
             label: 'KonText',
             method: HTTP.Method.GET,
             ...(backlink || {}),
-            url: (backlink && backlink.url ? backlink.url : this.apiURL) + '/view',
+            url: (backlink?.url ? backlink.url : this.apiURL) + '/view',
         }
     }
 }

@@ -78,7 +78,7 @@ export class FreqBarModel extends StatelessModel<FreqBarModelState, {[tileId:str
         this.subqSourceTiles = Dict.fromEntries(subqSourceTiles.map(v => [v.toFixed(), true]));
         this.appServices = appServices;
         this.api = api;
-        this.backlink = !backlink.isAppUrl && isWebDelegateApi(this.api) ? this.api.getBackLink(backlink) : backlink;
+        this.backlink = !backlink?.isAppUrl && isWebDelegateApi(this.api) ? this.api.getBackLink(backlink) : backlink;
 
         this.addActionHandler<typeof GlobalActions.EnableAltViewMode>(
             GlobalActions.EnableAltViewMode.name,

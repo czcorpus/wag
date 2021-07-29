@@ -94,7 +94,7 @@ export class CollocModel extends StatelessModel<CollocModelState> {
         this.appServices = appServices;
         this.collApi = service;
         this.concApi = concApi;
-        this.backlink = !backlink.isAppUrl && isWebDelegateApi(this.collApi) ? this.collApi.getBackLink(backlink) : backlink;
+        this.backlink = !backlink?.isAppUrl && isWebDelegateApi(this.collApi) ? this.collApi.getBackLink(backlink) : backlink;
         this.queryType = queryType;
         this.apiType = apiType;
 

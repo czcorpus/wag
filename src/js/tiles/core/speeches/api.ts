@@ -109,7 +109,7 @@ export class SpeechesApi implements ResourceApi<SpeechReqArgs, SpeechResponse>, 
             label: 'KonText',
             method: HTTP.Method.GET,
             ...(backlink || {}),
-            url: (backlink && backlink.url ? backlink.url : this.apiUrl) + '/view',
+            url: (backlink?.url ? backlink.url : this.apiUrl) + '/view',
         }
     }
 }
