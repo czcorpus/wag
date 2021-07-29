@@ -54,7 +54,7 @@ export interface ConcordanceTileState extends ConcordanceMinState {
     widthFract:number;
     initialKwicLeftCtx:number;
     initialKwicRightCtx:number;
-    backlink:BacklinkWithArgs<{}>;
+    backlinks:Array<BacklinkWithArgs<{}>>;
     disableViewModes:boolean;
     visibleMetadataLine:number;
 }
@@ -209,9 +209,13 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                     if (action.error) {
                         state.concordances = createInitialLinesData(this.queryMatches.length);
                         state.error = this.appServices.normalizeHttpApiError(action.error);
-
+                        state.backlinks = [];
                     } else {
-                        state.backlink = this.backlink.isAppUrl ? createAppBacklink(this.backlink) : this.createBackLink(state, action);
+                        if (this.backlink?.isAppUrl) {
+                            state.backlinks = [createAppBacklink(this.backlink)];
+                        } else {
+                            state.backlinks = List.map(v => this.createBackLink(state, v), action.payload.concPersistenceIDs);
+                        }
                     }
                 }
             }
@@ -331,10 +335,10 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
 
     private createBackLink(
         state:ConcordanceTileState,
-        action:typeof Actions.TileDataLoaded
+        concId:string
     ):BacklinkWithArgs<BacklinkArgs> {
 
-        return this.backlink && this.queryType !== QueryType.CMP_QUERY ?
+        return this.backlink ?
             {
                 url: this.backlink.url,
                 method: this.backlink.method || HTTP.Method.GET,
@@ -342,7 +346,7 @@ export class ConcordanceTileModel extends StatelessModel<ConcordanceTileState> {
                 args: {
                     corpname: state.corpname,
                     usesubcorp: state.subcname,
-                    q: `~${action.payload.concPersistenceIDs[0]}`
+                    q: `~${concId}`
                 }
             } :
             null;

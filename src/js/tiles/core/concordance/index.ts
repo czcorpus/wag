@@ -23,7 +23,7 @@ import { ViewMode, IConcordanceApi } from '../../../api/abstract/concordance';
 
 import { LocalizedConfMsg } from '../../../types';
 import { QueryType } from '../../../query/index';
-import { Backlink, CorpSrchTileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs } from '../../../page/tile';
+import { CorpSrchTileConf, ITileProvider, TileComponent, TileFactory, TileFactoryArgs } from '../../../page/tile';
 import { ConcordanceTileModel } from './model';
 import { init as viewInit } from './views';
 import { createApiInstance } from '../../../api/factory/concordance';
@@ -117,7 +117,7 @@ export class ConcordanceTile implements ITileProvider {
                 viewMode: determineViewMode(conf, api),
                 attrs: conf.posAttrs,
                 metadataAttrs: (conf.metadataAttrs || []).map(v => ({value: v.value, label: appServices.importExternalMessage(v.label)})),
-                backlink: null,
+                backlinks: [],
                 posQueryGenerator: conf.posQueryGenerator,
                 disableViewModes: api.getSupportedViewModes().length < 2,
                 visibleMetadataLine: -1,

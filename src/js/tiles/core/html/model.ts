@@ -20,12 +20,14 @@ import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { IAppServices } from '../../../appServices';
 import { Actions as GlobalActions } from '../../../models/actions';
 import { Actions } from './common';
-import { DataLoadedPayload, HtmlModelState } from './common';
+import { HtmlModelState } from './common';
 import { findCurrQueryMatch } from '../../../models/query';
 import { Observable, of as rxOf } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
 import { RecognizedQueries } from '../../../query/index';
 import { IGeneralHtmlAPI } from '../../../api/abstract/html';
+import { Backlink, createAppBacklink } from '../../../page/tile';
+import { isWebDelegateApi } from '../../../types';
 
 
 export interface HtmlModelArgs {
@@ -35,6 +37,7 @@ export interface HtmlModelArgs {
     service:IGeneralHtmlAPI<{}>;
     initState:HtmlModelState;
     queryMatches:RecognizedQueries;
+    backlink:Backlink;
 }
 
 
@@ -48,12 +51,15 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
 
     private readonly tileId:number;
 
-    constructor({dispatcher, tileId, appServices, service, initState, queryMatches}:HtmlModelArgs) {
+    private readonly backlink:Backlink;
+
+    constructor({dispatcher, tileId, appServices, service, initState, queryMatches, backlink}:HtmlModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.appServices = appServices;
         this.service = service;
         this.queryMatches = queryMatches;
+        this.backlink = !backlink?.isAppUrl && isWebDelegateApi(this.service) ? this.service.getBackLink(backlink) : backlink;
 
         this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
             GlobalActions.RequestQueryResponse.name,
@@ -77,6 +83,7 @@ export class HtmlModel extends StatelessModel<HtmlModelState> {
 
                     } else {
                         state.data = action.payload.data;
+                        state.backlink = createAppBacklink(this.backlink);
                     }
                 }
             }

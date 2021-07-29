@@ -33,7 +33,8 @@ import { Dict, pipe, List, tuple } from 'cnc-tskit';
 import { callWithExtraVal } from '../../../api/util';
 import { TileWait } from '../../../models/tileSync';
 import { AttrViewMode, FilterServerArgs, QuickFilterRequestArgs } from '../../../api/vendor/kontext/types';
-import { SystemMessageType } from '../../../types';
+import { isWebDelegateApi, SystemMessageType } from '../../../types';
+import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile';
 
 
 export interface ConcFilterModelState {
@@ -52,6 +53,7 @@ export interface ConcFilterModelState {
     concPersistenceIds:Array<string>;
     metadataAttrs:Array<{value:string; label:string}>;
     visibleMetadataLine:number;
+    backlink:BacklinkWithArgs<{}>;
 }
 
 type AllSubqueries = Array<SubQueryItem<RangeRelatedSubqueryValue>>;
@@ -71,6 +73,7 @@ export interface ConcFilterModelArgs {
     api:ConcApi;
     initState:ConcFilterModelState;
     queryMatches:RecognizedQueries;
+    backlink:Backlink;
 }
 
 
@@ -90,6 +93,9 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
 
     private readonly waitForTilesTimeoutSecs:number;
 
+    private readonly backlink:Backlink;
+
+
     constructor({
         dispatcher,
         tileId,
@@ -99,7 +105,8 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
         appServices,
         api,
         initState,
-        queryMatches
+        queryMatches,
+        backlink,
     }:ConcFilterModelArgs) {
 
         super(dispatcher, initState);
@@ -110,6 +117,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
         this.subqSourceTiles = [...subqSourceTiles];
         this.appServices = appServices;
         this.queryMatches = queryMatches;
+        this.backlink = !backlink?.isAppUrl && isWebDelegateApi(this.api) ? this.api.getBackLink(backlink) : backlink;
 
         this.addActionHandler<typeof GlobalActions.RequestQueryResponse>(
             GlobalActions.RequestQueryResponse.name,
@@ -142,6 +150,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWa
                     if (action.error) {
                         state.error = this.appServices.normalizeHttpApiError(action.error);
                     }
+                    state.backlink = this.backlink?.isAppUrl ? createAppBacklink(this.backlink) : null
                 }
             }
         );

@@ -112,7 +112,7 @@ export class FreqComparisonTile implements ITileProvider {
                 fpage: conf.fpage,
                 fttIncludeEmpty: conf.fttIncludeEmpty,
                 fmaxitems: 100,
-                backlink: null,
+                backlinks: [],
                 maxChartsPerLine: conf.maxChartsPerLine ? conf.maxChartsPerLine : 3,
                 isAltViewMode: false,
                 posQueryGenerator: conf.posQueryGenerator

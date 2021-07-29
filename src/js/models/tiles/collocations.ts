@@ -83,7 +83,7 @@ export interface CollocModelState {
 
     citemsperpage:number;
 
-    backlink:BacklinkWithArgs<{}>;
+    backlinks:Array<BacklinkWithArgs<{}>>;
 
     queryMatches:Array<QueryMatch>;
 

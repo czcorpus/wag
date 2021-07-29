@@ -343,7 +343,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 <globalCompontents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.concordances.some(conc => conc.lines.length > 0)}
                         sourceIdent={{corp: this.props.corpname, subcorp: this.props.subcDesc}}
-                        backlink={this.props.backlink}
+                        backlink={this.props.backlinks}
                         supportsTileReload={this.props.supportsReloadOnError}
                         issueReportingUrl={this.props.issueReportingUrl}>
                     <S.ConcordanceTileView>

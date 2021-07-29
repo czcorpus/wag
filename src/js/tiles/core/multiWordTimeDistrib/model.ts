@@ -34,9 +34,11 @@ import { createInitialLinesData } from '../../../models/tiles/concordance';
 import { PriorityValueFactory } from '../../../priority';
 import { DataRow } from '../../../api/abstract/freqs';
 import { Actions as ConcActions } from '../concordance/actions';
+import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile';
+import { isWebDelegateApi } from '../../../types';
 
 
-export interface TimeDistribModelState extends GeneralSingleCritFreqMultiQueryState<DataItemWithWCI> {
+export interface MultiWordTimeDistribModelState extends GeneralSingleCritFreqMultiQueryState<DataItemWithWCI> {
     subcnames:Array<string>;
     subcDesc:string;
     alphaLevel:Maths.AlphaLevel;
@@ -47,6 +49,7 @@ export interface TimeDistribModelState extends GeneralSingleCritFreqMultiQuerySt
     units:string;
     refArea:[number,number];
     zoom:[number, number];
+    backlinks:Array<BacklinkWithArgs<{}>>;
 }
 
 
@@ -55,9 +58,9 @@ const roundFloat = (v:number):number => Math.round(v * 100) / 100;
 const calcIPM = (v:DataRow|DataItemWithWCI, domainSize:number) => Math.round(v.freq / domainSize * 1e6 * 100) / 100;
 
 
-export interface TimeDistribModelArgs {
+export interface MultiWordTimeDistribModelArgs {
     dispatcher:IActionQueue;
-    initState:TimeDistribModelState;
+    initState:MultiWordTimeDistribModelState;
     tileId:number;
     waitForTile:number;
     waitForTilesTimeoutSecs:number;
@@ -65,6 +68,7 @@ export interface TimeDistribModelArgs {
     appServices:IAppServices;
     queryMatches:RecognizedQueries;
     queryDomain:string;
+    backlink:Backlink;
 }
 
 interface CalcArgs {
@@ -85,7 +89,7 @@ export interface DataFetchArgs {
 /**
  *
  */
-export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
+export class MultiWordTimeDistribModel extends StatelessModel<MultiWordTimeDistribModelState> {
 
     private readonly apiFactory:PriorityValueFactory<[IConcordanceApi<{}>, TimeDistribApi]>;
 
@@ -99,8 +103,10 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private readonly queryMatches:RecognizedQueries;
 
+    private readonly backlink:Backlink;
+
     constructor({dispatcher, initState, tileId, waitForTile, waitForTilesTimeoutSecs,
-            apiFactory, appServices, queryMatches}:TimeDistribModelArgs) {
+            apiFactory, appServices, queryMatches, backlink}:MultiWordTimeDistribModelArgs) {
         super(dispatcher, initState);
         this.tileId = tileId;
         this.apiFactory = apiFactory;
@@ -108,6 +114,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         this.waitForTilesTimeoutSecs = waitForTilesTimeoutSecs;
         this.appServices = appServices;
         this.queryMatches = queryMatches;
+        this.backlink = backlink;
 
         this.addActionHandler<typeof Actions.ZoomMouseLeave>(
             Actions.ZoomMouseLeave.name,
@@ -258,6 +265,11 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                             state.alphaLevel
                         );
                     state.data[action.payload.queryId] = newData;
+                    if (this.backlink?.isAppUrl) {
+                        state.backlinks = [createAppBacklink(this.backlink)];
+                    } else if (action.payload.backlink !== null) {
+                        state.backlinks.push(action.payload.backlink)
+                    }
                 }
             }
         );
@@ -359,7 +371,10 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                     tileId: this.tileId,
                     data: dataFull,
                     queryId: args.queryId,
-                    origQuery: args.origQuery
+                    origQuery: args.origQuery,
+                    backlink: isWebDelegateApi(args.freqApi) ?
+                            args.freqApi.createBackLink(args.freqApi.getBackLink(this.backlink), resp.corpName, args.concId) :
+                            args.freqApi.createBackLink(this.backlink, resp.corpName, args.concId) 
                 };
             }),
             tap(
@@ -383,7 +398,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         isEmpty,
                         queryId: -1,
                         data: [],
-                        origQuery: ''
+                        origQuery: '',
+                        backlink: null,
                     }
                 });
             },
@@ -396,7 +412,8 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
                         data: [],
                         isEmpty: true,
                         queryId: -1,
-                        origQuery: ''
+                        origQuery: '',
+                        backlink: null,
                     },
                     error: error
                 });
@@ -404,7 +421,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         );
     }
 
-    private loadConcordance(state:TimeDistribModelState, lemmaVariant:QueryMatch, subcnames:Array<string>,
+    private loadConcordance(state:MultiWordTimeDistribModelState, lemmaVariant:QueryMatch, subcnames:Array<string>,
             queryId:number):Observable<[ConcResponse, DataFetchArgs]> {
         return rxOf<string[]>(...subcnames).pipe(
             mergeMap(
@@ -449,7 +466,7 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
         );
     }
 
-    private loadData(state:TimeDistribModelState, dispatch:SEDispatcher, subcNames:Array<string>, lemmaVariant:Observable<CalcArgs>):void {
+    private loadData(state:MultiWordTimeDistribModelState, dispatch:SEDispatcher, subcNames:Array<string>, lemmaVariant:Observable<CalcArgs>):void {
         const resp = lemmaVariant.pipe(
             mergeMap(args => {
                  if (args.concId) {

@@ -21,6 +21,7 @@ import { LocalizedConfMsg } from '../../../types';
 import { QueryMatch } from '../../../query/index';
 import { ApiDataBlock } from '../../../api/abstract/freqs';
 import { Actions as GlobalActions } from '../../../models/actions';
+import { BacklinkWithArgs } from '../../../page/tile';
 
 
 export interface DataLoadedPayload {
@@ -29,6 +30,7 @@ export interface DataLoadedPayload {
     queryId:number;
     lemma:QueryMatch;
     critId:number;
+    backlink:BacklinkWithArgs<{}>;
 }
 
 // this is to allow other tiles to use this one as source of concordances - ConcLoadedPayload

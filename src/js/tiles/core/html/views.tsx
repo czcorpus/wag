@@ -44,7 +44,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                 <globalCompontents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy}
                         error={this.props.error} htmlClass={`HtmlTile${this.props.tileName}`} hasData={Boolean(this.props.data)}
                         sourceIdent={null} supportsTileReload={this.props.supportsReloadOnError}
-                        issueReportingUrl={this.props.issueReportingUrl} >
+                        issueReportingUrl={this.props.issueReportingUrl}
+                        backlink={this.props.backlink} >
                     <S.HtmlFrame dangerouslySetInnerHTML={{__html: this.props.data}} />
                 </globalCompontents.TileWrapper>
             );

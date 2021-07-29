@@ -21,7 +21,7 @@ import { fromEvent } from 'rxjs';
 
 import { Theme } from '../../../../page/theme';
 import { CoreTileComponentProps, TileComponent } from '../../../../page/tile';
-import { GlobalComponents, TooltipValues } from '../../../../views/common';
+import { GlobalComponents } from '../../../../views/common';
 import { Actions } from '../actions';
 import { MultiWordGeoAreasModel, MultiWordGeoAreasModelState } from '../model';
 import { QueryMatch } from '../../../../query/index';
@@ -404,7 +404,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                         hasData={this.props.data.some(v => v.length > 0)}
                         sourceIdent={{corp: this.props.corpname}}
                         supportsTileReload={this.props.supportsReloadOnError}
-                        issueReportingUrl={this.props.issueReportingUrl}>
+                        issueReportingUrl={this.props.issueReportingUrl}
+                        backlink={this.props.backlinks}>
                     <S.MultiWordGeoAreasTileView>
                         {this.props.isAltViewMode ?
                             <div style={{overflowX: 'auto'}}>

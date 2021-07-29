@@ -105,8 +105,10 @@ export class ConcFilterTile implements ITileProvider {
                 attrVmode: 'mouseover',
                 itemsPerSrc: 1,
                 visibleMetadataLine: -1,
-                metadataAttrs: (conf.metadataAttrs || []).map(v => ({value: v.value, label: appServices.importExternalMessage(v.label)}))
-            }
+                metadataAttrs: (conf.metadataAttrs || []).map(v => ({value: v.value, label: appServices.importExternalMessage(v.label)})),
+                backlink: null,
+            },
+            backlink: conf.backlink || null,
         });
         this.label = appServices.importExternalMessage(conf.label || 'collexamples__main_label');
         this.view = viewInit(this.dispatcher, ut, theme, this.model);

@@ -41,12 +41,12 @@ export interface BacklinkWithArgs<T> {
 }
 
 export function createAppBacklink(backlink:Backlink):BacklinkWithArgs<{}> {
-    return {
+    return backlink ? {
         url: backlink.url || '--UNDEFINED BACKLINK--',
         label: backlink.label || '--UNDEFINED LABEL--',
         method: backlink.method || HTTP.Method.GET,
         args: {}
-    }
+    } : null
 }
 
 /**

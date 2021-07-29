@@ -194,9 +194,6 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
                         state.dataCmp = [];
                         state.error = this.appServices.normalizeHttpApiError(action.error);
                     }
-                    if (this.backlink.isAppUrl) {
-                        state.backlinks.push(createAppBacklink(this.backlink));
-                    }
                 }
             }
         );
@@ -214,7 +211,9 @@ export class TimeDistribModel extends StatelessModel<TimeDistribModelState, Tile
                     if (action.payload.wordMainLabel) {
                         state.wordMainLabel = action.payload.wordMainLabel;
                     }
-                    if (!this.backlink.isAppUrl) {
+                    if (this.backlink?.isAppUrl) {
+                        state.backlinks = [createAppBacklink(this.backlink)];
+                    } else {
                         state.backlinks.push(action.payload.backlink);
                     }
                 }
