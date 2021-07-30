@@ -51,8 +51,7 @@ function loadModulePathMap(conf, srcPath, distPath) {
     console.info('langs: ', langs);
     mergeTranslations(srcPath, path.resolve(distPath, '.compiled/translations.js'), langs);
     const moduleMap = {
-        'translations': path.resolve(distPath, '.compiled/translations'),
-        'theme.less': path.resolve(srcPath, 'css', 'themes', conf['theme'])
+        'translations': path.resolve(distPath, '.compiled/translations')
     };
     return moduleMap;
 }
