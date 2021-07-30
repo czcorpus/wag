@@ -29,6 +29,7 @@ import { HtmlModelState } from '../../../../src/js/tiles/core/html/common';
 import { QueryMatch } from '../../../../src/js/query/index';
 import { Actions } from '../../../../src/js/models/actions';
 import * as query from '../../../../src/js/models/query';
+import { HTTP } from 'cnc-tskit';
 
 
 describe('HtmlTile model', function () {
@@ -57,9 +58,11 @@ describe('HtmlTile model', function () {
                     data: null,
                     args: {},
                     lemmaArg: '',
-                    sanitizeHTML: false
+                    sanitizeHTML: false,
+                    backlink: {url: '', label: '', method: HTTP.Method.GET, args: {}}
                 },
-                queryMatches: [[{isCurrent: true} as QueryMatch]]
+                queryMatches: [[{isCurrent: true} as QueryMatch]],
+                backlink: {url: '', label: '', method: HTTP.Method.GET}
             })
         );
     });

@@ -7,7 +7,7 @@ services:
       dockerfile: dockerfiles/Dockerfile
     volumes:
       - ${WAG_CONFIG_PATH}:/opt/wag/conf
-      - static:/opt/wag/assets
+      - runtime-assets:/opt/wag/assets
       - dist-client:/opt/wag/dist
       - dist-server:/opt/wag/dist-server
       - ./install/docker/production-build-and-run.sh:/var/opt/install/production-build-and-run.sh
@@ -16,7 +16,7 @@ services:
       - ./package.json:/opt/wag/package.json
     networks:
       - wag
-    # to access e.g. a non-docker database, use:
+    # to access e.g. a non-docker database, use 'extra_hosts'
     # extra_hosts:
     #   - [required hostname]:[IP address of the host]
     command: "npm start server"
@@ -29,7 +29,7 @@ services:
       - wag
     volumes:
       - ./install/docker/nginx.conf:/etc/nginx/conf.d/default.conf
-      - static:/opt/wag/assets
+      - runtime-assets:/opt/wag/assets
       - dist-client:/opt/wag/dist
       - dist-server:/opt/wag/dist-server
       - ./build.js:/opt/wag/build.js
@@ -52,7 +52,7 @@ services:
       - wag
 
 volumes:
-  static: {}
+  runtime-assets: {}
   dist-client: {}
   dist-server: {}
 
