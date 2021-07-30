@@ -285,7 +285,7 @@ export class WordFormsModel extends StatelessModel<WordFormsModelState> {
                         ),
                         domain1: null,
                         domain2: null,
-                        backlink: this.backlink.isAppUrl ? createAppBacklink(this.backlink) : this.api.createBacklink(args, this.backlink),
+                        backlink: this.backlink?.isAppUrl ? createAppBacklink(this.backlink) : this.api.createBacklink(args, this.backlink),
                     }
                 });
             },
