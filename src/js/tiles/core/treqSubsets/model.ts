@@ -22,7 +22,7 @@ import { StatelessModel, IActionQueue } from 'kombo';
 import { mkInterctionId, TreqSubsetsAPI } from '../../../api/vendor/treq';
 import { Actions as GlobalActions } from '../../../models/actions';
 import { findCurrQueryMatch } from '../../../models/query';
-import { DataLoadedPayload, Actions } from './actions';
+import { Actions } from './actions';
 import { callWithExtraVal } from '../../../api/util';
 import { isSubqueryPayload, RecognizedQueries } from '../../../query/index';
 import { isCollocSubqueryPayload } from '../../../api/abstract/collocations';
@@ -30,7 +30,6 @@ import { TranslationSubset, TranslationsSubsetsModelState } from '../../../model
 import { IAppServices } from '../../../appServices';
 import { pipe, List, Dict, tuple } from 'cnc-tskit';
 import { mergeMap, reduce, tap } from 'rxjs/operators';
-import { response } from 'express';
 
 
 

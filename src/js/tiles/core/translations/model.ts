@@ -19,15 +19,16 @@ import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { map } from 'rxjs/operators';
 import { HTTP, List } from 'cnc-tskit'
 
-import { Backlink, BacklinkWithArgs } from '../../../page/tile';
+import { Backlink, BacklinkWithArgs, createAppBacklink } from '../../../page/tile';
 import { Actions as GlobalActions } from '../../../models/actions';
 import { findCurrQueryMatch } from '../../../models/query';
-import { DataLoadedPayload, Actions } from './actions';
+import { Actions } from './actions';
 import { ColorScaleFunctionGenerator } from '../../../page/theme';
 import { TranslationAPI } from '../../../api/abstract/translations';
 import { TranslationsModelState } from '../../../models/tiles/translations';
 import { IAppServices } from '../../../appServices';
 import { RecognizedQueries } from '../../../query/index';
+import { isWebDelegateApi } from '../../../types';
 
 
 export type GeneralTranslationsModelState = TranslationsModelState<{}>;
@@ -63,7 +64,7 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
                 scaleColorGen}:TranslationModelArgs) {
         super(dispatcher, initialState);
         this.api = api;
-        this.backlink = backlink;
+        this.backlink = !backlink?.isAppUrl && isWebDelegateApi(this.api) ? this.api.getBackLink(backlink) : backlink;
         this.queryMatches = queryMatches;
         this.tileId = tileId;
         this.scaleColorGen = scaleColorGen;
@@ -91,7 +92,7 @@ export class TranslationsModel extends StatelessModel<GeneralTranslationsModelSt
 
                     } else {
                         state.translations = action.payload.data.translations;
-                        state.backLink = this.makeBacklink(state, action.payload.query);
+                        state.backLink = this.backlink?.isAppUrl ? createAppBacklink(backlink) : this.makeBacklink(state, action.payload.query);
                     }
                 }
             }
