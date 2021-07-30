@@ -1,7 +1,7 @@
 version: '3.7'
 
 services:
-  wag-dev:
+  wag-server:
     build:
       context: .
       dockerfile: dockerfiles/Dockerfile.dev
@@ -22,7 +22,7 @@ services:
     # extra_hosts:
     #   - [required hostname]:[IP address of the host]
     command: "/var/opt/install/server-build-and-run.sh"
-  wag-client-dev:
+  wag-client:
     build:
       context: .
       dockerfile: dockerfiles/Dockerfile.dev
@@ -43,8 +43,7 @@ services:
     ports:
       - "8081:80"
     depends_on:
-      - couchdb
-      - wag-dev
+      - wag-server
     volumes:
       - ./install/docker/nginx.dev.conf:/etc/nginx/conf.d/default.conf
       - ./assets:/opt/wag/assets
@@ -55,14 +54,6 @@ services:
 
   redis:
     image: redis:latest
-    networks:
-      - wag
-
-  couchdb:
-    environment:
-      COUCHDB_USER: user
-      COUCHDB_PASSWORD: password
-    image: couchdb:latest
     networks:
       - wag
 
