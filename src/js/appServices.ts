@@ -64,7 +64,7 @@ export interface IAppServices extends IApiServices {
 
     isMobileMode():boolean;
 
-    queryLemmaDbApi(lang:string, q:string):Observable<LemmaDbResponse>;
+    queryLemmaDbApi(domain:string, q:string):Observable<LemmaDbResponse>;
 
     getISO639UILang():string;
 
@@ -234,8 +234,8 @@ export class AppServices implements IAppServices {
         return {};
     }
 
-    queryLemmaDbApi(lang:string, q:string):Observable<LemmaDbResponse> {
-        return this.lemmaDbApi.call({lang: lang, q: q});
+    queryLemmaDbApi(domain:string, q:string):Observable<LemmaDbResponse> {
+        return this.lemmaDbApi.call({domain: domain, q: q});
     }
 
     getISO639UILang():string {

@@ -24,7 +24,7 @@ import { ajax$ } from '../page/ajax';
 
 
 interface LemmaDbRequestArgs {
-    lang:string;
+    domain:string;
     q:string;
 }
 
