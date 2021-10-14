@@ -45,8 +45,18 @@ export interface MergeCorpFreqTileConf extends TileConf {
         fttIncludeEmpty:boolean;
 
         /**
+         * If true, then WaG will colorize a respective
+         * freq. bar to a color different from the default one.
+         * If multiple source items have this set to true
+         * then each item will have its own unique color.
+         *
+         * Currently, this works only for the "single" mode.
+         */
+        uniqueColor?:boolean;
+
+        /**
           * In case 'fcrit' describes a positional
-          * attribute we have to replace ann actual
+          * attribute we have to replace the actual
           * value returned by freq. distrib. function
           * (which is equal to our query: e.g. for
           * the query 'house' the value will be 'house')
@@ -129,7 +139,8 @@ export class MergeCorpFreqTile implements ITileProvider {
                         uuid: Ident.puid(),
                         backlinkTpl: src.backlink || null,
                         backlink: null,
-                        isSingleCategory: !!src.isSingleCategory
+                        isSingleCategory: !!src.isSingleCategory,
+                        uniqueColor: !!src.uniqueColor
                     }),
                     conf.sources
                 ),

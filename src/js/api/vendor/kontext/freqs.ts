@@ -62,6 +62,7 @@ export interface SourceMappedDataRow {
     norm:number;
     order?:number;
     backlink:BacklinkWithArgs<BacklinkArgs>|null;
+    uniqueColor:boolean;
 }
 
 
