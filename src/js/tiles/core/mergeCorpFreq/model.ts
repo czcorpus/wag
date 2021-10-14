@@ -179,7 +179,8 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
                                 freq: 0,
                                 ipm: 0,
                                 norm: 0,
-                                backlink: null
+                                backlink: null,
+                                uniqueColor: false
                             }]
                         ),
                         List.filter(v => !!v.name)
@@ -336,7 +337,8 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
                                     ipm: undefined,
                                     norm: undefined,
                                     order: undefined,
-                                    backlink: undefined
+                                    backlink: undefined,
+                                    barColor: undefined
 
                                 }),
                                 {
@@ -368,7 +370,8 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
                                         freq: row.freq,
                                         ipm: row.ipm,
                                         norm: row.norm,
-                                        name: name
+                                        name,
+                                        uniqueColor: props.sourceArgs.uniqueColor
                                     } :
                                     {
                                         sourceId: props.sourceArgs.uuid,
@@ -377,7 +380,8 @@ export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, 
                                         freq: row.freq,
                                         ipm: Math.round(row.freq / props.sourceArgs.corpusSize * 1e8) / 100,
                                         norm: row.norm,
-                                        name: name
+                                        name,
+                                        uniqueColor: props.sourceArgs.uniqueColor
                                     };
                             },
                             data

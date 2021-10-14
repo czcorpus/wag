@@ -19,7 +19,7 @@
 import * as React from 'react';
 import { IActionDispatcher, ViewUtils, BoundWithProps } from 'kombo';
 import { MergeCorpFreqModel, MergeCorpFreqModelState } from './model';
-import { ResponsiveContainer, BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, Legend } from 'recharts';
+import { ResponsiveContainer, BarChart, Bar, CartesianGrid, XAxis, YAxis, Legend, Cell } from 'recharts';
 import { SourceMappedDataRow } from '../../../api/vendor/kontext/freqs';
 import { GlobalComponents } from '../../../views/common';
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile';
@@ -37,7 +37,11 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const globComponents = ut.getComponents();
 
-    function transformData(data:Array<Array<SourceMappedDataRow>>, queryMatches: Array<QueryMatch>):Array<{name:string; ipm:Array<number>; freq:Array<number>}> {
+    function transformData(
+        data:Array<Array<SourceMappedDataRow>>,
+        queryMatches: Array<QueryMatch>
+    ):Array<{name:string; ipm:Array<number>; freq:Array<number>; uniqueColor:boolean}> {
+
         return pipe(
             data,
             List.flatMap((v, i) => v ? v.map<[SourceMappedDataRow, number]>(v => [v, i]) : []),
@@ -47,7 +51,8 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     const item = {
                         name: row.name,
                         ipm: List.map(_ => 0, queryMatches),
-                        freq: List.map(_ => 0, queryMatches)
+                        freq: List.map(_ => 0, queryMatches),
+                        uniqueColor: row.uniqueColor
                     };
                     item.ipm[queryIdx] = row.ipm;
                     item.freq[queryIdx] = row.freq;
@@ -71,7 +76,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         queryMatches:Array<QueryMatch>;
 
     }> = (props) => {
-        const transformedData = transformData(props.data, props.queryMatches)
+        const transformedData = transformData(props.data, props.queryMatches);
 
         return (
             <table className="data">
@@ -130,11 +135,15 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         ).length;
         const colorFn = queries > 1 ?
                 (idx:number) => theme.cmpCategoryColor(idx, props.queryMatches.length) :
-                (idx:number) => theme.categoryColor(0);
+                (idx:number) => transformedData[idx].uniqueColor ?
+                    theme.cmpCategoryColor(idx + 1, List.size(transformedData) + 1) :
+                    theme.categoryColor(0);
         return (
-            <div className="Chart" style={{height: '100%'}}>
-                <ResponsiveContainer width={props.isMobile ? "100%" : "90%"} height="100%">
+            <div className="Chart" style={{height: '100%', minHeight: '300px'}}>
+                <globComponents.ResponsiveWrapper render={(width:number, height:number) => (
                     <BarChart data={transformedData} layout="vertical" barCategoryGap={props.barCategoryGap}
+                        width={width}
+                        height={height}
                         onMouseMove={e => {
                             e ? dispatcher.dispatch<typeof Actions.ShowTooltip>({
                                 name: Actions.ShowTooltip.name,
@@ -154,13 +163,17 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     >
                         <CartesianGrid />
                         {List.map(
-                            (_, index) =>
-                            <Bar
-                                key={index}
-                                dataKey={x => x.ipm[index]}
-                                fill={props.isPartial ? theme.unfinishedChartColor: colorFn(index)}
-                                isAnimationActive={false}
-                                name={queries === 1 ? ut.translate('mergeCorpFreq__rel_freq') : props.queryMatches[index].word} />,
+                            (_, index) => (
+                                <Bar key={index}
+                                        dataKey={x => x.ipm[index]}
+                                        fill={props.isPartial ? theme.unfinishedChartColor: colorFn(index)}
+                                        isAnimationActive={false}
+                                        name={queries === 1 ? ut.translate('mergeCorpFreq__rel_freq') : props.queryMatches[index].word}>
+                                    {List.map(
+                                        (entry, i) => <Cell key={`cell-${index}`} fill={colorFn(i)} />,
+                                    transformedData)}
+                                </Bar>
+                            ),
                             props.queryMatches
                         )}
                         <XAxis type="number" label={{value: queries > 1 ? ut.translate('mergeCorpFreq__rel_freq') : null, dy: 15}} />
@@ -168,7 +181,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 tickFormatter={value => props.isMobile ? Strings.shortenText(value, CHART_LABEL_MAX_LEN) : value} />
                         <Legend wrapperStyle={{paddingTop: queries > 1 ? 15 : 0}}/>
                     </BarChart>
-                </ResponsiveContainer>
+                )} />
             </div>
         );
     };
@@ -187,7 +200,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     List.groupBy(v => v.sourceId),
                     List.map(([,v]) => v[0].backlink)
                 );
-            
+
             const numCats = Math.max(0, ...this.props.data.map(v => v ? v.length : 0));
             const barCategoryGap = Math.max(10, 40 - this.props.pixelsPerCategory);
             const minHeight = 70 + numCats * (this.props.pixelsPerCategory + barCategoryGap);
@@ -213,7 +226,9 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                                 caption={this.props.tooltipData.caption}
                                 values={this.props.tooltipData.data}
                                 multiWord={this.props.queryMatches.length > 1}
-                                colors={this.props.queryMatches.length > 1 ? idx => theme.cmpCategoryColor(idx, this.props.queryMatches.length) : null}
+                                colors={this.props.queryMatches.length > 1 ?
+                                    idx => theme.cmpCategoryColor(idx, this.props.queryMatches.length) :
+                                    null}
                             /> : null}
                     </div>
 

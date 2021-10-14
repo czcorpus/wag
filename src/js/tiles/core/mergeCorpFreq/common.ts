@@ -40,5 +40,7 @@ export interface ModelSourceArgs extends MinSingleCritFreqState {
     uuid:string;
 
     isSingleCategory:boolean;
+
+    uniqueColor:boolean;
 }
 
