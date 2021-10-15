@@ -83,7 +83,7 @@ describe('QueryFormModel', function () {
     }
 
     this.beforeEach(function () {
-        global['window'] = {location: {href: ''}};
+        global['window'] = {location: {href: ''}} as any;
     });
 
     this.afterEach(function () {

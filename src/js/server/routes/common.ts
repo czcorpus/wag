@@ -227,7 +227,11 @@ export function renderResult({
                         userConfig,
                         hostPageEnv: toolbarData,
                         queryMatches: queryMatches,
-                        uiLanguages: pipe(userConfig.uiLanguages, Dict.mapEntries(v => v), List.map(([k, v]) => ({code: k, label: v}))),
+                        uiLanguages: pipe(
+                            userConfig.uiLanguages,
+                            Dict.mapEntries(([code, label]) => ({code, label})),
+                            List.map(([,v]) => v)
+                        ),
                         uiLang: userConfig.uiLang,
                         returnUrl,
                         currTheme,

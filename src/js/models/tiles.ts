@@ -185,8 +185,8 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                             );
                         }
                     )
-                ).subscribe(
-                    (html) => {
+                ).subscribe({
+                    next: html => {
                         dispatch<typeof Actions.LoadTileHelpDone>({
                             name: Actions.LoadTileHelpDone.name,
                             payload: {
@@ -195,18 +195,18 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                             }
                         });
                     },
-                    (err) => {
-                        this.appServices.showMessage(SystemMessageType.ERROR, err);
-                        dispatch<typeof Actions.LoadTileHelpDone>({
-                            name: Actions.LoadTileHelpDone.name,
-                            error: err,
-                            payload: {
+                    error: error => {
+                        this.appServices.showMessage(SystemMessageType.ERROR, error);
+                        dispatch(
+                            Actions.LoadTileHelpDone,
+                            {
                                 tileId: action.payload['tileId'],
                                 html: null
-                            }
-                        });
+                            },
+                            error
+                        );
                     }
-                );
+                });
             }
         );
         this.addActionHandler<typeof Actions.LoadTileHelpDone>(
@@ -304,8 +304,8 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                     {
                         responseType: ResponseType.TEXT
                     }
-                ).subscribe(
-                    (html) => {
+                ).subscribe({
+                    next: html => {
                         dispatch<typeof Actions.ShowGroupHelpDone>({
                             name: Actions.ShowGroupHelpDone.name,
                             payload: {
@@ -314,18 +314,18 @@ export class WdglanceTilesModel extends StatelessModel<WdglanceTilesState> {
                             }
                         });
                     },
-                    (err) => {
-                        this.appServices.showMessage(SystemMessageType.ERROR, err);
-                        dispatch<typeof Actions.ShowGroupHelpDone>({
-                            name: Actions.ShowGroupHelpDone.name,
-                            error: err,
-                            payload: {
+                    error: error => {
+                        this.appServices.showMessage(SystemMessageType.ERROR, error);
+                        dispatch(
+                            Actions.ShowGroupHelpDone,
+                            {
                                 html: null,
                                 groupIdx: -1
-                            }
-                        });
+                            },
+                            error
+                        );
                     }
-                );
+                });
             }
         );
         this.addActionHandler<typeof Actions.ShowGroupHelpDone>(
