@@ -39,8 +39,12 @@
                     "fttIncludeEmpty": {
                         "type": "boolean"
                     },
+                    "uniqueColor": {
+                        "description": "If true, then WaG will colorize a respective\nfreq. bar to a color different from the default one.\nIf multiple source items have this set to true\nthen each item will have its own unique color.\n\nCurrently, this works only for the \"single\" mode.",
+                        "type": "boolean"
+                    },
                     "valuePlaceholder": {
-                        "description": "In case 'fcrit' describes a positional\nattribute we have to replace ann actual\nvalue returned by freq. distrib. function\n(which is equal to our query: e.g. for\nthe query 'house' the value will be 'house')\nby something more specific (e.g. 'social media')",
+                        "description": "In case 'fcrit' describes a positional\nattribute we have to replace the actual\nvalue returned by freq. distrib. function\n(which is equal to our query: e.g. for\nthe query 'house' the value will be 'house')\nby something more specific (e.g. 'social media')",
                         "anyOf": [
                             {
                                 "type": "object",
