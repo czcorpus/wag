@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 /// <reference path="../translations.d.ts" />
-import * as bodyParser from 'body-parser';
 import * as cookieParser from 'cookie-parser';
 import * as express from 'express';
 import * as session from 'express-session';
@@ -117,14 +116,14 @@ forkJoin( // load core configs
         )
     )
 
-).subscribe(
-    ([serverConf, clientConf, pkgInfo]) => {
+).subscribe({
+    next: ([serverConf, clientConf, pkgInfo]) => {
         const app = express();
         const FileStore = sessionFileStore(session)
         app.set('query parser', 'simple');
         app.use(cookieParser());
-        app.use(bodyParser.json());
-        app.use(bodyParser.urlencoded({ extended: true }));
+        app.use(express.json());
+        app.use(express.urlencoded({ extended: true }));
         app.use(session({
             store: new FileStore(serverConf.sessions),
             secret: Ident.puid(),
@@ -192,8 +191,8 @@ forkJoin( // load core configs
             console.info(`WaG server is running @ ${typeof addr === 'string' ? addr : addr.address + ':' + addr.port}`);
         });
     },
-    (err) => {
-        console.error('Failed to start WaG: ', err['message'] || err.constructor.name);
+    error: error => {
+        console.error('Failed to start WaG: ', error['message'] || error.constructor.name);
         process.exit(1);
     }
-);
+});

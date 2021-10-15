@@ -60,7 +60,9 @@ export class TestModelWrapper<T extends IModel<U>, U> {
     checkState(evokeAction:Action, checkActionName:string,
                 checkState:(state:U, appServicesStub?:SinonStubbedInstance<IAppServices>) => void) {
         this.model.addListener(state => {
-            if (this.lastAction === checkActionName) { checkState(state, this.appServicesStub); }
+            if (this.lastAction === checkActionName) {
+                checkState(state, this.appServicesStub);
+            }
         });
         this.dispatcher.dispatch(evokeAction);
     }

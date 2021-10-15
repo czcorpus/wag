@@ -50,13 +50,13 @@ export class ServerHTTPRequestError extends Error {
 
 export function serverHttpRequest<T>({url, method, params, data, auth, headers}:ServerHTTPRequestConf):Observable<T> {
     return new Observable<T>((observer) => {
-        axios.request({
+        axios.request<T>({
             method: method as Method, // here we assume that HTTP.Method is a subset of Method
-            url: url,
-            params: params,
-            data: data,
-            auth: auth,
-            headers: headers
+            url,
+            params,
+            data,
+            auth,
+            headers
 
         }).then(
             (resp) => {

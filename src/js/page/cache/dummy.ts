@@ -255,6 +255,9 @@ export class DummyTransaction implements IDBTransaction {
             this.onabort = null;
         }
     }
+
+    commit(): void {
+    }
 }
 
 export class DummyLocalDb implements ILocalDatabase {

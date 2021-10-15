@@ -35,21 +35,25 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
 
     const globComponents = ut.getComponents();
 
-    const transformData = (data:FreqTreeDataFreqs):TreeData => Dict.mapEntries(
-        ([k1, v1]) => ({
-            name: k1,
-            children: pipe(
-                {...v1},
-                Dict.mapEntries(
-                    ([k2, v2]) => ({
-                        name: k2,
-                        children: List.sorted((v3a, v3b) => v3a.name.localeCompare(v3b.name), [...v2])
-                    })
-                ),
-                List.sortBy(v => v.name)
-            )
-        }),
-        data
+    const transformData = (data:FreqTreeDataFreqs):TreeData => pipe(
+        data,
+        Dict.mapEntries(
+            ([k1, v1]) => ({
+                name: k1,
+                children: pipe(
+                    {...v1},
+                    Dict.mapEntries(
+                        ([k2, v2]) => ({
+                            name: k2,
+                            children: List.sorted((v3a, v3b) => v3a.name.localeCompare(v3b.name), [...v2])
+                        })
+                    ),
+                    List.map(([,v]) => v),
+                    List.sortedAlphaBy(v => v.name)
+                )
+            })
+        ),
+        List.map(([,v]) => v)
     );
 
     // ------- <TreeWrapper /> ---------------------------------------------------

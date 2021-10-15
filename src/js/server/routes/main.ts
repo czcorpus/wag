@@ -15,8 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { NextFunction } from 'connect';
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { Observable, forkJoin, of as rxOf } from 'rxjs';
 import { concatMap, map, reduce, tap } from 'rxjs/operators';
 import { Dict, pipe, HTTP, List } from 'cnc-tskit';

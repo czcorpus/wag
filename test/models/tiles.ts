@@ -186,7 +186,7 @@ describe('WdglanceTilesModel', function () {
         });
 
         it('tests tile help side effect ajax error', function (done) {
-            stub(ajax, 'ajax$').returns(throwError(Error));
+            stub(ajax, 'ajax$').returns(throwError(() => new Error()));
 
             setupModel({tileProps: [{helpURL: 'somewhere'}]})
             .checkState(
@@ -377,7 +377,7 @@ describe('WdglanceTilesModel', function () {
         });
 
         it('tests showing group help side effect error', function (done) {
-            stub(ajax, 'ajax$').returns(throwError(Error));
+            stub(ajax, 'ajax$').returns(throwError(() => new Error()));
 
             setupModel()
             .checkState(
