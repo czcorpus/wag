@@ -5,11 +5,11 @@ const fs = require('fs');
 const merge = require('merge');
 
 function findAllMessageFiles(startDir) {
-    let ans = [];
+    const ans = [];
     fs.readdirSync(startDir).forEach((item) => {
         let fullPath = startDir + '/' + item;
-        if (fs.lstatSync(fullPath).isDirectory() && ['min'].indexOf(item) === -1) {
-            ans = ans.concat(findAllMessageFiles(fullPath));
+        if (fs.statSync(fullPath).isDirectory() && ['min'].indexOf(item) === -1) {
+            ans.push(...findAllMessageFiles(fullPath));
 
         } else if (item.match(/messages(\.[a-zA-Z]{1,8})?\.json/)) {
             ans.push(fullPath);

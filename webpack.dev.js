@@ -67,15 +67,17 @@ module.exports = (env) => ({
     },
     devtool: 'inline-source-map',
     devServer: {
-        // disableHostCheck: true,
-        public: 'localhost',
-        publicPath: (CONF.develServer || {}).urlRootPath + 'dist/',
-        contentBase: path.resolve(__dirname, 'html'),
-        compress: true,
+        allowedHosts: ['localhost', 'portal.korpus.test'],
         port: (CONF.develServer || {}).port || 9000,
         host: (CONF.develServer || {}).host || 'localhost',
-        disableHostCheck: true, // TODO
-        inline: true
+        static: {
+            directory: path.resolve(__dirname, 'html'),
+            publicPath: (CONF.develServer || {}).urlRootPath + 'dist/'
+        },
+        client: {
+            webSocketURL: 'ws://localhost:8081/wds-ws', // TODO configurable
+        },
+        liveReload: false
     },
     plugins: [
         new build.ProcTranslationsPlugin(SRC_PATH, DIST_PATH, CONF)
