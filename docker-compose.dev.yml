@@ -22,10 +22,14 @@ services:
     # extra_hosts:
     #   - [required hostname]:[IP address of the host]
     command: "/var/opt/install/server-build-and-run.sh"
+
   wag-client:
     build:
       context: .
       dockerfile: dockerfiles/Dockerfile.dev
+    ports:
+      # webpack dev server port
+      - "9001:9001"
     volumes:
       - ${WAG_CONFIG_PATH}:/opt/wag/conf
       - ./src:/opt/wag/src
@@ -38,6 +42,7 @@ services:
     networks:
       - wag
     command: [ "npm", "start", "devel-server" ]
+
   nginx:
     image: nginx:latest
     ports:
