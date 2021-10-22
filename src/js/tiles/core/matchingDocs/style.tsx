@@ -37,25 +37,3 @@ export const MatchingDocsTile = styled.div`
         min-width: 10%;
     }
 `;
-
-export const Paginator = styled.span`
-    a {
-        cursor: pointer;
-    }
-
-    a.disabled {
-        cursor: default;
-    }
-
-    .arrow {
-        width: 1em;
-        display: inline-block;
-        vertical-align: middle;
-    }
-
-    input.page {
-        width: 3em;
-        margin-left: 0.3em;
-        margin-right: 0.3em;
-    }
-`;
