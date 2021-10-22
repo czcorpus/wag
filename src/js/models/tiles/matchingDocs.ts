@@ -46,4 +46,5 @@ export interface MatchingDocsModelState {
     searchAttrs:Array<string>|null;
     data:Array<DataRow>;
     minFreq:number;
+    linkTemplate:string;
 }

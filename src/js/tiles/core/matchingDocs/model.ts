@@ -21,8 +21,7 @@ import { concatMap } from 'rxjs/operators';
 
 import { IAppServices } from '../../../appServices';
 import { Actions as GlobalActions } from '../../../models/actions';
-import { ConcLoadedPayload } from '../concordance/actions';
-import { Actions, DataLoadedPayload } from './actions';
+import { Actions } from './actions';
 import { MatchingDocsModelState } from '../../../models/tiles/matchingDocs';
 import { MatchingDocsAPI } from '../../../api/abstract/matchingDocs';
 import { findCurrQueryMatch } from '../../../models/query';

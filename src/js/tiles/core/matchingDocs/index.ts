@@ -35,6 +35,7 @@ export interface MatchingDocsTileConf extends TileConf {
     maxNumCategories:number;
     maxNumCategoriesPerPage:number;
     minFreq?:number;
+    linkTemplate?:string;
 }
 
 function getSearchAttrs(conf:MatchingDocsTileConf):Array<string> {
@@ -100,7 +101,8 @@ export class MatchingDocsTile implements ITileProvider {
                 maxNumCategories: conf.maxNumCategories || 20,
                 maxNumCategoriesPerPage: conf.maxNumCategoriesPerPage || 10,
                 backlink: null,
-                subqSyncPalette: false
+                subqSyncPalette: false,
+                linkTemplate: conf.linkTemplate,
             },
             queryMatches
         });

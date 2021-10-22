@@ -27,6 +27,7 @@ import { MatchingDocsModelState } from '../../../models/tiles/matchingDocs';
 import { DataRow } from '../../../api/abstract/matchingDocs';
 
 import * as S from './style';
+import { Strings } from 'cnc-tskit';
 
 
 export function init(
@@ -87,6 +88,7 @@ export function init(
         data:Array<DataRow>;
         from:number;
         to:number;
+        linkTemplate:string;
     }> = (props) => {
 
         return (
@@ -103,7 +105,12 @@ export function init(
                         if (i >= props.from && i < props.to) {
                             return <tr key={`${i}:${row.name}`}>
                                 <td className="rowNum num">{i+1}.</td>
-                                <td className="document">{row.name}</td>
+                                <td className="document">
+                                    {props.linkTemplate ?
+                                        <a href={Strings.substitute(props.linkTemplate, () => row.name)} target="_blank">{row.name}</a> :
+                                        row.name
+                                    }
+                                </td>
                                 <td className="num score">{ut.formatNumber(row.score)}</td>
                             </tr>
                         } else {
@@ -146,7 +153,8 @@ export function init(
                                 <TableView
                                     data={this.props.data}
                                     from={(this.props.currPage - 1) * this.props.maxNumCategoriesPerPage}
-                                    to={this.props.currPage * this.props.maxNumCategoriesPerPage} />:
+                                    to={this.props.currPage * this.props.maxNumCategoriesPerPage}
+                                    linkTemplate={this.props.linkTemplate} /> :
                                 <p className="note" style={{textAlign: 'center'}}>No result</p>
                             }
                         </div>
