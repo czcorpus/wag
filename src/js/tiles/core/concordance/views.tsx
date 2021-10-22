@@ -32,53 +32,7 @@ import * as S from './style';
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents>, model:ConcordanceTileModel):TileComponent {
 
-    const globalCompontents = ut.getComponents();
-
-    // ------------------ <Paginator /> --------------------------------------------
-
-    const Paginator:React.FC<{
-        page:number;
-        numPages:number;
-        tileId:number;
-
-    }> = (props) => {
-
-        const handlePrevPage = () => {
-            if (props.page > 1) {
-                dispatcher.dispatch<typeof Actions.LoadPrevPage>({
-                    name: Actions.LoadPrevPage.name,
-                    payload: {
-                        tileId: props.tileId
-                    }
-                });
-            }
-        };
-
-        const handleNextPage = () => {
-            if (props.page < props.numPages) {
-                dispatcher.dispatch<typeof Actions.LoadNextPage>({
-                    name: Actions.LoadNextPage.name,
-                    payload: {
-                        tileId: props.tileId
-                    }
-                });
-            }
-        };
-
-        return (
-            <S.Paginator>
-                <a onClick={handlePrevPage} className={`${props.page === 1 ? 'disabled' : null}`}>
-                    <img className="arrow" src={ut.createStaticUrl(props.page === 1 ? 'triangle_left_gr.svg' : 'triangle_left.svg')}
-                        alt={ut.translate('global__img_alt_triable_left')} />
-                </a>
-                <input className="page" type="text" readOnly={true} value={props.page} />
-                <a onClick={handleNextPage} className={`${props.page === props.numPages ? 'disabled' : null}`}>
-                    <img className="arrow" src={ut.createStaticUrl(props.page === props.numPages ? 'triangle_right_gr.svg' : 'triangle_right.svg')}
-                        alt={ut.translate('global__img_alt_triable_right')} />
-                </a>
-            </S.Paginator>
-        );
-    };
+    const globalComponents = ut.getComponents();
 
     // ------------------ <ViewModeSwitch /> --------------------------------------------
 
@@ -147,11 +101,33 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
         currVisibleQueryIdx:number;
 
     }> = (props) => {
+        const handlePrevPage = () => {
+            if (props.currPage > 1) {
+                dispatcher.dispatch<typeof Actions.LoadPrevPage>({
+                    name: Actions.LoadPrevPage.name,
+                    payload: {
+                        tileId: props.tileId
+                    }
+                });
+            }
+        };
+
+        const handleNextPage = () => {
+            if (props.currPage < props.numPages) {
+                dispatcher.dispatch<typeof Actions.LoadNextPage>({
+                    name: Actions.LoadNextPage.name,
+                    payload: {
+                        tileId: props.tileId
+                    }
+                });
+            }
+        };
+
         return (
             <S.Controls className="cnc-form tile-tweak">
                 <fieldset>
                         <label>{ut.translate('concordance__page')}:{'\u00a0'}
-                        <Paginator page={props.currPage} numPages={props.numPages} tileId={props.tileId} />
+                            <globalComponents.Paginator page={props.currPage} numPages={props.numPages} onNext={handleNextPage} onPrev={handlePrevPage} />
                         </label>
                         <label title={props.viewModeEnabled ? null : ut.translate('global__func_not_avail')}>{ut.translate('concordance__view_mode')}:{'\u00a0'}
                             <ViewModeSwitch mode={props.viewMode} tileId={props.tileId} isEnabled={props.viewModeEnabled} />
@@ -340,7 +316,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
             const conc = this.props.concordances[this.props.visibleQueryIdx];
 
             return (
-                <globalCompontents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
+                <globalComponents.TileWrapper tileId={this.props.tileId} isBusy={this.props.isBusy} error={this.props.error}
                         hasData={this.props.concordances.some(conc => conc.lines.length > 0)}
                         sourceIdent={{corp: this.props.corpname, subcorp: this.props.subcDesc}}
                         backlink={this.props.backlinks}
@@ -398,7 +374,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                             </tbody>
                         </table>
                     </S.ConcordanceTileView>
-                </globalCompontents.TileWrapper>
+                </globalComponents.TileWrapper>
             );
         }
     }

@@ -120,6 +120,14 @@ export interface GlobalComponents {
         multiWord?:boolean;
         colors?:(idx:number) => string;
     }>;
+
+    Paginator: React.FC<{
+        page: number;
+        numPages: number;
+
+        onPrev: () => void;
+        onNext: () => void;
+    }>;
 }
 
 export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Observable<ScreenProps>):GlobalComponents {
@@ -733,6 +741,31 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
         return null;
     };
 
+    // ------------------ <Paginator /> --------------------------------------------
+
+    const Paginator:React.FC<{
+        page: number;
+        numPages: number;
+        
+        onPrev: () => void;
+        onNext: () => void;
+    }> = (props) => {
+
+        return (
+            <S.Paginator>
+                <a onClick={props.onPrev} className={`${props.page === 1 ? 'disabled' : null}`}>
+                    <img className="arrow" src={ut.createStaticUrl(props.page === 1 ? 'triangle_left_gr.svg' : 'triangle_left.svg')}
+                        alt={ut.translate('global__img_alt_triable_left')} />
+                </a>
+                <input className="page" type="text" readOnly={true} value={props.page} />
+                <a onClick={props.onNext} className={`${props.page === props.numPages ? 'disabled' : null}`}>
+                    <img className="arrow" src={ut.createStaticUrl(props.page === props.numPages ? 'triangle_right_gr.svg' : 'triangle_right.svg')}
+                        alt={ut.translate('global__img_alt_triable_right')} />
+                </a>
+            </S.Paginator>
+        );
+    };
+
     // ===================
 
     return {
@@ -746,6 +779,7 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<{}>, resize$:Obs
         ResponsiveWrapper: ResponsiveWrapper,
         ElementTooltip: ElementTooltip,
         SourceInfoBox: SourceInfoBox,
-        AlignedRechartsTooltip: AlignedRechartsTooltip
+        AlignedRechartsTooltip: AlignedRechartsTooltip,
+        Paginator: Paginator,
     };
 }

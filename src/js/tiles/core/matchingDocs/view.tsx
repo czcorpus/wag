@@ -39,49 +39,6 @@ export function init(
 
     const globComponents = ut.getComponents();
 
-
-    // ------------------ <Paginator /> --------------------------------------------
-
-    const Paginator:React.FC<{
-        page:number;
-        numPages:number;
-        tileId:number;
-
-    }> = (props) => {
-
-        const handleNextPage = () => {
-            dispatcher.dispatch<typeof Actions.NextPage>({
-                name: Actions.NextPage.name,
-                payload: {
-                    tileId: props.tileId
-                }
-            });
-        }
-
-        const handlePreviousPage = () => {
-            dispatcher.dispatch<typeof Actions.PreviousPage>({
-                name: Actions.PreviousPage.name,
-                payload: {
-                    tileId: props.tileId
-                }
-            });
-        }
-
-        return (
-            <S.Paginator>
-                <a onClick={handlePreviousPage} className={`${props.page === 1 ? 'disabled' : null}`}>
-                    <img className="arrow" src={ut.createStaticUrl(props.page === 1 ? 'triangle_left_gr.svg' : 'triangle_left.svg')}
-                            alt={ut.translate('global__img_alt_triable_left')} />
-                </a>
-                <input className="page" type="text" readOnly={true} value={`${props.page} / ${props.numPages}`} />
-                <a onClick={handleNextPage} className={`${props.page === props.numPages ? 'disabled' : null}`}>
-                    <img className="arrow" src={ut.createStaticUrl(props.page === props.numPages ? 'triangle_right_gr.svg' : 'triangle_right.svg')}
-                            alt={ut.translate('global__img_alt_triable_right')} />
-                </a>
-            </S.Paginator>
-        );
-    };
-
     // -------------------------- <TableView /> --------------------------------------
 
     const TableView:React.FC<{
@@ -128,6 +85,26 @@ export function init(
 
         constructor(props) {
             super(props);
+            this.handleNextPage = this.handleNextPage.bind(this);
+            this.handlePreviousPage = this.handlePreviousPage.bind(this);
+        }
+
+        handleNextPage = () => {
+            dispatcher.dispatch<typeof Actions.NextPage>({
+                name: Actions.NextPage.name,
+                payload: {
+                    tileId: this.props.tileId
+                }
+            });
+        }
+
+        handlePreviousPage = () => {
+            dispatcher.dispatch<typeof Actions.PreviousPage>({
+                name: Actions.PreviousPage.name,
+                payload: {
+                    tileId: this.props.tileId
+                }
+            });
         }
 
         render() {
@@ -141,10 +118,7 @@ export function init(
                     <S.MatchingDocsTile>
                         {this.props.isTweakMode ?
                             <form className="cnc-form tile-tweak">
-                                <Paginator
-                                    page={this.props.currPage}
-                                    numPages={this.props.numPages}
-                                    tileId={this.props.tileId} />
+                                <globComponents.Paginator page={this.props.currPage} numPages={this.props.numPages} onNext={this.handleNextPage} onPrev={this.handlePreviousPage} />
                             </form>
                             : null
                         }

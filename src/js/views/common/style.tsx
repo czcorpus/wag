@@ -470,3 +470,25 @@ export const SourceInfoBox = styled.div<{createStaticUrl: (file:string) => strin
         padding-right: 1.1em;
     }
 `;
+
+export const Paginator = styled.span`
+    a {
+        cursor: pointer;
+    }
+
+    a.disabled {
+        cursor: default;
+    }
+
+    .arrow {
+        width: 1em;
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+    input.page {
+        width: 3em;
+        margin-left: 0.3em;
+        margin-right: 0.3em;
+    }
+`;
