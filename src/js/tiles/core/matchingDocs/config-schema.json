@@ -48,6 +48,9 @@
         "minFreq": {
             "type": "number"
         },
+        "linkTemplate": {
+            "type": "string"
+        },
         "tileType": {
             "description": "An identifier as defined by tiles configuration interface",
             "type": "string"
