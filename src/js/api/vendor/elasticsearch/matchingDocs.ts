@@ -93,12 +93,12 @@ export class ElasticsearchMatchingDocsAPI implements MatchingDocsAPI<Elasticsear
         ).pipe(
             map<HTTPResponse, APIResponse>(resp => ({
                 data: resp.hits.hits.map(v => ({
-                        name: args.displayAttrs.map(attr => {
-                                let item:any = v._source;
-                                for (let index of attr.split('.')) {item = item[index]}
-                                return item;
-                            }).join(', '),
-                        score: v._score
+                        values: args.displayAttrs.map(attr => {
+                            let item:any = v._source;
+                            for (let index of attr.split('.')) {item = item[index]}
+                            return item;
+                        }),
+                    score: v._score
                 }))
             }))
         );

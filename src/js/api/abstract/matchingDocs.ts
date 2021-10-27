@@ -22,7 +22,7 @@ import { BacklinkWithArgs } from '../../page/tile';
 
 
 export interface DataRow {
-    name:string;
+    values:Array<string>;
     score:number;
 }
 

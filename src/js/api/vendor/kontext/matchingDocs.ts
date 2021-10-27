@@ -19,23 +19,28 @@ import { MatchingDocsAPI, APIResponse } from '../../abstract/matchingDocs';
 import { cachedAjax$ } from '../../../page/ajax';
 import { Observable } from 'rxjs';
 import { HTTPHeaders, IAsyncKeyValueStore, CorpusDetails } from '../../../types';
-import { HTTP, List } from 'cnc-tskit';
-import { map } from 'rxjs/operators';
+import { Dict, HTTP, List } from 'cnc-tskit';
+import { map, mergeMap } from 'rxjs/operators';
 import { SingleCritQueryArgs, HTTPResponse } from './freqs';
 import { CorpusInfoAPI } from './corpusInfo';
 import { BacklinkWithArgs } from '../../../page/tile';
 import { IApiServices } from '../../../appServices';
 
 
-export class KontextMatchingDocsAPI implements MatchingDocsAPI<SingleCritQueryArgs> {
+export interface KontextMatchingDocsQueryArgs extends SingleCritQueryArgs {
+    displayAttrs:Array<string>;
+}
 
-    private readonly apiURL:string;
 
-    private readonly customHeaders:HTTPHeaders;
+export class KontextMatchingDocsAPI implements MatchingDocsAPI<KontextMatchingDocsQueryArgs> {
 
-    private readonly cache:IAsyncKeyValueStore;
+    protected readonly apiURL:string;
 
-    private readonly srcInfoService:CorpusInfoAPI;
+    protected readonly customHeaders:HTTPHeaders;
+
+    protected readonly cache:IAsyncKeyValueStore;
+
+    protected readonly srcInfoService:CorpusInfoAPI;
 
     constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
         this.cache = cache;
@@ -62,7 +67,7 @@ export class KontextMatchingDocsAPI implements MatchingDocsAPI<SingleCritQueryAr
         };
     }
 
-    stateToArgs(state:MatchingDocsModelState, query:string):SingleCritQueryArgs {
+    stateToArgs(state:MatchingDocsModelState, query:string):KontextMatchingDocsQueryArgs {
         if (state.searchAttrs.length > 1) {
             console.warn('MatchingDocsTile: Kontext API will take only first item from `searchAttrs` config!');
         }
@@ -76,7 +81,8 @@ export class KontextMatchingDocsAPI implements MatchingDocsAPI<SingleCritQueryAr
             fpage: 1,
             pagesize: state.maxNumCategories,
             ftt_include_empty: 0,
-            format: 'json'
+            format: 'json',
+            displayAttrs: null, // display attrs not supported for this API
         };
     }
 
@@ -88,7 +94,7 @@ export class KontextMatchingDocsAPI implements MatchingDocsAPI<SingleCritQueryAr
         });
     }
 
-    call(args:SingleCritQueryArgs):Observable<APIResponse> {
+    call(args:KontextMatchingDocsQueryArgs):Observable<APIResponse> {
         return cachedAjax$<HTTPResponse>(this.cache)(
             HTTP.Method.GET,
             this.apiURL + '/freqs',
@@ -96,11 +102,63 @@ export class KontextMatchingDocsAPI implements MatchingDocsAPI<SingleCritQueryAr
             {headers: this.customHeaders}
         ).pipe(
             map<HTTPResponse, APIResponse>(resp => ({
-                data: resp.Blocks[0].Items.map(v => ({
-                        name: v.Word.map(v => v.n).join(' '),
+                data: List.map(
+                    v => ({
+                        values: [List.map(v => v.n, v.Word).join(' ')],
                         score: v.rel
-                }))
+                    }),
+                    resp.Blocks[0].Items
+                )
             }))
+        );
+    }
+
+}
+
+export interface FillHTTPResponse {
+    data:{[searchId:string]:{[attr:string]:string}};
+}
+
+export class KontextLiveattrsMatchingDocsAPI extends KontextMatchingDocsAPI {
+    
+    stateToArgs(state:MatchingDocsModelState, query:string):KontextMatchingDocsQueryArgs {
+        return {
+            ...super.stateToArgs(state, query),
+            displayAttrs: state.displayAttrs
+        };
+    }
+
+    call(args:KontextMatchingDocsQueryArgs):Observable<APIResponse> {
+        return super.call(args).pipe(
+            mergeMap(freq => 
+                cachedAjax$<FillHTTPResponse>(this.cache)(
+                    HTTP.Method.POST,
+                    this.apiURL + '/fill_attrs',
+                    {
+                        corpname: args.corpname,
+                        search: args.fcrit,
+                        values: List.flatMap(v => v.values, freq.data),
+                        fill: args.displayAttrs,
+                    },
+                    {
+                        headers: this.customHeaders,
+                        contentType: 'application/json',
+                    }
+                ).pipe(
+                    map(fill => ({
+                        freq,
+                        fill,
+                    }))
+                )
+            ),
+            map(({freq, fill}) => {
+                freq.data = List.map(f => {
+                    const id = f.values[0];
+                    f.values = Dict.values(fill.data[id]);
+                    return f;
+                }, freq.data);
+                return freq
+            })
         );
     }
 
