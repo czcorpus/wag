@@ -18,7 +18,7 @@
 
 import { IAsyncKeyValueStore, HTTPHeaders } from '../../../types';
 import { CoreApiGroup } from '../../../api/coreGroups';
-import { KontextMatchingDocsAPI } from '../../../api/vendor/kontext/matchingDocs';
+import { KontextMatchingDocsAPI, KontextLiveattrsMatchingDocsAPI } from '../../../api/vendor/kontext/matchingDocs';
 import { MatchingDocsAPI } from '../../../api/abstract/matchingDocs';
 import { ElasticsearchMatchingDocsAPI } from '../../../api/vendor/elasticsearch/matchingDocs';
 import { IApiServices } from '../../../appServices';
@@ -28,6 +28,8 @@ export function createMatchingDocsApiInstance(apiIdent:string, apiURL:string, ap
 	switch (apiIdent) {
         case CoreApiGroup.KONTEXT:
 			return new KontextMatchingDocsAPI(cache, apiURL, apiServices);
+		case CoreApiGroup.KONTEXT_LIVEATTRS:
+				return new KontextLiveattrsMatchingDocsAPI(cache, apiURL, apiServices);
 		case CoreApiGroup.ELASTICSEARCH:
 			return new ElasticsearchMatchingDocsAPI(cache, apiURL, apiServices);
 		default:

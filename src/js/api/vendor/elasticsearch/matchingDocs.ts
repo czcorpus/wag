@@ -48,6 +48,7 @@ interface ElasticsearchQueryArgs {
     _source: string;
     sort: string;
     size: number;
+    searchAttrs:Array<string>;
     displayAttrs:Array<string>;
 }
 
@@ -73,6 +74,7 @@ export class ElasticsearchMatchingDocsAPI implements MatchingDocsAPI<Elasticsear
     stateToArgs(state:MatchingDocsModelState, query:string):ElasticsearchQueryArgs {
         return {
             q: state.searchAttrs.map(value => `${value}:${query}`).join(' OR '),
+            searchAttrs: state.searchAttrs,
             displayAttrs: state.displayAttrs,
             _source: state.searchAttrs.join(','),
             sort: '_score:desc',
@@ -93,12 +95,17 @@ export class ElasticsearchMatchingDocsAPI implements MatchingDocsAPI<Elasticsear
         ).pipe(
             map<HTTPResponse, APIResponse>(resp => ({
                 data: resp.hits.hits.map(v => ({
-                        name: args.displayAttrs.map(attr => {
-                                let item:any = v._source;
-                                for (let index of attr.split('.')) {item = item[index]}
-                                return item;
-                            }).join(', '),
-                        score: v._score
+                    searchValues: args.searchAttrs.map(attr => {
+                        let item:any = v._source;
+                        for (let index of attr.split('.')) {item = item[index]}
+                        return item;
+                    }),
+                    displayValues: args.displayAttrs.map(attr => {
+                        let item:any = v._source;
+                        for (let index of attr.split('.')) {item = item[index]}
+                        return item;
+                    }),
+                    score: v._score
                 }))
             }))
         );
