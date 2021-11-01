@@ -27,7 +27,7 @@ import { MatchingDocsModelState } from '../../../models/tiles/matchingDocs';
 import { DataRow } from '../../../api/abstract/matchingDocs';
 
 import * as S from './style';
-import { Strings } from 'cnc-tskit';
+import { List, Strings } from 'cnc-tskit';
 
 
 export function init(
@@ -42,6 +42,7 @@ export function init(
     // -------------------------- <TableView /> --------------------------------------
 
     const TableView:React.FC<{
+        heading:Array<string>;
         data:Array<DataRow>;
         from:number;
         to:number;
@@ -53,7 +54,8 @@ export function init(
                 <thead>
                     <tr>
                         <th />
-                        <th />
+                        {List.map(v => <th>{v}</th>, props.heading)}
+                        {props.linkTemplate ? <th /> : null}
                         <th>{ut.translate('matchingDocs__score')}</th>
                     </tr>
                 </thead>
@@ -62,12 +64,18 @@ export function init(
                         if (i >= props.from && i < props.to) {
                             return <tr key={`${i}:${row.displayValues}`}>
                                 <td className="rowNum num">{i+1}.</td>
-                                <td className="document">
-                                    {props.linkTemplate ?
-                                        <a href={Strings.substitute(props.linkTemplate, ...row.searchValues)} target="_blank">{row.displayValues}</a> :
-                                        row.displayValues
-                                    }
-                                </td>
+                                {List.map(
+                                    v => <td className="document">{v}</td>,
+                                    row.displayValues
+                                )}
+                                {props.linkTemplate ?
+                                    <td className="link">
+                                        <a href={Strings.substitute(props.linkTemplate, ...row.searchValues)} target="_blank">
+                                            <img src={ut.createStaticUrl('external-link.png')}/>
+                                        </a>
+                                    </td> :
+                                    null
+                                }
                                 <td className="num score">{ut.formatNumber(row.score)}</td>
                             </tr>
                         } else {
@@ -125,6 +133,7 @@ export function init(
                         <div className="tables">
                             {this.props.data.length > 0 ?
                                 <TableView
+                                    heading={this.props.heading}
                                     data={this.props.data}
                                     from={(this.props.currPage - 1) * this.props.maxNumCategoriesPerPage}
                                     to={this.props.currPage * this.props.maxNumCategoriesPerPage}
