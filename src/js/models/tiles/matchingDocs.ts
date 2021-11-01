@@ -43,7 +43,8 @@ export interface MatchingDocsModelState {
     backlink:BacklinkWithArgs<{}>|null;
     subqSyncPalette:boolean;
     displayAttrs:Array<string>;
-    searchAttrs:Array<string>|null;
+    searchAttrs:Array<string>;
+    heading:Array<string>;
     data:Array<DataRow>;
     minFreq:number;
     linkTemplate:string;

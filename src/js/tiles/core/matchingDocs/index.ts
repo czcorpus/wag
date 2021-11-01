@@ -94,8 +94,13 @@ export class MatchingDocsTile implements ITileProvider {
                 corpname: conf.corpname,
                 subcname: conf.subcname,
                 minFreq: conf.minFreq || 1,
-                displayAttrs: typeof conf.displayAttrs === 'string' ? [conf.displayAttrs] : [...conf.displayAttrs],
+                displayAttrs: typeof conf.displayAttrs === 'string' ?
+                    [conf.displayAttrs] :
+                    [...conf.displayAttrs],
                 searchAttrs: getSearchAttrs(conf),
+                heading: typeof conf.displayAttrs === 'string' ? 
+                    [appServices.translateResourceMetadata(conf.corpname, conf.displayAttrs)] :
+                    List.map(v => appServices.translateResourceMetadata(conf.corpname, v), conf.displayAttrs),
                 currPage: null,
                 numPages: null,
                 maxNumCategories: conf.maxNumCategories || 20,
