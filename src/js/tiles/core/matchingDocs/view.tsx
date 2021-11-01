@@ -60,12 +60,12 @@ export function init(
                 <tbody>
                     {props.data.map((row, i) => {
                         if (i >= props.from && i < props.to) {
-                            return <tr key={`${i}:${row.name}`}>
+                            return <tr key={`${i}:${row.displayValues}`}>
                                 <td className="rowNum num">{i+1}.</td>
                                 <td className="document">
                                     {props.linkTemplate ?
-                                        <a href={Strings.substitute(props.linkTemplate, () => row.name)} target="_blank">{row.name}</a> :
-                                        row.name
+                                        <a href={Strings.substitute(props.linkTemplate, ...row.searchValues)} target="_blank">{row.displayValues}</a> :
+                                        row.displayValues
                                     }
                                 </td>
                                 <td className="num score">{ut.formatNumber(row.score)}</td>
