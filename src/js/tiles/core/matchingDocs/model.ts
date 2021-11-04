@@ -134,14 +134,7 @@ export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState, Mo
                         state.backlink = action.payload.backlink;
 
                     } else {
-                        state.data = List.map(
-                            v => ({
-                                searchValues: v.searchValues,
-                                displayValues: List.map(x => this.appServices.translateResourceMetadata(state.corpname, x), v.displayValues),
-                                score: v.score
-                            }),
-                            action.payload.data
-                        );
+                        state.data = action.payload.data;
                         state.currPage = 1;
                         state.numPages = Math.ceil(state.data.length / state.maxNumCategoriesPerPage);
                         state.isBusy = false;

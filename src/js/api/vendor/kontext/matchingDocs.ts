@@ -19,7 +19,7 @@ import { MatchingDocsAPI, APIResponse } from '../../abstract/matchingDocs';
 import { cachedAjax$ } from '../../../page/ajax';
 import { Observable } from 'rxjs';
 import { HTTPHeaders, IAsyncKeyValueStore, CorpusDetails } from '../../../types';
-import { Dict, HTTP, List } from 'cnc-tskit';
+import { HTTP, List } from 'cnc-tskit';
 import { map, mergeMap } from 'rxjs/operators';
 import { SingleCritQueryArgs, HTTPResponse } from './freqs';
 import { CorpusInfoAPI } from './corpusInfo';
@@ -124,7 +124,7 @@ export interface FillHTTPResponse {
 }
 
 export class KontextLiveattrsMatchingDocsAPI extends KontextMatchingDocsAPI {
-    
+
     stateToArgs(state:MatchingDocsModelState, query:string):KontextMatchingDocsQueryArgs {
         return {
             ...super.stateToArgs(state, query),
@@ -135,7 +135,7 @@ export class KontextLiveattrsMatchingDocsAPI extends KontextMatchingDocsAPI {
 
     call(args:KontextMatchingDocsQueryArgs):Observable<APIResponse> {
         return super.call(args).pipe(
-            mergeMap(freq => 
+            mergeMap(freq =>
                 cachedAjax$<FillHTTPResponse>(this.cache)(
                     HTTP.Method.POST,
                     this.apiURL + '/fill_attrs',
@@ -159,7 +159,7 @@ export class KontextLiveattrsMatchingDocsAPI extends KontextMatchingDocsAPI {
             map(({freq, fill}) => {
                 freq.data = List.map(f => {
                     const id = f.searchValues[0];
-                    f.displayValues = Dict.values(fill.data[id]);
+                    f.displayValues = List.map(attr => fill.data[id][attr], args.displayAttrs);
                     return f;
                 }, freq.data);
                 return freq
