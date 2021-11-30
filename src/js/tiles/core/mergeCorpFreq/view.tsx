@@ -19,7 +19,7 @@
 import * as React from 'react';
 import { IActionDispatcher, ViewUtils, BoundWithProps } from 'kombo';
 import { MergeCorpFreqModel, MergeCorpFreqModelState } from './model';
-import { ResponsiveContainer, BarChart, Bar, CartesianGrid, XAxis, YAxis, Legend, Cell } from 'recharts';
+import { BarChart, Bar, CartesianGrid, XAxis, YAxis, Legend, Cell } from 'recharts';
 import { SourceMappedDataRow } from '../../../api/vendor/kontext/freqs';
 import { GlobalComponents } from '../../../views/common';
 import { CoreTileComponentProps, TileComponent } from '../../../page/tile';
