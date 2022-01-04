@@ -66,7 +66,11 @@ def run(db, pos_imp):
     create_tables(db)
     cur1 = db.cursor()
     cur2 = db.cursor()
-    cur1.execute("SELECT col0, col2, col3, col4, `count` AS abs, arf FROM colcounts ORDER BY col2, col3, col4, col0")
+    cur1.execute(
+        "SELECT col0, col2, col3, col4, `count` AS abs, arf "
+        "FROM colcounts "
+        "WHERE col4 <> 'X@-------------' "
+        "ORDER BY col2, col3, col4, col0")
     curr_lemma = None
     words: List[Record] = []
     sublemmas: Dict[str, int] = defaultdict(lambda: 0)
