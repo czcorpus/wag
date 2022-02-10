@@ -1,6 +1,6 @@
 {
     "en-US": {
-        "multiWordTimeDistrib__main_label": "Compared frequencies of the words during time",
+        "multiWordTimeDistrib__main_label": "Compared frequencies of the words over time",
         "multiWordTimeDistrib__occurence_human": "normalized relative occurrences",
         "multiWordTimeDistrib__estimated_trend_for": "estimated trend for",
         "multiWordTimeDistrib__sliding_window_average": "Sliding average",
