@@ -63,6 +63,8 @@ export class UCNKToolbar implements IToolbarProvider {
 
     private readonly url:string;
 
+    private static readonly PREFIX = 'cnc_toolbar_';
+
     private static readonly PASS_ARGS = [
         'cnc_toolbar_sid',
         'cnc_toolbar_at',
@@ -77,22 +79,22 @@ export class UCNKToolbar implements IToolbarProvider {
     }
 
     get(uiLang:string, returnUrl:string, cookies:{[key:string]:string}, ut:ViewUtils<GlobalComponents>):Observable<HostPageEnv> {
-        const args = {
-            continue: returnUrl,
-            current: UCNKToolbar.TOOLBAR_APP_IDENT
-        };
+        const data = new URLSearchParams();
+        data.set('continue', returnUrl);
+        data.set('current', UCNKToolbar.TOOLBAR_APP_IDENT);
         List.forEach(
             arg => {
-                args[arg.substr('cnc_toolbar_'.length)] = cookies[arg] || '';
+                data.set(arg.substring(UCNKToolbar.PREFIX.length), cookies[arg] || '');
             },
             UCNKToolbar.PASS_ARGS
         );
-        args['cnc_toolbar_lang'] = uiLang.split('-')[0];
+        data.set('lang', uiLang.split('-')[0]);
 
         return serverHttpRequest<ToolbarResponse>({
             url: this.url,
+            headers: { 'content-type': 'application/x-www-form-urlencoded' },
             method: HTTP.Method.POST,
-            params: args
+            data
 
         }).pipe(
             catchError(
