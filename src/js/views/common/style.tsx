@@ -357,7 +357,7 @@ export const BacklinkForm = styled.form<{createStaticUrl: (file:string) => strin
         cursor: pointer;
         text-decoration: none;
         color: #009ee0;
-        background-image: url(${props => props.createStaticUrl('external-link.png')});
+        background-image: url(${props => props.createStaticUrl('external-link.svg')});
         background-repeat: no-repeat;
         background-position: 99% 0;
     }
@@ -464,7 +464,7 @@ export const SourceInfoBox = styled.div<{createStaticUrl: (file:string) => strin
     }
 
     a.external {
-        background-image: url(${props => props.createStaticUrl('external-link.png')});
+        background-image: url(${props => props.createStaticUrl('external-link.svg')});
         background-repeat: no-repeat;
         background-position: 99% 0;
         padding-right: 1.1em;

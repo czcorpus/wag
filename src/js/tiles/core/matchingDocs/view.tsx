@@ -71,7 +71,7 @@ export function init(
                                 {props.linkTemplate ?
                                     <td className="link">
                                         <a href={Strings.substitute(props.linkTemplate, ...row.searchValues)} target="_blank">
-                                            <img src={ut.createStaticUrl('external-link.png')}/>
+                                            <img src={ut.createStaticUrl('external-link.svg')}/>
                                         </a>
                                     </td> :
                                     null
