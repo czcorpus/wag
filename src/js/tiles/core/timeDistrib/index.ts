@@ -21,7 +21,7 @@ import { List, Maths, pipe, tuple } from 'cnc-tskit';
 import { FreqSort } from '../../../api/vendor/kontext/freqs';
 import { createApiInstance as createFreqApiInstance } from '../../../api/factory/timeDistrib';
 import { QueryType } from '../../../query/index';
-import { Backlink, ITileProvider, TileComponent, TileFactory, TileFactoryArgs } from '../../../page/tile';
+import { ITileProvider, TileComponent, TileFactory, TileFactoryArgs } from '../../../page/tile';
 import { TimeDistTileConf } from './common';
 import { TimeDistribModel, LoadingStatus } from './model';
 import { init as viewInit } from './view';
@@ -109,6 +109,7 @@ export class TimeDistTile implements ITileProvider {
                 subcDesc: appServices.importExternalMessage(conf.subcDesc),
                 concId: null,
                 fcrit: conf.fcrit,
+                freqType: 'text-types',
                 flimit: conf.flimit,
                 freqSort: FreqSort.REL,
                 fpage: 1,
@@ -124,7 +125,7 @@ export class TimeDistTile implements ITileProvider {
                 wordCmp: '',
                 zoom: [null, null],
                 refArea: [null, null],
-                backlinks: [] 
+                backlinks: []
             },
             tileId: tileId,
             waitForTile: waitForTiles.length > 0 ? waitForTiles[0] : -1,

@@ -78,6 +78,7 @@ export class KontextMatchingDocsAPI implements MatchingDocsAPI<KontextMatchingDo
             q: `~${query}`,
             fcrit: `${List.head(state.searchAttrs)} 0`,
             flimit: state.minFreq,
+            freq_type: 'text-types',
             freq_sort: 'rel',
             fpage: 1,
             pagesize: state.maxNumCategories,

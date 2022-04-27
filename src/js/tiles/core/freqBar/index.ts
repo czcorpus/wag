@@ -37,6 +37,7 @@ export interface FreqBarTileConf extends TileConf {
     apiType:string;
     corpname:string|null; // null can be used in case subqueryMode is enabled
     fcrit:string|Array<string>;
+    freqType:'tokens'|'text-types'|Array<'tokens'|'text-types'>;
     critLabels:LocalizedConfMsg|Array<LocalizedConfMsg>;
     flimit:number;
     freqSort:FreqSort;
@@ -85,6 +86,7 @@ export class FreqBarTile implements ITileProvider {
         this.blockingTiles = waitForTiles;
         this.label = appServices.importExternalMessage(conf.label);
         const criteria = typeof conf.fcrit === 'string' ? [conf.fcrit] : conf.fcrit;
+        const freqTypes = typeof conf.freqType === 'string' ? [conf.freqType] : conf.freqType;
         const labels = Array.isArray(conf.critLabels) ?
             conf.critLabels.map(v => this.appServices.importExternalMessage(v)) :
             [this.appServices.importExternalMessage(conf.critLabels)];
@@ -117,6 +119,7 @@ export class FreqBarTile implements ITileProvider {
                 corpname: conf.corpname,
                 concId: null,
                 fcrit: criteria,
+                freqType: freqTypes,
                 critLabels: labels,
                 flimit: conf.flimit,
                 freqSort: conf.freqSort,

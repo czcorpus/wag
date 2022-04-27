@@ -105,6 +105,7 @@ export class KontextTimeDistribApi implements TimeDistribApi, WebDelegateApi {
             usesubcorp: queryArgs.subcorpName,
             q: `~${queryArgs.concIdent}`,
             fcrit: this.fcrit,
+            freq_type: 'text-types',
             flimit: this.flimit,
             freq_sort: FreqSort.REL,
             fpage: 1,

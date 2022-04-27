@@ -41,6 +41,7 @@ export interface FreqComparisonDataBlock<T> {
 
 export interface GeneralMultiCritFreqComparisonModelState<T=DataRow> extends FreqComparisonStateBase {
     fcrit:Array<string>;
+    freqType:Array<'tokens'|'text-types'>;
     critLabels:Array<LocalizedConfMsg>;
     blocks:Array<FreqComparisonDataBlock<T>>;
 }

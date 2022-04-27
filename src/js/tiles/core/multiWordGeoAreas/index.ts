@@ -34,6 +34,7 @@ export interface MultiWordGeoAreasTileConf extends TileConf {
     apiType:string;
     corpname:string;
     fcrit:string;
+    freqType:'tokens'|'text-types';
     freqSort:FreqSort;
     fpage:number;
     fttIncludeEmpty:boolean;
@@ -92,6 +93,7 @@ export class MultiWordGeoAreasTile implements ITileProvider {
                 corpname: conf.corpname,
                 concId: null,
                 fcrit: conf.fcrit,
+                freqType: conf.freqType,
                 flimit: 1,  // necessary for the freqApi
                 frequencyDisplayLimit: conf.frequencyDisplayLimit,
                 freqSort: conf.freqSort,
