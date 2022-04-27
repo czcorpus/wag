@@ -40,7 +40,7 @@ export interface MinSingleCritFreqState {
 export interface MinMultiCritFreqState {
     corpname:string;
     fcrit:Array<string>;
-    freqType:Array<'tokens'|'text-types'>;
+    freqType:'tokens'|'text-types';
     flimit:number;
     freqSort:string;
     fpage:number;

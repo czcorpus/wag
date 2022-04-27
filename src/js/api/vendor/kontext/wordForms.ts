@@ -93,6 +93,7 @@ export class WordFormsAPI implements IWordFormsApi, WebDelegateApi {
                 usesubcorp: args.subcorpName,
                 q: `~${args.concPersistenceID}`,
                 fcrit: ['word/ie 0~0>0'],
+                freq_type: 'tokens',
                 flimit: 1,
                 freq_sort: 'freq',
                 fpage: 1,
