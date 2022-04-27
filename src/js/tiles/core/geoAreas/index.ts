@@ -32,6 +32,7 @@ export interface GeoAreasTileConf extends TileConf {
     apiType:string;
     corpname:string;
     fcrit:string;
+    freqType:'tokens'|'text-types';
     flimit:number;
     freqSort:FreqSort;
     fpage:number;
@@ -88,6 +89,7 @@ export class GeoAreasTile implements ITileProvider {
                 corpname: conf.corpname,
                 concId: null,
                 fcrit: conf.fcrit,
+                freqType: conf.freqType,
                 flimit: conf.flimit,
                 freqSort: conf.freqSort,
                 fpage: conf.fpage,

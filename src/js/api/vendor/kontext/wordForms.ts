@@ -54,6 +54,7 @@ export class WordFormsAPI implements IWordFormsApi, WebDelegateApi {
             fpage: 1,
             ftt_include_empty: 0,
             fcrit: 'word/ie 0~0>0',
+            freq_type: 'tokens',
             format:'json'
 
         }).pipe(

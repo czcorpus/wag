@@ -95,6 +95,7 @@ interface CoreQueryArgs {
 
 export interface SingleCritQueryArgs extends CoreQueryArgs {
     fcrit:string;
+    freq_type:'tokens'|'text-types';
 }
 
 /**
@@ -154,6 +155,7 @@ export class KontextFreqDistribAPI implements IFreqDistribAPI<SingleCritQueryArg
             usesubcorp: subcname,
             q: `~${concId ? concId : state.concId}`,
             fcrit: state.fcrit,
+            freq_type: state.freqType,
             flimit: state.flimit,
             freq_sort: state.freqSort,
             fpage: state.fpage,

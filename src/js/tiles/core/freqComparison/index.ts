@@ -21,7 +21,7 @@ import { Ident, List } from 'cnc-tskit';
 import { IAppServices } from '../../../appServices';
 import { LocalizedConfMsg } from '../../../types';
 import { QueryType } from '../../../query/index';
-import { TileComponent, TileConf, TileFactory, Backlink, ITileProvider, TileFactoryArgs } from '../../../page/tile';
+import { TileComponent, TileConf, TileFactory, ITileProvider, TileFactoryArgs } from '../../../page/tile';
 import { GlobalComponents } from '../../../views/common';
 import { factory as defaultModelFactory, FreqComparisonModel } from './model';
 import { init as viewInit } from './view';
@@ -35,6 +35,7 @@ export interface FreqComparisonTileConf extends TileConf {
     apiType:string;
     corpname:string;
     fcrit:string|Array<string>;
+    freqType:'tokens'|'text-types'|Array<'tokens'|'text-types'>;
     critLabels:LocalizedConfMsg|Array<LocalizedConfMsg>;
     flimit:number;
     freqSort:FreqSort;
@@ -77,6 +78,7 @@ export class FreqComparisonTile implements ITileProvider {
         this.blockingTiles = waitForTiles;
         this.label = appServices.importExternalMessage(conf.label);
         const criteria = typeof conf.fcrit === 'string' ? [conf.fcrit] : conf.fcrit;
+        const freqTypes = typeof conf.freqType === 'string' ? [conf.freqType] : conf.freqType;
         const labels = Array.isArray(conf.critLabels) ?
             conf.critLabels.map(v => this.appServices.importExternalMessage(v)) :
             [this.appServices.importExternalMessage(conf.critLabels)];
@@ -106,6 +108,7 @@ export class FreqComparisonTile implements ITileProvider {
                 activeBlock: 0,
                 corpname: conf.corpname,
                 fcrit: criteria,
+                freqType: freqTypes,
                 critLabels: labels,
                 flimit: conf.flimit,
                 freqSort: conf.freqSort,

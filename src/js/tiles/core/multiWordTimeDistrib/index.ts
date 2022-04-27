@@ -108,6 +108,7 @@ export class MultiWordTimeDistTile implements ITileProvider {
                 subcDesc: appServices.importExternalMessage(conf.subcDesc),
                 concId: null,
                 fcrit: conf.fcrit,
+                freqType: 'text-types',
                 flimit: conf.flimit,
                 freqSort: FreqSort.REL,
                 fpage: 1,
