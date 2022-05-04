@@ -125,6 +125,10 @@ forkJoin( // load core configs
         app.use(express.json());
         app.use(express.urlencoded({ extended: true }));
         app.use(session({
+            name: 'wag.session',
+            cookie: {
+                maxAge: serverConf.sessions?.ttl ? serverConf.sessions.ttl * 1000 : undefined
+            },
             store: new FileStore(serverConf.sessions),
             secret: Ident.puid(),
             resave: false,
