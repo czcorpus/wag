@@ -231,6 +231,7 @@ export interface ClientStaticConf {
     telemetry?:{
         sendIntervalSecs:number;
         participationProbability:number;
+        url?:string;
     };
 }
 
@@ -294,6 +295,7 @@ export interface ClientConf {
     telemetry?:{
         sendIntervalSecs:number;
         participationProbability:number;
+        url?:string;
     };
     maxQueryWords:{[k in QueryType]?:number};
 }

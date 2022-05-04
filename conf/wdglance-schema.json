@@ -29017,6 +29017,9 @@
                 },
                 "sendIntervalSecs": {
                     "type": "number"
+                },
+                "url": {
+                    "type": "string"
                 }
             },
             "required": [
