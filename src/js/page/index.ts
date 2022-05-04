@@ -19,7 +19,7 @@
 import { ActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { fromEvent, Observable, interval, empty, of as rxOf, merge, EMPTY } from 'rxjs';
+import { fromEvent, Observable, interval, of as rxOf, merge, EMPTY } from 'rxjs';
 import { debounceTime, map, concatMap, take, scan } from 'rxjs/operators';
 import { isSubqueryPayload, RecognizedQueries } from '../query/index';
 import * as translations from 'translations';
