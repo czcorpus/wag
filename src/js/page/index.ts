@@ -19,7 +19,7 @@
 import { ActionDispatcher, ViewUtils } from 'kombo';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { fromEvent, Observable, interval, empty, of as rxOf, merge } from 'rxjs';
+import { fromEvent, Observable, interval, empty, of as rxOf, merge, EMPTY } from 'rxjs';
 import { debounceTime, map, concatMap, take, scan } from 'rxjs/operators';
 import { isSubqueryPayload, RecognizedQueries } from '../query/index';
 import * as translations from 'translations';
@@ -133,11 +133,13 @@ function initTelemetry(config:ClientConf, appServices:IAppServices, dispatcher:A
                 (data) => data.toDispatch.length > 0 ?
                     ajax$(
                         HTTP.Method.POST,
-                        appServices.createActionUrl(HTTPAction.TELEMETRY),
+                        config.telemetry.url ?
+                            config.telemetry.url :
+                            appServices.createActionUrl(HTTPAction.TELEMETRY),
                         {telemetry: data.toDispatch},
                         {contentType: 'application/json'}
                     ) :
-                    empty()
+                    EMPTY
             )
         ).subscribe();
     }
