@@ -121,17 +121,20 @@ forkJoin( // load core configs
         const app = express();
         const FileStore = sessionFileStore(session)
         app.set('query parser', 'simple');
-        app.use(cookieParser());
         app.use(express.json());
         app.use(express.urlencoded({ extended: true }));
+        app.use(cookieParser());
         app.use(session({
             name: 'wag.session',
             cookie: {
                 maxAge: serverConf.sessions?.ttl ? serverConf.sessions.ttl * 1000 : undefined
             },
-            store: new FileStore(serverConf.sessions),
-            secret: Ident.puid(),
-            resave: false,
+            store: new FileStore({
+                ttl: serverConf.sessions.ttl,
+                path: serverConf.sessions.path
+            }),
+            secret: serverConf.sessions?.secret ? serverConf.sessions.secret : Ident.puid(),
+            resave: true,
             saveUninitialized: true
         }));
 
