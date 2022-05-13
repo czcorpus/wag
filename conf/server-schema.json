@@ -237,6 +237,9 @@
                 "path": {
                     "type": "string"
                 },
+                "secret": {
+                    "type": "string"
+                },
                 "ttl": {
                     "type": "number"
                 }

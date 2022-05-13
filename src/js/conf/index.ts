@@ -481,6 +481,7 @@ export interface ServerConf {
     sessions?:{
         path?:string;
         ttl?:number;
+        secret?:string;
     };
 }
 
