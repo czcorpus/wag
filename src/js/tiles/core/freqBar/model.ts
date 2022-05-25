@@ -53,7 +53,7 @@ export interface FreqBarModelArgs {
 }
 
 
-export class FreqBarModel extends StatelessModel<FreqBarModelState, {[tileId:string]:boolean}> {
+export class FreqBarModel extends StatelessModel<FreqBarModelState> {
 
     protected api:IMultiBlockFreqDistribAPI<{}>;
 

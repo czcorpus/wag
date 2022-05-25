@@ -68,7 +68,7 @@ export interface MergeCorpFreqModelArgs {
     backlink:Backlink;
 }
 
-export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState, {[key:string]:number}> {
+export class MergeCorpFreqModel extends StatelessModel<MergeCorpFreqModelState> {
 
     private readonly appServices:IAppServices;
 

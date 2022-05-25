@@ -45,7 +45,7 @@ export interface MatchingDocsModelArgs {
 export type ModelSyncData = {[tileId:string]:boolean};
 
 
-export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState, ModelSyncData> {
+export class MatchingDocsModel extends StatelessModel<MatchingDocsModelState> {
 
     private readonly queryMatches:RecognizedQueries;
 

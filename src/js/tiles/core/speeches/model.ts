@@ -56,7 +56,7 @@ interface ReloadDataArgs {
     expand?:Expand;
 }
 
-export class SpeechesModel extends StatelessModel<SpeechesModelState, TileWait<boolean>> {
+export class SpeechesModel extends StatelessModel<SpeechesModelState> {
 
     private readonly api:SpeechesApi;
 

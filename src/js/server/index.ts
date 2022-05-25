@@ -146,7 +146,20 @@ forkJoin( // load core configs
                 translateResourceMetadata: (corpname:string, value:keyof CommonTextStructures) => value,
 
                 getCommonResourceStructure: (corpname:string, struct:keyof CommonTextStructures) => typeof clientConf.dataReadability === 'string' ?
-                        struct : (clientConf.dataReadability.commonStructures[corpname] || {})[struct]
+                        struct : (clientConf.dataReadability.commonStructures[corpname] || {})[struct],
+
+                importExternalMessage: (label:string|{[lang:string]:string}) => {
+                    if (typeof label === 'string') {
+                        return label;
+                    }
+                    if ('en-US' in label) {
+                        return label['en-US'];
+                    }
+                    if ('en' in label) {
+                        return label['en'];
+                    }
+                    return '??';
+                }
             }
         );
 
