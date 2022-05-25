@@ -17,7 +17,7 @@
  */
 import { Observable, of as rxOf } from 'rxjs';
 import { ITranslator } from 'kombo';
-import { Dict, HTTP, tuple } from 'cnc-tskit';
+import { Dict, HTTP } from 'cnc-tskit';
 
 import { HTTPHeaders, SystemMessageType } from './types';
 import { LemmaDbApi, LemmaDbResponse } from './api/lemma';

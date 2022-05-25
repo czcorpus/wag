@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Action, SEDispatcher, IActionQueue } from 'kombo';
+import { IActionQueue } from 'kombo';
 import { Observable, merge } from 'rxjs';
 import { concatMap, map } from 'rxjs/operators';
 import { Dict, Ident, List, pipe } from 'cnc-tskit';
@@ -28,7 +28,6 @@ import { isSubqueryPayload, SubqueryPayload, SubQueryItem } from '../../../query
 import { Backlink } from '../../../page/tile';
 import { Actions as GlobalActions } from '../../../models/actions';
 import { Actions } from './actions';
-import { DataLoadedPayload } from './actions';
 import { FreqBarModel, FreqBarModelState } from './model';
 import { callWithExtraVal } from '../../../api/util';
 import { IMultiBlockFreqDistribAPI, APIBlockResponse } from '../../../api/abstract/freqs';

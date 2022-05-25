@@ -134,7 +134,7 @@ function dateToSortNumber(s:string):number {
 /**
  *
  */
-export class TimeDistribModel extends StatelessModel<TimeDistribModelState, TileWait<boolean>> {
+export class TimeDistribModel extends StatelessModel<TimeDistribModelState> {
 
     private readonly apiFactory:PriorityValueFactory<[IConcordanceApi<{}>, TimeDistribApi]>;
 

@@ -77,7 +77,7 @@ export interface ConcFilterModelArgs {
 }
 
 
-export class ConcFilterModel extends StatelessModel<ConcFilterModelState, TileWait<boolean>> {
+export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
 
     private readonly api:ConcApi;
 

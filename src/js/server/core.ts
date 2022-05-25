@@ -51,7 +51,7 @@ export class ServerSideActionDispatcher implements IFullActionControl {
         return this.actions.subscribe((a:Action) => fn(a, seAction => this.inActions.next(seAction)));
     }
 
-    registerModel<T>(model: IStatelessModel<T, null>, initialState: T): [BehaviorSubject<T>, Subscription] {
+    registerModel<T>(model: IStatelessModel<T>, initialState: T): [BehaviorSubject<T>, Subscription] {
         const state$ = new BehaviorSubject(initialState);
         const subscr = this.actions.pipe(
             startWith(null),
