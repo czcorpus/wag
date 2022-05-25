@@ -200,6 +200,8 @@ export class DummyTransaction implements IDBTransaction {
 
     readonly objectStoreNames:DOMStringList;
 
+    readonly durability:"default";
+
     onabort:((this:IDBTransaction, ev:Event)=>any)|null;
 
     oncomplete:((this:IDBTransaction, ev:Event)=>any)|null;

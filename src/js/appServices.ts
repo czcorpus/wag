@@ -36,6 +36,8 @@ export interface IApiServices {
     translateResourceMetadata(corpname:string, value:string):string;
 
     getCommonResourceStructure(corpname:string, struct:keyof CommonTextStructures):string|undefined;
+
+    importExternalMessage(label:string|{[lang:string]:string}):string;
 }
 
 
@@ -46,8 +48,6 @@ export interface IAppServices extends IApiServices {
     translate(key:string, args?:{[key: string]:string|number;}):string;
 
     getDomainName(langCode:string):string;
-
-    importExternalMessage(label:string|{[lang:string]:string}):string;
 
     externalMessageIsDefined(label:string|{[lang:string]:string}):boolean;
 
