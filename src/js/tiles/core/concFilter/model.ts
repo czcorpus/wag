@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { map, concatMap, reduce, tap } from 'rxjs/operators';
+import { map, concatMap, reduce, tap, scan } from 'rxjs/operators';
 import { of as rxOf } from 'rxjs';
 import { StatelessModel, Action, SEDispatcher, IActionQueue } from 'kombo';
 
@@ -421,25 +421,44 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
             concatMap(
                 ([concId, subq, queryId]) => this.loadFilteredConcs(state, concId, queryId, subq)
             ),
+            // select only unique concordance lines
+            scan(
+                ([used,,,], [baseConcId, queryId, resp]) => {
+                    let lines: Array<Line>;
+                    if (used.size === 0) {
+                        lines = resp.lines.slice(0, state.itemsPerSrc);
+                    } else {
+                        lines = List.filter(v => !used.has(v.toknum), resp.lines).slice(0, state.itemsPerSrc);
+                        if (lines.length < state.itemsPerSrc) {
+                            lines.concat(List.filter(v => used.has(v.toknum), resp.lines).slice(0, state.itemsPerSrc - lines.length))
+                        }
+                    }
+                    lines.forEach(line => {
+                        used = used.add(line.toknum)
+                    });
+                    return tuple(used, baseConcId, queryId, lines);
+                },
+                tuple(new Set<number>(), undefined, undefined, undefined)
+            ),
             tap(
-                ([baseConcId, queryId, resp]) => {
+                ([_, baseConcId, queryId, lines]) => {
                     seDispatch<typeof Actions.PartialTileDataLoaded>({
-                        name: GlobalActions.TilePartialDataLoaded.name,
+                        name: Actions.PartialTileDataLoaded.name,
                         payload: {
                             tileId: this.tileId,
                             queryId: queryId,
-                            data: normalizeTypography(resp.lines.slice(0, state.itemsPerSrc)),
+                            data: normalizeTypography(lines),
                             baseConcId: baseConcId
                         }
                     });
                 }
             ),
             reduce(
-                (acc, [,,resp]) => acc && resp.lines.length === 0,
+                (acc, [,,,lines]) => acc && lines.length === 0,
                 true // is empty
             )
-        ).subscribe(
-            (isEmpty) => {
+        ).subscribe({
+            next: (isEmpty) => {
                 seDispatch<typeof Actions.TileDataLoaded>({
                     name: GlobalActions.TileDataLoaded.name,
                     payload: {
@@ -448,7 +467,7 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                     }
                 })
             },
-            (error) => {
+            error: (error) => {
                 console.error(error);
                 this.appServices.showMessage(SystemMessageType.ERROR,
                         this.appServices.humanizeHttpApiError(error));
@@ -461,6 +480,6 @@ export class ConcFilterModel extends StatelessModel<ConcFilterModelState> {
                     error,
                 });
             }
-        );
+        });
     }
 }
