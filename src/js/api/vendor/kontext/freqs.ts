@@ -72,6 +72,7 @@ export interface BacklinkArgs {
     usesubcorp:string;
     q:string;
     fcrit:Array<string>;
+    freq_type?:'tokens'|'text-types';
     flimit:number;
     freq_sort:string;
     fpage:number;
@@ -138,6 +139,7 @@ export class KontextFreqDistribAPI implements IFreqDistribAPI<SingleCritQueryArg
                 usesubcorp: null,
                 q: `~${concId}`,
                 fcrit: [state.fcrit],
+                freq_type: state.freqType,
                 flimit: state.flimit,
                 freq_sort: state.freqSort,
                 fpage: state.fpage,
@@ -229,6 +231,7 @@ export class KontextMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAP
                 usesubcorp: null,
                 q: `~${concId}`,
                 fcrit: state.fcrit,
+                freq_type: state.freqType,
                 flimit: state.flimit,
                 freq_sort: state.freqSort,
                 fpage: state.fpage,
