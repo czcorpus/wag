@@ -20,7 +20,7 @@ import { TimeDistribApi, TimeDistribArgs, TimeDistribResponse } from '../../abst
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { FreqSort, KontextFreqDistribAPI } from './freqs';
-import { HTTPHeaders, IAsyncKeyValueStore, CorpusDetails } from '../../../types';
+import { IAsyncKeyValueStore, CorpusDetails } from '../../../types';
 import { CorpusInfoAPI } from './corpusInfo';
 import { IFreqDistribAPI } from '../../abstract/freqs';
 import { Backlink, BacklinkWithArgs } from '../../../page/tile';

@@ -43,6 +43,7 @@ export interface MergeCorpFreqTileConf extends TileConf {
         subcname?:string;
         corpusSize:number;
         fcrit:string;
+        freqType:'tokens'|'text-types';
         flimit:number;
         freqSort:string;
         fpage:number;
@@ -120,6 +121,7 @@ export class MergeCorpFreqTile implements ITileProvider {
                         corpusSize: src.corpusSize,
                         subcname: src.subcname || null,
                         fcrit: src.fcrit,
+                        freqType: src.freqType,
                         flimit: src.flimit,
                         freqSort: src.freqSort,
                         fpage: src.fpage,
