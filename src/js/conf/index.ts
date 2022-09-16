@@ -388,6 +388,8 @@ export interface FreqDbOptions {
     urlArgs?:{[key:string]:string};
     httpHeaders?:{[key:string]:string};
     sourceInfoUrl?:string;
+    sourceInfoUsername?:string;
+    sourceInfoPassword?:string;
     username?:string;
     password?:string;
 
@@ -404,6 +406,7 @@ export interface FreqDbOptions {
     korpusDBCrit?:string;
     korpusDBNgramCrit?:string;
     korpusDBNorm?:string;
+    sourceCorpusId?:string;
 }
 
 export interface FreqDbConf {
