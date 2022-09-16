@@ -35,7 +35,7 @@ interface HTTPSourceInfoDoc {
         size:number;
         web_url:string;
         attrlist:Array<{name:string, size:number}>;
-        citation_info:{
+        citationInfo:{
             article_ref:Array<string>;
             default_ref:string;
             other_bibliography:string;
@@ -120,9 +120,9 @@ export class CouchStoredSourceInfo {
                                 href: doc.data.web_url,
                                 citationInfo: {
                                     sourceName: doc.data.corpname,
-                                    main: doc.data.citation_info.default_ref,
-                                    papers: doc.data.citation_info.article_ref || [],
-                                    otherBibliography: doc.data.citation_info.other_bibliography || undefined
+                                    main: doc.data.citationInfo.default_ref,
+                                    papers: doc.data.citationInfo.article_ref || [],
+                                    otherBibliography: doc.data.citationInfo.other_bibliography || undefined
                                 },
                                 structure: {
                                     numTokens: doc.data.size,
@@ -141,9 +141,9 @@ export class CouchStoredSourceInfo {
                                 author: '',
                                 citationInfo: {
                                     sourceName: doc.data.corpname,
-                                    main: doc.data.citation_info.default_ref,
-                                    papers: doc.data.citation_info.article_ref,
-                                    otherBibliography: doc.data.citation_info.other_bibliography
+                                    main: doc.data.citationInfo.default_ref,
+                                    papers: doc.data.citationInfo.article_ref,
+                                    otherBibliography: doc.data.citationInfo.other_bibliography
                                 },
                                 structure: {numTokens: 0}
                             };
