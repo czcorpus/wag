@@ -25,8 +25,9 @@ import { IAppServices, IApiServices } from '../../../appServices';
 import { QueryMatch, calcFreqBand } from '../../../query/index';
 import { FreqDbOptions } from '../../../conf';
 import { importQueryPosWithLabel, PosItem, posTable, posTagsEqual } from '../../../postag';
-import { CorpusDetails } from '../../../types';
+import { SourceDetails } from '../../../types';
 import { serverHttpRequest } from '../../request';
+import { CouchStoredSourceInfo } from './couchdb/sourceInfo';
 
 
 export interface ResourceInfo {
@@ -105,12 +106,22 @@ export class KorpusFreqDB implements IFreqDB {
 
     private readonly normPath:string[];
 
+    private readonly sourceInfoApi:CouchStoredSourceInfo|undefined;
+
     constructor(apiUrl:string, apiServices:IApiServices, options:FreqDbOptions) {
         this.apiURL = apiUrl;
         this.customHeaders = options.httpHeaders || {};
         this.fcrit = options.korpusDBCrit;
         this.ngramFcrit = options.korpusDBNgramCrit;
         this.normPath = options.korpusDBNorm.split('/');
+        this.sourceInfoApi = options.sourceInfoUrl ?
+            new CouchStoredSourceInfo(
+                options.sourceInfoUrl,
+                options.sourceInfoUsername,
+                options.sourceInfoPassword,
+                apiServices
+            ) :
+            undefined;
     }
 
     private loadResources():Observable<HTTPResourcesResponse> {
@@ -342,18 +353,20 @@ export class KorpusFreqDB implements IFreqDB {
         );
     }
 
-    getSourceDescription(uiLang:string, corpname:string):Observable<CorpusDetails> {
-        return this.loadResources().pipe(
-            map(res => ({
-                tileId: -1,
-                title: res.data[0][this.normPath[0]][this.normPath[1]].label[uiLang],
-                description: res.data[0][this.normPath[0]][this.normPath[1]].description,
-                author: '',
-                structure: {
-                    numTokens: res.data[0][this.normPath[0]][this.normPath[1]].params.size_tokens
-                }
-            }))
-        );
+    getSourceDescription(uiLang:string, corpname:string):Observable<SourceDetails> {
+        return this.sourceInfoApi ?
+            this.sourceInfoApi.getSourceDescription(uiLang, corpname) :
+            this.loadResources().pipe(
+                map(res => ({
+                    tileId: -1,
+                    title: res.data[0][this.normPath[0]][this.normPath[1]].label[uiLang],
+                    description: res.data[0][this.normPath[0]][this.normPath[1]].description,
+                    author: '',
+                    structure: {
+                        numTokens: res.data[0][this.normPath[0]][this.normPath[1]].params.size_tokens
+                    }
+                }))
+            );
     }
 
 
