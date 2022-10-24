@@ -73,7 +73,7 @@
     "path-browserify": "^1.0.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "recharts": "^2.1.9",
+    "recharts": "^2.1.14",
     "rxjs": "^7.5.5",
     "sanitize-html": "2.5.2",
     "sax": "^1.2.4",
