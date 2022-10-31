@@ -24,9 +24,9 @@ import * as path from 'path';
 import * as sqlite3 from 'sqlite3';
 import * as translations from 'translations';
 import * as winston from 'winston';
-import { forkJoin, of as rxOf, Observable } from 'rxjs';
+import { forkJoin, of as rxOf, Observable, pipe } from 'rxjs';
 import { concatMap, map, tap } from 'rxjs/operators';
-import { Ident, tuple } from 'cnc-tskit';
+import { Dict, Ident, List, tuple } from 'cnc-tskit';
 import 'winston-daily-rotate-file';
 import * as sessionFileStore from 'session-file-store';
 
@@ -39,6 +39,7 @@ import { WordDatabases } from './actionServices';
 import { PackageInfo } from '../types';
 import { createQueryLogInstance } from './queryLog/factory';
 import { WinstonActionWriter } from './actionLog/winstonWriter';
+import { getCustomTileServerActions } from '../page/tileLoader';
 
 
 function loadTilesConf(clientConf:ClientStaticConf):Observable<DomainAnyTileConf> {
@@ -70,7 +71,7 @@ function loadDataReadabilityConf(clientConf:ClientStaticConf):Observable<DataRea
 }
 
 
-forkJoin( // load core configs
+forkJoin([ // load core configs
     parseJsonConfig<ServerConf>(process.env.SERVER_CONF ?
         process.env.SERVER_CONF :
         path.resolve(__dirname, '../conf/server.json')),
@@ -79,7 +80,7 @@ forkJoin( // load core configs
         path.resolve(__dirname, '../conf/wdglance.json')),
     parseJsonConfig<PackageInfo>(path.resolve(__dirname, '../package.json')),
 
-).pipe(
+]).pipe(
     concatMap( // load layouts config
         ([serverConf, clientConf, pkgInfo]) => (typeof clientConf.layouts === 'string' ?
             parseJsonConfig<DomainLayoutsConfig>(clientConf.layouts) :
@@ -179,6 +180,21 @@ forkJoin( // load core configs
         console.info = (msg:string,...args:Array<any>) => logger.info(msg,...args);
         console.warn = (msg:string, ...args:Array<any>) => logger.warn(msg, ...args);
         console.error = (msg:string, ...args:Array<any>) => logger.error(msg, ...args);
+
+        Dict.forEach(
+            (tileActions, tileName) => {
+                List.forEach(
+                    tileAction => {
+                        app[tileAction.method.toLowerCase()](
+                            `/${tileName}/${tileAction.name}`,
+                            tileAction.handler
+                        )
+                    },
+                    tileActions
+                )
+            },
+            getCustomTileServerActions()
+        );
 
         wdgRouter({
             serverConf: serverConf,

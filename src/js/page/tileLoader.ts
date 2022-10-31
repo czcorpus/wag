@@ -27,11 +27,13 @@ import { LayoutManager } from './layout';
 import { QueryType, RecognizedQueries } from '../query/index';
 import { IAsyncKeyValueStore } from '../types';
 import { EmptyTile } from '../tiles/core/empty';
+import { TileServerAction } from '../server/tileActions';
 
 declare var require:any;
 
 export interface DynamicTileModule {
     init:TileFactory.TileFactory<{}>;
+    serverActions?:()=>Array<TileServerAction>;
 }
 
 const importDependentTilesList = (...d:Array<string|Array<string>>):Array<string> => {
@@ -49,7 +51,11 @@ type TileFactoryMap = {[tileType:string]:TileFactory.TileFactory<{}>};
 
 const tileFactories:TileFactoryMap = {};
 
-const applyContext = (ctx:any, tfMap:TileFactoryMap) => {
+type TileActionsMap = {[tileType:string]:Array<TileServerAction>};
+
+const tileActions:TileActionsMap = {};
+
+const applyContext = (ctx:any, tfMap:TileFactoryMap, taMap:TileActionsMap) => {
     ctx.keys().forEach(path => {
         const tileFolder = path.split('/').slice(-2)[0];
         const tileType = tileFolder[0].toUpperCase() + tileFolder.slice(1) + 'Tile';
@@ -57,13 +63,35 @@ const applyContext = (ctx:any, tfMap:TileFactoryMap) => {
             throw new Error(`Tile type name collision. Value ${tileType} cannot be used`);
         }
         tfMap[tileType] = (ctx(path) as DynamicTileModule).init;
+        taMap[tileType] = (ctx(path) as DynamicTileModule).serverActions ?
+            (ctx(path) as DynamicTileModule).serverActions() : [];
     });
 };
 
 // note: the 'require.context' is replaced by actual modules
 // found during the build process by Webpack.
-applyContext(require.context('../tiles/core', true, /\/index.ts$/), tileFactories);
-applyContext(require.context('../tiles/custom', true, /\/index.ts$/), tileFactories);
+applyContext(
+    require.context('../tiles/core', true, /\/index.ts$/),
+    tileFactories,
+    tileActions
+);
+applyContext(
+    require.context('../tiles/custom', true, /\/index.ts$/),
+    tileFactories,
+    tileActions
+);
+
+
+/**
+ * The function returns all the custom-defined server action
+ * of all the tiles included in the build process (i.e. core and
+ * custom tiles).
+ * A tile may export its actions via exporting a function called
+ * 'serverActions':
+ *
+ * export function serverActions():Array<TileServerAction> {...}
+ */
+export const getCustomTileServerActions = () => tileActions;
 
 
 export const mkTileFactory = (
