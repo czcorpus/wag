@@ -45,9 +45,9 @@ export class WordDatabases {
         this.translat = {};
 
         const databases:Array<[{[lang:string]:FreqDbConf}, {[lang:string]:IFreqDB}, QueryType]> = [
-            [conf.single.databases || {}, this.single, QueryType.SINGLE_QUERY],
-            [conf.cmp.databases || {}, this.cmp, QueryType.CMP_QUERY],
-            [conf.translat.databases || {}, this.translat, QueryType.TRANSLAT_QUERY]
+            [conf.single?.databases || {}, this.single, QueryType.SINGLE_QUERY],
+            [conf.cmp?.databases || {}, this.cmp, QueryType.CMP_QUERY],
+            [conf.translat?.databases || {}, this.translat, QueryType.TRANSLAT_QUERY]
         ];
         databases.forEach(([dbConf, targetConf, ident]) => {
             pipe(

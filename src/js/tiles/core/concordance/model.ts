@@ -21,7 +21,7 @@
 import { SEDispatcher, StatelessModel, IActionQueue } from 'kombo';
 import { Observable } from 'rxjs';
 import { mergeMap, tap, reduce } from 'rxjs/operators';
-import { composeLeft, HTTP, List, pipe } from 'cnc-tskit';
+import { HTTP, List, pipe } from 'cnc-tskit';
 
 import { IAppServices } from '../../../appServices';
 import { IConcordanceApi } from '../../../api/abstract/concordance';

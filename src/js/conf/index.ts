@@ -485,6 +485,10 @@ export interface ServerConf {
         ttl?:number;
         secret?:string;
     };
+    kontextApi?:{
+        authenticateURL:string;
+        token:string;
+    }
 }
 
 export function getQueryTypeFreqDb(conf:ServerConf, queryType:QueryType):QueryModeWordDb {
