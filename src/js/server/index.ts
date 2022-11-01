@@ -184,7 +184,8 @@ forkJoin([ // load core configs
         Dict.forEach(
             (tileActions, tileName) => {
                 List.forEach(
-                    tileAction => {
+                    tileActionFactory => {
+                        const tileAction = tileActionFactory(serverConf);
                         app[tileAction.method.toLowerCase()](
                             `/${tileName}/${tileAction.name}`,
                             tileAction.handler
