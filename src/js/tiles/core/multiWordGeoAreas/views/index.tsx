@@ -250,12 +250,12 @@ export function init(dispatcher:IActionDispatcher, ut:ViewUtils<GlobalComponents
                     <tr>
                         <th key={`totalIpm`}>{ut.translate('multi_word_geolocations__table_heading_freq_rel')}</th>
                         <th key={`totalAbs`}>{ut.translate('multi_word_geolocations__table_heading_freq_abs')}</th>
-                        {(props.data[0] || []).map(dataBlock => {
+                        {(props.data[0] || []).map(dataBlock => (
                             <>
                                 <th key={`${dataBlock.name}Ipm`}>{ut.translate('multi_word_geolocations__table_heading_freq_rel')}</th>
                                 <th key={`${dataBlock.name}Abs`}>{ut.translate('multi_word_geolocations__table_heading_freq_abs')}</th>
                             </>
-                        })}
+                        ))}
                     </tr>
                 </thead>
                 <tbody>

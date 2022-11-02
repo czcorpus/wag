@@ -27,7 +27,7 @@ import { LayoutManager } from './layout';
 import { QueryType, RecognizedQueries } from '../query/index';
 import { IAsyncKeyValueStore } from '../types';
 import { EmptyTile } from '../tiles/core/empty';
-import { TileServerAction } from '../server/tileActions';
+import { TileServerAction, TileServerActionFactory } from '../server/tileActions';
 import { ServerConf } from '../conf';
 
 declare var require:any;
@@ -52,11 +52,11 @@ type TileFactoryMap = {[tileType:string]:TileFactory<{}>};
 
 const tileFactories:TileFactoryMap = {};
 
-type TileActionsMap = {[tileType:string]:Array<(serverConf: ServerConf) => TileServerAction>};
+type TileActionFactoriesMap = {[tileType:string]:Array<TileServerActionFactory>};
 
-const tileActions:TileActionsMap = {};
+const tileActions:TileActionFactoriesMap = {};
 
-const applyContext = (ctx:any, tfMap:TileFactoryMap, taMap:TileActionsMap) => {
+const applyContext = (ctx:any, tfMap:TileFactoryMap, taMap:TileActionFactoriesMap) => {
     ctx.keys().forEach(path => {
         const tileFolder = path.split('/').slice(-2)[0];
         const tileType = tileFolder[0].toUpperCase() + tileFolder.slice(1) + 'Tile';

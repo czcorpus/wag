@@ -18,6 +18,7 @@
 
 import { HTTP } from 'cnc-tskit';
 import { RequestHandler } from 'express';
+import { ServerConf } from '../conf';
 
 /**
  * TileServerAction defines a custom action which can be defined
@@ -32,3 +33,5 @@ export interface TileServerAction {
     name:string;
     handler:RequestHandler;
 }
+
+export type TileServerActionFactory = (sc:ServerConf) => TileServerAction;
