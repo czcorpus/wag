@@ -268,6 +268,11 @@ export class AppServices implements IAppServices {
         return (this.dataReadability.commonStructures[corpname] || {})[struct];
     }
 
+    /**
+     * Return API HTTP headers from both static configuration
+     * and dynamically set values (via setApiKeyHeader()). The
+     * latter source has higher priority in case of name conflict.
+     */
     getApiHeaders(apiUrl:string):HTTPHeaders {
         const srchHeaders = (location:{[url:string]:HTTPHeaders}) => {
             const srch = pipe(
@@ -278,17 +283,13 @@ export class AppServices implements IAppServices {
             if (srch !== undefined) {
                 return srch[1];
             }
-            return undefined;
+            return {};
         };
-        const srch1 = srchHeaders(this.getDynamicApiKeyHeaders());
-        if (srch1 !== undefined) {
-            return srch1;
-        }
-        const srch2 = srchHeaders(this.apiHeadersMapping);
-        if (srch2 !== undefined) {
-            return srch2;
-        }
-        return {};
+        return Dict.mergeDict(
+            (_, newVal) => newVal,
+            srchHeaders(this.getDynamicApiKeyHeaders()),
+            srchHeaders(this.apiHeadersMapping)
+        );
     }
 
     private getDynamicApiKeyHeaders():{[url:string]:HTTPHeaders} {
