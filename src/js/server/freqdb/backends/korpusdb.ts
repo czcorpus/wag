@@ -98,7 +98,7 @@ export class KorpusFreqDB implements IFreqDB {
 
     private readonly apiURL:string;
 
-    private readonly customHeaders:{[key:string]:string};
+    private readonly apiServices:IApiServices;
 
     private readonly fcrit:string;
 
@@ -110,7 +110,7 @@ export class KorpusFreqDB implements IFreqDB {
 
     constructor(apiUrl:string, apiServices:IApiServices, options:FreqDbOptions) {
         this.apiURL = apiUrl;
-        this.customHeaders = options.httpHeaders || {};
+        this.apiServices = apiServices;
         this.fcrit = options.korpusDBCrit;
         this.ngramFcrit = options.korpusDBNgramCrit;
         this.normPath = options.korpusDBNorm.split('/');
@@ -128,7 +128,7 @@ export class KorpusFreqDB implements IFreqDB {
         return serverHttpRequest<HTTPResourcesResponse>({
             url: this.apiURL + '/api/meta/resources',
             method: HTTP.Method.GET,
-            headers: this.customHeaders
+            headers: this.apiServices.getApiHeaders(this.apiURL)
 
         }).pipe(
             map(
@@ -186,7 +186,7 @@ export class KorpusFreqDB implements IFreqDB {
                 },
                 _client: 'wag'
             },
-            headers: this.customHeaders
+            headers: this.apiServices.getApiHeaders(this.apiURL)
 
         }).pipe(
             map(

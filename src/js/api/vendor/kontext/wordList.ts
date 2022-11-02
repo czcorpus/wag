@@ -18,7 +18,7 @@
 import { Observable } from 'rxjs';
 
 import { ajax$ } from '../../../page/ajax';
-import { DataApi, HTTPHeaders } from '../../../types';
+import { DataApi } from '../../../types';
 import { HTTP } from 'cnc-tskit';
 import { IApiServices } from '../../../appServices';
 
@@ -46,11 +46,11 @@ export class WordListAPI implements DataApi<WordListArgs, WordListResponse> {
 
 	private readonly url:string;
 
-    private readonly customHeaders:HTTPHeaders;
+    private readonly apiServices:IApiServices;
 
 	constructor(url:string, apiServices:IApiServices) {
 		this.url = url;
-		this.customHeaders =  apiServices.getApiHeaders(url) || {};
+		this.apiServices = apiServices;
 	}
 
 	call(args:WordListArgs):Observable<WordListResponse> {
@@ -59,7 +59,7 @@ export class WordListAPI implements DataApi<WordListArgs, WordListResponse> {
 			HTTP.Method.GET,
 			this.url + '/wordlist',
 			args,
-			{headers: this.customHeaders}
+			{headers: this.apiServices.getApiHeaders(this.url)}
 		);
 	}
 }

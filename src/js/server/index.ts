@@ -24,7 +24,7 @@ import * as path from 'path';
 import * as sqlite3 from 'sqlite3';
 import * as translations from 'translations';
 import * as winston from 'winston';
-import { forkJoin, of as rxOf, Observable, pipe } from 'rxjs';
+import { forkJoin, of as rxOf, Observable } from 'rxjs';
 import { concatMap, map, tap } from 'rxjs/operators';
 import { Dict, Ident, List, tuple } from 'cnc-tskit';
 import 'winston-daily-rotate-file';
@@ -40,6 +40,7 @@ import { PackageInfo } from '../types';
 import { createQueryLogInstance } from './queryLog/factory';
 import { WinstonActionWriter } from './actionLog/winstonWriter';
 import { getCustomTileServerActions } from '../page/tileLoader';
+import { ApiServices } from './apiServices';
 
 
 function loadTilesConf(clientConf:ClientStaticConf):Observable<DomainAnyTileConf> {
@@ -141,14 +142,7 @@ forkJoin([ // load core configs
 
         const db:WordDatabases = new WordDatabases(
             serverConf.freqDB,
-            {
-                getApiHeaders: (apiUrl:string) => ({}),
-
-                translateResourceMetadata: (corpname:string, value:keyof CommonTextStructures) => value,
-
-                getCommonResourceStructure: (corpname:string, struct:keyof CommonTextStructures) => typeof clientConf.dataReadability === 'string' ?
-                        struct : (clientConf.dataReadability.commonStructures[corpname] || {})[struct]
-            }
+            new ApiServices(clientConf)
         );
 
         const toolbar = createToolbarInstance(serverConf.toolbar);

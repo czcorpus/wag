@@ -17,7 +17,7 @@
  */
 import { Observable, of as rxOf } from 'rxjs';
 import { ITranslator } from 'kombo';
-import { Dict, HTTP, tuple } from 'cnc-tskit';
+import { Dict, HTTP, List, pipe } from 'cnc-tskit';
 
 import { HTTPHeaders, SystemMessageType } from './types';
 import { LemmaDbApi, LemmaDbResponse } from './api/lemma';
@@ -32,6 +32,8 @@ import { AjaxError } from 'rxjs/ajax';
 export interface IApiServices {
 
     getApiHeaders(apiUrl:string):HTTPHeaders;
+
+    setApiKeyHeader(apiUrl:string, headerName:string, key:string):void;
 
     translateResourceMetadata(corpname:string, value:string):string;
 
@@ -107,6 +109,8 @@ export interface AppServicesArgs {
  */
 export class AppServices implements IAppServices {
 
+    private static SESSION_STORAGE_API_KEYS_ENTRY = 'api_keys';
+
     private readonly notifications:SystemNotifications;
 
     private readonly translator:ITranslator;
@@ -131,6 +135,8 @@ export class AppServices implements IAppServices {
 
     private readonly domainNames:{[k:string]:string};
 
+    private readonly sessionStorage:Storage;
+
     constructor({notifications, uiLang, domainNames, translator, staticUrlCreator, actionUrlCreator, dataReadability,
             apiHeadersMapping, mobileModeTest}:AppServicesArgs) {
         this.notifications = notifications;
@@ -145,6 +151,7 @@ export class AppServices implements IAppServices {
         this.mobileModeTest = mobileModeTest;
         this.lemmaDbApi = new LemmaDbApi(actionUrlCreator(HTTPAction.GET_LEMMAS));
         this.audioPlayer = new AudioPlayer();
+        this.sessionStorage = window.sessionStorage;
     }
 
     showMessage(type:SystemMessageType, text:string|Error):void {
@@ -262,13 +269,43 @@ export class AppServices implements IAppServices {
     }
 
     getApiHeaders(apiUrl:string):HTTPHeaders {
-        const prefixes = Object.keys(this.apiHeadersMapping);
-        for (let i = 0; i < prefixes.length; i += 1) {
-            if (apiUrl && apiUrl.indexOf(prefixes[i]) === 0) {
-                return this.apiHeadersMapping[prefixes[i]];
+        const srchHeaders = (location:{[url:string]:HTTPHeaders}) => {
+            const srch = pipe(
+                location,
+                Dict.toEntries(),
+                List.find(([url,]) => apiUrl.indexOf(url) === 0)
+            );
+            if (srch !== undefined) {
+                return srch[1];
             }
+            return undefined;
+        };
+        const srch1 = srchHeaders(this.getDynamicApiKeyHeaders());
+        if (srch1 !== undefined) {
+            return srch1;
+        }
+        const srch2 = srchHeaders(this.apiHeadersMapping);
+        if (srch2 !== undefined) {
+            return srch2;
         }
         return {};
+    }
+
+    private getDynamicApiKeyHeaders():{[url:string]:HTTPHeaders} {
+        const storage = this.sessionStorage.getItem(AppServices.SESSION_STORAGE_API_KEYS_ENTRY) ?
+            this.sessionStorage.getItem(AppServices.SESSION_STORAGE_API_KEYS_ENTRY) :
+            '{}';
+        return JSON.parse(storage);
+    }
+
+    setApiKeyHeader(apiUrl:string, headerName:string, key:string):void {
+        const apiKeyHeaders = this.getDynamicApiKeyHeaders();
+        if (!Dict.hasKey(apiUrl, apiKeyHeaders)) {
+            apiKeyHeaders[apiUrl] = {};
+        }
+        apiKeyHeaders[apiUrl][headerName] = key;
+        this.sessionStorage.setItem(
+            AppServices.SESSION_STORAGE_API_KEYS_ENTRY, JSON.stringify(apiKeyHeaders));
     }
 
     queryLemmaDbApi(domain:string, q:string):Observable<LemmaDbResponse> {

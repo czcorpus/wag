@@ -40,7 +40,7 @@ export class KontextFreqDB implements IFreqDB {
 
     private readonly corpusSize:number;
 
-    private readonly customHeaders:{[key:string]:string};
+    private readonly apiServices:IApiServices;
 
     private readonly corpname:string;
 
@@ -49,7 +49,7 @@ export class KontextFreqDB implements IFreqDB {
         this.srcInfoService = new CorpusInfoAPI(initDummyStore('kontext-freqdb'), apiUrl, apiServices);
         this.corpusSize = corpusSize;
         this.corpname = options.urlArgs.corpname;
-        this.customHeaders = options.httpHeaders || {};
+        this.apiServices = apiServices;
     }
 
     private loadConcordance(word:string):Observable<ConcHTTPResponse> {
@@ -72,7 +72,7 @@ export class KontextFreqDB implements IFreqDB {
                 shuffle: 0,
                 format:'json'
             },
-            headers: this.customHeaders
+            headers: this.apiServices.getApiHeaders(this.apiURL)
         });
     }
 
@@ -90,7 +90,7 @@ export class KontextFreqDB implements IFreqDB {
                 fcrit: 'lemma/e 0<0 pos/e 0<0',
                 format:'json'
             },
-            headers: this.customHeaders
+            headers: this.apiServices.getApiHeaders(this.apiURL)
         });
     }
 

@@ -20,7 +20,7 @@ import { map } from 'rxjs/operators';
 import { Ident } from 'cnc-tskit';
 
 import { cachedAjax$ } from '../../../page/ajax';
-import { HTTPHeaders, IAsyncKeyValueStore, SourceDetails } from '../../../types';
+import { IAsyncKeyValueStore, SourceDetails } from '../../../types';
 import { CollApiResponse, CollocationApi } from '../../abstract/collocations';
 import { CollocModelState } from '../../../models/tiles/collocations';
 import { QueryMatch } from '../../../query';
@@ -49,13 +49,13 @@ export class LccCollAPI implements CollocationApi<CollRequestArgs> {
 
     private readonly apiURL:string;
 
-    private readonly customHeaders:HTTPHeaders;
+    private readonly apiServices:IApiServices;
 
     private readonly cache:IAsyncKeyValueStore;
 
     constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
-        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
+        this.apiServices = apiServices;
         this.cache = cache;
     }
 
@@ -95,7 +95,7 @@ export class LccCollAPI implements CollocationApi<CollRequestArgs> {
             {
                 limit: queryArgs.limit
             },
-            {headers: this.customHeaders}
+            {headers: this.apiServices.getApiHeaders(this.apiURL)}
 
         ).pipe(
             map(

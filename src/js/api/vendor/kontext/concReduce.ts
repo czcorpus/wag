@@ -19,7 +19,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { ajax$ } from '../../../page/ajax';
-import { DataApi, HTTPHeaders } from '../../../types';
+import { DataApi } from '../../../types';
 import { ConcResponse } from '../../abstract/concordance';
 import { IApiServices } from '../../../appServices';
 import { HTTP } from 'cnc-tskit';
@@ -45,11 +45,11 @@ export class ConcReduceApi implements DataApi<RequestArgs, ApiResponse> {
 
     private readonly apiURL:string;
 
-    private readonly customHeaders:HTTPHeaders;
+    private readonly apiServices:IApiServices;
 
     constructor(apiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
-        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
+        this.apiServices = apiServices;
     }
 
     call(args:RequestArgs):Observable<ApiResponse> {
@@ -58,7 +58,7 @@ export class ConcReduceApi implements DataApi<RequestArgs, ApiResponse> {
             ,
             this.apiURL + '/reduce',
             args,
-            {headers: this.customHeaders}
+            {headers: this.apiServices.getApiHeaders(this.apiURL)}
 
         ).pipe(
             map(data => ({

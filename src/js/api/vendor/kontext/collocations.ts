@@ -20,7 +20,7 @@ import { map } from 'rxjs/operators';
 import { Ident } from 'cnc-tskit';
 
 import { cachedAjax$ } from '../../../page/ajax';
-import { HTTPHeaders, IAsyncKeyValueStore, SourceDetails } from '../../../types';
+import { IAsyncKeyValueStore, SourceDetails } from '../../../types';
 import { CollApiResponse, CollocationApi } from '../../abstract/collocations';
 import { CollocModelState, ctxToRange } from '../../../models/tiles/collocations';
 import { CorpusInfoAPI } from './corpusInfo';
@@ -71,7 +71,7 @@ export class KontextCollAPI implements CollocationApi<CollApiArgs> {
 
     private readonly apiURL:string;
 
-    private readonly customHeaders:HTTPHeaders;
+    private readonly apiServices:IApiServices;
 
     private readonly cache:IAsyncKeyValueStore;
 
@@ -79,7 +79,7 @@ export class KontextCollAPI implements CollocationApi<CollApiArgs> {
 
     constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
-        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
+        this.apiServices = apiServices;
         this.cache = cache;
         this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
     }
@@ -122,7 +122,7 @@ export class KontextCollAPI implements CollocationApi<CollApiArgs> {
             'GET',
             this.apiURL + '/collx',
             queryArgs,
-            {headers: this.customHeaders}
+            {headers: this.apiServices.getApiHeaders(this.apiURL)}
 
         ).pipe(
             map(

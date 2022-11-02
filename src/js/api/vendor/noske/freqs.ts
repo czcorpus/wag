@@ -19,7 +19,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { cachedAjax$ } from '../../../page/ajax';
-import { HTTPHeaders, IAsyncKeyValueStore, CorpusDetails } from '../../../types';
+import { IAsyncKeyValueStore, CorpusDetails } from '../../../types';
 import { CorpusInfoAPI } from './corpusInfo';
 import { BacklinkWithArgs, Backlink } from '../../../page/tile';
 import { APIResponse, APIBlockResponse, IMultiBlockFreqDistribAPI, IFreqDistribAPI } from '../../abstract/freqs';
@@ -107,7 +107,7 @@ export class NoskeFreqDistribAPI implements IFreqDistribAPI<SingleCritQueryArgs>
 
     private readonly apiURL:string;
 
-    private readonly customHeaders:HTTPHeaders;
+    private readonly apiServices:IApiServices;
 
     private readonly cache:IAsyncKeyValueStore;
 
@@ -116,7 +116,7 @@ export class NoskeFreqDistribAPI implements IFreqDistribAPI<SingleCritQueryArgs>
     constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
         this.cache = cache;
         this.apiURL = apiURL;
-        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
+        this.apiServices = apiServices;
         this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
     }
 
@@ -167,7 +167,7 @@ export class NoskeFreqDistribAPI implements IFreqDistribAPI<SingleCritQueryArgs>
             'GET',
             this.apiURL + '/freqs',
             args,
-            {headers: this.customHeaders}
+            {headers: this.apiServices.getApiHeaders(this.apiURL)}
 
         ).pipe(
             map<HTTPResponse, APIResponse>(resp => ({
@@ -198,7 +198,7 @@ export class NoskeMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAPI<
 
     private readonly apiURL:string;
 
-    private readonly customHeaders:HTTPHeaders;
+    private readonly apiServices:IApiServices;
 
     private readonly cache:IAsyncKeyValueStore;
 
@@ -207,7 +207,7 @@ export class NoskeMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAPI<
     constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
         this.cache = cache;
         this.apiURL = apiURL;
-        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
+        this.apiServices = apiServices;
         this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
     }
 
@@ -258,7 +258,7 @@ export class NoskeMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAPI<
             'GET',
             this.apiURL + '/freqs',
             args,
-            {headers: this.customHeaders}
+            {headers: this.apiServices.getApiHeaders(this.apiURL)}
 
         ).pipe(
             map<HTTPResponse, APIBlockResponse>(

@@ -20,7 +20,7 @@ import { map } from 'rxjs/operators';
 import { Ident } from 'cnc-tskit';
 
 import { cachedAjax$ } from '../../../page/ajax';
-import { DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../../types';
+import { DataApi, IAsyncKeyValueStore } from '../../../types';
 import { DataHeading, DataRow } from '../../../api/abstract/collocations';
 import { CollApiArgs } from '../../../api/vendor/kontext/collocations';
 import { IApiServices } from '../../../appServices';
@@ -58,13 +58,13 @@ export class KontextCollAPI implements DataApi<CollApiArgs, CollApiResponse> {
 
     private readonly apiURL:string;
 
-    private readonly customHeaders:HTTPHeaders;
+    private readonly apiServices:IApiServices;
 
     private readonly cache:IAsyncKeyValueStore;
 
     constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
-        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
+        this.apiServices = apiServices;
         this.cache = cache;
     }
 
@@ -74,7 +74,7 @@ export class KontextCollAPI implements DataApi<CollApiArgs, CollApiResponse> {
             'GET',
             this.apiURL,
             queryArgs,
-            {headers: this.customHeaders}
+            {headers: this.apiServices.getApiHeaders(this.apiURL)}
 
         ).pipe(
             map(

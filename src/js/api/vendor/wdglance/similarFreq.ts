@@ -20,7 +20,7 @@ import { map } from 'rxjs/operators';
 import { pipe, List } from 'cnc-tskit';
 
 import { cachedAjax$ } from '../../../page/ajax';
-import { HTTPHeaders, IAsyncKeyValueStore } from '../../../types';
+import { IAsyncKeyValueStore } from '../../../types';
 import { QueryMatch, matchesPos, calcFreqBand } from '../../../query/index';
 import { MultiDict } from '../../../multidict';
 import { SimilarFreqDbAPI, RequestArgs, Response } from '../../abstract/similarFreq';
@@ -44,14 +44,14 @@ export class SimilarFreqWordsAPI implements SimilarFreqDbAPI {
 
     private readonly apiURL:string;
 
-    private readonly customHeaders:HTTPHeaders;
+    private readonly apiServices:IApiServices;
 
     private readonly cache:IAsyncKeyValueStore;
 
     constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
         this.cache = cache;
         this.apiURL = apiURL;
-        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
+        this.apiServices = apiServices;
     }
 
     call(args:RequestArgs):Observable<Response> {
@@ -65,7 +65,7 @@ export class SimilarFreqWordsAPI implements SimilarFreqDbAPI {
                 ['pos', args.pos.join(' ')],
                 ['srchRange', args.srchRange]
             ]),
-            {headers: this.customHeaders}
+            {headers: this.apiServices.getApiHeaders(this.apiURL)}
 
         ).pipe(
             map(data => ({
