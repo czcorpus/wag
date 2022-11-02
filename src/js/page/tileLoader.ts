@@ -28,12 +28,13 @@ import { QueryType, RecognizedQueries } from '../query/index';
 import { IAsyncKeyValueStore } from '../types';
 import { EmptyTile } from '../tiles/core/empty';
 import { TileServerAction } from '../server/tileActions';
+import { ServerConf } from '../conf';
 
 declare var require:any;
 
 interface DynamicTileModule {
     init:TileFactory<{}>;
-    serverActions?:()=>Array<TileServerAction>;
+    serverActions?:()=>Array<(serverConf:ServerConf) => TileServerAction>;
 }
 
 const importDependentTilesList = (...d:Array<string|Array<string>>):Array<string> => {
@@ -51,7 +52,7 @@ type TileFactoryMap = {[tileType:string]:TileFactory<{}>};
 
 const tileFactories:TileFactoryMap = {};
 
-type TileActionsMap = {[tileType:string]:Array<TileServerAction>};
+type TileActionsMap = {[tileType:string]:Array<(serverConf: ServerConf) => TileServerAction>};
 
 const tileActions:TileActionsMap = {};
 
@@ -89,7 +90,7 @@ applyContext(
  * A tile may export its actions via exporting a function called
  * 'serverActions':
  *
- * export function serverActions():Array<TileServerAction> {...}
+ * export function serverActions():Array<(serverConf:ServerConf) => TileServerAction> {...}
  */
 export const getCustomTileServerActions = () => tileActions;
 

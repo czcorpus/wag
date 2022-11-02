@@ -166,16 +166,16 @@ export const wdgRouter = (services:Services) => (app:Express) => {
             tap(
                 () => services.telemetryDB.run('COMMIT')
             )
-        ).subscribe(
-            (total) => {
+        ).subscribe({
+            next: total => {
                 const t2 = new Date().getTime() - t1;
                 res.send({saved: true, procTimePerItem: t2 / total});
             },
-            (err:Error) => {
+            error: (err:Error) => {
                 services.errorLog.error(err.message, {trace: err.stack});
                 res.status(500).send({saved: false, message: err});
             }
-        );
+        });
     });
 
     // host page generator with some React server rendering (testing phase)
@@ -212,15 +212,15 @@ export const wdgRouter = (services:Services) => (app:Express) => {
                     return db.findQueryMatches(appServices, getQueryValue(req, 'q')[0], 1);
                 }
             )
-        ).subscribe(
-            (data) => {
+        ).subscribe({
+            next: data => {
                 res.setHeader('Content-Type', 'application/json');
                 res.send(JSON.stringify({result: data}));
             },
-            (err:Error) => {
+            error: (err:Error) => {
                 jsonOutputError(res, err);
             }
-        );
+        });
     });
 
     app.post(HTTPAction.SET_UI_LANG, (req, res, next) => {
