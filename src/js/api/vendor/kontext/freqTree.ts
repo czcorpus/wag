@@ -19,7 +19,7 @@ import { Observable } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
 
 import { cachedAjax$ } from '../../../page/ajax';
-import { HTTPHeaders, IAsyncKeyValueStore, CorpusDetails } from '../../../types';
+import { IAsyncKeyValueStore, CorpusDetails } from '../../../types';
 import { CorpusInfoAPI } from './corpusInfo';
 import { ConcApi } from './concordance/v015';
 import { ViewMode } from '../../abstract/concordance';
@@ -27,7 +27,6 @@ import { QueryMatch } from '../../../query';
 import { HTTPResponse } from './freqs';
 import { IApiServices } from '../../../appServices';
 import { Dict, List, pipe } from 'cnc-tskit';
-import { AttrViewMode } from './types';
 
 export enum FreqSort {
     REL = 'rel'
@@ -83,7 +82,7 @@ export class FreqTreeAPI implements WordDataApi<SingleCritQueryArgs, APILeafResp
 
     private readonly concApiFilter:ConcApi;
 
-    private readonly customHeaders:HTTPHeaders;
+    private readonly apiServices:IApiServices;
 
     private readonly cache:IAsyncKeyValueStore;
 
@@ -93,7 +92,7 @@ export class FreqTreeAPI implements WordDataApi<SingleCritQueryArgs, APILeafResp
         this.cache = cache;
         this.concApiFilter = new ConcApi(cache, apiURL, apiServices);
         this.apiURL = apiURL;
-        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
+        this.apiServices = apiServices;
         this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
     }
 
@@ -110,7 +109,7 @@ export class FreqTreeAPI implements WordDataApi<SingleCritQueryArgs, APILeafResp
             'GET',
             this.apiURL + '/freqs',
             {...args, q: `~${concId}`},
-            {headers: this.customHeaders}
+            {headers: this.apiServices.getApiHeaders(this.apiURL)}
         ).pipe(
             map<HTTPResponse, APIVariantsResponse>(resp => ({
                 lemma: lemma,
@@ -152,7 +151,7 @@ export class FreqTreeAPI implements WordDataApi<SingleCritQueryArgs, APILeafResp
                 'GET',
                 this.apiURL + '/freqs',
                 {...args, q: `~${x.concPersistenceID}`},
-                {headers: this.customHeaders}
+                {headers: this.apiServices.getApiHeaders(this.apiURL)}
             ).pipe(
                 map<HTTPResponse, APILeafResponse>(
                     resp => ({

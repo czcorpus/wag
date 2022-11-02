@@ -25,10 +25,10 @@ import {
 import { ConcResponse, ViewMode } from '../../../api/abstract/concordance';
 import { HTTPResponse as FreqsHTTPResponse } from '../../../api/vendor/kontext/freqs';
 import { MultiDict } from '../../../multidict';
-import { CorePosAttribute, DataApi, HTTPHeaders, IAsyncKeyValueStore } from '../../../types';
+import { CorePosAttribute, DataApi, IAsyncKeyValueStore } from '../../../types';
 import { callWithExtraVal } from '../../../api/util';
 import { IApiServices } from '../../../appServices';
-import { AttrViewMode, ConcQueryArgs } from '../../../api/vendor/kontext/types';
+import { ConcQueryArgs } from '../../../api/vendor/kontext/types';
 
 
 export interface RequestArgs {
@@ -73,13 +73,18 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
 
     private readonly apiURL:string;
 
-    private readonly customHeaders:HTTPHeaders;
+    private readonly apiServices:IApiServices;
 
     private readonly concApi:ConcApi;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, concApiURL:string, apiServices:IApiServices) {
+    constructor(
+        cache:IAsyncKeyValueStore,
+        apiURL:string,
+        concApiURL:string,
+        apiServices:IApiServices
+    ) {
         this.apiURL = apiURL;
-        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
+        this.apiServices = apiServices;
         this.concApi = new ConcApi(cache, concApiURL, apiServices);
     }
 
@@ -294,7 +299,7 @@ export class SyDAPI implements DataApi<RequestArgs, Response> {
                                 'GET',
                                 this.apiURL + '/freqs',
                                 args1,
-                                {headers: this.customHeaders}
+                                {headers: this.apiServices.getApiHeaders(this.apiURL)}
 
                             ).pipe(
                                 concatMap(

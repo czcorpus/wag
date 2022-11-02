@@ -33,16 +33,14 @@ export class ConcTokenApi extends ConcApi {
 
     private readonly authenticateURL:string;
 
-    constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices, authenticateURL:string) {
+    constructor(
+        cache:IAsyncKeyValueStore,
+        apiURL:string,
+        apiServices:IApiServices,
+        authenticateURL:string
+    ) {
         super(cache, apiURL, apiServices);
         this.authenticateURL = authenticateURL;
-    }
-
-    getHeaders() {
-        return {
-            ...super.getHeaders(),
-            "X-Api-Key": sessionStorage.getItem("kontextApiKey"),
-        }
     }
 
     authenticate() {
@@ -52,7 +50,7 @@ export class ConcTokenApi extends ConcApi {
             {},
         ).pipe(
             tap(({x_api_key}) => {
-                sessionStorage.setItem("kontextApiKey", x_api_key);
+                this.apiServices.setApiKeyHeader(this.apiURL, 'X-Api-Key', x_api_key);
             }),
         );
     }

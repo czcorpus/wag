@@ -18,7 +18,6 @@
 
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { HTTPHeaders } from '../../../types';
 import { HTTP } from 'cnc-tskit';
 import { ajax$, encodeArgs } from '../../../page/ajax';
 import { ISwitchMainCorpApi, SwitchMainCorpResponse } from '../../abstract/switchMainCorp';
@@ -41,11 +40,11 @@ export class SwitchMainCorpApi implements ISwitchMainCorpApi {
 
     private readonly apiURL:string;
 
-    private readonly customHeaders:HTTPHeaders;
+    private readonly apiServices:IApiServices;
 
     constructor(apiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
-        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
+        this.apiServices = apiServices;
     }
 
     call(args:SwitchMainCorpArgs):Observable<SwitchMainCorpResponse> {
@@ -61,7 +60,7 @@ export class SwitchMainCorpApi implements ISwitchMainCorpApi {
                     format:'json'
                 }),
             {},
-            {headers: this.customHeaders}
+            {headers: this.apiServices.getApiHeaders(this.apiURL)}
 
         ).pipe(
             map(

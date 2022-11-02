@@ -18,7 +18,6 @@
 
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { HTTPHeaders } from '../../../../types';
 import { HTTP } from 'cnc-tskit';
 import { ConcResponse, Line, IConcordanceApi, ViewMode } from '../../../abstract/concordance';
 import { XMLParser, XMLNode } from '../../../../page/xml';
@@ -145,13 +144,13 @@ export class FCS1SearchRetrieveAPI implements IConcordanceApi<FCS1Args> {
 
     private readonly parser:XMLParser;
 
-    private readonly customHeaders:HTTPHeaders;
+    private readonly apiServices:IApiServices;
 
     private readonly srcInfoApi:FCS1ExplainAPI;
 
     constructor(url:string, apiServices:IApiServices) {
         this.url = url;
-        this.customHeaders = apiServices.getApiHeaders(url)|| {};
+        this.apiServices = apiServices;
         this.parser = new XMLParser();
         this.srcInfoApi = new FCS1ExplainAPI(url, apiServices);
     }
@@ -190,7 +189,7 @@ export class FCS1SearchRetrieveAPI implements IConcordanceApi<FCS1Args> {
             this.url,
             args,
             {
-                headers: this.customHeaders,
+                headers: this.apiServices.getApiHeaders(this.url),
                 responseType: ResponseType.TEXT
             }
 

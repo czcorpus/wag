@@ -18,7 +18,7 @@ import { MatchingDocsModelState, KontextFreqBacklinkArgs } from '../../../models
 import { MatchingDocsAPI, APIResponse } from '../../abstract/matchingDocs';
 import { cachedAjax$ } from '../../../page/ajax';
 import { Observable } from 'rxjs';
-import { HTTPHeaders, IAsyncKeyValueStore, CorpusDetails } from '../../../types';
+import { IAsyncKeyValueStore, CorpusDetails } from '../../../types';
 import { HTTP, List } from 'cnc-tskit';
 import { map, mergeMap } from 'rxjs/operators';
 import { SingleCritQueryArgs, HTTPResponse } from './freqs';
@@ -37,7 +37,7 @@ export class KontextMatchingDocsAPI implements MatchingDocsAPI<KontextMatchingDo
 
     protected readonly apiURL:string;
 
-    protected readonly customHeaders:HTTPHeaders;
+    protected readonly apiServices:IApiServices;
 
     protected readonly cache:IAsyncKeyValueStore;
 
@@ -46,7 +46,7 @@ export class KontextMatchingDocsAPI implements MatchingDocsAPI<KontextMatchingDo
     constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
         this.cache = cache;
         this.apiURL = apiURL;
-        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
+        this.apiServices = apiServices;
         this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
     }
 
@@ -103,7 +103,7 @@ export class KontextMatchingDocsAPI implements MatchingDocsAPI<KontextMatchingDo
             HTTP.Method.GET,
             this.apiURL + '/freqs',
             args,
-            {headers: this.customHeaders}
+            {headers: this.apiServices.getApiHeaders(this.apiURL)}
         ).pipe(
             map<HTTPResponse, APIResponse>(resp => ({
                 data: List.map(
@@ -147,7 +147,7 @@ export class KontextLiveattrsMatchingDocsAPI extends KontextMatchingDocsAPI {
                         fill: args.displayAttrs,
                     },
                     {
-                        headers: this.customHeaders,
+                        headers: this.apiServices.getApiHeaders(this.apiURL),
                         contentType: 'application/json',
                     }
                 ).pipe(

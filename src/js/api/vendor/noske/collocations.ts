@@ -17,15 +17,15 @@
  */
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { Ident, pipe, List } from 'cnc-tskit';
+import { Ident } from 'cnc-tskit';
 
 import { cachedAjax$ } from '../../../page/ajax';
-import { HTTPHeaders, IAsyncKeyValueStore, SourceDetails } from '../../../types';
+import { IAsyncKeyValueStore, SourceDetails } from '../../../types';
 import { CollApiResponse, CollocationApi } from '../../abstract/collocations';
 import { CollocModelState, ctxToRange } from '../../../models/tiles/collocations';
 import { CorpusInfoAPI } from './corpusInfo';
 import { processConcId } from './common';
-import { IAppServices, IApiServices } from '../../../appServices';
+import { IApiServices } from '../../../appServices';
 
 
 
@@ -72,7 +72,7 @@ export class NoskeCollAPI implements CollocationApi<CollApiArgs> {
 
     private readonly apiURL:string;
 
-    private readonly customHeaders:HTTPHeaders;
+    private readonly apiServices:IApiServices;
 
     private readonly cache:IAsyncKeyValueStore;
 
@@ -80,7 +80,7 @@ export class NoskeCollAPI implements CollocationApi<CollApiArgs> {
 
     constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
-        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
+        this.apiServices = apiServices;
         this.cache = cache;
         this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
     }
@@ -125,7 +125,7 @@ export class NoskeCollAPI implements CollocationApi<CollApiArgs> {
             'GET',
             this.apiURL + '/collx',
             queryArgs,
-            {headers: this.customHeaders}
+            {headers: this.apiServices.getApiHeaders(this.apiURL)}
 
         ).pipe(
             map(

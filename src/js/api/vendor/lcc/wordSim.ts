@@ -17,7 +17,7 @@
  */
 import { Observable, of as rxOf } from 'rxjs';
 import { cachedAjax$ } from '../../../page/ajax';
-import { HTTPHeaders, IAsyncKeyValueStore, SourceDetails } from '../../../types';
+import { IAsyncKeyValueStore, SourceDetails } from '../../../types';
 import { WordSimApiResponse, IWordSimApi } from '../../abstract/wordSim';
 import { map, concatMap } from 'rxjs/operators';
 import { WordSimModelState } from '../../../models/tiles/wordSim';
@@ -46,13 +46,13 @@ export class LccCoocSimApi implements IWordSimApi<LccCoocSimApiArgs> {
 
     private readonly apiURL:string;
 
-    private readonly customHeaders:HTTPHeaders;
+    private readonly apiServices:IApiServices;
 
     private readonly cache:IAsyncKeyValueStore;
 
     constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
-        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
+        this.apiServices = apiServices;
         this.cache = cache;
     }
 
@@ -106,7 +106,7 @@ export class LccCoocSimApi implements IWordSimApi<LccCoocSimApiArgs> {
                         limit: queryArgs.limit,
                         minSim: queryArgs.minSim
                     },
-                    {headers: this.customHeaders}
+                    {headers: this.apiServices.getApiHeaders(this.apiURL)}
                 )
             ),
             map(resp => ({
