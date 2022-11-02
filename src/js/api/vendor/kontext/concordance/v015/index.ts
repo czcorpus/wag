@@ -51,6 +51,10 @@ export class ConcApi implements IConcordanceApi<ConcQueryArgs|ConcViewArgs|Filte
         this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
     }
 
+    getHeaders() {
+        return this.customHeaders;
+    }
+
     getSupportedViewModes():Array<ViewMode> {
         return [ViewMode.KWIC, ViewMode.SENT, ViewMode.ALIGN];
     }
@@ -200,7 +204,7 @@ export class ConcApi implements IConcordanceApi<ConcQueryArgs|ConcViewArgs|Filte
                 url,
                 argsBody,
                 {
-                    headers: this.customHeaders,
+                    headers: this.getHeaders(),
                     contentType
                 }
             )
@@ -228,7 +232,7 @@ export class ConcApi implements IConcordanceApi<ConcQueryArgs|ConcViewArgs|Filte
                             format: 'json'
                         },
                         {
-                            headers: this.customHeaders
+                            headers: this.getHeaders()
                         }
                     ) :
                     rxOf({
