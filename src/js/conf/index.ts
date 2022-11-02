@@ -20,7 +20,6 @@ import { QueryType, SearchDomain } from '../query/index';
 import { TileConf } from '../page/tile';
 import { CSSProperties } from 'react';
 import { List, pipe } from 'cnc-tskit';
-import { json } from 'body-parser';
 
 export const DEFAULT_WAIT_FOR_OTHER_TILES = 60;
 

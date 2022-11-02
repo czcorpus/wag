@@ -19,7 +19,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { cachedAjax$ } from '../../../page/ajax';
-import { HTTPHeaders, IAsyncKeyValueStore, CorpusDetails, WebDelegateApi } from '../../../types';
+import { IAsyncKeyValueStore, CorpusDetails, WebDelegateApi } from '../../../types';
 import { CorpusInfoAPI } from './corpusInfo';
 import { BacklinkWithArgs, Backlink } from '../../../page/tile';
 import { APIResponse, APIBlockResponse, IMultiBlockFreqDistribAPI, IFreqDistribAPI } from '../../abstract/freqs';
@@ -109,7 +109,7 @@ export class KontextFreqDistribAPI implements IFreqDistribAPI<SingleCritQueryArg
 
     private readonly apiURL:string;
 
-    private readonly customHeaders:HTTPHeaders;
+    private readonly apiServices:IApiServices;
 
     private readonly cache:IAsyncKeyValueStore;
 
@@ -118,7 +118,7 @@ export class KontextFreqDistribAPI implements IFreqDistribAPI<SingleCritQueryArg
     constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
         this.cache = cache;
         this.apiURL = apiURL;
-        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
+        this.apiServices = apiServices;
         this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
     }
 
@@ -171,7 +171,7 @@ export class KontextFreqDistribAPI implements IFreqDistribAPI<SingleCritQueryArg
             'GET',
             this.apiURL + '/freqs',
             args,
-            {headers: this.customHeaders}
+            {headers: this.apiServices.getApiHeaders(this.apiURL)}
 
         ).pipe(
             map<HTTPResponse, APIResponse>(resp => ({
@@ -211,7 +211,7 @@ export class KontextMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAP
 
     private readonly apiURL:string;
 
-    private readonly customHeaders:HTTPHeaders;
+    private readonly apiServices:IApiServices;
 
     private readonly cache:IAsyncKeyValueStore;
 
@@ -220,7 +220,7 @@ export class KontextMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAP
     constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
         this.cache = cache;
         this.apiURL = apiURL;
-        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
+        this.apiServices = apiServices;
         this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
     }
 
@@ -272,7 +272,7 @@ export class KontextMultiBlockFreqDistribAPI implements IMultiBlockFreqDistribAP
             'GET',
             this.apiURL + '/freqs',
             args,
-            {headers: this.customHeaders}
+            {headers: this.apiServices.getApiHeaders(this.apiURL)}
 
         ).pipe(
             map<HTTPResponse, APIBlockResponse>(

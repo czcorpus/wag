@@ -19,7 +19,7 @@
 import { Observable, of as rxOf } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { IAsyncKeyValueStore, HTTPHeaders, SourceDetails, ResourceApi } from '../../../types';
+import { IAsyncKeyValueStore, SourceDetails, ResourceApi } from '../../../types';
 import { HTTP } from 'cnc-tskit';
 import { cachedAjax$ } from '../../../page/ajax';
 import { QueryMatch, QueryType } from '../../../query';

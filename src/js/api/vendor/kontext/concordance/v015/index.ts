@@ -36,7 +36,7 @@ import { Backlink } from '../../../../../page/tile';
 
 export class ConcApi implements IConcordanceApi<ConcQueryArgs|ConcViewArgs|FilterServerArgs|QuickFilterRequestArgs>, WebDelegateApi {
 
-    private readonly apiURL:string;
+    protected readonly apiURL:string;
 
     private readonly customHeaders:HTTPHeaders;
 
@@ -44,15 +44,17 @@ export class ConcApi implements IConcordanceApi<ConcQueryArgs|ConcViewArgs|Filte
 
     private readonly srcInfoService:CorpusInfoAPI;
 
+    protected readonly apiServices:IApiServices;
+
     constructor(cache:IAsyncKeyValueStore, apiURL:string, apiServices:IApiServices) {
         this.apiURL = apiURL;
-        this.customHeaders = apiServices.getApiHeaders(apiURL) || {};
+        this.apiServices = apiServices;
         this.cache = cache;
         this.srcInfoService = new CorpusInfoAPI(cache, apiURL, apiServices);
     }
 
     getHeaders() {
-        return this.customHeaders;
+        return this.apiServices.getApiHeaders(this.apiURL) || {};
     }
 
     getSupportedViewModes():Array<ViewMode> {
