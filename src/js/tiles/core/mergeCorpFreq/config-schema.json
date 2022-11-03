@@ -27,6 +27,13 @@
                     "fcrit": {
                         "type": "string"
                     },
+                    "freqType": {
+                        "enum": [
+                            "text-types",
+                            "tokens"
+                        ],
+                        "type": "string"
+                    },
                     "flimit": {
                         "type": "number"
                     },
@@ -72,6 +79,7 @@
                     "flimit",
                     "fpage",
                     "freqSort",
+                    "freqType",
                     "fttIncludeEmpty"
                 ]
             }

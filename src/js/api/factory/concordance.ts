@@ -38,7 +38,7 @@ export function createKontextConcApiInstance(cache:IAsyncKeyValueStore, apiIdent
 				new TokenApiWrapper(apiServices, apiURL, apiOptions["authenticateURL"]),
 			);
 		default:
-			throw new Error(`Concordance tile Kontext API "${apiIdent}" not found. Supported values are: ${CoreApiGroup.KONTEXT} and ${CoreApiGroup.KONTEXT_API}`);
+			throw new Error(`Concordance Kontext API "${apiIdent}" not found. Supported values are: ${CoreApiGroup.KONTEXT} and ${CoreApiGroup.KONTEXT_API}`);
 	}
 }
 

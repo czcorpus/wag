@@ -1,6 +1,9 @@
 {
     "type": "object",
     "properties": {
+        "apiType": {
+            "type": "string"
+        },
         "apiURL": {
             "type": "string"
         },
@@ -110,6 +113,7 @@
         }
     },
     "required": [
+        "apiType",
         "apiURL",
         "corpname",
         "posAttrs",

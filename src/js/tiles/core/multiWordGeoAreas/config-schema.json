@@ -13,6 +13,13 @@
         "fcrit": {
             "type": "string"
         },
+        "freqType": {
+            "enum": [
+                "text-types",
+                "tokens"
+            ],
+            "type": "string"
+        },
         "freqSort": {
             "type": "string",
             "enum": [
@@ -114,6 +121,7 @@
         "fcrit",
         "fpage",
         "freqSort",
+        "freqType",
         "frequencyDisplayLimit",
         "fttIncludeEmpty",
         "posQueryGenerator",
