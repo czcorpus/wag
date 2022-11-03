@@ -31,6 +31,7 @@ import { ConcApi } from '../../../api/vendor/kontext/concordance/v015';
 import { createMultiBlockApiInstance } from '../../../api/factory/freqs';
 import { kontextApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
 import { CoreApiGroup } from '../../../api/coreGroups';
+import { createKontextConcApiInstance } from '../../../api/factory/concordance';
 
 
 export interface FreqPieTileConf extends TileConf {
@@ -90,7 +91,8 @@ export class FreqPieTile implements ITileProvider {
         const modelFact = conf.subqueryMode ?
             subqModelFactory(
                 conf.subqueryMode,
-                new ConcApi(cache, conf.subqueryMode.concApiURL, appServices)) :
+                createKontextConcApiInstance(cache, conf.apiType, conf.apiURL, appServices, apiOptions)
+            ) :
             defaultModelFactory;
         this.model = modelFact(
             dispatcher,

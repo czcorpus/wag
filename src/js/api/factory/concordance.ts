@@ -27,18 +27,29 @@ import { IApiServices, IAppServices } from '../../appServices';
 import { TokenApiWrapper } from '../vendor/kontext/tokenApiWrapper';
 
 
+export function createKontextConcApiInstance(cache:IAsyncKeyValueStore, apiIdent:string, apiURL:string, apiServices:IApiServices, apiOptions:{}):ConcApi015 {
+
+	switch (apiIdent) {
+		case CoreApiGroup.KONTEXT:
+			return new ConcApi015(cache, apiURL, apiServices);
+	   	case CoreApiGroup.KONTEXT_API:
+		   	return new Proxy(
+				new ConcApi015(cache, apiURL, apiServices),
+				new TokenApiWrapper(apiServices, apiURL, apiOptions["authenticateURL"]),
+			);
+		default:
+			throw new Error(`Concordance tile Kontext API "${apiIdent}" not found. Supported values are: ${CoreApiGroup.KONTEXT} and ${CoreApiGroup.KONTEXT_API}`);
+	}
+}
+
 export function createApiInstance(cache:IAsyncKeyValueStore, apiIdent:string, apiURL:string, apiServices:IApiServices, apiOptions:{}):IConcordanceApi<{}> {
 
  	switch (apiIdent) {
 		case CoreApiGroup.FCS_V1:
 			return new FCS1SearchRetrieveAPI(apiURL, apiServices);
  		case CoreApiGroup.KONTEXT:
-			return new ConcApi015(cache, apiURL, apiServices);
 		case CoreApiGroup.KONTEXT_API:
-			return new Proxy(
-				new ConcApi015(cache, apiURL, apiServices),
-				new TokenApiWrapper(apiServices, apiURL, apiOptions["authenticateURL"]),
-			);
+			return createKontextConcApiInstance(cache, apiIdent, apiURL, apiServices, apiOptions);
 		case CoreApiGroup.NOSKE:
 			return new NoskeConcApi(cache, apiURL, apiServices);
 		case CoreApiGroup.LCC:
@@ -49,7 +60,7 @@ export function createApiInstance(cache:IAsyncKeyValueStore, apiIdent:string, ap
 }
 
 
- export function createSourceInfoApiInstance(apiIdent:string, apiURL:string, apiServices:IAppServices):DataApi<{}, {}> {
+export function createSourceInfoApiInstance(apiIdent:string, apiURL:string, apiServices:IAppServices):DataApi<{}, {}> {
 
 	switch (apiIdent) {
 		case CoreApiGroup.FCS_V1:
@@ -57,4 +68,4 @@ export function createApiInstance(cache:IAsyncKeyValueStore, apiIdent:string, ap
 		default:
 			return null; // we leave the work for the tile model (we have slight KonText API bias here)
 	}
- }
+}

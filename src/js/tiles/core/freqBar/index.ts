@@ -32,6 +32,7 @@ import { ConcApi } from '../../../api/vendor/kontext/concordance/v015';
 import { createMultiBlockApiInstance } from '../../../api/factory/freqs';
 import { kontextApiAuthActionFactory, TileServerActionFactory } from '../../../server/tileActions';
 import { CoreApiGroup } from '../../../api/coreGroups';
+import { createKontextConcApiInstance } from '../../../api/factory/concordance';
 
 
 export interface FreqBarTileConf extends TileConf {
@@ -91,16 +92,15 @@ export class FreqBarTile implements ITileProvider {
         const labels = Array.isArray(conf.critLabels) ?
             conf.critLabels.map(v => this.appServices.importExternalMessage(v)) :
             [this.appServices.importExternalMessage(conf.critLabels)];
-
-        const modelFact = conf.subqueryMode ?
-                subqModelFactory(
-                    conf.subqueryMode,
-                    new ConcApi(cache, conf.subqueryMode.concApiURL, appServices)
-                ) :
-                defaultModelFactory;
         const apiOptions = conf.apiType === CoreApiGroup.KONTEXT_API ?
             {authenticateURL: appServices.createActionUrl("/FreqBarTile/authenticate")} :
             {};
+        const modelFact = conf.subqueryMode ?
+                subqModelFactory(
+                    conf.subqueryMode,
+                    createKontextConcApiInstance(cache, conf.apiType, conf.apiURL, appServices, apiOptions)
+                ) :
+                defaultModelFactory;
         this.model = modelFact(
             this.dispatcher,
             tileId,
